@@ -21,7 +21,7 @@ data class Text(
     override fun <T> compose(receiver: T): T {
         if (receiver is TagConsumer<*>) {
             @Suppress("UNCHECKED_CAST")
-            return getPlatformRenderer().renderText(this, receiver as TagConsumer<T>)
+            return PlatformRendererProvider.getRenderer().renderText(this, receiver as TagConsumer<T>)
         }
         return receiver
     }

@@ -1,6 +1,13 @@
 package com.summon
 
 import kotlinx.html.TagConsumer
+import com.summon.Text
+import com.summon.Button
+import com.summon.Row
+import com.summon.Column
+import com.summon.Spacer
+import com.summon.TextField
+import com.summon.Form
 
 /**
  * Platform-specific renderer interface that serves as a common abstraction
@@ -33,10 +40,14 @@ interface PlatformRenderer {
      * Renders a Spacer component to the appropriate platform output.
      */
     fun <T> renderSpacer(spacer: Spacer, consumer: TagConsumer<T>): T
-}
-
-/**
- * Gets the platform-specific renderer.
- * This will be implemented differently on each platform.
- */
-expect fun getPlatformRenderer(): PlatformRenderer 
+    
+    /**
+     * Renders a TextField component to the appropriate platform output.
+     */
+    fun <T> renderTextField(textField: TextField, consumer: TagConsumer<T>): T
+    
+    /**
+     * Renders a Form component to the appropriate platform output.
+     */
+    fun <T> renderForm(form: Form, consumer: TagConsumer<T>): T
+} 

@@ -1,18 +1,17 @@
 package com.summon
 
-import kotlinx.html.DIV
 import kotlinx.html.TagConsumer
 import kotlinx.html.div
 import kotlinx.html.style
 
 /**
- * A layout component that creates empty space.
- * @param size The size of the space (CSS value like "10px", "2rem", etc.)
- * @param isVertical Whether this spacer creates vertical (true) or horizontal (false) space
+ * A composable that adds space between components.
+ * @param size The size of the spacer (e.g., "16px")
+ * @param isVertical Whether the spacer should take up vertical space (true) or horizontal space (false)
  */
-data class Spacer(
+class Spacer(
     val size: String,
-    val isVertical: Boolean = false
+    val isVertical: Boolean = true
 ) : Composable {
     /**
      * Renders this Spacer composable using the platform-specific renderer.
@@ -22,7 +21,7 @@ data class Spacer(
     override fun <T> compose(receiver: T): T {
         if (receiver is TagConsumer<*>) {
             @Suppress("UNCHECKED_CAST")
-            return getPlatformRenderer().renderSpacer(this, receiver as TagConsumer<T>)
+            return PlatformRendererProvider.getRenderer().renderSpacer(this, receiver as TagConsumer<T>)
         }
         return receiver
     }

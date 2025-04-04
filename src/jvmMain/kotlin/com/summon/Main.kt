@@ -2,11 +2,27 @@ package com.summon
 
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
+import kotlinx.html.unsafe
 
 /**
  * JVM example demonstrating the Summon library.
  */
 fun main() {
+    // Print the UI example HTML
+    val uiExample = createUIExample()
+    println("UI EXAMPLE:")
+    println(uiExample)
+    
+    // Print the form example HTML
+    val formExample = createContactForm()
+    println("\nFORM EXAMPLE:")
+    println(formExample)
+}
+
+/**
+ * Creates a UI example with basic components.
+ */
+private fun createUIExample(): String {
     // Create a more advanced UI with enhanced styling
     val example = Column(
         modifier = Modifier()
@@ -76,27 +92,31 @@ fun main() {
             title("Summon UI Demo")
             // We'll include some CSS reset styles
             style {
-                +"""
-                * {
-                    margin: 0;
-                    padding: 0;
-                    box-sizing: border-box;
+                unsafe {
+                    raw("""
+                    * {
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
+                    }
+                    body {
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        min-height: 100vh;
+                        background-color: #f0f2f5;
+                        padding: 20px;
+                    }
+                    """.trimIndent())
                 }
-                body {
-                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    min-height: 100vh;
-                    background-color: #f0f2f5;
-                    padding: 20px;
-                }
-                """.trimIndent()
             }
             
             // Add the generated hover styles
             style {
-                +CssClassStore.generateCss()
+                unsafe {
+                    raw(CssClassStore.generateCss())
+                }
             }
         }
         body {
@@ -107,6 +127,5 @@ fun main() {
         }
     }
     
-    // Print the generated HTML to the console
-    println(output.toString())
+    return output.toString()
 } 

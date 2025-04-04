@@ -1,7 +1,3 @@
-# Project specific files already in .gitignore
-/Summon.md
-/Guide.md
-
 # Gradle
 .gradle/
 build/
@@ -47,3 +43,4 @@ local.properties
 node_modules/
 npm-debug.log
 /.cursor/
+/Design document.md
