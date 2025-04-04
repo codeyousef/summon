@@ -249,19 +249,79 @@ fun Modifier.themeBorderRadius(radiusName: String): Modifier =
     this.borderRadius(Theme.getBorderRadius(radiusName))
 
 /**
- * Apply a theme elevation (box-shadow) to a modifier
- */
-fun Modifier.themeElevation(elevationName: String): Modifier =
-    Modifier(this.styles + ("box-shadow" to Theme.getElevation(elevationName)))
-
-/**
- * Apply a theme spacing as padding to a modifier
+ * Apply theme padding to a modifier
  */
 fun Modifier.themePadding(spacingName: String): Modifier =
     this.padding(Theme.getSpacing(spacingName))
 
 /**
- * Apply a theme spacing as margin to a modifier
+ * Apply theme elevation to a modifier
+ */
+fun Modifier.themeElevation(elevationName: String): Modifier =
+    this.boxShadow(Theme.getElevation(elevationName))
+
+/**
+ * Apply theme margin to a modifier
  */
 fun Modifier.themeMargin(spacingName: String): Modifier =
-    this.margin(Theme.getSpacing(spacingName)) 
+    this.margin(Theme.getSpacing(spacingName))
+
+/**
+ * Apply directional theme padding to a modifier
+ */
+fun Modifier.themePadding(
+    top: String? = null,
+    right: String? = null,
+    bottom: String? = null,
+    left: String? = null
+): Modifier {
+    val topValue = if (top != null) Theme.getSpacing(top) else null
+    val rightValue = if (right != null) Theme.getSpacing(right) else null
+    val bottomValue = if (bottom != null) Theme.getSpacing(bottom) else null
+    val leftValue = if (left != null) Theme.getSpacing(left) else null
+    
+    // Create the CSS padding value string based on which values are provided
+    val paddingValue = when {
+        topValue != null && rightValue != null && bottomValue != null && leftValue != null ->
+            "$topValue $rightValue $bottomValue $leftValue"
+        topValue != null && rightValue != null && bottomValue != null ->
+            "$topValue $rightValue $bottomValue"
+        topValue != null && rightValue != null ->
+            "$topValue $rightValue"
+        topValue != null ->
+            topValue
+        else -> "0"
+    }
+    
+    return this.padding(paddingValue)
+}
+
+/**
+ * Apply directional theme margin to a modifier
+ */
+fun Modifier.themeMargin(
+    top: String? = null,
+    right: String? = null,
+    bottom: String? = null,
+    left: String? = null
+): Modifier {
+    val topValue = if (top != null) Theme.getSpacing(top) else null
+    val rightValue = if (right != null) Theme.getSpacing(right) else null
+    val bottomValue = if (bottom != null) Theme.getSpacing(bottom) else null
+    val leftValue = if (left != null) Theme.getSpacing(left) else null
+    
+    // Create the CSS margin value string based on which values are provided
+    val marginValue = when {
+        topValue != null && rightValue != null && bottomValue != null && leftValue != null ->
+            "$topValue $rightValue $bottomValue $leftValue"
+        topValue != null && rightValue != null && bottomValue != null ->
+            "$topValue $rightValue $bottomValue"
+        topValue != null && rightValue != null ->
+            "$topValue $rightValue"
+        topValue != null ->
+            topValue
+        else -> "0"
+    }
+    
+    return this.margin(marginValue)
+} 
