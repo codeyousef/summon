@@ -5,6 +5,7 @@ import kotlinx.html.stream.appendHTML
 import kotlinx.html.unsafe
 import com.summon.examples.TextExample
 import com.summon.examples.CardExample
+import com.summon.examples.ImageExample
 
 /**
  * JVM example demonstrating the Summon library.
@@ -29,6 +30,11 @@ fun main() {
     val cardExample = createCardExample()
     println("\nCARD COMPONENT EXAMPLE:")
     println(cardExample)
+    
+    // Print the Image component example HTML
+    val imageExample = createImageExample()
+    println("\nIMAGE COMPONENT EXAMPLE:")
+    println(imageExample)
 }
 
 /**
@@ -235,6 +241,81 @@ private fun createCardExample(): String {
         }
         body {
             div {
+                // Render our example
+                example.compose(consumer)
+            }
+        }
+    }
+    
+    return output.toString()
+}
+
+/**
+ * Creates an Image component example showcasing various Image features.
+ */
+private fun createImageExample(): String {
+    // Create a basic image example
+    val basicExample = ImageExample.basicImage()
+    val multipleImagesExample = ImageExample.multipleImages()
+    
+    // Combine both examples in a column
+    val example = Column(
+        modifier = Modifier()
+            .background("#ffffff")
+            .padding("20px")
+            .borderRadius("8px")
+            .shadow(),
+        content = listOf(
+            Text(
+                "Image Component Examples",
+                Modifier()
+                    .padding("0 0 20px 0")
+                    .color("#333")
+                    .fontSize("28px")
+                    .fontWeight("bold")
+            ),
+            basicExample,
+            Spacer("40px", true),
+            multipleImagesExample
+        )
+    )
+    
+    // Create a StringBuilder to capture the HTML output
+    val output = StringBuilder()
+    
+    // Render the UI to HTML
+    val consumer = output.appendHTML()
+    consumer.html {
+        head {
+            title("Summon Image Component Demo")
+            // Include some CSS reset styles
+            style {
+                unsafe {
+                    raw("""
+                    * {
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
+                    }
+                    body {
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        background-color: #f5f5f5;
+                        padding: 20px;
+                    }
+                    """.trimIndent())
+                }
+            }
+            
+            // Add the generated hover styles
+            style {
+                unsafe {
+                    raw(CssClassStore.generateCss())
+                }
+            }
+        }
+        body {
+            div {
+                style = "max-width: 1200px; margin: 0 auto;"
                 // Render our example
                 example.compose(consumer)
             }

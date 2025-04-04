@@ -1,6 +1,7 @@
 package com.summon
 
 import com.summon.examples.TextExample
+import com.summon.examples.ImageExample
 
 // External JS interfaces
 external class Document {
@@ -103,6 +104,7 @@ private fun renderDemoPage(container: HTMLElement) {
     createTab("Basic UI", tabBar, "basic-ui", true)
     createTab("Form Example", tabBar, "form-example", false)
     createTab("Text Components", tabBar, "text-example", false)
+    createTab("Image Examples", tabBar, "image-example", false)
 
     // Add tabs and content to the container
     container.appendChild(tabBar)
@@ -149,6 +151,7 @@ private fun setupTabHandlers(contentContainer: HTMLElement) {
                     "basic-ui" -> renderBasicUI(contentContainer)
                     "form-example" -> renderFormExample(contentContainer)
                     "text-example" -> renderTextExample(contentContainer)
+                    "image-example" -> renderImageExample(contentContainer)
                 }
             }
         }
@@ -310,6 +313,41 @@ private fun renderFormExample(container: HTMLElement) {
     val htmlOutput = formExample.renderToString()
 
     container.innerHTML = htmlOutput
+}
+
+/**
+ * Renders the Image component examples tab.
+ */
+private fun renderImageExample(container: HTMLElement) {
+    // Empty the container
+    container.innerHTML = ""
+    
+    // Create a container for multiple examples
+    val examplesContainer = document.createElement("div")
+    
+    // Render the basic image example
+    val basicImageExample = ImageExample.basicImage()
+    val basicImageHtml = basicImageExample.renderToString()
+    
+    // Create a container for the basic image example
+    val basicImageContainer = document.createElement("div")
+    basicImageContainer.style.marginBottom = "40px"
+    basicImageContainer.innerHTML = basicImageHtml
+    
+    // Render the multiple images example
+    val multipleImagesExample = ImageExample.multipleImages()
+    val multipleImagesHtml = multipleImagesExample.renderToString()
+    
+    // Create a container for the multiple images example
+    val multipleImagesContainer = document.createElement("div")
+    multipleImagesContainer.innerHTML = multipleImagesHtml
+    
+    // Add both examples to the container
+    examplesContainer.appendChild(basicImageContainer)
+    examplesContainer.appendChild(multipleImagesContainer)
+    
+    // Add the examples container to the main container
+    container.appendChild(examplesContainer)
 }
 
 /**

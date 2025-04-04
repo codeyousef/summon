@@ -38,7 +38,7 @@ class JvmPlatformRenderer : PlatformRenderer {
             // Add the button text
             +button.label
 
-            // For JVM, we can't actually handle the click events
+            // For JVM, we can't actually handle the click events,
             // but we'll add a data attribute that could be used with JS later
             attributes["data-summon-click"] = "true"
         }
@@ -262,6 +262,46 @@ class JvmPlatformRenderer : PlatformRenderer {
                 child.compose(this)
             }
         }
+        @Suppress("UNCHECKED_CAST")
+        return consumer as T
+    }
+
+    /**
+     * Renders an Image component as an img element with accessibility attributes.
+     */
+    override fun <T> renderImage(image: Image, consumer: TagConsumer<T>): T {
+        consumer.img {
+            // Set required attributes
+            src = image.src
+            alt = image.alt
+            
+            // Apply loading strategy
+            if (image.loading != ImageLoading.AUTO) {
+                attributes["loading"] = image.loading.value
+            }
+            
+            // Apply optional attributes
+            image.width?.let { width = it }
+            image.height?.let { height = it }
+            
+            // Add detailed description if provided
+            image.contentDescription?.let {
+                attributes["aria-describedby"] = "img-desc-${image.hashCode()}"
+            }
+            
+            // Apply modifier styles
+            style = image.modifier.toStyleString()
+        }
+        
+        // Add the description in a hidden element if provided
+        image.contentDescription?.let {
+            consumer.div {
+                id = "img-desc-${image.hashCode()}"
+                style = "position: absolute; height: 1px; width: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px);"
+                +it
+            }
+        }
+        
         @Suppress("UNCHECKED_CAST")
         return consumer as T
     }

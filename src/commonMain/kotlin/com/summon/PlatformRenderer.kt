@@ -56,6 +56,11 @@ interface PlatformRenderer {
     fun <T> renderRouter(router: Router, consumer: TagConsumer<T>): T
 
     /**
+     * Renders an Image component to the appropriate platform output.
+     */
+    fun <T> renderImage(image: Image, consumer: TagConsumer<T>): T
+
+    /**
      * Renders a 404 Not Found page.
      */
     fun <T> renderNotFound(consumer: TagConsumer<T>): T
