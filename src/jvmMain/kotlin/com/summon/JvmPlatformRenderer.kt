@@ -323,8 +323,8 @@ class JvmPlatformRenderer : PlatformRenderer {
                         append(divider.modifier.toStyleString())
                     }
 
-                    // Apply hover styles if any
-                    divider.modifier.applyStyles(this)?.addToStyleSheet()
+                    // Apply hover styles and event listeners if any
+                    divider.modifier.applyStyles(this)
                 }
             } else {
                 hr {
@@ -333,14 +333,39 @@ class JvmPlatformRenderer : PlatformRenderer {
                         append("height: ${divider.thickness};")
                         append("width: ${divider.length};")
                         append("background-color: ${divider.color};")
-                        append("margin: 0;")
                         append(divider.modifier.toStyleString())
                     }
 
-                    // Apply hover styles if any
-                    divider.modifier.applyStyles(this)?.addToStyleSheet()
+                    // Apply hover styles and event listeners if any
+                    divider.modifier.applyStyles(this)
                 }
             }
+        }
+        @Suppress("UNCHECKED_CAST")
+        return consumer as T
+    }
+
+    /**
+     * Renders a Link component as an anchor element with SEO-friendly attributes.
+     */
+    override fun <T> renderLink(link: Link, consumer: TagConsumer<T>): T {
+        consumer.a {
+            // Set the href attribute
+            href = link.href
+
+            // Apply the modifier styles
+            val hoverClass = link.modifier.applyStyles(this)
+
+            // Apply additional link-specific attributes
+            link.getLinkAttributes().forEach { (key, value) ->
+                attributes[key] = value
+            }
+
+            // Add hover styles to the stylesheet if present
+            hoverClass?.addToStyleSheet()
+
+            // Add the link text
+            +link.text
         }
         @Suppress("UNCHECKED_CAST")
         return consumer as T

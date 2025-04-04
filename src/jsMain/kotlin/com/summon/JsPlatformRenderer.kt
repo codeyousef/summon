@@ -361,7 +361,6 @@ class JsPlatformRenderer : PlatformRenderer {
                         append("height: ${divider.thickness};")
                         append("width: ${divider.length};")
                         append("background-color: ${divider.color};")
-                        append("margin: 0;")
                         append(divider.modifier.toStyleString())
                     }
 
@@ -370,6 +369,43 @@ class JsPlatformRenderer : PlatformRenderer {
                 }
             }
         }
+        @Suppress("UNCHECKED_CAST")
+        return consumer as T
+    }
+
+    /**
+     * Renders a Link component as an anchor element with SEO-friendly attributes.
+     */
+    override fun <T> renderLink(link: Link, consumer: TagConsumer<T>): T {
+        val linkId = "link-${link.hashCode()}"
+
+        consumer.a {
+            // Set the href attribute and ID
+            href = link.href
+            id = linkId
+
+            // Apply the modifier styles
+            style = link.modifier.toStyleString()
+
+            // Apply additional link-specific attributes
+            link.getLinkAttributes().forEach { (key, value) ->
+                attributes[key] = value
+            }
+
+            // Add the link text
+            +link.text
+
+            // Add a data attribute for click handling if needed
+            if (link.onClick != null) {
+                attributes["data-summon-click"] = "true"
+            }
+        }
+
+        // Set up the click handler for this link if there's an onClick function
+        if (link.onClick != null) {
+            setupJsLinkHandler(linkId, link)
+        }
+
         @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
@@ -401,4 +437,11 @@ private fun setupJsFormHandler(formId: String, form: Form) {
  */
 private fun setupJsCardClickHandler(cardId: String, card: Card) {
     card.setupJsClickHandler(cardId)
+}
+
+/**
+ * Helper function to set up the link handler using the existing extension function.
+ */
+private fun setupJsLinkHandler(linkId: String, link: Link) {
+    link.setupJsClickHandler(linkId)
 } 

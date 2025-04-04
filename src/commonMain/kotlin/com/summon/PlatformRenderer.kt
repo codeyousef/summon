@@ -66,6 +66,11 @@ interface PlatformRenderer {
     fun <T> renderDivider(divider: Divider, consumer: TagConsumer<T>): T
 
     /**
+     * Renders a Link component to the appropriate platform output.
+     */
+    fun <T> renderLink(link: Link, consumer: TagConsumer<T>): T
+
+    /**
      * Renders a 404 Not Found page.
      */
     fun <T> renderNotFound(consumer: TagConsumer<T>): T

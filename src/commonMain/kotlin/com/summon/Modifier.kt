@@ -289,17 +289,25 @@ data class Modifier(val styles: Map<String, String> = emptyMap()) {
         Modifier(styles + ("display" to value))
 
     /**
+     * Sets the text-decoration property for text styling.
+     * @param value The text-decoration value (none, underline, line-through, etc.)
+     * @return A new Modifier with the added style
+     */
+    fun textDecoration(value: String): Modifier =
+        Modifier(styles + ("text-decoration" to value))
+
+    /**
      * Shorthand to create a flex container.
      * Sets display to "flex" and optionally configures other flex properties.
      * @return A new Modifier with flex display style
      */
     fun flex(): Modifier =
         display("flex")
-        
+
     /**
      * Shorthand to create a flex container with custom settings.
      * Sets display to "flex" and configures other flex properties based on parameters.
-     * 
+     *
      * @param direction The flex-direction value (row, column, row-reverse, column-reverse)
      * @param wrap The flex-wrap value (nowrap, wrap, wrap-reverse)
      * @param alignItems The align-items value (center, flex-start, flex-end, etc.)
@@ -313,23 +321,23 @@ data class Modifier(val styles: Map<String, String> = emptyMap()) {
         justifyContent: String? = null
     ): Modifier {
         var modifier = display("flex")
-        
+
         if (direction != null) {
             modifier = modifier.flexDirection(direction)
         }
-        
+
         if (wrap != null) {
             modifier = modifier.flexWrap(wrap)
         }
-        
+
         if (alignItems != null) {
             modifier = modifier.alignItems(alignItems)
         }
-        
+
         if (justifyContent != null) {
             modifier = modifier.justifyContent(justifyContent)
         }
-        
+
         return modifier
     }
 } 
