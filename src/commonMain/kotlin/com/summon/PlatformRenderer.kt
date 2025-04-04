@@ -8,6 +8,7 @@ import com.summon.Column
 import com.summon.Spacer
 import com.summon.TextField
 import com.summon.Form
+import com.summon.routing.Router
 
 /**
  * Platform-specific renderer interface that serves as a common abstraction
@@ -50,4 +51,14 @@ interface PlatformRenderer {
      * Renders a Form component to the appropriate platform output.
      */
     fun <T> renderForm(form: Form, consumer: TagConsumer<T>): T
+    
+    /**
+     * Renders a Router component to the appropriate platform output.
+     */
+    fun <T> renderRouter(router: Router, consumer: TagConsumer<T>): T
+    
+    /**
+     * Renders a 404 Not Found page.
+     */
+    fun <T> renderNotFound(consumer: TagConsumer<T>): T
 } 

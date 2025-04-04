@@ -11,6 +11,9 @@ import kotlinx.html.id
 import kotlinx.html.InputType
 import kotlinx.html.form
 import kotlinx.html.CommonAttributeGroupFacade
+import kotlinx.html.h1
+import kotlinx.html.p
+import kotlinx.html.a
 
 import com.summon.Text
 import com.summon.Button
@@ -20,6 +23,8 @@ import com.summon.Spacer
 import com.summon.TextField
 import com.summon.Form
 import com.summon.PlatformRenderer
+import com.summon.routing.Router
+import com.summon.routing.RouterContext
 
 /**
  * JVM implementation of the PlatformRenderer interface.
@@ -213,5 +218,38 @@ class JvmPlatformRenderer : PlatformRenderer {
         
         @Suppress("UNCHECKED_CAST")
         return consumer as T
+    }
+    
+    /**
+     * Renders a Router component to the appropriate platform output.
+     */
+    override fun <T> renderRouter(router: Router, consumer: TagConsumer<T>): T {
+        return consumer.div {
+            // Set the router as the current context
+            val component = RouterContext.withRouter(router) {
+                router.getCurrentComponent()
+            }
+            
+            // Render the current component
+            component.compose(this)
+        }
+    }
+    
+    /**
+     * Renders a 404 Not Found page.
+     */
+    override fun <T> renderNotFound(consumer: TagConsumer<T>): T {
+        return consumer.div {
+            attributes["style"] = "padding: 20px; text-align: center;"
+            h1 {
+                +"404 - Page Not Found"
+            }
+            p {
+                +"The page you are looking for doesn't exist or has been moved."
+            }
+            a(href = "/") {
+                +"Go to Home Page"
+            }
+        }
     }
 } 
