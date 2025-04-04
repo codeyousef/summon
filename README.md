@@ -744,12 +744,152 @@ if (!contrastResult.passesAA) {
 
 ### 4.13 Server-Side Rendering
 
-- **StaticRendering**: Generation of static HTML
-- **DynamicRendering**: Server-side rendering with dynamic data
-- **HydrationSupport**: Client-side reactivation of server-rendered HTML
-- **PartialHydration**: Selective hydration of interactive elements
-- **StreamingSSR**: Streaming server-side rendering for large pages
-- **SEOPrerender**: Pre-rendering for search engine crawlers
+Summon provides comprehensive server-side rendering capabilities that allow you to generate HTML on the server and optionally hydrate it on the client:
+
+- **StaticRendering** ✅: Generates static HTML from Summon components with proper SEO metadata
+- **DynamicRendering** ✅: Server-side rendering with dynamic data and hydration markers
+- **HydrationSupport** ✅: Client-side reactivation of server-rendered HTML with multiple hydration strategies
+- **PartialHydration** ✅: Selective hydration of only interactive elements for better performance
+- **StreamingSSR** ✅: Streaming server-side rendering for large pages using Kotlin coroutines and Flow
+- **SEOPrerender** ✅: Pre-rendering optimized for search engine crawlers with sitemap generation
+
+```kotlin
+// Static rendering
+val homePage = HomePage()
+val html = StaticRendering.render(homePage, RenderContext(
+    seoMetadata = SeoMetadata(
+        title = "Home Page",
+        description = "Welcome to my website",
+        keywords = listOf("kotlin", "multiplatform", "static site")
+    )
+))
+
+// Dynamic rendering with hydration
+val interactivePage = InteractivePage()
+val html = DynamicRendering.renderWithHydration(
+    composable = interactivePage,
+    initialState = mapOf("counter" to 0, "darkMode" to false)
+)
+
+// Partial hydration for interactive elements only
+val partialHydrationSupport = PartialHydrationSupport()
+val renderer = DynamicRendering.createRenderer(
+    hydrationSupport = partialHydrationSupport
+)
+val html = renderer.render(interactivePage, RenderContext(enableHydration = true))
+
+// Streaming SSR for large pages
+val largePage = LargePage()
+val htmlStream = StreamingSSR.renderStream(largePage)
+htmlStream.collect { chunk ->
+    // Send chunk to client
+    output.write(chunk)
+    output.flush()
+}
+
+// SEO pre-rendering for search engines
+val userAgent = request.getHeader("User-Agent")
+if (SEOPrerender.isSearchEngineCrawler(userAgent)) {
+    val html = SEOPrerender.prerender(page)
+    // Send optimized version to crawler
+} else {
+    val html = StaticRendering.render(page)
+    // Send regular version to users
+}
+
+// Generate a sitemap
+val sitemap = SEOPrerender.generateSitemap(
+    pages = mapOf(
+        "/" to SitemapEntry(
+            lastModified = "2023-06-15",
+            changeFrequency = ChangeFrequency.WEEKLY,
+            priority = 1.0
+        ),
+        "/about" to SitemapEntry(
+            lastModified = "2023-05-20",
+            changeFrequency = ChangeFrequency.MONTHLY,
+            priority = 0.8
+        )
+    ),
+    baseUrl = "https://example.com"
+)
+```
+
+#### Framework Integration
+
+Summon's SSR features integrate seamlessly with popular JVM frameworks:
+
+```kotlin
+// Spring Boot controller
+@Controller
+class SummonController {
+    @GetMapping("/")
+    fun home(request: HttpServletRequest): String {
+        val userAgent = request.getHeader("User-Agent")
+        val page = HomePage()
+        val context = RenderContext(
+            seoMetadata = SeoMetadata(title = "Home Page")
+        )
+        
+        return if (SEOPrerender.isSearchEngineCrawler(userAgent)) {
+            SEOPrerender.prerender(page, context)
+        } else {
+            StaticRendering.render(page, context)
+        }
+    }
+    
+    @GetMapping("/stream", produces = ["text/html"])
+    fun streamPage(response: HttpServletResponse): ResponseBodyEmitter {
+        response.setHeader("Transfer-Encoding", "chunked")
+        val emitter = ResponseBodyEmitter()
+        
+        GlobalScope.launch {
+            val page = LargePage()
+            val htmlStream = StreamingSSR.renderStream(page)
+            
+            htmlStream.collect { chunk ->
+                emitter.send(chunk)
+            }
+            emitter.complete()
+        }
+        
+        return emitter
+    }
+}
+
+// Ktor integration
+fun Application.configureRouting() {
+    routing {
+        get("/") {
+            val userAgent = call.request.header("User-Agent") ?: ""
+            val page = HomePage()
+            val context = RenderContext(
+                seoMetadata = SeoMetadata(title = "Home Page")
+            )
+            
+            val html = if (SEOPrerender.isSearchEngineCrawler(userAgent)) {
+                SEOPrerender.prerender(page, context)
+            } else {
+                StaticRendering.render(page, context)
+            }
+            
+            call.respondText(html, ContentType.Text.Html)
+        }
+        
+        get("/stream") {
+            call.response.header(HttpHeaders.TransferEncoding, "chunked")
+            call.respondTextWriter(ContentType.Text.Html) {
+                val page = LargePage()
+                val htmlStream = StreamingSSR.renderStream(page)
+                
+                htmlStream.collect { chunk ->
+                    write(chunk)
+                    flush()
+                }
+            }
+        }
+    }
+}
 
 ## 5. Component Usage Examples
 
