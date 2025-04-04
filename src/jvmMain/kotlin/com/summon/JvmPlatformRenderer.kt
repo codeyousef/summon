@@ -231,4 +231,38 @@ class JvmPlatformRenderer : PlatformRenderer {
             }
         }
     }
+
+    /**
+     * Renders a Card component as a div with appropriate styling for a card.
+     */
+    override fun <T> renderCard(card: Card, consumer: TagConsumer<T>): T {
+        consumer.div {
+            // Create base card styles
+            val cardStyles = mapOf(
+                "background-color" to "white",
+                "border-radius" to card.borderRadius,
+                "box-shadow" to "0 ${card.elevation} ${card.elevation} rgba(0, 0, 0, 0.1)",
+                "padding" to "16px",
+                "overflow" to "hidden"
+            )
+            
+            // Combine with the user's custom styles
+            val combinedStyles = card.modifier.styles + cardStyles
+            style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+            
+            // Add click handling if provided
+            if (card.onClick != null) {
+                attributes["data-summon-click"] = "true"
+                attributes["role"] = "button"
+                attributes["tabindex"] = "0"
+            }
+            
+            // Render each child component
+            card.content.forEach { child ->
+                child.compose(this)
+            }
+        }
+        @Suppress("UNCHECKED_CAST")
+        return consumer as T
+    }
 } 

@@ -4,6 +4,7 @@ import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 import kotlinx.html.unsafe
 import com.summon.examples.TextExample
+import com.summon.examples.CardExample
 
 /**
  * JVM example demonstrating the Summon library.
@@ -23,6 +24,11 @@ fun main() {
     val textExample = createTextExample()
     println("\nTEXT COMPONENT EXAMPLE:")
     println(textExample)
+    
+    // Print the Card component example HTML
+    val cardExample = createCardExample()
+    println("\nCARD COMPONENT EXAMPLE:")
+    println(cardExample)
 }
 
 /**
@@ -151,6 +157,57 @@ private fun createTextExample(): String {
     consumer.html {
         head {
             title("Summon Text Component Demo")
+            // Include some CSS reset styles
+            style {
+                unsafe {
+                    raw("""
+                    * {
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
+                    }
+                    body {
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        background-color: #f9f9f9;
+                        padding: 20px;
+                    }
+                    """.trimIndent())
+                }
+            }
+            
+            // Add the generated hover styles
+            style {
+                unsafe {
+                    raw(CssClassStore.generateCss())
+                }
+            }
+        }
+        body {
+            div {
+                // Render our example
+                example.compose(consumer)
+            }
+        }
+    }
+    
+    return output.toString()
+}
+
+/**
+ * Creates a Card component example showcasing various Card styles and interactions.
+ */
+private fun createCardExample(): String {
+    // Create a card example using our CardExample class
+    val example = CardExample.cardLayout()
+    
+    // Create a StringBuilder to capture the HTML output
+    val output = StringBuilder()
+    
+    // Render the UI to HTML
+    val consumer = output.appendHTML()
+    consumer.html {
+        head {
+            title("Summon Card Component Demo")
             // Include some CSS reset styles
             style {
                 unsafe {

@@ -184,4 +184,62 @@ data class Modifier(val styles: Map<String, String> = emptyMap()) {
      */
     fun maxHeight(value: String): Modifier =
         Modifier(styles + ("max-height" to value))
+
+    /**
+     * Sets the background color of the element (alias for background).
+     * @param color The CSS color value (name, hex, rgb, etc.)
+     * @return A new Modifier with the added style
+     */
+    fun backgroundColor(color: String): Modifier = 
+        Modifier(styles + ("background-color" to color))
+    
+    /**
+     * Sets the margin at the bottom of the element.
+     */
+    fun marginBottom(value: String): Modifier =
+        Modifier(styles + ("margin-bottom" to value))
+    
+    /**
+     * Sets the margin at the top of the element.
+     */
+    fun marginTop(value: String): Modifier =
+        Modifier(styles + ("margin-top" to value))
+    
+    /**
+     * Sets the margin at the left of the element.
+     */
+    fun marginLeft(value: String): Modifier =
+        Modifier(styles + ("margin-left" to value))
+    
+    /**
+     * Sets the margin at the right of the element.
+     */
+    fun marginRight(value: String): Modifier =
+        Modifier(styles + ("margin-right" to value))
+    
+    /**
+     * Sets the cursor style.
+     */
+    fun cursor(value: String): Modifier =
+        Modifier(styles + ("cursor" to value))
+    
+    /**
+     * Sets CSS transitions for animating property changes.
+     */
+    fun transitions(value: String): Modifier =
+        Modifier(styles + ("transition" to value))
+    
+    /**
+     * Sets the flex-wrap property for flex containers.
+     */
+    fun flexWrap(value: String): Modifier =
+        Modifier(styles + ("flex-wrap" to value))
+    
+    /**
+     * Adds a hover effect with a Modifier. 
+     * Converts the Modifier's styles to the format expected by the base hover method.
+     */
+    fun hover(hoverModifier: Modifier): Modifier {
+        return hover(hoverModifier.styles)
+    }
 } 
