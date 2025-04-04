@@ -723,4 +723,325 @@ class JvmPlatformRenderer : PlatformRenderer {
         @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
+
+    /**
+     * Renders a Box component as a div with absolute positioning.
+     */
+    override fun <T> renderBox(box: Box, consumer: TagConsumer<T>): T {
+        consumer.div {
+            val combinedStyles = box.modifier.styles + mapOf(
+                "position" to "relative",
+                "display" to "flex"
+            )
+            style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+
+            // Render each child
+            box.content.forEach { child ->
+                child.compose(this)
+            }
+        }
+
+        return consumer as T
+    }
+
+    /**
+     * Renders a Grid component as a div with CSS Grid properties.
+     */
+    override fun <T> renderGrid(grid: Grid, consumer: TagConsumer<T>): T {
+        consumer.div {
+            val gridStyles = mapOf(
+                "display" to "grid",
+                "grid-template-columns" to grid.columns,
+                "grid-template-rows" to grid.rows,
+                "gap" to grid.gap
+            ) + if (grid.areas != null) {
+                mapOf("grid-template-areas" to grid.areas)
+            } else {
+                emptyMap()
+            }
+
+            val combinedStyles = grid.modifier.styles + gridStyles
+            style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+
+            // Render each child
+            grid.content.forEach { child ->
+                child.compose(this)
+            }
+        }
+
+        return consumer as T
+    }
+
+    /**
+     * Renders an AspectRatio component as a div with padding-bottom trick for aspect ratio.
+     */
+    override fun <T> renderAspectRatio(aspectRatio: AspectRatio, consumer: TagConsumer<T>): T {
+        // The padding-bottom technique is used to maintain aspect ratio
+        // padding-bottom = (height / width) * 100%
+        val paddingBottom = "${(1 / aspectRatio.ratio) * 100}%"
+
+        consumer.div {
+            val outerStyles = aspectRatio.modifier.styles + mapOf(
+                "position" to "relative",
+                "width" to "100%",
+                "padding-bottom" to paddingBottom
+            )
+            style = outerStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+
+            div {
+                // This inner div will contain the actual content
+                val innerStyles = mapOf(
+                    "position" to "absolute",
+                    "top" to "0",
+                    "left" to "0",
+                    "width" to "100%",
+                    "height" to "100%"
+                )
+                style = innerStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+
+                // Render the content
+                aspectRatio.content.compose(this)
+            }
+        }
+
+        return consumer as T
+    }
+
+    /**
+     * Renders a ResponsiveLayout component with media queries for different screen sizes.
+     */
+    override fun <T> renderResponsiveLayout(responsiveLayout: ResponsiveLayout, consumer: TagConsumer<T>): T {
+        consumer.div {
+            style = responsiveLayout.modifier.toStyleString()
+
+            // For server-side rendering, we'll render all versions and use CSS to show/hide
+            // Note: This is not the most efficient, but works for SSR without JS
+
+            // Default content first (will be overridden by media queries)
+            div {
+                style = "display: block;"
+                responsiveLayout.defaultContent.compose(this)
+            }
+
+            // Media query specific content
+            val breakpoints = mapOf(
+                ScreenSize.SMALL to "max-width: 599px",
+                ScreenSize.MEDIUM to "min-width: 600px and max-width: 959px",
+                ScreenSize.LARGE to "min-width: 960px and max-width: 1279px",
+                ScreenSize.XLARGE to "min-width: 1280px"
+            )
+
+            responsiveLayout.content.forEach { (size, content) ->
+                val mediaQuery = breakpoints[size]
+                div {
+                    // In server-side rendering, we use a data attribute that will be used by JS
+                    // to show/hide based on media query on the client
+                    attributes["data-media-query"] = mediaQuery ?: ""
+                    style = "display: none;" // Hidden by default, JS will show when appropriate
+                    content.compose(this)
+                }
+            }
+        }
+
+        return consumer as T
+    }
+
+    /**
+     * Helper function to safely access the itemContent with wildcard generics
+     */
+    private fun <T, I> getComposable(lazyList: LazyColumn<*>, item: Any?): Composable {
+        // This is a workaround for type erasure and wildcard generics
+        @Suppress("UNCHECKED_CAST")
+        val typedList = lazyList as LazyColumn<I>
+        @Suppress("UNCHECKED_CAST")
+        return typedList.itemContent(item as I)
+    }
+
+    /**
+     * Renders a LazyColumn component as a div with vertical scrolling.
+     */
+    override fun <T> renderLazyColumn(lazyColumn: LazyColumn<*>, consumer: TagConsumer<T>): T {
+        consumer.div {
+            val combinedStyles = lazyColumn.modifier.styles + mapOf(
+                "display" to "flex",
+                "flex-direction" to "column",
+                "overflow-y" to "auto"
+            )
+            style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+
+            // In server-side rendering, we'll render all items
+            // On client-side, JS will handle virtualization
+            lazyColumn.items.forEachIndexed { index, item ->
+                @Suppress("UNCHECKED_CAST")
+                val composable = getComposable<T, Any>(lazyColumn, item)
+                div {
+                    attributes["data-lazy-index"] = index.toString()
+                    composable.compose(this)
+                }
+            }
+        }
+
+        return consumer as T
+    }
+
+    /**
+     * Helper function to safely access the itemContent with wildcard generics
+     */
+    private fun <T, I> getComposable(lazyList: LazyRow<*>, item: Any?): Composable {
+        // This is a workaround for type erasure and wildcard generics
+        @Suppress("UNCHECKED_CAST")
+        val typedList = lazyList as LazyRow<I>
+        @Suppress("UNCHECKED_CAST")
+        return typedList.itemContent(item as I)
+    }
+
+    /**
+     * Renders a LazyRow component as a div with horizontal scrolling.
+     */
+    override fun <T> renderLazyRow(lazyRow: LazyRow<*>, consumer: TagConsumer<T>): T {
+        consumer.div {
+            val combinedStyles = lazyRow.modifier.styles + mapOf(
+                "display" to "flex",
+                "flex-direction" to "row",
+                "overflow-x" to "auto"
+            )
+            style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+
+            // In server-side rendering, we'll render all items
+            // On client-side, JS will handle virtualization
+            lazyRow.items.forEachIndexed { index, item ->
+                @Suppress("UNCHECKED_CAST")
+                val composable = getComposable<T, Any>(lazyRow, item)
+                div {
+                    attributes["data-lazy-index"] = index.toString()
+                    composable.compose(this)
+                }
+            }
+        }
+
+        return consumer as T
+    }
+
+    /**
+     * Renders a TabLayout component as a tabbed interface.
+     */
+    override fun <T> renderTabLayout(tabLayout: TabLayout, consumer: TagConsumer<T>): T {
+        consumer.div {
+            val combinedStyles = tabLayout.modifier.styles + mapOf(
+                "display" to "flex",
+                "flex-direction" to "column"
+            )
+            style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+
+            // Tab headers
+            div {
+                style = "display: flex; flex-direction: row; border-bottom: 1px solid #ddd;"
+
+                tabLayout.tabs.forEachIndexed { index, tab ->
+                    val isSelected = index == tabLayout.selectedTabIndex
+                    div {
+                        val tabStyles = mapOf(
+                            "padding" to "10px 15px",
+                            "cursor" to "pointer",
+                            "border-bottom" to if (isSelected) "2px solid #1976d2" else "none",
+                            "color" to if (isSelected) "#1976d2" else "inherit",
+                            "font-weight" to if (isSelected) "bold" else "normal"
+                        )
+                        style = tabStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+                        attributes["data-tab-index"] = index.toString()
+
+                        // Render icon if present
+                        tab.icon?.compose(this)
+
+                        // Render title
+                        +tab.title
+
+                        // Render close button if closable
+                        if (tab.isClosable) {
+                            span {
+                                style = "margin-left: 5px; font-size: 12px;"
+                                +"✕"
+                                // In real implementation, would add data attributes for JS handling
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Tab content
+            div {
+                style = "padding: 15px 0;"
+                if (tabLayout.selectedTabIndex in tabLayout.tabs.indices) {
+                    tabLayout.tabs[tabLayout.selectedTabIndex].content.compose(this)
+                }
+            }
+        }
+
+        return consumer as T
+    }
+
+    /**
+     * Renders an ExpansionPanel component as a collapsible section.
+     */
+    override fun <T> renderExpansionPanel(expansionPanel: ExpansionPanel, consumer: TagConsumer<T>): T {
+        val panelId = "panel-${expansionPanel.hashCode()}"
+
+        consumer.div {
+            val combinedStyles = expansionPanel.modifier.styles + mapOf(
+                "border" to "1px solid #ddd",
+                "border-radius" to "4px",
+                "margin-bottom" to "10px"
+            )
+            style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+            id = panelId
+
+            // Header
+            div {
+                val headerStyles = mapOf(
+                    "padding" to "10px 15px",
+                    "background-color" to "#f5f5f5",
+                    "cursor" to "pointer",
+                    "display" to "flex",
+                    "justify-content" to "space-between",
+                    "align-items" to "center"
+                )
+                style = headerStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+                attributes["data-expansion-header"] = "true"
+
+                // Title and optional icon
+                div {
+                    style = "display: flex; align-items: center;"
+
+                    // Render icon if present
+                    expansionPanel.icon?.compose(this)
+
+                    // Render title
+                    +expansionPanel.title
+                }
+
+                // Expansion icon
+                div {
+                    +(if (expansionPanel.isExpanded) "▲" else "▼")
+                }
+            }
+
+            // Content
+            div {
+                val contentStyles = mapOf(
+                    "padding" to if (expansionPanel.isExpanded) "15px" else "0",
+                    "height" to if (expansionPanel.isExpanded) "auto" else "0",
+                    "overflow" to "hidden",
+                    "transition" to "all 0.3s ease"
+                )
+                style = contentStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+                attributes["data-expansion-content"] = "true"
+
+                if (expansionPanel.isExpanded) {
+                    expansionPanel.content.compose(this)
+                }
+            }
+        }
+
+        return consumer as T
+    }
 } 

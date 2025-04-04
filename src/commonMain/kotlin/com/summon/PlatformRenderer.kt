@@ -99,4 +99,44 @@ interface PlatformRenderer {
      * Renders a Progress component to the appropriate platform output.
      */
     fun <T> renderProgress(progress: Progress, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders a Box component to the appropriate platform output.
+     */
+    fun <T> renderBox(box: Box, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders a Grid component to the appropriate platform output.
+     */
+    fun <T> renderGrid(grid: Grid, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders an AspectRatio component to the appropriate platform output.
+     */
+    fun <T> renderAspectRatio(aspectRatio: AspectRatio, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders a ResponsiveLayout component to the appropriate platform output.
+     */
+    fun <T> renderResponsiveLayout(responsiveLayout: ResponsiveLayout, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders a LazyColumn component to the appropriate platform output.
+     */
+    fun <T> renderLazyColumn(lazyColumn: LazyColumn<*>, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders a LazyRow component to the appropriate platform output.
+     */
+    fun <T> renderLazyRow(lazyRow: LazyRow<*>, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders a TabLayout component to the appropriate platform output.
+     */
+    fun <T> renderTabLayout(tabLayout: TabLayout, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders an ExpansionPanel component to the appropriate platform output.
+     */
+    fun <T> renderExpansionPanel(expansionPanel: ExpansionPanel, consumer: TagConsumer<T>): T
 } 
