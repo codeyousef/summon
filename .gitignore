@@ -1,0 +1,49 @@
+# Project specific files already in .gitignore
+/Summon.md
+/Guide.md
+
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# Package files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Kotlin
+.kotlin/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Local configuration file
+local.properties
+
+# Node.js (if using JS target)
+node_modules/
+npm-debug.log
+/.cursor/
