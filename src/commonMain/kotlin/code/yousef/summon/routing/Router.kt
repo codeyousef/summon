@@ -17,6 +17,7 @@ class Router(
     private var currentPath = "/"
     private var currentRoute: Route? = null
     private var currentParams: RouteParams = RouteParams(emptyMap())
+    private val history = History.getInstance()
 
     /**
      * Navigates to the specified path.
@@ -30,9 +31,11 @@ class Router(
         currentPath = path
         updateCurrentRoute()
 
-        // Platform-specific history handling will be implemented in JS and JVM extensions
+        // Update browser history using the History component
         if (pushState) {
-            updateBrowserHistory(path)
+            history.push(path)
+        } else {
+            history.replace(path)
         }
     }
 
@@ -70,17 +73,64 @@ class Router(
     }
 
     /**
-     * Platform-specific history handling.
-     * This will be implemented differently for JS and JVM.
+     * Navigates back in the history.
+     *
+     * @return True if navigation was successful
      */
-    private fun updateBrowserHistory(path: String) {
-        // Will be implemented in platform-specific extensions
+    fun goBack(): Boolean {
+        val result = history.back()
+        if (result) {
+            val entry = history.current()
+            entry?.let {
+                currentPath = it.path
+                updateCurrentRoute()
+            }
+        }
+        return result
+    }
+
+    /**
+     * Navigates forward in the history.
+     *
+     * @return True if navigation was successful
+     */
+    fun goForward(): Boolean {
+        val result = history.forward()
+        if (result) {
+            val entry = history.current()
+            entry?.let {
+                currentPath = it.path
+                updateCurrentRoute()
+            }
+        }
+        return result
+    }
+
+    /**
+     * Goes to a specific position in the history.
+     *
+     * @param delta Number of entries to move (positive for forward, negative for backward)
+     * @return True if navigation was successful
+     */
+    fun go(delta: Int): Boolean {
+        val result = history.go(delta)
+        if (result) {
+            val entry = history.current()
+            entry?.let {
+                currentPath = it.path
+                updateCurrentRoute()
+            }
+        }
+        return result
     }
 
     /**
      * Renders the current route's component.
      */
     override fun <T> compose(receiver: T): T {
+        // Set the current router in the RouterContext
+        RouterContext.current = this
+
         // If receiver is a TagConsumer, use it directly
         if (receiver is TagConsumer<*>) {
             @Suppress("UNCHECKED_CAST")

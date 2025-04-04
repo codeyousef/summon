@@ -9,27 +9,27 @@ object RouterContext {
      * The current router instance.
      */
     var current: Router? = null
-        private set
-    
+        internal set
+
     /**
      * Sets the current router instance.
-     * 
+     *
      * @param router The router to set as current
      */
     fun setCurrent(router: Router) {
         current = router
     }
-    
+
     /**
      * Clears the current router instance.
      */
     fun clear() {
         current = null
     }
-    
+
     /**
      * Executes a block with the specified router as the current router.
-     * 
+     *
      * @param router The router to use for the block
      * @param block The block to execute
      * @return The result of the block
