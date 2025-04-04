@@ -263,4 +263,73 @@ data class Modifier(val styles: Map<String, String> = emptyMap()) {
      */
     fun alignItems(value: String): Modifier =
         Modifier(styles + ("align-items" to value))
+
+    /**
+     * Sets the justify-content property for flex containers.
+     * @param value The justification value (center, flex-start, flex-end, space-between, space-around, etc.)
+     * @return A new Modifier with the added style
+     */
+    fun justifyContent(value: String): Modifier =
+        Modifier(styles + ("justify-content" to value))
+
+    /**
+     * Sets the flex-direction property for flex containers.
+     * @param value The direction value (row, column, row-reverse, column-reverse)
+     * @return A new Modifier with the added style
+     */
+    fun flexDirection(value: String): Modifier =
+        Modifier(styles + ("flex-direction" to value))
+
+    /**
+     * Sets the display property for the element.
+     * @param value The display value (flex, block, inline, none, etc.)
+     * @return A new Modifier with the added style
+     */
+    fun display(value: String): Modifier =
+        Modifier(styles + ("display" to value))
+
+    /**
+     * Shorthand to create a flex container.
+     * Sets display to "flex" and optionally configures other flex properties.
+     * @return A new Modifier with flex display style
+     */
+    fun flex(): Modifier =
+        display("flex")
+        
+    /**
+     * Shorthand to create a flex container with custom settings.
+     * Sets display to "flex" and configures other flex properties based on parameters.
+     * 
+     * @param direction The flex-direction value (row, column, row-reverse, column-reverse)
+     * @param wrap The flex-wrap value (nowrap, wrap, wrap-reverse)
+     * @param alignItems The align-items value (center, flex-start, flex-end, etc.)
+     * @param justifyContent The justify-content value (center, flex-start, flex-end, space-between, etc.)
+     * @return A new Modifier with flex display and specified properties
+     */
+    fun flex(
+        direction: String? = null,
+        wrap: String? = null,
+        alignItems: String? = null,
+        justifyContent: String? = null
+    ): Modifier {
+        var modifier = display("flex")
+        
+        if (direction != null) {
+            modifier = modifier.flexDirection(direction)
+        }
+        
+        if (wrap != null) {
+            modifier = modifier.flexWrap(wrap)
+        }
+        
+        if (alignItems != null) {
+            modifier = modifier.alignItems(alignItems)
+        }
+        
+        if (justifyContent != null) {
+            modifier = modifier.justifyContent(justifyContent)
+        }
+        
+        return modifier
+    }
 } 
