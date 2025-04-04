@@ -1,6 +1,10 @@
 package code.yousef.summon
 
 import kotlinx.html.TagConsumer
+import code.yousef.summon.TextComponent
+import code.yousef.summon.LayoutComponent
+import code.yousef.summon.PlatformRendererProvider
+import code.yousef.summon.Icon
 
 /**
  * Alert types for different semantic meanings
@@ -45,7 +49,7 @@ data class Alert(
     override fun <T> compose(receiver: T): T {
         if (receiver is TagConsumer<*>) {
             @Suppress("UNCHECKED_CAST")
-            return getPlatformRenderer().renderAlert(this, receiver as TagConsumer<T>)
+            return PlatformRendererProvider.getRenderer().renderAlert(this, receiver as TagConsumer<T>)
         }
         return receiver
     }

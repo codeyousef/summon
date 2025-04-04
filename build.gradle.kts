@@ -24,9 +24,12 @@ kotlin {
     
     sourceSets {
         var htmlVersion = "0.12.0"
+        var coroutinesVersion = "1.7.3"
+
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-html:$htmlVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
             }
         }
         val commonTest by getting {
@@ -37,6 +40,7 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:$htmlVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutinesVersion")
             }
         }
         val jvmTest by getting
@@ -44,11 +48,12 @@ kotlin {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-html-js:$htmlVersion")
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-browser:1.0.0-pre.632")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutinesVersion")
             }
         }
         val jsTest by getting
     }
-    
+
     // Enable expect/actual classes feature
     targets.all {
         compilations.all {
