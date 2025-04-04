@@ -14,9 +14,9 @@ class Form(
     val content: List<Composable>,
     val onSubmit: (Map<String, String>) -> Unit = {},
     val modifier: Modifier = Modifier()
-) : Composable {
+) : Composable, LayoutComponent {
     private val formFields = mutableListOf<TextField>()
-    
+
     /**
      * Registers a TextField with this form.
      * This allows the form to track all input fields for validation and submission.
@@ -24,7 +24,7 @@ class Form(
     fun registerField(field: TextField) {
         formFields.add(field)
     }
-    
+
     /**
      * Validates all form fields.
      * @return True if all fields are valid, false otherwise
@@ -32,7 +32,7 @@ class Form(
     fun validate(): Boolean {
         return formFields.all { it.validate() }
     }
-    
+
     /**
      * Submits the form if validation passes.
      * @return True if form was submitted, false if validation failed
@@ -40,17 +40,17 @@ class Form(
     fun submit(): Boolean {
         if (validate()) {
             // Collect all form values
-            val formData = formFields.associate<TextField, String, String> { field -> 
-                (field.label ?: field.hashCode().toString()) to field.state.value 
+            val formData = formFields.associate<TextField, String, String> { field ->
+                (field.label ?: field.hashCode().toString()) to field.state.value
             }
-            
+
             // Call the onSubmit callback
             onSubmit(formData)
             return true
         }
         return false
     }
-    
+
     /**
      * Renders this Form composable using the platform-specific renderer.
      * @param receiver TagConsumer to render to

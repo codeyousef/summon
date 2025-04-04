@@ -15,7 +15,7 @@ class LazyColumn<T>(
     val items: List<T>,
     val itemContent: (T) -> Composable,
     val modifier: Modifier = Modifier()
-) : Composable {
+) : Composable, LayoutComponent, ScrollableComponent {
     /**
      * Renders this LazyColumn composable using the platform-specific renderer.
      * @param receiver TagConsumer to render to

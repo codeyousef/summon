@@ -1,8 +1,6 @@
 package com.summon
 
 import kotlinx.html.TagConsumer
-import kotlinx.html.div
-import kotlinx.html.style
 
 /**
  * A layout composable that places its children in a horizontal sequence.
@@ -12,7 +10,7 @@ import kotlinx.html.style
 class Row(
     val content: List<Composable>,
     val modifier: Modifier = Modifier()
-) : Composable {
+) : Composable, LayoutComponent {
     /**
      * Renders this Row composable using the platform-specific renderer.
      * @param receiver TagConsumer to render to

@@ -16,7 +16,7 @@ class Switch(
     val label: String? = null,
     val modifier: Modifier = Modifier(),
     val disabled: Boolean = false
-) : Composable {
+) : Composable, InputComponent, FocusableComponent {
     /**
      * Renders this Switch composable using the platform-specific renderer.
      * @param receiver TagConsumer to render to

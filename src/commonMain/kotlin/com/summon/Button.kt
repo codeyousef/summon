@@ -1,8 +1,6 @@
 package com.summon
 
 import kotlinx.html.TagConsumer
-import kotlinx.html.button
-import kotlinx.html.style
 
 /**
  * A composable that displays a button with text.
@@ -14,7 +12,7 @@ class Button(
     val label: String,
     val onClick: (Any) -> Unit = {},
     val modifier: Modifier = Modifier()
-) : Composable {
+) : Composable, ClickableComponent, FocusableComponent {
     /**
      * Renders this Button composable using the platform-specific renderer.
      * @param receiver TagConsumer to render to

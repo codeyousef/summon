@@ -24,10 +24,10 @@ class DatePicker(
     val max: String? = null,
     val disabled: Boolean = false,
     val validators: List<Validator> = emptyList()
-) : Composable {
+) : Composable, InputComponent, FocusableComponent {
     // Internal state to track validation errors
     private val validationErrors = mutableStateOf<List<String>>(emptyList())
-    
+
     /**
      * Renders this DatePicker composable using the platform-specific renderer.
      * @param receiver TagConsumer to render to
@@ -40,7 +40,7 @@ class DatePicker(
         }
         return receiver
     }
-    
+
     /**
      * Validates the current selected date against all validators.
      * @return True if validation passed, false otherwise
@@ -52,12 +52,12 @@ class DatePicker(
         validationErrors.value = errors
         return errors.isEmpty()
     }
-    
+
     /**
      * Gets the current validation errors.
      */
     fun getValidationErrors(): List<String> = validationErrors.value
-    
+
     /**
      * Indicates whether the field is currently valid.
      */

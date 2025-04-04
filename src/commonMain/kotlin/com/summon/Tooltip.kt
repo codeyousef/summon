@@ -33,7 +33,7 @@ data class Tooltip(
     val showOnClick: Boolean = false,
     val showDelay: Int = 200,
     val hideDelay: Int = 0
-) : Composable {
+) : Composable, TextComponent {
     /**
      * Renders this Tooltip composable using the platform-specific renderer.
      * @param receiver TagConsumer to render to

@@ -40,7 +40,7 @@ data class Text(
     val role: String? = null,
     val ariaLabel: String? = null,
     val ariaDescribedBy: String? = null
-) : Composable {
+) : Composable, TextComponent {
     /**
      * Renders this Text composable using the platform-specific renderer.
      * @param receiver TagConsumer to render to
@@ -90,11 +90,11 @@ data class Text(
      */
     internal fun getAccessibilityAttributes(): Map<String, String> {
         val attributes = mutableMapOf<String, String>()
-        
+
         role?.let { attributes["role"] = it }
         ariaLabel?.let { attributes["aria-label"] = it }
         ariaDescribedBy?.let { attributes["aria-describedby"] = it }
-        
+
         return attributes
     }
 } 

@@ -28,7 +28,7 @@ class TimePicker(
     val max: String? = null,
     val disabled: Boolean = false,
     val validators: List<Validator> = emptyList()
-) : Composable {
+) : Composable, InputComponent, FocusableComponent {
     // Internal state to track validation errors
     private val validationErrors = mutableStateOf<List<String>>(emptyList())
 

@@ -46,7 +46,7 @@ data class Progress(
     val thickness: String = "4px",
     val animation: ProgressAnimation = ProgressAnimation.SMOOTH,
     val label: String? = null
-) : Composable {
+) : Composable, MediaComponent {
     /**
      * Renders this Progress composable using the platform-specific renderer.
      * @param receiver TagConsumer to render to

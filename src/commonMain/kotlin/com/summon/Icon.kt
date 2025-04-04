@@ -34,7 +34,7 @@ data class Icon(
     val svgContent: String? = null,
     val ariaLabel: String? = null,
     val onClick: (() -> Unit)? = null
-) : Composable {
+) : Composable, MediaComponent {
     /**
      * Renders this Icon composable using the platform-specific renderer.
      * @param receiver TagConsumer to render to

@@ -20,7 +20,7 @@ class Grid(
     val gap: String = "0",
     val areas: String? = null,
     val modifier: Modifier = Modifier()
-) : Composable {
+) : Composable, LayoutComponent, ScrollableComponent {
     /**
      * Renders this Grid composable using the platform-specific renderer.
      * @param receiver TagConsumer to render to

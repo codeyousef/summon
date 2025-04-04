@@ -26,7 +26,7 @@ class Select<T>(
     val disabled: Boolean = false,
     val size: Int = 1,
     val validators: List<Validator> = emptyList()
-) : Composable {
+) : Composable, InputComponent, FocusableComponent {
     // Internal state to track validation errors
     private val validationErrors = mutableStateOf<List<String>>(emptyList())
 

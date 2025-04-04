@@ -29,7 +29,7 @@ data class Link(
     val isNoFollow: Boolean = false,
     val ariaLabel: String? = null,
     val ariaDescribedBy: String? = null
-) : Composable {
+) : Composable, ClickableComponent, TextComponent {
     /**
      * Renders this Link composable using the platform-specific renderer.
      * @param receiver TagConsumer to render to

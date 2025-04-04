@@ -4,7 +4,7 @@ import kotlinx.html.TagConsumer
 
 /**
  * Card component for grouped content with styling.
- * 
+ *
  * @param content List of composable elements to be contained within the card
  * @param modifier Modifier for applying styling and layout properties to the card
  * @param elevation Optional elevation for shadow effect (CSS box-shadow)
@@ -17,7 +17,7 @@ data class Card(
     val elevation: String = "2px",
     val borderRadius: String = "4px",
     val onClick: (() -> Unit)? = null
-) : Composable {
+) : Composable, LayoutComponent, ClickableComponent {
     override fun <T> compose(receiver: T): T {
         if (receiver is TagConsumer<*>) {
             @Suppress("UNCHECKED_CAST")
@@ -25,7 +25,7 @@ data class Card(
         }
         return receiver
     }
-    
+
     /**
      * Convenience constructor for creating a card with a single child element
      */

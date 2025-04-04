@@ -36,7 +36,7 @@ data class Alert(
     val onDismiss: (() -> Unit)? = null,
     val actionText: String? = null,
     val onAction: (() -> Unit)? = null
-) : Composable {
+) : Composable, TextComponent, LayoutComponent {
     /**
      * Renders this Alert composable using the platform-specific renderer.
      * @param receiver TagConsumer to render to

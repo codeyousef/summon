@@ -21,7 +21,7 @@ data class Image(
     val loading: ImageLoading = ImageLoading.LAZY,
     val width: String? = null,
     val height: String? = null
-) : Composable {
+) : Composable, MediaComponent {
     override fun <T> compose(receiver: T): T {
         if (receiver is TagConsumer<*>) {
             @Suppress("UNCHECKED_CAST")

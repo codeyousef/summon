@@ -15,7 +15,7 @@ class AspectRatio(
     val content: Composable,
     val ratio: Double,
     val modifier: Modifier = Modifier()
-) : Composable {
+) : Composable, LayoutComponent {
     /**
      * Renders this AspectRatio composable using the platform-specific renderer.
      * @param receiver TagConsumer to render to

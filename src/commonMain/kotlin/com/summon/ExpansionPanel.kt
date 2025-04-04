@@ -21,7 +21,7 @@ class ExpansionPanel(
     val onToggle: (() -> Unit)? = null,
     val icon: Composable? = null,
     val modifier: Modifier = Modifier()
-) : Composable {
+) : Composable, LayoutComponent {
     /**
      * Renders this ExpansionPanel composable using the platform-specific renderer.
      * @param receiver TagConsumer to render to

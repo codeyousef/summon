@@ -12,7 +12,7 @@ import kotlinx.html.TagConsumer
 class Box(
     val content: List<Composable>,
     val modifier: Modifier = Modifier()
-) : Composable {
+) : Composable, LayoutComponent, ScrollableComponent {
     /**
      * Convenience constructor to create a Box with a single child.
      */

@@ -22,7 +22,7 @@ class RadioButton<T>(
     val name: String,
     val modifier: Modifier = Modifier(),
     val disabled: Boolean = false
-) : Composable {
+) : Composable, InputComponent, FocusableComponent {
     /**
      * Renders this RadioButton composable using the platform-specific renderer.
      * @param receiver TagConsumer to render to
@@ -31,7 +31,8 @@ class RadioButton<T>(
     override fun <T> compose(receiver: T): T {
         if (receiver is TagConsumer<*>) {
             @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderRadioButton(this as RadioButton<Any>, receiver as TagConsumer<T>)
+            return PlatformRendererProvider.getRenderer()
+                .renderRadioButton(this as RadioButton<Any>, receiver as TagConsumer<T>)
         }
         return receiver
     }
@@ -60,11 +61,11 @@ class RadioGroup<V>(
             @Suppress("UNCHECKED_CAST")
             val consumer = receiver as TagConsumer<T>
             val groupName = "radio-group-${this.hashCode()}"
-            
+
             // Create a container for the radio group
             consumer.div {
                 style = modifier.toStyleString()
-                
+
                 // Render each radio button option
                 options.forEach { option ->
                     val isSelected = option.value == this@RadioGroup.selectedValue.value
@@ -72,7 +73,7 @@ class RadioGroup<V>(
                         selected = isSelected,
                         onClick = {
                             this@RadioGroup.selectedValue.value = option.value
-                            this@RadioGroup.onSelectedChange(option.value) 
+                            this@RadioGroup.onSelectedChange(option.value)
                         },
                         label = option.label,
                         value = option.value,
@@ -83,7 +84,7 @@ class RadioGroup<V>(
                     radioButton.compose(this)
                 }
             }
-            
+
             return receiver
         }
         return receiver

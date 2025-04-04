@@ -26,7 +26,7 @@ class RangeSlider(
     val disabled: Boolean = false,
     val showTooltip: Boolean = false,
     val valueFormat: (Double) -> String = { it.toString() }
-) : Composable {
+) : Composable, InputComponent, FocusableComponent {
     /**
      * Renders this RangeSlider composable using the platform-specific renderer.
      * @param receiver TagConsumer to render to

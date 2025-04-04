@@ -25,7 +25,7 @@ class ResponsiveLayout(
     val content: Map<ScreenSize, Composable>,
     val defaultContent: Composable,
     val modifier: Modifier = Modifier()
-) : Composable {
+) : Composable, LayoutComponent {
     /**
      * Renders this ResponsiveLayout composable using the platform-specific renderer.
      * @param receiver TagConsumer to render to

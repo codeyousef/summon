@@ -31,7 +31,7 @@ class TabLayout(
     val selectedTabIndex: Int = 0,
     val onTabSelected: ((Int) -> Unit)? = null,
     val modifier: Modifier = Modifier()
-) : Composable {
+) : Composable, LayoutComponent {
     /**
      * Renders this TabLayout composable using the platform-specific renderer.
      * @param receiver TagConsumer to render to

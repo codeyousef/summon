@@ -20,10 +20,10 @@ class TextField(
     val modifier: Modifier = Modifier(),
     val type: TextFieldType = TextFieldType.Text,
     val validators: List<Validator> = emptyList()
-) : Composable {
+) : Composable, InputComponent, FocusableComponent {
     // Internal state to track validation errors
     private val validationErrors = mutableStateOf<List<String>>(emptyList())
-    
+
     /**
      * Renders this TextField composable using the platform-specific renderer.
      * @param receiver TagConsumer to render to
@@ -36,7 +36,7 @@ class TextField(
         }
         return receiver
     }
-    
+
     /**
      * Validates the current input value against all validators.
      * @return True if validation passed, false otherwise
@@ -48,12 +48,12 @@ class TextField(
         validationErrors.value = errors
         return errors.isEmpty()
     }
-    
+
     /**
      * Gets the current validation errors.
      */
     fun getValidationErrors(): List<String> = validationErrors.value
-    
+
     /**
      * Indicates whether the field is currently valid.
      */

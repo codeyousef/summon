@@ -44,7 +44,7 @@ data class Badge(
     val isOutlined: Boolean = false,
     val size: String = "medium",
     val onClick: (() -> Unit)? = null
-) : Composable {
+) : Composable, TextComponent {
     /**
      * Renders this Badge composable using the platform-specific renderer.
      * @param receiver TagConsumer to render to
