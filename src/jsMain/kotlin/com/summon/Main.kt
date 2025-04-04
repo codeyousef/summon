@@ -1,8 +1,6 @@
 package com.summon
 
-import com.summon.examples.DividerExample
-import com.summon.examples.ImageExample
-import com.summon.examples.TextExample
+import com.summon.examples.*
 
 // External JS interfaces
 external class Document {
@@ -83,6 +81,57 @@ private fun setupApp() {
 
     // Load and render our examples
     renderDemoPage(appContainer)
+
+    // Add text examples to the app container
+    appContainer.appendChild(
+        document.createElement("div").apply {
+            className = "example-section"
+            appendChild(document.createElement("h2").apply {
+                textContent = "Text Component Examples"
+            })
+            val textExamplesContainer = document.createElement("div")
+            appendChild(textExamplesContainer)
+            // Note: This append function is not defined; we need to create it
+            // or use a different approach to render the component
+            // textExamplesContainer.append {
+            //     textExamples().compose(this)
+            // }
+
+            // Alternative approach:
+            val examplesHtml = textExamples().renderToString()
+            textExamplesContainer.innerHTML = examplesHtml
+        }
+    )
+
+    // Add Enhanced Text Example
+    document.getElementById("examples-container")?.let { container ->
+        container.appendChild(document.createElement("div").apply {
+            className = "example-card"
+            innerHTML = "<h3>Enhanced Text Component Example</h3>"
+
+            val demoContainer = document.createElement("div")
+            demoContainer.className = "example-demo"
+            appendChild(demoContainer)
+
+            // Use renderToString instead of append
+            val exampleHtml = EnhancedTextExample().renderToString()
+            demoContainer.innerHTML = exampleHtml
+        })
+    }
+}
+
+/**
+ * Creates a container div for the application if it doesn't exist.
+ * @return The created container element
+ */
+private fun createAppContainer(): HTMLElement {
+    val container = document.createElement("div")
+    container.id = "app"
+    container.style.maxWidth = "1200px"
+    container.style.margin = "0 auto"
+    container.style.padding = "20px"
+    document.body?.appendChild(container)
+    return container
 }
 
 /**
@@ -175,20 +224,6 @@ private fun renderTextExample(container: HTMLElement) {
     val htmlOutput = textExample.renderToString()
 
     container.innerHTML = htmlOutput
-}
-
-/**
- * Creates a container div for the application if it doesn't exist.
- * @return The created container element
- */
-private fun createAppContainer(): HTMLElement {
-    val container = document.createElement("div")
-    container.id = "app"
-    container.style.maxWidth = "1200px"
-    container.style.margin = "0 auto"
-    container.style.padding = "20px"
-    document.body?.appendChild(container)
-    return container
 }
 
 /**

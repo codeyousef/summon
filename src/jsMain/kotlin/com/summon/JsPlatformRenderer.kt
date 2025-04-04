@@ -19,6 +19,11 @@ class JsPlatformRenderer : PlatformRenderer {
             val combinedStyles = text.modifier.styles + additionalStyles
             style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
 
+            // Apply accessibility attributes
+            text.getAccessibilityAttributes().forEach { (key, value) ->
+                attributes[key] = value
+            }
+
             // Add the text content
             +text.text
         }

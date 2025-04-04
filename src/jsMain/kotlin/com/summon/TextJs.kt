@@ -17,6 +17,11 @@ fun <T> Text.renderJs(consumer: TagConsumer<T>): TagConsumer<T> {
         val combinedStyles = modifier.styles + additionalStyles
         style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
         
+        // Apply accessibility attributes
+        getAccessibilityAttributes().forEach { (key, value) ->
+            attributes[key] = value
+        }
+        
         +text
     }
     return consumer

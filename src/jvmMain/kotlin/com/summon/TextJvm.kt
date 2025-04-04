@@ -21,6 +21,11 @@ fun <T> Text.renderJvm(consumer: TagConsumer<T>): TagConsumer<T> {
                 if (existingStyle.isEmpty()) additionalStyleString else "$existingStyle;$additionalStyleString"
         }
 
+        // Apply accessibility attributes
+        getAccessibilityAttributes().forEach { (key, value) ->
+            attributes[key] = value
+        }
+
         // Add hover styles to the stylesheet if present
         hoverClass?.addToStyleSheet()
 
