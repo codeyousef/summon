@@ -245,11 +245,11 @@ class JsPlatformRenderer : PlatformRenderer {
      */
     override fun <T> renderCard(card: Card, consumer: TagConsumer<T>): T {
         val cardId = if (card.onClick != null) "card-${card.hashCode()}" else null
-        
+
         consumer.div {
             // Set id if we have a click handler
             cardId?.let { id = it }
-            
+
             // Create base card styles
             val cardStyles = mapOf(
                 "background-color" to "white",
@@ -258,29 +258,29 @@ class JsPlatformRenderer : PlatformRenderer {
                 "padding" to "16px",
                 "overflow" to "hidden"
             )
-            
+
             // Combine with the user's custom styles
             val combinedStyles = card.modifier.styles + cardStyles
             style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
-            
+
             // Add click handling if provided
             if (card.onClick != null) {
                 attributes["data-summon-click"] = "true"
                 attributes["role"] = "button"
                 attributes["tabindex"] = "0"
             }
-            
+
             // Render each child component
             card.content.forEach { child ->
                 child.compose(this)
             }
         }
-        
+
         // Set up click handler if needed
         if (cardId != null && card.onClick != null) {
             setupJsCardClickHandler(cardId, card)
         }
-        
+
         @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
@@ -290,36 +290,37 @@ class JsPlatformRenderer : PlatformRenderer {
      */
     override fun <T> renderImage(image: Image, consumer: TagConsumer<T>): T {
         val imageId = "img-${image.hashCode()}"
-        
+
         consumer.img {
             // Set id for potential JS interactions
             id = imageId
-            
+
             // Set required attributes
             src = image.src
             alt = image.alt
-            
+
             // Apply loading strategy
             if (image.loading != ImageLoading.AUTO) {
                 attributes["loading"] = image.loading.value
             }
-            
+
             // Apply optional attributes
             image.width?.let { width = it }
             image.height?.let { height = it }
-            
+
             // Add detailed description if provided
             image.contentDescription?.let {
                 attributes["aria-describedby"] = "img-desc-$imageId"
             }
-            
+
             // Apply modifier styles
             style = image.modifier.toStyleString()
-            
+
             // Set up error handling for image loading
-            onError = "this.onerror=null; this.src='data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D%22http://www.w3.org/2000/svg%22 width%3D%22${image.width ?: "100"}%22 height%3D%22${image.height ?: "100"}%22 viewBox%3D%220 0 24 24%22%3E%3Cpath fill%3D%22%23ccc%22 d%3D%22M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z%22/%3E%3C/svg%3E';"
+            onError =
+                "this.onerror=null; this.src='data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D%22http://www.w3.org/2000/svg%22 width%3D%22${image.width ?: "100"}%22 height%3D%22${image.height ?: "100"}%22 viewBox%3D%220 0 24 24%22%3E%3Cpath fill%3D%22%23ccc%22 d%3D%22M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z%22/%3E%3C/svg%3E';"
         }
-        
+
         // Add the description in a hidden element if provided
         image.contentDescription?.let {
             consumer.div {
@@ -328,7 +329,42 @@ class JsPlatformRenderer : PlatformRenderer {
                 +it
             }
         }
-        
+
+        @Suppress("UNCHECKED_CAST")
+        return consumer as T
+    }
+
+    override fun <T> renderDivider(divider: Divider, consumer: TagConsumer<T>): T {
+        consumer.apply {
+            if (divider.isVertical) {
+                div {
+                    style = buildString {
+                        append("display: inline-block;")
+                        append("width: ${divider.thickness};")
+                        append("height: ${divider.length};")
+                        append("background-color: ${divider.color};")
+                        append(divider.modifier.toStyleString())
+                    }
+
+                    // Apply hover styles and event listeners if any
+                    divider.modifier.applyStyles(this)
+                }
+            } else {
+                hr {
+                    style = buildString {
+                        append("border: none;")
+                        append("height: ${divider.thickness};")
+                        append("width: ${divider.length};")
+                        append("background-color: ${divider.color};")
+                        append("margin: 0;")
+                        append(divider.modifier.toStyleString())
+                    }
+
+                    // Apply hover styles and event listeners if any
+                    divider.modifier.applyStyles(this)
+                }
+            }
+        }
         @Suppress("UNCHECKED_CAST")
         return consumer as T
     }

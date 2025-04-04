@@ -1,11 +1,11 @@
 package com.summon
 
+import com.summon.examples.CardExample
+import com.summon.examples.DividerExample
+import com.summon.examples.ImageExample
+import com.summon.examples.TextExample
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
-import kotlinx.html.unsafe
-import com.summon.examples.TextExample
-import com.summon.examples.CardExample
-import com.summon.examples.ImageExample
 
 /**
  * JVM example demonstrating the Summon library.
@@ -15,26 +15,31 @@ fun main() {
     val uiExample = createUIExample()
     println("UI EXAMPLE:")
     println(uiExample)
-    
+
     // Print the form example HTML
     val formExample = createContactForm()
     println("\nFORM EXAMPLE:")
     println(formExample)
-    
+
     // Print the Text component example HTML
     val textExample = createTextExample()
     println("\nTEXT COMPONENT EXAMPLE:")
     println(textExample)
-    
+
     // Print the Card component example HTML
     val cardExample = createCardExample()
     println("\nCARD COMPONENT EXAMPLE:")
     println(cardExample)
-    
+
     // Print the Image component example HTML
     val imageExample = createImageExample()
     println("\nIMAGE COMPONENT EXAMPLE:")
     println(imageExample)
+
+    // Print the Divider component example HTML
+    val dividerExample = createDividerExample()
+    println("\nDIVIDER COMPONENT EXAMPLE:")
+    println(dividerExample)
 }
 
 /**
@@ -99,10 +104,10 @@ private fun createUIExample(): String {
             )
         )
     )
-    
+
     // Create a StringBuilder to capture the HTML output
     val output = StringBuilder()
-    
+
     // Render the UI to HTML with stylesheet support
     val consumer = output.appendHTML()
     consumer.html {
@@ -111,7 +116,8 @@ private fun createUIExample(): String {
             // We'll include some CSS reset styles
             style {
                 unsafe {
-                    raw("""
+                    raw(
+                        """
                     * {
                         margin: 0;
                         padding: 0;
@@ -126,10 +132,11 @@ private fun createUIExample(): String {
                         background-color: #f0f2f5;
                         padding: 20px;
                     }
-                    """.trimIndent())
+                    """.trimIndent()
+                    )
                 }
             }
-            
+
             // Add the generated hover styles
             style {
                 unsafe {
@@ -144,7 +151,7 @@ private fun createUIExample(): String {
             }
         }
     }
-    
+
     return output.toString()
 }
 
@@ -154,10 +161,10 @@ private fun createUIExample(): String {
 private fun createTextExample(): String {
     // Create a text example using our TextExample class
     val example = TextExample().createTextDemo()
-    
+
     // Create a StringBuilder to capture the HTML output
     val output = StringBuilder()
-    
+
     // Render the UI to HTML
     val consumer = output.appendHTML()
     consumer.html {
@@ -166,7 +173,8 @@ private fun createTextExample(): String {
             // Include some CSS reset styles
             style {
                 unsafe {
-                    raw("""
+                    raw(
+                        """
                     * {
                         margin: 0;
                         padding: 0;
@@ -177,10 +185,11 @@ private fun createTextExample(): String {
                         background-color: #f9f9f9;
                         padding: 20px;
                     }
-                    """.trimIndent())
+                    """.trimIndent()
+                    )
                 }
             }
-            
+
             // Add the generated hover styles
             style {
                 unsafe {
@@ -195,7 +204,7 @@ private fun createTextExample(): String {
             }
         }
     }
-    
+
     return output.toString()
 }
 
@@ -205,10 +214,10 @@ private fun createTextExample(): String {
 private fun createCardExample(): String {
     // Create a card example using our CardExample class
     val example = CardExample.cardLayout()
-    
+
     // Create a StringBuilder to capture the HTML output
     val output = StringBuilder()
-    
+
     // Render the UI to HTML
     val consumer = output.appendHTML()
     consumer.html {
@@ -217,7 +226,8 @@ private fun createCardExample(): String {
             // Include some CSS reset styles
             style {
                 unsafe {
-                    raw("""
+                    raw(
+                        """
                     * {
                         margin: 0;
                         padding: 0;
@@ -228,10 +238,11 @@ private fun createCardExample(): String {
                         background-color: #f9f9f9;
                         padding: 20px;
                     }
-                    """.trimIndent())
+                    """.trimIndent()
+                    )
                 }
             }
-            
+
             // Add the generated hover styles
             style {
                 unsafe {
@@ -246,7 +257,7 @@ private fun createCardExample(): String {
             }
         }
     }
-    
+
     return output.toString()
 }
 
@@ -257,7 +268,7 @@ private fun createImageExample(): String {
     // Create a basic image example
     val basicExample = ImageExample.basicImage()
     val multipleImagesExample = ImageExample.multipleImages()
-    
+
     // Combine both examples in a column
     val example = Column(
         modifier = Modifier()
@@ -279,10 +290,10 @@ private fun createImageExample(): String {
             multipleImagesExample
         )
     )
-    
+
     // Create a StringBuilder to capture the HTML output
     val output = StringBuilder()
-    
+
     // Render the UI to HTML
     val consumer = output.appendHTML()
     consumer.html {
@@ -291,7 +302,8 @@ private fun createImageExample(): String {
             // Include some CSS reset styles
             style {
                 unsafe {
-                    raw("""
+                    raw(
+                        """
                     * {
                         margin: 0;
                         padding: 0;
@@ -302,10 +314,11 @@ private fun createImageExample(): String {
                         background-color: #f5f5f5;
                         padding: 20px;
                     }
-                    """.trimIndent())
+                    """.trimIndent()
+                    )
                 }
             }
-            
+
             // Add the generated hover styles
             style {
                 unsafe {
@@ -321,6 +334,60 @@ private fun createImageExample(): String {
             }
         }
     }
-    
+
+    return output.toString()
+}
+
+/**
+ * Creates a Divider component example showcasing horizontal and vertical dividers.
+ */
+private fun createDividerExample(): String {
+    // Create a divider example using our DividerExample class
+    val example = DividerExample.create()
+
+    // Create a StringBuilder to capture the HTML output
+    val output = StringBuilder()
+
+    // Render the UI to HTML
+    val consumer = output.appendHTML()
+    consumer.html {
+        head {
+            title("Summon Divider Component Demo")
+            // Include some CSS reset styles
+            style {
+                unsafe {
+                    raw(
+                        """
+                    * {
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
+                    }
+                    body {
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        background-color: #f5f5f5;
+                        padding: 20px;
+                    }
+                    """.trimIndent()
+                    )
+                }
+            }
+
+            // Add the generated hover styles
+            style {
+                unsafe {
+                    raw(CssClassStore.generateCss())
+                }
+            }
+        }
+        body {
+            div {
+                style = "max-width: 800px; margin: 0 auto;"
+                // Render our example
+                example.compose(consumer)
+            }
+        }
+    }
+
     return output.toString()
 } 

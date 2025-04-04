@@ -245,18 +245,18 @@ class JvmPlatformRenderer : PlatformRenderer {
                 "padding" to "16px",
                 "overflow" to "hidden"
             )
-            
+
             // Combine with the user's custom styles
             val combinedStyles = card.modifier.styles + cardStyles
             style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
-            
+
             // Add click handling if provided
             if (card.onClick != null) {
                 attributes["data-summon-click"] = "true"
                 attributes["role"] = "button"
                 attributes["tabindex"] = "0"
             }
-            
+
             // Render each child component
             card.content.forEach { child ->
                 child.compose(this)
@@ -274,25 +274,25 @@ class JvmPlatformRenderer : PlatformRenderer {
             // Set required attributes
             src = image.src
             alt = image.alt
-            
+
             // Apply loading strategy
             if (image.loading != ImageLoading.AUTO) {
                 attributes["loading"] = image.loading.value
             }
-            
+
             // Apply optional attributes
             image.width?.let { width = it }
             image.height?.let { height = it }
-            
+
             // Add detailed description if provided
             image.contentDescription?.let {
                 attributes["aria-describedby"] = "img-desc-${image.hashCode()}"
             }
-            
+
             // Apply modifier styles
             style = image.modifier.toStyleString()
         }
-        
+
         // Add the description in a hidden element if provided
         image.contentDescription?.let {
             consumer.div {
@@ -301,7 +301,42 @@ class JvmPlatformRenderer : PlatformRenderer {
                 +it
             }
         }
-        
+
+        @Suppress("UNCHECKED_CAST")
+        return consumer as T
+    }
+
+    override fun <T> renderDivider(divider: Divider, consumer: TagConsumer<T>): T {
+        consumer.apply {
+            if (divider.isVertical) {
+                div {
+                    style = buildString {
+                        append("display: inline-block;")
+                        append("width: ${divider.thickness};")
+                        append("height: ${divider.length};")
+                        append("background-color: ${divider.color};")
+                        append(divider.modifier.toStyleString())
+                    }
+
+                    // Apply hover styles if any
+                    divider.modifier.applyStyles(this)?.addToStyleSheet()
+                }
+            } else {
+                hr {
+                    style = buildString {
+                        append("border: none;")
+                        append("height: ${divider.thickness};")
+                        append("width: ${divider.length};")
+                        append("background-color: ${divider.color};")
+                        append("margin: 0;")
+                        append(divider.modifier.toStyleString())
+                    }
+
+                    // Apply hover styles if any
+                    divider.modifier.applyStyles(this)?.addToStyleSheet()
+                }
+            }
+        }
         @Suppress("UNCHECKED_CAST")
         return consumer as T
     }

@@ -61,6 +61,11 @@ interface PlatformRenderer {
     fun <T> renderImage(image: Image, consumer: TagConsumer<T>): T
 
     /**
+     * Renders a Divider component to the appropriate platform output.
+     */
+    fun <T> renderDivider(divider: Divider, consumer: TagConsumer<T>): T
+
+    /**
      * Renders a 404 Not Found page.
      */
     fun <T> renderNotFound(consumer: TagConsumer<T>): T
