@@ -74,4 +74,29 @@ interface PlatformRenderer {
      * Renders a 404 Not Found page.
      */
     fun <T> renderNotFound(consumer: TagConsumer<T>): T
+
+    /**
+     * Renders an Icon component to the appropriate platform output.
+     */
+    fun <T> renderIcon(icon: Icon, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders an Alert component to the appropriate platform output.
+     */
+    fun <T> renderAlert(alert: Alert, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders a Badge component to the appropriate platform output.
+     */
+    fun <T> renderBadge(badge: Badge, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders a Tooltip component to the appropriate platform output.
+     */
+    fun <T> renderTooltip(tooltip: Tooltip, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders a Progress component to the appropriate platform output.
+     */
+    fun <T> renderProgress(progress: Progress, consumer: TagConsumer<T>): T
 } 
