@@ -650,12 +650,79 @@ val animatedModifier = Modifier()
 
 #### 4.9.2 Quarkus Integration
 
-- **SummonQuteExtension**: Integration with Qute templates
-- **QuarkusExtension**: Dedicated Quarkus extension
-- **QuteTagExtension**: Custom tags for Qute templates
-- **ResteasyIntegration**: Integration with RESTEasy
-- **CDISupport**: Injection of beans in components
-- **NativeImageSupport**: Support for GraalVM native image
+- **SummonQuteExtension**: Integration with Qute templates for rendering Summon components inside Qute templates with the `{summon:component(myComponent)}` syntax.
+- **QuarkusExtension**: Dedicated Quarkus extension with CDI support, automatic registration of renderers, and proper lifecycle hooks.
+- **QuteTagExtension**: Custom tags for Qute templates including render, isComponent, and withContainer helper methods.
+- **ResteasyIntegration**: Integration with RESTEasy allowing direct return of Composable objects from JAX-RS endpoints.
+- **CDISupport**: Injection of beans in components with automatic dependency resolution and component factories.
+- **NativeImageSupport**: Support for GraalVM native image with reflection configuration and resource inclusion.
+
+```kotlin
+// Register the extension in your Quarkus application
+@Singleton
+class QuteConfig {
+    @Produces
+    fun configureSummonQuteExtension(): Consumer<EngineBuilder> {
+        return SummonQuteExtension.create {
+            includeComments(true)  // Add HTML comments around components
+            usePrettyPrinting(true)  // Format HTML output
+        }
+    }
+}
+
+// Use components in RESTEasy resources
+@Path("/hello")
+class HelloResource {
+    @Inject
+    lateinit var summonRenderer: QuarkusExtension.SummonRenderer
+    
+    @GET
+    @Produces(MediaType.TEXT_HTML)
+    fun hello(): Composable {
+        // Return a Composable directly - automatic rendering
+        return Column(
+            content = listOf(
+                Text("Hello from Summon + RESTEasy!")
+            )
+        )
+    }
+    
+    @GET
+    @Path("/alt")
+    @Produces(MediaType.TEXT_HTML)
+    fun helloWithResponse(): Response {
+        val component = GreetingComponent("World")
+        // Create a response with proper headers
+        return ResteasyIntegration.createResponse(component)
+    }
+}
+
+// Use in Qute templates
+// In template.html:
+{#let greeting=summon:component(myComponent)}
+    {greeting} <!-- Renders the component -->
+{/let}
+
+{#if summon:isComponent(someObject)}
+    <!-- It's a component -->
+{/if}
+
+{summon:withContainer(myComponent, "my-id", "custom-class")}
+
+// CDI Injection in components
+class UserProfileComponent : Composable {
+    @Inject
+    lateinit var userService: UserService
+    
+    override fun <T> compose(receiver: T): T {
+        val userName = userService.getCurrentUser()
+        // Render component using the injected service
+    }
+}
+
+// Create with CDI support
+val component = CDISupport.create(UserProfileComponent::class)
+```
 
 #### 4.9.3 Ktor Integration
 
@@ -890,7 +957,7 @@ fun Application.configureRouting() {
         }
     }
 }
-
+```
 ## 5. Component Usage Examples
 
 ```kotlin

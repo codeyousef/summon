@@ -27,6 +27,8 @@ kotlin {
         var htmlVersion = "0.12.0"
         var coroutinesVersion = "1.7.3"
         var serializationVersion = "1.6.0"
+        var quarkusVersion = "3.2.0.Final"
+        var quarkusExtensionSdkVersion = "1.0.0" // For Quarkus extension development
 
         val commonMain by getting {
             dependencies {
@@ -44,6 +46,19 @@ kotlin {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:$htmlVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutinesVersion")
+                
+                // Quarkus integration dependencies (optional)
+                compileOnly("io.quarkus:quarkus-core:$quarkusVersion")
+                compileOnly("io.quarkus:quarkus-qute:$quarkusVersion")
+                compileOnly("io.quarkus:quarkus-resteasy:$quarkusVersion")
+                compileOnly("io.quarkus:quarkus-resteasy-jackson:$quarkusVersion")
+                compileOnly("io.quarkus:quarkus-arc:$quarkusVersion")
+                compileOnly("jakarta.enterprise:jakarta.enterprise.cdi-api:3.0.0")
+                
+                // Quarkus Extension Development SDK (for extension development)
+                compileOnly("io.quarkus:quarkus-extension-processor:$quarkusVersion")
+                compileOnly("io.quarkus:quarkus-arc-deployment:$quarkusVersion")
+                compileOnly("io.quarkus:quarkus-core-deployment:$quarkusVersion")
             }
         }
         val jvmTest by getting
