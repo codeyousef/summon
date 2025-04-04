@@ -2,7 +2,7 @@ plugins {
     kotlin("multiplatform") version "1.9.20"
 }
 
-group = "com.summon"
+group = "code.yousef"
 version = "0.1.0"
 
 repositories {
