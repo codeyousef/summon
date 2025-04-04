@@ -1,6 +1,13 @@
 package code.yousef.summon.examples
 
-import code.yousef.summon.*
+import code.yousef.summon.components.display.Image
+import code.yousef.summon.components.input.Form
+import code.yousef.summon.components.input.TextField
+import code.yousef.summon.components.input.TextFieldType
+import code.yousef.summon.components.layout.Box
+import code.yousef.summon.components.layout.Grid
+import code.yousef.summon.modifier.*
+import code.yousef.summon.mutableStateOf
 
 /**
  * This example demonstrates the usage of type-specific modifiers
@@ -13,7 +20,7 @@ class TypeSpecificModifiersExample {
      * Shows how to use TextModifier specific functions.
      */
     fun textExample() {
-        val text = Text(
+        val text = code.yousef.summon.components.display.Text(
             text = "This is a text with specific text modifiers",
             modifier = Modifier()
                 .then(Modifier(mapOf("padding" to "16px")))
@@ -27,7 +34,7 @@ class TypeSpecificModifiersExample {
         )
 
         // Usage with the text modifier directly in a chain
-        val anotherText = Text(
+        val anotherText = code.yousef.summon.components.display.Text(
             text = "Another text example",
             modifier = Modifier()
                 .then(Modifier(mapOf("padding" to "8px")))
@@ -108,10 +115,8 @@ class TypeSpecificModifiersExample {
             modifier = Modifier()
                 .width("200px")
                 .height("200px")
-                .media() // Convert to MediaModifier
-                .preserveAspectRatio() // Media-specific modifier
-                .objectPosition("center") // Media-specific modifier
-                .toModifier() // Convert back to base Modifier
+                .style("object-fit", "contain") // Instead of media().preserveAspectRatio()
+                .style("object-position", "center") // Instead of media().objectPosition()
         )
     }
 
@@ -135,7 +140,7 @@ class TypeSpecificModifiersExample {
                 .toModifier(), // Convert back to base Modifier
             content = listOf(
                 // Text with text-specific modifiers
-                Text(
+                code.yousef.summon.components.display.Text(
                     text = "This is a heading",
                     modifier = Modifier()
                         .then(Modifier(mapOf("padding" to "16px")))

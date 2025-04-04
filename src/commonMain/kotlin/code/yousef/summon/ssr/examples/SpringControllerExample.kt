@@ -1,9 +1,9 @@
 package code.yousef.summon.ssr.examples
 
-import code.yousef.summon.Column
-import code.yousef.summon.Composable
-import code.yousef.summon.Modifier
-import code.yousef.summon.Text
+import code.yousef.summon.core.Composable
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.components.layout.Column
+import code.yousef.summon.modifier.Modifier
 
 /**
  * Example of how to use Summon SSR with Spring Boot.

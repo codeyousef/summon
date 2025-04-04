@@ -1,6 +1,14 @@
 package code.yousef.summon.examples
 
-import code.yousef.summon.*
+import code.yousef.summon.components.display.h1
+import code.yousef.summon.components.display.h2
+import code.yousef.summon.components.display.paragraph
+import code.yousef.summon.components.input.Button
+import code.yousef.summon.components.layout.Column
+import code.yousef.summon.components.navigation.Link
+import code.yousef.summon.core.Composable
+import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.text
 import code.yousef.summon.routing.*
 import kotlinx.html.TagConsumer
 
@@ -35,13 +43,13 @@ object NavigationExample {
             NotFoundPage()
         }
         val router = Router(routerBuilder.routes, routerBuilder.notFoundComponent)
-        
+
         return object : Composable {
             override fun <T> compose(receiver: T): T {
                 if (receiver is TagConsumer<*>) {
                     @Suppress("UNCHECKED_CAST")
                     val consumer = receiver as TagConsumer<Any?>
-                    
+
                     // Add DeepLinking meta tags for the current route
                     val path = router.getCurrentPath()
                     val metaTags = DeepLinking.metaTags(
@@ -49,20 +57,20 @@ object NavigationExample {
                         title = "Navigation Example - ${getPageTitle(path)}",
                         description = "An example of Summon navigation system"
                     )
-                    
+
                     // Render meta tags first
                     metaTags.compose(consumer)
-                    
+
                     // Then render the app layout with navigation
                     AppLayout(router).compose(consumer)
-                    
+
                     return consumer as T
                 }
                 return receiver
             }
         }
     }
-    
+
     /**
      * Helper to get page title based on path
      */
@@ -75,7 +83,7 @@ object NavigationExample {
             else -> "Not Found"
         }
     }
-    
+
     /**
      * Main application layout with navigation bar
      */
@@ -92,7 +100,7 @@ object NavigationExample {
                             .padding("10px"),
                         content = listOf(
                             h1("Navigation Example", Modifier().text().textAlign("center").toModifier()),
-                            
+
                             // Navigation links
                             Column(
                                 modifier = Modifier().padding("10px"),
@@ -123,7 +131,7 @@ object NavigationExample {
                                     )
                                 )
                             ),
-                            
+
                             // History navigation buttons
                             Column(
                                 modifier = Modifier().padding("10px"),
@@ -144,7 +152,7 @@ object NavigationExample {
                             )
                         )
                     ),
-                    
+
                     // Main content area - render the current route
                     Column(
                         modifier = Modifier()
@@ -158,7 +166,7 @@ object NavigationExample {
             ).compose(receiver)
         }
     }
-    
+
     /**
      * Home page component
      */
@@ -174,7 +182,7 @@ object NavigationExample {
             ).compose(receiver)
         }
     }
-    
+
     /**
      * About page component
      */
@@ -190,14 +198,14 @@ object NavigationExample {
             ).compose(receiver)
         }
     }
-    
+
     /**
      * User profile page component that uses RouteParams
      */
     private class UserProfilePage(private val params: RouteParams) : Composable {
         override fun <T> compose(receiver: T): T {
             val userId = params["userId"] ?: "unknown"
-            
+
             return Column(
                 modifier = Modifier().padding("20px"),
                 content = listOf(
@@ -209,7 +217,7 @@ object NavigationExample {
             ).compose(receiver)
         }
     }
-    
+
     /**
      * Settings page component
      */
@@ -220,7 +228,7 @@ object NavigationExample {
                 content = listOf(
                     h1("Settings Page"),
                     paragraph("This is the settings page of our navigation example."),
-                    
+
                     // Deep linking example
                     h2("Deep Linking Example"),
                     paragraph("Here's a deep link to share the user profile:"),
@@ -236,7 +244,7 @@ object NavigationExample {
             ).compose(receiver)
         }
     }
-    
+
     /**
      * Not found page component
      */

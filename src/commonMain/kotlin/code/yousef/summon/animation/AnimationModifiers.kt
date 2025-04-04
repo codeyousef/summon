@@ -1,6 +1,6 @@
 package code.yousef.summon.animation
 
-import code.yousef.summon.Modifier
+import code.yousef.summon.modifier.Modifier
 
 /**
  * Animation extensions for the Modifier class

@@ -1,6 +1,22 @@
 package code.yousef.summon.examples
 
-import code.yousef.summon.*
+import code.yousef.summon.components.display.Icon
+import code.yousef.summon.components.display.Image
+import code.yousef.summon.components.feedback.Alert
+import code.yousef.summon.components.feedback.AlertType
+import code.yousef.summon.components.feedback.Progress
+import code.yousef.summon.components.feedback.ProgressType
+import code.yousef.summon.components.input.Checkbox
+import code.yousef.summon.components.input.Select
+import code.yousef.summon.components.input.SelectOption
+import code.yousef.summon.components.input.TextField
+import code.yousef.summon.components.layout.Box
+import code.yousef.summon.components.layout.Card
+import code.yousef.summon.components.layout.Grid
+import code.yousef.summon.components.layout.Row
+import code.yousef.summon.components.navigation.Link
+import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.mutableStateOf
 
 /**
  * This class serves as a style guide for using type-specific modifiers
@@ -10,19 +26,17 @@ import code.yousef.summon.*
 class ModifierStyleGuide {
 
     /**
-     * Demonstrates applying type-specific modifiers to text components.
+     * Demonstrates applying text-specific modifiers to text components.
      */
     fun textComponentStyles() {
         // Basic text component with text-specific modifiers
-        val heading = Text(
+        val heading = code.yousef.summon.components.display.Text(
             text = "Heading Text",
             modifier = Modifier()
                 .fontSize("24px")
                 .fontWeight("bold")
-                .text() // Convert to TextModifier
-                .textAlign("center")
-                .lineHeight("1.2")
-                .toModifier()
+                .style("text-align", "center")
+                .style("line-height", "1.2")
                 .then(Modifier(mapOf("margin" to "0 0 16px 0")))
         )
 
@@ -32,9 +46,7 @@ class ModifierStyleGuide {
             href = "/details",
             modifier = Modifier()
                 .color("#0066cc")
-                .text() // Convert to TextModifier
                 .then(Modifier(mapOf("text-decoration" to "none")))
-                .toModifier()
                 .hover(mapOf("color" to "#004499", "text-decoration" to "underline"))
         )
 
@@ -45,14 +57,14 @@ class ModifierStyleGuide {
             type = AlertType.WARNING,
             modifier = Modifier()
                 .then(Modifier(mapOf("margin" to "16px 0")))
-                .text() // Convert to TextModifier
-                .ellipsis() // Truncate if too long
-                .toModifier()
+                .style("white-space", "nowrap")
+                .style("overflow", "hidden")
+                .style("text-overflow", "ellipsis")
         )
     }
 
     /**
-     * Demonstrates applying type-specific modifiers to input components.
+     * Demonstrates applying input-specific modifiers to input components.
      */
     fun inputComponentStyles() {
         // Text field with input-specific modifiers
@@ -63,10 +75,8 @@ class ModifierStyleGuide {
             modifier = Modifier()
                 .width("100%")
                 .then(Modifier(mapOf("margin" to "8px 0")))
-                .input() // Convert to InputModifier
-                .placeholderColor("#aaaaaa")
-                .focusBorderColor("#4285f4")
-                .toModifier()
+                .style("placeholder-color", "#aaaaaa")
+                .style("focus-border-color", "#4285f4")
         )
 
         // Disabled checkbox with input-specific styling
@@ -75,9 +85,8 @@ class ModifierStyleGuide {
             label = "I agree to terms",
             modifier = Modifier()
                 .then(Modifier(mapOf("margin" to "8px 0")))
-                .input() // Convert to InputModifier
-                .disabled()
-                .toModifier()
+                .style("pointer-events", "none")
+                .style("opacity", "0.5")
         )
 
         // Select dropdown with validation styling
@@ -92,16 +101,14 @@ class ModifierStyleGuide {
             label = "Choose an option",
             modifier = Modifier()
                 .width("300px")
-                .input() // Convert to InputModifier
-                .focusBorderColor("#4285f4")
-                .toModifier()
+                .style("focus-border-color", "#4285f4")
                 .border("1px", "solid", "#cccccc")
                 .borderRadius("4px")
         )
     }
 
     /**
-     * Demonstrates applying type-specific modifiers to layout components.
+     * Demonstrates applying layout-specific modifiers to layout components.
      */
     fun layoutComponentStyles() {
         // Row with layout-specific modifiers
@@ -113,9 +120,7 @@ class ModifierStyleGuide {
             modifier = Modifier()
                 .width("100%")
                 .then(Modifier(mapOf("padding" to "16px")))
-                .layout() // Convert to LayoutModifier
-                .flexGrow(1)
-                .toModifier()
+                .style("flex-grow", "1")
                 .background("#f5f5f5")
         )
 
@@ -131,10 +136,8 @@ class ModifierStyleGuide {
             gap = "16px",
             modifier = Modifier()
                 .width("100%")
-                .layout() // Convert to LayoutModifier
-                .gridTemplateColumns("repeat(auto-fill, minmax(200px, 1fr))")
-                .gridGap("16px")
-                .toModifier()
+                .style("grid-template-columns", "repeat(auto-fill, minmax(200px, 1fr))")
+                .style("grid-gap", "16px")
         )
 
         // Box with scrollable content
@@ -145,9 +148,7 @@ class ModifierStyleGuide {
             modifier = Modifier()
                 .height("300px")
                 .then(Modifier(mapOf("padding" to "16px")))
-                .scrollable() // Convert to ScrollableModifier
-                .verticalScroll()
-                .toModifier()
+                .style("overflow-y", "auto")
                 .border("1px", "solid", "#e0e0e0")
                 .borderRadius("4px")
         )
@@ -164,10 +165,7 @@ class ModifierStyleGuide {
             modifier = Modifier()
                 .width("150px")
                 .height("150px")
-                .media() // Convert to MediaModifier
-                .objectFit("cover")
-                .objectPosition("center")
-                .toModifier()
+                .style("object-fit", "cover")
                 .borderRadius("50%") // Circular image
                 .border("3px", "solid", "#ffffff")
         )
@@ -178,9 +176,7 @@ class ModifierStyleGuide {
             size = "24px",
             modifier = Modifier()
                 .color("#555555")
-                .media() // Convert to MediaModifier
-                .filter("drop-shadow(0 2px 3px rgba(0,0,0,0.2))")
-                .toModifier()
+                .style("filter", "drop-shadow(0 2px 3px rgba(0,0,0,0.2))")
         )
 
         // Progress bar with media filters
@@ -191,29 +187,25 @@ class ModifierStyleGuide {
             modifier = Modifier()
                 .width("100%")
                 .height("8px")
-                .media() // Convert to MediaModifier
-                .filter("brightness(1.05)")
-                .toModifier()
+                .style("filter", "brightness(1.05)")
                 .borderRadius("4px")
         )
     }
 
     /**
-     * Demonstrates combining different type-specific modifiers in complex components.
+     * Demonstrates combining different modifiers in complex components.
      */
     fun combinedModifiers() {
         // A card with mixed content requiring different modifier types
         val card = Card(
             content = listOf(
                 // Heading with text modifiers
-                Text(
+                code.yousef.summon.components.display.Text(
                     text = "Card Title",
                     modifier = Modifier()
                         .fontSize("20px")
                         .fontWeight("bold")
-                        .text() // Convert to TextModifier
-                        .textAlign("center")
-                        .toModifier()
+                        .style("text-align", "center")
                         .then(Modifier(mapOf("margin" to "0 0 16px 0")))
                 ),
 
@@ -224,9 +216,7 @@ class ModifierStyleGuide {
                     modifier = Modifier()
                         .width("100%")
                         .height("200px")
-                        .media() // Convert to MediaModifier
-                        .objectFit("cover")
-                        .toModifier()
+                        .style("object-fit", "cover")
                         .then(Modifier(mapOf("margin" to "0 0 16px 0")))
                 ),
 
@@ -236,9 +226,7 @@ class ModifierStyleGuide {
                     label = "Comment",
                     modifier = Modifier()
                         .width("100%")
-                        .input() // Convert to InputModifier
-                        .focusBorderColor("#4285f4")
-                        .toModifier()
+                        .style("focus-border-color", "#4285f4")
                         .then(Modifier(mapOf("margin" to "8px 0")))
                 )
             ),
@@ -270,13 +258,11 @@ class ModifierStyleGuide {
             .then(Modifier(mapOf("padding" to "16px")))
 
         // Apply them to components with specific modifiers
-        val text = Text(
+        val text = code.yousef.summon.components.display.Text(
             text = "Styled Text",
             modifier = baseTextModifier
                 .then(Modifier().fontWeight("bold"))
-                .text() // Add text-specific modifiers
-                .lineHeight("1.5")
-                .toModifier()
+                .style("line-height", "1.5")
         )
 
         val input = TextField(
@@ -284,18 +270,14 @@ class ModifierStyleGuide {
             label = "Input Field",
             modifier = baseInputModifier
                 .then(Modifier().border("1px", "solid", "#dddddd"))
-                .input() // Add input-specific modifiers
-                .focusBorderColor("#4285f4")
-                .toModifier()
+                .style("focus-border-color", "#4285f4")
         )
 
         val container = Box(
             content = listOf(text, input),
             modifier = baseLayoutModifier
                 .then(Modifier().background("#f9f9f9"))
-                .layout() // Add layout-specific modifiers
-                .flexGrow(1)
-                .toModifier()
+                .style("flex-grow", "1")
         )
     }
 } 

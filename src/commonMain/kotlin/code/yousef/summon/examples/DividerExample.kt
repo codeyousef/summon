@@ -1,6 +1,10 @@
 package code.yousef.summon.examples
 
-import code.yousef.summon.*
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.components.layout.Column
+import code.yousef.summon.components.layout.Divider
+import code.yousef.summon.components.layout.Row
+import code.yousef.summon.modifier.Modifier
 
 /**
  * An example showing how to use the Divider component in different configurations.

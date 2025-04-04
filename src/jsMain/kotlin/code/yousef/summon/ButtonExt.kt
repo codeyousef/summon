@@ -1,5 +1,6 @@
 package code.yousef.summon
 
+import code.yousef.summon.components.input.Button
 import kotlinx.browser.document
 import org.w3c.dom.HTMLButtonElement
 

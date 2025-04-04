@@ -1,6 +1,6 @@
 package code.yousef.summon.routing
 
-import code.yousef.summon.Composable
+import code.yousef.summon.core.Composable
 
 /**
  * A Next.js style router that automatically generates routes from page files in a pages directory.

@@ -2,7 +2,13 @@
 
 package code.yousef.summon.examples
 
-import code.yousef.summon.*
+import code.yousef.summon.core.Composable
+import code.yousef.summon.Spacer
+import code.yousef.summon.components.display.*
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.components.layout.Column
+import code.yousef.summon.components.layout.Row
+import code.yousef.summon.modifier.Modifier
 import kotlinx.html.TagConsumer
 import kotlinx.html.div
 
@@ -14,7 +20,7 @@ class EnhancedTextExample : Composable {
         if (receiver is TagConsumer<*>) {
             @Suppress("UNCHECKED_CAST")
             val consumer = receiver as TagConsumer<T>
-            
+
             consumer.div {
                 Column(
                     modifier = Modifier()
@@ -24,7 +30,7 @@ class EnhancedTextExample : Composable {
                     content = listOf(
                         h1("Enhanced Text Component"),
                         paragraph("The Text component has been enhanced with additional styling options and accessibility features."),
-                        
+
                         h2("Basic Text Styles"),
                         Row(
                             modifier = Modifier().margin("20px 0"),
@@ -58,7 +64,7 @@ class EnhancedTextExample : Composable {
                                 )
                             )
                         ),
-                        
+
                         h2("Text Overflow & Multi-line Support"),
                         Row(
                             modifier = Modifier().margin("20px 0"),
@@ -90,7 +96,7 @@ class EnhancedTextExample : Composable {
                                 )
                             )
                         ),
-                        
+
                         h2("Accessibility Features"),
                         Row(
                             modifier = Modifier().margin("20px 0"),
@@ -111,18 +117,20 @@ class EnhancedTextExample : Composable {
                                         Text(
                                             text = "This is alert message for screen readers",
                                             role = "alert",
-                                            modifier = Modifier().margin("10px 0").padding("10px").background("#ffebee").color("#c62828")
+                                            modifier = Modifier().margin("10px 0").padding("10px").background("#ffebee")
+                                                .color("#c62828")
                                         ),
                                         Text(
                                             text = "This is a status message",
                                             role = "status",
-                                            modifier = Modifier().margin("10px 0").padding("10px").background("#e8f5e9").color("#2e7d32")
+                                            modifier = Modifier().margin("10px 0").padding("10px").background("#e8f5e9")
+                                                .color("#2e7d32")
                                         )
                                     )
                                 )
                             )
                         ),
-                        
+
                         h2("Custom Text Styles"),
                         Row(
                             modifier = Modifier().margin("20px 0"),

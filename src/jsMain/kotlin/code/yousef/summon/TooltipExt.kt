@@ -1,5 +1,6 @@
 package code.yousef.summon
 
+import code.yousef.summon.components.feedback.Tooltip
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.HTMLElement

@@ -2,7 +2,7 @@
 
 package code.yousef.summon.examples
 
-import code.yousef.summon.Composable
+import code.yousef.summon.core.Composable
 import code.yousef.summon.routing.RouteParams
 import code.yousef.summon.routing.createPageRouter
 import kotlinx.html.TagConsumer

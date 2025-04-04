@@ -1,6 +1,8 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package code.yousef.summon.routing
 
-import code.yousef.summon.Composable
+import code.yousef.summon.core.Composable
 import kotlinx.html.TagConsumer
 import kotlinx.html.head
 import kotlinx.html.link

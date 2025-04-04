@@ -1,5 +1,6 @@
 package code.yousef.summon
 
+import code.yousef.summon.components.display.Icon
 import kotlinx.browser.document
 import org.w3c.dom.HTMLElement
 

@@ -1,6 +1,8 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package code.yousef.summon.examples
 
-import code.yousef.summon.Composable
+import code.yousef.summon.core.Composable
 import code.yousef.summon.routing.NavLink
 import code.yousef.summon.routing.Route
 import code.yousef.summon.routing.RouteParams

@@ -1,9 +1,9 @@
 package code.yousef.summon.integrations.quarkus
 
-import code.yousef.summon.Button
-import code.yousef.summon.Column
-import code.yousef.summon.Composable
-import code.yousef.summon.Text
+import code.yousef.summon.core.Composable
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.components.input.Button
+import code.yousef.summon.components.layout.Column
 import code.yousef.summon.integrations.quarkus.NativeImageSupport.ReflectiveComponent
 import io.quarkus.qute.Engine
 import io.quarkus.qute.Template

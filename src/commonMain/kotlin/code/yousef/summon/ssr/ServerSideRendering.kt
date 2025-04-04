@@ -1,6 +1,6 @@
 package code.yousef.summon.ssr
 
-import code.yousef.summon.Composable
+import code.yousef.summon.core.Composable
 import kotlinx.coroutines.flow.Flow
 
 /**

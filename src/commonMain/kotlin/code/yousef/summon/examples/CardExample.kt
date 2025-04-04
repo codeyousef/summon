@@ -1,6 +1,10 @@
 package code.yousef.summon.examples
 
-import code.yousef.summon.*
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.components.layout.Card
+import code.yousef.summon.components.layout.Column
+import code.yousef.summon.components.layout.Row
+import code.yousef.summon.modifier.Modifier
 
 /**
  * Example demonstrating the Card component.
@@ -30,7 +34,7 @@ object CardExample {
                 .margin("16px")
         )
     }
-    
+
     /**
      * Creates a card with custom styling.
      */
@@ -59,7 +63,7 @@ object CardExample {
             borderRadius = "8px"
         )
     }
-    
+
     /**
      * Creates a clickable card.
      */
@@ -97,7 +101,7 @@ object CardExample {
             }
         )
     }
-    
+
     /**
      * Creates a layout with multiple cards.
      */

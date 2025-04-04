@@ -1,6 +1,6 @@
 package code.yousef.summon.routing
 
-import code.yousef.summon.Composable
+import code.yousef.summon.core.Composable
 import kotlinx.html.TagConsumer
 import kotlinx.html.a
 import kotlinx.html.unsafe

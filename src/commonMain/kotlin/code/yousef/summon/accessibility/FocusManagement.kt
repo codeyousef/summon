@@ -1,8 +1,8 @@
 package code.yousef.summon.accessibility
 
-import code.yousef.summon.Composable
 import code.yousef.summon.FocusableComponent
-import code.yousef.summon.Modifier
+import code.yousef.summon.core.Composable
+import code.yousef.summon.modifier.Modifier
 
 /**
  * Utilities for managing focus in web applications.

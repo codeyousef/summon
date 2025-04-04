@@ -1,5 +1,6 @@
 package code.yousef.summon
 
+import code.yousef.summon.components.input.TextArea
 import kotlinx.browser.document
 import org.w3c.dom.HTMLTextAreaElement
 import org.w3c.dom.events.Event

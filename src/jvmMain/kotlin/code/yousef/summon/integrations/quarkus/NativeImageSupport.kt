@@ -1,6 +1,6 @@
 package code.yousef.summon.integrations.quarkus
 
-import code.yousef.summon.Composable
+import code.yousef.summon.core.Composable
 import io.quarkus.runtime.annotations.RegisterForReflection
 import java.io.File
 

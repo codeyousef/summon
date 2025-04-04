@@ -1,8 +1,8 @@
 package code.yousef.summon.ssr
 
-import code.yousef.summon.Composable
-import code.yousef.summon.PlatformRenderer
-import code.yousef.summon.getPlatformRenderer
+import code.yousef.summon.core.Composable
+import code.yousef.summon.core.PlatformRenderer
+import code.yousef.summon.core.getPlatformRenderer
 import kotlinx.html.stream.createHTML
 
 /**

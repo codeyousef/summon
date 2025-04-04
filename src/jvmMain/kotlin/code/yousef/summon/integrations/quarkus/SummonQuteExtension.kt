@@ -1,6 +1,6 @@
 package code.yousef.summon.integrations.quarkus
 
-import code.yousef.summon.Composable
+import code.yousef.summon.core.Composable
 import code.yousef.summon.JvmPlatformRenderer
 import code.yousef.summon.render
 import io.quarkus.qute.EngineBuilder

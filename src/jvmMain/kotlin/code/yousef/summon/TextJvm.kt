@@ -1,5 +1,6 @@
 package code.yousef.summon
 
+import code.yousef.summon.components.display.Text
 import kotlinx.html.TagConsumer
 import kotlinx.html.span
 

@@ -1,12 +1,13 @@
 package code.yousef.summon
 
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.components.input.Button
+import code.yousef.summon.components.input.Form
+import code.yousef.summon.components.input.TextField
+import code.yousef.summon.components.input.TextFieldType
+import code.yousef.summon.modifier.Modifier
+import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
-import kotlinx.html.html
-import kotlinx.html.head
-import kotlinx.html.title
-import kotlinx.html.body
-import kotlinx.html.style
-import kotlinx.html.unsafe
 
 /**
  * Example demonstrating form components.
@@ -16,7 +17,7 @@ fun createContactForm(): String {
     val nameState = mutableStateOf("")
     val emailState = mutableStateOf("")
     val messageState = mutableStateOf("")
-    
+
     // Create a contact form with validation
     val contactForm = Form(
         content = listOf(
@@ -95,17 +96,18 @@ fun createContactForm(): String {
             .borderRadius("8px")
             .width("500px")
     )
-    
+
     // Create HTML output
     val output = StringBuilder()
     val consumer = output.appendHTML()
-    
+
     consumer.html {
         head {
             title("Contact Form Example")
             style {
                 unsafe {
-                    raw("""
+                    raw(
+                        """
                     * {
                         box-sizing: border-box;
                         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -119,10 +121,11 @@ fun createContactForm(): String {
                         padding: 20px;
                         background-color: #f0f2f5;
                     }
-                    """.trimIndent())
+                    """.trimIndent()
+                    )
                 }
             }
-            
+
             // Add the generated hover styles
             style {
                 unsafe {
@@ -135,6 +138,6 @@ fun createContactForm(): String {
             contactForm.compose(consumer)
         }
     }
-    
+
     return output.toString()
 } 

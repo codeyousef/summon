@@ -1,6 +1,6 @@
 package code.yousef.summon.routing.seo
 
-import code.yousef.summon.Composable
+import code.yousef.summon.core.Composable
 import kotlinx.html.FlowContent
 import kotlinx.html.article
 import kotlinx.html.aside

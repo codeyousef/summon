@@ -1,6 +1,6 @@
 package code.yousef.summon.routing
 
-import code.yousef.summon.Composable
+import code.yousef.summon.core.Composable
 
 /**
  * Defines a route with a pattern and associated component.

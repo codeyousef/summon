@@ -2,7 +2,7 @@
 
 package code.yousef.summon.routing.pages.users
 
-import code.yousef.summon.Composable
+import code.yousef.summon.core.Composable
 import code.yousef.summon.routing.NavLink
 import code.yousef.summon.routing.RouteParams
 import kotlinx.html.TagConsumer

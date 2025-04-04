@@ -1,6 +1,10 @@
 package code.yousef.summon.examples
 
 import code.yousef.summon.*
+import code.yousef.summon.components.input.TextField
+import code.yousef.summon.components.layout.Column
+import code.yousef.summon.components.layout.Row
+import code.yousef.summon.core.Composable
 import kotlinx.coroutines.delay
 
 /**
@@ -133,7 +137,7 @@ class Text(val content: String) : Composable {
     }
 }
 
-class Button(val onClick: () -> Unit, val text: String) : Composable {
+class MockButton(val onClick: () -> Unit, val text: String) : Composable {
     override fun <T> compose(receiver: T): T {
         // In a real implementation, this would create button elements
         return receiver
@@ -144,7 +148,7 @@ class Button(val onClick: () -> Unit, val text: String) : Composable {
 fun DivComponent(block: () -> Unit) = Div(block)
 fun H1Component(block: () -> Unit) = H1(block)
 fun TextComponent(content: String) = Text(content)
-fun ButtonComponent(onClick: () -> Unit, text: String) = Button(onClick, text)
+fun ButtonComponent(onClick: () -> Unit, text: String) = MockButton(onClick, text)
 
 /**
  * Example showing how to use LaunchedEffect to perform side effects during composition.

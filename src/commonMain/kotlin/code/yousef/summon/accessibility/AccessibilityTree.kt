@@ -1,7 +1,7 @@
 package code.yousef.summon.accessibility
 
-import code.yousef.summon.Composable
-import code.yousef.summon.Modifier
+import code.yousef.summon.core.Composable
+import code.yousef.summon.modifier.Modifier
 
 /**
  * Utilities for inspecting and manipulating the accessibility tree of a web application.

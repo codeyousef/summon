@@ -1,6 +1,6 @@
 package code.yousef.summon.integrations.quarkus.deployment
 
-import code.yousef.summon.Composable
+import code.yousef.summon.core.Composable
 import code.yousef.summon.JvmPlatformRenderer
 import code.yousef.summon.integrations.quarkus.QuarkusExtension
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem

@@ -1,6 +1,6 @@
 package code.yousef.summon.ssr
 
-import code.yousef.summon.Composable
+import code.yousef.summon.core.Composable
 
 /**
  * Standard implementation of hydration support for client-side reactivation of server-rendered HTML

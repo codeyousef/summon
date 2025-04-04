@@ -1,8 +1,8 @@
 package code.yousef.summon.animation
 
-import code.yousef.summon.Composable
-import code.yousef.summon.Modifier
 import code.yousef.summon.State
+import code.yousef.summon.core.Composable
+import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.mutableStateOf
 import kotlinx.html.TagConsumer
 import kotlinx.html.div
@@ -44,7 +44,7 @@ class TransitionComponent<T>(
             val container = receiver
 
             // Create a div with the content
-            (container as kotlinx.html.TagConsumer<*>).div {
+            (container as TagConsumer<*>).div {
                 this.style = modifier.styles.entries.joinToString(";") {
                     "${it.key}:${it.value}"
                 }
@@ -102,7 +102,7 @@ class InfiniteTransitionComponent(
             val container = receiver
 
             // Create a div with the content
-            (container as kotlinx.html.TagConsumer<*>).div {
+            (container as TagConsumer<*>).div {
                 this.style = modifier.styles.entries.joinToString(";") {
                     "${it.key}:${it.value}"
                 }

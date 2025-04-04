@@ -1,5 +1,6 @@
 package code.yousef.summon
 
+import code.yousef.summon.modifier.Modifier
 import kotlinx.html.CommonAttributeGroupFacade
 import kotlinx.html.style
 
@@ -20,7 +21,7 @@ private var classCounter = 0
 fun Modifier.applyStyles(element: CommonAttributeGroupFacade): Pair<String, String>? {
     // Apply regular styles
     element.style = this.toStyleString()
-    
+
     // Handle hover styles - for JVM we'll return a class name that can be used for styling
     val hoverStyles = this.styles["__hover"]
     if (hoverStyles != null) {
@@ -28,7 +29,7 @@ fun Modifier.applyStyles(element: CommonAttributeGroupFacade): Pair<String, Stri
         element.attributes["class"] = className
         return className to hoverStyles
     }
-    
+
     return null
 }
 
@@ -37,11 +38,11 @@ fun Modifier.applyStyles(element: CommonAttributeGroupFacade): Pair<String, Stri
  */
 object CssClassStore {
     private val classes = mutableMapOf<String, String>()
-    
+
     fun add(className: String, styles: String) {
         classes[className] = styles
     }
-    
+
     fun generateCss(): String {
         return classes.entries.joinToString("\n") { (className, styles) ->
             ".$className:hover { $styles }"

@@ -1,9 +1,9 @@
 package code.yousef.summon.animation
 
-import code.yousef.summon.Composable
-import code.yousef.summon.Modifier
-import code.yousef.summon.PlatformRendererProvider
 import code.yousef.summon.State
+import code.yousef.summon.core.Composable
+import code.yousef.summon.core.PlatformRendererProvider
+import code.yousef.summon.modifier.Modifier
 import kotlinx.html.TagConsumer
 
 /**

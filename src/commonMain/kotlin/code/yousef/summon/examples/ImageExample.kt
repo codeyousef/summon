@@ -1,6 +1,12 @@
 package code.yousef.summon.examples
 
-import code.yousef.summon.*
+import code.yousef.summon.core.Composable
+import code.yousef.summon.Spacer
+import code.yousef.summon.components.display.Image
+import code.yousef.summon.components.display.ImageLoading
+import code.yousef.summon.components.layout.Column
+import code.yousef.summon.components.layout.Row
+import code.yousef.summon.modifier.Modifier
 
 /**
  * Example showing different ways to use the Image component.
@@ -13,7 +19,7 @@ object ImageExample {
         return Column(
             modifier = Modifier().padding("16px"),
             content = listOf(
-                Text(
+                code.yousef.summon.components.display.Text(
                     "Basic Image Example",
                     modifier = Modifier().fontSize("24px").fontWeight("bold").marginBottom("16px")
                 ),
@@ -35,7 +41,7 @@ object ImageExample {
         return Column(
             modifier = Modifier().padding("16px"),
             content = listOf(
-                Text(
+                code.yousef.summon.components.display.Text(
                     "Multiple Images with Different Loading Strategies",
                     modifier = Modifier().fontSize("24px").fontWeight("bold").marginBottom("16px")
                 ),
@@ -53,7 +59,10 @@ object ImageExample {
                                     height = "150px",
                                     modifier = Modifier().shadow("0px", "4px", "8px", "rgba(0,0,0,0.1)")
                                 ),
-                                Text("Eager Loading", modifier = Modifier().marginTop("8px"))
+                                code.yousef.summon.components.display.Text(
+                                    "Eager Loading",
+                                    modifier = Modifier().marginTop("8px")
+                                )
                             )
                         ),
                         Column(
@@ -67,7 +76,10 @@ object ImageExample {
                                     height = "150px",
                                     modifier = Modifier().shadow("0px", "4px", "8px", "rgba(0,0,0,0.1)")
                                 ),
-                                Text("Lazy Loading", modifier = Modifier().marginTop("8px"))
+                                code.yousef.summon.components.display.Text(
+                                    "Lazy Loading",
+                                    modifier = Modifier().marginTop("8px")
+                                )
                             )
                         ),
                         Column(
@@ -81,13 +93,16 @@ object ImageExample {
                                     height = "150px",
                                     modifier = Modifier().shadow("0px", "4px", "8px", "rgba(0,0,0,0.1)")
                                 ),
-                                Text("Auto Loading", modifier = Modifier().marginTop("8px"))
+                                code.yousef.summon.components.display.Text(
+                                    "Auto Loading",
+                                    modifier = Modifier().marginTop("8px")
+                                )
                             )
                         )
                     )
                 ),
                 Spacer(size = "24px", isVertical = true),
-                Text(
+                code.yousef.summon.components.display.Text(
                     "Accessibility Example",
                     modifier = Modifier().fontSize("20px").fontWeight("bold").marginBottom("16px")
                 ),
@@ -97,7 +112,7 @@ object ImageExample {
                     contentDescription = "Bar chart showing monthly revenue growth of 15% in Q1, 22% in Q2, 18% in Q3, and 25% in Q4 of 2023.",
                     modifier = Modifier().maxWidth("100%").height("auto")
                 ),
-                Text(
+                code.yousef.summon.components.display.Text(
                     "Above: An image with detailed description for screen readers",
                     modifier = Modifier().marginTop("8px")
                 )

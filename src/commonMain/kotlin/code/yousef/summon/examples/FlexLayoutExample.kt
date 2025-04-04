@@ -1,6 +1,10 @@
 package code.yousef.summon.examples
 
-import code.yousef.summon.*
+import code.yousef.summon.core.Composable
+import code.yousef.summon.Spacer
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.components.layout.Column
+import code.yousef.summon.modifier.Modifier
 
 /**
  * Example showcasing the Flex Layout capabilities using the new flexbox modifiers.
@@ -24,52 +28,52 @@ object FlexLayoutExample {
                         .fontWeight("bold")
                         .marginBottom("20px")
                 ),
-                
+
                 // Basic row with flex
                 Text(
                     "Basic Row (flex-direction: row)",
                     modifier = Modifier().fontSize("16px").marginBottom("10px")
                 ),
                 createColoredBoxesRow("row"),
-                
+
                 Spacer("20px"),
-                
+
                 // Row Reverse
                 Text(
                     "Row Reverse (flex-direction: row-reverse)",
                     modifier = Modifier().fontSize("16px").marginBottom("10px")
                 ),
                 createColoredBoxesRow("row-reverse"),
-                
+
                 Spacer("20px"),
-                
+
                 // Column
                 Text(
                     "Column (flex-direction: column)",
                     modifier = Modifier().fontSize("16px").marginBottom("10px")
                 ),
                 createColoredBoxesRow("column"),
-                
+
                 Spacer("20px"),
-                
+
                 // Space Between
                 Text(
                     "Space Between (justify-content: space-between)",
                     modifier = Modifier().fontSize("16px").marginBottom("10px")
                 ),
                 createFlexWithJustify("space-between"),
-                
+
                 Spacer("20px"),
-                
+
                 // Space Around
                 Text(
                     "Space Around (justify-content: space-around)",
                     modifier = Modifier().fontSize("16px").marginBottom("10px")
                 ),
                 createFlexWithJustify("space-around"),
-                
+
                 Spacer("20px"),
-                
+
                 // Center Alignment
                 Text(
                     "Center Alignment (justify-content: center, align-items: center)",
@@ -79,7 +83,7 @@ object FlexLayoutExample {
             )
         )
     }
-    
+
     /**
      * Creates a row of colored boxes with the specified flex direction.
      */
@@ -98,7 +102,7 @@ object FlexLayoutExample {
             )
         )
     }
-    
+
     /**
      * Creates a flex container with specified justify-content value.
      */
@@ -116,7 +120,7 @@ object FlexLayoutExample {
             )
         )
     }
-    
+
     /**
      * Creates a flex container with items centered both horizontally and vertically.
      */
@@ -136,7 +140,7 @@ object FlexLayoutExample {
             )
         )
     }
-    
+
     /**
      * Creates a colored box with text inside.
      */
