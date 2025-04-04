@@ -10,7 +10,7 @@ interface Validator {
      * @return True if validation passed, false otherwise
      */
     fun validate(value: String): Boolean
-    
+
     /**
      * Error message to show when validation fails.
      */
@@ -32,7 +32,7 @@ class RequiredValidator(
 class EmailValidator(
     override val errorMessage: String = "Please enter a valid email address"
 ) : Validator {
-    private val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\$")
+    private val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
     
     override fun validate(value: String): Boolean {
         return value.isEmpty() || value.matches(emailRegex)
@@ -77,4 +77,13 @@ class CustomValidator(
     override val errorMessage: String
 ) : Validator {
     override fun validate(value: String): Boolean = validateFn(value)
+}
+
+/**
+ * Validates a boolean value.
+ * @param value The boolean value to validate
+ * @return True if validation passed, false otherwise
+ */
+fun Validator.validateBoolean(value: Boolean): Boolean {
+    return validate(value.toString())
 } 

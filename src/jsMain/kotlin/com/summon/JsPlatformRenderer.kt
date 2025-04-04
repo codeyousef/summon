@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package com.summon
 
 import com.summon.routing.Router
@@ -107,10 +109,10 @@ class JsPlatformRenderer : PlatformRenderer {
     }
 
     /**
-     * Renders a TextField component as an input element with appropriate attributes.
+     * Renders a TextField component as an input field with a label.
      */
     override fun <T> renderTextField(textField: TextField, consumer: TagConsumer<T>): T {
-        val fieldId = "tf-${textField.hashCode()}"
+        val fieldId = "field-${textField.hashCode()}"
 
         consumer.div {
             // Apply container styles
@@ -175,6 +177,178 @@ class JsPlatformRenderer : PlatformRenderer {
         setupJsInputHandler(fieldId, textField)
 
         @Suppress("UNCHECKED_CAST")
+        return consumer as T
+    }
+
+    /**
+     * Renders a TextArea component as a textarea field with a label.
+     */
+    override fun <T> renderTextArea(textArea: TextArea, consumer: TagConsumer<T>): T {
+        val fieldId = "textarea-${textArea.hashCode()}"
+
+        consumer.div {
+            // Apply container styles
+            style = "display: flex; flex-direction: column; margin-bottom: 16px;"
+
+            // Add the label if provided
+            textArea.label?.let {
+                label {
+                    htmlFor = fieldId
+                    style = "margin-bottom: 4px; font-weight: 500;"
+                    +it
+                }
+            }
+
+            // Render the textarea field
+            textArea {
+                id = fieldId
+                name = fieldId
+                rows = "${textArea.rows}"
+                cols = "${textArea.columns}"
+
+                // Apply modifier styles
+                val baseStyles = textArea.modifier.toStyleString()
+                val resizableStyle = if (!textArea.resizable) "; resize: none" else ""
+                style = baseStyles + resizableStyle
+
+                // Add maxlength if provided
+                textArea.maxLength?.let {
+                    maxLength = "$it"
+                }
+
+                // Add placeholder if provided
+                textArea.placeholder?.let {
+                    placeholder = it
+                }
+
+                // Set current value as content
+                +textArea.state.value
+
+                // Add a data attribute for textarea handling
+                attributes["data-summon-textarea"] = fieldId
+            }
+
+            // Show validation errors if any
+            val errors = textArea.getValidationErrors()
+            if (errors.isNotEmpty()) {
+                div {
+                    style = "color: #d32f2f; font-size: 12px; margin-top: 4px;"
+                    errors.forEach { error ->
+                        div {
+                            +error
+                        }
+                    }
+                }
+            }
+        }
+
+        // Set up the textarea change handler
+        setupJsTextAreaHandler(fieldId, textArea)
+
+        @Suppress("UNCHECKED_CAST")
+        return consumer as T
+    }
+
+    /**
+     * Renders a Checkbox component as a checkbox input with a label.
+     */
+    override fun <T> renderCheckbox(checkbox: Checkbox, consumer: TagConsumer<T>): T {
+        val checkboxId = "checkbox-${checkbox.hashCode()}"
+
+        consumer.div {
+            // Apply container styles
+            style = "display: flex; align-items: center; margin-bottom: 16px;"
+
+            // Render the checkbox input
+            input {
+                id = checkboxId
+                name = checkboxId
+                type = InputType.checkBox
+                checked = checkbox.state.value
+
+                // Apply indeterminate state if needed
+                if (checkbox.isIndeterminate) {
+                    attributes["indeterminate"] = "true"
+                }
+
+                // Apply modifier styles
+                style = checkbox.modifier.toStyleString()
+
+                // Add a data attribute for checkbox handling
+                attributes["data-summon-checkbox"] = checkboxId
+            }
+
+            // Add the label if provided, placed next to the checkbox
+            checkbox.label?.let {
+                label {
+                    htmlFor = checkboxId
+                    style = "margin-left: 8px;"
+                    +it
+                }
+            }
+        }
+
+        // Show validation errors if any
+        val errors = checkbox.getValidationErrors()
+        if (errors.isNotEmpty()) {
+            consumer.div {
+                style = "color: #d32f2f; font-size: 12px; margin-top: 4px;"
+                errors.forEach { error ->
+                    div {
+                        +error
+                    }
+                }
+            }
+        }
+
+        // Set up the checkbox change handler
+        setupJsCheckboxHandler(checkboxId, checkbox)
+
+        @Suppress("UNCHECKED_CAST")
+        return consumer as T
+    }
+
+    /**
+     * Renders a RadioButton component as a radio input with a label.
+     */
+    override fun <T> renderRadioButton(radioButton: RadioButton<Any>, consumer: TagConsumer<T>): T {
+        val radioId = "radio-${radioButton.hashCode()}"
+
+        consumer.div {
+            // Apply container styles
+            style = "display: flex; align-items: center; margin-bottom: 8px;"
+
+            // Render the radio input
+            input {
+                id = radioId
+                name = radioButton.name
+                type = InputType.radio
+                checked = radioButton.selected
+
+                if (radioButton.disabled) {
+                    disabled = true
+                }
+
+                // Apply modifier styles
+                style = radioButton.modifier.toStyleString()
+
+                // Add a data attribute for radio handling
+                attributes["data-summon-radio"] = radioId
+            }
+
+            // Add the label if provided, placed next to the radio button
+            radioButton.label?.let {
+                label {
+                    htmlFor = radioId
+                    style = "margin-left: 8px;"
+                    +it
+                }
+            }
+        }
+
+        // Set up the radio click handler
+        setupJsRadioHandler(radioId, radioButton)
+
         return consumer as T
     }
 
@@ -286,7 +460,7 @@ class JsPlatformRenderer : PlatformRenderer {
             setupJsCardClickHandler(cardId, card)
         }
 
-        @Suppress("UNCHECKED_CAST")
+
         return consumer as T
     }
 
@@ -335,7 +509,7 @@ class JsPlatformRenderer : PlatformRenderer {
             }
         }
 
-        @Suppress("UNCHECKED_CAST")
+
         return consumer as T
     }
 
@@ -369,7 +543,7 @@ class JsPlatformRenderer : PlatformRenderer {
                 }
             }
         }
-        @Suppress("UNCHECKED_CAST")
+
         return consumer as T
     }
 
@@ -406,7 +580,6 @@ class JsPlatformRenderer : PlatformRenderer {
             setupJsLinkHandler(linkId, link)
         }
 
-        @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
@@ -696,7 +869,6 @@ class JsPlatformRenderer : PlatformRenderer {
             setupJsBadgeClickHandler(badgeId, badge)
         }
 
-        @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
@@ -765,7 +937,6 @@ class JsPlatformRenderer : PlatformRenderer {
         // Set up tooltip behavior
         setupJsTooltipHandlers(tooltipId, contentId, tooltip)
 
-        @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
@@ -902,7 +1073,6 @@ class JsPlatformRenderer : PlatformRenderer {
             }
         }
 
-        @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
@@ -923,7 +1093,6 @@ class JsPlatformRenderer : PlatformRenderer {
             }
         }
 
-        @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
@@ -952,7 +1121,6 @@ class JsPlatformRenderer : PlatformRenderer {
             }
         }
 
-        @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
@@ -988,7 +1156,6 @@ class JsPlatformRenderer : PlatformRenderer {
             }
         }
 
-        @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
@@ -1033,7 +1200,6 @@ class JsPlatformRenderer : PlatformRenderer {
         // Set up JS to handle responsive behavior
         setupResponsiveLayout(layoutId, responsiveLayout)
 
-        @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
@@ -1081,7 +1247,6 @@ class JsPlatformRenderer : PlatformRenderer {
         // Set up JS virtualization
         setupLazyColumnVirtualization(columnId, lazyColumn)
 
-        @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
@@ -1130,7 +1295,6 @@ class JsPlatformRenderer : PlatformRenderer {
         // Set up JS virtualization
         setupLazyRowVirtualization(rowId, lazyRow)
 
-        @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
@@ -1210,7 +1374,6 @@ class JsPlatformRenderer : PlatformRenderer {
         // Set up JS tab switching
         setupTabLayoutSwitching(tabLayoutId, tabLayout)
 
-        @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
@@ -1293,7 +1456,6 @@ class JsPlatformRenderer : PlatformRenderer {
         // Set up JS for expansion toggling
         setupExpansionPanelToggling(panelId, expansionPanel)
 
-        @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
@@ -1303,6 +1465,333 @@ class JsPlatformRenderer : PlatformRenderer {
     private fun setupExpansionPanelToggling(panelId: String, expansionPanel: ExpansionPanel) {
         // This would be implemented in JS to handle panel expansion/collapse
         // with smooth animations
+    }
+
+    /**
+     * Renders a Select component as a dropdown with options.
+     */
+    override fun <T> renderSelect(select: Select<Any>, consumer: TagConsumer<T>): T {
+        val selectId = "select-${select.hashCode()}"
+
+        consumer.div {
+            // Apply container styles
+            style = "display: flex; flex-direction: column; margin-bottom: 16px;"
+
+            // Add the label if provided
+            select.label?.let {
+                label {
+                    htmlFor = selectId
+                    style = "margin-bottom: 4px; font-weight: 500;"
+                    +it
+                }
+            }
+
+            // Render the select field
+            select {
+                id = selectId
+                name = selectId
+
+                if (select.multiple) {
+                    multiple = true
+                }
+
+                if (select.disabled) {
+                    disabled = true
+                }
+
+                if (select.size > 1) {
+                    size = "${select.size}"
+                }
+
+                // Apply modifier styles
+                style = select.modifier.toStyleString()
+
+                // Add placeholder option if provided
+                select.placeholder?.let {
+                    option {
+                        value = ""
+                        selected = select.selectedValue.value == null
+                        +it
+                    }
+                }
+
+                // Add all options
+                select.options.forEach { option ->
+                    option {
+                        value = option.value.toString()
+                        selected = option.selected ||
+                                select.selectedValue.value?.toString() == option.value.toString()
+
+                        if (option.disabled) {
+                            disabled = true
+                        }
+
+                        +option.label
+                    }
+                }
+
+                // Add a data attribute for select handling
+                attributes["data-summon-select"] = selectId
+            }
+
+            // Show validation errors if any
+            val errors = select.getValidationErrors()
+            if (errors.isNotEmpty()) {
+                div {
+                    style = "color: #d32f2f; font-size: 12px; margin-top: 4px;"
+                    errors.forEach { error ->
+                        div {
+                            +error
+                        }
+                    }
+                }
+            }
+        }
+
+        // Set up the select change handler
+        setupJsSelectHandler(selectId, select)
+
+        return consumer as T
+    }
+
+    /**
+     * Renders a FormField component that wraps form controls with labels and validation.
+     */
+    override fun <T> renderFormField(formField: FormField, consumer: TagConsumer<T>): T {
+        consumer.div {
+            // Apply container styles with modifier
+            style = "display: flex; flex-direction: column; margin-bottom: 16px;" +
+                    formField.modifier.toStyleString()
+
+            // Render label if provided
+            formField.label?.let {
+                label {
+                    style = "margin-bottom: 4px; font-weight: 500;" +
+                            if (formField.required) " position: relative;" else ""
+
+                    +it
+
+                    // Add required indicator
+                    if (formField.required) {
+                        span {
+                            style = "color: #d32f2f; margin-left: 4px;"
+                            +"*"
+                        }
+                    }
+                }
+            }
+
+            // Render the field content
+            formField.fieldContent.compose(this)
+
+            // Render helper text if provided
+            formField.helper?.let {
+                div {
+                    style = "font-size: 12px; color: #666; margin-top: 4px;"
+                    +it
+                }
+            }
+
+            // Render error if provided
+            formField.error?.let {
+                div {
+                    style = "font-size: 12px; color: #d32f2f; margin-top: 4px;"
+                    +it
+                }
+            }
+        }
+
+        return consumer as T
+    }
+
+    /**
+     * Renders a Switch component as a toggle switch with a label.
+     */
+    override fun <T> renderSwitch(switch: Switch, consumer: TagConsumer<T>): T {
+        val switchId = "switch-${switch.hashCode()}"
+
+        consumer.div {
+            // Apply container styles
+            style = "display: flex; align-items: center; margin-bottom: 16px;"
+
+            // Create the visual switch control
+            label {
+                htmlFor = switchId
+                style = "position: relative; display: inline-block; width: 40px; height: 24px; " +
+                        "cursor: ${if (switch.disabled) "not-allowed" else "pointer"};"
+
+                // Hidden checkbox input
+                input {
+                    id = switchId
+                    type = InputType.checkBox
+                    checked = switch.state.value
+
+                    if (switch.disabled) {
+                        disabled = true
+                    }
+
+                    style = "opacity: 0; width: 0; height: 0;" // Hide the checkbox
+                    attributes["data-summon-switch"] = switchId
+                }
+
+                // Switch slider
+                span {
+                    style = "position: absolute; top: 0; left: 0; right: 0; bottom: 0; " +
+                            "background-color: ${if (switch.state.value) "#2196F3" else "#ccc"}; " +
+                            "border-radius: 12px; " +
+                            "transition: .4s; " +
+                            "opacity: ${if (switch.disabled) "0.6" else "1"};" +
+                            switch.modifier.toStyleString()
+
+                    // Switch knob/thumb
+                    span {
+                        style = "position: absolute; content: ''; height: 16px; width: 16px; " +
+                                "left: 4px; bottom: 4px; background-color: white; " +
+                                "border-radius: 50%; transition: .4s; " +
+                                "transform: ${if (switch.state.value) "translateX(16px)" else "none"};"
+                    }
+                }
+            }
+
+            // Label text if provided
+            switch.label?.let {
+                label {
+                    htmlFor = switchId
+                    style = "margin-left: 12px;" +
+                            if (switch.disabled) " opacity: 0.6;" else ""
+                    +it
+                }
+            }
+        }
+
+        // Set up the switch change handler
+        setupJsSwitchHandler(switchId, switch)
+
+        return consumer as T
+    }
+
+    /**
+     * Renders a FileUpload component for file selection.
+     */
+    override fun <T> renderFileUpload(fileUpload: FileUpload, consumer: TagConsumer<T>): T {
+        val uploadId = "file-upload-${fileUpload.hashCode()}"
+
+        consumer.div {
+            // Apply container styles
+            style = "display: flex; flex-direction: column; margin-bottom: 16px;" +
+                    fileUpload.modifier.toStyleString()
+
+            // Label if provided
+            fileUpload.label?.let {
+                label {
+                    htmlFor = uploadId
+                    style = "margin-bottom: 8px; font-weight: 500;"
+                    +it
+                }
+            }
+
+            // Custom file input wrapper
+            div {
+                style = "display: flex; align-items: center;"
+
+                // Hidden file input
+                input {
+                    id = uploadId
+                    type = InputType.file
+
+                    // Set attributes based on component properties
+                    fileUpload.accept?.let { accept = it }
+                    if (fileUpload.multiple) multiple = true
+                    if (fileUpload.disabled) disabled = true
+                    fileUpload.capture?.let { attributes["capture"] = it }
+
+                    // Apply basic styles
+                    style = "position: absolute; opacity: 0; width: 0.1px; height: 0.1px; overflow: hidden;"
+                    attributes["data-summon-file-upload"] = uploadId
+                }
+
+                // Custom styled button
+                label {
+                    htmlFor = uploadId
+                    style = "display: inline-block; padding: 8px 16px; " +
+                            "background-color: #f5f5f5; border: 1px solid #ddd; " +
+                            "border-radius: 4px; cursor: pointer; " +
+                            "transition: background-color 0.3s; " +
+                            if (fileUpload.disabled) "opacity: 0.6; cursor: not-allowed;" else ""
+                    +fileUpload.buttonLabel
+                }
+
+                // Display selected file name(s)
+                span {
+                    id = "$uploadId-selection"
+                    style = "margin-left: 10px; color: #666; font-size: 14px;"
+                    +"No file selected"
+                }
+            }
+        }
+
+        // Set up the file upload handler
+        setupJsFileUploadHandler(uploadId, fileUpload)
+
+        return consumer as T
+    }
+
+    /**
+     * Renders a RangeSlider component for range selection.
+     */
+    override fun <T> renderRangeSlider(rangeSlider: RangeSlider, consumer: TagConsumer<T>): T {
+        val sliderId = "slider-${rangeSlider.hashCode()}"
+
+        consumer.div {
+            // Apply container styles
+            style = "display: flex; flex-direction: column; margin-bottom: 16px;" +
+                    rangeSlider.modifier.toStyleString()
+
+            // Add label if provided
+            rangeSlider.label?.let {
+                label {
+                    htmlFor = sliderId
+                    style = "margin-bottom: 8px; display: flex; justify-content: space-between;"
+
+                    // Label text
+                    span { +it }
+
+                    // Current value
+                    if (rangeSlider.showTooltip) {
+                        span {
+                            id = "$sliderId-value"
+                            +rangeSlider.valueFormat(rangeSlider.state.value)
+                        }
+                    }
+                }
+            }
+
+            // Render the slider input
+            input {
+                id = sliderId
+                type = InputType.range
+                min = rangeSlider.min.toString()
+                max = rangeSlider.max.toString()
+                step = rangeSlider.step.toString()
+                value = rangeSlider.state.value.toString()
+
+                if (rangeSlider.disabled) {
+                    disabled = true
+                }
+
+                // Apply styles
+                style = "width: 100%; " +
+                        if (rangeSlider.disabled) "opacity: 0.6;" else ""
+
+                // Add data attribute for slider handling
+                attributes["data-summon-slider"] = sliderId
+            }
+        }
+
+        // Set up the slider handler
+        setupJsSliderHandler(sliderId, rangeSlider)
+
+        return consumer as T
     }
 }
 
@@ -1335,13 +1824,61 @@ private fun setupJsLinkHandler(linkId: String, link: Link) {
 }
 
 /**
+ * Helper function to set up the radio button handler using the existing extension function.
+ */
+private fun setupJsRadioHandler(radioId: String, radioButton: RadioButton<Any>) {
+    // Direct implementation (without extension function)
+    // This will be connected to browser DOM events when kotlinx-browser is available
+    if (radioButton.selected) {
+        radioButton.onClick.invoke()
+    }
+}
+
+/**
+ * Helper function to set up the select handler using the existing extension function.
+ */
+private fun setupJsSelectHandler(selectId: String, select: Select<Any>) {
+    // Direct implementation (without extension function)
+    // This will be connected to browser DOM events when kotlinx-browser is available
+    select.onSelectedChange.invoke(select.selectedValue.value)
+}
+
+/**
+ * Helper function to set up the switch handler using the existing extension function.
+ */
+private fun setupJsSwitchHandler(switchId: String, switch: Switch) {
+    // Direct implementation (without extension function)
+    // This will be connected to browser DOM events when kotlinx-browser is available
+    switch.onValueChange.invoke(switch.state.value)
+}
+
+/**
+ * Helper function to set up the file upload handler using the existing extension function.
+ */
+private fun setupJsFileUploadHandler(uploadId: String, fileUpload: FileUpload) {
+    // Direct implementation (without extension function)
+    // This will be connected to browser DOM events when kotlinx-browser is available
+    // For now, just provide a minimal implementation to resolve the compilation error
+    fileUpload.onFilesSelected(emptyList())
+}
+
+/**
+ * Helper function to set up the slider handler using the existing extension function.
+ */
+private fun setupJsSliderHandler(sliderId: String, rangeSlider: RangeSlider) {
+    // Direct implementation (without extension function)
+    // This will be connected to browser DOM events when kotlinx-browser is available
+    // For now, just handle the state to resolve the compilation error
+    rangeSlider.onValueChange(rangeSlider.state.value)
+}
+
+/**
  * Helper function to safely access the itemContent with wildcard generics
  */
 private fun <T, I> getComposable(lazyList: LazyColumn<*>, item: Any?): Composable {
     // This is a workaround for type erasure and wildcard generics
-    @Suppress("UNCHECKED_CAST")
+
     val typedList = lazyList as LazyColumn<I>
-    @Suppress("UNCHECKED_CAST")
     return typedList.itemContent(item as I)
 }
 
@@ -1350,8 +1887,6 @@ private fun <T, I> getComposable(lazyList: LazyColumn<*>, item: Any?): Composabl
  */
 private fun <T, I> getComposable(lazyList: LazyRow<*>, item: Any?): Composable {
     // This is a workaround for type erasure and wildcard generics
-    @Suppress("UNCHECKED_CAST")
     val typedList = lazyList as LazyRow<I>
-    @Suppress("UNCHECKED_CAST")
     return typedList.itemContent(item as I)
 } 

@@ -41,6 +41,46 @@ interface PlatformRenderer {
     fun <T> renderTextField(textField: TextField, consumer: TagConsumer<T>): T
 
     /**
+     * Renders a TextArea component to the appropriate platform output.
+     */
+    fun <T> renderTextArea(textArea: TextArea, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders a Checkbox component to the appropriate platform output.
+     */
+    fun <T> renderCheckbox(checkbox: Checkbox, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders a RadioButton component to the appropriate platform output.
+     */
+    fun <T> renderRadioButton(radioButton: RadioButton<Any>, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders a Select component to the appropriate platform output.
+     */
+    fun <T> renderSelect(select: Select<Any>, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders a FormField component to the appropriate platform output.
+     */
+    fun <T> renderFormField(formField: FormField, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders a Switch component to the appropriate platform output.
+     */
+    fun <T> renderSwitch(switch: Switch, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders a FileUpload component to the appropriate platform output.
+     */
+    fun <T> renderFileUpload(fileUpload: FileUpload, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders a RangeSlider component to the appropriate platform output.
+     */
+    fun <T> renderRangeSlider(rangeSlider: RangeSlider, consumer: TagConsumer<T>): T
+
+    /**
      * Renders a Form component to the appropriate platform output.
      */
     fun <T> renderForm(form: Form, consumer: TagConsumer<T>): T
