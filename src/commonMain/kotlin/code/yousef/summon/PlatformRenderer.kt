@@ -1,5 +1,7 @@
 package code.yousef.summon
 
+import code.yousef.summon.animation.AnimatedContent
+import code.yousef.summon.animation.AnimatedVisibility
 import code.yousef.summon.routing.Router
 import kotlinx.html.TagConsumer
 
@@ -189,4 +191,14 @@ interface PlatformRenderer {
      * Renders a TimePicker component to the appropriate platform output.
      */
     fun <T> renderTimePicker(timePicker: TimePicker, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders an AnimatedVisibility component to the appropriate platform output.
+     */
+    fun <T> renderAnimatedVisibility(animatedVisibility: AnimatedVisibility, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders an AnimatedContent component to the appropriate platform output.
+     */
+    fun <T> renderAnimatedContent(animatedContent: AnimatedContent<*>, consumer: TagConsumer<T>): T
 } 

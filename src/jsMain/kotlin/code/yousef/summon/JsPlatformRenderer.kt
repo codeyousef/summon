@@ -2,6 +2,8 @@
 
 package code.yousef.summon
 
+import code.yousef.summon.animation.AnimatedContent
+import code.yousef.summon.animation.AnimatedVisibility
 import code.yousef.summon.routing.Router
 import code.yousef.summon.routing.RouterContext
 import kotlinx.html.*
@@ -1955,6 +1957,77 @@ class JsPlatformRenderer : PlatformRenderer {
         // This will be connected to browser DOM events when kotlinx-browser is available
         // For now, just handle the state to resolve the compilation error
         timePicker.onTimeChange(timePicker.state.value)
+    }
+
+    /**
+     * Renders an AnimatedVisibility component as a div with CSS transitions.
+     */
+    override fun <T> renderAnimatedVisibility(animatedVisibility: AnimatedVisibility, consumer: TagConsumer<T>): T {
+        consumer.div {
+            // Combine base styles with animation and component modifiers
+            val baseStyles = if (animatedVisibility.visible) {
+                animatedVisibility.getAnimationStyles()
+            } else {
+                animatedVisibility.getInitialStyles()
+            }
+
+            val combinedStyles = animatedVisibility.modifier.styles + baseStyles
+            style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+
+            // Only render content if visible (for initial load) or during animation
+            if (animatedVisibility.visible) {
+                // Render each child in the content list
+                animatedVisibility.content.forEach { child ->
+                    child.compose(this)
+                }
+            }
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        return consumer as T
+    }
+
+    /**
+     * Renders an AnimatedContent component with transitions between different content states.
+     */
+    override fun <T> renderAnimatedContent(animatedContent: AnimatedContent<*>, consumer: TagConsumer<T>): T {
+        consumer.div {
+            // Apply container styles
+            val containerStyles = animatedContent.getContainerStyles() + animatedContent.modifier.styles
+            style = containerStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+
+            // Update content based on current state
+            animatedContent.updateContent()
+
+            // Render current content with animation styles
+            div {
+                val currentStyles = animatedContent.getCurrentContentStyles()
+                style = currentStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+
+                // Render each child in the current content - use unchecked cast to handle wildcard type
+                @Suppress("UNCHECKED_CAST")
+                val value = animatedContent.targetState.value
+                val factory = animatedContent.contentFactory as (Any?) -> List<Composable>
+                val content = factory(value)
+                content.forEach { child ->
+                    child.compose(this)
+                }
+            }
+
+            // Render previous content during transition (if available)
+            animatedContent.getPreviousContentStyles().let { prevStyles ->
+                div {
+                    style = prevStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+
+                    // We don't actually render the previous content here, as it would be
+                    // expensive and unnecessary. Just having the div with transition
+                    // styles is enough for the animation effect.
+                }
+            }
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        return consumer as T
     }
 }
 
