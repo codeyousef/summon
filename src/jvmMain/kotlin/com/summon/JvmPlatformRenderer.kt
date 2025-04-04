@@ -315,14 +315,14 @@ class JvmPlatformRenderer : PlatformRenderer {
                 name = radioButton.name
                 type = InputType.radio
                 checked = radioButton.selected
-                
+
                 if (radioButton.disabled) {
                     disabled = true
                 }
-                
+
                 // Apply modifier styles
                 style = radioButton.modifier.toStyleString()
-                
+
                 // For JVM, we can't handle change events directly
                 attributes["data-summon-radio"] = "true"
             }
@@ -364,22 +364,22 @@ class JvmPlatformRenderer : PlatformRenderer {
             select {
                 id = selectId
                 name = selectId
-                
+
                 if (select.multiple) {
                     multiple = true
                 }
-                
+
                 if (select.disabled) {
                     disabled = true
                 }
-                
+
                 if (select.size > 1) {
                     size = "${select.size}"
                 }
-                
+
                 // Apply modifier styles
                 style = select.modifier.toStyleString()
-                
+
                 // Add placeholder option if provided
                 select.placeholder?.let {
                     option {
@@ -388,26 +388,26 @@ class JvmPlatformRenderer : PlatformRenderer {
                         +it
                     }
                 }
-                
+
                 // Add all options
                 select.options.forEach { option ->
                     option {
                         value = option.value.toString()
-                        selected = option.selected || 
-                            select.selectedValue.value?.toString() == option.value.toString()
-                        
+                        selected = option.selected ||
+                                select.selectedValue.value?.toString() == option.value.toString()
+
                         if (option.disabled) {
                             disabled = true
                         }
-                        
+
                         +option.label
                     }
                 }
-                
+
                 // For JVM, we can't handle change events directly
                 attributes["data-summon-select"] = "true"
             }
-            
+
             // Show validation errors if any
             val errors = select.getValidationErrors()
             if (errors.isNotEmpty()) {
@@ -1302,7 +1302,7 @@ class JvmPlatformRenderer : PlatformRenderer {
     override fun <T> renderFormField(formField: FormField, consumer: TagConsumer<T>): T {
         consumer.div {
             // Apply container styles with modifier
-            style = "display: flex; flex-direction: column; margin-bottom: 16px;" + 
+            style = "display: flex; flex-direction: column; margin-bottom: 16px;" +
                     formField.modifier.toStyleString()
 
             // Render label if provided
@@ -1310,9 +1310,9 @@ class JvmPlatformRenderer : PlatformRenderer {
                 label {
                     style = "margin-bottom: 4px; font-weight: 500;" +
                             if (formField.required) " position: relative;" else ""
-                    
+
                     +it
-                    
+
                     // Add required indicator
                     if (formField.required) {
                         span {
@@ -1322,10 +1322,10 @@ class JvmPlatformRenderer : PlatformRenderer {
                     }
                 }
             }
-            
+
             // Render the field content
             formField.fieldContent.compose(this)
-            
+
             // Render helper text if provided
             formField.helper?.let {
                 div {
@@ -1333,7 +1333,7 @@ class JvmPlatformRenderer : PlatformRenderer {
                     +it
                 }
             }
-            
+
             // Render error if provided
             formField.error?.let {
                 div {
@@ -1342,7 +1342,7 @@ class JvmPlatformRenderer : PlatformRenderer {
                 }
             }
         }
-        
+
         @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
@@ -1352,31 +1352,31 @@ class JvmPlatformRenderer : PlatformRenderer {
      */
     override fun <T> renderSwitch(switch: Switch, consumer: TagConsumer<T>): T {
         val switchId = "switch-${switch.hashCode()}"
-        
+
         consumer.div {
             // Apply container styles
             style = "display: flex; align-items: center; margin-bottom: 16px;"
-            
+
             // Create the visual switch control
             label {
                 htmlFor = switchId
                 style = "position: relative; display: inline-block; width: 40px; height: 24px; " +
                         "cursor: ${if (switch.disabled) "not-allowed" else "pointer"};"
-                
+
                 // Hidden checkbox input
                 input {
                     id = switchId
                     type = InputType.checkBox
                     checked = switch.state.value
-                    
+
                     if (switch.disabled) {
                         disabled = true
                     }
-                    
+
                     style = "opacity: 0; width: 0; height: 0;" // Hide the checkbox
                     attributes["data-summon-switch"] = "true"
                 }
-                
+
                 // Switch slider
                 span {
                     style = "position: absolute; top: 0; left: 0; right: 0; bottom: 0; " +
@@ -1385,7 +1385,7 @@ class JvmPlatformRenderer : PlatformRenderer {
                             "transition: .4s; " +
                             "opacity: ${if (switch.disabled) "0.6" else "1"};" +
                             switch.modifier.toStyleString()
-                            
+
                     // Switch knob/thumb
                     span {
                         style = "position: absolute; content: ''; height: 16px; width: 16px; " +
@@ -1395,7 +1395,7 @@ class JvmPlatformRenderer : PlatformRenderer {
                     }
                 }
             }
-            
+
             // Label text if provided
             switch.label?.let {
                 label {
@@ -1406,7 +1406,7 @@ class JvmPlatformRenderer : PlatformRenderer {
                 }
             }
         }
-        
+
         @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
@@ -1416,12 +1416,12 @@ class JvmPlatformRenderer : PlatformRenderer {
      */
     override fun <T> renderFileUpload(fileUpload: FileUpload, consumer: TagConsumer<T>): T {
         val uploadId = "file-upload-${fileUpload.hashCode()}"
-        
+
         consumer.div {
             // Apply container styles
             style = "display: flex; flex-direction: column; margin-bottom: 16px;" +
                     fileUpload.modifier.toStyleString()
-                    
+
             // Label if provided
             fileUpload.label?.let {
                 label {
@@ -1430,27 +1430,27 @@ class JvmPlatformRenderer : PlatformRenderer {
                     +it
                 }
             }
-            
+
             // Custom file input wrapper
             div {
                 style = "display: flex; align-items: center;"
-                
+
                 // Hidden file input
                 input {
                     id = uploadId
                     type = InputType.file
-                    
+
                     // Set attributes based on component properties
                     fileUpload.accept?.let { accept = it }
                     if (fileUpload.multiple) multiple = true
                     if (fileUpload.disabled) disabled = true
                     fileUpload.capture?.let { attributes["capture"] = it }
-                    
+
                     // Apply basic styles
                     style = "position: absolute; opacity: 0; width: 0.1px; height: 0.1px; overflow: hidden;"
                     attributes["data-summon-file-upload"] = "true"
                 }
-                
+
                 // Custom styled button
                 label {
                     htmlFor = uploadId
@@ -1461,7 +1461,7 @@ class JvmPlatformRenderer : PlatformRenderer {
                             if (fileUpload.disabled) "opacity: 0.6; cursor: not-allowed;" else ""
                     +fileUpload.buttonLabel
                 }
-                
+
                 // Display selected file name(s)
                 span {
                     id = "$uploadId-selection"
@@ -1470,7 +1470,7 @@ class JvmPlatformRenderer : PlatformRenderer {
                 }
             }
         }
-        
+
         @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
@@ -1480,21 +1480,21 @@ class JvmPlatformRenderer : PlatformRenderer {
      */
     override fun <T> renderRangeSlider(rangeSlider: RangeSlider, consumer: TagConsumer<T>): T {
         val sliderId = "slider-${rangeSlider.hashCode()}"
-        
+
         consumer.div {
             // Apply container styles
             style = "display: flex; flex-direction: column; margin-bottom: 16px;" +
                     rangeSlider.modifier.toStyleString()
-                    
+
             // Add label if provided
             rangeSlider.label?.let {
                 label {
                     htmlFor = sliderId
                     style = "margin-bottom: 8px; display: flex; justify-content: space-between;"
-                    
+
                     // Label text
                     span { +it }
-                    
+
                     // Current value
                     if (rangeSlider.showTooltip) {
                         span {
@@ -1504,7 +1504,7 @@ class JvmPlatformRenderer : PlatformRenderer {
                     }
                 }
             }
-            
+
             // Render the slider input
             input {
                 id = sliderId
@@ -1513,21 +1513,160 @@ class JvmPlatformRenderer : PlatformRenderer {
                 max = rangeSlider.max.toString()
                 step = rangeSlider.step.toString()
                 value = rangeSlider.state.value.toString()
-                
+
                 if (rangeSlider.disabled) {
                     disabled = true
                 }
-                
+
                 // Apply styles
                 style = "width: 100%; " +
                         if (rangeSlider.disabled) "opacity: 0.6;" else ""
-                        
+
                 // For JVM, we can't handle change events directly
                 attributes["data-summon-slider"] = "true"
             }
         }
-        
+
         @Suppress("UNCHECKED_CAST")
+        return consumer as T
+    }
+
+    /**
+     * Renders a DatePicker component as an input field with a date type.
+     */
+    override fun <T> renderDatePicker(datePicker: DatePicker, consumer: TagConsumer<T>): T {
+        val datePickerId = "date-picker-${datePicker.hashCode()}"
+
+        consumer.div {
+            // Apply container styles
+            style = "display: flex; flex-direction: column; margin-bottom: 16px;"
+
+            // Add the label if provided
+            datePicker.label?.let {
+                label {
+                    htmlFor = datePickerId
+                    style = "margin-bottom: 4px; font-weight: 500;"
+                    +it
+                }
+            }
+
+            // Render the date input field
+            input {
+                id = datePickerId
+                name = datePickerId
+                type = InputType.date
+
+                // Apply modifier styles
+                style = datePicker.modifier.toStyleString()
+
+                // Set current value
+                value = datePicker.state.value
+
+                // Set min and max dates if provided
+                datePicker.min?.let { min = it }
+                datePicker.max?.let { max = it }
+
+                // Add disabled state if needed
+                if (datePicker.disabled) {
+                    disabled = true
+                }
+
+                // Add placeholder if provided
+                datePicker.placeholder?.let {
+                    placeholder = it
+                }
+
+                // For JVM, we can't handle change events directly
+                // but add a data attribute that could be used with JS later
+                attributes["data-summon-date-picker"] = "true"
+            }
+
+            // Show validation errors if any
+            val errors = datePicker.getValidationErrors()
+            if (errors.isNotEmpty()) {
+                div {
+                    style = "color: #d32f2f; font-size: 12px; margin-top: 4px;"
+                    errors.forEach { error ->
+                        div {
+                            +error
+                        }
+                    }
+                }
+            }
+        }
+
+        return consumer as T
+    }
+
+    /**
+     * Renders a TimePicker component as an input field with a time type.
+     */
+    override fun <T> renderTimePicker(timePicker: TimePicker, consumer: TagConsumer<T>): T {
+        val timePickerId = "time-picker-${timePicker.hashCode()}"
+
+        consumer.div {
+            // Apply container styles
+            style = "display: flex; flex-direction: column; margin-bottom: 16px;"
+
+            // Add the label if provided
+            timePicker.label?.let {
+                label {
+                    htmlFor = timePickerId
+                    style = "margin-bottom: 4px; font-weight: 500;"
+                    +it
+                }
+            }
+
+            // Render the time input field
+            input {
+                id = timePickerId
+                name = timePickerId
+                type = InputType.time
+
+                // Add step attribute for seconds if needed
+                if (timePicker.showSeconds) {
+                    attributes["step"] = "1"
+                }
+
+                // Apply modifier styles
+                style = timePicker.modifier.toStyleString()
+
+                // Set current value
+                value = timePicker.state.value
+
+                // Set min and max times if provided
+                timePicker.min?.let { min = it }
+                timePicker.max?.let { max = it }
+
+                // Add disabled state if needed
+                if (timePicker.disabled) {
+                    disabled = true
+                }
+
+                // Add placeholder if provided
+                timePicker.placeholder?.let {
+                    placeholder = it
+                }
+
+                // For JVM, we can't handle change events directly
+                // but add a data attribute that could be used with JS later
+                attributes["data-summon-time-picker"] = "true"
+            }
+
+            // Show validation errors if any
+            val errors = timePicker.getValidationErrors()
+            if (errors.isNotEmpty()) {
+                div {
+                    style = "color: #d32f2f; font-size: 12px; margin-top: 4px;"
+                    errors.forEach { error ->
+                        div {
+                            +error
+                        }
+                    }
+                }
+            }
+        }
+
         return consumer as T
     }
 } 

@@ -1793,6 +1793,169 @@ class JsPlatformRenderer : PlatformRenderer {
 
         return consumer as T
     }
+
+    /**
+     * Renders a DatePicker component as an input field with a date type.
+     */
+    override fun <T> renderDatePicker(datePicker: DatePicker, consumer: TagConsumer<T>): T {
+        val datePickerId = "date-picker-${datePicker.hashCode()}"
+
+        consumer.div {
+            // Apply container styles
+            style = "display: flex; flex-direction: column; margin-bottom: 16px;"
+
+            // Add the label if provided
+            datePicker.label?.let {
+                label {
+                    htmlFor = datePickerId
+                    style = "margin-bottom: 4px; font-weight: 500;"
+                    +it
+                }
+            }
+
+            // Render the date input field
+            input {
+                id = datePickerId
+                name = datePickerId
+                type = InputType.date
+
+                // Apply modifier styles
+                style = datePicker.modifier.toStyleString()
+
+                // Set current value
+                value = datePicker.state.value
+
+                // Set min and max dates if provided
+                datePicker.min?.let { min = it }
+                datePicker.max?.let { max = it }
+
+                // Add disabled state if needed
+                if (datePicker.disabled) {
+                    disabled = true
+                }
+
+                // Add placeholder if provided
+                datePicker.placeholder?.let {
+                    placeholder = it
+                }
+
+                // Add a data attribute for date picker handling
+                attributes["data-summon-date-picker"] = datePickerId
+            }
+
+            // Show validation errors if any
+            val errors = datePicker.getValidationErrors()
+            if (errors.isNotEmpty()) {
+                div {
+                    style = "color: #d32f2f; font-size: 12px; margin-top: 4px;"
+                    errors.forEach { error ->
+                        div {
+                            +error
+                        }
+                    }
+                }
+            }
+        }
+
+        // Set up the date picker handler
+        setupJsDatePickerHandler(datePickerId, datePicker)
+
+        return consumer as T
+    }
+
+    /**
+     * Renders a TimePicker component as an input field with a time type.
+     */
+    override fun <T> renderTimePicker(timePicker: TimePicker, consumer: TagConsumer<T>): T {
+        val timePickerId = "time-picker-${timePicker.hashCode()}"
+
+        consumer.div {
+            // Apply container styles
+            style = "display: flex; flex-direction: column; margin-bottom: 16px;"
+
+            // Add the label if provided
+            timePicker.label?.let {
+                label {
+                    htmlFor = timePickerId
+                    style = "margin-bottom: 4px; font-weight: 500;"
+                    +it
+                }
+            }
+
+            // Render the time input field
+            input {
+                id = timePickerId
+                name = timePickerId
+                type = InputType.time
+
+                // Add step attribute for seconds if needed
+                if (timePicker.showSeconds) {
+                    attributes["step"] = "1"
+                }
+
+                // Apply modifier styles
+                style = timePicker.modifier.toStyleString()
+
+                // Set current value
+                value = timePicker.state.value
+
+                // Set min and max times if provided
+                timePicker.min?.let { min = it }
+                timePicker.max?.let { max = it }
+
+                // Add disabled state if needed
+                if (timePicker.disabled) {
+                    disabled = true
+                }
+
+                // Add placeholder if provided
+                timePicker.placeholder?.let {
+                    placeholder = it
+                }
+
+                // Add a data attribute for time picker handling
+                attributes["data-summon-time-picker"] = timePickerId
+            }
+
+            // Show validation errors if any
+            val errors = timePicker.getValidationErrors()
+            if (errors.isNotEmpty()) {
+                div {
+                    style = "color: #d32f2f; font-size: 12px; margin-top: 4px;"
+                    errors.forEach { error ->
+                        div {
+                            +error
+                        }
+                    }
+                }
+            }
+        }
+
+        // Set up the time picker handler
+        setupJsTimePickerHandler(timePickerId, timePicker)
+
+        return consumer as T
+    }
+
+    /**
+     * Helper function to set up the date picker handler.
+     */
+    private fun setupJsDatePickerHandler(datePickerId: String, datePicker: DatePicker) {
+        // Direct implementation (without extension function)
+        // This will be connected to browser DOM events when kotlinx-browser is available
+        // For now, just handle the state to resolve the compilation error
+        datePicker.onDateChange(datePicker.state.value)
+    }
+
+    /**
+     * Helper function to set up the time picker handler.
+     */
+    private fun setupJsTimePickerHandler(timePickerId: String, timePicker: TimePicker) {
+        // Direct implementation (without extension function)
+        // This will be connected to browser DOM events when kotlinx-browser is available
+        // For now, just handle the state to resolve the compilation error
+        timePicker.onTimeChange(timePicker.state.value)
+    }
 }
 
 /**

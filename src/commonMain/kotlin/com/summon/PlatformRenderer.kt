@@ -179,4 +179,14 @@ interface PlatformRenderer {
      * Renders an ExpansionPanel component to the appropriate platform output.
      */
     fun <T> renderExpansionPanel(expansionPanel: ExpansionPanel, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders a DatePicker component to the appropriate platform output.
+     */
+    fun <T> renderDatePicker(datePicker: DatePicker, consumer: TagConsumer<T>): T
+
+    /**
+     * Renders a TimePicker component to the appropriate platform output.
+     */
+    fun <T> renderTimePicker(timePicker: TimePicker, consumer: TagConsumer<T>): T
 } 
