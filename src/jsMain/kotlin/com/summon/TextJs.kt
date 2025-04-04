@@ -12,7 +12,11 @@ import kotlinx.html.style
  */
 fun <T> Text.renderJs(consumer: TagConsumer<T>): TagConsumer<T> {
     consumer.span {
-        style = modifier.toStyleString()
+        // Apply the modifier styles and additional text-specific styles
+        val additionalStyles = getAdditionalStyles()
+        val combinedStyles = modifier.styles + additionalStyles
+        style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+        
         +text
     }
     return consumer

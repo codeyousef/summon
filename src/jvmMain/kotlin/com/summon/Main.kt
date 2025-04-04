@@ -3,6 +3,7 @@ package com.summon
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 import kotlinx.html.unsafe
+import com.summon.examples.TextExample
 
 /**
  * JVM example demonstrating the Summon library.
@@ -17,6 +18,11 @@ fun main() {
     val formExample = createContactForm()
     println("\nFORM EXAMPLE:")
     println(formExample)
+    
+    // Print the Text component example HTML
+    val textExample = createTextExample()
+    println("\nTEXT COMPONENT EXAMPLE:")
+    println(textExample)
 }
 
 /**
@@ -122,6 +128,57 @@ private fun createUIExample(): String {
         body {
             div {
                 // Render our UI
+                example.compose(consumer)
+            }
+        }
+    }
+    
+    return output.toString()
+}
+
+/**
+ * Creates a Text component example showcasing the enhanced Text features.
+ */
+private fun createTextExample(): String {
+    // Create a text example using our TextExample class
+    val example = TextExample().createTextDemo()
+    
+    // Create a StringBuilder to capture the HTML output
+    val output = StringBuilder()
+    
+    // Render the UI to HTML
+    val consumer = output.appendHTML()
+    consumer.html {
+        head {
+            title("Summon Text Component Demo")
+            // Include some CSS reset styles
+            style {
+                unsafe {
+                    raw("""
+                    * {
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
+                    }
+                    body {
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        background-color: #f9f9f9;
+                        padding: 20px;
+                    }
+                    """.trimIndent())
+                }
+            }
+            
+            // Add the generated hover styles
+            style {
+                unsafe {
+                    raw(CssClassStore.generateCss())
+                }
+            }
+        }
+        body {
+            div {
+                // Render our example
                 example.compose(consumer)
             }
         }

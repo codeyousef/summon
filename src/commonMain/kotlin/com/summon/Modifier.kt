@@ -172,4 +172,16 @@ data class Modifier(val styles: Map<String, String> = emptyMap()) {
         styles.entries
             .filter { it.key != "__hover" } // Filter out special keys
             .joinToString(";") { (key, value) -> "$key:$value" }
+
+    /**
+     * Sets the maximum width of the element.
+     */
+    fun maxWidth(value: String): Modifier =
+        Modifier(styles + ("max-width" to value))
+        
+    /**
+     * Sets the maximum height of the element.
+     */
+    fun maxHeight(value: String): Modifier =
+        Modifier(styles + ("max-height" to value))
 } 

@@ -9,12 +9,21 @@ import kotlinx.html.span
  */
 fun <T> Text.renderJvm(consumer: TagConsumer<T>): TagConsumer<T> {
     consumer.span {
-        // Apply the modifier styles
+        // Apply the modifier styles - explicitly calling JVM implementation
         val hoverClass = modifier.applyStyles(this)
-        
+
+        // Apply additional text-specific styles
+        val additionalStyles = getAdditionalStyles()
+        if (additionalStyles.isNotEmpty()) {
+            val existingStyle = this.attributes["style"] ?: ""
+            val additionalStyleString = additionalStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+            this.attributes["style"] =
+                if (existingStyle.isEmpty()) additionalStyleString else "$existingStyle;$additionalStyleString"
+        }
+
         // Add hover styles to the stylesheet if present
         hoverClass?.addToStyleSheet()
-        
+
         // Add the text content
         +text
     }
