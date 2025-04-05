@@ -9,6 +9,7 @@ import kotlin.test.assertNull
  * Common tests for the Image component's basic properties.
  */
 class ImageTest {
+
     @Test
     fun testBasicImageProperties() {
         // Arrange

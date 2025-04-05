@@ -73,7 +73,7 @@ private fun initializeRouter() {
         document.addEventListener("click", { event: Event ->
             // Handle link clicks for navigation
             val target = event.target
-            if (target is HTMLElement && target.tagName.toLowerCase() == "a") {
+            if (target is HTMLElement && target.tagName.lowercase() == "a") {
                 // Check if this is an internal link (not external)
                 val href = target.getAttribute("href")
                 if (href != null && !href.startsWith("http") && !href.startsWith("//")) {

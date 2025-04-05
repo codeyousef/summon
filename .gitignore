@@ -45,6 +45,7 @@ npm-debug.log
 /.cursor/
 /Design document.md
 /kotlin-js-store/yarn.lock
-/Tests.md
+/docs/Tests.md
 /docs/js-test-guide.md
 /src/jsTestSkip/
+/docs/JavaScript Testing.md
