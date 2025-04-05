@@ -31,7 +31,7 @@ kotlin {
         var coroutinesVersion = "1.7.3"
         var serializationVersion = "1.6.0"
         var quarkusVersion = "3.2.0.Final"
-        var quarkusExtensionSdkVersion = "1.0.0" // For Quarkus extension development
+        // For Quarkus extension development
 
         val commonMain by getting {
             dependencies {
@@ -140,6 +140,9 @@ publishing {
                     url.set("https://github.com/yousef/summon")
                 }
             }
+            
+            // Ensure Gradle metadata is published
+            suppressAllPomMetadataWarnings()
         }
     }
     
@@ -161,6 +164,13 @@ publishing {
 
 // Optional: Signing configuration
 signing {
+    // Only sign if explicitly requested or for non-local publishing
+    val signingEnabled = project.hasProperty("signing.keyId") || 
+                         System.getenv("GPG_PRIVATE_KEY") != null ||
+                         project.gradle.startParameter.taskNames.any { it.contains("publish") && !it.contains("publishToMavenLocal") }
+    
+    setRequired { signingEnabled }
+    
     // Sign all publications
     sign(publishing.publications)
     
@@ -170,4 +180,11 @@ signing {
     
     // Option 2: Use GPG command line (requires GPG installed)
     // useGpgCmd()
+}
+
+// Optional: Create a specific task for publishToMavenLocal that refreshes metadata
+tasks.register("publishToMavenLocalWithMetadata") {
+    group = "publishing"
+    description = "Publishes to Maven Local with complete metadata"
+    dependsOn("publishToMavenLocal")
 } 

@@ -1,110 +1,132 @@
 # Publishing to Maven Central
 
-This document outlines the steps required to publish the Summon library to Maven Central.
+This guide will walk you through the process of publishing the Summon library to Maven Central.
 
 ## Prerequisites
 
-1. **Sonatype Account**: Create an account on [Sonatype OSSRH](https://central.sonatype.org/publish/publish-guide/).
-2. **GPG Key**: Generate a GPG key pair for signing artifacts.
-3. **Gradle Configuration**: Configure your local environment for publishing.
+Before you begin, you'll need to:
 
-## Setup
+1. **Create a Sonatype OSSRH account**
+   - Sign up at [Sonatype OSSRH](https://s01.oss.sonatype.org/)
+   - Create a ticket to request access to the `code.yousef` group ID
 
-### 1. Sonatype OSSRH Account
+2. **Generate GPG key**
+   - Install GPG (GnuPG) from [https://gnupg.org/download/](https://gnupg.org/download/)
+   - Generate a key pair: `gpg --gen-key`
+   - List your keys: `gpg --list-keys`
+   - Distribute your public key: `gpg --keyserver keyserver.ubuntu.com --send-keys YOUR_KEY_ID`
 
-If you don't already have one, create an account on [Sonatype JIRA](https://issues.sonatype.org/secure/Signup!default.jspa).
+## Gradle Setup
 
-Then create a new project ticket to request access to the desired group ID:
-- Project: Community Support - Open Source Project Repository Hosting (OSSRH)
-- Issue Type: New Project
-- Summary: Request for new project: Summon
-- Group ID: code.yousef (adjust to your actual group ID)
+### Configure Gradle Properties
 
-### 2. GPG Key Setup
-
-Generate a GPG key:
-
-```bash
-gpg --gen-key
-```
-
-Export your GPG key:
-
-```bash
-# Export public key
-gpg --armor --export your-email@example.com > public-key.asc
-
-# Export private key (keep this secure!)
-gpg --armor --export-secret-keys your-email@example.com > private-key.asc
-```
-
-Distribute your public key:
-
-```bash
-gpg --keyserver keyserver.ubuntu.com --send-keys YOUR_KEY_ID
-```
-
-### 3. Gradle Configuration
-
-Create or edit the `~/.gradle/gradle.properties` file and add:
+Create or edit your `~/.gradle/gradle.properties` file with the following:
 
 ```properties
-ossrhUsername=your-sonatype-username
-ossrhPassword=your-sonatype-password
+# Sonatype credentials
+ossrhUsername=your-jira-username
+ossrhPassword=your-jira-password
 
-signing.keyId=YOUR_KEY_ID_LAST_8_CHARS
-signing.password=YOUR_GPG_KEY_PASSWORD
-signing.secretKeyRingFile=/path/to/your/secring.gpg
+# Signing configuration
+signing.keyId=last8CharsOfGPGKeyID
+signing.password=yourGPGKeyPassword
+signing.secretKeyRingFile=/path/to/.gnupg/secring.gpg
 
-# Or for in-memory signing
-# signing.gnupg.keyName=YOUR_KEY_ID
-# signing.gnupg.passphrase=YOUR_GPG_KEY_PASSWORD
+# For newer GPG versions that don't have secring.gpg, use this instead:
+# signing.gnupg.keyName=yourGPGKeyID
+# signing.gnupg.passphrase=yourGPGKeyPassword
 ```
 
-## Preparing for Publishing
+### Prepare the Library for Publishing
 
-Run the prepare script to clean up demo files and build artifacts:
+The Summon project already includes the necessary publishing configuration in the build scripts. You can find these configurations in:
 
-**On Windows:**
-```powershell
-scripts/prepare-for-publish.ps1
+- `build.gradle.kts`: Contains the main publishing configuration
+
+## Publishing Process
+
+### 1. Prepare for Publishing
+
+Run the prepare scripts which will:
+- Update version numbers
+- Generate documentation
+- Verify all tests pass
+
+On Windows:
+```bash
+scripts\prepare-for-publish.bat
 ```
 
-**On macOS/Linux:**
+On macOS/Linux:
 ```bash
 ./scripts/prepare-for-publish.sh
 ```
 
-## Publishing
+### 2. Test the Publishing Process Locally
 
-### 1. Local Testing
-
-Test the publishing process locally first:
+Before publishing to Maven Central, it's a good idea to test with a local Maven repository:
 
 ```bash
 ./gradlew publishToMavenLocal
 ```
 
-Verify the artifacts in your local Maven repository (typically in `~/.m2/repository/`).
+Verify that the artifacts are correctly generated in your local Maven repository:
+- Windows: `%USERPROFILE%\.m2\repository\code\yousef\summon`
+- macOS/Linux: `~/.m2/repository/code/yousef/summon`
 
-### 2. Publishing to Maven Central
+### 3. Publish to Maven Central
 
-Publish the artifacts to Maven Central:
+When you're ready to publish:
 
 ```bash
-./gradlew publish
+./gradlew publishAllPublicationsToSonatypeRepository
 ```
 
-### 3. Release on OSSRH
+This will:
+1. Compile the library
+2. Generate sources and javadoc JARs
+3. Sign all artifacts with your GPG key
+4. Upload to Sonatype OSSRH staging repository
 
-1. Log in to [Sonatype Nexus](https://s01.oss.sonatype.org/)
+### 4. Release from Staging
+
+After publishing to the staging repository:
+
+1. Log in to [Sonatype OSSRH](https://s01.oss.sonatype.org/)
 2. Go to "Staging Repositories"
-3. Find your repository and verify its contents
-4. Click "Close" and wait for validation
-5. If validation succeeds, click "Release"
+3. Find your repository (usually named something like "codeyousef-####")
+4. Verify the content
+5. Click "Close" to perform validation
+6. Once validation passes, click "Release"
+
+It may take up to 2 hours for artifacts to sync to Maven Central and up to 24 hours to appear in search results.
 
 ## Troubleshooting
 
-- **Signing Errors**: Ensure your GPG key is correctly set up and the password is correct.
-- **Upload Errors**: Verify your Sonatype credentials and network connection.
-- **Repository Not Found**: Make sure you're using the correct URL for your Sonatype account (s01.oss.sonatype.org for new accounts). 
+### Common Issues:
+
+1. **GPG Key Issues**
+   - Error: `No public key sent`. Make sure your key is correctly published to key servers.
+   - Solution: Try publishing to another key server: `gpg --keyserver hkp://pool.sks-keyservers.net --send-keys YOUR_KEY_ID`
+
+2. **Sonatype Repository Issues**
+   - Error: `Failed to publish to Sonatype OSSRH`
+   - Solution: Check your credentials in gradle.properties and verify you have the necessary permissions.
+
+3. **Validation Failures During Close**
+   - Error: Validation fails during the "Close" operation in Sonatype OSSRH
+   - Solution: Review the "Activity" tab for detailed errors. Common issues include:
+     - Missing POM information
+     - Missing Javadoc or sources
+     - Signature verification problems
+
+4. **Version Already Exists**
+   - Error: `Cannot publish version X.Y.Z because it already exists`
+   - Solution: You cannot re-publish the same version. Update the version number in build.gradle.kts.
+
+## Additional Resources
+
+- [Sonatype OSSRH Guide](https://central.sonatype.org/publish/publish-guide/)
+- [Working with PGP Signatures](https://central.sonatype.org/publish/requirements/gpg/)
+- [Gradle Publishing Plugin Documentation](https://docs.gradle.org/current/userguide/publishing_maven.html)
+- [GitHub repository](https://github.com/yebaital/summon) 
