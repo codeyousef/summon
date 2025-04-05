@@ -9,9 +9,10 @@ import code.yousef.summon.components.FocusableComponent
 import code.yousef.summon.components.MediaComponent
 
 /**
- * Type-specific modifier extensions organized by category.
- * This file contains extension functions for the Modifier class
- * organized into logical groups.
+ * Extension functions for Modifier.
+ * 
+ * @deprecated These extensions are being moved to dedicated modifier packages for better organization.
+ * For auto margin modifiers, please import from code.yousef.summon.modifier.AutoMarginModifiers directly.
  */
 
 object ModifierExtensions {

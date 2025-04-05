@@ -32,7 +32,7 @@ Summon provides convenient extension properties for numbers to create CSS dimens
 ```kotlin
 import code.yousef.summon.extensions.*
 
-// These are all equivalent to writing the CSS strings manually
+// General CSS units
 val pixels = 16.px        // "16px"
 val rootEm = 1.5.rem      // "1.5rem"
 val emUnits = 1.2.em      // "1.2em"
@@ -41,18 +41,27 @@ val viewportWidth = 100.vw   // "100vw"
 val viewportHeight = 100.vh  // "100vh"
 val viewportMin = 50.vmin    // "50vmin"
 val viewportMax = 50.vmax    // "50vmax"
+
+// Font-specific CSS units
+val scaleIndependentPixels = 14.sp   // "14sp" - Scale-independent pixels for font sizes
+val characterUnits = 2.ch            // "2ch" - Width of the "0" character
+val xHeight = 3.ex                   // "3ex" - Height of the letter 'x'
+val points = 12.pt                   // "12pt" - Traditional print measurement (1/72 inch)
+val picas = 6.pc                     // "6pc" - Traditional print measurement (1pc = 12pt)
 ```
 
 These extensions can be used with all modifiers that accept CSS dimension values:
 
 ```kotlin
 Text(
-    text = "Sized text",
+    text = "Styled text with various units",
     modifier = Modifier
         .width(200.px)
-        .fontSize(1.2.rem)
-        .marginTop(10.px)
-        .marginBottom(20.px)
+        .fontSize(1.2.rem)         // Root relative unit
+        .marginTop(10.px)          // Pixels
+        .marginBottom(1.5.em)      // Relative to current font size
+        .letterSpacing(0.5.ex)     // Based on x-height
+        .lineHeight(2.ch)          // Based on character width
 )
 ```
 
@@ -93,6 +102,15 @@ Modifier
     .padding(8.px)
     .padding(8.px, 16.px) // vertical, horizontal
     .padding(8.px, 16.px, 8.px, 16.px) // top, right, bottom, left
+    
+    // Auto margins for centering
+    .marginAuto() // center in all directions
+    .marginHorizontalAutoZero() // center horizontally (no parameters needed)
+    .marginHorizontalAuto() // center horizontally only (no top/bottom margins)
+    .marginVerticalAutoZero() // center vertically (no parameters needed)
+    .marginVerticalAuto() // center vertically only (no left/right margins)
+    .marginHorizontalAuto(20.px) // center horizontally with 20px top/bottom margins
+    .marginVerticalAuto(10.px) // center vertically with 10px left/right margins
     
     // Flexbox layout
     .display(Display.Flex)
@@ -603,4 +621,34 @@ Div(
             tabIndex(1)
         }
 )
-``` 
+```
+
+### Auto Margins for Centering
+
+The library provides specialized auto margin modifiers for easy element centering.
+Import these functions from the dedicated package:
+
+```kotlin
+import code.yousef.summon.modifier.AutoMarginModifiers.marginHorizontalAuto
+import code.yousef.summon.modifier.AutoMarginModifiers.marginVerticalAuto
+import code.yousef.summon.modifier.AutoMarginModifiers.marginAuto
+import code.yousef.summon.modifier.AutoMarginModifiers.marginHorizontalAutoZero
+import code.yousef.summon.modifier.AutoMarginModifiers.marginVerticalAutoZero
+```
+
+You can then use them in your modifiers:
+
+```kotlin
+Modifier
+    // Auto margins for centering
+    .marginAuto()                // center in all directions
+    .marginHorizontalAutoZero()  // center horizontally (no parameters needed)
+    .marginHorizontalAuto()      // center horizontally only (no top/bottom margins)
+    .marginVerticalAutoZero()    // center vertically (no parameters needed)
+    .marginVerticalAuto()        // center vertically only (no left/right margins)
+    .marginHorizontalAuto(20.px) // center horizontally with 20px top/bottom margins
+    .marginVerticalAuto(10.px)   // center vertically with 10px left/right margins
+```
+
+The `marginHorizontalAutoZero()` and `marginVerticalAutoZero()` convenience functions are provided
+to avoid ambiguity issues with overloaded functions. 

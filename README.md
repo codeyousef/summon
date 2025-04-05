@@ -13,6 +13,10 @@ Summon is a Kotlin Multiplatform (JVM/JS) library that enables developers to bui
 - **Lifecycle Aware**: Built-in lifecycle management
 - **Framework Interoperability**: Integrate with existing frameworks
 
+## Inspiration
+
+Summon is proudly inspired by [Kobweb](https://github.com/varabyte/kobweb), a modern framework for full stack web apps in Kotlin built upon Compose HTML. Kobweb's elegant API design and approach to creating web applications using Kotlin has been instrumental in shaping Summon's philosophy. We highly recommend checking out Kobweb if you're looking for a mature, feature-rich solution for Kotlin web development.
+
 ## Documentation
 
 For detailed documentation, please check the [docs](docs/README.md) directory:

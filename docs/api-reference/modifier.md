@@ -64,6 +64,8 @@ Summon provides convenient extension properties for numeric values to create CSS
 
 ```kotlin
 // In code.yousef.summon.extensions package
+
+// General CSS units
 val Number.px: String  // Pixels (e.g., 16.px -> "16px")
 val Number.rem: String // Root em units (e.g., 1.5.rem -> "1.5rem")
 val Number.em: String  // Em units (e.g., 1.2.em -> "1.2em")
@@ -72,20 +74,27 @@ val Number.vw: String  // Viewport width (e.g., 100.vw -> "100vw")
 val Number.vh: String  // Viewport height (e.g., 100.vh -> "100vh")
 val Number.vmin: String // Viewport minimum (e.g., 50.vmin -> "50vmin")
 val Number.vmax: String // Viewport maximum (e.g., 50.vmax -> "50vmax")
+
+// Font-specific CSS units
+val Number.sp: String  // Scale-independent pixels (e.g., 14.sp -> "14sp")
+val Number.ch: String  // Character units - width of "0" (e.g., 2.ch -> "2ch")
+val Number.ex: String  // X-height units - height of "x" (e.g., 3.ex -> "3ex")
+val Number.pt: String  // Points - traditional print unit (e.g., 12.pt -> "12pt")
+val Number.pc: String  // Picas - traditional print unit (e.g., 6.pc -> "6pc")
 ```
 
 ### Example
 
 ```kotlin
-import code.yousef.summon.extensions.px
-import code.yousef.summon.extensions.rem
-import code.yousef.summon.extensions.percent
+import code.yousef.summon.extensions.*
 
 Modifier
     .width(100.percent)  // Sets width to "100%"
     .fontSize(1.25.rem)  // Sets font size to "1.25rem"
     .padding(16.px)      // Sets padding to "16px"
     .marginTop(20.px)    // Sets top margin to "20px"
+    .letterSpacing(0.5.ex) // Sets letter spacing based on x-height
+    .lineHeight(2.ch)    // Sets line height based on character width
 ```
 
 These extensions provide a more type-safe and concise way to specify dimensions in your styles, and they can be used with all modifiers that accept CSS dimension values.
@@ -121,6 +130,7 @@ Modifier
 ### Margin and Padding
 
 ```kotlin
+// Basic margin functions
 fun Modifier.margin(all: CSSSize): Modifier
 fun Modifier.margin(vertical: CSSSize, horizontal: CSSSize): Modifier
 fun Modifier.margin(top: CSSSize, right: CSSSize, bottom: CSSSize, left: CSSSize): Modifier
@@ -129,6 +139,14 @@ fun Modifier.marginRight(value: CSSSize): Modifier
 fun Modifier.marginBottom(value: CSSSize): Modifier
 fun Modifier.marginLeft(value: CSSSize): Modifier
 
+// Auto margin modifiers for centering (import from code.yousef.summon.modifier.AutoMarginModifiers)
+fun Modifier.marginAuto(): Modifier
+fun Modifier.marginHorizontalAuto(vertical: CSSSize = "0px"): Modifier
+fun Modifier.marginVerticalAuto(horizontal: CSSSize = "0px"): Modifier
+fun Modifier.marginHorizontalAutoZero(): Modifier  // Convenience function with no parameters
+fun Modifier.marginVerticalAutoZero(): Modifier    // Convenience function with no parameters
+
+// Padding functions
 fun Modifier.padding(all: CSSSize): Modifier
 fun Modifier.padding(vertical: CSSSize, horizontal: CSSSize): Modifier
 fun Modifier.padding(top: CSSSize, right: CSSSize, bottom: CSSSize, left: CSSSize): Modifier
@@ -141,10 +159,43 @@ fun Modifier.paddingLeft(value: CSSSize): Modifier
 #### Example
 
 ```kotlin
+// Import the auto margin modifiers
+import code.yousef.summon.modifier.AutoMarginModifiers.marginHorizontalAuto
+import code.yousef.summon.modifier.AutoMarginModifiers.marginVerticalAuto
+import code.yousef.summon.modifier.AutoMarginModifiers.marginAuto
+import code.yousef.summon.modifier.AutoMarginModifiers.marginHorizontalAutoZero
+import code.yousef.summon.modifier.AutoMarginModifiers.marginVerticalAutoZero
+
+// Basic margin and padding
 Modifier
     .margin(8.px)
     .padding(16.px, 24.px)
     .marginTop(32.px)
+    
+// Centering with auto margins
+// Center element horizontally (most common usage, no parameters needed)
+.width(200.px)
+.marginHorizontalAutoZero()  // Sets "margin: 0px auto" - clearest way to use
+
+// Using default parameter approach
+.width(200.px)
+.marginHorizontalAuto()  // Sets "margin: 0px auto" - no vertical margins
+
+// Same with explicit vertical margin
+.width(200.px)
+.marginHorizontalAuto(20.px)  // Sets "margin: 20px auto"
+
+// Using vertical auto margins
+.height(100.px)
+.marginVerticalAutoZero()    // Sets "margin: auto 0px" - clearest way to use
+
+// Using vertical auto margins with default parameter
+.height(100.px)
+.marginVerticalAuto()    // Sets "margin: auto 0px"
+
+// Setting all margins to auto
+.size(200.px, 100.px)
+.marginAuto()            // Sets "margin: auto"
 ```
 
 ### Flexbox Layout

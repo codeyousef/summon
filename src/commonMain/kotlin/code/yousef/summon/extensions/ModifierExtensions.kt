@@ -4,6 +4,9 @@ import code.yousef.summon.modifier.Modifier
 
 /**
  * Extensions for Modifier to work with Number values
+ * 
+ * @deprecated These extensions are being moved to dedicated modifier packages for better organization.
+ * For auto margin modifiers, please import from code.yousef.summon.modifier.AutoMarginModifiers directly.
  */
 
 // Margin extensions
@@ -18,6 +21,38 @@ fun Modifier.margin(value: Number): Modifier = margin("${value}px")
  */
 fun Modifier.margin(vertical: Number, horizontal: Number): Modifier = 
     margin("${vertical}px ${horizontal}px")
+
+/**
+ * Sets the margin for vertical and horizontal sides with the horizontal margins set to auto.
+ * Useful for horizontal centering of elements with a fixed width.
+ * 
+ * @deprecated Use marginHorizontalAuto from code.yousef.summon.modifier.AutoMarginModifiers instead
+ */
+@Deprecated("Use marginHorizontalAuto from code.yousef.summon.modifier.AutoMarginModifiers instead", 
+    ReplaceWith("marginHorizontalAuto(vertical)", "code.yousef.summon.modifier.AutoMarginModifiers.marginHorizontalAuto"))
+fun Modifier.marginHorizontalAuto(vertical: Number = 0): Modifier =
+    margin("${vertical}px auto")
+
+/**
+ * Sets the margin for vertical and horizontal sides with the vertical margins set to auto.
+ * Useful for vertical centering of elements with a fixed height in certain containers.
+ * 
+ * @deprecated Use marginVerticalAuto from code.yousef.summon.modifier.AutoMarginModifiers instead
+ */
+@Deprecated("Use marginVerticalAuto from code.yousef.summon.modifier.AutoMarginModifiers instead", 
+    ReplaceWith("marginVerticalAuto(horizontal)", "code.yousef.summon.modifier.AutoMarginModifiers.marginVerticalAuto"))
+fun Modifier.marginVerticalAuto(horizontal: Number = 0): Modifier =
+    margin("auto ${horizontal}px")
+
+/**
+ * Sets all margins to auto.
+ * Useful for centering elements both horizontally and vertically in certain contexts.
+ * 
+ * @deprecated Use marginAuto from code.yousef.summon.modifier.AutoMarginModifiers instead
+ */
+@Deprecated("Use marginAuto from code.yousef.summon.modifier.AutoMarginModifiers instead", 
+    ReplaceWith("marginAuto()", "code.yousef.summon.modifier.AutoMarginModifiers.marginAuto"))
+fun Modifier.marginAuto(): Modifier = margin("auto")
 
 /**
  * Sets the top margin using a Number in pixels.

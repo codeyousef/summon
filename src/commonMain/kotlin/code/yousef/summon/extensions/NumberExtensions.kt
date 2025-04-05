@@ -50,4 +50,39 @@ val Number.vmin: String
  * Converts a number to a CSS viewport max value (e.g., 50.vmax -> "50vmax")
  */
 val Number.vmax: String
-    get() = "${this}vmax" 
+    get() = "${this}vmax"
+
+/**
+ * Converts a number to a CSS scale-independent pixels value (e.g., 14.sp -> "14sp")
+ * Typically used for font sizes that should scale with user preference
+ */
+val Number.sp: String
+    get() = "${this}sp"
+
+/**
+ * Converts a number to a CSS character unit value (e.g., 2.ch -> "2ch")
+ * Represents the width of the "0" character in the current font
+ */
+val Number.ch: String
+    get() = "${this}ch"
+
+/**
+ * Converts a number to a CSS ex unit value (e.g., 3.ex -> "3ex") 
+ * Represents the x-height of the current font (height of the letter 'x')
+ */
+val Number.ex: String
+    get() = "${this}ex"
+
+/**
+ * Converts a number to a CSS point value (e.g., 12.pt -> "12pt")
+ * Traditional print measurement, 1pt = 1/72 of an inch
+ */
+val Number.pt: String
+    get() = "${this}pt"
+
+/**
+ * Converts a number to a CSS pica value (e.g., 6.pc -> "6pc")
+ * Traditional print measurement, 1pc = 12pt
+ */
+val Number.pc: String
+    get() = "${this}pc" 
