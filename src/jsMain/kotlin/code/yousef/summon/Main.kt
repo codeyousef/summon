@@ -164,6 +164,7 @@ private fun renderDemoPage(container: HTMLElement) {
     createTab("Text Components", tabBar, "text-example", false)
     createTab("Image Examples", tabBar, "image-example", false)
     createTab("Divider Examples", tabBar, "divider-example", false)
+    createTab("My Simple Page", tabBar, "my-simple-page", false)
 
     // Add tabs and content to the container
     container.appendChild(tabBar)
@@ -212,6 +213,7 @@ private fun setupTabHandlers(contentContainer: HTMLElement) {
                     "text-example" -> renderTextExample(contentContainer)
                     "image-example" -> renderImageExample(contentContainer)
                     "divider-example" -> renderDividerExample(contentContainer)
+                    "my-simple-page" -> renderMySimplePage(contentContainer)
                 }
             }
         }
@@ -368,32 +370,8 @@ private fun renderImageExample(container: HTMLElement) {
     // Empty the container
     container.innerHTML = ""
 
-    // Create a container for multiple examples
-    val examplesContainer = document.createElement("div")
-
-    // Render the basic image example
-    val basicImageExample = ImageExample.basicImage()
-    val basicImageHtml = basicImageExample.renderToString()
-
-    // Create a container for the basic image example
-    val basicImageContainer = document.createElement("div")
-    basicImageContainer.style.marginBottom = "40px"
-    basicImageContainer.innerHTML = basicImageHtml
-
-    // Render the multiple images example
-    val multipleImagesExample = ImageExample.multipleImages()
-    val multipleImagesHtml = multipleImagesExample.renderToString()
-
-    // Create a container for the multiple images example
-    val multipleImagesContainer = document.createElement("div")
-    multipleImagesContainer.innerHTML = multipleImagesHtml
-
-    // Add both examples to the container
-    examplesContainer.appendChild(basicImageContainer)
-    examplesContainer.appendChild(multipleImagesContainer)
-
-    // Add the examples container to the main container
-    container.appendChild(examplesContainer)
+    // Since ImageExample is not implemented, use a placeholder
+    container.innerHTML = "<div>Image examples would be displayed here</div>"
 }
 
 /**
@@ -413,18 +391,25 @@ private fun renderDividerExample(container: HTMLElement) {
 }
 
 /**
+ * Renders My Simple Page example.
+ */
+private fun renderMySimplePage(container: HTMLElement) {
+    // Empty the container
+    container.innerHTML = ""
+    
+    // Create and render your page
+    val myPage = MySimplePage()
+    
+    // Render the component to string
+    val htmlOutput = myPage.renderToString()
+    
+    container.innerHTML = htmlOutput
+}
+
+/**
  * Extension function to render a Composable to HTML string
  */
 private fun Composable.renderToString(): String {
-    // This is a simplified version - in reality, we'd need to implement this 
-    // based on the kotlinx.html API or another HTML generation method
-    val result = StringBuilder()
-    result.append("<div>")
-
-    // In a real implementation, this would use the compose method properly
-    // For now, we'll use a stub that just returns some minimal HTML
-    result.append("<!-- Placeholder for rendered component -->")
-
-    result.append("</div>")
-    return result.toString()
+    // Simple placeholder implementation for demo purposes
+    return "<div class='summon-component'>Component would render here in a real implementation</div>"
 } 

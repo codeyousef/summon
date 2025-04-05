@@ -2,6 +2,226 @@
 
 Summon is a Kotlin Multiplatform (JVM/JS) library that enables developers to generate static websites using Compose-like syntax. With Summon, you can write your website content in a declarative style familiar to Compose developers, and the library will generate the corresponding HTML, CSS, and JavaScript.
 
+## Quick Start Guide
+
+### Installation
+
+Add Summon to your Kotlin Multiplatform project:
+
+```kotlin
+// build.gradle.kts
+plugins {
+    kotlin("multiplatform") version "1.9.20"
+}
+
+kotlin {
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation("code.yousef:summon:0.1.0") // Add Summon dependency
+            }
+        }
+    }
+}
+```
+
+### Create Your First Component
+
+```kotlin
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.components.input.Button
+import code.yousef.summon.components.layout.Column
+import code.yousef.summon.core.Composable
+import code.yousef.summon.modifier.Modifier
+import kotlinx.html.TagConsumer
+import kotlinx.html.div
+
+class MySimplePage : Composable {
+    override fun <T> compose(receiver: T): T {
+        if (receiver is TagConsumer<*>) {
+            @Suppress("UNCHECKED_CAST")
+            val consumer = receiver as TagConsumer<Any?>
+
+            return consumer.div {
+                Column(
+                    modifier = Modifier()
+                        .padding("20px")
+                        .maxWidth("800px")
+                        .margin("0 auto")
+                        .background("#f5f5f5")
+                        .borderRadius("8px"),
+                    content = listOf(
+                        Text(
+                            text = "My First Summon Page",
+                            modifier = Modifier()
+                                .fontSize("24px")
+                                .fontWeight("bold")
+                                .margin("20px 0")
+                        ),
+                        Text(
+                            text = "This is a simple webpage created using Summon composables.",
+                            modifier = Modifier().margin("0 0 20px 0")
+                        ),
+                        Button(
+                            label = "Click Me!",
+                            onClick = { println("Button clicked!") },
+                            modifier = Modifier()
+                                .padding("10px 20px")
+                                .background("#2196f3")
+                                .color("white")
+                                .borderRadius("4px")
+                                .cursor("pointer")
+                        )
+                    )
+                ).compose(this)
+            } as T
+        }
+        return receiver
+    }
+}
+```
+
+### Run Your Component (JS)
+
+For JS applications:
+
+```kotlin
+import kotlinx.browser.document
+import code.yousef.summon.examples.MySimplePage
+
+fun main() {
+    document.addEventListener("DOMContentLoaded") {
+        val appContainer = document.getElementById("app") ?: createAppContainer()
+        MySimplePage().compose(appContainer)
+    }
+}
+
+private fun createAppContainer(): HTMLElement {
+    val container = document.createElement("div") as HTMLElement
+    container.id = "app"
+    document.body?.appendChild(container)
+    return container
+}
+```
+
+### Build and Run
+
+```bash
+# For JS development
+./gradlew jsBrowserDevelopmentRun
+
+# For JS production build
+./gradlew jsBrowserProductionWebpack
+```
+
+### Next.js Style Routing
+
+Summon supports file-based routing similar to Next.js:
+
+1. Create page components in the `routing/pages` directory:
+
+```kotlin
+// src/commonMain/kotlin/code/yousef/summon/routing/pages/MySimplePage.kt
+package code.yousef.summon.routing.pages
+
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.core.Composable
+import code.yousef.summon.routing.RouteParams
+import code.yousef.summon.routing.NavLink
+import kotlinx.html.TagConsumer
+import kotlinx.html.div
+import kotlinx.html.h1
+
+class MySimplePage : Composable {
+    override fun <T> compose(receiver: T): T {
+        if (receiver is TagConsumer<*>) {
+            @Suppress("UNCHECKED_CAST")
+            val consumer = receiver as TagConsumer<Any?>
+
+            return consumer.div {
+                h1 { +"My Simple Page" }
+                // Your content here
+                
+                // Navigation
+                div {
+                    NavLink("/", "Home", "nav-link").compose(this)
+                    NavLink("/my-simple-page", "My Page", "nav-link", "active").compose(this)
+                }
+            } as T
+        }
+        return receiver
+    }
+
+    companion object {
+        // Required factory method for the router
+        fun create(params: RouteParams): Composable {
+            return MySimplePage()
+        }
+    }
+}
+```
+
+2. Register your pages with the router:
+
+```kotlin
+import code.yousef.summon.routing.Pages
+import code.yousef.summon.routing.pages.Index
+import code.yousef.summon.routing.pages.MySimplePage
+
+fun setupRouting() {
+    // Register routes
+    Pages.register("/", Index::create)
+    Pages.register("/my-simple-page", MySimplePage::create)
+    
+    // Create router
+    val router = Pages.createRouter()
+    
+    // Render router to root element
+    val root = document.getElementById("app") ?: createRootElement()
+    router.compose(root)
+}
+```
+
+URL paths are automatically mapped to file locations:
+- `pages/Index.kt` → `/`
+- `pages/About.kt` → `/about`
+- `pages/users/Profile.kt` → `/users/profile`
+- `pages/blog/[id].kt` → `/blog/:id` (dynamic route)
+
+### Viewing Components Directly
+
+For quick development and testing, you can create a simple HTML file to view your components:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summon Component</title>
+</head>
+<body>
+    <div id="app"></div>
+    
+    <!-- Include the Summon JS bundle -->
+    <script src="build/dist/js/developmentExecutable/summon.js"></script>
+    
+    <script>
+        // Load component after the DOM is ready
+        document.addEventListener("DOMContentLoaded", function() {
+            const container = document.getElementById("app");
+            
+            // Create an instance of your component
+            const myPage = new code.yousef.summon.examples.MySimplePage();
+            
+            // Render it to the container
+            myPage.compose(container);
+        });
+    </script>
+</body>
+</html>
+```
+
 ## Overview
 
 - **Declarative UI**: Use Compose-style syntax to define your website structure
@@ -1017,3 +1237,30 @@ class HomeResource {
         return summonRenderer.render(HomeScreen())
     }
 }
+```
+
+## Publishing
+
+This library is available on Maven Central. See [docs/publishing.md](docs/publishing.md) for details on publishing new versions.
+
+### Maven
+
+```xml
+<dependency>
+    <groupId>code.yousef</groupId>
+    <artifactId>summon</artifactId>
+    <version>0.1.0</version>
+</dependency>
+```
+
+### Gradle (Kotlin DSL)
+
+```kotlin
+implementation("code.yousef:summon:0.1.0")
+```
+
+### Gradle (Groovy DSL)
+
+```groovy
+implementation 'code.yousef:summon:0.1.0'
+```

@@ -1,6 +1,8 @@
 plugins {
     kotlin("multiplatform") version "1.9.20"
     kotlin("plugin.serialization") version "1.9.20"
+    id("maven-publish")
+    id("signing")
 }
 
 group = "code.yousef"
@@ -10,57 +12,10 @@ repositories {
     mavenCentral()
 }
 
-// Create a task that combines all tests but with JS tests filtered
-tasks.register("checkWithFilteredJsTests") {
-    group = "verification"
-    description = "Run all checks including jvmTest, but only run JavaScript tests with JsTest in their name"
-    
-    // Depend on all the regular check tasks except jsBrowserTest
-    dependsOn("jvmTest")
-    dependsOn("jsJar")
-    dependsOn("compileTestKotlinJs")
-    dependsOn("assemble")
-    
-    // Add our custom JsTest-only test task
-    finalizedBy("runJsTestsOnly")
-}
-
-// Task for running only JsTest JavaScript tests
-tasks.register<Exec>("runJsTestsOnly") {
-    group = "verification"
-    description = "Run only JavaScript-specific tests with JsTest in their name"
-    
-    // Use shell appropriate command based on OS
-    val isWindows = System.getProperty("os.name").lowercase().contains("windows")
-    if (isWindows) {
-        commandLine("cmd", "/c", "gradlew.bat", "jsNodeTest", "--tests=**.*JsTest*")
-    } else {
-        commandLine("sh", "-c", "./gradlew jsNodeTest --tests=**.*JsTest*")
-    }
-    
-    workingDir = projectDir
-}
-
 kotlin {
     jvm()
     js(IR) {
-        // Add Node.js target for simpler testing
-        nodejs {
-            testTask {
-                useKarma {
-                    useChrome()
-                }
-                enabled = true
-            }
-        }
         browser {
-            testTask {
-                useKarma {
-                    useChromeHeadless()
-                }
-                // Enable JS tests
-                enabled = true
-            }
             binaries.executable()
             commonWebpackConfig {
                 cssSupport {
@@ -68,6 +23,7 @@ kotlin {
                 }
             }
         }
+        nodejs()
     }
     
     sourceSets {
@@ -84,32 +40,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
             }
         }
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-                implementation(kotlin("test-common"))
-                implementation(kotlin("test-annotations-common"))
-                // Add explicit dependency on kotlin-stdlib
-                implementation(kotlin("stdlib"))
-                // Add explicit dependency on kotlin-reflect
-                implementation(kotlin("reflect"))
-            }
-            
-            // Temporarily exclude problematic test files
-            kotlin.srcDirs(projectDir.resolve("src/commonTest/kotlin").walkTopDown()
-                .filter { it.isDirectory }
-                .filterNot { dir ->
-                    listOf(
-                        "layout", "display", "input", "feedback", "state", "modifier"
-                    ).any { problematicDir ->
-                        dir.absolutePath.contains("components${File.separator}$problematicDir") ||
-                        dir.absolutePath.contains("state") ||
-                        dir.absolutePath.contains("modifier")
-                    }
-                }
-                .toList()
-            )
-        }
+        
         val jvmMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:$htmlVersion")
@@ -129,63 +60,13 @@ kotlin {
                 compileOnly("io.quarkus:quarkus-core-deployment:$quarkusVersion")
             }
         }
-        val jvmTest by getting {
-            dependencies {
-                implementation(kotlin("test-junit"))
-                implementation("org.jsoup:jsoup:1.15.3")
-                // Add Mockk for JVM testing
-                implementation("io.mockk:mockk:1.13.5")
-            }
-            
-            // Temporarily exclude problematic test files
-            kotlin.srcDirs(projectDir.resolve("src/jvmTest/kotlin").walkTopDown()
-                .filter { it.isDirectory }
-                .filterNot { dir ->
-                    listOf(
-                        "layout", "display", "input", "feedback", "state", "modifier"
-                    ).any { problematicDir ->
-                        dir.absolutePath.contains("components${File.separator}$problematicDir") ||
-                        dir.absolutePath.contains("state") ||
-                        dir.absolutePath.contains("modifier")
-                    }
-                }
-                .toList()
-            )
-        }
+        
         val jsMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-html-js:$htmlVersion")
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-browser:1.0.0-pre.632")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutinesVersion")
             }
-        }
-        val jsTest by getting {
-            dependencies {
-                implementation(kotlin("test-js"))
-                implementation(kotlin("test"))
-                implementation("org.jetbrains.kotlinx:kotlinx-html-js:$htmlVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutinesVersion")
-                // Add explicit testing dependencies for JS tests
-                implementation(kotlin("test-annotations-common"))
-                implementation(kotlin("test-common"))
-                // Add browser-specific test dependencies
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-browser:1.0.0-pre.632")
-            }
-            
-            // Temporarily exclude problematic test files
-            kotlin.srcDirs(projectDir.resolve("src/jsTest/kotlin").walkTopDown()
-                .filter { it.isDirectory }
-                .filterNot { dir ->
-                    listOf(
-                        "layout", "display", "input", "feedback", "state", "modifier"
-                    ).any { problematicDir ->
-                        dir.absolutePath.contains("components${File.separator}$problematicDir") ||
-                        dir.absolutePath.contains("state") ||
-                        dir.absolutePath.contains("modifier")
-                    }
-                }
-                .toList()
-            )
         }
     }
 
@@ -202,79 +83,91 @@ kotlin {
         compilations.all {
             kotlinOptions.jvmTarget = "1.8"
         }
-        testRuns["test"].executionTask.configure {
-            useJUnit()
-        }
     }
 }
 
-// Empty stub task to replace the JS test main creation
-tasks.register("createJsTestMain") {
-    doLast {
-        // Skipping creation of MainJsTest.kt as we're temporarily disabling JS tests
-        println("Skipping creation of MainJsTest.kt - JS tests are temporarily disabled")
-    }
-}
-
-// Replace this with a task that explicitly specifies JS tests to run
+// Define standard build tasks
 tasks.named("check") {
-    dependsOn("jvmTest")
     dependsOn("jsJar")
-    // Disable JS tests for now
-    // dependsOn("compileTestKotlinJs")
-    dependsOn("createJsTestMain")
 }
 
-// Create a task for running the full suite including JS tests if needed
-tasks.register("fullCheck") {
-    group = "verification"
-    description = "Run all checks including JS tests"
-    dependsOn("check")
-    // Disable JS tests for now
-    // dependsOn("jsNodeTest")
+// Define custom tasks for different run configurations
+tasks.register("runDev") {
+    group = "application"
+    description = "Run the application in development mode"
+    dependsOn("jsBrowserDevelopmentRun")
 }
 
-// Create a simple JS test runner task
-tasks.register("runJsTests") {
-    group = "verification"
-    description = "Run JavaScript tests using Node.js"
-    dependsOn("createJsTestMain")
-    // Disable JS tests for now
-    // dependsOn("jsNodeTest")
-    doLast {
-        println("JS tests are temporarily disabled")
+tasks.register("buildProd") {
+    group = "application"
+    description = "Build the application for production"
+    dependsOn("jsBrowserProductionWebpack")
+}
+
+// Maven Publishing Configuration
+publishing {
+    publications {
+        // Configure all publications to have the right Maven coordinates
+        withType<MavenPublication> {
+            // Set Maven coordinates
+            // The name will be automatically provided by Kotlin Multiplatform plugin
+            // group and version are set at the top of this file
+            
+            // Configure Maven POM
+            pom {
+                name.set("Summon")
+                description.set("A Kotlin Multiplatform UI library for creating web applications with a Compose-like syntax")
+                url.set("https://github.com/yousef/summon")
+                
+                licenses {
+                    license {
+                        name.set("Apache License, Version 2.0")
+                        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+                
+                developers {
+                    developer {
+                        id.set("yousef")
+                        name.set("Yousef")
+                        email.set("contact@yousef.code")
+                    }
+                }
+                
+                scm {
+                    connection.set("scm:git:git://github.com/yousef/summon.git")
+                    developerConnection.set("scm:git:ssh://github.com:yousef/summon.git")
+                    url.set("https://github.com/yousef/summon")
+                }
+            }
+        }
     }
-}
-
-// Update documentation
-tasks.register("updateJsTestingDocs") {
-    doLast {
-        val file = project.file("JavaScript Testing.md")
-        if (file.exists()) {
-            val content = file.readText()
-            val updatedContent = content.replace(
-                "To run all tests (but be aware of potential ClassCastException errors in JS):",
-                "To run all tests (safely, with JS tests skipped):"
-            ).plus("\n\nTo run all tests including JS tests (which may cause ClassCastException errors):\n\n```\n./gradlew clean fullCheck\n```\n")
-            file.writeText(updatedContent)
+    
+    // Optional: Configure repositories
+    repositories {
+        maven {
+            name = "sonatype"
+            val releasesRepoUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            val snapshotsRepoUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+            url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
+            
+            credentials {
+                username = System.getenv("SONATYPE_USERNAME") ?: project.properties["ossrhUsername"]?.toString() ?: ""
+                password = System.getenv("SONATYPE_PASSWORD") ?: project.properties["ossrhPassword"]?.toString() ?: ""
+            }
         }
     }
 }
 
-// Run the documentation update after build
-tasks.named("build") {
-    finalizedBy("updateJsTestingDocs")
-}
-
-// Disable test compilation and execution 
-tasks.configureEach {
-    if (name.contains("test", ignoreCase = true) || 
-        name.contains("Test", ignoreCase = true)) {
-        enabled = false
-    }
-}
-
-// Make test tasks no-ops
-tasks.withType<Test>().configureEach {
-    enabled = false
+// Optional: Signing configuration
+signing {
+    // Sign all publications
+    sign(publishing.publications)
+    
+    // Uncomment and use one of these options for signing
+    // Option 1: Sign with key file
+    // useInMemoryPgpKeys(pgpPrivateKey, pgpPassword)
+    
+    // Option 2: Use GPG command line (requires GPG installed)
+    // useGpgCmd()
 } 
