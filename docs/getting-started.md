@@ -71,42 +71,44 @@ kotlin {
 
 ## Your First Component
 
-Here's a simple example of creating a reusable component with Summon:
+Let's create a simple reusable component with Summon:
 
 ```kotlin
 import code.yousef.summon.core.Composable
-import code.yousef.summon.components.*
-import code.yousef.summon.modifier.*
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.components.layout.Column
+import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.extensions.px
+import code.yousef.summon.extensions.rem
 
 class HelloWorld : Composable {
-    override fun render() {
-        Column(
-            modifier = Modifier
-                .padding(16.px)
-                .gap(8.px)
-        ) {
-            Text(
-                text = "Hello, Summon!",
-                modifier = Modifier
-                    .fontSize(24.px)
-                    .fontWeight(700)
-            )
-            
-            Button(
-                text = "Click me",
-                onClick = { 
-                    println("Button clicked!")
-                },
-                modifier = Modifier
-                    .backgroundColor("#0077cc")
-                    .color("#ffffff")
-                    .padding(8.px, 16.px)
-                    .borderRadius(4.px)
-            )
-        }
+    override fun <T> compose(receiver: T): T {
+        return Column(
+            content = listOf(
+                Text(
+                    text = "Hello, World!",
+                    modifier = Modifier()
+                        .fontSize(2.rem)
+                        .color("#0077cc")
+                        .marginBottom(16.px)
+                ),
+                Text(
+                    text = "Welcome to Summon - A Kotlin Multiplatform UI library!",
+                    modifier = Modifier()
+                        .color("#333333")
+                        .padding(8.px)
+                )
+            ),
+            modifier = Modifier()
+                .maxWidth(600.px)
+                .padding(24.px)
+                .margin("0 auto")
+        ).compose(receiver)
     }
 }
 ```
+
+Notice the use of handy numeric extensions like `16.px` and `2.rem` - these are Summon's CSS unit extensions that make your styling code more concise and type-safe.
 
 ## Platform-Specific Setup
 

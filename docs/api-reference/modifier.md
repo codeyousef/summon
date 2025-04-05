@@ -56,6 +56,42 @@ val modifier = Modifier()
 
 ---
 
+## CSS Units Extensions
+
+Summon provides convenient extension properties for numeric values to create CSS dimension values.
+
+### Number Extensions
+
+```kotlin
+// In code.yousef.summon.extensions package
+val Number.px: String  // Pixels (e.g., 16.px -> "16px")
+val Number.rem: String // Root em units (e.g., 1.5.rem -> "1.5rem")
+val Number.em: String  // Em units (e.g., 1.2.em -> "1.2em")
+val Number.percent: String // Percentage values (e.g., 50.percent -> "50%")
+val Number.vw: String  // Viewport width (e.g., 100.vw -> "100vw")
+val Number.vh: String  // Viewport height (e.g., 100.vh -> "100vh")
+val Number.vmin: String // Viewport minimum (e.g., 50.vmin -> "50vmin")
+val Number.vmax: String // Viewport maximum (e.g., 50.vmax -> "50vmax")
+```
+
+### Example
+
+```kotlin
+import code.yousef.summon.extensions.px
+import code.yousef.summon.extensions.rem
+import code.yousef.summon.extensions.percent
+
+Modifier
+    .width(100.percent)  // Sets width to "100%"
+    .fontSize(1.25.rem)  // Sets font size to "1.25rem"
+    .padding(16.px)      // Sets padding to "16px"
+    .marginTop(20.px)    // Sets top margin to "20px"
+```
+
+These extensions provide a more type-safe and concise way to specify dimensions in your styles, and they can be used with all modifiers that accept CSS dimension values.
+
+---
+
 ## Layout Modifiers
 
 Layout modifiers control the size, position, and arrangement of components.

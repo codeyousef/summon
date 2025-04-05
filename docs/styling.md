@@ -8,6 +8,7 @@ The primary way to style components in Summon is through the `Modifier` API, whi
 
 ```kotlin
 import code.yousef.summon.modifier.*
+import code.yousef.summon.extensions.*
 
 Button(
     text = "Click me",
@@ -22,6 +23,56 @@ Button(
             backgroundColor("#005599")
         }
 )
+```
+
+## CSS Units
+
+Summon provides convenient extension properties for numbers to create CSS dimension values without needing to add string units manually:
+
+```kotlin
+import code.yousef.summon.extensions.*
+
+// These are all equivalent to writing the CSS strings manually
+val pixels = 16.px        // "16px"
+val rootEm = 1.5.rem      // "1.5rem"
+val emUnits = 1.2.em      // "1.2em"
+val percentage = 50.percent  // "50%"
+val viewportWidth = 100.vw   // "100vw"
+val viewportHeight = 100.vh  // "100vh"
+val viewportMin = 50.vmin    // "50vmin"
+val viewportMax = 50.vmax    // "50vmax"
+```
+
+These extensions can be used with all modifiers that accept CSS dimension values:
+
+```kotlin
+Text(
+    text = "Sized text",
+    modifier = Modifier
+        .width(200.px)
+        .fontSize(1.2.rem)
+        .marginTop(10.px)
+        .marginBottom(20.px)
+)
+```
+
+## Individual Property Modifiers
+
+Summon supports applying individual properties for margin and padding:
+
+```kotlin
+Modifier
+    // Individual margin properties
+    .marginTop(8.px)      // Only apply to top margin
+    .marginRight(16.px)   // Only apply to right margin
+    .marginBottom(8.px)   // Only apply to bottom margin
+    .marginLeft(16.px)    // Only apply to left margin
+    
+    // Individual padding properties
+    .paddingTop(8.px)     // Only apply to top padding
+    .paddingRight(16.px)  // Only apply to right padding
+    .paddingBottom(8.px)  // Only apply to bottom padding
+    .paddingLeft(16.px)   // Only apply to left padding
 ```
 
 ### Layout Modifiers
