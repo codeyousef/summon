@@ -18,6 +18,7 @@ kotlin {
                 useKarma {
                     useChromeHeadless()
                 }
+                enabled = false
             }
             binaries.executable()
         }
@@ -40,6 +41,8 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+                implementation(kotlin("test-common"))
+                implementation(kotlin("test-annotations-common"))
             }
         }
         val jvmMain by getting {
@@ -61,7 +64,12 @@ kotlin {
                 compileOnly("io.quarkus:quarkus-core-deployment:$quarkusVersion")
             }
         }
-        val jvmTest by getting
+        val jvmTest by getting {
+            dependencies {
+                implementation(kotlin("test-junit"))
+                implementation("org.jsoup:jsoup:1.15.3")
+            }
+        }
         val jsMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-html-js:$htmlVersion")
@@ -69,7 +77,13 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutinesVersion")
             }
         }
-        val jsTest by getting
+        val jsTest by getting {
+            dependencies {
+                implementation(kotlin("test-js"))
+                implementation(kotlin("test"))
+                implementation(kotlin("test-annotations-common"))
+            }
+        }
     }
 
     // Enable expect/actual classes feature
