@@ -47,17 +47,31 @@ class JvmPlatformRenderer : PlatformRenderer {
      * Renders a Button component as a button element with appropriate attributes.
      */
     override fun <T> renderButton(button: Button, consumer: TagConsumer<T>): T {
+        // Collect all attributes before creating the tag
+        val attributesMap = mutableMapOf<String, String>()
+        
+        // Add data attribute for click events
+        attributesMap["data-summon-click"] = "true"
+        
+        // Add disabled attribute if button is disabled
+        if (button.disabled) {
+            attributesMap["disabled"] = "disabled"
+        }
+        
+        // Apply styles from modifier
+        val styleString = button.modifier.toStyleString()
+        
         consumer.button {
-            // Apply the modifier styles
-            val styleString = button.modifier.toStyleString()
+            // Apply collected attributes
+            attributesMap.forEach { (key, value) ->
+                attributes[key] = value
+            }
+            
+            // Apply styles
             style = styleString
-
+            
             // Add the button text
             +button.label
-
-            // For JVM, we can't actually handle the click events,
-            // but we'll add a data attribute that could be used with JS later
-            attributes["data-summon-click"] = "true"
         }
 
         return consumer as T
@@ -535,32 +549,43 @@ class JvmPlatformRenderer : PlatformRenderer {
     }
 
     /**
-     * Renders an Image component as an img element with accessibility attributes.
+     * Renders an Image component as an img element with appropriate attributes.
      */
     override fun <T> renderImage(image: Image, consumer: TagConsumer<T>): T {
-        consumer.img {
-            // Set required attributes
-            src = image.src
-            alt = image.alt
-
-            // Apply loading strategy
-            if (image.loading != ImageLoading.AUTO) {
-                attributes["loading"] = image.loading.value
-            }
-
-            // Apply optional attributes
-            image.width?.let { width = it }
-            image.height?.let { height = it }
-
-            // Add detailed description if provided
-            image.contentDescription?.let {
-                attributes["aria-describedby"] = "img-desc-${image.hashCode()}"
-            }
-
-            // Apply modifier styles
-            style = image.modifier.toStyleString()
+        // Collect all attributes before creating the tag
+        val attributesMap = mutableMapOf<String, String>()
+        
+        // Set required attributes
+        attributesMap["src"] = image.src
+        attributesMap["alt"] = image.alt
+        
+        // Apply loading strategy
+        if (image.loading != ImageLoading.AUTO) {
+            attributesMap["loading"] = image.loading.value
         }
-
+        
+        // Apply optional attributes
+        image.width?.let { attributesMap["width"] = it }
+        image.height?.let { attributesMap["height"] = it }
+        
+        // Add detailed description if provided
+        image.contentDescription?.let {
+            attributesMap["aria-describedby"] = "img-desc-${image.hashCode()}"
+        }
+        
+        // Get modifier styles
+        val styleString = image.modifier.toStyleString()
+        
+        consumer.img {
+            // Apply collected attributes
+            attributesMap.forEach { (key, value) ->
+                attributes[key] = value
+            }
+            
+            // Apply modifier styles
+            style = styleString
+        }
+        
         // Add the description in a hidden element if provided
         image.contentDescription?.let {
             consumer.div {
@@ -569,8 +594,7 @@ class JvmPlatformRenderer : PlatformRenderer {
                 +it
             }
         }
-
-
+        
         return consumer as T
     }
 

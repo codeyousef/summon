@@ -18,9 +18,14 @@ kotlin {
                 useKarma {
                     useChromeHeadless()
                 }
-                enabled = false
+                enabled = true
             }
             binaries.executable()
+            commonWebpackConfig {
+                cssSupport {
+                    enabled.set(true)
+                }
+            }
         }
     }
     
@@ -81,7 +86,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("test-js"))
                 implementation(kotlin("test"))
-                implementation(kotlin("test-annotations-common"))
+                implementation("org.jetbrains.kotlinx:kotlinx-html-js:$htmlVersion")
             }
         }
     }

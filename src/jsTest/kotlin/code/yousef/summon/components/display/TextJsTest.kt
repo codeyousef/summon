@@ -1,16 +1,20 @@
 package code.yousef.summon.components.display
 
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.verifyProperties
 import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 /**
- * Minimal JS tests for the Text component to avoid ClassCastException
+ * JS tests for the Text component
  */
 class TextJsTest {
     @Test
     fun testBasicProperty() {
-        val text = "Test"
+        // Test basic properties
+        val text = "Hello World"
         val component = Text(text)
-        assertEquals(text, component.text)
+        
+        assertTrue(component.verifyProperties(text))
     }
 } 

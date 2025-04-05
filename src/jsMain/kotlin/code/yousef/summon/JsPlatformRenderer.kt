@@ -25,20 +25,29 @@ class JsPlatformRenderer : PlatformRenderer {
      * Renders a Text component as a span element with the text content.
      */
     override fun <T> renderText(text: Text, consumer: TagConsumer<T>): T {
+        // Collect all attributes first
+        val attributes = mutableMapOf<String, String>()
+        
+        // Apply the modifier styles and additional text-specific styles
+        val additionalStyles = text.getAdditionalStyles()
+        val combinedStyles = text.modifier.styles + additionalStyles
+        attributes["style"] = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+        
+        // Apply accessibility attributes
+        text.getAccessibilityAttributes().forEach { (key, value) ->
+            attributes[key] = value
+        }
+        
         consumer.span {
-            // Apply the modifier styles and additional text-specific styles
-            val additionalStyles = text.getAdditionalStyles()
-            val combinedStyles = text.modifier.styles + additionalStyles
-            style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
-
-            // Apply accessibility attributes
-            text.getAccessibilityAttributes().forEach { (key, value) ->
-                attributes[key] = value
+            // Properly apply all collected attributes to the tag
+            for ((key, value) in attributes) {
+                this.attributes[key] = value
             }
-
+            
             // Add the text content
             +text.text
         }
+        
         @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
@@ -48,15 +57,24 @@ class JsPlatformRenderer : PlatformRenderer {
      */
     override fun <T> renderButton(button: Button, consumer: TagConsumer<T>): T {
         val buttonId = "btn-${button.hashCode()}"
+        
+        // Collect all attributes first
+        val attributes = mutableMapOf<String, String>()
+        
+        // Set required attributes
+        attributes["id"] = buttonId
+        attributes["style"] = button.modifier.toStyleString()
+        attributes["data-summon-click"] = "true"
+        
+        // Create the button element with all attributes
         consumer.button {
-            style = button.modifier.toStyleString()
-            id = buttonId
-
+            // Properly apply all collected attributes to the tag
+            for ((key, value) in attributes) {
+                this.attributes[key] = value
+            }
+            
             // Add the button text
             +button.label
-
-            // Add a data attribute for click handling
-            attributes["data-summon-click"] = "true"
         }
 
         // Set up the click handler for this button
@@ -479,35 +497,41 @@ class JsPlatformRenderer : PlatformRenderer {
      */
     override fun <T> renderImage(image: Image, consumer: TagConsumer<T>): T {
         val imageId = "img-${image.hashCode()}"
-
+        
+        // Collect all attributes first
+        val attributes = mutableMapOf<String, String>()
+        
+        // Set required attributes
+        attributes["id"] = imageId
+        attributes["src"] = image.src
+        attributes["alt"] = image.alt
+        
+        // Apply loading strategy
+        if (image.loading != ImageLoading.AUTO) {
+            attributes["loading"] = image.loading.value
+        }
+        
+        // Apply optional attributes
+        image.width?.let { attributes["width"] = it.toString() }
+        image.height?.let { attributes["height"] = it.toString() }
+        
+        // Add detailed description if provided
+        image.contentDescription?.let {
+            attributes["aria-describedby"] = "img-desc-$imageId"
+        }
+        
+        // Apply styles
+        attributes["style"] = image.modifier.toStyleString()
+        
+        // Set up error handling for image loading
+        attributes["onerror"] = "this.onerror=null; this.src='data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D%22http://www.w3.org/2000/svg%22 width%3D%22${image.width ?: "100"}%22 height%3D%22${image.height ?: "100"}%22 viewBox%3D%220 0 24 24%22%3E%3Cpath fill%3D%22%23ccc%22 d%3D%22M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z%22/%3E%3C/svg%3E';"
+        
+        // Create the img tag with all collected attributes
         consumer.img {
-            // Set id for potential JS interactions
-            id = imageId
-
-            // Set required attributes
-            src = image.src
-            alt = image.alt
-
-            // Apply loading strategy
-            if (image.loading != ImageLoading.AUTO) {
-                attributes["loading"] = image.loading.value
+            // Properly apply all collected attributes to the tag
+            for ((key, value) in attributes) {
+                this.attributes[key] = value
             }
-
-            // Apply optional attributes
-            image.width?.let { width = it }
-            image.height?.let { height = it }
-
-            // Add detailed description if provided
-            image.contentDescription?.let {
-                attributes["aria-describedby"] = "img-desc-$imageId"
-            }
-
-            // Apply modifier styles
-            style = image.modifier.toStyleString()
-
-            // Set up error handling for image loading
-            onError =
-                "this.onerror=null; this.src='data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D%22http://www.w3.org/2000/svg%22 width%3D%22${image.width ?: "100"}%22 height%3D%22${image.height ?: "100"}%22 viewBox%3D%220 0 24 24%22%3E%3Cpath fill%3D%22%23ccc%22 d%3D%22M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z%22/%3E%3C/svg%3E';"
         }
 
         // Add the description in a hidden element if provided
@@ -518,7 +542,6 @@ class JsPlatformRenderer : PlatformRenderer {
                 +it
             }
         }
-
 
         return consumer as T
     }

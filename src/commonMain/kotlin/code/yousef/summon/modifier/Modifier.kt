@@ -39,6 +39,12 @@ data class Modifier(val styles: Map<String, String> = emptyMap()) {
      */
     fun background(color: String): Modifier =
         style("background-color", color)
+        
+    /**
+     * Alias for background() to match CSS property name
+     */
+    fun backgroundColor(color: String): Modifier =
+        background(color)
 
     /**
      * Sets the padding of the element.
@@ -59,6 +65,12 @@ data class Modifier(val styles: Map<String, String> = emptyMap()) {
      */
     fun width(value: String): Modifier =
         style("width", value)
+        
+    /**
+     * Sets the maximum width of the element.
+     */
+    fun maxWidth(value: String): Modifier =
+        style("max-width", value)
 
     /**
      * Sets the height of the element.
@@ -119,6 +131,13 @@ data class Modifier(val styles: Map<String, String> = emptyMap()) {
      */
     fun margin(top: String, right: String, bottom: String, left: String): Modifier =
         style("margin", "$top $right $bottom $left")
+        
+    /**
+     * Sets the object-fit property for images.
+     * Valid values include: fill, contain, cover, none, scale-down
+     */
+    fun objectFit(value: String): Modifier =
+        style("object-fit", value)
 
     /**
      * Sets the element to fill its container.
@@ -197,26 +216,6 @@ data class Modifier(val styles: Map<String, String> = emptyMap()) {
         styles.entries
             .filter { it.key != "__hover" } // Filter out special keys
             .joinToString(";") { (key, value) -> "$key:$value" }
-
-    /**
-     * Sets the maximum width of the element.
-     */
-    fun maxWidth(value: String): Modifier =
-        style("max-width", value)
-
-    /**
-     * Sets the maximum height of the element.
-     */
-    fun maxHeight(value: String): Modifier =
-        style("max-height", value)
-
-    /**
-     * Sets the background color of the element (alias for background).
-     * @param color The CSS color value (name, hex, rgb, etc.)
-     * @return A new Modifier with the added style
-     */
-    fun backgroundColor(color: String): Modifier =
-        style("background-color", color)
 
     /**
      * Sets the margin at the bottom of the element.

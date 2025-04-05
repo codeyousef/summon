@@ -47,3 +47,4 @@ npm-debug.log
 /kotlin-js-store/yarn.lock
 /Tests.md
 /docs/js-test-guide.md
+/src/jsTestSkip/
