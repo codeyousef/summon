@@ -25,6 +25,18 @@ For detailed documentation, please check the [docs](docs/README.md) directory:
 - [Integration Guides](docs/integration-guides.md) - Integrate with existing frameworks
 - [Publishing to Maven Central](docs/publishing.md) - Publish your Summon-based library
 
+### API Reference
+
+Comprehensive API reference documentation is available in the [docs/api-reference](docs/api-reference) directory:
+
+- [Core API](docs/api-reference/core.md) - Core interfaces and classes
+- [Components API](docs/api-reference/components.md) - Built-in UI components
+- [Modifier API](docs/api-reference/modifier.md) - Styling and layout modifiers
+- [State API](docs/api-reference/state.md) - State management utilities
+- [Routing API](docs/api-reference/routing.md) - Navigation and routing
+- [Effects API](docs/api-reference/effects.md) - Side effects and lifecycle management
+- [Events API](docs/api-reference/events.md) - Event handling and listeners
+
 ## Local Development Setup
 
 Since Summon is not yet published to Maven Central, you'll need to build it locally:
@@ -90,7 +102,14 @@ For a simple example of what you can build with Summon, check out the [Getting S
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! We are currently **focusing on testing contributions** as our top priority. We especially welcome:
+
+- Unit tests for core components and APIs
+- Integration tests for platform-specific functionality
+- End-to-end tests for sample applications
+- Test utilities and frameworks to make testing Summon applications easier
+
+Of course, bug fixes, documentation improvements, and feature enhancements are also appreciated. Please feel free to submit a Pull Request.
 
 ## License
 
