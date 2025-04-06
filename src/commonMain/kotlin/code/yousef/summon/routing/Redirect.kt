@@ -1,40 +1,29 @@
 package code.yousef.summon.routing
 
-import code.yousef.summon.core.Composable
-import code.yousef.summon.routing.Redirect.Companion.to
+import code.yousef.summon.annotation.Composable
 
 /**
- * A component that redirects to another route.
- * Useful for declarative redirection based on conditions.
+ * A composable that performs a client-side redirect when composed.
+ * Useful for declarative redirection based on application state or logic.
+ * This composable does not render any UI itself.
  *
- * @param to Path to redirect to
- * @param replace Whether to replace the current history entry (default: false)
+ * @param to The target path to navigate to.
+ * @param replace If true, replaces the current entry in the history stack instead of pushing a new one.
  */
-class Redirect(
-    val to: String,
-    val replace: Boolean = false
-) : Composable {
-    override fun <T> compose(receiver: T): T {
-        // Get the current router instance
-        val router = RouterContext.current
+@Composable
+fun Redirect(
+    to: String,
+    replace: Boolean = false
+) {
+    // Get the current router instance from the composition context
+    // This requires RouterContext to be available, likely as a CompositionLocal.
+    // val router = RouterContext.current ?: error("RouterContext not found. Redirect must be used within a Router.")
+    val router = RouterContext.current // Assuming RouterContext.current works here
 
-        // Perform the redirect if a router is available
-        router?.navigate(to, !replace)
+    // Perform the navigation side-effect
+    // Consider using LaunchedEffect or similar for side effects in Compose?
+    // For now, direct call matches old behavior.
+    router?.navigate(to, !replace) 
 
-        // Just return the receiver without rendering anything
-        return receiver
-    }
-
-    companion object {
-        /**
-         * Creates a redirect component.
-         *
-         * @param to Path to redirect to
-         * @param replace Whether to replace the current history entry
-         * @return A new Redirect instance
-         */
-        fun to(to: String, replace: Boolean = false): Redirect {
-            return Redirect(to, replace)
-        }
-    }
+    // This composable emits nothing to the UI tree.
 } 

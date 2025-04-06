@@ -1,6 +1,6 @@
 package code.yousef.summon.theme
 
-import code.yousef.summon.Spacer
+import code.yousef.summon.components.layout.Spacer
 import code.yousef.summon.modifier.Modifier
 
 /**

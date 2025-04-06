@@ -1,8 +1,5 @@
 package code.yousef.summon.accessibility
 
-import code.yousef.summon.FocusableComponent
-import code.yousef.summon.accessibility.KeyboardNavigation.keyboardNavigation
-import code.yousef.summon.core.Composable
 import code.yousef.summon.modifier.Modifier
 
 /**
@@ -130,18 +127,27 @@ object KeyboardNavigation {
 
 /**
  * A component that provides keyboard navigation capabilities.
+ * NOTE: This class is likely obsolete after refactoring to @Composable functions.
+ * Keyboard navigation attributes should be applied via Modifier directly to standard components.
  *
  * @param content The content to make keyboard navigable
  * @param config The keyboard navigation configuration
  */
 class KeyboardNavigableContainer(
-    private val content: List<Composable>,
+    // Content is no longer directly relevant here.
+    // private val content: List<Composable>,
     private val config: KeyboardNavigation.KeyboardNavigationConfig = KeyboardNavigation.KeyboardNavigationConfig()
-) : Composable, FocusableComponent {
+) /* : Composable, FocusableComponent */ { // Removed interface inheritance
 
+    // Removed the compose method
+    /*
     override fun <T> compose(receiver: T): T {
         val modifier = Modifier().keyboardNavigation(config)
         // TODO: Implement rendering with keyboard navigation
+        // This logic is now defunct.
         return receiver
     }
+    */
+    // This class now primarily acts as a data holder, but its purpose is questionable.
+    // Consider removing it and using the helper functions in KeyboardNavigation directly.
 } 

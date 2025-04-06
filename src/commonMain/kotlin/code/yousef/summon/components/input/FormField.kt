@@ -1,37 +1,42 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.core.Composable
+import code.yousef.summon.core.UIElement
 import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
 import kotlinx.html.TagConsumer
+import code.yousef.summon.annotation.Composable
+import code.yousef.summon.components.layout.Column
+import code.yousef.summon.components.display.Text
 
 /**
- * A composable that wraps form controls with common functionality like labels and validation messages.
- * @param label Optional label to display for the form field
- * @param fieldContent The form control to wrap
- * @param helper Optional helper text to display below the field
- * @param error Optional error message to display
- * @param required Whether the field is required
- * @param modifier The modifier to apply to this composable
+ * A layout composable that wraps an input field (or other content)
+ * with a label, helper text, and error message display.
+ *
+ * @param fieldContent The main content of the form field, typically an input composable like [TextField].
+ * @param modifier Optional [Modifier] for the entire FormField layout.
+ * @param label Optional composable lambda to display the label above the field content.
+ * @param helperText Optional composable lambda for helper text displayed below the field when not in error state.
+ * @param errorMessage Optional composable lambda for error message displayed below the field when [isError] is true.
+ * @param isError Controls whether the error message or helper text is displayed.
  */
-class FormField(
-    val label: String? = null,
-    val fieldContent: Composable,
-    val helper: String? = null,
-    val error: String? = null,
-    val required: Boolean = false,
-    val modifier: Modifier = Modifier()
-) : Composable {
-    /**
-     * Renders this FormField composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderFormField(this, receiver as TagConsumer<T>)
+@Composable
+fun FormField(
+    fieldContent: @Composable () -> Unit,
+    modifier: Modifier = Modifier(),
+    label: @Composable (() -> Unit)? = null,
+    helperText: @Composable (() -> Unit)? = null,
+    errorMessage: @Composable (() -> Unit)? = null,
+    isError: Boolean = false
+) {
+    Column(modifier = modifier) {
+        label?.invoke()
+
+        fieldContent()
+
+        if (isError && errorMessage != null) {
+            errorMessage()
+        } else if (!isError && helperText != null) {
+            helperText()
         }
-        return receiver
     }
 } 

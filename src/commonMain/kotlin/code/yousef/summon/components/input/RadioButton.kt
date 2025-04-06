@@ -1,106 +1,52 @@
 package code.yousef.summon.components.input
 
 import code.yousef.summon.*
-import code.yousef.summon.core.Composable
+import code.yousef.summon.core.UIElement
 import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
 import kotlinx.html.TagConsumer
-import kotlinx.html.div
-import kotlinx.html.style
+import code.yousef.summon.annotation.Composable
 
 /**
- * A composable that displays a radio button input field.
- * @param selected Whether this radio button is selected
- * @param onClick Callback that is invoked when the radio button is clicked
- * @param label Optional label to display for the radio button
- * @param value The value associated with this radio button
- * @param name The name of the radio button group
- * @param modifier The modifier to apply to this composable
- * @param disabled Whether the radio button is disabled
+ * A composable that displays a radio button, typically used as part of a group
+ * where only one option can be selected at a time.
+ *
+ * State (which option is selected) must be managed externally and passed via the
+ * `selected` parameter and the `onClick` lambda.
+ *
+ * @param selected Whether this radio button is currently selected.
+ * @param onClick Lambda executed when this radio button is clicked. Typically, this lambda
+ *                updates the external state to select this button.
+ * @param modifier Optional [Modifier] for styling and layout.
+ * @param enabled Controls the enabled state. When `false`, interaction is disabled.
+ * @param label Optional label text displayed alongside the radio button.
  */
-class RadioButton<T>(
+@Composable
+fun RadioButton(
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier(),
+    enabled: Boolean = true,
+    label: String? = null
+) {
+    val radioButtonData = RadioButtonData(
+        selected = selected,
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        label = label
+    )
+
+    println("Composable RadioButton function called with selected: $selected")
+}
+
+/**
+ * Internal data class holding parameters for the RadioButton renderer.
+ */
+internal data class RadioButtonData(
     val selected: Boolean,
-    val onClick: () -> Unit = {},
-    val label: String? = null,
-    val value: T,
-    val name: String,
-    val modifier: Modifier = Modifier(),
-    val disabled: Boolean = false
-) : Composable, InputComponent, FocusableComponent {
-    /**
-     * Renders this RadioButton composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer()
-                .renderRadioButton(this as RadioButton<Any>, receiver as TagConsumer<T>)
-        }
-        return receiver
-    }
-}
-
-/**
- * A composable that represents a group of radio buttons.
- * @param selectedValue The currently selected value
- * @param onSelectedChange Callback that is invoked when selection changes
- * @param options The list of options to display as radio buttons
- * @param modifier The modifier to apply to this composable
- */
-class RadioGroup<V>(
-    val selectedValue: MutableState<V>,
-    val onSelectedChange: (V) -> Unit = {},
-    val options: List<RadioOption<V>>,
-    val modifier: Modifier = Modifier()
-) : Composable {
-    /**
-     * Renders this RadioGroup composable to the HTML DOM.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            val consumer = receiver as TagConsumer<T>
-            val groupName = "radio-group-${this.hashCode()}"
-
-            // Create a container for the radio group
-            consumer.div {
-                style = modifier.toStyleString()
-
-                // Render each radio button option
-                options.forEach { option ->
-                    val isSelected = option.value == this@RadioGroup.selectedValue.value
-                    val radioButton = RadioButton(
-                        selected = isSelected,
-                        onClick = {
-                            this@RadioGroup.selectedValue.value = option.value
-                            this@RadioGroup.onSelectedChange(option.value)
-                        },
-                        label = option.label,
-                        value = option.value,
-                        name = groupName,
-                        modifier = option.modifier,
-                        disabled = option.disabled
-                    )
-                    radioButton.compose(this)
-                }
-            }
-
-            return receiver
-        }
-        return receiver
-    }
-}
-
-/**
- * Data class representing a radio button option.
- */
-data class RadioOption<T>(
-    val value: T,
-    val label: String,
-    val modifier: Modifier = Modifier(),
-    val disabled: Boolean = false
+    val onClick: () -> Unit,
+    val modifier: Modifier,
+    val enabled: Boolean,
+    val label: String?
 ) 

@@ -1,6 +1,5 @@
 package code.yousef.summon.accessibility
 
-import code.yousef.summon.core.Composable
 import code.yousef.summon.modifier.Modifier
 
 /**
@@ -129,15 +128,20 @@ object AccessibilityTree {
 /**
  * A component that wraps content with proper accessibility attributes.
  * Makes content accessible to assistive technologies.
+ * NOTE: This class is likely obsolete after refactoring to @Composable functions.
+ * Accessibility attributes should be applied via Modifier directly to standard components.
  */
 class AccessibleElement(
-    private val content: List<Composable>,
+    // Content is no longer directly relevant here as this class doesn't compose.
+    // private val content: List<Composable>,
     private val role: AccessibilityTree.NodeRole? = null,
     private val customRole: String? = null,
     private val label: String? = null,
     private val relations: Map<String, String> = emptyMap()
-) : Composable {
+) /* : Composable */ { // Removed Composable inheritance
 
+    // Removed the compose method
+    /*
     override fun <T> compose(receiver: T): T {
         var modifier = Modifier()
 
@@ -161,8 +165,12 @@ class AccessibleElement(
         }
 
         // TODO: Render content with accessibility attributes
+        // This logic is now defunct.
         return receiver
     }
+    */
+    // This class now primarily acts as a data holder, but its purpose is questionable.
+    // Consider removing it and using the helper functions in AccessibilityTree directly.
 }
 
 /**

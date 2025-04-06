@@ -1,218 +1,158 @@
 package code.yousef.summon.routing.seo
 
-import code.yousef.summon.core.Composable
-import kotlinx.html.FlowContent
-import kotlinx.html.article
-import kotlinx.html.aside
-import kotlinx.html.footer
-import kotlinx.html.h1
-import kotlinx.html.h2
-import kotlinx.html.header
-import kotlinx.html.main
-import kotlinx.html.nav
-import kotlinx.html.section
+import code.yousef.summon.annotation.Composable
+import kotlinx.html.*
 
 /**
- * SemanticHTML provides components for creating semantically meaningful HTML elements
- * These help search engines understand the structure of your content
+ * Composable function for creating a semantic HTML `<header>` element.
+ * @param id Optional HTML ID attribute.
+ * @param className Optional HTML class attribute.
+ * @param content Lambda providing the content for the header.
  */
-object SemanticHTML {
-    /**
-     * Creates a semantic header element
-     */
-    class Header(
-        private val id: String? = null,
-        private val className: String? = null,
-        private val content: FlowContent.() -> Unit
-    ) : Composable {
-
-        @Suppress("UNCHECKED_CAST")
-        override fun <T> compose(receiver: T): T {
-            if (receiver is FlowContent) {
-                receiver.header {
-                    id?.let { this.attributes["id"] = it }
-                    className?.let { this.attributes["class"] = it }
-                    content()
-                }
-            }
-
-            return receiver
-        }
+@Composable
+fun Header(
+    id: String? = null,
+    className: String? = null,
+    content: @Composable FlowContent.() -> Unit
+) {
+    header(classes = className) {
+        id?.let { this.id = it }
+        content()
     }
+}
 
-    /**
-     * Creates a semantic main content element
-     */
-    class Main(
-        private val id: String? = null,
-        private val className: String? = null,
-        private val content: FlowContent.() -> Unit
-    ) : Composable {
-
-        @Suppress("UNCHECKED_CAST")
-        override fun <T> compose(receiver: T): T {
-            if (receiver is FlowContent) {
-                receiver.main {
-                    id?.let { this.attributes["id"] = it }
-                    className?.let { this.attributes["class"] = it }
-                    content()
-                }
-            }
-
-            return receiver
-        }
+/**
+ * Composable function for creating a semantic HTML `<main>` element.
+ * @param id Optional HTML ID attribute.
+ * @param className Optional HTML class attribute.
+ * @param content Lambda providing the content for the main element.
+ */
+@Composable
+fun Main(
+    id: String? = null,
+    className: String? = null,
+    content: @Composable FlowContent.() -> Unit
+) {
+    main(classes = className) {
+        id?.let { this.id = it }
+        content()
     }
+}
 
-    /**
-     * Creates a semantic navigation element
-     */
-    class Nav(
-        private val id: String? = null,
-        private val className: String? = null,
-        private val content: FlowContent.() -> Unit
-    ) : Composable {
-
-        @Suppress("UNCHECKED_CAST")
-        override fun <T> compose(receiver: T): T {
-            if (receiver is FlowContent) {
-                receiver.nav {
-                    id?.let { this.attributes["id"] = it }
-                    className?.let { this.attributes["class"] = it }
-                    content()
-                }
-            }
-
-            return receiver
-        }
+/**
+ * Composable function for creating a semantic HTML `<nav>` element.
+ * @param id Optional HTML ID attribute.
+ * @param className Optional HTML class attribute.
+ * @param content Lambda providing the content for the nav element.
+ */
+@Composable
+fun Nav(
+    id: String? = null,
+    className: String? = null,
+    content: @Composable FlowContent.() -> Unit
+) {
+    nav(classes = className) {
+        id?.let { this.id = it }
+        content()
     }
+}
 
-    /**
-     * Creates a semantic article element for standalone content
-     */
-    class Article(
-        private val id: String? = null,
-        private val className: String? = null,
-        private val content: FlowContent.() -> Unit
-    ) : Composable {
-
-        @Suppress("UNCHECKED_CAST")
-        override fun <T> compose(receiver: T): T {
-            if (receiver is FlowContent) {
-                receiver.article {
-                    id?.let { this.attributes["id"] = it }
-                    className?.let { this.attributes["class"] = it }
-                    content()
-                }
-            }
-
-            return receiver
-        }
+/**
+ * Composable function for creating a semantic HTML `<article>` element.
+ * @param id Optional HTML ID attribute.
+ * @param className Optional HTML class attribute.
+ * @param content Lambda providing the content for the article element.
+ */
+@Composable
+fun Article(
+    id: String? = null,
+    className: String? = null,
+    content: @Composable FlowContent.() -> Unit
+) {
+    article(classes = className) {
+        id?.let { this.id = it }
+        content()
     }
+}
 
-    /**
-     * Creates a semantic section element
-     */
-    class Section(
-        private val id: String? = null,
-        private val className: String? = null,
-        private val content: FlowContent.() -> Unit
-    ) : Composable {
-
-        @Suppress("UNCHECKED_CAST")
-        override fun <T> compose(receiver: T): T {
-            if (receiver is FlowContent) {
-                receiver.section {
-                    id?.let { this.attributes["id"] = it }
-                    className?.let { this.attributes["class"] = it }
-                    content()
-                }
-            }
-
-            return receiver
-        }
+/**
+ * Composable function for creating a semantic HTML `<section>` element.
+ * @param id Optional HTML ID attribute.
+ * @param className Optional HTML class attribute.
+ * @param content Lambda providing the content for the section element.
+ */
+@Composable
+fun Section(
+    id: String? = null,
+    className: String? = null,
+    content: @Composable FlowContent.() -> Unit
+) {
+    section(classes = className) {
+        id?.let { this.id = it }
+        content()
     }
+}
 
-    /**
-     * Creates a semantic aside element for tangentially related content
-     */
-    class Aside(
-        private val id: String? = null,
-        private val className: String? = null,
-        private val content: FlowContent.() -> Unit
-    ) : Composable {
-
-        @Suppress("UNCHECKED_CAST")
-        override fun <T> compose(receiver: T): T {
-            if (receiver is FlowContent) {
-                receiver.aside {
-                    id?.let { this.attributes["id"] = it }
-                    className?.let { this.attributes["class"] = it }
-                    content()
-                }
-            }
-
-            return receiver
-        }
+/**
+ * Composable function for creating a semantic HTML `<aside>` element.
+ * @param id Optional HTML ID attribute.
+ * @param className Optional HTML class attribute.
+ * @param content Lambda providing the content for the aside element.
+ */
+@Composable
+fun Aside(
+    id: String? = null,
+    className: String? = null,
+    content: @Composable FlowContent.() -> Unit
+) {
+    aside(classes = className) {
+        id?.let { this.id = it }
+        content()
     }
+}
 
-    /**
-     * Creates a semantic footer element
-     */
-    class Footer(
-        private val id: String? = null,
-        private val className: String? = null,
-        private val content: FlowContent.() -> Unit
-    ) : Composable {
-
-        @Suppress("UNCHECKED_CAST")
-        override fun <T> compose(receiver: T): T {
-            if (receiver is FlowContent) {
-                receiver.footer {
-                    id?.let { this.attributes["id"] = it }
-                    className?.let { this.attributes["class"] = it }
-                    content()
-                }
-            }
-
-            return receiver
-        }
+/**
+ * Composable function for creating a semantic HTML `<footer>` element.
+ * @param id Optional HTML ID attribute.
+ * @param className Optional HTML class attribute.
+ * @param content Lambda providing the content for the footer element.
+ */
+@Composable
+fun Footer(
+    id: String? = null,
+    className: String? = null,
+    content: @Composable FlowContent.() -> Unit
+) {
+    footer(classes = className) {
+        id?.let { this.id = it }
+        content()
     }
+}
 
-    /**
-     * Creates a heading element with proper semantics
-     */
-    class Heading(
-        private val level: Int = 1,
-        private val id: String? = null,
-        private val className: String? = null,
-        private val content: FlowContent.() -> Unit
-    ) : Composable {
-
-        @Suppress("UNCHECKED_CAST")
-        override fun <T> compose(receiver: T): T {
-            if (receiver is FlowContent) {
-                when (level) {
-                    1 -> receiver.h1 {
-                        id?.let { this.attributes["id"] = it }
-                        className?.let { this.attributes["class"] = it }
-                        content()
-                    }
-
-                    2 -> receiver.h2 {
-                        id?.let { this.attributes["id"] = it }
-                        className?.let { this.attributes["class"] = it }
-                        content()
-                    }
-                    // Add h3-h6 here if needed
-                    else -> receiver.h1 {
-                        id?.let { this.attributes["id"] = it }
-                        className?.let { this.attributes["class"] = it }
-                        content()
-                    }
-                }
-            }
-
-            return receiver
+/**
+ * Composable function for creating semantic HTML heading elements (`<h1>` to `<h6>`).
+ * @param level The heading level (1 to 6).
+ * @param id Optional HTML ID attribute.
+ * @param className Optional HTML class attribute.
+ * @param content Lambda providing the content for the heading element.
+ */
+@Composable
+fun Heading(
+    level: Int = 1,
+    id: String? = null,
+    className: String? = null,
+    content: @Composable FlowContent.() -> Unit
+) {
+    when (level) {
+        1 -> h1(classes = className) { id?.let { this.id = it }; content() }
+        2 -> h2(classes = className) { id?.let { this.id = it }; content() }
+        3 -> h3(classes = className) { id?.let { this.id = it }; content() }
+        4 -> h4(classes = className) { id?.let { this.id = it }; content() }
+        5 -> h5(classes = className) { id?.let { this.id = it }; content() }
+        6 -> h6(classes = className) { id?.let { this.id = it }; content() }
+        else -> h1(classes = className) {
+            id?.let { this.id = it }
+            content()
         }
     }
 } 

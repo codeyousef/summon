@@ -1,6 +1,5 @@
 package code.yousef.summon.components.feedback
 
-import code.yousef.summon.components.display.Icon
 import code.yousef.summon.modifier.Modifier
 
 
@@ -13,7 +12,7 @@ class AlertBuilder {
     var title: String? = null
     var type: AlertType = AlertType.INFO
     var isDismissible: Boolean = false
-    var icon: Icon? = null
+    var iconName: String? = null
     var onDismiss: (() -> Unit)? = null
     var actionText: String? = null
     var onAction: (() -> Unit)? = null
@@ -29,7 +28,7 @@ class AlertBuilder {
         title = title,
         type = type,
         isDismissible = isDismissible,
-        icon = icon,
+        iconName = iconName,
         onDismiss = onDismiss,
         actionText = actionText,
         onAction = onAction,

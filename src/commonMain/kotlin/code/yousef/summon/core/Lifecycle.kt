@@ -1,10 +1,16 @@
 package code.yousef.summon
 
-import code.yousef.summon.core.Composable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.DisposableHandle
+import kotlinx.coroutines.DisposableEffectResult
+import kotlinx.coroutines.DisposableEffect
+import kotlinx.coroutines.onDispose
+import code.yousef.summon.annotation.Composable
+import code.yousef.summon.disposableEffect
+import code.yousef.summon.onDispose
 
 /**
  * Represents different states in a component's lifecycle.
@@ -126,7 +132,7 @@ class LifecycleAwareComponent(
     private val onPause: (() -> Unit)? = null,
     private val onStop: (() -> Unit)? = null,
     private val onDestroy: (() -> Unit)? = null
-) : LifecycleAware, Composable {
+) : LifecycleAware {
 
     init {
         lifecycleOwner.addObserver(this)
@@ -141,11 +147,6 @@ class LifecycleAwareComponent(
             LifecycleState.STOPPED -> onStop?.invoke()
             LifecycleState.DESTROYED -> onDestroy?.invoke()
         }
-    }
-
-    override fun <T> compose(receiver: T): T {
-        // This component doesn't render anything; it just hooks into the lifecycle
-        return receiver
     }
 
     /**
@@ -347,4 +348,62 @@ fun whenActive(
             cancelEffect()
         }
     }
+}
+
+/**
+ * A composable effect that runs the [onMount] lambda when it enters the composition
+ * and the [onUnmount] lambda when it leaves the composition.
+ *
+ * Replaces the old LifecycleAware class.
+ *
+ * @param keys A set of keys that will cause the effect to restart if they change.
+ * @param onMount Lambda executed when the effect enters the composition.
+ * @param onUnmount Lambda executed when the effect leaves the composition.
+ */
+@Composable
+fun LifecycleEffect(
+    vararg keys: Any?, // Use Any? for keys like standard DisposableEffect
+    onMount: () -> Unit = {},
+    onUnmount: () -> Unit = {}
+) {
+    // Use the disposableEffect from the project's Effects.kt
+    // Ensure the project's disposableEffect signature matches this usage
+    disposableEffect(*keys) {
+        onMount() // Execute mount logic
+        onDispose { // Return the cleanup logic using onDispose helper
+            onUnmount()
+        }
+    }
+}
+
+/**
+ * A composable component that listens to lifecycle events.
+ */
+/* Removed old LifecycleObserver class definition
+class LifecycleObserver(
+    private val onEvent: (Lifecycle.Event) -> Unit // Assuming Lifecycle.Event exists or needs update
+) {
+    /* Removed old compose method
+    override fun <T> compose(receiver: T): T {
+        println("Old LifecycleObserver.compose called (now obsolete)")
+        return receiver
+    }
+    */
+}
+*/
+
+/**
+ * Allows components to register lifecycle callbacks.
+ */
+/* Removed old LifecycleAware class definition
+class LifecycleAware(
+    private val onMount: () -> Unit = {},
+    private val onUnmount: () -> Unit = {}
+) {
+    /* Removed old compose method
+    override fun <T> compose(receiver: T): T {
+        println("Old LifecycleAware.compose called (now obsolete)")
+        return receiver
+    }
+    */
 } 

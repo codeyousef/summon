@@ -1,19 +1,18 @@
 package code.yousef.summon
 
-import code.yousef.summon.components.display.Image
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.input.Button
-import code.yousef.summon.core.Composable
+import code.yousef.summon.components.display.ImageData
+import code.yousef.summon.components.display.TextData
+import code.yousef.summon.components.input.ButtonData
 
 /**
  * Test helpers for common code to be used in both JVM and JS tests.
- * These are simple property checks that don't require platform-specific rendering.
+ * These check properties of the Data objects passed to composables.
  */
 
 /**
- * Verify that the Image component has the expected property values
+ * Verify that the ImageData has the expected property values
  */
-fun Image.verifyProperties(
+fun ImageData.verifyProperties(
     expectedSrc: String,
     expectedAlt: String? = null,
     expectedWidth: String? = null,
@@ -26,20 +25,19 @@ fun Image.verifyProperties(
 }
 
 /**
- * Verify that the Button component has the expected property values
+ * Verify that the ButtonData has the expected property values.
+ * Note: Cannot easily verify the rendered label/content from here.
  */
-fun Button.verifyProperties(
-    expectedLabel: String,
-    expectedDisabled: Boolean? = null
+fun ButtonData.verifyProperties(
+    expectedEnabled: Boolean? = null
 ): Boolean {
-    return label == expectedLabel &&
-           (expectedDisabled == null || disabled == expectedDisabled)
+    return (expectedEnabled == null || enabled == expectedEnabled)
 }
 
 /**
- * Verify that the Text component has the expected property values
+ * Verify that the TextData has the expected property values
  */
-fun Text.verifyProperties(
+fun TextData.verifyProperties(
     expectedText: String
 ): Boolean {
     return text == expectedText

@@ -1,10 +1,8 @@
 package code.yousef.summon.components.display
 
-import code.yousef.summon.core.Composable
-import code.yousef.summon.core.PlatformRendererProvider
-import code.yousef.summon.TextComponent
 import code.yousef.summon.modifier.Modifier
 import kotlinx.html.TagConsumer
+import code.yousef.summon.annotation.Composable
 
 /**
  * A composable that displays text with enhanced styling and accessibility options.
@@ -26,7 +24,70 @@ import kotlinx.html.TagConsumer
  * @param ariaLabel Accessible name for screen readers
  * @param ariaDescribedBy ID of element that describes this text for accessibility
  */
-data class Text(
+@Composable
+fun Text(
+    text: String,
+    modifier: Modifier = Modifier(),
+    overflow: String? = null,
+    lineHeight: String? = null,
+    textAlign: String? = null,
+    fontFamily: String? = null,
+    textDecoration: String? = null,
+    textTransform: String? = null,
+    letterSpacing: String? = null,
+    whiteSpace: String? = null,
+    wordBreak: String? = null,
+    wordSpacing: String? = null,
+    textShadow: String? = null,
+    maxLines: Int? = null,
+    role: String? = null,
+    ariaLabel: String? = null,
+    ariaDescribedBy: String? = null
+) {
+    // Get the current tag consumer (assuming a mechanism exists to get it - placeholder for now)
+    // This part needs integration with the core composition logic update later.
+    // For now, let's assume a way to get the receiver/consumer.
+    // We might need to adjust this function signature later to accept the consumer/receiver.
+
+    // Create the data holder object
+    val textData = TextData(
+        text = text,
+        modifier = modifier,
+        overflow = overflow,
+        lineHeight = lineHeight,
+        textAlign = textAlign,
+        fontFamily = fontFamily,
+        textDecoration = textDecoration,
+        textTransform = textTransform,
+        letterSpacing = letterSpacing,
+        whiteSpace = whiteSpace,
+        wordBreak = wordBreak,
+        wordSpacing = wordSpacing,
+        textShadow = textShadow,
+        maxLines = maxLines,
+        role = role,
+        ariaLabel = ariaLabel,
+        ariaDescribedBy = ariaDescribedBy
+    )
+
+    // Delegate rendering to the platform renderer
+    // We assume PlatformRendererProvider.getRenderer() and a way to get the current TagConsumer 'receiver'
+    // This composition logic needs refinement. Example:
+    // val receiver = currentComposer.consume // Hypothetical
+    // if (receiver is TagConsumer<*>) {
+    //     @Suppress("UNCHECKED_CAST")
+    //     PlatformRendererProvider.getRenderer().renderText(textData, receiver as TagConsumer<Any?>)
+    // }
+    
+    // Placeholder: Actual rendering call needs integration with composer context
+    println("Composable Text function called with text: $text") // Placeholder
+}
+
+/**
+ * Data class holding parameters for the Text composable.
+ * This is used internally and passed to the renderer.
+ */
+data class TextData(
     val text: String,
     val modifier: Modifier = Modifier(),
     val overflow: String? = null,
@@ -44,20 +105,7 @@ data class Text(
     val role: String? = null,
     val ariaLabel: String? = null,
     val ariaDescribedBy: String? = null
-) : Composable, TextComponent {
-    /**
-     * Renders this Text composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderText(this, receiver as TagConsumer<T>)
-        }
-        return receiver
-    }
-
+) {
     /**
      * Gets a map of all additional style properties that should be applied
      * beyond what is in the modifier.

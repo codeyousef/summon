@@ -1,366 +1,169 @@
 package code.yousef.summon.examples
 
-import code.yousef.summon.*
+import androidx.compose.runtime.Composable
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.layout.*
-import code.yousef.summon.core.Composable
+import code.yousef.summon.components.layout.Box
+import code.yousef.summon.components.layout.Card
+import code.yousef.summon.components.layout.Column
+import code.yousef.summon.components.layout.Row
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.theme.ColorSystem
-import code.yousef.summon.theme.Spacing
-import code.yousef.summon.theme.Typography
-import code.yousef.summon.theme.backgroundColor
-import code.yousef.summon.theme.bodyText
-import code.yousef.summon.theme.buttonText
-import code.yousef.summon.theme.captionText
-import code.yousef.summon.theme.codeText
-import code.yousef.summon.theme.createSpacer
-import code.yousef.summon.theme.h1Text
-import code.yousef.summon.theme.h2Text
-import code.yousef.summon.theme.h3Text
-import code.yousef.summon.theme.h4Text
-import code.yousef.summon.theme.h5Text
-import code.yousef.summon.theme.h6Text
-import code.yousef.summon.theme.spacingPadding
-import code.yousef.summon.theme.textColor
-import code.yousef.summon.theme.typographyText
+import code.yousef.summon.modifier.*
+import code.yousef.summon.theme.*
+import code.yousef.summon.ui.Alignment
+import code.yousef.summon.ui.unit.dp
+import code.yousef.summon.ui.unit.px
+
+// Placeholder Color data class until theme is sorted out
+data class Color(val hex: String) { // Simplified placeholder
+    companion object {
+        val Black = Color("#000000")
+        val White = Color("#FFFFFF")
+    }
+}
+
+// Placeholder Theme objects
+object ThemeColors { // TODO: Replace with actual theme access
+    val primary = Color("#6200EE")
+    val secondary = Color("#03DAC6")
+    val surface = Color("#FFFFFF")
+    val background = Color("#FFFFFF")
+    val error = Color("#B00020")
+    val onPrimary = Color("#FFFFFF")
+    val onSecondary = Color("#000000")
+    val onSurface = Color("#000000")
+    val onBackground = Color("#000000")
+    val onError = Color("#FFFFFF")
+}
+
+object MaterialTheme { // TODO: Replace with actual theme access
+    object typography {
+        // Placeholder styles - these should likely be Modifier extensions or similar
+        val h1: Modifier = Modifier.fontSize("96px").fontWeight("300")
+        val h2: Modifier = Modifier.fontSize("60px").fontWeight("300")
+        val h3: Modifier = Modifier.fontSize("48px").fontWeight("400")
+        val h4: Modifier = Modifier.fontSize("34px").fontWeight("400")
+        val h5: Modifier = Modifier.fontSize("24px").fontWeight("400")
+        val h6: Modifier = Modifier.fontSize("20px").fontWeight("500")
+        val subtitle1: Modifier = Modifier.fontSize("16px").fontWeight("400")
+        val subtitle2: Modifier = Modifier.fontSize("14px").fontWeight("500")
+        val body1: Modifier = Modifier.fontSize("16px").fontWeight("400")
+        val body2: Modifier = Modifier.fontSize("14px").fontWeight("400")
+        val button: Modifier = Modifier.fontSize("14px").fontWeight("500") // .textTransform("uppercase") // TODO
+        val caption: Modifier = Modifier.fontSize("12px").fontWeight("400")
+        val overline: Modifier = Modifier.fontSize("10px").fontWeight("400") // .textTransform("uppercase") // TODO
+    }
+}
 
 /**
- * Example demonstrating the ColorSystem and Typography components.
+ * Demonstrates the usage of predefined colors and typography styles from the theme.
  */
-object ColorAndTypographyExample {
-    /**
-     * Creates a styled heading section with different typography presets
-     */
-    fun createTypographyShowcase(): Column {
-        return Column(
-            modifier = Modifier()
-                .padding("24px")
-                .backgroundColor("background")
-                .spacingPadding(Spacing.lg),
-            content = listOf(
-                // Header section with theme-aware styling
-                Text(
-                    text = "Typography Showcase",
-                    modifier = Modifier()
-                        .textColor("primary")
-                        .marginBottom("24px")
-                        .fontSize("32px")
-                        .fontWeight("bold")
-                ),
+@Composable
+fun ColorAndTypographyExample() {
+    Column(modifier = Modifier.padding(16.dp)) {
+        Text("Theme Colors & Typography Showcase", modifier = MaterialTheme.typography.h5)
 
-                // Typography presets
-                h1Text("Heading 1", Modifier().marginBottom(Spacing.md).textColor("onBackground")),
-                h2Text("Heading 2", Modifier().marginBottom(Spacing.md).textColor("onBackground")),
-                h3Text("Heading 3", Modifier().marginBottom(Spacing.md).textColor("onBackground")),
-                h4Text("Heading 4", Modifier().marginBottom(Spacing.md).textColor("onBackground")),
-                h5Text("Heading 5", Modifier().marginBottom(Spacing.md).textColor("onBackground")),
-                h6Text("Heading 6", Modifier().marginBottom(Spacing.md).textColor("onBackground")),
+        // Color Showcase Section
+        ColorShowcase()
 
-                Divider(
-                    modifier = Modifier()
-                        .marginTop(Spacing.md)
-                        .marginBottom(Spacing.md)
-                        .backgroundColor("divider")
-                ),
-
-                typographyText(
-                    text = "Subtitle style for introductory text",
-                    style = Typography.subtitle,
-                    modifier = Modifier()
-                        .marginBottom(Spacing.md)
-                        .textColor("onSurfaceVariant")
-                ),
-
-                bodyText(
-                    text = "This is the default body text style used for most content. It provides optimal readability with a balanced line height and font size.",
-                    modifier = Modifier()
-                        .marginBottom(Spacing.md)
-                        .textColor("onSurface")
-                ),
-
-                typographyText(
-                    text = "Body large text for emphasizing important paragraphs",
-                    style = Typography.bodyLarge,
-                    modifier = Modifier()
-                        .marginBottom(Spacing.md)
-                        .textColor("onSurface")
-                ),
-
-                typographyText(
-                    text = "Body small text is great for secondary information that needs less prominence",
-                    style = Typography.bodySmall,
-                    modifier = Modifier()
-                        .marginBottom(Spacing.md)
-                        .textColor("onSurfaceVariant")
-                ),
-
-                captionText(
-                    text = "Caption text used for image captions and supplementary information",
-                    modifier = Modifier()
-                        .marginBottom(Spacing.md)
-                        .textColor("disabled")
-                ),
-
-                typographyText(
-                    text = "OVERLINE TEXT USED ABOVE CONTENT",
-                    style = Typography.overline,
-                    modifier = Modifier()
-                        .marginBottom(Spacing.sm)
-                        .textColor("primary")
-                ),
-
-                buttonText(
-                    text = "Button Text Style",
-                    modifier = Modifier()
-                        .padding(Spacing.sm)
-                        .backgroundColor("primary")
-                        .textColor("onPrimary")
-                        .borderRadius("4px")
-                ),
-
-                createSpacer(Spacing.md),
-
-                typographyText(
-                    text = "This is a link style text",
-                    style = Typography.link,
-                    modifier = Modifier()
-                        .textColor("primary")
-                        .then(Modifier(mapOf("text-decoration" to "underline")))
-                ),
-
-                createSpacer(Spacing.md),
-
-                codeText(
-                    text = "fun main() { println(\"Hello, World!\") }",
-                    modifier = Modifier()
-                        .padding(Spacing.md)
-                        .backgroundColor("surfaceVariant")
-                        .borderRadius("4px")
-                )
-            )
-        )
+        // Typography Showcase Section
+        TypographyShowcase()
     }
+}
 
-    /**
-     * Creates a color system showcase displaying the various color palettes
-     */
-    fun createColorShowcase(): Column {
-        return Column(
-            modifier = Modifier()
-                .padding("24px")
-                .backgroundColor("background"),
-            content = listOf(
-                Text(
-                    text = "Color System Showcase",
-                    modifier = Modifier()
-                        .textColor("primary")
-                        .marginBottom("24px")
-                        .fontSize("32px")
-                        .fontWeight("bold")
-                ),
+@Composable
+private fun ColorShowcase() {
+    Column(modifier = Modifier.padding(vertical = 16.dp)) {
+        Text("Color Palette", modifier = MaterialTheme.typography.h6.padding(bottom = 8.dp))
 
-                // Light mode section
-                h3Text(
-                    text = "Light Mode Colors",
-                    modifier = Modifier()
-                        .marginBottom(Spacing.md)
-                        .textColor("onBackground", ColorSystem.ThemeMode.LIGHT)
-                ),
-
-                createColorPalette(ColorSystem.ThemeMode.LIGHT),
-
-                createSpacer(Spacing.lg),
-
-                // Dark mode section
-                Box(
-                    modifier = Modifier()
-                        .padding(Spacing.md)
-                        .backgroundColor("background", ColorSystem.ThemeMode.DARK),
-                    content = listOf(
-                        Column(
-                            modifier = Modifier()
-                                .padding(Spacing.md),
-                            content = listOf(
-                                h3Text(
-                                    text = "Dark Mode Colors",
-                                    modifier = Modifier()
-                                        .marginBottom(Spacing.md)
-                                        .textColor("onBackground", ColorSystem.ThemeMode.DARK)
-                                ),
-
-                                createColorPalette(ColorSystem.ThemeMode.DARK)
-                            )
-                        )
-                    )
-                ),
-
-                createSpacer(Spacing.lg),
-
-                // Theme color schemes
-                h3Text(
-                    text = "Color Schemes",
-                    modifier = Modifier()
-                        .marginBottom(Spacing.md)
-                        .textColor("onBackground")
-                ),
-
-                createColorSchemeButtons()
-            )
+        val colors = mapOf(
+            "Primary" to ThemeColors.primary,
+            "Secondary" to ThemeColors.secondary,
+            "Surface" to ThemeColors.surface,
+            "Background" to ThemeColors.background,
+            "Error" to ThemeColors.error,
+            "OnPrimary" to ThemeColors.onPrimary,
+            "OnSecondary" to ThemeColors.onSecondary,
+            "OnSurface" to ThemeColors.onSurface,
+            "OnBackground" to ThemeColors.onBackground,
+            "OnError" to ThemeColors.onError
         )
-    }
 
-    /**
-     * Creates a grid showing the color palette for a specific theme mode
-     */
-    private fun createColorPalette(mode: ColorSystem.ThemeMode): Grid {
-        val colorCards = mutableListOf<Composable>()
-
-        // Background colors
-        colorCards.add(createColorCard("background", mode))
-        colorCards.add(createColorCard("surface", mode))
-        colorCards.add(createColorCard("surfaceVariant", mode))
-
-        // Text colors
-        colorCards.add(createColorCard("onBackground", mode))
-        colorCards.add(createColorCard("onSurface", mode))
-        colorCards.add(createColorCard("onSurfaceVariant", mode))
-
-        // Brand colors
-        colorCards.add(createColorCard("primary", mode))
-        colorCards.add(createColorCard("primaryVariant", mode))
-        colorCards.add(createColorCard("onPrimary", mode))
-        colorCards.add(createColorCard("secondary", mode))
-        colorCards.add(createColorCard("secondaryVariant", mode))
-        colorCards.add(createColorCard("onSecondary", mode))
-
-        // Status colors
-        colorCards.add(createColorCard("success", mode))
-        colorCards.add(createColorCard("error", mode))
-        colorCards.add(createColorCard("warning", mode))
-        colorCards.add(createColorCard("info", mode))
-
-        return Grid(
-            content = colorCards,
-            columns = "repeat(auto-fill, minmax(220px, 1fr))",
-            gap = Spacing.md
-        )
-    }
-
-    /**
-     * Creates a card displaying a color sample with its name and value
-     */
-    private fun createColorCard(colorName: String, mode: ColorSystem.ThemeMode): Card {
-        val colorValue = ColorSystem.getColor(colorName, mode)
-        val textColor = if (colorName.startsWith("on") || colorName == "background" || colorName == "surface") {
-            // Use contrasting color for text when the background is light or needs visibility
-            ColorSystem.getColor("primary", mode)
-        } else {
-            ColorSystem.getColor("onPrimary", mode)
+        colors.entries.chunked(2).forEach { rowEntries ->
+            Row(modifier = Modifier.padding(vertical = 4.dp)) {
+                rowEntries.forEach { (name, color) ->
+                    ColorSample(name, color, getContrastColor(color))
+                }
+            }
         }
-
-        return Card(
-            modifier = Modifier()
-                .backgroundColor(colorName, mode)
-                .borderRadius("4px")
-                .border("1px", "solid", ColorSystem.getColor("border", mode)),
-            content = listOf(
-                Column(
-                    modifier = Modifier()
-                        .padding(Spacing.md),
-                    content = listOf(
-                        Text(
-                            text = colorName,
-                            modifier = Modifier()
-                                .color(textColor)
-                                .fontWeight("bold")
-                                .marginBottom(Spacing.sm)
-                        ),
-                        Text(
-                            text = colorValue,
-                            modifier = Modifier()
-                                .color(textColor)
-                                .fontSize("14px")
-                        )
-                    )
-                )
-            )
-        )
     }
+}
 
-    /**
-     * Creates buttons showing different color schemes
-     */
-    private fun createColorSchemeButtons(): Row {
-        return Row(
-            modifier = Modifier()
-                .fillMaxWidth()
-                .flexWrap("wrap"),
-            content = listOf(
-                // Default theme button
-                createSchemeButton("Default Theme", "primary", "onPrimary"),
+@Composable
+private fun TypographyShowcase() {
+    Column(modifier = Modifier.padding(vertical = 16.dp)) {
+        Text("Typography Styles", modifier = MaterialTheme.typography.h6.padding(bottom = 8.dp))
 
-                // Blue theme button
-                createSchemeButton(
-                    "Blue Theme",
-                    ColorSystem.blue.light["primary"] ?: "#2196f3",
-                    ColorSystem.blue.light["onPrimary"] ?: "#ffffff"
-                ),
-
-                // Green theme button
-                createSchemeButton(
-                    "Green Theme",
-                    ColorSystem.green.light["primary"] ?: "#4caf50",
-                    ColorSystem.green.light["onPrimary"] ?: "#ffffff"
-                ),
-
-                // Purple theme button
-                createSchemeButton(
-                    "Purple Theme",
-                    ColorSystem.purple.light["primary"] ?: "#9c27b0",
-                    ColorSystem.purple.light["onPrimary"] ?: "#ffffff"
-                )
-            )
+        val styles = mapOf(
+            "H1" to MaterialTheme.typography.h1,
+            "H2" to MaterialTheme.typography.h2,
+            "H3" to MaterialTheme.typography.h3,
+            "H4" to MaterialTheme.typography.h4,
+            "H5" to MaterialTheme.typography.h5,
+            "H6" to MaterialTheme.typography.h6,
+            "Subtitle1" to MaterialTheme.typography.subtitle1,
+            "Subtitle2" to MaterialTheme.typography.subtitle2,
+            "Body1" to MaterialTheme.typography.body1,
+            "Body2" to MaterialTheme.typography.body2,
+            "Button" to MaterialTheme.typography.button,
+            "Caption" to MaterialTheme.typography.caption,
+            "Overline" to MaterialTheme.typography.overline
         )
-    }
 
-    /**
-     * Creates a button with a specific color scheme
-     */
-    private fun createSchemeButton(text: String, backgroundColor: String, textColor: String): Box {
-        return Box(
-            modifier = Modifier()
-                .padding(Spacing.md)
-                .margin(Spacing.sm)
-                .backgroundColor(backgroundColor)
-                .color(textColor)
-                .borderRadius("4px")
-                .padding(Spacing.md),
-            content = listOf(
-                Text(
-                    text = text,
-                    modifier = Modifier()
-                        .fontWeight("bold")
-                )
+        styles.forEach { (name, styleModifier) ->
+            Text(
+                text = "$name: The quick brown fox jumps over the lazy dog",
+                modifier = styleModifier.padding(vertical = 4.dp)
             )
-        )
+        }
     }
+}
 
-    /**
-     * Creates a complete page showcasing both color system and typography
-     */
-    fun createShowcase(): Column {
-        return Column(
-            modifier = Modifier()
-                .backgroundColor("background"),
-            content = listOf(
-                createTypographyShowcase(),
-                Divider(
-                    modifier = Modifier()
-                        .margin("48px 24px")
-                        .backgroundColor("divider")
-                ),
-                createColorShowcase()
-            )
-        )
+@Composable
+private fun ColorSample(name: String, color: Color, textColor: Color) {
+    Card(
+        modifier = Modifier.padding(4.dp),
+        elevation = "2px"
+    ) {
+        Box(
+            modifier = Modifier.size(120.dp, 80.dp).background(color.hex).padding(8.dp),
+        ) {
+            Column() {
+                Text(name, modifier = MaterialTheme.typography.caption.color(textColor.hex))
+                Text(color.toHex(), modifier = MaterialTheme.typography.caption.color(textColor.hex).padding(top = 4.dp))
+            }
+        }
     }
+}
+
+/**
+ * Determines a suitable contrast color (black or white) for text on a given background color.
+ */
+private fun getContrastColor(backgroundColor: Color): Color {
+    val brightness = try {
+        val r = Integer.parseInt(backgroundColor.hex.substring(1, 3), 16)
+        val g = Integer.parseInt(backgroundColor.hex.substring(3, 5), 16)
+        val b = Integer.parseInt(backgroundColor.hex.substring(5, 7), 16)
+        (0.299 * r + 0.587 * g + 0.114 * b)
+    } catch (e: Exception) {
+        128.0
+    }
+    return if (brightness > 128) Color.Black else Color.White
+}
+
+/**
+ * Placeholder function to convert Color to Hex string (implement actual logic).
+ */
+private fun Color.toHex(): String {
+    return this.hex
 } 

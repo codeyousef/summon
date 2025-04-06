@@ -4,12 +4,6 @@ package code.yousef.summon.core
 // during the refactoring process
 
 /**
- * Reference to the original Composable interface location.
- * This makes the refactored code compatible with the original code.
- */
-typealias ComposableCompat = Composable
-
-/**
  * Reference to the original PlatformRenderer location.
  */
 typealias PlatformRendererCompat = PlatformRenderer

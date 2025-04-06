@@ -1,71 +1,14 @@
 package code.yousef.summon.components.input
 
 import code.yousef.summon.*
-import code.yousef.summon.core.Composable
+import code.yousef.summon.core.UIElement
 import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
 import kotlinx.html.TagConsumer
+import code.yousef.summon.annotation.Composable
 
 /**
- * A composable that displays a text input field.
- * @param state The state that holds the current value of the text field
- * @param onValueChange Callback that is invoked when the input value changes
- * @param label Optional label to display for the text field
- * @param placeholder Placeholder text to show when the field is empty
- * @param modifier The modifier to apply to this composable
- * @param type The type of input (text, password, email, etc.)
- * @param validators List of validators to apply to the input
- */
-class TextField(
-    val state: MutableState<String>,
-    val onValueChange: (String) -> Unit = {},
-    val label: String? = null,
-    val placeholder: String? = null,
-    val modifier: Modifier = Modifier(),
-    val type: TextFieldType = TextFieldType.Text,
-    val validators: List<Validator> = emptyList()
-) : Composable, InputComponent, FocusableComponent {
-    // Internal state to track validation errors
-    private val validationErrors = mutableStateOf<List<String>>(emptyList())
-
-    /**
-     * Renders this TextField composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderTextField(this, receiver as TagConsumer<T>)
-        }
-        return receiver
-    }
-
-    /**
-     * Validates the current input value against all validators.
-     * @return True if validation passed, false otherwise
-     */
-    fun validate(): Boolean {
-        val errors = validators.mapNotNull { validator ->
-            if (!validator.validate(state.value)) validator.errorMessage else null
-        }
-        validationErrors.value = errors
-        return errors.isEmpty()
-    }
-
-    /**
-     * Gets the current validation errors.
-     */
-    fun getValidationErrors(): List<String> = validationErrors.value
-
-    /**
-     * Indicates whether the field is currently valid.
-     */
-    fun isValid(): Boolean = validationErrors.value.isEmpty()
-}
-
-/**
- * Types of text input fields.
+ * Types of text input fields, corresponding to HTML input types.
  */
 enum class TextFieldType {
     Text,
@@ -77,4 +20,59 @@ enum class TextFieldType {
     Search,
     Date,
     Time
-} 
+}
+
+/**
+ * A composable that allows users to input and edit text.
+ *
+ * This composable follows the state hoisting pattern. The caller provides the current
+ * `value` and an `onValueChange` callback to update the state.
+ *
+ * @param value The current text value to display.
+ * @param onValueChange Lambda invoked when the user changes the text input.
+ * @param modifier Optional [Modifier] for styling and layout.
+ * @param enabled Controls the enabled state. When `false`, interaction is disabled.
+ * @param label Optional label text to display above or alongside the field.
+ * @param placeholder Optional placeholder text displayed when the input is empty.
+ * @param type The type of input (e.g., Text, Password, Email) using [TextFieldType].
+ * @param isError Indicates if the input currently has an error (e.g., failed validation).
+ *                Controls visual styling. Validation logic itself is handled by the caller.
+ */
+@Composable
+fun TextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier(),
+    enabled: Boolean = true,
+    label: String? = null,
+    placeholder: String? = null,
+    type: TextFieldType = TextFieldType.Text,
+    isError: Boolean = false
+) {
+    val textFieldData = TextFieldData(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier,
+        enabled = enabled,
+        label = label,
+        placeholder = placeholder,
+        type = type,
+        isError = isError
+    )
+
+    println("Composable TextField function called with value: $value")
+}
+
+/**
+ * Internal data class holding parameters for the TextField renderer.
+ */
+internal data class TextFieldData(
+    val value: String,
+    val onValueChange: (String) -> Unit,
+    val modifier: Modifier,
+    val enabled: Boolean,
+    val label: String?,
+    val placeholder: String?,
+    val type: TextFieldType,
+    val isError: Boolean
+) 

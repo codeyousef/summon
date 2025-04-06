@@ -1,71 +1,70 @@
 package code.yousef.summon.components.input
 
 import code.yousef.summon.*
-import code.yousef.summon.core.Composable
+import code.yousef.summon.core.UIElement
 import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
 import kotlinx.html.TagConsumer
+import code.yousef.summon.annotation.Composable
 
 /**
- * A composable that displays a multi-line text input field.
- * @param state The state that holds the current value of the text area
- * @param onValueChange Callback that is invoked when the input value changes
- * @param label Optional label to display for the text area
- * @param placeholder Placeholder text to show when the field is empty
- * @param modifier The modifier to apply to this composable
- * @param rows The number of visible text rows
- * @param columns The number of visible text columns
- * @param maxLength The maximum number of characters allowed in the text area
- * @param resizable Whether the text area can be resized by the user
- * @param validators List of validators to apply to the input
+ * A composable that displays a multi-line text input field (textarea).
+ *
+ * This composable follows the state hoisting pattern. The caller provides the current
+ * `value` and an `onValueChange` callback.
+ *
+ * @param value The current text value to display.
+ * @param onValueChange Lambda invoked when the user changes the text input.
+ * @param modifier Optional [Modifier] for styling and layout.
+ * @param enabled Controls the enabled state. When `false`, interaction is disabled.
+ * @param label Optional label text to display above or alongside the field.
+ * @param placeholder Optional placeholder text displayed when the input is empty.
+ * @param isError Indicates if the input currently has an error (e.g., failed validation).
+ * @param rows The number of text lines visible by default.
+ * @param maxLength Optional maximum number of characters allowed.
+ * @param resizable Controls whether the user can resize the textarea (platform support may vary).
  */
-class TextArea(
-    val state: MutableState<String>,
-    val onValueChange: (String) -> Unit = {},
-    val label: String? = null,
-    val placeholder: String? = null,
-    val modifier: Modifier = Modifier(),
-    val rows: Int = 4,
-    val columns: Int = 50,
-    val maxLength: Int? = null,
-    val resizable: Boolean = true,
-    val validators: List<Validator> = emptyList()
-) : Composable {
-    // Internal state to track validation errors
-    private val validationErrors = mutableStateOf<List<String>>(emptyList())
+@Composable
+fun TextArea(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier(),
+    enabled: Boolean = true,
+    label: String? = null,
+    placeholder: String? = null,
+    isError: Boolean = false,
+    rows: Int = 4,
+    maxLength: Int? = null,
+    resizable: Boolean = true
+) {
+    val textAreaData = TextAreaData(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier,
+        enabled = enabled,
+        label = label,
+        placeholder = placeholder,
+        isError = isError,
+        rows = rows,
+        maxLength = maxLength,
+        resizable = resizable
+    )
 
-    /**
-     * Renders this TextArea composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderTextArea(this, receiver as TagConsumer<T>)
-        }
-        return receiver
-    }
+    println("Composable TextArea function called with value: $value")
+}
 
-    /**
-     * Validates the current input value against all validators.
-     * @return True if validation passed, false otherwise
-     */
-    fun validate(): Boolean {
-        val errors = validators.mapNotNull { validator ->
-            if (!validator.validate(state.value)) validator.errorMessage else null
-        }
-        validationErrors.value = errors
-        return errors.isEmpty()
-    }
-
-    /**
-     * Gets the current validation errors.
-     */
-    fun getValidationErrors(): List<String> = validationErrors.value
-
-    /**
-     * Indicates whether the field is currently valid.
-     */
-    fun isValid(): Boolean = validationErrors.value.isEmpty()
-} 
+/**
+ * Internal data class holding parameters for the TextArea renderer.
+ */
+internal data class TextAreaData(
+    val value: String,
+    val onValueChange: (String) -> Unit,
+    val modifier: Modifier,
+    val enabled: Boolean,
+    val label: String?,
+    val placeholder: String?,
+    val isError: Boolean,
+    val rows: Int,
+    val maxLength: Int?,
+    val resizable: Boolean
+) 

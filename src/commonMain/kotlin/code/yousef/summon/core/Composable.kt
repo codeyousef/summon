@@ -3,13 +3,13 @@ package code.yousef.summon.core
 import kotlinx.html.TagConsumer
 
 /**
- * Base interface for all UI components in the Summon library.
- * Similar to Jetpack Compose's @Composable functions.
+ * Base interface for all UI elements in the Summon library.
+ * Represents a piece of UI that can be composed.
  */
-interface Composable {
+interface UIElement {
     /**
-     * Applies this component to a receiver.
-     * Each implementation will define how exactly the component is rendered.
+     * Composes this element into a receiver.
+     * Each implementation defines how the element is rendered.
      */
     fun <T> compose(receiver: T): T
 } 

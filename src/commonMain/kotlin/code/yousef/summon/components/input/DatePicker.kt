@@ -1,69 +1,66 @@
 package code.yousef.summon.components.input
 
 import code.yousef.summon.*
-import code.yousef.summon.core.Composable
+import code.yousef.summon.core.UIElement
 import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
 import kotlinx.html.TagConsumer
+import code.yousef.summon.annotation.Composable
 
 /**
- * A composable that displays a date picker.
- * @param state The state that holds the current selected date as a string (format: YYYY-MM-DD)
- * @param onDateChange Callback that is invoked when the selected date changes
- * @param label Optional label to display for the date picker
- * @param placeholder Placeholder text to show when no date is selected
- * @param modifier The modifier to apply to this composable
- * @param min Minimum selectable date (format: YYYY-MM-DD)
- * @param max Maximum selectable date (format: YYYY-MM-DD)
- * @param disabled Whether the date picker is disabled
- * @param validators List of validators to apply to the input
+ * A composable that allows users to select a date using a platform-provided date picker interface.
+ *
+ * This composable follows the state hoisting pattern. The value is typically represented
+ * as a string in "YYYY-MM-DD" format, compatible with the HTML date input.
+ *
+ * @param value The currently selected date string ("YYYY-MM-DD"), or an empty string if none selected.
+ * @param onValueChange Lambda invoked when the user selects a date, providing the new date string.
+ * @param modifier Optional [Modifier] for styling and layout.
+ * @param enabled Controls the enabled state. When `false`, interaction is disabled.
+ * @param label Optional label text to display above or alongside the date picker.
+ * @param placeholder Optional placeholder text (browser support may vary for date inputs).
+ * @param isError Indicates if the date picker currently has an error.
+ * @param min Optional minimum selectable date string ("YYYY-MM-DD").
+ * @param max Optional maximum selectable date string ("YYYY-MM-DD").
  */
-class DatePicker(
-    val state: MutableState<String>,
-    val onDateChange: (String) -> Unit = {},
-    val label: String? = null,
-    val placeholder: String? = null,
-    val modifier: Modifier = Modifier(),
-    val min: String? = null,
-    val max: String? = null,
-    val disabled: Boolean = false,
-    val validators: List<Validator> = emptyList()
-) : Composable, InputComponent, FocusableComponent {
-    // Internal state to track validation errors
-    private val validationErrors = mutableStateOf<List<String>>(emptyList())
+@Composable
+fun DatePicker(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier(),
+    enabled: Boolean = true,
+    label: String? = null,
+    placeholder: String? = null,
+    isError: Boolean = false,
+    min: String? = null,
+    max: String? = null
+) {
+    val datePickerData = DatePickerData(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier,
+        enabled = enabled,
+        label = label,
+        placeholder = placeholder,
+        isError = isError,
+        min = min,
+        max = max
+    )
 
-    /**
-     * Renders this DatePicker composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderDatePicker(this, receiver as TagConsumer<T>)
-        }
-        return receiver
-    }
+    println("Composable DatePicker function called with value: $value")
+}
 
-    /**
-     * Validates the current selected date against all validators.
-     * @return True if validation passed, false otherwise
-     */
-    fun validate(): Boolean {
-        val errors = validators.mapNotNull { validator ->
-            if (!validator.validate(state.value)) validator.errorMessage else null
-        }
-        validationErrors.value = errors
-        return errors.isEmpty()
-    }
-
-    /**
-     * Gets the current validation errors.
-     */
-    fun getValidationErrors(): List<String> = validationErrors.value
-
-    /**
-     * Indicates whether the field is currently valid.
-     */
-    fun isValid(): Boolean = validationErrors.value.isEmpty()
-} 
+/**
+ * Internal data class holding parameters for the DatePicker renderer.
+ */
+internal data class DatePickerData(
+    val value: String,
+    val onValueChange: (String) -> Unit,
+    val modifier: Modifier,
+    val enabled: Boolean,
+    val label: String?,
+    val placeholder: String?,
+    val isError: Boolean,
+    val min: String?,
+    val max: String?
+) 

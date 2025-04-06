@@ -1,10 +1,11 @@
 package code.yousef.summon
 
-import code.yousef.summon.core.Composable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.DisposableEffect
 
 // Counter for generating unique IDs for effects
 private var nextEffectId = 0
@@ -27,58 +28,13 @@ class LaunchedEffect(
     private val key: Any,
     private val block: suspend CoroutineScope.() -> Unit,
     private val executionMode: EffectExecutionMode = EffectExecutionMode.CLIENT_ONLY
-) : Composable {
+) {
     private var latestKey: Any = key
     private var job: Job? = null
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     // Client-side script ID used for HTML generation
     private val scriptId = "launched-effect-${generateEffectId()}"
-
-    override fun <T> compose(receiver: T): T {
-        // Handle TagConsumer-based HTML generation in platform-specific code
-        if (isHtmlReceiver(receiver)) {
-            when (executionMode) {
-                EffectExecutionMode.SSR_ONLY -> {
-                    // Execute the effect during SSR
-                    if (job == null || latestKey != key) {
-                        job?.cancel()
-                        latestKey = key
-                        job = coroutineScope.launch {
-                            block()
-                        }
-                    }
-                }
-
-                EffectExecutionMode.CLIENT_ONLY -> {
-                    // Generate script tag for client-side execution in platform-specific code
-                    addClientSideScript(receiver, scriptId, "LaunchedEffect")
-                }
-
-                EffectExecutionMode.HYBRID -> {
-                    // Execute during SSR and also provide client-side script
-                    if (job == null || latestKey != key) {
-                        job?.cancel()
-                        latestKey = key
-                        job = coroutineScope.launch {
-                            block()
-                        }
-                    }
-
-                    // Add client-side script in platform-specific code
-                    addClientSideScript(receiver, scriptId, "LaunchedEffect")
-                }
-            }
-        } else if (job == null || latestKey != key) {
-            // Default behavior for non-HTML generation contexts
-            job?.cancel()
-            latestKey = key
-            job = coroutineScope.launch {
-                block()
-            }
-        }
-        return receiver
-    }
 
     /**
      * Cancels the running coroutine when this component is removed from composition.
@@ -160,51 +116,12 @@ class DisposableEffect(
     private val key: Any,
     private val effect: () -> DisposableEffectResult,
     private val executionMode: EffectExecutionMode = EffectExecutionMode.CLIENT_ONLY
-) : Composable {
+) {
     private var latestKey: Any = key
     private var currentEffect: DisposableEffectResult? = null
 
     // Client-side script ID used for HTML generation
     private val scriptId = "disposable-effect-${generateEffectId()}"
-
-    override fun <T> compose(receiver: T): T {
-        // Handle TagConsumer-based HTML generation in platform-specific code
-        if (isHtmlReceiver(receiver)) {
-            when (executionMode) {
-                EffectExecutionMode.SSR_ONLY -> {
-                    // Execute the effect during SSR
-                    if (currentEffect == null || latestKey != key) {
-                        currentEffect?.dispose()
-                        latestKey = key
-                        currentEffect = effect()
-                    }
-                }
-
-                EffectExecutionMode.CLIENT_ONLY -> {
-                    // Generate script tag for client-side execution in platform-specific code
-                    addClientSideScript(receiver, scriptId, "DisposableEffect", withCleanup = true)
-                }
-
-                EffectExecutionMode.HYBRID -> {
-                    // Execute during SSR and also provide client-side script
-                    if (currentEffect == null || latestKey != key) {
-                        currentEffect?.dispose()
-                        latestKey = key
-                        currentEffect = effect()
-                    }
-
-                    // Add client-side script in platform-specific code
-                    addClientSideScript(receiver, scriptId, "DisposableEffect", withCleanup = true)
-                }
-            }
-        } else if (currentEffect == null || latestKey != key) {
-            // Default behavior for non-HTML generation contexts
-            currentEffect?.dispose()
-            latestKey = key
-            currentEffect = effect()
-        }
-        return receiver
-    }
 
     /**
      * Disposes the effect when this component is removed from composition.
@@ -294,59 +211,30 @@ fun onDispose(onDispose: () -> Unit): DisposableEffectResult =
 class SideEffect(
     private val effect: () -> Unit,
     private val executionMode: EffectExecutionMode = EffectExecutionMode.HYBRID
-) : Composable {
+) {
     // Client-side script ID used for HTML generation
     private val scriptId = "side-effect-${generateEffectId()}"
 
-    override fun <T> compose(receiver: T): T {
-        // Handle TagConsumer-based HTML generation in platform-specific code
-        if (isHtmlReceiver(receiver)) {
-            when (executionMode) {
-                EffectExecutionMode.SSR_ONLY -> {
-                    // Execute the effect during SSR only
-                    effect()
-                }
-
-                EffectExecutionMode.CLIENT_ONLY -> {
-                    // Generate script tag for client-side execution in platform-specific code
-                    addClientSideScript(receiver, scriptId, "SideEffect")
-                }
-
-                EffectExecutionMode.HYBRID -> {
-                    // Execute during SSR
-                    effect()
-
-                    // And also provide client-side script in platform-specific code
-                    addClientSideScript(receiver, scriptId, "SideEffect")
-                }
-            }
-        } else {
-            // Default behavior for non-HTML generation contexts
-            effect()
-        }
-        return receiver
-    }
+    /**
+     * Creates a SideEffect that executes the given function on every composition.
+     *
+     * Example usage for document title:
+     * ```
+     * // Update document title during both SSR and client-side rendering
+     * sideEffect(EffectExecutionMode.HYBRID) {
+     *    document.title = "Page: ${pageTitle.value}"
+     * }
+     * ```
+     *
+     * @param executionMode Determines if the effect runs during SSR, client-side, or both
+     * @param effect The function to execute as a side effect
+     * @return A SideEffect instance
+     */
+    fun sideEffect(
+        executionMode: EffectExecutionMode = EffectExecutionMode.HYBRID,
+        effect: () -> Unit
+    ): SideEffect = SideEffect(effect, executionMode)
 }
-
-/**
- * Creates a SideEffect that executes the given function on every composition.
- *
- * Example usage for document title:
- * ```
- * // Update document title during both SSR and client-side rendering
- * sideEffect(EffectExecutionMode.HYBRID) {
- *    document.title = "Page: ${pageTitle.value}"
- * }
- * ```
- *
- * @param executionMode Determines if the effect runs during SSR, client-side, or both
- * @param effect The function to execute as a side effect
- * @return A SideEffect instance
- */
-fun sideEffect(
-    executionMode: EffectExecutionMode = EffectExecutionMode.HYBRID,
-    effect: () -> Unit
-): SideEffect = SideEffect(effect, executionMode)
 
 /**
  * DerivedState represents a state that is derived from one or more other states.

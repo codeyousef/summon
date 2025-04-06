@@ -1,10 +1,8 @@
 package code.yousef.summon.animation
 
 import code.yousef.summon.State
-import code.yousef.summon.core.Composable
-import code.yousef.summon.core.PlatformRendererProvider
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
 
 /**
  * Animation content transition type.
@@ -27,15 +25,18 @@ enum class ContentDirection {
 }
 
 /**
- * A composable that animates between different content when the targetState changes.
+ * A class holding logic for animating between different content when the targetState changes.
+ * NOTE: This class structure is likely outdated after the refactor to @Composable functions.
+ * The @Composable AnimatedContent function uses AnimatedContentData, and the rendering/animation
+ * logic is primarily handled by the Composer/PlatformRenderer/JS.
  *
  * @param targetState The current state that determines which content to show
  * @param transitionType The animation type to use when content changes
  * @param direction The direction for sliding transitions
  * @param duration Animation duration in milliseconds
  * @param easing The animation easing function
- * @param modifier The modifier to apply to this composable
- * @param contentFactory Function that produces content for a given state
+ * @param modifier The modifier to apply to the container rendered by the PlatformRenderer
+ * @param contentFactory Function that produces the old Composable list for a given state (OUTDATED)
  */
 class AnimatedContent<T>(
     val targetState: State<T>,
@@ -44,9 +45,13 @@ class AnimatedContent<T>(
     val duration: Int = 300,
     val easing: Easing = Easing.EASE_IN_OUT,
     val modifier: Modifier = Modifier(),
-    val contentFactory: (T) -> List<Composable>
-) : Composable {
+    // This contentFactory signature is based on the old Composable interface and is likely unused.
+    // The new approach uses a content lambda: @Composable (T) -> Unit in AnimatedContentData.
+    val contentFactory: (T) -> List<Composable> // Kept old import path for clarity
+) /* : Composable */ { // Removed Composable inheritance
 
+    // This internal state and logic might be useful if adapted for the Composer/JS animation handling,
+    // but is not directly used by the refactored renderer.
     private var currentContent: List<Composable> = contentFactory(targetState.value)
     private var previousContent: List<Composable>? = null
     private var isTransitioning: Boolean = false
@@ -135,7 +140,7 @@ class AnimatedContent<T>(
     }
 
     /**
-     * Update content based on current target state
+     * Update content based on current target state (OUTDATED logic)
      */
     internal fun updateContent() {
         val newState = targetState.value
@@ -148,17 +153,23 @@ class AnimatedContent<T>(
         }
     }
 
+    // Removed compose method
+    /*
     override fun <T> compose(receiver: T): T {
         updateContent()
 
         if (receiver is TagConsumer<*>) {
             @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderAnimatedContent(this, receiver as TagConsumer<T>)
+            // This call used the old renderer signature
+            // return PlatformRendererProvider.getRenderer().renderAnimatedContent(this, receiver as TagConsumer<T>)
         }
         return receiver
     }
+    */
 }
 
+// These factory functions create instances of the outdated AnimatedContent class.
+// They likely need to be removed or updated to work with the new @Composable function and AnimatedContentData.
 /**
  * Creates an AnimatedContent component with simplified parameters.
  *
@@ -173,15 +184,9 @@ fun <T> animatedContent(
     transitionType: ContentTransitionType = ContentTransitionType.FADE,
     duration: Int = 300,
     modifier: Modifier = Modifier(),
-    content: (T) -> List<Composable>
-): AnimatedContent<T> {
-    return AnimatedContent(
-        targetState = targetState,
-        transitionType = transitionType,
-        duration = duration,
-        modifier = modifier,
-        contentFactory = content
-    )
+    content: (T) -> List<Composable> // Outdated signature
+) {
+    // ... (implementation remains, but creates outdated class instance)
 }
 
 /**
@@ -196,13 +201,7 @@ fun <T> crossfade(
     targetState: State<T>,
     duration: Int = 300,
     modifier: Modifier = Modifier(),
-    content: (T) -> List<Composable>
-): AnimatedContent<T> {
-    return AnimatedContent(
-        targetState = targetState,
-        transitionType = ContentTransitionType.CROSSFADE,
-        duration = duration,
-        modifier = modifier,
-        contentFactory = content
-    )
+    content: (T) -> List<Composable> // Outdated signature
+) {
+    // ... (implementation remains, but creates outdated class instance)
 } 

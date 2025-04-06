@@ -1,12 +1,6 @@
 package code.yousef.summon.components.feedback
 
-import code.yousef.summon.LayoutComponent
-import code.yousef.summon.TextComponent
-import code.yousef.summon.components.display.Icon
-import code.yousef.summon.core.Composable
-import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
 
 /**
  * Alert types for different semantic meanings
@@ -27,7 +21,7 @@ enum class AlertType {
  * @param type The semantic type of the alert
  * @param title Optional title or header for the alert
  * @param isDismissible Whether the alert can be dismissed by the user
- * @param icon Optional icon to display with the alert
+ * @param iconName Optional icon name to display with the alert
  * @param onDismiss Callback to invoke when the alert is dismissed
  * @param actionText Optional text for an action button
  * @param onAction Callback to invoke when the action button is clicked
@@ -38,24 +32,11 @@ data class Alert(
     val type: AlertType = AlertType.INFO,
     val title: String? = null,
     val isDismissible: Boolean = false,
-    val icon: Icon? = null,
+    val iconName: String? = null,
     val onDismiss: (() -> Unit)? = null,
     val actionText: String? = null,
     val onAction: (() -> Unit)? = null
-) : Composable, TextComponent, LayoutComponent {
-    /**
-     * Renders this Alert composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderAlert(this, receiver as TagConsumer<T>)
-        }
-        return receiver
-    }
-
+) {
     /**
      * Gets type-specific styles for the alert.
      */

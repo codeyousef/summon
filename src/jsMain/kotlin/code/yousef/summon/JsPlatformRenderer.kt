@@ -2,19 +2,14 @@
 
 package code.yousef.summon
 
-import code.yousef.summon.animation.AnimatedContent
-import code.yousef.summon.animation.AnimatedVisibility
 import code.yousef.summon.components.display.*
 import code.yousef.summon.components.feedback.*
 import code.yousef.summon.components.input.*
 import code.yousef.summon.components.layout.*
 import code.yousef.summon.components.navigation.Link
-import code.yousef.summon.components.navigation.TabLayout
-import code.yousef.summon.core.Composable
 import code.yousef.summon.core.PlatformRenderer
-import code.yousef.summon.routing.Router
-import code.yousef.summon.routing.RouterContext
 import kotlinx.html.*
+
 
 /**
  * JS implementation of the PlatformRenderer interface.
@@ -27,27 +22,27 @@ class JsPlatformRenderer : PlatformRenderer {
     override fun <T> renderText(text: Text, consumer: TagConsumer<T>): T {
         // Collect all attributes first
         val attributes = mutableMapOf<String, String>()
-        
+
         // Apply the modifier styles and additional text-specific styles
         val additionalStyles = text.getAdditionalStyles()
         val combinedStyles = text.modifier.styles + additionalStyles
         attributes["style"] = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
-        
+
         // Apply accessibility attributes
         text.getAccessibilityAttributes().forEach { (key, value) ->
             attributes[key] = value
         }
-        
+
         consumer.span {
             // Properly apply all collected attributes to the tag
             for ((key, value) in attributes) {
                 this.attributes[key] = value
             }
-            
+
             // Add the text content
             +text.text
         }
-        
+
         @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
@@ -57,22 +52,22 @@ class JsPlatformRenderer : PlatformRenderer {
      */
     override fun <T> renderButton(button: Button, consumer: TagConsumer<T>): T {
         val buttonId = "btn-${button.hashCode()}"
-        
+
         // Collect all attributes first
         val attributes = mutableMapOf<String, String>()
-        
+
         // Set required attributes
         attributes["id"] = buttonId
         attributes["style"] = button.modifier.toStyleString()
         attributes["data-summon-click"] = "true"
-        
+
         // Create the button element with all attributes
         consumer.button {
             // Properly apply all collected attributes to the tag
             for ((key, value) in attributes) {
                 this.attributes[key] = value
             }
-            
+
             // Add the button text
             +button.label
         }
@@ -415,36 +410,44 @@ class JsPlatformRenderer : PlatformRenderer {
     }
 
     /**
-     * Renders a Router component to the appropriate platform output.
+     * Renders the container for the Router.
+     * The Composer, using RouterContext, is responsible for rendering the actual page content inside this container.
      */
-    override fun <T> renderRouter(router: Router, consumer: TagConsumer<T>): T {
-        return consumer.div {
-            // Set the router as the current context
-            val component = RouterContext.withRouter(router) {
-                router.getCurrentComponent()
-            }
+    override fun <T> renderRouter(routerData: RouterData, consumer: TagConsumer<T>): T { // Changed Router to RouterData
+        val routerContainerId = "router-container-${routerData.hashCode()}" // Use routerData
 
-            // Render the current component
-            component.compose(this)
+        consumer.div(classes = routerData.modifier.classes.joinToString(" ")) { // Apply modifier classes
+            id = routerContainerId
+            style = routerData.modifier.toStyleString() // Apply modifier styles
+
+            // Set role=main? or let the page content handle semantic roles?
+            // attributes["role"] = "main" 
+
+            // The Composer will query RouterContext and render the appropriate component here.
+            // It doesn't need direct access to routerData.routes etc.
         }
+
+        @Suppress("UNCHECKED_CAST")
+        return consumer as T
     }
 
     /**
      * Renders a 404 Not Found page.
+     * This might be considered a specific page component rather than a generic renderer method.
+     * For now, keep it simple. Refactor to use NotFoundData if it needs configuration.
      */
     override fun <T> renderNotFound(consumer: TagConsumer<T>): T {
-        return consumer.div {
-            attributes["style"] = "padding: 20px; text-align: center;"
-            h1 {
-                +"404 - Page Not Found"
-            }
-            p {
-                +"The page you are looking for doesn't exist or has been moved."
-            }
-            a(href = "/") {
-                +"Go to Home Page"
-            }
+        // Consider creating a NotFoundData class if customization (e.g., text, links) is needed.
+        consumer.div {
+            style = "padding: 20px; text-align: center;" // Basic styling
+            h1 { +"404 - Page Not Found" }
+            p { +"The page you are looking for doesn't exist or has been moved." }
+            // Maybe render a Link component here? 
+            // For now, a simple anchor tag.
+            a(href = "/") { +"Go to Home Page" }
         }
+        @Suppress("UNCHECKED_CAST")
+        return consumer as T
     }
 
     /**
@@ -497,35 +500,36 @@ class JsPlatformRenderer : PlatformRenderer {
      */
     override fun <T> renderImage(image: Image, consumer: TagConsumer<T>): T {
         val imageId = "img-${image.hashCode()}"
-        
+
         // Collect all attributes first
         val attributes = mutableMapOf<String, String>()
-        
+
         // Set required attributes
         attributes["id"] = imageId
         attributes["src"] = image.src
         attributes["alt"] = image.alt
-        
+
         // Apply loading strategy
         if (image.loading != ImageLoading.AUTO) {
             attributes["loading"] = image.loading.value
         }
-        
+
         // Apply optional attributes
         image.width?.let { attributes["width"] = it.toString() }
         image.height?.let { attributes["height"] = it.toString() }
-        
+
         // Add detailed description if provided
         image.contentDescription?.let {
             attributes["aria-describedby"] = "img-desc-$imageId"
         }
-        
+
         // Apply styles
         attributes["style"] = image.modifier.toStyleString()
-        
+
         // Set up error handling for image loading
-        attributes["onerror"] = "this.onerror=null; this.src='data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D%22http://www.w3.org/2000/svg%22 width%3D%22${image.width ?: "100"}%22 height%3D%22${image.height ?: "100"}%22 viewBox%3D%220 0 24 24%22%3E%3Cpath fill%3D%22%23ccc%22 d%3D%22M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z%22/%3E%3C/svg%3E';"
-        
+        attributes["onerror"] =
+            "this.onerror=null; this.src='data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D%22http://www.w3.org/2000/svg%22 width%3D%22${image.width ?: "100"}%22 height%3D%22${image.height ?: "100"}%22 viewBox%3D%220 0 24 24%22%3E%3Cpath fill%3D%22%23ccc%22 d%3D%22M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z%22/%3E%3C/svg%3E';"
+
         // Create the img tag with all collected attributes
         consumer.img {
             // Properly apply all collected attributes to the tag
@@ -856,21 +860,21 @@ class JsPlatformRenderer : PlatformRenderer {
     }
 
     /**
-     * Renders a Badge component for status indicators and labels.
+     * Renders a Badge node (typically a span).
      */
-    override fun <T> renderBadge(badge: Badge, consumer: TagConsumer<T>): T {
-        val badgeId = if (badge.onClick != null) "badge-${badge.hashCode()}" else null
+    override fun <T> renderBadge(badgeData: BadgeData, consumer: TagConsumer<T>): T {
+        val badgeId = "badge-${badgeData.hashCode()}"
+        val isClickable = badgeData.onClick != null
 
-        consumer.span {
-            // Set id if we have a click handler
-            badgeId?.let { id = it }
+        consumer.span(
+            classes = (badgeData.modifier.classes + " summon-badge summon-badge-${badgeData.severity.name.lowercase()}").joinToString(
+                " "
+            )
+        ) {
+            id = badgeId
 
-            // Combine all style categories
-            val typeStyles = badge.getTypeStyles()
-            val shapeStyles = badge.getShapeStyles()
-            val sizeStyles = badge.getSizeStyles()
-
-            val combinedStyles = badge.modifier.styles + typeStyles + shapeStyles + sizeStyles + mapOf(
+            // Combine base styles, severity styles, shape styles, size styles, and modifier styles
+            val baseStyles = mapOf(
                 "display" to "inline-flex",
                 "align-items" to "center",
                 "justify-content" to "center",
@@ -878,565 +882,495 @@ class JsPlatformRenderer : PlatformRenderer {
                 "line-height" to "1",
                 "white-space" to "nowrap"
             )
+            val severityStyles = getBadgeSeverityStyles(badgeData.severity)
+            val shapeStyles = getBadgeShapeStyles(badgeData.shape)
+            val sizeStyles = getBadgeSizeStyles(badgeData.size)
+            val clickableStyle = if (isClickable) mapOf("cursor" to "pointer") else emptyMap()
 
-            style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+            val combinedStyles =
+                baseStyles + severityStyles + shapeStyles + sizeStyles + clickableStyle + badgeData.modifier.styles
+            style = combinedStyles.entries.joinToString(";") { "${it.key}:${it.value}" }
 
-            // Apply accessibility attributes
-            badge.getAccessibilityAttributes().forEach { (key, value) ->
-                attributes[key] = value
-            }
+            // Apply accessibility attributes (role might depend on context/content)
+            attributes["role"] = "status"
 
-            // Add click handling if provided
-            if (badge.onClick != null) {
+            // Add click handler attribute if clickable
+            if (isClickable) {
                 attributes["data-summon-click"] = "true"
+                attributes["tabindex"] = "0"
             }
 
-            // Add content if not a dot badge
-            if (badge.shape != BadgeShape.DOT) {
-                +badge.content
+            // Add content unless it's a dot badge
+            if (badgeData.shape != BadgeShape.DOT) {
+                +badgeData.content
             }
         }
 
         // Set up click handler if needed
-        if (badge.onClick != null && badgeId != null) {
-            setupJsBadgeClickHandler(badgeId, badge)
+        if (isClickable) {
+            setupJsBadgeClickHandler(badgeId, badgeData.onClick!!)
         }
 
+        @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
     /**
-     * Set up click handler for badge components.
+     * Sets up a JS click handler for a badge
      */
-    private fun setupJsBadgeClickHandler(badgeId: String, badge: Badge) {
-        // This will be implemented in BadgeExt.kt
-        badge.setupJsClickHandler(badgeId)
+    private fun setupJsBadgeClickHandler(elementId: String, onClickLambda: () -> Unit) {
+        // Placeholder - Use the generic click handler logic
+        println("TODO: setupJsBadgeClickHandler for ID $elementId needs ACTUAL JS IMPLEMENTATION (use generic click handler)")
     }
 
     /**
-     * Renders a Tooltip component that shows information on hover.
+     * Renders a Tooltip node.
+     * Sets up the container and the hidden tooltip content.
+     * The actual trigger element is rendered by the Composer.
+     * JS handlers manage visibility.
      */
-    override fun <T> renderTooltip(tooltip: Tooltip, consumer: TagConsumer<T>): T {
-        val tooltipId = "tooltip-${tooltip.hashCode()}"
-        val contentId = "$tooltipId-content"
+    override fun <T> renderTooltip(tooltipData: TooltipData, consumer: TagConsumer<T>): T {
+        val tooltipWrapperId = "tooltip-wrapper-${tooltipData.hashCode()}"
+        val tooltipContentId = "tooltip-content-${tooltipData.hashCode()}"
 
-        consumer.div {
-            // Set id for the tooltip wrapper
-            id = tooltipId
+        // Outer container for positioning context
+        consumer.div(classes = tooltipData.modifier.classes.joinToString(" ")) {
+            id = tooltipWrapperId
+            // Basic style for positioning context
+            style = "position: relative; display: inline-block;" + tooltipData.modifier.toStyleString()
 
-            // Create a wrapper with relative positioning
-            style = "position: relative; display: inline-block;" + tooltip.modifier.toStyleString()
+            // The Composer will render the actual trigger element (tooltipData.triggerContent) here.
+            // We need to ensure the trigger element gets the necessary ARIA attributes.
+            // This might require passing attributes down or having the Composer apply them.
+            // For now, assume the trigger element itself will have aria-describedby="tooltipContentId"
 
-            // Add tooltip trigger attributes with updated tooltip content id
-            val triggerAttributes = tooltip.getTriggerAttributes().toMutableMap()
-            triggerAttributes["aria-describedby"] = contentId
+            // Tooltip content element (initially hidden)
+            div(classes = "summon-tooltip-content") {
+                id = tooltipContentId
 
-            triggerAttributes.forEach { (key, value) ->
-                attributes[key] = value
-            }
+                // Base styles for the tooltip popup
+                val basePopupStyles = mapOf(
+                    "position" to "absolute",
+                    "background-color" to "#333", // Default dark background
+                    "color" to "#fff", // Default light text
+                    "padding" to "6px 10px",
+                    "border-radius" to "4px",
+                    "font-size" to "0.875rem",
+                    "z-index" to "1000",
+                    "pointer-events" to "none", // Prevent tooltip from interfering with mouse events
+                    "opacity" to "0", // Start hidden
+                    "transition" to "opacity 0.2s ease-in-out", // Fade animation
+                    "max-width" to "250px",
+                    "text-align" to "center"
+                )
+                // Placement styles (positioning relative to the trigger)
+                val placementStyles = getTooltipPlacementStyles(tooltipData.placement)
 
-            // Add the trigger component
-            tooltip.trigger.compose(this)
+                style = (basePopupStyles + placementStyles).entries.joinToString(";") { "${it.key}:${it.value}" }
 
-            // Add the tooltip content
-            div {
-                id = contentId
+                // ARIA role
+                attributes["role"] = "tooltip"
+                attributes["aria-hidden"] = "true" // Initially hidden from accessibility tree
 
-                // Add tooltip styling
-                val placementStyles = tooltip.getPlacementStyles()
-                style = placementStyles.entries.joinToString(";") { (key, value) -> "$key:$value" } +
-                        ";position: absolute; background-color: #333; color: white; padding: 6px 10px; " +
-                        "border-radius: 4px; font-size: 14px; z-index: 1000; pointer-events: none; " +
-                        "opacity: 0; transition: opacity 0.3s; max-width: 250px; text-align: center;"
+                // Add tooltip text content
+                +tooltipData.tooltipText
 
-                // Apply accessibility attributes
-                tooltip.getAccessibilityAttributes().forEach { (key, value) ->
-                    attributes[key] = value
-                }
-
-                // Add content
-                +tooltip.content
-
-                // Add arrow if needed
-                if (tooltip.showArrow) {
-                    div {
-                        val arrowStyles = tooltip.getArrowStyles()
-                        style = arrowStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+                // Optional arrow (styling depends heavily on placement)
+                if (tooltipData.showArrow) {
+                    div(classes = "summon-tooltip-arrow") {
+                        val arrowStyles = getTooltipArrowStyles(tooltipData.placement)
+                        style = arrowStyles.entries.joinToString(";") { "${it.key}:${it.value}" }
                     }
                 }
             }
         }
 
-        // Set up tooltip behavior
-        setupJsTooltipHandlers(tooltipId, contentId, tooltip)
+        // Set up JS handlers to show/hide the tooltip on trigger hover/focus
+        setupJsTooltipHandlers(tooltipWrapperId, tooltipContentId, tooltipData)
 
+        @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
-    /**
-     * Set up event handlers for tooltip components.
-     */
-    private fun setupJsTooltipHandlers(tooltipId: String, contentId: String, tooltip: Tooltip) {
-        // This will be implemented in TooltipExt.kt
-        tooltip.setupJsHandlers(tooltipId, contentId)
+    /** Sets up JS event handlers for tooltip visibility */
+    private fun setupJsTooltipHandlers(wrapperId: String, contentId: String, tooltipData: TooltipData) {
+        // Placeholder - Need JS to:
+        // 1. Find the trigger element(s) inside the wrapper (might be complex if trigger isn't the direct child).
+        // 2. Find the tooltip content element by contentId.
+        // 3. Add event listeners (e.g., mouseenter, mouseleave, focus, blur) to the trigger.
+        // 4. On trigger enter/focus: Show tooltip (set opacity=1, aria-hidden=false).
+        // 5. On trigger leave/blur: Hide tooltip (set opacity=0, aria-hidden=true).
+        // Consider delays for hover (tooltipData.delayMillis).
+        println("TODO: setupJsTooltipHandlers for wrapper ID $wrapperId (content ID $contentId) needs ACTUAL JS IMPLEMENTATION")
+        // Example (conceptual - simplified, assumes wrapper IS the trigger):
+        // js("const trigger = document.getElementById(wrapperId); const tooltip = document.getElementById(contentId); ... add listeners ...")
     }
 
     /**
-     * Renders a Progress component for loading and progress indication.
+     * Renders a Progress node for loading and progress indication.
+     * Handles linear/circular and determinate/indeterminate types.
      */
-    override fun <T> renderProgress(progress: Progress, consumer: TagConsumer<T>): T {
-        val progressId = "progress-${progress.hashCode()}"
+    override fun <T> renderProgress(
+        progressData: ProgressData,
+        consumer: TagConsumer<T>
+    ): T { // Changed Progress to ProgressData
+        val progressId = "progress-${progressData.hashCode()}"
+        val isIndeterminate = progressData.value == null // Use progressData.value == null for indeterminate
 
-        // Container element
-        consumer.div {
+        // Container element with modifier
+        consumer.div(classes = progressData.modifier.classes.joinToString(" ")) {
             id = progressId
-            style = "display: flex; flex-direction: column;" + progress.modifier.toStyleString()
+            // Basic container styles + modifier
+            style =
+                "display: flex; flex-direction: column; align-items: center;" + progressData.modifier.toStyleString() // Use progressData.modifier
 
-            // Add label if present
-            progress.label?.let {
-                div {
-                    style = "margin-bottom: 4px; font-size: 14px;"
+            // Optional Label
+            progressData.label?.let { // Use progressData.label
+                div(classes = "summon-progress-label") {
+                    style = "margin-bottom: 4px; font-size: 0.875rem; color: #555;"
                     +it
                 }
             }
 
-            // Main progress container
-            div {
-                // Add basic styles for track
-                val typeStyles = progress.getTypeStyles()
-                style = typeStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+            // Main progress visual container (track)
+            div(classes = "summon-progress-track") {
+                // Track styles based on type
+                val trackStyles = getProgressTrackStyles(progressData) // Helper using ProgressData
+                style = trackStyles.entries.joinToString(";") { "${it.key}:${it.value}" }
 
-                // Add accessibility attributes
-                progress.getAccessibilityAttributes().forEach { (key, value) ->
-                    attributes[key] = value
+                // Apply ARIA attributes
+                attributes["role"] = "progressbar"
+                if (!isIndeterminate) {
+                    attributes["aria-valuenow"] = progressData.value!!.toString()
+                    attributes["aria-valuemin"] = "0" // Assuming 0 is always min
+                    attributes["aria-valuemax"] = progressData.max.toString() // Use progressData.max
+                } else {
+                    // For indeterminate, specific ARIA attributes might not be needed,
+                    // but role=progressbar is still important.
+                    attributes["aria-busy"] = "true"
                 }
+                progressData.label?.let { attributes["aria-label"] = it } // Use label for accessibility if present
 
-                // For determinate progress, add the value indicator
-                if (!progress.isIndeterminate()) {
-                    // Progress indicator
-                    div {
-                        // Calculate width percentage for linear or appropriate styles for circular
-                        val percentage = progress.getPercentage()
-
-                        val styles = when (progress.type) {
-                            ProgressType.LINEAR -> mapOf(
-                                "width" to "$percentage%",
-                                "height" to "100%",
-                                "background-color" to progress.color
-                            )
-
-                            ProgressType.CIRCULAR -> mapOf(
-                                "width" to "100%",
-                                "height" to "100%",
-                                "border-radius" to "50%",
-                                "background" to "conic-gradient(${progress.color} ${percentage * 3.6}deg, transparent 0deg)",
-                                "transform" to "rotate(-90deg)"
-                            )
-
-                            else -> mapOf(
-                                "width" to "100%",
-                                "height" to "100%"
-                            )
-                        }
-
-                        // Add animation styles
-                        val animationStyles = progress.getAnimationStyles()
-                        val combinedStyles = styles + animationStyles
-
-                        style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+                // Render the actual progress indicator (bar or circle part)
+                if (!isIndeterminate) {
+                    // Determinate indicator
+                    div(classes = "summon-progress-indicator") {
+                        val indicatorStyles = getProgressIndicatorStyles(progressData) // Helper using ProgressData
+                        style = indicatorStyles.entries.joinToString(";") { "${it.key}:${it.value}" }
                     }
                 } else {
-                    // For indeterminate progress, render animation
-                    val indeterminateStyles = when (progress.type) {
-                        ProgressType.CIRCULAR -> mapOf(
-                            "border" to "${progress.thickness} solid ${progress.trackColor}",
-                            "border-top" to "${progress.thickness} solid ${progress.color}",
-                            "border-radius" to "50%",
-                            "width" to (progress.getTypeStyles()["width"]?.toString() ?: progress.size),
-                            "height" to (progress.getTypeStyles()["height"]?.toString() ?: progress.size),
-                            "animation" to "spin 1s linear infinite"
-                        )
-
-                        else -> mapOf(
-                            "position" to "relative",
-                            "overflow" to "hidden",
-                            "height" to (progress.getTypeStyles()["height"]?.toString() ?: progress.thickness)
-                        )
+                    // Indeterminate animation elements (handled by CSS usually)
+                    // Add elements/classes that CSS can target for animation
+                    if (progressData.type == ProgressType.LINEAR) {
+                        div(classes = "summon-progress-indeterminate-bar") { /* Styled via CSS */ }
                     }
-
-                    style = indeterminateStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
-
-                    // For linear indeterminate, add the animation element
-                    if (progress.type != ProgressType.CIRCULAR) {
-                        div {
-                            style =
-                                "position: absolute; height: 100%; width: 30%; background-color: ${progress.color};" +
-                                        "animation: indeterminate 2s ease-in-out infinite;"
-                        }
-                    }
-
-                    // Add animation keyframes
-                    style {
-                        unsafe {
-                            if (progress.type == ProgressType.CIRCULAR) {
-                                raw(
-                                    """
-                                    @keyframes spin {
-                                        0% { transform: rotate(0deg); }
-                                        100% { transform: rotate(360deg); }
-                                    }
-                                """.trimIndent()
-                                )
-                            } else {
-                                raw(
-                                    """
-                                    @keyframes indeterminate {
-                                        0% { left: -30%; }
-                                        100% { left: 100%; }
-                                    }
-                                """.trimIndent()
-                                )
-                            }
-
-                            // Add any custom animation keyframes from the progress component
-                            progress.getAnimationKeyframes()?.let { raw(it) }
-                        }
-                    }
+                    // For circular indeterminate, the track div itself is often styled with borders and animation
                 }
             }
+            // Add CSS keyframes if needed for indeterminate animations (could be global CSS)
+            // This might be better placed in a global stylesheet rather than inline per component.
+            /*
+            style {
+                unsafe {
+                    raw("""
+                    @keyframes spin { ... }
+                    @keyframes indeterminate-linear { ... }
+                    """.trimIndent())
+                }
+            }
+            */
         }
 
+        @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
     /**
      * Renders a Box component as a div with absolute positioning.
      */
-    override fun <T> renderBox(box: Box, consumer: TagConsumer<T>): T {
-        consumer.div {
-            val combinedStyles = box.modifier.styles + mapOf(
-                "position" to "relative",
-                "display" to "flex"
-            )
+    override fun <T> renderBox(boxData: BoxData, consumer: TagConsumer<T>): T { // Changed Box to BoxData
+        consumer.div(classes = boxData.modifier.classes.joinToString(" ")) { // Apply modifier classes
+            // Apply modifier styles directly
+            // Box typically relies heavily on Modifier for layout (size, padding, alignment within parent etc.)
+            style = boxData.modifier.toStyleString() // Use boxData.modifier
+
+            // Add display: flex by default? Or let Modifier handle it?
+            // Assuming Modifier controls display type if needed.
+            // if (!style.contains("display:")) {
+            //    style = "display: flex;" + style
+            // }
+
+            // Content is rendered by the Composer within this div.
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        return consumer as T
+    }
+
+    /**
+     * Renders a Grid node (a div with display: grid).
+     * The content is rendered by the Composer.
+     */
+    override fun <T> renderGrid(gridData: GridData, consumer: TagConsumer<T>): T { // Changed Grid to GridData
+        consumer.div(classes = gridData.modifier.classes.joinToString(" ")) { // Apply modifier classes
+
+            // Grid-specific styles from GridData
+            val gridStyles = mutableMapOf<String, String>()
+            gridStyles["display"] = "grid"
+            gridData.columns?.let { gridStyles["grid-template-columns"] = it } // Use gridData.columns
+            gridData.rows?.let { gridStyles["grid-template-rows"] = it } // Use gridData.rows
+            gridData.gap?.let { gridStyles["gap"] = it } // Use gridData.gap
+            gridData.areas?.let { gridStyles["grid-template-areas"] = it } // Use gridData.areas
+            // Add other potential grid properties like justify-items, align-items etc. if needed in GridData
+
+            // Combine grid styles with modifier styles
+            val combinedStyles = gridStyles + gridData.modifier.styles // Use gridData.modifier
             style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
 
-            // Render each child
-            box.content.forEach { child ->
-                child.compose(this)
-            }
+            // Content is rendered by the Composer within this div.
         }
 
+        @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
     /**
-     * Renders a Grid component as a div with CSS Grid properties.
+     * Renders an AspectRatio node (a div with the aspect-ratio CSS property).
+     * The content is rendered by the Composer.
      */
-    override fun <T> renderGrid(grid: Grid, consumer: TagConsumer<T>): T {
-        consumer.div {
-            val gridStyles = mapOf(
-                "display" to "grid",
-                "grid-template-columns" to grid.columns,
-                "grid-template-rows" to grid.rows,
-                "gap" to grid.gap
-            ) + if (grid.areas != null) {
-                mapOf("grid-template-areas" to grid.areas)
-            } else {
-                emptyMap()
-            }
+    override fun <T> renderAspectRatio(
+        aspectRatioData: AspectRatioData,
+        consumer: TagConsumer<T>
+    ): T { // Changed AspectRatio to AspectRatioData
+        consumer.div(classes = aspectRatioData.modifier.classes.joinToString(" ")) { // Apply modifier classes
 
-            val combinedStyles = grid.modifier.styles + gridStyles
+            // Combine aspect-ratio style with modifier styles
+            val aspectRatioStyle =
+                mapOf("aspect-ratio" to aspectRatioData.ratio.toString()) // Use aspectRatioData.ratio
+            // Ensure overflow is handled if content might exceed the aspect ratio box
+            val overflowStyle = if (style?.contains("overflow:") != true) mapOf("overflow" to "hidden") else emptyMap()
+
+            val combinedStyles =
+                aspectRatioStyle + overflowStyle + aspectRatioData.modifier.styles // Use aspectRatioData.modifier
             style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
 
-            // Render each child
-            grid.content.forEach { child ->
-                child.compose(this)
-            }
+            // Content is rendered by the Composer within this div.
+            // Ensure the content itself scales correctly within the aspect ratio container (e.g., width: 100%, height: 100% for an image).
         }
 
+        @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
     /**
-     * Renders an AspectRatio component as a div with padding-bottom trick for aspect ratio.
+     * Renders a ResponsiveLayout node.
+     * Outputs container divs for content specific to different breakpoints.
+     * Visibility is controlled by CSS media queries targeting classes like 'summon-show-on-[size]'.
+     * The Composer renders the content within the appropriate div.
      */
-    override fun <T> renderAspectRatio(aspectRatio: AspectRatio, consumer: TagConsumer<T>): T {
-        // The padding-bottom technique is used to maintain aspect ratio
-        // padding-bottom = (height / width) * 100%
-        val paddingBottom = "${(1 / aspectRatio.ratio) * 100}%"
+    override fun <T> renderResponsiveLayout(
+        responsiveData: ResponsiveLayoutData,
+        consumer: TagConsumer<T>
+    ): T { // Changed ResponsiveLayout to ResponsiveLayoutData
+        consumer.div(classes = responsiveData.modifier.classes.joinToString(" ")) { // Apply modifier classes to the main container
+            style = responsiveData.modifier.toStyleString() // Apply modifier styles
 
-        consumer.div {
-            val outerStyles = aspectRatio.modifier.styles + mapOf(
-                "position" to "relative",
-                "width" to "100%",
-                "padding-bottom" to paddingBottom
-            )
-            style = outerStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
-
-            div {
-                // This inner div will contain the actual content
-                val innerStyles = mapOf(
-                    "position" to "absolute",
-                    "top" to "0",
-                    "left" to "0",
-                    "width" to "100%",
-                    "height" to "100%"
-                )
-                style = innerStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
-
-                // Render the content
-                aspectRatio.content.compose(this)
-            }
-        }
-
-        return consumer as T
-    }
-
-    /**
-     * Renders a ResponsiveLayout component with media queries for different screen sizes.
-     * In JS, we can actually use media queries to dynamically show/hide content.
-     */
-    override fun <T> renderResponsiveLayout(responsiveLayout: ResponsiveLayout, consumer: TagConsumer<T>): T {
-        val layoutId = "responsive-${responsiveLayout.hashCode()}"
-
-        consumer.div {
-            id = layoutId
-            style = responsiveLayout.modifier.toStyleString()
-
-            // Default content first (will be overridden by media queries if they match)
-            div {
-                id = "$layoutId-default"
-                style = "display: block;"
-                responsiveLayout.defaultContent.compose(this)
+            // Output container for default/fallback content (visible if no specific breakpoint matches or as a base)
+            div(classes = "summon-responsive-content summon-show-on-default") { // Base class + default visibility class
+                // The Composer will call responsiveData.defaultContent.compose(this) here.
             }
 
-            // Media query specific content
-            val breakpoints = mapOf(
-                ScreenSize.SMALL to "max-width: 599px",
-                ScreenSize.MEDIUM to "min-width: 600px and max-width: 959px",
-                ScreenSize.LARGE to "min-width: 960px and max-width: 1279px",
-                ScreenSize.XLARGE to "min-width: 1280px"
-            )
-
-            responsiveLayout.content.forEach { (size, content) ->
-                val mediaQuery = breakpoints[size]
-                val sizeId = "$layoutId-${size.name.lowercase()}"
-
-                div {
-                    id = sizeId
-                    style = "display: none;" // Hidden by default
-                    content.compose(this)
+            // Output containers for breakpoint-specific content
+            responsiveData.content.forEach { (screenSize, contentLambda) -> // Use responsiveData.content
+                val sizeClass = "summon-show-on-${screenSize.name.lowercase()}" // e.g., summon-show-on-small
+                div(classes = "summon-responsive-content $sizeClass") {
+                    // Apply specific styling if needed for this breakpoint container?
+                    // The Composer will call contentLambda.compose(this) here.
                 }
             }
+
+            // It's assumed that global CSS defines rules like:
+            // .summon-responsive-content { display: none; } // Hide all by default
+            // @media (max-width: 599px) { .summon-show-on-small { display: block; } }
+            // @media (min-width: 600px) and (max-width: 959px) { .summon-show-on-medium { display: block; } }
+            // ... etc.
+            // The default content might need rules like: .summon-show-on-default { display: block; }
+            // and then breakpoint-specific rules would override/hide it if they match.
         }
 
-        // Set up JS to handle responsive behavior
-        setupResponsiveLayout(layoutId, responsiveLayout)
+        // No JS setup needed for CSS-driven approach
+        // setupResponsiveLayout(layoutId, responsiveLayout) // Removed
 
+        @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
     /**
-     * Set up JS to handle media queries for responsive layout
+     * Renders the container for a LazyColumn.
+     * Sets up a scrollable div.
+     * Actual item rendering and virtualization must be handled by external JS/Composer logic.
      */
-    private fun setupResponsiveLayout(layoutId: String, responsiveLayout: ResponsiveLayout) {
-        // This would be implemented in JS to set up media query listeners
-        // that show/hide the appropriate content based on screen size
-    }
+    override fun <T> renderLazyColumn(
+        lazyColumnData: LazyColumnData<*>,
+        consumer: TagConsumer<T>
+    ): T { // Changed LazyColumn to LazyColumnData
+        val columnId = "lazy-column-${lazyColumnData.hashCode()}"
 
-    /**
-     * Renders a LazyColumn component as a virtualized vertical list.
-     */
-    override fun <T> renderLazyColumn(lazyColumn: LazyColumn<*>, consumer: TagConsumer<T>): T {
-        val columnId = "lazy-column-${lazyColumn.hashCode()}"
-
-        consumer.div {
+        consumer.div(classes = lazyColumnData.modifier.classes.joinToString(" ")) { // Apply modifier classes
             id = columnId
-            val combinedStyles = lazyColumn.modifier.styles + mapOf(
-                "display" to "flex",
-                "flex-direction" to "column",
-                "overflow-y" to "auto",
-                "height" to "100%"
+            // Base styles for a scrollable column container + modifier styles
+            val baseStyles = mapOf(
+                // "display" to "flex", // Often applied by modifier or parent
+                // "flex-direction" to "column",
+                "overflow-y" to "auto", // Enable vertical scrolling
+                "height" to "100%" // Default height, should be constrained by parent or modifier
+                // Add overscroll-behavior: contain? to prevent scrolling chain
             )
+            val combinedStyles = baseStyles + lazyColumnData.modifier.styles // Use lazyColumnData.modifier
             style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
 
-            // In JS, we'll create a container for virtualized items
-            div {
-                id = "$columnId-container"
-
-                // Initially render visible items
-                val itemsToRender = lazyColumn.items.take(10) // Start with first 10 items
-                itemsToRender.forEachIndexed { index, item ->
-                    @Suppress("UNCHECKED_CAST")
-                    val composable = getComposable<T, Any>(lazyColumn, item)
-                    div {
-                        attributes["data-lazy-index"] = index.toString()
-                        composable.compose(this)
-                    }
-                }
-            }
+            // Content (items) are rendered dynamically by external logic (JS/Composer) inside this div.
+            // The renderer only creates the scroll container.
         }
 
-        // Set up JS virtualization
-        setupLazyColumnVirtualization(columnId, lazyColumn)
+        // JS virtualization setup is removed from the renderer.
+        // setupLazyColumnVirtualization(columnId, lazyColumn) // Removed
 
+        @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
     /**
-     * Set up JS for virtualized scrolling in LazyColumn
+     * Renders the container for a LazyRow.
+     * Sets up a scrollable div.
+     * Actual item rendering and virtualization must be handled by external JS/Composer logic.
      */
-    private fun setupLazyColumnVirtualization(columnId: String, lazyColumn: LazyColumn<*>) {
-        // This would be implemented in JS to handle virtualized scrolling
-        // detecting when to render more items as the user scrolls
-    }
+    override fun <T> renderLazyRow(
+        lazyRowData: LazyRowData<*>,
+        consumer: TagConsumer<T>
+    ): T { // Changed LazyRow to LazyRowData
+        val rowId = "lazy-row-${lazyRowData.hashCode()}"
 
-    /**
-     * Renders a LazyRow component as a virtualized horizontal list.
-     */
-    override fun <T> renderLazyRow(lazyRow: LazyRow<*>, consumer: TagConsumer<T>): T {
-        val rowId = "lazy-row-${lazyRow.hashCode()}"
-
-        consumer.div {
+        consumer.div(classes = lazyRowData.modifier.classes.joinToString(" ")) { // Apply modifier classes
             id = rowId
-            val combinedStyles = lazyRow.modifier.styles + mapOf(
-                "display" to "flex",
-                "flex-direction" to "row",
-                "overflow-x" to "auto",
-                "width" to "100%"
+            // Base styles for a scrollable row container + modifier styles
+            val baseStyles = mapOf(
+                // "display" to "flex", // Often applied by modifier or parent
+                "overflow-x" to "auto", // Enable horizontal scrolling
+                "width" to "100%", // Default width, should be constrained by parent or modifier
+                "display" to "flex", // Ensure items are laid out horizontally inside
+                "flex-direction" to "row"
+                // Add overscroll-behavior: contain?
             )
+            val combinedStyles = baseStyles + lazyRowData.modifier.styles // Use lazyRowData.modifier
             style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
 
-            // In JS, we'll create a container for virtualized items
-            div {
-                id = "$rowId-container"
-                style = "display: flex; flex-direction: row;"
-
-                // Initially render visible items
-                val itemsToRender = lazyRow.items.take(10) // Start with first 10 items
-                itemsToRender.forEachIndexed { index, item ->
-                    @Suppress("UNCHECKED_CAST")
-                    val composable = getComposable<T, Any>(lazyRow, item)
-                    div {
-                        attributes["data-lazy-index"] = index.toString()
-                        composable.compose(this)
-                    }
-                }
-            }
+            // Content (items) are rendered dynamically by external logic (JS/Composer) inside this div.
+            // The renderer only creates the scroll container.
         }
 
-        // Set up JS virtualization
-        setupLazyRowVirtualization(rowId, lazyRow)
+        // JS virtualization setup is removed from the renderer.
+        // setupLazyRowVirtualization(rowId, lazyRow) // Removed
 
+        @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
     /**
-     * Set up JS for virtualized scrolling in LazyRow
+     * Renders a TabLayout node.
+     * Sets up containers for tab headers and content.
+     * Composer renders headers and selected content.
+     * JS handles tab switching and closing logic.
      */
-    private fun setupLazyRowVirtualization(rowId: String, lazyRow: LazyRow<*>) {
-        // This would be implemented in JS to handle virtualized scrolling
-        // detecting when to render more items as the user scrolls horizontally
-    }
+    override fun <T> renderTabLayout(
+        tabLayoutData: TabLayoutData,
+        consumer: TagConsumer<T>
+    ): T { // Changed TabLayout to TabLayoutData
+        val tabLayoutId = "tab-layout-${tabLayoutData.hashCode()}"
 
-    /**
-     * Renders a TabLayout component as a tabbed interface.
-     */
-    override fun <T> renderTabLayout(tabLayout: TabLayout, consumer: TagConsumer<T>): T {
-        val tabLayoutId = "tab-layout-${tabLayout.hashCode()}"
-
-        consumer.div {
+        // Main container
+        consumer.div(classes = tabLayoutData.modifier.classes.joinToString(" ")) { // Apply modifier classes
             id = tabLayoutId
-            val combinedStyles = tabLayout.modifier.styles + mapOf(
-                "display" to "flex",
-                "flex-direction" to "column"
-            )
-            style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+            // Basic layout + modifier styles
+            val baseStyles = mapOf("display" to "flex", "flex-direction" to "column")
+            style =
+                (baseStyles + tabLayoutData.modifier.styles).entries.joinToString(";") { "${it.key}:${it.value}" } // Use tabLayoutData.modifier
 
-            // Tab headers
-            div {
+            // Tab headers container
+            div(classes = "summon-tablayout-headers") {
                 id = "$tabLayoutId-headers"
-                style = "display: flex; flex-direction: row; border-bottom: 1px solid #ddd;"
+                style = "display: flex; flex-direction: row; border-bottom: 1px solid #ddd;" // Basic header styling
+                attributes["role"] = "tablist" // Accessibility
 
-                tabLayout.tabs.forEachIndexed { index, tab ->
-                    val isSelected = index == tabLayout.selectedTabIndex
-                    val tabId = "$tabLayoutId-tab-$index"
-
-                    div {
-                        id = tabId
-                        val tabStyles = mapOf(
-                            "padding" to "10px 15px",
-                            "cursor" to "pointer",
-                            "border-bottom" to if (isSelected) "2px solid #1976d2" else "none",
-                            "color" to if (isSelected) "#1976d2" else "inherit",
-                            "font-weight" to if (isSelected) "bold" else "normal"
-                        )
-                        style = tabStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
-                        attributes["data-tab-index"] = index.toString()
-
-                        // Render icon if present
-                        tab.icon?.compose(this)
-
-                        // Render title
-                        +tab.title
-
-                        // Render close button if closable
-                        if (tab.isClosable) {
-                            val closeId = "$tabId-close"
-                            span {
-                                id = closeId
-                                style = "margin-left: 5px; font-size: 12px;"
-                                +"✕"
-                                attributes["data-tab-close"] = "true"
-                            }
-                        }
-                    }
-                }
+                // Composer renders the individual tab headers (tabLayoutData.tabs.forEach { renderTabHeader(it, index) }) inside here.
+                // Each rendered header should have role="tab", aria-controls="$tabLayoutId-content-$index", 
+                // aria-selected=(index == tabLayoutData.selectedTabIndex).toString(),
+                // and data attributes for index and closability for the JS handler.
             }
 
-            // Tab content
-            div {
+            // Tab content container
+            div(classes = "summon-tablayout-content") {
                 id = "$tabLayoutId-content"
-                style = "padding: 15px 0;"
-                if (tabLayout.selectedTabIndex in tabLayout.tabs.indices) {
-                    tabLayout.tabs[tabLayout.selectedTabIndex].content.compose(this)
-                }
+                style = "padding: 15px 0;" // Basic content padding
+
+                // Composer renders the selected tab's content (tabLayoutData.tabs[selectedTabIndex].content.compose(this)) inside here.
+                // It should ideally have role="tabpanel" and aria-labelledby="$tabLayoutId-tab-$selectedTabIndex".
             }
         }
 
-        // Set up JS tab switching
-        setupTabLayoutSwitching(tabLayoutId, tabLayout)
+        // Set up JS tab switching/closing logic
+        setupTabLayoutSwitching(tabLayoutId, tabLayoutData) // Pass TabLayoutData
 
+        @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
     /**
      * Set up JS for tab switching in TabLayout
      */
-    private fun setupTabLayoutSwitching(tabLayoutId: String, tabLayout: TabLayout) {
-        // This would be implemented in JS to handle tab switching
-        // and tab closing if tabs are closable
+    private fun setupTabLayoutSwitching(tabLayoutId: String, tabLayoutData: TabLayoutData) {
+        // Placeholder - Need JS to:
+        // 1. Find the header container (#$tabLayoutId-headers).
+        // 2. Add event listener (e.g., click) to the header container (event delegation).
+        // 3. On click:
+        //    a. Check if a tab header (element with role=tab and data-tab-index) was clicked.
+        //    b. If yes, get the index from data-tab-index.
+        //    c. Call tabLayoutData.onTabSelected(index).
+        //    d. Check if the close button (element with data-tab-close) within the header was clicked.
+        //    e. If yes, get the index and call tabLayoutData.onTabClose?.invoke(index).
+        // Note: State changes (selectedTabIndex) trigger recomposition, which updates the UI (selected styles, content).
+        println("TODO: setupTabLayoutSwitching for ID $tabLayoutId needs ACTUAL JS IMPLEMENTATION")
+        // Example (conceptual):
+        // js("const headers = document.getElementById('$tabLayoutId-headers'); headers.addEventListener('click', (event) => { ... check target, get index, call lambdas ... });")
     }
 
     /**
-     * Renders an ExpansionPanel component as a collapsible section.
+     * Renders an ExpansionPanel node.
+     * Sets up the main container, header container, and content container.
+     * Composer renders the header and content.
+     * JS handles the toggling logic.
      */
-    override fun <T> renderExpansionPanel(expansionPanel: ExpansionPanel, consumer: TagConsumer<T>): T {
-        val panelId = "panel-${expansionPanel.hashCode()}"
+    override fun <T> renderExpansionPanel(
+        panelData: ExpansionPanelData,
+        consumer: TagConsumer<T>
+    ): T { // Changed ExpansionPanel to ExpansionPanelData
+        val panelId = "panel-${panelData.hashCode()}"
+        val headerId = "$panelId-header"
+        val contentId = "$panelId-content"
+        val isExpanded = panelData.isExpanded // Use panelData.isExpanded
 
-        consumer.div {
-            val combinedStyles = expansionPanel.modifier.styles + mapOf(
-                "border" to "1px solid #ddd",
-                "border-radius" to "4px",
-                "margin-bottom" to "10px"
-            )
-            style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+        // Main container
+        consumer.div(classes = panelData.modifier.classes.joinToString(" ")) { // Apply modifier classes
             id = panelId
+            // Basic container styles + modifier
+            val baseStyles = mapOf("border" to "1px solid #ddd", "border-radius" to "4px", "margin-bottom" to "10px")
+            style =
+                (baseStyles + panelData.modifier.styles).entries.joinToString(";") { "${it.key}:${it.value}" } // Use panelData.modifier
 
-            // Header
-            val headerId = "$panelId-header"
-            div {
+            // Header container (clickable)
+            div(classes = "summon-expansion-header") {
                 id = headerId
+                // Basic header styling
                 val headerStyles = mapOf(
                     "padding" to "10px 15px",
                     "background-color" to "#f5f5f5",
@@ -1445,59 +1379,65 @@ class JsPlatformRenderer : PlatformRenderer {
                     "justify-content" to "space-between",
                     "align-items" to "center"
                 )
-                style = headerStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
-                attributes["data-expansion-header"] = "true"
+                style = headerStyles.entries.joinToString(";") { "${it.key}:${it.value}" }
+                attributes["data-expansion-header"] = "true" // Hook for JS handler
+                // ARIA attributes for accessibility
+                attributes["role"] = "button"
+                attributes["aria-expanded"] = isExpanded.toString()
+                attributes["aria-controls"] = contentId
+                attributes["tabindex"] = "0" // Make header focusable
 
-                // Title and optional icon
-                div {
-                    style = "display: flex; align-items: center;"
+                // Composer renders the header content (panelData.header.compose(this)) here.
+                // It should include the title and optionally an icon.
+                // The expand/collapse indicator might also be part of the header content or rendered separately.
 
-                    // Render icon if present
-                    expansionPanel.icon?.compose(this)
-
-                    // Render title
-                    +expansionPanel.title
-                }
-
-                // Expansion icon
-                val iconId = "$panelId-icon"
-                div {
-                    id = iconId
-                    +(if (expansionPanel.isExpanded) "▲" else "▼")
-                }
+                // Example: Separate indicator (can be styled with CSS based on aria-expanded)
+                // span(classes = "summon-expansion-indicator") { + if(isExpanded) "▲" else "▼" }
             }
 
-            // Content
-            val contentId = "$panelId-content"
-            div {
+            // Content container (collapsible)
+            div(classes = "summon-expansion-content") {
                 id = contentId
+                // Basic content styling (visibility/height controlled by JS/CSS)
                 val contentStyles = mapOf(
-                    "padding" to if (expansionPanel.isExpanded) "15px" else "0",
-                    "height" to if (expansionPanel.isExpanded) "auto" else "0",
                     "overflow" to "hidden",
-                    "transition" to "all 0.3s ease"
+                    "transition" to "height 0.3s ease, padding 0.3s ease" // Animate height and padding
+                    // Height and padding set dynamically or via CSS based on expansion state
+                    // e.g., [aria-hidden="true"] { height: 0; padding-top: 0; padding-bottom: 0; }
                 )
-                style = contentStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
-                attributes["data-expansion-content"] = "true"
+                style = contentStyles.entries.joinToString(";") { "${it.key}:${it.value}" }
 
-                if (expansionPanel.isExpanded) {
-                    expansionPanel.content.compose(this)
-                }
+                // ARIA attributes
+                attributes["role"] = "region"
+                attributes["aria-labelledby"] = headerId
+                attributes["aria-hidden"] = (!isExpanded).toString()
+
+                // Composer renders the content (panelData.content.compose(this)) here WHEN EXPANDED.
+                // The renderer only sets up the container. Content visibility is tied to the isExpanded state.
             }
         }
 
         // Set up JS for expansion toggling
-        setupExpansionPanelToggling(panelId, expansionPanel)
+        setupExpansionPanelToggling(panelId, panelData) // Pass ExpansionPanelData
 
+        @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
-    /**
-     * Set up JS for expansion panel toggling
-     */
-    private fun setupExpansionPanelToggling(panelId: String, expansionPanel: ExpansionPanel) {
-        // This would be implemented in JS to handle panel expansion/collapse
-        // with smooth animations
+    // --- Helper/Interop Functions --- 
+
+    /** Sets up JS event handlers for expansion panel toggling */
+    private fun setupExpansionPanelToggling(panelId: String, panelData: ExpansionPanelData) {
+        // Placeholder - Need JS to:
+        // 1. Find the header element (#$panelId-header).
+        // 2. Add event listeners (click, keydown for Enter/Space) to the header.
+        // 3. On activation:
+        //    a. Call panelData.onToggle().
+        // Note: State change (isExpanded) triggers recomposition, which updates ARIA attributes and potentially CSS classes/styles 
+        // for the content visibility/animation.
+        println("TODO: setupExpansionPanelToggling for ID $panelId needs ACTUAL JS IMPLEMENTATION")
+        // Example (conceptual):
+        // js("const header = document.getElementById('$panelId-header'); header.addEventListener('click', () => { panelData.onToggle(); }); header.addEventListener('keydown', ...) { panelData.onToggle(); } ")
     }
 
     /**
@@ -1769,6 +1709,10 @@ class JsPlatformRenderer : PlatformRenderer {
         return consumer as T
     }
 
+    override fun <T> renderSlider(slider: SliderData, consumer: TagConsumer<T>): T {
+        TODO("Not yet implemented")
+    }
+
     /**
      * Renders a RangeSlider component for range selection.
      */
@@ -1991,74 +1935,247 @@ class JsPlatformRenderer : PlatformRenderer {
     }
 
     /**
-     * Renders an AnimatedVisibility component as a div with CSS transitions.
+     * Renders the container for AnimatedVisibility.
+     * The container might have transition properties applied.
+     * Actual content rendering and animation state are handled externally (Composer/JS).
      */
-    override fun <T> renderAnimatedVisibility(animatedVisibility: AnimatedVisibility, consumer: TagConsumer<T>): T {
-        consumer.div {
-            // Combine base styles with animation and component modifiers
-            val baseStyles = if (animatedVisibility.visible) {
-                animatedVisibility.getAnimationStyles()
-            } else {
-                animatedVisibility.getInitialStyles()
-            }
+    override fun <T> renderAnimatedVisibility(
+        animData: AnimatedVisibilityData,
+        consumer: TagConsumer<T>
+    ): T { // Changed AnimatedVisibility to AnimatedVisibilityData
+        val containerId = "anim-visibility-${animData.hashCode()}"
 
-            val combinedStyles = animatedVisibility.modifier.styles + baseStyles
-            style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+        consumer.div(classes = animData.modifier.classes.joinToString(" ")) { // Apply modifier classes
+            id = containerId
+            // Apply modifier styles and potentially base transition styles
+            // Transitions are complex and depend on the specific enter/exit animations defined in AnimatedVisibilityData.
+            // This might involve applying CSS classes managed by external JS based on the visibility state.
+            style = animData.modifier.toStyleString() // Use animData.modifier
 
-            // Only render content if visible (for initial load) or during animation
-            if (animatedVisibility.visible) {
-                // Render each child in the content list
-                animatedVisibility.content.forEach { child ->
-                    child.compose(this)
-                }
-            }
+            // Example data attribute for external JS hook:
+            // attributes["data-summon-anim-visibility"] = animData.visible.toString()
+
+            // Content is rendered by the Composer within this div based on animData.visible state.
+            // The Composer/JS needs to handle adding/removing content and applying animation classes/styles.
         }
+
+        // Complex JS animation logic removed from renderer
 
         @Suppress("UNCHECKED_CAST")
         return consumer as T
     }
 
     /**
-     * Renders an AnimatedContent component with transitions between different content states.
+     * Renders the container for AnimatedContent.
+     * The container might have transition properties for content switching.
+     * Actual content rendering and animation state are handled externally (Composer/JS).
      */
-    override fun <T> renderAnimatedContent(animatedContent: AnimatedContent<*>, consumer: TagConsumer<T>): T {
-        consumer.div {
-            // Apply container styles
-            val containerStyles = animatedContent.getContainerStyles() + animatedContent.modifier.styles
-            style = containerStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+    override fun <T> renderAnimatedContent(
+        animData: AnimatedContentData<*>,
+        consumer: TagConsumer<T>
+    ): T { // Changed AnimatedContent to AnimatedContentData
+        val containerId = "anim-content-${animData.hashCode()}"
 
-            // Update content based on current state
-            animatedContent.updateContent()
+        consumer.div(classes = animData.modifier.classes.joinToString(" ")) { // Apply modifier classes
+            id = containerId
+            // Apply modifier styles and potentially base transition styles for content switching.
+            // Needs to handle positioning (e.g., position: relative) if animations involve absolute positioning.
+            style = "position: relative; overflow: hidden;" + animData.modifier.toStyleString() // Use animData.modifier
 
-            // Render current content with animation styles
-            div {
-                val currentStyles = animatedContent.getCurrentContentStyles()
-                style = currentStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+            // Example data attribute for external JS hook:
+            // attributes["data-summon-anim-content-key"] = animData.targetState.hashCode().toString()
 
-                // Render each child in the current content - use unchecked cast to handle wildcard type
-                @Suppress("UNCHECKED_CAST")
-                val value = animatedContent.targetState.value
-                val factory = animatedContent.contentFactory as (Any?) -> List<Composable>
-                val content = factory(value)
-                content.forEach { child ->
-                    child.compose(this)
-                }
-            }
-
-            // Render previous content during transition (if available)
-            animatedContent.getPreviousContentStyles().let { prevStyles ->
-                div {
-                    style = prevStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
-
-                    // We don't actually render the previous content here, as it would be
-                    // expensive and unnecessary. Just having the div with transition
-                    // styles is enough for the animation effect.
-                }
-            }
+            // Content for the current state (animData.targetState) is rendered by the Composer within this div.
+            // The Composer/JS needs to handle animating out old content and animating in new content based on state changes.
         }
+
+        // Complex JS animation logic removed from renderer
 
         @Suppress("UNCHECKED_CAST")
         return consumer as T
+    }
+
+    // --- Temporary Style Helpers (Move to BadgeData or Utils) ---
+    private fun getBadgeSeverityStyles(severity: BadgeSeverity): Map<String, String> {
+        return when (severity) {
+            BadgeSeverity.PRIMARY -> mapOf("background-color" to "#1976d2", "color" to "#fff")
+            BadgeSeverity.SECONDARY -> mapOf("background-color" to "#9c27b0", "color" to "#fff")
+            BadgeSeverity.SUCCESS -> mapOf("background-color" to "#2e7d32", "color" to "#fff")
+            BadgeSeverity.WARNING -> mapOf("background-color" to "#ed6c02", "color" to "#fff")
+            BadgeSeverity.ERROR -> mapOf("background-color" to "#d32f2f", "color" to "#fff")
+            BadgeSeverity.INFO -> mapOf("background-color" to "#0288d1", "color" to "#fff")
+            BadgeSeverity.DEFAULT -> mapOf("background-color" to "#e0e0e0", "color" to "#000")
+        }
+    }
+
+    private fun getBadgeShapeStyles(shape: BadgeShape): Map<String, String> {
+        return when (shape) {
+            BadgeShape.RECTANGLE -> mapOf("border-radius" to "4px")
+            BadgeShape.PILL -> mapOf("border-radius" to "12px")
+            BadgeShape.CIRCLE, BadgeShape.DOT -> mapOf("border-radius" to "50%")
+        }
+    }
+
+    private fun getBadgeSizeStyles(size: BadgeSize): Map<String, String> {
+        return when (size) {
+            BadgeSize.SMALL -> mapOf("padding" to "2px 6px", "font-size" to "0.75rem")
+            BadgeSize.MEDIUM -> mapOf("padding" to "4px 8px", "font-size" to "0.875rem")
+            BadgeSize.LARGE -> mapOf("padding" to "6px 12px", "font-size" to "1rem")
+        } + if (size == BadgeSize.DOT) mapOf(
+            "width" to "8px",
+            "height" to "8px",
+            "padding" to "0"
+        ) else emptyMap() // Special handling for dot
+    }
+
+    // --- Helper/Interop Functions ---
+
+    /**
+     * Helper function to set up the click handler for a button using the existing extension function.
+     */
+    private fun setupJsClickHandler(buttonId: String, button: Button) {
+        button.setupJsClickHandler(buttonId)
+    }
+
+    /**
+     * Helper function to set up the input handler for a text field using the existing extension function.
+     */
+    private fun setupJsInputHandler(fieldId: String, textField: TextField) {
+        textField.setupJsInputHandler(fieldId)
+    }
+
+    /**
+     * Helper function to set up the form handler using the existing extension function.
+     */
+    private fun setupJsFormHandler(formId: String, form: Form) {
+        form.setupJsFormHandler(formId)
+    }
+
+    /**
+     * Helper function to set up the link handler using the existing extension function.
+     */
+    private fun setupJsLinkHandler(linkId: String, link: Link) {
+        link.setupJsClickHandler(linkId)
+    }
+
+    /**
+     * Helper function to set up the radio button handler using the existing extension function.
+     */
+    private fun setupJsRadioHandler(radioId: String, radioButton: RadioButton<Any>) {
+        // Direct implementation (without extension function)
+        // This will be connected to browser DOM events when kotlinx-browser is available
+        if (radioButton.selected) {
+            radioButton.onClick.invoke()
+        }
+    }
+
+    /**
+     * Helper function to set up the select handler using the existing extension function.
+     */
+    private fun setupJsSelectHandler(selectId: String, select: Select<Any>) {
+        // Direct implementation (without extension function)
+        // This will be connected to browser DOM events when kotlinx-browser is available
+        select.onSelectedChange.invoke(select.selectedValue.value)
+    }
+
+    /**
+     * Helper function to set up the switch handler using the existing extension function.
+     */
+    private fun setupJsSwitchHandler(switchId: String, switch: Switch) {
+        // Direct implementation (without extension function)
+        // This will be connected to browser DOM events when kotlinx-browser is available
+        switch.onValueChange.invoke(switch.state.value)
+    }
+
+    /**
+     * Helper function to set up the file upload handler using the existing extension function.
+     */
+    private fun setupJsFileUploadHandler(uploadId: String, fileUpload: FileUpload) {
+        // Direct implementation (without extension function)
+        // This will be connected to browser DOM events when kotlinx-browser is available
+        // For now, just provide a minimal implementation to resolve the compilation error
+        fileUpload.onFilesSelected(emptyList())
+    }
+
+    /**
+     * Helper function to set up the slider handler using the existing extension function.
+     */
+    private fun setupJsSliderHandler(sliderId: String, rangeSlider: RangeSlider) {
+        // Direct implementation (without extension function)
+        // This will be connected to browser DOM events when kotlinx-browser is available
+        // For now, just handle the state to resolve the compilation error
+        rangeSlider.onValueChange(rangeSlider.state.value)
+    }
+
+    // --- Temporary Style Helpers (Move to TooltipData or Utils) ---
+    private fun getTooltipPlacementStyles(placement: TooltipPlacement): Map<String, String> {
+        return when (placement) {
+            TooltipPlacement.TOP -> mapOf(
+                "bottom" to "calc(100% + 5px)",
+                "left" to "50%",
+                "transform" to "translateX(-50%)"
+            )
+
+            TooltipPlacement.BOTTOM -> mapOf(
+                "top" to "calc(100% + 5px)",
+                "left" to "50%",
+                "transform" to "translateX(-50%)"
+            )
+
+            TooltipPlacement.LEFT -> mapOf(
+                "right" to "calc(100% + 5px)",
+                "top" to "50%",
+                "transform" to "translateY(-50%)"
+            )
+
+            TooltipPlacement.RIGHT -> mapOf(
+                "left" to "calc(100% + 5px)",
+                "top" to "50%",
+                "transform" to "translateY(-50%)"
+            )
+        }
+    }
+
+    private fun getTooltipArrowStyles(placement: TooltipPlacement): Map<String, String> {
+        val base = mapOf(
+            "position" to "absolute", "width" to "0", "height" to "0",
+            "border-style" to "solid", "border-color" to "transparent"
+        )
+        val arrowSize = "5px"
+        val arrowColor = "#333" // Match tooltip background
+        return base + when (placement) {
+            TooltipPlacement.TOP -> mapOf(
+                "left" to "50%",
+                "bottom" to "-{$arrowSize}",
+                "transform" to "translateX(-50%)",
+                "border-width" to "$arrowSize $arrowSize 0",
+                "border-top-color" to arrowColor
+            )
+
+            TooltipPlacement.BOTTOM -> mapOf(
+                "left" to "50%",
+                "top" to "-{$arrowSize}",
+                "transform" to "translateX(-50%)",
+                "border-width" to "0 $arrowSize $arrowSize",
+                "border-bottom-color" to arrowColor
+            )
+
+            TooltipPlacement.LEFT -> mapOf(
+                "top" to "50%",
+                "right" to "-{$arrowSize}",
+                "transform" to "translateY(-50%)",
+                "border-width" to "$arrowSize 0 $arrowSize $arrowSize",
+                "border-left-color" to arrowColor
+            )
+
+            TooltipPlacement.RIGHT -> mapOf(
+                "top" to "50%",
+                "left" to "-{$arrowSize}",
+                "transform" to "translateY(-50%)",
+                "border-width" to "$arrowSize $arrowSize $arrowSize 0",
+                "border-right-color" to arrowColor
+            )
+        }
     }
 }
 
@@ -2068,92 +2185,3 @@ class JsPlatformRenderer : PlatformRenderer {
 private fun setupJsClickHandler(buttonId: String, button: Button) {
     button.setupJsClickHandler(buttonId)
 }
-
-/**
- * Helper function to set up the input handler for a text field using the existing extension function.
- */
-private fun setupJsInputHandler(fieldId: String, textField: TextField) {
-    textField.setupJsInputHandler(fieldId)
-}
-
-/**
- * Helper function to set up the form handler using the existing extension function.
- */
-private fun setupJsFormHandler(formId: String, form: Form) {
-    form.setupJsFormHandler(formId)
-}
-
-/**
- * Helper function to set up the link handler using the existing extension function.
- */
-private fun setupJsLinkHandler(linkId: String, link: Link) {
-    link.setupJsClickHandler(linkId)
-}
-
-/**
- * Helper function to set up the radio button handler using the existing extension function.
- */
-private fun setupJsRadioHandler(radioId: String, radioButton: RadioButton<Any>) {
-    // Direct implementation (without extension function)
-    // This will be connected to browser DOM events when kotlinx-browser is available
-    if (radioButton.selected) {
-        radioButton.onClick.invoke()
-    }
-}
-
-/**
- * Helper function to set up the select handler using the existing extension function.
- */
-private fun setupJsSelectHandler(selectId: String, select: Select<Any>) {
-    // Direct implementation (without extension function)
-    // This will be connected to browser DOM events when kotlinx-browser is available
-    select.onSelectedChange.invoke(select.selectedValue.value)
-}
-
-/**
- * Helper function to set up the switch handler using the existing extension function.
- */
-private fun setupJsSwitchHandler(switchId: String, switch: Switch) {
-    // Direct implementation (without extension function)
-    // This will be connected to browser DOM events when kotlinx-browser is available
-    switch.onValueChange.invoke(switch.state.value)
-}
-
-/**
- * Helper function to set up the file upload handler using the existing extension function.
- */
-private fun setupJsFileUploadHandler(uploadId: String, fileUpload: FileUpload) {
-    // Direct implementation (without extension function)
-    // This will be connected to browser DOM events when kotlinx-browser is available
-    // For now, just provide a minimal implementation to resolve the compilation error
-    fileUpload.onFilesSelected(emptyList())
-}
-
-/**
- * Helper function to set up the slider handler using the existing extension function.
- */
-private fun setupJsSliderHandler(sliderId: String, rangeSlider: RangeSlider) {
-    // Direct implementation (without extension function)
-    // This will be connected to browser DOM events when kotlinx-browser is available
-    // For now, just handle the state to resolve the compilation error
-    rangeSlider.onValueChange(rangeSlider.state.value)
-}
-
-/**
- * Helper function to safely access the itemContent with wildcard generics
- */
-private fun <T, I> getComposable(lazyList: LazyColumn<*>, item: Any?): Composable {
-    // This is a workaround for type erasure and wildcard generics
-
-    val typedList = lazyList as LazyColumn<I>
-    return typedList.itemContent(item as I)
-}
-
-/**
- * Helper function to safely access the itemContent with wildcard generics
- */
-private fun <T, I> getComposable(lazyList: LazyRow<*>, item: Any?): Composable {
-    // This is a workaround for type erasure and wildcard generics
-    val typedList = lazyList as LazyRow<I>
-    return typedList.itemContent(item as I)
-} 

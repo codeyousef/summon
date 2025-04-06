@@ -1,7 +1,5 @@
 package code.yousef.summon.accessibility
 
-import code.yousef.summon.FocusableComponent
-import code.yousef.summon.core.Composable
 import code.yousef.summon.modifier.Modifier
 
 /**
@@ -101,15 +99,20 @@ object FocusManagement {
 
 /**
  * A component that manages focus for its children.
+ * NOTE: This class is likely obsolete after refactoring to @Composable functions.
+ * Focus attributes should be applied via Modifier directly to standard components.
  */
 class FocusManager(
-    private val content: List<Composable>,
+    // Content is no longer directly relevant here.
+    // private val content: List<Composable>,
     private val behavior: FocusManagement.FocusBehavior = FocusManagement.FocusBehavior.TABBABLE,
     private val focusId: String? = null,
     private val isFocusTrap: Boolean = false,
     private val scopeId: String? = null
-) : Composable, FocusableComponent {
+) /* : Composable, FocusableComponent */ { // Removed interface inheritance
 
+    // Removed the compose method
+    /*
     override fun <T> compose(receiver: T): T {
         var modifier = FocusManagement.createFocusModifier(behavior)
 
@@ -130,6 +133,10 @@ class FocusManager(
         }
 
         // TODO: Implement rendering with focus management
+        // This logic is now defunct.
         return receiver
     }
+    */
+    // This class now primarily acts as a data holder, but its purpose is questionable.
+    // Consider removing it and using the helper functions in FocusManagement directly.
 } 

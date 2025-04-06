@@ -288,6 +288,11 @@ object ModifierExtensions {
         fun Modifier.opacity(value: Float): Modifier = style("opacity", value.toString())
         
         /**
+         * Sets the opacity using a string value.
+         */
+        fun Modifier.opacity(value: String): Modifier = style("opacity", value)
+        
+        /**
          * Sets the border.
          */
         fun Modifier.border(width: String, style: String, color: String): Modifier =

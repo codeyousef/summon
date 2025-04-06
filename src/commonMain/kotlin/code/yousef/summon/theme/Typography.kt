@@ -1,6 +1,7 @@
 package code.yousef.summon.theme
 
 import code.yousef.summon.components.display.Text
+import code.yousef.summon.examples.Text
 import code.yousef.summon.modifier.Modifier
 
 /**

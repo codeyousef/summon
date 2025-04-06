@@ -1,7 +1,5 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.core.Composable
-import code.yousef.summon.LayoutComponent
 import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
 import kotlinx.html.TagConsumer
@@ -16,20 +14,11 @@ import kotlinx.html.TagConsumer
  * @param modifier The modifier to apply to this composable
  */
 class AspectRatio(
-    val content: Composable,
+    val content: @Composable () -> Unit,
     val ratio: Double,
     val modifier: Modifier = Modifier()
-) : Composable, LayoutComponent {
+) {
     /**
-     * Renders this AspectRatio composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
+     * Internal data class holding non-content parameters for AspectRatio.
      */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderAspectRatio(this, receiver as TagConsumer<T>)
-        }
-        return receiver
-    }
 } 
