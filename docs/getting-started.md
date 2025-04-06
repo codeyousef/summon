@@ -4,24 +4,22 @@ Summon is a Kotlin Multiplatform library for building user interfaces that work 
 
 ## Installation
 
-Summon is currently in active development and will be published to Maven Central soon. Until then, you'll need to build it locally.
+Since Summon is not yet published to Maven Central, you'll need to build it locally:
 
-### Local Development Setup
-
-#### 1. Clone the Repository
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/yebaital/summon.git
 cd summon
 ```
 
-#### 2. Build and Install to Local Maven Repository
+### 2. Build and Install to Local Maven Repository
 
 ```bash
 ./gradlew publishToMavenLocal
 ```
 
-#### 3. Add the Local Repository to Your Project
+### 3. Add the Local Repository to Your Project
 
 In your project's `settings.gradle.kts` file:
 
@@ -35,39 +33,33 @@ dependencyResolutionManagement {
 }
 ```
 
-#### 4. Include the Dependency in Your Project
+### 4. Include the Dependency
+
+In your project's `build.gradle.kts` file:
 
 ```kotlin
-// build.gradle.kts
 kotlin {
-    jvm()
-    js(IR) {
-        browser()
-    }
-    
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("code.yousef:summon:0.1.0-SNAPSHOT")
+                implementation("code.yousef:summon:0.1.5")
             }
         }
         
         val jvmMain by getting {
             dependencies {
-                implementation("code.yousef:summon-jvm:0.1.0-SNAPSHOT")
+                implementation("code.yousef:summon-jvm:0.1.5")
             }
         }
         
         val jsMain by getting {
             dependencies {
-                implementation("code.yousef:summon-js:0.1.0-SNAPSHOT")
+                implementation("code.yousef:summon-js:0.1.5")
             }
         }
     }
 }
 ```
-
-> **Note:** Once Summon is published to Maven Central, you will be able to include it directly without the local setup steps.
 
 ## Your First Component
 

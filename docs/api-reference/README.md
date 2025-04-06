@@ -14,6 +14,9 @@ This directory contains comprehensive API documentation for the Summon library. 
 - [Routing API](routing.md) - Documentation for navigation and routing
 - [Effects API](effects.md) - Documentation for side effects and lifecycle management
 - [Events API](events.md) - Documentation for event handling and listeners
+- [Accessibility API](accessibility.md) - Documentation for accessibility features and ARIA support
+- [SEO API](seo.md) - Documentation for SEO features and meta tags
+- [Security API](security.md) - Documentation for authentication, authorization, and security features
 
 ## Usage
 
@@ -31,4 +34,6 @@ For more practical guides on how to use these APIs together to build application
 - [Routing Guide](../routing.md)
 - [State Management Guide](../state-management.md)
 - [Styling Guide](../styling.md)
+- [Accessibility and SEO Guide](../accessibility-and-seo.md)
+- [Security Guide](../security.md)
 - [Integration Guides](../integration-guides.md) 

@@ -27,7 +27,6 @@ For detailed documentation, please check the [docs](docs/README.md) directory:
 - [State Management](docs/state-management.md) - Manage application state effectively
 - [Styling](docs/styling.md) - Apply styles to your components
 - [Integration Guides](docs/integration-guides.md) - Integrate with existing frameworks
-- [Publishing to Maven Central](docs/publishing.md) - Publish your Summon-based library
 
 ### API Reference
 

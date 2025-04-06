@@ -10,6 +10,7 @@ Welcome to the Summon documentation! Summon is a Kotlin Multiplatform library fo
 - [Routing](routing.md) - Set up navigation in your application
 - [State Management](state-management.md) - Manage application state effectively
 - [Styling](styling.md) - Apply styles to your components
+- [Accessibility and SEO](accessibility-and-seo.md) - Build accessible and SEO-friendly applications
 
 ### Lifecycle & Environment Integration
 - [Framework-Agnostic Lifecycle Integration](lifecycle-integration.md) - Lifecycle management across different UI frameworks
@@ -19,19 +20,18 @@ Welcome to the Summon documentation! Summon is a Kotlin Multiplatform library fo
 ### Integration Guides
 - [Integration Guides](integration-guides.md) - Integrate with existing frameworks and platforms
 
-### Publishing
-- [Publishing to Maven Central](publishing.md) - Publish your Summon-based library
 
 ## Key Features
 
-- **Cross-Platform**: Build once, run on both JavaScript and JVM platforms
-- **Component-Based**: Create reusable UI components
-- **Type-Safe**: Leverage Kotlin's type system
-- **Styling System**: Flexible and powerful styling using a modifier API
-- **State Management**: Simple yet powerful state management solutions
-- **Routing**: Cross-platform routing system
-- **Lifecycle Aware**: Built-in lifecycle management
-- **Framework Interoperability**: Integrate with existing frameworks
+- **Cross-Platform**: Write once, run anywhere - browser, server, and native platforms
+- **Component-Based**: Build UIs using composable components
+- **State Management**: Built-in state management with reactivity
+- **Routing**: Declarative routing with guards and middleware
+- **Security**: Built-in authentication and authorization with JWT support
+- **Accessibility**: Built-in accessibility features
+- **Animation**: Smooth animations and transitions
+- **SSR Support**: Server-side rendering capabilities
+- **Theme System**: Flexible theming with dark mode support
 
 ## Getting Help
 
@@ -103,4 +103,45 @@ class Counter : Composable {
         }
     }
 }
-``` 
+```
+
+## Security
+
+Summon provides a comprehensive security system for handling authentication and authorization:
+
+```kotlin
+// Configure security
+val securityConfig = securityConfig {
+    authenticationProvider = createJwtAuthenticationProvider(
+        apiBaseUrl = "https://api.example.com"
+    )
+    loginUrl = "/login"
+    defaultSuccessUrl = "/"
+}
+
+// Protect routes
+@RequiresAuthentication
+class ProfilePage : Component {
+    // Component implementation
+}
+
+@RequiresRoles(["admin"])
+class AdminDashboard : Component {
+    // Component implementation
+}
+
+// Use security-aware components
+SecuredComponent().apply {
+    authenticated {
+        // Show authenticated content
+    }
+    unauthenticated {
+        // Show login form
+    }
+    withRole(Role("admin")) {
+        // Show admin content
+    }
+}
+```
+
+See [Security Documentation](security.md) for more details. 
