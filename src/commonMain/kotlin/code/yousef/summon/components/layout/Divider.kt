@@ -1,36 +1,25 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.core.Composable
-import code.yousef.summon.core.PlatformRendererProvider
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.core.getPlatformRenderer
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
 
 /**
- * A composable that displays a horizontal or vertical divider line for visual separation.
+ * A horizontal or vertical divider line that separates content.
  *
- * @param isVertical Whether the divider should be vertical (true) or horizontal (false)
- * @param thickness The thickness of the divider in pixels or other CSS units
- * @param color The color of the divider
- * @param length The length of the divider (width for horizontal, height for vertical)
- * @param modifier The modifier to apply to this composable
+ * @param modifier Modifier to be applied to the divider
+ * @param vertical Whether the divider is vertical (true) or horizontal (false)
  */
-class Divider(
-    val isVertical: Boolean = false,
-    val thickness: String = "1px",
-    val color: String = "#CCCCCC",
-    val length: String = "100%",
-    val modifier: Modifier = Modifier()
-) : Composable {
-    /**
-     * Renders this Divider composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderDivider(this, receiver as TagConsumer<T>)
-        }
-        return receiver
-    }
+@Composable
+fun Divider(
+    modifier: Modifier = Modifier(),
+    vertical: Boolean = false
+) {
+    // Apply default styling that can be overridden by modifier
+    val finalModifier = modifier
+        // Apply vertical styling if needed
+        .let { if (vertical) it.height("100%").width("1px") else it.width("100%").height("1px") }
+    
+    val renderer = getPlatformRenderer()
+    renderer.renderDivider(finalModifier)
 } 

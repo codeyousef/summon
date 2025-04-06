@@ -1,4 +1,4 @@
-package code.yousef.summon
+package code.yousef.summon.core
 
 /**
  * Interface for validating input fields.

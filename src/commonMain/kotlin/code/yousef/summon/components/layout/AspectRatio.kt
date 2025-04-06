@@ -1,35 +1,47 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.core.Composable
-import code.yousef.summon.LayoutComponent
 import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
 
 /**
- * A layout composable that maintains a specific aspect ratio (width-to-height) for its content.
- * AspectRatio is useful for image containers, videos, and other content where
- * maintaining proportions is important.
+ * A layout composable that sizes its content to match a specific aspect ratio.
  *
- * @param content The composable to display inside the AspectRatio container
- * @param ratio The desired aspect ratio (width / height), e.g. 16/9, 4/3, 1.0, etc.
- * @param modifier The modifier to apply to this composable
+ * This is useful for images, videos, or other content where maintaining proportions is important.
+ * Note: The actual aspect ratio enforcement usually relies on CSS techniques (like `aspect-ratio` property or padding trick).
+ *
+ * @param ratio The desired aspect ratio (width / height), e.g., 16f / 9f, 1f.
+ * @param modifier The modifier to apply to this layout.
+ * @param content The composable content to be placed inside the AspectRatio container.
  */
-class AspectRatio(
-    val content: Composable,
-    val ratio: Double,
-    val modifier: Modifier = Modifier()
-) : Composable, LayoutComponent {
-    /**
-     * Renders this AspectRatio composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderAspectRatio(this, receiver as TagConsumer<T>)
-        }
-        return receiver
-    }
+@Composable
+fun AspectRatio(
+    ratio: Float,
+    modifier: Modifier = Modifier(),
+    content: @Composable () -> Unit
+) {
+    // TODO: Apply aspect ratio styling to the modifier
+    // Option 1: Use CSS aspect-ratio property if target browsers support it
+    // Option 2: Use the padding-bottom trick for wider compatibility
+    // This logic might belong in the modifier itself or be handled by the renderer.
+    val finalModifier = modifier
+        // Example using CSS property (might need platform specific handling):
+        // .style("aspect-ratio", ratio.toString())
+        // Example using padding-bottom trick (more complex, might need helper):
+        // .applyAspectRatioPadding(ratio)
+
+    // TODO: Replace PlatformRendererProvider with CompositionLocal access
+    val renderer = PlatformRendererProvider.getRenderer()
+
+    // Call renderer to create the AspectRatio container
+    // The renderer needs the ratio and modifier.
+    renderer.renderAspectRatio(
+        ratio = ratio, 
+        modifier = finalModifier
+    )
+
+    // Execute the content lambda to compose children inside the container
+    // TODO: Ensure composition context places children correctly.
+    content()
 } 

@@ -1,41 +1,26 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.core.Composable
-import code.yousef.summon.LayoutComponent
-import code.yousef.summon.core.PlatformRendererProvider
-import code.yousef.summon.ScrollableComponent
+import code.yousef.summon.core.getPlatformRenderer
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.ComposableDsl
 
 /**
- * A layout composable that positions its children using absolute positioning.
- * Box can be used for stacking elements, overlays, and precise positioning.
- *
- * @param content The composables to display inside the Box
- * @param modifier The modifier to apply to this composable
+ * A layout container that positions its children according to the given modifier.
+ * 
+ * Box allows content to be positioned within it, and stacks its children on top of each other.
+ * 
+ * @param modifier [Modifier] to be applied to the Box layout
+ * @param content The content to display inside the Box
  */
-class Box(
-    val content: List<Composable>,
-    val modifier: Modifier = Modifier()
-) : Composable, LayoutComponent, ScrollableComponent {
-    /**
-     * Convenience constructor to create a Box with a single child.
-     */
-    constructor(
-        content: Composable,
-        modifier: Modifier = Modifier()
-    ) : this(listOf(content), modifier)
-
-    /**
-     * Renders this Box composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderBox(this, receiver as TagConsumer<T>)
-        }
-        return receiver
-    }
+@Composable
+fun Box(
+    modifier: Modifier = Modifier(),
+    content: @Composable () -> Unit
+) {
+    val renderer = getPlatformRenderer()
+    renderer.renderBox(modifier)
+    content()
+    // In a real implementation, there would be a closing method call after content
+    // For now, we assume the underlying renderer tracks the open/close state
 } 

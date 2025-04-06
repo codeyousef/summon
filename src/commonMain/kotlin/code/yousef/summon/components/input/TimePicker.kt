@@ -1,73 +1,48 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.*
-import code.yousef.summon.core.Composable
 import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
+
+// Use placeholder typealias for LocalTime
+// In a real scenario, this should be a proper date/time library type (e.g., kotlinx-datetime)
+typealias LocalTime = Any
 
 /**
- * A composable that displays a time picker.
- * @param state The state that holds the current selected time as a string (format: HH:MM or HH:MM:SS)
- * @param onTimeChange Callback that is invoked when the selected time changes
- * @param label Optional label to display for the time picker
- * @param placeholder Placeholder text to show when no time is selected
- * @param modifier The modifier to apply to this composable
- * @param use24Hour Whether to use 24-hour format (true) or 12-hour format (false)
- * @param showSeconds Whether to display seconds input
- * @param min Minimum selectable time (format: HH:MM or HH:MM:SS)
- * @param max Maximum selectable time (format: HH:MM or HH:MM:SS)
- * @param disabled Whether the time picker is disabled
- * @param validators List of validators to apply to the input
+ * A composable that allows users to select a time.
+ *
+ * @param value The currently selected time, or null if none selected.
+ * @param onValueChange Callback invoked when the user selects a new time.
+ * @param modifier Modifier applied to the time picker layout.
+ * @param enabled Controls the enabled state.
+ * @param label Optional label displayed for the time picker.
+ * // TODO: Add parameters for 12/24 hour format, seconds visibility, min/max time.
  */
-class TimePicker(
-    val state: MutableState<String>,
-    val onTimeChange: (String) -> Unit = {},
-    val label: String? = null,
-    val placeholder: String? = null,
-    val modifier: Modifier = Modifier(),
-    val use24Hour: Boolean = true,
-    val showSeconds: Boolean = false,
-    val min: String? = null,
-    val max: String? = null,
-    val disabled: Boolean = false,
-    val validators: List<Validator> = emptyList()
-) : Composable, InputComponent, FocusableComponent {
-    // Internal state to track validation errors
-    private val validationErrors = mutableStateOf<List<String>>(emptyList())
+@Composable
+fun TimePicker(
+    value: LocalTime?,
+    onValueChange: (LocalTime?) -> Unit,
+    modifier: Modifier = Modifier(),
+    enabled: Boolean = true,
+    label: String? = null
+    // Removed placeholder, use24Hour, showSeconds, min, max, validators
+) {
+    // TODO: Apply styles based on enabled state
+    val finalModifier = modifier
+        .opacity(if (enabled) 1f else 0.6f)
 
-    /**
-     * Renders this TimePicker composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderTimePicker(this, receiver as TagConsumer<T>)
-        }
-        return receiver
-    }
+    // TODO: Replace PlatformRendererProvider with CompositionLocal access
+    val renderer = PlatformRendererProvider.getRenderer()
 
-    /**
-     * Validates the current selected time against all validators.
-     * @return True if validation passed, false otherwise
-     */
-    fun validate(): Boolean {
-        val errors = validators.mapNotNull { validator ->
-            if (!validator.validate(state.value)) validator.errorMessage else null
-        }
-        validationErrors.value = errors
-        return errors.isEmpty()
-    }
+    // TODO: Renderer signature update? Pass enabled state? Format options?
+    // Current renderTimePicker takes value, onValueChange, label, modifier.
+    renderer.renderTimePicker(
+        value = value,
+        onValueChange = { if (enabled) onValueChange(it) }, // Guard callback
+        label = label ?: "", // Pass label, default to empty
+        modifier = finalModifier
+    )
+}
 
-    /**
-     * Gets the current validation errors.
-     */
-    fun getValidationErrors(): List<String> = validationErrors.value
-
-    /**
-     * Indicates whether the field is currently valid.
-     */
-    fun isValid(): Boolean = validationErrors.value.isEmpty()
-} 
+// The old TimePicker class and its methods are removed. 

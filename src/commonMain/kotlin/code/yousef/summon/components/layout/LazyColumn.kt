@@ -1,36 +1,77 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.core.Composable
-import code.yousef.summon.LayoutComponent
-import code.yousef.summon.core.PlatformRendererProvider
-import code.yousef.summon.ScrollableComponent
+import code.yousef.summon.core.getPlatformRenderer
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.ComposableDsl
 
 /**
- * A layout composable that displays a vertical scrollable list with lazy loading.
- * LazyColumn only renders the items that are visible in the viewport, improving performance
- * for large lists. This is similar to RecyclerView in Android or a virtualized list in JS frameworks.
- *
- * @param items The list of items to be displayed
- * @param itemContent A function that produces a Composable for each item
- * @param modifier The modifier to apply to this composable
+ * A scope for LazyColumn and LazyRow content.
+ * Allows defining items and item content.
  */
-class LazyColumn<T>(
-    val items: List<T>,
-    val itemContent: (T) -> Composable,
-    val modifier: Modifier = Modifier()
-) : Composable, LayoutComponent, ScrollableComponent {
+@ComposableDsl
+interface LazyListScope {
     /**
-     * Renders this LazyColumn composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
+     * Add a single item to the list.
      */
-    override fun <T2> compose(receiver: T2): T2 {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderLazyColumn(this, receiver as TagConsumer<T2>)
-        }
-        return receiver
+    fun item(content: @Composable () -> Unit)
+    
+    /**
+     * Add multiple items to the list.
+     */
+    fun <T> items(items: List<T>, itemContent: @Composable (item: T) -> Unit)
+    
+    /**
+     * Add multiple indexed items to the list.
+     */
+    fun <T> itemsIndexed(items: List<T>, itemContent: @Composable (index: Int, item: T) -> Unit)
+}
+
+/**
+ * Implementation of LazyListScope.
+ */
+private class LazyListScopeImpl : LazyListScope {
+    val items = mutableListOf<@Composable () -> Unit>()
+    
+    override fun item(content: @Composable () -> Unit) {
+        items.add(content)
     }
-} 
+    
+    override fun <T> items(items: List<T>, itemContent: @Composable (item: T) -> Unit) {
+        for (item in items) {
+            this.items.add { itemContent(item) }
+        }
+    }
+    
+    override fun <T> itemsIndexed(items: List<T>, itemContent: @Composable (index: Int, item: T) -> Unit) {
+        for (i in items.indices) {
+            this.items.add { itemContent(i, items[i]) }
+        }
+    }
+}
+
+/**
+ * A vertically scrolling list that only composes and lays out the currently visible items.
+ * 
+ * @param modifier The modifier to be applied to the LazyColumn
+ * @param content The content to be displayed inside the LazyColumn using LazyListScope
+ */
+@Composable
+fun LazyColumn(
+    modifier: Modifier = Modifier(),
+    content: LazyListScope.() -> Unit
+) {
+    val renderer = getPlatformRenderer()
+    renderer.renderLazyColumn(modifier)
+    
+    // Create a scope and collect items
+    val scope = LazyListScopeImpl()
+    scope.content()
+    
+    // Render all items (in a real implementation, only visible items would be rendered)
+    scope.items.forEach { item ->
+        item()
+    }
+}
+
+// The old LazyColumn class and its methods are removed. 

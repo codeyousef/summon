@@ -1,75 +1,11 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.*
-import code.yousef.summon.core.Composable
 import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
-
-/**
- * A composable that displays a dropdown select field.
- * @param selectedValue The state that holds the current selected value
- * @param options The list of options to display in the dropdown
- * @param onSelectedChange Callback that is invoked when selection changes
- * @param label Optional label to display for the select
- * @param placeholder Placeholder text to show when no option is selected
- * @param modifier The modifier to apply to this composable
- * @param multiple Whether multiple selections are allowed
- * @param disabled Whether the select is disabled
- * @param size Number of visible options when dropdown is open
- * @param validators List of validators to apply to the input
- */
-class Select<T>(
-    val selectedValue: MutableState<T?>,
-    val options: List<SelectOption<T>>,
-    val onSelectedChange: (T?) -> Unit = {},
-    val label: String? = null,
-    val placeholder: String? = null,
-    val modifier: Modifier = Modifier(),
-    val multiple: Boolean = false,
-    val disabled: Boolean = false,
-    val size: Int = 1,
-    val validators: List<Validator> = emptyList()
-) : Composable, InputComponent, FocusableComponent {
-    // Internal state to track validation errors
-    private val validationErrors = mutableStateOf<List<String>>(emptyList())
-
-    /**
-     * Renders this Select composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderSelect(this as Select<Any>, receiver as TagConsumer<T>)
-        }
-        return receiver
-    }
-
-    /**
-     * Validates the current input value against all validators.
-     * @return True if validation passed, false otherwise
-     */
-    fun validate(): Boolean {
-        val errors = validators.mapNotNull { validator ->
-            val valueToValidate = selectedValue.value?.toString() ?: ""
-            if (!validator.validate(valueToValidate)) validator.errorMessage else null
-        }
-        validationErrors.value = errors
-        return errors.isEmpty()
-    }
-
-    /**
-     * Gets the current validation errors.
-     */
-    fun getValidationErrors(): List<String> = validationErrors.value
-
-    /**
-     * Indicates whether the field is currently valid.
-     */
-    fun isValid(): Boolean = validationErrors.value.isEmpty()
-}
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.modifier.applyIf
+import code.yousef.summon.modifier.pointerEvents
 
 /**
  * Data class representing a select option.
@@ -77,6 +13,49 @@ class Select<T>(
 data class SelectOption<T>(
     val value: T,
     val label: String,
-    val disabled: Boolean = false,
-    val selected: Boolean = false
-) 
+    val disabled: Boolean = false
+)
+
+/**
+ * A composable that displays a dropdown select field (single selection).
+ *
+ * @param T The type of the value.
+ * @param value The currently selected value.
+ * @param onValueChange Callback invoked when the selection changes.
+ * @param options The list of `SelectOption` items to display in the dropdown.
+ * @param modifier Modifier applied to the select container.
+ * @param enabled Controls the enabled state.
+ * @param placeholder Optional composable lambda for displaying a placeholder when no value is selected (value is null).
+ *                    Note: Placeholder rendering might need specific renderer support.
+ * @param label Optional composable lambda for a label associated with the select (consider using FormField).
+ */
+@Composable
+fun <T> Select(
+    value: T?,
+    onValueChange: (T?) -> Unit,
+    options: List<SelectOption<T>>,
+    modifier: Modifier = Modifier(),
+    enabled: Boolean = true,
+    placeholder: @Composable (() -> Unit)? = null,
+    label: @Composable (() -> Unit)? = null
+) {
+    val finalModifier = modifier
+        .opacity(if (enabled) 1f else 0.6f)
+        .cursor(if (enabled) "pointer" else "default")
+        .applyIf(!enabled) { pointerEvents("none") }
+
+    val renderer = PlatformRendererProvider.getRenderer()
+
+    val selectedOpt = options.find { it.value == value }
+    renderer.renderSelect(
+        selectedOption = selectedOpt,
+        options = options,
+        onOptionSelected = { selectedOption ->
+            if (enabled) {
+                onValueChange(selectedOption?.value)
+            }
+        },
+        label = "",
+        modifier = finalModifier
+    )
+} 

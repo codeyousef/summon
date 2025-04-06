@@ -1,30 +1,64 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.core.Composable
-import code.yousef.summon.LayoutComponent
-import code.yousef.summon.core.PlatformRendererProvider
+import code.yousef.summon.core.getPlatformRenderer
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.ComposableDsl
+
+/**
+ * A scope for `Row` composable's content lambda.
+ * Provides modifiers specific to items within a Row, like `align`.
+ */
+@ComposableDsl
+interface RowScope {
+    /**
+     * Modifier function to align an element vertically within the Row.
+     * TODO: Implement actual alignment logic (e.g., adding appropriate CSS classes or styles).
+     *
+     * @param alignment The vertical alignment (e.g., Top, CenterVertically, Bottom).
+     */
+    fun Modifier.align(alignment: Alignment.Vertical): Modifier
+    // TODO: Add other RowScope specific modifiers like weight?
+}
+
+// Internal implementation of RowScope
+internal object RowScopeInstance : RowScope {
+    override fun Modifier.align(alignment: Alignment.Vertical): Modifier {
+        // Placeholder: Return unchanged modifier.
+        // Actual implementation would add alignment styles (e.g., align-self)
+        println("RowScope.align called with $alignment - Placeholder")
+        return this
+    }
+}
 
 /**
  * A layout composable that places its children in a horizontal sequence.
- * @param content The composables to display inside the row
- * @param modifier The modifier to apply to this composable
+ * 
+ * Row is a fundamental layout component used for horizontal arrangements of UI elements.
+ * 
+ * @param modifier [Modifier] to be applied to the Row layout
+ * @param content The content to display inside the Row
  */
-class Row(
-    val content: List<Composable>,
-    val modifier: Modifier = Modifier()
-) : Composable, LayoutComponent {
-    /**
-     * Renders this Row composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderRow(this, receiver as TagConsumer<T>)
-        }
-        return receiver
-    }
+@Composable
+fun Row(
+    modifier: Modifier = Modifier(),
+    content: @Composable () -> Unit
+) {
+    val renderer = getPlatformRenderer()
+    renderer.renderRow(modifier)
+    content()
+    // In a real implementation, there would be a closing method call after content
+    // For now, we assume the underlying renderer tracks the open/close state
+}
+
+// TODO: Define Alignment and Arrangement enums/objects if they don't exist
+// Placeholder definitions:
+object Alignment {
+    enum class Vertical { Top, CenterVertically, Bottom }
+    enum class Horizontal { Start, CenterHorizontally, End }
+}
+
+object Arrangement {
+    enum class Horizontal { Start, End, Center, SpaceBetween, SpaceAround, SpaceEvenly }
+    enum class Vertical { Top, Bottom, Center, SpaceBetween, SpaceAround, SpaceEvenly }
 } 

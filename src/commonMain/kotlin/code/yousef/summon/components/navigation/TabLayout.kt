@@ -1,51 +1,65 @@
 package code.yousef.summon.components.navigation
 
-import code.yousef.summon.core.Composable
-import code.yousef.summon.LayoutComponent
 import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
 
 /**
  * Represents a single tab in a TabLayout.
  *
- * @param title The title text to display in the tab
- * @param content The content to display when this tab is selected
- * @param icon Optional icon to display alongside the title
- * @param isClosable Whether this tab can be closed by the user
+ * @param title The title text to display in the tab.
+ * @param icon Optional composable lambda for an icon displayed alongside the title.
+ * @param isClosable Whether this tab can be closed by the user (TODO: Needs renderer/state support).
+ * @param content The composable lambda defining the content to display when this tab is selected.
  */
 data class Tab(
     val title: String,
-    val content: Composable,
-    val icon: Composable? = null,
-    val isClosable: Boolean = false
+    val icon: (@Composable () -> Unit)? = null,
+    val isClosable: Boolean = false, // TODO: Handle closable tabs
+    val content: @Composable () -> Unit
 )
 
 /**
  * A layout composable that displays a tabbed interface.
- * TabLayout allows organizing content into separate tabs that can be selected by the user.
+ * Organizes content into selectable tabs.
  *
- * @param tabs The list of tabs to display
- * @param selectedTabIndex The index of the currently selected tab
- * @param onTabSelected Callback function that is invoked when a tab is selected
- * @param modifier The modifier to apply to this composable
+ * @param tabs The list of `Tab` data objects defining the tabs.
+ * @param selectedTabIndex The index of the currently selected tab.
+ * @param onTabSelected Callback invoked when a tab is selected by the user.
+ * @param modifier Modifier applied to the TabLayout container.
  */
-class TabLayout(
-    val tabs: List<Tab>,
-    val selectedTabIndex: Int = 0,
-    val onTabSelected: ((Int) -> Unit)? = null,
-    val modifier: Modifier = Modifier()
-) : Composable, LayoutComponent {
-    /**
-     * Renders this TabLayout composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderTabLayout(this, receiver as TagConsumer<T>)
-        }
-        return receiver
+@Composable
+fun TabLayout(
+    tabs: List<Tab>,
+    selectedTabIndex: Int,
+    onTabSelected: (Int) -> Unit,
+    modifier: Modifier = Modifier()
+) {
+    // TODO: Validate selectedTabIndex?
+    if (tabs.isEmpty()) return // Don't render if no tabs
+    val validSelectedIndex = selectedTabIndex.coerceIn(tabs.indices)
+
+    // TODO: Replace PlatformRendererProvider with CompositionLocal access
+    val renderer = PlatformRendererProvider.getRenderer()
+
+    // TODO: Update renderer signature or adapt data passed.
+    // The renderer likely needs info from `tabs` (titles, icons?) to build the tab bar.
+    // It should handle clicks on tabs and call `onTabSelected`.
+    // We pass the current index and the callback.
+    renderer.renderTabLayout(
+        tabs = tabs, // Assuming renderer can handle List<Tab> or needs adaptation
+        selectedTabIndex = validSelectedIndex,
+        onTabSelected = onTabSelected,
+        modifier = modifier
+    )
+
+    // --- Content Composition --- 
+    // Compose the content of the *selected* tab. 
+    // This happens within the context potentially set up by the renderer.
+    // TODO: Ensure composition context places this content correctly.
+    if (validSelectedIndex in tabs.indices) {
+        tabs[validSelectedIndex].content()
     }
+    // --- End Content Composition ---
 } 

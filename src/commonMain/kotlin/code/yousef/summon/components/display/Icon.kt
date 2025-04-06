@@ -1,10 +1,9 @@
 package code.yousef.summon.components.display
 
-import code.yousef.summon.MediaComponent
-import code.yousef.summon.core.Composable
 import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
 
 /**
  * Icon type to distinguish between different icon sources
@@ -16,166 +15,162 @@ enum class IconType {
 }
 
 /**
- * Icon component for displaying vector icons or icon fonts.
+ * Displays an Icon.
+ * Delegates rendering to the platform-specific renderer.
  *
- * @param name The name or identifier of the icon
- * @param size The size of the icon in pixels
- * @param modifier The modifier to apply to this composable
- * @param color Optional color override for the icon
- * @param type The type of icon (SVG, FONT, or IMAGE)
- * @param fontFamily The font family for font icons
- * @param ariaLabel Accessible label for screen readers
- * @param svgContent The raw SVG content for SVG icons
- * @param onClick Optional callback to be invoked when the icon is clicked
+ * @param name The name or identifier of the icon (used for font icons or accessibility).
+ * @param modifier Modifier for applying styling and layout properties.
+ * @param size The size of the icon (e.g., "24px"). Should ideally be controlled via modifier.
+ * @param color Optional color override for the icon. Should ideally be controlled via modifier.
+ * @param type The type of icon (SVG, FONT, or IMAGE). Determines rendering strategy.
+ * @param fontFamily The font family for font icons. Should ideally be controlled via modifier.
+ * @param ariaLabel Accessible label for screen readers. Should ideally be controlled via modifier.
+ * @param svgContent The raw SVG content for SVG icons.
+ * @param onClick Optional callback to be invoked when the icon is clicked (Requires JS handling).
  */
-class Icon(
-    val name: String,
-    val size: String = "24px",
-    val modifier: Modifier = Modifier(),
-    val color: String? = null,
-    val type: IconType = IconType.SVG,
-    val fontFamily: String? = null,
-    val ariaLabel: String? = null,
-    val svgContent: String? = null,
-    val onClick: (() -> Unit)? = null
-) : Composable, MediaComponent {
+@Composable
+fun Icon(
+    name: String, // Used for font-icon class/ligature or aria-label
+    modifier: Modifier = Modifier(),
+    size: String? = null, // Prefer setting size via modifier.width/height
+    color: String? = null, // Prefer setting color via modifier.color
+    // --- Parameters influencing rendering strategy ---
+    type: IconType = IconType.SVG, // Might not be needed if rendering is unified
+    fontFamily: String? = null, // Prefer setting via modifier.fontFamily
+    svgContent: String? = null, // For inline SVG rendering
+    // --- Accessibility & Interaction ---
+    ariaLabel: String? = null, // Prefer setting via modifier.accessibility
+    onClick: (() -> Unit)? = null // JS only for now
+) {
+    // Combine explicit parameters into the modifier if provided
+    // This provides backward compatibility but encourages using Modifier directly
+    var finalModifier = modifier
+    size?.let { finalModifier = finalModifier.size(it) }
+    color?.let { finalModifier = finalModifier.color(it) }
+    fontFamily?.let { finalModifier = finalModifier.fontFamily(it) }
+    // TODO: Handle accessibility attributes via Modifier extension
+    // ariaLabel?.let { finalModifier = finalModifier.accessibilityLabel(it) }
+    
+    // TODO: Handle onClick via Modifier extension (e.g., modifier.clickable { onClick?.invoke() })
+    
+    // TODO: The renderer needs to handle different icon types (SVG, Font) based on parameters/modifier
+    // For now, just pass the name and modifier.
+    // svgContent might need to be handled differently (e.g., specific renderer method or passed via modifier attribute)
+    
+    val renderer = PlatformRendererProvider.getRenderer()
+    
+    // TODO: Adapt renderer call based on type/svgContent if necessary
+    renderer.renderIcon(
+        name = name, // Pass name for font icons or ARIA label fallback
+        modifier = finalModifier 
+        // Other parameters like svgContent might be needed here or handled internally by renderer based on modifier
+    )
+}
 
-    /**
-     * Renders this Icon composable using the platform-specific renderer.
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderIcon(this, receiver as TagConsumer<T>)
-        }
-        return receiver
+
+// --- Predefined Icons and Helper Functions (Adapted to call the Composable) ---
+
+object IconDefaults {
+    // Size presets
+    object Size {
+        const val SMALL = "16px"
+        const val MEDIUM = "24px"
+        const val LARGE = "32px"
     }
 
-    /**
-     * Gets additional icon-specific styles that should be applied
-     * beyond what is in the modifier.
-     */
-    internal fun getAdditionalStyles(): Map<String, String> {
-        val styles = mutableMapOf<String, String>()
+    // Common icons - Now call the @Composable function
+    @Composable
+    fun Add(modifier: Modifier = Modifier()) = Icon("add", modifier)
+    @Composable
+    fun Delete(modifier: Modifier = Modifier()) = Icon("delete", modifier)
+    @Composable
+    fun Edit(modifier: Modifier = Modifier()) = Icon("edit", modifier)
+    @Composable
+    fun Download(modifier: Modifier = Modifier()) = Icon("download", modifier)
+    @Composable
+    fun Upload(modifier: Modifier = Modifier()) = Icon("upload", modifier)
 
-        // Add size to styles
-        styles["width"] = size
-        styles["height"] = size
-
-        // Add color to styles
-        color?.let { styles["color"] = it }
-
-        return styles
-    }
-
-    /**
-     * Gets accessibility attributes for the icon.
-     */
-    internal fun getAccessibilityAttributes(): Map<String, String> {
-        val attributes = mutableMapOf<String, String>()
-
-        // If no aria-label is provided, make the icon presentational
-        if (name.endsWith("-icon", true)) {
-            attributes["aria-hidden"] = "true"
-            attributes["role"] = "presentation"
-        } else {
-            attributes["aria-label"] = name
-        }
-
-        return attributes
-    }
-
-    companion object {
-        // Size presets
-        object Size {
-            const val SMALL = "16px"
-            const val MEDIUM = "24px"
-            const val LARGE = "32px"
-            const val CUSTOM_24 = "24px"
-        }
-
-        // Common icons
-        val Add = Icon("add")
-        val Delete = Icon("delete")
-        val Edit = Icon("edit")
-        val Download = Icon("download")
-        val Upload = Icon("upload")
-    }
+    // Add common status icons (using Material Icon names as examples)
+    @Composable
+    fun Info(modifier: Modifier = Modifier()) = MaterialIcon("info", modifier)
+    @Composable
+    fun CheckCircle(modifier: Modifier = Modifier()) = MaterialIcon("check_circle", modifier)
+    @Composable
+    fun Warning(modifier: Modifier = Modifier()) = MaterialIcon("warning", modifier)
+    @Composable
+    fun Error(modifier: Modifier = Modifier()) = MaterialIcon("error", modifier)
+    @Composable
+    fun Close(modifier: Modifier = Modifier()) = MaterialIcon("close", modifier) // Useful for dismiss
 }
 
 /**
  * Creates a Material Design icon using font.
- * @param name The name of the Material Design icon
- * @param size The size of the icon (e.g., "24px")
- * @param color The color of the icon (e.g., "#000000")
- * @param modifier The modifier to apply to this composable
- * @param onClick Optional callback to be invoked when the icon is clicked
+ * Note: Requires the Material Icons font family to be loaded.
  */
-fun materialIcon(
+@Composable
+fun MaterialIcon(
     name: String,
-    size: String = "24px",
-    color: String = "currentColor",
     modifier: Modifier = Modifier(),
+    size: String = IconDefaults.Size.MEDIUM,
+    color: String? = null, // Default color is usually inherited
     onClick: (() -> Unit)? = null
-): Icon = Icon(
-    name = name,
-    modifier = modifier,
-    type = IconType.FONT,
-    size = size,
-    color = color,
-    fontFamily = "Material Icons",
-    ariaLabel = null,
-    onClick = onClick
-)
+) {
+    Icon(
+        name = name, // Material Icons use ligatures
+        modifier = modifier,
+        size = size,
+        color = color,
+        type = IconType.FONT,
+        fontFamily = "Material Icons", // Specify font family
+        onClick = onClick
+    )
+}
 
 /**
  * Creates a Font Awesome icon.
- * @param name The name of the Font Awesome icon (e.g., "fa-home")
- * @param size The size of the icon (e.g., "24px")
- * @param color The color of the icon (e.g., "#000000")
- * @param modifier The modifier to apply to this composable
- * @param onClick Optional callback to be invoked when the icon is clicked
+ * Note: Requires the Font Awesome font family to be loaded.
  */
-fun fontAwesomeIcon(
-    name: String,
-    size: String = "24px",
-    color: String = "currentColor",
+@Composable
+fun FontAwesomeIcon(
+    name: String, // e.g., "fas fa-home" or just "home" depending on setup
     modifier: Modifier = Modifier(),
+    size: String = IconDefaults.Size.MEDIUM,
+    color: String? = null,
+    fontFamily: String = "Font Awesome 5 Free", // Adjust as needed
     onClick: (() -> Unit)? = null
-): Icon = Icon(
-    name = name,
-    modifier = modifier,
-    type = IconType.FONT,
-    size = size,
-    color = color,
-    fontFamily = "Font Awesome 5 Free",
-    ariaLabel = null,
-    onClick = onClick
-)
+) {
+    Icon(
+        name = name, // Used for CSS class typically
+        modifier = modifier,
+        size = size,
+        color = color,
+        type = IconType.FONT,
+        fontFamily = fontFamily,
+        onClick = onClick
+    )
+}
 
 /**
  * Creates an SVG icon from raw SVG content.
- * @param svgContent The raw SVG content as a string
- * @param size The size of the icon (e.g., "24px")
- * @param color The color to apply to the SVG (will be inserted as a fill attribute)
- * @param ariaLabel Accessible label for screen readers
- * @param modifier The modifier to apply to this composable
- * @param onClick Optional callback to be invoked when the icon is clicked
+ * Note: `renderIcon` needs to support handling raw SVG content.
  */
-fun svgIcon(
+@Composable
+fun SvgIcon(
     svgContent: String,
-    size: String = "24px",
-    color: String = "currentColor",
-    ariaLabel: String? = null,
     modifier: Modifier = Modifier(),
+    size: String = IconDefaults.Size.MEDIUM,
+    color: String? = null, // Renderer needs to apply this to the SVG
+    ariaLabel: String? = null,
     onClick: (() -> Unit)? = null
-): Icon = Icon(
-    name = "svg-icon",
-    modifier = modifier,
-    type = IconType.SVG,
-    size = size,
-    color = color,
-    svgContent = svgContent,
-    ariaLabel = ariaLabel,
-    onClick = onClick
-) 
+) {
+    Icon(
+        name = ariaLabel ?: "svg-icon", // Use label for name fallback
+        modifier = modifier,
+        size = size,
+        color = color,
+        type = IconType.SVG,
+        svgContent = svgContent, // Pass SVG content
+        ariaLabel = ariaLabel,
+        onClick = onClick
+    )
+} 

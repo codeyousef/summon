@@ -3,7 +3,7 @@ package code.yousef.summon
 import code.yousef.summon.components.display.Image
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.input.Button
-import code.yousef.summon.core.Composable
+
 
 /**
  * Test helpers for common code to be used in both JVM and JS tests.

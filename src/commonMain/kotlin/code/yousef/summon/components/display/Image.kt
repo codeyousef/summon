@@ -1,39 +1,8 @@
 package code.yousef.summon.components.display
 
-import code.yousef.summon.MediaComponent
-import code.yousef.summon.core.Composable
-import code.yousef.summon.core.PlatformRendererProvider
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.core.getPlatformRenderer
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
-
-/**
- * A composable that displays an image with support for accessibility attributes.
- *
- * @param src The URL of the image.
- * @param alt Alternative text for the image for accessibility and SEO purposes.
- * @param modifier The modifier to be applied to the image.
- * @param contentDescription Optional detailed description of the image content.
- * @param loading Specifies how the browser should load the image ("lazy", "eager", or "auto").
- * @param width Optional width of the image.
- * @param height Optional height of the image.
- */
-data class Image(
-    val src: String,
-    val alt: String,
-    val modifier: Modifier = Modifier(),
-    val contentDescription: String? = null,
-    val loading: ImageLoading = ImageLoading.LAZY,
-    val width: String? = null,
-    val height: String? = null
-) : Composable, MediaComponent {
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderImage(this, receiver as TagConsumer<T>)
-        }
-        return receiver
-    }
-}
 
 /**
  * Enum representing different image loading strategies.
@@ -42,4 +11,23 @@ enum class ImageLoading(val value: String) {
     LAZY("lazy"),
     EAGER("eager"),
     AUTO("auto")
+}
+
+/**
+ * A composable that displays an image.
+ *
+ * @param src The URL or path of the image source.
+ * @param alt Alternative text description for accessibility and SEO.
+ * @param modifier Modifier applied to the image element. Use this to control size, shape, borders, etc.
+ * @param contentDescription Optional longer description for accessibility (might map to aria-describedby).
+ * @param loading Loading strategy ("lazy", "eager", "auto"). TODO: Handle via modifier/attribute.
+ */
+@Composable
+fun Image(
+    src: String,
+    alt: String,
+    modifier: Modifier = Modifier()
+) {
+    val renderer = getPlatformRenderer()
+    renderer.renderImage(src, alt, modifier)
 } 

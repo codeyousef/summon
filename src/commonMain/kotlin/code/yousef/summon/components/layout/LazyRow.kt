@@ -1,36 +1,41 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.core.Composable
-import code.yousef.summon.LayoutComponent
 import code.yousef.summon.core.PlatformRendererProvider
-import code.yousef.summon.ScrollableComponent
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.ComposableDsl
 
 /**
- * A layout composable that displays a horizontal scrollable list with lazy loading.
- * LazyRow only renders the items that are visible in the viewport, improving performance
- * for large lists. This is similar to RecyclerView in Android or a virtualized list in JS frameworks.
+ * A layout composable that displays a horizontally scrolling list.
+ * It only composes and lays out the currently visible items.
  *
- * @param items The list of items to be displayed
- * @param itemContent A function that produces a Composable for each item
- * @param modifier The modifier to apply to this composable
+ * @param modifier The modifier to apply to this layout.
+ * @param state The state object to manage scroll position.
+ * @param contentPadding Padding around the content area.
+ * @param reverseLayout Reverse the direction of scrolling and layout.
+ * @param horizontalArrangement Horizontal arrangement of items when content width is smaller than the Row.
+ * @param verticalAlignment Vertical alignment of items within the LazyRow.
+ * @param content The lambda block defining the content of the list using `LazyListScope`.
  */
-class LazyRow<T>(
-    val items: List<T>,
-    val itemContent: (T) -> Composable,
-    val modifier: Modifier = Modifier()
-) : Composable, LayoutComponent, ScrollableComponent {
-    /**
-     * Renders this LazyRow composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T2> compose(receiver: T2): T2 {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderLazyRow(this, receiver as TagConsumer<T2>)
-        }
-        return receiver
+@Composable
+fun LazyRow(
+    modifier: Modifier = Modifier(),
+    content: LazyListScope.() -> Unit
+) {
+    val finalModifier = modifier
+        .style("overflow-x", "auto") // Basic horizontal scrolling
+        .style("display", "flex")    // Needed for row arrangement
+        .style("flex-direction", "row")
+
+    val renderer = PlatformRendererProvider.getRenderer()
+
+    renderer.renderLazyRow(modifier = finalModifier)
+
+    val scope = LazyListScopeImpl()
+    scope.content()
+
+    scope.itemsContent.forEach { itemContent ->
+        LazyItemScopeInstance.itemContent()
     }
 } 

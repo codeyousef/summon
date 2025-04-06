@@ -1,70 +1,44 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.core.Composable
-import code.yousef.summon.LayoutComponent
 import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
 
 /**
- * A composable that represents an HTML form.
- * It manages form state, validation, and submission.
+ * A composable that represents a semantic form container.
+ * It provides the structure (e.g., `<form>` tag) and handles the submit action trigger.
+ * Form state (input values) and validation logic should be managed externally (hoisted state).
  *
- * @param content The form content containing input fields and submit buttons
- * @param onSubmit Callback that is invoked when the form is submitted
- * @param modifier The modifier to apply to this composable
+ * @param onSubmit Lambda invoked when the form submission is triggered (e.g., by a submit button or Enter key).
+ *                 The lambda should contain the logic for reading hoisted state, validation, and data submission.
+ * @param modifier Modifier applied to the form container.
+ * @param content The composable content of the form (e.g., TextFields, Buttons).
  */
-class Form(
-    val content: List<Composable>,
-    val onSubmit: (Map<String, String>) -> Unit = {},
-    val modifier: Modifier = Modifier()
-) : Composable, LayoutComponent {
-    private val formFields = mutableListOf<TextField>()
+@Composable
+fun Form(
+    onSubmit: () -> Unit,
+    modifier: Modifier = Modifier(),
+    content: @Composable () -> Unit
+) {
+    // TODO: Replace PlatformRendererProvider with CompositionLocal access
+    val renderer = PlatformRendererProvider.getRenderer()
 
-    /**
-     * Registers a TextField with this form.
-     * This allows the form to track all input fields for validation and submission.
-     */
-    fun registerField(field: TextField) {
-        formFields.add(field)
-    }
+    // TODO: Renderer signature update required.
+    // The renderer needs to create the <form> element and associate the onSubmit lambda
+    // with the form's submit event (e.g., onsubmit="...").
+    // It likely needs to prevent the default browser form submission.
+    renderer.renderForm(
+        onSubmit = onSubmit,
+        modifier = modifier
+    )
 
-    /**
-     * Validates all form fields.
-     * @return True if all fields are valid, false otherwise
-     */
-    fun validate(): Boolean {
-        return formFields.all { it.validate() }
-    }
+    // --- Content Rendering --- 
+    // Execute the content lambda to compose the form fields and buttons
+    // inside the structure created by the renderer.
+    // TODO: Ensure composition context places content correctly within the form.
+    content()
+}
 
-    /**
-     * Submits the form if validation passes.
-     * @return True if form was submitted, false if validation failed
-     */
-    fun submit(): Boolean {
-        if (validate()) {
-            // Collect all form values
-            val formData = formFields.associate<TextField, String, String> { field ->
-                (field.label ?: field.hashCode().toString()) to field.state.value
-            }
-
-            // Call the onSubmit callback
-            onSubmit(formData)
-            return true
-        }
-        return false
-    }
-
-    /**
-     * Renders this Form composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderForm(this, receiver as TagConsumer<T>)
-        }
-        return receiver
-    }
-} 
+// The old Form class and its methods (registerField, validate, submit) are removed.
+// State management and validation should be handled by the caller using hoisted state. 

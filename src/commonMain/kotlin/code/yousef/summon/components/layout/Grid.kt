@@ -1,41 +1,46 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.core.Composable
-import code.yousef.summon.LayoutComponent
 import code.yousef.summon.core.PlatformRendererProvider
-import code.yousef.summon.ScrollableComponent
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
 
 /**
  * A layout composable that arranges its children in a grid using CSS Grid.
  * Grid provides a powerful way to create responsive two-dimensional layouts.
  *
- * @param content The composables to display inside the grid
- * @param columns The number of columns or a template string (e.g. "1fr 2fr 1fr" or "repeat(3, 1fr)")
- * @param rows The number of rows or a template string (e.g. "auto 1fr auto" or "repeat(2, minmax(100px, auto))")
- * @param gap The gap between grid items (e.g. "10px" or "10px 20px" for row/column gaps)
- * @param areas Optional grid template areas definition
- * @param modifier The modifier to apply to this composable
+ * @param modifier The modifier to apply to this layout.
+ * @param columns The number of columns for a simple grid (e.g., 3 for three equal columns).
+ *                For more complex layouts, apply grid template properties directly via the modifier.
+ *                TODO: Enhance this parameter or rely solely on modifier for complex cases.
+ * @param content The composable content to be placed inside the Grid.
  */
-class Grid(
-    val content: List<Composable>,
-    val columns: String,
-    val rows: String = "auto",
-    val gap: String = "0",
-    val areas: String? = null,
-    val modifier: Modifier = Modifier()
-) : Composable, LayoutComponent, ScrollableComponent {
-    /**
-     * Renders this Grid composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderGrid(this, receiver as TagConsumer<T>)
-        }
-        return receiver
-    }
+@Composable
+fun Grid(
+    modifier: Modifier = Modifier(),
+    // Simple column count for basic grids. Complex templates via modifier.
+    columns: Int, 
+    // TODO: Add parameters for rows, gap, areas? Or push to modifier?
+    // For simplicity, only columns is kept as a direct param for now.
+    content: @Composable () -> Unit
+) {
+    // TODO: Apply grid-specific styles (like grid-template-columns based on 'columns' param) to the modifier
+    val finalModifier = modifier
+        // .style("display", "grid") // Renderer should handle this
+        // .style("grid-template-columns", "repeat($columns, 1fr)") // Renderer might handle this based on param
+        // .style("gap", "...") // Example: Add gap handling
+
+    // TODO: Replace PlatformRendererProvider with CompositionLocal access
+    val renderer = PlatformRendererProvider.getRenderer()
+
+    // Call renderer to create the Grid container (e.g., a div with display: grid)
+    // Pass the column count and modifier. Renderer should set appropriate CSS.
+    renderer.renderGrid(
+        columns = columns, 
+        modifier = finalModifier
+    )
+
+    // Execute the content lambda to compose children inside the Grid
+    // TODO: Ensure composition context places children correctly within the rendered Grid
+    content()
 } 

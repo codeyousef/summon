@@ -1,36 +1,38 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.*
-import code.yousef.summon.core.Composable
-import code.yousef.summon.core.PlatformRendererProvider
+import code.yousef.summon.core.getPlatformRenderer
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.modifier.applyIf
+import code.yousef.summon.modifier.pointerEvents
 
 /**
  * A composable that displays a toggle switch control.
- * @param state The state that holds the current value of the switch
- * @param onValueChange Callback that is invoked when the switch value changes
- * @param label Optional label to display for the switch
- * @param modifier The modifier to apply to this composable
- * @param disabled Whether the switch is disabled
+ * Switches allow users to toggle a setting on or off.
+ *
+ * @param checked Whether the switch is currently in the 'on' state.
+ * @param onCheckedChange Callback invoked when the checked state changes due to user interaction.
+ * @param modifier Modifier applied to the switch layout (often includes label).
+ * @param enabled Controls the enabled state. When `false`, interaction is disabled.
  */
-class Switch(
-    val state: MutableState<Boolean>,
-    val onValueChange: (Boolean) -> Unit = {},
-    val label: String? = null,
-    val modifier: Modifier = Modifier(),
-    val disabled: Boolean = false
-) : Composable, InputComponent, FocusableComponent {
-    /**
-     * Renders this Switch composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderSwitch(this, receiver as TagConsumer<T>)
-        }
-        return receiver
-    }
+@Composable
+fun Switch(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier(),
+    enabled: Boolean = true
+) {
+    val finalModifier = modifier
+        .opacity(if (enabled) 1f else 0.6f)
+        .cursor(if (enabled) "pointer" else "default")
+        .applyIf(!enabled) { pointerEvents("none") }
+
+    val renderer = getPlatformRenderer()
+
+    renderer.renderSwitch(
+        checked = checked,
+        onCheckedChange = { if (enabled) onCheckedChange(it) },
+        modifier = finalModifier
+    )
 } 

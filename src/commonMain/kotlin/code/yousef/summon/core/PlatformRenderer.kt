@@ -1,216 +1,203 @@
 package code.yousef.summon.core
 
-import code.yousef.summon.Spacer
-import code.yousef.summon.animation.AnimatedContent
-import code.yousef.summon.animation.AnimatedVisibility
-import code.yousef.summon.components.display.Icon
-import code.yousef.summon.components.display.Image
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.feedback.Alert
-import code.yousef.summon.components.feedback.Badge
-import code.yousef.summon.components.feedback.Progress
-import code.yousef.summon.components.feedback.Tooltip
-import code.yousef.summon.components.input.*
-import code.yousef.summon.components.layout.*
-import code.yousef.summon.components.navigation.Link
-import code.yousef.summon.components.navigation.TabLayout
-import code.yousef.summon.routing.Router
-import kotlinx.html.TagConsumer
+import code.yousef.summon.modifier.Modifier
+import kotlin.ranges.ClosedFloatingPointRange
+
+// --- Import actual component data types ---
+import code.yousef.summon.components.input.TextFieldType
+import code.yousef.summon.components.input.SelectOption
+import code.yousef.summon.components.input.FileInfo // Renamed? Assumed path
+import code.yousef.summon.components.feedback.ProgressType
+import code.yousef.summon.components.navigation.Tab // Assumed path
+import code.yousef.summon.components.feedback.AlertVariant // Add import
+
+// --- TODO: Replace temporary typealiases ---
+// These should eventually point to platform-specific or common date/time library types
+typealias LocalDate = Any // Placeholder - e.g., kotlinx.datetime.LocalDate
+typealias LocalTime = Any // Placeholder - e.g., kotlinx.datetime.LocalTime
 
 /**
- * Platform-specific renderer interface that serves as a common abstraction
- * for rendering UI components across platforms.
- *
- * Following section 8 of the guide: "Exploring Common Intermediate Representations or Abstraction Layers"
+ * Platform-specific renderer interface.
+ * Updated signatures to match refactored @Composable functions.
+ * Renderers are generally responsible for creating the root element and applying modifiers/attributes.
+ * Content composition (children) happens within the @Composable function itself.
  */
 interface PlatformRenderer {
-    /**
-     * Renders a Text component to the appropriate platform output.
-     */
-    fun <T> renderText(text: Text, consumer: TagConsumer<T>): T
+    /** Renders text content */
+    fun renderText(value: String, modifier: Modifier)
 
-    /**
-     * Renders a Button component to the appropriate platform output.
-     */
-    fun <T> renderButton(button: Button, consumer: TagConsumer<T>): T
+    /** Renders a button container element */
+    fun renderButton(onClick: () -> Unit, enabled: Boolean, modifier: Modifier)
 
-    /**
-     * Renders a Row component to the appropriate platform output.
-     */
-    fun <T> renderRow(row: Row, consumer: TagConsumer<T>): T
+    /** Renders the start of a Row layout container */
+    fun renderRow(modifier: Modifier)
 
-    /**
-     * Renders a Column component to the appropriate platform output.
-     */
-    fun <T> renderColumn(column: Column, consumer: TagConsumer<T>): T
+    /** Renders the start of a Column layout container */
+    fun renderColumn(modifier: Modifier)
 
-    /**
-     * Renders a Spacer component to the appropriate platform output.
-     */
-    fun <T> renderSpacer(spacer: Spacer, consumer: TagConsumer<T>): T
+    /** Renders a spacer element */
+    fun renderSpacer(modifier: Modifier) 
 
-    /**
-     * Renders a TextField component to the appropriate platform output.
-     */
-    fun <T> renderTextField(textField: TextField, consumer: TagConsumer<T>): T
+    /** Renders a text input element (<input>) */
+    fun renderTextField(
+        value: String,
+        onValueChange: (String) -> Unit,
+        enabled: Boolean,
+        readOnly: Boolean,
+        type: TextFieldType,
+        placeholder: String?, 
+        modifier: Modifier
+    )
 
-    /**
-     * Renders a TextArea component to the appropriate platform output.
-     */
-    fun <T> renderTextArea(textArea: TextArea, consumer: TagConsumer<T>): T
+    /** Renders a text area element (<textarea>) */
+    fun renderTextArea(
+        value: String,
+        onValueChange: (String) -> Unit,
+        enabled: Boolean,
+        readOnly: Boolean,
+        rows: Int?, 
+        maxLength: Int?, 
+        placeholder: String?, 
+        modifier: Modifier
+    )
 
-    /**
-     * Renders a Checkbox component to the appropriate platform output.
-     */
-    fun <T> renderCheckbox(checkbox: Checkbox, consumer: TagConsumer<T>): T
+    /** Renders a checkbox input element */
+    fun renderCheckbox(
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+        enabled: Boolean,
+        modifier: Modifier
+    )
 
-    /**
-     * Renders a RadioButton component to the appropriate platform output.
-     */
-    fun <T> renderRadioButton(radioButton: RadioButton<Any>, consumer: TagConsumer<T>): T
+    /** Renders a radio button input element */
+    fun renderRadioButton(
+        selected: Boolean,
+        onClick: () -> Unit,
+        enabled: Boolean,
+        // name: String?, // TODO: How to handle name attribute for grouping? Via modifier?
+        modifier: Modifier
+    )
 
-    /**
-     * Renders a Select component to the appropriate platform output.
-     */
-    fun <T> renderSelect(select: Select<Any>, consumer: TagConsumer<T>): T
+    /** Renders a select dropdown element */
+    fun <T> renderSelect(
+        value: T?,
+        onValueChange: (T?) -> Unit,
+        options: List<SelectOption<T>>,
+        enabled: Boolean,
+        modifier: Modifier
+    )
 
-    /**
-     * Renders a FormField component to the appropriate platform output.
-     */
-    fun <T> renderFormField(formField: FormField, consumer: TagConsumer<T>): T
+    // renderFormField removed 
 
-    /**
-     * Renders a Switch component to the appropriate platform output.
-     */
-    fun <T> renderSwitch(switch: Switch, consumer: TagConsumer<T>): T
+    /** Renders a switch toggle element */
+    fun renderSwitch(
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+        enabled: Boolean,
+        modifier: Modifier
+    )
 
-    /**
-     * Renders a FileUpload component to the appropriate platform output.
-     */
-    fun <T> renderFileUpload(fileUpload: FileUpload, consumer: TagConsumer<T>): T
+    /** Sets up a file input element and returns a trigger lambda */
+    fun renderFileUpload(
+        onFilesSelected: (List<FileInfo>) -> Unit,
+        accept: String?,
+        multiple: Boolean,
+        enabled: Boolean,
+        capture: String?,
+        modifier: Modifier
+    ): () -> Unit 
 
-    /**
-     * Renders a RangeSlider component to the appropriate platform output.
-     */
-    fun <T> renderRangeSlider(rangeSlider: RangeSlider, consumer: TagConsumer<T>): T
+    /** Renders a range input element */
+    fun renderRangeSlider(
+        value: ClosedFloatingPointRange<Float>, 
+        onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
+        valueRange: ClosedFloatingPointRange<Float>,
+        steps: Int, 
+        enabled: Boolean,
+        modifier: Modifier
+    )
 
-    /**
-     * Renders a Form component to the appropriate platform output.
-     */
-    fun <T> renderForm(form: Form, consumer: TagConsumer<T>): T
+    /** Renders the start of a form element */
+    fun renderForm(onSubmit: () -> Unit, modifier: Modifier)
 
-    /**
-     * Renders a Card component to the appropriate platform output.
-     */
-    fun <T> renderCard(card: Card, consumer: TagConsumer<T>): T
+    /** Renders the start of a card container element */
+    fun renderCard(modifier: Modifier)
 
-    /**
-     * Renders a Router component to the appropriate platform output.
-     */
-    fun <T> renderRouter(router: Router, consumer: TagConsumer<T>): T
+    /** Renders an image element */
+    fun renderImage(src: String, alt: String, modifier: Modifier)
 
-    /**
-     * Renders an Image component to the appropriate platform output.
-     */
-    fun <T> renderImage(image: Image, consumer: TagConsumer<T>): T
+    /** Renders a divider element (e.g., <hr>) */
+    fun renderDivider(modifier: Modifier)
 
-    /**
-     * Renders a Divider component to the appropriate platform output.
-     */
-    fun <T> renderDivider(divider: Divider, consumer: TagConsumer<T>): T
+    /** Renders a link element (<a>) */
+    fun renderLink(href: String, modifier: Modifier)
 
-    /**
-     * Renders a Link component to the appropriate platform output.
-     */
-    fun <T> renderLink(link: Link, consumer: TagConsumer<T>): T
+    /** Renders an icon representation */
+    fun renderIcon(name: String, modifier: Modifier)
 
-    /**
-     * Renders a 404 Not Found page.
-     */
-    fun <T> renderNotFound(consumer: TagConsumer<T>): T
+    /** Renders an alert container element */
+    fun renderAlertContainer(variant: AlertVariant?, modifier: Modifier)
 
-    /**
-     * Renders an Icon component to the appropriate platform output.
-     */
-    fun <T> renderIcon(icon: Icon, consumer: TagConsumer<T>): T
+    /** Renders a badge container element */
+    fun renderBadge(modifier: Modifier)
 
-    /**
-     * Renders an Alert component to the appropriate platform output.
-     */
-    fun <T> renderAlert(alert: Alert, consumer: TagConsumer<T>): T
+    /** Renders a tooltip container element */
+    fun renderTooltipContainer(modifier: Modifier) 
 
-    /**
-     * Renders a Badge component to the appropriate platform output.
-     */
-    fun <T> renderBadge(badge: Badge, consumer: TagConsumer<T>): T
+    /** Renders a progress indicator element */
+    fun renderProgress(value: Float?, type: ProgressType, modifier: Modifier)
 
-    /**
-     * Renders a Tooltip component to the appropriate platform output.
-     */
-    fun <T> renderTooltip(tooltip: Tooltip, consumer: TagConsumer<T>): T
+    /** Renders the start of a box layout container */
+    fun renderBox(modifier: Modifier)
 
-    /**
-     * Renders a Progress component to the appropriate platform output.
-     */
-    fun <T> renderProgress(progress: Progress, consumer: TagConsumer<T>): T
+    /** Renders the start of a grid layout container */
+    fun renderGrid(modifier: Modifier) 
 
-    /**
-     * Renders a Box component to the appropriate platform output.
-     */
-    fun <T> renderBox(box: Box, consumer: TagConsumer<T>): T
+    /** Renders the start of an aspect ratio container */
+    fun renderAspectRatio(modifier: Modifier) 
 
-    /**
-     * Renders a Grid component to the appropriate platform output.
-     */
-    fun <T> renderGrid(grid: Grid, consumer: TagConsumer<T>): T
+    /** Renders the start of a responsive layout container (basic div) */
+    fun renderResponsiveLayout(modifier: Modifier)
 
-    /**
-     * Renders an AspectRatio component to the appropriate platform output.
-     */
-    fun <T> renderAspectRatio(aspectRatio: AspectRatio, consumer: TagConsumer<T>): T
+    /** Renders the start of a lazy column container */
+    fun renderLazyColumn(modifier: Modifier)
 
-    /**
-     * Renders a ResponsiveLayout component to the appropriate platform output.
-     */
-    fun <T> renderResponsiveLayout(responsiveLayout: ResponsiveLayout, consumer: TagConsumer<T>): T
+    /** Renders the start of a lazy row container */
+    fun renderLazyRow(modifier: Modifier)
 
-    /**
-     * Renders a LazyColumn component to the appropriate platform output.
-     */
-    fun <T> renderLazyColumn(lazyColumn: LazyColumn<*>, consumer: TagConsumer<T>): T
+    /** Renders a tab layout structure (e.g., tab bar) */
+    fun renderTabLayout(
+        tabs: List<Tab>, 
+        selectedTabIndex: Int,
+        onTabSelected: (Int) -> Unit,
+        modifier: Modifier
+    )
 
-    /**
-     * Renders a LazyRow component to the appropriate platform output.
-     */
-    fun <T> renderLazyRow(lazyRow: LazyRow<*>, consumer: TagConsumer<T>): T
+    /** Renders the start of an expansion panel container */
+    fun renderExpansionPanel(modifier: Modifier)
 
-    /**
-     * Renders a TabLayout component to the appropriate platform output.
-     */
-    fun <T> renderTabLayout(tabLayout: TabLayout, consumer: TagConsumer<T>): T
+    /** Renders a date picker input element */
+    fun renderDatePicker(
+        value: LocalDate?,
+        onValueChange: (LocalDate?) -> Unit,
+        enabled: Boolean,
+        modifier: Modifier
+    )
 
-    /**
-     * Renders an ExpansionPanel component to the appropriate platform output.
-     */
-    fun <T> renderExpansionPanel(expansionPanel: ExpansionPanel, consumer: TagConsumer<T>): T
+    /** Renders a time picker input element */
+    fun renderTimePicker(
+        value: LocalTime?,
+        onValueChange: (LocalTime?) -> Unit,
+        enabled: Boolean,
+        modifier: Modifier
+    )
 
-    /**
-     * Renders a DatePicker component to the appropriate platform output.
-     */
-    fun <T> renderDatePicker(datePicker: DatePicker, consumer: TagConsumer<T>): T
+    // --- Animation placeholders ---
+    // TODO: Define proper animation support integrated with composition lifecycle
 
-    /**
-     * Renders a TimePicker component to the appropriate platform output.
-     */
-    fun <T> renderTimePicker(timePicker: TimePicker, consumer: TagConsumer<T>): T
+    /** Renders the start of an animated visibility container */
+    fun renderAnimatedVisibility(visible: Boolean, modifier: Modifier)
 
-    /**
-     * Renders an AnimatedVisibility component to the appropriate platform output.
-     */
-    fun <T> renderAnimatedVisibility(animatedVisibility: AnimatedVisibility, consumer: TagConsumer<T>): T
-
-    /**
-     * Renders an AnimatedContent component to the appropriate platform output.
-     */
-    fun <T> renderAnimatedContent(animatedContent: AnimatedContent<*>, consumer: TagConsumer<T>): T
+    /** Renders the start of an animated content container */
+    fun renderAnimatedContent(modifier: Modifier)
 } 

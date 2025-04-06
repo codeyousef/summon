@@ -1,129 +1,123 @@
 package code.yousef.summon.components.navigation
 
-import code.yousef.summon.ClickableComponent
-import code.yousef.summon.core.Composable
 import code.yousef.summon.core.PlatformRendererProvider
-import code.yousef.summon.TextComponent
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.modifier.attribute
+import code.yousef.summon.modifier.applyIf
 
 /**
- * A composable that displays a hyperlink with SEO-friendly attributes.
+ * A composable that displays a hyperlink.
  *
- * @param text The text content of the link
- * @param href The URL this link points to
- * @param modifier The modifier to apply to this composable
- * @param target Optional target attribute to specify where to open the link (_blank, _self, etc.)
- * @param rel Optional rel attribute to define the relationship between current and linked document
- * @param title Optional title attribute that provides additional information
- * @param onClick Optional click handler for the link
- * @param isExternal Whether this link points to an external site (adds appropriate rel attribute)
- * @param isNoFollow Whether search engines should not follow this link (adds nofollow to rel)
- * @param ariaLabel Optional accessible name for screen readers
- * @param ariaDescribedBy Optional ID of element that describes this link for accessibility
+ * @param href The URL this link points to.
+ * @param modifier The modifier to apply to this composable.
+ * @param target Optional target attribute (_blank, _self, etc.). TODO: Needs renderer/modifier support.
+ * @param rel Optional base rel attribute. Final rel calculated based on other flags.
+ * @param title Optional title attribute. TODO: Needs renderer/modifier support.
+ * @param isExternal Hints that this link points to an external site (adds noopener, noreferrer to rel).
+ * @param isNoFollow Hints that search engines should not follow this link (adds nofollow to rel).
+ * @param ariaLabel Optional accessible name for screen readers. TODO: Needs renderer/modifier support.
+ * @param ariaDescribedBy Optional ID of element that describes this link. TODO: Needs renderer/modifier support.
+ * @param content The composable content to display inside the link (e.g., Text, Icon).
  */
-data class Link(
-    val text: String,
-    val href: String,
-    val modifier: Modifier = Modifier(),
-    val target: String? = null,
-    val rel: String? = null,
-    val title: String? = null,
-    val onClick: (() -> Unit)? = null,
-    val isExternal: Boolean = false,
-    val isNoFollow: Boolean = false,
-    val ariaLabel: String? = null,
-    val ariaDescribedBy: String? = null
-) : Composable, ClickableComponent, TextComponent {
-    /**
-     * Renders this Link composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderLink(this, receiver as TagConsumer<T>)
-        }
-        return receiver
+@Composable
+fun Link(
+    href: String,
+    modifier: Modifier = Modifier(),
+    target: String? = null, // TODO: Pass to renderer or handle via modifier
+    rel: String? = null, // Base value, will be combined
+    title: String? = null, // TODO: Pass to renderer or handle via modifier
+    isExternal: Boolean = false,
+    isNoFollow: Boolean = false,
+    ariaLabel: String? = null, // TODO: Pass to renderer or handle via modifier
+    ariaDescribedBy: String? = null, // TODO: Pass to renderer or handle via modifier
+    content: @Composable () -> Unit
+) {
+    // --- Calculate Final Rel Attribute --- 
+    val finalRelValues = mutableListOf<String>()
+    rel?.let { finalRelValues.addAll(it.split(" ").filter { it.isNotBlank() }) }
+    if (target == "_blank" || isExternal) {
+        if (!finalRelValues.contains("noopener")) finalRelValues.add("noopener")
+        if (!finalRelValues.contains("noreferrer")) finalRelValues.add("noreferrer")
     }
-
-    /**
-     * Gets all additional link-specific attributes that should be applied
-     * beyond what is in the modifier.
-     */
-    internal fun getLinkAttributes(): Map<String, String> {
-        val attributes = mutableMapOf<String, String>()
-
-        // Add target attribute if specified
-        target?.let { attributes["target"] = it }
-
-        // Build rel attribute
-        val relValues = mutableListOf<String>()
-        rel?.let { relValues.addAll(it.split(" ")) }
-
-        // Add noopener and noreferrer for security if target is _blank
-        if (target == "_blank" || isExternal) {
-            if (!relValues.contains("noopener")) relValues.add("noopener")
-            if (!relValues.contains("noreferrer")) relValues.add("noreferrer")
-        }
-
-        // Add nofollow if specified
-        if (isNoFollow && !relValues.contains("nofollow")) {
-            relValues.add("nofollow")
-        }
-
-        // Set the rel attribute if there are values
-        if (relValues.isNotEmpty()) {
-            attributes["rel"] = relValues.joinToString(" ")
-        }
-
-        // Add title attribute if specified
-        title?.let { attributes["title"] = it }
-
-        // Add accessibility attributes
-        ariaLabel?.let { attributes["aria-label"] = it }
-        ariaDescribedBy?.let { attributes["aria-describedby"] = it }
-
-        return attributes
+    if (isNoFollow && !finalRelValues.contains("nofollow")) {
+        finalRelValues.add("nofollow")
     }
+    val finalRel = finalRelValues.joinToString(" ").ifEmpty { null }
+    // --- End Rel Attribute Calculation --- 
+
+    // --- Apply attributes via Modifier --- 
+    val finalModifier = modifier
+        .applyIf(target != null) { attribute("target", target!!) }
+        .applyIf(finalRel != null) { attribute("rel", finalRel!!) }
+        .applyIf(title != null) { attribute("title", title!!) }
+        .applyIf(ariaLabel != null) { attribute("aria-label", ariaLabel!!) }
+        .applyIf(ariaDescribedBy != null) { attribute("aria-describedby", ariaDescribedBy!!) }
+        // TODO: Add onClick handling via modifier.clickable?
+
+    // TODO: Replace PlatformRendererProvider with CompositionLocal access
+    val renderer = PlatformRendererProvider.getRenderer()
+
+    // Call renderer to create the Link container (e.g., <a> tag)
+    // Renderer now receives attributes via the modifier map (__attr: prefix)
+    renderer.renderLink(href = href, modifier = finalModifier)
+
+    // Execute the content lambda 
+    content()
 }
 
+// --- Helper Functions (Updated) --- 
+
 /**
- * Creates an external link with appropriate attributes for SEO and security.
- * @param text The text content of the link
- * @param href The URL this link points to
- * @param modifier The modifier to apply to this composable
- * @param noFollow Whether search engines should not follow this link
+ * Creates an external link composable with appropriate attributes for SEO and security.
+ * @param text The text content of the link.
+ * @param href The URL this link points to.
+ * @param modifier The modifier to apply to this composable.
+ * @param noFollow Whether search engines should not follow this link.
  */
-fun externalLink(
+@Composable
+fun ExternalLink(
     text: String,
     href: String,
     modifier: Modifier = Modifier(),
     noFollow: Boolean = false
-): Link = Link(
-    text = text,
-    href = href,
-    modifier = modifier,
-    target = "_blank",
-    isExternal = true,
-    isNoFollow = noFollow
-)
+) {
+    Link(
+        href = href,
+        modifier = modifier,
+        target = "_blank",
+        isExternal = true,
+        isNoFollow = noFollow
+    ) {
+        Text(text) // Pass text as content
+    }
+}
 
 /**
- * Creates a button-styled link (looks like a button but navigates like a link).
- * @param text The text content of the link
- * @param href The URL this link points to
- * @param modifier The modifier to apply to this composable
+ * Creates a button-styled link composable.
+ * @param text The text content of the link.
+ * @param href The URL this link points to.
+ * @param modifier Modifier to apply. Defaults provide button-like styling.
  */
-fun buttonLink(
+@Composable
+fun ButtonLink(
     text: String,
     href: String,
-    modifier: Modifier = Modifier().padding("10px 20px").background("#4CAF50").color("white")
-        .borderRadius("4px").display("inline-block").textDecoration("none")
-        .hover(mapOf("background-color" to "#45a049"))
-): Link = Link(
-    text = text,
-    href = href,
-    modifier = modifier
-) 
+    modifier: Modifier = Modifier()
+        .padding("10px 20px") // Example button styles
+        .background("#4CAF50")
+        .color("white")
+        .borderRadius("4px")
+        .textDecoration("none")
+        // TODO: Proper hover handling via modifier/platform?
+        // .hover(mapOf("background-color" to "#45a049")) 
+) {
+    Link(
+        href = href,
+        modifier = modifier
+    ) {
+        Text(text) // Pass text as content
+    }
+} 

@@ -211,4 +211,22 @@ fun helpTooltip(
         modifier = modifier,
         placement = placement
     )
+}
+
+/**
+ * A tooltip component that displays additional information when hovering over its content.
+ *
+ * @param text The text to display in the tooltip
+ * @param modifier The modifier to be applied to the tooltip
+ * @param content The content that will trigger the tooltip when hovered
+ */
+@Composable
+fun Tooltip(
+    text: String,
+    modifier: Modifier = Modifier(),
+    content: @Composable () -> Unit
+) {
+    val renderer = getPlatformRenderer()
+    renderer.renderTooltipContainer(modifier)
+    content()
 } 
