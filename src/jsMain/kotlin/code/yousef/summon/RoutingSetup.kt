@@ -2,10 +2,10 @@ package code.yousef.summon
 
 import code.yousef.summon.routing.Pages
 import code.yousef.summon.routing.Router
-import code.yousef.summon.routing.pages.MySimplePage
-import code.yousef.summon.routing.pages.About
-import code.yousef.summon.routing.pages.Index
-import code.yousef.summon.routing.pages.users.Profile
+import routing.pages.MySimplePage
+import routing.pages.About
+import routing.pages.Index
+import routing.pages.users.Profile
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.HTMLElement

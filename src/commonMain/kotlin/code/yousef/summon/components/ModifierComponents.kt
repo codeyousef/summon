@@ -1,4 +1,7 @@
-package code.yousef.summon.components
+package components
+
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
 
 /**
  * Interface markers to define component capabilities for type-specific modifiers.

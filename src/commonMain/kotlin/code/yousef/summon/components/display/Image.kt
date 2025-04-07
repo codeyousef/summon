@@ -1,8 +1,9 @@
 package code.yousef.summon.components.display
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.core.getPlatformRenderer
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.PlatformRendererProvider
+
 
 /**
  * Enum representing different image loading strategies.
@@ -28,6 +29,6 @@ fun Image(
     alt: String,
     modifier: Modifier = Modifier()
 ) {
-    val renderer = getPlatformRenderer()
+    val renderer = PlatformRendererProvider.getPlatformRenderer()
     renderer.renderImage(src, alt, modifier)
 } 

@@ -1,9 +1,10 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.core.getPlatformRenderer
-import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.ComposableDsl
+import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.PlatformRendererProvider
 
 /**
  * A layout container that positions its children according to the given modifier.
@@ -18,9 +19,16 @@ fun Box(
     modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 ) {
-    val renderer = getPlatformRenderer()
-    renderer.renderBox(modifier)
+    val composer = CompositionLocal.currentComposer
+    
+    composer?.startNode()
+    
+    if (composer?.inserting == true) {
+        val renderer = PlatformRendererProvider.getPlatformRenderer()
+        renderer.renderBox(modifier)
+    }
+    
     content()
-    // In a real implementation, there would be a closing method call after content
-    // For now, we assume the underlying renderer tracks the open/close state
+    
+    composer?.endNode()
 } 

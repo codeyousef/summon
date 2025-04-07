@@ -1,47 +1,49 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.PlatformRendererProvider
+
 
 // Use placeholder typealias for LocalTime
 // In a real scenario, this should be a proper date/time library type (e.g., kotlinx-datetime)
 typealias LocalTime = Any
 
 /**
- * A composable that allows users to select a time.
- *
- * @param value The currently selected time, or null if none selected.
- * @param onValueChange Callback invoked when the user selects a new time.
- * @param modifier Modifier applied to the time picker layout.
- * @param enabled Controls the enabled state.
- * @param label Optional label displayed for the time picker.
- * // TODO: Add parameters for 12/24 hour format, seconds visibility, min/max time.
+ * A time picker component that allows users to select a time.
+ * 
+ * @param value The currently selected time value
+ * @param onValueChange Callback when the time value changes
+ * @param modifier Optional modifier for the component
+ * @param enabled Whether the time picker is enabled
+ * @param label Optional label text (placeholder)
  */
 @Composable
 fun TimePicker(
-    value: LocalTime?,
-    onValueChange: (LocalTime?) -> Unit,
+    value: LocalTime,
+    onValueChange: (LocalTime) -> Unit,
     modifier: Modifier = Modifier(),
     enabled: Boolean = true,
-    label: String? = null
-    // Removed placeholder, use24Hour, showSeconds, min, max, validators
+    label: String? = null,
+    amPmFormat: Boolean = false // 12-hour format with AM/PM vs 24-hour format
 ) {
-    // TODO: Apply styles based on enabled state
-    val finalModifier = modifier
-        .opacity(if (enabled) 1f else 0.6f)
-
-    // TODO: Replace PlatformRendererProvider with CompositionLocal access
-    val renderer = PlatformRendererProvider.getRenderer()
-
-    // TODO: Renderer signature update? Pass enabled state? Format options?
-    // Current renderTimePicker takes value, onValueChange, label, modifier.
-    renderer.renderTimePicker(
+    val platformRenderer = PlatformRendererProvider.getPlatformRenderer()
+    
+    // Format time to display
+    val displayText = when (amPmFormat) {
+        true -> value.format12Hour()
+        false -> value.format24Hour()
+    }
+    
+    // Render platform-specific time picker
+    platformRenderer.renderTimePicker(
         value = value,
-        onValueChange = { if (enabled) onValueChange(it) }, // Guard callback
-        label = label ?: "", // Pass label, default to empty
-        modifier = finalModifier
+        onValueChange = { newTime -> onValueChange(newTime) },
+        modifier = modifier,
+        enabled = enabled,
+        label = label,
+        amPmFormat = amPmFormat,
+        displayText = displayText
     )
 }
 

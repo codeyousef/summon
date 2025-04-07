@@ -1,89 +1,99 @@
 package code.yousef.summon.runtime
 
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
+
 import kotlinx.html.TagConsumer
 import java.util.UUID
 
 /**
- * JVM-specific implementation of the Composer interface.
- * This version works with kotlinx.html's TagConsumer for rendering.
+ * JVM implementation of the Composer interface.
+ * This provides JVM-specific functionality for the composition system.
  */
-class JvmComposer(private val consumer: TagConsumer<*>) : Composer {
+class JvmComposer : Composer {
     override val inserting: Boolean = true
     
-    private var currentIndex = 0
-    private val slotTable = mutableMapOf<Int, Any?>()
-    private val stateObservers = mutableMapOf<Any, MutableList<() -> Unit>>()
+    private val slots = mutableMapOf<Int, Any?>()
+    private var slotIndex = 0
+    private val stateReads = mutableSetOf<Any>()
+    private val disposables = mutableListOf<() -> Unit>()
     
     override fun startNode() {
-        // Start a new composition node
-        // In a real implementation, this would track the node in a tree structure
+        // JVM implementation of start node
     }
     
     override fun endNode() {
-        // End the current composition node
-        // In a real implementation, this would update the node in the tree structure
+        // JVM implementation of end node
     }
     
     override fun startGroup(key: Any?) {
-        // Start a new group with the given key
-        // Groups can be skipped as a unit during recomposition
+        // JVM implementation of start group
     }
     
     override fun endGroup() {
-        // End the current group
+        // JVM implementation of end group
+    }
+    
+    override fun changed(value: Any?): Boolean {
+        // JVM implementation would compare with previous value
+        return true
+    }
+    
+    override fun updateValue(value: Any?) {
+        // JVM implementation would store the value
+    }
+    
+    override fun nextSlot() {
+        slotIndex++
+    }
+    
+    override fun getSlot(): Any? {
+        return slots[slotIndex]
+    }
+    
+    override fun setSlot(value: Any?) {
+        slots[slotIndex] = value
+    }
+    
+    override fun recordRead(state: Any) {
+        stateReads.add(state)
+    }
+    
+    override fun recordWrite(state: Any) {
+        // JVM implementation would trigger recomposition for affected compositions
     }
     
     override fun reportChanged() {
-        // Report that something has changed and invalidate related parts of the composition
+        // JVM implementation would trigger recomposition
+    }
+    
+    override fun registerDisposable(disposable: () -> Unit) {
+        disposables.add(disposable)
     }
     
     /**
-     * Get the next available slot index.
+     * Disposes all registered disposables.
+     * This would be called when the composition is destroyed.
      */
-    override fun nextSlot(): Int {
-        return currentIndex++
+    override fun dispose() {
+        disposables.forEach { it() }
+        disposables.clear()
     }
     
     /**
-     * Get the value stored in the given slot.
+     * Factory method to create a JvmComposer.
      */
-    override fun getSlot(index: Int): Any? {
-        return slotTable[index]
+    companion object {
+        fun create(): JvmComposer {
+            return JvmComposer()
+        }
     }
-    
+
     /**
-     * Set the value for the given slot.
+     * Implementation of renderComposable for the JVM platform
      */
-    override fun setSlot(index: Int, value: Any?) {
-        slotTable[index] = value
-    }
-    
-    /**
-     * Record that a state object was read.
-     */
-    override fun recordRead(state: Any) {
-        // In a real implementation, this would track dependencies for recomposition
-    }
-    
-    /**
-     * Record that a state object was written to.
-     */
-    override fun recordWrite(state: Any, newValue: Any?) {
-        // Trigger recomposition for components that depend on this state
-        stateObservers[state]?.forEach { it() }
-    }
-    
-    /**
-     * Get the underlying TagConsumer for rendering.
-     */
-    fun getConsumer(): TagConsumer<*> {
-        return consumer
-    }
-    
-    /**
-     * Create a unique key for the current composition.
-     */
-    fun createKey(): Any {
-        return UUID.randomUUID()
+    override fun <T> renderComposable(composable: Composable, consumer: T) {
+        // Call compose on the composable with the provided consumer
+        composable.compose(consumer)
     }
 } 

@@ -1,6 +1,6 @@
 package code.yousef.summon
 
-import code.yousef.summon.components.layout.Divider
+import code.yousef.summon.components.Divider
 
 /**
  * JavaScript-specific extensions for the Divider component.

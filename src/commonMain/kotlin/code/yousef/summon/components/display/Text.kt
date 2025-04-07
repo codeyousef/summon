@@ -1,9 +1,8 @@
 package code.yousef.summon.components.display
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.core.getPlatformRenderer
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.PlatformRendererProvider
 
 /**
  * Displays text with styling options.
@@ -68,7 +67,7 @@ fun Text(
         .let { m -> maxLines?.let { m.maxLines(it) } ?: m }
 
     // Get the current platform renderer
-    val renderer = getPlatformRenderer()
+    val renderer = PlatformRendererProvider.getPlatformRenderer()
 
     // Call the renderer's method
     renderer.renderText(value = text, modifier = finalModifier)

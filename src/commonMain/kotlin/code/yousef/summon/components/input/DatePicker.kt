@@ -1,9 +1,11 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.Composable
+import code.yousef.summon.modifier.applyIf
+import code.yousef.summon.modifier.pointerEvents
 import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.PlatformRendererProvider
+
 
 // Use placeholder typealias for LocalDate
 // In a real scenario, this should be a proper date/time library type (e.g., kotlinx-datetime)
@@ -28,21 +30,26 @@ fun DatePicker(
     label: String? = null
     // Removed placeholder, min, max, validators - handle via composition/modifier/state
 ) {
-    // TODO: Apply styles based on enabled state
+    val composer = CompositionLocal.currentComposer
+    // Apply styling directly to the element via modifier
     val finalModifier = modifier
         .opacity(if (enabled) 1f else 0.6f)
+        // TODO: Add cursor style? .cursor(if (enabled) "pointer" else "default")
+        .applyIf(!enabled) { pointerEvents("none") } // Assuming pointerEvents exists
 
-    // TODO: Replace PlatformRendererProvider with CompositionLocal access
-    val renderer = PlatformRendererProvider.getRenderer()
-
-    // TODO: Renderer signature update? Pass enabled state? Min/Max?
-    // Current renderDatePicker takes value, onValueChange, label, modifier.
-    renderer.renderDatePicker(
-        value = value,
-        onValueChange = { if (enabled) onValueChange(it) }, // Guard callback
-        label = label ?: "", // Pass label, default to empty
-        modifier = finalModifier
-    )
+    composer?.startNode() // Start DatePicker node
+    if (composer?.inserting == true) {
+        val renderer = PlatformRendererProvider.getPlatformRenderer()
+        // Pass relevant state and modifier to the renderer
+        renderer.renderDatePicker(
+            value = value,
+            onValueChange = { if (enabled) onValueChange(it) }, // Guard callback
+            enabled = enabled,
+            modifier = finalModifier
+            // Label parameter removed from renderDatePicker based on PlatformRenderer interface
+        )
+    }
+    composer?.endNode() // End DatePicker node (self-closing)
 }
 
 // The old DatePicker class and its methods are removed. 

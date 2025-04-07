@@ -1,9 +1,9 @@
 package code.yousef.summon.components.feedback
 
-import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.PlatformRendererProvider
+
 
 /**
  * Progress indicator types.
@@ -40,9 +40,9 @@ fun Progress(
     val finalModifier = modifier
         // .progressStyle(type, color, trackColor) // Example modifier usage
 
-    // TODO: Replace PlatformRendererProvider with CompositionLocal access
+    // TODO: Replace runtime.PlatformRendererProvider with CompositionLocal access
     // val renderer = LocalPlatformRenderer.current
-    val renderer = PlatformRendererProvider.getRenderer()
+    val renderer = PlatformRendererProvider.getPlatformRenderer()
 
     // TODO: Renderer signature might need updating to handle type, colors explicitly if not via modifier
     renderer.renderProgress(

@@ -2,7 +2,7 @@ package code.yousef.summon.components.display
 
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.components.display.Text
+
 
 /**
  * Utility functions for the Text component.

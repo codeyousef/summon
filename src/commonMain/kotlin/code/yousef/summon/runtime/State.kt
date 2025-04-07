@@ -1,99 +1,65 @@
 package code.yousef.summon.runtime
 
-import kotlin.reflect.KProperty
-
 /**
- * A readable state holder interface.
- * State is a value that can change over time, and it can be observed.
- *
- * @param T The type of the state value.
+ * Immutable state object that can be read but not modified.
+ * 
+ * This interface defines a state holder that provides value access
+ * through the value property and component operators.
  */
 interface State<T> {
     /**
-     * Current value of the state.
+     * The current value of this state.
      */
     val value: T
+    
+    /**
+     * Component operator for property destructuring
+     */
+    operator fun component1(): T = value
 }
 
 /**
- * A mutable state holder interface.
- * MutableState allows reading and writing a value.
+ * Mutable extension of State that can be both read and modified.
  *
- * @param T The type of the state value.
+ * This interface extends State to allow value modification through
+ * the value property and component operators.
  */
 interface MutableState<T> : State<T> {
     /**
-     * Current value of the state.
-     * When the value is updated, any composable function that reads this value
-     * will be recomposed.
+     * The current value of this mutable state.
      */
     override var value: T
+    
+    /**
+     * Component operator for property destructuring
+     */
+    operator fun component2(): (T) -> Unit
 }
 
 /**
- * Implementation of MutableState that notifies observers when the value changes.
- *
- * @param T The type of the state value.
- * @param initialValue The initial value of the state.
+ * Simple implementation of MutableState
  */
-class MutableStateImpl<T>(initialValue: T) : MutableState<T> {
-    private var _value: T = initialValue
-    private val observers = mutableListOf<() -> Unit>()
-    
-    override var value: T
-        get() {
-            // Notify the composer about the state read
-            CompositionLocal.currentComposer?.recordRead(this)
-            return _value
-        }
-        set(newValue) {
-            val oldValue = _value
-            _value = newValue
-            if (oldValue != newValue) {
-                // Notify the composer about the state write
-                CompositionLocal.currentComposer?.recordWrite(this, newValue)
-                notifyObservers()
-            }
-        }
-    
-    /**
-     * Add an observer that will be notified when the value changes.
-     *
-     * @param observer The observer function.
-     */
-    fun addObserver(observer: () -> Unit) {
-        observers.add(observer)
-    }
-    
-    /**
-     * Remove an observer.
-     *
-     * @param observer The observer function to remove.
-     */
-    fun removeObserver(observer: () -> Unit) {
-        observers.remove(observer)
-    }
-    
-    /**
-     * Notify all observers that the value has changed.
-     */
-    private fun notifyObservers() {
-        observers.forEach { it() }
-    }
+internal class MutableStateImpl<T>(override var value: T) : MutableState<T> {
+    override fun component1(): T = value
+    override fun component2(): (T) -> Unit = { value = it }
 }
 
 /**
- * Create a new MutableState instance with the given initial value.
- *
- * @param initialValue The initial value of the state.
- * @return A new MutableState instance.
+ * Creates a new mutable state with the specified initial value.
  */
 fun <T> mutableStateOf(initialValue: T): MutableState<T> = MutableStateImpl(initialValue)
 
-// Add getValue delegate operator for State
-operator fun <T> State<T>.getValue(thisRef: Any?, property: KProperty<*>): T = this.value
+/**
+ * Extension property to make accessing a State's value more ergonomic.
+ * This allows writing `state()` instead of `state.value`.
+ */
+operator fun <T> State<T>.invoke(): T = this.value
 
-// Add setValue delegate operator for MutableState
-operator fun <T> MutableState<T>.setValue(thisRef: Any?, property: KProperty<*>, value: T) {
-    this.value = value
-} 
+/**
+ * Extension function to update a MutableState's value.
+ * This allows writing `state(newValue)` instead of `state.value = newValue`.
+ */
+operator fun <T> MutableState<T>.invoke(newValue: T) {
+    this.value = newValue
+}
+

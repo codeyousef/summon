@@ -1,9 +1,11 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.core.getPlatformRenderer
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.ComposableDsl
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.PlatformRendererProvider
+import runtime.ComposableDsl
+
 
 /**
  * A scope for `Column` composable's content lambda.
@@ -25,7 +27,7 @@ interface ColumnScope {
 internal object ColumnScopeInstance : ColumnScope {
     override fun Modifier.align(alignment: Alignment.Horizontal): Modifier {
         // Placeholder: Return unchanged modifier.
-        // Actual implementation would add alignment styles (e.g., align-self)
+        // Example: return this.style("align-self", alignment.toCssValue())
         println("ColumnScope.align called with $alignment - Placeholder")
         return this
     }
@@ -37,16 +39,30 @@ internal object ColumnScopeInstance : ColumnScope {
  * Column is a fundamental layout component used for vertical arrangements of UI elements.
  * 
  * @param modifier [Modifier] to be applied to the Column layout
- * @param content The content to display inside the Column
+ * @param verticalArrangement Arrangement of children along the main axis (vertical).
+ * @param horizontalAlignment Alignment of children along the cross axis (horizontal).
+ * @param content The content lambda defining the children, scoped to `ColumnScope`.
  */
 @Composable
 fun Column(
     modifier: Modifier = Modifier(),
-    content: @Composable () -> Unit
+    verticalArrangement: Arrangement.Vertical = Arrangement.Vertical.Top,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Horizontal.Start,
+    content: @Composable ColumnScope.() -> Unit
 ) {
-    val renderer = getPlatformRenderer()
-    renderer.renderColumn(modifier)
-    content()
-    // In a real implementation, there would be a closing method call after content
-    // For now, we assume the underlying renderer tracks the open/close state
+    val composer = CompositionLocal.currentComposer
+    // TODO: Add Modifier properties for verticalArrangement and horizontalAlignment
+    // Example: val finalModifier = modifier.flexboxStyles(direction = "column", ...) 
+    val finalModifier = modifier
+
+    composer?.startNode()
+    if (composer?.inserting == true) {
+        val renderer = PlatformRendererProvider.getPlatformRenderer()
+        renderer.renderColumn(finalModifier)
+    }
+    
+    // Execute the content lambda with ColumnScopeInstance as the receiver
+    ColumnScopeInstance.content()
+    
+    composer?.endNode()
 } 

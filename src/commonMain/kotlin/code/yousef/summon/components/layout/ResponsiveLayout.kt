@@ -1,9 +1,10 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.PlatformRendererProvider
+
 
 /**
  * Placeholder Screen size breakpoints. 
@@ -14,13 +15,12 @@ enum class ScreenSize {
 }
 
 /**
- * A basic layout container.
- * 
- * NOTE: The previous functionality of displaying different content based on screen size
- * has been removed in this refactoring. Responsiveness should be handled using
- * CSS media queries (via Modifiers) or conditional composition based on platform context.
+ * A basic layout container used as a target for responsive modifiers.
+ * This component itself doesn't provide responsive logic, but serves as a container
+ * where responsive modifiers (e.g., showing/hiding based on screen size via CSS media queries
+ * applied through the Modifier) can take effect.
  *
- * @param modifier The modifier to apply to this layout.
+ * @param modifier The modifier to apply to this layout container.
  * @param content The composable content to be placed inside the container.
  */
 @Composable
@@ -28,14 +28,19 @@ fun ResponsiveLayout(
     modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 ) {
-    // TODO: Replace PlatformRendererProvider with CompositionLocal access
-    val renderer = PlatformRendererProvider.getRenderer()
+    val composer = CompositionLocal.currentComposer
+    val finalModifier = modifier
 
-    // Call renderer to create the container (e.g., a div)
-    // Assumes renderResponsiveLayout now just takes a modifier.
-    renderer.renderResponsiveLayout(modifier = modifier)
+    composer?.startNode()
+    if (composer?.inserting == true) {
+        val renderer = PlatformRendererProvider.getPlatformRenderer()
+        // The renderer simply creates a basic container (e.g., a div).
+        // All responsive logic is assumed to be handled by styles within the Modifier.
+        renderer.renderResponsiveLayout(modifier = finalModifier)
+    }
 
-    // Execute the content lambda to compose children inside the container
-    // TODO: Ensure composition context places children correctly.
+    // Compose children within the container.
     content()
+    
+    composer?.endNode()
 } 

@@ -1,9 +1,9 @@
 package code.yousef.summon.components.display
 
-import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.PlatformRendererProvider
+
 
 /**
  * Icon type to distinguish between different icon sources
@@ -57,7 +57,7 @@ fun Icon(
     // For now, just pass the name and modifier.
     // svgContent might need to be handled differently (e.g., specific renderer method or passed via modifier attribute)
     
-    val renderer = PlatformRendererProvider.getRenderer()
+    val renderer = PlatformRendererProvider.getPlatformRenderer()
     
     // TODO: Adapt renderer call based on type/svgContent if necessary
     renderer.renderIcon(

@@ -1,5 +1,7 @@
 package code.yousef.summon.modifier
 
+import code.yousef.summon.runtime.getPlatformRenderer
+
 /**
  * Extension functions for Styling Modifiers
  * These are implemented to match the test expectations in StylingModifierTest

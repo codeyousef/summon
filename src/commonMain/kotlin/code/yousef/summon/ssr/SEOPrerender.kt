@@ -1,6 +1,8 @@
 package code.yousef.summon.ssr
 
-import code.yousef.summon.core.Composable
+
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.routing.RouteDefinition
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
@@ -214,4 +216,30 @@ enum class ChangeFrequency(val value: String) {
     MONTHLY("monthly"),
     YEARLY("yearly"),
     NEVER("never")
+}
+
+/**
+ * Utilities for pre-rendering pages at build time for SEO.
+ * Replaces old SEOPrerenderer object/class.
+ */
+object SEOPrerenderUtils {
+
+    fun prerenderRouteToString(route: RouteDefinition, params: Map<String, String> = emptyMap()): String {
+        println("SEOPrerenderUtils: Pre-rendering route path '${route.path}' with params $params")
+        // TODO: Implement pre-rendering logic.
+        return "<html><body><!-- Pre-rendered content for ${route.path} --></body></html>"
+    }
+
+    fun prerenderRoutes(routes: List<RouteDefinition>, baseOutputDir: String) {
+        println("SEOPrerenderUtils: Pre-rendering ${routes.size} routes to $baseOutputDir")
+        routes.forEach { route ->
+            if (!route.path.contains("{")) { 
+                val htmlContent = prerenderRouteToString(route)
+                val outputPath = "$baseOutputDir${route.path}.html".replace("//", "/") 
+                println("  - Writing ${route.path} to $outputPath (Not actually writing)")
+            } else {
+                println("  - Skipping dynamic route: ${route.path}")
+            }
+        }
+    }
 } 

@@ -1,10 +1,10 @@
-package code.yousef.summon.integrations.quarkus
+package integrations.quarkus
 
-import code.yousef.summon.core.Composable
+import core.Composable
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.layout.Column
-import code.yousef.summon.integrations.quarkus.NativeImageSupport.ReflectiveComponent
+import integrations.quarkus.NativeImageSupport.ReflectiveComponent
 import io.quarkus.qute.Engine
 import io.quarkus.qute.Template
 import jakarta.enterprise.context.ApplicationScoped

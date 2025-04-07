@@ -1,5 +1,8 @@
 package code.yousef.summon
 
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
+
 /**
  * JVM-specific implementation of LifecycleOwner for backend frameworks.
  * This simplified implementation focuses on server/backend lifecycle events

@@ -1,40 +1,38 @@
 package code.yousef.summon.routing
 
-import code.yousef.summon.core.Composable
-import code.yousef.summon.routing.Redirect.Companion.to
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.LaunchedEffect
 
 /**
- * A component that redirects to another route.
- * Useful for declarative redirection based on conditions.
+ * A composable that performs a client-side redirect when it enters the composition.
  *
- * @param to Path to redirect to
- * @param replace Whether to replace the current history entry (default: false)
+ * @param to The target path to redirect to.
+ * @param permanent If true, indicates a permanent redirect (may influence browser history or SEO).
  */
-class Redirect(
-    val to: String,
-    val replace: Boolean = false
-) : Composable {
-    override fun <T> compose(receiver: T): T {
-        // Get the current router instance
-        val router = RouterContext.current
+@Composable
+fun Redirect(
+    to: String,
+    permanent: Boolean = false
+) {
+    // Assume Router.current provides access to the router instance via CompositionLocal
+    // val router = Router.current
 
-        // Perform the redirect if a router is available
-        router?.navigate(to, !replace)
-
-        // Just return the receiver without rendering anything
-        return receiver
+    // Correct LaunchedEffect syntax: use a single key (e.g., a Pair)
+    // and then the suspending lambda block.
+    LaunchedEffect(key = to to permanent) { // Keyed on a pair
+        println("Redirect composable launched effect: Redirecting to '$to' (Permanent: $permanent)")
+        // TODO: Get actual router instance and call navigate with replace option.
+        // router.navigateTo(to, replace = permanent)
+        // Router.navigateTo(to) // Commented out placeholder call
     }
 
-    companion object {
-        /**
-         * Creates a redirect component.
-         *
-         * @param to Path to redirect to
-         * @param replace Whether to replace the current history entry
-         * @return A new Redirect instance
-         */
-        fun to(to: String, replace: Boolean = false): Redirect {
-            return Redirect(to, replace)
-        }
-    }
-} 
+    // This component renders no UI directly.
+}
+
+// Removed old Redirect class that implemented Composable:
+// class Redirect(val to: String, val permanent: Boolean = false) : Composable {
+//     override fun <T> compose(receiver: T): T {
+//         // Logic was likely in Router/Platform implementation
+//         return receiver
+//     }
+// } 

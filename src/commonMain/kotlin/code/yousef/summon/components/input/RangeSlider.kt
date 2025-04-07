@@ -1,13 +1,11 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
-import kotlin.ranges.ClosedFloatingPointRange
-
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.modifier.applyIf
 import code.yousef.summon.modifier.pointerEvents
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.PlatformRendererProvider
+
 
 /**
  * A composable that allows users to select a value or range of values from a continuous range.
@@ -37,8 +35,8 @@ fun RangeSlider(
         .cursor(if (enabled) "pointer" else "default")
         .applyIf(!enabled) { pointerEvents("none") }
 
-    // TODO: Replace PlatformRendererProvider with CompositionLocal access
-    val renderer = PlatformRendererProvider.getRenderer()
+    // TODO: Replace runtime.PlatformRendererProvider with CompositionLocal access
+    val renderer = PlatformRendererProvider.getPlatformRenderer()
 
     // TODO: Renderer signature update? Needs to handle valueRange, steps, enabled.
     // The current renderer.renderRangeSlider only takes value, onValueChange, modifier.

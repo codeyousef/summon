@@ -1,9 +1,10 @@
 package code.yousef.summon.components.feedback
 
-import code.yousef.summon.core.getPlatformRenderer
-import code.yousef.summon.runtime.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.components.feedback.ProgressType
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.PlatformRendererProvider
+
 
 /**
  * A circular progress indicator component.
@@ -16,6 +17,14 @@ fun CircularProgress(
     progress: Float? = null,
     modifier: Modifier = Modifier()
 ) {
-    val renderer = getPlatformRenderer()
-    renderer.renderProgress(progress, ProgressType.CIRCULAR, modifier)
+    val composer = CompositionLocal.currentComposer
+    // TODO: Apply default circular progress styles (size?) to modifier?
+    val finalModifier = modifier // Placeholder
+
+    composer?.startNode() // Start CircularProgress node
+    if (composer?.inserting == true) {
+        val renderer = PlatformRendererProvider.getPlatformRenderer()
+        renderer.renderProgress(progress, ProgressType.CIRCULAR, finalModifier)
+    }
+    composer?.endNode() // End CircularProgress node (self-closing)
 } 

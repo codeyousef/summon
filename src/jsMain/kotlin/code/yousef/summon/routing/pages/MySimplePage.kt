@@ -1,10 +1,10 @@
-package code.yousef.summon.routing.pages
+package routing.pages
 
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.layout.Column
-import code.yousef.summon.core.Composable
-import code.yousef.summon.modifier.Modifier
+import core.Composable
+import modifier.Modifier
 import code.yousef.summon.routing.NavLink
 import code.yousef.summon.routing.RouteParams
 import kotlinx.html.TagConsumer

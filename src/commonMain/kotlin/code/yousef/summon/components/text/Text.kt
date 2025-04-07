@@ -1,8 +1,9 @@
 package code.yousef.summon.components.text
 
-import code.yousef.summon.core.getPlatformRenderer
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.PlatformRendererProvider
+
 
 /**
  * A composable that displays text.
@@ -15,7 +16,7 @@ fun Text(
     text: String,
     modifier: Modifier = Modifier()
 ) {
-    val renderer = getPlatformRenderer()
+    val renderer = PlatformRendererProvider.getPlatformRenderer()
     renderer.renderText(text, modifier)
 }
 

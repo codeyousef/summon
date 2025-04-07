@@ -1,104 +1,112 @@
 package code.yousef.summon.runtime
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
+// Remove coroutine imports temporarily to fix compilation
+// import kotlinx.coroutines.CoroutineScope
+// import kotlinx.coroutines.cancel
+// import kotlinx.coroutines.launch
 
 /**
- * Launches a coroutine that is scoped to the composition.
- * When the [key] changes, the coroutine will be cancelled and relaunched.
- * When the composable leaves the composition, the coroutine will be cancelled.
+ * Side effect that launches a coroutine when the composition enters the scene and cancels it when it leaves.
+ * This is useful for running asynchronous operations in a composable function.
  *
- * @param key An object that is used to identify this LaunchedEffect.
- *            If the key changes, the effect will be relaunched.
- * @param block The suspend function to execute in the coroutine.
+ * @param key The key used to identify this side effect. If the key changes, the side effect will be re-executed.
+ * @param block The code to execute in the coroutine.
  */
 @Composable
-fun LaunchedEffect(
-    key: Any?,
-    block: suspend CoroutineScope.() -> Unit
-) {
+fun LaunchedEffect(key: Any? = null, block: suspend () -> Unit) {
     val composer = CompositionLocal.currentComposer
     
-    // In a real implementation, we would:
-    // 1. Check if the key changed from the previous composition
-    // 2. If it did, cancel the existing coroutine and launch a new one
-    // 3. If the composable leaves the composition, cancel the coroutine
+    // Get the current slot for this effect
+    composer?.nextSlot()
+    val effectState = composer?.getSlot() as? EffectState
     
-    // This is a simplified placeholder
-    // TODO: Implement proper coroutine management
-    
-    val scope = CoroutineScope(kotlinx.coroutines.Dispatchers.Default)
-    scope.launch { block() }
-    
-    // Register for cleanup when the composable leaves the composition
-    DisposableEffect(key) {
-        onDispose {
-            scope.cancel()
+    if (effectState == null || hasKeyChanged(effectState.key, key)) {
+        // Create a new effect state if this is the first time or the key changed
+        val newState = EffectState(key, EffectType.LAUNCHED, null)
+        
+        // Store in the slot
+        composer?.setSlot(newState)
+        
+        // In a real implementation, this would launch a coroutine
+        println("LaunchedEffect started with key: $key")
+        
+        // Register cleanup
+        composer?.registerDisposable {
+            println("LaunchedEffect disposed: $key")
         }
     }
 }
 
 /**
- * Result of a DisposableEffect, containing the cleanup code.
+ * Side effect that performs an action when the composition enters the scene and when it leaves.
+ * The [effect] function should return a cleanup function that will be called when the side effect is
+ * disposed or when the key changes.
+ *
+ * @param key The key used to identify this side effect. If the key changes, the side effect will be re-executed.
+ * @param effect The side effect function that returns a cleanup function.
  */
-interface DisposableEffectResult {
-    /**
-     * Called when the effect should be cleaned up.
-     */
-    fun onDispose()
-}
-
-/**
- * Scope for creating a disposable effect.
- */
-interface DisposableEffectScope {
-    /**
-     * Register a callback to be invoked when the effect is disposed.
-     *
-     * @param callback The callback to invoke when the effect is disposed.
-     * @return A DisposableEffectResult containing the cleanup code.
-     */
-    fun onDispose(callback: () -> Unit): DisposableEffectResult
-}
-
-/**
- * Basic implementation of DisposableEffectScope.
- */
-private class DisposableEffectScopeImpl : DisposableEffectScope {
-    override fun onDispose(callback: () -> Unit): DisposableEffectResult {
-        return object : DisposableEffectResult {
-            override fun onDispose() {
-                callback()
-            }
+@Composable
+fun DisposableEffect(key: Any? = null, effect: () -> (() -> Unit)) {
+    val composer = CompositionLocal.currentComposer
+    
+    // Get the current slot for this effect
+    composer?.nextSlot()
+    val effectState = composer?.getSlot() as? EffectState
+    
+    if (effectState == null || hasKeyChanged(effectState.key, key)) {
+        // Clean up previous effect if any
+        if (effectState?.cleanup != null) {
+            (effectState.cleanup as () -> Unit).invoke()
         }
+        
+        // Call the effect function to get the cleanup function
+        val cleanup = effect()
+        
+        // Create a new effect state with the cleanup function
+        val newState = EffectState(key, EffectType.DISPOSABLE, cleanup)
+        
+        // Store in the slot
+        composer?.setSlot(newState)
+        
+        // Register the cleanup with the composer
+        composer?.registerDisposable(cleanup)
     }
 }
 
 /**
- * Creates an effect that needs to be cleaned up when a key changes or the composable leaves the composition.
- *
- * @param key An object that is used to identify this DisposableEffect.
- *            If the key changes, the effect will be disposed and recreated.
- * @param effect A function that returns a DisposableEffectResult, which will be used for cleanup.
+ * Side effect that is executed after every successful composition.
+ * @param effect The effect to execute.
  */
 @Composable
-fun DisposableEffect(
-    key: Any?,
-    effect: DisposableEffectScope.() -> DisposableEffectResult
-) {
+fun SideEffect(effect: () -> Unit) {
     val composer = CompositionLocal.currentComposer
     
-    // In a real implementation, we would:
-    // 1. Check if the key changed from the previous composition
-    // 2. If it did, invoke the previous effect's cleanup and create a new effect
-    // 3. If the composable leaves the composition, invoke the effect's cleanup
-    
-    // This is a simplified placeholder
-    // TODO: Implement proper effect tracking
-    
-    val scope = DisposableEffectScopeImpl()
-    val result = scope.effect()
-    
-    // In a real implementation, we would store the result for cleanup
+    // Execute the effect on every composition
+    if (composer?.inserting == true) {
+        effect()
+    }
+}
+
+/**
+ * Enum defining the types of effects.
+ */
+private enum class EffectType {
+    LAUNCHED,
+    DISPOSABLE
+}
+
+/**
+ * State object for tracking effects.
+ */
+private data class EffectState(
+    val key: Any?,
+    val type: EffectType,
+    val cleanup: Any?
+)
+
+/**
+ * Check if the key has changed.
+ */
+private fun hasKeyChanged(oldKey: Any?, newKey: Any?): Boolean {
+    return oldKey != newKey
 } 

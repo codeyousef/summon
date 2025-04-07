@@ -1,6 +1,28 @@
 # Summon Migration Guide: From Interface-Based to Annotation-Based Composition
 
-This guide will help you migrate your existing Summon code from the interface-based composition model to the new annotation-based model that uses the `@Composable` annotation.
+## Purpose of Summon
+
+Summon is a Kotlin Multiplatform UI library designed exclusively for web applications, targeting JVM (for server-side rendering) and JS (for client-side rendering) platforms. It produces SEO-friendly and accessibility-friendly HTML, JavaScript, and CSS while providing a consistent, type-safe API that aims to be 1-to-1 compatible with Jetbrains Compose. The library prioritizes semantic markup, proper ARIA attributes, and progressive enhancement techniques to ensure content is discoverable by search engines and usable by assistive technologies. By maintaining API parity with Compose, Summon allows developers to leverage existing Compose knowledge and potentially share code with Compose-based projects while targeting the web platform specifically.
+
+## Migration Overview
+
+We are transitioning from an interface-based composition model to a modern annotation-based model that uses the `@Composable` annotation, directly mirroring Jetbrains Compose's API patterns. This 1-to-1 compatibility with Compose will make the API more intuitive for developers familiar with Compose, improve type safety, and enable better tooling support. Our goal is to align with Compose's patterns so closely that developers can seamlessly move between Summon and other Compose-targeted platforms, with web-specific adaptations made only where absolutely necessary.
+
+## Current State and Remaining Steps
+
+We are in the middle of a major refactoring effort to convert the entire codebase to use the new annotation-based composition model. Currently:
+
+1. ✅ Core runtime components have been updated with `@Composable` annotations
+2. ✅ Basic modifier system has been migrated
+3. ✅ Theme system has been updated to support the new model
+4. 🔄 Component implementations are being updated (in progress)
+5. ❌ Platform-specific renderers need updates
+6. ❌ Routing system requires refactoring
+7. ❌ SSR support needs to be adapted to the new model
+8. ❌ HTML integration utilities need updating
+9. ❌ Testing infrastructure must be adjusted
+
+**Note: Examples and demos have been temporarily removed and will be reintroduced only after the core library is fully functional.** This will prevent confusion and ensure that all examples follow the new API patterns.
 
 ## Key Changes
 
@@ -16,6 +38,9 @@ This guide will help you migrate your existing Summon code from the interface-ba
 - [ ] Update input components to use controlled component pattern
 - [ ] Refactor utility functions to create composable components
 - [ ] Fix modifiers that have changed names or method signatures
+- [ ] Update routing to support the new composition model
+- [ ] Adapt SSR functionality to work with the new model
+- [ ] Create new examples once the library is stable
 
 ## Parameter Name Changes
 
@@ -29,7 +54,7 @@ This guide will help you migrate your existing Summon code from the interface-ba
 | Layout         | `content: List<Component>` | `content: @Composable () -> Unit` |
 | Progress       | `value`/`type`           | `progress`/`type`         |
 
-## Examples
+## Migration Examples
 
 ### 1. Migrating a Simple Text Component
 
@@ -129,54 +154,6 @@ fun CreateForm() {
 }
 ```
 
-### 3. Migrating a Card with Custom Style
-
-**Before:**
-```kotlin
-fun createStyledCard(): Card {
-    return Card(
-        content = listOf(
-            Text(
-                text = "Card Title",
-                modifier = Modifier().fontSize("18px").fontWeight("bold")
-            ),
-            Text(
-                text = "Card content goes here...",
-                modifier = Modifier().color("#555")
-            )
-        ),
-        modifier = Modifier()
-            .width("300px")
-            .backgroundColor("#f5f5f5"),
-        elevation = "2px",
-        borderRadius = "4px"
-    )
-}
-```
-
-**After:**
-```kotlin
-@Composable
-fun CreateStyledCard() {
-    Card(
-        modifier = Modifier()
-            .width("300px")
-            .background("#f5f5f5")
-            .shadow("0px", "2px", "4px", "rgba(0,0,0,0.1)")
-            .borderRadius("4px")
-    ) {
-        Text(
-            text = "Card Title",
-            modifier = Modifier().fontSize("18px").fontWeight("bold")
-        )
-        Text(
-            text = "Card content goes here...",
-            modifier = Modifier().color("#555")
-        )
-    }
-}
-```
-
 ## Modifier Changes
 
 Some modifiers have been updated to use the new API:
@@ -190,29 +167,6 @@ Some modifiers have been updated to use the new API:
 | `.display(val)`           | `.style("display", val)`                      |
 | `.overflow(val)`          | `.style("overflow", val)`                     |
 
-## Handling Linter Errors During Transition
-
-During the transition period, you may encounter some linter errors due to duplicated definitions. 
-This is particularly common with the `Checkbox` component. If you see an "Overload resolution ambiguity" error, 
-you can work around it by using an explicitly typed lambda:
-
-```kotlin
-// Instead of this
-Checkbox(
-    checked = true,
-    onCheckedChange = { isChecked -> /* Handle state change */ },
-    modifier = Modifier()
-)
-
-// Try this
-val checkHandler: (Boolean) -> Unit = { isChecked -> /* Handle state change */ }
-Checkbox(
-    checked = true,
-    onCheckedChange = checkHandler,
-    modifier = Modifier()
-)
-```
-
 ## Function Naming Conventions
 
 With the move to a more Compose-like API, we've also adopted the Compose naming convention:
@@ -220,8 +174,11 @@ With the move to a more Compose-like API, we've also adopted the Compose naming 
 - Composable functions that return Unit should use UpperCamelCase (e.g., `MyComponent()` instead of `myComponent()`)
 - Regular functions that return a value can continue to use lowerCamelCase (e.g., `getComponentData()`)
 
-## Additional Resources
+## Next Steps After Migration
 
-- For more detailed examples, refer to the `ComponentAPIExamples.kt` file.
-- See the `README.md` file in the components directory for a detailed API reference.
-- Look at the updated example files like `TextExample.kt` and `LinkExample.kt` for real-world examples. 
+Once the core migration is complete:
+
+1. We will create a comprehensive suite of examples showcasing the new API
+2. Complete documentation will be updated to reflect the new patterns
+3. Additional testing utilities will be provided for the new composable model
+4. Performance optimizations specific to the new composition model will be implemented 

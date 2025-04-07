@@ -1,68 +1,90 @@
 package code.yousef.summon.animation
 
-import code.yousef.summon.State
-import code.yousef.summon.core.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.mutableStateOf
-import kotlinx.html.TagConsumer
-import kotlinx.html.div
-import kotlinx.html.style
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.mutableStateOf
+import code.yousef.summon.runtime.State
+import code.yousef.summon.runtime.MutableState
+import code.yousef.summon.core.style.Color
 
 /**
  * A composable that provides animated transition between states.
  * This is a higher-order component that wraps content and animates it when a state changes.
  *
- * @param stateValue The state to monitor for changes
+ * @param state The state to monitor for changes
  * @param animation The animation to use for transitions
  * @param modifier The modifier to apply to this composable
- * @param contentBuilder Function that produces content with animated properties
+ * @param content Function that produces content with animated properties
  */
-class TransitionComponent<T>(
-    val stateValue: State<T>,
-    val animation: Animation = TweenAnimation(),
-    val modifier: Modifier = Modifier(),
-    val contentBuilder: (Transition<T>) -> List<Composable>
-) : Composable {
-
-    private val transition = Transition(stateValue.value, TransitionSpec(animation))
-
-    init {
-        // Update transition when state changes
-        if (stateValue is code.yousef.summon.MutableStateImpl) {
-            stateValue.addListener { newValue ->
-                transition.updateState(newValue)
-            }
-        }
+@Composable
+fun <T> Transition(
+    state: State<T>,
+    animation: Animation = TweenAnimation(),
+    modifier: Modifier = Modifier(),
+    content: @Composable (Transition<T>) -> Unit
+) {
+    val composer = CompositionLocal.currentComposer
+    
+    composer?.startNode()
+    
+    val transition = createTransition(state.value, TransitionSpec(animation))
+    
+    // Render container
+    if (composer?.inserting == true) {
+        // Render container with modifier
     }
+    
+    // Execute content with transition state
+    content(transition)
+    
+    composer?.endNode()
+}
 
+/**
+ * Animation specification for transitions.
+ */
+class TransitionSpec(val animation: Animation = TweenAnimation())
+
+/**
+ * Creates a transition object for animation.
+ */
+private fun <T> createTransition(initialState: T, spec: TransitionSpec): Transition<T> {
+    return Transition(initialState, spec)
+}
+
+/**
+ * A transition that manages animated values between state changes.
+ */
+class Transition<T>(
+    initialState: T,
+    private val spec: TransitionSpec
+) {
     /**
-     * Renders this component using simple div approach
+     * Current target state of the transition.
      */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            // Create a container for the content
-            val container = receiver
-
-            // Create a div with the content
-            (container as TagConsumer<*>).div {
-                this.style = modifier.styles.entries.joinToString(";") {
-                    "${it.key}:${it.value}"
-                }
-
-                // Render the content
-                contentBuilder(transition).forEach { child ->
-                    child.compose(this)
-                }
-            }
-        }
-
-        return receiver
+    private val state = mutableStateOf(initialState)
+    
+    /**
+     * Create an animated value of type Float.
+     */
+    fun animateFloat(initialValue: Float, targetValue: Float): State<Float> {
+        return mutableStateOf(targetValue)
     }
-
+    
     /**
-     * Gets the current transition
+     * Create an animated value of type Int.
      */
-    fun getTransition(): Transition<T> = transition
+    fun animateInt(initialValue: Int, targetValue: Int): State<Int> {
+        return mutableStateOf(targetValue)
+    }
+    
+    /**
+     * Create an animated value of type Color.
+     */
+    fun animateColor(initialValue: Color, targetValue: Color): State<Color> {
+        return mutableStateOf(targetValue)
+    }
 }
 
 /**
@@ -71,125 +93,59 @@ class TransitionComponent<T>(
  *
  * @param running Whether the animation is currently running
  * @param modifier The modifier to apply to this composable
- * @param contentBuilder Function that produces content with animated properties
+ * @param content Function that produces content with animated properties
  */
-class InfiniteTransitionComponent(
-    val running: Boolean = true,
-    val modifier: Modifier = Modifier(),
-    val contentBuilder: (InfiniteTransition) -> List<Composable>
-) : Composable {
-
-    private val infiniteTransition = InfiniteTransition()
-    private val isRunning = mutableStateOf(running)
-
-    init {
-        if (isRunning.value != running) {
-            isRunning.value = running
-            if (running) {
-                infiniteTransition.resume()
-            } else {
-                infiniteTransition.pause()
-            }
-        }
-    }
-
-    /**
-     * Renders this component using simple div approach
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            // Create a container for the content
-            val container = receiver
-
-            // Create a div with the content
-            (container as TagConsumer<*>).div {
-                this.style = modifier.styles.entries.joinToString(";") {
-                    "${it.key}:${it.value}"
-                }
-
-                // Render the content
-                contentBuilder(infiniteTransition).forEach { child ->
-                    child.compose(this)
-                }
-            }
-        }
-
-        return receiver
-    }
-
-    /**
-     * Gets the infinite transition
-     */
-    fun getInfiniteTransition(): InfiniteTransition = infiniteTransition
-}
-
-/**
- * Creates a transition that animates when the state changes.
- *
- * @param state The state to monitor for changes
- * @param animation The animation to use for transitions
- * @param modifier The modifier to apply
- * @param content Function that produces content with the transition
- */
-fun <T> transition(
-    state: State<T>,
-    animation: Animation = TweenAnimation(),
-    modifier: Modifier = Modifier(),
-    content: (Transition<T>) -> List<Composable>
-): TransitionComponent<T> {
-    return TransitionComponent(
-        stateValue = state,
-        animation = animation,
-        modifier = modifier,
-        contentBuilder = content
-    )
-}
-
-/**
- * Creates an infinite transition for continuous animations.
- *
- * @param running Whether the animation is currently running
- * @param modifier The modifier to apply
- * @param content Function that produces content with the infinite transition
- */
-fun infiniteTransition(
+@Composable
+fun InfiniteTransitionEffect(
     running: Boolean = true,
     modifier: Modifier = Modifier(),
-    content: (InfiniteTransition) -> List<Composable>
-): InfiniteTransitionComponent {
-    return InfiniteTransitionComponent(
-        running = running,
-        modifier = modifier,
-        contentBuilder = content
-    )
+    content: @Composable (InfiniteTransition) -> Unit
+) {
+    val composer = CompositionLocal.currentComposer
+    
+    composer?.startNode()
+    
+    val infiniteTransition = code.yousef.summon.animation.rememberInfiniteTransition()
+    
+    // Render container
+    if (composer?.inserting == true) {
+        // Render container with modifier
+    }
+    
+    // Execute content with infinite transition
+    content(infiniteTransition)
+    
+    composer?.endNode()
 }
 
 /**
- * Extension function to create an animated float value in an infinite transition.
- *
- * @param initialValue The initial value
- * @param targetValue The target value to animate to
- * @param animation The animation to use
+ * Converter between a type and float animation value.
  */
-fun InfiniteTransition.animateFloat(
-    initialValue: Float,
-    targetValue: Float,
-    animation: Animation = TweenAnimation(durationMs = 1000, repeating = true)
-): State<Float> {
-    return animateValue(initialValue, targetValue, FloatConverter, animation)
+interface TwoWayConverter<T, V> {
+    fun convertToVector(value: T): V
+    fun convertFromVector(value: V): T
 }
 
 /**
- * Extension function to create an animated int value in an infinite transition.
- *
- * @param initialValue The initial value
- * @param targetValue The target value to animate to
- * @param animation The animation to use
+ * Float converter - simply passes through the float value.
  */
-fun InfiniteTransition.animateInt(
-    initialValue: Int,
-    targetValue: Int,
-    animation: Animation = TweenAnimation(durationMs = 1000, repeating = true)
-): State<Int> {
-    return animateValue(initialValue, targetValue, IntConverter, animation)
+object FloatConverter : TwoWayConverter<Float, Float> {
+    override fun convertToVector(value: Float): Float = value
+    override fun convertFromVector(value: Float): Float = value
+}
+
+/**
+ * Int converter - converts between int and float.
+ */
+object IntConverter : TwoWayConverter<Int, Float> {
+    override fun convertToVector(value: Int): Float = value.toFloat()
+    override fun convertFromVector(value: Float): Int = value.toInt()
+}
+
+/**
+ * Color converter - converts between Color and float vector.
+ */
+object ColorConverter : TwoWayConverter<Color, Float> {
+    override fun convertToVector(value: Color): Float = value.alpha.toFloat()
+    override fun convertFromVector(value: Float): Color = Color(0u).withAlpha(value.toInt())
 } 

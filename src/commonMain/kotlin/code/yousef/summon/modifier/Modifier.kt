@@ -1,5 +1,8 @@
 package code.yousef.summon.modifier
 
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
+
 /**
  * A Modifier is used to add styling information to a composable.
  * It holds a map of CSS property names to their values.

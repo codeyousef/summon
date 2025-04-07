@@ -9,12 +9,8 @@ import code.yousef.summon.components.input.SelectOption
 import code.yousef.summon.components.input.FileInfo // Renamed? Assumed path
 import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.navigation.Tab // Assumed path
-import code.yousef.summon.components.feedback.AlertVariant // Add import
+import components.feedback.AlertVariant // Add import
 
-// --- TODO: Replace temporary typealiases ---
-// These should eventually point to platform-specific or common date/time library types
-typealias LocalDate = Any // Placeholder - e.g., kotlinx.datetime.LocalDate
-typealias LocalTime = Any // Placeholder - e.g., kotlinx.datetime.LocalTime
 
 /**
  * Platform-specific renderer interface.

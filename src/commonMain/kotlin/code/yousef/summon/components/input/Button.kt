@@ -1,26 +1,9 @@
 package code.yousef.summon.components.input
 
-// Remove old imports
-// import code.yousef.summon.core.Composable
-import code.yousef.summon.core.PlatformRendererProvider // Keep for now, ideally use CompositionLocal
-// import code.yousef.summon.components.ClickableComponent
-// import code.yousef.summon.components.FocusableComponent
-import code.yousef.summon.components.display.Icon // Import the composable Icon
-import code.yousef.summon.components.display.IconDefaults // Import IconDefaults
-import code.yousef.summon.components.display.Text // Import the composable Text
-// import code.yousef.summon.components.layout.Row // Row not yet refactored
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.pointerEvents // Import pointerEvents
-import code.yousef.summon.modifier.applyIf // Import applyIf
-// import code.yousef.summon.modifier.cursor // Remove import
-// import code.yousef.summon.modifier.opacity // Remove import
-import code.yousef.summon.modifier.padding // Keep padding import
-// import kotlinx.html.TagConsumer
 
-// Add new runtime imports
+import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.core.getPlatformRenderer
+import code.yousef.summon.runtime.PlatformRendererProvider
 import code.yousef.summon.components.text.Text
 
 /**
@@ -78,7 +61,7 @@ fun Button(
     variant: ButtonVariant = ButtonVariant.PRIMARY,
     content: @Composable () -> Unit
 ) {
-    val renderer = getPlatformRenderer()
+    val renderer = PlatformRendererProvider.getPlatformRenderer()
     // In a real implementation, we would use variant to customize the renderer call
     renderer.renderButton(onClick = onClick, enabled = enabled, modifier = modifier)
     content()

@@ -1,6 +1,10 @@
 package code.yousef.summon.routing
 
-import code.yousef.summon.core.Composable
+import code.yousef.summon.runtime.Composable
+
+
+// Typealias for the new composable page factory signature
+typealias PageFactory = @Composable (params: RouteParams) -> Unit
 
 /**
  * Registry for pages that can be automatically discovered and loaded.
@@ -14,59 +18,49 @@ interface PageRegistry {
      * @param pagePath The route path (e.g., "/users/profile")
      * @param pageFactory Function that creates the page component
      */
-    fun registerPage(pagePath: String, pageFactory: (RouteParams) -> Composable)
+    fun registerPage(pagePath: String, pageFactory: PageFactory)
 
     /**
      * Register a special 404 Not Found page.
      *
      * @param pageFactory Function that creates the not found page component
      */
-    fun registerNotFoundPage(pageFactory: (RouteParams) -> Composable)
+    fun registerNotFoundPage(pageFactory: PageFactory)
 
     /**
      * Get all registered page routes and their factories.
      *
      * @return Map of page paths to page component factories
      */
-    fun getPages(): Map<String, (RouteParams) -> Composable>
+    fun getPages(): Map<String, PageFactory>
 
     /**
      * Get the registered not found page factory if available.
      *
      * @return The not found page factory or null if not registered
      */
-    fun getNotFoundPage(): ((RouteParams) -> Composable)?
-
-    /**
-     * Create a router from the registered pages.
-     *
-     * @return A configured Router instance
-     */
-    fun createRouter(): Router = Router(
-        routes = getPages().map { (path, factory) -> Route(path, factory) },
-        notFoundComponent = getNotFoundPage()
-    )
+    fun getNotFoundPage(): PageFactory?
 }
 
 /**
  * Default implementation of PageRegistry.
  */
 class DefaultPageRegistry : PageRegistry {
-    private val pages = mutableMapOf<String, (RouteParams) -> Composable>()
-    private var notFoundPage: ((RouteParams) -> Composable)? = null
+    private val pages = mutableMapOf<String, PageFactory>()
+    private var notFoundPage: PageFactory? = null
 
-    override fun registerPage(pagePath: String, pageFactory: (RouteParams) -> Composable) {
+    override fun registerPage(pagePath: String, pageFactory: PageFactory) {
         val normalizedPath = normalizePath(pagePath)
         pages[normalizedPath] = pageFactory
     }
 
-    override fun registerNotFoundPage(pageFactory: (RouteParams) -> Composable) {
+    override fun registerNotFoundPage(pageFactory: PageFactory) {
         notFoundPage = pageFactory
     }
 
-    override fun getPages(): Map<String, (RouteParams) -> Composable> = pages
+    override fun getPages(): Map<String, PageFactory> = pages
 
-    override fun getNotFoundPage(): ((RouteParams) -> Composable)? = notFoundPage
+    override fun getNotFoundPage(): PageFactory? = notFoundPage
 
     /**
      * Normalize a path following Next.js conventions.
@@ -106,19 +100,18 @@ object Pages {
     /**
      * Register a page.
      */
-    fun register(pagePath: String, pageFactory: (RouteParams) -> Composable) {
+    fun register(pagePath: String, pageFactory: PageFactory) {
         registry.registerPage(pagePath, pageFactory)
     }
 
     /**
      * Register a 404 page.
      */
-    fun registerNotFound(pageFactory: (RouteParams) -> Composable) {
+    fun registerNotFound(pageFactory: PageFactory) {
         registry.registerNotFoundPage(pageFactory)
     }
 
-    /**
-     * Create a router from all registered pages.
-     */
-    fun createRouter(): Router = registry.createRouter()
+    // Add methods to access the stored pages and notFound page directly
+    fun getRegisteredPages(): Map<String, PageFactory> = registry.getPages()
+    fun getNotFoundHandler(): PageFactory? = registry.getNotFoundPage()
 } 

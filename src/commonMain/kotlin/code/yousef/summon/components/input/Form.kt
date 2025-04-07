@@ -1,9 +1,9 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.PlatformRendererProvider
+
 
 /**
  * A composable that represents a semantic form container.
@@ -21,8 +21,8 @@ fun Form(
     modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 ) {
-    // TODO: Replace PlatformRendererProvider with CompositionLocal access
-    val renderer = PlatformRendererProvider.getRenderer()
+    // TODO: Replace runtime.PlatformRendererProvider with CompositionLocal access
+    val renderer = PlatformRendererProvider.getPlatformRenderer()
 
     // TODO: Renderer signature update required.
     // The renderer needs to create the <form> element and associate the onSubmit lambda

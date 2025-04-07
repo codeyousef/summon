@@ -2,6 +2,7 @@ package code.yousef.summon.theme
 
 import code.yousef.summon.modifier.Modifier
 
+
 /**
  * MediaQuery provides responsive style adjustments based on screen size.
  * This class helps create media query-based styles using a Compose-like API.

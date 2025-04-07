@@ -1,12 +1,15 @@
 package code.yousef.summon.components.navigation
 
-import code.yousef.summon.core.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRendererProvider
+
+
+import code.yousef.summon.components.display.Text
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.applyIf
+import code.yousef.summon.modifier.attribute
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.modifier.attribute
-import code.yousef.summon.modifier.applyIf
+
 
 /**
  * A composable that displays a hyperlink.
@@ -35,6 +38,7 @@ fun Link(
     ariaDescribedBy: String? = null, // TODO: Pass to renderer or handle via modifier
     content: @Composable () -> Unit
 ) {
+    val composer = CompositionLocal.currentComposer
     // --- Calculate Final Rel Attribute --- 
     val finalRelValues = mutableListOf<String>()
     rel?.let { finalRelValues.addAll(it.split(" ").filter { it.isNotBlank() }) }
@@ -57,15 +61,16 @@ fun Link(
         .applyIf(ariaDescribedBy != null) { attribute("aria-describedby", ariaDescribedBy!!) }
         // TODO: Add onClick handling via modifier.clickable?
 
-    // TODO: Replace PlatformRendererProvider with CompositionLocal access
-    val renderer = PlatformRendererProvider.getRenderer()
+    composer?.startNode() // Start Link node
+    if (composer?.inserting == true) {
+        val renderer = PlatformRendererProvider.getPlatformRenderer()
+        renderer.renderLink(href = href, modifier = finalModifier)
+    }
 
-    // Call renderer to create the Link container (e.g., <a> tag)
-    // Renderer now receives attributes via the modifier map (__attr: prefix)
-    renderer.renderLink(href = href, modifier = finalModifier)
-
-    // Execute the content lambda 
+    // Execute the content lambda within the Link scope
     content()
+    
+    composer?.endNode() // End Link node
 }
 
 // --- Helper Functions (Updated) --- 

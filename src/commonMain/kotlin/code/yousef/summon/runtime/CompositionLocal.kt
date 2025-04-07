@@ -1,25 +1,98 @@
 package code.yousef.summon.runtime
 
 /**
- * Provides a thread-local mechanism for accessing the current composer.
- * This is crucial for the composable function system to work properly.
+ * Provides access to composition-local values within a composition.
  */
 object CompositionLocal {
     /**
-     * ThreadLocal storage for the current composer.
+     * The currently active composer, or null if no composition is in progress.
      */
-    private val currentComposerThreadLocal = ThreadLocal<Composer?>()
-    
+    private var _currentComposer: Composer? = null
+
     /**
-     * Get the current composer from thread-local storage.
+     * Gets the current composer instance.
+     * This is used by composable functions to manage their lifecycle.
      */
     val currentComposer: Composer?
-        get() = currentComposerThreadLocal.get()
+        get() = _currentComposer
+
+    /**
+     * Sets the current composer.
+     * This should only be called by the composition framework.
+     */
+    internal fun setCurrentComposer(composer: Composer?) {
+        _currentComposer = composer
+        
+        // Also update the recomposer
+        if (composer != null && Recomposer.isComposerImpl(composer)) {
+            RecomposerHolder.recomposer.setActiveComposer(Recomposer.asComposerImpl(composer))
+        } else {
+            RecomposerHolder.recomposer.setActiveComposer(null)
+        }
+    }
     
     /**
-     * Set the current composer in thread-local storage.
+     * Creates a CompositionLocal with a default value.
+     * 
+     * @param defaultValue The default value to return when no provider exists.
+     * @return A new CompositionLocalProvider.
      */
-    fun setCurrentComposer(composer: Composer?) {
-        currentComposerThreadLocal.set(composer)
+    fun <T> compositionLocalOf(defaultValue: T): CompositionLocalProvider<T> =
+        CompositionLocalProviderImpl(defaultValue)
+    
+    /**
+     * Creates a static CompositionLocal that requires a provider.
+     * 
+     * @return A new CompositionLocal that throws if no provider exists.
+     */
+    fun <T> staticCompositionLocalOf(): CompositionLocalProvider<T> =
+        StaticCompositionLocalProviderImpl()
+}
+
+/**
+ * Base interface for a composition local provider.
+ */
+interface CompositionLocalProvider<T> {
+    /**
+     * The current value of this composition local.
+     */
+    val current: T
+    
+    /**
+     * Creates a new provider with the specified value.
+     * 
+     * @param value The value to provide.
+     * @return A new provider providing the value.
+     */
+    fun provides(value: T): CompositionLocalProvider<T>
+}
+
+/**
+ * Default implementation of CompositionLocalProvider.
+ */
+private class CompositionLocalProviderImpl<T>(private val defaultValue: T) : CompositionLocalProvider<T> {
+    private var value: T = defaultValue
+    
+    override val current: T
+        get() = value
+    
+    override fun provides(value: T): CompositionLocalProvider<T> {
+        this.value = value
+        return this
+    }
+}
+
+/**
+ * Implementation of CompositionLocalProvider for static values that must be provided.
+ */
+private class StaticCompositionLocalProviderImpl<T> : CompositionLocalProvider<T> {
+    private var value: T? = null
+    
+    override val current: T
+        get() = value ?: throw IllegalStateException("CompositionLocal not provided")
+    
+    override fun provides(value: T): CompositionLocalProvider<T> {
+        this.value = value
+        return this
     }
 } 

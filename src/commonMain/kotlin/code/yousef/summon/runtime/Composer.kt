@@ -1,69 +1,104 @@
 package code.yousef.summon.runtime
 
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
+
 /**
- * Core interface that manages the composition process.
- * Each platform will provide its own implementation of this interface.
+ * Interface for the Composer, which is responsible for managing the composition and recomposition of UI.
+ * The Composer tracks which parts of the UI need to be redrawn when state changes.
  */
 interface Composer {
     /**
-     * Indicates whether the composer is currently inserting new nodes.
+     * Indicates whether nodes are currently being inserted into the composition tree.
      */
     val inserting: Boolean
     
     /**
-     * Start a new composition node.
+     * Starts a new composition node.
      */
     fun startNode()
     
     /**
-     * End the current composition node.
+     * Starts a new composition group with the given key.
+     * Groups allow for managing nodes with the same lifecycle.
+     * 
+     * @param key The key identifying this group.
+     */
+    fun startGroup(key: Any? = null)
+    
+    /**
+     * Ends the current composition node.
      */
     fun endNode()
     
     /**
-     * Start a group that can be skipped as a unit during recomposition.
-     */
-    fun startGroup(key: Any?)
-    
-    /**
-     * End the current group.
+     * Ends the current composition group.
      */
     fun endGroup()
     
     /**
-     * Report a change to the composition system.
+     * Checks if the value has changed since the last composition.
+     * 
+     * @param value The value to check for changes.
+     * @return True if the value has changed, false otherwise.
      */
-    fun reportChanged()
+    fun changed(value: Any?): Boolean
     
     /**
-     * Get the next available slot index.
+     * Updates the value in the composition.
+     * 
+     * @param value The new value.
      */
-    fun nextSlot(): Int
+    fun updateValue(value: Any?)
     
     /**
-     * Get the value stored in the given slot.
+     * Moves to the next slot in the current group.
      */
-    fun getSlot(index: Int): Any?
+    fun nextSlot()
     
     /**
-     * Set the value for the given slot.
+     * Gets the current slot's value.
+     * 
+     * @return The value stored in the current slot
      */
-    fun setSlot(index: Int, value: Any?)
+    fun getSlot(): Any?
     
     /**
-     * Record that a state object was read.
-     * Used for tracking dependencies for recomposition.
-     *
-     * @param state The state object that was read.
+     * Sets the value of the current slot.
+     * 
+     * @param value The value to store
+     */
+    fun setSlot(value: Any?)
+    
+    /**
+     * Records that a state object was read during composition.
+     * 
+     * @param state The state object that was read
      */
     fun recordRead(state: Any)
     
     /**
-     * Record that a state object was written to.
-     * Used for triggering recomposition of dependent components.
-     *
-     * @param state The state object that was written to.
-     * @param newValue The new value of the state.
+     * Records that a state object was written to during composition.
+     * 
+     * @param state The state object that was written
      */
-    fun recordWrite(state: Any, newValue: Any?)
+    fun recordWrite(state: Any)
+    
+    /**
+     * Reports that a tracked state object has changed.
+     */
+    fun reportChanged()
+    
+    /**
+     * Registers a disposable resource that should be cleaned up 
+     * when the composition is disposed.
+     * 
+     * @param disposable The resource to be disposed when the composition ends
+     */
+    fun registerDisposable(disposable: () -> Unit)
+    
+    /**
+     * Disposes the composer and cleans up all resources.
+     */
+    fun dispose()
 } 

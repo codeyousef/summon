@@ -1,4 +1,6 @@
-package code.yousef.summon.routing
+package routing
+
+import code.yousef.summon.routing.Router
 
 /**
  * Provides a context for accessing the current router instance.

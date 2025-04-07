@@ -2,20 +2,26 @@
 
 package code.yousef.summon
 
-// Remove old component imports (many are unused now)
-// import code.yousef.summon.animation.AnimatedContent
-// import code.yousef.summon.animation.AnimatedVisibility
-// import code.yousef.summon.components.display.*
-// import code.yousef.summon.components.feedback.*
-// import code.yousef.summon.components.input.*
-// import code.yousef.summon.components.layout.*
-// import code.yousef.summon.components.navigation.Link
-// import code.yousef.summon.components.navigation.TabLayout
-// import code.yousef.summon.core.Composable // Removed interface
-import code.yousef.summon.core.PlatformRenderer
+import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.runtime.Composable
 import code.yousef.summon.modifier.Modifier
-// import code.yousef.summon.routing.Router // Removed
-// import code.yousef.summon.routing.RouterContext // Likely unused now
+import code.yousef.summon.core.LocalDate
+import code.yousef.summon.core.LocalTime
+import code.yousef.summon.core.style.Color
+
+// Remove old component imports (many are unused now)
+// import animation.AnimatedContent
+// import animation.AnimatedVisibility
+// import components.display.*
+// import components.feedback.*
+// import components.input.*
+// import components.layout.*
+// import components.navigation.Link
+// import components.navigation.TabLayout
+// import core.Composable // Removed interface
+// import modifier.Modifier // Replaced with correct import
+// import routing.Router // Removed
+// import routing.RouterContext // Likely unused now
 
 import kotlin.ranges.ClosedFloatingPointRange
 import code.yousef.summon.components.input.TextFieldType
@@ -23,12 +29,9 @@ import code.yousef.summon.components.input.SelectOption
 import code.yousef.summon.components.input.FileInfo
 import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.navigation.Tab
-import code.yousef.summon.components.feedback.AlertVariant
-import code.yousef.summon.core.LocalDate
-import code.yousef.summon.core.LocalTime
+import components.feedback.AlertVariant
 
 import kotlinx.html.*
-import kotlinx.html.attributes.enumEncode
 
 // Re-add necessary placeholder type aliases (already defined in PlatformRenderer, but good for clarity here)
 typealias AlertType = String
@@ -124,16 +127,16 @@ class JvmPlatformRenderer : PlatformRenderer {
         consumer.input {
             id = inputId
             this.type = when(type) {
-                TextFieldType.Password -> InputType.password
-                TextFieldType.Email -> InputType.email
-                TextFieldType.Number -> InputType.number
-                TextFieldType.Tel -> InputType.tel
-                TextFieldType.Url -> InputType.url
-                TextFieldType.Search -> InputType.search
-                TextFieldType.Date -> InputType.date
-                TextFieldType.Time -> InputType.time
-                else -> InputType.text
-            }
+                    TextFieldType.Password -> InputType.password
+                    TextFieldType.Email -> InputType.email
+                    TextFieldType.Number -> InputType.number
+                    TextFieldType.Tel -> InputType.tel
+                    TextFieldType.Url -> InputType.url
+                    TextFieldType.Search -> InputType.search
+                    TextFieldType.Date -> InputType.date
+                    TextFieldType.Time -> InputType.time
+                    else -> InputType.text
+                }
             this.value = value
             this.disabled = !enabled
             if (readOnly) {
@@ -186,7 +189,7 @@ class JvmPlatformRenderer : PlatformRenderer {
         val checkId = "checkbox-${checked.hashCode()}"
         consumer.input {
             id = checkId
-            type = InputType.checkBox
+                type = InputType.checkBox
             this.checked = checked
             this.disabled = !enabled
             style = modifier.toStyleString()
@@ -205,8 +208,8 @@ class JvmPlatformRenderer : PlatformRenderer {
     ) {
         val radioId = "radio-${selected.hashCode()}"
         consumer.input {
-            id = radioId
-            type = InputType.radio
+                id = radioId
+                type = InputType.radio
             this.checked = selected
             this.disabled = !enabled
             style = modifier.toStyleString()
@@ -226,19 +229,19 @@ class JvmPlatformRenderer : PlatformRenderer {
     ) {
         val selectId = "select-${options.hashCode()}"
         consumer.select {
-            id = selectId
+                id = selectId
             this.disabled = !enabled
             style = modifier.toStyleString()
             attributes["data-summon-select"] = "true" // JS hook
             
             options.forEach { option ->
-                option {
+                    option {
                     this.value = option.value?.toString() ?: ""
                     this.disabled = option.disabled
                     this.selected = (option.value == value)
-                    +option.label
+                        +option.label
+                    }
                 }
-            }
         }
     }
 
@@ -605,7 +608,7 @@ class JvmPlatformRenderer : PlatformRenderer {
      */
     override fun renderAnimatedVisibility(visible: Boolean, modifier: Modifier) {
         if (visible) {
-            consumer.div {
+        consumer.div {
                 style = modifier.toStyleString()
             }
         }

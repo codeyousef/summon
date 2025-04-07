@@ -1,12 +1,12 @@
 package code.yousef.summon.components.feedback
 
-import code.yousef.summon.core.getPlatformRenderer
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.textAlign
-import code.yousef.summon.modifier.display
+import code.yousef.summon.runtime.PlatformRendererProvider
+
+
 import code.yousef.summon.components.display.Text
+import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
+
 
 /**
  * Badge types for different semantic meanings
@@ -73,7 +73,7 @@ fun Badge(
         // TODO: Apply clickable modifier if onClick != null
 
     // TODO: Replace getPlatformRenderer with CompositionLocal access
-    val renderer = getPlatformRenderer()
+    val renderer = PlatformRendererProvider.code.yousef.summon.runtime.PlatformRendererProvider.getPlatformRenderer()
 
     // TODO: Renderer signature update? Pass type/shape/etc.?
     // Assuming renderBadge just needs the final modifier and the content is handled via composition.
@@ -281,7 +281,7 @@ fun Badge(
         .then(modifier) 
 
     // TODO: Replace getPlatformRenderer with CompositionLocal access
-    val renderer = getPlatformRenderer()
+    val renderer = PlatformRendererProvider.getPlatformRenderer()
 
     renderer.renderBadge(modifier = finalModifier)
 

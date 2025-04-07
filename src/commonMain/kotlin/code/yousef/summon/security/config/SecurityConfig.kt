@@ -1,7 +1,10 @@
-package code.yousef.summon.security.config
+package security.config
 
-import code.yousef.summon.security.AuthenticationProvider
-import code.yousef.summon.security.JwtAuthenticationProvider
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
+
+import security.AuthenticationProvider
+import security.JwtAuthenticationProvider
 
 /**
  * Configuration class for security settings

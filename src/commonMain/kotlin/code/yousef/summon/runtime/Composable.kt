@@ -1,8 +1,13 @@
 package code.yousef.summon.runtime
 
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
+
 /**
- * Marks a function as composable, which means it can participate in the composition.
- * Composable functions can only be called from other composable functions or a composition root.
+ * Marks a function as composable, which means it can participate in the Summon composition system.
+ * 
+ * Composable functions can only be called from within other @Composable functions.
+ * They form the building blocks of the Summon UI hierarchy.
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)

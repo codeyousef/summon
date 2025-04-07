@@ -1,7 +1,10 @@
 package code.yousef.summon.theme
 
-import code.yousef.summon.Spacer
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.PlatformRendererProvider
+
 
 /**
  * SpacingSystem provides a consistent spacing system for the Summon UI library.
@@ -113,3 +116,58 @@ fun Modifier.spacingMarginVertical(value: String): Modifier =
  */
 fun createSpacer(size: String, isVertical: Boolean = true): Spacer =
     Spacer(size = size, isVertical = isVertical)
+
+/**
+ * A composable that renders an empty, sized element, typically used for spacing.
+ *
+ * @param modifier Modifier to control the size (width/height) of the spacer.
+ */
+@Composable
+fun Spacer(modifier: Modifier) {
+    val composer = CompositionLocal.currentComposer
+    composer?.startNode() // Start Spacer node
+    if (composer?.inserting == true) {
+        PlatformRendererProvider.getPlatformRenderer().renderBox(modifier = modifier) // Use renderBox or a specific renderSpacer
+    }
+    // No content lambda for Spacer
+    composer?.endNode() // End Spacer node
+}
+
+// --- Convenience Spacers (Example - Needs Theme Integration) ---
+// These should ideally pull values from a Theme object.
+
+/** Adds horizontal space based on theme defaults (Extra Small). */
+@Composable
+fun HorizontalSpacerXS() {
+    Spacer(Modifier().width("4px")) // Placeholder value
+}
+
+/** Adds horizontal space based on theme defaults (Small). */
+@Composable
+fun HorizontalSpacerS() {
+    Spacer(Modifier().width("8px")) // Placeholder value
+}
+
+/** Adds horizontal space based on theme defaults (Medium). */
+@Composable
+fun HorizontalSpacerM() {
+    Spacer(Modifier().width("16px")) // Placeholder value
+}
+
+/** Adds vertical space based on theme defaults (Extra Small). */
+@Composable
+fun VerticalSpacerXS() {
+    Spacer(Modifier().height("4px")) // Placeholder value
+}
+
+/** Adds vertical space based on theme defaults (Small). */
+@Composable
+fun VerticalSpacerS() {
+    Spacer(Modifier().height("8px")) // Placeholder value
+}
+
+/** Adds vertical space based on theme defaults (Medium). */
+@Composable
+fun VerticalSpacerM() {
+    Spacer(Modifier().height("16px")) // Placeholder value
+}

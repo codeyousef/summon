@@ -1,9 +1,11 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.core.getPlatformRenderer
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.ComposableDsl
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.PlatformRendererProvider
+import runtime.ComposableDsl
+
 
 /**
  * A scope for `Row` composable's content lambda.
@@ -27,6 +29,7 @@ internal object RowScopeInstance : RowScope {
         // Placeholder: Return unchanged modifier.
         // Actual implementation would add alignment styles (e.g., align-self)
         println("RowScope.align called with $alignment - Placeholder")
+        // Example: return this.style("align-self", alignment.toCssValue())
         return this
     }
 }
@@ -34,21 +37,34 @@ internal object RowScopeInstance : RowScope {
 /**
  * A layout composable that places its children in a horizontal sequence.
  * 
- * Row is a fundamental layout component used for horizontal arrangements of UI elements.
- * 
  * @param modifier [Modifier] to be applied to the Row layout
- * @param content The content to display inside the Row
+ * @param horizontalArrangement Arrangement of children along the main axis (horizontal).
+ * @param verticalAlignment Alignment of children along the cross axis (vertical).
+ * @param content The content lambda defining the children, scoped to `RowScope`.
  */
 @Composable
 fun Row(
     modifier: Modifier = Modifier(),
-    content: @Composable () -> Unit
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Horizontal.Start, // Qualified default
+    verticalAlignment: Alignment.Vertical = Alignment.Vertical.Top,       // Qualified default
+    content: @Composable RowScope.() -> Unit // Content lambda now has RowScope receiver
 ) {
-    val renderer = getPlatformRenderer()
-    renderer.renderRow(modifier)
-    content()
-    // In a real implementation, there would be a closing method call after content
-    // For now, we assume the underlying renderer tracks the open/close state
+    val composer = CompositionLocal.currentComposer
+    // TODO: Add Modifier properties for horizontalArrangement and verticalAlignment
+    // Example: val finalModifier = modifier.flexboxStyles(direction = "row", ...) 
+    val finalModifier = modifier // Placeholder
+
+    composer?.startNode() // Start Row node
+    if (composer?.inserting == true) {
+        val renderer = PlatformRendererProvider.getPlatformRenderer()
+        renderer.renderRow(finalModifier) // Render the row container
+    }
+    
+    // Execute the content lambda with RowScopeInstance as the receiver
+    // This allows children to use RowScope modifiers like .align()
+    RowScopeInstance.content()
+    
+    composer?.endNode() // End Row node
 }
 
 // TODO: Define Alignment and Arrangement enums/objects if they don't exist

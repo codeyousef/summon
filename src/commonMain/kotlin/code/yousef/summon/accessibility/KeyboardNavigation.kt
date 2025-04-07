@@ -1,9 +1,10 @@
 package code.yousef.summon.accessibility
 
-import code.yousef.summon.FocusableComponent
-import code.yousef.summon.accessibility.KeyboardNavigation.keyboardNavigation
-import code.yousef.summon.core.Composable
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.attribute
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.PlatformRendererProvider
 
 /**
  * Keys commonly used for keyboard navigation in web applications.
@@ -98,7 +99,7 @@ object KeyboardNavigation {
      * @param config The keyboard navigation configuration
      * @return Modified Modifier with keyboard navigation attributes
      */
-    fun Modifier.keyboardNavigation(config: KeyboardNavigation.KeyboardNavigationConfig): Modifier {
+    fun Modifier.keyboardNavigation(config: KeyboardNavigationConfig): Modifier {
         var modified = this.focusable(config.tabIndex)
 
         if (config.autoFocus) {
@@ -129,19 +130,59 @@ object KeyboardNavigation {
 }
 
 /**
- * A component that provides keyboard navigation capabilities.
- *
- * @param content The content to make keyboard navigable
- * @param config The keyboard navigation configuration
+ * Manages keyboard navigation within a specific scope.
+ * Handles key presses like Tab, Shift+Tab, Arrows, Enter, Escape.
  */
-class KeyboardNavigableContainer(
-    private val content: List<Composable>,
-    private val config: KeyboardNavigation.KeyboardNavigationConfig = KeyboardNavigation.KeyboardNavigationConfig()
-) : Composable, FocusableComponent {
+object KeyboardNavigator {
+    // TODO: Needs significant implementation.
+    // - How to capture key events (JS event listeners? Platform-specific integration?)
+    // - How to interact with FocusManager to move focus?
+    // - How to define navigation scopes (e.g., within a dialog, menu, grid)?
 
-    override fun <T> compose(receiver: T): T {
-        val modifier = Modifier().keyboardNavigation(config)
-        // TODO: Implement rendering with keyboard navigation
-        return receiver
+    fun handleKeyPress(key: String, scopeId: String? = null) {
+        println("KeyboardNavigator: Key '$key' pressed (Scope: $scopeId). Handler not implemented.")
+        when (key) {
+            "Tab" -> FocusManager.moveFocusNext() // Needs FocusManager integration
+            "Shift+Tab" -> FocusManager.moveFocusPrevious() // Needs FocusManager integration
+            "ArrowDown", "ArrowRight" -> { /* Move focus within scope */ }
+            "ArrowUp", "ArrowLeft" -> { /* Move focus within scope */ }
+            "Enter", "Space" -> { /* Activate focused item */ }
+            "Escape" -> { /* Dismiss/close scope? */ }
+        }
     }
+}
+
+/**
+ * Defines a scope for keyboard navigation.
+ * Components within this scope can be navigated using arrow keys, etc.
+ *
+ * @param scopeId A unique identifier for this navigation scope (optional).
+ * @param modifier Modifier applied to the scope container.
+ * @param content The content within which keyboard navigation should operate.
+ */
+@Composable
+fun KeyboardNavigationScope(
+    scopeId: String? = null,
+    modifier: Modifier = Modifier(),
+    content: @Composable () -> Unit
+) {
+    val composer = CompositionLocal.currentComposer
+
+    // TODO: How to capture key events for this scope?
+    // Option 1: Modifier attaches event listeners (e.g., .onKeyDown)
+    // Option 2: Global listener filters by active scope (requires tracking active scope)
+
+    val keyboardScopeModifier = modifier
+        // Example: Attach key down listener via modifier if possible
+        // .onKeyDown { keyEvent -> KeyboardNavigator.handleKeyPress(keyEvent.key, scopeId) }
+        // Add scope identifier if needed for global listener
+        .apply { scopeId?.let { attribute("data-nav-scope", it) } }
+
+    composer?.startNode() // Start keyboard navigation scope node
+    if (composer?.inserting == true) {
+        // Render a container (like Box) applying the modifier.
+       PlatformRendererProvider.getPlatformRenderer().renderBox(modifier = keyboardScopeModifier)
+    }
+    content() // Compose the actual UI content within the scope
+    composer?.endNode() // End keyboard navigation scope node
 } 

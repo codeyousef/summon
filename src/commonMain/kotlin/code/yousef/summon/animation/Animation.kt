@@ -1,25 +1,26 @@
 package code.yousef.summon.animation
 
-import code.yousef.summon.State
-import code.yousef.summon.mutableStateOf
 import kotlin.math.pow
 
 /**
- * Base interface for all animation types
+ * Base interface for animations in the Summon framework.
  */
 interface Animation {
     /**
-     * Get the current interpolated value at the specified animation progress (0.0 to 1.0)
+     * Get the current animation value.
+     * 
+     * @param fraction The animation progress between 0.0 and 1.0
+     * @return The animated value at the given progress
      */
-    fun getValueAtProgress(progress: Float): Float
-
+    fun getValue(fraction: Float): Float
+    
     /**
-     * The total duration of the animation in milliseconds
+     * The total duration of the animation in milliseconds.
      */
     val durationMs: Int
 
     /**
-     * Whether the animation should automatically repeat
+     * Whether the animation should repeat.
      */
     val repeating: Boolean
 
@@ -35,25 +36,22 @@ interface Animation {
 }
 
 /**
- * Spring animation that follows physics-based motion
+ * A physics-based spring animation.
  *
- * @param stiffness The spring stiffness coefficient
- * @param damping The spring damping coefficient
- * @param durationMs The approximate animation duration in milliseconds
+ * @param stiffness The stiffness of the spring (higher = more rigid)
+ * @param damping The amount of damping (higher = less oscillation)
+ * @param durationMs The total animation duration in milliseconds
  * @param repeating Whether the animation should repeat
  */
 class SpringAnimation(
-    val stiffness: Float = 170f,
-    val damping: Float = 26f,
-    override val durationMs: Int = 400,
+    val stiffness: Float = 150f,
+    val damping: Float = 12f,
+    override val durationMs: Int = 300,
     override val repeating: Boolean = false
 ) : Animation {
-
-    override fun getValueAtProgress(progress: Float): Float {
-        // Simple damped spring approximation
-        val decay = (-damping * progress).coerceIn(-30f, 0f)
-        val response = 1f - exp(decay) * cos(stiffness * progress)
-        return response.coerceIn(0f, 1f)
+    override fun getValue(fraction: Float): Float {
+        // Simple approximation of a spring animation
+        return 1f - (1f - fraction) * kotlin.math.exp(-damping * fraction)
     }
 
     override fun toCssAnimationString(): String {
@@ -67,35 +65,41 @@ class SpringAnimation(
 
         for (i in 0..steps) {
             val progress = i.toFloat() / steps
-            val value = getValueAtProgress(progress)
+            val value = getValue(progress)
             keyframes.append("  ${(progress * 100).toInt()}% { transform: scale($value); }\n")
         }
 
         keyframes.append("}")
         return keyframes.toString()
     }
-
-    companion object {
-        private fun exp(x: Float): Float = kotlin.math.exp(x.toDouble()).toFloat()
-        private fun cos(x: Float): Float = kotlin.math.cos(x.toDouble()).toFloat()
-    }
 }
 
 /**
- * Tween animation that follows a specified easing curve
+ * Animation that changes at a constant rate, with optional easing.
  *
  * @param durationMs The animation duration in milliseconds
- * @param easing The easing function to use
+ * @param easing The easing function to apply
  * @param repeating Whether the animation should repeat
  */
 class TweenAnimation(
     override val durationMs: Int = 300,
-    val easing: Easing = Easing.EASE_IN_OUT,
+    val easing: Easing = Easing.LINEAR,
     override val repeating: Boolean = false
 ) : Animation {
-
-    override fun getValueAtProgress(progress: Float): Float {
-        return easing.apply(progress)
+    override fun getValue(fraction: Float): Float {
+        // Apply the easing function
+        return when (easing) {
+            Easing.LINEAR -> fraction
+            Easing.EASE_IN -> fraction * fraction
+            Easing.EASE_OUT -> 1f - (1f - fraction) * (1f - fraction)
+            Easing.EASE_IN_OUT -> {
+                if (fraction < 0.5f) {
+                    2f * fraction * fraction
+                } else {
+                    1f - (-2f * fraction + 2f) * (-2f * fraction + 2f) / 2f
+                }
+            }
+        }
     }
 
     override fun toCssAnimationString(): String {
@@ -113,30 +117,13 @@ class TweenAnimation(
 }
 
 /**
- * Common easing functions for animations
+ * Common easing functions for animations.
  */
 enum class Easing {
-    LINEAR,
-    EASE_IN,
-    EASE_OUT,
-    EASE_IN_OUT;
-
-    /**
-     * Apply the easing function to a progress value (0.0 to 1.0)
-     */
-    fun apply(progress: Float): Float {
-        return when (this) {
-            LINEAR -> progress
-            EASE_IN -> progress * progress
-            EASE_OUT -> 1 - (1 - progress).pow(2)
-            EASE_IN_OUT -> {
-                when {
-                    progress < 0.5f -> 2 * progress * progress
-                    else -> 1 - (-2 * progress + 2).pow(2) / 2
-                }
-            }
-        }
-    }
+    LINEAR,      // Constant rate of change
+    EASE_IN,     // Start slow, end fast
+    EASE_OUT,    // Start fast, end slow
+    EASE_IN_OUT;  // Start slow, middle fast, end slow
 
     /**
      * Convert to CSS timing function string
@@ -150,139 +137,3 @@ enum class Easing {
         }
     }
 }
-
-/**
- * Animation controller that manages animation states
- */
-class AnimationController(
-    val animation: Animation,
-    initialValue: Float = 0f
-) {
-    val progress = mutableStateOf(initialValue)
-    val isRunning = mutableStateOf(false)
-    val targetValue = mutableStateOf(initialValue)
-
-    /**
-     * Start the animation to the target value
-     */
-    fun animateTo(target: Float) {
-        targetValue.value = target
-        isRunning.value = true
-        // Note: Actual animation is handled by the platform renderer
-    }
-
-    /**
-     * Stop the animation at the current position
-     */
-    fun stop() {
-        isRunning.value = false
-    }
-}
-
-/**
- * Animation specification for transitions
- */
-data class TransitionSpec(
-    val animation: Animation = TweenAnimation(),
-    val delay: Int = 0
-)
-
-/**
- * State transition with animation
- */
-class Transition<T>(
-    initialState: T,
-    private val transitionSpec: TransitionSpec = TransitionSpec()
-) {
-    val state = mutableStateOf(initialState)
-    val progress = mutableStateOf(1f)
-    private val previousState = mutableStateOf(initialState)
-    private val controller = AnimationController(transitionSpec.animation, 1f)
-
-    /**
-     * Update the state with animation
-     */
-    fun updateState(newState: T) {
-        if (newState != state.value) {
-            previousState.value = state.value
-            state.value = newState
-            progress.value = 0f
-            controller.animateTo(1f)
-        }
-    }
-
-    /**
-     * Get the animation key for the current transition
-     */
-    fun getAnimationKey(): String {
-        return "transition-${state.value.hashCode()}-${previousState.value.hashCode()}"
-    }
-}
-
-/**
- * Creates an infinite transition for continuous animations
- */
-class InfiniteTransition {
-    private val animations = mutableListOf<AnimationController>()
-    private val isActive = mutableStateOf(true)
-
-    /**
-     * Creates an animated value that continuously animates between specified values
-     */
-    fun <T> animateValue(
-        initialValue: T,
-        targetValue: T,
-        typeConverter: TypeConverter<T>,
-        animation: Animation
-    ): State<T> {
-        val controller = AnimationController(animation, 0f)
-        controller.isRunning.value = isActive.value
-        animations.add(controller)
-
-        return object : State<T> {
-            override val value: T
-                get() = typeConverter.convert(controller.progress.value, initialValue, targetValue)
-        }
-    }
-
-    /**
-     * Pauses all animations in this infinite transition
-     */
-    fun pause() {
-        isActive.value = false
-        animations.forEach { it.stop() }
-    }
-
-    /**
-     * Resumes all animations in this infinite transition
-     */
-    fun resume() {
-        isActive.value = true
-        animations.forEach { it.isRunning.value = true }
-    }
-}
-
-/**
- * Interface for converting between different value types during animation
- */
-interface TypeConverter<T> {
-    fun convert(progress: Float, from: T, to: T): T
-}
-
-/**
- * Type converter for Float values
- */
-object FloatConverter : TypeConverter<Float> {
-    override fun convert(progress: Float, from: Float, to: Float): Float {
-        return from + (to - from) * progress
-    }
-}
-
-/**
- * Type converter for Int values
- */
-object IntConverter : TypeConverter<Int> {
-    override fun convert(progress: Float, from: Int, to: Int): Int {
-        return (from + (to - from) * progress).toInt()
-    }
-} 

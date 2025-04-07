@@ -1,4 +1,7 @@
-package code.yousef.summon.security
+package security
+
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
 
 /**
  * Interface for authentication providers that handle different types of authentication.

@@ -1,6 +1,8 @@
 package code.yousef.summon.ssr
 
-import code.yousef.summon.core.Composable
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.html.stream.createHTML
@@ -11,6 +13,7 @@ import kotlinx.html.stream.createHTML
  */
 class StreamingRenderer(
     private val hydrationSupport: HydrationSupport = StandardHydrationSupport(),
+    private val platformRenderer: PlatformRenderer = PlatformRendererProvider.getPlatformRenderer(),
     private val chunkSize: Int = 4096
 ) : StreamingServerSideRenderer {
     /**
@@ -107,7 +110,7 @@ class StreamingRenderer(
     private fun renderToString(composable: Composable): String {
         // Using createHTML from kotlinx.html to render the component
         return createHTML().let { consumer ->
-            composable.compose(consumer)
+            platformRenderer.renderComposable(composable, consumer)
             consumer.finalize()
         }
     }
@@ -267,5 +270,35 @@ object StreamingSSR {
         chunkSize: Int = 4096
     ): StreamingRenderer {
         return StreamingRenderer(hydrationSupport, chunkSize)
+    }
+
+    /**
+     * Renders a composable function to a Flow of String chunks.
+     *
+     * @param content The root composable function to render.
+     * @return A Flow emitting HTML chunks as strings.
+     */
+    fun renderToFlow(content: @Composable () -> Unit): Flow<String> = flow {
+        println("StreamingSSR.renderToFlow called (not implemented).")
+        
+        // TODO: Implement streaming SSR.
+        // 1. Create a streaming Composer/Renderer (e.g., HtmlFlowRenderer).
+        // 2. Set up CompositionContext.
+        // 3. Execute `content` lambda within the context.
+        // 4. The Renderer should emit HTML chunks (e.g., to the FlowCollector `emit`).
+        
+        // Placeholder emission:
+        emit("<!DOCTYPE html><html><head><title>Streaming SSR</title></head><body>")
+        emit("<div id=\"summon-root\">")
+        // Placeholder for actual streamed content generation:
+        // streamComposableContent(content) { chunk -> emit(chunk) }
+        emit("<!-- Streaming Content Placeholder -->") 
+        emit("</div></body></html>")
+    }
+
+    // Placeholder for a function that would recursively render and stream chunks
+    private suspend fun streamComposableContent(content: @Composable () -> Unit, emitChunk: suspend (String) -> Unit) {
+        // This function would need to drive the composition and capture output
+        // from a streaming renderer, emitting chunks via `emitChunk`.
     }
 } 

@@ -1,24 +1,20 @@
 package code.yousef.summon.components.feedback
 
-import code.yousef.summon.components.display.Icon
+import code.yousef.summon.runtime.PlatformRendererProvider
+
 import code.yousef.summon.components.display.IconDefaults
 import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.input.Button
-import code.yousef.summon.core.getPlatformRenderer
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.remember
-import code.yousef.summon.runtime.MutableState
+import components.feedback.AlertVariant
+import code.yousef.summon.components.input.Button
+
 import code.yousef.summon.components.layout.Row
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.components.layout.Spacer
-import code.yousef.summon.modifier.width
-import code.yousef.summon.modifier.padding
-import code.yousef.summon.modifier.border
 
 // Import the AlertVariant enum from its own file
-import code.yousef.summon.components.feedback.AlertVariant
 
 /**
  * A composable that displays messages to the user, often requiring acknowledgment or action.
@@ -43,30 +39,29 @@ fun Alert(
     actions: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit // Main message content
 ) {
-    // TODO: Implement state for visibility if dismissible internally? Or expect external management?
-    // For now, assume visibility is controlled externally.
-
+    val composer = CompositionLocal.currentComposer
+    
     // TODO: Apply variant-specific styling (background, border, text color) via modifier.
     val variantModifier = Modifier() // Replace with actual style lookup based on variant
         .padding("16px")
         .border("1px", "solid", "#ccc") // Example default border
-
     val finalModifier = variantModifier.then(modifier)
 
     // Determine default icon based on variant if none provided
     val defaultIcon: (@Composable () -> Unit)? = when (variant) {
-        AlertVariant.INFO -> ({ IconDefaults.Info() }) // Use IconDefaults
+        AlertVariant.INFO -> ({ IconDefaults.Info() })
         AlertVariant.SUCCESS -> ({ IconDefaults.CheckCircle() })
         AlertVariant.WARNING -> ({ IconDefaults.Warning() })
         AlertVariant.DANGER -> ({ IconDefaults.Error() })
     }
     val displayIcon = icon ?: defaultIcon
 
-    // Get the PlatformRenderer
-    val renderer = getPlatformRenderer()
-
-    // Use the updated renderAlertContainer method
-    renderer.renderAlertContainer(variant, finalModifier)
+    composer?.startNode() // Start Alert node
+    if (composer?.inserting == true) {
+        val renderer = PlatformRendererProvider.getPlatformRenderer()
+        // Use the updated renderAlertContainer method
+        renderer.renderAlertContainer(variant, finalModifier)
+    }
 
     // --- Compose internal structure --- 
     // TODO: Ensure composition context places children correctly within the rendered Alert container.
@@ -96,6 +91,8 @@ fun Alert(
         }
     }
     // --- End internal structure --- 
+    
+    composer?.endNode() // End Alert node
 }
 
 /**

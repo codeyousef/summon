@@ -1,14 +1,16 @@
 package code.yousef.summon
 
 import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.input.Button
-import code.yousef.summon.components.input.Form
-import code.yousef.summon.components.input.TextField
-import code.yousef.summon.components.input.TextFieldType
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.core.Composable
-import code.yousef.summon.examples.*
-import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.routing.Pages
+import code.yousef.summon.routing.RouteParams
+import code.yousef.summon.routing.RouteDefinition
+import kotlinx.browser.document
+import kotlinx.browser.window
+import org.w3c.dom.Document
+import org.w3c.dom.HTMLElement
+import org.w3c.dom.css.CSSStyleDeclaration
+import org.w3c.dom.NodeList
+import org.w3c.dom.events.Event
 
 // External JS interfaces
 external class Document {
@@ -68,9 +70,7 @@ external val document: Document
  */
 fun main() {
     // Set up the app when the DOM is loaded
-    document.addEventListener("DOMContentLoaded") {
-        setupApp()
-    }
+    document.addEventListener("DOMContentLoaded") { setupApp() }
 }
 
 /**
@@ -81,51 +81,63 @@ private fun Document.addEventListener(type: String, listener: (Event) -> Unit) {
 }
 
 /**
+ * Registers the application pages with the global Pages registry.
+ * Imports now point to commonMain example composables.
+ */
+private fun registerAppPages() {
+    // Register the example pages from commonMain
+    // Pages.register("/basic-ui") { BasicUIDemo() }
+    // Pages.register("/form") { FormExample() }
+    // Pages.register("/text") { TextExample() }
+    // Pages.register("/image") { ImageExample() }
+    // Pages.register("/divider") { DividerExample() }
+    // Pages.register("/simple") { MySimplePage() }
+    // Pages.register("/") { BasicUIDemo() }
+    
+    // Register a placeholder page for the root
+    Pages.register("/") { Text("Welcome to Summon! (Root Page)") }
+
+    // Register a simple Not Found page
+    Pages.registerNotFound { params ->
+        Text("Page Not Found: ${params.asMap()["path"] ?: "Unknown"}")
+    }
+}
+
+/**
  * Sets up the application once the DOM is loaded.
  */
 private fun setupApp() {
+    // Register pages first
+    registerAppPages()
+
     // Get the app container element or create one if it doesn't exist
-    val appContainer = document.getElementById("app") ?: createAppContainer()
+    val appContainer = document.getElementById("app") as? HTMLElement ?: createAppContainer()
 
-    // Load and render our examples
-    renderDemoPage(appContainer)
-
-    // Add text examples to the app container
-    appContainer.appendChild(
-        document.createElement("div").apply {
-            className = "example-section"
-            appendChild(document.createElement("h2").apply {
-                textContent = "Text Component Examples"
-            })
-            val textExamplesContainer = document.createElement("div")
-            appendChild(textExamplesContainer)
-            // Note: This append function is not defined; we need to create it
-            // or use a different approach to render the component
-            // textExamplesContainer.append {
-            //     textExamples().compose(this)
-            // }
-
-            // Alternative approach:
-            val examplesHtml = textExamples().renderToString()
-            textExamplesContainer.innerHTML = examplesHtml
+    // Convert PageFactory map to List<RouteDefinition>
+    val routes = Pages.getRegisteredPages().map { (path, pageFactory) ->
+        RouteDefinition(path) { paramsMap -> // Adapt the signature
+            pageFactory(RouteParams(paramsMap)) // Wrap map in RouteParams for the factory
         }
-    )
-
-    // Add Enhanced Text Example
-    document.getElementById("examples-container")?.let { container ->
-        container.appendChild(document.createElement("div").apply {
-            className = "example-card"
-            innerHTML = "<h3>Enhanced Text Component Example</h3>"
-
-            val demoContainer = document.createElement("div")
-            demoContainer.className = "example-demo"
-            appendChild(demoContainer)
-
-            // Use renderToString instead of append
-            val exampleHtml = EnhancedTextExample().renderToString()
-            demoContainer.innerHTML = exampleHtml
-        })
     }
+    val notFoundHandler = Pages.getNotFoundHandler()
+
+    // Placeholder: Get initial path from browser URL (requires more setup)
+    val initialPath = window.location.pathname
+
+    // Clear container before mounting composable
+    appContainer.innerHTML = ""
+
+    // TODO: Define and call renderComposable for JS
+    // renderComposable(appContainer) { // Hypothetical JS render function
+    //     RouterComponent(
+    //         initialPath = initialPath, 
+    //         routes = routes,
+    //         notFound = notFoundHandler // RouterComponent needs adaptation for notFound
+    //     )
+    // }
+    
+    // Temporary placeholder content
+    appContainer.innerHTML = "<h1>Summon App</h1><p>Router setup needed (path: $initialPath)...</p>"
 }
 
 /**
@@ -133,283 +145,11 @@ private fun setupApp() {
  * @return The created container element
  */
 private fun createAppContainer(): HTMLElement {
-    val container = document.createElement("div")
+    val container = document.createElement("div") as HTMLElement
     container.id = "app"
     container.style.maxWidth = "1200px"
     container.style.margin = "0 auto"
     container.style.padding = "20px"
     document.body?.appendChild(container)
     return container
-}
-
-/**
- * Create the examples and renders them in tabs.
- */
-private fun renderDemoPage(container: HTMLElement) {
-    // Create a tab system for our examples
-    val tabBar = document.createElement("div").apply {
-        className = "tab-bar"
-        style.display = "flex"
-        style.marginBottom = "20px"
-        style.borderBottom = "1px solid #ddd"
-    }
-
-    val contentContainer = document.createElement("div").apply {
-        id = "tab-content"
-    }
-
-    // Add the tabs
-    createTab("Basic UI", tabBar, "basic-ui", true)
-    createTab("Form Example", tabBar, "form-example", false)
-    createTab("Text Components", tabBar, "text-example", false)
-    createTab("Image Examples", tabBar, "image-example", false)
-    createTab("Divider Examples", tabBar, "divider-example", false)
-    createTab("My Simple Page", tabBar, "my-simple-page", false)
-
-    // Add tabs and content to the container
-    container.appendChild(tabBar)
-    container.appendChild(contentContainer)
-
-    // Render the initial active tab
-    renderBasicUI(contentContainer)
-
-    // Set up tab click handlers
-    setupTabHandlers(contentContainer)
-}
-
-/**
- * Sets up click handlers for the tabs.
- */
-private fun setupTabHandlers(contentContainer: HTMLElement) {
-    val tabItems = document.querySelectorAll(".tab-item")
-    // Iterate through NodeList
-    for (i in 0 until tabItems.length) {
-        val tabItem = tabItems.item(i)
-        tabItem?.addEventListener("click") { event ->
-            event.preventDefault()
-
-            // Remove active class from all tabs
-            val allTabItems = document.querySelectorAll(".tab-item")
-            for (j in 0 until allTabItems.length) {
-                val item = allTabItems.item(j)
-                if (item != null) {
-                    val currentClass = item.className
-                    item.className = currentClass.replace(" active", "")
-                }
-            }
-
-            // Add active class to the clicked tab
-            val target = event.currentTarget
-            if (target != null) {
-                target.className = target.className + " active"
-
-                // Clear the content container
-                contentContainer.innerHTML = ""
-
-                // Render the appropriate content based on tab ID
-                when (target.id) {
-                    "basic-ui" -> renderBasicUI(contentContainer)
-                    "form-example" -> renderFormExample(contentContainer)
-                    "text-example" -> renderTextExample(contentContainer)
-                    "image-example" -> renderImageExample(contentContainer)
-                    "divider-example" -> renderDividerExample(contentContainer)
-                    "my-simple-page" -> renderMySimplePage(contentContainer)
-                }
-            }
-        }
-    }
-}
-
-/**
- * Renders the Text component example tab.
- */
-private fun renderTextExample(container: HTMLElement) {
-    // Empty the container
-    container.innerHTML = ""
-
-    // Create the text example using our TextExample class
-    val textExample = TextExample().createTextDemo()
-
-    // Render to string using our custom extension function
-    val htmlOutput = textExample.renderToString()
-
-    container.innerHTML = htmlOutput
-}
-
-/**
- * Creates a tab button in the tab bar.
- * @param label The label for the tab
- * @param container The container to add the tab to
- * @param id The ID for the tab
- * @param isActive Whether this tab should be active by default
- */
-private fun createTab(label: String, container: HTMLElement, id: String, isActive: Boolean): HTMLElement {
-    val tab = document.createElement("div")
-    tab.id = id
-    tab.className = "tab-item${if (isActive) " active" else ""}"
-    tab.textContent = label
-    tab.style.padding = "10px 15px"
-    tab.style.cursor = "pointer"
-    tab.style.borderBottom = if (isActive) "2px solid #2196F3" else "2px solid transparent"
-    tab.style.color = if (isActive) "#2196F3" else "#555"
-    tab.style.fontWeight = if (isActive) "500" else "normal"
-    container.appendChild(tab)
-    return tab
-}
-
-/**
- * Renders the basic UI example tab.
- */
-private fun renderBasicUI(container: HTMLElement) {
-    // Empty the container
-    container.innerHTML = ""
-
-    // Create a simple UI
-    val example = Column(
-        modifier = Modifier()
-            .background("linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)")
-            .padding("20px")
-            .border("1px", "solid", "#ddd")
-            .borderRadius("8px")
-            .shadow(),
-        content = listOf(
-            Text(
-                "Hello from Summon UI!",
-                Modifier()
-                    .padding("10px")
-                    .color("#333")
-                    .fontSize("24px")
-                    .fontWeight("bold")
-            ),
-            Spacer("20px", true),
-            Text(
-                "This is a demo of the basic UI components.",
-                Modifier()
-                    .padding("10px")
-                    .color("#666")
-                    .fontSize("16px")
-            )
-        )
-    )
-
-    // Render the component to string
-    val htmlOutput = example.renderToString()
-
-    container.innerHTML = htmlOutput
-}
-
-/**
- * Renders the form example tab.
- */
-private fun renderFormExample(container: HTMLElement) {
-    // Empty the container
-    container.innerHTML = ""
-
-    // Create a form example
-    val formExample = Form(
-        onSubmit = { formData ->
-            // In a real app, you would process the form data here
-            window.console.log("Form submitted with data: $formData")
-        },
-        modifier = Modifier()
-            .padding("20px")
-            .background("#fff")
-            .borderRadius("8px")
-            .shadow(),
-        content = listOf(
-            Text(
-                "Contact Form Example",
-                Modifier()
-                    .fontSize("24px")
-                    .fontWeight("bold")
-                    .margin("0 0 20px 0")
-            ),
-            TextField(
-                state = mutableStateOf(""),
-                label = "Name",
-                placeholder = "Enter your name",
-                validators = listOf()
-            ),
-            TextField(
-                state = mutableStateOf(""),
-                label = "Email",
-                placeholder = "Enter your email",
-                type = TextFieldType.Email,
-                validators = listOf()
-            ),
-            TextField(
-                state = mutableStateOf(""),
-                label = "Message",
-                placeholder = "Enter your message",
-                validators = listOf(),
-                modifier = Modifier().height("100px")
-            ),
-            Button(
-                "Submit",
-                onClick = { /* Form will handle submission */ },
-                modifier = Modifier()
-                    .background("#4CAF50")
-                    .color("white")
-                    .padding("10px 20px")
-                    .borderRadius("4px")
-                    .margin("20px 0 0 0")
-            )
-        )
-    )
-
-    // Render the component to string
-    val htmlOutput = formExample.renderToString()
-
-    container.innerHTML = htmlOutput
-}
-
-/**
- * Renders the Image component examples tab.
- */
-private fun renderImageExample(container: HTMLElement) {
-    // Empty the container
-    container.innerHTML = ""
-
-    // Since ImageExample is not implemented, use a placeholder
-    container.innerHTML = "<div>Image examples would be displayed here</div>"
-}
-
-/**
- * Renders the Divider component examples tab.
- */
-private fun renderDividerExample(container: HTMLElement) {
-    // Empty the container
-    container.innerHTML = ""
-
-    // Create the divider example using our DividerExample class
-    val dividerExample = DividerExample.create()
-
-    // Render the component to string
-    val htmlOutput = dividerExample.renderToString()
-
-    container.innerHTML = htmlOutput
-}
-
-/**
- * Renders My Simple Page example.
- */
-private fun renderMySimplePage(container: HTMLElement) {
-    // Empty the container
-    container.innerHTML = ""
-    
-    // Create and render your page
-    val myPage = MySimplePage()
-    
-    // Render the component to string
-    val htmlOutput = myPage.renderToString()
-    
-    container.innerHTML = htmlOutput
-}
-
-/**
- * Extension function to render a Composable to HTML string
- */
-private fun Composable.renderToString(): String {
-    // Simple placeholder implementation for demo purposes
-    return "<div class='summon-component'>Component would render here in a real implementation</div>"
 } 

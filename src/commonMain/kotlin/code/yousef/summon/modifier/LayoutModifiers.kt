@@ -1,5 +1,7 @@
 package code.yousef.summon.modifier
 
+import code.yousef.summon.runtime.getPlatformRenderer
+
 /**
  * Extension functions for Layout Modifiers
  * These are implemented to match the test expectations in LayoutModifierTest
@@ -22,6 +24,36 @@ fun Modifier.minHeight(value: String): Modifier =
  */
 fun Modifier.maxHeight(value: String): Modifier =
     style("max-height", value)
+
+/**
+ * Sets the maximum width of the element.
+ */
+fun Modifier.maxWidth(value: String): Modifier =
+    style("max-width", value)
+
+/**
+ * Sets width to 100%.
+ */
+fun Modifier.fillMaxWidth(): Modifier =
+    style("width", "100%")
+
+/**
+ * Sets the width of the element.
+ */
+fun Modifier.width(value: String): Modifier =
+    style("width", value)
+
+/**
+ * Sets the height of the element.
+ */
+fun Modifier.height(value: String): Modifier =
+    style("height", value)
+
+/**
+ * Sets padding on all sides.
+ */
+fun Modifier.padding(value: String): Modifier =
+    style("padding", value)
 
 /**
  * Sets different padding for horizontal and vertical.
@@ -54,10 +86,22 @@ fun Modifier.paddingLeft(value: String): Modifier =
     style("padding-left", value)
 
 /**
+ * Sets margin for all sides.
+ */
+fun Modifier.margin(value: String): Modifier =
+    style("margin", value)
+
+/**
  * Sets margin for horizontal and vertical dimensions.
  */
 fun Modifier.margin(vertical: String, horizontal: String): Modifier =
     style("margin", "$vertical $horizontal")
+
+/**
+ * Sets margin for all four sides individually.
+ */
+fun Modifier.margin(top: String, right: String, bottom: String, left: String): Modifier =
+    style("margin", "$top $right $bottom $left")
 
 /**
  * Sets the position type of the element.
@@ -231,4 +275,60 @@ fun Modifier.overflowY(value: String): Modifier =
  * Sets the visibility property.
  */
 fun Modifier.visibility(value: String): Modifier =
-    style("visibility", value) 
+    style("visibility", value)
+
+/**
+ * Sets the border property.
+ */
+fun Modifier.border(width: String, style: String, color: String): Modifier =
+    style("border", "$width $style $color")
+
+/**
+ * Sets just the border width property.
+ */
+fun Modifier.border(width: String): Modifier =
+    style("border-width", width)
+
+/**
+ * Sets the border-radius property.
+ */
+fun Modifier.borderRadius(value: String): Modifier =
+    style("border-radius", value)
+
+/**
+ * Sets the border-left property.
+ */
+fun Modifier.borderLeft(width: String, style: String, color: String): Modifier =
+    style("border-left", "$width $style $color")
+
+/**
+ * Sets the font-size property.
+ */
+fun Modifier.fontSize(value: String): Modifier =
+    style("font-size", value)
+
+/**
+ * Sets the font-weight property.
+ */
+fun Modifier.fontWeight(value: String): Modifier =
+    style("font-weight", value)
+
+/**
+ * Sets the color property.
+ */
+fun Modifier.color(value: String): Modifier =
+    style("color", value)
+
+/**
+ * Sets the cursor property.
+ */
+fun Modifier.cursor(value: String): Modifier =
+    style("cursor", value)
+
+/**
+ * Sets the onClick event handler.
+ */
+fun Modifier.onClick(handler: () -> Unit): Modifier =
+    // This would be implemented differently depending on platform
+    // For now just return this as a placeholder
+    this 

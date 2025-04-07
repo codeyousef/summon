@@ -2,6 +2,7 @@ package code.yousef.summon.animation
 
 import code.yousef.summon.modifier.Modifier
 
+
 /**
  * Animation extensions for the Modifier class
  */
@@ -48,7 +49,8 @@ fun Modifier.spring(
     duration: Int = 400,
     iterationCount: String = "1"
 ): Modifier {
-    val springAnimation = SpringAnimation(stiffness, damping, duration, iterationCount == "infinite")
+    val springAnimation =
+        code.yousef.summon.animation.SpringAnimation(stiffness, damping, duration, iterationCount == "infinite")
     val timingFunction = "cubic-bezier(0.5, 0.0, 0.2, 1.0)" // Spring-like curve
 
     val animation = "$name ${duration}ms $timingFunction 0ms $iterationCount normal forwards"

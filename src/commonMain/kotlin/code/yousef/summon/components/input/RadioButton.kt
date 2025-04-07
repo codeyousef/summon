@@ -1,18 +1,16 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.core.getPlatformRenderer
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
-// Import necessary modifiers
 import code.yousef.summon.modifier.applyIf
 import code.yousef.summon.modifier.pointerEvents
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.PlatformRendererProvider
+
+
 import code.yousef.summon.components.layout.Row
 import code.yousef.summon.components.layout.Spacer
 import code.yousef.summon.components.layout.Alignment
-import code.yousef.summon.modifier.width
-import code.yousef.summon.modifier.cursor
-import code.yousef.summon.modifier.opacity
 
 /**
  * A composable that displays a radio button, typically used as part of a group
@@ -39,22 +37,24 @@ fun RadioButton(
     // Grouping (name) and value association are handled by external state management.
     // Label is handled via composition (e.g., using Row + Text).
 ) {
+    val composer = CompositionLocal.currentComposer
+    // Apply styling directly to the element via modifier
     val finalModifier = modifier
-        .opacity(if (enabled) 1f else 0.6f)
-        .cursor(if (enabled) "pointer" else "default") // Keep cursor
-        .applyIf(!enabled) { pointerEvents("none") } // Add pointerEvents when disabled
+        .opacity(if (enabled) 1f else 0.6f) // Assuming opacity is in Modifier
+        .cursor(if (enabled) "pointer" else "default") // Assuming cursor is in Modifier
+        .applyIf(!enabled) { pointerEvents("none") }
 
-    val renderer = getPlatformRenderer()
-
-    // TODO: Renderer signature update? Needs to handle label rendering if done here.
-    // The current renderer.renderRadioButton expects a label string.
-    // Pass empty string for now. Label rendering is handled by composition.
-    renderer.renderRadioButton(
-        selected = selected,
-        onClick = { if (enabled) onClick() }, // Guard callback
-        enabled = enabled, // Add enabled parameter
-        modifier = finalModifier
-    )
+    composer?.startNode() // Start RadioButton node
+    if (composer?.inserting == true) {
+        val renderer = PlatformRendererProvider.getPlatformRenderer()
+        renderer.renderRadioButton(
+            selected = selected,
+            onClick = { if (enabled) onClick() }, // Guard callback
+            enabled = enabled,
+            modifier = finalModifier
+        )
+    }
+    composer?.endNode() // End RadioButton node (self-closing)
 }
 
 /**
@@ -75,23 +75,25 @@ fun RadioButtonWithLabel(
     enabled: Boolean = true,
     label: @Composable () -> Unit
 ) {
-    // TODO: Implement clickable modifier properly
+    // TODO: Implement clickable modifier properly on the Row
     val rowModifier = modifier
         .cursor(if (enabled) "pointer" else "default")
         .opacity(if (enabled) 1f else 0.6f)
-        .applyIf(!enabled) { pointerEvents("none") } 
-        // Removed clickable call
+        .applyIf(!enabled) { pointerEvents("none") }
+        // .clickable(enabled = enabled) { onClick() } // Row click triggers radio click
 
     Row(
         modifier = rowModifier,
-        verticalAlignment = Alignment.Vertical.CenterVertically 
+        verticalAlignment = Alignment.Vertical.CenterVertically
+        // TODO: Add onClick lambda if clickable modifier doesn't work
     ) {
         RadioButton(
-            selected = selected, 
-            onClick = onClick, 
+            selected = selected,
+            onClick = onClick, // Still pass onClick for potential direct interaction?
             enabled = enabled
+            // modifier = Modifier() // Don't apply row's modifier here
         )
-        Spacer(modifier = Modifier().width("8px")) 
+        Spacer(modifier = Modifier().width("8px")) // Assuming Spacer/width exist
         label()
     }
 }

@@ -1,15 +1,13 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.core.getPlatformRenderer
+import code.yousef.summon.components.layout.Box
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.modifier.applyIf
 import code.yousef.summon.modifier.pointerEvents
-import code.yousef.summon.modifier.border
-import code.yousef.summon.modifier.padding
-import code.yousef.summon.components.layout.Box
-import code.yousef.summon.components.layout.Alignment
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.PlatformRendererProvider
+
 
 /**
  * Types of text input fields (kept from original).
@@ -59,8 +57,12 @@ fun TextField(
     type: TextFieldType = TextFieldType.Text
     // Removed validators - validation should be handled externally based on state.
 ) {
+    val composer = CompositionLocal.currentComposer
     val isDisabled = !enabled || readOnly
     
+    // TODO: Apply default text field styles? (borders, padding etc.)
+    val finalOuterModifier = modifier // Modifier for the outer Box
+
     // Base modifier without layout specifics for the input itself
     val baseInputModifier = Modifier()
         .opacity(if (enabled) 1f else 0.6f) 
@@ -85,46 +87,52 @@ fun TextField(
         .background("#FFFFFF") // Example background
         .borderRadius("4px") // Example border radius
 
-    // Use the original modifier passed by the caller for the outer Box container
-    Box(modifier = modifier) {
-        // Render the input field itself
-        val renderer = getPlatformRenderer()
-        renderer.renderTextField(
-            value = value,
-            onValueChange = { if (enabled && !readOnly) onValueChange(it) },
-            label = "", // Label handled via composition/overlay if needed
-            modifier = inputModifierWithPadding, // Apply padding and styles here
-            placeholder = placeholder,
-            type = type,
-            enabled = enabled,
-            readOnly = readOnly,
-            isError = isError
-        )
-
-        // Position leading icon inside the Box
-        if (leadingIcon != null) {
-            Box(
-                modifier = Modifier // Removed align modifier
-                    .padding("0px", "0px", "0px", "8px") // Example padding (Positional)
-            ) {
-                leadingIcon()
-            }
-        }
-
-        // Position trailing icon inside the Box
-        if (trailingIcon != null) {
-            Box(
-                modifier = Modifier // Removed align modifier
-                     .padding("0px", "8px", "0px", "0px") // Example padding (Positional)
-           ) {
-                trailingIcon()
-            }
-        }
-
-        // TODO: Implement Label rendering (e.g., floating label requires more state/logic)
-        // Basic label example (rendered inside the box, might overlap):
-        // label?.let { Text(it, modifier = Modifier.padding(start="8px")) }
+    composer?.startNode() // Start TextField Box node
+    if (composer?.inserting == true) {
+        // Render the outer Box container using the passed modifier
+        val boxRenderer = PlatformRendererProvider.getPlatformRenderer() // Renderers might be different based on node?
+        boxRenderer.renderBox(finalOuterModifier)
     }
+
+    // Render the input field itself
+    val inputRenderer = PlatformRendererProvider.getPlatformRenderer()
+    inputRenderer.renderTextField(
+        value = value,
+        onValueChange = { if (enabled && !readOnly) onValueChange(it) },
+        label = "", // Label handled via composition/overlay if needed
+        modifier = inputModifierWithPadding, // Apply padding and styles here
+        placeholder = placeholder.toString(),
+        type = type,
+        enabled = enabled,
+        readOnly = readOnly,
+        isError = isError
+    )
+
+    // Position leading icon inside the Box
+    if (leadingIcon != null) {
+        Box(
+            modifier = Modifier // Removed align modifier
+                .padding("0px", "0px", "0px", "8px") // Example padding (Positional)
+        ) {
+            leadingIcon()
+        }
+    }
+
+    // Position trailing icon inside the Box
+    if (trailingIcon != null) {
+        Box(
+            modifier = Modifier // Removed align modifier
+                 .padding("0px", "8px", "0px", "0px") // Example padding (Positional)
+        ) {
+            trailingIcon()
+        }
+    }
+
+    // TODO: Implement Label rendering (e.g., floating label requires more state/logic)
+    // Basic label example (rendered inside the box, might overlap):
+    // label?.let { Text(it, modifier = Modifier.padding(start="8px")) }
+
+    composer?.endNode() // End TextField Box node
 }
 
 // The old TextField class and its methods (compose, validate, etc.) are removed. 

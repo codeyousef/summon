@@ -1,6 +1,7 @@
 package code.yousef.summon
 
-import code.yousef.summon.core.PlatformRenderer
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
 
 /**
  * Platform-specific implementation of the renderer.

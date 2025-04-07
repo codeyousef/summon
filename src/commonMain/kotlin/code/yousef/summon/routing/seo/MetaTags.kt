@@ -1,8 +1,12 @@
 package code.yousef.summon.routing.seo
 
-import code.yousef.summon.core.Composable
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
 import kotlinx.html.HEAD
 import kotlinx.html.meta
+
+import code.yousef.summon.runtime.SideEffect
+
 import kotlinx.html.title
 
 /**
@@ -70,4 +74,39 @@ class MetaTags(
             author = author
         )
     }
+}
+
+/**
+ * Composable function to add a meta tag to the document head.
+ *
+ * @param name The name attribute of the meta tag (e.g., "description", "keywords").
+ * @param content The content attribute of the meta tag.
+ */
+@Composable
+fun MetaTag(name: String, content: String) {
+    val composer = CompositionLocal.currentComposer
+
+    SideEffect {
+        println("MetaTag SideEffect: Setting meta name='$name' content='$content'")
+        // TODO: Implement platform-specific head manipulation.
+        // PlatformRendererProvider.code.yousef.summon.runtime.PlatformRendererProvider.getPlatformRenderer().addHeadElement("<meta name=\"$name\" content=\"$content\">")
+    }
+
+    // Renders no UI.
+}
+
+/**
+ * Convenience composable for setting the page description meta tag.
+ */
+@Composable
+fun PageDescription(description: String) {
+    MetaTag(name = "description", content = description)
+}
+
+/**
+ * Convenience composable for setting the page keywords meta tag.
+ */
+@Composable
+fun PageKeywords(keywords: String) {
+    MetaTag(name = "keywords", content = keywords)
 } 

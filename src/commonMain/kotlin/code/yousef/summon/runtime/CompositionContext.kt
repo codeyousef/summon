@@ -1,40 +1,71 @@
 package code.yousef.summon.runtime
 
 /**
- * Manages the composition context for rendering.
- * This class helps maintain the current composer during composition.
+ * Manages the lifecycle of a composition.
+ * This class is responsible for creating, updating, and disposing compositions.
  */
-class CompositionContext(val composer: Composer) {
-    /**
-     * Indicates if this composition context has been disposed.
-     */
-    private var disposed = false
+class CompositionContext {
+    private val composer: Composer
     
     /**
-     * Disposes of this composition context.
+     * Creates a new CompositionContext with a new composer.
      */
-    fun dispose() {
-        disposed = true
+    constructor() {
+        composer = RecomposerHolder.recomposer.createComposer()
     }
     
     /**
-     * Check if this context has been disposed.
+     * Creates a new CompositionContext with the given composer.
+     * 
+     * @param composer The composer to use for this context.
      */
-    fun isDisposed(): Boolean = disposed
+    constructor(composer: Composer) {
+        this.composer = composer
+    }
+    
+    /**
+     * Composes the content with the current composer.
+     * 
+     * @param content The composable content to compose.
+     */
+    fun compose(content: @Composable () -> Unit) {
+        try {
+            // Set the current composer
+            CompositionLocal.setCurrentComposer(composer)
+            
+            // Start composition
+            composer.startNode()
+            
+            // Execute the content
+            content()
+            
+            // End composition
+            composer.endNode()
+        } finally {
+            // Reset the current composer
+            CompositionLocal.setCurrentComposer(null)
+        }
+    }
+    
+    /**
+     * Disposes this composition context, releasing any resources.
+     */
+    fun dispose() {
+        // In a real implementation, this would clean up resources
+        CompositionLocal.setCurrentComposer(null)
+    }
     
     companion object {
         /**
-         * Executes a block within the specified composition context.
-         * This sets the current composer for the duration of the block execution.
+         * Creates a new composition and composes the given content.
+         * 
+         * @param content The composable content to compose.
+         * @return A new CompositionContext.
          */
-        fun withContext(context: CompositionContext, block: () -> Unit) {
-            val previousComposer = CompositionLocal.currentComposer
-            CompositionLocal.setCurrentComposer(context.composer)
-            try {
-                block()
-            } finally {
-                CompositionLocal.setCurrentComposer(previousComposer)
-            }
+        fun createComposition(content: @Composable () -> Unit): CompositionContext {
+            val context = CompositionContext()
+            context.compose(content)
+            return context
         }
     }
 } 

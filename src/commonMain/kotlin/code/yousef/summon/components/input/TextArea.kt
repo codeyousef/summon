@@ -1,12 +1,11 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.modifier.applyIf
 import code.yousef.summon.modifier.pointerEvents
-import code.yousef.summon.modifier.border
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.PlatformRendererProvider
+
 
 /**
  * A composable that displays a multi-line text input field.
@@ -39,7 +38,7 @@ fun TextArea(
         .applyIf(!enabled) { pointerEvents("none") }
         .applyIf(isError) { border("1px", "solid", "#D32F2F") }
 
-    val renderer = PlatformRendererProvider.getRenderer()
+    val renderer = PlatformRendererProvider.getPlatformRenderer()
 
     renderer.renderTextArea(
         value = value,
