@@ -1,72 +1,73 @@
 package code.yousef.summon.components.input
 
 import code.yousef.summon.*
-import code.yousef.summon.core.UIElement
+import code.yousef.summon.core.Composable
 import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
 import kotlinx.html.TagConsumer
-import code.yousef.summon.annotation.Composable
 
 /**
- * A composable that allows users to select a time using a platform-provided time picker interface.
- *
- * This composable follows the state hoisting pattern. The value is typically represented
- * as a string in "HH:MM" or "HH:MM:SS" format, compatible with the HTML time input.
- *
- * @param value The currently selected time string ("HH:MM" or "HH:MM:SS"), or an empty string.
- * @param onValueChange Lambda invoked when the user selects a time, providing the new time string.
- * @param modifier Optional [Modifier] for styling and layout.
- * @param enabled Controls the enabled state. When `false`, interaction is disabled.
- * @param label Optional label text to display above or alongside the time picker.
- * @param placeholder Optional placeholder text (browser support may vary for time inputs).
- * @param isError Indicates if the time picker currently has an error.
- * @param min Optional minimum selectable time string ("HH:MM" or "HH:MM:SS").
- * @param max Optional maximum selectable time string ("HH:MM" or "HH:MM:SS").
- * @param showSeconds Hint to the browser to include seconds in the input (requires browser support).
+ * A composable that displays a time picker.
+ * @param state The state that holds the current selected time as a string (format: HH:MM or HH:MM:SS)
+ * @param onTimeChange Callback that is invoked when the selected time changes
+ * @param label Optional label to display for the time picker
+ * @param placeholder Placeholder text to show when no time is selected
+ * @param modifier The modifier to apply to this composable
+ * @param use24Hour Whether to use 24-hour format (true) or 12-hour format (false)
+ * @param showSeconds Whether to display seconds input
+ * @param min Minimum selectable time (format: HH:MM or HH:MM:SS)
+ * @param max Maximum selectable time (format: HH:MM or HH:MM:SS)
+ * @param disabled Whether the time picker is disabled
+ * @param validators List of validators to apply to the input
  */
-@Composable
-fun TimePicker(
-    value: String,
-    onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier(),
-    enabled: Boolean = true,
-    label: String? = null,
-    placeholder: String? = null,
-    isError: Boolean = false,
-    min: String? = null,
-    max: String? = null,
-    showSeconds: Boolean = false
-) {
-    val stepValue = if (showSeconds) 1 else null
+class TimePicker(
+    val state: MutableState<String>,
+    val onTimeChange: (String) -> Unit = {},
+    val label: String? = null,
+    val placeholder: String? = null,
+    val modifier: Modifier = Modifier(),
+    val use24Hour: Boolean = true,
+    val showSeconds: Boolean = false,
+    val min: String? = null,
+    val max: String? = null,
+    val disabled: Boolean = false,
+    val validators: List<Validator> = emptyList()
+) : Composable, InputComponent, FocusableComponent {
+    // Internal state to track validation errors
+    private val validationErrors = mutableStateOf<List<String>>(emptyList())
 
-    val timePickerData = TimePickerData(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = modifier,
-        enabled = enabled,
-        label = label,
-        placeholder = placeholder,
-        isError = isError,
-        min = min,
-        max = max,
-        stepAttribute = stepValue
-    )
+    /**
+     * Renders this TimePicker composable using the platform-specific renderer.
+     * @param receiver TagConsumer to render to
+     * @return The TagConsumer for method chaining
+     */
+    override fun <T> compose(receiver: T): T {
+        if (receiver is TagConsumer<*>) {
+            @Suppress("UNCHECKED_CAST")
+            return PlatformRendererProvider.getRenderer().renderTimePicker(this, receiver as TagConsumer<T>)
+        }
+        return receiver
+    }
 
-    println("Composable TimePicker function called with value: $value")
-}
+    /**
+     * Validates the current selected time against all validators.
+     * @return True if validation passed, false otherwise
+     */
+    fun validate(): Boolean {
+        val errors = validators.mapNotNull { validator ->
+            if (!validator.validate(state.value)) validator.errorMessage else null
+        }
+        validationErrors.value = errors
+        return errors.isEmpty()
+    }
 
-/**
- * Internal data class holding parameters for the TimePicker renderer.
- */
-internal data class TimePickerData(
-    val value: String,
-    val onValueChange: (String) -> Unit,
-    val modifier: Modifier,
-    val enabled: Boolean,
-    val label: String?,
-    val placeholder: String?,
-    val isError: Boolean,
-    val min: String?,
-    val max: String?,
-    val stepAttribute: Int?
-) 
+    /**
+     * Gets the current validation errors.
+     */
+    fun getValidationErrors(): List<String> = validationErrors.value
+
+    /**
+     * Indicates whether the field is currently valid.
+     */
+    fun isValid(): Boolean = validationErrors.value.isEmpty()
+} 

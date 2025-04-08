@@ -1,12 +1,14 @@
 package code.yousef.summon.extensions
 
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.modifier.Modifier
 
 /**
  * Extensions for Modifier to work with Number values
  * 
  * @deprecated These extensions are being moved to dedicated modifier packages for better organization.
- * For auto margin modifiers, please import from code.yousef.summon.modifier.AutoMarginModifiers directly.
+ * For auto margin modifiers, please import from modifier.AutoMarginModifiers directly.
  */
 
 // Margin extensions
@@ -26,10 +28,10 @@ fun Modifier.margin(vertical: Number, horizontal: Number): Modifier =
  * Sets the margin for vertical and horizontal sides with the horizontal margins set to auto.
  * Useful for horizontal centering of elements with a fixed width.
  * 
- * @deprecated Use marginHorizontalAuto from code.yousef.summon.modifier.AutoMarginModifiers instead
+ * @deprecated Use marginHorizontalAuto from modifier.AutoMarginModifiers instead
  */
-@Deprecated("Use marginHorizontalAuto from code.yousef.summon.modifier.AutoMarginModifiers instead", 
-    ReplaceWith("marginHorizontalAuto(vertical)", "code.yousef.summon.modifier.AutoMarginModifiers.marginHorizontalAuto"))
+@Deprecated("Use marginHorizontalAuto from modifier.AutoMarginModifiers instead", 
+    ReplaceWith("marginHorizontalAuto(vertical)", "modifier.AutoMarginModifiers.marginHorizontalAuto"))
 fun Modifier.marginHorizontalAuto(vertical: Number = 0): Modifier =
     margin("${vertical}px auto")
 
@@ -37,10 +39,10 @@ fun Modifier.marginHorizontalAuto(vertical: Number = 0): Modifier =
  * Sets the margin for vertical and horizontal sides with the vertical margins set to auto.
  * Useful for vertical centering of elements with a fixed height in certain containers.
  * 
- * @deprecated Use marginVerticalAuto from code.yousef.summon.modifier.AutoMarginModifiers instead
+ * @deprecated Use marginVerticalAuto from modifier.AutoMarginModifiers instead
  */
-@Deprecated("Use marginVerticalAuto from code.yousef.summon.modifier.AutoMarginModifiers instead", 
-    ReplaceWith("marginVerticalAuto(horizontal)", "code.yousef.summon.modifier.AutoMarginModifiers.marginVerticalAuto"))
+@Deprecated("Use marginVerticalAuto from modifier.AutoMarginModifiers instead", 
+    ReplaceWith("marginVerticalAuto(horizontal)", "modifier.AutoMarginModifiers.marginVerticalAuto"))
 fun Modifier.marginVerticalAuto(horizontal: Number = 0): Modifier =
     margin("auto ${horizontal}px")
 
@@ -48,10 +50,10 @@ fun Modifier.marginVerticalAuto(horizontal: Number = 0): Modifier =
  * Sets all margins to auto.
  * Useful for centering elements both horizontally and vertically in certain contexts.
  * 
- * @deprecated Use marginAuto from code.yousef.summon.modifier.AutoMarginModifiers instead
+ * @deprecated Use marginAuto from modifier.AutoMarginModifiers instead
  */
-@Deprecated("Use marginAuto from code.yousef.summon.modifier.AutoMarginModifiers instead", 
-    ReplaceWith("marginAuto()", "code.yousef.summon.modifier.AutoMarginModifiers.marginAuto"))
+@Deprecated("Use marginAuto from modifier.AutoMarginModifiers instead", 
+    ReplaceWith("marginAuto()", "modifier.AutoMarginModifiers.marginAuto"))
 fun Modifier.marginAuto(): Modifier = margin("auto")
 
 /**

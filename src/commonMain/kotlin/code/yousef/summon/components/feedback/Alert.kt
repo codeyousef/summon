@@ -1,188 +1,120 @@
 package code.yousef.summon.components.feedback
 
+import code.yousef.summon.runtime.PlatformRendererProvider
+
+import code.yousef.summon.components.display.IconDefaults
+import code.yousef.summon.components.display.Text
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
+import components.feedback.AlertVariant
+import code.yousef.summon.components.input.Button
+
+import code.yousef.summon.components.layout.Row
+import code.yousef.summon.components.layout.Column
+import code.yousef.summon.components.layout.Spacer
+
+// Import the AlertVariant enum from its own file
 
 /**
- * Alert types for different semantic meanings
- */
-enum class AlertType {
-    INFO,       // Informational messages
-    SUCCESS,    // Success messages
-    WARNING,    // Warning messages
-    ERROR,      // Error messages
-    NEUTRAL     // Neutral messages without specific semantic meaning
-}
-
-/**
- * A composable that displays alert notifications and messages.
+ * A composable that displays messages to the user, often requiring acknowledgment or action.
+ * Provides slots for icons, title, message, and actions.
  *
- * @param message The main message text for the alert
- * @param modifier The modifier to apply to this composable
- * @param type The semantic type of the alert
- * @param title Optional title or header for the alert
- * @param isDismissible Whether the alert can be dismissed by the user
- * @param iconName Optional icon name to display with the alert
- * @param onDismiss Callback to invoke when the alert is dismissed
- * @param actionText Optional text for an action button
- * @param onAction Callback to invoke when the action button is clicked
+ * @param modifier Modifier applied to the alert container.
+ * @param variant The semantic variant of the alert, influences default styling and icon.
+ * @param onDismiss Optional callback invoked when the user attempts to dismiss the alert (e.g., clicks a close button).
+ *                  Providing this typically makes a default close button appear.
+ * @param icon Optional composable slot for an icon, placed at the start.
+ * @param title Optional composable slot for the alert title.
+ * @param content The main composable content/message of the alert.
+ * @param actions Optional composable slot for action buttons, typically placed at the end.
  */
-data class Alert(
-    val message: String,
-    val modifier: Modifier = Modifier(),
-    val type: AlertType = AlertType.INFO,
-    val title: String? = null,
-    val isDismissible: Boolean = false,
-    val iconName: String? = null,
-    val onDismiss: (() -> Unit)? = null,
-    val actionText: String? = null,
-    val onAction: (() -> Unit)? = null
+@Composable
+fun Alert(
+    modifier: Modifier = Modifier(),
+    variant: AlertVariant = AlertVariant.INFO,
+    onDismiss: (() -> Unit)? = null,
+    icon: (@Composable () -> Unit)? = null,
+    title: (@Composable () -> Unit)? = null,
+    actions: (@Composable () -> Unit)? = null,
+    content: @Composable () -> Unit // Main message content
 ) {
-    /**
-     * Gets type-specific styles for the alert.
-     */
-    internal fun getTypeStyles(): Map<String, String> {
-        return when (type) {
-            AlertType.INFO -> mapOf(
-                "background-color" to "#e3f2fd",
-                "color" to "#0d47a1",
-                "border-color" to "#bbdefb"
-            )
+    val composer = CompositionLocal.currentComposer
+    
+    // TODO: Apply variant-specific styling (background, border, text color) via modifier.
+    val variantModifier = Modifier() // Replace with actual style lookup based on variant
+        .padding("16px")
+        .border("1px", "solid", "#ccc") // Example default border
+    val finalModifier = variantModifier.then(modifier)
 
-            AlertType.SUCCESS -> mapOf(
-                "background-color" to "#e8f5e9",
-                "color" to "#1b5e20",
-                "border-color" to "#c8e6c9"
-            )
+    // Determine default icon based on variant if none provided
+    val defaultIcon: (@Composable () -> Unit)? = when (variant) {
+        AlertVariant.INFO -> ({ IconDefaults.Info() })
+        AlertVariant.SUCCESS -> ({ IconDefaults.CheckCircle() })
+        AlertVariant.WARNING -> ({ IconDefaults.Warning() })
+        AlertVariant.DANGER -> ({ IconDefaults.Error() })
+    }
+    val displayIcon = icon ?: defaultIcon
 
-            AlertType.WARNING -> mapOf(
-                "background-color" to "#fff3e0",
-                "color" to "#e65100",
-                "border-color" to "#ffe0b2"
-            )
-
-            AlertType.ERROR -> mapOf(
-                "background-color" to "#ffebee",
-                "color" to "#b71c1c",
-                "border-color" to "#ffcdd2"
-            )
-
-            AlertType.NEUTRAL -> mapOf(
-                "background-color" to "#f5f5f5",
-                "color" to "#212121",
-                "border-color" to "#e0e0e0"
-            )
-        }
+    composer?.startNode() // Start Alert node
+    if (composer?.inserting == true) {
+        val renderer = PlatformRendererProvider.getPlatformRenderer()
+        // Use the updated renderAlertContainer method
+        renderer.renderAlertContainer(variant, finalModifier)
     }
 
-    /**
-     * Gets accessibility attributes for the alert.
-     */
-    internal fun getAccessibilityAttributes(): Map<String, String> {
-        val attributes = mutableMapOf<String, String>()
-
-        // Set appropriate role
-        attributes["role"] = "alert"
-
-        // Set aria-live for screen readers
-        attributes["aria-live"] = if (type == AlertType.ERROR) "assertive" else "polite"
-
-        // If dismissible, add appropriate controls
-        if (isDismissible) {
-            attributes["aria-atomic"] = "true"
+    // --- Compose internal structure --- 
+    // TODO: Ensure composition context places children correctly within the rendered Alert container.
+    Row {
+        if (displayIcon != null) {
+            displayIcon()
+            Spacer(Modifier().width("8px"))
         }
-
-        return attributes
+        
+        Column {
+            if (title != null) {
+                title()
+            }
+            content()
+        }
+        
+        if (actions != null) {
+            Spacer(Modifier().width("16px"))
+            actions()
+        }
+        
+        if (onDismiss != null) {
+            Spacer(Modifier().width("8px"))
+            Button(onClick = onDismiss) {
+                Text("×")
+            }
+        }
     }
+    // --- End internal structure --- 
+    
+    composer?.endNode() // End Alert node
 }
 
 /**
- * Creates an info alert for informational messages.
- * @param message The main message text for the alert
- * @param title Optional title or header for the alert
- * @param isDismissible Whether the alert can be dismissed by the user
- * @param onDismiss Callback to invoke when the alert is dismissed
- * @param modifier The modifier to apply to this composable
+ * Convenience overload for simple text alerts.
  */
-fun infoAlert(
+@Composable
+fun Alert(
     message: String,
-    title: String? = null,
-    isDismissible: Boolean = false,
+    modifier: Modifier = Modifier(),
+    variant: AlertVariant = AlertVariant.INFO,
     onDismiss: (() -> Unit)? = null,
-    modifier: Modifier = Modifier()
-): Alert = Alert(
-    message = message,
-    modifier = modifier,
-    type = AlertType.INFO,
-    title = title,
-    isDismissible = isDismissible,
-    onDismiss = onDismiss
-)
-
-/**
- * Creates a success alert for success messages.
- * @param message The main message text for the alert
- * @param title Optional title or header for the alert
- * @param isDismissible Whether the alert can be dismissed by the user
- * @param onDismiss Callback to invoke when the alert is dismissed
- * @param modifier The modifier to apply to this composable
- */
-fun successAlert(
-    message: String,
     title: String? = null,
-    isDismissible: Boolean = false,
-    onDismiss: (() -> Unit)? = null,
-    modifier: Modifier = Modifier()
-): Alert = Alert(
-    message = message,
-    modifier = modifier,
-    type = AlertType.SUCCESS,
-    title = title,
-    isDismissible = isDismissible,
-    onDismiss = onDismiss
-)
-
-/**
- * Creates a warning alert for warning messages.
- * @param message The main message text for the alert
- * @param title Optional title or header for the alert
- * @param isDismissible Whether the alert can be dismissed by the user
- * @param onDismiss Callback to invoke when the alert is dismissed
- * @param modifier The modifier to apply to this composable
- */
-fun warningAlert(
-    message: String,
-    title: String? = null,
-    isDismissible: Boolean = false,
-    onDismiss: (() -> Unit)? = null,
-    modifier: Modifier = Modifier()
-): Alert = Alert(
-    message = message,
-    modifier = modifier,
-    type = AlertType.WARNING,
-    title = title,
-    isDismissible = isDismissible,
-    onDismiss = onDismiss
-)
-
-/**
- * Creates an error alert for error messages.
- * @param message The main message text for the alert
- * @param title Optional title or header for the alert
- * @param isDismissible Whether the alert can be dismissed by the user
- * @param onDismiss Callback to invoke when the alert is dismissed
- * @param modifier The modifier to apply to this composable
- */
-fun errorAlert(
-    message: String,
-    title: String? = null,
-    isDismissible: Boolean = false,
-    onDismiss: (() -> Unit)? = null,
-    modifier: Modifier = Modifier()
-): Alert = Alert(
-    message = message,
-    modifier = modifier,
-    type = AlertType.ERROR,
-    title = title,
-    isDismissible = isDismissible,
-    onDismiss = onDismiss
-) 
+    icon: (@Composable () -> Unit)? = null,
+    actions: (@Composable () -> Unit)? = null
+) {
+    Alert(
+        modifier = modifier,
+        variant = variant,
+        onDismiss = onDismiss,
+        icon = icon,
+        title = title?.let { { Text(it) } }, // Wrap title string in Text composable
+        actions = actions,
+        content = { Text(message) } // Wrap message string in Text composable
+    )
+}

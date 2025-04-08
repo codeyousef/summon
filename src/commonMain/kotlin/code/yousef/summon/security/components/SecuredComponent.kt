@@ -1,9 +1,12 @@
-package code.yousef.summon.security.components
+package security.components
 
-import code.yousef.summon.security.Permission
-import code.yousef.summon.security.Role
-import code.yousef.summon.security.SecurityContext
-import code.yousef.summon.security.annotations.RequiresAccess
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
+
+import security.Permission
+import security.Role
+import security.SecurityContext
+import security.annotations.RequiresAccess
 
 /**
  * A component that conditionally renders content based on security requirements

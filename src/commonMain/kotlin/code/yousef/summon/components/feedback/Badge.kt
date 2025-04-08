@@ -1,7 +1,8 @@
 package code.yousef.summon.components.feedback
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.core.PlatformRendererProvider
+import code.yousef.summon.core.Composable
+import code.yousef.summon.TextComponent
+import code.yousef.summon.core.getPlatformRenderer
 import code.yousef.summon.modifier.Modifier
 import kotlinx.html.TagConsumer
 
@@ -29,15 +30,6 @@ enum class BadgeShape {
 }
 
 /**
- * Badge sizes for different visual styles
- */
-enum class BadgeSize {
-    SMALL,
-    MEDIUM,
-    LARGE
-}
-
-/**
  * A composable that displays a badge, typically used for status indicators, counters, or labels.
  *
  * @param content The text content of the badge
@@ -54,9 +46,22 @@ data class Badge(
     val type: BadgeType = BadgeType.PRIMARY,
     val shape: BadgeShape = BadgeShape.ROUNDED,
     val isOutlined: Boolean = false,
-    val size: BadgeSize = BadgeSize.MEDIUM,
+    val size: String = "medium",
     val onClick: (() -> Unit)? = null
-) {
+) : Composable, TextComponent {
+    /**
+     * Renders this Badge composable using the platform-specific renderer.
+     * @param receiver TagConsumer to render to
+     * @return The TagConsumer for method chaining
+     */
+    override fun <T> compose(receiver: T): T {
+        if (receiver is TagConsumer<*>) {
+            @Suppress("UNCHECKED_CAST")
+            return getPlatformRenderer().renderBadge(this, receiver as TagConsumer<T>)
+        }
+        return receiver
+    }
+
     /**
      * Gets type-specific styles for the badge.
      */
@@ -120,12 +125,12 @@ data class Badge(
      */
     internal fun getSizeStyles(): Map<String, String> {
         return when (size) {
-            BadgeSize.SMALL -> mapOf(
+            "small" -> mapOf(
                 "font-size" to "0.75rem",
                 "padding" to if (shape != BadgeShape.DOT) "0.125rem 0.375rem" else "0"
             )
 
-            BadgeSize.LARGE -> mapOf(
+            "large" -> mapOf(
                 "font-size" to "1rem",
                 "padding" to if (shape != BadgeShape.DOT) "0.375rem 0.75rem" else "0"
             )
@@ -142,8 +147,8 @@ data class Badge(
      */
     private fun getSizeValue(): String {
         return when (size) {
-            BadgeSize.SMALL -> "0.5rem"
-            BadgeSize.LARGE -> "1rem"
+            "small" -> "0.5rem"
+            "large" -> "1rem"
             else -> "0.75rem" // medium
         }
     }
@@ -198,7 +203,7 @@ fun counterBadge(
     modifier = modifier,
     type = BadgeType.PRIMARY,
     shape = BadgeShape.PILL,
-    size = BadgeSize.SMALL
+    size = "small"
 )
 
 /**
@@ -214,5 +219,5 @@ fun dotBadge(
     modifier = modifier,
     type = type,
     shape = BadgeShape.DOT,
-    size = BadgeSize.SMALL
+    size = "small"
 ) 

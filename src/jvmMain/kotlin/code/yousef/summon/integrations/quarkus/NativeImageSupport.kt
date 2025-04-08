@@ -1,7 +1,10 @@
-package code.yousef.summon.integrations.quarkus
+package integrations.quarkus
 
-import code.yousef.summon.core.Composable
-import io.quarkus.runtime.annotations.RegisterForReflection
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
+
+import core.Composable
+import code.yousef.summon.runtime.annotations.RegisterForReflection
 import java.io.File
 
 /**
@@ -53,7 +56,10 @@ object NativeImageSupport {
      * Generates reflection and resource configuration files for GraalVM native image.
      *
      * @param outputDir The directory where configuration files will be written
-     * @param packageNames The package names to scan for components
+     * @param packageNames The package names
+
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer to scan for components
      */
     fun generateNativeImageConfig(outputDir: File, vararg packageNames: String) {
         outputDir.mkdirs()
@@ -64,7 +70,7 @@ object NativeImageSupport {
             """
             [
               {
-                "name" : "code.yousef.summon.Composable",
+                "name" : "Composable",
                 "allDeclaredConstructors" : true,
                 "allPublicConstructors" : true,
                 "allDeclaredMethods" : true,

@@ -1,5 +1,7 @@
 package code.yousef.summon.modifier
 
+import code.yousef.summon.runtime.getPlatformRenderer
+
 /**
  * Extension functions for Styling Modifiers
  * These are implemented to match the test expectations in StylingModifierTest
@@ -80,12 +82,6 @@ fun Modifier.letterSpacing(value: String): Modifier =
  */
 fun Modifier.textTransform(value: String): Modifier =
     style("text-transform", value)
-
-/**
- * Sets the border style using a shorthand.
- */
-fun Modifier.border(value: String): Modifier =
-    style("border", value)
 
 /**
  * Sets the border width.
@@ -278,4 +274,11 @@ fun Modifier.scrollbarWidth(value: String): Modifier =
  */
 fun Modifier.hover(hoverModifier: Modifier): Modifier {
     return hover(hoverModifier.styles)
-} 
+}
+
+/**
+ * Sets the pointer-events CSS property.
+ * Common values: "auto", "none".
+ */
+fun Modifier.pointerEvents(value: String): Modifier =
+    style("pointer-events", value) 

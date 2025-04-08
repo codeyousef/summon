@@ -1,6 +1,7 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.core.getPlatformRenderer
+import code.yousef.summon.core.Composable
+import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.mutableStateOf
 import kotlinx.html.TagConsumer
@@ -15,9 +16,6 @@ import kotlinx.html.TagConsumer
  * @param disabled Whether the file upload is disabled
  * @param capture Capture method to use for file selection on mobile devices
  * @param buttonLabel Text to display on the upload button
- * @param onError Callback to handle errors
- * @param maxFileSize Maximum file size allowed in bytes
- * @param maxFileCount Maximum number of files allowed
 */
  * */
 class FileUpload(
@@ -28,13 +26,23 @@ class FileUpload(
     val modifier: Modifier = Modifier(),
     val disabled: Boolean = false,
     val capture: String? = null,
-    val buttonLabel: String = "Choose Files",
-    val onError: ((String) -> Unit)? = null,
-    val maxFileSize: Long? = null, // In bytes
-    val maxFileCount: Int? = null
-) {
+    val buttonLabel: String = "Choose Files"
+) : Composable {
     // Internal state to track selected files
     private val selectedFiles = mutableStateOf<List<FileInfo>>(emptyList())
+
+    /**
+     * Renders this FileUpload composable using the platform-specific renderer.
+     * @param receiver TagConsumer to render to
+     * @return The TagConsumer for method chaining
+     */
+    override fun <T> compose(receiver: T): T {
+        if (receiver is TagConsumer<*>) {
+            @Suppress("UNCHECKED_CAST")
+            return PlatformRendererProvider.getRenderer().renderFileUpload(this, receiver as TagConsumer<T>)
+        }
+        return receiver
+    }
 
     /**
      * Gets the currently selected files.
@@ -48,28 +56,11 @@ class FileUpload(
         selectedFiles.value = files
         onFilesSelected(files)
     }
-
-    /**
-     * Generates a unique ID for the file input element.
-     */
-    fun generateUniqueId(): String {
-        // Use a combination of hashCode and an incrementing counter for uniqueness
-        return "file_upload_${hashCode()}_${generateCounter()}"
-    }
-    
-    // Companion object to store a static counter for generating unique IDs
-    companion object {
-        private var counter = 0
-        
-        private fun generateCounter(): Int {
-            return counter++
-        }
-    }
 }
 
 /**
  * Data class representing a file selected for upload.
- **/
+ */
 data class FileInfo(
     val name: String,
     val size: Long,

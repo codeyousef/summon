@@ -1,5 +1,8 @@
 package code.yousef.summon.modifier
 
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
+
 /**
  * A Modifier is used to add styling information to a composable.
  * It holds a map of CSS property names to their values.
@@ -248,115 +251,106 @@ data class Modifier(val styles: Map<String, String> = emptyMap()) {
         style("cursor", value)
 
     /**
-     * Sets CSS transitions for animating property changes.
+     * Sets the z-index of the element.
      */
-    fun transitions(value: String): Modifier =
-        style("transition", value)
+    fun zIndex(value: Int): Modifier =
+        style("z-index", value.toString())
+
+    // --- Text Specific Styles ---
 
     /**
-     * Sets the flex-wrap property for flex containers.
+     * Sets the text alignment.
+     * @param value CSS text-align value (e.g., "left", "center", "right", "justify")
      */
-    fun flexWrap(value: String): Modifier =
-        style("flex-wrap", value)
+    fun textAlign(value: String): Modifier =
+        style("text-align", value)
 
     /**
-     * Adds a hover effect with a Modifier.
-     * Converts the Modifier's styles to the format expected by the base hover method.
+     * Sets the font family.
+     * @param value CSS font-family value (e.g., "Arial, sans-serif")
      */
-    fun hover(hoverModifier: Modifier): Modifier {
-        return hover(hoverModifier.styles)
-    }
+    fun fontFamily(value: String): Modifier =
+        style("font-family", value)
 
     /**
-     * Sets the box-shadow property directly with a CSS value.
-     * @param value The CSS box-shadow value
-     * @return A new Modifier with the added style
-     */
-    fun boxShadow(value: String): Modifier =
-        style("box-shadow", value)
-
-    /**
-     * Sets the align-items property for flex containers.
-     * @param value The alignment value (center, flex-start, flex-end, etc.)
-     * @return A new Modifier with the added style
-     */
-    fun alignItems(value: String): Modifier =
-        style("align-items", value)
-
-    /**
-     * Sets the justify-content property for flex containers.
-     * @param value The justification value (center, flex-start, flex-end, space-between, space-around, etc.)
-     * @return A new Modifier with the added style
-     */
-    fun justifyContent(value: String): Modifier =
-        style("justify-content", value)
-
-    /**
-     * Sets the flex-direction property for flex containers.
-     * @param value The direction value (row, column, row-reverse, column-reverse)
-     * @return A new Modifier with the added style
-     */
-    fun flexDirection(value: String): Modifier =
-        style("flex-direction", value)
-
-    /**
-     * Sets the display property for the element.
-     * @param value The display value (flex, block, inline, none, etc.)
-     * @return A new Modifier with the added style
-     */
-    fun display(value: String): Modifier =
-        style("display", value)
-
-    /**
-     * Sets the text-decoration property for text styling.
-     * @param value The text-decoration value (none, underline, line-through, etc.)
-     * @return A new Modifier with the added style
+     * Sets the text decoration.
+     * @param value CSS text-decoration value (e.g., "none", "underline", "line-through")
      */
     fun textDecoration(value: String): Modifier =
         style("text-decoration", value)
 
     /**
-     * Shorthand to create a flex container.
-     * Sets display to "flex" and optionally configures other flex properties.
-     * @return A new Modifier with flex display style
+     * Sets the text transformation.
+     * @param value CSS text-transform value (e.g., "none", "uppercase", "lowercase", "capitalize")
      */
-    fun flex(): Modifier =
-        display("flex")
+    fun textTransform(value: String): Modifier =
+        style("text-transform", value)
 
     /**
-     * Shorthand to create a flex container with custom settings.
-     * Sets display to "flex" and configures other flex properties based on parameters.
-     *
-     * @param direction The flex-direction value (row, column, row-reverse, column-reverse)
-     * @param wrap The flex-wrap value (nowrap, wrap, wrap-reverse)
-     * @param alignItems The align-items value (center, flex-start, flex-end, etc.)
-     * @param justifyContent The justify-content value (center, flex-start, flex-end, space-between, etc.)
-     * @return A new Modifier with flex display and specified properties
+     * Sets the letter spacing.
+     * @param value CSS letter-spacing value (e.g., "normal", "1px", "0.1em")
      */
-    fun flex(
-        direction: String? = null,
-        wrap: String? = null,
-        alignItems: String? = null,
-        justifyContent: String? = null
-    ): Modifier {
-        var modifier = display("flex")
+    fun letterSpacing(value: String): Modifier =
+        style("letter-spacing", value)
 
-        if (direction != null) {
-            modifier = modifier.flexDirection(direction)
-        }
+    /**
+     * Sets how white space inside the element is handled.
+     * @param value CSS white-space value (e.g., "normal", "nowrap", "pre")
+     */
+    fun whiteSpace(value: String): Modifier =
+        style("white-space", value)
 
-        if (wrap != null) {
-            modifier = modifier.flexWrap(wrap)
-        }
+    /**
+     * Sets how words are broken to prevent overflow.
+     * @param value CSS word-break value (e.g., "normal", "break-all", "keep-all")
+     */
+    fun wordBreak(value: String): Modifier =
+        style("word-break", value)
 
-        if (alignItems != null) {
-            modifier = modifier.alignItems(alignItems)
-        }
+    /**
+     * Sets the spacing between words.
+     * @param value CSS word-spacing value (e.g., "normal", "2px")
+     */
+    fun wordSpacing(value: String): Modifier =
+        style("word-spacing", value)
 
-        if (justifyContent != null) {
-            modifier = modifier.justifyContent(justifyContent)
-        }
+    /**
+     * Sets the text shadow.
+     * @param value CSS text-shadow value (e.g., "1px 1px 2px black")
+     */
+    fun textShadow(value: String): Modifier =
+        style("text-shadow", value)
 
-        return modifier
-    }
+    /**
+     * Sets the line height.
+     * @param value CSS line-height value (e.g., "normal", "1.5", "24px")
+     */
+    fun lineHeight(value: String): Modifier =
+        style("line-height", value)
+
+    /**
+     * Sets how text overflow is handled, often used with `maxLines` or `whiteSpace("nowrap")`.
+     * @param value CSS overflow and text-overflow value (e.g., "ellipsis", "clip")
+     */
+    fun textOverflow(value: String): Modifier =
+        // Note: Applying to both 'overflow' and 'text-overflow' might be needed depending on context
+        style("overflow", "hidden") // Typically required for text-overflow to work
+            .style("text-overflow", value)
+
+    /**
+     * Limits the text content to a specific number of lines, showing an ellipsis if overflow occurs.
+     * Uses CSS -webkit-line-clamp, browser compatibility may vary.
+     * @param lines Maximum number of lines.
+     */
+    fun maxLines(lines: Int): Modifier =
+        styles(mapOf(
+            "display" to "-webkit-box",
+            "-webkit-line-clamp" to lines.toString(),
+            "-webkit-box-orient" to "vertical",
+            "overflow" to "hidden"
+        ))
+
+    // TODO: Add Modifier extensions for accessibility attributes (role, aria-label, etc.)
+    // This might require changing the Modifier structure to hold attributes separately from styles.
+
 } 

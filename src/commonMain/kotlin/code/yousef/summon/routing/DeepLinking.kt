@@ -2,7 +2,6 @@
 
 package code.yousef.summon.routing
 
-import code.yousef.summon.core.Composable
 import kotlinx.html.TagConsumer
 import kotlinx.html.head
 import kotlinx.html.link
@@ -29,49 +28,50 @@ class DeepLinking private constructor() {
         description: String,
         imageUrl: String? = null,
         type: String = "website"
-    ): Composable {
-        return object : Composable {
-            override fun <T> compose(receiver: T): T {
-                if (receiver is TagConsumer<*>) {
-                    @Suppress("UNCHECKED_CAST")
-                    val consumer = receiver as TagConsumer<Any?>
+    ) {
+        // TODO: Refactor for Compose HTML - This likely needs to be a @Composable function
+        //       that uses Compose HTML's APIs (e.g., Head) instead of returning an object.
+        //       For now, we'll just keep the logic but it won't be directly usable.
+        fun <T> applyMetaTags(receiver: T): T {
+            if (receiver is TagConsumer<*>) {
+                @Suppress("UNCHECKED_CAST")
+                val consumer = receiver as TagConsumer<Any?>
 
-                    consumer.head {
-                        // Basic meta tags
-                        meta(name = "title", content = title)
-                        meta(name = "description", content = description)
+                consumer.head {
+                    // Basic meta tags
+                    meta(name = "title", content = title)
+                    meta(name = "description", content = description)
 
-                        // Open Graph meta tags for social media sharing
-                        meta(name = "og:title", content = title)
-                        meta(name = "og:description", content = description)
-                        meta(name = "og:type", content = type)
-                        meta(name = "og:url", content = path)
+                    // Open Graph meta tags for social media sharing
+                    meta(name = "og:title", content = title)
+                    meta(name = "og:description", content = description)
+                    meta(name = "og:type", content = type)
+                    meta(name = "og:url", content = path)
 
-                        if (imageUrl != null) {
-                            meta(name = "og:image", content = imageUrl)
-                        }
-
-                        // Twitter Card meta tags
-                        meta(
-                            name = "twitter:card",
-                            content = if (imageUrl != null) "summary_large_image" else "summary"
-                        )
-                        meta(name = "twitter:title", content = title)
-                        meta(name = "twitter:description", content = description)
-
-                        if (imageUrl != null) {
-                            meta(name = "twitter:image", content = imageUrl)
-                        }
-
-                        // Canonical link
-                        link(rel = "canonical", href = path)
+                    if (imageUrl != null) {
+                        meta(name = "og:image", content = imageUrl)
                     }
 
-                    return consumer as T
+                    // Twitter Card meta tags
+                    meta(
+                        name = "twitter:card",
+                        content = if (imageUrl != null) "summary_large_image" else "summary"
+                    )
+                    meta(name = "twitter:title", content = title)
+                    meta(name = "twitter:description", content = description)
+
+                    if (imageUrl != null) {
+                        meta(name = "twitter:image", content = imageUrl)
+                    }
+
+                    // Canonical link
+                    link(rel = "canonical", href = path)
                 }
 
-                return receiver
+                return consumer as T
             }
+
+            return receiver
         }
     }
 
@@ -231,8 +231,8 @@ class DeepLinking private constructor() {
             description: String,
             imageUrl: String? = null,
             type: String = "website"
-        ): Composable {
-            return getInstance().generateMetaTags(path, title, description, imageUrl, type)
+        ) {
+            getInstance().generateMetaTags(path, title, description, imageUrl, type)
         }
 
         /**
@@ -255,4 +255,60 @@ class DeepLinking private constructor() {
             return getInstance().parseDeepLink(url)
         }
     }
-} 
+}
+
+/**
+ * Handles deep linking and parameter extraction from URLs.
+ */
+object DeepLinkManager {
+    fun handleDeepLink(url: String): RouteMatchResult? {
+        val routes = RouterBuilder.build().routes
+        // Parse URL, match against registered routes, extract params
+        println("DeepLinkManager: Handling URL '$url' (not implemented)")
+        return null // Placeholder
+    }
+}
+
+/**
+ * A composable function that handles displaying content based on a specific route
+ * and its extracted parameters.
+ */
+fun RouteContentHandler(matchResult: RouteMatchResult) {
+    println("RouteContentHandler called for path: ${matchResult.route.path}. Needs Compose HTML implementation.")
+    // This call needs Compose HTML context:
+    // matchResult.route.content(matchResult.params)
+}
+
+// --- Additional Deep Linking Utilities (Keep/Adapt) ---
+
+/**
+ * Generates a URL for a given route and parameters.
+ */
+fun generateUrl(routePath: String, params: Map<String, String>): String {
+    var url = routePath
+    params.forEach { (key, value) ->
+        url = url.replace("{$key}", value)
+    }
+    // TODO: Handle query parameters?
+    return url
+}
+
+/**
+ * Extracts query parameters from a URL string.
+ */
+fun extractQueryParams(url: String): Map<String, String> {
+    val queryParams = mutableMapOf<String, String>()
+    val queryPart = url.substringAfter('?', "")
+    if (queryPart.isNotEmpty()) {
+        queryPart.split('&').forEach {
+            val parts = it.split('=', limit = 2)
+            if (parts.size == 2) {
+                queryParams[parts[0]] = parts[1] // TODO: URL Decode?
+            }
+        }
+    }
+    return queryParams
+}
+
+// Removed old `RouteHandler` class that implemented `Composable`
+// ... other potential old structures related to deep linking ... 

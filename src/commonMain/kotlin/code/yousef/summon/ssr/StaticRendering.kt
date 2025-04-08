@@ -1,15 +1,18 @@
 package code.yousef.summon.ssr
 
-import code.yousef.summon.core.Composable
-import code.yousef.summon.core.PlatformRenderer
-import code.yousef.summon.core.getPlatformRenderer
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
+
+
 import kotlinx.html.stream.createHTML
+import code.yousef.summon.routing.RouteDefinition
 
 /**
  * Implementation of static HTML rendering for Summon components
  */
 class StaticRenderer(
-    private val platformRenderer: PlatformRenderer = getPlatformRenderer()
+    private val platformRenderer: PlatformRenderer = PlatformRendererProvider.getPlatformRenderer()
 ) : ServerSideRenderer {
     /**
      * Render a composable to static HTML
@@ -29,7 +32,7 @@ class StaticRenderer(
     private fun renderToString(composable: Composable): String {
         // Using createHTML from kotlinx.html to render the component
         return createHTML().let { consumer ->
-            composable.compose(consumer)
+            platformRenderer.renderComposable(composable, consumer)
             consumer.finalize()
         }
     }
@@ -240,6 +243,60 @@ object StaticRendering {
     ): Map<String, String> {
         return pages.mapValues { (path, composable) ->
             render(composable, contextProvider(path))
+        }
+    }
+}
+
+/**
+ * Utilities for static site generation (SSG) - rendering pages at build time.
+ */
+object StaticSiteGenerator {
+
+    /**
+     * Renders a specific route statically to an HTML string.
+     *
+     * @param route The RouteDefinition to render.
+     * @param params Parameters for the route (if dynamic).
+     * @return The rendered HTML string.
+     */
+    fun renderRouteToString(route: RouteDefinition, params: Map<String, String> = emptyMap()): String {
+        println("StaticSiteGenerator: Rendering route path '${route.path}' with params $params")
+        // TODO: Implement static rendering logic.
+        // Needs a Composer and Renderer setup, similar to SSR/pre-rendering.
+        
+        // Placeholder rendering:
+        // route.content(params)
+        return "<html><body><!-- Static content for ${route.path} --></body></html>"
+    }
+
+    /**
+     * Generates static HTML files for a list of routes.
+     *
+     * @param routes A list of RouteDefinitions to render.
+     * @param baseOutputDir The directory to output the generated HTML files.
+     * @param dataProvider Optional function to provide data for dynamic routes.
+     */
+    fun generateStaticSite(
+        routes: List<RouteDefinition>,
+        baseOutputDir: String,
+        // TODO: Need a better way to handle data fetching for dynamic routes during SSG.
+        dataProvider: suspend (routePath: String, params: Map<String, String>) -> Map<String, Any> = { _, _ -> emptyMap() }
+    ) {
+        println("StaticSiteGenerator: Generating static site to $baseOutputDir")
+        // TODO: This likely needs to run within a coroutine scope if dataProvider is suspend.
+        routes.forEach { route ->
+            // TODO: Handle dynamic routes - need paths to generate.
+            if (!route.path.contains("{")) { // Static route
+                val htmlContent = renderRouteToString(route)
+                val outputPath = "$baseOutputDir${route.path}.html".replace("//", "/")
+                // TODO: Write htmlContent to outputPath (platform specific FS access).
+                println("  - Writing static route ${route.path} to $outputPath")
+            } else {
+                println("  - Skipping dynamic route (needs path generation): ${route.path}")
+                // Example: Generate paths based on data
+                // val pathsToGenerate = getPathsForDynamicRoute(route, dataProvider)
+                // pathsToGenerate.forEach { params -> ... renderRouteToString(route, params) ... }
+            }
         }
     }
 } 

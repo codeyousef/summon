@@ -1,8 +1,11 @@
-package code.yousef.summon.integrations.quarkus.deployment
+package integrations.quarkus.deployment
 
-import code.yousef.summon.core.Composable
-import code.yousef.summon.JvmPlatformRenderer
-import code.yousef.summon.integrations.quarkus.QuarkusExtension
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
+
+import runtime.Composable
+import JvmPlatformRenderer
+import integrations.quarkus.QuarkusExtension
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem
 import io.quarkus.deployment.annotations.BuildStep
 import io.quarkus.deployment.builditem.FeatureBuildItem

@@ -1,8 +1,11 @@
 package code.yousef.summon.routing.seo
 
-import code.yousef.summon.core.Composable
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
 import kotlinx.html.HEAD
 import kotlinx.html.meta
+
+import code.yousef.summon.runtime.SideEffect
 
 /**
  * TwitterCards component for adding Twitter-specific metadata
@@ -135,4 +138,31 @@ class TwitterCards(
             )
         }
     }
-} 
+}
+
+/**
+ * Composable function to add a Twitter Card meta tag to the document head.
+ * Used for Twitter sharing previews.
+ *
+ * @param name The Twitter card property name (e.g., "twitter:card", "twitter:title").
+ * @param content The content value for the property.
+ */
+@Composable
+fun TwitterCardTag(name: String, content: String) {
+    val composer = CompositionLocal.currentComposer
+
+    SideEffect {
+        println("TwitterCardTag SideEffect: Setting name='$name' content='$content'")
+        // TODO: Implement platform-specific head manipulation.
+        // PlatformRendererProvider.code.yousef.summon.runtime.PlatformRendererProvider.getPlatformRenderer().addHeadElement("<meta name=\"$name\" content=\"$content\">")
+    }
+    // Renders no UI.
+}
+
+// Convenience functions for common Twitter Card tags
+@Composable fun TwitterCard(cardType: String) = TwitterCardTag("twitter:card", cardType) // e.g., "summary", "summary_large_image"
+@Composable fun TwitterSite(siteHandle: String) = TwitterCardTag("twitter:site", siteHandle)
+@Composable fun TwitterCreator(creatorHandle: String) = TwitterCardTag("twitter:creator", creatorHandle)
+@Composable fun TwitterTitle(title: String) = TwitterCardTag("twitter:title", title)
+@Composable fun TwitterDescription(description: String) = TwitterCardTag("twitter:description", description)
+@Composable fun TwitterImage(imageUrl: String) = TwitterCardTag("twitter:image", imageUrl) 

@@ -1,7 +1,8 @@
 package code.yousef.summon.components.display
 
-import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.Composable
+
 
 /**
  * Utility functions for the Text component.
@@ -14,7 +15,7 @@ import code.yousef.summon.modifier.Modifier
  * @param ariaLevel Optional ARIA level for accessibility
  */
 @Composable
-fun h1(
+fun H1(
     text: String,
     modifier: Modifier = Modifier(),
     ariaLevel: Int? = null
@@ -26,9 +27,7 @@ fun h1(
             .fontWeight("bold")
             .margin("0.67em 0"),
         lineHeight = "1.2",
-        fontFamily = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-        role = "heading",
-        ariaLabel = ariaLevel?.let { "Heading level $it" }
+        fontFamily = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
     )
 }
 
@@ -39,7 +38,7 @@ fun h1(
  * @param ariaLevel Optional ARIA level for accessibility
  */
 @Composable
-fun h2(
+fun H2(
     text: String,
     modifier: Modifier = Modifier(),
     ariaLevel: Int? = null
@@ -51,9 +50,7 @@ fun h2(
             .fontWeight("bold")
             .margin("0.83em 0"),
         lineHeight = "1.2",
-        fontFamily = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-        role = "heading",
-        ariaLabel = ariaLevel?.let { "Heading level $it" }
+        fontFamily = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
     )
 }
 
@@ -64,7 +61,7 @@ fun h2(
  * @param ariaLevel Optional ARIA level for accessibility
  */
 @Composable
-fun h3(
+fun H3(
     text: String,
     modifier: Modifier = Modifier(),
     ariaLevel: Int? = null
@@ -76,9 +73,7 @@ fun h3(
             .fontWeight("bold")
             .margin("1em 0"),
         lineHeight = "1.2",
-        fontFamily = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-        role = "heading",
-        ariaLabel = ariaLevel?.let { "Heading level $it" }
+        fontFamily = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
     )
 }
 
@@ -88,7 +83,7 @@ fun h3(
  * @param modifier Additional styling modifiers
  */
 @Composable
-fun paragraph(text: String, modifier: Modifier = Modifier()) {
+fun Paragraph(text: String, modifier: Modifier = Modifier()) {
     Text(
         text = text,
         modifier = modifier.margin("1em 0"),
@@ -103,7 +98,7 @@ fun paragraph(text: String, modifier: Modifier = Modifier()) {
  * @param modifier Additional styling modifiers
  */
 @Composable
-fun caption(text: String, modifier: Modifier = Modifier()) {
+fun Caption(text: String, modifier: Modifier = Modifier()) {
     Text(
         text = text,
         modifier = modifier
@@ -120,7 +115,7 @@ fun caption(text: String, modifier: Modifier = Modifier()) {
  * @param modifier Additional styling modifiers
  */
 @Composable
-fun label(text: String, modifier: Modifier = Modifier()) {
+fun Label(text: String, modifier: Modifier = Modifier()) {
     Text(
         text = text,
         modifier = modifier
@@ -138,7 +133,7 @@ fun label(text: String, modifier: Modifier = Modifier()) {
  * @param modifier Additional styling modifiers
  */
 @Composable
-fun monospace(text: String, modifier: Modifier = Modifier()) {
+fun Monospace(text: String, modifier: Modifier = Modifier()) {
     Text(
         text = text,
         modifier = modifier
@@ -157,13 +152,12 @@ fun monospace(text: String, modifier: Modifier = Modifier()) {
  * @param modifier Additional styling modifiers
  */
 @Composable
-fun errorText(text: String, modifier: Modifier = Modifier()) {
+fun ErrorText(text: String, modifier: Modifier = Modifier()) {
     Text(
         text = text,
         modifier = modifier.color("#d32f2f"),
         fontFamily = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-        lineHeight = "1.4",
-        role = "alert"
+        lineHeight = "1.4"
     )
 }
 
@@ -173,13 +167,12 @@ fun errorText(text: String, modifier: Modifier = Modifier()) {
  * @param modifier Additional styling modifiers
  */
 @Composable
-fun successText(text: String, modifier: Modifier = Modifier()) {
+fun SuccessText(text: String, modifier: Modifier = Modifier()) {
     Text(
         text = text,
         modifier = modifier.color("#2e7d32"),
         fontFamily = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-        lineHeight = "1.4",
-        role = "status"
+        lineHeight = "1.4"
     )
 }
 
@@ -189,7 +182,7 @@ fun successText(text: String, modifier: Modifier = Modifier()) {
  * @param modifier Additional styling modifiers
  */
 @Composable
-fun emphasizedText(text: String, modifier: Modifier = Modifier()) {
+fun EmphasizedText(text: String, modifier: Modifier = Modifier()) {
     Text(
         text = text,
         modifier = Modifier(modifier.styles + ("font-style" to "italic")),
@@ -203,7 +196,7 @@ fun emphasizedText(text: String, modifier: Modifier = Modifier()) {
  * @param modifier Additional styling modifiers
  */
 @Composable
-fun strongText(text: String, modifier: Modifier = Modifier()) {
+fun StrongText(text: String, modifier: Modifier = Modifier()) {
     Text(
         text = text,
         modifier = modifier.fontWeight("bold"),
@@ -217,7 +210,7 @@ fun strongText(text: String, modifier: Modifier = Modifier()) {
  * @param modifier Additional styling modifiers
  */
 @Composable
-fun quoteText(text: String, modifier: Modifier = Modifier()) {
+fun QuoteText(text: String, modifier: Modifier = Modifier()) {
     Text(
         text = text,
         modifier = Modifier(
@@ -239,12 +232,11 @@ fun quoteText(text: String, modifier: Modifier = Modifier()) {
  * @param modifier Additional styling modifiers
  */
 @Composable
-fun truncatedText(text: String, maxLines: Int, modifier: Modifier = Modifier()) {
+fun TruncatedText(text: String, maxLines: Int, modifier: Modifier = Modifier()) {
     Text(
         text = text,
         modifier = modifier,
         fontFamily = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-        overflow = "ellipsis",
         maxLines = maxLines
     )
 }
@@ -255,7 +247,7 @@ fun truncatedText(text: String, maxLines: Int, modifier: Modifier = Modifier()) 
  * @param modifier Additional styling modifiers
  */
 @Composable
-fun keyboardText(text: String, modifier: Modifier = Modifier()) {
+fun KeyboardText(text: String, modifier: Modifier = Modifier()) {
     Text(
         text = text,
         modifier = Modifier(
@@ -279,7 +271,7 @@ fun keyboardText(text: String, modifier: Modifier = Modifier()) {
  * @param modifier Additional styling modifiers
  */
 @Composable
-fun badgeText(
+fun BadgeText(
     text: String,
     color: String = "#e0e0e0",
     textColor: String = "#333333",
@@ -293,10 +285,11 @@ fun badgeText(
                     ("color" to textColor) +
                     ("padding" to "0.25em 0.6em") +
                     ("border-radius" to "1em") +
-                    ("font-size" to "0.75em") +
-                    ("font-weight" to "500")
+                    ("font-size" to "0.85em") +
+                    ("display" to "inline-block")
         ),
-        fontFamily = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+        fontFamily = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        lineHeight = "1.4"
     )
 }
 
@@ -305,7 +298,7 @@ fun badgeText(
  * @param text The text content
  */
 @Composable
-fun screenReaderText(text: String) {
+fun ScreenReaderText(text: String) {
     Text(
         text = text,
         modifier = Modifier(

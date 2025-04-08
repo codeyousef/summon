@@ -1,28 +1,24 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.*
-import code.yousef.summon.core.UIElement
-import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
-import code.yousef.summon.annotation.Composable
+import code.yousef.summon.modifier.applyIf
+import code.yousef.summon.modifier.pointerEvents
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.PlatformRendererProvider
+
 
 /**
- * A composable that displays a multi-line text input field (textarea).
+ * A composable that displays a multi-line text input field.
  *
- * This composable follows the state hoisting pattern. The caller provides the current
- * `value` and an `onValueChange` callback.
- *
- * @param value The current text value to display.
- * @param onValueChange Lambda invoked when the user changes the text input.
- * @param modifier Optional [Modifier] for styling and layout.
- * @param enabled Controls the enabled state. When `false`, interaction is disabled.
- * @param label Optional label text to display above or alongside the field.
- * @param placeholder Optional placeholder text displayed when the input is empty.
- * @param isError Indicates if the input currently has an error (e.g., failed validation).
- * @param rows The number of text lines visible by default.
+ * @param value The current text value of the text area.
+ * @param onValueChange Callback invoked when the text value changes.
+ * @param modifier Modifier applied to the text area.
+ * @param enabled Controls the enabled state.
+ * @param placeholder Optional composable lambda for displaying placeholder text.
+ * @param label Optional composable lambda for a label (consider using FormField).
+ * @param rows Optional hint for the number of visible text rows.
  * @param maxLength Optional maximum number of characters allowed.
- * @param resizable Controls whether the user can resize the textarea (platform support may vary).
+ * @param isError Indicates if the text area should be styled as invalid.
  */
 @Composable
 fun TextArea(
@@ -30,41 +26,24 @@ fun TextArea(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier(),
     enabled: Boolean = true,
-    label: String? = null,
-    placeholder: String? = null,
-    isError: Boolean = false,
-    rows: Int = 4,
+    placeholder: @Composable (() -> Unit)? = null,
+    label: @Composable (() -> Unit)? = null,
+    rows: Int? = null,
     maxLength: Int? = null,
-    resizable: Boolean = true
+    isError: Boolean = false
 ) {
-    val textAreaData = TextAreaData(
+    val finalModifier = modifier
+        .opacity(if (enabled) 1f else 0.6f)
+        .cursor(if (enabled) "text" else "default")
+        .applyIf(!enabled) { pointerEvents("none") }
+        .applyIf(isError) { border("1px", "solid", "#D32F2F") }
+
+    val renderer = PlatformRendererProvider.getPlatformRenderer()
+
+    renderer.renderTextArea(
         value = value,
-        onValueChange = onValueChange,
-        modifier = modifier,
-        enabled = enabled,
-        label = label,
-        placeholder = placeholder,
-        isError = isError,
-        rows = rows,
-        maxLength = maxLength,
-        resizable = resizable
+        onValueChange = { if (enabled) onValueChange(it) },
+        modifier = finalModifier,
+        label = ""
     )
-
-    println("Composable TextArea function called with value: $value")
-}
-
-/**
- * Internal data class holding parameters for the TextArea renderer.
- */
-internal data class TextAreaData(
-    val value: String,
-    val onValueChange: (String) -> Unit,
-    val modifier: Modifier,
-    val enabled: Boolean,
-    val label: String?,
-    val placeholder: String?,
-    val isError: Boolean,
-    val rows: Int,
-    val maxLength: Int?,
-    val resizable: Boolean
-) 
+} 

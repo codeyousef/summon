@@ -1,6 +1,8 @@
 package code.yousef.summon.theme
 
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.theme.ColorSystem
+
 
 /**
  * Theme provides a centralized global styling configuration for the application.
@@ -9,11 +11,27 @@ import code.yousef.summon.modifier.Modifier
  */
 object Theme {
     /**
+     * Represents a text style with common properties.
+     * Uses String? for nullable CSS values.
+     */
+    data class TextStyle(
+        val fontFamily: String? = null,
+        val fontSize: String? = null,
+        val fontWeight: String? = null,
+        val fontStyle: String? = null, // e.g., "italic"
+        val color: String? = null,
+        val textDecoration: String? = null, // e.g., "underline"
+        val lineHeight: String? = null,
+        val letterSpacing: String? = null
+        // Add other relevant CSS text properties as needed
+    )
+
+    /**
      * Represents a complete theme configuration
      */
     data class ThemeConfig(
         val colorPalette: ColorSystem.ColorPalette = ColorSystem.default,
-        val typography: Map<String, Typography.TextStyle> = defaultTypography,
+        val typography: Map<String, TextStyle> = defaultTypography,
         val spacing: Map<String, String> = defaultSpacing,
         val borderRadius: Map<String, String> = defaultBorderRadius,
         val elevation: Map<String, String> = defaultElevation,
@@ -28,22 +46,22 @@ object Theme {
     /**
      * Default typography values from Typography object
      */
-    private val defaultTypography = mapOf(
-        "h1" to Typography.h1,
-        "h2" to Typography.h2,
-        "h3" to Typography.h3,
-        "h4" to Typography.h4,
-        "h5" to Typography.h5,
-        "h6" to Typography.h6,
-        "subtitle" to Typography.subtitle,
-        "body" to Typography.body,
-        "bodyLarge" to Typography.bodyLarge,
-        "bodySmall" to Typography.bodySmall,
-        "caption" to Typography.caption,
-        "button" to Typography.button,
-        "overline" to Typography.overline,
-        "link" to Typography.link,
-        "code" to Typography.code
+    private val defaultTypography: Map<String, TextStyle> = mapOf(
+        "h1" to TextStyle(fontSize = "2.5rem", fontWeight = "bold"),
+        "h2" to TextStyle(fontSize = "2rem", fontWeight = "bold"),
+        "h3" to TextStyle(fontSize = "1.75rem", fontWeight = "bold"),
+        "h4" to TextStyle(fontSize = "1.5rem", fontWeight = "bold"),
+        "h5" to TextStyle(fontSize = "1.25rem", fontWeight = "bold"),
+        "h6" to TextStyle(fontSize = "1rem", fontWeight = "bold"),
+        "subtitle" to TextStyle(fontSize = "1.1rem", fontWeight = "500", color = "#6c757d"),
+        "body" to TextStyle(fontSize = "1rem", fontWeight = "normal"),
+        "bodyLarge" to TextStyle(fontSize = "1.1rem", fontWeight = "normal"),
+        "bodySmall" to TextStyle(fontSize = "0.9rem", fontWeight = "normal"),
+        "caption" to TextStyle(fontSize = "0.8rem", fontWeight = "normal", color = "#868e96"),
+        "button" to TextStyle(fontSize = "1rem", fontWeight = "500", textDecoration = "none"),
+        "overline" to TextStyle(fontSize = "0.75rem", fontWeight = "600", letterSpacing = "0.05em", textDecoration = "uppercase"),
+        "link" to TextStyle(fontSize = "1rem", fontWeight = "normal", color = "#0d6efd", textDecoration = "underline"),
+        "code" to TextStyle(fontSize = "0.9rem", fontFamily = "monospace")
     )
 
     /**
@@ -131,7 +149,7 @@ object Theme {
     fun setTheme(theme: ThemeConfig) {
         currentTheme = theme
         // Also set the matching color system theme mode
-        ColorSystem.setThemeMode(ColorSystem.ThemeMode.SYSTEM)
+        theme.ColorSystem.setThemeMode(theme.ColorSystem.ThemeMode.SYSTEM)
     }
 
     /**
@@ -156,8 +174,8 @@ object Theme {
      * @param name The text style name
      * @return The text style or default body style if not found
      */
-    fun getTextStyle(name: String): Typography.TextStyle {
-        return currentTheme.typography[name] ?: Typography.body
+    fun getTextStyle(name: String): TextStyle {
+        return currentTheme.typography[name] ?: defaultTypography["body"]!!
     }
 
     /**
@@ -217,7 +235,7 @@ object Theme {
  */
 fun Modifier.themeColor(
     colorName: String,
-    themeMode: ColorSystem.ThemeMode = code.yousef.summon.theme.ColorSystem.getThemeMode()
+    themeMode: ColorSystem.ThemeMode = ColorSystem.getThemeMode()
 ): Modifier =
     this.color(Theme.getColor(colorName, themeMode))
 
@@ -226,7 +244,7 @@ fun Modifier.themeColor(
  */
 fun Modifier.themeBackgroundColor(
     colorName: String,
-    themeMode: ColorSystem.ThemeMode = code.yousef.summon.theme.ColorSystem.getThemeMode()
+    themeMode: ColorSystem.ThemeMode = ColorSystem.getThemeMode()
 ): Modifier =
     this.backgroundColor(Theme.getColor(colorName, themeMode))
 
@@ -237,15 +255,26 @@ fun Modifier.themeStyleBorder(
     width: String,
     style: String,
     colorName: String,
-    themeMode: ColorSystem.ThemeMode = code.yousef.summon.theme.ColorSystem.getThemeMode()
+    themeMode: ColorSystem.ThemeMode = ColorSystem.getThemeMode()
 ): Modifier =
     this.border(width, style, Theme.getColor(colorName, themeMode))
 
 /**
  * Apply a theme text style to a modifier
  */
-fun Modifier.themeTextStyle(styleName: String): Modifier =
-    Theme.getTextStyle(styleName).applyTo(this)
+fun Modifier.themeTextStyle(styleName: String): Modifier {
+    val style = Theme.getTextStyle(styleName)
+    var modified = this
+    style.fontFamily?.let { modified = modified.fontFamily(it) }
+    style.fontSize?.let { modified = modified.fontSize(it) }
+    style.fontWeight?.let { modified = modified.fontWeight(it) }
+    style.fontStyle?.let { modified = modified.style("font-style", it) }
+    style.color?.let { modified = modified.color(it) }
+    style.textDecoration?.let { modified = modified.textDecoration(it) }
+    style.lineHeight?.let { modified = modified.lineHeight(it) }
+    style.letterSpacing?.let { modified = modified.letterSpacing(it) }
+    return modified
+}
 
 /**
  * Apply a theme border radius to a modifier
@@ -337,4 +366,47 @@ fun Modifier.themeMargin(
     }
 
     return this.margin(marginValue)
-} 
+}
+
+// --- Theme Data Classes ---
+data class Colors(
+    val primary: String,
+    val secondary: String,
+    val background: String,
+    val surface: String,
+    val error: String,
+    val onPrimary: String,
+    val onSecondary: String,
+    val onBackground: String,
+    val onSurface: String,
+    val onError: String
+    // Add more colors as needed (variants, states)
+)
+
+data class Typography(
+    // Placeholder properties - Define actual styles later
+    val h1: String = "font-size: 2em; font-weight: bold;", // Example inline style
+    val body1: String = "font-size: 1em;"
+)
+
+data class Shapes(
+    val small: Float = 4f, 
+    val medium: Float = 8f
+)
+
+// --- Default Theme Values ---
+val LightColors = Colors(
+    primary = "#6200EE", 
+    secondary = "#03DAC6", 
+    background = "#FFFFFF",
+    surface = "#FFFFFF",
+    error = "#B00020",
+    onPrimary = "#FFFFFF",
+    onSecondary = "#000000",
+    onBackground = "#000000",
+    onSurface = "#000000",
+    onError = "#FFFFFF"
+)
+
+val DefaultTypography = Typography() 
+val DefaultShapes = Shapes() 

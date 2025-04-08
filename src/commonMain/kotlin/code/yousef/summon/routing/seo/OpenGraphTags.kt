@@ -1,8 +1,12 @@
 package code.yousef.summon.routing.seo
 
-import code.yousef.summon.core.Composable
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
 import kotlinx.html.HEAD
 import kotlinx.html.meta
+
+import code.yousef.summon.runtime.SideEffect
+
 
 /**
  * OpenGraphTags component for adding social media metadata
@@ -131,4 +135,32 @@ class OpenGraphTags(
             )
         }
     }
-} 
+}
+
+/**
+ * Composable function to add an Open Graph (OG) meta tag to the document head.
+ * Used for social media sharing previews.
+ *
+ * @param property The OG property name (e.g., "og:title", "og:image").
+ * @param content The content value for the OG property.
+ */
+@Composable
+fun OpenGraphTag(property: String, content: String) {
+    val composer = CompositionLocal.currentComposer
+
+    SideEffect {
+        println("OpenGraphTag SideEffect: Setting property='$property' content='$content'")
+        // TODO: Implement platform-specific head manipulation.
+        // PlatformRendererProvider.code.yousef.summon.runtime.PlatformRendererProvider.getPlatformRenderer().addHeadElement("<meta property=\"$property\" content=\"$content\">")
+    }
+
+    // Renders no UI.
+}
+
+// Convenience functions for common OG tags
+@Composable fun OgTitle(title: String) = OpenGraphTag("og:title", title)
+@Composable fun OgDescription(description: String) = OpenGraphTag("og:description", description)
+@Composable fun OgUrl(url: String) = OpenGraphTag("og:url", url)
+@Composable fun OgImage(imageUrl: String) = OpenGraphTag("og:image", imageUrl)
+@Composable fun OgType(type: String) = OpenGraphTag("og:type", type) // e.g., "website", "article"
+@Composable fun OgSiteName(name: String) = OpenGraphTag("og:site_name", name) 

@@ -1,58 +1,44 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.*
-import code.yousef.summon.core.UIElement
-import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
-import code.yousef.summon.annotation.Composable
+import code.yousef.summon.modifier.applyIf
+import code.yousef.summon.modifier.pointerEvents
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.PlatformRendererProvider
+
 
 /**
- * A composable that displays a toggle switch control, allowing users to switch between two states (on/off).
- *
- * This composable follows the state hoisting pattern. The caller provides the current
- * `checked` state and an `onCheckedChange` callback.
+ * A composable that displays a toggle switch control.
+ * Switches allow users to toggle a setting on or off.
  *
  * @param checked Whether the switch is currently in the 'on' state.
- * @param onCheckedChange Lambda invoked when the user toggles the switch, providing the new checked state.
- * @param modifier Optional [Modifier] for styling and layout.
+ * @param onCheckedChange Callback invoked when the checked state changes due to user interaction.
+ * @param modifier Modifier applied to the switch element itself.
  * @param enabled Controls the enabled state. When `false`, interaction is disabled.
- * @param label Optional label text displayed alongside the switch.
  */
 @Composable
 fun Switch(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier(),
-    enabled: Boolean = true,
-    label: String? = null
+    enabled: Boolean = true
 ) {
-    val switchData = SwitchData(
-        checked = checked,
-        onCheckedChange = onCheckedChange,
-        modifier = modifier,
-        enabled = enabled,
-        label = label
-    )
+    val composer = CompositionLocal.currentComposer
+    val finalModifier = modifier
+        .opacity(if (enabled) 1f else 0.6f)
+        .cursor(if (enabled) "pointer" else "default")
+        .applyIf(!enabled) { pointerEvents("none") }
 
-    println("Composable Switch function called with checked: $checked")
-
-    // Placeholder logic - needs composer/renderer integration.
-    // The renderer (adapt renderSwitch) needs to:
-    // - Create the underlying HTML elements for the switch (e.g., styled div, input checkbox).
-    // - Set checked and disabled states.
-    // - Apply modifier styles.
-    // - Attach a change/click event listener that calls 'onCheckedChange'.
-    // - Handle accessibility (e.g., role="switch", aria-checked).
-}
-
-/**
- * Internal data class holding parameters for the Switch renderer.
- */
-internal data class SwitchData(
-    val checked: Boolean,
-    val onCheckedChange: (Boolean) -> Unit,
-    val modifier: Modifier,
-    val enabled: Boolean,
-    val label: String?
-) 
+    composer?.startNode()
+    if (composer?.inserting == true) {
+        val renderer = PlatformRendererProvider.getPlatformRenderer()
+        renderer.renderSwitch(
+            checked = checked,
+            onCheckedChange = { if (enabled) onCheckedChange(it) },
+            enabled = enabled,
+            modifier = finalModifier
+        )
+    }
+    composer?.endNode()
+} 

@@ -1,6 +1,7 @@
 package code.yousef.summon.routing.seo
 
-import code.yousef.summon.core.Composable
+
+import code.yousef.summon.runtime.Composable
 import code.yousef.summon.routing.Route
 import kotlinx.html.FlowContent
 import kotlinx.html.TagConsumer

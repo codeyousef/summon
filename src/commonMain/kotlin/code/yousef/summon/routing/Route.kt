@@ -1,6 +1,7 @@
 package code.yousef.summon.routing
 
-import code.yousef.summon.core.Composable
+import code.yousef.summon.runtime.Composable
+
 
 /**
  * Defines a route with a pattern and associated component.
@@ -10,7 +11,7 @@ import code.yousef.summon.core.Composable
  */
 data class Route(
     val pattern: String,
-    val component: (RouteParams) -> Composable
+    val component: (RouteParams) -> @Composable () -> Unit
 ) {
     /**
      * Extracts parameter names from the route pattern.

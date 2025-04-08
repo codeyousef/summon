@@ -1,18 +1,45 @@
 package code.yousef.summon
 
-import code.yousef.summon.components.display.ImageData
-import code.yousef.summon.components.display.TextData
-import code.yousef.summon.components.input.ButtonData
+/**
+ * These are test-only implementations of the component classes used in TestExtensions.kt
+ * These are needed for unit testing without using the full composable functions.
+ */
+
+/**
+ * Test version of Image that contains just the properties we want to test
+ */
+class Image(
+    val src: String,
+    val alt: String,
+    val width: String? = null,
+    val height: String? = null
+)
+
+/**
+ * Test version of Button that contains just the properties we want to test
+ */
+class Button(
+    val label: String,
+    val onClick: (Any) -> Unit = {},
+    val disabled: Boolean = false
+)
+
+/**
+ * Test version of Text that contains just the properties we want to test
+ */
+class Text(
+    val text: String
+)
 
 /**
  * Test helpers for common code to be used in both JVM and JS tests.
- * These check properties of the Data objects passed to composables.
+ * These are simple property checks that don't require platform-specific rendering.
  */
 
 /**
- * Verify that the ImageData has the expected property values
+ * Verify that the Image component has the expected property values
  */
-fun ImageData.verifyProperties(
+fun Image.verifyProperties(
     expectedSrc: String,
     expectedAlt: String? = null,
     expectedWidth: String? = null,
@@ -25,19 +52,20 @@ fun ImageData.verifyProperties(
 }
 
 /**
- * Verify that the ButtonData has the expected property values.
- * Note: Cannot easily verify the rendered label/content from here.
+ * Verify that the Button component has the expected property values
  */
-fun ButtonData.verifyProperties(
-    expectedEnabled: Boolean? = null
+fun Button.verifyProperties(
+    expectedLabel: String,
+    expectedDisabled: Boolean? = null
 ): Boolean {
-    return (expectedEnabled == null || enabled == expectedEnabled)
+    return label == expectedLabel &&
+           (expectedDisabled == null || disabled == expectedDisabled)
 }
 
 /**
- * Verify that the TextData has the expected property values
+ * Verify that the Text component has the expected property values
  */
-fun TextData.verifyProperties(
+fun Text.verifyProperties(
     expectedText: String
 ): Boolean {
     return text == expectedText

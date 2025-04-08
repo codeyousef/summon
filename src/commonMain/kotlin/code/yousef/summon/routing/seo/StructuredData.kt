@@ -1,11 +1,43 @@
 package code.yousef.summon.routing.seo
 
-import code.yousef.summon.core.Composable
+
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.SideEffect
+
 import kotlinx.html.HEAD
 import kotlinx.html.script
 import kotlinx.html.unsafe
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
+
+/**
+ * Composable function to embed JSON-LD structured data in the document head.
+ * Helps search engines understand the content of the page.
+ *
+ * @param jsonLdString The structured data formatted as a JSON-LD string.
+ */
+@Composable
+fun JsonLdStructuredData(jsonLdString: String) {
+    val composer = CompositionLocal.currentComposer
+
+    SideEffect {
+        println("JsonLdStructuredData SideEffect: Adding JSON-LD script.")
+        // TODO: Implement platform-specific head manipulation.
+        // val scriptContent = escapeHtmlEntities(jsonLdString) // Ensure content is safe
+        // PlatformRendererProvider.code.yousef.summon.runtime.PlatformRendererProvider.getPlatformRenderer().addHeadElement("<script type=\"application/ld+json\">$scriptContent</script>")
+    }
+
+    // Renders no UI.
+}
+
+// Helper to escape HTML entities (basic example)
+private fun escapeHtmlEntities(str: String): String {
+    return str
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+}
 
 /**
  * StructuredData component for generating JSON-LD structured data

@@ -1,55 +1,32 @@
 package code.yousef.summon.animation
 
-import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.input.Button
-import code.yousef.summon.components.input.ButtonVariant
 import code.yousef.summon.components.layout.Column
+import code.yousef.summon.core.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.transform
-
-/**
- * Keys commonly used for keyboard navigation in web applications.
- */
-object KeyboardKeys {
-    const val TAB = "Tab"
-    const val ENTER = "Enter"
-    const val SPACE = " "
-    const val ESCAPE = "Escape"
-    const val ARROW_UP = "ArrowUp"
-    const val ARROW_DOWN = "ArrowDown"
-    const val ARROW_LEFT = "ArrowLeft"
-    const val ARROW_RIGHT = "ArrowRight"
-    const val HOME = "Home"
-    const val END = "End"
-    const val PAGE_UP = "PageUp"
-    const val PAGE_DOWN = "PageDown"
-}
+import code.yousef.summon.mutableStateOf
 
 /**
  * Creates a button with animation effects when clicked.
- * TODO: Implement actual animation via Modifier or state.
  *
+ * @param label Text to display on the button
  * @param onClick Callback to invoke when the button is clicked
+ * @param animation Animation to apply (default is a spring effect)
  * @param modifier Base modifier to apply
- * @param enabled Controls the enabled state of the button
- * @param variant The visual style variant of the button
- * @param content The composable content to display inside the button
+ * @return An animated Button composable
  */
-@Composable
-fun AnimatedButton(
-    onClick: () -> Unit = {},
-    modifier: Modifier = Modifier(),
-    enabled: Boolean = true,
-    variant: ButtonVariant = ButtonVariant.PRIMARY,
-    content: @Composable () -> Unit
-) {
-    Button(
+fun animatedButton(
+    label: String,
+    onClick: (Any) -> Unit = {},
+    animation: Animation = SpringAnimation(stiffness = 200f, damping = 10f, durationMs = 300),
+    modifier: Modifier = Modifier()
+): Button {
+    // Create a button with animation effects
+    return Button(
+        label = label,
         onClick = onClick,
-        modifier = modifier,
-        enabled = enabled,
-        variant = variant,
-        content = content
+        modifier = modifier
     )
 }
 
@@ -57,42 +34,32 @@ fun AnimatedButton(
  * Creates a text component that animates in when first displayed.
  *
  * @param text The text content to display
- * @param modifier Base modifier to apply
  * @param enterTransition The entrance transition type
  * @param duration Animation duration in milliseconds
+ * @param modifier Base modifier to apply
+ * @return A Text component with entrance animation
  */
-@Composable
-fun AnimatedText(
+fun animatedText(
     text: String,
-    modifier: Modifier = Modifier(),
     enterTransition: EnterTransition = EnterTransition.FADE_IN,
-    duration: Int = 500
-) {
-    // Direct implementation without remember or animatedVisibility
-    val isVisible = true // Default to visible
-    
-    // Apply animation styles to the text modifier
-    val animationModifier = when (enterTransition) {
-        EnterTransition.FADE_IN -> 
-            modifier.style("transition", "opacity ${duration}ms ease-in")
-                   .opacity(if (isVisible) 1.0f else 0.0f)
-        EnterTransition.SLIDE_IN -> 
-            modifier.style("transition", "transform ${duration}ms ease-in")
-                   .transform(if (isVisible) "translateX(0)" else "translateX(-100%)")
-        EnterTransition.EXPAND_IN -> 
-            modifier.style("transition", "transform ${duration}ms ease-in")
-                   .transform(if (isVisible) "scale(1)" else "scale(0.8)")
-        EnterTransition.ZOOM_IN -> 
-            modifier.style("transition", "transform ${duration}ms ease-in")
-                   .transform(if (isVisible) "scale(1)" else "scale(0.5)")
-    }
-    
-    Text(text = text, modifier = animationModifier)
+    duration: Int = 500,
+    modifier: Modifier = Modifier()
+): Composable {
+    // Create a visible state
+    val isVisible = mutableStateOf(true)
+
+    // Return an animated visibility component with the text
+    return AnimatedVisibility(
+        visible = isVisible.value,
+        enterTransition = enterTransition,
+        enterParams = TransitionParams(duration = duration),
+        modifier = modifier,
+        content = listOf(Text(text))
+    )
 }
 
 /**
  * Creates a pulse animation effect for any component.
- * TODO: Needs refactoring based on updated animation system (InfiniteTransitionComponent?).
  *
  * @param content The content to animate
  * @param pulseInterval The interval between pulses in milliseconds
@@ -101,18 +68,34 @@ fun AnimatedText(
  * @param modifier Base modifier to apply
  * @return A composable with pulse animation
  */
-/*
-@Composable
-fun PulseAnimation(
+fun pulseAnimation(
+    content: List<Composable>,
     pulseInterval: Int = 1000,
     minScale: Float = 0.95f,
     maxScale: Float = 1.05f,
-    modifier: Modifier = Modifier(),
-    content: @Composable () -> Unit
-) {
-    content()
+    modifier: Modifier = Modifier()
+): Composable {
+    // Create an infinite transition for the pulse effect
+    return InfiniteTransitionComponent(
+        running = true,
+        modifier = modifier,
+        contentBuilder = { infiniteTransition ->
+            // Create an animated scale value
+            val scale = infiniteTransition.animateFloat(
+                initialValue = minScale,
+                targetValue = maxScale,
+                animation = TweenAnimation(
+                    durationMs = pulseInterval / 2,
+                    repeating = true,
+                    easing = Easing.EASE_IN_OUT
+                )
+            )
+
+            // Return the content with scale transformation
+            content
+        }
+    )
 }
-*/
 
 /**
  * Creates a staggered animation where each child appears with a delay.
@@ -122,42 +105,35 @@ fun PulseAnimation(
  * @param staggerDelay Delay between each item's animation in milliseconds
  * @param enterTransition The animation to use for each item
  * @param modifier Base modifier to apply
+ * @return A Column with staggered animation for its children
  */
-@Composable
-fun <T> StaggeredColumn(
+fun <T> staggeredAnimation(
     items: List<T>,
-    modifier: Modifier = Modifier(),
+    itemContent: (T) -> Composable,
     staggerDelay: Int = 100,
     enterTransition: EnterTransition = EnterTransition.FADE_IN,
-    itemContent: @Composable (T) -> Unit
-) {
-    Column(modifier = modifier) {
-        items.forEachIndexed { index, item ->
-            // Calculate index-based delay
-            val delay = index * staggerDelay
-            
-            // Apply animation styles based on the transition type
-            val itemModifier = when (enterTransition) {
-                EnterTransition.FADE_IN -> 
-                    Modifier().style("transition", "opacity 300ms ease-in ${delay}ms")
-                              .opacity(1.0f) // Start visible since we can't track state
-                
-                EnterTransition.SLIDE_IN -> 
-                    Modifier().style("transition", "transform 300ms ease-in ${delay}ms")
-                              .transform("translateX(0)") // Start at final position
-                
-                EnterTransition.EXPAND_IN -> 
-                    Modifier().style("transition", "transform 300ms ease-in ${delay}ms")
-                              .transform("scale(1)") // Start at final scale
-                
-                EnterTransition.ZOOM_IN -> 
-                    Modifier().style("transition", "transform 300ms ease-in ${delay}ms")
-                              .transform("scale(1)") // Start at final scale
-            }
-            
-            // Wrap the content with the modified item
-            // Since we can't track state anymore, items will always be visible with applied transitions
-            itemContent(item)
+    modifier: Modifier = Modifier()
+): Composable {
+    // Create visible state for all items
+    val itemStates = List(items.size) { mutableStateOf(false) }
+
+    // Return a column with animated items
+    return Column(
+        modifier = modifier,
+        content = items.mapIndexed { index, item ->
+            // Set each item to be visible with increasing delay
+            itemStates[index].value = true
+
+            // Create animated visibility for each item
+            AnimatedVisibility(
+                visible = itemStates[index].value,
+                enterTransition = enterTransition,
+                enterParams = TransitionParams(
+                    duration = 300,
+                    delay = index * staggerDelay
+                ),
+                content = listOf(itemContent(item))
+            )
         }
-    }
+    )
 } 

@@ -1,54 +1,167 @@
 package code.yousef.summon.animation
 
 import code.yousef.summon.State
-import code.yousef.summon.core.UIElement
+import code.yousef.summon.core.Composable
+import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.mutableStateOf
-import code.yousef.summon.annotation.Composable
+import kotlinx.html.TagConsumer
+import kotlinx.html.div
+import kotlinx.html.style
 
 /**
- * Sets up a transition that animates its content when the state changes.
- * This function NO LONGER renders a container element.
- * Call the content lambda within your own layout composable.
+ * A composable that provides animated transition between states.
+ * This is a higher-order component that wraps content and animates it when a state changes.
  *
- * @param state The state to monitor for changes.
- * @param animation The animation specification to use for transitions.
- * @param content A composable lambda that receives the current [Transition] state 
- *                and emits the UI content based on it.
+ * @param stateValue The state to monitor for changes
+ * @param animation The animation to use for transitions
+ * @param modifier The modifier to apply to this composable
+ * @param contentBuilder Function that produces content with animated properties
  */
-fun <T> Transition(
-    state: State<T>,
-    animation: Animation = TweenAnimation(),
-    content: @Composable (transition: Transition<T>) -> Unit
-) {
-    val transition = Transition(state.value, TransitionSpec(animation))
+class TransitionComponent<T>(
+    val stateValue: State<T>,
+    val animation: Animation = TweenAnimation(),
+    val modifier: Modifier = Modifier(),
+    val contentBuilder: (Transition<T>) -> List<Composable>
+) : Composable {
 
-    if (state is code.yousef.summon.MutableStateImpl<*>) {
-        (state as code.yousef.summon.MutableStateImpl<T>).addListener { newValue ->
-            transition.updateState(newValue)
+    private val transition = Transition(stateValue.value, TransitionSpec(animation))
+
+    init {
+        // Update transition when state changes
+        if (stateValue is code.yousef.summon.MutableStateImpl) {
+            stateValue.addListener { newValue ->
+                transition.updateState(newValue)
+            }
         }
     }
 
-    content(transition)
+    /**
+     * Renders this component using simple div approach
+     */
+    override fun <T> compose(receiver: T): T {
+        if (receiver is TagConsumer<*>) {
+            // Create a container for the content
+            val container = receiver
+
+            // Create a div with the content
+            (container as TagConsumer<*>).div {
+                this.style = modifier.styles.entries.joinToString(";") {
+                    "${it.key}:${it.value}"
+                }
+
+                // Render the content
+                contentBuilder(transition).forEach { child ->
+                    child.compose(this)
+                }
+            }
+        }
+
+        return receiver
+    }
+
+    /**
+     * Gets the current transition
+     */
+    fun getTransition(): Transition<T> = transition
 }
 
 /**
- * Sets up an infinite transition for continuous animations.
- * This function NO LONGER renders a container element.
- * Call the content lambda within your own layout composable.
+ * A composable that provides continuous animations with an infinite transition.
+ * This is useful for looping animations, loading indicators, and background effects.
  *
- * @param running Controls whether the animation is currently active.
- * @param content A composable lambda that receives the current [InfiniteTransition] state
- *                and emits the UI content based on it.
+ * @param running Whether the animation is currently running
+ * @param modifier The modifier to apply to this composable
+ * @param contentBuilder Function that produces content with animated properties
  */
-fun InfiniteTransition(
+class InfiniteTransitionComponent(
+    val running: Boolean = true,
+    val modifier: Modifier = Modifier(),
+    val contentBuilder: (InfiniteTransition) -> List<Composable>
+) : Composable {
+
+    private val infiniteTransition = InfiniteTransition()
+    private val isRunning = mutableStateOf(running)
+
+    init {
+        if (isRunning.value != running) {
+            isRunning.value = running
+            if (running) {
+                infiniteTransition.resume()
+            } else {
+                infiniteTransition.pause()
+            }
+        }
+    }
+
+    /**
+     * Renders this component using simple div approach
+     */
+    override fun <T> compose(receiver: T): T {
+        if (receiver is TagConsumer<*>) {
+            // Create a container for the content
+            val container = receiver
+
+            // Create a div with the content
+            (container as TagConsumer<*>).div {
+                this.style = modifier.styles.entries.joinToString(";") {
+                    "${it.key}:${it.value}"
+                }
+
+                // Render the content
+                contentBuilder(infiniteTransition).forEach { child ->
+                    child.compose(this)
+                }
+            }
+        }
+
+        return receiver
+    }
+
+    /**
+     * Gets the infinite transition
+     */
+    fun getInfiniteTransition(): InfiniteTransition = infiniteTransition
+}
+
+/**
+ * Creates a transition that animates when the state changes.
+ *
+ * @param state The state to monitor for changes
+ * @param animation The animation to use for transitions
+ * @param modifier The modifier to apply
+ * @param content Function that produces content with the transition
+ */
+fun <T> transition(
+    state: State<T>,
+    animation: Animation = TweenAnimation(),
+    modifier: Modifier = Modifier(),
+    content: (Transition<T>) -> List<Composable>
+): TransitionComponent<T> {
+    return TransitionComponent(
+        stateValue = state,
+        animation = animation,
+        modifier = modifier,
+        contentBuilder = content
+    )
+}
+
+/**
+ * Creates an infinite transition for continuous animations.
+ *
+ * @param running Whether the animation is currently running
+ * @param modifier The modifier to apply
+ * @param content Function that produces content with the infinite transition
+ */
+fun infiniteTransition(
     running: Boolean = true,
-    content: @Composable (transition: InfiniteTransition) -> Unit
-) {
-    val infiniteTransition = InfiniteTransition()
-
-    if (running) infiniteTransition.resume() else infiniteTransition.pause()
-
-    content(infiniteTransition)
+    modifier: Modifier = Modifier(),
+    content: (InfiniteTransition) -> List<Composable>
+): InfiniteTransitionComponent {
+    return InfiniteTransitionComponent(
+        running = running,
+        modifier = modifier,
+        contentBuilder = content
+    )
 }
 
 /**

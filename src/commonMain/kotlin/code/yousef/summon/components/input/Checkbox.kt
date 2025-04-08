@@ -1,58 +1,63 @@
 package code.yousef.summon.components.input
 
 import code.yousef.summon.*
-import code.yousef.summon.core.UIElement
+import code.yousef.summon.core.Composable
 import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
 import kotlinx.html.TagConsumer
-import code.yousef.summon.annotation.Composable
 
 /**
- * A composable that displays a checkbox, allowing users to select a boolean state.
- *
- * This composable follows the state hoisting pattern. The caller provides the current
- * `checked` state and an `onCheckedChange` callback.
- *
- * @param checked Whether the checkbox is currently checked.
- * @param onCheckedChange Lambda invoked when the user clicks the checkbox, providing the new checked state.
- * @param modifier Optional [Modifier] for styling and layout.
- * @param enabled Controls the enabled state. When `false`, interaction is disabled.
- * @param label Optional label text displayed alongside the checkbox.
- * @param isError Indicates if the checkbox is in an error state (visually).
- * @param isIndeterminate Whether the checkbox should display an indeterminate state.
+ * A composable that displays a checkbox input field.
+ * @param state The state that holds the current value of the checkbox
+ * @param onValueChange Callback that is invoked when the input value changes
+ * @param label Optional label to display for the checkbox
+ * @param modifier The modifier to apply to this composable
+ * @param isIndeterminate Whether the checkbox should be in an indeterminate state
+ * @param validators List of validators to apply to the input
  */
-@Composable
-fun Checkbox(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier(),
-    enabled: Boolean = true,
-    label: String? = null,
-    isError: Boolean = false,
-    isIndeterminate: Boolean = false
-) {
-    val checkboxData = CheckboxData(
-        checked = checked,
-        onCheckedChange = onCheckedChange,
-        modifier = modifier,
-        enabled = enabled,
-        label = label,
-        isError = isError,
-        isIndeterminate = isIndeterminate
-    )
+class Checkbox(
+    val state: MutableState<Boolean>,
+    val onValueChange: (Boolean) -> Unit = {},
+    val label: String? = null,
+    val modifier: Modifier = Modifier(),
+    val isIndeterminate: Boolean = false,
+    val validators: List<Validator> = emptyList()
+) : Composable, InputComponent, FocusableComponent {
+    // Internal state to track validation errors
+    private val validationErrors = mutableStateOf<List<String>>(emptyList())
 
-    println("Composable Checkbox function called with checked: $checked")
-}
+    /**
+     * Renders this Checkbox composable using the platform-specific renderer.
+     * @param receiver TagConsumer to render to
+     * @return The TagConsumer for method chaining
+     */
+    override fun <T> compose(receiver: T): T {
+        if (receiver is TagConsumer<*>) {
+            @Suppress("UNCHECKED_CAST")
+            return PlatformRendererProvider.getRenderer().renderCheckbox(this, receiver as TagConsumer<T>)
+        }
+        return receiver
+    }
 
-/**
- * Internal data class holding parameters for the Checkbox renderer.
- */
-internal data class CheckboxData(
-    val checked: Boolean,
-    val onCheckedChange: (Boolean) -> Unit,
-    val modifier: Modifier,
-    val enabled: Boolean,
-    val label: String?,
-    val isError: Boolean,
-    val isIndeterminate: Boolean
-) 
+    /**
+     * Validates the current input value against all validators.
+     * @return True if validation passed, false otherwise
+     */
+    fun validate(): Boolean {
+        val errors = validators.mapNotNull { validator ->
+            if (!validator.validateBoolean(state.value)) validator.errorMessage else null
+        }
+        validationErrors.value = errors
+        return errors.isEmpty()
+    }
+
+    /**
+     * Gets the current validation errors.
+     */
+    fun getValidationErrors(): List<String> = validationErrors.value
+
+    /**
+     * Indicates whether the field is currently valid.
+     */
+    fun isValid(): Boolean = validationErrors.value.isEmpty()
+} 

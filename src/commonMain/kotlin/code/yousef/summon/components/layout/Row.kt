@@ -1,40 +1,80 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.core.UIElement
-import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
-import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.PlatformRendererProvider
+import runtime.ComposableDsl
+
+
+/**
+ * A scope for `Row` composable's content lambda.
+ * Provides modifiers specific to items within a Row, like `align`.
+ */
+@ComposableDsl
+interface RowScope {
+    /**
+     * Modifier function to align an element vertically within the Row.
+     * TODO: Implement actual alignment logic (e.g., adding appropriate CSS classes or styles).
+     *
+     * @param alignment The vertical alignment (e.g., Top, CenterVertically, Bottom).
+     */
+    fun Modifier.align(alignment: Alignment.Vertical): Modifier
+    // TODO: Add other RowScope specific modifiers like weight?
+}
+
+// Internal implementation of RowScope
+internal object RowScopeInstance : RowScope {
+    override fun Modifier.align(alignment: Alignment.Vertical): Modifier {
+        // Placeholder: Return unchanged modifier.
+        // Actual implementation would add alignment styles (e.g., align-self)
+        println("RowScope.align called with $alignment - Placeholder")
+        // Example: return this.style("align-self", alignment.toCssValue())
+        return this
+    }
+}
 
 /**
  * A layout composable that places its children in a horizontal sequence.
- * @param modifier The modifier to apply to this composable.
- * @param content The composable content to be placed horizontally inside the row.
+ * 
+ * @param modifier [Modifier] to be applied to the Row layout
+ * @param horizontalArrangement Arrangement of children along the main axis (horizontal).
+ * @param verticalAlignment Alignment of children along the cross axis (vertical).
+ * @param content The content lambda defining the children, scoped to `RowScope`.
  */
 @Composable
 fun Row(
     modifier: Modifier = Modifier(),
-    content: @Composable () -> Unit
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Horizontal.Start, // Qualified default
+    verticalAlignment: Alignment.Vertical = Alignment.Vertical.Top,       // Qualified default
+    content: @Composable RowScope.() -> Unit // Content lambda now has RowScope receiver
 ) {
-    // 1. Create data holder
-    val rowData = RowData(modifier = modifier)
+    val composer = CompositionLocal.currentComposer
+    // TODO: Add Modifier properties for horizontalArrangement and verticalAlignment
+    // Example: val finalModifier = modifier.flexboxStyles(direction = "row", ...) 
+    val finalModifier = modifier // Placeholder
 
-    // 2. Signal start of Row to the Composer/Renderer
-    // Similar placeholder logic as Column: composer integration needed.
-    // Composer starts a Row node, applies modifier, executes content lambda.
-    // Renderer needs adaptation to handle this.
-
-    // Placeholder logic:
-    println("Composable Row function called.")
-    // Invoke content lambda (this is NOT rendering, just for potential side effects / structure)
-    content()
-    // Actual rendering call (e.g., PlatformRendererProvider.getRenderer().renderRow(...))
-    // needs to be integrated with composer/renderer logic.
+    composer?.startNode() // Start Row node
+    if (composer?.inserting == true) {
+        val renderer = PlatformRendererProvider.getPlatformRenderer()
+        renderer.renderRow(finalModifier) // Render the row container
+    }
+    
+    // Execute the content lambda with RowScopeInstance as the receiver
+    // This allows children to use RowScope modifiers like .align()
+    RowScopeInstance.content()
+    
+    composer?.endNode() // End Row node
 }
 
-/**
- * Internal data class holding non-content parameters for the Row.
- */
-internal data class RowData(
-    val modifier: Modifier = Modifier()
-) 
+// TODO: Define Alignment and Arrangement enums/objects if they don't exist
+// Placeholder definitions:
+object Alignment {
+    enum class Vertical { Top, CenterVertically, Bottom }
+    enum class Horizontal { Start, CenterHorizontally, End }
+}
+
+object Arrangement {
+    enum class Horizontal { Start, End, Center, SpaceBetween, SpaceAround, SpaceEvenly }
+    enum class Vertical { Top, Bottom, Center, SpaceBetween, SpaceAround, SpaceEvenly }
+} 

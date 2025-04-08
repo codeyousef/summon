@@ -1,47 +1,70 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.annotation.Composable
+import code.yousef.summon.core.Composable
+import code.yousef.summon.LayoutComponent
 import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
 import kotlinx.html.TagConsumer
 
 /**
- * A composable that renders an HTML `<form>` element, acting as a semantic container
- * for input fields and controls.
+ * A composable that represents an HTML form.
+ * It manages form state, validation, and submission.
  *
- * Unlike the previous implementation, this Form does **not** manage field state,
- * validation, or submission internally. These concerns should be handled by the caller
- * using hoisted state.
- *
- * @param modifier Optional [Modifier] for styling and layout of the form element.
- * @param onSubmit Optional lambda invoked when the form receives a native submit event.
- *                 Note: Submission logic is typically handled via a Button's onClick lambda within the content.
- *                 This is primarily for intercepting browser default behavior if needed.
- * @param content The composable content of the form (e.g., [TextField], [Button], layout components).
+ * @param content The form content containing input fields and submit buttons
+ * @param onSubmit Callback that is invoked when the form is submitted
+ * @param modifier The modifier to apply to this composable
  */
-@Composable
-fun Form(
-    modifier: Modifier = Modifier(),
-    onSubmit: (() -> Unit)? = null,
-    content: @Composable () -> Unit
-) {
-    println("Composable Form function called.")
-    content()
-}
+class Form(
+    val content: List<Composable>,
+    val onSubmit: (Map<String, String>) -> Unit = {},
+    val modifier: Modifier = Modifier()
+) : Composable, LayoutComponent {
+    private val formFields = mutableListOf<TextField>()
 
-/**
- * Internal data class holding non-content parameters for the Form.
- */
-data class FormData(
-    val name: String? = null,
-    val action: String? = null,
-    val method: String = "post", // Typically POST for forms
-    val encType: String? = null, // e.g., "multipart/form-data"
-    val modifier: Modifier,
-    val onSubmit: (() -> Unit)?
-)
+    /**
+     * Registers a TextField with this form.
+     * This allows the form to track all input fields for validation and submission.
+     */
+    fun registerField(field: TextField) {
+        formFields.add(field)
+    }
 
-/**
- * Builder class for creating Form components with a fluent API.
- */
-// ... existing code ... 
+    /**
+     * Validates all form fields.
+     * @return True if all fields are valid, false otherwise
+     */
+    fun validate(): Boolean {
+        return formFields.all { it.validate() }
+    }
+
+    /**
+     * Submits the form if validation passes.
+     * @return True if form was submitted, false if validation failed
+     */
+    fun submit(): Boolean {
+        if (validate()) {
+            // Collect all form values
+            val formData = formFields.associate<TextField, String, String> { field ->
+                (field.label ?: field.hashCode().toString()) to field.state.value
+            }
+
+            // Call the onSubmit callback
+            onSubmit(formData)
+            return true
+        }
+        return false
+    }
+
+    /**
+     * Renders this Form composable using the platform-specific renderer.
+     * @param receiver TagConsumer to render to
+     * @return The TagConsumer for method chaining
+     */
+    override fun <T> compose(receiver: T): T {
+        if (receiver is TagConsumer<*>) {
+            @Suppress("UNCHECKED_CAST")
+            return PlatformRendererProvider.getRenderer().renderForm(this, receiver as TagConsumer<T>)
+        }
+        return receiver
+    }
+} 

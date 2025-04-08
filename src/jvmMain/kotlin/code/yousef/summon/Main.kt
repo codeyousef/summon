@@ -4,11 +4,11 @@ import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.components.layout.Row
-import code.yousef.summon.examples.CardExample
-import code.yousef.summon.examples.DividerExample
-import code.yousef.summon.examples.ImageExample
-import code.yousef.summon.examples.TextExample
-import code.yousef.summon.modifier.Modifier
+import examples.CardExample
+import examples.DividerExample
+import examples.ImageExample
+import examples.TextExample
+import modifier.Modifier
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 

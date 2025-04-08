@@ -5,7 +5,7 @@ import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.input.Form
 import code.yousef.summon.components.input.TextField
 import code.yousef.summon.components.input.TextFieldType
-import code.yousef.summon.modifier.Modifier
+import modifier.Modifier
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 

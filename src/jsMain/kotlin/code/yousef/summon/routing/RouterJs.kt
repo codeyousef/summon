@@ -1,8 +1,19 @@
-package code.yousef.summon.routing
+package routing
 
-import code.yousef.summon.core.Composable
+import code.yousef.summon.routing.Route
+import code.yousef.summon.routing.RouteDefinition
+import code.yousef.summon.routing.RouteParams
+import code.yousef.summon.routing.Router
+import code.yousef.summon.routing.RouterBuilder
+import code.yousef.summon.routing.RouterBuilderImpl
+
+import runtime.Composable
 import kotlinx.browser.window
 import kotlin.js.JsName
+import runtime.remember
+import runtime.mutableStateOf
+import runtime.getValue
+import runtime.setValue
 
 /**
  * Extends the Router class with JavaScript-specific functionality.
@@ -84,4 +95,41 @@ fun Router.updateBrowserUrl(path: String, pushState: Boolean) {
 fun Router.navigateAndUpdateBrowser(path: String, pushState: Boolean = true) {
     navigate(path, pushState)
     updateBrowserUrl(path, pushState)
+}
+
+@Composable
+fun Router(routes: List<RouteDefinition>, initialPath: String, notFound: @Composable (RouteParams) -> Unit) {
+    val history = remember { BrowserHistory() }
+    var currentPath by remember { mutableStateOf(initialPath) }
+
+    // ... existing code ...
+}
+
+/**
+ * Creates a JS-specific router implementation.
+ */
+actual fun createRouter(builder: RouterBuilder.() -> Unit): Router {
+    val routerBuilder = RouterBuilderImpl()
+    routerBuilder.builder()
+    return RouterJs(routerBuilder.routes, routerBuilder.notFoundPage)
+}
+
+internal class RouterJs(
+    private val routes: List<RouteDefinition>,
+    private val notFoundPage: @Composable (RouteParams) -> Unit
+) : Router {
+
+    private val history = BrowserHistory()
+
+    // ... existing code ...
+
+    @Composable
+    override fun create(initialPath: String) {
+        Router(routes, initialPath, notFoundPage)
+    }
+
+    override fun navigate(path: String, pushState: Boolean) {
+        // Implementation details...
+        updateBrowserUrl(path, pushState) // Ensure this call remains
+    }
 }

@@ -2,6 +2,7 @@ package code.yousef.summon.theme
 
 import code.yousef.summon.modifier.Modifier
 
+
 /**
  * ColorSystem provides predefined color schemes with support for light and dark modes.
  * It defines a consistent color palette that can be used across the application

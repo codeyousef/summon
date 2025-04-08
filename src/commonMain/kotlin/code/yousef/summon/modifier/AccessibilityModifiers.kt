@@ -1,5 +1,8 @@
 package code.yousef.summon.modifier
 
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
+
 /**
  * Extension functions for Accessibility Modifiers
  * These add ARIA attributes through HTML attributes applied to elements

@@ -1,8 +1,10 @@
 package code.yousef.summon.ssr
 
-import code.yousef.summon.core.Composable
-import code.yousef.summon.core.PlatformRenderer
-import code.yousef.summon.core.getPlatformRenderer
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
+
+
 import kotlinx.html.stream.createHTML
 
 /**
@@ -10,7 +12,7 @@ import kotlinx.html.stream.createHTML
  * This renderer can handle dynamic data and produce HTML with hydration markers
  */
 class DynamicRenderer(
-    private val platformRenderer: PlatformRenderer = getPlatformRenderer(),
+    private val platformRenderer: PlatformRenderer = PlatformRendererProvider.getPlatformRenderer(),
     private val hydrationSupport: HydrationSupport = StandardHydrationSupport()
 ) : ServerSideRenderer {
     /**
@@ -42,7 +44,7 @@ class DynamicRenderer(
     private fun renderToString(composable: Composable): String {
         // Using createHTML from kotlinx.html to render the component
         return createHTML().let { consumer ->
-            composable.compose(consumer)
+            platformRenderer.renderComposable(composable, consumer)
             consumer.finalize()
         }
     }
@@ -289,4 +291,32 @@ object DynamicRendering {
     fun createRenderer(hydrationSupport: HydrationSupport = StandardHydrationSupport()): DynamicRenderer {
         return DynamicRenderer(hydrationSupport = hydrationSupport)
     }
+
+    /**
+     * Renders a composable function to a string (e.g., HTML) dynamically on the server.
+     *
+     * @param content The composable function to render.
+     * @return The rendered output string.
+     */
+    fun renderToString(content: @Composable () -> Unit): String {
+        println("DynamicRendering.renderToString called (not implemented).")
+        return "<!-- Dynamic SSR Output Placeholder -->"
+    }
+
+    /**
+     * Placeholder for fetching server-side data needed for dynamic rendering.
+     */
+    suspend fun fetchDataForRoute(routeId: String): Map<String, Any> {
+        println("DynamicRendering.fetchDataForRoute called for '$routeId' (not implemented).")
+        return emptyMap()
+    }
+}
+
+/**
+ * Example composable demonstrating dynamic data fetching.
+ */
+@Composable
+fun DynamicDataComponent(routeId: String) {
+    println("DynamicDataComponent composed for route '$routeId'")
+    // TODO: Add data fetching and display logic
 } 

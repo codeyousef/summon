@@ -1,4 +1,7 @@
-package code.yousef.summon.routing
+package routing
+
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
 
 /**
  * Navigation history manager that provides access to browser history navigation.

@@ -1,7 +1,11 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.annotation.Composable
+import code.yousef.summon.core.Composable
+import code.yousef.summon.LayoutComponent
+import code.yousef.summon.core.PlatformRendererProvider
+import code.yousef.summon.ScrollableComponent
 import code.yousef.summon.modifier.Modifier
+import kotlinx.html.TagConsumer
 
 /**
  * A layout composable that displays a horizontal scrollable list with lazy loading.
@@ -9,31 +13,24 @@ import code.yousef.summon.modifier.Modifier
  * for large lists. This is similar to RecyclerView in Android or a virtualized list in JS frameworks.
  *
  * @param items The list of items to be displayed
- * @param modifier The modifier to apply to this composable
  * @param itemContent A function that produces a Composable for each item
+ * @param modifier The modifier to apply to this composable
  */
-@Composable
-fun <T> LazyRow(
-    items: List<T>,
-    modifier: Modifier = Modifier(),
-    itemContent: @Composable (T) -> Unit
-) {
-    val lazyRowData = LazyRowData(items = items, modifier = modifier, itemContent = itemContent)
-
-    // TODO: Implement actual lazy rendering logic for horizontal layout.
-    println("Composable LazyRow function called for ${items.size} items.")
-
-    // Placeholder: Does NOT implement lazy loading.
-    items.forEach { item ->
-        itemContent(item)
-    }
-}
-
-/**
- * Internal data class holding non-content parameters for LazyRow.
- */
-internal data class LazyRowData<T>(
+class LazyRow<T>(
     val items: List<T>,
-    val modifier: Modifier,
-    val itemContent: @Composable (T) -> Unit
-) 
+    val itemContent: (T) -> Composable,
+    val modifier: Modifier = Modifier()
+) : Composable, LayoutComponent, ScrollableComponent {
+    /**
+     * Renders this LazyRow composable using the platform-specific renderer.
+     * @param receiver TagConsumer to render to
+     * @return The TagConsumer for method chaining
+     */
+    override fun <T2> compose(receiver: T2): T2 {
+        if (receiver is TagConsumer<*>) {
+            @Suppress("UNCHECKED_CAST")
+            return PlatformRendererProvider.getRenderer().renderLazyRow(this, receiver as TagConsumer<T2>)
+        }
+        return receiver
+    }
+} 

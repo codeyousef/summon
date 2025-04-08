@@ -1,8 +1,10 @@
 package code.yousef.summon.routing.seo
 
-import code.yousef.summon.core.Composable
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
 import kotlinx.html.HEAD
 import kotlinx.html.link
+import code.yousef.summon.runtime.SideEffect
 
 /**
  * CanonicalLinks component for managing canonical URLs
@@ -86,4 +88,23 @@ class CanonicalLinks(
             )
         }
     }
+}
+
+/**
+ * Composable function to add a canonical link tag to the document head.
+ * Helps prevent duplicate content issues for SEO.
+ *
+ * @param href The canonical URL for the current page content.
+ */
+@Composable
+fun CanonicalLink(href: String) {
+    val composer = CompositionLocal.currentComposer
+
+    SideEffect {
+        println("CanonicalLink SideEffect: Setting canonical URL to $href")
+        // TODO: Implement platform-specific head manipulation.
+        // PlatformRendererProvider.code.yousef.summon.runtime.PlatformRendererProvider.getPlatformRenderer().addHeadElement("<link rel=\"canonical\" href=\"$href\">")
+    }
+
+    // Renders no UI.
 } 

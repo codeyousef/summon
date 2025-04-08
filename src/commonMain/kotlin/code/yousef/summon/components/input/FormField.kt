@@ -1,42 +1,61 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.core.UIElement
-import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
-import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.PlatformRendererProvider
 import code.yousef.summon.components.layout.Column
-import code.yousef.summon.components.display.Text
+import code.yousef.summon.components.layout.Spacer
+
 
 /**
- * A layout composable that wraps an input field (or other content)
- * with a label, helper text, and error message display.
+ * A layout composable that wraps form controls, providing structure for labels,
+ * helper text, and error messages.
  *
- * @param fieldContent The main content of the form field, typically an input composable like [TextField].
- * @param modifier Optional [Modifier] for the entire FormField layout.
- * @param label Optional composable lambda to display the label above the field content.
- * @param helperText Optional composable lambda for helper text displayed below the field when not in error state.
- * @param errorMessage Optional composable lambda for error message displayed below the field when [isError] is true.
- * @param isError Controls whether the error message or helper text is displayed.
+ * @param modifier Modifier applied to the FormField container.
+ * @param label Optional composable lambda for the field's label.
+ * @param helperText Optional composable lambda for displaying helper text below the field.
+ * @param errorText Optional composable lambda for displaying error text below the field (shown when `isError` is true).
+ * @param isError Indicates whether the field is currently in an error state.
+ * @param isRequired Indicates whether the field is required (can be used for visual indicators like an asterisk).
+ * @param fieldContent The composable lambda defining the actual input control (e.g., TextField, Select).
  */
 @Composable
 fun FormField(
-    fieldContent: @Composable () -> Unit,
     modifier: Modifier = Modifier(),
     label: @Composable (() -> Unit)? = null,
     helperText: @Composable (() -> Unit)? = null,
-    errorMessage: @Composable (() -> Unit)? = null,
-    isError: Boolean = false
+    errorText: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    isRequired: Boolean = false, // TODO: Add visual indicator if true?
+    fieldContent: @Composable () -> Unit
 ) {
-    Column(modifier = modifier) {
-        label?.invoke()
+    // TODO: Replace runtime.PlatformRendererProvider with CompositionLocal access
+    val renderer = PlatformRendererProvider.getPlatformRenderer()
 
+    // TODO: Renderer signature update required.
+    // The renderer call might become simpler or be removed if Column handles the container.
+    // For now, keep it but it might be redundant or only apply attributes.
+    // renderer.renderFormField(modifier = modifier, label = "", isError = isError, isRequired = isRequired)
+
+    // Use Column for vertical layout
+    Column(modifier = modifier) { // Apply the main modifier to the Column
+        // Compose Label if provided
+        if (label != null) {
+            label() // TODO: Add styling? Associate with input via 'for' attribute?
+            // Add small space between label and field
+            Spacer(modifier = Modifier().height("4px")) 
+        }
+
+        // Compose the actual input field
         fieldContent()
 
-        if (isError && errorMessage != null) {
-            errorMessage()
-        } else if (!isError && helperText != null) {
-            helperText()
+        // Compose Helper Text or Error Text (priority to error)
+        val bottomText = if (isError && errorText != null) errorText else helperText
+        if (bottomText != null) {
+            // Add small space between field and helper/error text
+            Spacer(modifier = Modifier().height("4px")) 
+            // TODO: Add specific styling for helper/error text?
+            bottomText()
         }
     }
 } 

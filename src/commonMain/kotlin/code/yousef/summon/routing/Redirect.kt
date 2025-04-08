@@ -1,29 +1,38 @@
 package code.yousef.summon.routing
 
-import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.LaunchedEffect
 
 /**
- * A composable that performs a client-side redirect when composed.
- * Useful for declarative redirection based on application state or logic.
- * This composable does not render any UI itself.
+ * A composable that performs a client-side redirect when it enters the composition.
  *
- * @param to The target path to navigate to.
- * @param replace If true, replaces the current entry in the history stack instead of pushing a new one.
+ * @param to The target path to redirect to.
+ * @param permanent If true, indicates a permanent redirect (may influence browser history or SEO).
  */
 @Composable
 fun Redirect(
     to: String,
-    replace: Boolean = false
+    permanent: Boolean = false
 ) {
-    // Get the current router instance from the composition context
-    // This requires RouterContext to be available, likely as a CompositionLocal.
-    // val router = RouterContext.current ?: error("RouterContext not found. Redirect must be used within a Router.")
-    val router = RouterContext.current // Assuming RouterContext.current works here
+    // Assume Router.current provides access to the router instance via CompositionLocal
+    // val router = Router.current
 
-    // Perform the navigation side-effect
-    // Consider using LaunchedEffect or similar for side effects in Compose?
-    // For now, direct call matches old behavior.
-    router?.navigate(to, !replace) 
+    // Correct LaunchedEffect syntax: use a single key (e.g., a Pair)
+    // and then the suspending lambda block.
+    LaunchedEffect(key = to to permanent) { // Keyed on a pair
+        println("Redirect composable launched effect: Redirecting to '$to' (Permanent: $permanent)")
+        // TODO: Get actual router instance and call navigate with replace option.
+        // router.navigateTo(to, replace = permanent)
+        // Router.navigateTo(to) // Commented out placeholder call
+    }
 
-    // This composable emits nothing to the UI tree.
-} 
+    // This component renders no UI directly.
+}
+
+// Removed old Redirect class that implemented Composable:
+// class Redirect(val to: String, val permanent: Boolean = false) : Composable {
+//     override fun <T> compose(receiver: T): T {
+//         // Logic was likely in Router/Platform implementation
+//         return receiver
+//     }
+// } 

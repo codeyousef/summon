@@ -1,6 +1,11 @@
 package code.yousef.summon.accessibility
 
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.attribute
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.PlatformRendererProvider
+
 
 /**
  * Utilities for managing focus in web applications.
@@ -98,45 +103,96 @@ object FocusManagement {
 }
 
 /**
- * A component that manages focus for its children.
- * NOTE: This class is likely obsolete after refactoring to @Composable functions.
- * Focus attributes should be applied via Modifier directly to standard components.
+ * Manages focus within a composable scope.
+ * Provides functions to move focus programmatically.
  */
-class FocusManager(
-    // Content is no longer directly relevant here.
-    // private val content: List<Composable>,
-    private val behavior: FocusManagement.FocusBehavior = FocusManagement.FocusBehavior.TABBABLE,
-    private val focusId: String? = null,
-    private val isFocusTrap: Boolean = false,
-    private val scopeId: String? = null
-) /* : Composable, FocusableComponent */ { // Removed interface inheritance
+object FocusManager {
+    private var currentFocusId: String? = null
+    private val focusableElements = mutableMapOf<String, () -> Unit>() // Map ID to focus action
 
-    // Removed the compose method
-    /*
-    override fun <T> compose(receiver: T): T {
-        var modifier = FocusManagement.createFocusModifier(behavior)
-
-        if (focusId != null) {
-            val restoreFocus = isFocusTrap // Automatically restore focus when using a focus trap
-            val focusPointModifier = FocusManagement.createFocusPoint(focusId, restoreFocus)
-            modifier = Modifier(modifier.styles + focusPointModifier.styles)
-        }
-
-        if (isFocusTrap && focusId != null) {
-            val trapModifier = FocusManagement.createFocusTrap(focusId)
-            modifier = Modifier(modifier.styles + trapModifier.styles)
-        }
-
-        if (scopeId != null) {
-            val scopeModifier = FocusManagement.createFocusScope(scopeId)
-            modifier = Modifier(modifier.styles + scopeModifier.styles)
-        }
-
-        // TODO: Implement rendering with focus management
-        // This logic is now defunct.
-        return receiver
+    /** Registers an element that can receive focus. */
+    fun registerFocusable(id: String, focusAction: () -> Unit) {
+        focusableElements[id] = focusAction
     }
-    */
-    // This class now primarily acts as a data holder, but its purpose is questionable.
-    // Consider removing it and using the helper functions in FocusManagement directly.
+
+    /** Unregisters a focusable element. */
+    fun unregisterFocusable(id: String) {
+        focusableElements.remove(id)
+        if (currentFocusId == id) {
+            currentFocusId = null
+            // Optionally move focus to a default element
+        }
+    }
+
+    /** Requests focus for a specific element by ID. */
+    fun requestFocus(id: String) {
+        focusableElements[id]?.invoke()
+        currentFocusId = id
+    }
+
+    /** Moves focus to the next focusable element. (Needs implementation) */
+    fun moveFocusNext() {
+        // Logic to determine the next focusable element based on order/DOM
+        println("FocusManager.moveFocusNext() not implemented.")
+    }
+
+    /** Moves focus to the previous focusable element. (Needs implementation) */
+    fun moveFocusPrevious() {
+        // Logic to determine the previous focusable element
+        println("FocusManager.moveFocusPrevious() not implemented.")
+    }
+
+    /** Clears the current focus state. */
+    fun clearFocus() {
+        // Potentially blur the currently focused element if tracked
+        currentFocusId = null
+        println("FocusManager.clearFocus() called.")
+    }
+}
+
+/**
+ * Makes its content focusable within the FocusManager system.
+ *
+ * @param focusId A unique identifier for this focusable element.
+ * @param modifier Modifier applied to the focusable content wrapper.
+ * @param content The actual UI content that should become focusable.
+ */
+@Composable
+fun Focusable(
+    focusId: String,
+    modifier: Modifier = Modifier(),
+    content: @Composable () -> Unit
+) {
+    val composer = CompositionLocal.currentComposer
+
+    // TODO: How to trigger the actual browser focus?
+    // Need a way to get the underlying element/node reference.
+    // PlatformRenderer might need a way to associate the rendered element with focusId.
+    val focusAction = { /* Platform-specific code to focus element with focusId */
+        println("Focus requested for: $focusId (implementation needed)")
+        // Example (JS): document.getElementById(focusId)?.focus()
+    }
+
+    // Register with FocusManager when composed
+    // TODO: Use remember and DisposableEffect for proper registration/unregistration
+    // This simple registration will re-register on every recomposition.
+    FocusManager.registerFocusable(focusId, focusAction)
+    // Consider unregistering in DisposableEffect { onDispose { FocusManager.unregisterFocusable(focusId) } }
+
+    // Apply focus-related attributes via modifier
+    val focusableModifier = modifier
+        // Add tabindex=0 to make it keyboard focusable
+        // Might need specific focus outline styles etc.
+        // .tabIndex(0)
+        // .onFocus { FocusManager.requestFocus(focusId) } // If modifiers support focus events
+        // .id(focusId) // Renderer needs to apply this ID
+
+    composer?.startNode() // Start a logical focusable node
+    if (composer?.inserting == true) {
+        // Render a container (like Box) applying the modifier,
+        // ensuring it has the focusId somehow (e.g., via modifier attribute).
+        PlatformRendererProvider.getPlatformRenderer().renderBox(modifier = focusableModifier.attribute("id", focusId)) // Example
+    }
+    content() // Compose the actual UI content
+    composer?.endNode() // End logical node
 } 

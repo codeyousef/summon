@@ -1,24 +1,29 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.PlatformRendererProvider
+
 
 /**
- * A layout composable that maintains a specific aspect ratio (width-to-height) for its content.
- * AspectRatio is useful for image containers, videos, and other content where
- * maintaining proportions is important.
+ * A layout composable that attempts to size its content to a specific aspect ratio.
  *
- * @param content The composable to display inside the AspectRatio container
- * @param ratio The desired aspect ratio (width / height), e.g. 16/9, 4/3, 1.0, etc.
- * @param modifier The modifier to apply to this composable
+ * @param ratio The desired aspect ratio (width / height).
+ * @param modifier Modifier to apply to the aspect ratio container.
+ * @param content The composable content to display within the aspect ratio container.
  */
-class AspectRatio(
-    val content: @Composable () -> Unit,
-    val ratio: Double,
-    val modifier: Modifier = Modifier()
+@Composable
+fun AspectRatio(
+    ratio: Float,
+    modifier: Modifier = Modifier(),
+    content: @Composable () -> Unit
 ) {
-    /**
-     * Internal data class holding non-content parameters for AspectRatio.
-     */
+    val platformRenderer = PlatformRendererProvider.getPlatformRenderer()
+    
+    // Use the platform renderer to create the aspect ratio container
+    platformRenderer.renderAspectRatio(
+        ratio = ratio,
+        modifier = modifier,
+        content = content
+    )
 } 

@@ -1,6 +1,6 @@
 package code.yousef.summon.ssr
 
-import code.yousef.summon.core.Composable
+import code.yousef.summon.runtime.Composable
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -154,4 +154,60 @@ interface StreamingServerSideRenderer {
      * @return Flow of HTML chunks
      */
     fun renderStream(composable: Composable, context: RenderContext = RenderContext()): Flow<String>
-} 
+}
+
+/**
+ * Core utilities for server-side rendering (SSR).
+ * Replaces old ServerSideRenderer object/class.
+ */
+object ServerSideRenderUtils {
+
+    /**
+     * Renders a composable function to a string, suitable for SSR.
+     *
+     * @param rootComposable The root composable function of the page/application.
+     * @param initialData Optional initial data to be used during rendering (e.g., from server state).
+     * @param includeHydrationScript Whether to include a script tag with hydration data.
+     * @return The fully rendered HTML string.
+     */
+    fun renderPageToString(
+        rootComposable: @Composable () -> Unit,
+        initialData: Map<String, Any?> = emptyMap(),
+        includeHydrationScript: Boolean = true
+    ): String {
+        println("ServerSideRenderUtils.renderPageToString called.")
+        
+        // TODO: Implement full SSR pipeline
+        // 1. Set up server-side Composer and Renderer (e.g., HtmlStringRenderer).
+        // 2. Provide initialData potentially via CompositionLocals.
+        // 3. Execute rootComposable within the CompositionContext.
+        // 4. Get the main HTML content from the renderer.
+        // 5. Optionally generate hydration data.
+        // 6. Construct the full HTML document string.
+
+        val bodyContent = DynamicRendering.renderToString(rootComposable) // Use dynamic renderer placeholder
+        val hydrationScript = if (includeHydrationScript) {
+            HydrationUtils.generateHydrationScript(rootComposable) // Use hydration utils placeholder
+        } else {
+            ""
+        }
+
+        // Construct a basic HTML document
+        return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Summon SSR Page</title>
+            <!-- TODO: Add head elements composed during rendering (e.g., MetaTags, CanonicalLink) -->
+        </head>
+        <body>
+            <div id="summon-root">$bodyContent</div>
+            $hydrationScript
+        </body>
+        </html>
+        """.trimIndent()
+    }
+}
+
+// Removed old SSRServer or related classes that implemented Composable 

@@ -1,68 +1,46 @@
 package code.yousef.summon.components.input
 
 import code.yousef.summon.*
-import code.yousef.summon.core.UIElement
+import code.yousef.summon.core.Composable
 import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
 import kotlinx.html.TagConsumer
-import code.yousef.summon.annotation.Composable
 
 /**
- * A composable control that allows users to select a value from a continuous or discrete range
- * by dragging a slider thumb.
- *
- * This composable follows the state hoisting pattern.
- *
- * @param value The current value of the slider.
- * @param onValueChange Lambda invoked when the user drags the slider, providing the new value.
- * @param modifier Optional [Modifier] for styling and layout.
- * @param enabled Controls the enabled state. When `false`, interaction is disabled.
- * @param valueRange The allowed range of values for the slider.
- * @param steps If greater than 0, specifies the number of discrete steps the slider thumb can snap to.
- *              Set to 0 for a continuous slider.
+ * A composable that displays a range slider input field.
+ * @param state The state that holds the current value of the slider
+ * @param onValueChange Callback that is invoked when the value changes
+ * @param label Optional label to display for the slider
+ * @param min Minimum value of the range
+ * @param max Maximum value of the range
+ * @param step Step value for the slider
+ * @param modifier The modifier to apply to this composable
+ * @param disabled Whether the slider is disabled
+ * @param showTooltip Whether to show a tooltip with the current value
+ * @param valueFormat Function to format the value for display
  */
-@Composable
-fun Slider(
-    value: Double,
-    onValueChange: (Double) -> Unit,
-    modifier: Modifier = Modifier(),
-    enabled: Boolean = true,
-    valueRange: ClosedFloatingPointRange<Double> = 0.0..1.0,
-    steps: Int = 0
-) {
-    val stepValue = if (steps > 0) {
-        (valueRange.endInclusive - valueRange.start) / (steps + 1)
-    } else {
-        null
+class RangeSlider(
+    val state: MutableState<Double>,
+    val onValueChange: (Double) -> Unit = {},
+    val label: String? = null,
+    val min: Double = 0.0,
+    val max: Double = 100.0,
+    val step: Double = 1.0,
+    val modifier: Modifier = Modifier(),
+    val disabled: Boolean = false,
+    val showTooltip: Boolean = false,
+    val valueFormat: (Double) -> String = { it.toString() }
+) : Composable, InputComponent, FocusableComponent {
+    /**
+     * Renders this RangeSlider composable using the platform-specific renderer.
+     * @param receiver TagConsumer to render to
+     * @return The TagConsumer for method chaining
+     */
+    override fun <T> compose(receiver: T): T {
+        if (receiver is TagConsumer<*>) {
+            @Suppress("UNCHECKED_CAST")
+            return PlatformRendererProvider.getRenderer().renderRangeSlider(this, receiver as TagConsumer<T>)
+        }
+        return receiver
     }
-
-    val sliderData = SliderData(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = modifier,
-        enabled = enabled,
-        valueRange = valueRange,
-        stepAttribute = stepValue
-    )
-
-    println("Composable Slider function called with value: $value")
-
-    // Placeholder logic - needs composer/renderer integration.
-    // The renderer (adapt renderRangeSlider) needs to:
-    // - Create the <input type="range"> element and optional labels/value displays.
-    // - Set min, max, step, disabled, value attributes.
-    // - Apply modifier styles.
-    // - Attach an input/change event listener that calls 'onValueChange' with the new numeric value.
-}
-
-/**
- * Internal data class holding parameters for the Slider renderer.
- */
-internal data class SliderData(
-    val value: Double,
-    val onValueChange: (Double) -> Unit,
-    val modifier: Modifier,
-    val enabled: Boolean,
-    val valueRange: ClosedFloatingPointRange<Double>,
-    val stepAttribute: Double?
-) 
+} 

@@ -1,49 +1,43 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.PlatformRendererProvider
+
 
 /**
- * A layout composable that displays a vertical scrollable list with lazy loading.
- * LazyColumn only renders the items that are visible in the viewport, improving performance
- * for large lists. This is similar to RecyclerView in Android or a virtualized list in JS frameworks.
- *
- * @param items The list of items to be displayed
- * @param modifier The modifier to apply to this composable
- * @param itemContent A function that produces a Composable for each item
+ * A vertically scrolling list that only composes and lays out the currently visible items.
+ * 
+ * @param modifier The modifier to be applied to the LazyColumn
+ * @param content The content lambda defining the children, scoped to `LazyListScope`.
  */
 @Composable
-fun <T> LazyColumn(
-    items: List<T>,
+fun LazyColumn(
     modifier: Modifier = Modifier(),
-    itemContent: @Composable (T) -> Unit
+    content: LazyListScope.() -> Unit
 ) {
-    val lazyColumnData = LazyColumnData(items = items, modifier = modifier, itemContent = itemContent)
+    val composer = CompositionLocal.currentComposer
+    val finalModifier = modifier // Placeholder for potential default styles
 
-    // TODO: Implement actual lazy rendering logic.
-    // This likely involves the composer/renderer managing item visibility
-    // and calling itemContent only for visible items.
-    // For now, just creating the data holder.
-    println("Composable LazyColumn function called for ${items.size} items.")
-
-    // Placeholder: This does NOT implement lazy loading.
-    // It just invokes the itemContent for all items during composition.
-    // A real implementation needs integration with the rendering system.
-    items.forEach { item ->
-        itemContent(item)
+    composer?.startNode() // Start LazyColumn node
+    if (composer?.inserting == true) {
+        val renderer = PlatformRendererProvider.getPlatformRenderer()
+        renderer.renderLazyColumn(finalModifier) // Render the container
     }
+    
+    // Create the scope, collect the item composables by executing the content lambda
+    val scope = LazyListScopeImpl()
+    scope.content()
+    
+    // Compose the actual items within the LazyColumn node
+    // In a real implementation, this loop would be driven by the layout state (scroll position)
+    // and only compose visible items.
+    scope.items.forEach { itemContentLambda ->
+        itemContentLambda() // Execute the composable lambda for each item
+    }
+
+    composer?.endNode() // End LazyColumn node
 }
 
-/**
- * Internal data class holding non-content parameters for LazyColumn.
- */
-internal data class LazyColumnData<T>(
-    val items: List<T>,
-    val modifier: Modifier,
-    val itemContent: @Composable (T) -> Unit // Keep itemContent here for the renderer? Needs thought.
-)
-
-/**
- * Represents an item within a LazyColumn or LazyRow.
- */
-// ... existing code ...
+// The old LazyColumn class and its methods are removed. 

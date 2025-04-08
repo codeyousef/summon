@@ -1,11 +1,14 @@
-package code.yousef.summon.security.service
+package security.service
 
-import code.yousef.summon.security.*
-import code.yousef.summon.security.annotations.RequiresAccess
-import code.yousef.summon.security.annotations.RequiresAuthentication
-import code.yousef.summon.security.annotations.RequiresPermissions
-import code.yousef.summon.security.annotations.RequiresRoles
-import code.yousef.summon.security.config.SecurityConfig
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
+
+import security.*
+import security.annotations.RequiresAccess
+import security.annotations.RequiresAuthentication
+import security.annotations.RequiresPermissions
+import security.annotations.RequiresRoles
+import security.config.SecurityConfig
 
 /**
  * Service that handles authentication and authorization operations

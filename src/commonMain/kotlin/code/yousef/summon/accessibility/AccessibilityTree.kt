@@ -1,13 +1,14 @@
 package code.yousef.summon.accessibility
 
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.PlatformRendererProvider
 
 /**
- * Utilities for inspecting and manipulating the accessibility tree of a web application.
- * Provides tools to examine the accessibility hierarchy, which is crucial for
- * assistive technologies like screen readers.
+ * Utilities for accessibility-related tasks.
  */
-object AccessibilityTree {
+object AccessibilityUtils {
     /**
      * Basic node types in the accessibility tree
      */
@@ -125,59 +126,102 @@ object AccessibilityTree {
     }
 }
 
-/**
- * A component that wraps content with proper accessibility attributes.
- * Makes content accessible to assistive technologies.
- * NOTE: This class is likely obsolete after refactoring to @Composable functions.
- * Accessibility attributes should be applied via Modifier directly to standard components.
- */
-class AccessibleElement(
-    // Content is no longer directly relevant here as this class doesn't compose.
-    // private val content: List<Composable>,
-    private val role: AccessibilityTree.NodeRole? = null,
-    private val customRole: String? = null,
-    private val label: String? = null,
-    private val relations: Map<String, String> = emptyMap()
-) /* : Composable */ { // Removed Composable inheritance
+data class AccessibilityNode(
+    val role: Role,
+    val label: String?, // aria-label
+    val description: String?, // aria-describedby (reference to ID)
+    val state: Map<State, Boolean> = emptyMap(),
+    val properties: Map<String, String> = emptyMap(), // Other aria-* attributes
+    val children: List<AccessibilityNode> = emptyList(),
+    val modifier: Modifier = Modifier() // Modifier applied to the element itself
+)
 
-    // Removed the compose method
-    /*
-    override fun <T> compose(receiver: T): T {
-        var modifier = Modifier()
+enum class Role {
+    // Document Structure Roles
+    ARTICLE, COLUMNHEADER, DEFINITION, DIRECTORY, DOCUMENT, GROUP, HEADING,
+    IMG, LIST, LISTITEM, MATH, NOTE, PRESENTATION, REGION, ROW, ROWGROUP,
+    ROWHEADER, SEPARATOR, TABLE, TOOLBAR,
 
-        // Apply role (either predefined or custom)
-        if (role != null) {
-            modifier = AccessibilityTree.createRoleModifier(role)
-        } else if (customRole != null) {
-            modifier = AccessibilityTree.createRoleModifier(customRole)
-        }
+    // Widget Roles
+    ALERT, ALERTDIALOG, BUTTON, CHECKBOX, DIALOG, GRIDCELL, LINK, LOG, MARQUEE,
+    MENUITEM, MENUITEMCHECKBOX, MENUITEMRADIO, OPTION, PROGRESSBAR, RADIO,
+    SCROLLBAR, SEARCHBOX, SLIDER, SPINBUTTON, STATUS, SWITCH, TAB, TABPANEL,
+    TEXTBOX, TIMER, TOOLTIP, TREEITEM,
 
-        // Apply label if provided
-        if (label != null) {
-            val labelModifier = AccessibilityTree.createLabelModifier(label)
-            modifier = AccessibilityTree.applyAttributes(modifier, labelModifier)
-        }
+    // Landmark Roles
+    BANNER, COMPLEMENTARY, CONTENTINFO, FORM, MAIN, NAVIGATION, SEARCH,
 
-        // Apply relationships
-        for ((relation, targetId) in relations) {
-            val relationModifier = AccessibilityTree.createRelationshipModifier(relation, targetId)
-            modifier = AccessibilityTree.applyAttributes(modifier, relationModifier)
-        }
+    // Live Region Roles
+    APPLICATION, LANDMARK
+}
 
-        // TODO: Render content with accessibility attributes
-        // This logic is now defunct.
-        return receiver
-    }
-    */
-    // This class now primarily acts as a data holder, but its purpose is questionable.
-    // Consider removing it and using the helper functions in AccessibilityTree directly.
+enum class State {
+    BUSY, CHECKED, DISABLED, EXPANDED, GRABBED, HIDDEN, INVALID, PRESSED,
+    SELECTED
 }
 
 /**
- * Applies attributes from one modifier to another.
- * Helper method to combine accessibility attributes.
+ * Represents the root of an accessibility tree for a composable subtree.
+ * Holds the structure, not directly renderable UI.
  */
-private fun AccessibilityTree.applyAttributes(base: Modifier, additional: Modifier): Modifier {
-    // Simple workaround to combine modifiers
-    return Modifier()
+class AccessibilityTree(val rootNode: AccessibilityNode) {
+    // Logic to traverse or query the tree can go here.
+}
+
+/**
+ * A composable function intended to *apply* accessibility properties from an
+ * AccessibilityNode to its child content during composition.
+ */
+@Composable
+fun ApplyAccessibilityNode(
+    node: AccessibilityNode,
+    content: @Composable () -> Unit
+) {
+    val composer = CompositionLocal.currentComposer
+
+    val accessibilityModifier = node.modifier
+        // TODO: Add specific accessibility attributes based on node data
+        // .accessibilityProperties(role = node.role, label = node.label, ...)
+
+    composer?.startNode() // Start a logical node
+    if (composer?.inserting == true) {
+        // Render a container (like Box) applying the modifier,
+        // or rely on content's root.
+     PlatformRendererProvider.getPlatformRenderer().renderBox(modifier = accessibilityModifier)
+    }
+    content() // Compose the actual UI content
+    composer?.endNode() // End logical node
+}
+
+// --- Helper Functions --- (Might need review/update based on usage)
+
+/**
+ * Builds an AccessibilityNode from a composable function.
+ * WARNING: This approach is likely flawed for the new composition system.
+ */
+fun buildAccessibilityNode(composable: @Composable () -> Unit): AccessibilityNode {
+    println("Warning: buildAccessibilityNode is likely incorrect in the new composition system.")
+    return AccessibilityNode(
+        role = Role.PRESENTATION, // Default/unknown
+        label = null,
+        description = null
+    )
+}
+
+/**
+ * Finds the first AccessibilityNode matching a predicate.
+ */
+fun AccessibilityNode.findNode(predicate: (AccessibilityNode) -> Boolean): AccessibilityNode? {
+    if (predicate(this)) return this
+    return children.firstNotNullOfOrNull { it.findNode(predicate) }
+}
+
+/**
+ * Finds all AccessibilityNodes matching a predicate.
+ */
+fun AccessibilityNode.findAllNodes(predicate: (AccessibilityNode) -> Boolean): List<AccessibilityNode> {
+    val result = mutableListOf<AccessibilityNode>()
+    if (predicate(this)) result.add(this)
+    children.forEach { result.addAll(it.findAllNodes(predicate)) }
+    return result
 } 

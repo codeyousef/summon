@@ -1,8 +1,10 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.annotation.Composable
+import code.yousef.summon.core.Composable
+import code.yousef.summon.LayoutComponent
+import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.core.UIElement // Assuming UIElement can handle this structure
+import kotlinx.html.TagConsumer
 
 /**
  * Screen size breakpoints for responsive layouts.
@@ -19,40 +21,25 @@ enum class ScreenSize {
  * ResponsiveLayout allows developers to create adaptive UI layouts that respond to
  * different device sizes and orientations.
  *
- * @param content Map of screen sizes to the composable content lambdas for those sizes.
- * @param defaultContent The default composable content lambda if no specific size matches.
- * @param modifier The modifier to apply to this composable.
+ * @param content Map of screen sizes to the composables that should be displayed at those sizes
+ * @param defaultContent The default composable to display if no specific content is provided for the current screen size
+ * @param modifier The modifier to apply to this composable
  */
-@Composable
-fun ResponsiveLayout(
-    modifier: Modifier = Modifier(),
-    content: Map<ScreenSize, @Composable () -> Unit>,
-    defaultContent: @Composable () -> Unit
-) {
-    val responsiveData = ResponsiveLayoutData(
-        modifier = modifier,
-        content = content,
-        defaultContent = defaultContent
-    )
-
-    // TODO: Implement logic to determine current screen size and select content.
-    // This requires platform-specific integration (e.g., media queries).
-    println("Composable ResponsiveLayout function called.")
-
-    // Placeholder: Always render default content for now.
-    // A real implementation would select based on screen size.
-    UIElement(
-        factory = { responsiveData }, // The factory might need adjustment based on how content is selected
-        update = { /* Update logic */ },
-        content = defaultContent // Pass the selected content lambda here
-    )
-}
-
-/**
- * Internal data class holding parameters for ResponsiveLayout.
- */
-internal data class ResponsiveLayoutData(
-    val modifier: Modifier,
-    val content: Map<ScreenSize, @Composable () -> Unit>,
-    val defaultContent: @Composable () -> Unit
-) 
+class ResponsiveLayout(
+    val content: Map<ScreenSize, Composable>,
+    val defaultContent: Composable,
+    val modifier: Modifier = Modifier()
+) : Composable, LayoutComponent {
+    /**
+     * Renders this ResponsiveLayout composable using the platform-specific renderer.
+     * @param receiver TagConsumer to render to
+     * @return The TagConsumer for method chaining
+     */
+    override fun <T> compose(receiver: T): T {
+        if (receiver is TagConsumer<*>) {
+            @Suppress("UNCHECKED_CAST")
+            return PlatformRendererProvider.getRenderer().renderResponsiveLayout(this, receiver as TagConsumer<T>)
+        }
+        return receiver
+    }
+} 

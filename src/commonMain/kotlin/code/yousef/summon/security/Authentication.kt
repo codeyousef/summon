@@ -1,4 +1,7 @@
-package code.yousef.summon.security
+package security
+
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
 
 /**
  * Represents an authentication request with credentials.

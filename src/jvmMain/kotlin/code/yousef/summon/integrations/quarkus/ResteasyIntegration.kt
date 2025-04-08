@@ -1,8 +1,11 @@
-package code.yousef.summon.integrations.quarkus
+package integrations.quarkus
 
-import code.yousef.summon.core.Composable
-import code.yousef.summon.JvmPlatformRenderer
-import code.yousef.summon.render
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
+
+import core.Composable
+import JvmPlatformRenderer
+import render
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.WebApplicationException

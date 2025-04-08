@@ -1,38 +1,30 @@
-package code.yousef.summon.components.layout
+package code.yousef.summon
 
-import code.yousef.summon.core.UIElement
+import code.yousef.summon.core.Composable
 import code.yousef.summon.core.PlatformRendererProvider
-import code.yousef.summon.modifier.Modifier
 import kotlinx.html.TagConsumer
-import code.yousef.summon.annotation.Composable
+import kotlinx.html.div
+import kotlinx.html.style
 
 /**
  * A composable that adds space between components.
- * Can be used to create fixed gaps in layouts like Row or Column.
- * @param modifier The modifier to apply to this composable. Often used to set size.
- * @param size The size of the spacer (e.g., "16px"). Note: Size can also be controlled via modifier.
- * @param isVertical Whether the spacer primarily affects vertical (true) or horizontal (false) space.
+ * @param size The size of the spacer (e.g., "16px")
+ * @param isVertical Whether the spacer should take up vertical space (true) or horizontal space (false)
  */
-@Composable
-fun Spacer(
-    modifier: Modifier = Modifier(),
-    size: String? = null,
-    isVertical: Boolean = true
-) {
-    val spacerData = SpacerData(
-        modifier = modifier,
-        size = size,
-        isVertical = isVertical
-    )
-    
-    println("Composable Spacer function called.")
-}
-
-/**
- * Internal data holder for Spacer properties.
- */
-internal data class SpacerData(
-    val modifier: Modifier = Modifier(),
-    val size: String?,
-    val isVertical: Boolean
-) 
+class Spacer(
+    val size: String,
+    val isVertical: Boolean = true
+) : Composable {
+    /**
+     * Renders this Spacer composable using the platform-specific renderer.
+     * @param receiver TagConsumer to render to
+     * @return The TagConsumer for method chaining
+     */
+    override fun <T> compose(receiver: T): T {
+        if (receiver is TagConsumer<*>) {
+            @Suppress("UNCHECKED_CAST")
+            return PlatformRendererProvider.getRenderer().renderSpacer(this, receiver as TagConsumer<T>)
+        }
+        return receiver
+    }
+} 

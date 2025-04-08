@@ -1,4 +1,7 @@
-package code.yousef.summon.security.annotations
+package security.annotations
+
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.PlatformRenderer
 
 /**
  * Annotation to mark a route or component as requiring authentication
