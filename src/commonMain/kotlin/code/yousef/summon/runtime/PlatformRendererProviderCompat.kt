@@ -1,27 +1,37 @@
 package code.yousef.summon.runtime
 
+import code.yousef.summon.core.PlatformRenderer
+
 /**
  * Compatibility layer for code that still uses PlatformRendererProvider.
- * This provides a backward-compatible way to access the platform renderer
- * while we migrate the codebase to use the getPlatformRenderer() function directly.
+ * This class provides static access to a PlatformRenderer instance.
+ * 
+ * This class will be deprecated and eventually removed once the migration to getPlatformRenderer() is complete.
  */
-object PlatformRendererProvider {
+object PlatformRendererProviderLegacy {
     /**
      * Get the current platform renderer.
-     * Delegates to the new getPlatformRenderer() function.
-     * 
-     * @throws IllegalStateException if no renderer has been set.
+     * @return the current platform renderer
+     * @throws IllegalStateException if no renderer has been set
      */
-    fun getPlatformRenderer(): PlatformRenderer {
-        return code.yousef.summon.runtime.getPlatformRenderer()
+    fun getRenderer(): PlatformRenderer {
+        // Convert MigratedPlatformRenderer to PlatformRenderer if necessary
+        val renderer = getPlatformRenderer()
+        return renderer as? PlatformRenderer ?: throw IllegalStateException(
+            "Platform renderer is not compatible with expected interface"
+        )
     }
     
     /**
      * Set the platform renderer.
-     * Delegates to the new setPlatformRenderer() function.
-     * This should be called once during app initialization.
+     * @param renderer the renderer to set
      */
-    fun setPlatformRenderer(newRenderer: PlatformRenderer) {
-        code.yousef.summon.runtime.setPlatformRenderer(newRenderer)
+    fun setRenderer(renderer: PlatformRenderer) {
+        // Cast to MigratedPlatformRenderer if compatible
+        if (renderer is MigratedPlatformRenderer) {
+            setPlatformRenderer(renderer)
+        } else {
+            throw IllegalArgumentException("Renderer must implement MigratedPlatformRenderer")
+        }
     }
 } 

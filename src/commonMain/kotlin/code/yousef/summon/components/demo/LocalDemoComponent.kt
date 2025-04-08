@@ -1,47 +1,69 @@
 package code.yousef.summon.components.demo
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.getPlatformRenderer
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.background
-import code.yousef.summon.modifier.onClick
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.remember
+import code.yousef.summon.runtime.MutableState
+import code.yousef.summon.runtime.mutableStateOf
 
 /**
- * Example component demonstrating the CompositionLocal pattern.
- * This component shows how to properly use CompositionLocal for composition lifecycle.
- * 
- * @param text The text to display
- * @param modifier Modifier to apply to the component
- * @param onClick Function to call when the component is clicked
+ * A demo component that manages its own state using MutableState.
+ * This component demonstrates local state management within a composable function.
+ *
+ * @param initialValue The initial text value to display
+ * @param modifier The modifier to be applied to this demo
  */
 @Composable
 fun LocalDemoComponent(
-    text: String,
-    modifier: Modifier = Modifier(),
-    onClick: () -> Unit = {}
+    initialValue: String = "Default Text",
+    modifier: Modifier = Modifier()
 ) {
-    // Get the current composer from CompositionLocal
-    val composer = CompositionLocal.currentComposer
+    // Create a local state that will be remembered between recompositions
+    val text = remember { mutableStateOf(initialValue) }
     
-    // Start a composition node
-    composer?.startNode()
-    
-    // Only render if we're in the inserting phase
-    if (composer?.inserting == true) {
-        // Access the platform renderer
-        val renderer = getPlatformRenderer()
-        
-        // Create a modified modifier with click handler
-        val finalModifier = modifier.background("#f0f0f0")
-            .onClick("javascript:void(0)") // This would be replaced with a real handler
-            
-        // Render the component using the platform renderer
-        renderer.renderText(text, finalModifier, Any())
-    }
-    
-    // End the composition node
-    composer?.endNode()
+    // Render the component with the current state
+    LocalDemoComponentImpl(
+        text = text.value,
+        onTextChange = { text.value = it },
+        modifier = modifier
+    )
+}
+
+/**
+ * The stateless implementation of the demo component.
+ * This represents the pure UI part without state management logic.
+ *
+ * @param text The text to display
+ * @param onTextChange Callback for when text changes
+ * @param modifier The modifier to be applied to this demo
+ */
+@Composable
+private fun LocalDemoComponentImpl(
+    text: String,
+    onTextChange: (String) -> Unit,
+    modifier: Modifier = Modifier()
+) {
+    val renderer = PlatformRendererProvider.getRenderer()
+    renderer.renderDemoComponent(text, onTextChange, modifier)
+}
+
+/**
+ * An alternate version that shows state hoisting pattern.
+ * This component accepts state from outside, demonstrating state hoisting.
+ *
+ * @param text The current text from the parent
+ * @param onTextChange Callback to notify the parent about text changes
+ * @param modifier The modifier to be applied to this demo
+ */
+@Composable
+fun HoistedDemoComponent(
+    text: String,
+    onTextChange: (String) -> Unit,
+    modifier: Modifier = Modifier()
+) {
+    val renderer = PlatformRendererProvider.getRenderer()
+    renderer.renderDemoComponent(text, onTextChange, modifier)
 }
 
 /**

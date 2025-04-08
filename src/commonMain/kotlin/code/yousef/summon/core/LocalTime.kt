@@ -1,8 +1,9 @@
 package code.yousef.summon.core
 
-
 /**
- * A time without a time-zone in the ISO-8601 calendar system, such as 10:15:30.
+ * A simplified LocalTime implementation for multiplatform use.
+ * This is a placeholder that can be replaced with kotlinx-datetime implementation
+ * once project dependencies are properly set up.
  */
 data class LocalTime(val hour: Int, val minute: Int, val second: Int = 0) {
     init {
@@ -11,71 +12,78 @@ data class LocalTime(val hour: Int, val minute: Int, val second: Int = 0) {
         require(second in 0..59) { "Second must be between 0 and 59" }
     }
 
+    override fun toString(): String {
+        val hourStr = if (hour < 10) "0$hour" else "$hour"
+        val minuteStr = if (minute < 10) "0$minute" else "$minute"
+        val secondStr = if (second < 10) "0$second" else "$second"
+        return "$hourStr:$minuteStr:$secondStr"
+    }
+
     companion object {
         /**
-         * Obtains the current time from the system clock in the default time-zone.
+         * Parses a time from a string using ISO format (HH:mm:ss or HH:mm).
          */
-        fun now(): LocalTime {
-            val date = Date()
+        fun parse(value: String): LocalTime {
+            val parts = value.split(":")
+            require(parts.size in 2..3) { "Invalid time format, expected HH:mm[:ss]" }
             return LocalTime(
-                hour = date.getHours(),
-                minute = date.getMinutes(),
-                second = date.getSeconds()
+                hour = parts[0].toInt(),
+                minute = parts[1].toInt(),
+                second = if (parts.size > 2) parts[2].toInt() else 0
             )
         }
-
-        /**
-         * Parses a time from a string using 24-hour format (HH:mm:ss or HH:mm).
-         */
-        fun parse(timeString: String): LocalTime {
-            val parts = timeString.split(":")
-            require(parts.size in 2..3) { "Time string must be in format HH:mm or HH:mm:ss" }
-            
-            val hour = parts[0].toInt()
-            val minute = parts[1].toInt()
-            val second = if (parts.size > 2) parts[2].toInt() else 0
-            
-            return LocalTime(hour, minute, second)
-        }
     }
 
     /**
-     * Formats this time as a String using 24-hour format (HH:mm:ss).
+     * Formats this time as a String using ISO format (HH:mm:ss).
      */
-    fun format24Hour(): String {
-        return String.format("%02d:%02d:%02d", hour, minute, second)
+    fun format(): String {
+        val hourStr = if (hour < 10) "0$hour" else "$hour"
+        val minuteStr = if (minute < 10) "0$minute" else "$minute"
+        val secondStr = if (second < 10) "0$second" else "$second"
+        return "$hourStr:$minuteStr:$secondStr"
     }
 
     /**
-     * Formats this time as a String using 12-hour format (hh:mm:ss a).
+     * Formats this time as a String using the specified pattern.
+     * Supported format specifiers:
+     * - HH: hour of day (00-23)
+     * - H: hour of day (0-23)
+     * - mm: minute of hour (00-59)
+     * - m: minute of hour (0-59)
+     * - ss: second of minute (00-59)
+     * - s: second of minute (0-59)
      */
-    fun format12Hour(): String {
-        val h = if (hour % 12 == 0) 12 else hour % 12
-        val ampm = if (hour < 12) "AM" else "PM"
-        return String.format("%02d:%02d:%02d %s", h, minute, second, ampm)
+    fun format(pattern: String): String {
+        var result = pattern
+        result = result.replace("HH", hour.toString().padStart(2, '0'))
+        result = result.replace("H", hour.toString())
+        result = result.replace("mm", minute.toString().padStart(2, '0'))
+        result = result.replace("m", minute.toString())
+        result = result.replace("ss", second.toString().padStart(2, '0'))
+        result = result.replace("s", second.toString())
+        return result
     }
 
     /**
-     * Returns a LocalTime with the same hour and minute as this time,
-     * but with the seconds set to the specified value.
+     * Checks if this time is before the specified time.
      */
-    fun withSecond(second: Int): LocalTime {
-        return copy(second = second)
+    fun isBefore(other: LocalTime): Boolean {
+        if (hour < other.hour) return true
+        if (hour > other.hour) return false
+        if (minute < other.minute) return true
+        if (minute > other.minute) return false
+        return second < other.second
     }
 
     /**
-     * Returns a LocalTime with the same hour and second as this time,
-     * but with the minutes set to the specified value.
+     * Checks if this time is after the specified time.
      */
-    fun withMinute(minute: Int): LocalTime {
-        return copy(minute = minute)
-    }
-
-    /**
-     * Returns a LocalTime with the same minute and second as this time,
-     * but with the hours set to the specified value.
-     */
-    fun withHour(hour: Int): LocalTime {
-        return copy(hour = hour)
+    fun isAfter(other: LocalTime): Boolean {
+        if (hour > other.hour) return true
+        if (hour < other.hour) return false
+        if (minute > other.minute) return true
+        if (minute < other.minute) return false
+        return second > other.second
     }
 } 

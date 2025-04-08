@@ -1,44 +1,33 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.ClickableComponent
-import code.yousef.summon.core.Composable
-import code.yousef.summon.LayoutComponent
-import code.yousef.summon.core.getPlatformRenderer
+import code.yousef.summon.annotation.Composable
+import code.yousef.summon.core.PlatformRenderer
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
+import code.yousef.summon.runtime.MigratedPlatformRenderer
+import code.yousef.summon.runtime.getPlatformRenderer
 
 /**
  * Card component for grouped content with styling.
  *
- * @param content List of composable elements to be contained within the card
  * @param modifier Modifier for applying styling and layout properties to the card
  * @param elevation Optional elevation for shadow effect (CSS box-shadow)
  * @param borderRadius Optional border radius for rounded corners
  * @param onClick Optional click handler for interactive cards
+ * @param content Composable content to be contained within the card
  */
-data class Card(
-    val content: List<Composable>,
-    val modifier: Modifier = Modifier(),
-    val elevation: String = "2px",
-    val borderRadius: String = "4px",
-    val onClick: (() -> Unit)? = null
-) : Composable, LayoutComponent, ClickableComponent {
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return getPlatformRenderer().renderCard(this, receiver as TagConsumer<T>)
-        }
-        return receiver
-    }
-
-    /**
-     * Convenience constructor for creating a card with a single child element
-     */
-    constructor(
-        content: Composable,
-        modifier: Modifier = Modifier(),
-        elevation: String = "2px",
-        borderRadius: String = "4px",
-        onClick: (() -> Unit)? = null
-    ) : this(listOf(content), modifier, elevation, borderRadius, onClick)
+@Composable
+fun Card(
+    modifier: Modifier = Modifier.create(),
+    elevation: String = "2px",
+    borderRadius: String = "4px",
+    onClick: (() -> Unit)? = null,
+    content: @Composable () -> Unit
+) {
+    // Apply styling properties to the modifier
+    val finalModifier = modifier
+        .shadow("0", elevation, "8px", "rgba(0,0,0,0.1)")
+        .borderRadius(borderRadius)
+    
+    val renderer = getPlatformRenderer() as MigratedPlatformRenderer
+    renderer.renderCard(finalModifier, content)
 } 

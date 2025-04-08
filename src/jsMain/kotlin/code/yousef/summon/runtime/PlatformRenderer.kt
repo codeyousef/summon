@@ -1,5 +1,6 @@
 package code.yousef.summon.runtime
 
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.core.LocalDate
 import code.yousef.summon.core.LocalTime
 import code.yousef.summon.core.style.Color
@@ -15,7 +16,7 @@ actual interface PlatformRenderer {
      * @param composable The composable to render
      * @param consumer The consumer to render to
      */
-    actual fun <T> renderComposable(composable: Composable, consumer: T)
+    actual fun <T> renderComposable(composable: @Composable () -> Unit, consumer: T)
 
     /**
      * Render a text component

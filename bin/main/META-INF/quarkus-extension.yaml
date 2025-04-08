@@ -1,0 +1,13 @@
+name: Summon
+description: Summon is a Kotlin Multiplatform (JVM/JS) library that enables developers to generate static websites using Compose-like syntax
+metadata:
+  keywords:
+    - summon
+    - ui
+    - compose
+    - static site
+  guide: https://github.com/yousef/summon
+  categories:
+    - "ui"
+    - "web"
+  status: "experimental" 

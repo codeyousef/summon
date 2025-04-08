@@ -3,6 +3,8 @@
 This document tracks the progress and provides guidance for two major refactoring efforts in the Summon library:
 1.  **Renderer Access Migration**: Updating components to use `getPlatformRenderer()` instead of `PlatformRendererProvider.getRenderer()`.
 2.  **Composition System Migration**: Transitioning from the `Composable` interface to a Jetpack Compose-like `@Composable` annotation system.
+3.  **Package Structure Migration**: Ensuring consistent package naming across the codebase.
+4.  **Platform Independence Migration**: Removing direct dependencies on specific frameworks like Quarkus.
 
 ## Part 1: Renderer Access Migration (`getPlatformRenderer()`)
 
@@ -159,6 +161,229 @@ fun Button(
 
 ---
 
+## Part 3: Package Structure Migration
+
+### Rationale
+
+To ensure proper organization and maintain consistency across the codebase, we're restructuring package names to use fully qualified paths. This change addresses several issues:
+
+1. **Compiler errors**: Many unresolved references due to improper package declarations
+2. **Import conflicts**: Ambiguous imports leading to compilation failures
+3. **Code organization**: Better alignment with Kotlin's package naming conventions
+4. **KMP support**: Improved compatibility with Kotlin Multiplatform
+
+### Key Changes
+
+1. All packages should use fully qualified names following the pattern: `code.yousef.summon.<module>`
+2. Import statements must reference fully qualified names
+3. Files that previously used short package names (e.g., `package modifier`) must be updated to use full package paths (e.g., `package code.yousef.summon.modifier`)
+
+### Example Package Structure Updates
+
+**Before (problematic):**
+```kotlin
+package modifier
+
+import PlatformRendererProvider
+```
+
+**After (fixed):**
+```kotlin
+package code.yousef.summon.modifier
+
+import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.runtime.PlatformRendererProvider
+```
+
+### Progress on Package Structure Migration
+
+- ✅ Created utility function `getPlatformRenderer()` and `getCompositionLocal()` to centralize imports
+- ✅ Fixed core modifier files (Modifier.kt, CoreModifiers.kt, etc.)
+- ✅ Corrected package structure in PlatformRenderer.kt
+- ✅ Updated ModifierExtensions.kt with proper imports
+- 🔄 Working on fixing components to use the correct imports
+- 🔄 Addressing Composable annotation imports across components
+
+This migration is currently in progress with focus on resolving the 'Modifier' related issues first, followed by 'CompositionLocal' references.
+
+---
+
+## Part 4: Platform Independence Migration
+
+### Rationale
+
+Making Summon a framework-agnostic UI library that can be integrated with various backend technologies offers several benefits:
+
+1. **Greater flexibility**: Users can integrate Summon with their preferred server technology (Quarkus, Spring, Ktor, etc.).
+2. **Lower barriers to adoption**: No forced adoption of specific backend technologies.
+3. **Cleaner architecture**: Clear separation between UI components and server integration.
+4. **Simpler dependency management**: Fewer direct dependencies for the core library.
+
+### Key Changes
+
+1. **Removed direct framework dependencies**: Core Summon library no longer directly depends on Quarkus.
+2. **Added optional integration configurations**: Created separate configurations for framework integration.
+3. **Decoupled server-side rendering**: SSR capabilities work with any compatible server framework.
+4. **Simplified build system**: Cleaner build dependencies focused on essential UI functionality.
+5. **Integration packages**: Added dedicated packages under `code.yousef.summon.integration.*` for framework-specific adapters.
+
+### Migration Steps
+
+If you were using Summon with direct Quarkus integration, you'll need to:
+
+1. **Add explicit Quarkus dependencies** to your project:
+   ```kotlin
+   // In your application's build.gradle.kts
+   dependencies {
+       implementation("io.quarkus:quarkus-core:3.21.1")
+       implementation("io.quarkus:quarkus-kotlin:3.21.1")
+       implementation("io.quarkus:quarkus-qute:3.21.1")
+       
+       // For Quarkus 3.7.x, you would use quarkus-vertx-web
+       // implementation("io.quarkus:quarkus-vertx-web:3.7.1")
+       
+       // For Quarkus 3.21.x, you need these dependencies instead
+       implementation("io.quarkus:quarkus-resteasy-reactive:3.21.1")
+       implementation("io.quarkus:quarkus-vertx-http:3.21.1")
+   }
+   ```
+
+2. **Use integration adapters** for server-side rendering with Quarkus:
+   ```kotlin
+   // Import the integration adapter
+   import code.yousef.summon.integration.quarkus.QuarkusRenderer
+   
+   // Use the adapter in your Route handler
+   @Route(path = "/my-page")
+   fun handleRoute(context: RoutingContext) {
+       val renderer = QuarkusRenderer(context.response())
+       renderer.render {
+           MyComponent()
+       }
+   }
+   ```
+
+### Common Dependency Issues
+
+When migrating to newer versions of Quarkus (3.21.x and above), be aware of the following changes:
+
+1. **Vertx Web Package Changes**:
+   - The `quarkus-vertx-web` artifact from Quarkus 3.7.x has been restructured in newer versions.
+   - Use `quarkus-resteasy-reactive` and `quarkus-vertx-http` for equivalent functionality.
+
+2. **Import Path Adjustments**:
+   - You may need to update import paths for Vertx classes.
+   - For example, `io.vertx.ext.web.RoutingContext` may need to be imported directly.
+
+3. **Integration Configuration**:
+   - Add dependencies to both the `jvmMain` source set and the `quarkusIntegration` configuration:
+   ```kotlin
+   // In jvmMain dependencies block
+   implementation("io.quarkus:quarkus-resteasy-reactive:3.21.1")
+   
+   // In quarkusIntegration configuration
+   "quarkusIntegration"("io.quarkus:quarkus-resteasy-reactive:3.21.1")
+   ```
+
+4. **HTML Generation Imports**:
+   - If you're using kotlinx-html for generating HTML content, ensure you have:
+   ```kotlin
+   implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.8.0")
+   ```
+
+### Framework Integrations
+
+#### Quarkus Integration
+
+For Quarkus applications, Summon provides both direct server-side rendering and integration with Quarkus Qute templates:
+
+##### Qute Template Integration
+
+1. **Add Qute dependency** to your project:
+   ```kotlin
+   implementation("io.quarkus:quarkus-qute:3.7.1")
+   ```
+
+2. **Create a template extension method**:
+   ```kotlin
+   // QuteExtensions.kt
+   @TemplateExtension
+   class SummonQuteExtension {
+       fun renderSummon(template: Template, componentName: String, props: Map<String, Any>): String {
+           return SummonRenderer.renderComponent(componentName, props)
+       }
+   }
+   ```
+
+3. **Use in Qute templates**:
+   ```html
+   <!-- In your Qute template -->
+   <div>
+     {renderSummon('MyComponent', {'title': 'Hello', 'count': 5})}
+   </div>
+   ```
+
+#### Spring Boot Integration (Planned)
+
+For Spring Boot applications, Summon will provide integrations for both direct server-side rendering and Thymeleaf templates:
+
+```kotlin
+// Example Spring integration (coming soon)
+@Controller
+class MyController {
+    @GetMapping("/my-page")
+    fun renderPage(model: Model): String {
+        // Register components for use in templates
+        SummonSpringExtensions.registerComponent("Greeting") { props ->
+            {
+                val name = props["name"] as? String ?: "World"
+                Text("Hello, $name!")
+            }
+        }
+        
+        model.addAttribute("name", "Spring User")
+        return "my-template"
+    }
+}
+```
+
+```html
+<!-- In Thymeleaf template -->
+<div th:utext="${summon.render('Greeting', {'name': name})}"></div>
+```
+
+#### Ktor Integration (Planned)
+
+For Ktor applications, Summon will provide direct rendering through response extensions:
+
+```kotlin
+// Example Ktor integration (coming soon)
+routing {
+    get("/") {
+        call.respondSummon {
+            Column {
+                Text("Hello from Summon + Ktor!")
+                Button(onClick = { /* client-side action */ }) {
+                    Text("Click Me")
+                }
+            }
+        }
+    }
+}
+```
+
+### Status
+
+✅ Removed direct Quarkus dependencies from core build
+✅ Created integration package structure
+🔄 Implementing Quarkus integration adapter
+🔄 Developing Qute template integration
+⬜ Spring Boot integration
+⬜ Ktor integration
+⬜ Documentation for all framework integrations
+
+---
+
 ## Consolidated Migration Status
 
 **Legend:**
@@ -167,6 +392,8 @@ fun Button(
 - ⬜: Not Started
 - `[R]`: Renderer Access Migration (`getPlatformRenderer()`) Status
 - `[A]`: Annotation Migration (`@Composable`) Status
+- `[P]`: Package Structure Migration Status
+- `[I]`: Platform Independence Migration Status
 
 ### Core Runtime & Infrastructure
 - `[A]` ✅ `@Composable` annotation in `runtime/Composable.kt`
@@ -179,6 +406,15 @@ fun Button(
 - `[A]` 🔄 Platform Composers (`JvmComposer`, `JsComposer`)
 - `[A]` ✅ Sample application using the new compose runtime (`SimpleHelloWorld.kt`)
 - `[R]` 🔄 `getPlatformRenderer()` function 
+- `[P]` 🔄 Updated package structure consistency
+- `[I]` ✅ Removed direct Quarkus dependencies
+
+### Framework Integration
+| Integration    | Status | Notes                                                  |
+| :------------- | :----: | :----------------------------------------------------- |
+| Quarkus        |   🔄   | Basic integration & Qute template support in progress  |
+| Spring Boot    |   ⬜   | Planned for future release                             |
+| Ktor           |   ⬜   | Planned for future release                             |
 
 ### Display Components
 | Component | `[R]` Status | `[A]` Status | Notes                                                              |
@@ -317,95 +553,6 @@ This demonstrates:
 3. **Component Migration**: Continue converting component classes to use the annotation-based approach.
 4. **Integration Testing**: Test the state management and recomposition system in real applications.
 5. **Documentation**: Create guides for component authors on using the new system.
-
----
-
-## Common Issues and Solutions
-
-### 1. Parameter Mismatches (Renderer Access)
-- **Issue**: Component function signature differs from the renderer method expects (e.g., `ProgressBar` needing `ProgressType`).
-- **Solution**: Check `PlatformRenderer` interface, import required types, update the component call.
-
-### 2. Missing Imports / Unresolved References
-- **Issue**: Errors for unresolved modifiers, types, or runtime functions after changes.
-- **Solution**: Check imports:
-  ```kotlin
-  import code.yousef.summon.runtime.Composable
-  import code.yousef.summon.runtime.remember
-  import code.yousef.summon.runtime.mutableStateOf
-  import code.yousef.summon.runtime.CompositionLocal
-  import code.yousef.summon.core.getPlatformRenderer
-  ```
-
-### 3. Content Lambda Conversion
-- **Issue**: Converting container components that need to render children.
-- **Solution**: Replace child component parameters with a content lambda parameter:
-  ```kotlin
-  // Old
-  class Card(val content: Composable) : Composable { ... }
-  
-  // New
-  @Composable
-  fun Card(content: @Composable () -> Unit) { ... }
-  ```
-
-### 4. State Management Conversion
-- **Issue**: Converting component state properties to remembered state.
-- **Solution**: Use the remember function with mutableStateOf:
-  ```kotlin
-  // Old (in a class)
-  var isExpanded = false
-  
-  // New (in a function)
-  val isExpanded = remember { mutableStateOf(false) }
-  // Access with isExpanded.value or use property delegate:
-  var expanded by remember { mutableStateOf(false) }
-  ```
-
-## Part 3: Package Structure Migration
-
-### Rationale
-
-To ensure proper organization and maintain consistency across the codebase, we're restructuring package names to use fully qualified paths. This change addresses several issues:
-
-1. **Compiler errors**: Many unresolved references due to improper package declarations
-2. **Import conflicts**: Ambiguous imports leading to compilation failures
-3. **Code organization**: Better alignment with Kotlin's package naming conventions
-4. **KMP support**: Improved compatibility with Kotlin Multiplatform
-
-### Key Changes
-
-1. All packages should use fully qualified names following the pattern: `code.yousef.summon.<module>`
-2. Import statements must reference fully qualified names
-3. Files that previously used short package names (e.g., `package modifier`) must be updated to use full package paths (e.g., `package code.yousef.summon.modifier`)
-
-### Example Package Structure Updates
-
-**Before (problematic):**
-```kotlin
-package modifier
-
-import PlatformRendererProvider
-```
-
-**After (fixed):**
-```kotlin
-package code.yousef.summon.modifier
-
-import code.yousef.summon.runtime.PlatformRenderer
-import code.yousef.summon.runtime.PlatformRendererProvider
-```
-
-### Progress on Package Structure Migration
-
-- ✅ Created utility function `getPlatformRenderer()` and `getCompositionLocal()` to centralize imports
-- ✅ Fixed core modifier files (Modifier.kt, CoreModifiers.kt, etc.)
-- ✅ Corrected package structure in PlatformRenderer.kt
-- ✅ Updated ModifierExtensions.kt with proper imports
-- 🔄 Working on fixing components to use the correct imports
-- 🔄 Addressing Composable annotation imports across components
-
-This migration is currently in progress with focus on resolving the 'Modifier' related issues first, followed by 'CompositionLocal' references.
 
 ---
 

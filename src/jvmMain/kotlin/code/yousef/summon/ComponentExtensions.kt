@@ -1,11 +1,11 @@
 package code.yousef.summon
 
-import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.modifier.Modifier
 
 import code.yousef.summon.components.display.Image
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.input.Button
-import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.core.getPlatformRenderer
 import kotlinx.html.TagConsumer
 import kotlinx.html.stream.appendHTML
 
@@ -19,7 +19,7 @@ fun <T> Image.renderJvm(consumer: TagConsumer<T>): TagConsumer<T> {
     val newConsumer = sb.appendHTML()
     
     // Render using platform renderer
-    runtime.PlatformRendererProvider.PlatformRendererProvider.code.yousef.summon.runtime.PlatformRendererProvider.getPlatformRenderer().renderImage(this, newConsumer)
+    getPlatformRenderer().renderImage(this, newConsumer)
     
     // We'll just return the original consumer as the test is only checking the toString output
     return consumer
@@ -32,7 +32,7 @@ fun <T> Image.renderJvm(consumer: TagConsumer<T>): TagConsumer<T> {
 fun Image.renderToHtmlString(): String {
     val sb = StringBuilder()
     val consumer = sb.appendHTML()
-    runtime.PlatformRendererProvider.PlatformRendererProvider.code.yousef.summon.runtime.PlatformRendererProvider.getPlatformRenderer().renderImage(this, consumer)
+    getPlatformRenderer().renderImage(this, consumer)
     return sb.toString()
 }
 
@@ -46,7 +46,7 @@ fun <T> Button.renderJvm(consumer: TagConsumer<T>): TagConsumer<T> {
     val newConsumer = sb.appendHTML()
     
     // Render using platform renderer
-    runtime.PlatformRendererProvider.PlatformRendererProvider.code.yousef.summon.runtime.PlatformRendererProvider.getPlatformRenderer().renderButton(this, newConsumer)
+    getPlatformRenderer().renderButton(this, newConsumer)
     
     // We'll just return the original consumer as the test is only checking the toString output
     return consumer
@@ -59,7 +59,7 @@ fun <T> Button.renderJvm(consumer: TagConsumer<T>): TagConsumer<T> {
 fun Button.renderToHtmlString(): String {
     val sb = StringBuilder()
     val consumer = sb.appendHTML()
-    runtime.PlatformRendererProvider.PlatformRendererProvider.code.yousef.summon.runtime.PlatformRendererProvider.getPlatformRenderer().renderButton(this, consumer)
+    getPlatformRenderer().renderButton(this, consumer)
     return sb.toString()
 }
 
@@ -70,6 +70,6 @@ fun Button.renderToHtmlString(): String {
 fun Text.renderToHtmlString(): String {
     val sb = StringBuilder()
     val consumer = sb.appendHTML()
-    runtime.PlatformRendererProvider.PlatformRendererProvider.code.yousef.summon.runtime.PlatformRendererProvider.getPlatformRenderer().renderText(this, consumer)
+    getPlatformRenderer().renderText(this, consumer)
     return sb.toString()
 } 

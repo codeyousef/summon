@@ -2,15 +2,14 @@ package code.yousef.summon.core
 
 import code.yousef.summon.modifier.Modifier
 import kotlin.ranges.ClosedFloatingPointRange
-
-// --- Import actual component data types ---
 import code.yousef.summon.components.input.TextFieldType
 import code.yousef.summon.components.input.SelectOption
-import code.yousef.summon.components.input.FileInfo // Renamed? Assumed path
+import code.yousef.summon.components.input.FileInfo
 import code.yousef.summon.components.feedback.ProgressType
-import code.yousef.summon.components.navigation.Tab // Assumed path
-import components.feedback.AlertVariant // Add import
-
+import code.yousef.summon.components.navigation.Tab
+import code.yousef.summon.components.feedback.AlertVariant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 
 /**
  * Platform-specific renderer interface.
@@ -33,6 +32,12 @@ interface PlatformRenderer {
 
     /** Renders a spacer element */
     fun renderSpacer(modifier: Modifier) 
+
+    /** Renders a div container element */
+    fun renderDiv(modifier: Modifier)
+
+    /** Renders a span container element */
+    fun renderSpan(modifier: Modifier)
 
     /** Renders a text input element (<input>) */
     fun renderTextField(

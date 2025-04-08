@@ -1,8 +1,9 @@
 package code.yousef.summon.components.layout
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.core.UIElement
+import code.yousef.summon.core.PlatformRenderer
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.getPlatformRenderer
 
 /**
  * A basic container component that renders a div element.
@@ -12,22 +13,13 @@ import code.yousef.summon.modifier.Modifier
  */
 @Composable
 fun Div(
-    modifier: Modifier = Modifier(),
+    modifier: Modifier = Modifier.create(),
     content: @Composable () -> Unit
 ) {
-    UIElement(
-        factory = { DivData(modifier = modifier) },
-        update = { /* No specific update needed for DivData itself, rely on content recomposition */ },
-        content = content
-    )
+    val renderer = getPlatformRenderer()
+    renderer.renderDiv(modifier)
+    content()
 }
-
-/**
- * Data class holding parameters for the Div component.
- */
-data class DivData(
-    val modifier: Modifier
-)
 
 /**
  * A basic container component that renders a span element.
@@ -37,15 +29,20 @@ data class DivData(
  */
 @Composable
 fun Span(
-    modifier: Modifier = Modifier(),
+    modifier: Modifier = Modifier.create(),
     content: @Composable () -> Unit
 ) {
-    UIElement(
-        factory = { SpanData(modifier = modifier) },
-        update = { /* No specific update needed for SpanData itself, rely on content recomposition */ },
-        content = content
-    )
+    val renderer = getPlatformRenderer()
+    renderer.renderSpan(modifier)
+    content()
 }
+
+/**
+ * Data class holding parameters for the Div component.
+ */
+data class DivData(
+    val modifier: Modifier
+)
 
 /**
  * Data class holding parameters for the Span component.

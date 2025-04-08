@@ -1,6 +1,6 @@
 plugins {
-    kotlin("multiplatform") version "1.9.20"
-    kotlin("plugin.serialization") version "1.9.20"
+    kotlin("multiplatform") version "2.1.20"
+    kotlin("plugin.serialization") version "2.1.20"
     id("maven-publish")
 }
 
@@ -9,71 +9,115 @@ version = "0.1.6"
 
 repositories {
     mavenCentral()
-    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+    gradlePluginPortal()
+    maven {
+        url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+    }
+    maven {
+        url = uri("https://maven.pkg.jetbrains.space/kotlin/p/wrappers/kotlin-js-wrappers")
+    }
+}
+
+configurations {
+    create("quarkusIntegration")
 }
 
 kotlin {
-    jvm()
-    js {
-        browser()
+    jvm {
+        compilations.all {
+            compileTaskProvider.configure {
+                compilerOptions {
+                    jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+                }
+            }
+        }
+    }
+    js(IR) {
+        browser {
+            commonWebpackConfig {
+                cssSupport {
+                    enabled.set(true)
+                }
+            }
+        }
+        binaries.executable()
     }
     
     sourceSets {
-        val htmlVersion = "0.12.0"
-        val coroutinesVersion = "1.7.3"
-        val serializationVersion = "1.6.0"
-        val composeVersion = "1.5.10"
-
         val commonMain by getting {
             dependencies {
-                // Core Kotlin libraries
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
-                
-                // Keep kotlinx.html for common code that uses it
-                implementation("org.jetbrains.kotlinx:kotlinx-html:$htmlVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-html:0.12.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
             }
         }
-        
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
         val jvmMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:$htmlVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutinesVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.10.1")
+                implementation(kotlin("stdlib-jdk8"))
+
+                implementation("io.quarkus:quarkus-core:3.21.1")
+                implementation("io.quarkus:quarkus-qute:3.21.1")
+                implementation("io.quarkiverse.web-bundler:quarkus-web-bundler:1.8.1")
+                implementation("io.quarkus:quarkus-kotlin:3.21.1")
+                implementation("io.quarkus:quarkus-rest:3.21.1")
+                implementation("io.quarkus:quarkus-vertx-http:3.21.1")
+
+                implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.12.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.8.1")
             }
         }
-        
+        val jvmTest by getting
         val jsMain by getting {
             dependencies {
-                // Compose HTML is only available for JS target
-                implementation("org.jetbrains.compose.html:html-core:$composeVersion")
-                implementation("org.jetbrains.compose.html:html-svg:$composeVersion")
-                
-                // JS-specific dependencies
-                implementation("org.jetbrains.kotlinx:kotlinx-html-js:$htmlVersion")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-browser:1.0.0-pre.632")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutinesVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.12.0")
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-js:2025.4.6")
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-extensions:1.0.1-pre.823")
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-browser:2025.4.6")
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:2025.4.6-19.1.0")
+                implementation(npm("core-js", "3.31.0"))
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.10.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-js:1.8.1")
             }
         }
+        val jsTest by getting
     }
+}
 
-    // Enable expect/actual classes feature
-    targets.all {
-        compilations.all {
-            kotlinOptions {
-                freeCompilerArgs = freeCompilerArgs + "-Xexpect-actual-classes"
-            }
-        }
+dependencies {
+    "quarkusIntegration"("io.quarkus:quarkus-core:3.21.1")
+    "quarkusIntegration"("io.quarkus:quarkus-qute:3.21.1")
+    "quarkusIntegration"("io.quarkiverse.web-bundler:quarkus-web-bundler:1.8.1")
+    "quarkusIntegration"("io.quarkus:quarkus-kotlin:3.21.1")
+    "quarkusIntegration"("io.quarkus:quarkus-rest:3.21.1")
+    "quarkusIntegration"("io.quarkus:quarkus-vertx-http:3.21.1")
+}
+
+kotlin.sourceSets.all {
+    languageSettings {
+        optIn("kotlin.RequiresOptIn")
+        optIn("kotlinx.serialization.ExperimentalSerializationApi")
+        enableLanguageFeature("ExpectActualClasses")
     }
+}
 
-    jvm {
-        compilations.all {
-            kotlinOptions.jvmTarget = "1.8"
+tasks.getByName<org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack>("jsBrowserProductionWebpack") {
+    mainOutputFileName = "summon.js"
+}
+
+tasks.register("verifyQuarkusIntegration") {
+    doLast {
+        println("Verifying Quarkus Integration dependencies...")
+        configurations["quarkusIntegration"].files.forEach {
+            println(" - ${it.name}")
         }
     }
 }
 
-// --- Keep Custom Tasks & Publishing commented out for now ---
-// We'll uncomment these once we have the build working
-// task runDev...
-// task buildProd...
-// publishing... 
+// --- Custom Tasks & Publishing will be enabled later --- 

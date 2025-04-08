@@ -1,13 +1,63 @@
 package code.yousef.summon.components.demo
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.getPlatformRenderer
-import code.yousef.summon.runtime.rememberMutableStateOf
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.background
-import code.yousef.summon.modifier.onClick
+import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.PlatformRendererProvider
+
+/**
+ * A demo component that demonstrates state management within a class.
+ * This approach allows for more complex state management patterns.
+ *
+ * @param initialValue The initial text value to display
+ * @param modifier The modifier to be applied to this demo
+ */
+@Composable
+fun StatefulDemoComponent(
+    initialValue: String = "Default Text",
+    modifier: Modifier = Modifier()
+) {
+    // Create an instance of our stateful component implementation
+    val component = StatefulDemoComponentImpl(initialValue)
+    
+    // Render using the current state
+    StatefulDemoComponentView(
+        text = component.text,
+        onTextChange = { component.updateText(it) },
+        modifier = modifier
+    )
+}
+
+/**
+ * Internal implementation of the stateful component.
+ */
+private class StatefulDemoComponentImpl(initialValue: String) {
+    // Internal mutable state
+    var text: String = initialValue
+        private set
+    
+    // Method to update the state
+    fun updateText(newText: String) {
+        text = newText
+    }
+}
+
+/**
+ * The stateless view part of the component.
+ * This represents the pure UI part without state management logic.
+ *
+ * @param text The text to display
+ * @param onTextChange Callback for when text changes
+ * @param modifier The modifier to be applied to this demo
+ */
+@Composable
+private fun StatefulDemoComponentView(
+    text: String,
+    onTextChange: (String) -> Unit,
+    modifier: Modifier = Modifier()
+) {
+    val renderer = PlatformRendererProvider.getRenderer()
+    renderer.renderStatefulDemoComponent(text, onTextChange, modifier)
+}
 
 /**
  * A stateful demo component that shows how to use state in Summon.

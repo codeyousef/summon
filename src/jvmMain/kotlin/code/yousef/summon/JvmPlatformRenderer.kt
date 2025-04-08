@@ -2,12 +2,13 @@
 
 package code.yousef.summon
 
-import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.core.PlatformRenderer
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.core.LocalDate
 import code.yousef.summon.core.LocalTime
 import code.yousef.summon.core.style.Color
+import code.yousef.summon.core.AlertVariant
 
 // Remove old component imports (many are unused now)
 // import animation.AnimatedContent
@@ -29,7 +30,6 @@ import code.yousef.summon.components.input.SelectOption
 import code.yousef.summon.components.input.FileInfo
 import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.navigation.Tab
-import components.feedback.AlertVariant
 
 import kotlinx.html.*
 
@@ -631,6 +631,12 @@ class JvmPlatformRenderer : PlatformRenderer {
      */
     private fun Modifier.toStyleString(): String {
         return this.styles.entries.joinToString(";") { (k, v) -> "$k:$v" }
+    }
+
+    override fun renderDiv(modifier: Modifier) {
+        div {
+            applyModifier(modifier)
+        }
     }
 }
 

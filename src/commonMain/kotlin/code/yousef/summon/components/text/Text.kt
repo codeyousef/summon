@@ -1,9 +1,9 @@
 package code.yousef.summon.components.text
 
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.PlatformRendererProvider
-
+import code.yousef.summon.core.PlatformRenderer
+import code.yousef.summon.runtime.getPlatformRenderer
 
 /**
  * A composable that displays text.
@@ -14,9 +14,9 @@ import code.yousef.summon.runtime.PlatformRendererProvider
 @Composable
 fun Text(
     text: String,
-    modifier: Modifier = Modifier()
+    modifier: Modifier = Modifier.create()
 ) {
-    val renderer = PlatformRendererProvider.getPlatformRenderer()
+    val renderer = getPlatformRenderer()
     renderer.renderText(text, modifier)
 }
 
@@ -29,7 +29,7 @@ fun Text(
  */
 @Composable
 fun Text(
-    modifier: Modifier = Modifier(),
+    modifier: Modifier = Modifier.create(),
     content: @Composable () -> String
 ) {
     val text = content()

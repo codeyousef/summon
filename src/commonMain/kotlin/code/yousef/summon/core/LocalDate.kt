@@ -1,34 +1,30 @@
 package code.yousef.summon.core
 
-
 /**
- * A date without a time-zone in the ISO-8601 calendar system, such as 2023-08-15.
+ * A simplified LocalDate implementation for multiplatform use.
+ * This is a placeholder that can be replaced with kotlinx-datetime implementation
+ * once project dependencies are properly set up.
  */
 data class LocalDate(val year: Int, val month: Int, val day: Int) {
     init {
+        require(year >= 0) { "Year must be non-negative" }
         require(month in 1..12) { "Month must be between 1 and 12" }
         require(day in 1..31) { "Day must be between 1 and 31" }
     }
 
-    companion object {
-        /**
-         * Obtains the current date from the system clock in the default time-zone.
-         */
-        fun now(): LocalDate {
-            val date = Date()
-            return LocalDate(
-                year = date.getFullYear(),
-                month = date.getMonth() + 1, // JS months are 0-based
-                day = date.getDate()
-            )
-        }
+    override fun toString(): String {
+        val monthStr = if (month < 10) "0$month" else "$month"
+        val dayStr = if (day < 10) "0$day" else "$day"
+        return "$year-$monthStr-$dayStr"
+    }
 
+    companion object {
         /**
          * Parses a date from a string using ISO format (yyyy-MM-dd).
          */
-        fun parse(dateString: String): LocalDate {
-            val parts = dateString.split("-")
-            require(parts.size == 3) { "Date string must be in format yyyy-MM-dd" }
+        fun parse(value: String): LocalDate {
+            val parts = value.split("-")
+            require(parts.size == 3) { "Invalid date format, expected yyyy-MM-dd" }
             return LocalDate(
                 year = parts[0].toInt(),
                 month = parts[1].toInt(),
@@ -41,11 +37,13 @@ data class LocalDate(val year: Int, val month: Int, val day: Int) {
      * Formats this date as a String using ISO format (yyyy-MM-dd).
      */
     fun format(): String {
-        return String.format("%04d-%02d-%02d", year, month, day)
+        val monthStr = if (month < 10) "0$month" else "$month"
+        val dayStr = if (day < 10) "0$day" else "$day"
+        return "$year-$monthStr-$dayStr"
     }
 
     /**
-     * Formats this date as a String using the specified format.
+     * Formats this date as a String using the specified pattern.
      * Supported format specifiers:
      * - yyyy: year
      * - MM: month (2 digits)
