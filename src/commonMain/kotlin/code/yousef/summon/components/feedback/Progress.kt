@@ -1,19 +1,9 @@
 package code.yousef.summon.components.feedback
 
-import code.yousef.summon.core.Composable
-import code.yousef.summon.MediaComponent
-import code.yousef.summon.core.getPlatformRenderer
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
-
-/**
- * Progress indicator types
- */
-enum class ProgressType {
-    LINEAR,    // Linear progress bar
-    CIRCULAR,  // Circular spinner or progress indicator
-    INDETERMINATE // Indeterminate progress indicator (both linear and circular)
-}
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.getPlatformRenderer
 
 /**
  * Progress animation types
@@ -23,6 +13,26 @@ enum class ProgressAnimation {
     SMOOTH,   // Smooth animation
     PULSE,    // Pulsing animation
     BOUNCE    // Bouncing animation
+}
+
+/**
+ * Enum class defining the types of progress indicators available
+ */
+enum class ProgressType {
+    /**
+     * A horizontal progress bar
+     */
+    LINEAR,
+
+    /**
+     * A circular/radial progress indicator
+     */
+    CIRCULAR,
+
+    /**
+     * An indeterminate progress indicator that doesn't represent a specific value
+     */
+    INDETERMINATE
 }
 
 /**
@@ -50,18 +60,23 @@ data class Progress(
     val thickness: String = "4px",
     val animation: ProgressAnimation = ProgressAnimation.SMOOTH,
     val label: String? = null
-) : Composable, MediaComponent {
+) {
     /**
-     * Renders this Progress composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
+     * Renders this Progress composable
      */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return getPlatformRenderer().renderProgress(this, receiver as TagConsumer<T>)
+    @Composable
+    operator fun invoke() {
+        val composer = CompositionLocal.currentComposer
+        val finalModifier = modifier
+        // TODO: Apply styles based on properties
+
+        composer?.startNode() // Start Progress node
+        if (composer?.inserting == true) {
+            val renderer = getPlatformRenderer()
+            val progressValue = if (value != null) value.toFloat() / maxValue.toFloat() else null
+            renderer.renderProgress(progressValue, type, finalModifier)
         }
-        return receiver
+        composer?.endNode() // End Progress node
     }
 
     /**
@@ -264,4 +279,46 @@ fun loading(
     value = null,
     color = color,
     animation = ProgressAnimation.PULSE
-) 
+)
+
+/**
+ * Creates a linear progress indicator that represents the progress of an operation.
+ *
+ * @param progress Value representing the progress between 0.0 and 1.0. If null, an indeterminate progress bar is shown.
+ * @param modifier Modifier to be applied to the progress indicator
+ */
+@Composable
+fun LinearProgress(
+    progress: Float? = null,
+    modifier: Modifier = Modifier()
+) {
+    getPlatformRenderer().renderProgress(progress, ProgressType.LINEAR, modifier)
+}
+
+/**
+ * Creates a circular progress indicator that represents the progress of an operation.
+ *
+ * @param progress Value representing the progress between 0.0 and 1.0. If null, an indeterminate progress bar is shown.
+ * @param modifier Modifier to be applied to the progress indicator
+ */
+@Composable
+fun CircularProgress(
+    progress: Float? = null,
+    modifier: Modifier = Modifier()
+) {
+    getPlatformRenderer().renderProgress(progress, ProgressType.CIRCULAR, modifier)
+}
+
+/**
+ * Creates an indeterminate progress indicator that represents an operation with unknown duration.
+ *
+ * @param type The type of progress indicator to display (LINEAR or CIRCULAR)
+ * @param modifier Modifier to be applied to the progress indicator
+ */
+@Composable
+fun IndeterminateProgress(
+    type: ProgressType = ProgressType.LINEAR,
+    modifier: Modifier = Modifier()
+) {
+    getPlatformRenderer().renderProgress(null, type, modifier)
+} 

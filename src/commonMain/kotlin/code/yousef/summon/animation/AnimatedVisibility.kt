@@ -3,7 +3,7 @@ package code.yousef.summon.animation
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.getPlatformRenderer
 
 /**
  * Animation entry mode for AnimatedVisibility
@@ -72,7 +72,7 @@ fun AnimatedVisibility(
     composer?.startNode()
     
     if (composer?.inserting == true) {
-        val renderer = PlatformRendererProvider.getRenderer()
+        val renderer = getPlatformRenderer()
         renderer.renderAnimatedVisibility(visible, modifier)
     }
 
@@ -102,7 +102,7 @@ fun AnimatedVisibility(
     composer?.startNode()
     
     if (composer?.inserting == true) {
-        val renderer = PlatformRendererProvider.getRenderer()
+        val renderer = getPlatformRenderer()
         renderer.renderAnimatedVisibility(visible, modifier)
     }
 
@@ -115,19 +115,6 @@ fun AnimatedVisibility(
     composer?.endNode()
 }
 
-// Removed old class AnimatedVisibility
-// Removed helper functions animatedVisibility, fadeInOut, slideInOut
-// Removed dummy transition functions fadeIn, fadeOut 
-
-@Composable
-fun AnimatedVisibility(
-    visible: Boolean,
-    initiallyVisible: Boolean = false,
-    modifier: Modifier = Modifier(),
-    enter: EnterTransition = fadeIn(),
-    exit: ExitTransition = fadeOut(),
-    content: @Composable () -> Unit
-) {
-    val renderer = PlatformRendererProvider.getRenderer()
-    // ... existing code ...
-}
+// Helper functions for transitions
+fun fadeIn() = EnterTransition.FADE_IN
+fun fadeOut() = ExitTransition.FADE_OUT

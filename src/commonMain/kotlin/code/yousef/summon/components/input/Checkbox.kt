@@ -1,9 +1,13 @@
 package code.yousef.summon.components.input
 
 import code.yousef.summon.*
+import code.yousef.summon.components.FocusableComponent
+import code.yousef.summon.components.InputComponent
 import code.yousef.summon.core.Composable
 import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.validation.Validator
+import code.yousef.summon.validation.ValidationResult
 import kotlinx.html.TagConsumer
 
 /**
@@ -34,7 +38,17 @@ class Checkbox(
     override fun <T> compose(receiver: T): T {
         if (receiver is TagConsumer<*>) {
             @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderCheckbox(this, receiver as TagConsumer<T>)
+            val typedReceiver = receiver as TagConsumer<T>
+            PlatformRendererProvider.getRenderer().renderCheckbox(
+                checked = state.value,
+                onCheckedChange = { newValue ->
+                    state.value = newValue
+                    onValueChange(newValue)
+                },
+                enabled = true,
+                modifier = modifier
+            )
+            return receiver
         }
         return receiver
     }
@@ -45,9 +59,10 @@ class Checkbox(
      */
     fun validate(): Boolean {
         val errors = validators.mapNotNull { validator ->
-            if (!validator.validateBoolean(state.value)) validator.errorMessage else null
+            val result = validator.validate(state.value.toString())
+            if (!result.isValid) result.errorMessage else null
         }
-        validationErrors.value = errors
+        validationErrors.value = errors.filterNotNull()
         return errors.isEmpty()
     }
 

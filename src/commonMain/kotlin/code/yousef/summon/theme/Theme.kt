@@ -1,7 +1,7 @@
 package code.yousef.summon.theme
 
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.theme.ColorSystem
+import code.yousef.summon.modifier.boxShadow
 
 
 /**
@@ -59,7 +59,12 @@ object Theme {
         "bodySmall" to TextStyle(fontSize = "0.9rem", fontWeight = "normal"),
         "caption" to TextStyle(fontSize = "0.8rem", fontWeight = "normal", color = "#868e96"),
         "button" to TextStyle(fontSize = "1rem", fontWeight = "500", textDecoration = "none"),
-        "overline" to TextStyle(fontSize = "0.75rem", fontWeight = "600", letterSpacing = "0.05em", textDecoration = "uppercase"),
+        "overline" to TextStyle(
+            fontSize = "0.75rem",
+            fontWeight = "600",
+            letterSpacing = "0.05em",
+            textDecoration = "uppercase"
+        ),
         "link" to TextStyle(fontSize = "1rem", fontWeight = "normal", color = "#0d6efd", textDecoration = "underline"),
         "code" to TextStyle(fontSize = "0.9rem", fontFamily = "monospace")
     )
@@ -149,7 +154,7 @@ object Theme {
     fun setTheme(theme: ThemeConfig) {
         currentTheme = theme
         // Also set the matching color system theme mode
-        theme.ColorSystem.setThemeMode(theme.ColorSystem.ThemeMode.SYSTEM)
+        ColorSystem.setThemeMode(ColorSystem.ThemeMode.SYSTEM)
     }
 
     /**
@@ -383,21 +388,21 @@ data class Colors(
     // Add more colors as needed (variants, states)
 )
 
-data class Typography(
+data class ThemeTypography(
     // Placeholder properties - Define actual styles later
     val h1: String = "font-size: 2em; font-weight: bold;", // Example inline style
     val body1: String = "font-size: 1em;"
 )
 
 data class Shapes(
-    val small: Float = 4f, 
+    val small: Float = 4f,
     val medium: Float = 8f
 )
 
 // --- Default Theme Values ---
 val LightColors = Colors(
-    primary = "#6200EE", 
-    secondary = "#03DAC6", 
+    primary = "#6200EE",
+    secondary = "#03DAC6",
     background = "#FFFFFF",
     surface = "#FFFFFF",
     error = "#B00020",
@@ -408,5 +413,5 @@ val LightColors = Colors(
     onError = "#FFFFFF"
 )
 
-val DefaultTypography = Typography() 
+val DefaultTypography = ThemeTypography()
 val DefaultShapes = Shapes() 

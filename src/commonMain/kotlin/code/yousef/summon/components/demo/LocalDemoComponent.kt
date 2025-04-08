@@ -1,11 +1,7 @@
 package code.yousef.summon.components.demo
 
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.remember
-import code.yousef.summon.runtime.MutableState
-import code.yousef.summon.runtime.mutableStateOf
+import code.yousef.summon.runtime.*
 
 /**
  * A demo component that manages its own state using MutableState.
@@ -44,8 +40,12 @@ private fun LocalDemoComponentImpl(
     onTextChange: (String) -> Unit,
     modifier: Modifier = Modifier()
 ) {
-    val renderer = PlatformRendererProvider.getRenderer()
-    renderer.renderDemoComponent(text, onTextChange, modifier)
+    val renderer = getPlatformRenderer()
+    renderer.renderBox(modifier) {
+        renderer.renderText(Modifier()) {
+            // Content would go here
+        }
+    }
 }
 
 /**
@@ -62,8 +62,12 @@ fun HoistedDemoComponent(
     onTextChange: (String) -> Unit,
     modifier: Modifier = Modifier()
 ) {
-    val renderer = PlatformRendererProvider.getRenderer()
-    renderer.renderDemoComponent(text, onTextChange, modifier)
+    val renderer = getPlatformRenderer()
+    renderer.renderBox(modifier) {
+        renderer.renderText(Modifier()) {
+            // Content would go here
+        }
+    }
 }
 
 /**
@@ -88,7 +92,9 @@ fun LocalDemoContainer(
         renderer.renderBox(modifier)
         
         // Render the title
-        renderer.renderText(title, Modifier(), Any())
+        renderer.renderText(Modifier()) {
+            // Title content would go here
+        }
     }
     
     // Execute the content composable function

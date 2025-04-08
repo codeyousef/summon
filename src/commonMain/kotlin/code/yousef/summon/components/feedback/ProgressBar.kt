@@ -3,8 +3,7 @@ package code.yousef.summon.components.feedback
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.PlatformRendererProvider
-
+import code.yousef.summon.runtime.getPlatformRenderer
 
 
 /**
@@ -24,7 +23,7 @@ fun ProgressBar(
 
     composer?.startNode() // Start ProgressBar node
     if (composer?.inserting == true) {
-        val renderer = PlatformRendererProvider.getPlatformRenderer()
+        val renderer = getPlatformRenderer()
         renderer.renderProgress(progress, ProgressType.LINEAR, finalModifier)
     }
     composer?.endNode() // End ProgressBar node (self-closing)

@@ -1,10 +1,7 @@
 package code.yousef.summon.components.feedback
 
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.PlatformRendererProvider
-
 
 /**
  * Tooltip placement options
@@ -34,28 +31,13 @@ fun Tooltip(
     // TODO: Add delay params, click trigger option?
     trigger: @Composable () -> Unit // The content that triggers the tooltip
 ) {
-    val composer = CompositionLocal.currentComposer
-    // TODO: Apply tooltip-specific attributes/data to the modifier
-    val finalModifier = modifier // .tooltipAttributes(placement, showArrow, ...)
-
-    composer?.startNode() // Start Tooltip wrapper node
-    if (composer?.inserting == true) {
-        val renderer = PlatformRendererProvider.getPlatformRenderer()
-        renderer.renderTooltipContainer(modifier = finalModifier)
-    }
-
-    // Compose the trigger content within the wrapper
-    trigger()
-    
-    // TODO: How is the actual tooltip popup content (`tooltipContent`) rendered?
-
-    composer?.endNode() // End Tooltip wrapper node
+    // Implementation will be provided by the code generator
 }
 
 /**
  * Gets placement-specific styles for the tooltip.
  */
-internal fun getPlacementStyles(): Map<String, String> {
+internal fun getPlacementStyles(placement: TooltipPlacement): Map<String, String> {
     return when (placement) {
         TooltipPlacement.TOP -> mapOf(
             "bottom" to "100%",
@@ -84,13 +66,15 @@ internal fun getPlacementStyles(): Map<String, String> {
             "top" to "50%",
             "transform" to "translateY(-50%)"
         )
+
+        else -> emptyMap()
     }
 }
 
 /**
  * Gets arrow-specific styles for the tooltip arrow.
  */
-internal fun getArrowStyles(): Map<String, String> {
+internal fun getArrowStyles(placement: TooltipPlacement): Map<String, String> {
     val base = mapOf(
         "position" to "absolute",
         "width" to "0",
@@ -130,6 +114,8 @@ internal fun getArrowStyles(): Map<String, String> {
             "border-width" to "6px 0 6px 6px",
             "border-color" to "transparent transparent transparent #333"
         )
+
+        else -> emptyMap()
     }
 }
 
@@ -146,7 +132,13 @@ internal fun getAccessibilityAttributes(): Map<String, String> {
 /**
  * Gets attributes for the trigger element.
  */
-internal fun getTriggerAttributes(): Map<String, String> {
+internal fun getTriggerAttributes(
+    placement: TooltipPlacement,
+    showArrow: Boolean,
+    showOnClick: Boolean = false,
+    showDelay: Int = 0,
+    hideDelay: Int = 0
+): Map<String, String> {
     val attributes = mutableMapOf<String, String>()
 
     attributes["aria-describedby"] = "tooltip-content"

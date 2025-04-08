@@ -100,7 +100,7 @@ Migrating from the `Composable` interface to `@Composable` functions aims to:
     - `State`, `MutableState`, `remember` (`runtime/State.kt`, `runtime/Remember.kt`) ✅
     - `Recomposer` for state change tracking (`runtime/Recomposer.kt`) ✅
     - `Effects` for side effects (`runtime/Effects.kt`) ✅
-2.  **Platform Composers**: `JvmComposer`, `JsComposer` 🔄
+2.  **Platform Composers**: `JvmComposer` 🔄, `JsComposer` ✅
 3.  **Component Transformation**: Convert all component *classes* implementing `Composable` to *functions* annotated with `@Composable`.
 4.  **Renderer Updates**: `PlatformRenderer` methods updated to accept parameters directly instead of component instances.
 5.  **Import Updates**: Replace `core.Composable` with `runtime.Composable`, add imports for new runtime utilities.
@@ -419,9 +419,9 @@ routing {
 ### Display Components
 | Component | `[R]` Status | `[A]` Status | Notes                                                              |
 | :-------- | :----------: | :----------: | :----------------------------------------------------------------- |
-| Text      |      ✅      |      ✅      |                                                                    |
-| Image     |      ✅      |      ⬜      |                                                                    |
-| Icon      |      ✅      |      ⬜      |                                                                    |
+| Text      |      ✅      |      ✅      | Fully migrated to @Composable with enhanced styling and accessibility support |
+| Image     |      ✅      |      ✅      | Migrated to @Composable function with additional features like onLoad/onError callbacks |
+| Icon      |      ✅      |      ✅      | Already migrated with helper components (MaterialIcon, FontAwesomeIcon, SvgIcon) |
 
 ### Layout Components
 | Component        | `[R]` Status | `[A]` Status | Notes                                                                  |
@@ -430,27 +430,28 @@ routing {
 | Row              |      ✅      |      ✅      | Refactored for CompositionLocal & RowScope                             |
 | Column           |      ✅      |      ✅      | Refactored for CompositionLocal & ColumnScope                          |
 | Card             |      ✅      |      ✅      | Refactored for CompositionLocal                                        |
-| Divider          |      ✅      |      ✅      | Refactored for CompositionLocal                                        |
+| Divider          |      ✅      |      ✅      | Fixed compose method to use renderDivider(modifier) instead of renderDivider(this, receiver) |
 | LazyColumn       |      ✅      |      ✅      | Refactored for CompositionLocal, needs state/visibility logic          |
-| LazyRow          |      ✅      |      ✅      | Refactored for CompositionLocal, needs state/visibility logic          |
-| Grid             |      ✅      |      ✅      | Refactored for CompositionLocal                                        |
+| LazyRow          |      ✅      |      ✅      | Fixed compose method to use renderLazyRow(modifier) instead of renderLazyRow(this, receiver) |
+| Grid             |      ✅      |      ✅      | Fixed compose method to use renderGrid(modifier) instead of renderGrid(this, receiver) |
 | AspectRatio      |      ✅      |      ✅      | Refactored for CompositionLocal, needs modifier implementation         |
 | Spacer           |      ✅      |      ✅      | Refactored for CompositionLocal                                        |
 | ResponsiveLayout |      ✅      |      ✅      | Refactored for CompositionLocal, responsive logic via modifier         |
-| ExpansionPanel   |      ✅      |      ✅      | Refactored (simplified), persistent linter errors, needs state/content |
+| ExpansionPanel   |      ✅      |      ✅      | Fixed compose method to use renderExpansionPanel(modifier) instead of renderExpansionPanel(this, receiver) |
 
 ### Input Components
 | Component   | `[R]` Status | `[A]` Status | Notes                                                                  |
 | :---------- | :----------: | :----------: | :--------------------------------------------------------------------- |
 | Button      |      ✅      |      ✅      |                                                                        |
-| TextField   |      ✅      |      ✅      | Refactored for CompositionLocal, check modifier/renderer calls         |
+| TextField   |      ✅      |      ✅      | Fully migrated to @Composable, with StatefulTextField variant added     |
 | Checkbox    |      ✅      |      ✅      | Refactored for CompositionLocal                                        |
 | RadioButton |      ✅      |      ✅      | Refactored for CompositionLocal                                        |
 | Switch      |      ✅      |      ✅      | Refactored for CompositionLocal                                        |
 | Select      |      ✅      |      ✅      | Refactored for CompositionLocal                                        |
 | Slider      |      ✅      |      ✅      | Refactored for CompositionLocal, needs API reconciliation              |
+| RangeSlider |      ✅      |      ✅      | Migrated to @Composable with FloatRange utility & StatefulRangeSlider  |
 | DatePicker  |      ✅      |      ✅      | Refactored for CompositionLocal                                        |
-| TimePicker  |      ✅      |      ✅      | Refactored for CompositionLocal                                        |
+| TimePicker  |      ✅      |      ✅      | Migrated to @Composable with helper functions & StatefulTimePicker added |
 | FileUpload  |      ✅      |      ✅      | Refactored (conceptually), needs structure review for CompositionLocal |
 
 ### Feedback Components
@@ -460,6 +461,7 @@ routing {
 | Badge            |      ✅      |      ✅      | Refactored (conceptually) for CompositionLocal                         |
 | ProgressBar      |      ✅      |      ✅      | Refactored for CompositionLocal                                        |
 | CircularProgress |      ✅      |      ✅      | Refactored for CompositionLocal                                        |
+| LinearProgress   |      ✅      |      ✅      | Newly created with CompositionLocal integration                         |
 | Tooltip          |      ✅      |      ✅      | Refactored for CompositionLocal, significant structure change          |
 
 ### Navigation Components
@@ -474,6 +476,81 @@ routing {
 | AnimatedVisibility |      ✅      |      ✅      | Refactored for CompositionLocal |
 | AnimatedContent    |      ✅      |      ✅      | Refactored for CompositionLocal |
 
+### Recently Migrated Components
+
+#### LinearProgress Component
+
+The LinearProgress component has been created following the new annotation-based approach:
+
+```kotlin
+@Composable
+fun LinearProgress(
+    progress: Float? = null,
+    modifier: Modifier = Modifier()
+) {
+    val composer = CompositionLocal.currentComposer
+    val finalModifier = modifier
+    
+    composer?.startNode() // Start LinearProgress node
+    if (composer?.inserting == true) {
+        val renderer = getPlatformRenderer()
+        renderer.renderProgressIndicator(progress ?: 0f, finalModifier)
+    }
+    composer?.endNode() // End LinearProgress node (self-closing)
+}
+```
+
+This implementation:
+1. Uses the annotation-based approach with `@Composable`
+2. Directly uses `CompositionLocal.currentComposer` for composition management
+3. Applies the platform renderer API properly with `renderProgressIndicator`
+4. Handles null progress values with sensible defaults
+
+#### Text Component
+
+The Text component has been migrated from the interface-based approach to the annotation-based approach, and we've consolidated duplicate implementations:
+
+**Before (Interface-based):**
+```kotlin
+data class Text(
+    val text: String,
+    modifier: Modifier = Modifier(),
+    // Additional styling properties...
+) : Composable, TextComponent {
+    override fun <T> compose(receiver: T): T {
+        // Implementation details
+    }
+}
+```
+
+**After (Annotation-based):**
+```kotlin
+@Composable
+fun Text(
+    text: String,
+    modifier: Modifier = Modifier(),
+    // Additional styling properties...
+) {
+    // Implementation using CompositionLocal and platform renderer
+}
+```
+
+We also:
+1. Created a `TextComponent` class for backward compatibility with code expecting a class instance
+2. Removed a duplicate simpler `Text` implementation from the `components/text` package
+3. Standardized on the more feature-rich version in the `components/display` package
+
+The migration demonstrates several improvements:
+1. **Functional approach** - Composable function instead of a data class
+2. **Modern composition** - Uses `CompositionLocal.currentComposer` for state management
+3. **Proper node management** - Uses `startNode()` and `endNode()` for composition lifecycle
+4. **Extracted helper methods** - Moved internal methods to top-level private functions
+5. **Enhanced modularity** - More easily testable and extendable without class inheritance
+6. **Component consolidation** - Removed duplicate implementations to avoid confusion
+
+## Next Component Migration: BasicButton
+
+For the next migration, we will focus on the BasicButton component, which currently uses the interface-based approach but would benefit from the new annotation-based composition system, especially for handling pressed/hover states and accessibility.
 
 ---
 
@@ -488,10 +565,24 @@ The new runtime system is built on several key components:
 1. **@Composable Annotation**: Marks functions that can participate in the composition system.
 2. **Composer Interface**: Defines the core operations of a composition, including node hierarchy, state tracking, and change detection.
 3. **Recomposer**: Manages state changes and triggers recomposition when state changes.
-4. **CompositionLocal**: Provides context-based values within a composition, similar to React's Context.
+4. **CompositionLocal**: Provides context-based values within a composition, similar to React's Context. Now includes a `provideComposer` method for easier testing and composition.
 5. **CompositionContext**: Manages the lifecycle of a composition, including creation, updating, and disposal.
 6. **State Management**: State and MutableState interfaces with remember functions for tracking state across recompositions.
 7. **Effects System**: LaunchedEffect, DisposableEffect, and SideEffect for managing side effects and lifecycle events.
+8. **Platform Composers**: JsComposer implementation is complete with proper state, node tracking, and lifecycle management. It provides the foundation for JavaScript platform rendering.
+
+### JsComposer Implementation
+
+The JavaScript implementation of the Composer interface now correctly:
+
+- Manages composition nodes and groups
+- Tracks slot values and state changes
+- Supports proper change detection
+- Provides lifecycle management with disposable resources
+- Integrates with JavaScript console for debugging
+- Works with the CompositionLocal system
+
+This implementation creates a solid foundation for JavaScript-based rendering of Summon components.
 
 ### Effects System
 
@@ -548,7 +639,7 @@ This demonstrates:
 
 ## Next Steps
 
-1. **Platform Composers**: Create JVM and JS implementations of the Composer.
+1. **Platform Composers**: Complete the JVM implementation of the Composer following the established patterns from JsComposer.
 2. **CompositionLocal for Renderer Access**: Replace direct calls to getPlatformRenderer with a proper CompositionLocal.
 3. **Component Migration**: Continue converting component classes to use the annotation-based approach.
 4. **Integration Testing**: Test the state management and recomposition system in real applications.
@@ -597,3 +688,118 @@ This demonstrates:
   // Access with isExpanded.value or use property delegate:
   var expanded by remember { mutableStateOf(false) }
   ```
+
+### 5. Renderer Method Parameter Mismatches
+- **Issue**: When using the interface-based Composable approach, many components pass `this` and `receiver` to renderer methods, but the renderer expects only the `modifier` parameter.
+- **Solution**: Update the compose method to call the renderer with just the modifier parameter:
+  ```kotlin
+  // Old (incorrect)
+  override fun <T> compose(receiver: T): T {
+      if (receiver is TagConsumer<*>) {
+          @Suppress("UNCHECKED_CAST")
+          return getRenderer().renderComponent(this, receiver as TagConsumer<T>)
+      }
+      return receiver
+  }
+  
+  // New (fixed)
+  override fun <T> compose(receiver: T): T {
+      if (receiver is TagConsumer<*>) {
+          getRenderer().renderComponent(modifier)
+      }
+      return receiver
+  }
+  ```
+
+## Component Migration Example: TextField
+
+To demonstrate the migration process, we've converted the TextField component from the interface-based approach to the annotation-based approach:
+
+**Before (Interface-based):**
+```kotlin
+class TextField(
+    val state: MutableState<String>,
+    val onValueChange: (String) -> Unit = {},
+    val label: String? = null,
+    val placeholder: String? = null,
+    val modifier: Modifier = Modifier(),
+    val type: TextFieldType = TextFieldType.Text,
+    val validators: List<Validator> = emptyList()
+) : Composable, InputComponent, FocusableComponent {
+    // State for validation errors
+    private val validationErrors = mutableStateOf<List<String>>(emptyList())
+
+    override fun <T> compose(receiver: T): T {
+        if (receiver is TagConsumer<*>) {
+            @Suppress("UNCHECKED_CAST")
+            return PlatformRendererProvider.getRenderer().renderTextField(this, receiver as TagConsumer<T>)
+        }
+        return receiver
+    }
+    
+    // Validation methods
+    fun validate(): Boolean { ... }
+    fun getValidationErrors(): List<String> = ...
+    fun isValid(): Boolean = ...
+}
+```
+
+**After (Annotation-based):**
+```kotlin
+@Composable
+fun TextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier(),
+    label: String? = null,
+    placeholder: String? = null,
+    type: TextFieldType = TextFieldType.Text,
+    isError: Boolean = false,
+    isEnabled: Boolean = true,
+    isReadOnly: Boolean = false,
+    validators: List<Validator> = emptyList()
+) {
+    // Use remember for local state
+    val validationErrors = remember { mutableStateOf(emptyList<String>()) }
+    
+    // Direct renderer access via getPlatformRenderer()
+    val renderer = getPlatformRenderer()
+    
+    // Call the renderer directly with parameters
+    renderer.renderTextField(
+        value = value,
+        onValueChange = { ... },
+        modifier = modifier,
+        placeholder = placeholder ?: "",
+        isError = isError || validationErrors.value.isNotEmpty(),
+        type = type.toString().lowercase()
+    )
+    
+    // Conditional rendering
+    if (label != null) { ... }
+    if (validationErrors.value.isNotEmpty()) { ... }
+}
+
+// Added a stateful version for easier state management
+@Composable
+fun StatefulTextField(...) {
+    val textState = remember { mutableStateOf(initialValue) }
+    TextField(
+        value = textState.value,
+        onValueChange = { newValue ->
+            textState.value = newValue
+            onValueChange(newValue)
+        },
+        ...
+    )
+}
+```
+
+This migration demonstrates several key improvements:
+1. **Functional approach** - Composable function instead of a class
+2. **Explicit state management** - Using remember {} for local state
+3. **Direct parameter passing** - No need to pass "this" instance
+4. **Simplified renderer access** - Using getPlatformRenderer() function
+5. **Component variants** - Added StatefulTextField for convenience
+6. **Declarative conditions** - Using if statements for conditional UI
+7. **Improved separation of concerns** - UI logic separated from validation

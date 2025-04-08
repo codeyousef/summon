@@ -1,6 +1,8 @@
 package code.yousef.summon.runtime
 
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.components.feedback.AlertVariant
+import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.core.LocalDate
 import code.yousef.summon.core.LocalTime
 import code.yousef.summon.core.PlatformRenderer
@@ -20,7 +22,7 @@ interface MigratedPlatformRenderer : PlatformRenderer {
      * @param consumer The consumer to render to
      */
     fun <T> renderComposable(composable: @Composable () -> Unit, consumer: T)
-    
+
     // Core components
     fun renderText(modifier: Modifier, content: @Composable () -> Unit)
     fun renderBox(modifier: Modifier, content: @Composable () -> Unit)
@@ -42,42 +44,66 @@ interface MigratedPlatformRenderer : PlatformRenderer {
     fun renderButton(modifier: Modifier, content: @Composable () -> Unit)
     fun renderImage(modifier: Modifier, content: @Composable () -> Unit)
     fun renderIcon(modifier: Modifier, content: @Composable () -> Unit)
-    
+
     // Input components
-    fun renderTextField(value: String, onValueChange: (String) -> Unit, modifier: Modifier, 
-                       placeholder: String, isError: Boolean, type: String)
-    fun renderTextArea(value: String, onValueChange: (String) -> Unit, modifier: Modifier, 
-                      placeholder: String, maxLines: Int)
-    fun renderCheckbox(checked: Boolean, onCheckedChange: (Boolean) -> Unit, modifier: Modifier, 
-                      enabled: Boolean)
-    fun renderRadioButton(selected: Boolean, onClick: () -> Unit, modifier: Modifier, 
-                         enabled: Boolean)
-    fun renderSelect(value: String, onValueChange: (String) -> Unit, options: List<String>, 
-                    modifier: Modifier, placeholder: String)
-    fun renderSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit, modifier: Modifier, 
-                    enabled: Boolean)
+    fun renderTextField(
+        value: String, onValueChange: (String) -> Unit, modifier: Modifier,
+        placeholder: String, isError: Boolean, type: String
+    )
+
+    fun renderTextArea(
+        value: String, onValueChange: (String) -> Unit, modifier: Modifier,
+        placeholder: String, maxLines: Int
+    )
+
+    fun renderCheckbox(
+        checked: Boolean, onCheckedChange: (Boolean) -> Unit, modifier: Modifier,
+        enabled: Boolean
+    )
+
+    fun renderRadioButton(
+        selected: Boolean, onClick: () -> Unit, modifier: Modifier,
+        enabled: Boolean
+    )
+
+    fun renderSelect(
+        value: String, onValueChange: (String) -> Unit, options: List<String>,
+        modifier: Modifier, placeholder: String
+    )
+
+    fun renderSwitch(
+        checked: Boolean, onCheckedChange: (Boolean) -> Unit, modifier: Modifier,
+        enabled: Boolean
+    )
+
     fun renderDatePicker(date: LocalDate?, onDateChange: (LocalDate) -> Unit, modifier: Modifier)
-    fun renderTimePicker(time: LocalTime?, onTimeChange: (LocalTime) -> Unit, modifier: Modifier, 
-                        is24Hour: Boolean)
-    fun renderFileUpload(onFileSelected: (List<Any>) -> Unit, modifier: Modifier, multiple: Boolean, 
-                        acceptedFileTypes: List<String>)
-    fun renderRangeSlider(value: ClosedFloatingPointRange<Float>, onValueChange: (ClosedFloatingPointRange<Float>) -> Unit, 
-                         modifier: Modifier, valueRange: ClosedFloatingPointRange<Float>)
-    
+    fun renderTimePicker(
+        time: LocalTime?, onTimeChange: (LocalTime) -> Unit, modifier: Modifier,
+        is24Hour: Boolean
+    )
+
+    fun renderFileUpload(
+        onFileSelected: (List<Any>) -> Unit, modifier: Modifier, multiple: Boolean,
+        acceptedFileTypes: List<String>
+    )
+
+    fun renderRangeSlider(
+        value: ClosedFloatingPointRange<Float>, onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
+        modifier: Modifier, valueRange: ClosedFloatingPointRange<Float>
+    )
+
     // Navigation components
-    fun renderTabLayout(tabs: List<String>, selectedTab: String, onTabSelected: (String) -> Unit, 
-                       modifier: Modifier, content: () -> Unit)
-    
+    fun renderTabLayout(
+        tabs: List<String>, selectedTab: String, onTabSelected: (String) -> Unit,
+        modifier: Modifier, content: () -> Unit
+    )
+
     // Feedback components
-    fun renderAlertContainer(type: String, isDismissible: Boolean, onDismiss: () -> Unit, 
-                           modifier: Modifier, actionText: String?, onAction: (() -> Unit)?, content: () -> Unit)
-    fun renderBadge(count: Int, modifier: Modifier, maxCount: Int, content: () -> Unit)
-    fun renderProgressIndicator(progress: Float, modifier: Modifier)
-    fun renderCircularProgress(progress: Float, modifier: Modifier)
-    fun renderTooltipContainer(text: String, placement: String, showArrow: Boolean, 
-                              showOnClick: Boolean, showDelay: Int, hideDelay: Int, 
-                              modifier: Modifier, content: () -> Unit)
-    
+    fun renderAlertContainer(variant: AlertVariant?, modifier: Modifier)
+    fun renderBadge(modifier: Modifier)
+    fun renderProgress(value: Float?, type: ProgressType, modifier: Modifier)
+    fun renderTooltipContainer(modifier: Modifier)
+
     // Animation
     fun renderHtmlTag(tag: String, attrs: Map<String, String>, content: () -> Unit)
 } 

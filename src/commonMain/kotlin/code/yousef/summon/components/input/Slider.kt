@@ -5,9 +5,7 @@ import code.yousef.summon.modifier.applyIf
 import code.yousef.summon.modifier.pointerEvents
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.PlatformRendererProvider
-
-import kotlin.ranges.ClosedFloatingPointRange
+import code.yousef.summon.runtime.getPlatformRenderer
 
 /**
  * A slider component that allows the user to select a value from a given range.
@@ -37,15 +35,15 @@ fun Slider(
 
     // --- Workaround for renderRangeSlider needing a Range --- 
     // TODO: Reconcile Slider API (Float) with renderRangeSlider API (Range<Float>)
-    val dummyRangeValue = value..value 
-    val onRangeChange: (ClosedFloatingPointRange<Float>) -> Unit = { newValueRange -> 
+    val dummyRangeValue = value..value
+    val onRangeChange: (ClosedFloatingPointRange<Float>) -> Unit = { newValueRange ->
         if (enabled) onValueChange(newValueRange.start) // Extract single value
     }
     // --- End Workaround ---
 
     composer?.startNode() // Start Slider node
     if (composer?.inserting == true) {
-        val renderer = PlatformRendererProvider.getPlatformRenderer()
+        val renderer = getPlatformRenderer()
         renderer.renderRangeSlider(
             value = dummyRangeValue,
             onValueChange = onRangeChange,

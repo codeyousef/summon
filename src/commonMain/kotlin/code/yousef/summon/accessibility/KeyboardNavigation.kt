@@ -1,7 +1,7 @@
 package code.yousef.summon.accessibility
 
-import code.yousef.summon.FocusableComponent
 import code.yousef.summon.accessibility.KeyboardNavigation.keyboardNavigation
+import code.yousef.summon.components.FocusableComponent
 import code.yousef.summon.core.Composable
 import code.yousef.summon.modifier.Modifier
 

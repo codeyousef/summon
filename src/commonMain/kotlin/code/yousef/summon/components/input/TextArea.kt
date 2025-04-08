@@ -4,7 +4,7 @@ import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.applyIf
 import code.yousef.summon.modifier.pointerEvents
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.getPlatformRenderer
 
 
 /**
@@ -38,12 +38,16 @@ fun TextArea(
         .applyIf(!enabled) { pointerEvents("none") }
         .applyIf(isError) { border("1px", "solid", "#D32F2F") }
 
-    val renderer = PlatformRendererProvider.getPlatformRenderer()
+    val renderer = getPlatformRenderer()
 
     renderer.renderTextArea(
         value = value,
-        onValueChange = { if (enabled) onValueChange(it) },
-        modifier = finalModifier,
-        label = ""
+        onValueChange = { newValue -> if (enabled) onValueChange(newValue) },
+        enabled = enabled,
+        readOnly = false,
+        rows = rows,
+        maxLength = maxLength,
+        placeholder = null,
+        modifier = finalModifier
     )
 } 

@@ -32,6 +32,24 @@ object CompositionLocal {
     }
     
     /**
+     * Temporarily sets the current composer to the provided composer and executes the block.
+     * After the block is executed, restores the previous composer.
+     * 
+     * @param composer The composer to set as current during the execution of the block.
+     * @param block The block to execute with the temporary composer.
+     * @return The result of the block.
+     */
+    fun <R> provideComposer(composer: Composer, block: () -> R): R {
+        val previous = _currentComposer
+        setCurrentComposer(composer)
+        try {
+            return block()
+        } finally {
+            setCurrentComposer(previous)
+        }
+    }
+    
+    /**
      * Creates a CompositionLocal with a default value.
      * 
      * @param defaultValue The default value to return when no provider exists.

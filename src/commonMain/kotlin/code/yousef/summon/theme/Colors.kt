@@ -74,4 +74,21 @@ object ColorHelpers {
     fun Modifier.borderColor(colorName: String): Modifier {
         return this.style("border-color", get(colorName))
     }
+
+    /**
+     * Get the color palette for the given theme mode
+     * @param mode Theme mode
+     * @return The appropriate color palette
+     */
+    fun ColorSystem.ColorPalette.forMode(mode: ColorSystem.ThemeMode): Map<String, String> {
+        return when (mode) {
+            ColorSystem.ThemeMode.LIGHT -> light
+            ColorSystem.ThemeMode.DARK -> dark
+            ColorSystem.ThemeMode.SYSTEM -> {
+                // In a real implementation, we would detect system preference
+                // For now, default to light mode
+                light
+            }
+        }
+    }
 } 

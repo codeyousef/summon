@@ -1,15 +1,16 @@
 package code.yousef.summon.components.input
 
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.applyIf
 import code.yousef.summon.modifier.pointerEvents
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.getPlatformRenderer
 
 
 // Use placeholder typealias for LocalDate
 // In a real scenario, this should be a proper date/time library type (e.g., kotlinx-datetime)
-typealias LocalDate = Any
+typealias LocalDate = kotlinx.datetime.LocalDate?
 
 /**
  * A composable that allows users to select a date.
@@ -39,7 +40,7 @@ fun DatePicker(
 
     composer?.startNode() // Start DatePicker node
     if (composer?.inserting == true) {
-        val renderer = PlatformRendererProvider.getPlatformRenderer()
+        val renderer = getPlatformRenderer()
         // Pass relevant state and modifier to the renderer
         renderer.renderDatePicker(
             value = value,

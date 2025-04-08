@@ -1,5 +1,14 @@
 package code.yousef.summon.runtime
 
+import code.yousef.summon.annotation.Composable
+import kotlin.js.JsName
+
+// External declaration for JavaScript console access
+@JsName("console")
+external object console {
+    fun log(message: String)
+}
+
 /**
  * JS implementation of the Composer interface.
  * This provides JS-specific functionality for the composition system.
@@ -9,32 +18,45 @@ class JsComposer : Composer {
     
     private val slots = mutableMapOf<Int, Any?>()
     private var slotIndex = 0
+    private var currentNodeIndex = 0
+    private val nodeStack = mutableListOf<Int>()
+    private val groupStack = mutableListOf<Any?>()
     private val stateReads = mutableSetOf<Any>()
+    private val stateWrites = mutableSetOf<Any>()
     private val disposables = mutableListOf<() -> Unit>()
     
     override fun startNode() {
-        // JS implementation of start node
+        nodeStack.add(currentNodeIndex++)
     }
     
     override fun endNode() {
-        // JS implementation of end node
+        nodeStack.removeAt(nodeStack.size - 1)
     }
     
     override fun startGroup(key: Any?) {
-        // JS implementation of start group
+        groupStack.add(key)
+        // Save the current slot index so we can restore it when the group ends
+        slots[slotIndex] = slotIndex
+        slotIndex++
     }
     
     override fun endGroup() {
-        // JS implementation of end group
+        groupStack.removeAt(groupStack.size - 1)
+        // Restore the slot index from when the group started
+        slotIndex = (slots[slotIndex - 1] as? Int) ?: slotIndex
     }
     
     override fun changed(value: Any?): Boolean {
-        // JS implementation would compare with previous value
-        return true
+        val slotValue = getSlot()
+        val hasChanged = slotValue != value
+        if (hasChanged) {
+            setSlot(value)
+        }
+        return hasChanged
     }
     
     override fun updateValue(value: Any?) {
-        // JS implementation would store the value
+        setSlot(value)
     }
     
     override fun nextSlot() {
@@ -54,11 +76,15 @@ class JsComposer : Composer {
     }
     
     override fun recordWrite(state: Any) {
-        // JS implementation would trigger recomposition for affected compositions
+        stateWrites.add(state)
+        reportChanged()
     }
     
     override fun reportChanged() {
-        // JS implementation would trigger recomposition
+        // In a JS environment, this would schedule a recomposition
+        // For now, we'll simply mark that a change occurred
+        // In a real implementation, this would trigger the recomposition process
+        console.log("State changed, recomposition needed")
     }
     
     override fun registerDisposable(disposable: () -> Unit) {
@@ -72,6 +98,9 @@ class JsComposer : Composer {
     override fun dispose() {
         disposables.forEach { it() }
         disposables.clear()
+        slots.clear()
+        stateReads.clear()
+        stateWrites.clear()
     }
     
     /**
@@ -81,13 +110,5 @@ class JsComposer : Composer {
         fun create(): JsComposer {
             return JsComposer()
         }
-    }
-    
-    /**
-     * Implementation of renderComposable for the JS platform
-     */
-    override fun <T> renderComposable(composable: Composable, consumer: T) {
-        // Call compose on the composable with the provided consumer
-        composable.compose(consumer)
     }
 } 

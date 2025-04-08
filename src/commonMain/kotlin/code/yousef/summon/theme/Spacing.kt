@@ -1,9 +1,10 @@
 package code.yousef.summon.theme
 
+import code.yousef.summon.Spacer
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.getPlatformRenderer
 
 
 /**
@@ -127,7 +128,7 @@ fun Spacer(modifier: Modifier) {
     val composer = CompositionLocal.currentComposer
     composer?.startNode() // Start Spacer node
     if (composer?.inserting == true) {
-        PlatformRendererProvider.getPlatformRenderer().renderBox(modifier = modifier) // Use renderBox or a specific renderSpacer
+        getPlatformRenderer().renderBox(modifier = modifier) // Use renderBox or a specific renderSpacer
     }
     // No content lambda for Spacer
     composer?.endNode() // End Spacer node

@@ -3,7 +3,7 @@ package code.yousef.summon.accessibility
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.getPlatformRenderer
 
 /**
  * Utilities for accessibility-related tasks.
@@ -187,7 +187,7 @@ fun ApplyAccessibilityNode(
     if (composer?.inserting == true) {
         // Render a container (like Box) applying the modifier,
         // or rely on content's root.
-     PlatformRendererProvider.getPlatformRenderer().renderBox(modifier = accessibilityModifier)
+        getPlatformRenderer().renderBox(modifier = accessibilityModifier)
     }
     content() // Compose the actual UI content
     composer?.endNode() // End logical node
@@ -224,4 +224,16 @@ fun AccessibilityNode.findAllNodes(predicate: (AccessibilityNode) -> Boolean): L
     if (predicate(this)) result.add(this)
     children.forEach { result.addAll(it.findAllNodes(predicate)) }
     return result
-} 
+}
+
+@Composable
+fun Semantics(
+    modifier: Modifier = Modifier(),
+    mergeDescendants: Boolean = false,
+    clearAndSetSemantics: Boolean = false,
+    contentDescription: String? = null,
+    testTag: String? = null,
+    content: @Composable () -> Unit
+) {
+    // ... existing code ...
+}

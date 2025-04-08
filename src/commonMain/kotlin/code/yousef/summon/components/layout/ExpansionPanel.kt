@@ -1,9 +1,10 @@
 package code.yousef.summon.components.layout
 
+import code.yousef.summon.components.LayoutComponent
 import code.yousef.summon.core.Composable
-import code.yousef.summon.LayoutComponent
 import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.PlatformRendererProviderLegacy.getRenderer
 import kotlinx.html.TagConsumer
 
 /**
@@ -33,8 +34,7 @@ class ExpansionPanel(
      */
     override fun <T> compose(receiver: T): T {
         if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderExpansionPanel(this, receiver as TagConsumer<T>)
+            getRenderer().renderExpansionPanel(modifier)
         }
         return receiver
     }

@@ -1,19 +1,8 @@
-package routing
+package code.yousef.summon.routing
 
-import code.yousef.summon.routing.Route
-import code.yousef.summon.routing.RouteDefinition
-import code.yousef.summon.routing.RouteParams
-import code.yousef.summon.routing.Router
 import code.yousef.summon.routing.RouterBuilder
-import code.yousef.summon.routing.RouterBuilderImpl
-
-import runtime.Composable
 import kotlinx.browser.window
-import kotlin.js.JsName
-import runtime.remember
-import runtime.mutableStateOf
-import runtime.getValue
-import runtime.setValue
+import routing.RouterContext
 
 /**
  * Extends the Router class with JavaScript-specific functionality.
@@ -38,10 +27,10 @@ private var globalRouter: Router? = null
 fun setupRouterForBrowser(router: Router) {
     // Store in global variable
     globalRouter = router
-    
+
     // Set as current router in context
     RouterContext.setCurrent(router)
-    
+
     // Expose the navigation function to JavaScript
     js("window.summonRouterNavigate = function(path, pushState) { summonRouterNavigate(path, pushState !== false); }")
 }

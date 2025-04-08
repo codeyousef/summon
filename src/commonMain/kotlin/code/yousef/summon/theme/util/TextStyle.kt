@@ -1,15 +1,9 @@
 package code.yousef.summon.theme.util
 
+import code.yousef.summon.theme.Theme
+
 /**
- * Represents the style properties for text components.
+ * Re-export of Theme.TextStyle for backward compatibility.
+ * @see Theme.TextStyle
  */
-data class TextStyle(
-    val fontFamily: String = "system-ui, sans-serif",
-    val fontSize: String = "16px",
-    val fontWeight: String = "normal",
-    val fontStyle: String? = null,
-    val letterSpacing: String = "normal",
-    val lineHeight: String? = null,
-    val color: String? = null,
-    val textDecoration: String? = null
-) 
+typealias TextStyle = Theme.TextStyle 

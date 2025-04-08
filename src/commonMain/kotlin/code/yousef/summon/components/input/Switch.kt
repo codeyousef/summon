@@ -5,7 +5,7 @@ import code.yousef.summon.modifier.applyIf
 import code.yousef.summon.modifier.pointerEvents
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.getPlatformRenderer
 
 
 /**
@@ -32,12 +32,15 @@ fun Switch(
 
     composer?.startNode()
     if (composer?.inserting == true) {
-        val renderer = PlatformRendererProvider.getPlatformRenderer()
-        renderer.renderSwitch(
-            checked = checked,
-            onCheckedChange = { if (enabled) onCheckedChange(it) },
-            enabled = enabled,
-            modifier = finalModifier
+        val renderer = getPlatformRenderer()
+
+        // Cast to the specific renderer function with the parameters in the correct order
+        val renderSwitchFunction: (Boolean, (Boolean) -> Unit, Boolean, Modifier) -> Unit = renderer::renderSwitch
+        renderSwitchFunction(
+            checked,
+            { newValue: Boolean -> if (enabled) onCheckedChange(newValue) },
+            enabled,
+            finalModifier
         )
     }
     composer?.endNode()

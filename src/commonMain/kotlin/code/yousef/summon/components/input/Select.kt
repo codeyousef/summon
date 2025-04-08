@@ -1,9 +1,13 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.*
+import code.yousef.summon.MutableState
+import code.yousef.summon.components.FocusableComponent
+import code.yousef.summon.components.InputComponent
 import code.yousef.summon.core.Composable
-import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.mutableStateOf
+import code.yousef.summon.runtime.PlatformRendererProviderLegacy.getRenderer
+import code.yousef.summon.validation.Validator
 import kotlinx.html.TagConsumer
 
 /**
@@ -41,8 +45,13 @@ class Select<T>(
      */
     override fun <T> compose(receiver: T): T {
         if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderSelect(this as Select<Any>, receiver as TagConsumer<T>)
+            getRenderer().renderSelect(
+                selectedValue.value,
+                onSelectedChange,
+                options,
+                !disabled,
+                modifier
+            )
         }
         return receiver
     }
@@ -54,7 +63,8 @@ class Select<T>(
     fun validate(): Boolean {
         val errors = validators.mapNotNull { validator ->
             val valueToValidate = selectedValue.value?.toString() ?: ""
-            if (!validator.validate(valueToValidate)) validator.errorMessage else null
+            val result = validator.validate(valueToValidate)
+            if (!result.isValid) result.errorMessage else null
         }
         validationErrors.value = errors
         return errors.isEmpty()

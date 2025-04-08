@@ -2,10 +2,7 @@ package code.yousef.summon
 
 import code.yousef.summon.routing.Pages
 import code.yousef.summon.routing.Router
-import routing.pages.MySimplePage
-import routing.pages.About
-import routing.pages.Index
-import routing.pages.users.Profile
+import code.yousef.summon.routing.pages.MySimplePage
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.HTMLElement
@@ -20,10 +17,10 @@ fun setupRouting() {
     Pages.register("/about", About::create)
     Pages.register("/users/profile", Profile::create)
     Pages.register("/my-simple-page", MySimplePage::create)
-    
+
     // Create the router
     val router = Pages.createRouter()
-    
+
     // Set up the router in the browser
     setupRouterInBrowser(router)
 }
@@ -34,16 +31,16 @@ fun setupRouting() {
 private fun setupRouterInBrowser(router: Router) {
     // Get the root element where our app will be rendered
     val root = document.getElementById("app") ?: createRootElement()
-    
+
     // Render the router to the root element
     router.compose(root)
-    
+
     // Set up browser history integration
     window.onpopstate = { _ ->
         val path = window.location.pathname
         router.navigate(path, false)
     }
-    
+
     console.log("Router set up successfully")
 }
 

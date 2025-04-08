@@ -1,10 +1,11 @@
 package code.yousef.summon.components.layout
 
+import code.yousef.summon.components.LayoutComponent
+import code.yousef.summon.components.ScrollableComponent
 import code.yousef.summon.core.Composable
-import code.yousef.summon.LayoutComponent
 import code.yousef.summon.core.PlatformRendererProvider
-import code.yousef.summon.ScrollableComponent
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.PlatformRendererProviderLegacy.getRenderer
 import kotlinx.html.TagConsumer
 
 /**
@@ -28,8 +29,7 @@ class LazyRow<T>(
      */
     override fun <T2> compose(receiver: T2): T2 {
         if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderLazyRow(this, receiver as TagConsumer<T2>)
+            getRenderer().renderLazyRow(modifier)
         }
         return receiver
     }

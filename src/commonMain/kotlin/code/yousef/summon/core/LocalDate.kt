@@ -1,5 +1,7 @@
 package code.yousef.summon.core
 
+import kotlinx.datetime.LocalDate
+
 /**
  * A simplified LocalDate implementation for multiplatform use.
  * This is a placeholder that can be replaced with kotlinx-datetime implementation

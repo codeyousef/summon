@@ -1,7 +1,8 @@
 package code.yousef.summon.components.feedback
 
 import code.yousef.summon.modifier.Modifier
-
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.components.feedback.AlertVariant
 
 /**
  * Builder class for creating Alert components with a fluent API.
@@ -10,52 +11,48 @@ import code.yousef.summon.modifier.Modifier
 class AlertBuilder {
     var message: String = ""
     var title: String? = null
-    var type: AlertType = AlertType.INFO
-    var isDismissible: Boolean = false
-    var iconName: String? = null
+    var variant: AlertVariant = AlertVariant.INFO
     var onDismiss: (() -> Unit)? = null
-    var actionText: String? = null
-    var onAction: (() -> Unit)? = null
+    var icon: (@Composable () -> Unit)? = null
+    var actions: (@Composable () -> Unit)? = null
     var modifier: Modifier = Modifier()
 
     /**
      * Builds the Alert component with the configured parameters.
      *
-     * @return An Alert instance
+     * @return An Alert component through the Alert function
      */
-    fun build(): Alert = Alert(
-        message = message,
-        title = title,
-        type = type,
-        isDismissible = isDismissible,
-        iconName = iconName,
-        onDismiss = onDismiss,
-        actionText = actionText,
-        onAction = onAction,
-        modifier = modifier
-    )
+    fun build() {
+        Alert(
+            message = message,
+            modifier = modifier,
+            variant = variant,
+            onDismiss = onDismiss,
+            title = title,
+            icon = icon,
+            actions = actions
+        )
+    }
 }
 
 /**
  * DSL-style function for creating alerts with a builder pattern.
  *
  * @param block Lambda with receiver to configure the AlertBuilder
- * @return The configured Alert component
  */
-fun alert(block: AlertBuilder.() -> Unit): Alert {
+fun alert(block: AlertBuilder.() -> Unit) {
     val builder = AlertBuilder()
     builder.block()
-    return builder.build()
+    builder.build()
 }
 
 /**
  * Example usage:
  *
- * val myAlert = alert {
+ * alert {
  *     message = "Operation completed successfully!"
- *     type = AlertType.SUCCESS
- *     isDismissible = true
- *     actionText = "View Details"
- *     onAction = { /* open details screen */ }
+ *     variant = AlertVariant.SUCCESS
+ *     onDismiss = { /* handle dismiss */ }
+ *     actions = { Button(onClick = { /* handle action */ }, label = "View Details") }
  * }
  */ 

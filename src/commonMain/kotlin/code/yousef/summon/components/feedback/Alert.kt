@@ -1,18 +1,17 @@
 package code.yousef.summon.components.feedback
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-
 import code.yousef.summon.components.display.IconDefaults
 import code.yousef.summon.components.display.Text
+import code.yousef.summon.components.input.Button
+import code.yousef.summon.components.input.ButtonVariant
+import code.yousef.summon.components.layout.Column
+import code.yousef.summon.components.layout.Row
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
-import components.feedback.AlertVariant
-import code.yousef.summon.components.input.Button
-
-import code.yousef.summon.components.layout.Row
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.components.layout.Spacer
+import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.theme.Spacer
 
 // Import the AlertVariant enum from its own file
 
@@ -40,7 +39,7 @@ fun Alert(
     content: @Composable () -> Unit // Main message content
 ) {
     val composer = CompositionLocal.currentComposer
-    
+
     // TODO: Apply variant-specific styling (background, border, text color) via modifier.
     val variantModifier = Modifier() // Replace with actual style lookup based on variant
         .padding("16px")
@@ -52,42 +51,48 @@ fun Alert(
         AlertVariant.INFO -> ({ IconDefaults.Info() })
         AlertVariant.SUCCESS -> ({ IconDefaults.CheckCircle() })
         AlertVariant.WARNING -> ({ IconDefaults.Warning() })
-        AlertVariant.DANGER -> ({ IconDefaults.Error() })
+        AlertVariant.ERROR -> ({ IconDefaults.Error() })
+        AlertVariant.NEUTRAL -> ({ IconDefaults.Info() })
     }
     val displayIcon = icon ?: defaultIcon
 
     composer?.startNode() // Start Alert node
     if (composer?.inserting == true) {
-        val renderer = PlatformRendererProvider.getPlatformRenderer()
-        // Use the updated renderAlertContainer method
+        val renderer = getPlatformRenderer()
+        // Use the renderAlertContainer method with the new signature
         renderer.renderAlertContainer(variant, finalModifier)
     }
 
-    // --- Compose internal structure --- 
+    // --- Compose internal structure ---
     // TODO: Ensure composition context places children correctly within the rendered Alert container.
     Row {
         if (displayIcon != null) {
             displayIcon()
             Spacer(Modifier().width("8px"))
         }
-        
+
         Column {
             if (title != null) {
                 title()
             }
             content()
         }
-        
+
         if (actions != null) {
             Spacer(Modifier().width("16px"))
             actions()
         }
-        
+
         if (onDismiss != null) {
             Spacer(Modifier().width("8px"))
-            Button(onClick = onDismiss) {
-                Text("×")
-            }
+            Button(
+                onClick = onDismiss,
+                label = "×",
+                modifier = Modifier().padding("4px"),
+                variant = ButtonVariant.GHOST,
+                disabled = false,
+                iconName = null
+            )
         }
     }
     // --- End internal structure --- 

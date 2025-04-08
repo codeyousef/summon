@@ -1,10 +1,9 @@
 package code.yousef.summon.components.display
 
-import code.yousef.summon.core.Composable
-import code.yousef.summon.core.PlatformRendererProvider
-import code.yousef.summon.TextComponent
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.TagConsumer
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.getPlatformRenderer
 
 /**
  * A composable that displays text with enhanced styling and accessibility options.
@@ -26,7 +25,62 @@ import kotlinx.html.TagConsumer
  * @param ariaLabel Accessible name for screen readers
  * @param ariaDescribedBy ID of element that describes this text for accessibility
  */
-data class Text(
+@Composable
+fun Text(
+    text: String,
+    modifier: Modifier = Modifier(),
+    overflow: String? = null,
+    lineHeight: String? = null,
+    textAlign: String? = null,
+    fontFamily: String? = null,
+    textDecoration: String? = null,
+    textTransform: String? = null,
+    letterSpacing: String? = null,
+    whiteSpace: String? = null,
+    wordBreak: String? = null,
+    wordSpacing: String? = null,
+    textShadow: String? = null,
+    maxLines: Int? = null,
+    role: String? = null,
+    ariaLabel: String? = null,
+    ariaDescribedBy: String? = null
+) {
+    val composer = CompositionLocal.currentComposer
+
+    // Apply text-specific styles to the modifier
+    val additionalStyles = getAdditionalStyles(
+        overflow, lineHeight, textAlign, fontFamily, textDecoration,
+        textTransform, letterSpacing, whiteSpace, wordBreak, wordSpacing,
+        textShadow, maxLines
+    )
+
+    // Apply accessibility attributes
+    val accessibilityAttrs = getAccessibilityAttributes(role, ariaLabel, ariaDescribedBy)
+
+    // Combine all styles and attributes
+    val finalModifier = if (additionalStyles.isNotEmpty()) {
+        modifier.styles(additionalStyles)
+    } else {
+        modifier
+    }
+
+    // Start composition node
+    composer?.startNode()
+    if (composer?.inserting == true) {
+        val renderer = getPlatformRenderer()
+        // Use the correct renderText method with value parameter
+        renderer.renderText(value = text, modifier = finalModifier)
+    }
+    composer?.endNode()
+}
+
+/**
+ * Backward compatibility class for existing code that expects a Text class instance
+ * rather than using the @Composable function directly.
+ *
+ * @deprecated Use the @Composable Text function instead for new code
+ */
+data class TextComponent(
     val text: String,
     val modifier: Modifier = Modifier(),
     val overflow: String? = null,
@@ -44,61 +98,100 @@ data class Text(
     val role: String? = null,
     val ariaLabel: String? = null,
     val ariaDescribedBy: String? = null
-) : Composable, TextComponent {
+) {
     /**
-     * Renders this Text composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
+     * Renders this Text using the @Composable function.
+     * Used for backward compatibility with existing code.
      */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderText(this, receiver as TagConsumer<T>)
-        }
+    @Composable
+    fun render() {
+        Text(
+            text = text,
+            modifier = modifier,
+            overflow = overflow,
+            lineHeight = lineHeight,
+            textAlign = textAlign,
+            fontFamily = fontFamily,
+            textDecoration = textDecoration,
+            textTransform = textTransform,
+            letterSpacing = letterSpacing,
+            whiteSpace = whiteSpace,
+            wordBreak = wordBreak,
+            wordSpacing = wordSpacing,
+            textShadow = textShadow,
+            maxLines = maxLines,
+            role = role,
+            ariaLabel = ariaLabel,
+            ariaDescribedBy = ariaDescribedBy
+        )
+    }
+
+    /**
+     * For compatibility with old TagConsumer-based code
+     */
+    fun <T> compose(receiver: T): T {
+        // No-op for compatibility, actual rendering will happen via render() in a Composable context
         return receiver
     }
+}
 
-    /**
-     * Gets a map of all additional style properties that should be applied
-     * beyond what is in the modifier.
-     */
-    internal fun getAdditionalStyles(): Map<String, String> {
-        val styles = mutableMapOf<String, String>()
+/**
+ * Gets a map of all additional style properties that should be applied
+ * beyond what is in the modifier.
+ */
+private fun getAdditionalStyles(
+    overflow: String?,
+    lineHeight: String?,
+    textAlign: String?,
+    fontFamily: String?,
+    textDecoration: String?,
+    textTransform: String?,
+    letterSpacing: String?,
+    whiteSpace: String?,
+    wordBreak: String?,
+    wordSpacing: String?,
+    textShadow: String?,
+    maxLines: Int?
+): Map<String, String> {
+    val styles = mutableMapOf<String, String>()
 
-        overflow?.let { styles["overflow"] = it }
-        overflow?.let { styles["text-overflow"] = it }
-        lineHeight?.let { styles["line-height"] = it }
-        textAlign?.let { styles["text-align"] = it }
-        fontFamily?.let { styles["font-family"] = it }
-        textDecoration?.let { styles["text-decoration"] = it }
-        textTransform?.let { styles["text-transform"] = it }
-        letterSpacing?.let { styles["letter-spacing"] = it }
-        whiteSpace?.let { styles["white-space"] = it }
-        wordBreak?.let { styles["word-break"] = it }
-        wordSpacing?.let { styles["word-spacing"] = it }
-        textShadow?.let { styles["text-shadow"] = it }
+    overflow?.let { styles["overflow"] = it }
+    overflow?.let { styles["text-overflow"] = it }
+    lineHeight?.let { styles["line-height"] = it }
+    textAlign?.let { styles["text-align"] = it }
+    fontFamily?.let { styles["font-family"] = it }
+    textDecoration?.let { styles["text-decoration"] = it }
+    textTransform?.let { styles["text-transform"] = it }
+    letterSpacing?.let { styles["letter-spacing"] = it }
+    whiteSpace?.let { styles["white-space"] = it }
+    wordBreak?.let { styles["word-break"] = it }
+    wordSpacing?.let { styles["word-spacing"] = it }
+    textShadow?.let { styles["text-shadow"] = it }
 
-        // Handle max lines with -webkit-line-clamp for truncating
-        if (maxLines != null) {
-            styles["display"] = "-webkit-box"
-            styles["-webkit-line-clamp"] = maxLines.toString()
-            styles["-webkit-box-orient"] = "vertical"
-            styles["overflow"] = "hidden"
-        }
-
-        return styles
+    // Handle max lines with -webkit-line-clamp for truncating
+    if (maxLines != null) {
+        styles["display"] = "-webkit-box"
+        styles["-webkit-line-clamp"] = maxLines.toString()
+        styles["-webkit-box-orient"] = "vertical"
+        styles["overflow"] = "hidden"
     }
 
-    /**
-     * Gets a map of all accessibility attributes that should be applied.
-     */
-    internal fun getAccessibilityAttributes(): Map<String, String> {
-        val attributes = mutableMapOf<String, String>()
+    return styles
+}
 
-        role?.let { attributes["role"] = it }
-        ariaLabel?.let { attributes["aria-label"] = it }
-        ariaDescribedBy?.let { attributes["aria-describedby"] = it }
+/**
+ * Gets a map of all accessibility attributes that should be applied.
+ */
+private fun getAccessibilityAttributes(
+    role: String?,
+    ariaLabel: String?,
+    ariaDescribedBy: String?
+): Map<String, String> {
+    val attributes = mutableMapOf<String, String>()
 
-        return attributes
-    }
+    role?.let { attributes["role"] = it }
+    ariaLabel?.let { attributes["aria-label"] = it }
+    ariaDescribedBy?.let { attributes["aria-describedby"] = it }
+
+    return attributes
 } 

@@ -1,12 +1,11 @@
 package code.yousef.summon.runtime
 
 import code.yousef.summon.core.PlatformRenderer
-import code.yousef.summon.runtime.MigratedPlatformRenderer
 
 /**
  * Utility function for accessing the current platform renderer.
  * This simplifies access to the PlatformRenderer by centralizing the access pattern.
- * 
+ *
  * @throws IllegalStateException if no renderer is set
  */
 private var renderer: MigratedPlatformRenderer? = null

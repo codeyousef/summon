@@ -1,9 +1,10 @@
 package code.yousef.summon.components.input
 
+import code.yousef.summon.components.LayoutComponent
 import code.yousef.summon.core.Composable
-import code.yousef.summon.LayoutComponent
 import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.PlatformRendererProviderLegacy.getRenderer
 import kotlinx.html.TagConsumer
 
 /**
@@ -19,13 +20,22 @@ class Form(
     val onSubmit: (Map<String, String>) -> Unit = {},
     val modifier: Modifier = Modifier()
 ) : Composable, LayoutComponent {
-    private val formFields = mutableListOf<TextField>()
+    private val formFields = mutableListOf<FormField>()
 
     /**
-     * Registers a TextField with this form.
+     * Base interface for form fields
+     */
+    interface FormField {
+        val label: String?
+        val value: String
+        fun validate(): Boolean
+    }
+
+    /**
+     * Registers a form field with this form.
      * This allows the form to track all input fields for validation and submission.
      */
-    fun registerField(field: TextField) {
+    fun registerField(field: FormField) {
         formFields.add(field)
     }
 
@@ -44,8 +54,8 @@ class Form(
     fun submit(): Boolean {
         if (validate()) {
             // Collect all form values
-            val formData = formFields.associate<TextField, String, String> { field ->
-                (field.label ?: field.hashCode().toString()) to field.state.value
+            val formData = formFields.associate { field ->
+                (field.label ?: field.hashCode().toString()) to field.value
             }
 
             // Call the onSubmit callback
@@ -63,7 +73,11 @@ class Form(
     override fun <T> compose(receiver: T): T {
         if (receiver is TagConsumer<*>) {
             @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderForm(this, receiver as TagConsumer<T>)
+            val renderer = getRenderer()
+            renderer.renderForm(
+                onSubmit = { this.submit() },
+                modifier = modifier
+            )
         }
         return receiver
     }

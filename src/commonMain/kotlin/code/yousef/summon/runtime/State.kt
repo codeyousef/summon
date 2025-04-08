@@ -2,7 +2,7 @@ package code.yousef.summon.runtime
 
 /**
  * Immutable state object that can be read but not modified.
- * 
+ *
  * This interface defines a state holder that provides value access
  * through the value property and component operators.
  */
@@ -11,7 +11,7 @@ interface State<T> {
      * The current value of this state.
      */
     val value: T
-    
+
     /**
      * Component operator for property destructuring
      */
@@ -29,7 +29,7 @@ interface MutableState<T> : State<T> {
      * The current value of this mutable state.
      */
     override var value: T
-    
+
     /**
      * Component operator for property destructuring
      */

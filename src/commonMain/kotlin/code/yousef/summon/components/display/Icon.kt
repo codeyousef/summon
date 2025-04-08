@@ -1,8 +1,9 @@
 package code.yousef.summon.components.display
 
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.MigratedPlatformRenderer
 
 
 /**
@@ -57,14 +58,10 @@ fun Icon(
     // For now, just pass the name and modifier.
     // svgContent might need to be handled differently (e.g., specific renderer method or passed via modifier attribute)
     
-    val renderer = PlatformRendererProvider.getPlatformRenderer()
+    val renderer = getPlatformRenderer()
     
     // TODO: Adapt renderer call based on type/svgContent if necessary
-    renderer.renderIcon(
-        name = name, // Pass name for font icons or ARIA label fallback
-        modifier = finalModifier 
-        // Other parameters like svgContent might be needed here or handled internally by renderer based on modifier
-    )
+    renderer.renderIcon(name, finalModifier)
 }
 
 

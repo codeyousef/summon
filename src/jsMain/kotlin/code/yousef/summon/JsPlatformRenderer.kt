@@ -210,7 +210,30 @@ actual class JsPlatformRenderer : MigratedPlatformRenderer {
     ) {
         // Basic implementation - no actual rendering yet
     }
-    
+
+    override fun renderAlertContainer(
+        variant: AlertVariant?,
+        modifier: Modifier
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderBadge(modifier: Modifier) {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderProgress(
+        value: Float?,
+        type: ProgressType,
+        modifier: Modifier
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderTooltipContainer(modifier: Modifier) {
+        TODO("Not yet implemented")
+    }
+
     // Feedback components
     override fun renderAlertContainer(
         type: String, 
@@ -273,6 +296,14 @@ actual class JsPlatformRenderer : MigratedPlatformRenderer {
         // Basic implementation - no actual rendering yet
     }
 
+    override fun renderDivider(modifier: Modifier) {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderLink(href: String, modifier: Modifier) {
+        TODO("Not yet implemented")
+    }
+
     override fun renderIcon(name: String, modifier: Modifier) {
         // Basic implementation - no actual rendering yet
     }
@@ -289,8 +320,155 @@ actual class JsPlatformRenderer : MigratedPlatformRenderer {
         // Basic implementation - no actual rendering yet
     }
 
+    override fun renderDiv(modifier: Modifier) {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderSpan(modifier: Modifier) {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderTextField(
+        value: String,
+        onValueChange: (String) -> Unit,
+        enabled: Boolean,
+        readOnly: Boolean,
+        type: TextFieldType,
+        placeholder: String?,
+        modifier: Modifier
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderTextArea(
+        value: String,
+        onValueChange: (String) -> Unit,
+        enabled: Boolean,
+        readOnly: Boolean,
+        rows: Int?,
+        maxLength: Int?,
+        placeholder: String?,
+        modifier: Modifier
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderCheckbox(
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+        enabled: Boolean,
+        modifier: Modifier
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderRadioButton(
+        selected: Boolean,
+        onClick: () -> Unit,
+        enabled: Boolean,
+        modifier: Modifier
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun <T> renderSelect(
+        value: T?,
+        onValueChange: (T?) -> Unit,
+        options: List<SelectOption<T>>,
+        enabled: Boolean,
+        modifier: Modifier
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderSwitch(
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+        enabled: Boolean,
+        modifier: Modifier
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderFileUpload(
+        onFilesSelected: (List<FileInfo>) -> Unit,
+        accept: String?,
+        multiple: Boolean,
+        enabled: Boolean,
+        capture: String?,
+        modifier: Modifier
+    ): () -> Unit {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderRangeSlider(
+        value: ClosedFloatingPointRange<Float>,
+        onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
+        valueRange: ClosedFloatingPointRange<Float>,
+        steps: Int,
+        enabled: Boolean,
+        modifier: Modifier
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderForm(onSubmit: () -> Unit, modifier: Modifier) {
+        TODO("Not yet implemented")
+    }
+
     override fun renderBox(modifier: Modifier) {
         // Basic implementation - no actual rendering yet
+    }
+
+    override fun renderGrid(modifier: Modifier) {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderAspectRatio(modifier: Modifier) {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderResponsiveLayout(modifier: Modifier) {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderLazyColumn(modifier: Modifier) {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderLazyRow(modifier: Modifier) {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderTabLayout(
+        tabs: List<Tab>,
+        selectedTabIndex: Int,
+        onTabSelected: (Int) -> Unit,
+        modifier: Modifier
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderExpansionPanel(modifier: Modifier) {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderDatePicker(
+        value: kotlinx.datetime.LocalDate?,
+        onValueChange: (kotlinx.datetime.LocalDate?) -> Unit,
+        enabled: Boolean,
+        modifier: Modifier
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderTimePicker(
+        value: kotlinx.datetime.LocalTime?,
+        onValueChange: (kotlinx.datetime.LocalTime?) -> Unit,
+        enabled: Boolean,
+        modifier: Modifier
+    ) {
+        TODO("Not yet implemented")
     }
 
     override fun renderCard(modifier: Modifier) {
@@ -300,7 +478,11 @@ actual class JsPlatformRenderer : MigratedPlatformRenderer {
     override fun renderAnimatedVisibility(visible: Boolean, modifier: Modifier) {
         // Basic implementation - no actual rendering yet
     }
-    
+
+    override fun renderAnimatedContent(modifier: Modifier) {
+        TODO("Not yet implemented")
+    }
+
     override fun renderHtmlTag(tag: String, attrs: Map<String, String>, content: () -> Unit) {
         // Basic implementation - no actual rendering yet
     }

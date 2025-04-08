@@ -1,40 +1,24 @@
 package code.yousef.summon
 
 /**
- * These are test-only implementations of the component classes used in TestExtensions.kt
- * These are needed for unit testing without using the full composable functions.
- */
-
-/**
- * Test version of Image that contains just the properties we want to test
- */
-class Image(
-    val src: String,
-    val alt: String,
-    val width: String? = null,
-    val height: String? = null
-)
-
-/**
- * Test version of Button that contains just the properties we want to test
- */
-class Button(
-    val label: String,
-    val onClick: (Any) -> Unit = {},
-    val disabled: Boolean = false
-)
-
-/**
- * Test version of Text that contains just the properties we want to test
- */
-class Text(
-    val text: String
-)
-
-/**
  * Test helpers for common code to be used in both JVM and JS tests.
  * These are simple property checks that don't require platform-specific rendering.
  */
+
+import code.yousef.summon.test.Button
+import code.yousef.summon.test.Image
+import code.yousef.summon.test.Text
+
+/**
+ * Simple assert function for testing.
+ * This is a common implementation that works across platforms.
+ */
+internal inline fun assert(value: Boolean, lazyMessage: () -> Any = { "" }) {
+    if (!value) {
+        val message = lazyMessage()
+        throw AssertionError(message.toString())
+    }
+}
 
 /**
  * Verify that the Image component has the expected property values
@@ -46,9 +30,9 @@ fun Image.verifyProperties(
     expectedHeight: String? = null
 ): Boolean {
     return src == expectedSrc &&
-           (expectedAlt == null || alt == expectedAlt) &&
-           (expectedWidth == null || width == expectedWidth) &&
-           (expectedHeight == null || height == expectedHeight)
+            (expectedAlt == null || alt == expectedAlt) &&
+            (expectedWidth == null || width == expectedWidth) &&
+            (expectedHeight == null || height == expectedHeight)
 }
 
 /**
@@ -59,7 +43,7 @@ fun Button.verifyProperties(
     expectedDisabled: Boolean? = null
 ): Boolean {
     return label == expectedLabel &&
-           (expectedDisabled == null || disabled == expectedDisabled)
+            (expectedDisabled == null || disabled == expectedDisabled)
 }
 
 /**
@@ -69,4 +53,33 @@ fun Text.verifyProperties(
     expectedText: String
 ): Boolean {
     return text == expectedText
+}
+
+/**
+ * Verify that an Image component was rendered with the given properties
+ */
+fun verifyImage(image: Image, src: String, alt: String, width: String? = null, height: String? = null) {
+    assert(image.src == src) { "Expected src to be $src, but was ${image.src}" }
+    assert(image.alt == alt) { "Expected alt to be $alt, but was ${image.alt}" }
+    if (width != null) {
+        assert(image.width == width) { "Expected width to be $width, but was ${image.width}" }
+    }
+    if (height != null) {
+        assert(image.height == height) { "Expected height to be $height, but was ${image.height}" }
+    }
+}
+
+/**
+ * Verify that a Button component was rendered with the given properties
+ */
+fun verifyButton(button: Button, label: String, disabled: Boolean = false) {
+    assert(button.label == label) { "Expected label to be $label, but was ${button.label}" }
+    assert(button.disabled == disabled) { "Expected disabled to be $disabled, but was ${button.disabled}" }
+}
+
+/**
+ * Verify that a Text component was rendered with the given text
+ */
+fun verifyText(text: Text, expectedText: String) {
+    assert(text.text == expectedText) { "Expected text to be $expectedText, but was ${text.text}" }
 } 

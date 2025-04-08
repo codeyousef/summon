@@ -25,7 +25,7 @@ expect interface Router {
      */
     @Composable
     fun create(initialPath: String)
-    
+
     // Potentially add state for currentPath if needed by consumers
     // val currentPathState: State<String> 
 }
@@ -37,7 +37,7 @@ data class RouteDefinition(
     val content: @Composable (RouteParams) -> Unit
 )
 
-data class RouteParams(val params: Map<String, String>) {
+data class RouteParams(val params: RouteParams) {
     fun get(key: String): String? = params[key]
     fun asMap(): Map<String, String> = params
 }
@@ -51,7 +51,7 @@ data class RouteMatchResult(
 private val localRouter = CompositionLocal.compositionLocalOf<Router?>(null)
 
 // Helper property to access the current router
-val LocalRouter: Router? 
+val LocalRouter: Router?
     @Composable
     get() = localRouter.current
 
@@ -69,15 +69,15 @@ fun RouterComponent(
 ) {
     // Store the previous Router
     val previousRouter = localRouter.current
-    
+
     // Provide the new Router
     localRouter.provides(router)
-    
+
     try {
         // Delegate the actual composition and path handling to the 
         // platform-specific Router implementation.
         router.create(initialPath)
-        
+
         // Platform implementations might need effects to listen for external navigation
         // e.g., browser back/forward buttons.
     } finally {
@@ -96,7 +96,8 @@ interface RouterBuilder {
 // Internal implementation for the builder
 internal class RouterBuilderImpl : RouterBuilder {
     val routes = mutableListOf<RouteDefinition>()
-    var notFoundPage: @Composable (RouteParams) -> Unit = { params -> Text("Default Not Found - Path: ${params.get("path")}") }
+    var notFoundPage: @Composable (RouteParams) -> Unit =
+        { params -> Text("Default Not Found - Path: ${params.get("path")}") }
 
     override fun route(path: String, content: @Composable (RouteParams) -> Unit) {
         routes.add(RouteDefinition(path, content))

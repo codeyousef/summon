@@ -1,7 +1,7 @@
 plugins {
     kotlin("multiplatform") version "2.1.20"
     kotlin("plugin.serialization") version "2.1.20"
-    id("maven-publish")
+
 }
 
 group = "code.yousef"
@@ -10,12 +10,6 @@ version = "0.1.6"
 repositories {
     mavenCentral()
     gradlePluginPortal()
-    maven {
-        url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-    }
-    maven {
-        url = uri("https://maven.pkg.jetbrains.space/kotlin/p/wrappers/kotlin-js-wrappers")
-    }
 }
 
 configurations {

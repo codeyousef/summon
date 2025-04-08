@@ -1,16 +1,15 @@
 package code.yousef.summon.components.input
 
+
+import code.yousef.summon.components.layout.Alignment
+import code.yousef.summon.components.layout.Row
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.applyIf
 import code.yousef.summon.modifier.pointerEvents
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.PlatformRendererProvider
-
-
-import code.yousef.summon.components.layout.Row
-import code.yousef.summon.components.layout.Spacer
-import code.yousef.summon.components.layout.Alignment
+import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.theme.Spacer
 
 /**
  * A composable that displays a radio button, typically used as part of a group
@@ -46,10 +45,11 @@ fun RadioButton(
 
     composer?.startNode() // Start RadioButton node
     if (composer?.inserting == true) {
-        val renderer = PlatformRendererProvider.getPlatformRenderer()
-        renderer.renderRadioButton(
+        val renderer = getPlatformRenderer()
+        // Call the PlatformRenderer implementation which has params in order: selected, onClick, enabled, modifier
+        (renderer as code.yousef.summon.core.PlatformRenderer).renderRadioButton(
             selected = selected,
-            onClick = { if (enabled) onClick() }, // Guard callback
+            onClick = { if (enabled) onClick() },
             enabled = enabled,
             modifier = finalModifier
         )
@@ -80,7 +80,7 @@ fun RadioButtonWithLabel(
         .cursor(if (enabled) "pointer" else "default")
         .opacity(if (enabled) 1f else 0.6f)
         .applyIf(!enabled) { pointerEvents("none") }
-        // .clickable(enabled = enabled) { onClick() } // Row click triggers radio click
+    // .clickable(enabled = enabled) { onClick() } // Row click triggers radio click
 
     Row(
         modifier = rowModifier,
