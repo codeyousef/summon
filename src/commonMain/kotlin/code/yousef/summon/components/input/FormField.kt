@@ -4,7 +4,10 @@ import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.PlatformRendererProvider
 import code.yousef.summon.components.layout.Column
+import code.yousef.summon.components.layout.Row
+import code.yousef.summon.components.display.Text
 import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.theme.ColorHelpers
 import code.yousef.summon.theme.Spacer
 
 
@@ -17,7 +20,7 @@ import code.yousef.summon.theme.Spacer
  * @param helperText Optional composable lambda for displaying helper text below the field.
  * @param errorText Optional composable lambda for displaying error text below the field (shown when `isError` is true).
  * @param isError Indicates whether the field is currently in an error state.
- * @param isRequired Indicates whether the field is required (can be used for visual indicators like an asterisk).
+ * @param isRequired Indicates whether the field is required (displays a red asterisk after the label).
  * @param fieldContent The composable lambda defining the actual input control (e.g., TextField, Select).
  */
 @Composable
@@ -27,10 +30,10 @@ fun FormField(
     helperText: @Composable (() -> Unit)? = null,
     errorText: @Composable (() -> Unit)? = null,
     isError: Boolean = false,
-    isRequired: Boolean = false, // TODO: Add visual indicator if true?
+    isRequired: Boolean = false,
     fieldContent: @Composable () -> Unit
 ) {
-    // TODO: Replace runtime.PlatformRendererProvider with CompositionLocal access
+    // TODO: Replace getPlatformRenderer with CompositionLocal access
     val renderer = getPlatformRenderer()
 
     // TODO: Renderer signature update required.
@@ -42,7 +45,20 @@ fun FormField(
     Column(modifier = modifier) { // Apply the main modifier to the Column
         // Compose Label if provided
         if (label != null) {
-            label() // TODO: Add styling? Associate with input via 'for' attribute?
+            Row {
+                label() // Display the label first
+                
+                // Add required indicator (red asterisk) if field is required
+                if (isRequired) {
+                    // Add a small space between label and asterisk
+                    Spacer(modifier = Modifier().width("4px"))
+                    // Red asterisk indicator
+                    Text(
+                        text = "*",
+                        modifier = Modifier().style("color", ColorHelpers.error)
+                    )
+                }
+            }
             // Add small space between label and field
             Spacer(modifier = Modifier().height("4px")) 
         }
@@ -55,8 +71,16 @@ fun FormField(
         if (bottomText != null) {
             // Add small space between field and helper/error text
             Spacer(modifier = Modifier().height("4px")) 
-            // TODO: Add specific styling for helper/error text?
-            bottomText()
+            
+            // Add styling for error text if in error state
+            if (isError && errorText != null) {
+                Column(modifier = Modifier().style("color", ColorHelpers.error)) {
+                    bottomText()
+                }
+            } else {
+                // Regular helper text
+                bottomText()
+            }
         }
     }
 } 

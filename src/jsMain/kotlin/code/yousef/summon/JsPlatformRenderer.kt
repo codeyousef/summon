@@ -48,4 +48,4 @@ actual class JsPlatformRenderer actual constructor() : PlatformRenderer {
     actual override fun renderAnimatedVisibility(visible: Boolean, modifier: Modifier) {
         // Basic implementation - no actual rendering yet
     }
-}
+} 
