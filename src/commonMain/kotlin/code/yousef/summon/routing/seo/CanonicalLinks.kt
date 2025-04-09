@@ -11,83 +11,77 @@ import code.yousef.summon.runtime.SideEffect
  * This helps search engines understand the primary version of a page when
  * multiple URLs might serve the same or similar content
  */
-class CanonicalLinks(
-    private val url: String,
-    private val alternateLanguages: Map<String, String> = emptyMap(),
-    private val ampUrl: String? = null
-) : Composable {
-
-    @Suppress("UNCHECKED_CAST")
-    override fun <T> compose(receiver: T): T {
-        if (receiver is HEAD) {
-            receiver.apply {
-                // Canonical URL - the definitive/preferred version of the page
-                link {
-                    attributes["rel"] = "canonical"
-                    attributes["href"] = url
-                }
-
-                // Alternate language versions
-                alternateLanguages.forEach { (lang, href) ->
-                    link {
-                        attributes["rel"] = "alternate"
-                        attributes["hreflang"] = lang
-                        attributes["href"] = href
-                    }
-                }
-
-                // AMP version if available
-                ampUrl?.let {
-                    link {
-                        attributes["rel"] = "amphtml"
-                        attributes["href"] = it
-                    }
-                }
-            }
+@Composable
+fun CanonicalLinks(
+    url: String,
+    alternateLanguages: Map<String, String> = emptyMap(),
+    ampUrl: String? = null
+) {
+    val composer = CompositionLocal.currentComposer
+    
+    // This is a head-only component, so we need to use a SideEffect to manipulate the head
+    SideEffect {
+        // TODO: Implement platform-specific head manipulation
+        // For now, we'll just print what we would do
+        println("CanonicalLinks SideEffect: Setting canonical URL to $url")
+        
+        // In a real implementation, we would use the platform renderer to add these elements to the head
+        // val renderer = getPlatformRenderer()
+        // renderer.addHeadElement("<link rel=\"canonical\" href=\"$url\">")
+        
+        // Add alternate language links
+        alternateLanguages.forEach { (lang, href) ->
+            println("CanonicalLinks SideEffect: Adding alternate language link for $lang: $href")
+            // renderer.addHeadElement("<link rel=\"alternate\" hreflang=\"$lang\" href=\"$href\">")
         }
-
-        return receiver
-    }
-
-    companion object {
-        /**
-         * Create a simple canonical link
-         */
-        fun simple(url: String): CanonicalLinks {
-            return CanonicalLinks(url)
-        }
-
-        /**
-         * Create a canonical link with language alternates
-         */
-        fun withLanguages(
-            defaultUrl: String,
-            defaultLanguage: String,
-            alternates: Map<String, String>
-        ): CanonicalLinks {
-            val allLanguages = mutableMapOf<String, String>()
-            allLanguages[defaultLanguage] = defaultUrl
-            allLanguages.putAll(alternates)
-
-            return CanonicalLinks(
-                url = defaultUrl,
-                alternateLanguages = allLanguages
-            )
-        }
-
-        /**
-         * Create a canonical link with AMP version
-         */
-        fun withAmp(
-            url: String,
-            ampUrl: String
-        ): CanonicalLinks {
-            return CanonicalLinks(
-                url = url,
-                ampUrl = ampUrl
-            )
+        
+        // Add AMP link if available
+        ampUrl?.let {
+            println("CanonicalLinks SideEffect: Adding AMP link: $it")
+            // renderer.addHeadElement("<link rel=\"amphtml\" href=\"$it\">")
         }
     }
+}
+
+/**
+ * Create a simple canonical link
+ */
+@Composable
+fun SimpleCanonicalLink(url: String) {
+    CanonicalLinks(url)
+}
+
+/**
+ * Create a canonical link with language alternates
+ */
+@Composable
+fun CanonicalLinksWithLanguages(
+    defaultUrl: String,
+    defaultLanguage: String,
+    alternates: Map<String, String>
+) {
+    val allLanguages = mutableMapOf<String, String>()
+    allLanguages[defaultLanguage] = defaultUrl
+    allLanguages.putAll(alternates)
+
+    CanonicalLinks(
+        url = defaultUrl,
+        alternateLanguages = allLanguages
+    )
+}
+
+/**
+ * Create a canonical link with AMP version
+ */
+@Composable
+fun CanonicalLinksWithAmp(
+    url: String,
+    ampUrl: String
+) {
+    CanonicalLinks(
+        url = url,
+        ampUrl = ampUrl
+    )
 }
 
 /**

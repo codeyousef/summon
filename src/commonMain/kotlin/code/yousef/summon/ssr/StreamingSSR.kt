@@ -1,8 +1,8 @@
 package code.yousef.summon.ssr
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.MigratedPlatformRenderer
+import code.yousef.summon.runtime.getPlatformRenderer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.html.stream.createHTML
@@ -13,7 +13,7 @@ import kotlinx.html.stream.createHTML
  */
 class StreamingRenderer(
     private val hydrationSupport: HydrationSupport = StandardHydrationSupport(),
-    private val platformRenderer: PlatformRenderer = PlatformRendererProvider.getPlatformRenderer(),
+    private val platformRenderer: MigratedPlatformRenderer = getPlatformRenderer(),
     private val chunkSize: Int = 4096
 ) : StreamingServerSideRenderer {
     /**
@@ -23,7 +23,7 @@ class StreamingRenderer(
      * @param context Optional rendering context with additional metadata
      * @return Flow of HTML chunks
      */
-    override fun renderStream(composable: Composable, context: RenderContext): Flow<String> = flow {
+    override fun renderStream(composable: @Composable () -> Unit, context: RenderContext): Flow<String> = flow {
         // First, emit the HTML header
         emit(generateHtmlHeader(context))
 
@@ -107,7 +107,7 @@ class StreamingRenderer(
     /**
      * Renders a composable to a string
      */
-    private fun renderToString(composable: Composable): String {
+    private fun renderToString(composable: @Composable () -> Unit): String {
         // Using createHTML from kotlinx.html to render the component
         return createHTML().let { consumer ->
             platformRenderer.renderComposable(composable, consumer)
@@ -254,7 +254,7 @@ object StreamingSSR {
      * @param context Optional rendering context with additional metadata
      * @return Flow of HTML chunks
      */
-    fun renderStream(composable: Composable, context: RenderContext = RenderContext()): Flow<String> {
+    fun renderStream(composable: @Composable () -> Unit, context: RenderContext = RenderContext()): Flow<String> {
         return renderer.renderStream(composable, context)
     }
 
@@ -267,9 +267,10 @@ object StreamingSSR {
      */
     fun createRenderer(
         hydrationSupport: HydrationSupport = StandardHydrationSupport(),
+        platformRenderer: MigratedPlatformRenderer = getPlatformRenderer(),
         chunkSize: Int = 4096
     ): StreamingRenderer {
-        return StreamingRenderer(hydrationSupport, chunkSize)
+        return StreamingRenderer(hydrationSupport, platformRenderer, chunkSize)
     }
 
     /**
@@ -280,19 +281,19 @@ object StreamingSSR {
      */
     fun renderToFlow(content: @Composable () -> Unit): Flow<String> = flow {
         println("StreamingSSR.renderToFlow called (not implemented).")
-        
+
         // TODO: Implement streaming SSR.
         // 1. Create a streaming Composer/Renderer (e.g., HtmlFlowRenderer).
         // 2. Set up CompositionContext.
         // 3. Execute `content` lambda within the context.
         // 4. The Renderer should emit HTML chunks (e.g., to the FlowCollector `emit`).
-        
+
         // Placeholder emission:
         emit("<!DOCTYPE html><html><head><title>Streaming SSR</title></head><body>")
         emit("<div id=\"summon-root\">")
         // Placeholder for actual streamed content generation:
         // streamComposableContent(content) { chunk -> emit(chunk) }
-        emit("<!-- Streaming Content Placeholder -->") 
+        emit("<!-- Streaming Content Placeholder -->")
         emit("</div></body></html>")
     }
 

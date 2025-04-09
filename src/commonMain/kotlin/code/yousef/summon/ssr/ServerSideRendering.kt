@@ -1,6 +1,6 @@
 package code.yousef.summon.ssr
 
-import code.yousef.summon.runtime.Composable
+import code.yousef.summon.annotation.Composable
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -14,7 +14,7 @@ interface ServerSideRenderer {
      * @param context Optional rendering context with additional metadata
      * @return The generated HTML as a string
      */
-    fun render(composable: Composable, context: RenderContext = RenderContext()): String
+    fun render(composable: @Composable () -> Unit, context: RenderContext = RenderContext()): String
 }
 
 /**
@@ -128,7 +128,7 @@ interface HydrationSupport {
      * @return Client-side hydration data as a string (typically JSON)
      */
     fun generateHydrationData(
-        composable: Composable,
+        composable: @Composable () -> Unit,
         strategy: HydrationStrategy = HydrationStrategy.FULL
     ): String
 
@@ -153,7 +153,7 @@ interface StreamingServerSideRenderer {
      * @param context Optional rendering context with additional metadata
      * @return Flow of HTML chunks
      */
-    fun renderStream(composable: Composable, context: RenderContext = RenderContext()): Flow<String>
+    fun renderStream(composable: @Composable () -> Unit, context: RenderContext = RenderContext()): Flow<String>
 }
 
 /**

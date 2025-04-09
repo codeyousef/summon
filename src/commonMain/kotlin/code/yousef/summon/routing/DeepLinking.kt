@@ -6,6 +6,7 @@ import kotlinx.html.TagConsumer
 import kotlinx.html.head
 import kotlinx.html.link
 import kotlinx.html.meta
+import routing.RouterContext
 
 /**
  * Provides support for deep linking, allowing direct navigation to specific application states.
@@ -262,10 +263,20 @@ class DeepLinking private constructor() {
  */
 object DeepLinkManager {
     fun handleDeepLink(url: String): RouteMatchResult? {
-        val routes = RouterBuilder.build().routes
-        // Parse URL, match against registered routes, extract params
+        // Get the current router from RouterContext
+        val currentRouter = RouterContext.current
+        if (currentRouter == null) {
+            println("DeepLinkManager: No router found in context")
+            return null
+        }
+
+        // Parse URL and extract parameters
+        val deepLinkInfo = DeepLinking.parseUrl(url)
+
+        // For now, return null as placeholder
+        // TODO: Implement proper route matching using the current router
         println("DeepLinkManager: Handling URL '$url' (not implemented)")
-        return null // Placeholder
+        return null
     }
 }
 

@@ -37,7 +37,7 @@ data class RouteDefinition(
     val content: @Composable (RouteParams) -> Unit
 )
 
-data class RouteParams(val params: RouteParams) {
+data class RouteParams(val params: Map<String, String>) {
     fun get(key: String): String? = params[key]
     fun asMap(): Map<String, String> = params
 }

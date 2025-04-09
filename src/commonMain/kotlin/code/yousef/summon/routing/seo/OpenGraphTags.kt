@@ -2,9 +2,6 @@ package code.yousef.summon.routing.seo
 
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
-import kotlinx.html.HEAD
-import kotlinx.html.meta
-
 import code.yousef.summon.runtime.SideEffect
 
 
@@ -12,129 +9,116 @@ import code.yousef.summon.runtime.SideEffect
  * OpenGraphTags component for adding social media metadata
  * These tags help social media platforms display rich previews when users share your content
  */
-class OpenGraphTags(
-    private val title: String,
-    private val type: String = "website",
-    private val url: String,
-    private val image: String? = null,
-    private val description: String? = null,
-    private val siteName: String? = null,
-    private val locale: String? = null,
-    private val extraTags: Map<String, String> = emptyMap()
-) : Composable {
+@Composable
+fun OpenGraphTags(
+    title: String,
+    type: String = "website",
+    url: String,
+    image: String? = null,
+    description: String? = null,
+    siteName: String? = null,
+    locale: String? = null,
+    extraTags: Map<String, String> = emptyMap()
+) {
+    val composer = CompositionLocal.currentComposer
 
-    @Suppress("UNCHECKED_CAST")
-    override fun <T> compose(receiver: T): T {
-        if (receiver is HEAD) {
-            receiver.apply {
-                // Basic OG tags
-                meta {
-                    attributes["property"] = "og:title"
-                    attributes["content"] = title
-                }
-                meta {
-                    attributes["property"] = "og:type"
-                    attributes["content"] = type
-                }
-                meta {
-                    attributes["property"] = "og:url"
-                    attributes["content"] = url
-                }
+    // This is a head-only component, so we need to use a SideEffect to manipulate the head
+    SideEffect {
+        // TODO: Implement platform-specific head manipulation
+        // For now, we'll just print what we would do
+        println("OpenGraphTags SideEffect: Setting og:title='$title'")
+        println("OpenGraphTags SideEffect: Setting og:type='$type'")
+        println("OpenGraphTags SideEffect: Setting og:url='$url'")
 
-                // Optional OG tags
-                image?.let {
-                    meta {
-                        attributes["property"] = "og:image"
-                        attributes["content"] = it
-                    }
-                }
-                description?.let {
-                    meta {
-                        attributes["property"] = "og:description"
-                        attributes["content"] = it
-                    }
-                }
-                siteName?.let {
-                    meta {
-                        attributes["property"] = "og:site_name"
-                        attributes["content"] = it
-                    }
-                }
-                locale?.let {
-                    meta {
-                        attributes["property"] = "og:locale"
-                        attributes["content"] = it
-                    }
-                }
+        // In a real implementation, we would use the platform renderer to add these elements to the head
+        // val renderer = getPlatformRenderer()
+        // renderer.addHeadElement("<meta property=\"og:title\" content=\"$title\">")
+        // renderer.addHeadElement("<meta property=\"og:type\" content=\"$type\">")
+        // renderer.addHeadElement("<meta property=\"og:url\" content=\"$url\">")
 
-                // Add any additional OG tags
-                extraTags.forEach { (name, content) ->
-                    meta {
-                        attributes["property"] = "og:$name"
-                        attributes["content"] = content
-                    }
-                }
-            }
+        // Optional OG tags
+        image?.let {
+            println("OpenGraphTags SideEffect: Setting og:image='$it'")
+            // renderer.addHeadElement("<meta property=\"og:image\" content=\"$it\">")
         }
 
-        return receiver
-    }
-
-    companion object {
-        /**
-         * Create OpenGraph tags for an article
-         */
-        fun article(
-            title: String,
-            url: String,
-            image: String,
-            description: String,
-            publishedTime: String? = null,
-            author: String? = null,
-            siteName: String? = null
-        ): OpenGraphTags {
-            val extraTags = mutableMapOf<String, String>()
-            publishedTime?.let { extraTags["article:published_time"] = it }
-            author?.let { extraTags["article:author"] = it }
-
-            return OpenGraphTags(
-                title = title,
-                type = "article",
-                url = url,
-                image = image,
-                description = description,
-                siteName = siteName,
-                extraTags = extraTags
-            )
+        description?.let {
+            println("OpenGraphTags SideEffect: Setting og:description='$it'")
+            // renderer.addHeadElement("<meta property=\"og:description\" content=\"$it\">")
         }
 
-        /**
-         * Create OpenGraph tags for a product
-         */
-        fun product(
-            title: String,
-            url: String,
-            image: String,
-            description: String,
-            price: String? = null,
-            currency: String? = null,
-            siteName: String? = null
-        ): OpenGraphTags {
-            val extraTags = mutableMapOf<String, String>()
-            price?.let { extraTags["product:price:amount"] = it }
-            currency?.let { extraTags["product:price:currency"] = it }
+        siteName?.let {
+            println("OpenGraphTags SideEffect: Setting og:site_name='$it'")
+            // renderer.addHeadElement("<meta property=\"og:site_name\" content=\"$it\">")
+        }
 
-            return OpenGraphTags(
-                title = title,
-                type = "product",
-                url = url,
-                image = image,
-                description = description,
-                siteName = siteName,
-                extraTags = extraTags
-            )
+        locale?.let {
+            println("OpenGraphTags SideEffect: Setting og:locale='$it'")
+            // renderer.addHeadElement("<meta property=\"og:locale\" content=\"$it\">")
+        }
+
+        // Add any additional OG tags
+        extraTags.forEach { (name, content) ->
+            println("OpenGraphTags SideEffect: Setting og:$name='$content'")
+            // renderer.addHeadElement("<meta property=\"og:$name\" content=\"$content\">")
         }
     }
+}
+
+/**
+ * Create OpenGraph tags for an article
+ */
+@Composable
+fun OpenGraphArticle(
+    title: String,
+    url: String,
+    image: String,
+    description: String,
+    publishedTime: String? = null,
+    author: String? = null,
+    siteName: String? = null
+) {
+    val extraTags = mutableMapOf<String, String>()
+    publishedTime?.let { extraTags["article:published_time"] = it }
+    author?.let { extraTags["article:author"] = it }
+
+    OpenGraphTags(
+        title = title,
+        type = "article",
+        url = url,
+        image = image,
+        description = description,
+        siteName = siteName,
+        extraTags = extraTags
+    )
+}
+
+/**
+ * Create OpenGraph tags for a product
+ */
+@Composable
+fun OpenGraphProduct(
+    title: String,
+    url: String,
+    image: String,
+    description: String,
+    price: String? = null,
+    currency: String? = null,
+    siteName: String? = null
+) {
+    val extraTags = mutableMapOf<String, String>()
+    price?.let { extraTags["product:price:amount"] = it }
+    currency?.let { extraTags["product:price:currency"] = it }
+
+    OpenGraphTags(
+        title = title,
+        type = "product",
+        url = url,
+        image = image,
+        description = description,
+        siteName = siteName,
+        extraTags = extraTags
+    )
 }
 
 /**
@@ -158,9 +142,20 @@ fun OpenGraphTag(property: String, content: String) {
 }
 
 // Convenience functions for common OG tags
-@Composable fun OgTitle(title: String) = OpenGraphTag("og:title", title)
-@Composable fun OgDescription(description: String) = OpenGraphTag("og:description", description)
-@Composable fun OgUrl(url: String) = OpenGraphTag("og:url", url)
-@Composable fun OgImage(imageUrl: String) = OpenGraphTag("og:image", imageUrl)
-@Composable fun OgType(type: String) = OpenGraphTag("og:type", type) // e.g., "website", "article"
-@Composable fun OgSiteName(name: String) = OpenGraphTag("og:site_name", name) 
+@Composable
+fun OgTitle(title: String) = OpenGraphTag("og:title", title)
+
+@Composable
+fun OgDescription(description: String) = OpenGraphTag("og:description", description)
+
+@Composable
+fun OgUrl(url: String) = OpenGraphTag("og:url", url)
+
+@Composable
+fun OgImage(imageUrl: String) = OpenGraphTag("og:image", imageUrl)
+
+@Composable
+fun OgType(type: String) = OpenGraphTag("og:type", type) // e.g., "website", "article"
+
+@Composable
+fun OgSiteName(name: String) = OpenGraphTag("og:site_name", name)

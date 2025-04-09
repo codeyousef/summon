@@ -1,7 +1,5 @@
 package code.yousef.summon.components.navigation
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-
 
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.modifier.Modifier
@@ -9,6 +7,7 @@ import code.yousef.summon.modifier.applyIf
 import code.yousef.summon.modifier.attribute
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.getPlatformRenderer
 
 
 /**
@@ -59,17 +58,17 @@ fun Link(
         .applyIf(title != null) { attribute("title", title!!) }
         .applyIf(ariaLabel != null) { attribute("aria-label", ariaLabel!!) }
         .applyIf(ariaDescribedBy != null) { attribute("aria-describedby", ariaDescribedBy!!) }
-        // TODO: Add onClick handling via modifier.clickable?
+    // TODO: Add onClick handling via modifier.clickable?
 
     composer?.startNode() // Start Link node
     if (composer?.inserting == true) {
-        val renderer = PlatformRendererProvider.getPlatformRenderer()
+        val renderer = getPlatformRenderer()
         renderer.renderLink(href = href, modifier = finalModifier)
     }
 
     // Execute the content lambda within the Link scope
     content()
-    
+
     composer?.endNode() // End Link node
 }
 
@@ -116,8 +115,8 @@ fun ButtonLink(
         .color("white")
         .borderRadius("4px")
         .textDecoration("none")
-        // TODO: Proper hover handling via modifier/platform?
-        // .hover(mapOf("background-color" to "#45a049")) 
+    // TODO: Proper hover handling via modifier/platform?
+    // .hover(mapOf("background-color" to "#45a049"))
 ) {
     Link(
         href = href,

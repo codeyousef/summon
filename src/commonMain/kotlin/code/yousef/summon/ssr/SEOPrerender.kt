@@ -1,7 +1,7 @@
 package code.yousef.summon.ssr
 
 
-import code.yousef.summon.runtime.Composable
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.routing.RouteDefinition
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -33,7 +33,7 @@ class SEOPrerenderer(
      * @param context Optional rendering context with additional metadata
      * @return The pre-rendered HTML optimized for search engines
      */
-    fun prerender(composable: Composable, context: RenderContext = RenderContext()): String {
+    fun prerender(composable: @Composable () -> Unit, context: RenderContext = RenderContext()): String {
         // Create a SEO-optimized context
         val seoContext = RenderContext(
             enableHydration = false,  // No need for hydration for crawlers
@@ -111,7 +111,7 @@ object SEOPrerender {
      * @param context Optional rendering context with additional metadata
      * @return The pre-rendered HTML optimized for search engines
      */
-    fun prerender(composable: Composable, context: RenderContext = RenderContext()): String {
+    fun prerender(composable: @Composable () -> Unit, context: RenderContext = RenderContext()): String {
         return prerenderer.prerender(composable, context)
     }
 
@@ -158,7 +158,7 @@ object SEOPrerender {
      * @return Map of URL paths to pre-rendered HTML
      */
     suspend fun prerenderSite(
-        pages: Map<String, Composable>,
+        pages: Map<String, @Composable () -> Unit>,
         contextProvider: (String) -> RenderContext = { RenderContext() }
     ): Map<String, String> = coroutineScope {
         // Pre-render each page in parallel
@@ -233,9 +233,9 @@ object SEOPrerenderUtils {
     fun prerenderRoutes(routes: List<RouteDefinition>, baseOutputDir: String) {
         println("SEOPrerenderUtils: Pre-rendering ${routes.size} routes to $baseOutputDir")
         routes.forEach { route ->
-            if (!route.path.contains("{")) { 
+            if (!route.path.contains("{")) {
                 val htmlContent = prerenderRouteToString(route)
-                val outputPath = "$baseOutputDir${route.path}.html".replace("//", "/") 
+                val outputPath = "$baseOutputDir${route.path}.html".replace("//", "/")
                 println("  - Writing ${route.path} to $outputPath (Not actually writing)")
             } else {
                 println("  - Skipping dynamic route: ${route.path}")

@@ -1,20 +1,12 @@
 package code.yousef.summon.state
 
-import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.MutableState
+import code.yousef.summon.MutableStateImpl
+import code.yousef.summon.mutableStateOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.launchIn
-
-import code.yousef.summon.runtime.PlatformRendererProvider
 
 /**
  * Creates a MutableState that is backed by a MutableStateFlow.
@@ -33,7 +25,7 @@ fun <T> stateFromStateFlow(stateFlow: MutableStateFlow<T>): MutableState<T> {
 
     // Update the flow when the state changes
     if (state is MutableStateImpl<T>) {
-        state.addListener { newValue ->
+        state.addListener { newValue: T ->
             stateFlow.value = newValue
         }
     }
@@ -102,7 +94,7 @@ fun <T> MutableState<T>.toSharedFlow(
 
     // Update the flow when the state changes
     if (this is MutableStateImpl<T>) {
-        addListener { newValue ->
+        addListener { newValue: T ->
             scope.launch {
                 sharedFlow.emit(newValue)
             }
@@ -122,4 +114,20 @@ val <T> MutableState<T>.asStateFlow: StateFlow<T>
  * Extension property to convert a MutableState to a SharedFlow
  */
 val <T> MutableState<T>.asSharedFlow: SharedFlow<T>
-    get() = this.toSharedFlow().asSharedFlow() 
+    get() = this.toSharedFlow().asSharedFlow()
+
+/**
+ * Extension function to convert a MutableState to a StateFlow
+ */
+fun <T> MutableState<T>.toStateFlow(): MutableStateFlow<T> {
+    val stateFlow = MutableStateFlow(value)
+
+    // Update the flow when the state changes
+    if (this is MutableStateImpl<T>) {
+        addListener { newValue: T ->
+            stateFlow.value = newValue
+        }
+    }
+
+    return stateFlow
+} 

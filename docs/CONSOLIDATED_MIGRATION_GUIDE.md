@@ -548,258 +548,868 @@ The migration demonstrates several improvements:
 5. **Enhanced modularity** - More easily testable and extendable without class inheritance
 6. **Component consolidation** - Removed duplicate implementations to avoid confusion
 
-## Next Component Migration: BasicButton
+The migration demonstrates several improvements:
+1. **Functional approach** - Composable function instead of a data class
+2. **Modern composition** - Uses `CompositionLocal.currentComposer` for state management
+3. **Proper node management** - Uses `startNode()` and `endNode()` for composition lifecycle
+4. **Extracted helper methods** - Moved internal methods to top-level private functions
+5. **Enhanced modularity** - More easily testable and extendable without class inheritance
+6. **Component consolidation** - Removed duplicate implementations to avoid confusion
 
-For the next migration, we will focus on the BasicButton component, which currently uses the interface-based approach but would benefit from the new annotation-based composition system, especially for handling pressed/hover states and accessibility.
+## Recent Component Fixes
 
----
+### 1. ResponsiveLayout Component
 
-## Core Runtime Progress
+The `ResponsiveLayout` component has been updated to fix renderer method parameter mismatches:
 
-We've successfully implemented the core components for the Compose-style runtime:
-
-### Architecture Overview
-
-The new runtime system is built on several key components:
-
-1. **@Composable Annotation**: Marks functions that can participate in the composition system.
-2. **Composer Interface**: Defines the core operations of a composition, including node hierarchy, state tracking, and change detection.
-3. **Recomposer**: Manages state changes and triggers recomposition when state changes.
-4. **CompositionLocal**: Provides context-based values within a composition, similar to React's Context. Now includes a `provideComposer` method for easier testing and composition.
-5. **CompositionContext**: Manages the lifecycle of a composition, including creation, updating, and disposal.
-6. **State Management**: State and MutableState interfaces with remember functions for tracking state across recompositions.
-7. **Effects System**: LaunchedEffect, DisposableEffect, and SideEffect for managing side effects and lifecycle events.
-8. **Platform Composers**: JsComposer implementation is complete with proper state, node tracking, and lifecycle management. It provides the foundation for JavaScript platform rendering.
-
-### JsComposer Implementation
-
-The JavaScript implementation of the Composer interface now correctly:
-
-- Manages composition nodes and groups
-- Tracks slot values and state changes
-- Supports proper change detection
-- Provides lifecycle management with disposable resources
-- Integrates with JavaScript console for debugging
-- Works with the CompositionLocal system
-
-This implementation creates a solid foundation for JavaScript-based rendering of Summon components.
-
-### Effects System
-
-The Effects system provides three main types of effects:
-
-1. **LaunchedEffect**: Runs a suspend function in a coroutine scope that is automatically canceled when the composition leaves the scene or when the key changes. Useful for asynchronous operations.
-   ```kotlin
-   @Composable
-   fun LaunchedEffect(key: Any? = null, block: suspend () -> Unit)
-   ```
-
-2. **DisposableEffect**: Performs an action when entering the composition and provides a cleanup function that runs when leaving or when the key changes. Perfect for resource management.
-   ```kotlin
-   @Composable
-   fun DisposableEffect(key: Any? = null, effect: () -> (() -> Unit))
-   ```
-
-3. **SideEffect**: Executes code on every successful composition. Useful for synchronizing with non-compose state.
-   ```kotlin
-   @Composable
-   fun SideEffect(effect: () -> Unit)
-   ```
-
-These effects are managed through the Composer's slot system, which tracks effect state across recompositions and ensures proper cleanup.
-
-### SimpleHelloWorld Example
-
-We've created a simple demo application using the new composition system:
-
+**Before (Incorrect):**
 ```kotlin
-// In SimpleHelloWorld.kt
-@Composable
-fun HelloWorld() {
-    // Create some state
-    val count = remember { mutableStateOf(0) }
-    
-    // Display a greeting
-    Text("Hello, Summon World!")
-    
-    // Display the counter
-    Text("You've clicked ${count.value} times")
-    
-    // Add a button to increment the counter
-    Button(onClick = { count.value++ }) {
-        Text("Click me")
+override fun <T> compose(receiver: T): T {
+    if (receiver is TagConsumer<*>) {
+        @Suppress("UNCHECKED_CAST")
+        return getRenderer().renderResponsiveLayout(this, receiver as TagConsumer<T>)
+    }
+    return receiver
+}
+```
+
+**After (Fixed):**
+```kotlin
+override fun <T> compose(receiver: T): T {
+    if (receiver is TagConsumer<*>) {
+        getRenderer().renderResponsiveLayout(modifier)
+    }
+    return receiver
+}
+```
+
+This fix addresses several issues:
+1. Return type mismatch (Unit vs T)
+2. Argument type mismatch (ResponsiveLayout vs Modifier)
+3. Too many arguments for renderResponsiveLayout
+
+### 2. Spacer Component
+
+The `Spacer` component has been updated to follow the same pattern:
+
+**Before (Incorrect):**
+```kotlin
+class Spacer(
+    val size: String,
+    val isVertical: Boolean = true
+) : Composable {
+    override fun <T> compose(receiver: T): T {
+        if (receiver is TagConsumer<*>) {
+            @Suppress("UNCHECKED_CAST")
+            return getRenderer().renderSpacer(this, receiver as TagConsumer<T>)
+        }
+        return receiver
     }
 }
 ```
 
-This demonstrates:
-- State creation and usage with `remember` and `mutableStateOf`
-- Content lambda for nested components
-- Reactive UI that updates when state changes
+**After (Fixed):**
+```kotlin
+class Spacer(
+    val size: String,
+    val isVertical: Boolean = true,
+    val modifier: Modifier = Modifier()
+) : Composable {
+    override fun <T> compose(receiver: T): T {
+        if (receiver is TagConsumer<*>) {
+            getRenderer().renderSpacer(modifier)
+        }
+        return receiver
+    }
+}
+```
 
-## Next Steps
+Key changes:
+1. Added a `modifier` parameter to the class constructor
+2. Updated the `compose` method to pass only the modifier to `renderSpacer`
+3. Removed the return in the `if` block to fix return type mismatch
+4. Removed the `@Suppress("UNCHECKED_CAST")` annotation that's no longer needed
 
-1. **Platform Composers**: Complete the JVM implementation of the Composer following the established patterns from JsComposer.
-2. **CompositionLocal for Renderer Access**: Replace direct calls to getPlatformRenderer with a proper CompositionLocal.
-3. **Component Migration**: Continue converting component classes to use the annotation-based approach.
-4. **Integration Testing**: Test the state management and recomposition system in real applications.
-5. **Documentation**: Create guides for component authors on using the new system.
+### 3. TabLayout Component
 
----
+The `TabLayout` component has been fixed to properly pass parameters to the renderer:
 
-## Common Issues and Solutions
+**Before (Incorrect):**
+```kotlin
+override fun <T> compose(receiver: T): T {
+    if (receiver is TagConsumer<*>) {
+        @Suppress("UNCHECKED_CAST")
+        return getRenderer().renderTabLayout(this, receiver as TagConsumer<T>)
+    }
+    return receiver
+}
+```
 
-### 1. Parameter Mismatches (Renderer Access)
-- **Issue**: Component function signature differs from the renderer method expects (e.g., `ProgressBar` needing `ProgressType`).
-- **Solution**: Check `PlatformRenderer` interface, import required types, update the component call.
+**After (Fixed):**
+```kotlin
+override fun <T> compose(receiver: T): T {
+    if (receiver is TagConsumer<*>) {
+        getRenderer().renderTabLayout(
+            tabs = tabs,
+            selectedTabIndex = selectedTabIndex,
+            onTabSelected = onTabSelected ?: {},
+            modifier = modifier
+        )
+    }
+    return receiver
+}
+```
 
-### 2. Missing Imports / Unresolved References
-- **Issue**: Errors for unresolved modifiers, types, or runtime functions after changes.
-- **Solution**: Check imports:
-  ```kotlin
-  import code.yousef.summon.runtime.Composable
-  import code.yousef.summon.runtime.remember
-  import code.yousef.summon.runtime.mutableStateOf
-  import code.yousef.summon.runtime.CompositionLocal
-  import code.yousef.summon.core.getPlatformRenderer
-  ```
+Key changes:
+1. Updated the `compose` method to pass all required parameters to `renderTabLayout`
+2. Added a null-safe callback for `onTabSelected` using the Elvis operator (`?:`)
+3. Removed the return in the `if` block to fix return type mismatch
+4. Removed the `@Suppress("UNCHECKED_CAST")` annotation
 
-### 3. Content Lambda Conversion
-- **Issue**: Converting container components that need to render children.
-- **Solution**: Replace child component parameters with a content lambda parameter:
-  ```kotlin
-  // Old
-  class Card(val content: Composable) : Composable { ... }
-  
-  // New
-  @Composable
-  fun Card(content: @Composable () -> Unit) { ... }
-  ```
+### 4. LocalDate Implementation
 
-### 4. State Management Conversion
-- **Issue**: Converting component state properties to remembered state.
-- **Solution**: Use the remember function with mutableStateOf:
-  ```kotlin
-  // Old (in a class)
-  var isExpanded = false
-  
-  // New (in a function)
-  val isExpanded = remember { mutableStateOf(false) }
-  // Access with isExpanded.value or use property delegate:
-  var expanded by remember { mutableStateOf(false) }
-  ```
+The `LocalDate` class has been replaced with extension functions for `kotlinx.datetime.LocalDate`:
 
-### 5. Renderer Method Parameter Mismatches
-- **Issue**: When using the interface-based Composable approach, many components pass `this` and `receiver` to renderer methods, but the renderer expects only the `modifier` parameter.
-- **Solution**: Update the compose method to call the renderer with just the modifier parameter:
-  ```kotlin
-  // Old (incorrect)
-  override fun <T> compose(receiver: T): T {
-      if (receiver is TagConsumer<*>) {
-          @Suppress("UNCHECKED_CAST")
-          return getRenderer().renderComponent(this, receiver as TagConsumer<T>)
-      }
-      return receiver
-  }
-  
-  // New (fixed)
-  override fun <T> compose(receiver: T): T {
-      if (receiver is TagConsumer<*>) {
-          getRenderer().renderComponent(modifier)
-      }
-      return receiver
-  }
-  ```
+**Before (Problematic):**
+```kotlin
+// Custom LocalDate implementation
+data class LocalDate(val year: Int, val month: Int, val day: Int) {
+    // Methods with direct property access
+    fun format(pattern: String): String {
+        var result = pattern
+        result = result.replace("yyyy", year.toString().padStart(4, '0'))
+        result = result.replace("MM", month.toString().padStart(2, '0'))
+        // ...
+    }
+    
+    fun isBefore(other: LocalDate): Boolean {
+        if (year < other.year) return true
+        if (year > other.year) return false
+        // ... direct property comparisons
+    }
+    // ...
+}
+```
 
-## Component Migration Example: TextField
+**After (Fixed):**
+```kotlin
+// Extension functions for kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDate
 
-To demonstrate the migration process, we've converted the TextField component from the interface-based approach to the annotation-based approach:
+// Extension function
+fun LocalDate.format(pattern: String): String {
+    var result = pattern
+    result = result.replace("yyyy", year.toString().padStart(4, '0'))
+    result = result.replace("MM", monthNumber.toString().padStart(2, '0'))
+    // ...using kotlinx property names
+}
+
+// Simplified comparison using built-in compareTo
+fun LocalDate.isBefore(other: LocalDate): Boolean {
+    return compareTo(other) < 0
+}
+```
+
+Key changes:
+1. Removed custom `LocalDate` class to resolve conflicts with `kotlinx.datetime.LocalDate`
+2. Converted instance methods to extension functions
+3. Updated property access to match the kotlinx implementation (e.g., `month` → `monthNumber`, `day` → `dayOfMonth`)
+4. Simplified comparison logic using the built-in `compareTo` method
+5. Added a `parseLocalDate` helper function to match the previous API
+
+This change aligns the codebase with the Kotlin Multiplatform ecosystem by:
+1. Using standard libraries instead of custom implementations
+2. Maintaining API compatibility through extension functions
+3. Eliminating type conflicts between our code and external libraries
+
+These fixes maintain backward compatibility while aligning with the ongoing migration to the new annotation-based composition system. They follow the pattern described in the "Renderer Method Parameter Mismatches" section of this guide.
+
+### 5. RouteParams Class Fix
+
+The `RouteParams` class had a recursive definition that was causing type mismatch errors:
+
+**Before (Problematic):**
+```kotlin
+// In Router.kt
+data class RouteParams(val params: RouteParams) {
+    fun get(key: String): String? = params[key]
+    fun asMap(): Map<String, String> = params
+}
+```
+
+**After (Fixed):**
+```kotlin
+// In Router.kt
+data class RouteParams(val params: Map<String, String>) {
+    fun get(key: String): String? = params[key]
+    fun asMap(): Map<String, String> = params
+}
+```
+
+This fix:
+1. Removes the recursive type definition that was causing confusion
+2. Makes the class properly accept a `Map<String, String>` as its parameter
+3. Maintains the same API for accessing parameters
+4. Resolves type mismatch errors in the `Route.extractParams()` method
+
+The fix aligns with the ongoing migration to improve type safety and clarity throughout the codebase.
+
+### 6. CanonicalLinks Component Migration
+
+The `CanonicalLinks` component has been migrated from the interface-based approach to the annotation-based approach:
 
 **Before (Interface-based):**
 ```kotlin
-class TextField(
-    val state: MutableState<String>,
-    val onValueChange: (String) -> Unit = {},
-    val label: String? = null,
-    val placeholder: String? = null,
-    val modifier: Modifier = Modifier(),
-    val type: TextFieldType = TextFieldType.Text,
-    val validators: List<Validator> = emptyList()
-) : Composable, InputComponent, FocusableComponent {
-    // State for validation errors
-    private val validationErrors = mutableStateOf<List<String>>(emptyList())
-
+class CanonicalLinks(
+    private val url: String,
+    private val alternateLanguages: Map<String, String> = emptyMap(),
+    private val ampUrl: String? = null
+) : Composable {
+    @Suppress("UNCHECKED_CAST")
     override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderTextField(this, receiver as TagConsumer<T>)
+        if (receiver is HEAD) {
+            receiver.apply {
+                // Canonical URL - the definitive/preferred version of the page
+                link {
+                    attributes["rel"] = "canonical"
+                    attributes["href"] = url
+                }
+                // ... more code for alternate languages and AMP
+            }
         }
         return receiver
     }
     
-    // Validation methods
-    fun validate(): Boolean { ... }
-    fun getValidationErrors(): List<String> = ...
-    fun isValid(): Boolean = ...
+    companion object {
+        fun simple(url: String): CanonicalLinks { ... }
+        fun withLanguages(...): CanonicalLinks { ... }
+        fun withAmp(...): CanonicalLinks { ... }
+    }
 }
 ```
 
 **After (Annotation-based):**
 ```kotlin
 @Composable
-fun TextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier(),
-    label: String? = null,
-    placeholder: String? = null,
-    type: TextFieldType = TextFieldType.Text,
-    isError: Boolean = false,
-    isEnabled: Boolean = true,
-    isReadOnly: Boolean = false,
-    validators: List<Validator> = emptyList()
+fun CanonicalLinks(
+    url: String,
+    alternateLanguages: Map<String, String> = emptyMap(),
+    ampUrl: String? = null
 ) {
-    // Use remember for local state
-    val validationErrors = remember { mutableStateOf(emptyList<String>()) }
+    val composer = CompositionLocal.currentComposer
     
-    // Direct renderer access via getPlatformRenderer()
-    val renderer = getPlatformRenderer()
-    
-    // Call the renderer directly with parameters
-    renderer.renderTextField(
-        value = value,
-        onValueChange = { ... },
-        modifier = modifier,
-        placeholder = placeholder ?: "",
-        isError = isError || validationErrors.value.isNotEmpty(),
-        type = type.toString().lowercase()
-    )
-    
-    // Conditional rendering
-    if (label != null) { ... }
-    if (validationErrors.value.isNotEmpty()) { ... }
+    SideEffect {
+        // Platform-specific head manipulation
+        println("CanonicalLinks SideEffect: Setting canonical URL to $url")
+        // ... more code for alternate languages and AMP
+    }
 }
 
-// Added a stateful version for easier state management
 @Composable
-fun StatefulTextField(...) {
-    val textState = remember { mutableStateOf(initialValue) }
-    TextField(
-        value = textState.value,
-        onValueChange = { newValue ->
-            textState.value = newValue
-            onValueChange(newValue)
-        },
-        ...
-    )
+fun SimpleCanonicalLink(url: String) {
+    CanonicalLinks(url)
+}
+
+@Composable
+fun CanonicalLinksWithLanguages(...) { ... }
+
+@Composable
+fun CanonicalLinksWithAmp(...) { ... }
+```
+
+Key changes:
+1. Converted the class to a composable function with the `@Composable` annotation
+2. Replaced the `compose` method with a `SideEffect` for head manipulation
+3. Converted companion object factory methods to separate composable functions
+4. Used `CompositionLocal.currentComposer` for composition management
+5. Simplified the API by making parameters public and removing the need for getters
+
+This migration demonstrates how to convert head-manipulating components to use the new annotation-based approach, which is particularly useful for SEO-related components that need to modify the document head.
+
+### 7. OpenGraphTags Component Migration
+
+The `OpenGraphTags` component has been migrated from the interface-based approach to the annotation-based approach:
+
+**Before (Interface-based):**
+```kotlin
+class OpenGraphTags(
+    private val title: String,
+    private val type: String = "website",
+    private val url: String,
+    private val image: String? = null,
+    private val description: String? = null,
+    private val siteName: String? = null,
+    private val locale: String? = null,
+    private val extraTags: Map<String, String> = emptyMap()
+) : Composable {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T> compose(receiver: T): T {
+        if (receiver is HEAD) {
+            receiver.apply {
+                // Basic OG tags
+                meta {
+                    attributes["property"] = "og:title"
+                    attributes["content"] = title
+                }
+                // ... more code for other OG tags
+            }
+        }
+        return receiver
+    }
+    
+    companion object {
+        fun article(...): OpenGraphTags { ... }
+        fun product(...): OpenGraphTags { ... }
+    }
 }
 ```
 
-This migration demonstrates several key improvements:
-1. **Functional approach** - Composable function instead of a class
-2. **Explicit state management** - Using remember {} for local state
-3. **Direct parameter passing** - No need to pass "this" instance
-4. **Simplified renderer access** - Using getPlatformRenderer() function
-5. **Component variants** - Added StatefulTextField for convenience
-6. **Declarative conditions** - Using if statements for conditional UI
-7. **Improved separation of concerns** - UI logic separated from validation
+**After (Annotation-based):**
+```kotlin
+@Composable
+fun OpenGraphTags(
+    title: String,
+    type: String = "website",
+    url: String,
+    image: String? = null,
+    description: String? = null,
+    siteName: String? = null,
+    locale: String? = null,
+    extraTags: Map<String, String> = emptyMap()
+) {
+    val composer = CompositionLocal.currentComposer
+    
+    SideEffect {
+        // Platform-specific head manipulation
+        println("OpenGraphTags SideEffect: Setting og:title='$title'")
+        // ... more code for other OG tags
+    }
+}
+
+@Composable
+fun OpenGraphArticle(...) { ... }
+
+@Composable
+fun OpenGraphProduct(...) { ... }
+```
+
+Key changes:
+1. Converted the class to a composable function with the `@Composable` annotation
+2. Replaced the `compose` method with a `SideEffect` for head manipulation
+3. Converted companion object factory methods to separate composable functions with more descriptive names
+4. Used `CompositionLocal.currentComposer` for composition management
+5. Simplified the API by making parameters public and removing the need for getters
+
+This migration follows the same pattern as the `CanonicalLinks` component, demonstrating how to convert head-manipulating components to use the new annotation-based approach.
+
+### SitemapGeneration Component Migration
+
+The `SitemapGeneration` component has been migrated from an interface-based approach to the new annotation-based approach. This component provides utilities for creating XML sitemaps that help search engines discover and understand the structure of your site.
+
+**Before (Interface-based):**
+```kotlin
+class SitemapXml(
+    private val urls: List<SitemapUrl>,
+    private val baseUrl: String
+) : Composable {
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T> compose(receiver: T): T {
+        if (receiver is FlowContent) {
+            val xml = buildSitemapXml()
+            receiver.pre {
+                +xml
+            }
+        } else if (receiver is TagConsumer<*>) {
+            @Suppress("UNCHECKED_CAST")
+            val consumer = receiver as TagConsumer<Any?>
+            val xml = buildSitemapXml()
+            consumer.onTagContent(xml)
+            return receiver
+        }
+
+        return receiver
+    }
+
+    fun getXmlString(): String {
+        return buildSitemapXml()
+    }
+
+    private fun buildSitemapXml(): String {
+        // XML building logic
+    }
+}
+```
+
+**After (Annotation-based):**
+```kotlin
+@Composable
+fun SitemapXml(
+    urls: List<SitemapUrl>,
+    baseUrl: String
+) {
+    val renderer = getPlatformRenderer()
+    val xml = buildSitemapXml(urls, baseUrl)
+    
+    renderer.renderPre {
+        +xml
+    }
+}
+
+fun getXmlString(urls: List<SitemapUrl>, baseUrl: String): String {
+    return buildSitemapXml(urls, baseUrl)
+}
+
+private fun buildSitemapXml(urls: List<SitemapUrl>, baseUrl: String): String {
+    // XML building logic
+}
+```
+
+Key changes in the migration:
+1. Converted the `SitemapXml` class to a composable function with the `@Composable` annotation
+2. Removed the `compose` method and replaced it with direct rendering using `getPlatformRenderer()`
+3. Made parameters public and passed them directly to the functions that need them
+4. Simplified the API by removing the need for getters and private fields
+5. Updated the companion object's `fromRoutes` method to return a list of `SitemapUrl` objects instead of a `SitemapXml` instance
+
+This migration follows the same pattern as the `CanonicalLinks` and `OpenGraphTags` components, demonstrating how to convert components that manipulate HTML content to use the new annotation-based approach.
+
+### StructuredData Component Migration
+
+The `StructuredData` component has been migrated from an interface-based approach to an annotation-based approach. This component is used to embed JSON-LD structured data in the document head, helping search engines understand the content of the page.
+
+**Before (Interface-based)**:
+```kotlin
+class JsonLdStructuredData(private val jsonLdString: String) : Composable {
+    override fun compose() {
+        // Head manipulation logic
+    }
+}
+
+object StructuredData {
+    fun WebPage(name: String, description: String, url: String) = buildJsonObject {
+        put("@context", "https://schema.org")
+        put("@type", "WebPage")
+        put("name", name)
+        put("description", description)
+        put("url", url)
+    }
+    // ... other factory methods
+}
+```
+
+**After (Annotation-based):**
+```kotlin
+@Composable
+fun JsonLdStructuredData(jsonLdString: String) {
+    val composer = CompositionLocal.currentComposer
+    SideEffect {
+        // Head manipulation logic
+    }
+}
+
+@Composable
+fun WebPageStructuredData(
+    name: String,
+    description: String,
+    url: String
+) {
+    val data = JsonObject(mapOf(
+        "@context" to JsonPrimitive("https://schema.org"),
+        "@type" to JsonPrimitive("WebPage"),
+        "name" to JsonPrimitive(name),
+        "description" to JsonPrimitive(description),
+        "url" to JsonPrimitive(url)
+    ))
+    StructuredData(data)
+}
+// ... other composable functions
+```
+
+Key changes made:
+1. Converted the `JsonLdStructuredData` class to a composable function with the `@Composable` annotation
+2. Removed the `compose` method, replaced with `SideEffect` for head manipulation
+3. Transformed companion object factory methods into separate composable functions with more descriptive names
+4. Simplified JSON construction by using direct `JsonObject` creation instead of builder pattern
+5. Made parameters public and removed the need for getters
+6. Added proper null handling with `JsonNull` for optional fields
+
+This migration follows the same pattern as the `CanonicalLinks` and `OpenGraphTags` components, demonstrating how to convert head-manipulating components to use the new annotation-based approach.
+
+### TwitterCards Component Migration
+
+The `TwitterCards` component has been migrated from an interface-based approach to an annotation-based approach. This component is used to add Twitter-specific metadata to the document head, helping display rich previews when users share content on Twitter.
+
+**Before (Interface-based)**:
+```kotlin
+class TwitterCards(
+    private val card: CardType = CardType.SUMMARY,
+    private val title: String? = null,
+    private val description: String? = null,
+    private val image: String? = null,
+    private val imageAlt: String? = null,
+    private val site: String? = null,
+    private val creator: String? = null,
+    private val extraTags: Map<String, String> = emptyMap()
+) : Composable {
+    enum class CardType(val value: String) {
+        SUMMARY("summary"),
+        SUMMARY_LARGE_IMAGE("summary_large_image"),
+        APP("app"),
+        PLAYER("player")
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T> compose(receiver: T): T {
+        if (receiver is HEAD) {
+            receiver.apply {
+                // Card type
+                meta {
+                    attributes["name"] = "twitter:card"
+                    attributes["content"] = card.value
+                }
+                // ... more code for other Twitter tags
+            }
+        }
+        return receiver
+    }
+    
+    companion object {
+        fun article(...): TwitterCards { ... }
+        fun product(...): TwitterCards { ... }
+    }
+}
+```
+
+**After (Annotation-based)**:
+```kotlin
+enum class TwitterCardType(val value: String) {
+    SUMMARY("summary"),
+    SUMMARY_LARGE_IMAGE("summary_large_image"),
+    APP("app"),
+    PLAYER("player")
+}
+
+@Composable
+fun TwitterCards(
+    card: TwitterCardType = TwitterCardType.SUMMARY,
+    title: String? = null,
+    description: String? = null,
+    image: String? = null,
+    imageAlt: String? = null,
+    site: String? = null,
+    creator: String? = null,
+    extraTags: Map<String, String> = emptyMap()
+) {
+    val composer = CompositionLocal.currentComposer
+    
+    SideEffect {
+        // Platform-specific head manipulation
+        println("TwitterCards SideEffect: Setting card='${card.value}'")
+        // ... more code for other Twitter tags
+    }
+}
+
+@Composable
+fun TwitterArticleCard(...) { ... }
+
+@Composable
+fun TwitterProductCard(...) { ... }
+```
+
+Key changes made:
+1. Converted the `TwitterCards` class to a composable function with the `@Composable` annotation
+2. Moved the `CardType` enum outside the class and renamed it to `TwitterCardType` for clarity
+3. Removed the `compose` method, replaced with `SideEffect` for head manipulation
+4. Transformed companion object factory methods into separate composable functions with more descriptive names
+5. Used `CompositionLocal.currentComposer` for composition management
+6. Simplified the API by making parameters public and removing the need for getters
+7. Updated the head manipulation code to use `getPlatformRenderer()` instead of the kotlinx.html DSL
+
+This migration follows the same pattern as the other SEO components, demonstrating how to convert head-manipulating components to use the new annotation-based approach.
+
+### StaticRendering Component Migration
+
+The `StaticRendering` component has been migrated to support the new annotation-based approach. This component is responsible for generating static HTML from Summon components, which is useful for static site generation (SSG) and pre-rendering.
+
+**Before (Interface-based)**:
+```kotlin
+class StaticRenderer(
+    private val platformRenderer: PlatformRenderer = PlatformRendererProvider.getPlatformRenderer()
+) : ServerSideRenderer {
+    override fun render(composable: Composable, context: RenderContext): String {
+        val html = renderToString(composable)
+        return wrapWithHtml(html, context)
+    }
+
+    private fun renderToString(composable: Composable): String {
+        return createHTML().let { consumer ->
+            platformRenderer.renderComposable(composable, consumer)
+            consumer.finalize()
+        }
+    }
+    // ... other methods
+}
+
+object StaticRendering {
+    private val renderer = StaticRenderer()
+
+    fun render(composable: Composable, context: RenderContext = RenderContext()): String {
+        return renderer.render(composable, context)
+    }
+
+    fun generateStaticSite(
+        pages: Map<String, Composable>,
+        contextProvider: (String) -> RenderContext = { RenderContext() }
+    ): Map<String, String> {
+        return pages.mapValues { (path, composable) ->
+            render(composable, contextProvider(path))
+        }
+    }
+}
+```
+
+**After (Annotation-based)**:
+```kotlin
+class StaticRenderer(
+    private val platformRenderer: MigratedPlatformRenderer = getPlatformRenderer()
+) : ServerSideRenderer {
+    override fun render(composable: @Composable () -> Unit, context: RenderContext): String {
+        val html = renderToString(composable)
+        return wrapWithHtml(html, context)
+    }
+
+    private fun renderToString(composable: @Composable () -> Unit): String {
+        return createHTML().let { consumer ->
+            platformRenderer.renderComposable(composable, consumer)
+            consumer.finalize()
+        }
+    }
+    // ... other methods
+}
+
+object StaticRendering {
+    private val renderer = StaticRenderer()
+
+    fun render(composable: @Composable () -> Unit, context: RenderContext = RenderContext()): String {
+        return renderer.render(composable, context)
+    }
+
+    fun generateStaticSite(
+        pages: Map<String, @Composable () -> Unit>,
+        contextProvider: (String) -> RenderContext = { RenderContext() }
+    ): Map<String, String> {
+        return pages.mapValues { (path, composable) ->
+            render(composable, contextProvider(path))
+        }
+    }
+}
+```
+
+Key changes made:
+1. Updated the `StaticRenderer` class to use `MigratedPlatformRenderer` instead of `PlatformRenderer`
+2. Changed the renderer access from `PlatformRendererProvider.getPlatformRenderer()` to `getPlatformRenderer()`
+3. Updated method signatures to use `@Composable () -> Unit` instead of the `Composable` interface
+4. Modified the `generateStaticSite` method to accept a map of composable functions instead of composable objects
+5. Ensured proper implementation of the `ServerSideRenderer` interface with the correct method signature
+
+This migration aligns the `StaticRendering` component with the new annotation-based approach, making it compatible with the rest of the migrated components. It also demonstrates how to update server-side rendering utilities to work with the new composition system.
+
+### SEOPrerender Component Migration
+
+The `SEOPrerender` component has been migrated to support the new annotation-based approach. This component is responsible for pre-rendering pages for search engine crawlers, ensuring that search engines can properly index dynamic content.
+
+**Before (Interface-based)**:
+```kotlin
+class SEOPrerenderer(
+    private val renderer: StaticRenderer = StaticRenderer(),
+    private val userAgentPatterns: List<String> = defaultSearchEngineUserAgents
+) {
+    fun prerender(composable: Composable, context: RenderContext = RenderContext()): String {
+        // Create a SEO-optimized context
+        val seoContext = RenderContext(
+            enableHydration = false,  // No need for hydration for crawlers
+            hydrationIdPrefix = context.hydrationIdPrefix,
+            metadata = context.metadata,
+            debug = false,            // No debug info for crawlers
+            seoMetadata = enrichSeoMetadata(context.seoMetadata),
+            initialState = context.initialState
+        )
+
+        // Render the composable
+        return renderer.render(composable, seoContext)
+    }
+    // ... other methods
+}
+
+object SEOPrerender {
+    private val prerenderer = SEOPrerenderer()
+
+    fun prerender(composable: Composable, context: RenderContext = RenderContext()): String {
+        return prerenderer.prerender(composable, context)
+    }
+
+    suspend fun prerenderSite(
+        pages: Map<String, Composable>,
+        contextProvider: (String) -> RenderContext = { RenderContext() }
+    ): Map<String, String> = coroutineScope {
+        // Pre-render each page in parallel
+        val prerenders = pages.map { (path, composable) ->
+            path to async { prerender(composable, contextProvider(path)) }
+        }
+
+        // Collect the results
+        prerenders.associate { (path, deferred) ->
+            path to deferred.await()
+        }
+    }
+    // ... other methods
+}
+```
+
+**After (Annotation-based)**:
+```kotlin
+class SEOPrerenderer(
+    private val renderer: StaticRenderer = StaticRenderer(),
+    private val userAgentPatterns: List<String> = defaultSearchEngineUserAgents
+) {
+    fun prerender(composable: @Composable () -> Unit, context: RenderContext = RenderContext()): String {
+        // Create a SEO-optimized context
+        val seoContext = RenderContext(
+            enableHydration = false,  // No need for hydration for crawlers
+            hydrationIdPrefix = context.hydrationIdPrefix,
+            metadata = context.metadata,
+            debug = false,            // No debug info for crawlers
+            seoMetadata = enrichSeoMetadata(context.seoMetadata),
+            initialState = context.initialState
+        )
+
+        // Render the composable
+        return renderer.render(composable, seoContext)
+    }
+    // ... other methods
+}
+
+object SEOPrerender {
+    private val prerenderer = SEOPrerenderer()
+
+    fun prerender(composable: @Composable () -> Unit, context: RenderContext = RenderContext()): String {
+        return prerenderer.prerender(composable, context)
+    }
+
+    suspend fun prerenderSite(
+        pages: Map<String, @Composable () -> Unit>,
+        contextProvider: (String) -> RenderContext = { RenderContext() }
+    ): Map<String, String> = coroutineScope {
+        // Pre-render each page in parallel
+        val prerenders = pages.map { (path, composable) ->
+            path to async { prerender(composable, contextProvider(path)) }
+        }
+
+        // Collect the results
+        prerenders.associate { (path, deferred) ->
+            path to deferred.await()
+        }
+    }
+    // ... other methods
+}
+```
+
+Key changes made:
+1. Updated the import from `code.yousef.summon.runtime.Composable` to `code.yousef.summon.annotation.Composable`
+2. Changed method signatures to use `@Composable () -> Unit` instead of the `Composable` interface
+3. Updated the `prerenderSite` method to accept a map of composable functions instead of composable objects
+4. Maintained the same functionality while ensuring compatibility with the new annotation-based approach
+
+This migration aligns the `SEOPrerender` component with the new annotation-based approach, making it compatible with the rest of the migrated components. It also demonstrates how to update server-side rendering utilities to work with the new composition system.
+
+### StreamingSSR Component Migration
+
+The `StreamingSSR` component has been migrated to support the new annotation-based approach. This component provides streaming server-side rendering capabilities, allowing large pages to be rendered as a stream of HTML chunks for better performance and user experience.
+
+**Before (Interface-based)**:
+```kotlin
+class StreamingRenderer(
+    private val hydrationSupport: HydrationSupport = StandardHydrationSupport(),
+    private val platformRenderer: PlatformRenderer = getPlatformRenderer(),
+    private val chunkSize: Int = 4096
+) : StreamingServerSideRenderer {
+    override fun renderStream(composable: Composable, context: RenderContext): Flow<String> = flow {
+        // Render implementation
+    }
+
+    private fun renderToString(composable: Composable): String {
+        return createHTML().let { consumer ->
+            platformRenderer.renderComposable(composable, consumer)
+            consumer.finalize()
+        }
+    }
+    // ... other methods
+}
+
+object StreamingSSR {
+    private val renderer = StreamingRenderer()
+
+    fun renderStream(composable: Composable, context: RenderContext = RenderContext()): Flow<String> {
+        return renderer.renderStream(composable, context)
+    }
+
+    fun createRenderer(
+        hydrationSupport: HydrationSupport = StandardHydrationSupport(),
+        chunkSize: Int = 4096
+    ): StreamingRenderer {
+        return StreamingRenderer(hydrationSupport, chunkSize)
+    }
+}
+```
+
+**After (Annotation-based)**:
+```kotlin
+class StreamingRenderer(
+    private val hydrationSupport: HydrationSupport = StandardHydrationSupport(),
+    private val platformRenderer: MigratedPlatformRenderer = getPlatformRenderer(),
+    private val chunkSize: Int = 4096
+) : StreamingServerSideRenderer {
+    override fun renderStream(composable: @Composable () -> Unit, context: RenderContext): Flow<String> = flow {
+        // Render implementation
+    }
+
+    private fun renderToString(composable: @Composable () -> Unit): String {
+        return createHTML().let { consumer ->
+            platformRenderer.renderComposable(composable, consumer)
+            consumer.finalize()
+        }
+    }
+    // ... other methods
+}
+
+object StreamingSSR {
+    private val renderer = StreamingRenderer()
+
+    fun renderStream(composable: @Composable () -> Unit, context: RenderContext = RenderContext()): Flow<String> {
+        return renderer.renderStream(composable, context)
+    }
+
+    fun createRenderer(
+        hydrationSupport: HydrationSupport = StandardHydrationSupport(),
+        platformRenderer: MigratedPlatformRenderer = getPlatformRenderer(),
+        chunkSize: Int = 4096
+    ): StreamingRenderer {
+        return StreamingRenderer(hydrationSupport, platformRenderer, chunkSize)
+    }
+}
+```
+
+Key changes made:
+1. Updated the import from `code.yousef.summon.runtime.Composable` to `code.yousef.summon.annotation.Composable`
+2. Changed the `platformRenderer` type from `PlatformRenderer` to `MigratedPlatformRenderer`
+3. Updated method signatures to use `@Composable () -> Unit` instead of the `Composable` interface
+4. Added `platformRenderer` parameter to `createRenderer` method to ensure proper initialization
+5. Fixed the parameter order in `StreamingRenderer` constructor calls
+6. Properly implemented the abstract member from `StreamingServerSideRenderer`
+
+This migration aligns the `StreamingSSR` component with the new annotation-based approach, making it compatible with the rest of the migrated components. It also demonstrates how to update server-side rendering utilities to work with the new composition system, particularly in the context of streaming content generation.
+
+### Next Component Migration: BasicButton
+
+For the next migration, we will focus on the BasicButton component, which currently uses the interface-based approach but would benefit from the new annotation-based composition system, especially for handling pressed/hover states and accessibility.

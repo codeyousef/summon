@@ -1,10 +1,9 @@
-package code.yousef.summon
+package code.yousef.summon.components.layout
 
 import code.yousef.summon.core.Composable
-import code.yousef.summon.core.PlatformRendererProvider
+import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.PlatformRendererProviderLegacy.getRenderer
 import kotlinx.html.TagConsumer
-import kotlinx.html.div
-import kotlinx.html.style
 
 /**
  * A composable that adds space between components.
@@ -13,7 +12,8 @@ import kotlinx.html.style
  */
 class Spacer(
     val size: String,
-    val isVertical: Boolean = true
+    val isVertical: Boolean = true,
+    val modifier: Modifier = Modifier()
 ) : Composable {
     /**
      * Renders this Spacer composable using the platform-specific renderer.
@@ -22,8 +22,7 @@ class Spacer(
      */
     override fun <T> compose(receiver: T): T {
         if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return PlatformRendererProvider.getRenderer().renderSpacer(this, receiver as TagConsumer<T>)
+            getRenderer().renderSpacer(modifier)
         }
         return receiver
     }

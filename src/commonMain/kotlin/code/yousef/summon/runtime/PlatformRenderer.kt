@@ -3,11 +3,11 @@ package code.yousef.summon.runtime
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.feedback.AlertVariant
 import code.yousef.summon.components.feedback.ProgressType
-import code.yousef.summon.core.LocalDate
 import code.yousef.summon.core.LocalTime
 import code.yousef.summon.core.PlatformRenderer
 import code.yousef.summon.core.style.Color
 import code.yousef.summon.modifier.Modifier
+import kotlinx.datetime.LocalDate
 
 /**
  * Interface for platform-specific renderers (migrated version).
@@ -99,10 +99,10 @@ interface MigratedPlatformRenderer : PlatformRenderer {
     )
 
     // Feedback components
-    fun renderAlertContainer(variant: AlertVariant?, modifier: Modifier)
-    fun renderBadge(modifier: Modifier)
-    fun renderProgress(value: Float?, type: ProgressType, modifier: Modifier)
-    fun renderTooltipContainer(modifier: Modifier)
+    override fun renderAlertContainer(variant: AlertVariant?, modifier: Modifier)
+    override fun renderBadge(modifier: Modifier)
+    override fun renderProgress(value: Float?, type: ProgressType, modifier: Modifier)
+    override fun renderTooltipContainer(modifier: Modifier)
 
     // Animation
     fun renderHtmlTag(tag: String, attrs: Map<String, String>, content: () -> Unit)

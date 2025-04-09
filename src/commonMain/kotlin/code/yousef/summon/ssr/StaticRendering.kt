@@ -1,18 +1,16 @@
 package code.yousef.summon.ssr
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
-
-
-import kotlinx.html.stream.createHTML
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.routing.RouteDefinition
+import code.yousef.summon.runtime.MigratedPlatformRenderer
+import code.yousef.summon.runtime.getPlatformRenderer
+import kotlinx.html.stream.createHTML
 
 /**
  * Implementation of static HTML rendering for Summon components
  */
 class StaticRenderer(
-    private val platformRenderer: PlatformRenderer = PlatformRendererProvider.getPlatformRenderer()
+    private val platformRenderer: MigratedPlatformRenderer = getPlatformRenderer()
 ) : ServerSideRenderer {
     /**
      * Render a composable to static HTML
@@ -21,7 +19,7 @@ class StaticRenderer(
      * @param context Optional rendering context with additional metadata
      * @return The generated HTML as a string
      */
-    override fun render(composable: Composable, context: RenderContext): String {
+    override fun render(composable: @Composable () -> Unit, context: RenderContext): String {
         val html = renderToString(composable)
         return wrapWithHtml(html, context)
     }
@@ -29,7 +27,7 @@ class StaticRenderer(
     /**
      * Renders a composable to a string
      */
-    private fun renderToString(composable: Composable): String {
+    private fun renderToString(composable: @Composable () -> Unit): String {
         // Using createHTML from kotlinx.html to render the component
         return createHTML().let { consumer ->
             platformRenderer.renderComposable(composable, consumer)
@@ -226,7 +224,7 @@ object StaticRendering {
      * @param context Optional rendering context with additional metadata
      * @return The generated HTML as a string
      */
-    fun render(composable: Composable, context: RenderContext = RenderContext()): String {
+    fun render(composable: @Composable () -> Unit, context: RenderContext = RenderContext()): String {
         return renderer.render(composable, context)
     }
 
@@ -238,7 +236,7 @@ object StaticRendering {
      * @return Map of page paths to generated HTML
      */
     fun generateStaticSite(
-        pages: Map<String, Composable>,
+        pages: Map<String, @Composable () -> Unit>,
         contextProvider: (String) -> RenderContext = { RenderContext() }
     ): Map<String, String> {
         return pages.mapValues { (path, composable) ->
@@ -263,7 +261,7 @@ object StaticSiteGenerator {
         println("StaticSiteGenerator: Rendering route path '${route.path}' with params $params")
         // TODO: Implement static rendering logic.
         // Needs a Composer and Renderer setup, similar to SSR/pre-rendering.
-        
+
         // Placeholder rendering:
         // route.content(params)
         return "<html><body><!-- Static content for ${route.path} --></body></html>"

@@ -3,15 +3,11 @@ package code.yousef.summon.runtime
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.feedback.AlertVariant
 import code.yousef.summon.components.feedback.ProgressType
-import code.yousef.summon.components.input.FileInfo
-import code.yousef.summon.components.input.SelectOption
-import code.yousef.summon.components.input.TextFieldType
-import code.yousef.summon.components.navigation.Tab
-import code.yousef.summon.core.LocalDate
 import code.yousef.summon.core.LocalTime
 import code.yousef.summon.core.PlatformRenderer
 import code.yousef.summon.core.style.Color
 import code.yousef.summon.modifier.Modifier
+import kotlinx.datetime.LocalDate
 
 /**
  * Implementation of MigratedPlatformRenderer that delegates to platform-specific renderers.
@@ -24,55 +20,16 @@ class MigratedPlatformRendererImpl(private val delegate: PlatformRenderer) : Mig
      * @param composable The composable to render
      * @param consumer The consumer to render to
      */
-    override fun <T> renderComposable(composable: @Composable () -> Unit, consumer: T): T {
-        // Implemented by platform-specific code
-        return consumer
-    }
-
-
-    override fun renderBox(modifier: Modifier, content: @Composable () -> Unit) {
+    override fun <T> renderComposable(composable: @Composable () -> Unit, consumer: T) {
         // Implemented by platform-specific code
     }
 
-    override fun renderColumn(modifier: Modifier, content: @Composable () -> Unit) {
+    // Core components
+    override fun renderText(value: String, modifier: Modifier) {
         // Implemented by platform-specific code
     }
 
-    override fun renderRow(modifier: Modifier, content: @Composable () -> Unit) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderDivider(
-        modifier: Modifier,
-        color: Color,
-        thickness: Float,
-        vertical: Boolean
-    ) {
-        TODO("Not yet implemented")
-    }
-
-    override fun renderSpacer(modifier: Modifier) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderDivider(modifier: Modifier) {
-        // Implemented by platform-specific code
-    }
-
-    // UI feedback components
-    override fun renderAlertContainer(variant: AlertVariant?, modifier: Modifier) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderBadge(modifier: Modifier) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderProgress(value: Float?, type: ProgressType, modifier: Modifier) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderTooltipContainer(modifier: Modifier) {
+    override fun renderText(modifier: Modifier, content: @Composable () -> Unit) {
         // Implemented by platform-specific code
     }
 
@@ -80,31 +37,39 @@ class MigratedPlatformRendererImpl(private val delegate: PlatformRenderer) : Mig
         // Implemented by platform-specific code
     }
 
-    override fun renderGrid(modifier: Modifier) {
-        TODO("Not yet implemented")
+    override fun renderBox(modifier: Modifier, content: @Composable () -> Unit) {
+        // Implemented by platform-specific code
     }
 
-    override fun renderAspectRatio(modifier: Modifier) {
-        TODO("Not yet implemented")
+    override fun renderColumn(modifier: Modifier) {
+        // Implemented by platform-specific code
     }
 
-    override fun renderResponsiveLayout(modifier: Modifier) {
-        TODO("Not yet implemented")
+    override fun renderColumn(modifier: Modifier, content: @Composable () -> Unit) {
+        // Implemented by platform-specific code
+    }
+
+    override fun renderRow(modifier: Modifier) {
+        // Implemented by platform-specific code
+    }
+
+    override fun renderRow(modifier: Modifier, content: @Composable () -> Unit) {
+        // Implemented by platform-specific code
+    }
+
+    override fun renderDivider(modifier: Modifier) {
+        // Implemented by platform-specific code
+    }
+
+    override fun renderDivider(modifier: Modifier, color: Color, thickness: Float, vertical: Boolean) {
+        // Implemented by platform-specific code
+    }
+
+    override fun renderSpacer(modifier: Modifier) {
+        // Implemented by platform-specific code
     }
 
     override fun renderLazyColumn(modifier: Modifier) {
-        TODO("Not yet implemented")
-    }
-
-    override fun renderLazyRow(modifier: Modifier) {
-        TODO("Not yet implemented")
-    }
-
-    // Implement all other methods from MigratedPlatformRenderer
-    // ...
-
-    // Special method that needs to be defined
-    override fun renderText(modifier: Modifier, content: @Composable () -> Unit) {
         // Implemented by platform-specific code
     }
 
@@ -133,183 +98,21 @@ class MigratedPlatformRendererImpl(private val delegate: PlatformRenderer) : Mig
     }
 
     override fun renderCard(modifier: Modifier, content: @Composable () -> Unit) {
-
-    }
-
-    override fun renderText(value: String, modifier: Modifier) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderButton(
-        onClick: () -> Unit,
-        enabled: Boolean,
-        modifier: Modifier
-    ) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderRow(modifier: Modifier) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderColumn(modifier: Modifier) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderDiv(modifier: Modifier) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderSpan(modifier: Modifier) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderTextField(
-        value: String,
-        onValueChange: (String) -> Unit,
-        enabled: Boolean,
-        readOnly: Boolean,
-        type: TextFieldType,
-        placeholder: String?,
-        modifier: Modifier
-    ) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderTextArea(
-        value: String,
-        onValueChange: (String) -> Unit,
-        enabled: Boolean,
-        readOnly: Boolean,
-        rows: Int?,
-        maxLength: Int?,
-        placeholder: String?,
-        modifier: Modifier
-    ) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderCheckbox(
-        checked: Boolean,
-        onCheckedChange: (Boolean) -> Unit,
-        enabled: Boolean,
-        modifier: Modifier
-    ) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderRadioButton(
-        selected: Boolean,
-        onClick: () -> Unit,
-        enabled: Boolean,
-        modifier: Modifier
-    ) {
-        // Implemented by platform-specific code
-    }
-
-    override fun <T> renderSelect(
-        value: T?,
-        onValueChange: (T?) -> Unit,
-        options: List<SelectOption<T>>,
-        enabled: Boolean,
-        modifier: Modifier
-    ) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderSwitch(
-        checked: Boolean,
-        onCheckedChange: (Boolean) -> Unit,
-        enabled: Boolean,
-        modifier: Modifier
-    ) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderFileUpload(
-        onFilesSelected: (List<FileInfo>) -> Unit,
-        accept: String?,
-        multiple: Boolean,
-        enabled: Boolean,
-        capture: String?,
-        modifier: Modifier
-    ): () -> Unit {
-        // Implemented by platform-specific code
-        return TODO("Provide the return value")
-    }
-
-    override fun renderRangeSlider(
-        value: ClosedFloatingPointRange<Float>,
-        onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
-        valueRange: ClosedFloatingPointRange<Float>,
-        steps: Int,
-        enabled: Boolean,
-        modifier: Modifier
-    ) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderForm(onSubmit: () -> Unit, modifier: Modifier) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderCard(modifier: Modifier) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderImage(src: String, alt: String, modifier: Modifier) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderLink(href: String, modifier: Modifier) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderIcon(name: String, modifier: Modifier) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderTabLayout(
-        tabs: List<Tab>,
-        selectedTabIndex: Int,
-        onTabSelected: (Int) -> Unit,
-        modifier: Modifier
-    ) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderExpansionPanel(modifier: Modifier) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderDatePicker(
-        value: kotlinx.datetime.LocalDate?,
-        onValueChange: (kotlinx.datetime.LocalDate?) -> Unit,
-        enabled: Boolean,
-        modifier: Modifier
-    ) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderTimePicker(
-        value: kotlinx.datetime.LocalTime?,
-        onValueChange: (kotlinx.datetime.LocalTime?) -> Unit,
-        enabled: Boolean,
-        modifier: Modifier
-    ) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderAnimatedVisibility(visible: Boolean, modifier: Modifier) {
-        // Implemented by platform-specific code
-    }
-
-    override fun renderAnimatedContent(modifier: Modifier) {
         // Implemented by platform-specific code
     }
 
     override fun renderLink(modifier: Modifier, href: String, content: @Composable () -> Unit) {
         // Implemented by platform-specific code
+    }
+
+    override fun renderTabLayout(
+        tabs: List<String>,
+        selectedTab: String,
+        onTabSelected: (String) -> Unit,
+        modifier: Modifier,
+        content: () -> Unit
+    ) {
+        delegate.renderTabLayout(tabs, selectedTab, onTabSelected, modifier, content)
     }
 
     override fun renderTabLayout(modifier: Modifier, content: @Composable () -> Unit) {
@@ -404,16 +207,20 @@ class MigratedPlatformRendererImpl(private val delegate: PlatformRenderer) : Mig
         // Implemented by platform-specific code
     }
 
-    // Navigation components
-    override fun renderTabLayout(
-        tabs: List<String>, selectedTab: String, onTabSelected: (String) -> Unit,
-        modifier: Modifier, content: () -> Unit
-    ) {
+    // Feedback components
+    override fun renderAlertContainer(variant: AlertVariant?, modifier: Modifier) {
         // Implemented by platform-specific code
     }
 
-    // Animation
-    override fun renderHtmlTag(tag: String, attrs: Map<String, String>, content: () -> Unit) {
+    override fun renderBadge(modifier: Modifier) {
+        // Implemented by platform-specific code
+    }
+
+    override fun renderProgress(value: Float?, type: ProgressType, modifier: Modifier) {
+        // Implemented by platform-specific code
+    }
+
+    override fun renderTooltipContainer(modifier: Modifier) {
         // Implemented by platform-specific code
     }
 } 

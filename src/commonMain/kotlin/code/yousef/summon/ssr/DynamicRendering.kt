@@ -1,10 +1,9 @@
 package code.yousef.summon.ssr
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
 
-
+import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.MigratedPlatformRenderer
+import code.yousef.summon.runtime.getPlatformRenderer
 import kotlinx.html.stream.createHTML
 
 /**
@@ -12,7 +11,7 @@ import kotlinx.html.stream.createHTML
  * This renderer can handle dynamic data and produce HTML with hydration markers
  */
 class DynamicRenderer(
-    private val platformRenderer: PlatformRenderer = PlatformRendererProvider.getPlatformRenderer(),
+    private val platformRenderer: MigratedPlatformRenderer = getPlatformRenderer(),
     private val hydrationSupport: HydrationSupport = StandardHydrationSupport()
 ) : ServerSideRenderer {
     /**
@@ -22,7 +21,7 @@ class DynamicRenderer(
      * @param context Optional rendering context with additional metadata
      * @return The generated HTML as a string
      */
-    override fun render(composable: Composable, context: RenderContext): String {
+    override fun render(composable: @Composable () -> Unit, context: RenderContext): String {
         // Render the composable to HTML
         val html = renderToString(composable)
 
@@ -41,7 +40,7 @@ class DynamicRenderer(
     /**
      * Renders a composable to a string
      */
-    private fun renderToString(composable: Composable): String {
+    private fun renderToString(composable: @Composable () -> Unit): String {
         // Using createHTML from kotlinx.html to render the component
         return createHTML().let { consumer ->
             platformRenderer.renderComposable(composable, consumer)
@@ -257,7 +256,7 @@ object DynamicRendering {
      * @param context Optional rendering context with additional metadata
      * @return The generated HTML as a string
      */
-    fun render(composable: Composable, context: RenderContext = RenderContext()): String {
+    fun render(composable: @Composable () -> Unit, context: RenderContext = RenderContext()): String {
         return renderer.render(composable, context)
     }
 
@@ -270,7 +269,7 @@ object DynamicRendering {
      * @return The generated HTML as a string
      */
     fun renderWithHydration(
-        composable: Composable,
+        composable: @Composable () -> Unit,
         initialState: Map<String, Any?> = emptyMap(),
         seoMetadata: SeoMetadata = SeoMetadata()
     ): String {

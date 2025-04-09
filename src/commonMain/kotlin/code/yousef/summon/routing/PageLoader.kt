@@ -34,7 +34,19 @@ object PageLoader {
     fun createRouter(): Router {
         val registry = DefaultPageRegistry()
         registerPages(registry)
-        return registry.createRouter()
+
+        // Create a router using the createRouter function from the Router interface
+        return code.yousef.summon.routing.createRouter {
+            // Register all pages from the registry
+            registry.getPages().forEach { (path, pageFactory) ->
+                route(path, pageFactory)
+            }
+
+            // Register the not found page if available
+            registry.getNotFoundPage()?.let { notFoundPage ->
+                setNotFound(notFoundPage)
+            }
+        }
     }
 
     /**

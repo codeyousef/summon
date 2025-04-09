@@ -1,6 +1,6 @@
 package code.yousef.summon.ssr
 
-import code.yousef.summon.runtime.Composable
+import code.yousef.summon.annotation.Composable
 
 /**
  * Standard implementation of hydration support for server-side rendering.
@@ -15,7 +15,7 @@ class StandardHydrationSupport : HydrationSupport {
      * @return Client-side hydration data as a string (typically JSON)
      */
     override fun generateHydrationData(
-        composable: Composable,
+        composable: @Composable () -> Unit,
         strategy: HydrationStrategy
     ): String {
         // In a real implementation, this would analyze the composable and generate
