@@ -91,4 +91,15 @@ actual interface PlatformRenderer {
         visible: Boolean,
         modifier: Modifier
     )
+
+    /**
+     * Render a hyperlink component
+     * 
+     * @param href The URL this link points to
+     * @param modifier The modifier to apply to this link
+     */
+    actual fun renderLink(
+        href: String,
+        modifier: Modifier
+    )
 } 

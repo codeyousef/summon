@@ -65,4 +65,12 @@ expect interface PlatformRenderer {
      * Render an animated visibility component
      */
     fun renderAnimatedVisibility(visible: Boolean, modifier: Modifier)
+
+    /**
+     * Render a hyperlink component
+     *
+     * @param href The URL this link points to
+     * @param modifier The modifier to apply to this link
+     */
+    fun renderLink(href: String, modifier: Modifier)
 } 

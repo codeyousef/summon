@@ -187,7 +187,7 @@ actual class JsPlatformRenderer actual constructor() : PlatformRenderer {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
     
-    fun renderLink(href: String, modifier: Modifier) {
+    actual override fun renderLink(href: String, modifier: Modifier) {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
 

@@ -29,4 +29,5 @@ expect class JsPlatformRenderer() : PlatformRenderer {
     override fun renderBox(modifier: Modifier)
     override fun renderCard(modifier: Modifier)
     override fun renderAnimatedVisibility(visible: Boolean, modifier: Modifier)
+    override fun renderLink(href: String, modifier: Modifier)
 }
