@@ -2,8 +2,9 @@ package code.yousef.summon.runtime
 
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.MutableState
-import code.yousef.summon.runtime.State
+import code.yousef.summon.state.State
+import code.yousef.summon.state.SummonMutableState
+import code.yousef.summon.state.mutableStateOf
 
 /**
  * Remembers a value across recompositions.
@@ -80,21 +81,21 @@ fun <T> remember(vararg keys: Any?, calculation: () -> T): T {
  * Creates and remembers a mutable state with the given initial value.
  * 
  * @param initial The initial value for the state
- * @return A remembered MutableState
+ * @return A remembered SummonMutableState
  */
 @Composable
-fun <T> rememberMutableStateOf(initial: T): MutableState<T> {
+fun <T> rememberMutableStateOf(initial: T): SummonMutableState<T> {
     return remember { mutableStateOf(initial) }
 }
 
 /**
- * Creates and remembers a derivation of some [MutableState].
+ * Creates and remembers a derivation of some [SummonMutableState].
  * 
  * @param calculation The function to derive a state from another state.
- * @return A [State] that updates when the source state changes.
+ * @return A [SummonMutableState] that updates when the source state changes.
  */
 @Composable
-fun <T> derivedStateOf(calculation: () -> T): State<T> {
+fun <T> derivedStateOf(calculation: () -> T): SummonMutableState<T> {
     val state = rememberMutableStateOf(calculation())
     
     // In a real implementation, this would set up a side effect to update the derived state

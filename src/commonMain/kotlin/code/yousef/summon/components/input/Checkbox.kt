@@ -8,6 +8,8 @@ import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.validation.Validator
 import code.yousef.summon.validation.ValidationResult
+import code.yousef.summon.state.SummonMutableState
+import code.yousef.summon.state.mutableStateOf
 import kotlinx.html.TagConsumer
 
 /**
@@ -20,7 +22,7 @@ import kotlinx.html.TagConsumer
  * @param validators List of validators to apply to the input
  */
 class Checkbox(
-    val state: MutableState<Boolean>,
+    val state: SummonMutableState<Boolean>,
     val onValueChange: (Boolean) -> Unit = {},
     val label: String? = null,
     val modifier: Modifier = Modifier(),

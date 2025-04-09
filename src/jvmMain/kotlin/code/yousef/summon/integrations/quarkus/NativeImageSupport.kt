@@ -1,10 +1,7 @@
-package integrations.quarkus
+package code.yousef.summon.integrations.quarkus
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
-
-import core.Composable
-import code.yousef.summon.runtime.annotations.RegisterForReflection
+import code.yousef.summon.core.Composable
+import io.quarkus.runtime.annotations.RegisterForReflection
 import java.io.File
 
 /**
@@ -46,7 +43,7 @@ object NativeImageSupport {
      *
      * @param componentClass The component class to register
      */
-    fun registerForReflection(componentClass: Class<out Composable>) {
+    fun registerForReflection(componentClass: Class<*>) {
         // In an actual implementation, this would generate a reflection configuration
         // file for GraalVM native image building. Here it's just a placeholder.
         println("Registering ${componentClass.name} for reflection in native image")
@@ -56,10 +53,7 @@ object NativeImageSupport {
      * Generates reflection and resource configuration files for GraalVM native image.
      *
      * @param outputDir The directory where configuration files will be written
-     * @param packageNames The package names
-
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer to scan for components
+     * @param packageNames The package names to scan for components
      */
     fun generateNativeImageConfig(outputDir: File, vararg packageNames: String) {
         outputDir.mkdirs()
@@ -70,7 +64,7 @@ import code.yousef.summon.runtime.PlatformRenderer to scan for components
             """
             [
               {
-                "name" : "Composable",
+                "name" : "code.yousef.summon.core.Composable",
                 "allDeclaredConstructors" : true,
                 "allPublicConstructors" : true,
                 "allDeclaredMethods" : true,
@@ -110,7 +104,7 @@ import code.yousef.summon.runtime.PlatformRenderer to scan for components
          * @param componentClass The component class to instantiate
          * @return A new instance of the component
          */
-        fun <T : Composable> createInstance(componentClass: Class<T>): T {
+        fun <T : Any> createInstance(componentClass: Class<T>): T {
             return componentClass.getDeclaredConstructor().newInstance()
         }
     }
@@ -120,12 +114,12 @@ import code.yousef.summon.runtime.PlatformRenderer to scan for components
      * This can be used in a Quarkus extension to register all components in a module.
      */
     class ModuleRegistry {
-        private val componentClasses = mutableListOf<Class<out Composable>>()
+        private val componentClasses = mutableListOf<Class<*>>()
 
         /**
          * Registers a component class for reflection.
          */
-        fun register(componentClass: Class<out Composable>) {
+        fun register(componentClass: Class<*>) {
             componentClasses.add(componentClass)
         }
 

@@ -3,7 +3,7 @@ package code.yousef.summon.animation
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.getPlatformRenderer
-import code.yousef.summon.State
+import code.yousef.summon.state.State
 import kotlinx.html.TagConsumer
 
 /**

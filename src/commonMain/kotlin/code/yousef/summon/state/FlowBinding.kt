@@ -1,17 +1,15 @@
-package code.yousef.summon
+package code.yousef.summon.state
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
-
+import code.yousef.summon.state.SummonMutableState
+import code.yousef.summon.state.MutableStateImpl
+import code.yousef.summon.state.mutableStateOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.CancellationException
 
 /**
  * A registry for managing Flow collection scopes.
@@ -35,7 +33,7 @@ object FlowCollectionRegistry {
      * @param key The key of the scope to cancel
      */
     fun cancelScope(key: String) {
-        scopes[key]?.cancel()
+        scopes[key]?.coroutineContext?.cancel()
         scopes.remove(key)
     }
 
@@ -43,76 +41,61 @@ object FlowCollectionRegistry {
      * Cancels and removes all CoroutineScopes.
      */
     fun cancelAll() {
-        scopes.values.forEach { it.cancel() }
+        scopes.values.forEach { scope -> 
+            scope.coroutineContext.cancel() 
+        }
         scopes.clear()
     }
 }
 
 /**
- * Converts a Flow to a MutableState.
- * @param scope The CoroutineScope to collect the flow in, or null to use a default scope
- * @param initialValue The initial value of the state
- * @return A MutableState that updates when the flow emits new values
+ * Converts a Flow to a SummonMutableState.
+ * This allows reactively connecting to flows from Kotlin coroutines.
+ * @param flow The flow to connect to
+ * @param initialValue The initial value before the flow emits
+ * @return A SummonMutableState that updates when the flow emits new values
  */
-fun <T> Flow<T>.toState(
-    scope: CoroutineScope? = null,
+fun <T> flowToState(
+    flow: Flow<T>,
     initialValue: T
-): MutableState<T> {
+): SummonMutableState<T> {
     val state = mutableStateOf(initialValue)
-    val collectionScope = scope ?: CoroutineScope(Dispatchers.Default)
-
-    onEach { newValue ->
-        state.value = newValue
-    }.launchIn(collectionScope)
-
-    return state
-}
-
-/**
- * Converts a Flow to a MutableState and associates it with a component.
- * @param componentId A unique identifier for the component
- * @param initialValue The initial value of the state
- * @return A MutableState that updates when the flow emits new values
- */
-fun <T> Flow<T>.toComponentState(
-    componentId: String,
-    initialValue: T
-): MutableState<T> {
-    val state = mutableStateOf(initialValue)
-    val scope = FlowCollectionRegistry.getScope(componentId)
-
-    onEach { newValue ->
+    
+    val scope = CoroutineScope(Dispatchers.Default)
+    flow.onEach { newValue ->
         state.value = newValue
     }.launchIn(scope)
-
+    
     return state
 }
 
 /**
- * Converts a StateFlow to a MutableState.
- * @param scope The CoroutineScope to collect the flow in, or null to use a default scope
- * @return A MutableState that updates when the StateFlow emits new values
+ * Converts a Flow to a SummonMutableState and associates it with a component.
+ * @param flow The flow to connect to
+ * @param initialValue The initial value before the flow emits
+ * @return A SummonMutableState that updates when the flow emits new values
  */
-fun <T> StateFlow<T>.toState(
-    scope: CoroutineScope? = null
-): MutableState<T> {
-    return toState(scope, value)
+fun <T> componentFlowToState(
+    flow: Flow<T>,
+    initialValue: T
+): SummonMutableState<T> {
+    val state = mutableStateOf(initialValue)
+    
+    val scope = CoroutineScope(Dispatchers.Default)
+    flow.onEach { newValue ->
+        state.value = newValue
+    }.launchIn(scope)
+    
+    return state
 }
 
 /**
- * Converts a MutableState to a MutableStateFlow.
- * @return A MutableStateFlow that updates when the MutableState changes
+ * Converts a StateFlow to a SummonMutableState.
+ * @param stateFlow The StateFlow to connect to
+ * @return A SummonMutableState that updates when the StateFlow emits new values
  */
-fun <T> MutableState<T>.toStateFlow(): MutableStateFlow<T> {
-    val stateFlow = MutableStateFlow(value)
-
-    if (this is MutableStateImpl<T>) {
-        addListener { newValue ->
-            stateFlow.value = newValue
-        }
-    }
-
-    return stateFlow
+fun <T> stateFlowToState(stateFlow: StateFlow<T>): SummonMutableState<T> {
+    return flowToState(stateFlow, stateFlow.value)
 }
 
 /**

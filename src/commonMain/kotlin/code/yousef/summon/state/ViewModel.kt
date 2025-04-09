@@ -1,45 +1,65 @@
-package code.yousef.summon
+package code.yousef.summon.state
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
+import kotlin.reflect.KClass
 
 /**
- * A simplified ViewModel base class for Summon.
- * This provides a common base for platform-specific ViewModel implementations.
+ * Base ViewModel class that manages state using SummonMutableState.
  */
 abstract class ViewModel {
-    private val states = mutableMapOf<String, MutableState<*>>()
-    private val clearActions = mutableListOf<() -> Unit>()
+
+    // Map of state objects to their keys
+    private val states = mutableMapOf<String, SummonMutableState<*>>()
 
     /**
-     * Creates or retrieves a MutableState with the given key and initial value.
-     * @param key The key to identify this state
-     * @param initialValue The initial value if the state doesn't exist yet
-     * @return A MutableState that is managed by this ViewModel
+     * Get or create a mutable state object with the given key and initial value.
      */
-    fun <T> state(key: String, initialValue: T): MutableState<T> {
+    protected fun <T> state(key: String, initialValue: T): SummonMutableState<T> {
         @Suppress("UNCHECKED_CAST")
-        return states.getOrPut(key) {
-            mutableStateOf(initialValue)
-        } as MutableState<T>
+        return states.getOrPut(key) { mutableStateOf(initialValue) } as SummonMutableState<T>
     }
 
     /**
-     * Registers a clear action that will be executed when the ViewModel is cleared.
-     * @param action The action to execute on clear
+     * Retrieve a state object by key.
      */
-    fun onClear(action: () -> Unit) {
-        clearActions.add(action)
+    fun <T> getState(key: String): SummonMutableState<T>? {
+        @Suppress("UNCHECKED_CAST")
+        return states[key] as? SummonMutableState<T>
     }
 
     /**
-     * Clears this ViewModel, releasing any resources.
-     * This is typically called when the associated UI component is destroyed.
+     * Clear all actions and prepare for disposal.
      */
-    fun clear() {
-        clearActions.forEach { it() }
-        clearActions.clear()
+    open fun clear() {
         states.clear()
+    }
+
+    companion object Factory {
+        // Map of ViewModel instances
+        private val viewModels = mutableMapOf<KClass<out ViewModel>, ViewModel>()
+
+        /**
+         * Internal implementation that handles getting or creating a ViewModel instance.
+         * This is a non-inline function that can access private properties.
+         */
+        @Suppress("UNCHECKED_CAST")
+        fun <T : ViewModel> getInternal(kClass: KClass<T>, factory: () -> T): T {
+            return viewModels.getOrPut(kClass) { factory() } as T
+        }
+
+        /**
+         * Get or create a ViewModel instance with the provided factory function.
+         */
+        inline fun <reified T : ViewModel> get(noinline factory: () -> T): T {
+            return getInternal(T::class, factory)
+        }
+
+        /**
+         * Clear all ViewModel instances.
+         */
+        fun clearAll() {
+            viewModels.values.forEach { it.clear() }
+            viewModels.clear()
+        }
     }
 }
 

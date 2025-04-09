@@ -1,12 +1,24 @@
-package integrations.quarkus
+package code.yousef.summon.integrations.quarkus
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
 
-import runtime.Composable
-import JvmPlatformRenderer
-import render
+import code.yousef.summon.platform.JvmPlatformRenderer
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.MigratedPlatformRenderer
+import kotlinx.html.stream.createHTML
 import jakarta.enterprise.context.ApplicationScoped
+
+/**
+ * Extension function to render a Composable to an HTML string.
+ * 
+ * @param content The composable content to render
+ * @return HTML string representation of the component
+ */
+private fun JvmPlatformRenderer.renderToString(content: @Composable () -> Unit): String {
+    return createHTML().let { consumer ->
+        this.renderComposable(content, consumer)
+        consumer.finalize()
+    }
+}
 
 /**
  * Quarkus Extension for Summon - Provides integration with Quarkus for server-side rendering.
@@ -27,8 +39,9 @@ import jakarta.enterprise.context.ApplicationScoped
  * @Path("/my-page")
  * @Produces(MediaType.TEXT_HTML)
  * fun renderPage(): String {
- *     val component = MyComponent()
- *     return summonRenderer.render(component)
+ *     return summonRenderer.render {
+ *         MyComponent()
+ *     }
  * }
  * ```
  */
@@ -48,23 +61,23 @@ class QuarkusExtension {
         /**
          * Render a Summon component to HTML.
          *
-         * @param component The component to render
+         * @param content The composable content to render
          * @return HTML string representation of the component
          */
-        fun render(component: Composable): String {
-            return renderer.render(component)
+        fun render(content: @Composable () -> Unit): String {
+            return renderer.renderToString(content)
         }
 
         /**
          * Render a Summon component with additional configuration.
          *
-         * @param component The component to render
+         * @param content The composable content to render
          * @param prettyPrint Whether to format the HTML output
          * @return HTML string representation of the component
          */
-        fun render(component: Composable, prettyPrint: Boolean): String {
+        fun render(content: @Composable () -> Unit, prettyPrint: Boolean): String {
             // This would need to be implemented based on the actual JvmPlatformRenderer API
-            return renderer.render(component)
+            return renderer.renderToString(content)
         }
     }
 } 

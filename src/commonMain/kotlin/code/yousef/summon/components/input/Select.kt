@@ -1,11 +1,11 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.MutableState
+import code.yousef.summon.state.SummonMutableState
 import code.yousef.summon.components.FocusableComponent
 import code.yousef.summon.components.InputComponent
 import code.yousef.summon.core.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.mutableStateOf
+import code.yousef.summon.state.mutableStateOf
 import code.yousef.summon.runtime.PlatformRendererProviderLegacy.getRenderer
 import code.yousef.summon.validation.Validator
 import kotlinx.html.TagConsumer
@@ -24,7 +24,7 @@ import kotlinx.html.TagConsumer
  * @param validators List of validators to apply to the input
  */
 class Select<T>(
-    val selectedValue: MutableState<T?>,
+    val selectedValue: SummonMutableState<T?>,
     val options: List<SelectOption<T>>,
     val onSelectedChange: (T?) -> Unit = {},
     val label: String? = null,

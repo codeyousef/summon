@@ -6,6 +6,7 @@ import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.getPlatformRenderer
 import code.yousef.summon.runtime.rememberMutableStateOf
+import code.yousef.summon.state.SummonMutableState
 
 /**
  * A demo component that demonstrates state management within a class.
@@ -78,7 +79,7 @@ fun StatefulCounter() {
     val composer = CompositionLocal.currentComposer
 
     // Create a state variable for the counter
-    val count = rememberMutableStateOf(0)
+    val count: SummonMutableState<Int> = rememberMutableStateOf(0)
 
     // Start a composition node
     composer?.startNode()
@@ -118,7 +119,7 @@ fun ToggleDemo() {
     val composer = CompositionLocal.currentComposer
 
     // Create a state variable for the toggle
-    val isToggled = rememberMutableStateOf(false)
+    val isToggled: SummonMutableState<Boolean> = rememberMutableStateOf(false)
 
     // Start a composition node
     composer?.startNode()

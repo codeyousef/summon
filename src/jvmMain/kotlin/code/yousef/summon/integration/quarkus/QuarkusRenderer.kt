@@ -1,18 +1,17 @@
 package code.yousef.summon.integration.quarkus
 
+import code.yousef.summon.platform.JvmPlatformRenderer
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.setPlatformRenderer
-import code.yousef.summon.platform.JvmPlatformRenderer
-import kotlinx.html.html
-import kotlinx.html.stream.appendHTML
 import io.vertx.core.http.HttpServerResponse
-import io.quarkus.vertx.web.Route
 import io.vertx.ext.web.RoutingContext
+import kotlinx.html.*
+import kotlinx.html.stream.appendHTML
 
 /**
  * Integration class for rendering Summon components in a Quarkus application.
  * This class provides methods to easily render Summon components to HTTP responses.
- * 
+ *
  * IMPORTANT: To use this class, you must add the following dependencies to your project:
  * - io.quarkus:quarkus-core
  * - io.quarkus:quarkus-vertx-web
@@ -20,17 +19,17 @@ import io.vertx.ext.web.RoutingContext
  */
 class QuarkusRenderer(private val response: HttpServerResponse) {
     private val renderer = JvmPlatformRenderer()
-    
+
     /**
      * Renders a Summon composable function to the HTTP response.
-     * 
+     *
      * @param content The composable content to render
      * @param title Optional title for the HTML page
      */
     fun render(title: String = "Summon App", content: @Composable () -> Unit) {
         // Set up the renderer
         setPlatformRenderer(renderer)
-        
+
         // Create HTML output
         val html = buildString {
             appendHTML().html {
@@ -46,13 +45,13 @@ class QuarkusRenderer(private val response: HttpServerResponse) {
                 }
             }
         }
-        
+
         // Send the response
         response
             .putHeader("Content-Type", "text/html; charset=UTF-8")
             .end(html)
     }
-    
+
     companion object {
         /**
          * Extension function for RoutingContext to easily create a QuarkusRenderer
@@ -60,10 +59,10 @@ class QuarkusRenderer(private val response: HttpServerResponse) {
         fun RoutingContext.summonRenderer(title: String = "Summon App"): QuarkusRenderer {
             return QuarkusRenderer(response())
         }
-        
+
         /**
          * Example usage in a Quarkus route handler:
-         * 
+         *
          * ```
          * @Route(path = "/example")
          * fun exampleRoute(context: RoutingContext) {

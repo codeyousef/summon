@@ -2,10 +2,13 @@ package code.yousef.summon
 
 import code.yousef.summon.modifier.Modifier
 
-import code.yousef.summon.components.display.Image
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.input.Button
-import code.yousef.summon.core.getPlatformRenderer
+import code.yousef.summon.components.display.Image as DisplayImage
+import code.yousef.summon.components.display.Text as DisplayText
+import code.yousef.summon.components.input.Button as DisplayButton
+import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.test.Image as TestImage
+import code.yousef.summon.test.Button as TestButton
+import code.yousef.summon.test.Text as TestText
 import kotlinx.html.TagConsumer
 import kotlinx.html.stream.appendHTML
 
@@ -13,13 +16,13 @@ import kotlinx.html.stream.appendHTML
  * JVM implementation for the Image component rendering.
  * This is used in ImageJvmTest to generate HTML string representation.
  */
-fun <T> Image.renderJvm(consumer: TagConsumer<T>): TagConsumer<T> {
+fun <T> TestImage.renderJvm(consumer: TagConsumer<T>): TagConsumer<T> {
     // Create a new consumer
     val sb = StringBuilder()
     val newConsumer = sb.appendHTML()
     
     // Render using platform renderer
-    getPlatformRenderer().renderImage(this, newConsumer)
+    getPlatformRenderer().renderImage(src, alt, Modifier())
     
     // We'll just return the original consumer as the test is only checking the toString output
     return consumer
@@ -29,10 +32,10 @@ fun <T> Image.renderJvm(consumer: TagConsumer<T>): TagConsumer<T> {
  * Renders an Image component to an HTML string.
  * This is a helper method used by tests.
  */
-fun Image.renderToHtmlString(): String {
+fun TestImage.renderToHtmlString(): String {
     val sb = StringBuilder()
     val consumer = sb.appendHTML()
-    getPlatformRenderer().renderImage(this, consumer)
+    getPlatformRenderer().renderImage(src, alt, Modifier())
     return sb.toString()
 }
 
@@ -40,13 +43,13 @@ fun Image.renderToHtmlString(): String {
  * JVM implementation for the Button component rendering.
  * This is used in ButtonJvmTest to generate HTML string representation.
  */
-fun <T> Button.renderJvm(consumer: TagConsumer<T>): TagConsumer<T> {
+fun <T> TestButton.renderJvm(consumer: TagConsumer<T>): TagConsumer<T> {
     // Create a new consumer
     val sb = StringBuilder()
     val newConsumer = sb.appendHTML()
     
     // Render using platform renderer
-    getPlatformRenderer().renderButton(this, newConsumer)
+    getPlatformRenderer().renderButton({ onClick(Unit) }, !disabled, Modifier())
     
     // We'll just return the original consumer as the test is only checking the toString output
     return consumer
@@ -56,10 +59,10 @@ fun <T> Button.renderJvm(consumer: TagConsumer<T>): TagConsumer<T> {
  * Renders a Button component to an HTML string.
  * This is a helper method used by tests.
  */
-fun Button.renderToHtmlString(): String {
+fun TestButton.renderToHtmlString(): String {
     val sb = StringBuilder()
     val consumer = sb.appendHTML()
-    getPlatformRenderer().renderButton(this, consumer)
+    getPlatformRenderer().renderButton({ onClick(Unit) }, !disabled, Modifier())
     return sb.toString()
 }
 
@@ -67,9 +70,9 @@ fun Button.renderToHtmlString(): String {
  * JVM implementation for rendering a Text component to an HTML string.
  * This is a helper method used by tests.
  */
-fun Text.renderToHtmlString(): String {
+fun TestText.renderToHtmlString(): String {
     val sb = StringBuilder()
     val consumer = sb.appendHTML()
-    getPlatformRenderer().renderText(this, consumer)
+    getPlatformRenderer().renderText(text, Modifier())
     return sb.toString()
 } 

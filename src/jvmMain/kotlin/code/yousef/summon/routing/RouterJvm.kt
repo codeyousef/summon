@@ -1,4 +1,4 @@
-package routing
+package code.yousef.summon.routing
 
 import code.yousef.summon.routing.Route
 import code.yousef.summon.routing.RouteDefinition
@@ -7,6 +7,7 @@ import code.yousef.summon.routing.RouteParams
 import code.yousef.summon.routing.Router
 import code.yousef.summon.routing.RouterBuilder
 import code.yousef.summon.routing.RouterBuilderImpl
+import code.yousef.summon.runtime.Composable
 import kotlinx.html.TagConsumer
 import kotlinx.html.a
 import kotlinx.html.unsafe
@@ -20,6 +21,13 @@ import java.util.concurrent.ConcurrentHashMap
 private val routerRegistry = ConcurrentHashMap<String, Router>()
 
 /**
+ * Object to store the current router in a context
+ */
+object RouterContext {
+    var current: Router? = null
+}
+
+/**
  * Sets up the router for server-side rendering.
  *
  * @param sessionId A unique session identifier
@@ -30,7 +38,7 @@ fun Router.setupForServer(sessionId: String): Router {
     routerRegistry[sessionId] = this
 
     // Set as current router in context
-    RouterContext.setCurrent(this)
+    RouterContext.current = this
 
     return this
 }
@@ -55,38 +63,6 @@ fun removeRouterForSession(sessionId: String) {
 }
 
 /**
- * Creates a router for server-side rendering.
- *
- * @param sessionId A unique session identifier
- * @param routes The routes to include
- * @param notFoundComponent The component to display for 404 errors
- * @return A router configured for server-side use
- */
-fun createServerRouter(
-    sessionId: String,
-    vararg routes: Route,
-    notFoundComponent: ((RouteParams) -> Composable)? = null
-): Router {
-    val router = Router.create(*routes, notFoundComponent = notFoundComponent)
-    return router.setupForServer(sessionId)
-}
-
-/**
- * Creates a router for server-side rendering using a DSL.
- *
- * @param sessionId A unique session identifier
- * @param init The DSL initialization function
- * @return A router configured for server-side use
- */
-fun createServerRouter(
-    sessionId: String,
-    init: Router.RouterBuilder.() -> Unit
-): Router {
-    val router = Router.create(init)
-    return router.setupForServer(sessionId)
-}
-
-/**
  * A server-specific NavLink implementation that works without JavaScript.
  *
  * @param to Path to navigate to
@@ -107,7 +83,7 @@ class ServerNavLink(
 
             // Get the current router instance
             val router = RouterContext.current
-            val isActive = router?.getCurrentPath() == to
+            val isActive = router is JvmRouter && router.getCurrentPath() == to
 
             return consumer.a(href = to) {
                 // Set up the classes
@@ -143,7 +119,17 @@ class ServerNavLink(
  * This provides a basic, non-functional router for JVM targets.
  */
 actual interface Router {
+    /**
+     * Navigates to the specified path.
+     * Platform implementations handle history updates (e.g., browser pushState).
+     */
     actual fun navigate(path: String, pushState: Boolean)
+
+    /**
+     * Composes the UI for the router at the given initial path.
+     * This might be specific to certain platform renderers.
+     */
+    @Composable
     actual fun create(initialPath: String)
 }
 
@@ -152,6 +138,9 @@ class JvmRouter(private val routes: List<RouteDefinition>, private val notFound:
 
     private var currentPath: String = ""
     private var currentParams: Map<String, String> = emptyMap()
+
+    // Public method to get the current path for NavLink active state
+    fun getCurrentPath(): String = currentPath
 
     override fun navigate(path: String, pushState: Boolean) {
         println("JVM Router: Navigating to $path (pushState=$pushState) - Needs Compose HTML update.")
@@ -165,6 +154,7 @@ class JvmRouter(private val routes: List<RouteDefinition>, private val notFound:
         }
     }
 
+    @Composable
     override fun create(initialPath: String) {
         navigate(initialPath, false)
 
@@ -173,6 +163,7 @@ class JvmRouter(private val routes: List<RouteDefinition>, private val notFound:
 
         if (match != null) {
             println("Rendering route: ${match.route.path}")
+            match.route.content(RouteParams(match.params))
         } else {
             println("Rendering Not Found page for path: $currentPath")
             notFound(RouteParams(currentParams))

@@ -1,37 +1,49 @@
 package code.yousef.summon
 
-import code.yousef.summon.components.display.Text
-import kotlinx.html.TagConsumer
-import kotlinx.html.span
+import code.yousef.summon.modifier.Modifier
+import kotlinx.html.*
+
+/**
+ * Data class to hold Text-related properties for JVM rendering
+ */
+data class TextJvmExtension(
+    val text: String,
+    val modifier: Modifier,
+    val additionalStyles: Map<String, String> = emptyMap(),
+    val accessibilityAttributes: Map<String, String> = emptyMap()
+)
+
+/**
+ * Extension function to convert Modifier to CSS style string
+ */
+fun Modifier.toStyleString(): String {
+    return this.styles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+}
 
 /**
  * JVM implementation for the Text component rendering.
  * This is used by the JvmPlatformRenderer.
  */
-fun <T> Text.renderJvm(consumer: TagConsumer<T>): TagConsumer<T> {
+fun <T> renderTextJvm(consumer: TagConsumer<T>, textExt: TextJvmExtension): TagConsumer<T> {
     consumer.span {
-        // Apply the modifier styles - explicitly calling JVM implementation
-        val hoverClass = modifier.applyStyles(this)
+        // Apply the modifier styles
+        style = textExt.modifier.toStyleString()
 
         // Apply additional text-specific styles
-        val additionalStyles = getAdditionalStyles()
-        if (additionalStyles.isNotEmpty()) {
+        if (textExt.additionalStyles.isNotEmpty()) {
             val existingStyle = this.attributes["style"] ?: ""
-            val additionalStyleString = additionalStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+            val additionalStyleString = textExt.additionalStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
             this.attributes["style"] =
                 if (existingStyle.isEmpty()) additionalStyleString else "$existingStyle;$additionalStyleString"
         }
 
         // Apply accessibility attributes
-        getAccessibilityAttributes().forEach { (key, value) ->
-            attributes[key] = value
+        textExt.accessibilityAttributes.forEach { (key, value) ->
+            this.attributes[key] = value
         }
 
-        // Add hover styles to the stylesheet if present
-        hoverClass?.addToStyleSheet()
-
         // Add the text content
-        +text
+        +textExt.text
     }
     return consumer
 } 

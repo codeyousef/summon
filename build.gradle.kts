@@ -14,6 +14,7 @@ repositories {
 
 configurations {
     create("quarkusIntegration")
+    create("quarkusDeployment")
 }
 
 kotlin {
@@ -62,6 +63,10 @@ kotlin {
                 implementation("io.quarkus:quarkus-kotlin:3.21.1")
                 implementation("io.quarkus:quarkus-rest:3.21.1")
                 implementation("io.quarkus:quarkus-vertx-http:3.21.1")
+                
+                // Add Quarkus deployment dependencies
+                implementation("io.quarkus:quarkus-core-deployment:3.21.1")
+                implementation("io.quarkus:quarkus-arc-deployment:3.21.1")
 
                 implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.12.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.8.1")
@@ -91,6 +96,10 @@ dependencies {
     "quarkusIntegration"("io.quarkus:quarkus-kotlin:3.21.1")
     "quarkusIntegration"("io.quarkus:quarkus-rest:3.21.1")
     "quarkusIntegration"("io.quarkus:quarkus-vertx-http:3.21.1")
+    
+    // Add deployment dependencies to the quarkusDeployment configuration
+    "quarkusDeployment"("io.quarkus:quarkus-core-deployment:3.21.1")
+    "quarkusDeployment"("io.quarkus:quarkus-arc-deployment:3.21.1")
 }
 
 kotlin.sourceSets.all {
@@ -109,6 +118,15 @@ tasks.register("verifyQuarkusIntegration") {
     doLast {
         println("Verifying Quarkus Integration dependencies...")
         configurations["quarkusIntegration"].files.forEach {
+            println(" - ${it.name}")
+        }
+    }
+}
+
+tasks.register("verifyQuarkusDeployment") {
+    doLast {
+        println("Verifying Quarkus Deployment dependencies...")
+        configurations["quarkusDeployment"].files.forEach {
             println(" - ${it.name}")
         }
     }

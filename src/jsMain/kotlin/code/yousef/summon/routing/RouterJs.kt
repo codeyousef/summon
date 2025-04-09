@@ -1,8 +1,25 @@
 package code.yousef.summon.routing
 
-import code.yousef.summon.routing.RouterBuilder
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
 import kotlinx.browser.window
 import routing.RouterContext
+
+/**
+ * JavaScript actual implementation of the Router interface
+ */
+actual interface Router {
+    /**
+     * Navigates to the specified path.
+     */
+    actual fun navigate(path: String, pushState: Boolean)
+
+    /**
+     * Composes the UI for the router at the given initial path.
+     */
+    @Composable
+    actual fun create(initialPath: String)
+}
 
 /**
  * Extends the Router class with JavaScript-specific functionality.
@@ -49,10 +66,23 @@ fun summonRouterNavigate(path: String, pushState: Boolean = true) {
  */
 @JsName("createBrowserRouter")
 fun createBrowserRouter(
-    vararg routes: Route,
-    notFoundComponent: ((RouteParams) -> Composable)? = null
+    vararg routes: String,
+    notFoundComponent: (@Composable (RouteParams) -> Unit)? = null
 ): Router {
-    val router = Router.create(*routes, notFoundComponent = notFoundComponent)
+    val routerBuilder = RouterBuilderImpl()
+    
+    // Add routes
+    routes.forEach { path ->
+        routerBuilder.route(path) { params ->
+            // Default empty content, will be replaced when routes are registered
+        }
+    }
+    
+    // Set not found page if provided
+    notFoundComponent?.let { routerBuilder.setNotFound(it) }
+    
+    // Create router
+    val router = RouterJs(routerBuilder.routes, routerBuilder.notFoundPage)
     setupRouterForBrowser(router)
     return router
 }
@@ -60,8 +90,11 @@ fun createBrowserRouter(
 /**
  * Creates a router with browser navigation support using a DSL.
  */
-fun createBrowserRouter(init: Router.RouterBuilder.() -> Unit): Router {
-    val router = Router.create(init)
+fun createBrowserRouter(init: RouterBuilder.() -> Unit): Router {
+    val routerBuilder = RouterBuilderImpl()
+    routerBuilder.apply(init)
+    
+    val router = RouterJs(routerBuilder.routes, routerBuilder.notFoundPage)
     setupRouterForBrowser(router)
     return router
 }
@@ -86,39 +119,94 @@ fun Router.navigateAndUpdateBrowser(path: String, pushState: Boolean = true) {
     updateBrowserUrl(path, pushState)
 }
 
-@Composable
-fun Router(routes: List<RouteDefinition>, initialPath: String, notFound: @Composable (RouteParams) -> Unit) {
-    val history = remember { BrowserHistory() }
-    var currentPath by remember { mutableStateOf(initialPath) }
-
-    // ... existing code ...
+/**
+ * Browser History implementation
+ */
+class BrowserHistory {
+    fun push(path: String) {
+        window.history.pushState(null, "", path)
+    }
+    
+    fun replace(path: String) {
+        window.history.replaceState(null, "", path)
+    }
+    
+    fun getCurrentPath(): String {
+        return window.location.pathname + window.location.search
+    }
 }
 
 /**
- * Creates a JS-specific router implementation.
+ * Implementation of the Router interface for JavaScript.
  */
-actual fun createRouter(builder: RouterBuilder.() -> Unit): Router {
-    val routerBuilder = RouterBuilderImpl()
-    routerBuilder.builder()
-    return RouterJs(routerBuilder.routes, routerBuilder.notFoundPage)
-}
-
 internal class RouterJs(
     private val routes: List<RouteDefinition>,
     private val notFoundPage: @Composable (RouteParams) -> Unit
 ) : Router {
 
     private val history = BrowserHistory()
-
-    // ... existing code ...
+    private val currentPath = window.location.pathname + window.location.search
 
     @Composable
     override fun create(initialPath: String) {
-        Router(routes, initialPath, notFoundPage)
+        val composer = CompositionLocal.currentComposer
+        
+        // Find matching route for the initial path
+        val matchResult = findMatchingRoute(initialPath)
+        
+        if (matchResult != null) {
+            // Render the matched route's content
+            val (route, params) = matchResult
+            route.content(params)
+        } else {
+            // Render the not found page
+            notFoundPage(RouteParams(mapOf("path" to initialPath)))
+        }
     }
 
     override fun navigate(path: String, pushState: Boolean) {
-        // Implementation details...
-        updateBrowserUrl(path, pushState) // Ensure this call remains
+        // Update the browser URL
+        if (pushState) {
+            history.push(path)
+        } else {
+            history.replace(path)
+        }
+        
+        // Trigger recomposition (would be implemented with proper state management)
     }
+    
+    /**
+     * Find the matching route for a given path.
+     */
+    private fun findMatchingRoute(path: String): Pair<RouteDefinition, RouteParams>? {
+        for (route in routes) {
+            val params = tryMatchRoute(route.path, path)
+            if (params != null) {
+                return Pair(route, RouteParams(params))
+            }
+        }
+        return null
+    }
+    
+    /**
+     * Try to match a route path pattern against an actual path.
+     * Returns a map of parameters if match is successful, null otherwise.
+     */
+    private fun tryMatchRoute(pattern: String, path: String): Map<String, String>? {
+        // Simple implementation for now
+        // Would need to handle path parameters like "/users/:id" etc.
+        if (pattern == path) {
+            return emptyMap()
+        }
+        return null
+    }
+}
+
+/**
+ * Function for creating a router instance in JS.
+ */
+actual fun createRouter(builder: RouterBuilder.() -> Unit): Router {
+    val routerBuilder = RouterBuilderImpl()
+    routerBuilder.apply(builder)
+    return RouterJs(routerBuilder.routes, routerBuilder.notFoundPage)
 }

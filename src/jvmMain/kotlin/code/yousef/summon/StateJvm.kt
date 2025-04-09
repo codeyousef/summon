@@ -1,8 +1,8 @@
 package code.yousef.summon
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
-
+import code.yousef.summon.state.State
+import code.yousef.summon.state.SummonMutableState
+import code.yousef.summon.state.MutableStateImpl
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -17,7 +17,7 @@ import java.util.prefs.Preferences
  * Provides JVM-specific implementation for state observation.
  * This implementation uses thread-safe collections for observers.
  */
-class StateObserver<T>(private val state: MutableState<T>) {
+class StateObserver<T>(private val state: SummonMutableState<T>) {
     private val observers = CopyOnWriteArrayList<(T) -> Unit>()
 
     init {
@@ -52,7 +52,7 @@ class StateObserver<T>(private val state: MutableState<T>) {
 /**
  * Creates a state observer for this state.
  */
-fun <T> MutableState<T>.createObserver(): StateObserver<T> = StateObserver(this)
+fun <T> SummonMutableState<T>.createObserver(): StateObserver<T> = StateObserver(this)
 
 /**
  * Formats this state value as a string for debugging.
@@ -66,7 +66,7 @@ fun <T> State<T>.toJvmString(): String = "State(value=${value})"
  * @param key The key to store the value under in Preferences
  * @param nodeName The name of the preferences node to use
  */
-fun <T> MutableState<T>.persistToPreferences(
+fun <T> SummonMutableState<T>.persistToPreferences(
     key: String,
     nodeName: String = "code.yousef.summon"
 ) {
@@ -132,7 +132,7 @@ fun <T> MutableState<T>.persistToPreferences(
  * @param serializer A function to convert the value to a string
  * @param deserializer A function to convert a string back to a value
  */
-fun <T> MutableState<T>.persistToFile(
+fun <T> SummonMutableState<T>.persistToFile(
     filePath: String,
     serializer: (T) -> String,
     deserializer: (String) -> T

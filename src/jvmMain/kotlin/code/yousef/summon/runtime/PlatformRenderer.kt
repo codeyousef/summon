@@ -1,9 +1,6 @@
 package code.yousef.summon.runtime
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.core.LocalDate
-import code.yousef.summon.core.LocalTime
-import code.yousef.summon.core.style.Color
 import code.yousef.summon.modifier.Modifier
 
 /**
@@ -17,12 +14,12 @@ actual interface PlatformRenderer {
      * @param consumer The consumer to render to
      */
     actual fun <T> renderComposable(composable: @Composable () -> Unit, consumer: T)
-    
+
     /**
      * Render a text component
      */
     actual fun renderText(
-        value: String, 
+        value: String,
         modifier: Modifier
     )
 
@@ -30,7 +27,7 @@ actual interface PlatformRenderer {
      * Render a button component
      */
     actual fun renderButton(
-        onClick: () -> Unit, 
+        onClick: () -> Unit,
         enabled: Boolean,
         modifier: Modifier
     )

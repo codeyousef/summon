@@ -1,18 +1,21 @@
-package integrations.quarkus
+package code.yousef.summon.integrations.quarkus
 
-import core.Composable
+
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.layout.Column
-import integrations.quarkus.NativeImageSupport.ReflectiveComponent
+import code.yousef.summon.integrations.quarkus.NativeImageSupport.ReflectiveComponent
+import code.yousef.summon.runtime.Composable
 import io.quarkus.qute.Engine
 import io.quarkus.qute.Template
 import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.inject.spi.CDI
 import jakarta.inject.Inject
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.Response
 
 /**
  * Demo of Summon integration with Quarkus.
@@ -23,14 +26,16 @@ object QuarkusDemo {
     /**
      * Example of a Summon component that will be used in a Quarkus application
      */
-    @ReflectiveComponent
-    class GreetingComponent(private val name: String = "World") : Composable {
-        override fun <T> compose(receiver: T): T {
-            // Note: This implementation would depend on how the Composable interface is defined
-            // This is just a placeholder to demonstrate the concept
-            return receiver
-        }
+    @Composable
+    fun GreetingComponent(name: String = "World") {
+        Text(text = "Hello, $name!")
     }
+
+    /**
+     * Class for reflection registration - used for native image support
+     */
+    @ReflectiveComponent
+    class GreetingComponentHolder
 
     /**
      * Example of a RESTEasy resource using Summon components
@@ -44,36 +49,37 @@ object QuarkusDemo {
         @GET
         @Path("/greeting")
         @Produces(MediaType.TEXT_HTML)
-        fun greeting(): jakarta.ws.rs.core.Response {
-            val component = GreetingComponent("Quarkus User")
-
+        fun greeting(): Response {
             // Method 1: Using ResteasyIntegration utility
-            return ResteasyIntegration.createResponse(component)
+            return ResteasyIntegration.createResponse {
+                GreetingComponent("Quarkus User")
+            }
         }
 
         @GET
         @Path("/greeting-cdi")
         @Produces(MediaType.TEXT_HTML)
         fun greetingWithCDI(): String {
-            val component = GreetingComponent("CDI User")
-
             // Method 2: Using CDI-aware renderer
-            return cdiAwareRenderer.render(component)
+            return cdiAwareRenderer.render {
+                GreetingComponent("CDI User")
+            }
         }
 
         @GET
         @Path("/not-found")
         @Produces(MediaType.TEXT_HTML)
-        fun notFound(): jakarta.ws.rs.core.Response {
-            val errorComponent = Column(
-                content = listOf(
-                    Text("Page Not Found"),
-                    Button("Go Home", onClick = { /* would navigate home */ })
-                )
-            )
-
+        fun notFound(): Response {
             // Using helper for common responses
-            return ResteasyIntegration.Responses.notFound(errorComponent)
+            return ResteasyIntegration.Responses.notFound {
+                Column {
+                    Text(text = "Page Not Found")
+                    Button(
+                        label = "Go Home",
+                        onClick = { /* would navigate home */ }
+                    )
+                }
+            }
         }
     }
 
@@ -112,9 +118,9 @@ object QuarkusDemo {
             )
         }
 
-        fun renderPage(component: Composable): String {
+        fun renderPage(content: @Composable () -> Unit): String {
             val template = createTemplate()
-            return template.data("component", component).render()
+            return template.data("component", content).render()
         }
     }
 
@@ -131,17 +137,18 @@ object QuarkusDemo {
     /**
      * Example of a component that uses CDI
      */
-    @ReflectiveComponent
-    class UserProfileComponent : Composable {
-        @Inject
-        lateinit var userService: UserService
-
-        override fun <T> compose(receiver: T): T {
-            // This would use the injected userService
-            // Just a placeholder implementation
-            return receiver
-        }
+    @Composable
+    fun UserProfileComponent() {
+        // This would ideally access the injected UserService
+        // For demonstration purposes, we'll just render some text
+        Text(text = "User Profile for Current User")
     }
+
+    /**
+     * Class for reflection registration - used for native image support
+     */
+    @ReflectiveComponent
+    class UserProfileComponentHolder
 
     /**
      * Example of creating a Summon+Quarkus application programmatically
@@ -149,8 +156,8 @@ object QuarkusDemo {
     fun createApplication() {
         // Register components for native image support
         val registry = NativeImageSupport.ModuleRegistry()
-        registry.register(GreetingComponent::class.java)
-        registry.register(UserProfileComponent::class.java)
+        registry.register(GreetingComponentHolder::class.java)
+        registry.register(UserProfileComponentHolder::class.java)
 
         // Generate reflection configuration
         val reflectionConfig = registry.generateReflectionConfig()
@@ -158,15 +165,15 @@ object QuarkusDemo {
 
         // Example of creating components with CDI support
         val componentFactory = CDISupport.ComponentFactory()
-        val userProfile = componentFactory.create(UserProfileComponent::class.java)
+        val userProfileFunction = { UserProfileComponent() }
 
         // Example of working with CDI directly
         try {
-            val cdi = jakarta.enterprise.inject.spi.CDI.current()
+            val cdi = CDI.current()
             val summonRenderer = cdi.select(QuarkusExtension.SummonRenderer::class.java).get()
 
             // Use the renderer
-            val html = summonRenderer.render(userProfile)
+            val html = summonRenderer.render(userProfileFunction)
             println("Rendered HTML: $html")
         } catch (e: Exception) {
             // Handle case where CDI is not available

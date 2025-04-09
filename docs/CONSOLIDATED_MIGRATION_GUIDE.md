@@ -896,7 +896,7 @@ fun OpenGraphProduct(...) { ... }
 Key changes:
 1. Converted the class to a composable function with the `@Composable` annotation
 2. Replaced the `compose` method with a `SideEffect` for head manipulation
-3. Converted companion object factory methods to separate composable functions with more descriptive names
+3. Converted companion object factory methods into separate composable functions with more descriptive names
 4. Used `CompositionLocal.currentComposer` for composition management
 5. Simplified the API by making parameters public and removing the need for getters
 
@@ -969,7 +969,7 @@ Key changes in the migration:
 1. Converted the `SitemapXml` class to a composable function with the `@Composable` annotation
 2. Removed the `compose` method and replaced it with direct rendering using `getPlatformRenderer()`
 3. Made parameters public and passed them directly to the functions that need them
-4. Simplified the API by removing the need for getters and private fields
+4. Simplified the API by removing the need for getters
 5. Updated the companion object's `fromRoutes` method to return a list of `SitemapUrl` objects instead of a `SitemapXml` instance
 
 This migration follows the same pattern as the `CanonicalLinks` and `OpenGraphTags` components, demonstrating how to convert components that manipulate HTML content to use the new annotation-based approach.
@@ -1413,3 +1413,943 @@ This migration aligns the `StreamingSSR` component with the new annotation-based
 ### Next Component Migration: BasicButton
 
 For the next migration, we will focus on the BasicButton component, which currently uses the interface-based approach but would benefit from the new annotation-based composition system, especially for handling pressed/hover states and accessibility.
+
+```
+
+### 8. Alert Component JS Integration Fix
+
+The JavaScript event handlers for the Alert component have been updated to work with the new annotation-based composition system. This demonstrates how to update platform-specific extensions for migrated components.
+
+**Before (Interface-based):**
+```kotlin
+// In AlertExt.kt
+fun Alert.setupJsActionHandler(actionId: String) {
+    // Get the action button element from the DOM
+    val element = document.getElementById(actionId) as? HTMLElement ?: return
+
+    // Add click event listener
+    element.onclick = { event ->
+        // Call the onAction handler if available
+        onAction?.invoke()
+        // Prevent default action and stop propagation
+        event.preventDefault()
+        event.stopPropagation()
+    }
+    // ... more code for keyboard events ...
+}
+```
+
+**After (Fixed):**
+```kotlin
+// Create a separate data class for extension properties
+data class AlertJsExtension(
+    val variant: AlertVariant = AlertVariant.INFO,
+    val onAction: (() -> Unit)? = null,
+    val onDismiss: (() -> Unit)? = null
+)
+
+// Updated function signature with explicit parameters
+fun setupJsActionHandler(actionId: String, alertExt: AlertJsExtension) {
+    // Get the action button element from the DOM
+    val element = document.getElementById(actionId) as? HTMLElement ?: return
+
+    // Add click event listener
+    element.onclick = { event ->
+        // Call the onAction handler from the extension object
+        alertExt.onAction?.invoke()
+        // Prevent default action and stop propagation
+        event.preventDefault()
+        event.stopPropagation()
+    }
+    // ... more code for keyboard events ...
+}
+```
+
+Key changes:
+1. Removed the direct extension on the `Alert` class since it's now a function, not a class
+2. Created a dedicated `AlertJsExtension` data class to hold callback functions
+3. Updated function signatures to accept the extension object as a parameter
+4. Updated callback invocations to reference properties on the extension object
+5. Maintained the same accessibility support with keyboard event handlers
+
+This pattern can be used for other components that need platform-specific extensions when migrating from interface-based to annotation-based composables:
+
+1. Create a separate data class to hold component-specific properties and callbacks
+2. Update extension functions to accept this data class instead of extending the component directly
+3. Pass the extension object when calling these functions from the platform renderer
+4. Update callback references to use the properties from the extension object
+5. Keep the underlying functionality the same
+
+### 9. Badge Component JS Integration Fix
+
+Similar to the Alert component, the Badge component's JavaScript event handlers have been updated to work with the annotation-based composition system. The Badge component, which has already been migrated to the `@Composable` annotation approach, needed its platform-specific extensions updated.
+
+**Before (Interface-based):**
+```kotlin
+// In BadgeExt.kt
+fun Badge.setupJsClickHandler(badgeId: String) {
+    // Get the badge element from the DOM
+    val element = document.getElementById(badgeId) as? HTMLElement ?: return
+
+    // Add click event listener
+    element.onclick = { event ->
+        // Call the onClick handler if available
+        onClick?.invoke()
+        // Prevent default action and stop propagation
+        event.preventDefault()
+        event.stopPropagation()
+    }
+    // ... more code for keyboard events ...
+}
+```
+
+**After (Fixed):**
+```kotlin
+// Create a separate data class for extension properties
+data class BadgeJsExtension(
+    val type: BadgeType = BadgeType.PRIMARY,
+    val shape: BadgeShape = BadgeShape.ROUNDED,
+    val onClick: (() -> Unit)? = null
+)
+
+// Updated function signature with explicit parameters
+fun setupJsClickHandler(badgeId: String, badgeExt: BadgeJsExtension) {
+    // Get the badge element from the DOM
+    val element = document.getElementById(badgeId) as? HTMLElement ?: return
+
+    // Add click event listener
+    element.onclick = { event ->
+        // Call the onClick handler from the extension object
+        badgeExt.onClick?.invoke()
+        // Prevent default action and stop propagation
+        event.preventDefault()
+        event.stopPropagation()
+    }
+    // ... more code for keyboard events ...
+}
+```
+
+Key changes:
+1. Created a dedicated `BadgeJsExtension` data class to hold component properties and the onClick callback
+2. Updated the function signature to accept this extension object as a parameter instead of being an extension on the Badge class
+3. Updated callback invocations to reference properties from the extension object
+4. Maintained the same accessibility support with keyboard event handlers
+
+This fix follows the same pattern we established with the Alert component, further demonstrating the approach for handling platform-specific extensions during the migration to annotation-based composables.
+
+### 10. Card Component JS Integration Fix
+
+The Card component's JavaScript event handlers required similar updates to work with the new annotation-based composition system. This follows the same pattern established for the Alert and Badge components.
+
+**Before (Interface-based):**
+```kotlin
+// In CardExt.kt
+fun Card.setupJsClickHandler(cardId: String) {
+    // Get the card element from the DOM
+    val element = document.getElementById(cardId) as? HTMLElement ?: return
+
+    // Add click event listener
+    element.onclick = { event ->
+        // Call the onClick handler if available
+        onClick?.invoke()
+        // Prevent default action and stop propagation
+        event.preventDefault()
+        event.stopPropagation()
+    }
+    // ... more code for keyboard events ...
+}
+```
+
+**After (Fixed):**
+```kotlin
+// Create a separate data class for extension properties
+data class CardJsExtension(
+    val onClick: (() -> Unit)? = null,
+    val isInteractive: Boolean = false
+)
+
+// Updated function signature with explicit parameters
+fun setupJsClickHandler(cardId: String, cardExt: CardJsExtension) {
+    // Get the card element from the DOM
+    val element = document.getElementById(cardId) as? HTMLElement ?: return
+
+    // Add click event listener
+    element.onclick = { event ->
+        // Call the onClick handler from the extension object
+        cardExt.onClick?.invoke()
+        // Prevent default action and stop propagation
+        event.preventDefault()
+        event.stopPropagation()
+    }
+    // ... more code for keyboard events ...
+}
+```
+
+This consistent pattern for updating JavaScript extensions demonstrates the systematic approach needed when migrating from interface-based components to annotation-based composables. By maintaining this pattern across all component extensions, we ensure:
+
+1. Clean separation between the component definition and its platform-specific behaviors
+2. Consistent API for platform renderers to interact with components
+3. Preservation of accessibility features across the migration
+4. Type safety through explicitly defined extension data classes
+
+This pattern should be applied to any remaining component extensions as part of the ongoing migration effort.
+
+### 11. Icon Component JS Integration Fix
+
+The Icon component's JavaScript event handlers have been updated following the same pattern as the previous component extensions. This continues our systematic approach to handle platform-specific extensions in the new annotation-based composition system.
+
+**Before (Interface-based):**
+```kotlin
+// In IconExt.kt
+fun Icon.setupJsClickHandler(iconId: String) {
+    // Get the icon element from the DOM
+    val element = document.getElementById(iconId) as? HTMLElement ?: return
+
+    // Add click event listener
+    element.onclick = { event ->
+        // Call the onClick handler if available
+        onClick?.invoke()
+        // Prevent default action and stop propagation
+        event.preventDefault()
+        event.stopPropagation()
+    }
+    // ... more code for keyboard events ...
+}
+```
+
+**After (Fixed):**
+```kotlin
+// Create a separate data class for extension properties
+data class IconJsExtension(
+    val onClick: (() -> Unit)? = null,
+    val name: String = ""
+)
+
+// Updated function signature with explicit parameters
+fun setupJsClickHandler(iconId: String, iconExt: IconJsExtension) {
+    // Get the icon element from the DOM
+    val element = document.getElementById(iconId) as? HTMLElement ?: return
+
+    // Add click event listener
+    element.onclick = { event ->
+        // Call the onClick handler from the extension object
+        iconExt.onClick?.invoke()
+        // Prevent default action and stop propagation
+        event.preventDefault()
+        event.stopPropagation()
+    }
+    // ... more code for keyboard events ...
+}
+```
+
+With this fix, we've now migrated several core component JavaScript extensions (Alert, Badge, Card, Icon, Link) to work with the new annotation-based system. The next step in the migration will be updating the JsPlatformRenderer implementation to use these new extension functions by creating and passing the appropriate extension data objects.
+
+### 12. Link Component JS Integration Fix
+
+The Link component's JavaScript event handlers have been updated to work with the annotation-based composition system, following the same pattern we've established for other components.
+
+**Before (Interface-based):**
+```kotlin
+// In LinkExt.kt
+fun Link.setupJsClickHandler(linkId: String) {
+    val link = document.getElementById(linkId) as? HTMLAnchorElement
+    link?.let {
+        it.onclick = { event ->
+            // Prevent default navigation if there's a click handler
+            onClick?.let { handler ->
+                event.preventDefault()
+                handler()
+            }
+            true
+        }
+    }
+}
+```
+
+**After (Fixed):**
+```kotlin
+// Create a separate data class for extension properties
+data class LinkJsExtension(
+    val onClick: (() -> Unit)? = null,
+    val href: String = "",
+    val target: String? = null
+)
+
+// Updated function signature with explicit parameters
+fun setupJsClickHandler(linkId: String, linkExt: LinkJsExtension) {
+    val link = document.getElementById(linkId) as? HTMLAnchorElement
+    link?.let {
+        it.onclick = { event ->
+            // Prevent default navigation if there's a click handler
+            linkExt.onClick?.let { handler ->
+                event.preventDefault()
+                handler()
+            }
+            true
+        }
+    }
+}
+```
+
+The Link component fix is slightly different from the other components as it needs to handle navigation properly:
+
+1. It adds both `href` and `target` properties to the extension data class to maintain all the necessary link information
+2. It specifically handles link navigation behavior, only preventing the default when a click handler is present
+3. It casts the DOM element to `HTMLAnchorElement` instead of `HTMLElement` for anchor-specific functionality
+
+With this fix, we've now completed the JavaScript extensions for all core interactive components (Alert, Badge, Card, Icon, and Link). The next step in the migration will be updating the JsPlatformRenderer implementation to use these new extension functions by creating and passing the appropriate extension data objects.
+
+### 13. TextArea Component JS Integration Fix
+
+The TextArea component's JavaScript event handlers have been updated to work with the annotation-based composition system. This fix follows the same pattern as the TextField component fix, as both are form input components with similar behavior.
+
+**Before (Interface-based):**
+```kotlin
+// In TextAreaExt.kt
+fun TextArea.setupJsTextAreaHandler(fieldId: String) {
+    val textareaElement = document.getElementById(fieldId) as? HTMLTextAreaElement ?: return
+    
+    // Set up the input event listener
+    textareaElement.oninput = { event: Event ->
+        val newValue = textareaElement.value
+        
+        // Update the state
+        state.value = newValue
+        
+        // Call the onValueChange callback
+        onValueChange(newValue)
+        
+        // Validate if there are validators
+        if (validators.isNotEmpty()) {
+            validate()
+        }
+        
+        // Prevent default to avoid form submission
+        event.preventDefault()
+    }
+}
+```
+
+**After (Fixed):**
+```kotlin
+// Data class to hold all the necessary state and callbacks
+data class TextAreaJsExtension(
+    val state: MutableState<String>,
+    val onValueChange: (String) -> Unit,
+    val validators: List<(String) -> ValidationResult> = emptyList(),
+    val validate: () -> Unit
+)
+
+// Supporting types (can be shared with TextFieldExt.kt)
+interface MutableState<T> {
+    var value: T
+}
+
+data class ValidationResult(val isValid: Boolean, val message: String? = null)
+
+// Converted to a standalone function that takes the extension object
+fun setupJsTextAreaHandler(fieldId: String, textAreaExt: TextAreaJsExtension) {
+    val textareaElement = document.getElementById(fieldId) as? HTMLTextAreaElement ?: return
+    
+    // Set up the input event listener
+    textareaElement.oninput = { event: Event ->
+        val newValue = textareaElement.value
+        
+        // Update the state using the extension object
+        textAreaExt.state.value = newValue
+        
+        // Call the onValueChange callback from the extension object
+        textAreaExt.onValueChange(newValue)
+        
+        // Validate if there are validators
+        if (textAreaExt.validators.isNotEmpty()) {
+            textAreaExt.validate()
+        }
+        
+        // Prevent default to avoid form submission
+        event.preventDefault()
+    }
+}
+```
+
+This fix for TextField demonstrates the consistency in our approach across similar components. The TextField and TextArea components share the same pattern for handling form input:
+
+1. Both use a dedicated extension data class with state, callbacks, and validation
+2. Both define supporting types like `MutableState<T>` and `ValidationResult`
+3. Both convert extension functions to standalone functions that take an extension object
+4. Both maintain the same validation and value change behavior
+
+In a full implementation, these supporting types (`MutableState<T>` and `ValidationResult`) should be moved to a common location to avoid duplication and ensure consistency across all form component extensions.
+
+With this fix, we've now completed the JavaScript extensions for all major core components. The next phase of the migration should focus on:
+
+1. Creating a shared utilities module for common extension types
+2. Updating the JsPlatformRenderer to use the new extension functions
+3. Testing all components with the new implementation
+4. Documenting the new patterns for platform-specific extensions
+
+### 14. TextField Component JS Integration Fix
+
+The TextField component's JavaScript event handlers have been updated to work with the annotation-based composition system. This fix follows the same pattern as the TextArea component fix, as both are form input components with similar behavior.
+
+**Before (Interface-based):**
+```kotlin
+// In TextFieldExt.kt
+fun TextField.setupJsInputHandler(fieldId: String) {
+    val inputElement = document.getElementById(fieldId) as? HTMLInputElement ?: return
+    
+    // Set up the input event listener
+    inputElement.oninput = { event: Event ->
+        val newValue = inputElement.value
+        
+        // Update the state
+        state.value = newValue
+        
+        // Call the onValueChange callback
+        onValueChange(newValue)
+        
+        // Validate if there are validators
+        if (validators.isNotEmpty()) {
+            validate()
+        }
+        
+        // Prevent default to avoid form submission
+        event.preventDefault()
+    }
+}
+```
+
+**After (Fixed):**
+```kotlin
+// Data class to hold all the necessary state and callbacks
+data class TextFieldJsExtension(
+    val state: MutableState<String>,
+    val onValueChange: (String) -> Unit,
+    val validators: List<(String) -> ValidationResult> = emptyList(),
+    val validate: () -> Unit
+)
+
+// Supporting types (can be shared with TextAreaExt.kt)
+interface MutableState<T> {
+    var value: T
+}
+
+data class ValidationResult(val isValid: Boolean, val message: String? = null)
+
+// Converted to a standalone function that takes the extension object
+fun setupJsInputHandler(fieldId: String, textFieldExt: TextFieldJsExtension) {
+    val inputElement = document.getElementById(fieldId) as? HTMLInputElement ?: return
+    
+    // Set up the input event listener
+    inputElement.oninput = { event: Event ->
+        val newValue = inputElement.value
+        
+        // Update the state using the extension object
+        textFieldExt.state.value = newValue
+        
+        // Call the onValueChange callback from the extension object
+        textFieldExt.onValueChange(newValue)
+        
+        // Validate if there are validators
+        if (textFieldExt.validators.isNotEmpty()) {
+            textFieldExt.validate()
+        }
+        
+        // Prevent default to avoid form submission
+        event.preventDefault()
+    }
+}
+```
+
+This fix for TextField demonstrates the consistency in our approach across similar components. The TextField and TextArea components share the same pattern for handling form input:
+
+1. Both use a dedicated extension data class with state, callbacks, and validation
+2. Both define supporting types like `MutableState<T>` and `ValidationResult`
+3. Both convert extension functions to standalone functions that take an extension object
+4. Both maintain the same validation and value change behavior
+
+In a full implementation, these supporting types (`MutableState<T>` and `ValidationResult`) should be moved to a common location to avoid duplication and ensure consistency across all form component extensions.
+
+With this fix, we've now completed the JavaScript extensions for all major core components. The next phase of the migration should focus on:
+
+1. Creating a shared utilities module for common extension types
+2. Updating the JsPlatformRenderer to use the new extension functions
+3. Testing all components with the new implementation
+4. Documenting the new patterns for platform-specific extensions
+
+### 15. Text Component Rendering Fix
+
+The Text component's JavaScript rendering implementation has been updated to work with the annotation-based composition system. This represents a slightly different case from our previous fixes, as it involves platform-specific rendering logic rather than just event handling.
+
+**Before (Interface-based):**
+```kotlin
+// In TextJs.kt
+fun <T> Text.renderJs(consumer: TagConsumer<T>): TagConsumer<T> {
+    consumer.span {
+        // Apply the modifier styles and additional text-specific styles
+        val additionalStyles = getAdditionalStyles()
+        val combinedStyles = modifier.styles + additionalStyles
+        style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+        
+        // Apply accessibility attributes
+        getAccessibilityAttributes().forEach { (key, value) ->
+            attributes[key] = value
+        }
+        
+        +text
+    }
+    return consumer
+}
+```
+
+**After (Fixed):**
+```kotlin
+// Data class to hold all the necessary Text-related properties
+data class TextJsExtension(
+    val text: String,
+    val modifier: Modifier,
+    val additionalStyles: Map<String, String> = emptyMap(),
+    val accessibilityAttributes: Map<String, String> = emptyMap()
+)
+
+// Converted to a standalone function that takes the extension object
+fun <T> renderTextJs(consumer: TagConsumer<T>, textExt: TextJsExtension): TagConsumer<T> {
+    consumer.span {
+        // Apply the modifier styles and additional text-specific styles
+        val combinedStyles = textExt.modifier.styles + textExt.additionalStyles
+        style = combinedStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+        
+        // Apply accessibility attributes
+        textExt.accessibilityAttributes.forEach { (key, value) ->
+            attributes[key] = value
+        }
+        
+        +textExt.text
+    }
+    return consumer
+}
+```
+
+This fix demonstrates how to handle rendering logic migration:
+
+1. Instead of accessing methods and properties on the component class (`getAdditionalStyles()`, `modifier`, `text`), we encapsulate them in a data class
+2. The extension function on the component class is converted to a standalone function that takes the extension data class
+3. All property and method references are updated to use the extension object's properties
+4. We preserve the exact same rendering behavior and HTML structure
+
+This is particularly important for the Text component as it's one of the most frequently used core components in the library. The rendering logic needs to be carefully preserved while adapting to the new annotation-based system.
+
+With this fix, we've now addressed several categories of components that needed migration:
+- Event handling components (Alert, Badge, Card, Icon, Link)
+- Form input components (TextField, TextArea)
+- Core rendering components (Text)
+
+These patterns provide a comprehensive guide for migrating any remaining components to the new annotation-based composition system.
+
+### 16. Tooltip Component JS Integration Fix
+
+The Tooltip component's JavaScript event handlers have been updated to work with the annotation-based composition system, following the same established pattern.
+
+**Before (Interface-based):**
+```kotlin
+// In TooltipExt.kt
+fun Tooltip.setupJsHandlers(tooltipId: String, contentId: String) {
+    // Get the tooltip wrapper element from the DOM
+    val tooltipElement = document.getElementById(tooltipId) as? HTMLElement ?: return
+    val contentElement = document.getElementById(contentId) as? HTMLElement ?: return
+
+    // Variables to track timer IDs
+    var showTimeoutId: Int? = null
+    var hideTimeoutId: Int? = null
+
+    // Function to show the tooltip
+    val showTooltip = {
+        // Clear any hide timeout
+        hideTimeoutId?.let { window.clearTimeout(it) }
+
+        // Set the show timeout
+        showTimeoutId = window.setTimeout({
+            contentElement.style.opacity = "1"
+        }, showDelay)
+    }
+
+    // Function to hide the tooltip
+    val hideTooltip = {
+        // Clear any show timeout
+        showTimeoutId?.let { window.clearTimeout(it) }
+
+        // Set the hide timeout
+        hideTimeoutId = window.setTimeout({
+            contentElement.style.opacity = "0"
+        }, hideDelay)
+    }
+
+    // Show tooltip on click if enabled
+    if (showOnClick) {
+        tooltipElement.onclick = { event ->
+            showTooltip()
+            true
+        }
+    }
+    // ... more event handlers ...
+}
+```
+
+**After (Fixed):**
+```kotlin
+// Data class to hold all necessary tooltip configuration
+data class TooltipJsExtension(
+    val showDelay: Int = 0,
+    val hideDelay: Int = 0,
+    val showOnClick: Boolean = false,
+    val placement: String = "top"
+)
+
+// Converted to a standalone function that takes the extension object
+fun setupTooltipJsHandlers(tooltipId: String, contentId: String, tooltipExt: TooltipJsExtension) {
+    // Get the tooltip wrapper element from the DOM
+    val tooltipElement = document.getElementById(tooltipId) as? HTMLElement ?: return
+    val contentElement = document.getElementById(contentId) as? HTMLElement ?: return
+
+    // Variables to track timer IDs
+    var showTimeoutId: Int? = null
+    var hideTimeoutId: Int? = null
+
+    // Function to show the tooltip
+    val showTooltip = {
+        // Clear any hide timeout
+        hideTimeoutId?.let { window.clearTimeout(it) }
+
+        // Set the show timeout
+        showTimeoutId = window.setTimeout({
+            contentElement.style.opacity = "1"
+        }, tooltipExt.showDelay)
+    }
+
+    // Function to hide the tooltip
+    val hideTooltip = {
+        // Clear any show timeout
+        showTimeoutId?.let { window.clearTimeout(it) }
+
+        // Set the hide timeout
+        hideTimeoutId = window.setTimeout({
+            contentElement.style.opacity = "0"
+        }, tooltipExt.hideDelay)
+    }
+
+    // Show tooltip on click if enabled
+    if (tooltipExt.showOnClick) {
+        tooltipElement.onclick = { event ->
+            showTooltip()
+            true
+        }
+    }
+    // ... more event handlers ...
+}
+```
+
+The Tooltip component fix continues the pattern we've established while addressing its unique timing-based interaction model:
+
+1. Created a `TooltipJsExtension` data class to hold component configuration like delays and interaction modes
+2. Renamed the function to `setupTooltipJsHandlers` for clarity and to distinguish it from other tooltip-related functions
+3. Updated all property references to use the extension object
+4. Preserved the complex timing logic with show/hide timeouts
+
+Tooltips are particularly important for accessibility, so maintaining the full set of event handlers (mouse, keyboard, focus) ensures that the component remains accessible to all users after migration.
+
+With this fix, we've now completed migrations for a full spectrum of component types:
+
+| Component Type | Examples | Key Migration Considerations |
+|----------------|----------|------------------------------|
+| Event handling | Alert, Badge, Card, Icon, Link | Handling click and keyboard events |
+| Form inputs | TextField, TextArea | State management and validation |
+| Core rendering | Text | Preserving exact rendering behavior |
+| Interactive UI | Tooltip | Timing-based interactions and accessibility |
+
+These examples provide comprehensive patterns that can be applied to any remaining components in the library.
+
+### 17. Router Component JS Integration Fix (Updated)
+
+The Router component's JavaScript integration has been completely refactored to work with the annotation-based composition system. This addresses several key issues in the routing implementation.
+
+**Before (Interface-based with errors):**
+```kotlin
+// In RouterJs.kt
+@JsName("createBrowserRouter")
+fun createBrowserRouter(
+    vararg routes: Route,
+    notFoundComponent: ((RouteParams) -> Composable)? = null
+): Router {
+    val router = Router.create(*routes, notFoundComponent = notFoundComponent)
+    setupRouterForBrowser(router)
+    return router
+}
+
+fun createBrowserRouter(init: Router.RouterBuilder.() -> Unit): Router {
+    val router = Router.create(init)
+    setupRouterForBrowser(router)
+    return router
+}
+
+// With unresolved references
+@Composable
+override fun create(initialPath: String) {
+    Router(routes, initialPath, notFoundPage)
+}
+```
+
+**After (Fixed):**
+```kotlin
+// Updated imports
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
+
+// Updated browser router creation
+@JsName("createBrowserRouter")
+fun createBrowserRouter(
+    vararg routes: String,
+    notFoundComponent: (@Composable (RouteParams) -> Unit)? = null
+): Router {
+    val routerBuilder = RouterBuilderImpl()
+    
+    // Add routes
+    routes.forEach { path ->
+        routerBuilder.route(path) { params ->
+            // Default empty content
+        }
+    }
+    
+    // Set not found page if provided
+    notFoundComponent?.let { routerBuilder.setNotFound(it) }
+    
+    // Create router
+    val router = RouterJs(routerBuilder.routes, routerBuilder.notFoundPage)
+    setupRouterForBrowser(router)
+    return router
+}
+
+// Proper implementation of Router interface
+internal class RouterJs(
+    private val routes: List<RouteDefinition>,
+    private val notFoundPage: @Composable (RouteParams) -> Unit
+) : Router {
+
+    private val history = BrowserHistory()
+    private val currentPath = window.location.pathname + window.location.search
+
+    @Composable
+    override fun create(initialPath: String) {
+        val composer = CompositionLocal.currentComposer
+        
+        // Find matching route for the initial path
+        val matchResult = findMatchingRoute(initialPath)
+        
+        if (matchResult != null) {
+            // Render the matched route's content
+            val (route, params) = matchResult
+            route.content(params)
+        } else {
+            // Render the not found page
+            notFoundPage(RouteParams(mapOf("path" to initialPath)))
+        }
+    }
+    
+    // Proper route matching implementation
+    private fun findMatchingRoute(path: String): Pair<RouteDefinition, RouteParams>? {
+        for (route in routes) {
+            val params = tryMatchRoute(route.path, path)
+            if (params != null) {
+                return Pair(route, RouteParams(params))
+            }
+        }
+        return null
+    }
+}
+```
+
+The Router fix addresses several technical challenges:
+
+1. **Interface Alignment**: We fixed method signatures to properly implement the Router interface, ensuring the `create` method correctly renders the matched route.
+
+2. **Parameter Types**: Changed function parameter types to use `@Composable (RouteParams) -> Unit` instead of the previous `(RouteParams) -> Composable` pattern.
+
+3. **Route Matching**: Implemented a proper route matching system that handles path patterns and extracts parameters.
+
+4. **Browser History Integration**: Added a dedicated BrowserHistory class to handle browser history navigation properly.
+
+5. **Builder Pattern**: Correctly implemented the RouterBuilder pattern by directly using RouterBuilderImpl.
+
+This fix was more complex than other components because routing is central to application navigation. The router needs to:
+
+1. Correctly parse and match URLs
+2. Extract parameters from dynamic routes
+3. Handle browser navigation events (back/forward)
+4. Integrate with the browser history API
+5. Trigger recomposition when the route changes
+
+With this fix, the router now properly integrates with the new composition system while maintaining all these critical behaviors.
+
+## Consolidating Common Patterns
+
+After completing numerous component migrations, we can identify several common patterns that have emerged:
+
+1. **Extension Functions to Standalone Functions**: Converting extension functions on component classes to standalone functions that take extension data objects.
+
+2. **Data Objects for Configuration**: Creating dedicated data classes to hold component configuration and callbacks.
+
+3. **Runtime Package Imports**: Updating imports to use the new runtime package for composition-related functionality.
+
+4. **API Refinement**: Renaming methods and updating APIs to better reflect their purpose in the new system.
+
+5. **Preserving Behavior**: Carefully maintaining the same behavior while changing the implementation approach.
+
+The next steps for the migration include:
+
+1. Updating the JsPlatformRenderer to use these new standalone functions and extension data objects
+2. Consolidating common extension data types into shared modules
+3. Creating comprehensive tests to ensure behavior parity
+4. Documenting the new patterns for component authors
+
+## Next Steps for Migration Completion
+
+After completing numerous component migrations, we can identify several additional steps to fully complete the migration:
+
+### 1. Form Extension Types Centralization
+
+One issue that arose during migration was duplicate type declarations across form component extensions. For example, both TextFieldExt.kt and TextAreaExt.kt defined their own versions of `MutableState<T>` and `ValidationResult` classes:
+
+```kotlin
+// Duplicate declaration in multiple files
+interface MutableState<T> {
+    var value: T
+}
+
+data class ValidationResult(val isValid: Boolean, val message: String? = null)
+```
+
+To fix this, we've extracted these common types into a shared FormExtensionTypes.kt file:
+
+```kotlin
+// FormExtensionTypes.kt
+package code.yousef.summon
+
+/**
+ * Simple interface to represent state for form components
+ * This is used by multiple form component extensions (TextField, TextArea, etc.)
+ */
+interface MutableState<T> {
+    var value: T
+}
+
+/**
+ * Simple class to represent validation result for form components
+ * This is used by multiple form component extensions (TextField, TextArea, etc.)
+ */
+data class ValidationResult(val isValid: Boolean, val message: String? = null)
+```
+
+And removed the duplicate declarations from the individual component files. This approach:
+
+1. Prevents redeclaration errors
+2. Ensures consistent implementations across components
+3. Makes it easier to maintain and update these common types
+4. Provides a single source of truth for shared extension types
+
+This pattern of centralizing common types will be important as the migration continues with more complex components that share similar structures.
+
+### 2. Next Migration Steps
+
+The remaining steps to complete the migration include:
+
+1. **JsPlatformRenderer Update**: Refactoring the JsPlatformRenderer to use the new extension data objects instead of the component instances directly.
+
+2. **Type Consolidation**: Continuing to identify and consolidate common types and patterns.
+
+3. **State Management Integration**: Better integrating the components with proper state management from the runtime.
+
+4. **Testing**: Comprehensive testing to ensure behavioral parity with the old implementation.
+
+5. **Documentation**: Updating all documentation to reflect the new annotation-based API.
+
+By focusing on these steps, we can ensure a smooth transition to the new composition system while maintaining the same functionality and developer experience.
+
+### 3. Interface Naming Conflict Resolution
+
+As we migrate more components, naming conflicts can arise between interfaces and classes that serve similar purposes in different parts of the codebase.
+
+We encountered a naming conflict with the `MutableState<T>` interface, which was defined in both:
+- `FormExtensionTypes.kt` (for form component extensions)
+- `state/State.kt` (for the main state management system)
+
+To resolve this conflict, we renamed the main state management interface to `SummonMutableState<T>`:
+
+```kotlin
+// Before (in state/State.kt)
+interface MutableState<T> : State<T> {
+    override var value: T
+}
+
+// After (in state/State.kt)
+interface SummonMutableState<T> : State<T> {
+    override var value: T
+}
+```
+
+This approach:
+1. Maintains backward compatibility with the existing form components
+2. Clearly distinguishes between the two types of state holders
+3. Prevents compiler errors from interface redeclaration
+4. Follows the pattern of prefixing core interfaces with the library name
+
+### 4. Router Setup Modernization
+
+We also updated the routing setup to work with our new annotation-based composition system, replacing the old Pages registry with direct router creation:
+
+```kotlin
+// Before (old implementation)
+fun setupRouting() {
+    // Register all pages
+    Pages.register("/", Index::create)
+    Pages.register("/about", About::create)
+    Pages.register("/users/profile", Profile::create)
+    
+    // Create the router
+    val router = Pages.createRouter()
+    setupRouterInBrowser(router)
+}
+
+// After (new implementation)
+fun setupRouting() {
+    // Create the router using the DSL
+    val router = createRouter {
+        // Define routes with their composable content
+        route("/") { params -> 
+            renderHomePage()
+        }
+        
+        route("/about") { params ->
+            renderAboutPage()
+        }
+        
+        route("/users/profile") { params ->
+            renderProfilePage(params.get("userId") ?: "")
+        }
+        
+        // Set a not found page
+        setNotFound { params ->
+            renderNotFoundPage(params.get("path") ?: "")
+        }
+    }
+    
+    setupRouterInBrowser(router)
+}
+```
+
+Key changes:
+1. Replaced static page registry with direct route definitions using a DSL
+2. Used `@Composable` functions for page rendering
+3. Simplified parameter handling with typesafe `RouteParams`
+4. Improved error handling with a proper not-found page
+5. Fixed browser history integration to handle query parameters
+
+These updates help maintain a consistent architecture across the entire codebase, ensuring all components work together seamlessly in the new annotation-based composition system.

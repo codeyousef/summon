@@ -1,10 +1,6 @@
 package code.yousef.summon.runtime
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
-
-import kotlinx.html.TagConsumer
-import java.util.UUID
+import code.yousef.summon.core.Composable
 
 /**
  * JVM implementation of the Composer interface.
@@ -92,8 +88,8 @@ class JvmComposer : Composer {
     /**
      * Implementation of renderComposable for the JVM platform
      */
-    override fun <T> renderComposable(composable: Composable, consumer: T) {
+    fun <T> renderComposable(composable: Composable, consumer: T): T {
         // Call compose on the composable with the provided consumer
-        composable.compose(consumer)
+        return composable.compose(consumer)
     }
 } 

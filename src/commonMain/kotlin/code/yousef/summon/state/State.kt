@@ -1,7 +1,4 @@
-package code.yousef.summon
-
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
+package code.yousef.summon.state
 
 /**
  * Interface for a read-only state holder.
@@ -18,7 +15,7 @@ interface State<T> {
  * Interface for a mutable state holder.
  * @param T The type of value held by this state
  */
-interface MutableState<T> : State<T> {
+interface SummonMutableState<T> : State<T> {
     /**
      * The current value stored in this state.
      * Updating this value may trigger recomposition of UI components that use it.
@@ -27,10 +24,10 @@ interface MutableState<T> : State<T> {
 }
 
 /**
- * Implementation of MutableState that notifies observers when its value changes.
+ * Implementation of SummonMutableState that notifies observers when its value changes.
  * @param initialValue The initial value of this state
  */
-class MutableStateImpl<T>(initialValue: T) : MutableState<T> {
+class MutableStateImpl<T>(initialValue: T) : SummonMutableState<T> {
     private val listeners = mutableListOf<(T) -> Unit>()
     
     override var value: T = initialValue
@@ -63,9 +60,9 @@ class MutableStateImpl<T>(initialValue: T) : MutableState<T> {
 }
 
 /**
- * Creates a new MutableState instance with the given initial value.
+ * Creates a new SummonMutableState instance with the given initial value.
  * @param initialValue The initial value of the state
- * @return A MutableState holding the initial value
+ * @return A SummonMutableState holding the initial value
  */
-fun <T> mutableStateOf(initialValue: T): MutableState<T> = 
+fun <T> mutableStateOf(initialValue: T): SummonMutableState<T> = 
     MutableStateImpl(initialValue) 

@@ -1,87 +1,98 @@
 package code.yousef.summon
 
 import code.yousef.summon.runtime.PlatformRenderer
-
-import modifier.Modifier
-import kotlin.ranges.ClosedFloatingPointRange
+import code.yousef.summon.annotation.Composable
+import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.components.feedback.AlertVariant
+import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.input.TextFieldType
 import code.yousef.summon.components.input.SelectOption
 import code.yousef.summon.components.input.FileInfo
 import code.yousef.summon.components.navigation.Tab
-import components.feedback.AlertVariant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
+import kotlin.ranges.ClosedFloatingPointRange
 
 /**
  * Dummy actual implementation for JsPlatformRenderer on JVM target.
  * This satisfies the compiler but should ideally not be used.
  */
 actual class JsPlatformRenderer actual constructor() : PlatformRenderer {
-    // Implement necessary methods from PlatformRenderer, likely throwing errors or no-oping.
-    override fun renderText(value: String, modifier: Modifier) {
+    // Required overrides from PlatformRenderer interface
+    actual override fun renderText(value: String, modifier: Modifier) {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
 
-    override fun renderButton(onClick: () -> Unit, enabled: Boolean, modifier: Modifier) {
+    actual override fun renderButton(onClick: () -> Unit, enabled: Boolean, modifier: Modifier) {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
 
-    // Add dummy implementations for ALL methods defined in the PlatformRenderer interface
-    override fun renderImage(src: String, alt: String, modifier: Modifier) {
+    actual override fun renderImage(src: String, alt: String, modifier: Modifier) {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
 
-    override fun renderIcon(name: String, modifier: Modifier) {
+    actual override fun renderIcon(name: String, modifier: Modifier) {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
 
-    override fun renderBox(modifier: Modifier) {
+    actual override fun renderBox(modifier: Modifier) {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
 
-    override fun renderRow(modifier: Modifier) {
+    actual override fun renderRow(modifier: Modifier) {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
 
-    override fun renderColumn(modifier: Modifier) {
+    actual override fun renderColumn(modifier: Modifier) {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
     
-    override fun renderCard(modifier: Modifier) {
+    actual override fun renderCard(modifier: Modifier) {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
 
-    override fun renderDivider(modifier: Modifier) {
+    actual override fun renderSpacer(modifier: Modifier) {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
 
-    override fun renderLazyColumn(modifier: Modifier) {
-         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
+    actual override fun renderAnimatedVisibility(visible: Boolean, modifier: Modifier) {
+        throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
+    }
+
+    actual override fun <T> renderComposable(composable: @Composable () -> Unit, consumer: T) {
+        throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
+    }
+
+    // Additional methods not in the core interface but needed for compatibility
+    fun renderDivider(modifier: Modifier) {
+        throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
+    }
+
+    fun renderLazyColumn(modifier: Modifier) {
+        throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     } 
 
-    override fun renderLazyRow(modifier: Modifier) {
+    fun renderLazyRow(modifier: Modifier) {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
     
-    override fun renderGrid(modifier: Modifier) {
+    fun renderGrid(modifier: Modifier) {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
     
-    override fun renderAspectRatio(modifier: Modifier) {
-         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
-    }
-    
-    override fun renderSpacer(modifier: Modifier) {
+    fun renderAspectRatio(modifier: Modifier) {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
     
-    override fun renderResponsiveLayout(modifier: Modifier) {
+    fun renderResponsiveLayout(modifier: Modifier) {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
 
-    override fun renderExpansionPanel(modifier: Modifier) {
+    fun renderExpansionPanel(modifier: Modifier) {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
 
-    override fun renderTextField(
+    fun renderTextField(
         value: String,
         onValueChange: (String) -> Unit,
         enabled: Boolean,
@@ -93,7 +104,7 @@ actual class JsPlatformRenderer actual constructor() : PlatformRenderer {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
     
-    override fun renderCheckbox(
+    fun renderCheckbox(
         checked: Boolean,
         onCheckedChange: (Boolean) -> Unit,
         enabled: Boolean,
@@ -102,7 +113,7 @@ actual class JsPlatformRenderer actual constructor() : PlatformRenderer {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
 
-    override fun renderRadioButton(
+    fun renderRadioButton(
         selected: Boolean,
         onClick: () -> Unit,
         enabled: Boolean,
@@ -111,7 +122,7 @@ actual class JsPlatformRenderer actual constructor() : PlatformRenderer {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
     
-    override fun renderSwitch(
+    fun renderSwitch(
         checked: Boolean,
         onCheckedChange: (Boolean) -> Unit,
         enabled: Boolean,
@@ -120,7 +131,7 @@ actual class JsPlatformRenderer actual constructor() : PlatformRenderer {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
 
-    override fun <T> renderSelect(
+    fun <T> renderSelect(
         value: T?,
         onValueChange: (T?) -> Unit,
         options: List<SelectOption<T>>,
@@ -130,16 +141,16 @@ actual class JsPlatformRenderer actual constructor() : PlatformRenderer {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
     
-    override fun renderDatePicker(
+    fun renderDatePicker(
         value: LocalDate?,
         onValueChange: (LocalDate?) -> Unit,
         enabled: Boolean,
         modifier: Modifier
     ) {
-         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
+        throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
 
-    override fun renderTimePicker(
+    fun renderTimePicker(
         value: LocalTime?,
         onValueChange: (LocalTime?) -> Unit,
         enabled: Boolean,
@@ -148,7 +159,7 @@ actual class JsPlatformRenderer actual constructor() : PlatformRenderer {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
     
-    override fun renderFileUpload(
+    fun renderFileUpload(
         onFilesSelected: (List<FileInfo>) -> Unit,
         accept: String?,
         multiple: Boolean,
@@ -157,41 +168,38 @@ actual class JsPlatformRenderer actual constructor() : PlatformRenderer {
         modifier: Modifier
     ): () -> Unit {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
+        return {}
     }
 
-    override fun renderAlertContainer(variant: AlertVariant?, modifier: Modifier) {
+    fun renderAlertContainer(variant: AlertVariant?, modifier: Modifier) {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
     
-    override fun renderBadge(modifier: Modifier) {
-        throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
-    }
-
-    override fun renderProgress(value: Float?, type: ProgressType, modifier: Modifier) {
-        throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
-    }
-    
-    override fun renderTooltipContainer(modifier: Modifier) {
-        throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
-    }
-    
-    override fun renderLink(href: String, modifier: Modifier) {
+    fun renderBadge(modifier: Modifier) {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
 
-    override fun renderTabLayout(tabs: List<Tab>, selectedTabIndex: Int, onTabSelected: (Int) -> Unit, modifier: Modifier) {
+    fun renderProgress(value: Float?, type: ProgressType, modifier: Modifier) {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
     
-    override fun renderAnimatedVisibility(visible: Boolean, modifier: Modifier) {
-         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
+    fun renderTooltipContainer(modifier: Modifier) {
+        throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
+    }
+    
+    fun renderLink(href: String, modifier: Modifier) {
+        throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
 
-     override fun renderAnimatedContent(modifier: Modifier) {
+    fun renderTabLayout(tabs: List<Tab>, selectedTabIndex: Int, onTabSelected: (Int) -> Unit, modifier: Modifier) {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
     
-    override fun renderTextArea(
+    fun renderAnimatedContent(modifier: Modifier) {
+        throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
+    }
+    
+    fun renderTextArea(
         value: String,
         onValueChange: (String) -> Unit,
         enabled: Boolean,
@@ -204,7 +212,7 @@ actual class JsPlatformRenderer actual constructor() : PlatformRenderer {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
 
-    override fun renderRangeSlider(
+    fun renderRangeSlider(
         value: ClosedFloatingPointRange<Float>, 
         onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
         valueRange: ClosedFloatingPointRange<Float>,
@@ -215,7 +223,7 @@ actual class JsPlatformRenderer actual constructor() : PlatformRenderer {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
 
-    override fun renderForm(onSubmit: () -> Unit, modifier: Modifier) {
-         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
+    fun renderForm(onSubmit: () -> Unit, modifier: Modifier) {
+        throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
 } 

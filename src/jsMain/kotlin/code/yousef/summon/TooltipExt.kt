@@ -1,18 +1,28 @@
 package code.yousef.summon
 
-import code.yousef.summon.components.feedback.Tooltip
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.HTMLElement
 
 /**
+ * Data class to hold Tooltip-related extension properties for JS implementation
+ */
+data class TooltipJsExtension(
+    val showDelay: Int = 0,
+    val hideDelay: Int = 0,
+    val showOnClick: Boolean = false,
+    val placement: String = "top"
+)
+
+/**
  * Sets up JavaScript event handlers for the Tooltip component.
- * This extension function is called from JsPlatformRenderer.
+ * This function is called from JsPlatformRenderer.
  *
  * @param tooltipId The ID of the tooltip wrapper element in the DOM
  * @param contentId The ID of the tooltip content element in the DOM
+ * @param tooltipExt Extension properties containing configuration
  */
-fun Tooltip.setupJsHandlers(tooltipId: String, contentId: String) {
+fun setupTooltipJsHandlers(tooltipId: String, contentId: String, tooltipExt: TooltipJsExtension) {
     // Get the tooltip wrapper element from the DOM
     val tooltipElement = document.getElementById(tooltipId) as? HTMLElement ?: return
     val contentElement = document.getElementById(contentId) as? HTMLElement ?: return
@@ -29,7 +39,7 @@ fun Tooltip.setupJsHandlers(tooltipId: String, contentId: String) {
         // Set the show timeout
         showTimeoutId = window.setTimeout({
             contentElement.style.opacity = "1"
-        }, showDelay)
+        }, tooltipExt.showDelay)
     }
 
     // Function to hide the tooltip
@@ -40,7 +50,7 @@ fun Tooltip.setupJsHandlers(tooltipId: String, contentId: String) {
         // Set the hide timeout
         hideTimeoutId = window.setTimeout({
             contentElement.style.opacity = "0"
-        }, hideDelay)
+        }, tooltipExt.hideDelay)
     }
 
     // Show tooltip on mouse enter
@@ -68,7 +78,7 @@ fun Tooltip.setupJsHandlers(tooltipId: String, contentId: String) {
     }
 
     // Show tooltip on click if enabled
-    if (showOnClick) {
+    if (tooltipExt.showOnClick) {
         tooltipElement.onclick = { event ->
             showTooltip()
             true

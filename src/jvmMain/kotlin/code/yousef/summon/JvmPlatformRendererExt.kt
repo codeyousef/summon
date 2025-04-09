@@ -1,9 +1,7 @@
 package code.yousef.summon
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
-
-import runtime.Composable
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.MigratedPlatformRenderer
 import kotlinx.html.stream.createHTML
 
 /**
@@ -13,12 +11,12 @@ import kotlinx.html.stream.createHTML
 /**
  * Renders a Composable to an HTML string.
  *
- * @param component The component to render
+ * @param content The composable content to render
  * @return HTML string representation of the component
  */
-fun JvmPlatformRenderer.render(component: Composable): String {
+fun MigratedPlatformRenderer.render(content: @Composable () -> Unit): String {
     return createHTML().let { consumer ->
-        component.compose(consumer)
+        this.renderComposable(content, consumer)
         consumer.finalize()
     }
 } 

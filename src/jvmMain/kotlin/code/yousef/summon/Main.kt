@@ -5,14 +5,11 @@ import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.components.layout.Row
 import code.yousef.summon.components.layout.Spacer
+import code.yousef.summon.core.Composable
 import code.yousef.summon.modifier.Modifier
-import examples.CardExample
-import examples.DividerExample
-import examples.ImageExample
-import examples.TextExample
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
-import modifier.Modifier
+
 
 /**
  * JVM example demonstrating the Summon library.
@@ -50,67 +47,148 @@ fun main() {
 }
 
 /**
- * Creates a UI example with basic components.
+ * Creates a contact form example.
  */
-private fun createUIExample(): String {
-    // Create a more advanced UI with enhanced styling
-    val example = Column(
-        modifier = Modifier()
-            .background("linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)")
-            .padding("20px")
-            .border("1px", "solid", "#ddd")
-            .borderRadius("8px")
-            .shadow(),
-        content = listOf(
-            Text(
-                "Hello from Summon UI!",
-                Modifier()
-                    .padding("10px")
-                    .color("#333")
-                    .fontSize("24px")
-                    .fontWeight("bold")
-                    .hover(mapOf("color" to "#0066cc"))
-            ),
-            Spacer("20px", true),
-            Text(
-                "This is a demo of the enhanced styling capabilities.",
-                Modifier()
-                    .padding("10px")
-                    .color("#666")
-                    .fontSize("16px")
-            ),
-            Spacer("20px", true),
-            Row(
+private fun createContactForm(): String {
+    // Create a form layout
+    val form = object : Composable {
+        override fun <T> compose(receiver: T): T {
+            Column(
                 modifier = Modifier()
-                    .padding("10px")
-                    .fillMaxWidth(),
-                content = listOf(
-                    Button(
-                        "Primary Button",
-                        { println("Primary button clicked!") },
+                    .background("#f9f9f9")
+                    .padding("20px")
+                    .borderRadius("8px")
+                    .shadow(),
+                content = {
+                    Text(
+                        "Contact Form",
                         Modifier()
+                            .padding("10px")
+                            .color("#333")
+                            .fontSize("24px")
+                            .fontWeight("bold")
+                    )
+                    Spacer(size = "20px", isVertical = true)
+                    // Add form fields here if needed
+                    Button(
+                        onClick = { println("Form submitted!") },
+                        label = "Submit",
+                        modifier = Modifier()
                             .background("#4CAF50")
                             .color("white")
                             .padding("10px 20px")
                             .borderRadius("4px")
-                            .hover(mapOf("background-color" to "#45a049"))
-                    ),
-                    Spacer("10px", false),
-                    Button(
-                        "Secondary Button",
-                        { println("Secondary button clicked!") },
-                        Modifier()
-                            .background("#f1f1f1")
-                            .color("#333")
-                            .padding("10px 20px")
-                            .border("1px", "solid", "#ccc")
-                            .borderRadius("4px")
-                            .hover(mapOf("background-color" to "#ddd"))
                     )
-                )
+                }
             )
-        )
-    )
+            return receiver
+        }
+    }
+
+    // Create a StringBuilder to capture the HTML output
+    val output = StringBuilder()
+
+    // Render the UI to HTML
+    val consumer = output.appendHTML()
+    consumer.html {
+        head {
+            title("Contact Form Demo")
+            style {
+                unsafe {
+                    raw(
+                        """
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        body {
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            background-color: #f5f5f5;
+                            padding: 20px;
+                        }
+                        """.trimIndent()
+                    )
+                }
+            }
+        }
+        body {
+            div {
+                form.compose(this)
+            }
+        }
+    }
+
+    return output.toString()
+}
+
+/**
+ * Creates a UI example with basic components.
+ */
+private fun createUIExample(): String {
+    // Create a more advanced UI with enhanced styling
+    val example = object : Composable {
+        override fun <T> compose(receiver: T): T {
+            Column(
+                modifier = Modifier()
+                    .background("linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)")
+                    .padding("20px")
+                    .border("1px", "solid", "#ddd")
+                    .borderRadius("8px")
+                    .shadow(),
+                content = {
+                    Text(
+                        "Hello from Summon UI!",
+                        Modifier()
+                            .padding("10px")
+                            .color("#333")
+                            .fontSize("24px")
+                            .fontWeight("bold")
+                            .hover(mapOf("color" to "#0066cc"))
+                    )
+                    Spacer(size = "20px", isVertical = true)
+                    Text(
+                        "This is a demo of the enhanced styling capabilities.",
+                        Modifier()
+                            .padding("10px")
+                            .color("#666")
+                            .fontSize("16px")
+                    )
+                    Spacer(size = "20px", isVertical = true)
+                    Row(
+                        modifier = Modifier()
+                            .padding("10px")
+                            .fillMaxWidth(),
+                        content = {
+                            Button(
+                                onClick = { println("Primary button clicked!") },
+                                label = "Primary Button",
+                                modifier = Modifier()
+                                    .background("#4CAF50")
+                                    .color("white")
+                                    .padding("10px 20px")
+                                    .borderRadius("4px")
+                                    .hover(mapOf("background-color" to "#45a049"))
+                            )
+                            Spacer(size = "10px", isVertical = false)
+                            Button(
+                                onClick = { println("Secondary button clicked!") },
+                                label = "Secondary Button",
+                                modifier = Modifier()
+                                    .background("#f1f1f1")
+                                    .color("#333")
+                                    .padding("10px 20px")
+                                    .border("1px", "solid", "#ccc")
+                                    .borderRadius("4px")
+                                    .hover(mapOf("background-color" to "#ddd"))
+                            )
+                        }
+                    )
+                }
+            )
+            return receiver
+        }
+    }
 
     // Create a StringBuilder to capture the HTML output
     val output = StringBuilder()
@@ -154,12 +232,60 @@ private fun createUIExample(): String {
         body {
             div {
                 // Render our UI
-                example.compose(consumer)
+                example.compose(this)
             }
         }
     }
 
     return output.toString()
+}
+
+/**
+ * Class for creating text component examples.
+ */
+class TextExample {
+    fun createTextDemo(): Composable = object : Composable {
+        override fun <T> compose(receiver: T): T {
+            Column(
+                modifier = Modifier()
+                    .background("#ffffff")
+                    .padding("20px")
+                    .borderRadius("8px")
+                    .shadow(),
+                content = {
+                    Text(
+                        "Text Component Examples",
+                        Modifier()
+                            .padding("0 0 20px 0")
+                            .color("#333")
+                            .fontSize("28px")
+                            .fontWeight("bold")
+                    )
+                    Text(
+                        "Regular text with default styling",
+                        Modifier()
+                            .padding("10px 0")
+                    )
+                    Text(
+                        "Styled text with custom properties",
+                        Modifier()
+                            .padding("10px 0")
+                            .color("#0066cc")
+                            .fontSize("18px")
+                            .fontWeight("bold")
+                    )
+                    Text(
+                        "Text with hover effect",
+                        Modifier()
+                            .padding("10px 0")
+                            .color("#333")
+                            .hover(mapOf("color" to "#e91e63", "text-decoration" to "underline"))
+                    )
+                }
+            )
+            return receiver
+        }
+    }
 }
 
 /**
@@ -207,12 +333,40 @@ private fun createTextExample(): String {
         body {
             div {
                 // Render our example
-                example.compose(consumer)
+                example.compose(this)
             }
         }
     }
 
     return output.toString()
+}
+
+/**
+ * Card example showcase class.
+ */
+object CardExample {
+    fun cardLayout(): Composable = object : Composable {
+        override fun <T> compose(receiver: T): T {
+            Column(
+                modifier = Modifier()
+                    .background("#ffffff")
+                    .padding("20px")
+                    .maxWidth("800px"),
+                content = {
+                    Text(
+                        "Card Component Examples",
+                        Modifier()
+                            .padding("0 0 20px 0")
+                            .color("#333")
+                            .fontSize("28px")
+                            .fontWeight("bold")
+                    )
+                    // Basic card examples would go here
+                }
+            )
+            return receiver
+        }
+    }
 }
 
 /**
@@ -260,12 +414,63 @@ private fun createCardExample(): String {
         body {
             div {
                 // Render our example
-                example.compose(consumer)
+                example.compose(this)
             }
         }
     }
 
     return output.toString()
+}
+
+/**
+ * Image example showcase object.
+ */
+object ImageExample {
+    fun basicImage(): Composable = object : Composable {
+        override fun <T> compose(receiver: T): T {
+            Column(
+                modifier = Modifier()
+                    .background("#ffffff")
+                    .padding("20px")
+                    .borderRadius("8px"),
+                content = {
+                    Text(
+                        "Basic Image Example",
+                        Modifier()
+                            .padding("0 0 20px 0")
+                            .color("#333")
+                            .fontSize("20px")
+                            .fontWeight("bold")
+                    )
+                    // Image components would go here
+                }
+            )
+            return receiver
+        }
+    }
+    
+    fun multipleImages(): Composable = object : Composable {
+        override fun <T> compose(receiver: T): T {
+            Column(
+                modifier = Modifier()
+                    .background("#ffffff")
+                    .padding("20px")
+                    .borderRadius("8px"),
+                content = {
+                    Text(
+                        "Multiple Images Example",
+                        Modifier()
+                            .padding("0 0 20px 0")
+                            .color("#333")
+                            .fontSize("20px")
+                            .fontWeight("bold")
+                    )
+                    // Multiple image examples would go here
+                }
+            )
+            return receiver
+        }
+    }
 }
 
 /**
@@ -277,26 +482,32 @@ private fun createImageExample(): String {
     val multipleImagesExample = ImageExample.multipleImages()
 
     // Combine both examples in a column
-    val example = Column(
-        modifier = Modifier()
-            .background("#ffffff")
-            .padding("20px")
-            .borderRadius("8px")
-            .shadow(),
-        content = listOf(
-            Text(
-                "Image Component Examples",
-                Modifier()
-                    .padding("0 0 20px 0")
-                    .color("#333")
-                    .fontSize("28px")
-                    .fontWeight("bold")
-            ),
-            basicExample,
-            Spacer("40px", true),
-            multipleImagesExample
-        )
-    )
+    val example = object : Composable {
+        override fun <T> compose(receiver: T): T {
+            Column(
+                modifier = Modifier()
+                    .background("#ffffff")
+                    .padding("20px")
+                    .borderRadius("8px")
+                    .shadow(),
+                content = {
+                    Text(
+                        "Image Component Examples",
+                        Modifier()
+                            .padding("0 0 20px 0")
+                            .color("#333")
+                            .fontSize("28px")
+                            .fontWeight("bold")
+                    )
+                    // Manually render both image examples within this content
+                    basicExample.compose(receiver)
+                    Spacer(size = "40px", isVertical = true)
+                    multipleImagesExample.compose(receiver)
+                }
+            )
+            return receiver
+        }
+    }
 
     // Create a StringBuilder to capture the HTML output
     val output = StringBuilder()
@@ -337,12 +548,41 @@ private fun createImageExample(): String {
             div {
                 style = "max-width: 1200px; margin: 0 auto;"
                 // Render our example
-                example.compose(consumer)
+                example.compose(this)
             }
         }
     }
 
     return output.toString()
+}
+
+/**
+ * Divider example showcase object.
+ */
+object DividerExample {
+    fun create(): Composable = object : Composable {
+        override fun <T> compose(receiver: T): T {
+            Column(
+                modifier = Modifier()
+                    .background("#ffffff")
+                    .padding("20px")
+                    .borderRadius("8px")
+                    .shadow(),
+                content = {
+                    Text(
+                        "Divider Component Examples",
+                        Modifier()
+                            .padding("0 0 20px 0")
+                            .color("#333")
+                            .fontSize("28px")
+                            .fontWeight("bold")
+                    )
+                    // Divider examples would go here
+                }
+            )
+            return receiver
+        }
+    }
 }
 
 /**
@@ -391,7 +631,7 @@ private fun createDividerExample(): String {
             div {
                 style = "max-width: 800px; margin: 0 auto;"
                 // Render our example
-                example.compose(consumer)
+                example.compose(this)
             }
         }
     }

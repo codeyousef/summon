@@ -1,14 +1,25 @@
 package code.yousef.summon
 
-import code.yousef.summon.components.input.TextArea
+import code.yousef.summon.state.SummonMutableState
+import code.yousef.summon.validation.ValidationResult
 import kotlinx.browser.document
 import org.w3c.dom.HTMLTextAreaElement
 import org.w3c.dom.events.Event
 
 /**
- * JS-specific extension function to set up textarea change handling for TextArea.
+ * Data class to hold TextArea-related extension properties for JS implementation
  */
-fun TextArea.setupJsTextAreaHandler(fieldId: String) {
+data class TextAreaJsExtension(
+    val state: SummonMutableState<String>,
+    val onValueChange: (String) -> Unit,
+    val validators: List<(String) -> ValidationResult> = emptyList(),
+    val validate: () -> Unit
+)
+
+/**
+ * JS-specific function to set up textarea change handling.
+ */
+fun setupJsTextAreaHandler(fieldId: String, textAreaExt: TextAreaJsExtension) {
     val textareaElement = document.getElementById(fieldId) as? HTMLTextAreaElement ?: return
 
     // Set up the input event listener
@@ -16,25 +27,17 @@ fun TextArea.setupJsTextAreaHandler(fieldId: String) {
         val newValue = textareaElement.value
 
         // Update the state
-        state.value = newValue
+        textAreaExt.state.value = newValue
 
         // Call the onValueChange callback
-        onValueChange(newValue)
+        textAreaExt.onValueChange(newValue)
 
         // Validate if there are validators
-        if (validators.isNotEmpty()) {
-            validate()
+        if (textAreaExt.validators.isNotEmpty()) {
+            textAreaExt.validate()
         }
 
         // Prevent default to avoid form submission
         event.preventDefault()
     }
-}
-
-/**
- * JS-specific extension function to set up textarea change handling.
- * This function is called from the JsPlatformRenderer.
- */
-fun setupJsTextAreaHandler(fieldId: String, textArea: TextArea) {
-    textArea.setupJsTextAreaHandler(fieldId)
 } 

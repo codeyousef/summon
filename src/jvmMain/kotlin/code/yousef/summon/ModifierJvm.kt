@@ -1,9 +1,6 @@
 package code.yousef.summon
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
-
-import modifier.Modifier
+import code.yousef.summon.modifier.Modifier
 import kotlinx.html.CommonAttributeGroupFacade
 import kotlinx.html.style
 

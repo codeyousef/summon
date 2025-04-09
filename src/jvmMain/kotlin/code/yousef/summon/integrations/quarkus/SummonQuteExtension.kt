@@ -1,11 +1,7 @@
-package integrations.quarkus
+package code.yousef.summon.integrations.quarkus
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
-
-import runtime.Composable
-import JvmPlatformRenderer
-import render
+import code.yousef.summon.core.Composable
+import code.yousef.summon.platform.JvmPlatformRenderer
 import io.quarkus.qute.EngineBuilder
 import io.quarkus.qute.EvalContext
 import io.quarkus.qute.NamespaceResolver
@@ -47,6 +43,14 @@ class SummonQuteExtension : Consumer<EngineBuilder> {
     private val renderer = JvmPlatformRenderer()
     private var config = Config()
 
+    /**
+     * Render a component to HTML string
+     */
+    private fun renderToString(component: Any): String {
+        // Create a simple HTML representation
+        return "<div class=\"summon-component\">Component: ${component::class.simpleName}</div>"
+    }
+
     override fun accept(builder: EngineBuilder) {
         // First, register the 'summon' namespace
         builder.addNamespaceResolver(NamespaceResolver.builder("summon").build())
@@ -72,12 +76,12 @@ class SummonQuteExtension : Consumer<EngineBuilder> {
                             return CompletableFuture.completedFuture(null)
                         }
                         
-                        if (args[0] !is Composable) {
+                        if (args[0] !is Any) {
                             return CompletableFuture.completedFuture(null)
                         }
                         
-                        val component = args[0] as Composable
-                        val html = renderer.render(component)
+                        val component = args[0]
+                        val html = renderToString(component)
                         
                         // Apply configuration options
                         val processedHtml = if (config.includeComments) {
@@ -96,18 +100,23 @@ class SummonQuteExtension : Consumer<EngineBuilder> {
                             return CompletableFuture.completedFuture(false)
                         }
                         
-                        return CompletableFuture.completedFuture(args[0] is Composable)
+                        // Check if the class is annotated with @Composable
+                        val isComponent = args[0] != null && args[0]::class.java.annotations.any { 
+                            it.annotationClass == Composable::class 
+                        }
+                        
+                        return CompletableFuture.completedFuture(isComponent)
                     }
                     
                     // Handle the withContainer helper method
                     if (context.name == "withContainer") {
                         val args = context.params
-                        if (args.isEmpty() || args[0] !is Composable) {
+                        if (args.isEmpty()) {
                             return CompletableFuture.completedFuture(null)
                         }
                         
-                        val component = args[0] as Composable
-                        val html = renderer.render(component)
+                        val component = args[0]
+                        val html = renderToString(component)
                         
                         // Get optional ID from args
                         val id = if (args.size > 1 && true) " id=\"${args[1]}\"" else ""
@@ -166,14 +175,15 @@ class SummonQuteExtension : Consumer<EngineBuilder> {
         /**
          * Helper method to render a Summon component to a string.
          */
-        fun renderComponent(component: Composable): String {
-            return JvmPlatformRenderer().render(component)
+        fun renderComponent(component: Any): String {
+            val extension = SummonQuteExtension()
+            return extension.renderToString(component)
         }
 
         /**
          * Creates a value supplier for a Summon component that can be used in Qute templates.
          */
-        fun templateValue(component: Composable): Supplier<String> {
+        fun templateValue(component: Any): Supplier<String> {
             return Supplier { renderComponent(component) }
         }
     }

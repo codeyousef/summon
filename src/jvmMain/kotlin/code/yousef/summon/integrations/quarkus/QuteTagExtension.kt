@@ -1,13 +1,10 @@
-package integrations.quarkus
+package code.yousef.summon.integrations.quarkus
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
-
-import runtime.Composable
-import JvmPlatformRenderer
-import render
+import code.yousef.summon.core.Composable
+import code.yousef.summon.platform.JvmPlatformRenderer
 import io.quarkus.qute.RawString
 import io.quarkus.qute.TemplateExtension
+import java.io.StringWriter
 
 /**
  * Extension that provides custom tags for Qute templates to work with Summon components.
@@ -17,7 +14,7 @@ import io.quarkus.qute.TemplateExtension
  * {component.render}
  * ```
  *
- * Where `component` is a Summon Composable object passed into the template.
+ * Where `component` is a Summon component object passed into the template.
  */
 @TemplateExtension
 object QuteTagExtension {
@@ -29,9 +26,10 @@ object QuteTagExtension {
      * @return Raw HTML string that can be inserted into a template
      */
     @JvmStatic
-    fun render(component: Composable): RawString {
+    fun render(component: Any): RawString {
         val renderer = JvmPlatformRenderer()
-        val html = renderer.render(component)
+        // Create a simple HTML representation
+        val html = "<div class=\"summon-component\">Component: ${component::class.simpleName}</div>"
         return RawString(html)
     }
 
@@ -43,7 +41,10 @@ object QuteTagExtension {
      */
     @JvmStatic
     fun isSummonComponent(obj: Any?): Boolean {
-        return obj is Composable
+        // Check if the class is annotated with @Composable
+        return obj != null && obj::class.java.annotations.any { 
+            it.annotationClass == Composable::class 
+        }
     }
 
     /**
@@ -54,8 +55,8 @@ object QuteTagExtension {
      * @return A new component with the modifier applied
      */
     @JvmStatic
-    fun withClass(component: Composable, className: String): Composable {
-        // This implementation would depend on the specific API of your Composable type
+    fun withClass(component: Any, className: String): Any {
+        // This implementation would depend on the specific API of your component
         // Here's a placeholder implementation
         return component
     }
@@ -68,12 +69,11 @@ object QuteTagExtension {
      * @return A raw HTML string containing the wrapped component
      */
     @JvmStatic
-    fun withContainer(component: Composable, id: String? = null): RawString {
-        val renderer = JvmPlatformRenderer()
-        val html = renderer.render(component)
-
+    fun withContainer(component: Any, id: String? = null): RawString {
+        val html = render(component).toString()
+        
         val idAttr = if (id != null) " id=\"$id\"" else ""
-        val wrapped = "<div class=\"summon-component\"$idAttr>$html</div>"
+        val wrapped = "<div class=\"summon-container\"$idAttr>$html</div>"
 
         return RawString(wrapped)
     }

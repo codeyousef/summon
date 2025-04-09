@@ -1,7 +1,8 @@
-package code.yousef.summon
+package code.yousef.summon.state
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.runtime.remember
+import code.yousef.summon.state.SummonMutableState
+import code.yousef.summon.state.mutableStateOf
 
 /**
  * A registry for persisted state values.
@@ -36,40 +37,42 @@ object SaveableStateRegistry {
 }
 
 /**
- * Creates a MutableState that persists its value across recompositions.
+ * Creates a SummonMutableState that persists its value across recompositions.
+ * This is a simplified implementation that doesn't depend on compose runtime.
+ *
  * @param key A unique key to identify this state
  * @param initialValue The initial value if no persisted value exists
- * @return A MutableState that will persist its value
+ * @return A SummonMutableState that will persist its value
  */
 fun <T> rememberSaveable(
     key: String,
     initialValue: T
-): MutableState<T> {
+): SummonMutableState<T> {
     // Try to retrieve a previously saved value
     val savedValue = SaveableStateRegistry.get<T>(key) ?: initialValue
     val state = mutableStateOf(savedValue)
-
+    
     // Register a listener to persist value changes
     if (state is MutableStateImpl<T>) {
         state.addListener { newValue ->
             SaveableStateRegistry.set(key, newValue)
         }
     }
-
+    
     return state
 }
 
 /**
- * Creates a MutableState that persists its value across recompositions.
- * This version generates a key based on the identifier.
- * @param identifier An identifier to make the key unique
+ * Similar to rememberSaveable but uses an identifier as the key.
+ * This is useful when the key needs to be generated from multiple values.
+ *
+ * @param identifier The identifier to use as the key
  * @param initialValue The initial value if no persisted value exists
- * @return A MutableState that will persist its value
  */
-fun <T> rememberSaveableWithId(
+fun <T> rememberWithIdentifier(
     identifier: String,
     initialValue: T
-): MutableState<T> {
+): SummonMutableState<T> {
     // Generate a key based on the identifier
     return rememberSaveable(identifier, initialValue)
 }

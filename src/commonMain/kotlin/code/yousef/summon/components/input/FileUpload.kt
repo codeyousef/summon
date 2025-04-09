@@ -2,9 +2,9 @@ package code.yousef.summon.components.input
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.MutableState
+import code.yousef.summon.state.SummonMutableState
 import code.yousef.summon.runtime.getPlatformRenderer
-import code.yousef.summon.runtime.mutableStateOf
+import code.yousef.summon.state.mutableStateOf
 
 /**
  * A composable that displays a file upload input field.
@@ -78,7 +78,7 @@ fun FileUpload(
  * */
 @Composable
 fun FileUpload(
-    state: MutableState<List<FileInfo>>,
+    state: SummonMutableState<List<FileInfo>>,
     onFilesSelected: (List<FileInfo>) -> Unit = {},
     modifier: Modifier = Modifier(),
     multiple: Boolean = false,

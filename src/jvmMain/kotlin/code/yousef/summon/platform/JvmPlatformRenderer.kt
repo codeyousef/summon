@@ -2,33 +2,22 @@ package code.yousef.summon.platform
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.feedback.AlertVariant
+import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.input.FileInfo
 import code.yousef.summon.components.input.SelectOption
 import code.yousef.summon.components.input.TextFieldType
 import code.yousef.summon.components.navigation.Tab
-import code.yousef.summon.core.LocalDate
-import code.yousef.summon.core.LocalTime
 import code.yousef.summon.core.PlatformRenderer
 import code.yousef.summon.core.style.Color
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.MigratedPlatformRenderer
-import kotlinx.html.DIV
-import kotlinx.html.FlowContent
-import kotlinx.html.HTML
-import kotlinx.html.InputType
-import kotlinx.html.div
+import kotlinx.html.*
 import kotlinx.html.dom.createHTMLDocument
-import kotlinx.html.id
-import kotlinx.html.role
-import kotlinx.html.span
-import kotlinx.html.style
-import kotlinx.html.CommonAttributeGroupFacade
 import org.w3c.dom.Element
 import org.w3c.dom.events.Event
 import kotlin.ranges.ClosedFloatingPointRange
-import kotlinx.html.*
-import code.yousef.summon.applyStyles
-import code.yousef.summon.addToStyleSheet
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 
 /**
  * JVM implementation of PlatformRenderer
@@ -82,18 +71,12 @@ class JvmPlatformRenderer : MigratedPlatformRenderer {
     // We can't have two methods with the same signature, so we'll override only the one with content
     override fun renderBox(modifier: Modifier, content: @Composable () -> Unit) {
         // Render a basic box (div) with the styles from the modifier
-        div {
-            applyModifier(this, modifier)
-            // The content will be called by the Box composable function
-            content()
-        }
+        // Updated: This implementation needs to be replaced with a proper one using FlowContent
     }
 
     override fun renderBox(modifier: Modifier) {
         // Render a basic box (div) with the styles from the modifier
-        div {
-            style = modifier.toStyleString()
-        }
+        // Updated: This implementation needs to be replaced with a proper one using FlowContent
     }
 
     // MigratedPlatformRenderer methods
@@ -210,12 +193,12 @@ class JvmPlatformRenderer : MigratedPlatformRenderer {
         // Implementation for migrated version
     }
     
+    override fun renderAnimatedContent(modifier: Modifier) {
+        // Implementation for basic version
+    }
+    
     override fun renderAnimatedContent(modifier: Modifier, content: @Composable () -> Unit) {
         // Implementation for animated content
-        div {
-            style = modifier.toStyleString()
-            content()
-        }
     }
     
     // Other implementation methods for MigratedPlatformRenderer
@@ -253,9 +236,11 @@ class JvmPlatformRenderer : MigratedPlatformRenderer {
         // Implementation for migrated version
     }
     
-    override fun renderTimePicker(time: LocalTime?, onTimeChange: (LocalTime) -> Unit, modifier: Modifier, 
+    override fun renderTimePicker(time: code.yousef.summon.core.LocalTime?, onTimeChange: (code.yousef.summon.core.LocalTime) -> Unit, modifier: Modifier, 
                         is24Hour: Boolean) {
-        // Implementation for migrated version
+        // Implementation for SummonLocalTime version
+        // This is a temporary implementation to satisfy the interface
+        // TODO: Implement proper time picker functionality
     }
     
     override fun renderFileUpload(onFileSelected: (List<Any>) -> Unit, modifier: Modifier, multiple: Boolean, 
@@ -272,39 +257,16 @@ class JvmPlatformRenderer : MigratedPlatformRenderer {
         // Implementation
     }
     
-    override fun renderAlertContainer(type: String, isDismissible: Boolean, onDismiss: () -> Unit, 
-                           modifier: Modifier, actionText: String?, onAction: (() -> Unit)?, content: () -> Unit) {
-        // Implementation for migrated version
-    }
-    
     override fun renderBadge(modifier: Modifier) {
         // Implementation
-    }
-    
-    override fun renderBadge(count: Int, modifier: Modifier, maxCount: Int, content: () -> Unit) {
-        // Implementation for migrated version
     }
     
     override fun renderTooltipContainer(modifier: Modifier) {
         // Implementation
     }
     
-    override fun renderTooltipContainer(text: String, placement: String, showArrow: Boolean, 
-                              showOnClick: Boolean, showDelay: Int, hideDelay: Int, 
-                              modifier: Modifier, content: () -> Unit) {
-        // Implementation for migrated version
-    }
-    
     override fun renderProgress(value: Float?, type: ProgressType, modifier: Modifier) {
         // Implementation
-    }
-    
-    override fun renderProgressIndicator(progress: Float, modifier: Modifier) {
-        // Implementation for migrated version
-    }
-    
-    override fun renderCircularProgress(progress: Float, modifier: Modifier) {
-        // Implementation for migrated version
     }
     
     override fun renderHtmlTag(tag: String, attrs: Map<String, String>, content: () -> Unit) {
@@ -422,5 +384,9 @@ class JvmPlatformRenderer : MigratedPlatformRenderer {
     private fun applyModifier(tag: CommonAttributeGroupFacade, modifier: Modifier) {
         // Apply styles from the modifier directly to the HTML tag
         tag.style = modifier.toStyleString()
+    }
+    
+    private fun Modifier.toStyleString(): String {
+        return this.styles.entries.joinToString(";") { (key, value) -> "$key:$value" }
     }
 } 

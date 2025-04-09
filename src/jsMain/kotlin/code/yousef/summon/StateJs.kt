@@ -1,5 +1,7 @@
 package code.yousef.summon
 
+import code.yousef.summon.state.SummonMutableState
+import code.yousef.summon.state.MutableStateImpl
 import code.yousef.summon.runtime.PlatformRendererProvider
 import code.yousef.summon.runtime.PlatformRenderer
 
@@ -14,7 +16,7 @@ import kotlinx.browser.window
  * Subscribes to state changes and updates UI components when the state changes.
  * @param onValueChanged A function that will be called whenever the state value changes
  */
-fun <T> MutableState<T>.subscribeWithRender(onValueChanged: (T) -> Unit) {
+fun <T> SummonMutableState<T>.subscribeWithRender(onValueChanged: (T) -> Unit) {
     if (this is MutableStateImpl) {
         // Add the listener
         this.addListener { newValue ->
@@ -32,7 +34,7 @@ fun <T> MutableState<T>.subscribeWithRender(onValueChanged: (T) -> Unit) {
  * @param serializer A function to convert the value to a string
  * @param deserializer A function to convert a string back to a value
  */
-fun <T> MutableState<T>.persistToLocalStorage(
+fun <T> SummonMutableState<T>.persistToLocalStorage(
     key: String,
     serializer: (T) -> String,
     deserializer: (String) -> T
@@ -65,7 +67,7 @@ fun <T> MutableState<T>.persistToLocalStorage(
  * @param serializer A function to convert the value to a string
  * @param deserializer A function to convert a string back to a value
  */
-fun <T> MutableState<T>.persistToSessionStorage(
+fun <T> SummonMutableState<T>.persistToSessionStorage(
     key: String,
     serializer: (T) -> String,
     deserializer: (String) -> T
