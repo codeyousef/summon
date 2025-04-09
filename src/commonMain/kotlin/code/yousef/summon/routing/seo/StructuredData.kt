@@ -15,13 +15,11 @@ import kotlinx.serialization.json.*
  */
 @Composable
 fun JsonLdStructuredData(jsonLdString: String) {
-    val composer = CompositionLocal.currentComposer
+    val renderer = getPlatformRenderer()
 
     SideEffect {
-        println("JsonLdStructuredData SideEffect: Adding JSON-LD script.")
-        // TODO: Implement platform-specific head manipulation.
-        // val scriptContent = escapeHtmlEntities(jsonLdString) // Ensure content is safe
-        // PlatformRendererProvider.getPlatformRenderer().addHeadElement("<script type=\"application/ld+json\">$scriptContent</script>")
+        val scriptContent = escapeHtmlEntities(jsonLdString) // Ensure content is safe
+        renderer.addHeadElement("<script type=\"application/ld+json\">$scriptContent</script>")
     }
 
     // Renders no UI.
@@ -41,14 +39,11 @@ private fun escapeHtmlEntities(str: String): String {
  */
 @Composable
 fun StructuredData(jsonLd: JsonElement) {
-    val composer = CompositionLocal.currentComposer
     val renderer = getPlatformRenderer()
 
     SideEffect {
-        println("StructuredData SideEffect: Adding JSON-LD script.")
-        // TODO: Implement platform-specific head manipulation
-        // val scriptContent = escapeHtmlEntities(Json.encodeToString(jsonLd))
-        // renderer.addHeadElement("<script type=\"application/ld+json\">$scriptContent</script>")
+        val scriptContent = escapeHtmlEntities(Json.encodeToString(JsonElement.serializer(), jsonLd))
+        renderer.addHeadElement("<script type=\"application/ld+json\">$scriptContent</script>")
     }
 }
 

@@ -23,6 +23,14 @@ interface MigratedPlatformRenderer : PlatformRenderer {
      */
     fun <T> renderComposable(composable: @Composable () -> Unit, consumer: T)
 
+    /**
+     * Add an HTML element to the document head.
+     * This is used by SEO components like MetaTags, CanonicalLinks, etc.
+     * 
+     * @param content The HTML content to add to the head
+     */
+    fun addHeadElement(content: String)
+
     // Core components
     fun renderText(modifier: Modifier, content: @Composable () -> Unit)
     fun renderBox(modifier: Modifier, content: @Composable () -> Unit)

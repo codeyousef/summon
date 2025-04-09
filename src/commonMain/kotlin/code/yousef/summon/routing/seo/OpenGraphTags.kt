@@ -3,6 +3,7 @@ package code.yousef.summon.routing.seo
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.SideEffect
+import code.yousef.summon.runtime.getPlatformRenderer
 
 
 /**
@@ -24,43 +25,33 @@ fun OpenGraphTags(
 
     // This is a head-only component, so we need to use a SideEffect to manipulate the head
     SideEffect {
-        // TODO: Implement platform-specific head manipulation
-        // For now, we'll just print what we would do
-        println("OpenGraphTags SideEffect: Setting og:title='$title'")
-        println("OpenGraphTags SideEffect: Setting og:type='$type'")
-        println("OpenGraphTags SideEffect: Setting og:url='$url'")
-
-        // In a real implementation, we would use the platform renderer to add these elements to the head
-        // val renderer = getPlatformRenderer()
-        // renderer.addHeadElement("<meta property=\"og:title\" content=\"$title\">")
-        // renderer.addHeadElement("<meta property=\"og:type\" content=\"$type\">")
-        // renderer.addHeadElement("<meta property=\"og:url\" content=\"$url\">")
+        val renderer = getPlatformRenderer()
+        
+        // Add required Open Graph meta tags
+        renderer.addHeadElement("<meta property=\"og:title\" content=\"$title\">")
+        renderer.addHeadElement("<meta property=\"og:type\" content=\"$type\">")
+        renderer.addHeadElement("<meta property=\"og:url\" content=\"$url\">")
 
         // Optional OG tags
         image?.let {
-            println("OpenGraphTags SideEffect: Setting og:image='$it'")
-            // renderer.addHeadElement("<meta property=\"og:image\" content=\"$it\">")
+            renderer.addHeadElement("<meta property=\"og:image\" content=\"$it\">")
         }
 
         description?.let {
-            println("OpenGraphTags SideEffect: Setting og:description='$it'")
-            // renderer.addHeadElement("<meta property=\"og:description\" content=\"$it\">")
+            renderer.addHeadElement("<meta property=\"og:description\" content=\"$it\">")
         }
 
         siteName?.let {
-            println("OpenGraphTags SideEffect: Setting og:site_name='$it'")
-            // renderer.addHeadElement("<meta property=\"og:site_name\" content=\"$it\">")
+            renderer.addHeadElement("<meta property=\"og:site_name\" content=\"$it\">")
         }
 
         locale?.let {
-            println("OpenGraphTags SideEffect: Setting og:locale='$it'")
-            // renderer.addHeadElement("<meta property=\"og:locale\" content=\"$it\">")
+            renderer.addHeadElement("<meta property=\"og:locale\" content=\"$it\">")
         }
 
         // Add any additional OG tags
         extraTags.forEach { (name, content) ->
-            println("OpenGraphTags SideEffect: Setting og:$name='$content'")
-            // renderer.addHeadElement("<meta property=\"og:$name\" content=\"$content\">")
+            renderer.addHeadElement("<meta property=\"og:$name\" content=\"$content\">")
         }
     }
 }
@@ -130,12 +121,10 @@ fun OpenGraphProduct(
  */
 @Composable
 fun OpenGraphTag(property: String, content: String) {
-    val composer = CompositionLocal.currentComposer
+    val renderer = getPlatformRenderer()
 
     SideEffect {
-        println("OpenGraphTag SideEffect: Setting property='$property' content='$content'")
-        // TODO: Implement platform-specific head manipulation.
-        // PlatformRendererProvider.code.yousef.summon.runtime.PlatformRendererProvider.getPlatformRenderer().addHeadElement("<meta property=\"$property\" content=\"$content\">")
+        renderer.addHeadElement("<meta property=\"$property\" content=\"$content\">")
     }
 
     // Renders no UI.

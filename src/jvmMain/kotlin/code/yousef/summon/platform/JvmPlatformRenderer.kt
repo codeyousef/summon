@@ -23,6 +23,28 @@ import kotlinx.datetime.LocalTime
  * JVM implementation of PlatformRenderer
  */
 class JvmPlatformRenderer : MigratedPlatformRenderer {
+    // Store head elements that should be added to the page
+    private val headElements = mutableListOf<String>()
+    
+    /**
+     * Add an HTML element to the document head.
+     * This is used by SEO components like MetaTags, CanonicalLinks, etc.
+     * 
+     * @param content The HTML content to add to the head
+     */
+    override fun addHeadElement(content: String) {
+        headElements.add(content)
+    }
+    
+    /**
+     * Get all head elements that have been added
+     * 
+     * @return List of head element HTML strings
+     */
+    fun getHeadElements(): List<String> {
+        return headElements.toList()
+    }
+    
     // Core PlatformRenderer methods
     override fun renderText(value: String, modifier: Modifier) {
         // Implementation

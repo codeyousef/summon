@@ -2,11 +2,10 @@ package code.yousef.summon.components.input
 
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.PlatformRendererProvider
+import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.components.layout.Row
 import code.yousef.summon.components.display.Text
-import code.yousef.summon.runtime.getPlatformRenderer
 import code.yousef.summon.theme.ColorHelpers
 import code.yousef.summon.theme.Spacer
 
@@ -33,8 +32,7 @@ fun FormField(
     isRequired: Boolean = false,
     fieldContent: @Composable () -> Unit
 ) {
-    // TODO: Replace getPlatformRenderer with CompositionLocal access
-    val renderer = getPlatformRenderer()
+    val composer = CompositionLocal.currentComposer
 
     // TODO: Renderer signature update required.
     // The renderer call might become simpler or be removed if Column handles the container.

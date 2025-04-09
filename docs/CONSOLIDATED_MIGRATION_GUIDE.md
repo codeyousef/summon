@@ -2353,3 +2353,104 @@ Key changes:
 5. Fixed browser history integration to handle query parameters
 
 These updates help maintain a consistent architecture across the entire codebase, ensuring all components work together seamlessly in the new annotation-based composition system.
+
+## Migration Status Update - April 2025
+
+### Platform Support Clarification
+
+The Summon library is designed as a Kotlin Multiplatform (KMP) project with specific target platforms:
+
+- **JVM**: Server-side rendering using HTML generation
+- **JS**: Client-side rendering and interactivity
+
+There is no direct Android implementation in the current architecture. The codebase targets JVM and JS platforms only, with no specific Android module present in the project structure. This is an intentional design decision to focus on web-based applications.
+
+### Recent Infrastructure Improvements
+
+#### 1. PlatformRenderer Implementation Progress
+
+The core platform renderer abstractions have been significantly improved:
+
+- Completed migration of `PlatformRendererProvider` to `getPlatformRenderer()` function
+- Added compatibility layers for legacy code still using the old provider pattern
+- Created `MigratedPlatformRenderer` interface for smooth transition
+- Added proper JVM and JS-specific implementations with clear separation
+- Improved error handling for missing renderer scenarios
+
+```kotlin
+// New centralized access pattern
+fun getPlatformRenderer(): MigratedPlatformRenderer {
+    return renderer ?: throw IllegalStateException(
+        "PlatformRenderer not set. Call setPlatformRenderer first."
+    )
+}
+```
+
+#### 2. Platform-Specific Initialization
+
+Added dedicated platform initializers to make setup more intuitive:
+
+```kotlin
+// JVM initialization
+fun initializeJvmPlatformRenderer() {
+    val renderer = JvmPlatformRenderer()
+    setPlatformRenderer(renderer)
+}
+
+// JS initialization
+fun initializeJsPlatformRenderer() {
+    val renderer = JsPlatformRenderer()
+    setPlatformRenderer(renderer)
+}
+```
+
+### Component Extension Pattern
+
+A new pattern has emerged for handling platform-specific component extensions in the annotation-based system:
+
+1. **Extension Data Classes**: Created dedicated data classes to hold component properties and callbacks
+
+```kotlin
+// Example: Button extension data
+data class ButtonJsExtension(
+    val onClick: () -> Unit,
+    val enabled: Boolean = true,
+    val loading: Boolean = false
+)
+```
+
+2. **Standalone Extension Functions**: Converted component extension methods to standalone functions
+
+```kotlin
+// Before (interface-based)
+fun Button.setupJsClickHandler(buttonId: String) { ... }
+
+// After (annotation-based)
+fun setupButtonJsHandler(buttonId: String, buttonExt: ButtonJsExtension) { ... }
+```
+
+3. **Common Type Consolidation**: Extracted shared types to prevent duplication
+
+```kotlin
+// FormExtensionTypes.kt - centralized shared types
+interface MutableState<T> {
+    var value: T
+}
+
+data class ValidationResult(val isValid: Boolean, val message: String? = null)
+```
+
+This pattern has been successfully applied to numerous components including Alert, Badge, Card, TextField, TextArea, and more.
+
+### Next Migration Priorities
+
+1. **JsPlatformRenderer Update**: Refactoring to use extension data objects
+2. **Interface Naming Consistency**: Resolving name conflicts with standard naming conventions
+3. **Platform-Specific Testing**: Ensuring behavioral parity on both JVM and JS
+4. **Documentation Updates**: Comprehensive updates to reflect the new patterns
+
+### Additional Resources
+
+For platform-specific implementation details, refer to:
+- `src/jvmMain/kotlin/code/yousef/summon/runtime/PlatformRenderer.kt`
+- `src/jsMain/kotlin/code/yousef/summon/runtime/PlatformRenderer.kt`

@@ -3,6 +3,7 @@ package code.yousef.summon.routing.seo
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.SideEffect
+import code.yousef.summon.runtime.getPlatformRenderer
 
 /**
  * Enum for Twitter card types
@@ -29,43 +30,39 @@ fun TwitterCards(
     creator: String? = null,
     extraTags: Map<String, String> = emptyMap()
 ) {
-    val composer = CompositionLocal.currentComposer
+    val renderer = getPlatformRenderer()
 
     SideEffect {
-        println("TwitterCards SideEffect: Setting card='${card.value}'")
-        // TODO: Implement platform-specific head manipulation.
-        // val renderer = getPlatformRenderer()
-
         // Card type
-        // renderer.addHeadElement("<meta name=\"twitter:card\" content=\"${card.value}\">")
+        renderer.addHeadElement("<meta name=\"twitter:card\" content=\"${card.value}\">")
 
         // Basic tags
         title?.let {
-            // renderer.addHeadElement("<meta name=\"twitter:title\" content=\"$it\">")
+            renderer.addHeadElement("<meta name=\"twitter:title\" content=\"$it\">")
         }
         description?.let {
-            // renderer.addHeadElement("<meta name=\"twitter:description\" content=\"$it\">")
+            renderer.addHeadElement("<meta name=\"twitter:description\" content=\"$it\">")
         }
 
         // Image
         image?.let {
-            // renderer.addHeadElement("<meta name=\"twitter:image\" content=\"$it\">")
+            renderer.addHeadElement("<meta name=\"twitter:image\" content=\"$it\">")
         }
         imageAlt?.let {
-            // renderer.addHeadElement("<meta name=\"twitter:image:alt\" content=\"$it\">")
+            renderer.addHeadElement("<meta name=\"twitter:image:alt\" content=\"$it\">")
         }
 
         // Account information
         site?.let {
-            // renderer.addHeadElement("<meta name=\"twitter:site\" content=\"$it\">")
+            renderer.addHeadElement("<meta name=\"twitter:site\" content=\"$it\">")
         }
         creator?.let {
-            // renderer.addHeadElement("<meta name=\"twitter:creator\" content=\"$it\">")
+            renderer.addHeadElement("<meta name=\"twitter:creator\" content=\"$it\">")
         }
 
         // Add any additional Twitter tags
         extraTags.forEach { (name, content) ->
-            // renderer.addHeadElement("<meta name=\"twitter:$name\" content=\"$content\">")
+            renderer.addHeadElement("<meta name=\"twitter:$name\" content=\"$content\">")
         }
     }
 }
@@ -124,12 +121,10 @@ fun TwitterProductCard(
  */
 @Composable
 fun TwitterCardTag(name: String, content: String) {
-    val composer = CompositionLocal.currentComposer
+    val renderer = getPlatformRenderer()
 
     SideEffect {
-        println("TwitterCardTag SideEffect: Setting name='$name' content='$content'")
-        // TODO: Implement platform-specific head manipulation.
-        // getPlatformRenderer().addHeadElement("<meta name=\"$name\" content=\"$content\">")
+        renderer.addHeadElement("<meta name=\"$name\" content=\"$content\">")
     }
     // Renders no UI.
 }

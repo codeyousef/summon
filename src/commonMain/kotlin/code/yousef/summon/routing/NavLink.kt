@@ -30,13 +30,20 @@ fun NavLink(
     content: @Composable () -> Unit
 ) {
     val composer = CompositionLocal.currentComposer
-    // TODO: Get Router instance via CompositionLocal
-    // val router = Router.current
-
-    // TODO: Determine active state based on Router's current path.
-    //       Requires public API from Router or different approach.
-    // val isActive = router?.let { ... } ?: false
-    val isActive = false // Placeholder: Assume not active for now
+    // Access router via CompositionLocal
+    val router = LocalRouter
+    
+    // Determine if this link is active
+    val currentPath = router?.toString() ?: "" // This is a placeholder until Router exposes currentPath
+    val isActive = if (router != null) {
+        if (exact) {
+            currentPath == to
+        } else {
+            currentPath.startsWith(to)
+        }
+    } else {
+        false
+    }
 
     // Combine base modifier with active modifier if necessary
     val finalModifier = if (isActive) modifier.then(activeModifier) else modifier
