@@ -5,6 +5,7 @@ import code.yousef.summon.components.layout.Alignment
 import code.yousef.summon.components.layout.Row
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.applyIf
+import code.yousef.summon.modifier.onClick
 import code.yousef.summon.modifier.pointerEvents
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
@@ -39,8 +40,10 @@ fun RadioButton(
     val composer = CompositionLocal.currentComposer
     // Apply styling directly to the element via modifier
     val finalModifier = modifier
-        .opacity(if (enabled) 1f else 0.6f) // Assuming opacity is in Modifier
-        .cursor(if (enabled) "pointer" else "default") // Assuming cursor is in Modifier
+        .apply {
+            if (enabled) this else this.copy(styles = this.styles + ("opacity" to "0.6"))
+        }
+        .cursor(if (enabled) "pointer" else "default")
         .applyIf(!enabled) { pointerEvents("none") }
 
     composer?.startNode() // Start RadioButton node
@@ -75,29 +78,25 @@ fun RadioButtonWithLabel(
     enabled: Boolean = true,
     label: @Composable () -> Unit
 ) {
-    // TODO: Implement clickable modifier properly on the Row
+    // Implement clickable behavior on the Row
     val rowModifier = modifier
         .cursor(if (enabled) "pointer" else "default")
-        .opacity(if (enabled) 1f else 0.6f)
+        .apply {
+            if (enabled) this else this.copy(styles = this.styles + ("opacity" to "0.6"))
+        }
         .applyIf(!enabled) { pointerEvents("none") }
-    // .clickable(enabled = enabled) { onClick() } // Row click triggers radio click
+        .onClick { if (enabled) onClick() } // Add onClick handler to make the entire row clickable
 
     Row(
         modifier = rowModifier,
         verticalAlignment = Alignment.Vertical.CenterVertically
-        // TODO: Add onClick lambda if clickable modifier doesn't work
     ) {
         RadioButton(
             selected = selected,
-            onClick = onClick, // Still pass onClick for potential direct interaction?
+            onClick = onClick,
             enabled = enabled
-            // modifier = Modifier() // Don't apply row's modifier here
         )
-        Spacer(modifier = Modifier().width("8px")) // Assuming Spacer/width exist
+        Spacer(modifier = Modifier().width("8px"))
         label()
     }
 }
-
-// The old RadioButton class is removed.
-// The old RadioGroup class is removed - group logic is handled via state management.
-// The old RadioOption data class is removed. 

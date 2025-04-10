@@ -138,7 +138,12 @@ abstract class MigratedPlatformRendererImpl(private val delegate: PlatformRender
         // Implemented by platform-specific code
     }
 
-    override fun renderTabLayout(tabs: List<Tab>, selectedTabIndex: Int, onTabSelected: (Int) -> Unit, modifier: Modifier) {
+    override fun renderTabLayout(
+        tabs: List<Tab>,
+        selectedTabIndex: Int,
+        onTabSelected: (Int) -> Unit,
+        modifier: Modifier
+    ) {
         delegate.renderTabLayout(tabs, selectedTabIndex, onTabSelected, modifier)
     }
 
@@ -211,12 +216,12 @@ abstract class MigratedPlatformRendererImpl(private val delegate: PlatformRender
 
     // Input components
     override fun renderTextField(
-        value: String, 
-        onValueChange: (String) -> Unit, 
-        enabled: Boolean, 
-        readOnly: Boolean, 
-        type: TextFieldType, 
-        placeholder: String?, 
+        value: String,
+        onValueChange: (String) -> Unit,
+        enabled: Boolean,
+        readOnly: Boolean,
+        type: TextFieldType,
+        placeholder: String?,
         modifier: Modifier
     ) {
         delegate.renderTextField(value, onValueChange, enabled, readOnly, type, placeholder, modifier)
@@ -230,13 +235,13 @@ abstract class MigratedPlatformRendererImpl(private val delegate: PlatformRender
     }
 
     override fun renderTextArea(
-        value: String, 
-        onValueChange: (String) -> Unit, 
-        enabled: Boolean, 
-        readOnly: Boolean, 
-        rows: Int?, 
-        maxLength: Int?, 
-        placeholder: String?, 
+        value: String,
+        onValueChange: (String) -> Unit,
+        enabled: Boolean,
+        readOnly: Boolean,
+        rows: Int?,
+        maxLength: Int?,
+        placeholder: String?,
         modifier: Modifier
     ) {
         delegate.renderTextArea(value, onValueChange, enabled, readOnly, rows, maxLength, placeholder, modifier)
@@ -250,9 +255,9 @@ abstract class MigratedPlatformRendererImpl(private val delegate: PlatformRender
     }
 
     override fun renderCheckbox(
-        checked: Boolean, 
-        onCheckedChange: (Boolean) -> Unit, 
-        enabled: Boolean, 
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+        enabled: Boolean,
         modifier: Modifier
     ) {
         delegate.renderCheckbox(checked, onCheckedChange, enabled, modifier)
@@ -266,9 +271,9 @@ abstract class MigratedPlatformRendererImpl(private val delegate: PlatformRender
     }
 
     override fun renderRadioButton(
-        selected: Boolean, 
-        onClick: () -> Unit, 
-        enabled: Boolean, 
+        selected: Boolean,
+        onClick: () -> Unit,
+        enabled: Boolean,
         modifier: Modifier
     ) {
         delegate.renderRadioButton(selected, onClick, enabled, modifier)
@@ -282,10 +287,10 @@ abstract class MigratedPlatformRendererImpl(private val delegate: PlatformRender
     }
 
     override fun <T> renderSelect(
-        value: T?, 
-        onValueChange: (T?) -> Unit, 
-        options: List<SelectOption<T>>, 
-        enabled: Boolean, 
+        value: T?,
+        onValueChange: (T?) -> Unit,
+        options: List<SelectOption<T>>,
+        enabled: Boolean,
         modifier: Modifier
     ) {
         delegate.renderSelect(value, onValueChange, options, enabled, modifier)
@@ -299,9 +304,9 @@ abstract class MigratedPlatformRendererImpl(private val delegate: PlatformRender
     }
 
     override fun renderSwitch(
-        checked: Boolean, 
-        onCheckedChange: (Boolean) -> Unit, 
-        enabled: Boolean, 
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+        enabled: Boolean,
         modifier: Modifier
     ) {
         delegate.renderSwitch(checked, onCheckedChange, enabled, modifier)
@@ -315,9 +320,9 @@ abstract class MigratedPlatformRendererImpl(private val delegate: PlatformRender
     }
 
     override fun renderDatePicker(
-        value: LocalDate?, 
-        onValueChange: (LocalDate?) -> Unit, 
-        enabled: Boolean, 
+        value: LocalDate?,
+        onValueChange: (LocalDate?) -> Unit,
+        enabled: Boolean,
         modifier: Modifier
     ) {
         delegate.renderDatePicker(value, onValueChange, enabled, modifier)
@@ -328,30 +333,30 @@ abstract class MigratedPlatformRendererImpl(private val delegate: PlatformRender
     }
 
     override fun renderTimePicker(
-        time: SummonLocalTime?, 
-        onTimeChange: (SummonLocalTime) -> Unit, 
+        time: SummonLocalTime?,
+        onTimeChange: (SummonLocalTime) -> Unit,
         modifier: Modifier,
         is24Hour: Boolean
     ) {
         // For now just implement an empty method to satisfy the interface
     }
-    
+
     override fun renderTimePicker(
-        value: KotlinxLocalTime?, 
-        onValueChange: (KotlinxLocalTime?) -> Unit, 
-        enabled: Boolean, 
+        value: KotlinxLocalTime?,
+        onValueChange: (KotlinxLocalTime?) -> Unit,
+        enabled: Boolean,
         modifier: Modifier
     ) {
         // Delegate to the platform renderer
         delegate.renderTimePicker(value, onValueChange, enabled, modifier)
     }
-    
+
     override fun renderFileUpload(
-        onFilesSelected: (List<FileInfo>) -> Unit, 
-        accept: String?, 
-        multiple: Boolean, 
-        enabled: Boolean, 
-        capture: String?, 
+        onFilesSelected: (List<FileInfo>) -> Unit,
+        accept: String?,
+        multiple: Boolean,
+        enabled: Boolean,
+        capture: String?,
         modifier: Modifier
     ): () -> Unit {
         return delegate.renderFileUpload(onFilesSelected, accept, multiple, enabled, capture, modifier)
@@ -365,11 +370,11 @@ abstract class MigratedPlatformRendererImpl(private val delegate: PlatformRender
     }
 
     override fun renderRangeSlider(
-        value: ClosedFloatingPointRange<Float>, 
-        onValueChange: (ClosedFloatingPointRange<Float>) -> Unit, 
-        valueRange: ClosedFloatingPointRange<Float>, 
-        steps: Int, 
-        enabled: Boolean, 
+        value: ClosedFloatingPointRange<Float>,
+        onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
+        valueRange: ClosedFloatingPointRange<Float>,
+        steps: Int,
+        enabled: Boolean,
         modifier: Modifier
     ) {
         delegate.renderRangeSlider(value, onValueChange, valueRange, steps, enabled, modifier)
@@ -380,6 +385,17 @@ abstract class MigratedPlatformRendererImpl(private val delegate: PlatformRender
         modifier: Modifier, valueRange: ClosedFloatingPointRange<Float>
     ) {
         // Implemented by platform-specific code
+    }
+
+    override fun renderSlider(
+        value: Float,
+        onValueChange: (Float) -> Unit,
+        valueRange: ClosedFloatingPointRange<Float>,
+        steps: Int,
+        enabled: Boolean,
+        modifier: Modifier
+    ) {
+        delegate.renderSlider(value, onValueChange, valueRange, steps, enabled, modifier)
     }
 
     override fun renderDiv(modifier: Modifier) {
@@ -414,7 +430,7 @@ abstract class MigratedPlatformRendererImpl(private val delegate: PlatformRender
     override fun renderHtmlTag(tag: String, attrs: Map<String, String>, content: () -> Unit) {
         // Implemented by platform-specific code
     }
-    
+
     override fun renderFormField(
         modifier: Modifier,
         labelId: String?,

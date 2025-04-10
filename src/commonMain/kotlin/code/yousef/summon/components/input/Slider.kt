@@ -33,20 +33,12 @@ fun Slider(
         .cursor(if (enabled) "pointer" else "default") // Assuming cursor is in Modifier
         .applyIf(!enabled) { pointerEvents("none") }
 
-    // --- Workaround for renderRangeSlider needing a Range --- 
-    // TODO: Reconcile Slider API (Float) with renderRangeSlider API (Range<Float>)
-    val dummyRangeValue = value..value
-    val onRangeChange: (ClosedFloatingPointRange<Float>) -> Unit = { newValueRange ->
-        if (enabled) onValueChange(newValueRange.start) // Extract single value
-    }
-    // --- End Workaround ---
-
     composer?.startNode() // Start Slider node
     if (composer?.inserting == true) {
         val renderer = getPlatformRenderer()
-        renderer.renderRangeSlider(
-            value = dummyRangeValue,
-            onValueChange = onRangeChange,
+        renderer.renderSlider(
+            value = value,
+            onValueChange = onValueChange,
             valueRange = valueRange,
             steps = steps,
             enabled = enabled,

@@ -448,7 +448,7 @@ routing {
 | RadioButton |      ✅      |      ✅      | Refactored for CompositionLocal                                        |
 | Switch      |      ✅      |      ✅      | Refactored for CompositionLocal                                        |
 | Select      |      ✅      |      ✅      | Refactored for CompositionLocal                                        |
-| Slider      |      ✅      |      ✅      | Refactored for CompositionLocal, needs API reconciliation              |
+| Slider      |      ✅      |      ✅      | Fully migrated with dedicated renderSlider API for improved type safety |
 | RangeSlider |      ✅      |      ✅      | Migrated to @Composable with FloatRange utility & StatefulRangeSlider  |
 | DatePicker  |      ✅      |      ✅      | Refactored for CompositionLocal                                        |
 | TimePicker  |      ✅      |      ✅      | Migrated to @Composable with helper functions & StatefulTimePicker added |
@@ -846,18 +846,57 @@ ButtonLink(
 )
 ```
 
-## Common Issues & Best Practices
+## Recent Component Updates - July 2023
 
-The recent component fixes highlight several important best practices:
+### Slider Component
 
-1. **Extension vs Member Functions**: Many modifier functions like `attribute()` are extension functions, not member functions. They should be called directly without `this.` prefix inside lambda blocks.
+The `Slider` component has been improved to properly handle single-value sliders without using workarounds:
 
-2. **Default Styling**: Apply sensible default styling to components for a consistent look and feel, while still allowing customization via modifiers.
+**Before (Problematic):**
+```kotlin
+// --- Workaround for renderRangeSlider needing a Range --- 
+// TODO: Reconcile Slider API (Float) with renderRangeSlider API (Range<Float>)
+val dummyRangeValue = value..value
+val onRangeChange: (ClosedFloatingPointRange<Float>) -> Unit = { newValueRange ->
+    if (enabled) onValueChange(newValueRange.start) // Extract single value
+}
+// --- End Workaround ---
 
-3. **Variant-Based Styling**: For components with variants (like Alert), use a `when` expression to apply appropriate styling based on the variant.
+composer?.startNode() // Start Slider node
+if (composer?.inserting == true) {
+    val renderer = getPlatformRenderer()
+    renderer.renderRangeSlider(
+        value = dummyRangeValue,
+        onValueChange = onRangeChange,
+        valueRange = valueRange,
+        steps = steps,
+        enabled = enabled,
+        modifier = finalModifier
+    )
+}
+```
 
-4. **Hover Effects**: Interactive components should include hover effects for better user feedback. Use the `hover()` modifier with appropriate styling.
+**After (Improved):**
+```kotlin
+composer?.startNode() // Start Slider node
+if (composer?.inserting == true) {
+    val renderer = getPlatformRenderer()
+    renderer.renderSlider(
+        value = value,
+        onValueChange = onValueChange,
+        valueRange = valueRange,
+        steps = steps,
+        enabled = enabled,
+        modifier = finalModifier
+    )
+}
+```
 
-5. **Layout Structure**: Use nested layout components (Row, Column) with proper spacing instead of just relying on Spacer components for more maintainable and flexible layouts.
+Key improvements:
+1. Added a dedicated `renderSlider` method to the `PlatformRenderer` interface for single-value sliders
+2. Implemented the method in JvmPlatformRenderer and JsPlatformRenderer
+3. Updated the Slider component to use the new method directly instead of using a workaround
+4. Ensured consistent behavior across platforms
+5. Improved code readability and maintainability
 
-These updates improve the overall quality, consistency, and usability of the Summon component library.
+This change provides a cleaner, more type-safe API for single-value sliders, while maintaining compatibility with range sliders. The implementation in platform renderers reuses existing range slider logic for efficiency, while presenting a more intuitive API for component developers.

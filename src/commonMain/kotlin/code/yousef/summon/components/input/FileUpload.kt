@@ -1,114 +1,81 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.state.SummonMutableState
+import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.remember
 import code.yousef.summon.state.mutableStateOf
 
 /**
- * A composable that displays a file upload input field.
- * 
- * @param onFilesSelected Callback that is invoked when files are selected
- * @param modifier The modifier to apply to this composable
- * @param multiple Whether multiple files can be selected
- * @param accept File types that are accepted (e.g., ".jpg, .png, image/*")
- * @param enabled Whether the file upload is enabled
- * @param capture Capture method to use for file selection on mobile devices
- * @param label Optional label to display for the file upload
- * @param buttonLabel Text to display on the upload button
+ * A composable function that allows the user to upload files.
+ *
+ * @param onFilesSelected Callback that is invoked when files are selected by the user.
+ * @param modifier Modifier to be applied to the layout.
+ * @param enabled Whether the component is enabled or not.
+ * @param multiple Whether to allow multiple file selection.
+ * @param accept File types that are accepted (e.g. ".jpg,.png").
+ * @param buttonLabel Text displayed on the button.
+ * @param label Optional label to display above the component.
+ * @param buttonStyle Optional modifier applied to the button.
  */
- * */
 @Composable
 fun FileUpload(
     onFilesSelected: (List<FileInfo>) -> Unit,
     modifier: Modifier = Modifier(),
+    enabled: Boolean = true,
     multiple: Boolean = false,
     accept: String? = null,
-    enabled: Boolean = true,
-    capture: String? = null,
+    buttonLabel: String = "Upload Files",
     label: String? = null,
-    buttonLabel: String = "Choose Files"
+    buttonStyle: Modifier = Modifier(),
 ) {
-    // Render the file upload using the platform renderer
     val renderer = getPlatformRenderer()
-    
-    // Adapter to convert List<Any> to List<FileInfo>
-    val onFileSelectedAdapter: (List<Any>) -> Unit = { anyFiles ->
-        val fileInfos = anyFiles.map { anyFile ->
-            // Handle the conversion based on what platform provides
-            // Basic implementation that works if Any is a Map with the required properties
-            if (anyFile is Map<*, *>) {
-                FileInfo(
-                    name = (anyFile["name"] as? String) ?: "",
-                    size = (anyFile["size"] as? Number)?.toLong() ?: 0L,
-                    type = (anyFile["type"] as? String) ?: "",
-                    lastModified = (anyFile["lastModified"] as? Number)?.toLong() ?: 0L
-                )
-            } else {
-                // Fallback
-                FileInfo("", 0L, "", 0L)
-            }
-        }
-        onFilesSelected(fileInfos)
-    }
-    
-    // Convert accept string to list if needed
-    val acceptedFileTypes = accept?.split(",")?.map { it.trim() } ?: emptyList()
-    
-    // Call the renderer with the correct parameters in the order expected by the interface
-    renderer.renderFileUpload(onFileSelectedAdapter, modifier, multiple, acceptedFileTypes)
-    
-    // TODO: Add support for label and button styling
-}
 
-/**
- * A composable that displays a file upload input field with state management.
- * 
- * @param state The state that holds the current list of selected files
- * @param onFilesSelected Callback that is invoked when files are selected
- * @param modifier The modifier to apply to this composable
- * @param multiple Whether multiple files can be selected
- * @param accept File types that are accepted (e.g., ".jpg, .png, image/*")
- * @param enabled Whether the file upload is enabled
- * @param capture Capture method to use for file selection on mobile devices
- * @param label Optional label to display for the file upload
- * @param buttonLabel Text to display on the upload button
- */
- * */
-@Composable
-fun FileUpload(
-    state: SummonMutableState<List<FileInfo>>,
-    onFilesSelected: (List<FileInfo>) -> Unit = {},
-    modifier: Modifier = Modifier(),
-    multiple: Boolean = false,
-    accept: String? = null,
-    enabled: Boolean = true,
-    capture: String? = null,
-    label: String? = null,
-    buttonLabel: String = "Choose Files"
-) {
-    FileUpload(
-        onFilesSelected = { files ->
-            state.value = files
-            onFilesSelected(files)
-        },
-        modifier = modifier,
-        multiple = multiple,
+    renderer.renderFileUpload(
+        onFilesSelected = onFilesSelected,
         accept = accept,
+        multiple = multiple,
         enabled = enabled,
-        capture = capture,
-        label = label,
-        buttonLabel = buttonLabel
+        capture = null,
+        modifier = modifier
     )
 }
 
 /**
- * Data class representing a file selected for upload.
+ * A composable function that allows the user to upload files with state management.
+ *
+ * @param onFilesSelected Callback that is invoked when files are selected by the user.
+ * @param modifier Modifier to be applied to the layout.
+ * @param enabled Whether the component is enabled or not.
+ * @param multiple Whether to allow multiple file selection.
+ * @param accept File types that are accepted (e.g. ".jpg,.png").
+ * @param buttonLabel Text displayed on the button.
+ * @param label Optional label to display above the component.
+ * @param buttonStyle Optional modifier applied to the button.
+ * @return The currently selected files.
  */
-data class FileInfo(
-    val name: String,
-    val size: Long,
-    val type: String,
-    val lastModified: Long
-) 
+@Composable
+fun FileUpload(
+    modifier: Modifier = Modifier(),
+    enabled: Boolean = true,
+    multiple: Boolean = false,
+    accept: String? = null,
+    buttonLabel: String = "Upload Files",
+    label: String? = null,
+    buttonStyle: Modifier = Modifier(),
+): List<FileInfo> {
+    val files = remember { mutableStateOf<List<FileInfo>>(emptyList()) }
+
+    FileUpload(
+        onFilesSelected = { files.value = it },
+        modifier = modifier,
+        enabled = enabled,
+        multiple = multiple,
+        accept = accept,
+        buttonLabel = buttonLabel,
+        label = label,
+        buttonStyle = buttonStyle
+    )
+
+    return files.value
+} 

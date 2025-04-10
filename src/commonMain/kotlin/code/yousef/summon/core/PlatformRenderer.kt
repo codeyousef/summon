@@ -1,13 +1,12 @@
 package code.yousef.summon.core
 
-import code.yousef.summon.modifier.Modifier
-import kotlin.ranges.ClosedFloatingPointRange
-import code.yousef.summon.components.input.TextFieldType
-import code.yousef.summon.components.input.SelectOption
-import code.yousef.summon.components.input.FileInfo
-import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.components.feedback.AlertVariant
 import code.yousef.summon.components.feedback.ProgressType
+import code.yousef.summon.components.input.FileInfo
+import code.yousef.summon.components.input.SelectOption
+import code.yousef.summon.components.input.TextFieldType
+import code.yousef.summon.components.navigation.Tab
+import code.yousef.summon.modifier.Modifier
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 
@@ -31,7 +30,7 @@ interface PlatformRenderer {
     fun renderColumn(modifier: Modifier)
 
     /** Renders a spacer element */
-    fun renderSpacer(modifier: Modifier) 
+    fun renderSpacer(modifier: Modifier)
 
     /** Renders a div container element */
     fun renderDiv(modifier: Modifier)
@@ -46,7 +45,7 @@ interface PlatformRenderer {
         enabled: Boolean,
         readOnly: Boolean,
         type: TextFieldType,
-        placeholder: String?, 
+        placeholder: String?,
         modifier: Modifier
     )
 
@@ -56,9 +55,9 @@ interface PlatformRenderer {
         onValueChange: (String) -> Unit,
         enabled: Boolean,
         readOnly: Boolean,
-        rows: Int?, 
-        maxLength: Int?, 
-        placeholder: String?, 
+        rows: Int?,
+        maxLength: Int?,
+        placeholder: String?,
         modifier: Modifier
     )
 
@@ -106,14 +105,24 @@ interface PlatformRenderer {
         enabled: Boolean,
         capture: String?,
         modifier: Modifier
-    ): () -> Unit 
+    ): () -> Unit
 
     /** Renders a range input element */
     fun renderRangeSlider(
-        value: ClosedFloatingPointRange<Float>, 
+        value: ClosedFloatingPointRange<Float>,
         onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
         valueRange: ClosedFloatingPointRange<Float>,
-        steps: Int, 
+        steps: Int,
+        enabled: Boolean,
+        modifier: Modifier
+    )
+
+    /** Renders a slider input element (single-value) */
+    fun renderSlider(
+        value: Float,
+        onValueChange: (Float) -> Unit,
+        valueRange: ClosedFloatingPointRange<Float>,
+        steps: Int,
         enabled: Boolean,
         modifier: Modifier
     )
@@ -143,7 +152,7 @@ interface PlatformRenderer {
     fun renderBadge(modifier: Modifier)
 
     /** Renders a tooltip container element */
-    fun renderTooltipContainer(modifier: Modifier) 
+    fun renderTooltipContainer(modifier: Modifier)
 
     /** Renders a progress indicator element */
     fun renderProgress(value: Float?, type: ProgressType, modifier: Modifier)
@@ -152,10 +161,10 @@ interface PlatformRenderer {
     fun renderBox(modifier: Modifier)
 
     /** Renders the start of a grid layout container */
-    fun renderGrid(modifier: Modifier) 
+    fun renderGrid(modifier: Modifier)
 
     /** Renders the start of an aspect ratio container */
-    fun renderAspectRatio(modifier: Modifier) 
+    fun renderAspectRatio(modifier: Modifier)
 
     /** Renders the start of a responsive layout container (basic div) */
     fun renderResponsiveLayout(modifier: Modifier)
@@ -168,7 +177,7 @@ interface PlatformRenderer {
 
     /** Renders a tab layout structure (e.g., tab bar) */
     fun renderTabLayout(
-        tabs: List<Tab>, 
+        tabs: List<Tab>,
         selectedTabIndex: Int,
         onTabSelected: (Int) -> Unit,
         modifier: Modifier
