@@ -31,6 +31,25 @@ interface MigratedPlatformRenderer : PlatformRenderer {
      */
     fun addHeadElement(content: String)
 
+    /**
+     * Render a hyperlink with enhanced accessibility attributes
+     *
+     * @param href The URL this link points to
+     * @param target Optional target attribute (_blank, _self, etc.)
+     * @param title Optional title attribute for hover description
+     * @param ariaLabel Optional accessible name for screen readers
+     * @param ariaDescribedBy Optional ID of element that describes this link
+     * @param modifier The modifier to apply to this link
+     */
+    fun renderEnhancedLink(
+        href: String,
+        target: String? = null,
+        title: String? = null,
+        ariaLabel: String? = null,
+        ariaDescribedBy: String? = null,
+        modifier: Modifier
+    )
+
     // Core components
     fun renderText(modifier: Modifier, content: @Composable () -> Unit)
     fun renderBox(modifier: Modifier, content: @Composable () -> Unit)

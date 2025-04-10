@@ -10,6 +10,7 @@ import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.core.PlatformRenderer
 import code.yousef.summon.core.style.Color
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.attribute
 import code.yousef.summon.runtime.MigratedPlatformRenderer
 import kotlinx.html.*
 import kotlinx.html.dom.createHTMLDocument
@@ -176,6 +177,32 @@ class JvmPlatformRenderer : MigratedPlatformRenderer {
     
     override fun renderLink(modifier: Modifier, href: String, content: @Composable () -> Unit) {
         // Implementation for migrated version
+    }
+    
+    /**
+     * Render a hyperlink with enhanced accessibility attributes.
+     * This implementation supports additional attributes like target, title, and ARIA attributes.
+     */
+    override fun renderEnhancedLink(
+        href: String,
+        target: String?,
+        title: String?,
+        ariaLabel: String?,
+        ariaDescribedBy: String?,
+        modifier: Modifier
+    ) {
+        // Create a new modifier that includes all the accessibility attributes
+        val finalModifier = modifier.let { mod ->
+            var result = mod
+            target?.let { result = result.attribute("target", it) }
+            title?.let { result = result.attribute("title", it) }
+            ariaLabel?.let { result = result.attribute("aria-label", it) }
+            ariaDescribedBy?.let { result = result.attribute("aria-describedby", it) }
+            result
+        }
+        
+        // Use the existing renderLink method with the enhanced modifier
+        renderLink(href, finalModifier)
     }
     
     override fun renderIcon(name: String, modifier: Modifier) {
