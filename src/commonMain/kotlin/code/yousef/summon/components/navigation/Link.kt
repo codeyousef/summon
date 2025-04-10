@@ -5,6 +5,7 @@ import code.yousef.summon.components.display.Text
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.applyIf
 import code.yousef.summon.modifier.attribute
+import code.yousef.summon.modifier.hover
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.getPlatformRenderer
@@ -122,8 +123,10 @@ fun ButtonLink(
         .color("white")
         .borderRadius("4px")
         .textDecoration("none")
-    // TODO: Proper hover handling via modifier/platform?
-    // .hover(mapOf("background-color" to "#45a049"))
+        .hover(mapOf(
+            "background-color" to "#45a049",
+            "box-shadow" to "0 2px 4px rgba(0,0,0,0.2)"
+        ))
 ) {
     Link(
         href = href,

@@ -20,7 +20,10 @@ enum class TooltipPlacement {
  * @param modifier Modifier applied to the wrapper element containing the trigger content.
  * @param placement Preferred placement of the tooltip popup relative to the trigger content.
  * @param showArrow Whether to display a small arrow pointing from the tooltip to the trigger.
- * @param trigger The composable content that, when hovered or interacted with, shows the tooltip.
+ * @param showDelay Delay in milliseconds before showing the tooltip after hover/focus (default: 200ms).
+ * @param hideDelay Delay in milliseconds before hiding the tooltip after hover/focus is lost (default: 100ms).
+ * @param showOnClick Whether the tooltip should also appear when the trigger is clicked.
+ * @param trigger The composable content that triggers the tooltip.
  */
 @Composable
 fun Tooltip(
@@ -28,7 +31,9 @@ fun Tooltip(
     modifier: Modifier = Modifier(),
     placement: TooltipPlacement = TooltipPlacement.TOP,
     showArrow: Boolean = true,
-    // TODO: Add delay params, click trigger option?
+    showDelay: Int = 200,
+    hideDelay: Int = 100,
+    showOnClick: Boolean = false,
     trigger: @Composable () -> Unit // The content that triggers the tooltip
 ) {
     // Implementation will be provided by the code generator
@@ -134,8 +139,8 @@ internal fun getTriggerAttributes(
     placement: TooltipPlacement,
     showArrow: Boolean,
     showOnClick: Boolean = false,
-    showDelay: Int = 0,
-    hideDelay: Int = 0
+    showDelay: Int = 200,
+    hideDelay: Int = 100
 ): Map<String, String> {
     val attributes = mutableMapOf<String, String>()
 

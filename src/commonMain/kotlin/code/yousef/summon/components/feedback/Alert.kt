@@ -7,6 +7,11 @@ import code.yousef.summon.components.input.ButtonVariant
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.components.layout.Row
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.background
+import code.yousef.summon.modifier.border
+import code.yousef.summon.modifier.color
+import code.yousef.summon.modifier.padding
+import code.yousef.summon.modifier.width
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.PlatformRendererProvider
@@ -40,10 +45,39 @@ fun Alert(
 ) {
     val composer = CompositionLocal.currentComposer
 
-    // TODO: Apply variant-specific styling (background, border, text color) via modifier.
-    val variantModifier = Modifier() // Replace with actual style lookup based on variant
-        .padding("16px")
-        .border("1px", "solid", "#ccc") // Example default border
+    // Apply variant-specific styling
+    val variantModifier = when (variant) {
+        AlertVariant.INFO -> Modifier()
+            .background("#e3f2fd") // Light blue
+            .border("1px", "solid", "#2196f3")
+            .color("#0d47a1")
+            .padding("16px")
+        
+        AlertVariant.SUCCESS -> Modifier()
+            .background("#e8f5e9") // Light green
+            .border("1px", "solid", "#4caf50")
+            .color("#1b5e20")
+            .padding("16px")
+        
+        AlertVariant.WARNING -> Modifier()
+            .background("#fff8e1") // Light amber
+            .border("1px", "solid", "#ffc107")
+            .color("#ff6f00")
+            .padding("16px")
+        
+        AlertVariant.ERROR -> Modifier()
+            .background("#ffebee") // Light red
+            .border("1px", "solid", "#f44336")
+            .color("#b71c1c")
+            .padding("16px")
+        
+        AlertVariant.NEUTRAL -> Modifier()
+            .background("#f5f5f5") // Light gray
+            .border("1px", "solid", "#9e9e9e")
+            .color("#212121")
+            .padding("16px")
+    }
+    
     val finalModifier = variantModifier.then(modifier)
 
     // Determine default icon based on variant if none provided
@@ -63,39 +97,46 @@ fun Alert(
         renderer.renderAlertContainer(variant, finalModifier)
     }
 
-    // --- Compose internal structure ---
-    // TODO: Ensure composition context places children correctly within the rendered Alert container.
+    // Create a structured and accessible alert with appropriate layout
     Row {
+        // Icon section
         if (displayIcon != null) {
-            displayIcon()
-            Spacer(Modifier().width("8px"))
+            Column(Modifier().padding("0 8px 0 0")) {
+                displayIcon()
+            }
         }
 
-        Column {
+        // Content section (takes most of the space)
+        Column(Modifier().width("100%")) {
             if (title != null) {
-                title()
+                Column(Modifier().padding("0 0 8px 0")) {
+                    title()
+                }
             }
             content()
         }
 
+        // Action buttons section
         if (actions != null) {
-            Spacer(Modifier().width("16px"))
-            actions()
+            Column(Modifier().padding("0 0 0 16px")) {
+                actions()
+            }
         }
 
+        // Dismiss button (if provided)
         if (onDismiss != null) {
-            Spacer(Modifier().width("8px"))
-            Button(
-                onClick = onDismiss,
-                label = "×",
-                modifier = Modifier().padding("4px"),
-                variant = ButtonVariant.GHOST,
-                disabled = false,
-                iconName = null
-            )
+            Column(Modifier().padding("0 0 0 8px")) {
+                Button(
+                    onClick = onDismiss,
+                    label = "×",
+                    modifier = Modifier().padding("4px"),
+                    variant = ButtonVariant.GHOST,
+                    disabled = false,
+                    iconName = null
+                )
+            }
         }
     }
-    // --- End internal structure --- 
     
     composer?.endNode() // End Alert node
 }

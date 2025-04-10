@@ -1,6 +1,9 @@
 package code.yousef.summon.components.feedback
 
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.background
+import code.yousef.summon.modifier.borderRadius
+import code.yousef.summon.modifier.height
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.getPlatformRenderer
@@ -18,8 +21,11 @@ fun ProgressBar(
     modifier: Modifier = Modifier()
 ) {
     val composer = CompositionLocal.currentComposer
-    // TODO: Apply default progress bar styles (height, background) to modifier?
-    val finalModifier = modifier // Placeholder
+    // Apply default progress bar styles - consistent look and feel
+    val finalModifier = modifier
+        .height("8px")
+        .background("#f0f0f0")
+        .borderRadius("4px")
 
     composer?.startNode() // Start ProgressBar node
     if (composer?.inserting == true) {

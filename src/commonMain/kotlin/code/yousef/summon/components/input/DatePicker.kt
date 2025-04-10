@@ -3,14 +3,12 @@ package code.yousef.summon.components.input
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.applyIf
+import code.yousef.summon.modifier.cursor
 import code.yousef.summon.modifier.pointerEvents
+import code.yousef.summon.modifier.attribute
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.getPlatformRenderer
-
-
-// Use placeholder typealias for LocalDate
-// In a real scenario, this should be a proper date/time library type (e.g., kotlinx-datetime)
-typealias LocalDate = kotlinx.datetime.LocalDate?
+import kotlinx.datetime.LocalDate
 
 /**
  * A composable that allows users to select a date.
@@ -20,7 +18,10 @@ typealias LocalDate = kotlinx.datetime.LocalDate?
  * @param modifier Modifier applied to the date picker layout.
  * @param enabled Controls the enabled state.
  * @param label Optional label displayed for the date picker.
- * // TODO: Add parameters for min/max selectable dates, date formatting, initial display month, etc.
+ * @param minDate The minimum selectable date (inclusive). Null means no lower bound.
+ * @param maxDate The maximum selectable date (inclusive). Null means no upper bound.
+ * @param dateFormat Format string for date display (e.g., "yyyy-MM-dd"). Platform-specific implementation.
+ * @param initialDisplayMonth Initial month to display in the date picker calendar. Defaults to current month if null.
  */
 @Composable
 fun DatePicker(
@@ -28,15 +29,18 @@ fun DatePicker(
     onValueChange: (LocalDate?) -> Unit,
     modifier: Modifier = Modifier(),
     enabled: Boolean = true,
-    label: String? = null
-    // Removed placeholder, min, max, validators - handle via composition/modifier/state
+    label: String? = null,
+    minDate: LocalDate? = null,
+    maxDate: LocalDate? = null,
+    dateFormat: String = "yyyy-MM-dd",
+    initialDisplayMonth: LocalDate? = null
 ) {
     val composer = CompositionLocal.currentComposer
     // Apply styling directly to the element via modifier
     val finalModifier = modifier
         .opacity(if (enabled) 1f else 0.6f)
-        // TODO: Add cursor style? .cursor(if (enabled) "pointer" else "default")
-        .applyIf(!enabled) { pointerEvents("none") } // Assuming pointerEvents exists
+        .cursor(if (enabled) "pointer" else "default")
+        .applyIf(!enabled) { pointerEvents("none") }
 
     composer?.startNode() // Start DatePicker node
     if (composer?.inserting == true) {
@@ -44,10 +48,29 @@ fun DatePicker(
         // Pass relevant state and modifier to the renderer
         renderer.renderDatePicker(
             value = value,
-            onValueChange = { if (enabled) onValueChange(it) }, // Guard callback
+            onValueChange = { newDate ->
+                if (enabled) {
+                    // Only allow dates within the min/max range
+                    val isValid = (minDate == null || (newDate != null && newDate >= minDate)) &&
+                                 (maxDate == null || (newDate != null && newDate <= maxDate))
+                    
+                    if (isValid || newDate == null) {
+                        onValueChange(newDate)
+                    }
+                }
+            },
             enabled = enabled,
-            modifier = finalModifier
-            // Label parameter removed from renderDatePicker based on PlatformRenderer interface
+            modifier = finalModifier.applyIf(label != null) { 
+                attribute("data-label", label ?: "")
+            }.applyIf(dateFormat.isNotEmpty()) {
+                attribute("data-date-format", dateFormat)
+            }.applyIf(minDate != null) {
+                attribute("data-min-date", minDate.toString())
+            }.applyIf(maxDate != null) {
+                attribute("data-max-date", maxDate.toString())
+            }.applyIf(initialDisplayMonth != null) {
+                attribute("data-initial-month", initialDisplayMonth.toString())
+            }
         )
     }
     composer?.endNode() // End DatePicker node (self-closing)

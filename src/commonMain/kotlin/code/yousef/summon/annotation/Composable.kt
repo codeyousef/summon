@@ -10,7 +10,7 @@ package code.yousef.summon.annotation
  * 3. Executes within the context of a Composition.
  * 4. Can manage state and side effects using Summon's state management APIs (e.g., remember, mutableStateOf).
  */
-@Retention(AnnotationRetention.RUNTIME) // Or BINARY if runtime reflection isn't needed later
+@Retention(AnnotationRetention.BINARY) // Changed from RUNTIME to BINARY to avoid JS reflection issues
 @Target(
     AnnotationTarget.FUNCTION, 
     AnnotationTarget.PROPERTY_GETTER, // Allow on property getters if needed
