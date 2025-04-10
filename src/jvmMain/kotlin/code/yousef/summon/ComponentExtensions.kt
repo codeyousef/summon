@@ -5,7 +5,7 @@ import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.components.display.Image as DisplayImage
 import code.yousef.summon.components.display.Text as DisplayText
 import code.yousef.summon.components.input.Button as DisplayButton
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.test.Image as TestImage
 import code.yousef.summon.test.Button as TestButton
 import code.yousef.summon.test.Text as TestText
@@ -22,7 +22,7 @@ fun <T> TestImage.renderJvm(consumer: TagConsumer<T>): TagConsumer<T> {
     val newConsumer = sb.appendHTML()
     
     // Render using platform renderer
-    getPlatformRenderer().renderImage(src, alt, Modifier())
+    LocalPlatformRenderer.current.renderImage(src, alt, Modifier())
     
     // We'll just return the original consumer as the test is only checking the toString output
     return consumer
@@ -35,7 +35,7 @@ fun <T> TestImage.renderJvm(consumer: TagConsumer<T>): TagConsumer<T> {
 fun TestImage.renderToHtmlString(): String {
     val sb = StringBuilder()
     val consumer = sb.appendHTML()
-    getPlatformRenderer().renderImage(src, alt, Modifier())
+    LocalPlatformRenderer.current.renderImage(src, alt, Modifier())
     return sb.toString()
 }
 
@@ -49,7 +49,7 @@ fun <T> TestButton.renderJvm(consumer: TagConsumer<T>): TagConsumer<T> {
     val newConsumer = sb.appendHTML()
     
     // Render using platform renderer
-    getPlatformRenderer().renderButton({ onClick(Unit) }, !disabled, Modifier())
+    LocalPlatformRenderer.current.renderButton({ onClick(Unit) }, !disabled, Modifier())
     
     // We'll just return the original consumer as the test is only checking the toString output
     return consumer
@@ -62,7 +62,7 @@ fun <T> TestButton.renderJvm(consumer: TagConsumer<T>): TagConsumer<T> {
 fun TestButton.renderToHtmlString(): String {
     val sb = StringBuilder()
     val consumer = sb.appendHTML()
-    getPlatformRenderer().renderButton({ onClick(Unit) }, !disabled, Modifier())
+    LocalPlatformRenderer.current.renderButton({ onClick(Unit) }, !disabled, Modifier())
     return sb.toString()
 }
 
@@ -73,6 +73,6 @@ fun TestButton.renderToHtmlString(): String {
 fun TestText.renderToHtmlString(): String {
     val sb = StringBuilder()
     val consumer = sb.appendHTML()
-    getPlatformRenderer().renderText(text, Modifier())
+    LocalPlatformRenderer.current.renderText(text, Modifier())
     return sb.toString()
 } 

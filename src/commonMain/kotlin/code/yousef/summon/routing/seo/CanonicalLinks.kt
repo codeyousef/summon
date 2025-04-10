@@ -2,8 +2,8 @@ package code.yousef.summon.routing.seo
 
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.SideEffect
-import code.yousef.summon.runtime.getPlatformRenderer
 
 /**
  * CanonicalLinks component for managing canonical URLs
@@ -21,7 +21,7 @@ fun CanonicalLinks(
     // This is a head-only component, so we need to use a SideEffect to manipulate the head
     SideEffect {
         // Get the platform renderer to add head elements
-        val renderer = getPlatformRenderer()
+        val renderer = LocalPlatformRenderer.current
         
         // Add canonical URL link
         renderer.addHeadElement("<link rel=\"canonical\" href=\"$url\">")
@@ -87,7 +87,7 @@ fun CanonicalLinksWithAmp(
  */
 @Composable
 fun CanonicalLink(href: String) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
     
     SideEffect {
         renderer.addHeadElement("<link rel=\"canonical\" href=\"$href\">")

@@ -2,7 +2,7 @@ package code.yousef.summon.routing.seo
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * SemanticHTML provides components for creating semantically meaningful HTML elements
@@ -19,7 +19,7 @@ fun Header(
     modifier: Modifier = Modifier.create(),
     content: @Composable () -> Unit
 ) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
     val finalModifier = modifier
         .let { if (id != null) it.style("id", id) else it }
         .let { if (className != null) it.style("class", className) else it }
@@ -38,7 +38,7 @@ fun Main(
     modifier: Modifier = Modifier.create(),
     content: @Composable () -> Unit
 ) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
     val finalModifier = modifier
         .let { if (id != null) it.style("id", id) else it }
         .let { if (className != null) it.style("class", className) else it }
@@ -57,7 +57,7 @@ fun Nav(
     modifier: Modifier = Modifier.create(),
     content: @Composable () -> Unit
 ) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
     val finalModifier = modifier
         .let { if (id != null) it.style("id", id) else it }
         .let { if (className != null) it.style("class", className) else it }
@@ -76,7 +76,7 @@ fun Article(
     modifier: Modifier = Modifier.create(),
     content: @Composable () -> Unit
 ) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
     val finalModifier = modifier
         .let { if (id != null) it.style("id", id) else it }
         .let { if (className != null) it.style("class", className) else it }
@@ -95,7 +95,7 @@ fun Section(
     modifier: Modifier = Modifier.create(),
     content: @Composable () -> Unit
 ) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
     val finalModifier = modifier
         .let { if (id != null) it.style("id", id) else it }
         .let { if (className != null) it.style("class", className) else it }
@@ -114,7 +114,7 @@ fun Aside(
     modifier: Modifier = Modifier.create(),
     content: @Composable () -> Unit
 ) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
     val finalModifier = modifier
         .let { if (id != null) it.style("id", id) else it }
         .let { if (className != null) it.style("class", className) else it }
@@ -133,7 +133,7 @@ fun Footer(
     modifier: Modifier = Modifier.create(),
     content: @Composable () -> Unit
 ) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
     val finalModifier = modifier
         .let { if (id != null) it.style("id", id) else it }
         .let { if (className != null) it.style("class", className) else it }
@@ -153,7 +153,7 @@ fun Heading(
     modifier: Modifier = Modifier.create(),
     content: @Composable () -> Unit
 ) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
     val finalModifier = modifier
         .let { if (id != null) it.style("id", id) else it }
         .let { if (className != null) it.style("class", className) else it }

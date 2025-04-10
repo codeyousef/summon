@@ -1,8 +1,8 @@
 package code.yousef.summon.accessibility
 
-import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.DisposableEffect
 
 /**
@@ -198,7 +198,7 @@ fun makeFocusable(
     // Platform-specific focus action that will be used through the platform bridge
     val focusAction: () -> Unit = {
         // The actual focusing will happen in platform-specific code
-        val platformRenderer = getPlatformRenderer()
+        val platformRenderer = LocalPlatformRenderer.current
         // We need to notify the renderer to focus this element
         platformRenderer.applyFocus(focusId)
         // Call the onFocusChange callback

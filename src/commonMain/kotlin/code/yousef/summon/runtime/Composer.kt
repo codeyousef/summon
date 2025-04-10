@@ -1,5 +1,6 @@
 package code.yousef.summon.runtime
 
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.PlatformRendererProvider
 import code.yousef.summon.runtime.PlatformRenderer
 
@@ -101,4 +102,24 @@ interface Composer {
      * Disposes the composer and cleans up all resources.
      */
     fun dispose()
-} 
+    
+    /**
+     * Start composing a composable
+     */
+    fun startCompose()
+    
+    /**
+     * End composing a composable
+     */
+    fun endCompose()
+    
+    /**
+     * Execute a composable within this composer's context
+     */
+    fun <T> compose(composable: @Composable () -> T): T
+}
+
+/**
+ * Typealias for backward compatibility
+ */
+typealias ExtendedComposer = Composer 

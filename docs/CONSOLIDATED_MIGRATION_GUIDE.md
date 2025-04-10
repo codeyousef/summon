@@ -12,7 +12,7 @@ This document tracks the progress and provides guidance for two major refactorin
 
 The transition from `PlatformRendererProvider.getRenderer()` to `getPlatformRenderer()` offers several benefits:
 
-1.  **Improved maintainability**: Centralizes renderer access logic.
+1.  **Improved maintainability**: Centralizes renderer access.
 2.  **Better Compose pattern alignment**: Matches patterns in other Compose-based frameworks.
 3.  **Simpler API**: Reduces verbosity.
 4.  **Preparation for CompositionLocal**: Serves as a stepping stone toward using proper `CompositionLocal` for renderer access.
@@ -236,8 +236,6 @@ import code.yousef.summon.runtime.PlatformRendererProvider
 - 🔄 Addressing Composable annotation imports across components
 
 This migration is currently in progress with focus on resolving the 'Modifier' related issues first, followed by 'CompositionLocal' references.
-
----
 
 ## Part 4: Platform Independence Migration
 
@@ -483,7 +481,7 @@ routing {
 | :---------- | :----------: | :----------: | :--------------------------------------------------------------------- |
 | Button      |      ✅      |      ✅      |                                                                        |
 | TextField   |      ✅      |      ✅      | Fully migrated to @Composable, with StatefulTextField variant added     |
-| Checkbox    |      ✅      |      ✅      | Refactored for CompositionLocal                                        |
+| Checkbox    |      ✅      |      ✅      | Fully migrated to @Composable with StatefulCheckbox variant added       |
 | RadioButton |      ✅      |      ✅      | Refactored for CompositionLocal                                        |
 | Switch      |      ✅      |      ✅      | Refactored for CompositionLocal                                        |
 | Select      |      ✅      |      ✅      | Refactored for CompositionLocal                                        |
@@ -521,6 +519,16 @@ routing {
 | PulsatingButton    |      ✅      |      ✅      | Implemented button with attention-grabbing pulse effects |
 | StaggeredAnimation |      ✅      |      ✅      | Implemented staggered entrance animations for children |
 
+### Accessibility Components
+| Component              | `[R]` Status | `[A]` Status | Notes                                                        |
+| :--------------------- | :----------: | :----------: | :----------------------------------------------------------- |
+| KeyboardNavigation     |      ✅      |      ✅      | Refactored from class-based to function-based with CompositionLocal |
+| FocusManagement        |      ✅      |      ✅      | Updated to use correct runtime imports and LocalPlatformRenderer |
+| AccessibilityTree      |      ✅      |      ✅      | Implemented proper a11y attributes with CompositionLocal access |
+| Focusable              |      ✅      |      ✅      | Migrated to @Composable with enhanced keyboard navigation support |
+| KeyboardNavigable      |      ✅      |      ✅      | Refactored for proper composition lifecycle handling          |
+| Semantics              |      ✅      |      ✅      | Implemented ARIA attributes with helper functions for accessibility |
+
 ### Animation Lifecycle Management
 
 The animation system has been improved with proper integration with the composition lifecycle:
@@ -555,6 +563,8 @@ The animation system is now properly integrated with the composition lifecycle t
 
 4. **Platform abstraction**: The animation system works across platforms through the platform renderer interface, with platform-specific implementations handling the actual animation rendering.
 
+5. **CompositionLocal access**: All animation components now use `LocalPlatformRenderer.current` for proper composition-scoped renderer access, aligning with the overall migration to CompositionLocal.
+
 These improvements ensure that animations behave correctly within the composition system and automatically handle their lifecycle events (start, pause, resume, cancel) based on the composition state.
 
 ## Migration Progress Summary - April 2024
@@ -572,16 +582,150 @@ As of April 2024, significant progress has been made on the multiple migrations 
   - Card, Row, LazyColumn, Text, Button (previously migrated)
   - Image, TextField, Switch, Slider, RadioButton, Checkbox (previously migrated)
   - Progress, ProgressBar, Badge, Alert, Snackbar, Link (previously migrated)
-  - Icon, AspectRatio, Div, Span, TextArea, TimePicker (newly migrated)
-  - FormField, FileUpload, DatePicker, StatefulDemoComponent, LocalDemoComponent (newly migrated)
+  - Icon, AspectRatio, Div, Span, TextArea, TimePicker (previously migrated)
+  - FormField, FileUpload, DatePicker, StatefulDemoComponent, LocalDemoComponent (previously migrated)
+  - SEO components (OpenGraphTags, TwitterCards, CanonicalLinks, StructuredData, SitemapGeneration)
+  - Semantic HTML components (Header, Main, Nav, Article, Section, Aside, Footer, Heading)
+  - DeepLinking.MetaTags component for SEO metadata
+  - Animation components (AnimatedVisibility, AnimatedContent, TransitionComponents)
 - ✅ Migration complete - all components now use the modern CompositionLocal approach
 
-### 2. Composition System Migration - 95% Complete
+#### Implementation Details
+The final renderer access implementation provides several key features:
+
+1. **CompositionLocal Access**: Using `val renderer = LocalPlatformRenderer.current` provides proper composition-scoped access to the renderer.
+
+2. **Backwards Compatibility**: The `getPlatformRenderer()` function now serves as a bridge, first checking for CompositionLocal availability before falling back to static renderer access:
+   ```kotlin
+   fun getPlatformRenderer(): MigratedPlatformRenderer {
+       // Try CompositionLocal first (for @Composable functions)
+       return try {
+           if (CompositionLocal.currentComposer != null) {
+               try {
+                   LocalPlatformRenderer.current
+               } catch (e: IllegalStateException) {
+                   // Fall back to static renderer if no CompositionLocal
+                   renderer ?: throw IllegalStateException(/*...*/)
+               }
+           } else {
+               // Outside composition context - use static
+               renderer ?: throw IllegalStateException(/*...*/)
+           }
+       } catch (e: IllegalStateException) {
+           // Final fallback
+           renderer ?: throw IllegalStateException(/*...*/)
+       }
+   }
+   ```
+
+3. **Clear Deprecation Path**: Components using direct `PlatformRendererProvider.getRenderer()` calls have all been migrated to `LocalPlatformRenderer.current`.
+
+4. **Testing Support**: The CompositionLocal-based approach allows for easier testing by allowing test code to provide mock renderers via `CompositionLocalProvider`.
+
+#### Benefits of the New Approach
+Using `LocalPlatformRenderer.current` instead of static renderer access provides several significant benefits:
+
+1. **Proper Composition Hierarchy**: The renderer is now properly scoped to the composition hierarchy, respecting the tree structure.
+
+2. **Dynamic Renderer Switching**: Different parts of the UI can use different renderers (useful for theming, testing, or specialized rendering).
+
+3. **Testability**: Components can be tested with mock renderers provided through the composition.
+
+4. **Predictable Access**: The renderer access pattern now follows established patterns from other Compose frameworks.
+
+5. **Cleaner Dependency Injection**: Dependencies flow through the composition rather than being accessed from global state.
+
+### 2. Composition System Migration - 95% Complete ✅
 - ✅ Created the core runtime files needed for the new composition system
 - ✅ Migrated all core components to the new `@Composable` annotation-based system
 - ✅ Implemented state handling and effects system
 - ✅ Fixed composition lifecycle management for animations and resources
-- ✅ Platform-specific composer implementations being stabilized and tested
+- ✅ Platform-specific composer implementations (JvmComposer, JsComposer) largely completed
+- 🔄 Final integration testing and stability improvements in progress
+
+#### Next Steps for Composition System
+
+Now that the renderer access migration is complete, focus can shift to finalizing the Composition System migration:
+
+1. **Complete Platform Composers**: 
+   - Ensure `JvmComposer` handles all edge cases on the JVM platform
+   - Add comprehensive error handling for composition problems
+   - Enhance debugging capabilities for composition issues
+
+2. **Recomposition Optimization**: 
+   - Improve the change detection in `Recomposer` to minimize unnecessary recompositions
+   - Add fine-grained invalidation to ensure only affected parts of the UI are recomposed
+   - Implement composition stability analysis similar to Jetpack Compose
+
+3. **State Management Enhancements**:
+   - Add support for derived state similar to Jetpack Compose's `derivedStateOf`
+   - Improve performance of state change detection
+   - Add support for state snapshots to enable time-travel debugging
+
+4. **Testing Infrastructure**:
+   - Create testing utilities to simplify writing tests for composable functions
+   - Implement test doubles for various composition runtime components
+   - Add composition testing guidelines to documentation
+
+#### Best Practices for Component Development
+
+With the migration to `@Composable` functions, here are recommended best practices for future component development:
+
+1. **Always use CompositionLocals for context**: Access composition-scoped values via CompositionLocal whenever possible:
+   ```kotlin
+   // Preferred
+   val renderer = LocalPlatformRenderer.current
+   
+   // Avoid
+   val renderer = getPlatformRenderer()
+   ```
+
+2. **Manage state properly**: Use `remember` and `mutableStateOf` for component-local state:
+   ```kotlin
+   // Component-local state
+   val (value, setValue) = remember { mutableStateOf(initialValue) }
+   
+   // Or for complex state
+   val state = remember { MyStateHolder(initialValue) }
+   ```
+
+3. **Handle effects correctly**: Use appropriate effect composables:
+   ```kotlin
+   // For side effects that need cleanup
+   DisposableEffect(key1, key2) {
+       // Setup code
+       onDispose {
+           // Cleanup code
+       }
+   }
+   
+   // For launch-and-forget effects
+   LaunchedEffect(key1) {
+       // Code to run in coroutine
+   }
+   ```
+
+4. **Respect the composition lifecycle**: Ensure resources are properly acquired and released:
+   ```kotlin
+   // Automatic cleanup with DisposableEffect
+   DisposableEffect(Unit) {
+       val resource = acquireExpensiveResource()
+       onDispose {
+           resource.release()
+       }
+   }
+   ```
+
+5. **Use CompositionLocal for theming**: Pass theme data through CompositionLocal:
+   ```kotlin
+   // Define a theme CompositionLocal
+   val LocalMyTheme = CompositionLocal.compositionLocalOf { defaultTheme }
+   
+   // Access in components
+   val theme = LocalMyTheme.current
+   ```
+
+By following these practices, components will better integrate with the composition system and benefit from its features like efficient recomposition and proper lifecycle management.
 
 ### 3. Package Structure Migration - 90% Complete
 - ✅ Fixed core modifier files package names
@@ -589,6 +733,88 @@ As of April 2024, significant progress has been made on the multiple migrations 
 - ✅ Corrected package structure in platform renderer implementations
 - ✅ Addressed most import consistency issues
 - 🔄 Final package structure cleanup in progress
+
+#### Package Structure Best Practices
+
+To maintain consistency as the codebase evolves, follow these package structure guidelines:
+
+1. **Use fully qualified package names**:
+   ```kotlin
+   // Correct
+   package code.yousef.summon.components.layout
+   
+   // Incorrect
+   package layout
+   ```
+
+2. **Organize imports by category**:
+   ```kotlin
+   // Standard library imports
+   import kotlin.math.min
+   import kotlin.time.Duration
+   
+   // Core Summon imports
+   import code.yousef.summon.runtime.Composable
+   import code.yousef.summon.runtime.CompositionLocal
+   
+   // Component imports
+   import code.yousef.summon.components.layout.Box
+   
+   // Modifier imports
+   import code.yousef.summon.modifier.Modifier
+   import code.yousef.summon.modifier.padding
+   ```
+
+3. **Use proper package hierarchy**:
+   - `code.yousef.summon.runtime`: Core runtime components
+   - `code.yousef.summon.components.<category>`: UI components by category
+   - `code.yousef.summon.modifier`: Modifier API and implementations
+   - `code.yousef.summon.theme`: Theming utilities
+   - `code.yousef.summon.animation`: Animation utilities
+   - `code.yousef.summon.integration.<framework>`: Framework integration modules
+
+4. **Import CompositionLocals directly**:
+   ```kotlin
+   // Correct
+   import code.yousef.summon.runtime.LocalPlatformRenderer
+   
+   // Less clear
+   import code.yousef.summon.runtime.*
+   ```
+
+5. **Avoid wildcard imports** when possible to prevent ambiguity:
+   ```kotlin
+   // Preferred - explicit imports
+   import code.yousef.summon.modifier.padding
+   import code.yousef.summon.modifier.background
+   
+   // Avoid when possible - wildcard imports
+   import code.yousef.summon.modifier.*
+   ```
+
+#### Remaining Package Structure Tasks
+
+To complete the Package Structure Migration, these tasks remain:
+
+1. **Update remaining files with inconsistent packages**:
+   - Identify components still using short package names
+   - Update import statements to use fully qualified paths
+   - Ensure package declarations match directory structure
+
+2. **Fix circular dependencies**:
+   - Identify and resolve circular dependencies between packages
+   - Extract common utilities to appropriate packages
+   - Ensure proper layering of dependencies
+
+3. **Standard imports file**:
+   - Create standardized import templates for different component types
+   - Document import conventions for each major module
+   - Add import checks to the CI process
+
+4. **Directory structure alignment**:
+   - Ensure source directories follow the same structure as packages
+   - Move misplaced files to appropriate directories
+   - Update build files to reflect the correct package structure
 
 ### 4. Platform Independence Migration - 85% Complete
 - ✅ Removed direct Quarkus dependencies from core library
@@ -600,7 +826,31 @@ As of April 2024, significant progress has been made on the multiple migrations 
 
 The migrations have significantly improved the codebase's architecture, making Summon more maintainable, consistent with Jetpack Compose patterns, and more flexible for integration with various server technologies. The updated architecture also provides better foundations for upcoming feature development.
 
-## Recent Updates - November 2023
+## Recent Updates - May 2024
+
+### Accessibility Component Migration
+
+All accessibility-related components have been fully migrated to use the new `@Composable` annotation approach and `LocalPlatformRenderer.current` for renderer access. Key improvements include:
+
+1. **KeyboardNavigation**: Refactored from class-based to function-based composable with proper composition lifecycle handling:
+   ```kotlin
+   // Old (class-based)
+   class KeyboardNavigableContainer(...) : Composable { ... }
+   
+   // New (function-based)
+   @Composable
+   fun KeyboardNavigableContainer(
+       modifier: Modifier = Modifier(),
+       config: KeyboardNavigation.KeyboardNavigationConfig = KeyboardNavigation.KeyboardNavigationConfig(),
+       content: @Composable () -> Unit
+   ) { ... }
+   ```
+
+2. **FocusManagement**: Updated to use the correct `Composable` import from the runtime package and proper CompositionLocal access.
+
+3. **Unified CompositionLocal Usage**: Standardized the use of `LocalPlatformRenderer.current` across all accessibility components, removing the last references to `getPlatformRenderer()`.
+
+These improvements ensure all accessibility components are now properly integrated with the composition system, providing better lifecycle management and more consistent API patterns.
 
 ### CompositionLocal for Platform Renderer
 
@@ -627,3 +877,109 @@ This change provides several benefits:
 The previous `getPlatformRenderer()` function has been updated to check for CompositionLocal availability first, falling back to the static renderer only if needed. This ensures backward compatibility while providing a smooth migration path.
 
 Components like Box and Column have already been updated to use the new CompositionLocal directly, with more components to follow.
+
+## Recent Updates - June 2024
+
+### Input Component Migrations Complete
+
+All input components have now been fully migrated to the new composition system with @Composable annotations:
+
+1. **Checkbox Migration**: The Checkbox component has been completely refactored from a class-based implementation to a function-based @Composable implementation:
+   ```kotlin
+   // Old (class-based)
+   class Checkbox(
+       val state: SummonMutableState<Boolean>,
+       val onValueChange: (Boolean) -> Unit = {},
+       // ...
+   ) : Composable, InputComponent, FocusableComponent { ... }
+   
+   // New (function-based)
+   @Composable
+   fun Checkbox(
+       checked: Boolean,
+       onCheckedChange: (Boolean) -> Unit,
+       modifier: Modifier = Modifier(),
+       enabled: Boolean = true,
+       // ...
+   ) { ... }
+   ```
+   
+   Key improvements include:
+   - Added proper disabled state handling via modifier
+   - Integrated with CompositionLocal for composition-aware rendering
+   - Added a stateful variant (`StatefulCheckbox`) that manages its own state
+   - Improved parameter naming to match Jetpack Compose conventions (`checked`/`onCheckedChange`)
+   - Enhanced validation with composition-aware error state
+
+2. **Component API Consistency**: All input components now follow a consistent pattern:
+   - Primary function with controlled state pattern (state passed in from parent)
+   - Optional stateful variant for convenience (state managed internally)
+   - Proper composition lifecycle management
+   - Consistent parameter naming across components
+
+3. **JS Integration**: Updated JS-specific extensions to work with the new function-based component model:
+   ```kotlin
+   // Old approach (extension on Checkbox class)
+   fun Checkbox.setupJsCheckboxHandler(checkboxId: String) { ... }
+   
+   // New approach (standalone function)
+   fun setupJsCheckboxHandler(
+       checkboxId: String,
+       checked: Boolean,
+       onCheckedChange: (Boolean) -> Unit,
+       isIndeterminate: Boolean = false,
+       validateAndUpdate: ((Boolean) -> Unit)? = null
+   ) { ... }
+   ```
+
+### Build Improvements
+
+The codebase now builds successfully across all platforms:
+
+- **JVM target**: All components compile and work correctly with the JVM renderer
+- **JS target**: JavaScript interoperability has been updated to work with the new component model
+- **Common code**: All shared code correctly uses the @Composable annotation approach
+
+These migrations make Summon components more maintainable, easier to use, and better aligned with modern composition systems like Jetpack Compose.
+
+### Next Steps
+
+Based on the codebase scanning, nearly all components have been successfully migrated to the new approach. The next tasks on the roadmap include:
+
+1. Addressing the remaining TODOs in the SSR (Server-Side Rendering) implementation
+2. Finalizing the platform independence migration
+3. Adding comprehensive documentation for the new composition system
+4. Implementing additional framework integrations beyond Quarkus
+
+### Server-Side Rendering Improvements
+
+The server-side rendering (SSR) capabilities have been significantly enhanced with several key implementations:
+
+1. **Full SSR Pipeline**: Implemented a complete server-side rendering pipeline in `ServerSideRenderUtils.renderPageToString()` that:
+   - Sets up proper composition context for server rendering
+   - Collects and renders head elements (meta tags, title, etc.)
+   - Generates proper HTML document structure
+   - Supports hydration for client-side reactivation
+
+2. **Streaming SSR**: Added support for streaming server-side rendering in `StreamingSSR.renderToFlow()` that:
+   - Progressively renders HTML in chunks for improved performance
+   - Provides client-side markers for progressive enhancement
+   - Supports both initial HTML streaming and subsequent hydration
+
+3. **Static Site Generation**: Enhanced static site generation capabilities in `StaticSiteGenerator` with:
+   - Support for both static and dynamic routes
+   - Parameter resolution for dynamic routes
+   - Platform-specific file system access abstraction
+   - Asset management for complete static sites
+
+4. **Hydration Support**: Implemented client-side hydration logic in `StandardHydrationSupport` and `ClientHydration` to:
+   - Generate hydration data during server rendering
+   - Add hydration markers to HTML output
+   - Support client-side reactivation of server-rendered components
+
+5. **Dynamic Data Rendering**: Added support for dynamic data fetching and display in `DynamicDataComponent` that:
+   - Handles loading, error, and success states
+   - Demonstrates data-driven UI rendering
+   - Shows how to use `LaunchedEffect` for data fetching
+
+These improvements make Summon a more complete solution for server-side rendering, static site generation, and hydration, bringing it closer to the capabilities of established frameworks like Next.js and Astro, but with the type safety and elegance of Kotlin.

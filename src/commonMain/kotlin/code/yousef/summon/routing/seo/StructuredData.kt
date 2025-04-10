@@ -3,8 +3,8 @@ package code.yousef.summon.routing.seo
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.SideEffect
-import code.yousef.summon.runtime.getPlatformRenderer
 import kotlinx.serialization.json.*
 
 /**
@@ -15,7 +15,7 @@ import kotlinx.serialization.json.*
  */
 @Composable
 fun JsonLdStructuredData(jsonLdString: String) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
 
     SideEffect {
         val scriptContent = escapeHtmlEntities(jsonLdString) // Ensure content is safe
@@ -39,7 +39,7 @@ private fun escapeHtmlEntities(str: String): String {
  */
 @Composable
 fun StructuredData(jsonLd: JsonElement) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
 
     SideEffect {
         val scriptContent = escapeHtmlEntities(Json.encodeToString(JsonElement.serializer(), jsonLd))

@@ -1,21 +1,24 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.getPlatformRenderer
 
 /**
- * A Box component that renders a container element.
- * The Box component is a fundamental layout component that can contain other components.
+ * A layout component that stacks its children on top of each other.
+ * 
+ * @param modifier The modifier to be applied to this layout
+ * @param content The content to be displayed inside the box
  */
 @Composable
 fun Box(
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 ) {
-    // Use CompositionLocal for renderer access
+    // Use platform renderer directly
     val renderer = LocalPlatformRenderer.current
     renderer.renderBox(modifier)
+    
+    // Call content inside the box
     content()
 }

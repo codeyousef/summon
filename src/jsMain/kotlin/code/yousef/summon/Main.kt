@@ -136,9 +136,10 @@ private fun setupApp() {
 
     // Convert PageFactory map to List<RouteDefinition>
     val routes = Pages.getRegisteredPages().map { (path, pageFactory) ->
-        RouteDefinition(path) { params -> // Adapt the signature
+        // Explicitly name the 'content' argument to resolve ambiguity
+        RouteDefinition(path = path, content = { params -> 
             pageFactory(params) // Use params directly since it's already a RouteParams object
-        }
+        })
     }
     val notFoundHandler = Pages.getNotFoundHandler()
 

@@ -1,62 +1,31 @@
 package code.yousef.summon.runtime
 
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CommonComposer
+import code.yousef.summon.runtime.ComposeManagerContext
+
 /**
- * A simple Hello World example using the Summon composition system.
- * This demonstrates the basic usage of the @Composable annotation and state.
+ * A simple "Hello, World!" example.
  */
 object SimpleHelloWorld {
     /**
-     * Main entry point for the Hello World example.
-     * Creates a composition and renders a simple UI with a counter.
+     * Renders "Hello, World!" to the console.
      */
-    fun main() {
-        // Create a composition context
-        val context = CompositionContext()
-
-        // Compose the UI
-        context.compose {
-            HelloWorld()
-        }
-
-        // In a real application, this would be rendered to the DOM or UI
-        println("Hello World example composed successfully!")
-    }
-
-    /**
-     * A simple Hello World composable that displays a greeting and a counter.
-     */
-    @Composable
-    fun HelloWorld() {
-        // Create some state
-        val count = remember { mutableStateOf(0) }
-
-        // Display a greeting
-        Text("Hello, Summon World!")
-
-        // Display the counter
-        Text("You've clicked ${count.value} times")
-
-        // Add a button to increment the counter
-        Button(onClick = { count.value++ }) {
-            Text("Click me")
+    fun render() {
+        // Create a composer
+        val composer = CommonComposer()
+        
+        // Use composition context to render
+        ComposeManagerContext.withComposer(composer) {
+            hello()
         }
     }
-
+    
     /**
-     * A text component that displays a string.
+     * A simple composable that prints "Hello, World!".
      */
     @Composable
-    fun Text(text: String) {
-        println("Text: $text")
-    }
-
-    /**
-     * A button component that performs an action when clicked.
-     */
-    @Composable
-    fun Button(onClick: () -> Unit, content: @Composable () -> Unit) {
-        println("Button: ")
-        content()
-        println("(Click would trigger the action)")
+    private fun hello() {
+        println("Hello, World!")
     }
 } 

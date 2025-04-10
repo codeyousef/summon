@@ -2,7 +2,7 @@ package code.yousef.summon.focus
 
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.accessibility.KeyboardNavigation
 
 @Composable
@@ -12,7 +12,7 @@ fun Focusable(
     onFocusChanged: (Boolean) -> Unit = {},
     content: @Composable () -> Unit
 ) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
     
     // Create focus modifier based on focus state
     val focusModifier = when {

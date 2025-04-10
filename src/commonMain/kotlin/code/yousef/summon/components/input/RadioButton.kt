@@ -1,6 +1,5 @@
 package code.yousef.summon.components.input
 
-
 import code.yousef.summon.components.layout.Alignment
 import code.yousef.summon.components.layout.Row
 import code.yousef.summon.modifier.Modifier
@@ -87,10 +86,7 @@ fun RadioButtonWithLabel(
         .applyIf(!enabled) { pointerEvents("none") }
         .onClick { if (enabled) onClick() } // Add onClick handler to make the entire row clickable
 
-    Row(
-        modifier = rowModifier,
-        verticalAlignment = Alignment.Vertical.CenterVertically
-    ) {
+    Row(modifier = rowModifier) {
         RadioButton(
             selected = selected,
             onClick = onClick,
@@ -99,4 +95,54 @@ fun RadioButtonWithLabel(
         Spacer(modifier = Modifier().width("8px"))
         label()
     }
+}
+
+/**
+ * A RadioButton with a label.
+ * 
+ * @param selected Whether the radio button is selected
+ * @param onClick Callback to be invoked when the radio button is clicked
+ * @param label The label text to display next to the radio button
+ * @param enabled Whether the radio button is enabled
+ * @param modifier The modifier to be applied to this component
+ */
+@Composable
+fun RadioButton(
+    selected: Boolean,
+    onClick: () -> Unit,
+    label: String,
+    enabled: Boolean = true,
+    modifier: Modifier = Modifier()
+) {
+    val renderer = LocalPlatformRenderer.current
+    
+    // Create a row to hold the radio button and label
+    renderer.renderRow(modifier)
+    
+    // Render the radio button
+    RadioButton(
+        selected = selected,
+        onClick = onClick,
+        enabled = enabled
+    )
+    
+    // Render the label text
+    renderer.renderText(label, Modifier())
+}
+
+// Utility extension
+private fun Modifier.cursor(cursor: String): Modifier {
+    return this.copy(styles = this.styles + ("cursor" to cursor))
+}
+
+// For Spacer
+@Composable
+private fun Spacer(modifier: Modifier) {
+    val renderer = LocalPlatformRenderer.current
+    renderer.renderSpacer(modifier)
+}
+
+// Width extension for Modifier
+private fun Modifier.width(width: String): Modifier {
+    return this.copy(styles = this.styles + ("width" to width))
 }

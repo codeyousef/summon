@@ -2,8 +2,8 @@ package code.yousef.summon.routing.seo
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.SideEffect
-import code.yousef.summon.runtime.getPlatformRenderer
 
 /**
  * Enum for Twitter card types
@@ -30,7 +30,7 @@ fun TwitterCards(
     creator: String? = null,
     extraTags: Map<String, String> = emptyMap()
 ) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
 
     SideEffect {
         // Card type
@@ -121,7 +121,7 @@ fun TwitterProductCard(
  */
 @Composable
 fun TwitterCardTag(name: String, content: String) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
 
     SideEffect {
         renderer.addHeadElement("<meta name=\"$name\" content=\"$content\">")

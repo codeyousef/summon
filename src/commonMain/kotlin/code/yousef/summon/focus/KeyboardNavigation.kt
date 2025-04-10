@@ -2,7 +2,7 @@ package code.yousef.summon.focus
 
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.remember
 import code.yousef.summon.runtime.mutableStateOf
 import code.yousef.summon.accessibility.KeyboardNavigation
@@ -33,7 +33,7 @@ fun KeyboardNavigable(
     navigationState: NavigationState = rememberNavigationState(),
     content: @Composable () -> Unit
 ) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
     
     // Apply keyboard navigation modifier
     val navigationModifier = with(KeyboardNavigation) {

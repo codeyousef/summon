@@ -34,7 +34,10 @@ expect interface Router {
 
 data class RouteDefinition(
     val path: String,
-    val content: @Composable (RouteParams) -> Unit
+    val content: @Composable (RouteParams) -> Unit,
+    val title: String? = null,
+    val description: String? = null,
+    val canonicalUrl: String? = null
 )
 
 data class RouteParams(val params: Map<String, String>) {
@@ -101,6 +104,16 @@ internal class RouterBuilderImpl : RouterBuilder {
 
     override fun route(path: String, content: @Composable (RouteParams) -> Unit) {
         routes.add(RouteDefinition(path, content))
+    }
+
+    fun route(
+        path: String,
+        content: @Composable (RouteParams) -> Unit,
+        title: String? = null,
+        description: String? = null,
+        canonicalUrl: String? = null
+    ) {
+        routes.add(RouteDefinition(path, content, title, description, canonicalUrl))
     }
 
     override fun setNotFound(content: @Composable (RouteParams) -> Unit) {

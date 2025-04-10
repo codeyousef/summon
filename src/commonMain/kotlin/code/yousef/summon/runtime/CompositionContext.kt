@@ -1,27 +1,15 @@
 package code.yousef.summon.runtime
 
+import code.yousef.summon.annotation.Composable
+
 /**
  * Manages the lifecycle of a composition.
  * This class is responsible for creating, updating, and disposing compositions.
+ *
+ * Renamed to avoid conflicts with ComposeManagerContext.
  */
-class CompositionContext {
-    private val composer: Composer
-    
-    /**
-     * Creates a new CompositionContext with a new composer.
-     */
-    constructor() {
-        composer = RecomposerHolder.recomposer.createComposer()
-    }
-    
-    /**
-     * Creates a new CompositionContext with the given composer.
-     * 
-     * @param composer The composer to use for this context.
-     */
-    constructor(composer: Composer) {
-        this.composer = composer
-    }
+class CompositionContextImpl private constructor() {
+    private val composer: Composer = RecomposerHolder.recomposer.createComposer()
     
     /**
      * Composes the content with the current composer.
@@ -51,19 +39,19 @@ class CompositionContext {
      * Disposes this composition context, releasing any resources.
      */
     fun dispose() {
-        // In a real implementation, this would clean up resources
+        composer.dispose()
         CompositionLocal.setCurrentComposer(null)
     }
     
     companion object {
         /**
-         * Creates a new composition and composes the given content.
-         * 
+         * Creates a new composition and composes the content.
+         *
          * @param content The composable content to compose.
-         * @return A new CompositionContext.
+         * @return A new CompositionContextImpl.
          */
-        fun createComposition(content: @Composable () -> Unit): CompositionContext {
-            val context = CompositionContext()
+        fun createComposition(content: @Composable () -> Unit): CompositionContextImpl {
+            val context = CompositionContextImpl()
             context.compose(content)
             return context
         }

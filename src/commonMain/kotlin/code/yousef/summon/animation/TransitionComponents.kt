@@ -8,7 +8,7 @@ import code.yousef.summon.annotation.Composable
 import code.yousef.summon.core.style.Color
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.remember
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * Creates and remembers an InfiniteTransition instance that can be used for infinite animations.
@@ -236,7 +236,7 @@ fun <T> TransitionComponent(
     content: @Composable (Transition<T>) -> Unit
 ) {
     val transition = remember { Transition(stateValue.value, TransitionSpec(animation)) }
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
 
     // Update transition when state changes
     if (stateValue is MutableStateImpl) {
@@ -266,7 +266,7 @@ fun InfiniteTransitionEffect(
     content: @Composable (InfiniteTransition) -> Unit
 ) {
     val infiniteTransition = rememberInfiniteTransition()
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
 
     if (!running) {
         infiniteTransition.pause()

@@ -2,9 +2,13 @@ package code.yousef.summon.theme
 
 import code.yousef.summon.components.layout.Spacer
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.height
+import code.yousef.summon.modifier.margin
+import code.yousef.summon.modifier.padding
+import code.yousef.summon.modifier.width
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 
 
 /**
@@ -52,6 +56,115 @@ object Spacing {
      * @return Spacing value as a CSS px string
      */
     fun custom(multiplier: Int): String = "${BASE_UNIT * multiplier}px"
+
+    /**
+     * Creates padding values with different spacing on each side.
+     *
+     * @param top Top padding
+     * @param right Right padding
+     * @param bottom Bottom padding
+     * @param left Left padding
+     * @return A padding string formatted for CSS
+     */
+    fun padding(
+        top: String = "0",
+        right: String = "0",
+        bottom: String = "0",
+        left: String = "0"
+    ): String {
+        return "$top $right $bottom $left"
+    }
+
+    /**
+     * Creates padding values with vertical and horizontal spacing.
+     *
+     * @param vertical Padding for top and bottom
+     * @param horizontal Padding for left and right
+     * @return A padding string formatted for CSS
+     */
+    fun padding(vertical: String = "0", horizontal: String = "0"): String {
+        return "$vertical $horizontal"
+    }
+
+    /**
+     * Creates margin values with different spacing on each side.
+     *
+     * @param top Top margin
+     * @param right Right margin
+     * @param bottom Bottom margin
+     * @param left Left margin
+     * @return A margin string formatted for CSS
+     */
+    fun margin(
+        top: String = "0",
+        right: String = "0",
+        bottom: String = "0",
+        left: String = "0"
+    ): String {
+        return "$top $right $bottom $left"
+    }
+
+    /**
+     * Creates margin values with vertical and horizontal spacing.
+     *
+     * @param vertical Margin for top and bottom
+     * @param horizontal Margin for left and right
+     * @return A margin string formatted for CSS
+     */
+    fun margin(vertical: String = "0", horizontal: String = "0"): String {
+        return "$vertical $horizontal"
+    }
+
+    /**
+     * Applies a vertical space with the specified size.
+     *
+     * @param size The height of the vertical space
+     */
+    @code.yousef.summon.runtime.Composable
+    fun verticalSpace(size: String = md) {
+        Space(size.replace("px", "").toInt(), true)
+    }
+
+    /**
+     * Applies a horizontal space with the specified size.
+     *
+     * @param size The width of the horizontal space
+     */
+    @code.yousef.summon.runtime.Composable
+    fun horizontalSpace(size: String = md) {
+        Space(size.replace("px", "").toInt(), false)
+    }
+
+    /**
+     * Creates a spacer with the given size.
+     *
+     * @param size The size value to be used for the spacer
+     * @param vertical Whether the spacer should be vertical (height) or horizontal (width)
+     * @return A new Spacer component with the specified size
+     */
+    @code.yousef.summon.runtime.Composable
+    fun Space(size: Int, vertical: Boolean = true): Unit {
+        val renderer = LocalPlatformRenderer.current
+        
+        // Create appropriate modifier based on direction
+        val sizeValue = "${size}px"
+        val modifier = if (vertical) {
+            Modifier().height(sizeValue)
+        } else {
+            Modifier().width(sizeValue)
+        }
+        
+        // Render the spacer with the modifier
+        renderer.renderSpacer(modifier)
+    }
+
+    /**
+     * Creates a vertical spacer with a standard height.
+     */
+    @code.yousef.summon.runtime.Composable
+    fun VerticalSpace() {
+        Space(16, true) // Use 16px as the default size
+    }
 }
 
 /**
@@ -115,8 +228,13 @@ fun Modifier.spacingMarginVertical(value: String): Modifier =
 /**
  * Create a Spacer with consistent spacing using the Spacing system
  */
-fun createSpacer(size: String, isVertical: Boolean = true): Spacer =
-    Spacer(size = size, isVertical = isVertical)
+fun createSpacer(size: String, isVertical: Boolean = true): Modifier {
+    return if (isVertical) {
+        Modifier().height(size)
+    } else {
+        Modifier().width(size)
+    }
+}
 
 /**
  * A composable that renders an empty, sized element, typically used for spacing.
@@ -125,13 +243,9 @@ fun createSpacer(size: String, isVertical: Boolean = true): Spacer =
  */
 @Composable
 fun Spacer(modifier: Modifier) {
-    val composer = CompositionLocal.currentComposer
-    composer?.startNode() // Start Spacer node
-    if (composer?.inserting == true) {
-        getPlatformRenderer().renderBox(modifier = modifier) // Use renderBox or a specific renderSpacer
-    }
-    // No content lambda for Spacer
-    composer?.endNode() // End Spacer node
+    // Use platform renderer directly
+    val renderer = LocalPlatformRenderer.current
+    renderer.renderSpacer(modifier)
 }
 
 // --- Convenience Spacers (Example - Needs Theme Integration) ---

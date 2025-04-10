@@ -2,6 +2,7 @@
 
 package code.yousef.summon.routing
 
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import kotlinx.html.TagConsumer
 import kotlinx.html.head
 import kotlinx.html.link
@@ -51,7 +52,7 @@ class DeepLinking private constructor() {
         imageUrl: String? = null,
         type: String = "website"
     ) {
-        val renderer = code.yousef.summon.runtime.getPlatformRenderer()
+        val renderer = LocalPlatformRenderer.current
         
         // Add basic meta tags
         renderer.addHeadElement("<meta name=\"title\" content=\"$title\">")

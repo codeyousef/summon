@@ -1,4 +1,4 @@
-package runtime
+package code.yousef.summon.runtime
 
 import code.yousef.summon.runtime.SimpleHelloWorld
 
@@ -8,5 +8,5 @@ import code.yousef.summon.runtime.SimpleHelloWorld
  */
 fun main() {
     println("Starting Summon Hello World example...")
-    SimpleHelloWorld.main()
+    SimpleHelloWorld.render()
 } 

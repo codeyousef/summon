@@ -2,8 +2,8 @@ package code.yousef.summon.routing.seo
 
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.SideEffect
-import code.yousef.summon.runtime.getPlatformRenderer
 
 
 /**
@@ -25,7 +25,7 @@ fun OpenGraphTags(
 
     // This is a head-only component, so we need to use a SideEffect to manipulate the head
     SideEffect {
-        val renderer = getPlatformRenderer()
+        val renderer = LocalPlatformRenderer.current
         
         // Add required Open Graph meta tags
         renderer.addHeadElement("<meta property=\"og:title\" content=\"$title\">")
@@ -121,7 +121,7 @@ fun OpenGraphProduct(
  */
 @Composable
 fun OpenGraphTag(property: String, content: String) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
 
     SideEffect {
         renderer.addHeadElement("<meta property=\"$property\" content=\"$content\">")

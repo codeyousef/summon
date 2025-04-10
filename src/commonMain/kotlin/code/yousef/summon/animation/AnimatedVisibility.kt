@@ -2,8 +2,7 @@ package code.yousef.summon.animation
 
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * Animation entry mode for AnimatedVisibility
@@ -67,20 +66,16 @@ fun AnimatedVisibility(
     exitParams: TransitionParams = TransitionParams(),
     content: @Composable () -> Unit
 ) {
-    val composer = CompositionLocal.currentComposer
-
-    composer?.startNode()
+    // Use platform renderer directly to create the animated container
+    val renderer = LocalPlatformRenderer.current
     
-    if (composer?.inserting == true) {
-        val renderer = getPlatformRenderer()
-        renderer.renderAnimatedVisibility(visible, modifier)
-    }
-
+    // Create a container with animated visibility
+    renderer.renderAnimatedVisibility(visible, modifier)
+    
+    // Only render content if visible
     if (visible) {
         content()
     }
-
-    composer?.endNode()
 }
 
 /**
@@ -97,22 +92,18 @@ fun AnimatedVisibility(
     exitParams: TransitionParams = TransitionParams(),
     content: List<@Composable () -> Unit>
 ) {
-    val composer = CompositionLocal.currentComposer
-
-    composer?.startNode()
+    // Use platform renderer directly to create the animated container
+    val renderer = LocalPlatformRenderer.current
     
-    if (composer?.inserting == true) {
-        val renderer = getPlatformRenderer()
-        renderer.renderAnimatedVisibility(visible, modifier)
-    }
-
+    // Create a container with animated visibility
+    renderer.renderAnimatedVisibility(visible, modifier)
+    
+    // Only render content if visible
     if (visible) {
         // Legacy approach for list of composables - not the modern API
         // In future versions, this will be removed
         content.forEach { it() }
     }
-
-    composer?.endNode()
 }
 
 // Helper functions for transitions

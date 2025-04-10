@@ -3,7 +3,7 @@ package code.yousef.summon.accessibility
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * Utilities for accessibility-related tasks.
@@ -177,19 +177,16 @@ fun ApplyAccessibilityNode(
     node: AccessibilityNode,
     content: @Composable () -> Unit
 ) {
-    val composer = CompositionLocal.currentComposer
-
+    // Get current platform renderer
+    val renderer = LocalPlatformRenderer.current
+    
+    // Apply accessibility attributes to the modifier
     val accessibilityModifier = node.modifier
         .applyAccessibilityAttributes(node)
-
-    composer?.startNode() // Start a logical node
-    if (composer?.inserting == true) {
-        // Render a container (like Box) applying the modifier,
-        // or rely on content's root.
-        getPlatformRenderer().renderBox(modifier = accessibilityModifier)
-    }
-    content() // Compose the actual UI content
-    composer?.endNode() // End logical node
+    
+    // Use the platform renderer to create a container with the accessibility attributes
+    // and render the content inside it
+    renderer.renderBox(modifier = accessibilityModifier, content = content)
 }
 
 // --- Helper Functions --- (Might need review/update based on usage)

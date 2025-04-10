@@ -1,8 +1,8 @@
 package code.yousef.summon.animation
 
-import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.state.State
 
 /**
@@ -34,7 +34,7 @@ enum class ContentDirection {
  * @param duration Animation duration in milliseconds
  * @param easing The animation easing function
  * @param modifier The modifier to apply to this composable
- * @param contentFactory Function that produces content for a given state
+ * @param content Function that produces content for a given state
  */
 @Composable
 fun <T> AnimatedContent(
@@ -46,11 +46,11 @@ fun <T> AnimatedContent(
     modifier: Modifier = Modifier(),
     content: @Composable (T) -> Unit
 ) {
-    val renderer = getPlatformRenderer()
-    renderer.renderAnimatedContent(modifier) {
-        // Call the content with the current target state
-        content(targetState.value)
-    }
+    val renderer = LocalPlatformRenderer.current
+    renderer.renderAnimatedContent(modifier)
+    
+    // Call the content with the current target state
+    content(targetState.value)
 }
 
 /**

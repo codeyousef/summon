@@ -1,81 +1,106 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.*
-import code.yousef.summon.components.FocusableComponent
-import code.yousef.summon.components.InputComponent
-import code.yousef.summon.core.Composable
+import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.LocalPlatformRenderer
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.remember
+import code.yousef.summon.runtime.mutableStateOf
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.applyIf
+import code.yousef.summon.modifier.pointerEvents
 import code.yousef.summon.validation.Validator
 import code.yousef.summon.validation.ValidationResult
-import code.yousef.summon.state.SummonMutableState
-import code.yousef.summon.state.mutableStateOf
-import kotlinx.html.TagConsumer
 
 /**
  * A composable that displays a checkbox input field.
- * @param state The state that holds the current value of the checkbox
- * @param onValueChange Callback that is invoked when the input value changes
+ * @param checked The current checked state of the checkbox
+ * @param onCheckedChange Callback that is invoked when the checkbox state changes
  * @param label Optional label to display for the checkbox
  * @param modifier The modifier to apply to this composable
+ * @param enabled Controls whether the checkbox can be interacted with
  * @param isIndeterminate Whether the checkbox should be in an indeterminate state
  * @param validators List of validators to apply to the input
  */
-class Checkbox(
-    val state: SummonMutableState<Boolean>,
-    val onValueChange: (Boolean) -> Unit = {},
-    val label: String? = null,
-    val modifier: Modifier = Modifier(),
-    val isIndeterminate: Boolean = false,
-    val validators: List<Validator> = emptyList()
-) : Composable, InputComponent, FocusableComponent {
-    // Internal state to track validation errors
-    private val validationErrors = mutableStateOf<List<String>>(emptyList())
-
-    /**
-     * Renders this Checkbox composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            val typedReceiver = receiver as TagConsumer<T>
-            // Cast to core.PlatformRenderer to use the specific method
-            (LocalPlatformRenderer.current as code.yousef.summon.core.PlatformRenderer).renderCheckbox(
-                checked = state.value,
-                onCheckedChange = { newValue ->
-                    state.value = newValue
-                    onValueChange(newValue)
-                },
-                enabled = true,
-                modifier = modifier
-            )
-            return receiver
+@Composable
+fun Checkbox(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier(),
+    enabled: Boolean = true,
+    label: String? = null,
+    isIndeterminate: Boolean = false,
+    validators: List<Validator> = emptyList()
+) {
+    // Track validation errors internally
+    val validationErrors = remember { mutableStateOf<List<String>>(emptyList()) }
+    
+    // Set up the composer for composition
+    val composer = CompositionLocal.currentComposer
+    
+    // Apply additional styling for disabled state
+    val finalModifier = modifier
+        .apply {
+            if (enabled) this else this.copy(styles = this.styles + ("opacity" to "0.6"))
         }
-        return receiver
+        .cursor(if (enabled) "pointer" else "default")
+        .applyIf(!enabled) { pointerEvents("none") }
+    
+    // Start composition node
+    composer?.startNode()
+    if (composer?.inserting == true) {
+        val renderer = LocalPlatformRenderer.current
+        
+        // Cast to proper renderer function and call with parameters in the correct order
+        val renderCheckboxFunction: (Boolean, (Boolean) -> Unit, Boolean, Modifier) -> Unit = renderer::renderCheckbox
+        renderCheckboxFunction(
+            checked,
+            { newValue: Boolean -> 
+                if (enabled) {
+                    // Validate the new value
+                    val errors = validators.mapNotNull { validator ->
+                        val result = validator.validate(newValue.toString())
+                        if (!result.isValid) result.errorMessage else null
+                    }
+                    validationErrors.value = errors
+                    
+                    // Call the callback with the new value
+                    onCheckedChange(newValue)
+                }
+            },
+            enabled,
+            finalModifier
+        )
     }
+    
+    // End composition node
+    composer?.endNode()
+}
 
-    /**
-     * Validates the current input value against all validators.
-     * @return True if validation passed, false otherwise
-     */
-    fun validate(): Boolean {
-        val errors = validators.mapNotNull { validator ->
-            val result = validator.validate(state.value.toString())
-            if (!result.isValid) result.errorMessage else null
-        }
-        validationErrors.value = errors.filterNotNull()
-        return errors.isEmpty()
-    }
-
-    /**
-     * Gets the current validation errors.
-     */
-    fun getValidationErrors(): List<String> = validationErrors.value
-
-    /**
-     * Indicates whether the field is currently valid.
-     */
-    fun isValid(): Boolean = validationErrors.value.isEmpty()
+/**
+ * A stateful composable checkbox that maintains its own checked state.
+ */
+@Composable
+fun StatefulCheckbox(
+    initialChecked: Boolean = false,
+    onCheckedChange: (Boolean) -> Unit = {},
+    modifier: Modifier = Modifier(),
+    enabled: Boolean = true,
+    label: String? = null,
+    isIndeterminate: Boolean = false,
+    validators: List<Validator> = emptyList()
+) {
+    val checkedState = remember { mutableStateOf(initialChecked) }
+    
+    Checkbox(
+        checked = checkedState.value,
+        onCheckedChange = { 
+            checkedState.value = it
+            onCheckedChange(it)
+        },
+        modifier = modifier,
+        enabled = enabled,
+        label = label,
+        isIndeterminate = isIndeterminate,
+        validators = validators
+    )
 } 

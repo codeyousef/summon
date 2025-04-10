@@ -1,6 +1,7 @@
 package code.yousef.summon.runtime
 
-import code.yousef.summon.core.Composable
+import code.yousef.summon.annotation.Composable
+import code.yousef.summon.core.Composable as CoreComposable
 
 /**
  * JVM implementation of the Composer interface.
@@ -74,8 +75,38 @@ class JvmComposer : Composer {
     override fun dispose() {
         disposables.forEach { it() }
         disposables.clear()
+        slots.clear()
+        stateReads.clear()
+    }
+
+    /**
+     * Start composing a composable
+     */
+    override fun startCompose() {
+        // Implementation delegates to startNode
+        startNode()
     }
     
+    /**
+     * End composing a composable
+     */
+    override fun endCompose() {
+        // Implementation delegates to endNode
+        endNode()
+    }
+    
+    /**
+     * Execute a composable within this composer's context
+     */
+    override fun <T> compose(composable: @Composable () -> T): T {
+        startCompose()
+        try {
+            return composable()
+        } finally {
+            endCompose()
+        }
+    }
+
     /**
      * Factory method to create a JvmComposer.
      */
@@ -88,7 +119,7 @@ class JvmComposer : Composer {
     /**
      * Implementation of renderComposable for the JVM platform
      */
-    fun <T> renderComposable(composable: Composable, consumer: T): T {
+    fun <T> renderComposable(composable: CoreComposable, consumer: T): T {
         // Call compose on the composable with the provided consumer
         return composable.compose(consumer)
     }

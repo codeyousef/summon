@@ -3,9 +3,13 @@ package code.yousef.summon.ssr
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.MigratedPlatformRenderer
 import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.CommonComposer
+import code.yousef.summon.runtime.ComposeManagerContext
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.html.stream.createHTML
+import kotlinx.coroutines.delay
 
 /**
  * Implementation of streaming server-side rendering for Summon components
@@ -53,8 +57,10 @@ class StreamingRenderer(
         if (context.enableHydration) {
             emit("<script src=\"/summon-hydration.js\"></script>")
 
-            // Add hydration data
-            val hydrationData = hydrationSupport.generateHydrationData(composable)
+            // Generate hydration data
+            val hydrationData = hydrationSupport.generateHydrationData(composable, HydrationStrategy.FULL)
+            
+            // Add the hydration markers
             emit(
                 """
                 <script type="application/json" id="summon-hydration-data" style="display:none">
@@ -107,10 +113,13 @@ class StreamingRenderer(
     /**
      * Renders a composable to a string
      */
-    private fun renderToString(composable: @Composable () -> Unit): String {
+    internal fun renderToString(composable: @Composable () -> Unit): String {
         // Using createHTML from kotlinx.html to render the component
+        val composer = CommonComposer()
         return createHTML().let { consumer ->
-            platformRenderer.renderComposable(composable, consumer)
+            ComposeManagerContext.withComposer(composer) {
+                platformRenderer.renderComposable(composable, consumer)
+            }
             consumer.finalize()
         }
     }
@@ -280,26 +289,89 @@ object StreamingSSR {
      * @return A Flow emitting HTML chunks as strings.
      */
     fun renderToFlow(content: @Composable () -> Unit): Flow<String> = flow {
-        println("StreamingSSR.renderToFlow called (not implemented).")
+        println("StreamingSSR.renderToFlow called.")
 
-        // TODO: Implement streaming SSR.
-        // 1. Create a streaming Composer/Renderer (e.g., HtmlFlowRenderer).
-        // 2. Set up CompositionContext.
-        // 3. Execute `content` lambda within the context.
-        // 4. The Renderer should emit HTML chunks (e.g., to the FlowCollector `emit`).
-
-        // Placeholder emission:
-        emit("<!DOCTYPE html><html><head><title>Streaming SSR</title></head><body>")
-        emit("<div id=\"summon-root\">")
-        // Placeholder for actual streamed content generation:
-        // streamComposableContent(content) { chunk -> emit(chunk) }
-        emit("<!-- Streaming Content Placeholder -->")
-        emit("</div></body></html>")
+        // 1. Create a streaming renderer context
+        val context = RenderContext(enableHydration = true)
+        val composer = CommonComposer() // Use CommonComposer instead of JvmComposer
+        
+        // 2. Set up document structure
+        // Emit header part first for faster first contentful paint
+        emit("<!DOCTYPE html>\n<html>\n<head>")
+        emit("<meta charset=\"UTF-8\">\n")
+        emit("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n")
+        emit("<title>Summon Streaming SSR</title>\n")
+        
+        // Emit streaming-specific script that helps with progressive rendering
+        emit("""
+            <script>
+                // Progressive rendering support
+                window.__SUMMON_CHUNKS_LOADED = 0;
+                window.__SUMMON_STREAMING = true;
+                window.__summonChunkLoaded = function() {
+                    window.__SUMMON_CHUNKS_LOADED++;
+                    document.dispatchEvent(new CustomEvent('summon:chunk-loaded'));
+                };
+            </script>
+        """.trimIndent())
+        emit("</head>\n<body>")
+        
+        // 3. Begin content container with streaming attributes
+        emit("<div id=\"summon-root\" data-summon-streaming=\"true\">\n")
+        
+        // 4. Execute content within composition context to generate HTML in chunks
+        val chunks = mutableListOf<String>()
+        
+        // Simplified implementation - just render the full HTML and split into chunks
+        val fullHtml = renderer.renderToString(content)
+        val chunkSize = 4096
+        chunks.addAll(fullHtml.chunked(chunkSize))
+        
+        // 5. Emit each chunk with progress markers for client-side processing
+        chunks.forEachIndexed { index, chunk ->
+            // Wrap each chunk with a progress marker for client-side tracking
+            emit("<div data-summon-chunk=\"$index\">$chunk</div>\n")
+            emit("<script>window.__summonChunkLoaded();</script>\n")
+            
+            // Small delay between chunks to simulate network streaming
+            // In a real implementation, this would be controlled by network backpressure
+            kotlinx.coroutines.delay(10)
+        }
+        
+        // 6. Close the content container
+        emit("</div>\n")
+        
+        // 7. Add hydration script for client-side reactivation
+        val hydrationData = StreamingHydrationSupport.generateHydrationData(content)
+        emit("""
+            <script id="summon-hydration-data" type="application/json">
+                $hydrationData
+            </script>
+            <script>
+                // Signal that streaming is complete
+                window.__SUMMON_STREAMING_COMPLETE = true;
+                document.dispatchEvent(new CustomEvent('summon:streaming-complete', {
+                    detail: { chunkCount: ${chunks.size} }
+                }));
+            </script>
+            <script src="/summon-hydration.js"></script>
+        """.trimIndent())
+        
+        // 8. Close document
+        emit("</body>\n</html>")
     }
+}
 
-    // Placeholder for a function that would recursively render and stream chunks
-    private suspend fun streamComposableContent(content: @Composable () -> Unit, emitChunk: suspend (String) -> Unit) {
-        // This function would need to drive the composition and capture output
-        // from a streaming renderer, emitting chunks via `emitChunk`.
+/**
+ * A simple interface for hydration support in streaming SSR
+ */
+private object StreamingHydrationSupport {
+    /**
+     * Generates hydration data for client-side reactivation
+     */
+    fun generateHydrationData(content: @Composable () -> Unit): String {
+        // In a real implementation, this would generate proper hydration data
+        // For this example, we'll return a placeholder
+        return """{ "hydrationVersion": 1, "components": [] }"""
     }
 } 

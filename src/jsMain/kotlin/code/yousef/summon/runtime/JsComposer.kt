@@ -104,6 +104,34 @@ class JsComposer : Composer {
     }
     
     /**
+     * Start composing a composable
+     */
+    override fun startCompose() {
+        // Implementation delegates to startNode
+        startNode()
+    }
+    
+    /**
+     * End composing a composable
+     */
+    override fun endCompose() {
+        // Implementation delegates to endNode
+        endNode()
+    }
+    
+    /**
+     * Execute a composable within this composer's context
+     */
+    override fun <T> compose(composable: @Composable () -> T): T {
+        startCompose()
+        try {
+            return composable()
+        } finally {
+            endCompose()
+        }
+    }
+    
+    /**
      * Factory method to create a JsComposer.
      */
     companion object {

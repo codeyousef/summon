@@ -3,7 +3,7 @@ package code.yousef.summon.routing.seo
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.routing.Route
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * SitemapGeneration provides utilities for creating XML sitemaps
@@ -43,7 +43,7 @@ class SitemapGeneration {
         urls: List<SitemapUrl>,
         baseUrl: String
     ) {
-        val renderer = getPlatformRenderer()
+        val renderer = LocalPlatformRenderer.current
         val xml = buildSitemapXml(urls, baseUrl)
 
         renderer.renderHtmlTag("pre", emptyMap()) {

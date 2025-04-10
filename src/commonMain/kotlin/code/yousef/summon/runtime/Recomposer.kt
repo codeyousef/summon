@@ -1,5 +1,6 @@
 package code.yousef.summon.runtime
 
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.PlatformRendererProvider
 import code.yousef.summon.runtime.PlatformRenderer
 
@@ -115,10 +116,12 @@ class Recomposer {
         
         override fun recordRead(state: Any) {
             // Implementation would track state dependencies
+            recomposer.recordRead(state)
         }
         
         override fun recordWrite(state: Any) {
             // Implementation would track state changes
+            recomposer.recordStateWrite(state)
         }
         
         override fun reportChanged() {
@@ -127,11 +130,30 @@ class Recomposer {
         }
         
         override fun registerDisposable(disposable: () -> Unit) {
-            // Implementation would track disposables
+            // Implementation would store disposable for cleanup
         }
         
         override fun dispose() {
-            // Clean up resources
+            // Implementation would clean up resources
+        }
+        
+        override fun startCompose() {
+            // Start composing implementation 
+            startNode()
+        }
+        
+        override fun endCompose() {
+            // End composing implementation
+            endNode()
+        }
+        
+        override fun <T> compose(composable: @Composable () -> T): T {
+            startCompose()
+            try {
+                return composable()
+            } finally {
+                endCompose()
+            }
         }
     }
 }

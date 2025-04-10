@@ -1,23 +1,24 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.core.PlatformRenderer
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.MigratedPlatformRenderer
-import code.yousef.summon.runtime.getPlatformRenderer
 
 /**
- * A layout composable that places its children in a vertical sequence.
- * @param modifier The modifier to apply to this composable
- * @param content The composables to display inside the column
+ * A layout component that places its children in a vertical sequence.
+ * 
+ * @param modifier The modifier to be applied to this layout
+ * @param content The content to be displayed inside the column
  */
 @Composable
 fun Column(
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 ) {
-    // Use CompositionLocal for renderer access
+    // Use platform renderer directly
     val renderer = LocalPlatformRenderer.current
-    renderer.renderColumn(modifier, content)
+    renderer.renderColumn(modifier)
+    
+    // Call content inside the column
+    content()
 } 

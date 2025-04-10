@@ -68,7 +68,7 @@ private fun createContactForm(): String {
                             .fontSize("24px")
                             .fontWeight("bold")
                     )
-                    Spacer(size = "20px", isVertical = true)
+                    Spacer(modifier = createSpacer("20px", true))
                     // Add form fields here if needed
                     Button(
                         onClick = { println("Form submitted!") },
@@ -146,7 +146,7 @@ private fun createUIExample(): String {
                             .fontWeight("bold")
                             .hover(mapOf("color" to "#0066cc"))
                     )
-                    Spacer(size = "20px", isVertical = true)
+                    Spacer(modifier = createSpacer("20px", true))
                     Text(
                         "This is a demo of the enhanced styling capabilities.",
                         Modifier()
@@ -154,7 +154,7 @@ private fun createUIExample(): String {
                             .color("#666")
                             .fontSize("16px")
                     )
-                    Spacer(size = "20px", isVertical = true)
+                    Spacer(modifier = createSpacer("20px", true))
                     Row(
                         modifier = Modifier()
                             .padding("10px")
@@ -170,7 +170,7 @@ private fun createUIExample(): String {
                                     .borderRadius("4px")
                                     .hover(mapOf("background-color" to "#45a049"))
                             )
-                            Spacer(size = "10px", isVertical = false)
+                            Spacer(modifier = createSpacer("10px", false))
                             Button(
                                 onClick = { println("Secondary button clicked!") },
                                 label = "Secondary Button",
@@ -501,7 +501,7 @@ private fun createImageExample(): String {
                     )
                     // Manually render both image examples within this content
                     basicExample.compose(receiver)
-                    Spacer(size = "40px", isVertical = true)
+                    Spacer(modifier = createSpacer("40px", true))
                     multipleImagesExample.compose(receiver)
                 }
             )
@@ -637,4 +637,15 @@ private fun createDividerExample(): String {
     }
 
     return output.toString()
+}
+
+/**
+ * Helper function to create a Spacer with the specified size
+ */
+private fun createSpacer(size: String, isVertical: Boolean = true): Modifier {
+    return if (isVertical) {
+        Modifier().height(size)
+    } else {
+        Modifier().width(size)
+    }
 } 
