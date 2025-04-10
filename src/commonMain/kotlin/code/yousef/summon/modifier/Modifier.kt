@@ -350,7 +350,4 @@ data class Modifier(val styles: Map<String, String> = emptyMap()) {
             "overflow" to "hidden"
         ))
 
-    // TODO: Add Modifier extensions for accessibility attributes (role, aria-label, etc.)
-    // This might require changing the Modifier structure to hold attributes separately from styles.
-
 } 
