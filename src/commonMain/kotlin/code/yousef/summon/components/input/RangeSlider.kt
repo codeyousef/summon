@@ -2,7 +2,7 @@ package code.yousef.summon.components.input
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.mutableStateOf
 import code.yousef.summon.runtime.remember
 
@@ -32,7 +32,7 @@ fun RangeSlider(
     valueFormat: (Float) -> String = { it.toString() }
 ) {
     // Get the platform renderer
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
 
     // Render the range slider
     renderer.renderRangeSlider(

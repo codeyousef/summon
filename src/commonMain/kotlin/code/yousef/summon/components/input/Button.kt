@@ -1,7 +1,7 @@
 package code.yousef.summon.components.input
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.components.display.Icon
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.modifier.Modifier
@@ -34,7 +34,7 @@ fun Button(
     iconName: String? = null,
     iconPosition: IconPosition = IconPosition.START
 ) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
     
     // Apply variant-specific styling to the modifier
     val finalModifier = when (variant) {

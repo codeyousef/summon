@@ -40,7 +40,7 @@ private fun LocalDemoComponentImpl(
     onTextChange: (String) -> Unit,
     modifier: Modifier = Modifier()
 ) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
     renderer.renderBox(modifier) {
         renderer.renderText(Modifier()) {
             // Content would go here
@@ -62,7 +62,7 @@ fun HoistedDemoComponent(
     onTextChange: (String) -> Unit,
     modifier: Modifier = Modifier()
 ) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
     renderer.renderBox(modifier) {
         renderer.renderText(Modifier()) {
             // Content would go here
@@ -88,7 +88,7 @@ fun LocalDemoContainer(
     composer?.startNode()
     
     if (composer?.inserting == true) {
-        val renderer = getPlatformRenderer()
+        val renderer = LocalPlatformRenderer.current
         renderer.renderBox(modifier)
         
         // Render the title

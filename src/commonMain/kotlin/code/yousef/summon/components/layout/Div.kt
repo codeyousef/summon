@@ -3,7 +3,7 @@ package code.yousef.summon.components.layout
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.core.PlatformRenderer
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * A basic container component that renders a div element.
@@ -16,7 +16,7 @@ fun Div(
     modifier: Modifier = Modifier.create(),
     content: @Composable () -> Unit
 ) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
     renderer.renderDiv(modifier)
     content()
 }
@@ -32,7 +32,7 @@ fun Span(
     modifier: Modifier = Modifier.create(),
     content: @Composable () -> Unit
 ) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
     renderer.renderSpan(modifier)
     content()
 }

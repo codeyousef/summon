@@ -3,7 +3,7 @@ package code.yousef.summon.components.display
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * A composable that displays text with enhanced styling and accessibility options.
@@ -67,7 +67,7 @@ fun Text(
     // Start composition node
     composer?.startNode()
     if (composer?.inserting == true) {
-        val renderer = getPlatformRenderer()
+        val renderer = LocalPlatformRenderer.current
         // Use the correct renderText method with value parameter
         renderer.renderText(value = text, modifier = finalModifier)
     }

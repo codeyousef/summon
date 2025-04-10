@@ -6,7 +6,7 @@ import code.yousef.summon.modifier.borderRadius
 import code.yousef.summon.modifier.height
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 
 
 /**
@@ -29,7 +29,7 @@ fun ProgressBar(
 
     composer?.startNode() // Start ProgressBar node
     if (composer?.inserting == true) {
-        val renderer = getPlatformRenderer()
+        val renderer = LocalPlatformRenderer.current
         renderer.renderProgress(progress, ProgressType.LINEAR, finalModifier)
     }
     composer?.endNode() // End ProgressBar node (self-closing)

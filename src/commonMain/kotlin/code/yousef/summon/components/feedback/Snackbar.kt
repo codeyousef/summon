@@ -172,7 +172,7 @@ fun Snackbar(
     // Render the snackbar
     composer?.startNode() // Start Snackbar node
     if (composer?.inserting == true) {
-        val renderer = getPlatformRenderer()
+        val renderer = LocalPlatformRenderer.current
         // Render the snackbar container with enhanced styling
         renderer.renderBox(finalModifier)
     }
@@ -196,7 +196,7 @@ fun Snackbar(
             // Use correct Button parameters
             composer?.startNode()
             if (composer?.inserting == true) {
-                val renderer = getPlatformRenderer()
+                val renderer = LocalPlatformRenderer.current
                 val actionButtonModifier = Modifier()
 
                 // Render action button
@@ -224,7 +224,7 @@ fun Snackbar(
             // Use correct Button parameters
             composer?.startNode()
             if (composer?.inserting == true) {
-                val renderer = getPlatformRenderer()
+                val renderer = LocalPlatformRenderer.current
                 val dismissButtonModifier = Modifier().width("24px").height("24px")
 
                 // Render dismiss button

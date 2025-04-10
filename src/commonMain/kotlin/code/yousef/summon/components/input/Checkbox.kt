@@ -4,7 +4,7 @@ import code.yousef.summon.*
 import code.yousef.summon.components.FocusableComponent
 import code.yousef.summon.components.InputComponent
 import code.yousef.summon.core.Composable
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.validation.Validator
 import code.yousef.summon.validation.ValidationResult
@@ -42,7 +42,7 @@ class Checkbox(
             @Suppress("UNCHECKED_CAST")
             val typedReceiver = receiver as TagConsumer<T>
             // Cast to core.PlatformRenderer to use the specific method
-            (getPlatformRenderer() as code.yousef.summon.core.PlatformRenderer).renderCheckbox(
+            (LocalPlatformRenderer.current as code.yousef.summon.core.PlatformRenderer).renderCheckbox(
                 checked = state.value,
                 onCheckedChange = { newValue ->
                     state.value = newValue

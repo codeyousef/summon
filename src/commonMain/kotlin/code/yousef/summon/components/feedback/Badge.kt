@@ -6,7 +6,7 @@ import code.yousef.summon.modifier.attribute
 import code.yousef.summon.modifier.minHeight
 import code.yousef.summon.modifier.minWidth
 import code.yousef.summon.modifier.onClick
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * Badge types for different semantic meanings
@@ -126,7 +126,7 @@ fun Badge(
     finalModifier = finalModifier.attribute("data-content", content)
 
     // Render the badge
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
     renderer.renderBadge(finalModifier)
 }
 

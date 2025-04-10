@@ -6,7 +6,7 @@ import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.components.layout.Row
 import code.yousef.summon.components.display.Text
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.theme.ColorHelpers
 import code.yousef.summon.theme.Spacer
 
@@ -34,7 +34,7 @@ fun FormField(
     fieldContent: @Composable () -> Unit
 ) {
     val composer = CompositionLocal.currentComposer
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
     
     // Use the new renderFormField method from MigratedPlatformRenderer
     composer?.startNode() // Start FormField node

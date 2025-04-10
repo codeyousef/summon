@@ -4,7 +4,7 @@ import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.attribute
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * Progress animation types
@@ -84,7 +84,7 @@ data class Progress(
 
         composer?.startNode() // Start Progress node
         if (composer?.inserting == true) {
-            val renderer = getPlatformRenderer()
+            val renderer = LocalPlatformRenderer.current
             val progressValue = if (value != null) value.toFloat() / maxValue.toFloat() else null
             renderer.renderProgress(progressValue, type, finalModifier)
         }
@@ -304,7 +304,7 @@ fun LinearProgress(
     progress: Float? = null,
     modifier: Modifier = Modifier()
 ) {
-    getPlatformRenderer().renderProgress(progress, ProgressType.LINEAR, modifier)
+    LocalPlatformRenderer.current.renderProgress(progress, ProgressType.LINEAR, modifier)
 }
 
 /**
@@ -318,7 +318,7 @@ fun CircularProgress(
     progress: Float? = null,
     modifier: Modifier = Modifier()
 ) {
-    getPlatformRenderer().renderProgress(progress, ProgressType.CIRCULAR, modifier)
+    LocalPlatformRenderer.current.renderProgress(progress, ProgressType.CIRCULAR, modifier)
 }
 
 /**
@@ -332,5 +332,5 @@ fun IndeterminateProgress(
     type: ProgressType = ProgressType.LINEAR,
     modifier: Modifier = Modifier()
 ) {
-    getPlatformRenderer().renderProgress(null, type, modifier)
+    LocalPlatformRenderer.current.renderProgress(null, type, modifier)
 } 

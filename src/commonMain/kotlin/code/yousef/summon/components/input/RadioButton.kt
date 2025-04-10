@@ -9,7 +9,7 @@ import code.yousef.summon.modifier.onClick
 import code.yousef.summon.modifier.pointerEvents
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.theme.Spacer
 
 /**
@@ -48,7 +48,7 @@ fun RadioButton(
 
     composer?.startNode() // Start RadioButton node
     if (composer?.inserting == true) {
-        val renderer = getPlatformRenderer()
+        val renderer = LocalPlatformRenderer.current
         // Call the PlatformRenderer implementation which has params in order: selected, onClick, enabled, modifier
         (renderer as code.yousef.summon.core.PlatformRenderer).renderRadioButton(
             selected = selected,

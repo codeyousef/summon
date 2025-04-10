@@ -3,8 +3,8 @@ package code.yousef.summon.components.layout
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.core.PlatformRenderer
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.MigratedPlatformRenderer
-import code.yousef.summon.runtime.getPlatformRenderer
 
 /**
  * A layout composable that places its children in a horizontal sequence.
@@ -21,7 +21,7 @@ fun Row(
     verticalAlignment: Alignment.Vertical = Alignment.Vertical.Top,
     content: @Composable () -> Unit
 ) {
-    val renderer = getPlatformRenderer() as MigratedPlatformRenderer
+    val renderer = LocalPlatformRenderer.current as MigratedPlatformRenderer
     renderer.renderRow(modifier, content)
 }
 

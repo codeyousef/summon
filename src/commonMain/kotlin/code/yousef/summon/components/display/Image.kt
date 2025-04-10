@@ -2,7 +2,7 @@ package code.yousef.summon.components.display
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * A composable that displays an image with support for accessibility attributes.
@@ -30,7 +30,7 @@ fun Image(
     onError: (() -> Unit)? = null
 ) {
     // Get the platform renderer
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
     
     // Create additional attributes for the image
     val attributes = mutableMapOf<String, String>()

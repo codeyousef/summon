@@ -7,7 +7,7 @@ import code.yousef.summon.modifier.cursor
 import code.yousef.summon.modifier.pointerEvents
 import code.yousef.summon.modifier.attribute
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import kotlinx.datetime.LocalDate
 
 /**
@@ -44,7 +44,7 @@ fun DatePicker(
 
     composer?.startNode() // Start DatePicker node
     if (composer?.inserting == true) {
-        val renderer = getPlatformRenderer()
+        val renderer = LocalPlatformRenderer.current
         // Pass relevant state and modifier to the renderer
         renderer.renderDatePicker(
             value = value,

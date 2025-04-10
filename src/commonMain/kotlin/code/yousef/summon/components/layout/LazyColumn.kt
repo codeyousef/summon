@@ -3,8 +3,8 @@ package code.yousef.summon.components.layout
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.getPlatformRenderer
 
 
 /**
@@ -23,7 +23,7 @@ fun LazyColumn(
 
     composer?.startNode() // Start LazyColumn node
     if (composer?.inserting == true) {
-        val renderer = getPlatformRenderer()
+        val renderer = LocalPlatformRenderer.current
         renderer.renderLazyColumn(finalModifier) // Render the container
     }
     

@@ -3,7 +3,7 @@ package code.yousef.summon.components.input
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.core.LocalTime
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.mutableStateOf
 import code.yousef.summon.runtime.remember
 import code.yousef.summon.validation.Validator
@@ -47,7 +47,7 @@ fun TimePicker(
     val time = parseTimeString(value)
 
     // Get the platform renderer
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
 
     // Render the time picker using the platform renderer
     renderer.renderTimePicker(

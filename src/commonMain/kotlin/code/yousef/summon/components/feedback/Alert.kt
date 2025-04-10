@@ -14,8 +14,8 @@ import code.yousef.summon.modifier.padding
 import code.yousef.summon.modifier.width
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.getPlatformRenderer
 import code.yousef.summon.theme.Spacer
 
 // Import the AlertVariant enum from its own file
@@ -92,7 +92,7 @@ fun Alert(
 
     composer?.startNode() // Start Alert node
     if (composer?.inserting == true) {
-        val renderer = getPlatformRenderer()
+        val renderer = LocalPlatformRenderer.current
         // Use the renderAlertContainer method with the new signature
         renderer.renderAlertContainer(variant, finalModifier)
     }

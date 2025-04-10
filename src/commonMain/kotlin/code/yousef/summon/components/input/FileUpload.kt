@@ -2,7 +2,7 @@ package code.yousef.summon.components.input
 
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.remember
 import code.yousef.summon.state.mutableStateOf
 
@@ -29,7 +29,7 @@ fun FileUpload(
     label: String? = null,
     buttonStyle: Modifier = Modifier(),
 ) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
 
     renderer.renderFileUpload(
         onFilesSelected = onFilesSelected,

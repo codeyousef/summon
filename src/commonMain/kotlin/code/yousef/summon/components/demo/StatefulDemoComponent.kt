@@ -4,7 +4,7 @@ import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.onClick
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.rememberMutableStateOf
 import code.yousef.summon.state.SummonMutableState
 
@@ -59,7 +59,7 @@ private fun StatefulDemoComponentView(
     onTextChange: (String) -> Unit,
     modifier: Modifier = Modifier()
 ) {
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
     // Instead of calling a non-existent renderStatefulDemoComponent method
     renderer.renderBox(modifier) {
         // Use basic rendering methods that exist in MigratedPlatformRenderer
@@ -87,7 +87,7 @@ fun StatefulCounter() {
     // Only render if we're in the inserting phase
     if (composer?.inserting == true) {
         // Access the platform renderer
-        val renderer = getPlatformRenderer()
+        val renderer = LocalPlatformRenderer.current
 
         // Create a click handler that increments the counter
         val onClick = "javascript:void(0)" // This would be replaced with a real handler that calls count.value++
@@ -127,7 +127,7 @@ fun ToggleDemo() {
     // Only render if we're in the inserting phase
     if (composer?.inserting == true) {
         // Access the platform renderer
-        val renderer = getPlatformRenderer()
+        val renderer = LocalPlatformRenderer.current
 
         // Create a click handler that toggles the state
         val onClick = "javascript:void(0)" // This would be replaced with a real handler

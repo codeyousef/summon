@@ -5,7 +5,7 @@ import code.yousef.summon.modifier.applyIf
 import code.yousef.summon.modifier.pointerEvents
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * A slider component that allows the user to select a value from a given range.
@@ -35,7 +35,7 @@ fun Slider(
 
     composer?.startNode() // Start Slider node
     if (composer?.inserting == true) {
-        val renderer = getPlatformRenderer()
+        val renderer = LocalPlatformRenderer.current
         renderer.renderSlider(
             value = value,
             onValueChange = onValueChange,

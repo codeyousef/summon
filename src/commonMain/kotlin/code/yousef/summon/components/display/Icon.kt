@@ -2,7 +2,7 @@ package code.yousef.summon.components.display
 
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.MigratedPlatformRenderer
 import code.yousef.summon.modifier.ariaLabel
 import code.yousef.summon.modifier.role
@@ -66,7 +66,7 @@ fun Icon(
         }
     }
     
-    val renderer = getPlatformRenderer()
+    val renderer = LocalPlatformRenderer.current
     
     // Render the icon - platform renderer will handle the different types
     renderer.renderIcon(name, finalModifier, onClick, svgContent, type)

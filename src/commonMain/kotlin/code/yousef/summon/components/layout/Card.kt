@@ -3,8 +3,8 @@ package code.yousef.summon.components.layout
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.core.PlatformRenderer
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.MigratedPlatformRenderer
-import code.yousef.summon.runtime.getPlatformRenderer
 
 /**
  * Card component for grouped content with styling.
@@ -28,6 +28,6 @@ fun Card(
         .shadow("0", elevation, "8px", "rgba(0,0,0,0.1)")
         .borderRadius(borderRadius)
     
-    val renderer = getPlatformRenderer() as MigratedPlatformRenderer
+    val renderer = LocalPlatformRenderer.current as MigratedPlatformRenderer
     renderer.renderCard(finalModifier, content)
 } 
