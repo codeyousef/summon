@@ -7,6 +7,8 @@ import code.yousef.summon.components.input.FileInfo
 import code.yousef.summon.components.input.SelectOption
 import code.yousef.summon.components.input.TextFieldType
 import code.yousef.summon.components.navigation.Tab
+import code.yousef.summon.core.AnimationController
+import code.yousef.summon.core.AnimationStatus
 import code.yousef.summon.core.style.Color
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.attribute
@@ -22,6 +24,9 @@ import kotlinx.html.style
 class JvmPlatformRenderer : MigratedPlatformRenderer {
     // Store head elements that should be added to the page
     private val headElements = mutableListOf<String>()
+    
+    // Callbacks for time picker changes
+    private val timePickerCallbacks = mutableMapOf<String, (Int, Int, Int) -> Unit>()
 
     /**
      * Add an HTML element to the document head.
@@ -306,9 +311,19 @@ class JvmPlatformRenderer : MigratedPlatformRenderer {
         modifier: Modifier,
         is24Hour: Boolean
     ) {
-        // Implementation for SummonLocalTime version
-        // This is a temporary implementation to satisfy the interface
-        // TODO: Implement proper time picker functionality
+        // Simplified implementation for time picker
+        // The actual rendering will be handled by the platform-specific implementation
+        // This is a placeholder implementation for the JVM platform
+        
+        // In a real implementation, we would render a time input element
+        // and handle changes via JavaScript bridge
+        
+        // Register callback for time changes
+        val id = "time-picker-${System.currentTimeMillis()}"
+        timePickerCallbacks[id] = { h, m, s ->
+            val newTime = code.yousef.summon.core.LocalTime(h, m, s)
+            onTimeChange(newTime)
+        }
     }
 
     override fun renderFileUpload(
@@ -520,5 +535,91 @@ class JvmPlatformRenderer : MigratedPlatformRenderer {
         return this.styles.entries
             .filter { !it.key.startsWith("__attr:") }
             .joinToString(";") { (key, value) -> "$key:$value" }
+    }
+
+    /**
+     * Applies focus to an element with the given ID.
+     * For JVM platform, we'll need to use a JavaScript snippet to apply focus.
+     */
+    override fun applyFocus(elementId: String): Boolean {
+        // For JVM platform, we need to add a script to focus the element on the client
+        val script = """
+            document.getElementById('$elementId')?.focus();
+        """.trimIndent()
+        
+        // Add the script to be executed when the page loads
+        addHeadElement("<script>document.addEventListener('DOMContentLoaded', function() { $script });</script>")
+        
+        // We can't know if focus was successful on server-side, so return true
+        return true
+    }
+    
+    /**
+     * Registers an animation with the platform renderer.
+     */
+    override fun registerAnimation(
+        animationId: String,
+        animationProps: Map<String, Any>,
+        targetElementId: String?
+    ) {
+        // Create the CSS animation definition
+        val keyframesName = "animation_$animationId"
+        val duration = animationProps["duration"]?.toString() ?: "1s"
+        val easing = animationProps["easing"]?.toString() ?: "ease"
+        val delay = animationProps["delay"]?.toString() ?: "0s"
+        
+        // TODO: Implement keyframes support like in the JS renderer
+        // Currently we only add the animation class without actual keyframes definition
+        // A complete implementation would parse the "keyframes" property from animationProps
+        // and generate appropriate @keyframes CSS
+        
+        // Convert animation properties to CSS
+        val cssAnimation = """
+            .${keyframesName} {
+                animation-name: ${keyframesName};
+                animation-duration: ${duration};
+                animation-timing-function: ${easing};
+                animation-delay: ${delay};
+                animation-fill-mode: both;
+            }
+        """.trimIndent()
+        
+        // Add the CSS to the head
+        addHeadElement("<style>$cssAnimation</style>")
+    }
+    
+    /**
+     * Starts a previously registered animation.
+     */
+    override fun startAnimation(
+        animationId: String,
+        options: Map<String, Any>
+    ): AnimationController {
+        // For JVM platform, we'll add JS to start the animation
+        val targetId = options["targetElementId"]?.toString() ?: ""
+        val script = """
+            const element = document.getElementById('$targetId');
+            if (element) {
+                element.classList.add('animation_$animationId');
+            }
+        """.trimIndent()
+        
+        // Add the script to be executed when the page loads
+        addHeadElement("<script>document.addEventListener('DOMContentLoaded', function() { $script });</script>")
+        
+        // TODO: Implement a more sophisticated AnimationController for JVM
+        // The current implementation provides no way to control the animation after it starts
+        // A better implementation would add additional JavaScript to enable pause/resume/cancel
+        // with callback capabilities to update the status and progress
+        
+        // Return a simple controller that doesn't do much on server-side
+        return object : AnimationController {
+            override fun pause() { /* No-op for JVM */ }
+            override fun resume() { /* No-op for JVM */ }
+            override fun cancel() { /* No-op for JVM */ }
+            override fun stop() { /* No-op for JVM */ }
+            override val status: AnimationStatus = AnimationStatus.RUNNING
+            override val progress: Float = 0f
+        }
     }
 } 

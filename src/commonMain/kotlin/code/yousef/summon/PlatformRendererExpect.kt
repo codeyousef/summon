@@ -289,4 +289,18 @@ expect class JsPlatformRenderer() : MigratedPlatformRenderer {
         errorMessageId: String?,
         content: @Composable () -> Unit
     )
+
+    // Accessibility and animation support
+    override fun applyFocus(elementId: String): Boolean
+    
+    override fun registerAnimation(
+        animationId: String, 
+        animationProps: Map<String, Any>, 
+        targetElementId: String?
+    )
+    
+    override fun startAnimation(
+        animationId: String,
+        options: Map<String, Any>
+    ): code.yousef.summon.core.AnimationController
 }

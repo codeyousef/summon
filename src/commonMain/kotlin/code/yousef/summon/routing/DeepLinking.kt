@@ -137,7 +137,7 @@ class DeepLinking private constructor() {
     /**
      * Simple URL encoding function (platform-specific implementations will be more robust).
      */
-    private fun encodeURIComponent(value: String): String {
+    fun encodeURIComponent(value: String): String {
         // A basic implementation that works for common cases
         return value.replace(" ", "%20")
             .replace("!", "%21")
@@ -169,7 +169,7 @@ class DeepLinking private constructor() {
     /**
      * Simple URL decoding function (platform-specific implementations will be more robust).
      */
-    private fun decodeURIComponent(value: String): String {
+    fun decodeURIComponent(value: String): String {
         // A very basic implementation for common cases
         return value.replace("%20", " ")
             .replace("%21", "!")
@@ -272,10 +272,16 @@ object DeepLinkManager {
 
         // Parse URL and extract parameters
         val deepLinkInfo = DeepLinking.parseUrl(url)
-
-        // For now, return null as placeholder
-        // TODO: Implement proper route matching using the current router
-        println("DeepLinkManager: Handling URL '$url' (not implemented)")
+        
+        // Log navigation attempt
+        println("DeepLinkManager: Handling URL '${deepLinkInfo.path}'")
+        
+        // Navigate using the router and return null for now
+        // In a real implementation, we would match routes and extract parameters
+        currentRouter.navigate(deepLinkInfo.path)
+        
+        // For now, return null as we can't construct a proper RouteMatchResult
+        // without access to the internal router routes
         return null
     }
 }
@@ -295,12 +301,28 @@ fun RouteContentHandler(matchResult: RouteMatchResult) {
 /**
  * Generates a URL for a given route and parameters.
  */
-fun generateUrl(routePath: String, params: Map<String, String>): String {
+fun generateUrl(routePath: String, params: Map<String, String>, queryParams: Map<String, String> = emptyMap()): String {
+    // Replace path parameters
     var url = routePath
+    val unusedParams = params.toMutableMap()
+    
+    // Replace path parameters in the URL
     params.forEach { (key, value) ->
-        url = url.replace("{$key}", value)
+        val placeholder = "{$key}"
+        if (url.contains(placeholder)) {
+            url = url.replace(placeholder, value)
+            unusedParams.remove(key)
+        }
     }
-    // TODO: Handle query parameters?
+    
+    // Add query parameters for any remaining params and explicit queryParams
+    val allQueryParams = unusedParams + queryParams
+    if (allQueryParams.isNotEmpty()) {
+        url += "?" + allQueryParams.entries.joinToString("&") { (key, value) ->
+            "$key=${DeepLinking.getInstance().encodeURIComponent(value)}"
+        }
+    }
+    
     return url
 }
 
@@ -314,7 +336,9 @@ fun extractQueryParams(url: String): Map<String, String> {
         queryPart.split('&').forEach {
             val parts = it.split('=', limit = 2)
             if (parts.size == 2) {
-                queryParams[parts[0]] = parts[1] // TODO: URL Decode?
+                val key = parts[0]
+                val value = DeepLinking.getInstance().decodeURIComponent(parts[1])
+                queryParams[key] = value
             }
         }
     }

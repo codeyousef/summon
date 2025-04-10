@@ -4,6 +4,8 @@ import code.yousef.summon.accessibility.KeyboardNavigation.keyboardNavigation
 import code.yousef.summon.components.FocusableComponent
 import code.yousef.summon.core.Composable
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.core.PlatformRendererProvider
+import code.yousef.summon.runtime.getPlatformRenderer
 
 /**
  * Keys commonly used for keyboard navigation in web applications.
@@ -141,7 +143,59 @@ class KeyboardNavigableContainer(
 
     override fun <T> compose(receiver: T): T {
         val modifier = Modifier().keyboardNavigation(config)
-        // TODO: Implement rendering with keyboard navigation
+        
+        // Implement rendering with keyboard navigation
+        // First, create a container element with the keyboard navigation attributes
+        val containerAttrs = mapOf(
+            "class" to "keyboard-navigable-container",
+            "data-keyboard-nav" to "true",
+            "role" to "group"
+        )
+        
+        // Apply the modifier to the container attributes
+        val finalAttrs = containerAttrs + getAttributes(modifier)
+        
+        // Use platform-specific rendering to create a container
+        val platformRenderer = getPlatformRenderer()
+        
+        // Create container
+        renderContainer(platformRenderer, receiver, finalAttrs) { containerReceiver ->
+            // Render each content item inside the container
+            var currentReceiver = containerReceiver
+            for (item in content) {
+                currentReceiver = item.compose(currentReceiver)
+            }
+            currentReceiver
+        }
+        
         return receiver
     }
+}
+
+// Helper functions for KeyboardNavigableContainer
+private fun getAttributes(modifier: Modifier): Map<String, String> {
+    return modifier.styles.filterKeys { it.startsWith("__attr:") }
+        .mapKeys { it.key.removePrefix("__attr:") }
+}
+
+// Extension function for Modifier to add attribute
+private fun Modifier.attribute(key: String, value: String): Modifier {
+    val newStyles = this.styles.toMutableMap()
+    newStyles["__attr:$key"] = value
+    return Modifier(newStyles)
+}
+
+private fun <T> renderContainer(
+    renderer: code.yousef.summon.core.PlatformRenderer,
+    receiver: T,
+    attributes: Map<String, String>,
+    content: (T) -> T
+): T {
+    // Use the Box rendering as a generic container
+    renderer.renderBox(Modifier().apply {
+        attributes.forEach { (key, value) ->
+            attribute(key, value)
+        }
+    })
+    return content(receiver)
 } 

@@ -1,9 +1,11 @@
 package code.yousef.summon.routing
 
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.onClick
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.components.navigation.Link
+import code.yousef.summon.routing.LocalRouter
 
 
 // Removed placeholder Router object
@@ -51,8 +53,16 @@ fun NavLink(
     Link(
         href = to, 
         modifier = finalModifier
-            // TODO: Implement client-side navigation click handling.
-            // .onClick { ... }
+            .onClick {
+                // Implement client-side navigation
+                if (router != null) {
+                    // Prevent default browser navigation handled by platform
+                    // event.preventDefault() removed
+                    // Navigate using the router
+                    router.navigate(to)
+                }
+                // If router is null, let the default link behavior handle it
+            }
     ) {
         content() 
     }

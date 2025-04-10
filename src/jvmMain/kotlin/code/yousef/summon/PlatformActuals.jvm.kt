@@ -444,4 +444,23 @@ actual class JsPlatformRenderer actual constructor() : MigratedPlatformRenderer 
     ) {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
+
+    actual override fun applyFocus(elementId: String): Boolean {
+        throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
+    }
+    
+    actual override fun registerAnimation(
+        animationId: String,
+        animationProps: Map<String, Any>,
+        targetElementId: String?
+    ) {
+        throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
+    }
+    
+    actual override fun startAnimation(
+        animationId: String,
+        options: Map<String, Any>
+    ): code.yousef.summon.core.AnimationController {
+        throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
+    }
 } 

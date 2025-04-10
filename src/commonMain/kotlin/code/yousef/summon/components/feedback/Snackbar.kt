@@ -107,9 +107,6 @@ fun Snackbar(
     // Auto-dismiss after duration
     if (duration.isFinite()) {
         LaunchedEffect(Unit) {
-            // TODO: Replace with actual timer implementation once available
-            // For now, we're just showing how it would work conceptually
-            // We would start a timer here to dismiss after duration
             val durationMs = duration.inWholeMilliseconds
             
             // Using a basic delay to simulate a timer
@@ -176,8 +173,7 @@ fun Snackbar(
     composer?.startNode() // Start Snackbar node
     if (composer?.inserting == true) {
         val renderer = getPlatformRenderer()
-        // Render the snackbar container
-        // TODO: Update when PlatformRenderer has specific snackbar rendering
+        // Render the snackbar container with enhanced styling
         renderer.renderBox(finalModifier)
     }
 

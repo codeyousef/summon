@@ -210,4 +210,77 @@ interface PlatformRenderer {
 
     /** Renders the start of an animated content container */
     fun renderAnimatedContent(modifier: Modifier)
+    
+    // --- Accessibility methods ---
+    
+    /**
+     * Applies focus to an element with the given ID.
+     * Platform-specific implementations will handle the actual focus mechanism.
+     *
+     * @param elementId The ID of the element to focus
+     * @return True if the element was successfully focused, false otherwise
+     */
+    fun applyFocus(elementId: String): Boolean
+    
+    // --- Animation support ---
+    
+    /**
+     * Registers an animation with the platform renderer.
+     * This provides a way to define animations that will be applied during composition.
+     *
+     * @param animationId Unique identifier for the animation
+     * @param animationProps Properties of the animation (duration, easing, etc.)
+     * @param targetElementId ID of the element to animate (optional)
+     */
+    fun registerAnimation(
+        animationId: String,
+        animationProps: Map<String, Any>,
+        targetElementId: String? = null
+    )
+    
+    /**
+     * Starts a previously registered animation.
+     *
+     * @param animationId The ID of the animation to start
+     * @param options Optional parameters for this animation instance
+     * @return An animation controller that can be used to control the animation
+     */
+    fun startAnimation(
+        animationId: String,
+        options: Map<String, Any> = emptyMap()
+    ): AnimationController
+}
+
+/**
+ * Controller for animations started via PlatformRenderer.
+ */
+interface AnimationController {
+    /** Pauses the animation */
+    fun pause()
+    
+    /** Resumes a paused animation */
+    fun resume()
+    
+    /** Stops the animation and resets to initial state */
+    fun cancel()
+    
+    /** Stops the animation at its current position */
+    fun stop()
+    
+    /** Current status of the animation */
+    val status: AnimationStatus
+    
+    /** Progress of the animation from 0.0 to 1.0 */
+    val progress: Float
+}
+
+/**
+ * Status of an animation.
+ */
+enum class AnimationStatus {
+    IDLE,
+    RUNNING,
+    PAUSED,
+    COMPLETED,
+    CANCELLED
 } 

@@ -8,12 +8,29 @@ import code.yousef.summon.components.input.FileInfo
 import code.yousef.summon.components.input.SelectOption
 import code.yousef.summon.components.input.TextFieldType
 import code.yousef.summon.components.navigation.Tab
+import code.yousef.summon.core.AnimationController
+import code.yousef.summon.core.AnimationStatus
 import code.yousef.summon.core.style.Color
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.MigratedPlatformRenderer
 import kotlinx.browser.document
+import kotlinx.browser.window
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
+import org.w3c.dom.HTMLElement
+import org.w3c.dom.HTMLStyleElement
+import org.w3c.dom.Element
+import org.w3c.dom.get
+import kotlin.js.json
+
+// For JavaScript interop
+@JsName("eval")
+external fun js(code: String): dynamic
+
+// Element focus extension implemented differently
+private fun Element.focusElement() {
+    js("this.focus()")
+}
 
 // Note: console object is available in JS; we don't need to declare it as external
 
@@ -518,5 +535,157 @@ actual class JsPlatformRenderer actual constructor() : MigratedPlatformRenderer 
         content: @Composable () -> Unit
     ) {
         // Stub implementation
+    }
+
+    /**
+     * Applies focus to an element with the given ID.
+     * For JS platform, we can directly interact with the DOM.
+     */
+    actual override fun applyFocus(elementId: String): Boolean {
+        val element = document.getElementById(elementId) ?: return false
+        element.focusElement()
+        return document.activeElement == element
+    }
+    
+    /**
+     * Registers an animation with the platform renderer.
+     */
+    actual override fun registerAnimation(
+        animationId: String,
+        animationProps: Map<String, Any>,
+        targetElementId: String?
+    ) {
+        // Create a style element for the animation
+        val styleElement = document.createElement("style") as HTMLStyleElement
+        val keyframesName = "animation_$animationId"
+        val duration = animationProps["duration"]?.toString() ?: "1s"
+        val easing = animationProps["easing"]?.toString() ?: "ease"
+        val delay = animationProps["delay"]?.toString() ?: "0s"
+        
+        // Create keyframes if provided
+        val keyframes = animationProps["keyframes"]
+        var keyframesCSS = ""
+        
+        if (keyframes != null) {
+            keyframesCSS = "@keyframes $keyframesName {\n"
+            // Process keyframes
+            val keyframesObj = js("Object.keys(keyframes)")
+            for (i in 0 until keyframesObj.length) {
+                val key = keyframesObj[i]
+                val frame = js("keyframes[key]")
+                keyframesCSS += "    $key {\n"
+                
+                val frameProps = js("Object.keys(frame)")
+                for (j in 0 until frameProps.length) {
+                    val prop = frameProps[j]
+                    val value = js("frame[prop]")
+                    keyframesCSS += "        $prop: $value;\n"
+                }
+                keyframesCSS += "    }\n"
+            }
+            keyframesCSS += "}\n"
+        }
+        
+        // Create the animation class
+        val animationCSS = """
+            $keyframesCSS
+            .$keyframesName {
+                animation-name: $keyframesName;
+                animation-duration: $duration;
+                animation-timing-function: $easing;
+                animation-delay: $delay;
+                animation-fill-mode: both;
+            }
+        """.trimIndent()
+        
+        styleElement.textContent = animationCSS
+        document.head?.appendChild(styleElement)
+    }
+    
+    /**
+     * Starts a previously registered animation.
+     */
+    actual override fun startAnimation(
+        animationId: String,
+        options: Map<String, Any>
+    ): AnimationController {
+        val targetId = options["targetElementId"]?.toString() ?: return createDummyAnimationController()
+        val element = document.getElementById(targetId) ?: return createDummyAnimationController()
+        
+        val animationClass = "animation_$animationId"
+        element.classList.add(animationClass)
+        
+        // Setup animation listeners
+        var animStatus = AnimationStatus.RUNNING
+        var prog = 0f
+        
+        val controller = object : AnimationController {
+            override fun pause() {
+                if (animStatus == AnimationStatus.RUNNING) {
+                    (element as HTMLElement).style.animationPlayState = "paused"
+                    animStatus = AnimationStatus.PAUSED
+                }
+            }
+            
+            override fun resume() {
+                if (animStatus == AnimationStatus.PAUSED) {
+                    (element as HTMLElement).style.animationPlayState = "running"
+                    animStatus = AnimationStatus.RUNNING
+                }
+            }
+            
+            override fun cancel() {
+                element.classList.remove(animationClass)
+                animStatus = AnimationStatus.CANCELLED
+            }
+            
+            override fun stop() {
+                (element as HTMLElement).style.animationPlayState = "paused"
+                (element as HTMLElement).style.animationFillMode = "forwards"
+                animStatus = AnimationStatus.COMPLETED
+            }
+            
+            override val status: AnimationStatus
+                get() = animStatus
+                
+            override val progress: Float
+                get() = prog
+        }
+        
+        // Listen for animation events
+        element.addEventListener("animationstart", {
+            animStatus = AnimationStatus.RUNNING
+            prog = 0f
+        })
+        
+        element.addEventListener("animationend", {
+            animStatus = AnimationStatus.COMPLETED
+            prog = 1f
+        })
+        
+        element.addEventListener("animationcancel", {
+            animStatus = AnimationStatus.CANCELLED
+        })
+        
+        // Update progress periodically
+        window.setInterval({
+            if (animStatus == AnimationStatus.RUNNING) {
+                // Simple linear progress estimation
+                prog = (prog + 0.01f).coerceAtMost(0.99f)
+            }
+        }, 100)
+        
+        return controller
+    }
+    
+    private fun createDummyAnimationController(): AnimationController {
+        return object : AnimationController {
+            override fun pause() {}
+            override fun resume() {}
+            override fun cancel() {}
+            override fun stop() {}
+            override val status: AnimationStatus = AnimationStatus.IDLE
+            override val progress: Float = 0f
+        }
     }
 } 
