@@ -402,4 +402,18 @@ abstract class MigratedPlatformRendererImpl(private val delegate: PlatformRender
     override fun renderHtmlTag(tag: String, attrs: Map<String, String>, content: () -> Unit) {
         // Implemented by platform-specific code
     }
+    
+    override fun renderFormField(
+        modifier: Modifier,
+        labelId: String?,
+        isRequired: Boolean,
+        isError: Boolean,
+        errorMessageId: String?,
+        content: @Composable () -> Unit
+    ) {
+        // Implementation using renderBox for backward compatibility
+        renderBox(modifier) {
+            content()
+        }
+    }
 } 

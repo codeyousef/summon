@@ -408,4 +408,15 @@ actual class JsPlatformRenderer actual constructor() : MigratedPlatformRenderer 
     actual override fun renderHtmlTag(tag: String, attrs: Map<String, String>, content: () -> Unit) {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
+    
+    actual override fun renderFormField(
+        modifier: Modifier,
+        labelId: String?,
+        isRequired: Boolean,
+        isError: Boolean,
+        errorMessageId: String?,
+        content: @Composable () -> Unit
+    ) {
+        throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
+    }
 } 

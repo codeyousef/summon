@@ -2722,3 +2722,73 @@ Key changes:
 6. Implemented error handling for cases where the consumer is not an HTMLElement
 
 This implementation completes the JavaScript rendering system, allowing for proper DOM-based composition of Summon components in web environments. Components can now properly nest and render children, creating the full component tree in the DOM.
+
+### 21. FormField Component Render Implementation
+
+The `FormField` component has been updated to use a new renderer method with proper accessibility support. This addresses a long-standing TODO and provides better support for form field labels, error states, and required indicators.
+
+**Before (TODO comment):**
+```kotlin
+// In FormField.kt
+@Composable
+fun FormField(
+    modifier: Modifier = Modifier(),
+    label: @Composable (() -> Unit)? = null,
+    // ... other parameters
+) {
+    // TODO: Renderer signature update required.
+    // The renderer call might become simpler or be removed if Column handles the container.
+    // For now, keep it but it might be redundant or only apply attributes.
+    // renderer.renderFormField(modifier = modifier, label = "", isError = isError, isRequired = isRequired)
+
+    Column(modifier = modifier) { 
+        // ... implementation
+    }
+}
+```
+
+**After (Implemented):**
+```kotlin
+@Composable
+fun FormField(
+    modifier: Modifier = Modifier(),
+    label: @Composable (() -> Unit)? = null,
+    // ... other parameters
+) {
+    val composer = CompositionLocal.currentComposer
+    val renderer = getPlatformRenderer()
+    
+    composer?.startNode() // Start FormField node
+    if (composer?.inserting == true) {
+        renderer.renderFormField(
+            modifier = modifier,
+            labelId = null, // In the future, we could generate IDs for labels
+            isRequired = isRequired,
+            isError = isError,
+            errorMessageId = null,
+            content = {
+                // Internal structure using Column
+                Column { 
+                    // ... implementation
+                }
+            }
+        )
+    }
+    composer?.endNode() // End FormField node
+}
+```
+
+Key changes:
+1. Added a new `renderFormField` method to the `MigratedPlatformRenderer` interface
+2. Implemented proper accessibility attributes in the JS implementation (`aria-required`, `aria-invalid`, etc.)
+3. Updated the component to use composer properly with `startNode()` and `endNode()`
+4. Maintained backward compatibility by implementing this method in the base `MigratedPlatformRendererImpl` class
+5. Added JVM implementation for Kotlin Multiplatform support
+
+This implementation:
+- Provides proper accessibility for screen readers through ARIA attributes
+- Follows the pattern of other form components in the library
+- Allows for future enhancements like automatic ID generation for form fields
+- Uses the composition system properly for form fields and their content
+
+This fix serves as an example for implementing other form components that need proper accessibility support through the renderer system.

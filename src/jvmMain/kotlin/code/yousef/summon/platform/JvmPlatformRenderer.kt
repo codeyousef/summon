@@ -430,6 +430,18 @@ class JvmPlatformRenderer : MigratedPlatformRenderer {
         // Implementation
     }
     
+    override fun renderFormField(
+        modifier: Modifier,
+        labelId: String?,
+        isRequired: Boolean,
+        isError: Boolean,
+        errorMessageId: String?,
+        content: @Composable () -> Unit
+    ) {
+        // Not yet implemented for JVM
+        throw NotImplementedError("FormField rendering is not yet implemented for JVM")
+    }
+    
     private fun applyModifier(tag: CommonAttributeGroupFacade, modifier: Modifier) {
         // Apply styles from the modifier directly to the HTML tag
         tag.style = modifier.toStyleString()

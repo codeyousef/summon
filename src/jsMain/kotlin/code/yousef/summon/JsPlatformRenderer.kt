@@ -542,4 +542,54 @@ actual class JsPlatformRenderer actual constructor() : MigratedPlatformRenderer 
             element.setAttribute("data-summon-hover", modifier.styles["__hover"] ?: "")
         }
     }
+    
+    /**
+     * Render a form field container with proper accessibility attributes
+     */
+    actual override fun renderFormField(
+        modifier: Modifier,
+        labelId: String?,
+        isRequired: Boolean,
+        isError: Boolean,
+        errorMessageId: String?,
+        content: @Composable () -> Unit
+    ) {
+        // Create a div element for the form field container
+        val element = document.createElement("div") as HTMLElement
+        
+        // Apply styles and attributes from the modifier
+        applyModifierToElement(element, modifier)
+        
+        // Add appropriate ARIA attributes for accessibility
+        if (labelId != null) {
+            element.setAttribute("aria-labelledby", labelId)
+        }
+        
+        if (isRequired) {
+            element.setAttribute("aria-required", "true")
+        }
+        
+        if (isError) {
+            element.setAttribute("aria-invalid", "true")
+            if (errorMessageId != null) {
+                element.setAttribute("aria-describedby", errorMessageId)
+            }
+        }
+        
+        // Add the element to the current composition context/parent node
+        val parentNode = getCurrentParentNode()
+        if (parentNode != null) {
+            // Add the form field element to the DOM
+            parentNode.appendChild(element)
+            
+            // Set the form field as the current parent for its content
+            setCurrentParentNode(element)
+            
+            // Render the content inside the form field
+            content()
+            
+            // Restore the previous parent node
+            setCurrentParentNode(parentNode)
+        }
+    }
 } 

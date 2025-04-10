@@ -50,6 +50,26 @@ interface MigratedPlatformRenderer : PlatformRenderer {
         modifier: Modifier
     )
 
+    /**
+     * Renders a form field container element with necessary ARIA attributes
+     * for proper accessibility.
+     *
+     * @param modifier The modifier to apply to the form field container
+     * @param labelId Optional ID of the associated label element
+     * @param isRequired Whether the field is required
+     * @param isError Whether the field is in an error state
+     * @param errorMessageId Optional ID of the error message element for aria-describedby
+     * @param content The content composable function
+     */
+    fun renderFormField(
+        modifier: Modifier,
+        labelId: String? = null,
+        isRequired: Boolean = false,
+        isError: Boolean = false,
+        errorMessageId: String? = null,
+        content: @Composable () -> Unit
+    )
+
     // Core components
     fun renderText(modifier: Modifier, content: @Composable () -> Unit)
     fun renderBox(modifier: Modifier, content: @Composable () -> Unit)

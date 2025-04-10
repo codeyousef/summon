@@ -6,6 +6,7 @@ import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.components.layout.Row
 import code.yousef.summon.components.display.Text
+import code.yousef.summon.runtime.getPlatformRenderer
 import code.yousef.summon.theme.ColorHelpers
 import code.yousef.summon.theme.Spacer
 
@@ -33,52 +34,63 @@ fun FormField(
     fieldContent: @Composable () -> Unit
 ) {
     val composer = CompositionLocal.currentComposer
+    val renderer = getPlatformRenderer()
+    
+    // Use the new renderFormField method from MigratedPlatformRenderer
+    composer?.startNode() // Start FormField node
+    if (composer?.inserting == true) {
+        renderer.renderFormField(
+            modifier = modifier,
+            labelId = null, // In the future, we could generate IDs for labels
+            isRequired = isRequired,
+            isError = isError,
+            errorMessageId = null,
+            content = {
+                // Internal structure
+                // Use Column for vertical layout
+                Column { 
+                    // Compose Label if provided
+                    if (label != null) {
+                        Row {
+                            label() // Display the label first
+                            
+                            // Add required indicator (red asterisk) if field is required
+                            if (isRequired) {
+                                // Add a small space between label and asterisk
+                                Spacer(modifier = Modifier().width("4px"))
+                                // Red asterisk indicator
+                                Text(
+                                    text = "*",
+                                    modifier = Modifier().style("color", ColorHelpers.error)
+                                )
+                            }
+                        }
+                        // Add small space between label and field
+                        Spacer(modifier = Modifier().height("4px")) 
+                    }
 
-    // TODO: Renderer signature update required.
-    // The renderer call might become simpler or be removed if Column handles the container.
-    // For now, keep it but it might be redundant or only apply attributes.
-    // renderer.renderFormField(modifier = modifier, label = "", isError = isError, isRequired = isRequired)
+                    // Compose the actual input field
+                    fieldContent()
 
-    // Use Column for vertical layout
-    Column(modifier = modifier) { // Apply the main modifier to the Column
-        // Compose Label if provided
-        if (label != null) {
-            Row {
-                label() // Display the label first
-                
-                // Add required indicator (red asterisk) if field is required
-                if (isRequired) {
-                    // Add a small space between label and asterisk
-                    Spacer(modifier = Modifier().width("4px"))
-                    // Red asterisk indicator
-                    Text(
-                        text = "*",
-                        modifier = Modifier().style("color", ColorHelpers.error)
-                    )
+                    // Compose Helper Text or Error Text (priority to error)
+                    val bottomText = if (isError && errorText != null) errorText else helperText
+                    if (bottomText != null) {
+                        // Add small space between field and helper/error text
+                        Spacer(modifier = Modifier().height("4px")) 
+                        
+                        // Add styling for error text if in error state
+                        if (isError && errorText != null) {
+                            Column(modifier = Modifier().style("color", ColorHelpers.error)) {
+                                bottomText()
+                            }
+                        } else {
+                            // Regular helper text
+                            bottomText()
+                        }
+                    }
                 }
             }
-            // Add small space between label and field
-            Spacer(modifier = Modifier().height("4px")) 
-        }
-
-        // Compose the actual input field
-        fieldContent()
-
-        // Compose Helper Text or Error Text (priority to error)
-        val bottomText = if (isError && errorText != null) errorText else helperText
-        if (bottomText != null) {
-            // Add small space between field and helper/error text
-            Spacer(modifier = Modifier().height("4px")) 
-            
-            // Add styling for error text if in error state
-            if (isError && errorText != null) {
-                Column(modifier = Modifier().style("color", ColorHelpers.error)) {
-                    bottomText()
-                }
-            } else {
-                // Regular helper text
-                bottomText()
-            }
-        }
+        )
     }
+    composer?.endNode() // End FormField node
 } 

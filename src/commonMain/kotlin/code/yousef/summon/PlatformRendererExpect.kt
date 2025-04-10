@@ -142,4 +142,14 @@ expect class JsPlatformRenderer() : MigratedPlatformRenderer {
     override fun renderDiv(modifier: Modifier)
     override fun renderSpan(modifier: Modifier)
     override fun renderForm(onSubmit: () -> Unit, modifier: Modifier)
+    
+    // Form field component
+    override fun renderFormField(
+        modifier: Modifier,
+        labelId: String?,
+        isRequired: Boolean,
+        isError: Boolean,
+        errorMessageId: String?,
+        content: @Composable () -> Unit
+    )
 }
