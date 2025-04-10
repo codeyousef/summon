@@ -68,7 +68,8 @@ data class Progress(
     @Composable
     operator fun invoke() {
         val composer = CompositionLocal.currentComposer
-        // TODO: Apply styles based on properties
+        
+        // Apply type-specific and animation styles
         val styleModifier = Modifier()
             .then(getTypeStyles().let { Modifier(it) })
             .then(getAnimationStyles().let { Modifier(it) })

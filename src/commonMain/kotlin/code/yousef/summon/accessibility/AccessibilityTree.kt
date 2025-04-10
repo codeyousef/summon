@@ -180,8 +180,7 @@ fun ApplyAccessibilityNode(
     val composer = CompositionLocal.currentComposer
 
     val accessibilityModifier = node.modifier
-        // TODO: Add specific accessibility attributes based on node data
-        // .accessibilityProperties(role = node.role, label = node.label, ...)
+        .applyAccessibilityAttributes(node)
 
     composer?.startNode() // Start a logical node
     if (composer?.inserting == true) {
@@ -236,4 +235,59 @@ fun Semantics(
     content: @Composable () -> Unit
 ) {
     // ... existing code ...
+}
+
+/**
+ * Extension function for Modifier to apply accessibility attributes from an AccessibilityNode.
+ * 
+ * @param node The AccessibilityNode containing accessibility data
+ * @return A modifier with accessibility attributes applied
+ */
+private fun Modifier.applyAccessibilityAttributes(node: AccessibilityNode): Modifier {
+    var result = this
+    
+    // Apply role attribute
+    result = result.attribute("role", node.role.name.lowercase())
+    
+    // Apply label as aria-label if available
+    node.label?.let { 
+        result = result.attribute("aria-label", it)
+    }
+    
+    // Apply description as aria-describedby if available
+    node.description?.let {
+        result = result.attribute("aria-describedby", it)
+    }
+    
+    // Apply state attributes
+    for ((state, isActive) in node.state) {
+        when (state) {
+            State.BUSY -> if (isActive) result = result.attribute("aria-busy", "true")
+            State.CHECKED -> if (isActive) result = result.attribute("aria-checked", "true")
+            State.DISABLED -> if (isActive) {
+                result = result.attribute("aria-disabled", "true")
+                result = result.attribute("disabled", "")
+            }
+            State.EXPANDED -> if (isActive) result = result.attribute("aria-expanded", "true")
+            State.GRABBED -> if (isActive) result = result.attribute("aria-grabbed", "true")
+            State.HIDDEN -> if (isActive) result = result.attribute("aria-hidden", "true")
+            State.INVALID -> if (isActive) result = result.attribute("aria-invalid", "true")
+            State.PRESSED -> if (isActive) result = result.attribute("aria-pressed", "true")
+            State.SELECTED -> if (isActive) result = result.attribute("aria-selected", "true")
+        }
+    }
+    
+    // Apply additional aria properties
+    for ((property, value) in node.properties) {
+        result = result.attribute(property, value)
+    }
+    
+    return result
+}
+
+// Helper function to add an attribute to a modifier
+private fun Modifier.attribute(key: String, value: String): Modifier {
+    val newStyles = this.styles.toMutableMap()
+    newStyles["__attr:$key"] = value
+    return Modifier(newStyles)
 }

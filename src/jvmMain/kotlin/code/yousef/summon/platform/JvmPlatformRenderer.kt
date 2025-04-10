@@ -568,24 +568,58 @@ class JvmPlatformRenderer : MigratedPlatformRenderer {
         val easing = animationProps["easing"]?.toString() ?: "ease"
         val delay = animationProps["delay"]?.toString() ?: "0s"
         
-        // TODO: Implement keyframes support like in the JS renderer
-        // Currently we only add the animation class without actual keyframes definition
-        // A complete implementation would parse the "keyframes" property from animationProps
-        // and generate appropriate @keyframes CSS
+        // Process keyframes if they're provided
+        val keyframes = animationProps["keyframes"]
+        var keyframesCSS = ""
         
-        // Convert animation properties to CSS
-        val cssAnimation = """
-            .${keyframesName} {
-                animation-name: ${keyframesName};
-                animation-duration: ${duration};
-                animation-timing-function: ${easing};
-                animation-delay: ${delay};
+        if (keyframes != null) {
+            keyframesCSS = "@keyframes $keyframesName {\n"
+            
+            when (keyframes) {
+                is Map<*, *> -> {
+                    // Process keyframes map
+                    keyframes.forEach { (key, value) ->
+                        keyframesCSS += "    $key {\n"
+                        if (value is Map<*, *>) {
+                            value.forEach { (prop, propValue) ->
+                                keyframesCSS += "        $prop: $propValue;\n"
+                            }
+                        }
+                        keyframesCSS += "    }\n"
+                    }
+                }
+                is String -> {
+                    // Direct string keyframes definition
+                    keyframesCSS += keyframes
+                }
+            }
+            
+            keyframesCSS += "}\n"
+        } else {
+            // Default keyframes if none provided
+            keyframesCSS = """
+                @keyframes $keyframesName {
+                    0% { transform: scale(0.95); opacity: 0.7; }
+                    50% { transform: scale(1.05); opacity: 0.9; }
+                    100% { transform: scale(1.0); opacity: 1.0; }
+                }
+            """.trimIndent()
+        }
+        
+        // Create the animation class
+        val animationCSS = """
+            $keyframesCSS
+            .$keyframesName {
+                animation-name: $keyframesName;
+                animation-duration: $duration;
+                animation-timing-function: $easing;
+                animation-delay: $delay;
                 animation-fill-mode: both;
             }
         """.trimIndent()
         
         // Add the CSS to the head
-        addHeadElement("<style>$cssAnimation</style>")
+        addHeadElement("<style>$animationCSS</style>")
     }
     
     /**
@@ -597,27 +631,150 @@ class JvmPlatformRenderer : MigratedPlatformRenderer {
     ): AnimationController {
         // For JVM platform, we'll add JS to start the animation
         val targetId = options["targetElementId"]?.toString() ?: ""
+        val animationClass = "animation_$animationId"
+        val controllerId = "animation_controller_${System.currentTimeMillis()}"
+        
+        // Create JavaScript to start the animation and provide control functions
         val script = """
-            const element = document.getElementById('$targetId');
-            if (element) {
-                element.classList.add('animation_$animationId');
-            }
+            (function() {
+                // Create a controller object in the window namespace
+                window.${controllerId} = {
+                    status: 'RUNNING',
+                    progress: 0,
+                    element: null,
+                    interval: null,
+                    
+                    // Initialize the animation
+                    init: function() {
+                        const element = document.getElementById('$targetId');
+                        if (!element) return;
+                        
+                        this.element = element;
+                        element.classList.add('$animationClass');
+                        
+                        // Set up event listeners
+                        element.addEventListener('animationstart', () => {
+                            this.status = 'RUNNING';
+                            this.progress = 0;
+                        });
+                        
+                        element.addEventListener('animationend', () => {
+                            this.status = 'COMPLETED';
+                            this.progress = 1;
+                        });
+                        
+                        element.addEventListener('animationcancel', () => {
+                            this.status = 'CANCELLED';
+                        });
+                        
+                        // Update progress periodically
+                        this.interval = setInterval(() => {
+                            if (this.status === 'RUNNING') {
+                                this.progress = Math.min(this.progress + 0.01, 0.99);
+                            }
+                        }, 100);
+                    },
+                    
+                    // Control methods
+                    pause: function() {
+                        if (this.status === 'RUNNING' && this.element) {
+                            this.element.style.animationPlayState = 'paused';
+                            this.status = 'PAUSED';
+                        }
+                    },
+                    
+                    resume: function() {
+                        if (this.status === 'PAUSED' && this.element) {
+                            this.element.style.animationPlayState = 'running';
+                            this.status = 'RUNNING';
+                        }
+                    },
+                    
+                    cancel: function() {
+                        if (this.element) {
+                            this.element.classList.remove('$animationClass');
+                            this.status = 'CANCELLED';
+                        }
+                    },
+                    
+                    stop: function() {
+                        if (this.element) {
+                            this.element.style.animationPlayState = 'paused';
+                            this.element.style.animationFillMode = 'forwards';
+                            this.status = 'COMPLETED';
+                        }
+                    },
+                    
+                    // Clean up resources
+                    cleanup: function() {
+                        if (this.interval) {
+                            clearInterval(this.interval);
+                        }
+                    }
+                };
+                
+                // Initialize on DOM load
+                if (document.readyState !== 'loading') {
+                    window.${controllerId}.init();
+                } else {
+                    document.addEventListener('DOMContentLoaded', function() {
+                        window.${controllerId}.init();
+                    });
+                }
+            })();
         """.trimIndent()
         
-        // Add the script to be executed when the page loads
-        addHeadElement("<script>document.addEventListener('DOMContentLoaded', function() { $script });</script>")
+        // Add the script to the head
+        addHeadElement("<script>$script</script>")
         
-        // TODO: Implement a more sophisticated AnimationController for JVM
-        // The current implementation provides no way to control the animation after it starts
-        // A better implementation would add additional JavaScript to enable pause/resume/cancel
-        // with callback capabilities to update the status and progress
-        
-        // Return a simple controller that doesn't do much on server-side
+        // Return a controller that maps client-side controls to server-side functions
         return object : AnimationController {
-            override fun pause() { /* No-op for JVM */ }
-            override fun resume() { /* No-op for JVM */ }
-            override fun cancel() { /* No-op for JVM */ }
-            override fun stop() { /* No-op for JVM */ }
+            override fun pause() {
+                // Add JavaScript to call the pause function
+                addHeadElement("""
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            if (window.${controllerId}) window.${controllerId}.pause();
+                        });
+                    </script>
+                """.trimIndent())
+            }
+            
+            override fun resume() {
+                // Add JavaScript to call the resume function
+                addHeadElement("""
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            if (window.${controllerId}) window.${controllerId}.resume();
+                        });
+                    </script>
+                """.trimIndent())
+            }
+            
+            override fun cancel() {
+                // Add JavaScript to call the cancel function
+                addHeadElement("""
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            if (window.${controllerId}) window.${controllerId}.cancel();
+                        });
+                    </script>
+                """.trimIndent())
+            }
+            
+            override fun stop() {
+                // Add JavaScript to call the stop function
+                addHeadElement("""
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            if (window.${controllerId}) window.${controllerId}.stop();
+                        });
+                    </script>
+                """.trimIndent())
+            }
+            
+            // Status and progress can't be read from server side,
+            // so we return default values
             override val status: AnimationStatus = AnimationStatus.RUNNING
             override val progress: Float = 0f
         }

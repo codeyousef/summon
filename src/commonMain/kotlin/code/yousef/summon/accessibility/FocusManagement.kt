@@ -1,7 +1,9 @@
 package code.yousef.summon.accessibility
 
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.DisposableEffect
 
 /**
  * Utilities for managing focus in web applications.
@@ -172,6 +174,13 @@ object FocusManager {
 }
 
 /**
+ * Helper function for DisposableEffect cleanup that returns a cleanup function.
+ */
+private fun onDispose(cleanup: () -> Unit): () -> Unit {
+    return cleanup
+}
+
+/**
  * Creates a focusable component that can receive focus via keyboard navigation 
  * or programmatic focus requests.
  * 
@@ -180,6 +189,7 @@ object FocusManager {
  * @param onFocusChange Optional callback for focus state changes
  * @return A modified Modifier with focus attributes
  */
+@Composable
 fun makeFocusable(
     modifier: Modifier = Modifier(),
     focusId: String = generateRandomId(),
@@ -195,19 +205,16 @@ fun makeFocusable(
         onFocusChange?.invoke(true)
     }
 
-    // Register immediately
-    FocusManager.registerFocusable(focusId, focusAction)
-    
-    // TODO: Implement proper cleanup with DisposableEffect pattern
-    // Currently, we're missing the onDispose handler that would unregister the focusable element
-    // when it's removed from the composition. A proper implementation would use DisposableEffect:
-    //
-    // DisposableEffect(focusId) {
-    //     FocusManager.registerFocusable(focusId, focusAction)
-    //     onDispose {
-    //         FocusManager.unregisterFocusable(focusId)
-    //     }
-    // }
+    // Use DisposableEffect to handle registration and cleanup
+    DisposableEffect(focusId) {
+        // Register when the effect is first applied
+        FocusManager.registerFocusable(focusId, focusAction)
+        
+        // Return cleanup function that will be called when the component is removed
+        onDispose {
+            FocusManager.unregisterFocusable(focusId)
+        }
+    }
 
     // Apply focus-related attributes via modifier
     return modifier
