@@ -1,8 +1,5 @@
 package code.yousef.summon
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
-
 import kotlinx.html.TagConsumer
 import kotlinx.html.div
 import kotlinx.html.unsafe

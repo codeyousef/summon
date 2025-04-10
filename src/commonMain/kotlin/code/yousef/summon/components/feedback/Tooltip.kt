@@ -114,8 +114,6 @@ internal fun getArrowStyles(placement: TooltipPlacement): Map<String, String> {
             "border-width" to "6px 0 6px 6px",
             "border-color" to "transparent transparent transparent #333"
         )
-
-        else -> emptyMap()
     }
 }
 

@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package code.yousef.summon.runtime
 
 import code.yousef.summon.runtime.Composable

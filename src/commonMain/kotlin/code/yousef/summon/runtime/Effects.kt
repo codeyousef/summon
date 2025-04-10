@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package code.yousef.summon.runtime
 
 // Remove coroutine imports temporarily to fix compilation

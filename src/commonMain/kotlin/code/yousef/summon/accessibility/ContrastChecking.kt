@@ -1,7 +1,4 @@
-package accessibility
-
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
+package code.yousef.summon.accessibility
 
 import kotlin.math.max
 import kotlin.math.min
