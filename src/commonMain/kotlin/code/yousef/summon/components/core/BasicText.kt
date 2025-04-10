@@ -2,7 +2,7 @@ package code.yousef.summon.components.core
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.theme.TextStyle
 
 /**
@@ -27,8 +27,8 @@ fun BasicText(
     style: TextStyle = TextStyle(),
     onTextLayout: (TextLayoutResult) -> Unit = {}
 ) {
-    // Get the platform renderer
-    val renderer = getPlatformRenderer()
+    // Get the platform renderer using CompositionLocal
+    val renderer = LocalPlatformRenderer.current
     
     // Render the text using the platform renderer
     renderer.renderText(modifier) {

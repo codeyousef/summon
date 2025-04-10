@@ -74,7 +74,6 @@ interface PlatformRenderer {
         selected: Boolean,
         onClick: () -> Unit,
         enabled: Boolean,
-        // name: String?, // TODO: How to handle name attribute for grouping? Via modifier?
         modifier: Modifier
     )
 
@@ -203,7 +202,9 @@ interface PlatformRenderer {
     )
 
     // --- Animation placeholders ---
-    // TODO: Define proper animation support integrated with composition lifecycle
+    // Animation support is now integrated with composition lifecycle through DisposableEffect
+    // See ComposableAnimation.kt for the implementation, which provides animateValue and
+    // InfiniteTransition for animation management with proper lifecycle handling.
 
     /** Renders the start of an animated visibility container */
     fun renderAnimatedVisibility(visible: Boolean, modifier: Modifier)

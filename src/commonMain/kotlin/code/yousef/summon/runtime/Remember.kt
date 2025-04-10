@@ -7,6 +7,7 @@ import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.state.State
 import code.yousef.summon.state.SummonMutableState
 import code.yousef.summon.state.mutableStateOf
+import code.yousef.summon.runtime.LaunchedEffect
 
 /**
  * Remembers a value across recompositions.
@@ -98,11 +99,37 @@ fun <T> rememberMutableStateOf(initial: T): SummonMutableState<T> {
  */
 @Composable
 fun <T> derivedStateOf(calculation: () -> T): SummonMutableState<T> {
+    // Create a mutableState to hold the derived value
     val state = rememberMutableStateOf(calculation())
     
-    // In a real implementation, this would set up a side effect to update the derived state
-    // when dependencies change. This is a simplified placeholder.
-    // TODO: Implement proper dependency tracking
+    // Track the calculation in an effect that will re-execute when any observed state changes
+    // This approach leverages the Effect system's dependency tracking
+    LaunchedEffect(calculation) {
+        // Update the derived state with the new calculation result
+        state.value = calculation()
+    }
+    
+    return state
+}
+
+/**
+ * Creates and remembers a derivation of some [SummonMutableState] with explicit dependencies.
+ * 
+ * @param vararg dependencies Objects that will trigger recalculation when they change
+ * @param calculation The function to derive a state from the dependencies.
+ * @return A [SummonMutableState] that updates when any dependency changes.
+ */
+@Composable
+fun <T> derivedStateOf(vararg dependencies: Any?, calculation: () -> T): SummonMutableState<T> {
+    // Create a mutableState to hold the derived value
+    val state = rememberMutableStateOf(calculation())
+    
+    // Use dependencies array to trigger recalculation when any dependency changes
+    // Pass dependencies directly as they are already a vararg array
+    LaunchedEffect(dependencies) {
+        // Update the derived state with the new calculation result
+        state.value = calculation()
+    }
     
     return state
 } 

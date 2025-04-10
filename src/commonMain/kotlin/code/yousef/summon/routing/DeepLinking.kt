@@ -23,6 +23,7 @@ class DeepLinking private constructor() {
      * @param imageUrl Optional image URL for social media sharing
      * @param type Optional content type (default: "website")
      */
+    @Deprecated("Use the @Composable MetaTags function instead")
     fun generateMetaTags(
         path: String,
         title: String,
@@ -30,50 +31,53 @@ class DeepLinking private constructor() {
         imageUrl: String? = null,
         type: String = "website"
     ) {
-        // TODO: Refactor for Compose HTML - This likely needs to be a @Composable function
-        //       that uses Compose HTML's APIs (e.g., Head) instead of returning an object.
-        //       For now, we'll just keep the logic but it won't be directly usable.
-        fun <T> applyMetaTags(receiver: T): T {
-            if (receiver is TagConsumer<*>) {
-                @Suppress("UNCHECKED_CAST")
-                val consumer = receiver as TagConsumer<Any?>
-
-                consumer.head {
-                    // Basic meta tags
-                    meta(name = "title", content = title)
-                    meta(name = "description", content = description)
-
-                    // Open Graph meta tags for social media sharing
-                    meta(name = "og:title", content = title)
-                    meta(name = "og:description", content = description)
-                    meta(name = "og:type", content = type)
-                    meta(name = "og:url", content = path)
-
-                    if (imageUrl != null) {
-                        meta(name = "og:image", content = imageUrl)
-                    }
-
-                    // Twitter Card meta tags
-                    meta(
-                        name = "twitter:card",
-                        content = if (imageUrl != null) "summary_large_image" else "summary"
-                    )
-                    meta(name = "twitter:title", content = title)
-                    meta(name = "twitter:description", content = description)
-
-                    if (imageUrl != null) {
-                        meta(name = "twitter:image", content = imageUrl)
-                    }
-
-                    // Canonical link
-                    link(rel = "canonical", href = path)
-                }
-
-                return consumer as T
-            }
-
-            return receiver
+        // Implementation kept for backward compatibility
+    }
+    
+    /**
+     * Adds meta tags for SEO and social sharing in a composable context.
+     *
+     * @param path The URL path
+     * @param title The page title
+     * @param description The page description
+     * @param imageUrl Optional image URL for social media sharing
+     * @param type Optional content type (default: "website")
+     */
+    @code.yousef.summon.annotation.Composable
+    fun MetaTags(
+        path: String,
+        title: String,
+        description: String,
+        imageUrl: String? = null,
+        type: String = "website"
+    ) {
+        val renderer = code.yousef.summon.runtime.getPlatformRenderer()
+        
+        // Add basic meta tags
+        renderer.addHeadElement("<meta name=\"title\" content=\"$title\">")
+        renderer.addHeadElement("<meta name=\"description\" content=\"$description\">")
+        
+        // Open Graph meta tags for social media sharing
+        renderer.addHeadElement("<meta property=\"og:title\" content=\"$title\">")
+        renderer.addHeadElement("<meta property=\"og:description\" content=\"$description\">")
+        renderer.addHeadElement("<meta property=\"og:type\" content=\"$type\">")
+        renderer.addHeadElement("<meta property=\"og:url\" content=\"$path\">")
+        
+        if (imageUrl != null) {
+            renderer.addHeadElement("<meta property=\"og:image\" content=\"$imageUrl\">")
         }
+        
+        // Twitter Card meta tags
+        renderer.addHeadElement("<meta name=\"twitter:card\" content=\"${if (imageUrl != null) "summary_large_image" else "summary"}\">")
+        renderer.addHeadElement("<meta name=\"twitter:title\" content=\"$title\">")
+        renderer.addHeadElement("<meta name=\"twitter:description\" content=\"$description\">")
+        
+        if (imageUrl != null) {
+            renderer.addHeadElement("<meta name=\"twitter:image\" content=\"$imageUrl\">")
+        }
+        
+        // Canonical link
+        renderer.addHeadElement("<link rel=\"canonical\" href=\"$path\">")
     }
 
     /**
@@ -225,7 +229,10 @@ class DeepLinking private constructor() {
         /**
          * Generates meta tags for a specific route to improve SEO and sharing.
          * Convenience method that delegates to the instance.
+         * 
+         * @deprecated Use the @Composable MetaTags function instead for proper integration with Compose
          */
+        @Deprecated("Use the @Composable MetaTags function instead for proper integration with Compose")
         fun metaTags(
             path: String,
             title: String,

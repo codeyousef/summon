@@ -2,6 +2,7 @@ package code.yousef.summon.components.layout
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.getPlatformRenderer
 
 /**
@@ -13,7 +14,8 @@ fun Box(
     modifier: Modifier = Modifier.create(),
     content: @Composable () -> Unit
 ) {
-    val renderer = getPlatformRenderer()
+    // Use CompositionLocal for renderer access
+    val renderer = LocalPlatformRenderer.current
     renderer.renderBox(modifier)
     content()
 }

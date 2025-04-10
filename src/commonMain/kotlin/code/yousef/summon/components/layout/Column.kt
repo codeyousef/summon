@@ -3,6 +3,7 @@ package code.yousef.summon.components.layout
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.core.PlatformRenderer
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.MigratedPlatformRenderer
 import code.yousef.summon.runtime.getPlatformRenderer
 
@@ -16,6 +17,7 @@ fun Column(
     modifier: Modifier = Modifier.create(),
     content: @Composable () -> Unit
 ) {
-    val renderer = getPlatformRenderer() as MigratedPlatformRenderer
+    // Use CompositionLocal for renderer access
+    val renderer = LocalPlatformRenderer.current
     renderer.renderColumn(modifier, content)
 } 
