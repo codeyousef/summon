@@ -60,6 +60,16 @@ actual class JsPlatformRenderer actual constructor() : MigratedPlatformRenderer 
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }
 
+    actual override fun renderIcon(
+        name: String,
+        modifier: Modifier,
+        onClick: (() -> Unit)?,
+        svgContent: String?,
+        type: code.yousef.summon.components.display.IconType
+    ) {
+        throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
+    }
+
     actual override fun renderRow(modifier: Modifier) {
         throw NotImplementedError("JsPlatformRenderer should not be used on JVM")
     }

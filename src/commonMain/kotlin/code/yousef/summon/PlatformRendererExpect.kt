@@ -40,6 +40,13 @@ expect class JsPlatformRenderer() : MigratedPlatformRenderer {
     
     override fun renderIcon(name: String, modifier: Modifier)
     override fun renderIcon(modifier: Modifier, content: @Composable () -> Unit)
+    override fun renderIcon(
+        name: String,
+        modifier: Modifier,
+        onClick: (() -> Unit)?,
+        svgContent: String?,
+        type: code.yousef.summon.components.display.IconType
+    )
     
     override fun renderRow(modifier: Modifier)
     override fun renderRow(modifier: Modifier, content: @Composable () -> Unit)

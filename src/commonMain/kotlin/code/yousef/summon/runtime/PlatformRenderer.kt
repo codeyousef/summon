@@ -91,6 +91,23 @@ interface MigratedPlatformRenderer : PlatformRenderer {
     fun renderButton(modifier: Modifier, content: @Composable () -> Unit)
     fun renderImage(modifier: Modifier, content: @Composable () -> Unit)
     fun renderIcon(modifier: Modifier, content: @Composable () -> Unit)
+    
+    /**
+     * Renders an icon with enhanced functionality including click handling and SVG support
+     *
+     * @param name The name or identifier of the icon
+     * @param modifier The modifier to apply styling and attributes
+     * @param onClick Optional click handler for interactive icons
+     * @param svgContent Optional raw SVG content for SVG icons
+     * @param type The type of icon (SVG, FONT, or IMAGE)
+     */
+    fun renderIcon(
+        name: String,
+        modifier: Modifier,
+        onClick: (() -> Unit)? = null,
+        svgContent: String? = null,
+        type: code.yousef.summon.components.display.IconType = code.yousef.summon.components.display.IconType.SVG
+    )
 
     // Input components
     fun renderTextField(

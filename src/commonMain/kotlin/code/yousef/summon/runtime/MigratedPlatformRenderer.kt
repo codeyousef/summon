@@ -197,6 +197,18 @@ abstract class MigratedPlatformRendererImpl(private val delegate: PlatformRender
         // Implemented by platform-specific code
     }
 
+    override fun renderIcon(
+        name: String,
+        modifier: Modifier,
+        onClick: (() -> Unit)?,
+        svgContent: String?,
+        type: code.yousef.summon.components.display.IconType
+    ) {
+        // Default implementation falls back to simple icon rendering
+        // Platform-specific implementations should handle the additional parameters
+        delegate.renderIcon(name, modifier)
+    }
+
     // Input components
     override fun renderTextField(
         value: String, 

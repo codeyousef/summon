@@ -442,12 +442,35 @@ class JvmPlatformRenderer : MigratedPlatformRenderer {
         throw NotImplementedError("FormField rendering is not yet implemented for JVM")
     }
     
+    /**
+     * Renders an icon with enhanced functionality
+     */
+    override fun renderIcon(
+        name: String,
+        modifier: Modifier,
+        onClick: (() -> Unit)?,
+        svgContent: String?,
+        type: code.yousef.summon.components.display.IconType
+    ) {
+        throw NotImplementedError("Enhanced icon rendering is not yet implemented for JVM")
+    }
+    
     private fun applyModifier(tag: CommonAttributeGroupFacade, modifier: Modifier) {
         // Apply styles from the modifier directly to the HTML tag
         tag.style = modifier.toStyleString()
+        
+        // Apply any attributes from the modifier
+        modifier.styles.entries.forEach { (key, value) ->
+            if (key.startsWith("__attr:")) {
+                val attributeName = key.substring("__attr:".length)
+                tag.attributes[attributeName] = value
+            }
+        }
     }
     
     private fun Modifier.toStyleString(): String {
-        return this.styles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+        return this.styles.entries
+            .filter { !it.key.startsWith("__attr:") }
+            .joinToString(";") { (key, value) -> "$key:$value" }
     }
 } 

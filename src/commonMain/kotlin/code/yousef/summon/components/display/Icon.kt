@@ -4,6 +4,8 @@ import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.getPlatformRenderer
 import code.yousef.summon.runtime.MigratedPlatformRenderer
+import code.yousef.summon.modifier.ariaLabel
+import code.yousef.summon.modifier.role
 
 
 /**
@@ -43,25 +45,31 @@ fun Icon(
     ariaLabel: String? = null, // Prefer setting via modifier.accessibility
     onClick: (() -> Unit)? = null // JS only for now
 ) {
-    // Combine explicit parameters into the modifier if provided
-    // This provides backward compatibility but encourages using Modifier directly
     var finalModifier = modifier
     size?.let { finalModifier = finalModifier.size(it) }
     color?.let { finalModifier = finalModifier.color(it) }
     fontFamily?.let { finalModifier = finalModifier.fontFamily(it) }
-    // TODO: Handle accessibility attributes via Modifier extension
-    // ariaLabel?.let { finalModifier = finalModifier.accessibilityLabel(it) }
     
-    // TODO: Handle onClick via Modifier extension (e.g., modifier.clickable { onClick?.invoke() })
+    // Apply accessibility attributes if provided
+    if (ariaLabel != null) {
+        finalModifier = finalModifier.ariaLabel(ariaLabel)
+        // Also set the role for better accessibility
+        finalModifier = finalModifier.role("img")
+    }
     
-    // TODO: The renderer needs to handle different icon types (SVG, Font) based on parameters/modifier
-    // For now, just pass the name and modifier.
-    // svgContent might need to be handled differently (e.g., specific renderer method or passed via modifier attribute)
+    // For clickable icons, set appropriate cursor and role
+    if (onClick != null) {
+        finalModifier = finalModifier.cursor("pointer")
+        // If not already set, add a button role for interactive icons
+        if (ariaLabel == null) {
+            finalModifier = finalModifier.role("button")
+        }
+    }
     
     val renderer = getPlatformRenderer()
     
-    // TODO: Adapt renderer call based on type/svgContent if necessary
-    renderer.renderIcon(name, finalModifier)
+    // Render the icon - platform renderer will handle the different types
+    renderer.renderIcon(name, finalModifier, onClick, svgContent, type)
 }
 
 
