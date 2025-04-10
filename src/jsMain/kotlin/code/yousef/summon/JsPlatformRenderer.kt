@@ -11,15 +11,36 @@ import code.yousef.summon.core.LocalTime
 import code.yousef.summon.core.style.Color
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.MigratedPlatformRenderer
-import code.yousef.summon.runtime.PlatformRenderer
 import kotlinx.browser.document
+import kotlinx.browser.window
 import kotlinx.datetime.LocalDate
 import org.w3c.dom.HTMLAnchorElement
 import org.w3c.dom.HTMLElement
 import kotlin.js.Date
 import kotlin.ranges.ClosedFloatingPointRange
 
+// Note: console object is available in JS; we don't need to declare it as external
+
 actual class JsPlatformRenderer actual constructor() : MigratedPlatformRenderer {
+    // Track the current parent node for the composition tree
+    private var currentParentNode: HTMLElement? = null
+    
+    /**
+     * Gets the current parent node in the composition context.
+     * If no parent node is set, defaults to document.body.
+     */
+    private fun getCurrentParentNode(): HTMLElement? {
+        return currentParentNode ?: document.body
+    }
+    
+    /**
+     * Sets the current parent node for the composition context.
+     * This is used to build the composition tree.
+     */
+    private fun setCurrentParentNode(node: HTMLElement?) {
+        currentParentNode = node
+    }
+
     /**
      * Add an HTML element to the document head.
      * This is used by SEO components like MetaTags, CanonicalLinks, etc.
@@ -31,7 +52,26 @@ actual class JsPlatformRenderer actual constructor() : MigratedPlatformRenderer 
     }
     
     actual override fun <T> renderComposable(composable: @Composable () -> Unit, consumer: T) {
-        // Basic implementation - just a stub for now
+        // For DOM-based rendering, consumer should be an HTMLElement
+        if (consumer is HTMLElement) {
+            // Save current parent node
+            val previousParentNode = currentParentNode
+            
+            // Set the provided element as the current parent node
+            setCurrentParentNode(consumer)
+            
+            try {
+                // Invoke the composable function, which will use the current parent node
+                // to append its DOM elements
+                composable()
+            } finally {
+                // Restore the previous parent node, even if an exception was thrown
+                setCurrentParentNode(previousParentNode)
+            }
+        } else {
+            // Use console.log instead of console.error, and avoid dynamic class access
+            console.log("renderComposable expected HTMLElement as consumer, got different type")
+        }
     }
 
     actual override fun renderText(value: String, modifier: Modifier) {
@@ -140,11 +180,47 @@ actual class JsPlatformRenderer actual constructor() : MigratedPlatformRenderer 
             setupJsClickHandler(linkId, LinkJsExtension(onClick, href))
         }
         
-        // TODO: Add the element to the current composition context/parent node
+        // Add the element to the current composition context/parent node
+        getCurrentParentNode()?.appendChild(element)
     }
     
     actual override fun renderLink(modifier: Modifier, href: String, content: @Composable () -> Unit) {
-        // Stub implementation
+        // Create an anchor element
+        val element = document.createElement("a") as HTMLAnchorElement
+        
+        // Set the href attribute
+        element.href = href
+        
+        // Apply styles and attributes from the modifier
+        applyModifierToElement(element, modifier)
+        
+        // Generate a unique ID for potential event handlers
+        val linkId = "link-${Date.now().toInt()}-${(js("Math.random()").toString()).substring(2, 8)}"
+        element.id = linkId
+        
+        // Extract onClick handler if present in the modifier
+        val onClick = modifier.extractOnClick()
+        
+        // Set up click handler if provided
+        if (onClick != null) {
+            setupJsClickHandler(linkId, LinkJsExtension(onClick, href))
+        }
+        
+        // Add the element to the current composition context/parent node
+        val parentNode = getCurrentParentNode()
+        if (parentNode != null) {
+            // Add the link element to the DOM
+            parentNode.appendChild(element)
+            
+            // Set the link as the current parent for its content
+            setCurrentParentNode(element)
+            
+            // Render the content inside the link
+            content()
+            
+            // Restore the previous parent node
+            setCurrentParentNode(parentNode)
+        }
     }
     
     /**
@@ -186,7 +262,8 @@ actual class JsPlatformRenderer actual constructor() : MigratedPlatformRenderer 
             setupJsClickHandler(linkId, LinkJsExtension(onClick, href))
         }
         
-        // TODO: Add the element to the current composition context/parent node
+        // Add the element to the current composition context/parent node
+        getCurrentParentNode()?.appendChild(element)
     }
     
     actual override fun renderDivider(modifier: Modifier) {

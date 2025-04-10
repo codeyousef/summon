@@ -1,9 +1,12 @@
 package code.yousef.summon
 
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.routing.Pages
 import code.yousef.summon.routing.RouteParams
 import code.yousef.summon.routing.RouteDefinition
+import code.yousef.summon.routing.PageFactory
+import code.yousef.summon.runtime.MigratedPlatformRenderer
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.Document
@@ -11,6 +14,23 @@ import org.w3c.dom.HTMLElement
 import org.w3c.dom.css.CSSStyleDeclaration
 import org.w3c.dom.NodeList
 import org.w3c.dom.events.Event
+
+// Create a variable to hold the current platform renderer
+private var platformRenderer: MigratedPlatformRenderer? = null
+
+/**
+ * Sets the global platform renderer
+ */
+fun setPlatformRenderer(renderer: MigratedPlatformRenderer) {
+    platformRenderer = renderer
+}
+
+/**
+ * Gets the global platform renderer
+ */
+fun getPlatformRenderer(): MigratedPlatformRenderer {
+    return platformRenderer ?: throw IllegalStateException("Platform renderer has not been set")
+}
 
 // External JS interfaces
 external class Document {
@@ -97,9 +117,10 @@ private fun registerAppPages() {
     // Register a placeholder page for the root
     Pages.register("/") { Text("Welcome to Summon! (Root Page)") }
 
-    // Register a simple Not Found page
+    // Register a simple Not Found page - fix the lambda type
     Pages.registerNotFound { params ->
-        Text("Page Not Found: ${params.asMap()["path"] ?: "Unknown"}")
+        // Return a composable function that creates Text
+        { Text("Page Not Found: ${params.asMap()["path"] ?: "Unknown"}") }
     }
 }
 
@@ -127,17 +148,23 @@ private fun setupApp() {
     // Clear container before mounting composable
     appContainer.innerHTML = ""
 
-    // TODO: Define and call renderComposable for JS
-    // renderComposable(appContainer) { // Hypothetical JS render function
-    //     RouterComponent(
-    //         initialPath = initialPath, 
-    //         routes = routes,
-    //         notFound = notFoundHandler // RouterComponent needs adaptation for notFound
-    //     )
-    // }
+    // Define and use the renderComposable function for JS
+    val renderer = JsPlatformRenderer()
     
-    // Temporary placeholder content
-    appContainer.innerHTML = "<h1>Summon App</h1><p>Router setup needed (path: $initialPath)...</p>"
+    // Set the renderer as the platform renderer to be used by composables
+    setPlatformRenderer(renderer)
+    
+    // Render the router component
+    renderer.renderComposable({
+        RouterComponent(
+            initialPath = initialPath,
+            routes = routes,
+            notFound = notFoundHandler
+        )
+    }, appContainer)
+    
+    // Temporary placeholder content (removed since we implemented proper rendering)
+    // appContainer.innerHTML = "<h1>Summon App</h1><p>Router setup needed (path: $initialPath)...</p>"
 }
 
 /**
@@ -152,4 +179,30 @@ private fun createAppContainer(): HTMLElement {
     container.style.padding = "20px"
     document.body?.appendChild(container)
     return container
+}
+
+/**
+ * A wrapper for routing in the JS environment
+ */
+@Composable
+private fun RouterComponent(
+    initialPath: String,
+    routes: List<RouteDefinition>,
+    notFound: PageFactory?
+) {
+    // Find matching route
+    val matchingRoute = routes.find { route ->
+        // Simple exact matching for now
+        route.path == initialPath
+    }
+    
+    if (matchingRoute != null) {
+        // Render the matching route content
+        val emptyParams = RouteParams(mapOf())
+        matchingRoute.content(emptyParams)
+    } else {
+        // Render the not found page using the PageFactory directly
+        val params = RouteParams(mapOf("path" to initialPath))
+        notFound?.invoke(params) ?: Text("Page Not Found: $initialPath")
+    }
 } 

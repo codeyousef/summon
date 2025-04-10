@@ -1414,7 +1414,46 @@ This migration aligns the `StreamingSSR` component with the new annotation-based
 
 For the next migration, we will focus on the BasicButton component, which currently uses the interface-based approach but would benefit from the new annotation-based composition system, especially for handling pressed/hover states and accessibility.
 
-```
+## Platform Support Clarification
+
+### JVM/JS Only Project Architecture
+
+It's important to clarify that Summon is designed specifically as a **JVM and JavaScript-only** Kotlin Multiplatform project. The architecture intentionally targets these two platforms to provide:
+
+1. **JVM Support**: For server-side rendering of UI components
+2. **JavaScript Support**: For client-side rendering and interactivity in web browsers
+
+**There is no Android implementation planned or supported in this project.** The codebase structure reflects this design decision with only two target-specific source sets:
+
+- `src/jvmMain/` - Contains all JVM-specific implementations
+- `src/jsMain/` - Contains all JavaScript-specific implementations
+- `src/commonMain/` - Contains shared code between the two platforms
+
+This architecture allows for a focused and optimized implementation tailored specifically for web applications with both server and client-side rendering capabilities.
+
+### Potential Misunderstandings
+
+Some confusion may arise from:
+
+1. **JVM vs Android**: While Android uses a JVM-based runtime, the JVM implementation in this project is specifically designed for server environments, not Android devices.
+
+2. **Kotlin Multiplatform**: Although KMP supports many platforms including Android, this project intentionally limits its scope to JVM and JS.
+
+3. **Desktop/Mobile Support**: There are no current plans to extend this project to support:
+   - Android UI
+   - iOS UI
+   - Desktop (JVM desktop apps)
+   - Other platforms beyond JVM servers and web browsers
+
+### Implementation Details
+
+The platform renderer approach follows this architecture with specific implementations:
+
+- `JvmPlatformRenderer`: Focuses on server-side HTML generation
+- `JsPlatformRenderer`: Focuses on DOM manipulation and browser APIs
+- `MigratedPlatformRenderer`: Common interface shared between platforms
+
+Any references to "Android" in documentation or code comments should be considered incorrect or aspirational only, as there is no actual Android implementation in this codebase.
 
 ### 8. Alert Component JS Integration Fix
 
@@ -2512,3 +2551,174 @@ With the completion of the JsPlatformRenderer JVM implementation fix, we now hav
 3. **Cross-platform**: Shared interfaces and abstractions via the `MigratedPlatformRenderer` interface
 
 The project structure now correctly reflects the targeted platforms (JVM and JS) with proper implementations for each platform, ensuring type safety and consistency across the entire codebase.
+
+### 19. JS renderComposable Implementation
+
+The `renderComposable` function in the JavaScript environment has been implemented to properly support client-side rendering. This fixes the placeholder code that was previously in place.
+
+**Before (Placeholder/TODO):**
+```kotlin
+// In Main.kt
+// TODO: Define and call renderComposable for JS
+// renderComposable(appContainer) { // Hypothetical JS render function
+//     RouterComponent(
+//         initialPath = initialPath, 
+//         routes = routes,
+//         notFound = notFoundHandler // RouterComponent needs adaptation for notFound
+//     )
+// }
+
+// Temporary placeholder content
+appContainer.innerHTML = "<h1>Summon App</h1><p>Router setup needed (path: $initialPath)...</p>"
+```
+
+**After (Implemented):**
+```kotlin
+// Define and use the renderComposable function for JS
+val renderer = JsPlatformRenderer()
+
+// Set the renderer as the platform renderer to be used by composables
+setPlatformRenderer(renderer)
+
+// Render the router component
+renderer.renderComposable({
+    RouterComponent(
+        initialPath = initialPath,
+        routes = routes,
+        notFound = notFoundHandler
+    )
+}, appContainer)
+```
+
+A proper `RouterComponent` composable function was also implemented to handle route matching:
+
+```kotlin
+@Composable
+private fun RouterComponent(
+    initialPath: String,
+    routes: List<RouteDefinition>,
+    notFound: (RouteParams) -> @Composable () -> Unit
+) {
+    // Find matching route
+    val matchingRoute = routes.find { route ->
+        // Simple exact matching for now
+        route.path == initialPath
+    }
+    
+    if (matchingRoute != null) {
+        // Render the matching route content
+        val emptyParams = RouteParams(mapOf())
+        matchingRoute.content(emptyParams)
+    } else {
+        // Render the not found page
+        val params = RouteParams(mapOf("path" to initialPath))
+        notFound(params).invoke()
+    }
+}
+```
+
+Key changes:
+1. Created a proper implementation of client-side rendering using `JsPlatformRenderer`
+2. Integrated with the platform renderer system via `setPlatformRenderer`
+3. Implemented a `RouterComponent` composable to handle route matching and content rendering
+4. Removed placeholder HTML content in favor of actual composable rendering
+5. Proper type-safety across the routing implementation
+
+This implementation enables proper client-side rendering of Summon components in a JavaScript environment, completing a critical part of the cross-platform support in the Kotlin Multiplatform project.
+
+### 20. JsPlatformRenderer DOM Composition Implementation
+
+The `JsPlatformRenderer` has been updated with a proper DOM-based composition system for JavaScript environments. This implementation manages parent-child relationships in the DOM to correctly build the component tree.
+
+**Before (Stubbed Implementation):**
+```kotlin
+actual override fun <T> renderComposable(composable: @Composable () -> Unit, consumer: T) {
+    // Basic implementation - just a stub for now
+}
+
+actual override fun renderLink(href: String, modifier: Modifier) {
+    // Create an anchor element
+    val element = document.createElement("a") as HTMLAnchorElement
+    
+    // Set the href attribute
+    element.href = href
+    
+    // Apply styles and attributes from the modifier
+    applyModifierToElement(element, modifier)
+    
+    // Generate a unique ID for potential event handlers
+    val linkId = "link-${Date.now().toInt()}-${(js("Math.random()").toString()).substring(2, 8)}"
+    element.id = linkId
+    
+    // Extract onClick handler if present in the modifier
+    val onClick = modifier.extractOnClick()
+    
+    // Set up click handler if provided
+    if (onClick != null) {
+        setupJsClickHandler(linkId, LinkJsExtension(onClick, href))
+    }
+    
+    // TODO: Add the element to the current composition context/parent node
+}
+```
+
+**After (Implemented):**
+```kotlin
+// Track the current parent node for the composition tree
+private var currentParentNode: HTMLElement? = null
+
+/**
+ * Gets the current parent node in the composition context.
+ * If no parent node is set, defaults to document.body.
+ */
+private fun getCurrentParentNode(): HTMLElement? {
+    return currentParentNode ?: document.body
+}
+
+/**
+ * Sets the current parent node for the composition context.
+ * This is used to build the composition tree.
+ */
+private fun setCurrentParentNode(node: HTMLElement?) {
+    currentParentNode = node
+}
+
+actual override fun <T> renderComposable(composable: @Composable () -> Unit, consumer: T) {
+    // For DOM-based rendering, consumer should be an HTMLElement
+    if (consumer is HTMLElement) {
+        // Save current parent node
+        val previousParentNode = currentParentNode
+        
+        // Set the provided element as the current parent node
+        setCurrentParentNode(consumer)
+        
+        try {
+            // Invoke the composable function, which will use the current parent node
+            // to append its DOM elements
+            composable()
+        } finally {
+            // Restore the previous parent node, even if an exception was thrown
+            setCurrentParentNode(previousParentNode)
+        }
+    } else {
+        console.error("renderComposable expected HTMLElement as consumer, got ${consumer?.asDynamic()?::class}")
+    }
+}
+
+actual override fun renderLink(href: String, modifier: Modifier) {
+    // Element creation code...
+    
+    // Add the element to the current composition context/parent node
+    getCurrentParentNode()?.appendChild(element)
+}
+```
+
+Key changes:
+1. Added parent node tracking with `currentParentNode` to maintain the composition hierarchy
+2. Implemented helper methods `getCurrentParentNode()` and `setCurrentParentNode()` to manage the DOM tree
+3. Added proper `renderComposable` implementation that sets up the composition context
+4. Updated component rendering methods to append created elements to the current parent node
+5. Added proper nested composable handling with parent node stacking
+6. Implemented error handling for cases where the consumer is not an HTMLElement
+
+This implementation completes the JavaScript rendering system, allowing for proper DOM-based composition of Summon components in web environments. Components can now properly nest and render children, creating the full component tree in the DOM.
