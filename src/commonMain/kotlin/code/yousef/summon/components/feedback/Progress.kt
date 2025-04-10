@@ -2,6 +2,7 @@ package code.yousef.summon.components.feedback
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.attribute
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.getPlatformRenderer
 
@@ -67,8 +68,18 @@ data class Progress(
     @Composable
     operator fun invoke() {
         val composer = CompositionLocal.currentComposer
-        val finalModifier = modifier
         // TODO: Apply styles based on properties
+        val styleModifier = Modifier()
+            .then(getTypeStyles().let { Modifier(it) })
+            .then(getAnimationStyles().let { Modifier(it) })
+        
+        // Apply accessibility attributes
+        val accessibilityModifier = getAccessibilityAttributes().entries.fold(Modifier()) { acc, (key, value) ->
+            acc.attribute(key, value)
+        }
+        
+        // Combine with user-provided modifier
+        val finalModifier = modifier.then(styleModifier).then(accessibilityModifier)
 
         composer?.startNode() // Start Progress node
         if (composer?.inserting == true) {

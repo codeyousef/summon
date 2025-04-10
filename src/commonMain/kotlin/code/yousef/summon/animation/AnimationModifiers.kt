@@ -89,7 +89,7 @@ fun Modifier.fadeIn(
 ): Modifier {
     return this
         .transition("opacity", duration, "ease-in", delay)
-        .opacity(1f)
+        .animOpacity(1f)
 }
 
 /**
@@ -105,7 +105,7 @@ fun Modifier.fadeOut(
 ): Modifier {
     return this
         .transition("opacity", duration, "ease-out", delay)
-        .opacity(0f)
+        .animOpacity(0f)
 }
 
 /**
@@ -114,7 +114,7 @@ fun Modifier.fadeOut(
  * @param value Opacity value (0.0 to 1.0)
  * @return A new Modifier with the opacity style added
  */
-fun Modifier.opacity(value: Float): Modifier {
+fun Modifier.animOpacity(value: Float): Modifier {
     return Modifier(this.styles + ("opacity" to value.toString()))
 }
 
@@ -143,7 +143,7 @@ fun Modifier.slideIn(
     return this
         .transition(property, duration, "ease-out", delay)
         .transition("opacity", duration, "ease-out", delay)
-        .opacity(1f)
+        .animOpacity(1f)
 }
 
 /**
@@ -171,8 +171,8 @@ fun Modifier.slideOut(
     return this
         .transition(property, duration, "ease-in", delay)
         .transition("opacity", duration, "ease-in", delay)
-        .opacity(0f)
-        .style(property, value)
+        .animOpacity(0f)
+        .animStyle(property, value)
 }
 
 /**
@@ -193,7 +193,7 @@ fun Modifier.scale(
     val transform = "scale(${scaleX}, ${scaleY})"
     return this
         .transition("transform", duration, "ease", delay)
-        .style("transform", transform)
+        .animStyle("transform", transform)
 }
 
 /**
@@ -203,6 +203,6 @@ fun Modifier.scale(
  * @param value The CSS property value
  * @return A new Modifier with the style added
  */
-fun Modifier.style(property: String, value: String): Modifier {
+fun Modifier.animStyle(property: String, value: String): Modifier {
     return Modifier(this.styles + (property to value))
 } 

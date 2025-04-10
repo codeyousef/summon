@@ -8,6 +8,7 @@ import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.*
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.delay
 
 /**
  * Variants for Snackbar components.
@@ -109,7 +110,11 @@ fun Snackbar(
             // TODO: Replace with actual timer implementation once available
             // For now, we're just showing how it would work conceptually
             // We would start a timer here to dismiss after duration
-
+            val durationMs = duration.inWholeMilliseconds
+            
+            // Using a basic delay to simulate a timer
+            kotlinx.coroutines.delay(durationMs)
+            
             // After duration, set visible to false and call onDismiss
             if (visible.value) {
                 visible.value = false
@@ -173,9 +178,7 @@ fun Snackbar(
         val renderer = getPlatformRenderer()
         // Render the snackbar container
         // TODO: Update when PlatformRenderer has specific snackbar rendering
-        renderer.renderBox(finalModifier) {
-            // This is a placeholder for actual renderer implementation
-        }
+        renderer.renderBox(finalModifier)
     }
 
     // Internal structure
