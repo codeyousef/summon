@@ -36,7 +36,7 @@ fun NavLink(
     val router = LocalRouter
     
     // Determine if this link is active
-    val currentPath = router?.toString() ?: "" // This is a placeholder until Router exposes currentPath
+    val currentPath = router?.currentPath ?: "" // Get the current path from the router
     val isActive = if (router != null) {
         if (exact) {
             currentPath == to

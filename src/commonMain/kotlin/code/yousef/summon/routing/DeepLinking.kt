@@ -8,6 +8,9 @@ import kotlinx.html.head
 import kotlinx.html.link
 import kotlinx.html.meta
 import routing.RouterContext
+// Removed androidx import
+
+import code.yousef.summon.runtime.Composable
 
 /**
  * Provides support for deep linking, allowing direct navigation to specific application states.
@@ -44,7 +47,7 @@ class DeepLinking private constructor() {
      * @param imageUrl Optional image URL for social media sharing
      * @param type Optional content type (default: "website")
      */
-    @code.yousef.summon.annotation.Composable
+    @Composable
     fun MetaTags(
         path: String,
         title: String,
@@ -298,10 +301,10 @@ object DeepLinkManager {
  * A composable function that handles displaying content based on a specific route
  * and its extracted parameters.
  */
+@Composable
 fun RouteContentHandler(matchResult: RouteMatchResult) {
-    println("RouteContentHandler called for path: ${matchResult.route.path}. Needs Compose HTML implementation.")
-    // This call needs Compose HTML context:
-    // matchResult.route.content(matchResult.params)
+    // Invoke the route's content function with the extracted parameters
+    matchResult.route.content(RouteParams(matchResult.params))
 }
 
 // --- Additional Deep Linking Utilities (Keep/Adapt) ---

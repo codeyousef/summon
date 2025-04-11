@@ -92,38 +92,35 @@ val router = createServerRouter("session-123") {
 ## Example Usage
 
 ```kotlin
-class RouterExample : Composable {
-    // Create routes
-    private val homeRoute = Route("/") { _ -> HomeComponent() }
-    private val aboutRoute = Route("/about") { _ -> AboutComponent() }
-    private val userRoute = Route("/user/:id") { params -> UserProfileComponent(params["id"]) }
+@Composable
+fun RouterExample() {
+    // Create a router using the DSL
+    val router = createRouter {
+        route("/") { _ -> HomeComponent() }
+        route("/about") { _ -> AboutComponent() }
+        route("/user/:id") { params -> UserProfileComponent(params["id"]) }
+        setNotFound { _ -> NotFoundComponent() }
+    }
     
-    // Create router
-    private val router = Router(
-        routes = listOf(homeRoute, aboutRoute, userRoute),
-        notFoundComponent = { _ -> NotFoundComponent() }
+    // Use the router component with an initial path
+    RouterComponent(
+        router = router,
+        initialPath = "/"
     )
-    
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            val consumer = receiver as TagConsumer<Any?>
-            
-            return consumer.div {
-                // Navigation menu
-                div {
-                    NavLink("/", "Home").compose(this)
-                    NavLink("/about", "About").compose(this)
-                }
-                
-                // Router content
-                div {
-                    router.compose(this)
-                }
-            } as T
+}
+
+// Usage in a parent component
+@Composable
+fun App() {
+    Column {
+        // Navigation menu
+        Row {
+            NavLink(to = "/", content = { Text("Home") })
+            NavLink(to = "/about", content = { Text("About") })
         }
         
-        return receiver
+        // Router content
+        RouterExample()
     }
 }
 ```

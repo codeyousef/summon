@@ -78,7 +78,7 @@ class ServerNavLink(
 
             // Get the current router instance
             val router = RouterContext.current
-            val isActive = router is JvmRouter && router.getCurrentPath() == to
+            val isActive = router is Router && router.currentPath == to
 
             return consumer.a(href = to) {
                 // Set up the classes
@@ -126,41 +126,53 @@ actual interface Router {
      */
     @Composable
     actual fun create(initialPath: String)
+    
+    /**
+     * The current path of the router.
+     * This helps components like NavLink determine their active state.
+     */
+    actual val currentPath: String
 }
 
 // Basic JVM Router implementation (needs more logic for actual use)
-class JvmRouter(private val routes: List<RouteDefinition>, private val notFound: (RouteParams) -> Unit) : Router {
+class JvmRouter(private val routes: List<RouteDefinition>, private val notFound: @Composable (RouteParams) -> Unit) : Router {
 
-    private var currentPath: String = ""
+    // Store the current path and params
+    private var _currentPath: String = ""
     private var currentParams: Map<String, String> = emptyMap()
 
-    // Public method to get the current path for NavLink active state
-    fun getCurrentPath(): String = currentPath
+    // Implement the currentPath property from the Router interface
+    override val currentPath: String
+        get() = _currentPath
 
+    /**
+     * Navigate to a different route
+     */
     override fun navigate(path: String, pushState: Boolean) {
-        println("JVM Router: Navigating to $path (pushState=$pushState) - Needs Compose HTML update.")
+        // On JVM, we don't need pushState functionality
         val match = findMatchingRoute(path)
         if (match != null) {
-            currentPath = path
+            _currentPath = path
             currentParams = match.params
         } else {
-            currentPath = path
+            _currentPath = path
             currentParams = mapOf("path" to path)
         }
     }
 
     @Composable
     override fun create(initialPath: String) {
+        // Set the initial path and find matching route
         navigate(initialPath, false)
-
-        println("JvmRouter.create called for $initialPath. Rendering logic needs update for Compose HTML.")
-        val match = findMatchingRoute(currentPath)
+        
+        // Find the route for the current path
+        val match = findMatchingRoute(_currentPath)
 
         if (match != null) {
-            println("Rendering route: ${match.route.path}")
+            // Render the matching route content
             match.route.content(RouteParams(match.params))
         } else {
-            println("Rendering Not Found page for path: $currentPath")
+            // Render the not found page
             notFound(RouteParams(currentParams))
         }
     }

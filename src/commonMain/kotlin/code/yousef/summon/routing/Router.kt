@@ -25,9 +25,12 @@ expect interface Router {
      */
     @Composable
     fun create(initialPath: String)
-
-    // Potentially add state for currentPath if needed by consumers
-    // val currentPathState: State<String> 
+    
+    /**
+     * The current path of the router.
+     * This helps components like NavLink determine their active state.
+     */
+    val currentPath: String
 }
 
 // --- Router Definition and Matching (Defined ONCE) ---
@@ -63,28 +66,39 @@ val LocalRouter: Router?
 /**
  * Root composable that provides the Router instance via CompositionLocal
  * and delegates rendering to the platform-specific `router.create()`.
+ * 
+ * This component uses the modern @Composable function pattern instead of
+ * the class-based Composable interface approach, allowing for better integration
+ * with the reactive composition system and proper handling of side effects.
+ * 
+ * @param router The Router instance to use for navigation and rendering
+ * @param initialPath The initial path to render
+ * @param modifier Optional modifier for styling the container
  */
 @Composable
 fun RouterComponent(
-    router: Router, // Accept the actual Router instance
+    router: Router,
     initialPath: String,
-    modifier: Modifier = Modifier() // Keep modifier for potential container
+    modifier: Modifier = Modifier()
 ) {
-    // Store the previous Router
+    // Store the previous Router from CompositionLocal
     val previousRouter = localRouter.current
 
-    // Provide the new Router
-    localRouter.provides(router)
-
     try {
-        // Delegate the actual composition and path handling to the 
-        // platform-specific Router implementation.
+        // Provide the new Router via CompositionLocal
+        // This makes the router accessible to all child composables
+        // through the LocalRouter property
+        localRouter.provides(router)
+        
+        // Delegate the actual content rendering to the 
+        // platform-specific Router implementation
         router.create(initialPath)
-
-        // Platform implementations might need effects to listen for external navigation
-        // e.g., browser back/forward buttons.
+        
+        // Note: Platform-specific implementations may use LaunchedEffect
+        // to handle browser history changes (for JS) or server-side
+        // state changes (for JVM).
     } finally {
-        // Restore the previous Router
+        // Restore the previous Router when this composable leaves the composition
         localRouter.provides(previousRouter)
     }
 }

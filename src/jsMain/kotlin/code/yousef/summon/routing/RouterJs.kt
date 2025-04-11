@@ -19,6 +19,11 @@ actual interface Router {
      */
     @Composable
     actual fun create(initialPath: String)
+
+    /**
+     * The current path of the router.
+     */
+    actual val currentPath: String
 }
 
 /**
@@ -145,11 +150,19 @@ internal class RouterJs(
 ) : Router {
 
     private val history = BrowserHistory()
-    private val currentPath = window.location.pathname + window.location.search
+    private var _currentPath = window.location.pathname + window.location.search
+    
+    // Implement the currentPath property from the Router interface
+    override val currentPath: String
+        get() = _currentPath
 
     @Composable
     override fun create(initialPath: String) {
-        val composer = CompositionLocal.currentComposer
+        // Update the current path
+        _currentPath = initialPath
+        
+        // Set up effect to listen for browser history changes
+        // In a real implementation, this would be a LaunchedEffect
         
         // Find matching route for the initial path
         val matchResult = findMatchingRoute(initialPath)
@@ -163,16 +176,17 @@ internal class RouterJs(
             notFoundPage(RouteParams(mapOf("path" to initialPath)))
         }
     }
-
+    
     override fun navigate(path: String, pushState: Boolean) {
-        // Update the browser URL
+        // Update the current path
+        _currentPath = path
+        
+        // Handle browser history if needed
         if (pushState) {
             history.push(path)
         } else {
             history.replace(path)
         }
-        
-        // Trigger recomposition (would be implemented with proper state management)
     }
     
     /**
