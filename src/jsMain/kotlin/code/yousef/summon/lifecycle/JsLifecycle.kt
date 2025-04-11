@@ -64,7 +64,6 @@ class JsLifecycleOwner : LifecycleOwner {
     private fun setState(newState: LifecycleState) {
         if (newState == currentState) return
         
-        // Removed potential TODO for state transition validation
         currentState = newState
         notifyObservers(newState)
     }
@@ -88,8 +87,41 @@ class JsLifecycleOwner : LifecycleOwner {
     // These methods implement the ones from the actual interface, so use override, not actual
     override fun addObserver(observer: LifecycleObserver) {
         observers.add(observer)
-        // Notify observer of current state immediately?
-        // Depends on desired behavior, omitted for simplicity
+        // Immediately notify observer of current state
+        when (currentState) {
+            LifecycleState.CREATED -> observer.onCreate()
+            LifecycleState.STARTED -> {
+                observer.onCreate()
+                observer.onStart()
+            }
+            LifecycleState.RESUMED -> {
+                observer.onCreate()
+                observer.onStart()
+                observer.onResume()
+            }
+            LifecycleState.PAUSED -> {
+                observer.onCreate()
+                observer.onStart()
+                observer.onResume()
+                observer.onPause()
+            }
+            LifecycleState.STOPPED -> {
+                observer.onCreate()
+                observer.onStart()
+                observer.onResume()
+                observer.onPause()
+                observer.onStop()
+            }
+            LifecycleState.DESTROYED -> {
+                observer.onCreate()
+                observer.onStart()
+                observer.onResume()
+                observer.onPause()
+                observer.onStop()
+                observer.onDestroy()
+            }
+            else -> { /* INITIALIZED state - no specific callback */ }
+        }
     }
 
     // Use override, not actual
