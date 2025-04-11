@@ -15,6 +15,8 @@ repositories {
 configurations {
     create("quarkusIntegration")
     create("quarkusDeployment")
+    create("ktorIntegration")
+    create("springBootIntegration")
 }
 
 kotlin {
@@ -68,6 +70,19 @@ kotlin {
                 implementation("io.quarkus:quarkus-core-deployment:3.21.1")
                 implementation("io.quarkus:quarkus-arc-deployment:3.21.1")
 
+                // Ktor dependencies
+                implementation("io.ktor:ktor-server-core:2.3.7")
+                implementation("io.ktor:ktor-server-netty:2.3.7")
+                implementation("io.ktor:ktor-server-html-builder:2.3.7")
+                implementation("io.ktor:ktor-server-content-negotiation:2.3.7")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
+                
+                // Spring Boot dependencies
+                implementation("org.springframework.boot:spring-boot-starter-web:3.2.3")
+                implementation("org.springframework.boot:spring-boot-starter-thymeleaf:3.2.3")
+                implementation("org.springframework.boot:spring-boot-starter-webflux:3.2.3")
+                implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.2.2")
+
                 implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.12.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.8.1")
             }
@@ -100,6 +115,19 @@ dependencies {
     // Add deployment dependencies to the quarkusDeployment configuration
     "quarkusDeployment"("io.quarkus:quarkus-core-deployment:3.21.1")
     "quarkusDeployment"("io.quarkus:quarkus-arc-deployment:3.21.1")
+    
+    // Add Ktor dependencies to the ktorIntegration configuration
+    "ktorIntegration"("io.ktor:ktor-server-core:2.3.7")
+    "ktorIntegration"("io.ktor:ktor-server-netty:2.3.7")
+    "ktorIntegration"("io.ktor:ktor-server-html-builder:2.3.7")
+    "ktorIntegration"("io.ktor:ktor-server-content-negotiation:2.3.7")
+    "ktorIntegration"("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
+    
+    // Add Spring Boot dependencies to the springBootIntegration configuration
+    "springBootIntegration"("org.springframework.boot:spring-boot-starter-web:3.2.3")
+    "springBootIntegration"("org.springframework.boot:spring-boot-starter-thymeleaf:3.2.3")
+    "springBootIntegration"("org.springframework.boot:spring-boot-starter-webflux:3.2.3")
+    "springBootIntegration"("io.projectreactor.kotlin:reactor-kotlin-extensions:1.2.2")
 }
 
 kotlin.sourceSets.all {
@@ -127,6 +155,24 @@ tasks.register("verifyQuarkusDeployment") {
     doLast {
         println("Verifying Quarkus Deployment dependencies...")
         configurations["quarkusDeployment"].files.forEach {
+            println(" - ${it.name}")
+        }
+    }
+}
+
+tasks.register("verifyKtorIntegration") {
+    doLast {
+        println("Verifying Ktor Integration dependencies...")
+        configurations["ktorIntegration"].files.forEach {
+            println(" - ${it.name}")
+        }
+    }
+}
+
+tasks.register("verifySpringBootIntegration") {
+    doLast {
+        println("Verifying Spring Boot Integration dependencies...")
+        configurations["springBootIntegration"].files.forEach {
             println(" - ${it.name}")
         }
     }
