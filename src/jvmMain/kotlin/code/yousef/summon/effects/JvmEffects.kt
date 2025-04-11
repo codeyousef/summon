@@ -127,7 +127,7 @@ fun CompositionScope.useSystemTray(
 /**
  * Screen information
  */
-class ScreenInfo(
+data class ScreenInfo(
     val width: Int,
     val height: Int,
     val dpi: Int,
@@ -141,22 +141,63 @@ class ScreenInfo(
  */
 @Composable
 fun CompositionScope.useScreenInfo(): SummonMutableState<ScreenInfo> {
-    val initialInfo = ScreenInfo(
-        width = 1920,
-        height = 1080,
-        dpi = 96,
-        isHiDpi = false
+    // Create a mutable state to hold screen info
+    val screenInfo = mutableStateOf(
+        ScreenInfo(
+            width = 1920,  // Default fallback
+            height = 1080, // Default fallback
+            dpi = 96,      // Default fallback
+            isHiDpi = false
+        )
     )
     
-    val screenInfo = mutableStateOf(initialInfo)
-    
     onMountWithCleanup {
-        // This would get screen information from java.awt.GraphicsEnvironment
-        // and set up listeners for screen changes
+        // Get the default screen device
+        val ge = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment()
+        val gd = ge.defaultScreenDevice
+        val configuration = gd.defaultConfiguration
+        val bounds = configuration.bounds
+        
+        // Get display resolution
+        val width = bounds.width
+        val height = bounds.height
+        
+        // Get DPI information
+        val toolkit = java.awt.Toolkit.getDefaultToolkit()
+        val dpi = toolkit.screenResolution
+        
+        // Check if it's a HiDPI display (typically > 192 DPI)
+        val isHiDpi = dpi > 192
+        
+        // Update the state with actual screen information
+        screenInfo.value = ScreenInfo(
+            width = width,
+            height = height,
+            dpi = dpi,
+            isHiDpi = isHiDpi
+        )
+        
+        // Set up a display mode listener to detect screen changes
+        val displayListener = object : java.awt.event.ComponentAdapter() {
+            override fun componentResized(e: java.awt.event.ComponentEvent) {
+                // Update screen info when display changes
+                val newBounds = configuration.bounds
+                screenInfo.value = ScreenInfo(
+                    width = newBounds.width,
+                    height = newBounds.height,
+                    dpi = toolkit.screenResolution,
+                    isHiDpi = toolkit.screenResolution > 192
+                )
+            }
+        }
+        
+        // In a real implementation, we would add this listener to a frame or window
+        // frame.addComponentListener(displayListener)
         
         // Return cleanup function
-        {
-            // This would remove any listeners
+        return@onMountWithCleanup {
+            // In a real implementation, we would remove the listener
+            // frame.removeComponentListener(displayListener)
         }
     }
     

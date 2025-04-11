@@ -7,6 +7,8 @@ import code.yousef.summon.effects.onMountWithCleanup
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.state.SummonMutableState
 import code.yousef.summon.state.mutableStateOf
+import kotlinx.browser.window
+import org.w3c.dom.events.Event
 
 /**
  * Browser history interface
@@ -175,14 +177,28 @@ fun CompositionScope.useResizeObserver(
  */
 @Composable
 fun CompositionScope.useOnlineStatus(): SummonMutableState<Boolean> {
-    val online = mutableStateOf(true) // Default to online
+    // Initialize with the current online status from the browser
+    val online = mutableStateOf(js("navigator.onLine") as Boolean)
     
     onMountWithCleanup {
-        // This would add event listeners for online/offline events
+        // Create event handlers
+        val handleOnline = { _: Event -> 
+            online.value = true 
+        }
+        
+        val handleOffline = { _: Event -> 
+            online.value = false 
+        }
+        
+        // Add event listeners
+        window.addEventListener("online", handleOnline)
+        window.addEventListener("offline", handleOffline)
         
         // Return cleanup function
-        {
-            // This would remove the event listeners
+        return@onMountWithCleanup {
+            // Remove event listeners
+            window.removeEventListener("online", handleOnline)
+            window.removeEventListener("offline", handleOffline)
         }
     }
     
@@ -201,7 +217,7 @@ class GeolocationOptions(
 /**
  * Geolocation state
  */
-class GeolocationState(
+data class GeolocationState(
     val position: Position?,
     val error: String?,
     val loading: Boolean
@@ -210,7 +226,7 @@ class GeolocationState(
 /**
  * Geolocation position
  */
-class Position(
+data class Position(
     val coords: Coordinates,
     val timestamp: Long
 )
@@ -218,7 +234,7 @@ class Position(
 /**
  * Geolocation coordinates
  */
-class Coordinates(
+data class Coordinates(
     val latitude: Double,
     val longitude: Double,
     val altitude: Double?,
@@ -247,11 +263,83 @@ fun CompositionScope.useGeolocation(
     )
     
     onMountWithCleanup {
-        // This would call the geolocation API and update state
+        // Set up success callback
+        val successCallback = { jsPosition: dynamic ->
+            // Extract coordinates from JS position object
+            val coords = Coordinates(
+                latitude = jsPosition.coords.latitude as Double,
+                longitude = jsPosition.coords.longitude as Double,
+                altitude = jsPosition.coords.altitude as? Double,
+                accuracy = jsPosition.coords.accuracy as Double,
+                altitudeAccuracy = jsPosition.coords.altitudeAccuracy as? Double,
+                heading = jsPosition.coords.heading as? Double,
+                speed = jsPosition.coords.speed as? Double
+            )
+            
+            // Create Position object
+            val position = Position(
+                coords = coords,
+                timestamp = (jsPosition.timestamp as Number).toLong()
+            )
+            
+            // Update state
+            state.value = GeolocationState(
+                position = position,
+                error = null,
+                loading = false
+            )
+        }
+        
+        // Set up error callback
+        val errorCallback = { jsError: dynamic ->
+            state.value = GeolocationState(
+                position = null,
+                error = jsError.message as String,
+                loading = false
+            )
+        }
+        
+        // Geolocation watch ID for cleanup
+        var watchId: dynamic = null
+        
+        // Check if geolocation is available
+        if (js("'geolocation' in navigator") as Boolean) {
+            // Create geolocation options
+            val jsOptions = js("({})")
+            js("jsOptions.enableHighAccuracy = true")
+            js("jsOptions.timeout = 5000")
+            js("jsOptions.maximumAge = 0")
+            
+            // Start watching position
+            js("""
+                watchId = navigator.geolocation.watchPosition(
+                    successCallback,
+                    errorCallback,
+                    jsOptions
+                );
+                
+                // Initial position request
+                navigator.geolocation.getCurrentPosition(
+                    successCallback,
+                    errorCallback,
+                    jsOptions
+                );
+            """)
+        } else {
+            // Geolocation not available
+            state.value = GeolocationState(
+                position = null,
+                error = "Geolocation not supported in this browser",
+                loading = false
+            )
+        }
         
         // Return cleanup function
-        {
-            // This would clear any watchers
+        return@onMountWithCleanup {
+            // Clear the geolocation watch if it was set
+            if (js("watchId !== null") as Boolean) {
+                js("navigator.geolocation.clearWatch(watchId)")
+            }
         }
     }
     

@@ -27,4 +27,6 @@ actual fun clearTimeout(id: Int) {
 external object window {
     fun setTimeout(handler: () -> Unit, timeout: Int): Int
     fun clearTimeout(timeoutId: Int)
+    fun addEventListener(type: String, listener: (org.w3c.dom.events.Event) -> Unit)
+    fun removeEventListener(type: String, listener: (org.w3c.dom.events.Event) -> Unit)
 } 
