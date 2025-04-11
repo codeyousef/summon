@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0]
+
+### Added
+- Cross-platform routing system with URL pattern matching
+- Enhanced state management with reactive updates
+- Integration with Quarkus, Ktor, and Spring Boot frameworks
+- Improved accessibility features and documentation
+- Additional UI components for common use cases
+
+### Changed
+- Updated documentation structure
+- Standardized API across platforms
+- Improved type safety in modifiers
+
 ## [0.1.6]
 
 ### Added

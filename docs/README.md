@@ -5,7 +5,7 @@ Welcome to the Summon documentation! Summon is a Kotlin Multiplatform library fo
 ## Table of Contents
 
 ### Getting Started
-- [Getting Started Guide](getting-started.md) - Introduction and basic setup
+- [Getting Started Guide](../README.md#quick-example) - Introduction and basic setup
 - [Components](components.md) - Learn about Summon's built-in UI components
 - [Routing](routing.md) - Set up navigation in your application
 - [State Management](state-management.md) - Manage application state effectively

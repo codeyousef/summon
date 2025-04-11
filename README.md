@@ -80,40 +80,21 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("code.yousef:summon:0.1.5")
+                implementation("code.yousef:summon:0.2.0")
             }
         }
         
         val jvmMain by getting {
             dependencies {
-                implementation("code.yousef:summon-jvm:0.1.5")
+                implementation("code.yousef:summon-jvm:0.2.0")
             }
         }
         
         val jsMain by getting {
             dependencies {
-                implementation("code.yousef:summon-js:0.1.5")
+                implementation("code.yousef:summon-js:0.2.0")
             }
         }
     }
 }
 ```
-
-## Quick Example
-
-For a simple example of what you can build with Summon, check out the [Getting Started Guide](docs/getting-started.md).
-
-## Contributing
-
-Contributions are welcome! We are currently **focusing on testing contributions** as our top priority. We especially welcome:
-
-- Unit tests for core components and APIs
-- Integration tests for platform-specific functionality
-- End-to-end tests for sample applications
-- Test utilities and frameworks to make testing Summon applications easier
-
-Of course, bug fixes, documentation improvements, and feature enhancements are also appreciated. Please feel free to submit a Pull Request.
-
-## License
-
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
