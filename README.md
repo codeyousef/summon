@@ -21,7 +21,6 @@ Summon is proudly inspired by [Kobweb](https://github.com/varabyte/kobweb), a mo
 
 For detailed documentation, please check the [docs](docs/README.md) directory:
 
-- [Getting Started Guide](docs/getting-started.md) - Introduction and basic setup
 - [Components](docs/components.md) - Learn about Summon's built-in UI components
 - [Routing](docs/routing.md) - Set up navigation in your application
 - [State Management](docs/state-management.md) - Manage application state effectively
