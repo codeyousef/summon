@@ -1,8 +1,16 @@
 package code.yousef.summon.runtime
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
+
+/**
+ * Platform-specific function for adding to pending recompositions in a thread-safe way.
+ */
+expect fun Recomposer.addToPendingRecompositions(composer: Composer)
+
+/**
+ * Platform-specific function for getting and clearing pending recompositions in a thread-safe way.
+ */
+expect fun Recomposer.getAndClearPendingRecompositions(): List<Composer>
 
 /**
  * Manages the recomposition of UI elements.
@@ -11,6 +19,7 @@ import code.yousef.summon.runtime.PlatformRenderer
  */
 class Recomposer {
     private var activeComposer: Composer? = null
+    private val pendingRecompositions = mutableSetOf<Composer>()
     
     /**
      * Creates a new composer instance.
@@ -21,12 +30,40 @@ class Recomposer {
     }
     
     /**
+     * Get access to the pending recompositions set.
+     * This is used by platform-specific implementations.
+     */
+    internal fun getPendingRecompositions(): MutableSet<Composer> {
+        return pendingRecompositions
+    }
+    
+    /**
      * Schedules a recomposition.
      * This method is called when state changes that affect UI elements.
      * @param composer The composer that needs to be recomposed.
      */
     fun scheduleRecomposition(composer: Composer) {
-        // In a real implementation, this would queue the composer for recomposition
+        // Thread safety handled in platform-specific ways
+        addToPendingRecompositions(composer)
+        
+        // In a real implementation, this would also notify a UI thread or coroutine
+        // to process the pending recompositions on the next frame
+    }
+    
+    /**
+     * Process all pending recompositions.
+     * This method should be called from the UI thread or a coroutine.
+     */
+    fun processRecompositions(compositionRoot: @Composable () -> Unit) {
+        // Thread safety handled in platform-specific ways
+        val recompositions = getAndClearPendingRecompositions()
+        
+        // Process each pending recomposition
+        recompositions.forEach { composer ->
+            if (composer is RecomposerBackedComposer) {
+                composer.recompose(compositionRoot)
+            }
+        }
     }
     
     /**
@@ -76,30 +113,63 @@ class Recomposer {
         
         private val slots = mutableMapOf<Int, Any?>()
         private var slotIndex = 0
+        private val stateReads = mutableSetOf<Any>()
+        private val nodeStack = mutableListOf<Int>()
+        private val groupStack = mutableListOf<Any?>()
+        private var currentNodeIndex = 0
+        private val disposables = mutableListOf<() -> Unit>()
+        
+        /**
+         * Recomposes this composer with the given root composable.
+         */
+        internal fun recompose(compositionRoot: @Composable () -> Unit) {
+            // Clear state reads before recomposition
+            stateReads.clear()
+            
+            // Reset indices for the new composition
+            slotIndex = 0
+            currentNodeIndex = 0
+            
+            // Perform the actual recomposition
+            compose(compositionRoot)
+        }
         
         override fun startNode() {
-            // Implementation would track node structure
+            nodeStack.add(currentNodeIndex++)
         }
         
         override fun endNode() {
-            // Implementation would track node structure
+            if (nodeStack.isNotEmpty()) {
+                nodeStack.removeAt(nodeStack.size - 1)
+            }
         }
         
         override fun startGroup(key: Any?) {
-            // Implementation would track group structure
+            groupStack.add(key)
+            // Save the current slot index so we can restore it when the group ends
+            slots[slotIndex] = slotIndex
+            slotIndex++
         }
         
         override fun endGroup() {
-            // Implementation would track group structure
+            if (groupStack.isNotEmpty()) {
+                groupStack.removeAt(groupStack.size - 1)
+                // Restore the slot index from when the group started
+                slotIndex = (slots[slotIndex - 1] as? Int) ?: slotIndex
+            }
         }
         
         override fun changed(value: Any?): Boolean {
-            // Implementation would compare with previous value
-            return true
+            val slotValue = getSlot()
+            val hasChanged = slotValue != value
+            if (hasChanged) {
+                setSlot(value)
+            }
+            return hasChanged
         }
         
         override fun updateValue(value: Any?) {
-            // Implementation would store the value
+            setSlot(value)
         }
         
         override fun nextSlot() {
@@ -115,44 +185,57 @@ class Recomposer {
         }
         
         override fun recordRead(state: Any) {
-            // Implementation would track state dependencies
+            // Track that this state was read in this composition
+            stateReads.add(state)
+            // Also notify the recomposer
             recomposer.recordRead(state)
         }
         
         override fun recordWrite(state: Any) {
-            // Implementation would track state changes
+            // Notify the recomposer that this state was written to
             recomposer.recordStateWrite(state)
         }
         
         override fun reportChanged() {
-            // Implementation would trigger recomposition
+            // Schedule this composer for recomposition
             recomposer.scheduleRecomposition(this)
         }
         
         override fun registerDisposable(disposable: () -> Unit) {
-            // Implementation would store disposable for cleanup
+            disposables.add(disposable)
         }
         
         override fun dispose() {
-            // Implementation would clean up resources
+            // Clean up all resources
+            disposables.forEach { it() }
+            disposables.clear()
+            slots.clear()
+            stateReads.clear()
+            nodeStack.clear()
+            groupStack.clear()
         }
         
         override fun startCompose() {
-            // Start composing implementation 
             startNode()
         }
         
         override fun endCompose() {
-            // End composing implementation
             endNode()
         }
         
         override fun <T> compose(composable: @Composable () -> T): T {
+            // Store the previous active composer
+            val previousComposer = recomposer.activeComposer
+            // Set this as the active composer
+            recomposer.setActiveComposer(this)
+            
             startCompose()
             try {
                 return composable()
             } finally {
                 endCompose()
+                // Restore the previous active composer
+                recomposer.setActiveComposer(previousComposer)
             }
         }
     }

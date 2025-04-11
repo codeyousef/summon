@@ -2,6 +2,7 @@ package code.yousef.summon.runtime
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.core.Composable as CoreComposable
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * JVM implementation of the Composer interface.
@@ -12,32 +13,49 @@ class JvmComposer : Composer {
     
     private val slots = mutableMapOf<Int, Any?>()
     private var slotIndex = 0
+    private var currentNodeIndex = 0
+    private val nodeStack = mutableListOf<Int>()
+    private val groupStack = mutableListOf<Any?>()
     private val stateReads = mutableSetOf<Any>()
+    private val stateWriteListeners = ConcurrentHashMap<Any, MutableList<() -> Unit>>()
     private val disposables = mutableListOf<() -> Unit>()
     
     override fun startNode() {
-        // JVM implementation of start node
+        nodeStack.add(currentNodeIndex++)
     }
     
     override fun endNode() {
-        // JVM implementation of end node
+        if (nodeStack.isNotEmpty()) {
+            nodeStack.removeAt(nodeStack.size - 1)
+        }
     }
     
     override fun startGroup(key: Any?) {
-        // JVM implementation of start group
+        groupStack.add(key)
+        // Save the current slot index so we can restore it when the group ends
+        slots[slotIndex] = slotIndex
+        slotIndex++
     }
     
     override fun endGroup() {
-        // JVM implementation of end group
+        if (groupStack.isNotEmpty()) {
+            groupStack.removeAt(groupStack.size - 1)
+            // Restore the slot index from when the group started
+            slotIndex = (slots[slotIndex - 1] as? Int) ?: slotIndex
+        }
     }
     
     override fun changed(value: Any?): Boolean {
-        // JVM implementation would compare with previous value
-        return true
+        val slotValue = getSlot()
+        val hasChanged = slotValue != value
+        if (hasChanged) {
+            setSlot(value)
+        }
+        return hasChanged
     }
     
     override fun updateValue(value: Any?) {
-        // JVM implementation would store the value
+        setSlot(value)
     }
     
     override fun nextSlot() {
@@ -57,15 +75,57 @@ class JvmComposer : Composer {
     }
     
     override fun recordWrite(state: Any) {
-        // JVM implementation would trigger recomposition for affected compositions
+        // Trigger recomposition for all composers that depend on this state
+        stateWriteListeners[state]?.forEach { it() }
+        reportChanged()
     }
     
     override fun reportChanged() {
-        // JVM implementation would trigger recomposition
+        // Trigger a recomposition
+        // In a real implementation, this would schedule recomposition
+        // on the JVM UI thread (e.g., using SwingUtilities.invokeLater)
     }
     
     override fun registerDisposable(disposable: () -> Unit) {
         disposables.add(disposable)
+    }
+    
+    /**
+     * Registers a callback to be triggered when a specific state changes.
+     * This is used for implementing recomposition.
+     *
+     * @param state The state to watch for changes
+     * @param callback The callback to trigger when the state changes
+     */
+    fun registerStateListener(state: Any, callback: () -> Unit) {
+        stateWriteListeners.getOrPut(state) { mutableListOf() }.add(callback)
+    }
+    
+    /**
+     * Tracks dependencies between this composer and state objects.
+     * Called after a composition to set up change listeners.
+     */
+    fun trackStateDependencies() {
+        // Clear previous listeners related to this composer
+        clearStateListeners()
+        
+        // Set up listeners for each state that was read during composition
+        for (state in stateReads) {
+            registerStateListener(state) {
+                // Schedule recomposition
+                reportChanged()
+            }
+        }
+    }
+    
+    /**
+     * Clears all state listeners associated with this composer.
+     */
+    private fun clearStateListeners() {
+        // Remove this composer's callbacks from state write listeners
+        stateWriteListeners.values.forEach { listeners ->
+            listeners.removeAll { true } // Remove all listeners for simplicity
+        }
     }
     
     /**
@@ -77,13 +137,19 @@ class JvmComposer : Composer {
         disposables.clear()
         slots.clear()
         stateReads.clear()
+        clearStateListeners()
+        nodeStack.clear()
+        groupStack.clear()
     }
 
     /**
      * Start composing a composable
      */
     override fun startCompose() {
-        // Implementation delegates to startNode
+        // Reset state for a new composition
+        currentNodeIndex = 0
+        slotIndex = 0
+        stateReads.clear()
         startNode()
     }
     
@@ -91,8 +157,9 @@ class JvmComposer : Composer {
      * End composing a composable
      */
     override fun endCompose() {
-        // Implementation delegates to endNode
         endNode()
+        // After composition ends, set up change tracking for recomposition
+        trackStateDependencies()
     }
     
     /**
