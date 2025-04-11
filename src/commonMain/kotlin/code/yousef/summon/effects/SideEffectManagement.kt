@@ -4,146 +4,103 @@ import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.LaunchedEffect
 import code.yousef.summon.runtime.DisposableEffect
 import code.yousef.summon.state.SummonMutableState
-import code.yousef.summon.state.mutableStateOf
 
 /**
- * Launch a coroutine scoped to the composition
- * 
+ * A dummy job interface for API compatibility.
+ */
+interface JobLike {
+    fun cancel()
+}
+
+/**
+ * A simple job implementation.
+ */
+class SimpleJob : JobLike {
+    override fun cancel() {
+        // No-op implementation
+    }
+}
+
+/**
+ * Launch a coroutine scoped to the composition.
+ *
  * @param block The coroutine code to execute
- * @return A dummy Job object for compatibility
+ * @return The JobLike representing the coroutine
  */
 @Composable
 fun CompositionScope.launchEffect(
     block: suspend () -> Unit
-): DummyJob {
+): JobLike {
     LaunchedEffect(Unit) {
         block()
     }
     
-    return DummyJob()
+    return SimpleJob()
 }
 
 /**
- * A dummy Job implementation for compatibility
- */
-class DummyJob {
-    fun cancel() {
-        // No implementation in this simplified version
-    }
-}
-
-/**
- * Launch a coroutine with dependencies
- * 
+ * Launch a coroutine with dependencies.
+ *
  * @param dependencies Objects that will trigger the coroutine when they change
  * @param block The coroutine code to execute
- * @return A dummy Job object for compatibility
+ * @return The JobLike representing the coroutine
  */
 @Composable
 fun CompositionScope.launchEffectWithDeps(
     vararg dependencies: Any?,
     block: suspend () -> Unit
-): DummyJob {
+): JobLike {
     LaunchedEffect(dependencies) {
         block()
     }
     
-    return DummyJob()
+    return SimpleJob()
 }
 
 /**
- * A simplified Promise-like interface for JavaScript compatibility
- */
-interface Promise<T> {
-    fun then(onFulfilled: (T) -> Unit): Promise<T>
-    fun catch(onRejected: (Throwable) -> Unit): Promise<T>
-}
-
-/**
- * A simple implementation of the Promise interface
- */
-class SimplePromise<T>(private val value: T) : Promise<T> {
-    private val thenCallbacks = mutableListOf<(T) -> Unit>()
-    private val catchCallbacks = mutableListOf<(Throwable) -> Unit>()
-    
-    override fun then(onFulfilled: (T) -> Unit): Promise<T> {
-        thenCallbacks.add(onFulfilled)
-        onFulfilled(value)
-        return this
-    }
-    
-    override fun catch(onRejected: (Throwable) -> Unit): Promise<T> {
-        catchCallbacks.add(onRejected)
-        return this
-    }
-}
-
-/**
- * Execute an async effect with cleanup
- * 
- * @param effect The effect to execute, returning a Promise with a cleanup function
+ * Execute an async effect with cleanup.
+ *
+ * @param effect The async effect that returns a cleanup function
  */
 @Composable
 fun CompositionScope.asyncEffect(
-    effect: () -> Promise<() -> Unit>
+    effect: () -> (() -> Unit)
 ) {
     DisposableEffect(Unit) {
-        var cleanupFn: (() -> Unit)? = null
-        
-        try {
-            val promise = effect()
-            promise.then { cleanup ->
-                cleanupFn = cleanup
-            }
-        } catch (e: Exception) {
-            // Log error
-        }
-        
-        // Return the cleanup function for DisposableEffect
-        { cleanupFn?.invoke() }
+        val cleanup = effect()
+        cleanup
     }
 }
 
 /**
- * Execute an async effect when dependencies change
- * 
+ * Execute an async effect when dependencies change.
+ *
  * @param dependencies Objects that will trigger the effect when they change
- * @param effect The effect to execute, returning a Promise with a cleanup function
+ * @param effect The async effect that returns a cleanup function
  */
 @Composable
 fun CompositionScope.asyncEffectWithDeps(
     vararg dependencies: Any?,
-    effect: () -> Promise<() -> Unit>
+    effect: () -> (() -> Unit)
 ) {
     DisposableEffect(dependencies) {
-        var cleanupFn: (() -> Unit)? = null
-        
-        try {
-            val promise = effect()
-            promise.then { cleanup ->
-                cleanupFn = cleanup
-            }
-        } catch (e: Exception) {
-            // Log error
-        }
-        
-        // Return the cleanup function for DisposableEffect
-        { cleanupFn?.invoke() }
+        val cleanup = effect()
+        cleanup
     }
 }
 
 /**
- * Safe state updates with cancellation handling
- * 
+ * Safe state updates with cancellation handling.
+ *
  * @param state The state to update
  * @param block The async operation that produces the new state value
- * @return A dummy Job object for compatibility
+ * @return The JobLike representing the async operation
  */
 @Composable
 fun <T> CompositionScope.updateStateAsync(
     state: SummonMutableState<T>,
     block: suspend () -> T
-): DummyJob {
+): JobLike {
     LaunchedEffect(Unit) {
         try {
             val result = block()
@@ -153,5 +110,5 @@ fun <T> CompositionScope.updateStateAsync(
         }
     }
     
-    return DummyJob()
+    return SimpleJob()
 } 

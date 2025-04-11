@@ -201,6 +201,20 @@ data class WindowSize(
 )
 
 /**
+ * Clipboard API interface
+ */
+class ClipboardAPI {
+    fun readText(): String {
+        // This would be implemented with actual clipboard API
+        return ""
+    }
+    
+    fun writeText(text: String) {
+        // This would be implemented with actual clipboard API
+    }
+}
+
+/**
  * Effect for window size
  *
  * @return WindowSize state that updates when the window size changes

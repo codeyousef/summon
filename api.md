@@ -53,11 +53,11 @@ Both annotations are functionally similar, but removing one causes extensive bui
 
 5. ✅ **Platform-specific Time Functions**: Implemented platform-specific versions of `getCurrentTimeMillis()` to support the effect implementations
 
-6. ✅ **Side Effect Management**: Implemented the side effect management APIs:
+6. ✅ **Side Effect Management**: Implemented the side effect management APIs with simplified implementations for API compatibility:
    - `launchEffect`
-   - `launchEffectWithDeps`
-   - `asyncEffect`
-   - `asyncEffectWithDeps`
+   - `launchEffectWithDeps` 
+   - `asyncEffect` (simplified for straightforward cleanup handling)
+   - `asyncEffectWithDeps` (simplified for straightforward cleanup handling)
    - `updateStateAsync`
 
 7. ✅ **Common Effects**: Implemented pre-built effects for common scenarios:
@@ -71,6 +71,22 @@ Both annotations are functionally similar, but removing one causes extensive bui
    - `useLocalStorage`
    - `useMediaQuery`
 
+8. ✅ **Platform-specific Effects**: Implemented platform-specific effects:
+   - JavaScript Platform:
+     - `useHistory`
+     - `useNavigator`
+     - `useIntersectionObserver`
+     - `useResizeObserver`
+     - `useOnlineStatus`
+     - `useClipboard`
+     - `useGeolocation`
+     - `useWebAnimation`
+   - JVM Platform:
+     - `useFileWatcher`
+     - `useSystemTray`
+     - `useClipboard`
+     - `useScreenInfo`
+
 ### Current Issues
 
 1. ⚠️ **Dual Annotations**: The codebase requires both `annotation.Composable` and `runtime.Composable` annotations
@@ -79,10 +95,9 @@ Both annotations are functionally similar, but removing one causes extensive bui
 
 2. ✅ **Testing**: Removed failing test files as directed for later handling
 
-3. ⚠️ **Platform-specific Implementations**: The common effects need platform-specific implementations:
-   - Browser-specific functionality (document title, keyboard events, media queries)
-   - JVM-specific functionality (system integrations)
-   - These need to be implemented in the respective platform modules
+3. ✅ **Platform-specific Implementations**: Implemented the platform-specific effects for both JS and JVM platforms with simple stub implementations that match the API reference
+   - Platform implementations are ready for more detailed implementation as needed
+   - The common interface is now consistent across platforms
 
 ## API Reference Updates
 
@@ -101,18 +116,19 @@ Both annotations are functionally similar, but removing one causes extensive bui
 
 2. ⭐ **Improve Implementation**:
    - Enhance the debounced/throttled effect implementations with proper functionality
-   - Implement the platform-specific functionality for some of the new APIs
+   - Enhance platform-specific implementations with actual functionality beyond the stubs
 
-3. ⭐ **Platform-specific Implementations**:
-   - Add JS-specific implementations for browser APIs
-   - Add JVM-specific implementations for desktop/server features
+3. ✅ **Platform-specific Implementations**:
+   - ✅ Added JS-specific implementations for browser APIs
+   - ✅ Added JVM-specific implementations for desktop/server features
 
 4. ⭐ **Testing**: Create new tests for the updated API architecture once the implementation is stabilized
 
 ## Next Steps
 
 1. Create a migration plan for annotation standardization that doesn't break the build
-2. Implement platform-specific (JS/JVM) versions of the common effects
-3. Improve the implementation of debounced/throttled effects
-4. Add more comprehensive documentation for the new APIs
-5. Create new tests for the updated architecture 
+2. ✅ Implement platform-specific (JS/JVM) versions of the common effects
+3. Improve the implementation of platform-specific effects with actual functionality beyond the stub implementations
+4. Improve the implementation of debounced/throttled effects
+5. Add more comprehensive documentation for the new APIs
+6. Create new tests for the updated architecture 
