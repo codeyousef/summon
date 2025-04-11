@@ -14,33 +14,43 @@ This document provides detailed information about the core interfaces and classe
 
 ## Composable
 
-The `Composable` interface is the foundation of the component system in Summon.
+The `@Composable` annotation marks functions that can participate in the composition system of Summon.
 
-### Interface Definition
+### Annotation Definition
 
 ```kotlin
-package code.yousef.summon.core
+package code.yousef.summon.annotation
 
-interface Composable {
-    fun render()
-}
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.FUNCTION, 
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.TYPE,
+    AnnotationTarget.TYPE_PARAMETER
+)
+annotation class Composable
 ```
 
 ### Description
 
-`Composable` is the base interface that all Summon components must implement. The `render()` method is called when the component needs to be rendered to the DOM or other rendering target.
+`@Composable` marks functions that are part of the UI composition system. Functions annotated with `@Composable` can only be called from within other `@Composable` functions and are used to define the UI structure.
 
 ### Example
 
 ```kotlin
-class MyComponent : Composable {
-    override fun render() {
-        Div(
-            modifier = Modifier.padding(16.px)
-        ) {
-            Text("Hello, World!")
-        }
+@Composable
+fun MyComponent(text: String) {
+    Div(
+        modifier = Modifier.padding(16.px)
+    ) {
+        Text(text)
     }
+}
+
+// Usage
+@Composable
+fun App() {
+    MyComponent("Hello, World!")
 }
 ```
 

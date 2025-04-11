@@ -36,32 +36,38 @@ The base APIs for defining and managing effects.
 package code.yousef.summon.effects
 
 // Execute an effect after each successful composition
+@Composable
 fun CompositionScope.effect(
     effect: () -> Unit
 )
 
 // Execute an effect when composition is first created
+@Composable
 fun CompositionScope.onMount(
     effect: () -> Unit
 )
 
 // Execute an effect when composition is disposed
+@Composable
 fun CompositionScope.onDispose(
     effect: () -> Unit
 )
 
 // Execute an effect after composition when dependencies change
+@Composable
 fun CompositionScope.effectWithDeps(
     vararg dependencies: Any?,
     effect: () -> Unit
 )
 
 // Execute an effect once after composition
+@Composable
 fun CompositionScope.onMountWithCleanup(
     effect: () -> (() -> Unit)?
 )
 
 // Execute an effect with dependencies and cleanup
+@Composable
 fun CompositionScope.effectWithDepsAndCleanup(
     vararg dependencies: Any?,
     effect: () -> (() -> Unit)?
@@ -75,66 +81,65 @@ These functions provide the core effect system in Summon, allowing you to perfor
 ### Example
 
 ```kotlin
-class UserProfileComponent(private val userId: String) : Composable {
+@Composable
+fun UserProfile(userId: String) {
     // State for user data
-    private val userData = remember { mutableStateOf<UserData?>(null) }
-    private val isLoading = remember { mutableStateOf(true) }
-    private val error = remember { mutableStateOf<String?>(null) }
+    val userData = remember { mutableStateOf<UserData?>(null) }
+    val isLoading = remember { mutableStateOf(true) }
+    val error = remember { mutableStateOf<String?>(null) }
     
-    override fun render() {
-        // Basic effect: runs after every composition
-        effect {
-            console.log("UserProfile recomposed")
-        }
+    // Basic effect: runs after every composition
+    effect {
+        console.log("UserProfile recomposed")
+    }
+    
+    // Mount effect: runs once when component is first rendered
+    onMount {
+        console.log("UserProfile mounted")
+    }
+    
+    // Cleanup effect: runs when component is removed
+    onDispose {
+        console.log("UserProfile disposed")
+    }
+    
+    // Effect with dependencies: runs when userId changes
+    effectWithDeps(userId) {
+        isLoading.value = true
+        error.value = null
         
-        // Mount effect: runs once when component is first rendered
-        onMount {
-            console.log("UserProfile mounted")
-        }
-        
-        // Cleanup effect: runs when component is removed
-        onDispose {
-            console.log("UserProfile disposed")
-        }
-        
-        // Effect with dependencies: runs when userId changes
-        effectWithDeps(userId) {
-            isLoading.value = true
-            error.value = null
-            
-            fetchUserData(userId)
-                .then { user ->
-                    userData.value = user
-                    isLoading.value = false
-                }
-                .catch { err ->
-                    error.value = err.message
-                    isLoading.value = false
-                }
-        }
-        
-        // Effect with cleanup: sets up and tears down a subscription
-        onMountWithCleanup {
-            // Setup: subscribe to user status updates
-            val subscription = userStatusService.subscribe(userId) { status ->
-                // Update UI when status changes
-                userData.value = userData.value?.copy(status = status)
+        fetchUserData(userId)
+            .then { user ->
+                userData.value = user
+                isLoading.value = false
             }
-            
-            // Return cleanup function
-            return@onMountWithCleanup {
-                // Cleanup: unsubscribe when component is removed
-                subscription.unsubscribe()
+            .catch { err ->
+                error.value = err.message
+                isLoading.value = false
             }
+    }
+    
+    // Effect with cleanup: sets up and tears down a subscription
+    onMountWithCleanup {
+        // Setup: subscribe to user status updates
+        val subscription = userStatusService.subscribe(userId) { status ->
+            // Update UI when status changes
+            userData.value = userData.value?.copy(status = status)
         }
         
-        // Render UI based on state
-        when {
-            isLoading.value -> LoadingSpinner()
-            error.value != null -> ErrorDisplay(message = error.value!!)
-            userData.value != null -> UserInfo(user = userData.value!!)
-            else -> Text("No user data")
+        // Return cleanup function
+        return@onMountWithCleanup {
+            // Cleanup: unsubscribe when component is removed
+            subscription.unsubscribe()
         }
+    }
+    
+    // Render UI based on state
+    when {
+        isLoading.value -> LoadingSpinner()
+        error.value != null -> ErrorDisplay(message = error.value!!)
+        userData.value != null -> UserInfo(user = userData.value!!)
+        else -> Text("No user data")
     }
 }
 ```
