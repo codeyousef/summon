@@ -11,48 +11,89 @@ import security.annotations.RequiresRoles
 import security.config.SecurityConfig
 
 /**
- * Service that handles authentication and authorization operations
+ * Service that provides security-related functionality.
  */
 class SecurityService(private val config: SecurityConfig) {
     /**
-     * Authenticates a user with the provided credentials
+     * Logs in with the provided credentials.
+     * @param credentials The credentials to use for authentication
+     * @return AuthenticationResult The result of the authentication attempt
      */
-    suspend fun authenticate(credentials: Credentials): AuthenticationResult {
-        return config.authenticationProvider.authenticate(credentials)
-    }
-
-    /**
-     * Refreshes the current authentication
-     */
-    suspend fun refreshAuthentication(): AuthenticationResult {
-        val currentAuth = SecurityContext.getAuthentication()
-        return if (currentAuth != null) {
-            config.authenticationProvider.refresh(currentAuth)
-        } else {
-            AuthenticationResult.Failure(IllegalStateException("No authentication to refresh"))
+    suspend fun login(credentials: Credentials): AuthenticationResult {
+        val result = config.authenticationProvider.authenticate(credentials)
+        
+        if (result is AuthenticationResult.Success) {
+            // Set authentication in the security context
+            SecurityContext.withAuthentication(result.authentication) {}
         }
+        
+        return result
     }
-
+    
     /**
-     * Logs out the current user
+     * Refreshes the current authentication.
+     * @return AuthenticationResult The result of the refresh attempt, or null if not authenticated
+     */
+    suspend fun refreshAuthentication(): AuthenticationResult? {
+        val currentAuth = SecurityContext.getAuthentication() ?: return null
+        
+        val result = config.authenticationProvider.refresh(currentAuth)
+        
+        if (result is AuthenticationResult.Success) {
+            // Update authentication in the security context
+            SecurityContext.withAuthentication(result.authentication) {}
+        }
+        
+        return result
+    }
+    
+    /**
+     * Logs out the current user.
      */
     suspend fun logout() {
         val currentAuth = SecurityContext.getAuthentication()
         if (currentAuth != null) {
+            // Invalidate authentication
             config.authenticationProvider.invalidate(currentAuth)
+            
+            // Clear security context
+            SecurityContext.clearAuthentication()
         }
-        SecurityContext.clearAuthentication()
     }
-
+    
     /**
-     * Checks if the current user has the specified role
+     * Gets the current authenticated principal.
+     * @return Principal? The current principal, or null if not authenticated
      */
-    fun hasRole(role: Role): Boolean = SecurityContext.hasRole(role)
-
+    fun getCurrentPrincipal(): Principal? {
+        return SecurityContext.getPrincipal()
+    }
+    
     /**
-     * Checks if the current user has the specified permission
+     * Checks if the current user is authenticated.
+     * @return Boolean Whether the current user is authenticated
      */
-    fun hasPermission(permission: Permission): Boolean = SecurityContext.hasPermission(permission)
+    fun isAuthenticated(): Boolean {
+        return SecurityContext.isAuthenticated()
+    }
+    
+    /**
+     * Checks if the current user has the specified role.
+     * @param role The role to check
+     * @return Boolean Whether the current user has the role
+     */
+    fun hasRole(role: security.Role): Boolean {
+        return SecurityContext.hasRole(role)
+    }
+    
+    /**
+     * Checks if the current user has the specified permission.
+     * @param permission The permission to check
+     * @return Boolean Whether the current user has the permission
+     */
+    fun hasPermission(permission: security.Permission): Boolean {
+        return SecurityContext.hasPermission(permission)
+    }
 
     /**
      * Checks if the current user meets the security requirements specified by annotations
@@ -106,11 +147,6 @@ class SecurityService(private val config: SecurityConfig) {
     fun checkSecurityRequirements(annotation: RequiresAuthentication): Boolean {
         return checkSecurityRequirements(requiresAuthentication = true)
     }
-
-    /**
-     * Gets the current principal
-     */
-    fun getCurrentPrincipal(): Principal? = SecurityContext.getPrincipal()
 
     /**
      * Gets the current authentication

@@ -1,13 +1,10 @@
 package security.config
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
-
 import security.AuthenticationProvider
 import security.JwtAuthenticationProvider
 
 /**
- * Configuration class for security settings
+ * Configuration class for security settings.
  */
 data class SecurityConfig(
     /**
@@ -52,7 +49,7 @@ data class SecurityConfig(
 )
 
 /**
- * Configuration for CORS settings
+ * Configuration for CORS settings.
  */
 data class CorsConfig(
     /**
@@ -82,7 +79,7 @@ data class CorsConfig(
 )
 
 /**
- * Configuration for CSRF settings
+ * Configuration for CSRF settings.
  */
 data class CsrfConfig(
     /**
@@ -102,7 +99,7 @@ data class CsrfConfig(
 )
 
 /**
- * Builder for SecurityConfig
+ * Builder for SecurityConfig.
  */
 class SecurityConfigBuilder {
     private var authenticationProvider: AuthenticationProvider? = null
@@ -114,40 +111,49 @@ class SecurityConfigBuilder {
     private var corsConfig: CorsConfig = CorsConfig()
     private var csrfConfig: CsrfConfig = CsrfConfig()
 
-    fun authenticationProvider(provider: AuthenticationProvider) = apply {
+    fun authenticationProvider(provider: AuthenticationProvider): SecurityConfigBuilder {
         this.authenticationProvider = provider
+        return this
     }
 
-    fun loginUrl(url: String) = apply {
+    fun loginUrl(url: String): SecurityConfigBuilder {
         this.loginUrl = url
+        return this
     }
 
-    fun defaultSuccessUrl(url: String) = apply {
+    fun defaultSuccessUrl(url: String): SecurityConfigBuilder {
         this.defaultSuccessUrl = url
+        return this
     }
 
-    fun logoutUrl(url: String) = apply {
+    fun logoutUrl(url: String): SecurityConfigBuilder {
         this.logoutUrl = url
+        return this
     }
 
-    fun requireHttps(required: Boolean) = apply {
+    fun requireHttps(required: Boolean): SecurityConfigBuilder {
         this.requireHttps = required
+        return this
     }
 
-    fun sessionTimeout(timeout: Long) = apply {
+    fun sessionTimeout(timeout: Long): SecurityConfigBuilder {
         this.sessionTimeout = timeout
+        return this
     }
 
-    fun corsConfig(config: CorsConfig) = apply {
+    fun corsConfig(config: CorsConfig): SecurityConfigBuilder {
         this.corsConfig = config
+        return this
     }
 
-    fun csrfConfig(config: CsrfConfig) = apply {
+    fun csrfConfig(config: CsrfConfig): SecurityConfigBuilder {
         this.csrfConfig = config
+        return this
     }
 
     fun build(): SecurityConfig {
-        requireNotNull(authenticationProvider) { "Authentication provider must be set" }
+        requireNotNull(authenticationProvider) { "Authentication provider is required for security configuration" }
+        
         return SecurityConfig(
             authenticationProvider = authenticationProvider!!,
             loginUrl = loginUrl,
@@ -162,14 +168,16 @@ class SecurityConfigBuilder {
 }
 
 /**
- * Extension function to create a SecurityConfig
+ * Extension function to create a SecurityConfig using a builder.
  */
 fun securityConfig(init: SecurityConfigBuilder.() -> Unit): SecurityConfig {
-    return SecurityConfigBuilder().apply(init).build()
+    val builder = SecurityConfigBuilder()
+    builder.init()
+    return builder.build()
 }
 
 /**
- * Extension function to create a JwtAuthenticationProvider
+ * Extension function to create a JwtAuthenticationProvider.
  */
 fun createJwtAuthenticationProvider(
     apiBaseUrl: String,

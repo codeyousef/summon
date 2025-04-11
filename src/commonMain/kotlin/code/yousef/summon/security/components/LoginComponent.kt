@@ -17,7 +17,7 @@ class LoginComponent(
      */
     suspend fun login(username: String, password: String): LoginResult {
         val credentials = UsernamePasswordCredentials(username, password)
-        return when (val result = securityService.authenticate(credentials)) {
+        return when (val result = securityService.login(credentials)) {
             is AuthenticationResult.Success -> {
                 LoginResult.Success
             }

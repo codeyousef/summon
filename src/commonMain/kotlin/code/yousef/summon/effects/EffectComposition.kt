@@ -1,67 +1,53 @@
 package code.yousef.summon.effects
 
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.LaunchedEffect
 import code.yousef.summon.runtime.DisposableEffect
-import kotlin.properties.ReadOnlyProperty
-import kotlin.reflect.KProperty
-import code.yousef.summon.state.SummonMutableState
-import code.yousef.summon.state.mutableStateOf
+import code.yousef.summon.runtime.LaunchedEffect
+import kotlinx.coroutines.delay
+import kotlinx.datetime.Clock
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * Creates a custom composable effect.
- * 
- * @param setup Function to set up the effect and return data for the callback
- * @param callback Function that receives the setup data and returns an optional cleanup function
- * @return A composable extension function that performs the effect
+ * Create a custom composable effect
+ * @param setup The setup function that creates the effect value
+ * @param callback The callback that handles the effect value and returns a cleanup function
+ * @return A composable effect function that can be used in other composables
  */
 fun <T> createEffect(
     setup: CompositionScope.() -> T,
     callback: (T) -> (() -> Unit)?
-): (CompositionScope.() -> T) {
-    return {
-        val result = setup()
-        
-        onMountWithCleanup {
-            val cleanup = callback(result)
-            cleanup
-        }
-        
-        result
+): CompositionScope.() -> Unit = {
+    val value = setup()
+    DisposableEffect {
+        callback(value) ?: {}
     }
 }
 
 /**
- * Combines multiple effects into one.
- * 
+ * Combine multiple effects into one
  * @param effects The effects to combine
- * @return A combined effect that applies all effects in sequence
+ * @return A composable effect that runs all the provided effects
  */
 fun combineEffects(
     vararg effects: CompositionScope.() -> Unit
-): CompositionScope.() -> Unit {
-    return {
-        for (effect in effects) {
-            effect()
-        }
+): CompositionScope.() -> Unit = {
+    effects.forEach { effect ->
+        effect()
     }
 }
 
 /**
- * Creates a conditional effect that only runs when the condition is true.
- * 
- * @param condition Function that determines if the effect should run
+ * Create a conditional effect that only runs when condition is true
+ * @param condition The condition function to check
  * @param effect The effect to run when the condition is true
- * @return A conditional effect
+ * @return A composable effect that runs conditionally
  */
 fun conditionalEffect(
     condition: () -> Boolean,
     effect: CompositionScope.() -> Unit
-): CompositionScope.() -> Unit {
-    return {
-        if (condition()) {
-            effect()
-        }
+): CompositionScope.() -> Unit = {
+    if (condition()) {
+        effect()
     }
 }
 
@@ -93,7 +79,7 @@ private class EffectTimer<T>(
     }
     
     fun throttle(value: T) {
-        val now = getCurrentTimeMillis()
+        val now = Clock.System.now().toEpochMilliseconds()
         
         // Store the latest value
         lastValue = value
@@ -109,7 +95,7 @@ private class EffectTimer<T>(
                 val valueToUse = lastValue
                 if (valueToUse != null) {
                     operation(valueToUse)
-                    lastFireTime = getCurrentTimeMillis()
+                    lastFireTime = Clock.System.now().toEpochMilliseconds()
                 }
             }
         }
@@ -152,88 +138,47 @@ private class EffectTimer<T>(
 }
 
 /**
- * Creates a debounced effect that only runs after a delay when the producer value changes.
- * 
- * @param delayMs Delay in milliseconds
- * @param producer Function that produces the value to debounce
- * @param effect Function to run with the debounced value
- * @return A debounced effect
+ * Create a debounced effect
+ * @param delayMs The debounce delay in milliseconds
+ * @param producer The producer function that creates the value
+ * @param effect The effect function that handles the value
+ * @return A composable effect that debounces the producer calls
  */
 fun <T> debouncedEffect(
     delayMs: Int,
     producer: () -> T,
     effect: (T) -> Unit
-): CompositionScope.() -> Unit {
-    return {
-        val value = producer()
-        val lastValue = mutableStateOf<T?>(null)
-        val timeoutId = mutableStateOf<Int?>(null)
-        
-        effectWithDeps(value) {
-            // Clear previous timeout
-            timeoutId.value?.let { clearTimeout(it) }
-            
-            // Set new timeout
-            timeoutId.value = setTimeout(delayMs) {
-                if (value != lastValue.value) {
-                    lastValue.value = value
-                    effect(value)
-                }
-            }
-        }
-        
-        onDispose {
-            timeoutId.value?.let { clearTimeout(it) }
-        }
+): CompositionScope.() -> Unit = {
+    val value = producer()
+    
+    LaunchedEffect(value) {
+        delay(delayMs.milliseconds)
+        effect(value)
     }
 }
 
 /**
- * Creates a throttled effect that runs at most once per specified time period.
- * 
- * @param delayMs Minimum time between effect executions in milliseconds
- * @param producer Function that produces the value for the effect
- * @param effect Function to run with the throttled value
- * @return A throttled effect
+ * Create a throttled effect
+ * @param delayMs The throttle delay in milliseconds
+ * @param producer The producer function that creates the value
+ * @param effect The effect function that handles the value
+ * @return A composable effect that throttles the producer calls
  */
 fun <T> throttledEffect(
     delayMs: Int,
     producer: () -> T,
     effect: (T) -> Unit
-): CompositionScope.() -> Unit {
-    return {
-        val value = producer()
-        val lastRunTime = mutableStateOf(0L)
-        val pendingValue = mutableStateOf<T?>(null)
-        val timeoutId = mutableStateOf<Int?>(null)
+): CompositionScope.() -> Unit = {
+    val value = producer()
+    
+    var lastExecutionTime = 0L
+    LaunchedEffect(value) {
+        val currentTime = Clock.System.now().toEpochMilliseconds()
+        val elapsed = currentTime - lastExecutionTime
         
-        effectWithDeps(value) {
-            val now = currentTimeMillis()
-            val timeSinceLastRun = now - lastRunTime.value
-            
-            if (timeSinceLastRun >= delayMs) {
-                // Run immediately if enough time has passed
-                lastRunTime.value = now
-                effect(value)
-            } else {
-                // Store value and schedule a future update
-                pendingValue.value = value
-                
-                if (timeoutId.value == null) {
-                    timeoutId.value = setTimeout(delayMs - timeSinceLastRun.toInt()) {
-                        pendingValue.value?.let { pendingVal ->
-                            lastRunTime.value = currentTimeMillis()
-                            effect(pendingVal)
-                            pendingValue.value = null
-                        }
-                        timeoutId.value = null
-                    }
-                }
-            }
-        }
-        
-        onDispose {
-            timeoutId.value?.let { clearTimeout(it) }
+        if (elapsed >= delayMs) {
+            effect(value)
+            lastExecutionTime = currentTime
         }
     }
 }
@@ -246,4 +191,84 @@ fun <T> throttledEffect(
 private fun <T> remember(calculation: () -> T): T {
     // In actual implementation, this would use the framework's remember function
     return calculation()
+}
+
+/**
+ * Create an interval effect that runs at specified intervals
+ * @param delayMs The interval delay in milliseconds
+ * @param function The function to run at each interval
+ * @return A composable effect with interval and control functions
+ */
+fun intervalEffect(
+    delayMs: Int,
+    function: () -> Unit
+): CompositionScope.() -> IntervalControl = {
+    var isActive = true
+    var intervalDelay = delayMs
+    
+    val control = object : IntervalControl {
+        override fun pause() {
+            isActive = false
+        }
+        
+        override fun resume() {
+            isActive = true
+        }
+        
+        override fun reset() {
+            // No-op for interval
+        }
+        
+        override fun setDelay(delayMs: Int) {
+            intervalDelay = delayMs
+        }
+    }
+    
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(intervalDelay.milliseconds)
+            if (isActive) {
+                function()
+            }
+        }
+    }
+    
+    control
+}
+
+/**
+ * Create a timeout effect that runs after a delay
+ * @param delayMs The timeout delay in milliseconds
+ * @param function The function to run after the timeout
+ * @return A composable effect with timeout control functions
+ */
+fun timeoutEffect(
+    delayMs: Int,
+    function: () -> Unit
+): CompositionScope.() -> TimeoutControl = {
+    var isActive = true
+    var timeoutDelay = delayMs
+    
+    val control = object : TimeoutControl {
+        override fun cancel() {
+            isActive = false
+        }
+        
+        override fun reset() {
+            isActive = true
+        }
+        
+        override fun setDelay(delayMs: Int) {
+            timeoutDelay = delayMs
+        }
+    }
+    
+    LaunchedEffect(Unit) {
+        delay(timeoutDelay.milliseconds)
+        if (isActive) {
+            function()
+        }
+    }
+    
+    control
 } 

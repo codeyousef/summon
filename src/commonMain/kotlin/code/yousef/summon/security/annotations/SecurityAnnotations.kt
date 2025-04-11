@@ -2,6 +2,8 @@ package security.annotations
 
 import code.yousef.summon.runtime.PlatformRendererProvider
 import code.yousef.summon.runtime.PlatformRenderer
+import security.Permission
+import security.Role
 
 /**
  * Annotation to mark a route or component as requiring authentication
@@ -15,21 +17,22 @@ annotation class RequiresAuthentication
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class RequiresRoles(val roles: Array<String>)
+annotation class RequiresRoles(vararg val roles: String)
 
 /**
  * Annotation to mark a route or component as requiring specific permissions
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class RequiresPermissions(val permissions: Array<String>)
+annotation class RequiresPermissions(vararg val permissions: String)
 
 /**
- * Annotation to mark a route or component as requiring specific roles or permissions
+ * Comprehensive annotation that combines authentication, roles, and permissions requirements.
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class RequiresAccess(
+    val requiresAuthentication: Boolean = true,
     val roles: Array<String> = [],
     val permissions: Array<String> = []
 )

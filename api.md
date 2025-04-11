@@ -34,55 +34,63 @@ The consolidation was achieved by:
 ### Newly Implemented (During This Update)
 
 1. ✅ **Effects API**: Successfully implemented the CompositionScope extension functions in the API reference:
-   - `effect`
-   - `onMount`
-   - `onDispose`
-   - `effectWithDeps`
-   - `onMountWithCleanup`
-   - `effectWithDepsAndCleanup`
+   - `createEffect`: Creates a custom composable effect
+   - `combineEffects`: Combines multiple effects into one
+   - `conditionalEffect`: Creates a conditional effect that only runs when the condition is true
+   - `debouncedEffect`: Creates a debounced effect
+   - `throttledEffect`: Creates a throttled effect
+   - `intervalEffect`: Creates an effect that runs at specified intervals
+   - `timeoutEffect`: Creates an effect that runs after a delay
 
-2. ✅ **Effect Composition**: Implemented the effect composition APIs:
+2. ✅ **Security APIs**: Successfully implemented the Security infrastructure:
+   - Security configurations with `SecurityConfig` and builder
+   - Route guards for authentication and authorization
+   - Security annotations for declarative route protection
+   - Security service for authentication management
+   - Clean integration with the routing system
+
+3. ✅ **Effect Composition**: Implemented the effect composition APIs:
    - `createEffect`
    - `combineEffects`
    - `conditionalEffect`
    - `debouncedEffect` (proper implementation with timeout handling)
    - `throttledEffect` (proper implementation with timeout handling)
 
-3. ✅ **Platform-agnostic Time Functions**: Implemented cross-platform functions for time handling:
+4. ✅ **Platform-agnostic Time Functions**: Implemented cross-platform functions for time handling:
    - `currentTimeMillis`
    - `setTimeout`
    - `clearTimeout`
 
-4. ✅ **ClipboardAPI**: Implemented a proper cross-platform clipboard API interface:
+5. ✅ **ClipboardAPI**: Implemented a proper cross-platform clipboard API interface:
    - Created a common `ClipboardAPI` interface
    - Implemented platform-specific versions for JS and JVM
    - Added supporting functions like `hasText()` and `clear()`
 
-5. ✅ **CompositionContext**: Implemented a more comprehensive `CompositionContext` with platform-specific ThreadLocal handling
+6. ✅ **CompositionContext**: Implemented a more comprehensive `CompositionContext` with platform-specific ThreadLocal handling
 
-6. ✅ **RenderUtils**: Implemented the utility functions for rendering components as documented in the API
+7. ✅ **RenderUtils**: Implemented the utility functions for rendering components as documented in the API
 
-7. ✅ **Platform-specific Time Functions**: Implemented platform-specific versions of `getCurrentTimeMillis()` to support the effect implementations
+8. ✅ **Platform-specific Time Functions**: Implemented platform-specific versions of `getCurrentTimeMillis()` to support the effect implementations
 
-8. ✅ **Side Effect Management**: Implemented the side effect management APIs with simplified implementations for API compatibility:
+9. ✅ **Side Effect Management**: Implemented the side effect management APIs with simplified implementations for API compatibility:
    - `launchEffect`
    - `launchEffectWithDeps` 
    - `asyncEffect` (simplified for straightforward cleanup handling)
    - `asyncEffectWithDeps` (simplified for straightforward cleanup handling)
    - `updateStateAsync`
 
-9. ✅ **Common Effects**: Implemented pre-built effects for common scenarios:
-   - `useDocumentTitle`
-   - `useKeyboardShortcut`
-   - `useInterval`
-   - `useTimeout`
-   - `useClickOutside`
-   - `useWindowSize`
-   - `useLocation`
-   - `useLocalStorage`
-   - `useMediaQuery`
+10. ✅ **Common Effects**: Implemented pre-built effects for common scenarios:
+    - `useDocumentTitle`
+    - `useKeyboardShortcut`
+    - `useInterval`
+    - `useTimeout`
+    - `useClickOutside`
+    - `useWindowSize`
+    - `useLocation`
+    - `useLocalStorage`
+    - `useMediaQuery`
 
-10. ✅ **Platform-specific Effects**: Implemented platform-specific effects:
+11. ✅ **Platform-specific Effects**: Implemented platform-specific effects:
     - JavaScript Platform:
       - `useHistory`
       - `useNavigator`
@@ -98,7 +106,7 @@ The consolidation was achieved by:
       - `useClipboard`
       - `useScreenInfo`
 
-11. ✅ **Enhanced Animation System**: Implemented a comprehensive animation system:
+12. ✅ **Enhanced Animation System**: Implemented a comprehensive animation system:
     - Advanced `EasingFunctions` with 30+ easing types:
       - Sine, Quad, Cubic, Quart, Quint
       - Exponential, Circular
