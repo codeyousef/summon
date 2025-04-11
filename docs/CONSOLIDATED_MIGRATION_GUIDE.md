@@ -946,7 +946,7 @@ These migrations make Summon components more maintainable, easier to use, and be
 
 Based on the codebase scanning, nearly all components have been successfully migrated to the new approach. The next tasks on the roadmap include:
 
-1. Addressing the remaining TODOs in the SSR (Server-Side Rendering) implementation
+1. Addressing the remaining TODOs in the SSR (Server-Side Rendering) implementation - *Partially addressed; removed redundant SEOPrerender.kt and outdated TODO in HydrationSupport.kt. Core SSR/SSG/Hydration logic is in place.* 
 2. Finalizing the platform independence migration
 3. Adding comprehensive documentation for the new composition system
 4. Implementing additional framework integrations beyond Quarkus

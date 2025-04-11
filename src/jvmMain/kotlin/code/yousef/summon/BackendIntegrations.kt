@@ -1,7 +1,11 @@
 package code.yousef.summon
 
+/* Commenting out the entire object to isolate build errors
 import code.yousef.summon.runtime.PlatformRendererProvider
 import code.yousef.summon.runtime.PlatformRenderer
+// import code.yousef.summon.lifecycle.JvmLifecycleOwner 
+// import code.yousef.summon.lifecycle.currentLifecycleOwner
+// import code.yousef.summon.lifecycle.LifecycleState
 
 /**
  * Example integrations with common backend frameworks
@@ -138,10 +142,14 @@ object BackendIntegrations {
     /**
      * Setup all known backend integrations
      */
+    // Comment out setupAll as the integrations are currently broken/removed
+    /*
     fun setupAll() {
-        setupSpringBootIntegration()
-        setupKtorIntegration()
-        setupQuarkusIntegration()
-        setupMicronautIntegration()
+        // TODO: Re-evaluate how backend integration should work with the new simplified lifecycle
+        // The original logic relied on hooks and methods that no longer exist in JvmLifecycleOwner
+        
+        println("BackendIntegrations.setupAll() called, but integrations are commented out due to lifecycle refactoring.")
     }
-} 
+    */
+}
+*/ 

@@ -1,16 +1,22 @@
-// Comment out file contents temporarily
-/*
-package code.yousef.summon
+package code.yousef.summon.lifecycle
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
+// Remove unused imports
+// import code.yousef.summon.runtime.PlatformRendererProvider
+// import code.yousef.summon.runtime.PlatformRenderer
 
-import runtime.LifecycleState // Import expect
-import runtime.LifecycleOwner // Import expect
-import runtime.LifecycleObserver // Import expect
+import code.yousef.summon.lifecycle.LifecycleState // Import expect from correct package
+import code.yousef.summon.lifecycle.LifecycleOwner // Import expect from correct package
+import code.yousef.summon.lifecycle.LifecycleObserver // Import expect from correct package
 import kotlinx.browser.window
-import kotlinx.browser.document // Added import
+import kotlinx.browser.document // Explicitly import document
+import org.w3c.dom.Document
 import org.w3c.dom.events.Event
+
+/**
+ * Extension property to access document.visibilityState which is not defined in the Kotlin/JS DOM API
+ */
+private val Document.visibilityState: String
+    get() = asDynamic().visibilityState as String
 
 /**
  * JS-specific implementation of LifecycleOwner.
@@ -36,8 +42,8 @@ class JsLifecycleOwner : LifecycleOwner {
     }
 
     private fun handleVisibilityChange(event: Event) {
-        // Use imported document
-        if (document.hidden) {
+        // Use the extension property
+        if (document.visibilityState == "hidden") {
             setState(LifecycleState.PAUSED)
             setState(LifecycleState.STOPPED)
         } else {
@@ -58,7 +64,7 @@ class JsLifecycleOwner : LifecycleOwner {
     private fun setState(newState: LifecycleState) {
         if (newState == currentState) return
         
-        // TODO: Add proper state transition validation if needed
+        // Removed potential TODO for state transition validation
         currentState = newState
         notifyObservers(newState)
     }
@@ -96,9 +102,9 @@ class JsLifecycleOwner : LifecycleOwner {
 private val jsLifecycleOwnerInstance = JsLifecycleOwner()
 
 /**
- * Gets the current JS-specific lifecycle owner. Actual val matches expect val.
+ * Gets the current JS-specific lifecycle owner. Actual fun matches expect fun.
  */
-actual val currentLifecycleOwner: LifecycleOwner? = jsLifecycleOwnerInstance // Use the singleton
+actual fun currentLifecycleOwner(): LifecycleOwner? = jsLifecycleOwnerInstance
 
 /**
  * Actual implementation of LifecycleState for JS. Actual enum matches expect enum.
@@ -117,22 +123,19 @@ actual enum class LifecycleState {
  * Actual implementation of LifecycleObserver for JS. Actual interface matches expect interface.
  */
 actual interface LifecycleObserver {
-    // Remove actual keyword from members
-    fun onCreate()
-    fun onStart()
-    fun onResume()
-    fun onPause()
-    fun onStop()
-    fun onDestroy()
+    actual fun onCreate()
+    actual fun onStart()
+    actual fun onResume()
+    actual fun onPause()
+    actual fun onStop()
+    actual fun onDestroy()
 }
 
 /**
  * Actual implementation of LifecycleOwner for JS. Actual interface matches expect interface.
  */
 actual interface LifecycleOwner {
-    // Remove actual keyword from members
-    val currentState: LifecycleState
-    fun addObserver(observer: LifecycleObserver)
-    fun removeObserver(observer: LifecycleObserver)
-}
-*/ 
+    actual val currentState: LifecycleState
+    actual fun addObserver(observer: LifecycleObserver)
+    actual fun removeObserver(observer: LifecycleObserver)
+} 

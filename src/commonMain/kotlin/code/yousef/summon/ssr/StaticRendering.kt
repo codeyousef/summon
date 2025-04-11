@@ -5,12 +5,11 @@ import code.yousef.summon.routing.RouteDefinition
 import code.yousef.summon.routing.RouteParams
 import code.yousef.summon.runtime.CommonComposer
 import code.yousef.summon.runtime.ComposeManagerContext
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.MigratedPlatformRenderer
 import code.yousef.summon.runtime.getPlatformRenderer
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import kotlinx.html.stream.createHTML
 import kotlinx.html.TagConsumer
-import code.yousef.summon.ssr.FileSystemAccess
+import kotlinx.html.stream.createHTML
 
 /**
  * Handles static rendering of Summon components to HTML with improved compatibility

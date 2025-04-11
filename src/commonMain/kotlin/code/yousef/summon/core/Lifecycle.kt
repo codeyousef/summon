@@ -1,115 +1,24 @@
 package code.yousef.summon
 
 import code.yousef.summon.core.Composable
+import code.yousef.summon.lifecycle.LifecycleOwner
+import code.yousef.summon.lifecycle.LifecycleState
+import code.yousef.summon.lifecycle.currentLifecycleOwner
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /**
- * Represents different states in a component's lifecycle.
- */
-enum class LifecycleState {
-    CREATED,
-    STARTED,
-    RESUMED,
-    PAUSED,
-    STOPPED,
-    DESTROYED
-}
-
-/**
  * Interface for objects that need to be aware of lifecycle changes.
+ * NOTE: This might need adjustment if it relies heavily on the old LifecycleOwner implementation.
  */
 interface LifecycleAware {
     /**
      * Called when the lifecycle state changes.
-     * @param state The new lifecycle state
+     * @param state The new lifecycle state (using the expect enum)
      */
     fun onLifecycleStateChanged(state: LifecycleState)
-}
-
-/**
- * LifecycleOwner manages lifecycle state and notifies observers when state changes.
- * In the context of Summon, this represents the lifecycle of a page or section during rendering.
- */
-open class LifecycleOwner {
-    private val observers = mutableListOf<LifecycleAware>()
-
-    /**
-     * Current lifecycle state
-     */
-    var state: LifecycleState = LifecycleState.CREATED
-        protected set(value) {
-            if (field != value) {
-                field = value
-                notifyObservers()
-            }
-        }
-
-    /**
-     * Adds a lifecycle observer
-     * @param observer The observer to add
-     */
-    fun addObserver(observer: LifecycleAware) {
-        observers.add(observer)
-        // Immediately notify the observer of the current state
-        observer.onLifecycleStateChanged(state)
-    }
-
-    /**
-     * Removes a lifecycle observer
-     * @param observer The observer to remove
-     */
-    fun removeObserver(observer: LifecycleAware) {
-        observers.remove(observer)
-    }
-
-    /**
-     * Moves the lifecycle to the CREATED state
-     */
-    fun onCreate() {
-        state = LifecycleState.CREATED
-    }
-
-    /**
-     * Moves the lifecycle to the STARTED state
-     */
-    fun onStart() {
-        state = LifecycleState.STARTED
-    }
-
-    /**
-     * Moves the lifecycle to the RESUMED state
-     */
-    fun onResume() {
-        state = LifecycleState.RESUMED
-    }
-
-    /**
-     * Moves the lifecycle to the PAUSED state
-     */
-    fun onPause() {
-        state = LifecycleState.PAUSED
-    }
-
-    /**
-     * Moves the lifecycle to the STOPPED state
-     */
-    fun onStop() {
-        state = LifecycleState.STOPPED
-    }
-
-    /**
-     * Moves the lifecycle to the DESTROYED state
-     */
-    fun onDestroy() {
-        state = LifecycleState.DESTROYED
-    }
-
-    private fun notifyObservers() {
-        observers.forEach { it.onLifecycleStateChanged(state) }
-    }
 }
 
 /**
@@ -117,6 +26,7 @@ open class LifecycleOwner {
  * This is particularly useful for implementing effects that need to react to lifecycle events.
  *
  * In the context of Summon, this can manage different phases of static site generation and client-side hydration.
+ * NOTE: Updated to use the expect LifecycleOwner interface.
  */
 class LifecycleAwareComponent(
     private val lifecycleOwner: LifecycleOwner,
@@ -128,10 +38,6 @@ class LifecycleAwareComponent(
     private val onDestroy: (() -> Unit)? = null
 ) : LifecycleAware, Composable {
 
-    init {
-        lifecycleOwner.addObserver(this)
-    }
-
     override fun onLifecycleStateChanged(state: LifecycleState) {
         when (state) {
             LifecycleState.CREATED -> onCreate?.invoke()
@@ -140,19 +46,14 @@ class LifecycleAwareComponent(
             LifecycleState.PAUSED -> onPause?.invoke()
             LifecycleState.STOPPED -> onStop?.invoke()
             LifecycleState.DESTROYED -> onDestroy?.invoke()
+            else -> { /* Handle INITIALIZED if necessary */ }
         }
     }
 
     override fun <T> compose(receiver: T): T {
         // This component doesn't render anything; it just hooks into the lifecycle
+        // TODO: This likely needs migration to @Composable function using DisposableEffect
         return receiver
-    }
-
-    /**
-     * Removes this component from the lifecycle owner's observers
-     */
-    fun dispose() {
-        lifecycleOwner.removeObserver(this)
     }
 }
 
@@ -161,31 +62,35 @@ class LifecycleAwareComponent(
  *
  * Example usage for page initialization:
  * ```
- * lifecycleAware(currentLifecycleOwner()) {
+ * // Usage might change based on how LifecycleAwareComponent is adapted
+ * lifecycleAware(currentLifecycleOwner) { // Use expect val
  *     onResume {
  *         // Initialize page when it becomes visible
- *         analytics.logPageView(currentPage)
+ *         // analytics.logPageView(currentPage)
  *     }
  *
  *     onDestroy {
  *         // Clean up resources when the page is destroyed
- *         cleanup()
+ *         // cleanup()
  *     }
  * }
  * ```
  *
- * @param lifecycleOwner The lifecycle owner to observe
+ * @param lifecycleOwner The lifecycle owner to observe (expect interface)
  * @param builder Lambda to configure lifecycle callbacks
  * @return A LifecycleAwareComponent
+ * NOTE: This function might need removal or significant refactoring if LifecycleAwareComponent changes.
  */
 fun lifecycleAware(
-    lifecycleOwner: LifecycleOwner = currentLifecycleOwner(),
+    lifecycleOwnerInput: LifecycleOwner? = currentLifecycleOwner(),
     builder: LifecycleAwareComponentBuilder.() -> Unit
-): LifecycleAwareComponent {
+): LifecycleAwareComponent? {
+    val lifecycleOwner = lifecycleOwnerInput ?: return null
+    
     val componentBuilder = LifecycleAwareComponentBuilder()
     builder(componentBuilder)
 
-    return LifecycleAwareComponent(
+    val component = LifecycleAwareComponent(
         lifecycleOwner = lifecycleOwner,
         onCreate = componentBuilder.onCreateCallback,
         onStart = componentBuilder.onStartCallback,
@@ -194,6 +99,8 @@ fun lifecycleAware(
         onStop = componentBuilder.onStopCallback,
         onDestroy = componentBuilder.onDestroyCallback
     )
+    
+    return component
 }
 
 /**
@@ -251,72 +158,24 @@ class LifecycleAwareComponentBuilder {
 }
 
 /**
- * LifecycleCoroutineScope provides a coroutine scope tied to a component's lifecycle.
- * Coroutines launched in this scope are automatically cancelled when the lifecycle
- * transitions to the DESTROYED state.
- */
-class LifecycleCoroutineScope(private val lifecycleOwner: LifecycleOwner) {
-    private val coroutineScope = CoroutineScope(Dispatchers.Main)
-    private var job: Job? = null
-
-    init {
-        lifecycleOwner.addObserver(object : LifecycleAware {
-            override fun onLifecycleStateChanged(state: LifecycleState) {
-                if (state == LifecycleState.DESTROYED) {
-                    job?.cancel()
-                    job = null
-                }
-            }
-        })
-    }
-
-    /**
-     * Launches a coroutine in this scope.
-     */
-    fun launch(block: suspend CoroutineScope.() -> Unit): Job {
-        job?.cancel()
-        job = coroutineScope.launch {
-            block()
-        }
-        return job!!
-    }
-}
-
-/**
- * Returns the lifecycle coroutine scope for the given lifecycle owner.
- *
- * @param lifecycleOwner The lifecycle owner to create a scope for
- * @return A LifecycleCoroutineScope tied to the lifecycle owner
- */
-fun lifecycleCoroutineScope(lifecycleOwner: LifecycleOwner = currentLifecycleOwner()): LifecycleCoroutineScope {
-    return LifecycleCoroutineScope(lifecycleOwner)
-}
-
-/**
- * Gets the current platform-specific lifecycle owner.
- * Each platform (JVM, JS) provides its own implementation.
- *
- * @return The current lifecycle owner
- */
-expect fun currentLifecycleOwner(): LifecycleOwner
-
-/**
  * Executes the given block when the lifecycle owner enters the active state
  * (STARTED or RESUMED) and cancels it when the lifecycle owner transitions to
  * an inactive state (PAUSED, STOPPED, or DESTROYED).
  *
  * This is similar to LaunchedEffect but integrated with the lifecycle.
  *
- * @param lifecycleOwner The lifecycle owner to observe
+ * @param lifecycleOwner The lifecycle owner to observe. Defaults to the current owner.
  * @param key A key that determines when the effect should be restarted
  * @param block The suspend function to execute as a side effect
- * @return A LifecycleAwareComponent that can be disposed
+ * @return A LifecycleAwareComponent that can be disposed, or null if no owner is available.
  */
 fun whenActive(
-    lifecycleOwner: LifecycleOwner = currentLifecycleOwner(),
+    lifecycleOwnerInput: LifecycleOwner? = currentLifecycleOwner(),
     key: Any,
     block: suspend CoroutineScope.() -> Unit
-): LifecycleAwareComponent {
+): LifecycleAwareComponent? {
+    val lifecycleOwner = lifecycleOwnerInput ?: return null
+    
     var currentKey: Any = key
     var activeJob: Job? = null
     val coroutineScope = CoroutineScope(Dispatchers.Main)
@@ -347,4 +206,38 @@ fun whenActive(
             cancelEffect()
         }
     }
-} 
+}
+
+// --- Potentially keep or refactor CoroutineScope integration --- 
+// Need to evaluate if this is still the right approach
+// Commenting out for now as it causes issues with nullable LifecycleOwner
+/*
+/**
+ * Scope associated with a LifecycleOwner that cancels when DESTROYED.
+ */
+val LifecycleOwner.coroutineScope: CoroutineScope
+    get() {
+        // Implementation needs review - depends on how LifecycleOwner is managed
+        // This might need to become an extension on the specific LifecycleOwner implementations
+        // or use a different mechanism.
+        return CoroutineScope(Dispatchers.Main + Job())
+    }
+
+/**
+ * Launches a coroutine tied to the LifecycleOwner's scope.
+ */
+fun LifecycleOwner.launchWhenCreated(block: suspend CoroutineScope.() -> Unit): Job {
+    // Needs review
+    return coroutineScope.launch { /* ... */ }
+}
+
+fun LifecycleOwner.launchWhenStarted(block: suspend CoroutineScope.() -> Unit): Job {
+    // Needs review
+    return coroutineScope.launch { /* ... */ }
+}
+
+fun LifecycleOwner.launchWhenResumed(block: suspend CoroutineScope.() -> Unit): Job {
+    // Needs review
+    return coroutineScope.launch { /* ... */ }
+}
+*/ 

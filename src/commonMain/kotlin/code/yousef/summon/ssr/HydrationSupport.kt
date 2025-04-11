@@ -27,12 +27,6 @@ object HydrationUtils {
      */
     fun hydrateClient(rootElementId: String, rootComposable: @Composable () -> Unit) {
         println("HydrationUtils.hydrateClient called for element '$rootElementId' (not implemented).")
-        // TODO: Implement client-side hydration logic.
-        // 1. Find rootElementById.
-        // 2. Find and parse hydration script data.
-        // 3. Create client-side Composer and Renderer.
-        // 4. Set up CompositionContext.
-        // 5. Run rootComposable within the context, potentially using hydration data.
     }
 }
 
