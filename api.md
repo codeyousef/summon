@@ -10,17 +10,18 @@ This document outlines the differences between the API reference documentation a
    - Previously: Components implemented the `Composable` interface with a `render()` method
    - Now: Components use the `@Composable` annotation on functions
 
-## Composable Annotations and Standardization
+## Composable Annotation Consolidation
 
-The codebase has two separate annotation declarations:
+✅ **Annotation Consolidation**: We've successfully consolidated the duplicate annotations:
 
-1. `code.yousef.summon.annotation.Composable` - Used in many files throughout the codebase
-2. `code.yousef.summon.runtime.Composable` - Also used in various files 
+1. `code.yousef.summon.annotation.Composable` - The single canonical annotation
+2. `code.yousef.summon.runtime.Composable` - Now a typealias pointing to the annotation package version
 
-Both annotations are functionally similar, but removing one causes extensive build failures. Our attempts showed:
-- Removing `annotation.Composable` breaks many components and platform code
-- The two annotations appear to serve different parts of the codebase
-- Currently, both must be kept for compilation to succeed
+The consolidation was achieved by:
+- Removing the duplicate annotation class in the runtime package
+- Creating a typealias in the runtime package that points to the annotation package
+- Updating the StandardComposable alias in the annotation package
+- Creating documentation for a consistent usage pattern
 
 ## Implementation Status
 
@@ -140,11 +141,13 @@ Both annotations are functionally similar, but removing one causes extensive bui
    - Added keyframes generation utilities for complex animations
    - Improved CSS animation integration for platform renderers
 
-### Current Issues
+### Previously Identified Issues (Now Resolved)
 
-1. ⚠️ **Dual Annotations**: The codebase requires both `annotation.Composable` and `runtime.Composable` annotations
-   - Direct removal of either one causes build failures
-   - Any standardization would require a careful, gradual approach
+1. ✅ **Dual Annotations**: Consolidated to a single annotation
+   - Removed the duplicate annotation class in the runtime package
+   - Created a typealias in the runtime package pointing to the annotation package
+   - Updated documentation in `docs/migration/annotation-consolidation.md` explaining the consolidation
+   - Created usage examples in `docs/migration/annotation-usage.md`
 
 2. ✅ **Testing**: Removed failing test files as directed for later handling
 
@@ -158,14 +161,14 @@ Both annotations are functionally similar, but removing one causes extensive bui
 
 ## Build Status
 
-✅ **Build Passes**: With both annotations retained, the codebase compiles successfully
+✅ **Build Passes**: With the consolidated annotation approach, the codebase compiles successfully
 
 ## Work Required
 
-1. ⭐ **Annotation Consolidation Strategy**: 
-   - Develop a type-alias or import-alias strategy to standardize usage
-   - Consider incremental migration with compatibility layer
-   - Document the relationship between the two annotation classes
+1. ✅ **Annotation Consolidation**: 
+   - ✅ Consolidated to a single annotation
+   - ✅ Created typealias for backward compatibility 
+   - ✅ Created documentation for usage
 
 2. ⭐ **Improve Implementation**:
    - Enhance the debounced/throttled effect implementations with proper functionality
@@ -179,7 +182,7 @@ Both annotations are functionally similar, but removing one causes extensive bui
 
 ## Next Steps
 
-1. Create a migration plan for annotation standardization that doesn't break the build
+1. ✅ Consolidate annotations to a single implementation that doesn't break the build
 2. ✅ Implement platform-specific (JS/JVM) versions of the common effects
 3. Enhance platform-specific effects with real browser and platform functionality
 4. ✅ Improve the implementation of debounced/throttled effects
