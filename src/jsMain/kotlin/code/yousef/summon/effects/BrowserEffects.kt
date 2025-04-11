@@ -190,17 +190,6 @@ fun CompositionScope.useOnlineStatus(): SummonMutableState<Boolean> {
 }
 
 /**
- * Effect for clipboard API
- *
- * @return ClipboardAPI object for reading/writing to the clipboard
- */
-@Composable
-fun CompositionScope.useClipboard(): ClipboardAPI {
-    // This would be implemented with actual clipboard API integration
-    return ClipboardAPI()
-}
-
-/**
  * Geolocation options
  */
 class GeolocationOptions(

@@ -201,43 +201,6 @@ data class WindowSize(
 )
 
 /**
- * Clipboard API interface
- */
-class ClipboardAPI {
-    fun readText(): String {
-        // This would be implemented with actual clipboard API
-        return ""
-    }
-    
-    fun writeText(text: String) {
-        // This would be implemented with actual clipboard API
-    }
-}
-
-/**
- * Effect for window size
- *
- * @return WindowSize state that updates when the window size changes
- */
-@Composable
-fun CompositionScope.useWindowSize(): SummonMutableState<WindowSize> {
-    val windowSize = mutableStateOf(WindowSize(800, 600)) // Default size
-    
-    onMountWithCleanup {
-        // Set up window size listener
-        
-        // In a real implementation, this would set up a resize event listener
-        
-        // Return cleanup function
-        {
-            // Remove window size listener
-        }
-    }
-    
-    return windowSize
-}
-
-/**
  * Location information
  */
 data class Location(
@@ -326,4 +289,27 @@ fun CompositionScope.useMediaQuery(
     }
     
     return matches
+}
+
+/**
+ * Effect for window size
+ *
+ * @return WindowSize state that updates when the window size changes
+ */
+@Composable
+fun CompositionScope.useWindowSize(): SummonMutableState<WindowSize> {
+    val windowSize = mutableStateOf(WindowSize(800, 600)) // Default size
+    
+    onMountWithCleanup {
+        // Set up window size listener
+        
+        // In a real implementation, this would set up a resize event listener
+        
+        // Return cleanup function
+        {
+            // Remove window size listener
+        }
+    }
+    
+    return windowSize
 } 

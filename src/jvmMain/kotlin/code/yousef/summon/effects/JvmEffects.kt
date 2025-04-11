@@ -125,17 +125,6 @@ fun CompositionScope.useSystemTray(
 }
 
 /**
- * Effect for clipboard API (JVM implementation)
- *
- * @return ClipboardAPI object for reading/writing to the clipboard
- */
-@Composable
-fun CompositionScope.useClipboard(): ClipboardAPI {
-    // This would be implemented with java.awt.Toolkit clipboard API
-    return ClipboardAPI()
-}
-
-/**
  * Screen information
  */
 class ScreenInfo(

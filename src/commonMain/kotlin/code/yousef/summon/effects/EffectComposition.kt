@@ -5,6 +5,8 @@ import code.yousef.summon.runtime.LaunchedEffect
 import code.yousef.summon.runtime.DisposableEffect
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
+import code.yousef.summon.state.SummonMutableState
+import code.yousef.summon.state.mutableStateOf
 
 /**
  * Creates a custom composable effect.
@@ -20,8 +22,9 @@ fun <T> createEffect(
     return {
         val result = setup()
         
-        DisposableEffect(result) {
-            callback(result) ?: {}
+        onMountWithCleanup {
+            val cleanup = callback(result)
+            cleanup
         }
         
         result
@@ -38,7 +41,7 @@ fun combineEffects(
     vararg effects: CompositionScope.() -> Unit
 ): CompositionScope.() -> Unit {
     return {
-        effects.forEach { effect ->
+        for (effect in effects) {
             effect()
         }
     }
@@ -163,18 +166,24 @@ fun <T> debouncedEffect(
 ): CompositionScope.() -> Unit {
     return {
         val value = producer()
+        val lastValue = mutableStateOf<T?>(null)
+        val timeoutId = mutableStateOf<Int?>(null)
         
-        LaunchedEffect(value) {
-            // In a real implementation, this would use a debounce mechanism
-            // For now, we'll use a simple delay and then execute
+        effectWithDeps(value) {
+            // Clear previous timeout
+            timeoutId.value?.let { clearTimeout(it) }
             
-            // Wait for the debounce period
-            try {
-                kotlinx.coroutines.delay(delayMs.toLong())
-                effect(value)
-            } catch (e: Exception) {
-                // Handle cancellation
+            // Set new timeout
+            timeoutId.value = setTimeout(delayMs) {
+                if (value != lastValue.value) {
+                    lastValue.value = value
+                    effect(value)
+                }
             }
+        }
+        
+        onDispose {
+            timeoutId.value?.let { clearTimeout(it) }
         }
     }
 }
@@ -194,15 +203,37 @@ fun <T> throttledEffect(
 ): CompositionScope.() -> Unit {
     return {
         val value = producer()
+        val lastRunTime = mutableStateOf(0L)
+        val pendingValue = mutableStateOf<T?>(null)
+        val timeoutId = mutableStateOf<Int?>(null)
         
-        LaunchedEffect(value) {
-            // In a real implementation, this would use a throttle mechanism
-            // For now, we'll just execute it immediately
+        effectWithDeps(value) {
+            val now = currentTimeMillis()
+            val timeSinceLastRun = now - lastRunTime.value
             
-            effect(value)
-            
-            // Prevent re-running for the throttle period
-            kotlinx.coroutines.delay(delayMs.toLong())
+            if (timeSinceLastRun >= delayMs) {
+                // Run immediately if enough time has passed
+                lastRunTime.value = now
+                effect(value)
+            } else {
+                // Store value and schedule a future update
+                pendingValue.value = value
+                
+                if (timeoutId.value == null) {
+                    timeoutId.value = setTimeout(delayMs - timeSinceLastRun.toInt()) {
+                        pendingValue.value?.let { pendingVal ->
+                            lastRunTime.value = currentTimeMillis()
+                            effect(pendingVal)
+                            pendingValue.value = null
+                        }
+                        timeoutId.value = null
+                    }
+                }
+            }
+        }
+        
+        onDispose {
+            timeoutId.value?.let { clearTimeout(it) }
         }
     }
 }
