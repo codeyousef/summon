@@ -10,6 +10,7 @@ Welcome to the Summon documentation! Summon is a Kotlin Multiplatform library fo
 - [State Management](state-management.md) - Manage application state effectively
 - [Styling](styling.md) - Apply styles to your components
 - [Accessibility and SEO](accessibility-and-seo.md) - Build accessible and SEO-friendly applications
+- [Internationalization](i18n.md) - Add multi-language support with RTL layouts
 
 ### Lifecycle & Environment Integration
 - [Framework-Agnostic Lifecycle Integration](lifecycle-integration.md) - Lifecycle management across different UI frameworks
@@ -31,6 +32,7 @@ Welcome to the Summon documentation! Summon is a Kotlin Multiplatform library fo
 - **Animation**: Smooth animations and transitions
 - **SSR Support**: Server-side rendering capabilities
 - **Theme System**: Flexible theming with dark mode support
+- **Internationalization**: Full i18n support with RTL layouts for languages like Arabic and Hebrew
 
 ## Getting Help
 
@@ -148,3 +150,60 @@ fun SecurityAwareUI() {
 ```
 
 See [Security Documentation](security.md) for more details. 
+
+## Internationalization
+
+Summon provides a flexible internationalization system that supports multiple languages including right-to-left (RTL) languages:
+
+```kotlin
+// Configure supported languages
+I18nConfig.configure {
+    language("en", "English")
+    language("fr", "Français")
+    language("ar", "العربية", LayoutDirection.RTL)
+    language("he", "עברית", LayoutDirection.RTL)
+    
+    // Set default language
+    setDefault("en")
+}
+
+// Initialize i18n (for JS platform)
+JsI18nImplementation.init()
+JsI18nImplementation.loadLanguageResources("/i18n/")
+
+// Use translated strings in components
+@Composable
+fun HelloWorld() {
+    Text(stringResource("common.welcome"))
+    
+    // Direction-aware modifiers for RTL support
+    Row(Modifier.directionalRow()) {
+        // Content will adapt to current language direction
+        Text(
+            stringResource("common.greeting"),
+            modifier = Modifier
+                .paddingStart("10px")  // Left in LTR, Right in RTL
+                .paddingEnd("20px")    // Right in LTR, Left in RTL
+        )
+    }
+}
+
+// Language switcher
+@Composable
+fun LanguageSwitcher() {
+    val currentLanguage = LocalLanguage.current
+    
+    Row {
+        I18nConfig.supportedLanguages.forEach { language ->
+            Button(
+                onClick = { changeLanguage(language.code) },
+                modifier = Modifier.marginEnd("10px")
+            ) {
+                Text(language.name)
+            }
+        }
+    }
+}
+```
+
+See [Internationalization Documentation](i18n.md) for more details. 

@@ -1,0 +1,35 @@
+{
+  "common": {
+    "welcome": "Welcome to our application",
+    "language": "Language",
+    "back": "Back",
+    "next": "Next",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading..."
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "contact": "Contact",
+    "products": "Products",
+    "services": "Services"
+  },
+  "home": {
+    "title": "Home Page",
+    "subtitle": "Welcome to our demo app",
+    "description": "This is an example of internationalization support in Summon"
+  },
+  "about": {
+    "title": "About Us",
+    "description": "We are demonstrating multilingual capabilities in Kotlin Multiplatform"
+  },
+  "form": {
+    "name": "Name",
+    "email": "Email",
+    "message": "Message",
+    "submit": "Submit",
+    "required": "This field is required",
+    "invalidEmail": "Please enter a valid email"
+  }
+} 

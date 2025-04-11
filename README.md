@@ -17,6 +17,7 @@ Summon is a Kotlin Multiplatform (JVM/JS) library that enables developers to bui
 - **Animation**: Smooth animations and transitions
 - **SSR Support**: Server-side rendering capabilities
 - **Theme System**: Flexible theming with dark mode support
+- **Internationalization**: Full i18n support with RTL layouts for languages like Arabic and Hebrew
 
 ## Inspiration
 
@@ -34,6 +35,7 @@ For detailed documentation, please check the [docs](docs/README.md) directory:
 - [Integration Guides](docs/integration-guides.md) - Integrate with existing frameworks
 - [Security](docs/security.md) - Authentication and authorization features
 - [Accessibility and SEO](docs/accessibility-and-seo.md) - Build accessible and SEO-friendly applications
+- [Internationalization](docs/i18n.md) - Add multi-language support with RTL layouts
 
 ### API Reference
 
@@ -54,6 +56,7 @@ Comprehensive API reference documentation is available in the [docs/api-referenc
 - [Authentication API](docs/api-reference/auth.md) - Authentication providers and JWT integration
 - [Accessibility API](docs/api-reference/accessibility.md) - Accessibility features and ARIA support
 - [SEO API](docs/api-reference/seo.md) - SEO features and meta tags
+- [Internationalization API](docs/api/i18n-api.md) - Multi-language and RTL layout support
 
 ## Local Development Setup
 
@@ -95,19 +98,19 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("code.yousef:summon:0.2.0.1")
+                implementation("code.yousef:summon:0.2.1.0")
             }
         }
         
         val jvmMain by getting {
             dependencies {
-                implementation("code.yousef:summon-jvm:0.2.0.1")
+                implementation("code.yousef:summon-jvm:0.2.1.0")
             }
         }
         
         val jsMain by getting {
             dependencies {
-                implementation("code.yousef:summon-js:0.2.0.1")
+                implementation("code.yousef:summon-js:0.2.1.0")
             }
         }
     }

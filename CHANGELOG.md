@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1.0]
+
+### Added
+- Comprehensive internationalization (i18n) framework
+- Support for multiple languages with easy configuration
+- Right-to-left (RTL) layout support for languages like Arabic and Hebrew
+- Direction-aware modifiers (paddingStart, paddingEnd, marginStart, marginEnd, etc.)
+- JSON-based translation system with nested key support
+- Language switching at runtime
+- Automatic HTML direction attribute handling
+- Documentation and examples for i18n implementation
+
+### Changed
+- Updated README to include i18n features
+- Improved directory structure for translation resources
+
 ## [0.2.0.1]
 
 ### Added
