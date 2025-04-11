@@ -1,7 +1,7 @@
 plugins {
     kotlin("multiplatform") version "2.1.20"
     kotlin("plugin.serialization") version "2.1.20"
-
+    `maven-publish`
 }
 
 group = "code.yousef"
@@ -179,3 +179,19 @@ tasks.register("verifySpringBootIntegration") {
 }
 
 // --- Custom Tasks & Publishing will be enabled later --- 
+
+// Configure maven publishing
+publishing {
+    publications {
+        // Publishing is automatically configured by the Kotlin Multiplatform plugin
+        // This will create publications for all targets (jvm, js)
+    }
+    
+    // Configure repositories if needed
+    // repositories {
+    //     maven {
+    //         name = "MyRepo"
+    //         url = uri("https://example.com/repository")
+    //     }
+    // }
+} 
