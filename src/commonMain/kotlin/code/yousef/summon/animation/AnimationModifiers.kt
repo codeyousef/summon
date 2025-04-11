@@ -49,12 +49,332 @@ fun Modifier.spring(
     duration: Int = 400,
     iterationCount: String = "1"
 ): Modifier {
-    val springAnimation =
-        code.yousef.summon.animation.SpringAnimation(stiffness, damping, duration, iterationCount == "infinite")
-    val timingFunction = "cubic-bezier(0.5, 0.0, 0.2, 1.0)" // Spring-like curve
+    val springAnimation = SpringAnimation(stiffness, damping, duration)
+    return animate(
+        name = name,
+        duration = duration,
+        timingFunction = springAnimation.toCssAnimationString().split(" ")[1],
+        iterationCount = iterationCount
+    )
+}
 
-    val animation = "$name ${duration}ms $timingFunction 0ms $iterationCount normal forwards"
-    return Modifier(this.styles + ("animation" to animation))
+/**
+ * Adds an animation with a specified easing function.
+ *
+ * @param name The name of the animation
+ * @param easing The easing function to use
+ * @param duration Duration of the animation in milliseconds
+ * @param delay Delay before the animation starts, in milliseconds
+ * @param iterationCount Number of times the animation should run, or "infinite"
+ * @param direction Direction of the animation
+ * @param fillMode Fill mode of the animation
+ * @return A new Modifier with the animation styles added
+ */
+fun Modifier.animateWithEasing(
+    name: String,
+    easing: Easing = Easing.EASE_IN_OUT,
+    duration: Int = 300,
+    delay: Int = 0,
+    iterationCount: String = "1",
+    direction: String = "normal",
+    fillMode: String = "forwards"
+): Modifier {
+    return animate(
+        name = name,
+        duration = duration,
+        timingFunction = easing.toCssString(),
+        delay = delay,
+        iterationCount = iterationCount,
+        direction = direction,
+        fillMode = fillMode
+    )
+}
+
+/**
+ * Creates a bounce animation effect using the BOUNCE_OUT easing function.
+ *
+ * @param name The name of the animation
+ * @param duration Duration of the animation in milliseconds
+ * @param delay Delay before the animation starts, in milliseconds
+ * @param iterationCount Number of times the animation should run, or "infinite"
+ * @return A new Modifier with the bounce animation styles added
+ */
+fun Modifier.bounce(
+    name: String = "bounce",
+    duration: Int = 800,
+    delay: Int = 0,
+    iterationCount: String = "1"
+): Modifier {
+    return animateWithEasing(
+        name = name,
+        easing = Easing.BOUNCE_OUT,
+        duration = duration,
+        delay = delay,
+        iterationCount = iterationCount
+    )
+}
+
+/**
+ * Creates an elastic animation effect using the ELASTIC_OUT easing function.
+ *
+ * @param name The name of the animation
+ * @param duration Duration of the animation in milliseconds
+ * @param delay Delay before the animation starts, in milliseconds
+ * @param iterationCount Number of times the animation should run, or "infinite"
+ * @return A new Modifier with the elastic animation styles added
+ */
+fun Modifier.elastic(
+    name: String = "elastic",
+    duration: Int = 1000,
+    delay: Int = 0,
+    iterationCount: String = "1"
+): Modifier {
+    return animateWithEasing(
+        name = name,
+        easing = Easing.ELASTIC_OUT,
+        duration = duration,
+        delay = delay,
+        iterationCount = iterationCount
+    )
+}
+
+/**
+ * Creates a fade-in animation effect.
+ *
+ * @param duration Duration of the animation in milliseconds
+ * @param delay Delay before the animation starts, in milliseconds
+ * @param easing The easing function to use
+ * @return A new Modifier with the fade-in animation styles added
+ */
+fun Modifier.fadeIn(
+    duration: Int = 300,
+    delay: Int = 0,
+    easing: Easing = Easing.EASE_IN_OUT
+): Modifier {
+    return animateWithEasing(
+        name = "fade-in",
+        easing = easing,
+        duration = duration,
+        delay = delay
+    )
+}
+
+/**
+ * Creates a fade-out animation effect.
+ *
+ * @param duration Duration of the animation in milliseconds
+ * @param delay Delay before the animation starts, in milliseconds
+ * @param easing The easing function to use
+ * @return A new Modifier with the fade-out animation styles added
+ */
+fun Modifier.fadeOut(
+    duration: Int = 300,
+    delay: Int = 0,
+    easing: Easing = Easing.EASE_IN_OUT
+): Modifier {
+    return animateWithEasing(
+        name = "fade-out",
+        easing = easing,
+        duration = duration,
+        delay = delay
+    )
+}
+
+/**
+ * Creates a slide-in animation effect from the top.
+ *
+ * @param duration Duration of the animation in milliseconds
+ * @param delay Delay before the animation starts, in milliseconds
+ * @param easing The easing function to use
+ * @return A new Modifier with the slide-in animation styles added
+ */
+fun Modifier.slideInFromTop(
+    duration: Int = 500,
+    delay: Int = 0,
+    easing: Easing = Easing.CUBIC_OUT
+): Modifier {
+    return animateWithEasing(
+        name = "slide-in-top",
+        easing = easing,
+        duration = duration,
+        delay = delay
+    )
+}
+
+/**
+ * Creates a slide-in animation effect from the bottom.
+ *
+ * @param duration Duration of the animation in milliseconds
+ * @param delay Delay before the animation starts, in milliseconds
+ * @param easing The easing function to use
+ * @return A new Modifier with the slide-in animation styles added
+ */
+fun Modifier.slideInFromBottom(
+    duration: Int = 500,
+    delay: Int = 0,
+    easing: Easing = Easing.CUBIC_OUT
+): Modifier {
+    return animateWithEasing(
+        name = "slide-in-bottom",
+        easing = easing,
+        duration = duration,
+        delay = delay
+    )
+}
+
+/**
+ * Creates a zoom-in animation effect.
+ *
+ * @param duration Duration of the animation in milliseconds
+ * @param delay Delay before the animation starts, in milliseconds
+ * @param easing The easing function to use
+ * @return A new Modifier with the zoom-in animation styles added
+ */
+fun Modifier.zoomIn(
+    duration: Int = 400,
+    delay: Int = 0,
+    easing: Easing = Easing.CUBIC_OUT
+): Modifier {
+    return animateWithEasing(
+        name = "zoom-in",
+        easing = easing,
+        duration = duration,
+        delay = delay
+    )
+}
+
+/**
+ * Creates a zoom-out animation effect.
+ *
+ * @param duration Duration of the animation in milliseconds
+ * @param delay Delay before the animation starts, in milliseconds
+ * @param easing The easing function to use
+ * @return A new Modifier with the zoom-out animation styles added
+ */
+fun Modifier.zoomOut(
+    duration: Int = 400,
+    delay: Int = 0,
+    easing: Easing = Easing.CUBIC_IN
+): Modifier {
+    return animateWithEasing(
+        name = "zoom-out",
+        easing = easing,
+        duration = duration,
+        delay = delay
+    )
+}
+
+/**
+ * Creates a pulse animation effect that repeats infinitely.
+ *
+ * @param duration Duration of each pulse cycle in milliseconds
+ * @param easing The easing function to use
+ * @return A new Modifier with the pulsing animation styles added
+ */
+fun Modifier.pulse(
+    duration: Int = 1500,
+    easing: Easing = Easing.SINE_IN_OUT
+): Modifier {
+    return animateWithEasing(
+        name = "pulse",
+        easing = easing,
+        duration = duration,
+        iterationCount = "infinite"
+    )
+}
+
+/**
+ * Creates a shake animation effect.
+ *
+ * @param duration Duration of the animation in milliseconds
+ * @param iterationCount Number of times the animation should run
+ * @return A new Modifier with the shake animation styles added
+ */
+fun Modifier.shake(
+    duration: Int = 500,
+    iterationCount: String = "1"
+): Modifier {
+    return animate(
+        name = "shake",
+        duration = duration,
+        timingFunction = "ease-in-out",
+        iterationCount = iterationCount
+    )
+}
+
+/**
+ * Creates a float animation effect that moves the element up and down slightly.
+ *
+ * @param duration Duration of each float cycle in milliseconds
+ * @param iterationCount Number of times the animation should run, or "infinite"
+ * @param easing The easing function to use
+ * @return A new Modifier with the floating animation styles added
+ */
+fun Modifier.float(
+    duration: Int = 3000,
+    iterationCount: String = "infinite",
+    easing: Easing = Easing.SINE_IN_OUT
+): Modifier {
+    return animateWithEasing(
+        name = "float",
+        easing = easing,
+        duration = duration,
+        iterationCount = iterationCount,
+        direction = "alternate"
+    )
+}
+
+/**
+ * Creates a typing cursor animation effect for text inputs.
+ *
+ * @param duration Duration of each blink cycle in milliseconds
+ * @return A new Modifier with the cursor animation styles added
+ */
+fun Modifier.typingCursor(
+    duration: Int = 800
+): Modifier {
+    return animate(
+        name = "blink",
+        duration = duration,
+        timingFunction = "steps(1)",
+        iterationCount = "infinite"
+    )
+}
+
+/**
+ * Creates a flip animation effect on the X axis.
+ *
+ * @param duration Duration of the animation in milliseconds
+ * @param easing The easing function to use
+ * @return A new Modifier with the flip animation styles added
+ */
+fun Modifier.flipX(
+    duration: Int = 600,
+    easing: Easing = Easing.CUBIC_IN_OUT
+): Modifier {
+    return animateWithEasing(
+        name = "flip-x",
+        easing = easing,
+        duration = duration
+    )
+}
+
+/**
+ * Creates a flip animation effect on the Y axis.
+ *
+ * @param duration Duration of the animation in milliseconds
+ * @param easing The easing function to use
+ * @return A new Modifier with the flip animation styles added
+ */
+fun Modifier.flipY(
+    duration: Int = 600,
+    easing: Easing = Easing.CUBIC_IN_OUT
+): Modifier {
+    return animateWithEasing(
+        name = "flip-y",
+        easing = easing,
+        duration = duration
+    )
 }
 
 /**
@@ -74,38 +394,6 @@ fun Modifier.transition(
 ): Modifier {
     val transition = "$property ${duration}ms $timingFunction ${delay}ms"
     return Modifier(this.styles + ("transition" to transition))
-}
-
-/**
- * Adds a fade-in animation to an element.
- *
- * @param duration Duration of the animation in milliseconds
- * @param delay Delay before the animation starts, in milliseconds
- * @return A new Modifier with the fade-in animation styles added
- */
-fun Modifier.fadeIn(
-    duration: Int = 300,
-    delay: Int = 0
-): Modifier {
-    return this
-        .transition("opacity", duration, "ease-in", delay)
-        .animOpacity(1f)
-}
-
-/**
- * Adds a fade-out animation to an element.
- *
- * @param duration Duration of the animation in milliseconds
- * @param delay Delay before the animation starts, in milliseconds
- * @return A new Modifier with the fade-out animation styles added
- */
-fun Modifier.fadeOut(
-    duration: Int = 300,
-    delay: Int = 0
-): Modifier {
-    return this
-        .transition("opacity", duration, "ease-out", delay)
-        .animOpacity(0f)
 }
 
 /**
