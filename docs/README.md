@@ -5,9 +5,8 @@ Welcome to the Summon documentation! Summon is a Kotlin Multiplatform library fo
 ## Table of Contents
 
 ### Getting Started
-- [Getting Started Guide](../README.md#quick-example) - Introduction and basic setup
 - [Components](components.md) - Learn about Summon's built-in UI components
-- [Routing](routing.md) - Set up navigation in your application
+- [Routing](routing.md) - Set up navigation in your application with Next.js-style file-based routing
 - [State Management](state-management.md) - Manage application state effectively
 - [Styling](styling.md) - Apply styles to your components
 - [Accessibility and SEO](accessibility-and-seo.md) - Build accessible and SEO-friendly applications
@@ -26,7 +25,7 @@ Welcome to the Summon documentation! Summon is a Kotlin Multiplatform library fo
 - **Cross-Platform**: Write once, run anywhere - browser, server, and native platforms
 - **Component-Based**: Build UIs using composable components
 - **State Management**: Built-in state management with reactivity
-- **Routing**: Declarative routing with guards and middleware
+- **Next.js-Style Routing**: Automatic file-based routing with code generation
 - **Security**: Built-in authentication and authorization with JWT support
 - **Accessibility**: Built-in accessibility features
 - **Animation**: Smooth animations and transitions

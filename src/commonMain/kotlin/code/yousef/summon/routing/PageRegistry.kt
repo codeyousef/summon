@@ -40,6 +40,14 @@ interface PageRegistry {
      * @return The not found page factory or null if not registered
      */
     fun getNotFoundPage(): PageFactory?
+    
+    /**
+     * Normalize a file path to a route path.
+     * 
+     * @param path The file path to normalize
+     * @return The normalized route path
+     */
+    fun normalizePath(path: String): String
 }
 
 /**
@@ -65,7 +73,7 @@ class DefaultPageRegistry : PageRegistry {
     /**
      * Normalize a path following Next.js conventions.
      */
-    private fun normalizePath(path: String): String {
+    override fun normalizePath(path: String): String {
         // Remove file extension if present (.kt, .page.kt, etc.)
         val withoutExtension = path.replace(Regex("\\.\\w+(\\.\\w+)*$"), "")
 
@@ -111,7 +119,18 @@ object Pages {
         registry.registerNotFoundPage(pageFactory)
     }
 
-    // Add methods to access the stored pages and notFound page directly
+    /**
+     * Get all registered pages.
+     */
     fun getRegisteredPages(): Map<String, PageFactory> = registry.getPages()
+    
+    /**
+     * Get the not found page handler.
+     */
     fun getNotFoundHandler(): PageFactory? = registry.getNotFoundPage()
+    
+    /**
+     * Normalize a path.
+     */
+    fun normalizePath(path: String): String = registry.normalizePath(path)
 } 

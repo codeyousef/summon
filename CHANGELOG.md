@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0.1]
+
+### Added
+- Complete Next.js-style file-based routing system with code generation
+- Automatic page discovery based on file structure
+- Build-time route registration for improved performance
+- Fixes for the routing Link component API
+- Support for dynamic route parameters with [param] filename syntax
+
+### Changed
+- Adopted semantic versioning with patch point releases (MAJOR.MINOR.PATCH.POINT)
+- Fixed Button component parameter naming consistency
+- Improved error handling in router implementations
+
 ## [0.2.0]
 
 ### Added

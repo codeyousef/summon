@@ -1,145 +1,115 @@
-# Summon Router System
+# Summon Next.js-Style File-Based Routing
 
-A flexible, lightweight routing system for the Summon UI library that works across both JS and JVM platforms.
+Summon now includes a complete Next.js-style file-based routing system. This system automatically discovers page files from your codebase and maps them to routes based on their file paths.
 
-## Key Components
+**Version:** 0.2.0.1
 
-### `Route`
-Defines a route pattern and its associated component. Patterns can include dynamic parameters using the `:paramName` syntax.
+## How it Works
 
-```kotlin
-// Static route
-val homeRoute = Route("/") { _ -> HomeComponent() }
+1. **Page Discovery**: At build time, the build system scans your source directory for page files.
+2. **Code Generation**: Based on discovered pages, the system generates route registration code.
+3. **Runtime Routing**: At runtime, the generated code registers all discovered pages with the router.
 
-// Route with parameters
-val userRoute = Route("/user/:id") { params -> UserProfileComponent(params["id"]) }
-```
+## Page Conventions
 
-### `RouteParams`
-Container for route parameters parsed from a URL path.
+Pages are discovered based on the following conventions:
 
-```kotlin
-// Access parameters
-val userId = params["id"]
+| File Path                   | URL Route          | Notes                           |
+|-----------------------------|--------------------|---------------------------------|
+| `/pages/Index.kt`           | `/`                | Home/index route                |
+| `/pages/Home.kt`            | `/`                | Alternative home route          |
+| `/pages/About.kt`           | `/about`           | Standard route                  |
+| `/pages/users/Profile.kt`   | `/users/profile`   | Nested route                    |
+| `/pages/blog/[id].kt`       | `/blog/:id`        | Dynamic parameter route         |
+| `/pages/blog/[...slug].kt`  | `/blog/*`          | Catch-all route                 |
+| `/pages/404.kt`             | N/A                | 404 Not Found page              |
 
-// Access with default value
-val page = params.getOrDefault("page", "1")
-```
+## Creating Pages
 
-### `Router`
-Main router component that manages routes and handles navigation.
-
-```kotlin
-// Create a router with routes
-val router = Router(
-    routes = listOf(homeRoute, aboutRoute, userRoute),
-    notFoundComponent = { _ -> NotFoundComponent() }
-)
-
-// Navigate to a route
-router.navigate("/user/123")
-```
-
-### `NavLink`
-Navigation link component with active state awareness.
+To create a page, create a Kotlin file in the pages directory:
 
 ```kotlin
-// Create a navigation link
-NavLink(
-    to = "/user/123",
-    text = "User Profile",
-    className = "nav-link",
-    activeClassName = "active"
-)
-```
+package code.yousef.summon.routing.pages
 
-### `Redirect`
-Component for declarative navigation redirects.
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.components.layout.Column
+import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.padding
+import code.yousef.summon.runtime.Composable
 
-```kotlin
-// Redirect to another route
-Redirect.to("/login")
-```
-
-## Platform-Specific Features
-
-### JS Platform
-
-```kotlin
-// Set up router for browser
-router.setupForBrowser()
-
-// Create a browser router
-val router = createBrowserRouter {
-    route("/") { _ -> HomeComponent() }
-    route("/about") { _ -> AboutComponent() }
-}
-```
-
-### JVM Platform
-
-```kotlin
-// Set up router for server
-router.setupForServer("session-123")
-
-// Create a server router
-val router = createServerRouter("session-123") {
-    route("/") { _ -> HomeComponent() }
-    route("/about") { _ -> AboutComponent() }
-}
-```
-
-## Example Usage
-
-```kotlin
 @Composable
-fun RouterExample() {
-    // Create a router using the DSL
-    val router = createRouter {
-        route("/") { _ -> HomeComponent() }
-        route("/about") { _ -> AboutComponent() }
-        route("/user/:id") { params -> UserProfileComponent(params["id"]) }
-        setNotFound { _ -> NotFoundComponent() }
-    }
-    
-    // Use the router component with an initial path
-    RouterComponent(
-        router = router,
-        initialPath = "/"
-    )
-}
-
-// Usage in a parent component
-@Composable
-fun App() {
-    Column {
-        // Navigation menu
-        Row {
-            NavLink(to = "/", content = { Text("Home") })
-            NavLink(to = "/about", content = { Text("About") })
-        }
-        
-        // Router content
-        RouterExample()
+fun ExamplePage() {
+    Column(
+        modifier = Modifier().padding("16px")
+    ) {
+        Text("Example Page")
     }
 }
 ```
 
-## Integration with HTML
+## Dynamic Routes
 
-```html
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Summon Router Example</title>
-    <style>
-        .nav-link { margin: 0 10px; }
-        .nav-link.active { font-weight: bold; }
-    </style>
-</head>
-<body>
-    <div id="root"></div>
-    <script src="app.js"></script>
-</body>
-</html>
-``` 
+For dynamic routes with parameters, use the `[param]` syntax in your file name:
+
+```kotlin
+// pages/users/[id].kt
+package code.yousef.summon.routing.pages.users
+
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.runtime.Composable
+
+@Composable
+fun UserProfilePage(userId: String?) {
+    Text("User Profile for user ID: $userId")
+}
+```
+
+## How Code Generation Works
+
+The routing system uses a build-time code generator that:
+
+1. Scans the pages directory for page files
+2. Maps file paths to route paths following Next.js conventions
+3. Generates code to register these pages with the router
+4. Includes the generated code in the build
+
+The generator is configured in the Gradle build:
+
+```kotlin
+plugins {
+    kotlin("multiplatform")
+    id("code.yousef.summon.page-discovery")
+}
+
+// Configure the page discovery plugin
+summonPages {
+    pagesDirectory = "src/commonMain/kotlin/code/yousef/summon/routing/pages"
+    outputDirectory = "build/generated/source/summon"
+}
+```
+
+## Usage
+
+The router is automatically created with all discovered pages:
+
+```kotlin
+// Create a router with all auto-discovered pages
+val router = PageLoader.createRouter()
+
+// Use the router in your application
+SummonApp {
+    router.create()
+}
+```
+
+## Benefits of This Approach
+
+- **Convention Over Configuration**: Routes are automatically derived from file paths, reducing boilerplate
+- **Type Safety**: All routes are fully type-checked by the Kotlin compiler
+- **Build-Time Validation**: Route conflicts and issues are detected at build time
+- **Performance**: Runtime reflection is not needed, improving performance
+- **Code Navigation**: IDE navigation between routes and page implementations works seamlessly
+
+## Note on Programmatic Routing
+
+While file-based routing is now the recommended approach, the programmatic routing API is still available and fully supported for cases where more manual control is needed. The file-based router uses the same underlying router implementation, so both approaches can be used together when necessary. 

@@ -1,8 +1,34 @@
 # Routing
 
-Summon provides a powerful routing system that works across platforms, allowing you to create navigation in both browser and JVM applications.
+Summon provides a powerful routing system that works across platforms, allowing you to create navigation in both browser and JVM applications. The library supports two complementary approaches to routing:
 
-## Basic Setup
+1. **Programmatic Routing**: Define routes explicitly using the Router builder API (covered in this document)
+2. **File-Based Routing**: Use a Next.js-style file structure where file paths map to URL routes (see [File-Based Routing](file-based-routing.md))
+
+## Next.js-Style File-Based Routing (Recommended)
+
+Summon now features a complete Next.js-style file-based routing system that automatically discovers page files from your codebase and maps them to routes based on their file paths.
+
+```kotlin
+// Example: Creating a file automatically creates a route
+// src/commonMain/kotlin/code/yousef/summon/routing/pages/About.kt -> /about
+
+// Create a router with all auto-discovered pages
+val router = PageLoader.createRouter()
+
+// Use the router in your application
+SummonApp {
+    router.create()
+}
+```
+
+This approach follows conventions to simplify route creation and is especially useful for larger applications with many routes. For detailed documentation on this approach, see [File-Based Routing](file-based-routing.md).
+
+## Programmatic Routing
+
+### Basic Setup
+
+Setting up routes programmatically using the Router builder API:
 
 ### Setting Up Routes
 
@@ -288,4 +314,17 @@ Router {
 }
 ```
 
-Check out the [API Reference](api-reference/routing.md) for complete details on the routing system. 
+Check out the [API Reference](api-reference/routing.md) for complete details on the routing system.
+
+## File-Based Routing Alternative
+
+Summon also supports a file-based routing approach where the file structure in a `pages` directory automatically maps to URL routes. This is similar to frameworks like Next.js.
+
+For example:
+- `/pages/Index.kt` → `/` (home route)
+- `/pages/About.kt` → `/about`
+- `/pages/users/Profile.kt` → `/users/profile`
+
+This approach follows conventions to simplify route creation and is especially useful for larger applications with many routes.
+
+For detailed documentation on this approach, see [File-Based Routing](file-based-routing.md). 

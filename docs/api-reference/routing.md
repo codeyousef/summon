@@ -9,6 +9,7 @@ This document provides detailed information about the routing APIs in the Summon
 - [RouteParams](#routeparams)
 - [Link](#link)
 - [RouteGuard](#routeguard)
+- [File-Based Routing](#file-based-routing)
 - [PlatformAdapters](#platformadapters)
 - [Advanced Configuration](#advanced-configuration)
 
@@ -286,63 +287,134 @@ Link(
 
 ---
 
-## RouteGuard
+## File-Based Routing
 
-The `RouteGuard` interface allows for route protection and redirection.
+The file-based routing system provides automatic route discovery based on file paths.
 
-### Interface Definition
+### PageLoader
+
+The `PageLoader` class handles automatic discovery and registration of page components.
 
 ```kotlin
 package code.yousef.summon.routing
 
-interface RouteGuard {
-    fun canActivate(route: Route, params: RouteParams): GuardResult
-}
-
-sealed class GuardResult {
-    object Allow : GuardResult()
-    class Redirect(val path: String) : GuardResult()
-    object Deny : GuardResult()
+object PageLoader {
+    /**
+     * Automatically register all pages from the pages directory structure.
+     * The registration is handled by generated code that maps file paths to route paths.
+     */
+    fun registerPages(registry: PageRegistry)
+    
+    /**
+     * Create a router with all registered pages.
+     */
+    fun createRouter(): Router
+    
+    /**
+     * Maps a file path to its corresponding route path using Next.js conventions.
+     */
+    fun filePathToRoutePath(filePath: String): String
 }
 ```
 
-### Description
+### PageRegistry
 
-`RouteGuard` is used to protect routes based on conditions like authentication. A guard can allow access, deny access, or redirect to another route.
+The `PageRegistry` interface provides registration of pages discovered at build time.
+
+```kotlin
+package code.yousef.summon.routing
+
+typealias PageFactory = @Composable (params: RouteParams) -> Unit
+
+interface PageRegistry {
+    /**
+     * Register a page for a specific path.
+     */
+    fun registerPage(pagePath: String, pageFactory: PageFactory)
+
+    /**
+     * Register a special 404 Not Found page.
+     */
+    fun registerNotFoundPage(pageFactory: PageFactory)
+
+    /**
+     * Get all registered page routes and their factories.
+     */
+    fun getPages(): Map<String, PageFactory>
+
+    /**
+     * Get the registered not found page factory if available.
+     */
+    fun getNotFoundPage(): PageFactory?
+    
+    /**
+     * Normalize a file path to a route path.
+     */
+    fun normalizePath(path: String): String
+}
+```
+
+### Page Discovery Plugin
+
+In a production environment, the page discovery is handled by a Gradle plugin configured in your build script:
+
+```kotlin
+plugins {
+    kotlin("multiplatform")
+    id("code.yousef.summon.page-discovery")
+}
+
+// Configure the page discovery plugin
+summonPages {
+    // Source directory for page files
+    pagesDirectory = "src/commonMain/kotlin/code/yousef/summon/routing/pages"
+    
+    // Output directory for generated code
+    outputDirectory = "build/generated/source/summon"
+    
+    // Options for page file pattern matching
+    options {
+        // File extensions to consider as page files
+        pageExtensions = listOf(".kt", ".page.kt")
+        
+        // Directories to exclude
+        excludeDirectories = listOf("components", "layouts", "lib")
+    }
+}
+```
+
+### FileBasedRouter
+
+The `FileBasedRouter` class implements the `Router` interface for file-based routing:
+
+```kotlin
+expect class FileBasedRouter() : Router {
+    /**
+     * Load pages from the file system.
+     */
+    fun loadPages()
+}
+
+/**
+ * Creates a file-based router.
+ */
+expect fun createFileBasedRouter(): Router
+
+/**
+ * Creates a file-based router for the server with a specific path.
+ */
+expect fun createFileBasedServerRouter(path: String): Router
+```
 
 ### Example
 
 ```kotlin
-// Authentication guard
-class AuthGuard(private val authService: AuthService) : RouteGuard {
-    override fun canActivate(route: Route, params: RouteParams): GuardResult {
-        return if (authService.isLoggedIn()) {
-            GuardResult.Allow
-        } else {
-            GuardResult.Redirect("/login?returnUrl=${encodeURIComponent(route.path)}")
-        }
-    }
-}
+// Create a router with auto-discovered pages
+val router = PageLoader.createRouter()
 
-// Role-based guard
-class RoleGuard(private val requiredRole: String) : RouteGuard {
-    override fun canActivate(route: Route, params: RouteParams): GuardResult {
-        val userRole = getUserRole()
-        return if (userRole == requiredRole) {
-            GuardResult.Allow
-        } else {
-            GuardResult.Deny
-        }
-    }
-}
-
-// Apply guards to routes
-val authGuard = AuthGuard(authService)
-val adminGuard = RoleGuard("admin")
-
-val router = router {
-    route("/profile", authGuard) { ProfilePage() }
-    route("/admin", listOf(authGuard, adminGuard)) { AdminPage() }
+// Use the router in your application
+SummonApp {
+    router.create()
 }
 ```
 

@@ -14,9 +14,14 @@ This directory contains comprehensive API documentation for the Summon library. 
 - [Routing API](routing.md) - Documentation for navigation and routing
 - [Effects API](effects.md) - Documentation for side effects and lifecycle management
 - [Events API](events.md) - Documentation for event handling and listeners
+- [Animation API](animation.md) - Documentation for animations, transitions, and animation modifiers
+- [Focus Management API](focus.md) - Documentation for focus management and keyboard navigation
+- [Theme API](theme.md) - Documentation for theming, styling, and design systems
+- [Validation API](validation.md) - Documentation for form validation and input validation
 - [Accessibility API](accessibility.md) - Documentation for accessibility features and ARIA support
 - [SEO API](seo.md) - Documentation for SEO features and meta tags
 - [Security API](security.md) - Documentation for authentication, authorization, and security features
+- [Authentication API](auth.md) - Documentation for authentication providers, JWT integration, and auth utilities
 
 ## Usage
 

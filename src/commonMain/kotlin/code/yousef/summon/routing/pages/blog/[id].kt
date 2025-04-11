@@ -3,32 +3,38 @@ package code.yousef.summon.routing.pages.blog
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.routing.NavLink
+import code.yousef.summon.modifier.padding
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
-
+import code.yousef.summon.routing.Link
+import code.yousef.summon.routing.RouteParams
 
 /**
- * A simple composable function representing a Blog Post page.
+ * Blog post page component that demonstrates dynamic routing.
+ * This file uses the [id] pattern in its name to create a dynamic route.
+ * The actual URL would be /blog/:id where :id is a parameter.
  */
 @Composable
-fun BlogPostPage(id: String?) {
-    val composer = CompositionLocal.currentComposer
-
+fun BlogPostPage(postId: String? = null) {
+    // If postId wasn't passed directly, try to get it from the current route params
+    val id = postId ?: RouteParams.current["id"] ?: "unknown"
+    
     Column(
-        modifier = Modifier().padding("20px")
+        modifier = Modifier().padding("16px")
     ) {
         Text("Blog Post")
-        if (id != null) {
-            Text("Displaying post with ID: $id")
-            // Placeholder: Actual post content would be fetched and displayed here
-        } else {
-            Text("Error: Post ID not provided.")
-        }
+        Text("Post ID: $id")
         
-        // Example Navigation
-        NavLink(to = "/") {
-            Text("Go Home")
-        }
+        // This would normally fetch post data based on the ID
+        val title = if (id == "latest-post") "What's New in Summon" else "Blog Post $id"
+        val content = "This is the content of the blog post with ID: $id."
+        
+        Text("Title: $title")
+        Text("Content: $content")
+        
+        // Navigation link back to home
+        Link(
+            text = "Back to Home",
+            href = "/"
+        )
     }
 } 

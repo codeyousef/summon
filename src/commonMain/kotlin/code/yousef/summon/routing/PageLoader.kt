@@ -1,67 +1,64 @@
-package routing
+package code.yousef.summon.routing
 
-import code.yousef.summon.routing.DefaultPageRegistry
-import code.yousef.summon.routing.PageRegistry
-import code.yousef.summon.routing.Router
+import code.yousef.summon.routing.pages.AboutPage
+import code.yousef.summon.routing.pages.HomePage
+import code.yousef.summon.routing.pages.NotFoundPage
+import code.yousef.summon.routing.pages.blog.BlogPostPage
+import code.yousef.summon.routing.pages.users.UserProfilePage
 
 /**
  * Loads pages from the file system and registers them with the PageRegistry.
  *
- * In a real implementation, this would use reflection or code generation
- * to automatically scan the file system. For this example, we'll manually
- * register the pages we've created.
+ * This implementation uses code generation at build time
+ * to scan for page files and automatically register them with the router.
  */
 object PageLoader {
     /**
-     * Manually register all pages.
-     * This simulates what would be done automatically by scanning the file system.
+     * Automatically register all pages from the pages directory structure.
+     * The registration is handled by generated code that maps file paths to route paths.
+     *
+     * @param registry The page registry to register pages with
      */
     fun registerPages(registry: PageRegistry) {
-        // In a real implementation, this would be done automatically by scanning
-        // the file system and using reflection or code generation to register pages.
-
-        // For demonstration purposes, we would register pages like this:
-        // registry.registerPage("/", IndexPage::create)
-        // registry.registerPage("/about", AboutPage::create)
-        // registry.registerPage("/users/profile", ProfilePage::create)
-        // registry.registerPage("/blog/:id", BlogPostPage::create)
-        // registry.registerNotFoundPage(NotFoundPage::create)
+        // Delegate to the generated code
+        GeneratedPageLoader.registerPages(registry)
     }
 
     /**
      * Create a router with all registered pages.
+     * This keeps the old router API working with our file-based approach.
      */
     fun createRouter(): Router {
-        val registry = DefaultPageRegistry()
-        registerPages(registry)
-
-        // Create a router using the createRouter function from the Router interface
-        return code.yousef.summon.routing.createRouter {
-            // Register all pages from the registry
-            registry.getPages().forEach { (path, pageFactory) ->
-                route(path, pageFactory)
-            }
-
-            // Register the not found page if available
-            registry.getNotFoundPage()?.let { notFoundPage ->
-                setNotFound(notFoundPage)
-            }
-        }
+        return createFileBasedRouter()
     }
 
     /**
-     * In a real Next.js style implementation, this would scan the file system.
-     * This is a placeholder for what would be implemented in a real application.
+     * Scan for pages in the codebase.
+     * This function is provided for debugging purposes only.
+     * The actual scanning is done at build time by the PageLoaderGenerator.
+     *
+     * @return List of file paths that would be found by scanning the pages directory
      */
-    private fun scanPagesDirectory(): List<String> {
-        // This would actually scan the file system
-        // For this example, we'll just return the paths we know about
+    fun scanPagesDirectory(): List<String> {
+        // This would be generated at build time
         return listOf(
-            "/pages/index.kt",
-            "/pages/about.kt",
+            "/pages/Index.kt",
+            "/pages/About.kt",
             "/pages/404.kt",
-            "/pages/users/profile.kt",
+            "/pages/users/[id].kt",
+            "/pages/users/Profile.kt",
             "/pages/blog/[id].kt"
         )
+    }
+
+    /**
+     * Maps a file path to its corresponding route path using Next.js conventions.
+     * This function is primarily used at build time by the PageLoaderGenerator.
+     *
+     * @param filePath The file path relative to the project root
+     * @return The route path this file represents
+     */
+    fun filePathToRoutePath(filePath: String): String {
+        return DefaultPageRegistry().normalizePath(filePath)
     }
 } 
