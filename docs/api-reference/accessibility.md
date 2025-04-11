@@ -24,6 +24,9 @@ fun Modifier.ariaRequired(value: Boolean): Modifier
 fun Modifier.ariaCurrent(value: String): Modifier
 fun Modifier.ariaLive(value: String): Modifier
 fun Modifier.tabIndex(value: Int): Modifier
+fun Modifier.ariaControls(id: String): Modifier
+fun Modifier.ariaHasPopup(value: Boolean = true): Modifier
+fun Modifier.ariaBusy(value: Boolean = true): Modifier
 ```
 
 These modifiers add ARIA attributes to elements for better accessibility. They are available on any `Modifier` instance.
@@ -31,29 +34,20 @@ These modifiers add ARIA attributes to elements for better accessibility. They a
 ### Focus Management
 
 ```kotlin
-object FocusManagement {
-    enum class FocusBehavior {
-        FOCUSABLE,
-        TABBABLE,
-        DISABLED,
-        AUTO_FOCUS
-    }
-
-    fun createFocusModifier(behavior: FocusBehavior): Modifier
-    fun createFocusModifier(customRole: String): Modifier
-    fun createLabelModifier(label: String): Modifier
-    fun createRelationshipModifier(relation: String, targetId: String): Modifier
-}
+fun Modifier.focusable(): Modifier       // Makes an element focusable but not in the tab order
+fun Modifier.tabbable(): Modifier        // Makes an element focusable and in the tab order
+fun Modifier.disabled(): Modifier        // Marks an element as disabled and not focusable
+fun Modifier.autoFocus(): Modifier       // Marks an element for autofocus when rendered
 ```
 
-The `FocusManagement` object provides utilities for managing keyboard focus and accessibility relationships between elements.
+The Focus Management modifiers provide utilities for managing keyboard focus and accessibility relationships between elements.
 
-## Semantic HTML Components
+## Accessibility Utilities
 
-### AccessibilityTree
+### AccessibilityUtils
 
 ```kotlin
-object AccessibilityTree {
+object AccessibilityUtils {
     enum class NodeRole {
         BUTTON,
         CHECKBOX,
@@ -85,61 +79,99 @@ object AccessibilityTree {
     fun createRelationshipModifier(relation: String, targetId: String): Modifier
     fun inspectAccessibility(modifier: Modifier): Map<String, String>
 }
+
+// Extension function on Modifier
+fun Modifier.inspectAccessibility(): Map<String, String>
 ```
 
-The `AccessibilityTree` object provides utilities for working with the accessibility tree and inspecting accessibility attributes.
+The `AccessibilityUtils` object provides utilities for working with the accessibility tree and inspecting accessibility attributes.
 
 ### AccessibleElement
 
 ```kotlin
-class AccessibleElement(
-    private val content: List<Composable>,
-    private val role: AccessibilityTree.NodeRole? = null,
-    private val customRole: String? = null,
-    private val label: String? = null,
-    private val relations: Map<String, String> = emptyMap()
-) : Composable
+@Composable
+fun AccessibleElement(
+    content: @Composable () -> Unit,
+    role: AccessibilityUtils.NodeRole? = null,
+    customRole: String? = null,
+    label: String? = null,
+    relations: Map<String, String> = emptyMap(),
+    modifier: Modifier = Modifier()
+)
 ```
 
-The `AccessibleElement` class is a wrapper component that adds accessibility attributes to its content.
+The `AccessibleElement` function is a wrapper component that adds accessibility attributes to its content.
 
 ## Semantic HTML Components
 
 ```kotlin
-object SemanticHTML {
-    class Header(
-        private val id: String? = null,
-        private val className: String? = null,
-        private val content: FlowContent.() -> Unit
-    ) : Composable
+@Composable
+fun Header(
+    id: String? = null,
+    className: String? = null,
+    modifier: Modifier = Modifier.create(),
+    content: @Composable () -> Unit
+)
 
-    class Main(
-        private val id: String? = null,
-        private val className: String? = null,
-        private val content: FlowContent.() -> Unit
-    ) : Composable
+@Composable
+fun Main(
+    id: String? = null,
+    className: String? = null,
+    modifier: Modifier = Modifier.create(),
+    content: @Composable () -> Unit
+)
 
-    class Nav(
-        private val id: String? = null,
-        private val className: String? = null,
-        private val content: FlowContent.() -> Unit
-    ) : Composable
+@Composable
+fun Nav(
+    id: String? = null,
+    className: String? = null,
+    modifier: Modifier = Modifier.create(),
+    content: @Composable () -> Unit
+)
 
-    class Article(
-        private val id: String? = null,
-        private val className: String? = null,
-        private val content: FlowContent.() -> Unit
-    ) : Composable
+@Composable
+fun Article(
+    id: String? = null,
+    className: String? = null,
+    modifier: Modifier = Modifier.create(),
+    content: @Composable () -> Unit
+)
 
-    class Section(
-        private val id: String? = null,
-        private val className: String? = null,
-        private val content: FlowContent.() -> Unit
-    ) : Composable
-}
+@Composable
+fun Section(
+    id: String? = null,
+    className: String? = null,
+    modifier: Modifier = Modifier.create(),
+    content: @Composable () -> Unit
+)
+
+@Composable
+fun Aside(
+    id: String? = null, 
+    className: String? = null,
+    modifier: Modifier = Modifier.create(),
+    content: @Composable () -> Unit
+)
+
+@Composable
+fun Footer(
+    id: String? = null,
+    className: String? = null,
+    modifier: Modifier = Modifier.create(),
+    content: @Composable () -> Unit
+)
+
+@Composable
+fun Heading(
+    level: Int,
+    id: String? = null,
+    className: String? = null,
+    modifier: Modifier = Modifier.create(),
+    content: @Composable () -> Unit
+)
 ```
 
-The `SemanticHTML` object provides components for creating semantically meaningful HTML elements that help screen readers and assistive technologies understand the structure of your content.
+These semantic HTML components help create semantically meaningful HTML elements that improve screen reader and assistive technology understanding of content structure.
 
 ## Examples
 
@@ -159,8 +191,9 @@ Text(
 
 ```kotlin
 Button(
-    text = "Submit",
-    modifier = FocusManagement.createFocusModifier(FocusManagement.FocusBehavior.TABBABLE)
+    onClick = { /* handle click */ },
+    modifier = Modifier
+        .tabbable()
         .ariaLabel("Submit form")
 )
 ```
@@ -168,19 +201,25 @@ Button(
 ### Using Semantic HTML
 
 ```kotlin
-SemanticHTML.Header {
-    h1 { +"My Website" }
+Header {
+    Heading(level = 1) { 
+        Text("My Website") 
+    }
 }
 
-SemanticHTML.Main {
-    SemanticHTML.Section {
-        h2 { +"About Us" }
-        p { +"Content about the company" }
+Main {
+    Section {
+        Heading(level = 2) { 
+            Text("About Us") 
+        }
+        Text("Content about the company")
     }
     
-    SemanticHTML.Article {
-        h2 { +"Latest News" }
-        p { +"News content" }
+    Article {
+        Heading(level = 2) { 
+            Text("Latest News") 
+        }
+        Text("News content")
     }
 }
 ```
@@ -189,15 +228,25 @@ SemanticHTML.Main {
 
 ```kotlin
 AccessibleElement(
-    content = listOf(
-        Text(
-            text = "Important Message",
-            modifier = Modifier()
-                .fontSize(1.2.rem)
-                .color("#c62828")
-        )
-    ),
-    role = AccessibilityTree.NodeRole.ALERT,
-    label = "Important alert message"
-)
+    role = AccessibilityUtils.NodeRole.ALERT,
+    label = "Important alert message",
+    modifier = Modifier
+        .fontSize("1.2rem")
+        .color("#c62828")
+) {
+    Text("Important Message")
+}
+```
+
+### Inspecting Accessibility Attributes
+
+```kotlin
+val modifier = Modifier()
+    .role("button")
+    .ariaLabel("Close dialog")
+    .ariaControls("dialog-1")
+
+// Get all accessibility attributes
+val accessibilityAttrs = modifier.inspectAccessibility()
+// Result: {"role": "button", "aria-label": "Close dialog", "aria-controls": "dialog-1"}
 ``` 

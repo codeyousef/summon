@@ -97,7 +97,9 @@ class CompositionContext {
 val context = CompositionContext.current ?: error("No composition in progress")
 val result = CompositionContext.withContext(context) {
     // Perform operations within this context
-    renderComponent(component)
+    renderComponent {
+        MyComponent("Hello")
+    }
 }
 ```
 
@@ -113,7 +115,7 @@ The `CompositionScope` interface defines an environment where composable compone
 package code.yousef.summon.core
 
 interface CompositionScope {
-    fun compose(composable: Composable)
+    fun compose(composable: @Composable () -> Unit)
 }
 ```
 
@@ -124,19 +126,13 @@ interface CompositionScope {
 ### Example
 
 ```kotlin
-class Column(
-    private val modifier: Modifier = Modifier,
-    private val content: CompositionScope.() -> Unit
-) : Composable {
-    override fun render() {
-        Div(modifier = modifier.display(Display.Flex).flexDirection(FlexDirection.Column)) {
-            // Create a composition scope and execute the content block
-            object : CompositionScope {
-                override fun compose(composable: Composable) {
-                    composable.render()
-                }
-            }.apply(content)
-        }
+@Composable
+fun Column(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Div(modifier = modifier.display(Display.Flex).flexDirection(FlexDirection.Column)) {
+        content()
     }
 }
 
@@ -159,14 +155,14 @@ The `Renderer` interface defines how components are rendered to a specific targe
 package code.yousef.summon.core
 
 interface Renderer<T> {
-    fun render(composable: Composable): T
+    fun render(composable: @Composable () -> Unit): T
     fun dispose()
 }
 ```
 
 ### Description
 
-`Renderer` is responsible for taking a `Composable` and rendering it to a specific target, such as the DOM for JavaScript or another rendering target for JVM. It also provides a way to clean up resources when rendering is no longer needed.
+`Renderer` is responsible for taking a `@Composable` function and rendering it to a specific target, such as the DOM for JavaScript or another rendering target for JVM. It also provides a way to clean up resources when rendering is no longer needed.
 
 ### Built-in Renderers
 
@@ -179,16 +175,18 @@ interface Renderer<T> {
 // JavaScript
 val container = document.getElementById("app")
 val renderer = DOMRenderer(container)
-val component = MyComponent()
-renderer.render(component)
+renderer.render {
+    MyComponent("Hello, World!")
+}
 
 // Clean up when done
 renderer.dispose()
 
 // JVM
 val renderer = StringRenderer()
-val component = MyComponent()
-val html = renderer.render(component)
+val html = renderer.render {
+    MyComponent("Hello, World!")
+}
 println(html)
 ```
 
@@ -205,12 +203,12 @@ package code.yousef.summon.core
 
 object RenderUtils {
     // JavaScript platform
-    fun renderComposable(container: Element, composable: Composable): Renderer<Element>
-    fun hydrate(container: Element, composable: Composable): Renderer<Element>
+    fun renderComposable(container: Element, content: @Composable () -> Unit): Renderer<Element>
+    fun hydrate(container: Element, content: @Composable () -> Unit): Renderer<Element>
     
     // JVM platform
-    fun renderToString(composable: Composable): String
-    fun renderToFile(composable: Composable, file: File)
+    fun renderToString(content: @Composable () -> Unit): String
+    fun renderToFile(file: File, content: @Composable () -> Unit)
 }
 ```
 
@@ -223,15 +221,21 @@ object RenderUtils {
 ```kotlin
 // JavaScript
 val container = document.getElementById("app")
-val renderer = renderComposable(container, MyComponent())
+val renderer = renderComposable(container) {
+    MyComponent("Hello, World!")
+}
 
 // JVM
-val html = renderToString(MyComponent())
+val html = renderToString {
+    MyComponent("Hello, World!")
+}
 println(html)
 
 // Hydration (for server-side rendering with client-side reactivation)
 val container = document.getElementById("app")
-hydrate(container, MyComponent())
+hydrate(container) {
+    MyComponent("Hello, World!")
+}
 ```
 
 ---
@@ -252,7 +256,9 @@ This exception is thrown when there is an error during rendering. It includes th
 
 ```kotlin
 try {
-    renderComposable(container, component)
+    renderComposable(container) {
+        MyComponent("Hello, World!")
+    }
 } catch (e: SummonRenderException) {
     console.error("Render error:", e.message)
     // Display fallback UI

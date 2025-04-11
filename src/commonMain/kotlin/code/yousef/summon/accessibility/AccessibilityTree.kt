@@ -1,9 +1,11 @@
 package code.yousef.summon.accessibility
 
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.attribute
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer
+import code.yousef.summon.modifier.getAttribute
 
 /**
  * Utilities for accessibility-related tasks.
@@ -55,14 +57,14 @@ object AccessibilityUtils {
      * Adds an ARIA role to a Modifier.
      */
     private fun Modifier.role(role: String): Modifier {
-        return this.applyAria("role", role)
+        return this.attribute("role", role)
     }
 
     /**
      * Creates a Modifier with an accessible label.
      */
     fun createLabelModifier(label: String): Modifier {
-        return Modifier().ariaLabel(label)
+        return Modifier().attribute("aria-label", label)
     }
 
     /**
@@ -73,57 +75,30 @@ object AccessibilityUtils {
         relation: String,
         targetId: String
     ): Modifier {
-        return Modifier().applyAria("aria-$relation", targetId)
+        return Modifier().attribute("aria-$relation", targetId)
     }
 
     /**
-     * Adds an ARIA label to a Modifier.
-     */
-    private fun Modifier.ariaLabel(label: String): Modifier {
-        return this.applyAria("aria-label", label)
-    }
-
-    /**
-     * Adds an ARIA attribute to a Modifier.
-     */
-    private fun Modifier.applyAria(attribute: String, value: String): Modifier {
-        val attributes = mapOf(attribute to value)
-        val currentStyles = this.toStyleString()
-        val newModifier = Modifier()
-
-        // Apply current styles and new ARIA attribute
-        // This is a workaround since we can't access private styles directly
-        if (currentStyles.isNotEmpty()) {
-            // Return a new modifier with combined attributes
-            // Using the public style interface as a workaround
-            return Modifier().applyAttributes(attributes)
-        }
-
-        return Modifier().applyAttributes(attributes)
-    }
-
-    /**
-     * Applies a map of attributes to create a new Modifier.
-     */
-    fun Modifier.applyAttributes(attributes: Map<String, String>): Modifier {
-        // Since we can't directly access styles, we'll use the factory method
-        // and combine with the existing modifier
-        return Modifier(attributes)
-    }
-
-    /**
-     * Inspects the accessible properties of a component.
-     * @return A map of accessibility attributes and values
+     * Inspects and extracts all accessibility-related attributes from a Modifier.
+     * 
+     * @param modifier The modifier to inspect
+     * @return A map of accessibility attribute names to their values
      */
     fun inspectAccessibility(modifier: Modifier): Map<String, String> {
-        // Extract ARIA attributes from the modifier's style string
-        val styleString = modifier.toStyleString()
-        val ariaAttributes = mutableMapOf<String, String>()
-
-        // Parse style string to extract accessibility attributes
-        // This is a simplified implementation since we can't directly access styles
-        return ariaAttributes
+        return modifier.styles.entries
+            .filter { it.key.startsWith("__attr:") && (
+                it.key.contains("aria-") || it.key.contains("role") || 
+                it.key.contains("tabindex") || it.key.contains("disabled")
+            )}
+            .associate { 
+                it.key.removePrefix("__attr:") to it.value 
+            }
     }
+}
+
+// Extension function to make the API more intuitive in Kotlin
+fun Modifier.inspectAccessibility(): Map<String, String> {
+    return AccessibilityUtils.inspectAccessibility(this)
 }
 
 data class AccessibilityNode(

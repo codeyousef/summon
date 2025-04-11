@@ -318,45 +318,44 @@ Define global styles that apply to all components:
 ```kotlin
 import code.yousef.summon.theme.*
 
-class MyApp : Composable {
-    override fun render() {
-        // Define global styles
-        GlobalStyles {
-            // Target specific elements
-            style("body") {
-                margin(0.px)
-                fontFamily("Arial, sans-serif")
-                backgroundColor("#f9f9f9")
-            }
-            
-            // Target classes
-            style(".container") {
-                maxWidth(1200.px)
-                margin(0.px, "auto")
-                padding(16.px)
-            }
-            
-            // Target components
-            style(Button::class) {
-                backgroundColor("#0077cc")
-                color("#ffffff")
-                padding(8.px, 16.px)
-                borderRadius(4.px)
-                cursor(Cursor.Pointer)
-                
-                hover {
-                    backgroundColor("#005599")
-                }
-            }
+@Composable
+fun MyApp() {
+    // Define global styles
+    GlobalStyles {
+        // Target specific elements
+        style("body") {
+            margin(0.px)
+            fontFamily("Arial, sans-serif")
+            backgroundColor("#f9f9f9")
         }
         
-        // Application content
-        Div(
-            modifier = Modifier.className("container")
-        ) {
-            Text("Hello, World!")
-            Button(text = "Click me")
+        // Target classes
+        style(".container") {
+            maxWidth(1200.px)
+            margin(0.px, "auto")
+            padding(16.px)
         }
+        
+        // Target components
+        style(Button::class) {
+            backgroundColor("#0077cc")
+            color("#ffffff")
+            padding(8.px, 16.px)
+            borderRadius(4.px)
+            cursor(Cursor.Pointer)
+            
+            hover {
+                backgroundColor("#005599")
+            }
+        }
+    }
+    
+    // Application content
+    Div(
+        modifier = Modifier.className("container")
+    ) {
+        Text("Hello, World!")
+        Button(text = "Click me")
     }
 }
 ```
@@ -417,91 +416,89 @@ object MyTheme {
 }
 
 // Use theme in components
-class ThemedButton(
-    private val text: String,
-    private val onClick: () -> Unit,
-    private val variant: ButtonVariant = ButtonVariant.PRIMARY
-) : Composable {
+@Composable
+fun ThemedButton(
+    text: String,
+    onClick: () -> Unit,
+    variant: ButtonVariant = ButtonVariant.PRIMARY
+) {
     enum class ButtonVariant { PRIMARY, SECONDARY, SUCCESS, ERROR }
     
-    override fun render() {
-        val style = when (variant) {
-            ButtonVariant.PRIMARY -> Modifier
-                .backgroundColor(MyTheme.primary)
-                .color(MyTheme.onPrimary)
-            ButtonVariant.SECONDARY -> Modifier
-                .backgroundColor(MyTheme.secondary)
-                .color(MyTheme.onPrimary)
-            ButtonVariant.SUCCESS -> Modifier
-                .backgroundColor(MyTheme.success)
-                .color(MyTheme.onPrimary)
-            ButtonVariant.ERROR -> Modifier
-                .backgroundColor(MyTheme.error)
-                .color(MyTheme.onPrimary)
-        }
-        
-        Button(
-            text = text,
-            onClick = onClick,
-            modifier = style
-                .padding(MyTheme.spacingMedium, MyTheme.spacingLarge)
-                .borderRadius(MyTheme.borderRadius)
-                .fontFamily(MyTheme.fontFamily)
-                .fontWeight(MyTheme.fontWeightNormal)
-                .boxShadow(MyTheme.shadowSmall)
-                .hover {
-                    boxShadow(MyTheme.shadowMedium)
-                }
-        )
+    val style = when (variant) {
+        ButtonVariant.PRIMARY -> Modifier
+            .backgroundColor(MyTheme.primary)
+            .color(MyTheme.onPrimary)
+        ButtonVariant.SECONDARY -> Modifier
+            .backgroundColor(MyTheme.secondary)
+            .color(MyTheme.onPrimary)
+        ButtonVariant.SUCCESS -> Modifier
+            .backgroundColor(MyTheme.success)
+            .color(MyTheme.onPrimary)
+        ButtonVariant.ERROR -> Modifier
+            .backgroundColor(MyTheme.error)
+            .color(MyTheme.onPrimary)
     }
+    
+    Button(
+        text = text,
+        onClick = onClick,
+        modifier = style
+            .padding(MyTheme.spacingMedium, MyTheme.spacingLarge)
+            .borderRadius(MyTheme.borderRadius)
+            .fontFamily(MyTheme.fontFamily)
+            .fontWeight(MyTheme.fontWeightNormal)
+            .boxShadow(MyTheme.shadowSmall)
+            .hover {
+                boxShadow(MyTheme.shadowMedium)
+            }
+    )
 }
 
 // Use in your app
-class MyApp : Composable {
-    override fun render() {
-        Column(
+@Composable
+fun MyApp() {
+    Column(
+        modifier = Modifier
+            .padding(MyTheme.spacingLarge)
+            .gap(MyTheme.spacingMedium)
+            .backgroundColor(MyTheme.background)
+    ) {
+        Text(
+            text = "Themed Buttons",
             modifier = Modifier
-                .padding(MyTheme.spacingLarge)
+                .fontSize(24.px)
+                .fontWeight(MyTheme.fontWeightBold)
+                .fontFamily(MyTheme.fontFamily)
+                .color(MyTheme.primary)
+        )
+        
+        Row(
+            modifier = Modifier
                 .gap(MyTheme.spacingMedium)
-                .backgroundColor(MyTheme.background)
         ) {
-            Text(
-                text = "Themed Buttons",
-                modifier = Modifier
-                    .fontSize(24.px)
-                    .fontWeight(MyTheme.fontWeightBold)
-                    .fontFamily(MyTheme.fontFamily)
-                    .color(MyTheme.primary)
+            ThemedButton(
+                text = "Primary Button",
+                onClick = { println("Primary clicked") },
+                variant = ThemedButton.ButtonVariant.PRIMARY
             )
             
-            Row(
-                modifier = Modifier
-                    .gap(MyTheme.spacingMedium)
-            ) {
-                ThemedButton(
-                    text = "Primary Button",
-                    onClick = { println("Primary clicked") },
-                    variant = ThemedButton.ButtonVariant.PRIMARY
-                )
-                
-                ThemedButton(
-                    text = "Secondary Button",
-                    onClick = { println("Secondary clicked") },
-                    variant = ThemedButton.ButtonVariant.SECONDARY
-                )
-                
-                ThemedButton(
-                    text = "Success Button",
-                    onClick = { println("Success clicked") },
-                    variant = ThemedButton.ButtonVariant.SUCCESS
-                )
-                
-                ThemedButton(
-                    text = "Error Button",
-                    onClick = { println("Error clicked") },
-                    variant = ThemedButton.ButtonVariant.ERROR
-                )
-            }
+            ThemedButton(
+                text = "Secondary Button",
+                onClick = { println("Secondary clicked") },
+                variant = ThemedButton.ButtonVariant.SECONDARY
+            )
+            
+            ThemedButton(
+                text = "Success Button",
+                onClick = { println("Success clicked") },
+                variant = ThemedButton.ButtonVariant.SUCCESS
+            )
+            
+            ThemedButton(
+                text = "Error Button",
+                onClick = { println("Error clicked") },
+                variant = ThemedButton.ButtonVariant.ERROR
+            )
         }
     }
 }
@@ -514,74 +511,73 @@ For complex styling needs, you can use the CSS-in-JS approach:
 ```kotlin
 import code.yousef.summon.theme.*
 
-class StyledComponent : Composable {
-    override fun render() {
-        // Define styles with CSS syntax
-        val styles = css {
-            """
+@Composable
+fun StyledComponent() {
+    // Define styles with CSS syntax
+    val styles = css {
+        """
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 24px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .container:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .heading {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333333;
+            margin-bottom: 16px;
+        }
+        
+        .button {
+            padding: 8px 16px;
+            background-color: #0077cc;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .button:hover {
+            background-color: #005599;
+        }
+        
+        @media (max-width: 768px) {
             .container {
-                display: flex;
-                flex-direction: column;
-                gap: 16px;
-                padding: 24px;
-                background-color: #f8f9fa;
-                border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            }
-            
-            .container:hover {
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+                padding: 16px;
             }
             
             .heading {
-                font-size: 24px;
-                font-weight: 700;
-                color: #333333;
-                margin-bottom: 16px;
+                font-size: 20px;
             }
-            
-            .button {
-                padding: 8px 16px;
-                background-color: #0077cc;
-                color: white;
-                border-radius: 4px;
-                cursor: pointer;
-                transition: background-color 0.3s ease;
-            }
-            
-            .button:hover {
-                background-color: #005599;
-            }
-            
-            @media (max-width: 768px) {
-                .container {
-                    padding: 16px;
-                }
-                
-                .heading {
-                    font-size: 20px;
-                }
-            }
-            """
         }
+        """
+    }
+    
+    // Use the defined styles
+    Div(
+        modifier = Modifier
+            .className("container")
+            .cssRules(styles)
+    ) {
+        Text(
+            text = "CSS-in-JS Example",
+            modifier = Modifier.className("heading")
+        )
         
-        // Use the defined styles
-        Div(
-            modifier = Modifier
-                .className("container")
-                .cssRules(styles)
-        ) {
-            Text(
-                text = "CSS-in-JS Example",
-                modifier = Modifier.className("heading")
-            )
-            
-            Button(
-                text = "Click me",
-                onClick = { println("Button clicked") },
-                modifier = Modifier.className("button")
-            )
-        }
+        Button(
+            text = "Click me",
+            onClick = { println("Button clicked") },
+            modifier = Modifier.className("button")
+        )
     }
 }
 ```

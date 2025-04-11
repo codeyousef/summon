@@ -134,20 +134,28 @@ APIs for attaching and managing event listeners.
 ```kotlin
 package code.yousef.summon.events
 
-// Add an event listener
-fun Composable.addEventListener(
+// Add an event listener to a component
+@Composable
+fun addEventListener(
     eventType: String,
     listener: (Event) -> Unit
 ): EventSubscription
 
-// Add a type-specific event listener
-fun Composable.addClickListener(listener: (MouseEvent) -> Unit): EventSubscription
-fun Composable.addChangeListener(listener: (ChangeEvent) -> Unit): EventSubscription
-fun Composable.addInputListener(listener: (InputEvent) -> Unit): EventSubscription
-fun Composable.addFocusListener(listener: (FocusEvent) -> Unit): EventSubscription
-fun Composable.addBlurListener(listener: (FocusEvent) -> Unit): EventSubscription
-fun Composable.addSubmitListener(listener: (SubmitEvent) -> Unit): EventSubscription
-fun Composable.addKeyListener(
+// Add type-specific event listeners
+@Composable
+fun addClickListener(listener: (MouseEvent) -> Unit): EventSubscription
+@Composable
+fun addChangeListener(listener: (ChangeEvent) -> Unit): EventSubscription
+@Composable
+fun addInputListener(listener: (InputEvent) -> Unit): EventSubscription
+@Composable
+fun addFocusListener(listener: (FocusEvent) -> Unit): EventSubscription
+@Composable
+fun addBlurListener(listener: (FocusEvent) -> Unit): EventSubscription
+@Composable
+fun addSubmitListener(listener: (SubmitEvent) -> Unit): EventSubscription
+@Composable
+fun addKeyListener(
     type: KeyEventType,
     listener: (KeyboardEvent) -> Unit
 ): EventSubscription
@@ -182,44 +190,55 @@ These functions allow you to attach event listeners to composable components. Th
 ### Example
 
 ```kotlin
-// Generic event listener
-val subscription = myComponent.addEventListener("mousemove") { event ->
-    val mouseEvent = event as MouseEvent
-    handleMouseMove(mouseEvent.clientX, mouseEvent.clientY)
-}
-
-// When done listening
-subscription.unsubscribe()
-
-// Type-specific listeners
-TextField(
-    value = text,
-    onValueChange = { /* handle text changes */ },
-    modifier = Modifier.apply {
-        // Add a focus listener
-        val focusSub = addFocusListener { event ->
-            isFieldFocused = true
-        }
-        
-        // Add a blur listener
-        val blurSub = addBlurListener { event ->
-            isFieldFocused = false
-            // Validate on blur
-            validateInput(text)
-        }
-        
-        // Clean up subscriptions on disposal
-        onDispose {
-            focusSub.unsubscribe()
-            blurSub.unsubscribe()
-        }
+@Composable
+fun EventHandlingComponent() {
+    // Generic event listener
+    val subscription = addEventListener("mousemove") { event ->
+        val mouseEvent = event as MouseEvent
+        handleMouseMove(mouseEvent.clientX, mouseEvent.clientY)
     }
-)
-
-// Key events
-document.addKeyListener(KeyEventType.DOWN) { event ->
-    if (event.key == "Escape") {
-        closeModal()
+    
+    // Clean up when component is disposed
+    onDispose {
+        subscription.unsubscribe()
+    }
+    
+    // Type-specific listeners with Modifier
+    TextField(
+        value = text,
+        onValueChange = { /* handle text changes */ },
+        modifier = Modifier.apply {
+            // Add a focus listener
+            val focusSub = addFocusListener { event ->
+                isFieldFocused = true
+            }
+            
+            // Add a blur listener
+            val blurSub = addBlurListener { event ->
+                isFieldFocused = false
+                // Validate on blur
+                validateInput(text)
+            }
+            
+            // Clean up subscriptions on disposal
+            onDispose {
+                focusSub.unsubscribe()
+                blurSub.unsubscribe()
+            }
+        }
+    )
+    
+    // Key events at document level
+    DisposableEffect(Unit) {
+        val keySub = document.addKeyListener(KeyEventType.DOWN) { event ->
+            if (event.key == "Escape") {
+                closeModal()
+            }
+        }
+        
+        onDispose {
+            keySub.unsubscribe()
+        }
     }
 }
 ```
@@ -352,124 +371,127 @@ These specialized event interfaces provide type-safe access to event-specific pr
 ### Example
 
 ```kotlin
-// Mouse event handling
-Box(
-    modifier = Modifier
-        .size(200.dp)
-        .backgroundColor(Color.LightBlue)
-        .onClick { event ->
-            // Access mouse event properties
-            val x = event.clientX
-            val y = event.clientY
-            
-            // Check modifier keys
-            if (event.ctrlKey) {
-                // Handle ctrl+click
-            }
-        }
-)
-
-// Keyboard handling
-TextField(
-    value = text,
-    onValueChange = { text = it },
-    modifier = Modifier.onKeyDown { event ->
-        when {
-            // Handle Enter key
-            event.isKey("Enter") -> {
-                submitForm()
-                true // Mark as handled
-            }
-            
-            // Handle Escape key
-            event.isKey("Escape") -> {
-                resetForm()
-                true
-            }
-            
-            else -> false // Not handled
-        }
-    }
-)
-
-// Form submission
-Form(
-    onSubmit = { event ->
-        // Prevent default form submission
-        event.preventDefault()
-        
-        // Get form data
-        val formData = event.getFormData()
-        val username = formData["username"]
-        val password = formData["password"]
-        
-        // Process form
-        loginUser(username, password)
-    }
-) {
-    // Form fields
-    TextField(name = "username")
-    TextField(name = "password", type = "password")
-    Button(text = "Submit", type = "submit")
-}
-
-// Touch handling
-Box(
-    modifier = Modifier
-        .size(300.dp)
-        .backgroundColor(Color.LightGray)
-        .addEventListener("touchstart") { event ->
-            val touchEvent = event as TouchEvent
-            for (touch in touchEvent.touches) {
-                // Handle each touch point
-                val id = touch.identifier
-                val x = touch.clientX
-                val y = touch.clientY
+@Composable
+fun EventHandlingExample() {
+    // Mouse event handling
+    Box(
+        modifier = Modifier
+            .size(200.dp)
+            .backgroundColor(Color.LightBlue)
+            .onClick { event ->
+                // Access mouse event properties
+                val x = event.clientX
+                val y = event.clientY
                 
-                startTouch(id, x, y)
+                // Check modifier keys
+                if (event.ctrlKey) {
+                    // Handle ctrl+click
+                }
+            }
+    )
+    
+    // Keyboard handling
+    TextField(
+        value = text,
+        onValueChange = { text = it },
+        modifier = Modifier.onKeyDown { event ->
+            when {
+                // Handle Enter key
+                event.isKey("Enter") -> {
+                    submitForm()
+                    true // Mark as handled
+                }
+                
+                // Handle Escape key
+                event.isKey("Escape") -> {
+                    resetForm()
+                    true
+                }
+                
+                else -> false // Not handled
             }
         }
-)
-
-// Drag and drop
-Box(
-    modifier = Modifier
-        .size(200.dp)
-        .backgroundColor(Color.LightGreen)
-        .addEventListener("dragover") { event ->
-            event.preventDefault() // Allow drop
-        }
-        .addEventListener("drop") { event ->
-            val dragEvent = event as DragEvent
-            
-            // Prevent default to allow drop
+    )
+    
+    // Form submission
+    Form(
+        onSubmit = { event ->
+            // Prevent default form submission
             event.preventDefault()
             
-            // Get the dropped data
-            val text = dragEvent.dataTransfer?.getData("text/plain")
-            if (text != null) {
-                handleDroppedText(text)
-            }
+            // Get form data
+            val formData = event.getFormData()
+            val username = formData["username"]
+            val password = formData["password"]
             
-            // Get dropped files
-            val files = dragEvent.dataTransfer?.files ?: emptyList()
-            for (file in files) {
-                handleDroppedFile(file)
-            }
+            // Process form
+            loginUser(username, password)
         }
-)
-
-// Making an element draggable
-Image(
-    src = "image.jpg",
-    modifier = Modifier
-        .draggable {
-            // Set the data to transfer
-            onDragStart { event ->
-                event.dataTransfer?.setData("text/plain", "Dragged image URL: image.jpg")
+    ) {
+        // Form fields
+        TextField(name = "username")
+        TextField(name = "password", type = "password")
+        Button(text = "Submit", type = "submit")
+    }
+    
+    // Touch handling
+    Box(
+        modifier = Modifier
+            .size(300.dp)
+            .backgroundColor(Color.LightGray)
+            .addEventListener("touchstart") { event ->
+                val touchEvent = event as TouchEvent
+                for (touch in touchEvent.touches) {
+                    // Handle each touch point
+                    val id = touch.identifier
+                    val x = touch.clientX
+                    val y = touch.clientY
+                    
+                    startTouch(id, x, y)
+                }
             }
-        }
-)
+    )
+    
+    // Drag and drop
+    Box(
+        modifier = Modifier
+            .size(200.dp)
+            .backgroundColor(Color.LightGreen)
+            .addEventListener("dragover") { event ->
+                event.preventDefault() // Allow drop
+            }
+            .addEventListener("drop") { event ->
+                val dragEvent = event as DragEvent
+                
+                // Prevent default to allow drop
+                event.preventDefault()
+                
+                // Get the dropped data
+                val text = dragEvent.dataTransfer?.getData("text/plain")
+                if (text != null) {
+                    handleDroppedText(text)
+                }
+                
+                // Get dropped files
+                val files = dragEvent.dataTransfer?.files ?: emptyList()
+                for (file in files) {
+                    handleDroppedFile(file)
+                }
+            }
+    )
+    
+    // Making an element draggable
+    Image(
+        src = "image.jpg",
+        modifier = Modifier
+            .draggable {
+                // Set the data to transfer
+                onDragStart { event ->
+                    event.dataTransfer?.setData("text/plain", "Dragged image URL: image.jpg")
+                }
+            }
+    )
+}
 ```
 
 ---
@@ -517,42 +539,60 @@ These APIs allow you to create and dispatch custom events within your applicatio
 ### Example
 
 ```kotlin
-// Create a custom event
-val addToCartEvent = CustomEvent(
-    type = "add-to-cart",
-    detail = mapOf(
-        "productId" to "12345",
-        "quantity" to 2,
-        "price" to 29.99
-    ),
-    bubbles = true,
-    cancelable = true
-)
-
-// Dispatch the event
-EventDispatcher.dispatch(productElement, addToCartEvent)
-
-// Alternative: create and dispatch in one call
-EventDispatcher.dispatchCustom(
-    target = productElement,
-    type = "add-to-cart",
-    detail = mapOf(
-        "productId" to "12345",
-        "quantity" to 2,
-        "price" to 29.99
-    ),
-    bubbles = true
-)
-
-// Listen for the custom event
-appContainer.addEventListener("add-to-cart") { event ->
-    val customEvent = event as CustomEvent
-    val detail = customEvent.detail as? Map<String, Any> ?: return@addEventListener
+@Composable
+fun CustomEventExample() {
+    val productElement = remember { ElementRef() }
     
-    val productId = detail["productId"] as? String ?: return@addEventListener
-    val quantity = detail["quantity"] as? Int ?: 1
+    DisposableEffect(Unit) {
+        // Create a custom event
+        val addToCartEvent = CustomEvent(
+            type = "add-to-cart",
+            detail = mapOf(
+                "productId" to "12345",
+                "quantity" to 2,
+                "price" to 29.99
+            ),
+            bubbles = true,
+            cancelable = true
+        )
+        
+        // Create a listener for the custom event
+        val subscription = appContainer.addEventListener("add-to-cart") { event ->
+            val customEvent = event as CustomEvent
+            val detail = customEvent.detail as? Map<String, Any> ?: return@addEventListener
+            
+            val productId = detail["productId"] as? String ?: return@addEventListener
+            val quantity = detail["quantity"] as? Int ?: 1
+            
+            updateCart(productId, quantity)
+        }
+        
+        onDispose {
+            subscription.unsubscribe()
+        }
+    }
     
-    updateCart(productId, quantity)
+    Box(
+        modifier = Modifier.ref(productElement)
+    ) {
+        Text("Product: Premium Widget")
+        Button(
+            text = "Add to Cart",
+            onClick = {
+                // Dispatch the custom event
+                EventDispatcher.dispatchCustom(
+                    target = productElement.current,
+                    type = "add-to-cart",
+                    detail = mapOf(
+                        "productId" to "12345",
+                        "quantity" to 2,
+                        "price" to 29.99
+                    ),
+                    bubbles = true
+                )
+            }
+        )
+    }
 }
 ```
 
@@ -593,9 +633,13 @@ interface HashChangeEvent : WindowEvent {
 }
 
 // Access browser-specific events
+@Composable
 fun window.addResizeListener(listener: (ResizeEvent) -> Unit): EventSubscription
+@Composable
 fun window.addScrollListener(listener: (ScrollEvent) -> Unit): EventSubscription
+@Composable
 fun window.addHashChangeListener(listener: (HashChangeEvent) -> Unit): EventSubscription
+@Composable
 fun window.addPopStateListener(listener: (PopStateEvent) -> Unit): EventSubscription
 ```
 
@@ -622,8 +666,11 @@ interface WindowMoveEvent : WindowEvent {
 }
 
 // Access JVM-specific events
+@Composable
 fun Window.addResizeListener(listener: (WindowResizeEvent) -> Unit): EventSubscription
+@Composable
 fun Window.addMoveListener(listener: (WindowMoveEvent) -> Unit): EventSubscription
+@Composable
 fun Window.addCloseListener(listener: (WindowEvent) -> Unit): EventSubscription
 ```
 
@@ -634,11 +681,28 @@ Platform-specific events provide access to capabilities unique to each platform 
 ### Example
 
 ```kotlin
-// JS Browser example
-fun setupResizeHandling() {
-    // Only execute in JS context
-    runJSOnly {
-        window.addResizeListener { event ->
+@Composable
+fun PlatformSpecificEventExample() {
+    val isHeaderVisible = remember { mutableStateOf(true) }
+    
+    // JS Browser example
+    DisposableEffect(Unit) {
+        // Only execute in JS context
+        var lastScrollY = 0.0
+        
+        val scrollSub = window.addScrollListener { event ->
+            // Hide header when scrolling down, show when scrolling up
+            val currentScrollY = event.scrollY
+            isHeaderVisible.value = currentScrollY <= lastScrollY
+            lastScrollY = currentScrollY
+            
+            // Load more content when reaching bottom
+            if (currentScrollY + window.innerHeight >= document.body?.scrollHeight ?: 0.0) {
+                loadMoreContent()
+            }
+        }
+        
+        val resizeSub = window.addResizeListener { event ->
             // Update layout based on new window size
             val width = event.innerWidth
             val height = event.innerHeight
@@ -647,40 +711,69 @@ fun setupResizeHandling() {
             updateLayoutForDimensions(width, height)
         }
         
-        window.addScrollListener { event ->
-            // Handle scroll position
-            if (event.scrollY > 100) {
-                showBackToTopButton()
-            } else {
-                hideBackToTopButton()
-            }
+        onDispose {
+            scrollSub.unsubscribe()
+            resizeSub.unsubscribe()
         }
+    }
+    
+    // UI with conditional header
+    Column {
+        if (isHeaderVisible.value) {
+            Header()
+        }
+        MainContent()
+    }
+    
+    // Helper methods
+    fun loadMoreContent() {
+        // Load additional content
+    }
+    
+    fun updateLayoutForDimensions(width: Int, height: Int) {
+        // Update layout based on dimensions
     }
 }
 
 // JVM Desktop example
-fun setupDesktopWindow() {
+@Composable
+fun DesktopWindowExample() {
     // Only execute in JVM context
-    runJVMOnly {
-        val window = Window("My App", 800, 600)
+    runJvmOnly {
+        val window = remember { Window("My App", 800, 600) }
         
-        window.addResizeListener { event ->
-            // Update layout based on new window size
-            updateLayoutForDimensions(event.width, event.height)
-        }
-        
-        window.addCloseListener { event ->
-            // Prompt user before closing
-            if (hasUnsavedChanges) {
-                event.preventDefault()
-                showSavePrompt {
-                    if (it) {
-                        saveChanges()
-                        window.close()
+        DisposableEffect(window) {
+            val resizeSub = window.addResizeListener { event ->
+                // Update layout based on new window size
+                updateLayoutForDimensions(event.width, event.height)
+            }
+            
+            val closeSub = window.addCloseListener { event ->
+                // Prompt user before closing
+                if (hasUnsavedChanges) {
+                    event.preventDefault()
+                    showSavePrompt {
+                        if (it) {
+                            saveChanges()
+                            window.close()
+                        }
                     }
                 }
             }
+            
+            onDispose {
+                resizeSub.unsubscribe()
+                closeSub.unsubscribe()
+            }
         }
+        
+        // Render window content
+        WindowContent()
+    }
+    
+    // Helper methods
+    fun updateLayoutForDimensions(width: Int, height: Int) {
+        // Update layout based on dimensions
     }
 }
 ```

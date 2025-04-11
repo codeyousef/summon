@@ -37,38 +37,38 @@ package code.yousef.summon.effects
 
 // Execute an effect after each successful composition
 @Composable
-fun CompositionScope.effect(
+fun effect(
     effect: () -> Unit
 )
 
 // Execute an effect when composition is first created
 @Composable
-fun CompositionScope.onMount(
+fun onMount(
     effect: () -> Unit
 )
 
 // Execute an effect when composition is disposed
 @Composable
-fun CompositionScope.onDispose(
+fun onDispose(
     effect: () -> Unit
 )
 
 // Execute an effect after composition when dependencies change
 @Composable
-fun CompositionScope.effectWithDeps(
+fun effectWithDeps(
     vararg dependencies: Any?,
     effect: () -> Unit
 )
 
 // Execute an effect once after composition
 @Composable
-fun CompositionScope.onMountWithCleanup(
+fun onMountWithCleanup(
     effect: () -> (() -> Unit)?
 )
 
 // Execute an effect with dependencies and cleanup
 @Composable
-fun CompositionScope.effectWithDepsAndCleanup(
+fun effectWithDepsAndCleanup(
     vararg dependencies: Any?,
     effect: () -> (() -> Unit)?
 )
@@ -156,29 +156,34 @@ APIs for managing asynchronous side effects safely within the component lifecycl
 package code.yousef.summon.effects
 
 // Launch a coroutine scoped to the composition
-fun CompositionScope.launchEffect(
+@Composable
+fun launchEffect(
     block: suspend CoroutineScope.() -> Unit
 ): Job
 
 // Launch a coroutine with dependencies
-fun CompositionScope.launchEffectWithDeps(
+@Composable
+fun launchEffectWithDeps(
     vararg dependencies: Any?,
     block: suspend CoroutineScope.() -> Unit
 ): Job
 
 // Execute an async effect with cleanup
-fun CompositionScope.asyncEffect(
+@Composable
+fun asyncEffect(
     effect: () -> Promise<() -> Unit>
 )
 
 // Execute an async effect when dependencies change
-fun CompositionScope.asyncEffectWithDeps(
+@Composable
+fun asyncEffectWithDeps(
     vararg dependencies: Any?,
     effect: () -> Promise<() -> Unit>
 )
 
 // Safe state updates with cancellation handling
-fun <T> CompositionScope.updateStateAsync(
+@Composable
+fun <T> updateStateAsync(
     state: MutableState<T>,
     block: suspend () -> T
 ): Job
@@ -191,71 +196,70 @@ These functions help manage asynchronous operations within the component lifecyc
 ### Example
 
 ```kotlin
-class NewsComponent : Composable {
-    private val articles = remember { mutableStateOf<List<Article>>(emptyList()) }
-    private val isRefreshing = remember { mutableStateOf(false) }
+@Composable
+fun NewsComponent() {
+    val articles = remember { mutableStateOf<List<Article>>(emptyList()) }
+    val isRefreshing = remember { mutableStateOf(false) }
     
-    override fun render() {
-        // Launch a coroutine scoped to the component
-        launchEffect {
-            // Initial data load
-            try {
-                val data = newsService.getLatestArticles()
-                articles.value = data
-            } catch (e: Exception) {
-                console.error("Failed to load articles: ${e.message}")
-            }
+    // Launch a coroutine scoped to the component
+    launchEffect {
+        // Initial data load
+        try {
+            val data = newsService.getLatestArticles()
+            articles.value = data
+        } catch (e: Exception) {
+            console.error("Failed to load articles: ${e.message}")
         }
-        
-        // Launch a periodic refresh with cleanup
-        launchEffectWithDeps(articles.value.size) {
-            // Only start auto-refresh if we have articles
-            if (articles.value.isNotEmpty()) {
-                while (isActive) {
-                    delay(60_000) // Refresh every minute
-                    isRefreshing.value = true
-                    try {
-                        val freshData = newsService.getLatestArticles()
-                        articles.value = freshData
-                    } catch (e: Exception) {
-                        console.error("Refresh failed: ${e.message}")
-                    } finally {
-                        isRefreshing.value = false
-                    }
+    }
+    
+    // Launch a periodic refresh with cleanup
+    launchEffectWithDeps(articles.value.size) {
+        // Only start auto-refresh if we have articles
+        if (articles.value.isNotEmpty()) {
+            while (isActive) {
+                delay(60_000) // Refresh every minute
+                isRefreshing.value = true
+                try {
+                    val freshData = newsService.getLatestArticles()
+                    articles.value = freshData
+                } catch (e: Exception) {
+                    console.error("Refresh failed: ${e.message}")
+                } finally {
+                    isRefreshing.value = false
                 }
             }
         }
-        
-        // Alternative with Promise API
-        asyncEffect {
-            return@asyncEffect newsService.subscribeToUpdates()
-                .then { subscription ->
-                    // Return cleanup function
-                    return@then {
-                        subscription.cancel()
-                    }
+    }
+    
+    // Alternative with Promise API
+    asyncEffect {
+        return@asyncEffect newsService.subscribeToUpdates()
+            .then { subscription ->
+                // Return cleanup function
+                return@then {
+                    subscription.cancel()
                 }
+            }
+    }
+    
+    // Safe state updates with cancellation
+    Button(
+        text = "Refresh",
+        onClick = {
+            updateStateAsync(articles) {
+                newsService.getLatestArticles()
+            }
+        }
+    )
+    
+    // Render articles
+    Column {
+        if (isRefreshing.value) {
+            Text("Refreshing...")
         }
         
-        // Safe state updates with cancellation
-        Button(
-            text = "Refresh",
-            onClick = {
-                updateStateAsync(articles) {
-                    newsService.getLatestArticles()
-                }
-            }
-        )
-        
-        // Render articles
-        Column {
-            if (isRefreshing.value) {
-                Text("Refreshing...")
-            }
-            
-            for (article in articles.value) {
-                ArticleCard(article)
-            }
+        for (article in articles.value) {
+            ArticleCard(article)
         }
     }
 }
@@ -273,41 +277,49 @@ Pre-built effects for common scenarios.
 package code.yousef.summon.effects
 
 // Effect for document title
-fun CompositionScope.useDocumentTitle(title: String)
+@Composable
+fun useDocumentTitle(title: String)
 
 // Effect for handling keyboard shortcuts
-fun CompositionScope.useKeyboardShortcut(
+@Composable
+fun useKeyboardShortcut(
     key: String,
     modifiers: Set<KeyModifier> = emptySet(),
     handler: (KeyboardEvent) -> Unit
 )
 
 // Effect for interval timer
-fun CompositionScope.useInterval(
+@Composable
+fun useInterval(
     delayMs: Int,
     callback: () -> Unit
 ): IntervalControl
 
 // Effect for timeout
-fun CompositionScope.useTimeout(
+@Composable
+fun useTimeout(
     delayMs: Int,
     callback: () -> Unit
 ): TimeoutControl
 
 // Effect for handling clicks outside a component
-fun CompositionScope.useClickOutside(
+@Composable
+fun useClickOutside(
     elementRef: ElementRef,
     handler: (MouseEvent) -> Unit
 )
 
 // Effect for window size
-fun CompositionScope.useWindowSize(): WindowSize
+@Composable
+fun useWindowSize(): WindowSize
 
 // Effect for browser location/URL
-fun CompositionScope.useLocation(): Location
+@Composable
+fun useLocation(): Location
 
 // Effect for local storage
-fun <T> CompositionScope.useLocalStorage(
+@Composable
+fun <T> useLocalStorage(
     key: String,
     initialValue: T,
     serializer: (T) -> String = { it.toString() },
@@ -315,7 +327,8 @@ fun <T> CompositionScope.useLocalStorage(
 ): MutableState<T>
 
 // Effect for media queries
-fun CompositionScope.useMediaQuery(
+@Composable
+fun useMediaQuery(
     query: String
 ): MutableState<Boolean>
 ```
@@ -327,94 +340,94 @@ These pre-built effects handle common UI and browser interactions, abstracting a
 ### Example
 
 ```kotlin
-class ProfilePageComponent : Composable {
-    private val isMenuOpen = remember { mutableStateOf(false) }
-    private val menuRef = remember { ElementRef() }
-    private val userName = remember { mutableStateOf("") }
+@Composable
+fun ProfilePage() {
+    val isMenuOpen = remember { mutableStateOf(false) }
+    val menuRef = remember { ElementRef() }
+    val userName = remember { mutableStateOf("") }
     
-    override fun render() {
-        // Update document title
-        useDocumentTitle("User Profile - ${userName.value}")
-        
-        // Handle Escape key to close menu
-        useKeyboardShortcut(
-            key = "Escape",
-            handler = {
-                if (isMenuOpen.value) {
-                    isMenuOpen.value = false
-                }
-            }
-        )
-        
-        // Close menu when clicking outside
-        useClickOutside(menuRef) { 
-            isMenuOpen.value = false 
-        }
-        
-        // Store user preferences in localStorage
-        val theme = useLocalStorage(
-            key = "user-theme",
-            initialValue = "light",
-            deserializer = { it }
-        )
-        
-        // Respond to dark mode preference
-        val prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)")
-        
-        // Interval for session check
-        val sessionChecker = useInterval(60_000) {
-            checkUserSession()
-        }
-        
-        // Get window size for responsive design
-        val windowSize = useWindowSize()
-        val isMobile = windowSize.width < 768
-        
-        // Auto-save form with timeout
-        val autoSave = useTimeout(3000) {
-            saveUserProfile()
-        }
-        
-        // Restart timeout on input
-        TextField(
-            value = userName.value,
-            onValueChange = { 
-                userName.value = it
-                autoSave.reset() // Restart the timeout
-            }
-        )
-        
-        // Menu with click outside
-        if (isMenuOpen.value) {
-            Box(
-                modifier = Modifier.ref(menuRef)
-            ) {
-                // Menu content
-                Column {
-                    Button(
-                        text = "Toggle Theme",
-                        onClick = {
-                            theme.value = if (theme.value == "light") "dark" else "light"
-                        }
-                    )
-                    // Other menu items
-                }
+    // Update document title
+    useDocumentTitle("User Profile - ${userName.value}")
+    
+    // Handle Escape key to close menu
+    useKeyboardShortcut(
+        key = "Escape",
+        handler = {
+            if (isMenuOpen.value) {
+                isMenuOpen.value = false
             }
         }
-        
-        // Responsive layout based on window size
-        if (isMobile) {
-            MobileLayout()
-        } else {
-            DesktopLayout()
+    )
+    
+    // Close menu when clicking outside
+    useClickOutside(menuRef) { 
+        isMenuOpen.value = false 
+    }
+    
+    // Store user preferences in localStorage
+    val theme = useLocalStorage(
+        key = "user-theme",
+        initialValue = "light",
+        deserializer = { it }
+    )
+    
+    // Respond to dark mode preference
+    val prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)")
+    
+    // Interval for session check
+    val sessionChecker = useInterval(60_000) {
+        checkUserSession()
+    }
+    
+    // Get window size for responsive design
+    val windowSize = useWindowSize()
+    val isMobile = windowSize.width < 768
+    
+    // Auto-save form with timeout
+    val autoSave = useTimeout(3000) {
+        saveUserProfile()
+    }
+    
+    // Restart timeout on input
+    TextField(
+        value = userName.value,
+        onValueChange = { 
+            userName.value = it
+            autoSave.reset() // Restart the timeout
+        }
+    )
+    
+    // Menu with click outside
+    if (isMenuOpen.value) {
+        Box(
+            modifier = Modifier.ref(menuRef)
+        ) {
+            // Menu content
+            Column {
+                Button(
+                    text = "Toggle Theme",
+                    onClick = {
+                        theme.value = if (theme.value == "light") "dark" else "light"
+                    }
+                )
+                // Other menu items
+            }
         }
     }
     
-    private fun checkUserSession() {
+    // Responsive layout based on window size
+    if (isMobile) {
+        MobileLayout()
+    } else {
+        DesktopLayout()
+    }
+    
+    // Helper functions for the component
+    fun checkUserSession() {
         // Check if user session is still valid
     }
     
-    private fun saveUserProfile() {
+    fun saveUserProfile() {
         // Save profile data
     }
 }
@@ -452,34 +465,34 @@ package code.yousef.summon.effects
 
 // Create a custom composable effect
 fun <T> createEffect(
-    setup: CompositionScope.() -> T,
+    setup: () -> T,
     callback: (T) -> (() -> Unit)?
-): (CompositionScope.() -> T)
+): @Composable () -> T
 
 // Combine multiple effects into one
 fun combineEffects(
-    vararg effects: CompositionScope.() -> Unit
-): CompositionScope.() -> Unit
+    vararg effects: @Composable () -> Unit
+): @Composable () -> Unit
 
 // Create a conditional effect that only runs when condition is true
 fun conditionalEffect(
     condition: () -> Boolean,
-    effect: CompositionScope.() -> Unit
-): CompositionScope.() -> Unit
+    effect: @Composable () -> Unit
+): @Composable () -> Unit
 
 // Create a debounced effect
 fun <T> debouncedEffect(
     delayMs: Int,
     producer: () -> T,
     effect: (T) -> Unit
-): CompositionScope.() -> Unit
+): @Composable () -> Unit
 
 // Create a throttled effect
 fun <T> throttledEffect(
     delayMs: Int,
     producer: () -> T,
     effect: (T) -> Unit
-): CompositionScope.() -> Unit
+): @Composable () -> Unit
 ```
 
 ### Description
@@ -494,7 +507,7 @@ fun validateFormEffect(
     emailState: MutableState<String>,
     passwordState: MutableState<String>,
     errorsState: MutableState<Map<String, String>>
-): CompositionScope.() -> Unit = createEffect(
+): @Composable () -> Unit = createEffect(
     setup = {
         // Return the current values to watch
         Triple(emailState.value, passwordState.value, errorsState)
@@ -523,7 +536,7 @@ fun validateFormEffect(
 fun searchEffect(
     query: MutableState<String>,
     results: MutableState<List<SearchResult>>
-): CompositionScope.() -> Unit = debouncedEffect(
+): @Composable () -> Unit = debouncedEffect(
     delayMs = 300,
     producer = { query.value },
     effect = { searchQuery ->
@@ -539,64 +552,63 @@ fun searchEffect(
 )
 
 // Usage in a component
-class SearchComponent : Composable {
-    private val query = remember { mutableStateOf("") }
-    private val results = remember { mutableStateOf<List<SearchResult>>(emptyList()) }
-    private val isLoading = remember { mutableStateOf(false) }
+@Composable
+fun SearchComponent() {
+    val query = remember { mutableStateOf("") }
+    val results = remember { mutableStateOf<List<SearchResult>>(emptyList()) }
+    val isLoading = remember { mutableStateOf(false) }
     
-    override fun render() {
-        // Use debounced search effect
-        searchEffect(query, results)()
-        
-        // Loading indicator effect
-        effectWithDeps(query.value) {
-            if (query.value.isNotEmpty()) {
-                isLoading.value = true
-                
-                // Set loading to false after search completes
-                // (assuming search takes less than 500ms)
-                setTimeout(500) {
-                    isLoading.value = false
+    // Use debounced search effect
+    searchEffect(query, results)()
+    
+    // Loading indicator effect
+    effectWithDeps(query.value) {
+        if (query.value.isNotEmpty()) {
+            isLoading.value = true
+            
+            // Set loading to false after search completes
+            // (assuming search takes less than 500ms)
+            setTimeout(500) {
+                isLoading.value = false
+            }
+        }
+    }
+    
+    // Combine multiple effects
+    val combinedEffect = combineEffects(
+        // Log searches
+        {
+            effectWithDeps(query.value) {
+                if (query.value.isNotEmpty()) {
+                    logSearchQuery(query.value)
+                }
+            }
+        },
+        // Update recent searches
+        {
+            effectWithDeps(results.value) {
+                if (results.value.isNotEmpty() && query.value.isNotEmpty()) {
+                    updateRecentSearches(query.value)
                 }
             }
         }
-        
-        // Combine multiple effects
-        val combinedEffect = combineEffects(
-            // Log searches
-            {
-                effectWithDeps(query.value) {
-                    if (query.value.isNotEmpty()) {
-                        logSearchQuery(query.value)
-                    }
-                }
-            },
-            // Update recent searches
-            {
-                effectWithDeps(results.value) {
-                    if (results.value.isNotEmpty() && query.value.isNotEmpty()) {
-                        updateRecentSearches(query.value)
-                    }
-                }
-            }
+    )
+    
+    // Apply combined effect
+    combinedEffect()
+    
+    // UI rendering
+    Column {
+        TextField(
+            value = query.value,
+            onValueChange = { query.value = it },
+            placeholder = "Search..."
         )
         
-        // Apply combined effect
-        combinedEffect()
-        
-        // UI rendering
-        Column {
-            TextField(
-                value = query.value,
-                onValueChange = { query.value = it },
-                placeholder = "Search..."
-            )
-            
-            if (isLoading.value) {
-                LoadingIndicator()
-            } else {
-                SearchResults(results = results.value)
-            }
+        if (isLoading.value) {
+            LoadingIndicator()
+        } else {
+            SearchResults(results = results.value)
         }
     }
 }
@@ -614,36 +626,44 @@ Effects that utilize platform-specific APIs.
 package code.yousef.summon.effects.js
 
 // Effect for browser history
-fun CompositionScope.useHistory(): History
+@Composable
+fun useHistory(): History
 
 // Effect for browser navigator
-fun CompositionScope.useNavigator(): Navigator
+@Composable
+fun useNavigator(): Navigator
 
 // Effect for IntersectionObserver
-fun CompositionScope.useIntersectionObserver(
+@Composable
+fun useIntersectionObserver(
     elementRef: ElementRef,
     options: IntersectionObserverOptions = IntersectionObserverOptions()
 ): IntersectionState
 
 // Effect for ResizeObserver
-fun CompositionScope.useResizeObserver(
+@Composable
+fun useResizeObserver(
     elementRef: ElementRef,
     callback: (ResizeObserverEntry) -> Unit
 ): ResizeObserverCleanup
 
 // Effect for online/offline status
-fun CompositionScope.useOnlineStatus(): MutableState<Boolean>
+@Composable
+fun useOnlineStatus(): MutableState<Boolean>
 
 // Effect for clipboard API
-fun CompositionScope.useClipboard(): ClipboardAPI
+@Composable
+fun useClipboard(): ClipboardAPI
 
 // Effect for geolocation
-fun CompositionScope.useGeolocation(
+@Composable
+fun useGeolocation(
     options: GeolocationOptions = GeolocationOptions()
 ): GeolocationState
 
 // Web animation API
-fun CompositionScope.useWebAnimation(
+@Composable
+fun useWebAnimation(
     elementRef: ElementRef,
     keyframes: Array<Keyframe>,
     options: AnimationOptions
@@ -656,22 +676,26 @@ fun CompositionScope.useWebAnimation(
 package code.yousef.summon.effects.jvm
 
 // Effect for file system watcher
-fun CompositionScope.useFileWatcher(
+@Composable
+fun useFileWatcher(
     path: String,
     callback: (FileEvent) -> Unit
 ): FileWatcherControl
 
 // Effect for system tray
-fun CompositionScope.useSystemTray(
+@Composable
+fun useSystemTray(
     icon: Image,
     tooltip: String
 ): SystemTrayControl
 
 // Effect for clipboard API
-fun CompositionScope.useClipboard(): ClipboardAPI
+@Composable
+fun useClipboard(): ClipboardAPI
 
 // Effect for screen information
-fun CompositionScope.useScreenInfo(): ScreenInfo
+@Composable
+fun useScreenInfo(): ScreenInfo
 ```
 
 ### Description
@@ -682,127 +706,126 @@ Platform-specific effects provide access to capabilities unique to each platform
 
 ```kotlin
 // JavaScript example
-class LazyLoadComponent : Composable {
-    private val elementRef = remember { ElementRef() }
-    private val isVisible = remember { mutableStateOf(false) }
-    private val imageUrl = remember { mutableStateOf<String?>(null) }
+@Composable
+fun LazyLoadComponent() {
+    val elementRef = remember { ElementRef() }
+    val isVisible = remember { mutableStateOf(false) }
+    val imageUrl = remember { mutableStateOf<String?>(null) }
     
-    override fun render() {
-        // Track element visibility using IntersectionObserver
-        runJsOnly {
-            val intersection = useIntersectionObserver(
-                elementRef = elementRef,
-                options = IntersectionObserverOptions(
-                    threshold = 0.1f,
-                    rootMargin = "20px"
-                )
+    // Track element visibility using IntersectionObserver
+    runJsOnly {
+        val intersection = useIntersectionObserver(
+            elementRef = elementRef,
+            options = IntersectionObserverOptions(
+                threshold = 0.1f,
+                rootMargin = "20px"
             )
-            
-            // Update visibility state
-            isVisible.value = intersection.isIntersecting
-            
-            // Load image when element becomes visible
-            effectWithDeps(isVisible.value) {
-                if (isVisible.value && imageUrl.value == null) {
-                    imageUrl.value = "https://example.com/image.jpg"
-                }
-            }
-            
-            // Clipboard API
-            val clipboard = useClipboard()
-            
-            Button(
-                text = "Copy URL",
-                onClick = {
-                    imageUrl.value?.let { clipboard.writeText(it) }
-                }
-            )
-            
-            // Online status
-            val isOnline = useOnlineStatus()
-            
-            if (!isOnline.value) {
-                Text("You are offline. Some features may not work.")
+        )
+        
+        // Update visibility state
+        isVisible.value = intersection.isIntersecting
+        
+        // Load image when element becomes visible
+        effectWithDeps(isVisible.value) {
+            if (isVisible.value && imageUrl.value == null) {
+                imageUrl.value = "https://example.com/image.jpg"
             }
         }
         
-        // Element to observe
-        Box(
-            modifier = Modifier
-                .height(300.dp)
-                .width(100.pct)
-                .ref(elementRef)
-        ) {
-            if (imageUrl.value != null) {
-                Image(src = imageUrl.value!!)
-            } else {
-                LoadingPlaceholder()
+        // Clipboard API
+        val clipboard = useClipboard()
+        
+        Button(
+            text = "Copy URL",
+            onClick = {
+                imageUrl.value?.let { clipboard.writeText(it) }
             }
+        )
+        
+        // Online status
+        val isOnline = useOnlineStatus()
+        
+        if (!isOnline.value) {
+            Text("You are offline. Some features may not work.")
+        }
+    }
+    
+    // Element to observe
+    Box(
+        modifier = Modifier
+            .height(300.dp)
+            .width(100.pct)
+            .ref(elementRef)
+    ) {
+        if (imageUrl.value != null) {
+            Image(src = imageUrl.value!!)
+        } else {
+            LoadingPlaceholder()
         }
     }
 }
 
 // JVM example
-class DesktopComponent : Composable {
-    private val notificationCount = remember { mutableStateOf(0) }
+@Composable
+fun DesktopComponent() {
+    val notificationCount = remember { mutableStateOf(0) }
     
-    override fun render() {
-        // Only run on JVM platform
-        runJvmOnly {
-            // System tray integration
-            val systemTray = useSystemTray(
-                icon = loadImage("app_icon.png"),
-                tooltip = "My Desktop App"
-            )
-            
-            // Update tray icon when notification count changes
-            effectWithDeps(notificationCount.value) {
-                if (notificationCount.value > 0) {
-                    systemTray.displayNotification(
-                        title = "New Notifications",
-                        message = "You have ${notificationCount.value} new notifications"
-                    )
-                    
-                    systemTray.setIcon(loadImage("app_icon_notification.png"))
-                } else {
-                    systemTray.setIcon(loadImage("app_icon.png"))
-                }
-            }
-            
-            // Watch config file for changes
-            val fileWatcher = useFileWatcher("config.json") { event ->
-                when (event.type) {
-                    FileEventType.MODIFIED -> reloadConfig()
-                    FileEventType.DELETED -> createDefaultConfig()
-                    else -> { /* ignore */ }
-                }
-            }
-            
-            // Screen information for responsive layouts
-            val screenInfo = useScreenInfo()
-            
-            if (screenInfo.dpi > 200) {
-                HighResolutionLayout()
+    // Only run on JVM platform
+    runJvmOnly {
+        // System tray integration
+        val systemTray = useSystemTray(
+            icon = loadImage("app_icon.png"),
+            tooltip = "My Desktop App"
+        )
+        
+        // Update tray icon when notification count changes
+        effectWithDeps(notificationCount.value) {
+            if (notificationCount.value > 0) {
+                systemTray.displayNotification(
+                    title = "New Notifications",
+                    message = "You have ${notificationCount.value} new notifications"
+                )
+                
+                systemTray.setIcon(loadImage("app_icon_notification.png"))
             } else {
-                StandardLayout()
+                systemTray.setIcon(loadImage("app_icon.png"))
             }
         }
         
-        // Regular UI rendering
-        Column {
-            Text("Notification Count: ${notificationCount.value}")
-            Button(
-                text = "Add Notification",
-                onClick = { notificationCount.value++ }
-            )
+        // Watch config file for changes
+        val fileWatcher = useFileWatcher("config.json") { event ->
+            when (event.type) {
+                FileEventType.MODIFIED -> reloadConfig()
+                FileEventType.DELETED -> createDefaultConfig()
+                else -> { /* ignore */ }
+            }
+        }
+        
+        // Screen information for responsive layouts
+        val screenInfo = useScreenInfo()
+        
+        if (screenInfo.dpi > 200) {
+            HighResolutionLayout()
+        } else {
+            StandardLayout()
         }
     }
     
-    private fun reloadConfig() {
+    // Regular UI rendering
+    Column {
+        Text("Notification Count: ${notificationCount.value}")
+        Button(
+            text = "Add Notification",
+            onClick = { notificationCount.value++ }
+        )
+    }
+    
+    // Helper functions
+    fun reloadConfig() {
         // Reload application configuration
     }
     
-    private fun createDefaultConfig() {
+    fun createDefaultConfig() {
         // Create default configuration file
     }
 }

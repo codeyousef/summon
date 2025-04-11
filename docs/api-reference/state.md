@@ -41,29 +41,32 @@ fun <T> mutableStateOf(initialValue: T): MutableState<T>
 ### Example
 
 ```kotlin
-// Direct usage
-val state = mutableStateOf(0)
-Text("Count: ${state.value}")
-Button(
-    text = "Increment",
-    onClick = { state.value++ }
-)
+@Composable
+fun CounterExample() {
+    // Direct usage
+    val state = mutableStateOf(0)
+    Text("Count: ${state.value}")
+    Button(
+        text = "Increment",
+        onClick = { state.value++ }
+    )
 
-// Using property delegate
-var count by mutableStateOf(0)
-Text("Count: $count")
-Button(
-    text = "Increment",
-    onClick = { count++ }
-)
+    // Using property delegate
+    var count by mutableStateOf(0)
+    Text("Count: $count")
+    Button(
+        text = "Increment",
+        onClick = { count++ }
+    )
 
-// Destructuring
-val (count, setCount) = mutableStateOf(0)
-Text("Count: $count")
-Button(
-    text = "Increment",
-    onClick = { setCount(count + 1) }
-)
+    // Destructuring
+    val (count2, setCount) = mutableStateOf(0)
+    Text("Count: $count2")
+    Button(
+        text = "Increment",
+        onClick = { setCount(count2 + 1) }
+    )
+}
 ```
 
 ---
@@ -77,9 +80,13 @@ The `remember` function is used to preserve state across recompositions.
 ```kotlin
 package code.yousef.summon.state
 
+@Composable
 fun <T> remember(calculation: () -> T): T
+@Composable
 fun <T, A> remember(a: A, calculation: (A) -> T): T
+@Composable
 fun <T, A, B> remember(a: A, b: B, calculation: (A, B) -> T): T
+@Composable
 fun <T, A, B, C> remember(a: A, b: B, c: C, calculation: (A, B, C) -> T): T
 ```
 
@@ -90,16 +97,35 @@ fun <T, A, B, C> remember(a: A, b: B, c: C, calculation: (A, B, C) -> T): T
 ### Example
 
 ```kotlin
-// Simple remember
-val count = remember { mutableStateOf(0) }
+@Composable
+fun RememberExample(items: List<String>, searchQuery: String) {
+    // Simple remember
+    val count = remember { mutableStateOf(0) }
 
-// With keys
-val filteredItems = remember(items, searchQuery) {
-    items.filter { it.contains(searchQuery, ignoreCase = true) }
+    // With keys
+    val filteredItems = remember(items, searchQuery) {
+        items.filter { it.contains(searchQuery, ignoreCase = true) }
+    }
+
+    // Combining with property delegate
+    var count2 by remember { mutableStateOf(0) }
+    
+    Column {
+        Text("Count: ${count.value}")
+        Button(
+            text = "Increment",
+            onClick = { count.value++ }
+        )
+        
+        Text("Filtered Items: ${filteredItems.size}")
+        
+        Text("Count 2: $count2")
+        Button(
+            text = "Increment",
+            onClick = { count2++ }
+        )
+    }
 }
-
-// Combining with property delegate
-var count by remember { mutableStateOf(0) }
 ```
 
 ---
@@ -129,12 +155,29 @@ fun <T> derivedStateOf(calculation: () -> T): DerivedState<T>
 ### Example
 
 ```kotlin
-val firstName = remember { mutableStateOf("John") }
-val lastName = remember { mutableStateOf("Doe") }
+@Composable
+fun DerivedStateExample() {
+    val firstName = remember { mutableStateOf("John") }
+    val lastName = remember { mutableStateOf("Doe") }
 
-val fullName by derivedStateOf { "${firstName.value} ${lastName.value}" }
+    val fullName by derivedStateOf { "${firstName.value} ${lastName.value}" }
 
-Text("Full Name: $fullName")
+    Column {
+        Text("Full Name: $fullName")
+        
+        TextField(
+            value = firstName.value,
+            onValueChange = { firstName.value = it },
+            label = "First Name"
+        )
+        
+        TextField(
+            value = lastName.value,
+            onValueChange = { lastName.value = it },
+            label = "Last Name"
+        )
+    }
+}
 ```
 
 ---
@@ -148,6 +191,7 @@ Summon provides integration with Kotlin's `StateFlow` for more complex state man
 ```kotlin
 package code.yousef.summon.state
 
+@Composable
 fun <T> StateFlow<T>.collectAsState(): State<T>
 ```
 
@@ -172,15 +216,24 @@ class CounterViewModel {
     }
 }
 
-// Use the StateFlow in a component
-val viewModel = remember { CounterViewModel() }
-val count by viewModel.count.collectAsState()
+@Composable
+fun StateFlowExample() {
+    // Use the StateFlow in a component
+    val viewModel = remember { CounterViewModel() }
+    val count by viewModel.count.collectAsState()
 
-Text("Count: $count")
-Button(
-    text = "Increment",
-    onClick = { viewModel.increment() }
-)
+    Column {
+        Text("Count: $count")
+        Button(
+            text = "Increment",
+            onClick = { viewModel.increment() }
+        )
+        Button(
+            text = "Decrement",
+            onClick = { viewModel.decrement() }
+        )
+    }
+}
 ```
 
 ---
@@ -244,37 +297,40 @@ class TodoContainer : StateContainer<TodoState, TodoAction>(TodoState()) {
     }
 }
 
-// Use in components
-val todoContainer = remember { TodoContainer() }
-val state by todoContainer.state.collectAsState()
+@Composable
+fun TodoApp() {
+    // Use in components
+    val todoContainer = remember { TodoContainer() }
+    val state by todoContainer.state.collectAsState()
 
-Column {
-    // Input for new items
-    TextField(
-        value = state.newItemText,
-        onValueChange = { 
-            todoContainer.dispatch(TodoAction.SetNewItemText(it))
-        },
-        placeholder = "Add new todo"
-    )
-    
-    Button(
-        text = "Add",
-        onClick = { 
-            todoContainer.dispatch(TodoAction.AddItem)
-        }
-    )
-    
-    // List of items
-    for ((index, item) in state.items.withIndex()) {
-        Row {
-            Text(item)
-            Button(
-                text = "Remove",
-                onClick = { 
-                    todoContainer.dispatch(TodoAction.RemoveItem(index))
-                }
-            )
+    Column {
+        // Input for new items
+        TextField(
+            value = state.newItemText,
+            onValueChange = { 
+                todoContainer.dispatch(TodoAction.SetNewItemText(it))
+            },
+            placeholder = "Add new todo"
+        )
+        
+        Button(
+            text = "Add",
+            onClick = { 
+                todoContainer.dispatch(TodoAction.AddItem)
+            }
+        )
+        
+        // List of items
+        for ((index, item) in state.items.withIndex()) {
+            Row {
+                Text(item)
+                Button(
+                    text = "Remove",
+                    onClick = { 
+                        todoContainer.dispatch(TodoAction.RemoveItem(index))
+                    }
+                )
+            }
         }
     }
 }
@@ -291,12 +347,14 @@ Summon provides cross-platform APIs for persistent state that survives applicati
 ```kotlin
 package code.yousef.summon.state
 
+@Composable
 fun <T> persistentStateOf(
     key: String,
     defaultValue: T,
     serializer: KSerializer<T>
 ): MutableState<T>
 
+@Composable
 fun <T> persistentStateOf(
     key: String,
     defaultValue: T,
@@ -311,68 +369,70 @@ fun <T> persistentStateOf(
 ### Example
 
 ```kotlin
-// Define a data class for preferences
 @Serializable
 data class UserPreferences(
     val theme: String = "light",
     val fontSize: Int = 16
 )
 
-// Create a persistent state
-val preferences = persistentStateOf(
-    "user_preferences",
-    UserPreferences(),
-    UserPreferences::class
-)
+@Composable
+fun PreferencesSettings() {
+    // Create a persistent state
+    val preferences = persistentStateOf(
+        "user_preferences",
+        UserPreferences(),
+        UserPreferences::class
+    )
 
-// Use in components
-var userPrefs by preferences
+    // Use in components
+    var userPrefs by preferences
 
-Column {
-    // Theme selector
-    Text("Theme:")
-    Row {
-        Button(
-            text = "Light",
-            onClick = { 
-                userPrefs = userPrefs.copy(theme = "light")
-            },
-            modifier = Modifier.opacity(
-                if (userPrefs.theme == "light") 1.0 else 0.5
-            )
-        )
-        
-        Button(
-            text = "Dark",
-            onClick = { 
-                userPrefs = userPrefs.copy(theme = "dark")
-            },
-            modifier = Modifier.opacity(
-                if (userPrefs.theme == "dark") 1.0 else 0.5
-            )
-        )
-    }
-    
-    // Font size selector
-    Text("Font Size: ${userPrefs.fontSize}px")
-    Row {
-        Button(
-            text = "-",
-            onClick = { 
-                userPrefs = userPrefs.copy(
-                    fontSize = (userPrefs.fontSize - 1).coerceAtLeast(12)
+    Column {
+        // Theme selector
+        Text("Theme:")
+        Row {
+            Button(
+                text = "Light",
+                onClick = { 
+                    userPrefs = userPrefs.copy(theme = "light")
+                },
+                modifier = Modifier.opacity(
+                    if (userPrefs.theme == "light") 1.0 else 0.5
                 )
-            }
-        )
-        
-        Button(
-            text = "+",
-            onClick = { 
-                userPrefs = userPrefs.copy(
-                    fontSize = (userPrefs.fontSize + 1).coerceAtMost(24)
+            )
+            
+            Button(
+                text = "Dark",
+                onClick = { 
+                    userPrefs = userPrefs.copy(theme = "dark")
+                },
+                modifier = Modifier.opacity(
+                    if (userPrefs.theme == "dark") 1.0 else 0.5
                 )
-            }
-        )
+            )
+        }
+        
+        // Font size selector
+        Text("Font Size: ${userPrefs.fontSize}px")
+        Row {
+            Button(
+                text = "-",
+                onClick = { 
+                    userPrefs = userPrefs.copy(
+                        fontSize = (userPrefs.fontSize - 1).coerceAtLeast(12)
+                    )
+                }
+            )
+            
+            Button(
+                text = "+",
+                onClick = { 
+                    userPrefs = userPrefs.copy(
+                        fontSize = (userPrefs.fontSize + 1).coerceAtMost(24)
+                    )
+                }
+            )
+        }
     }
 }
 ```
@@ -390,9 +450,13 @@ package code.yousef.summon.state.js
 
 data class WindowSize(val width: Int, val height: Int)
 
+@Composable
 fun windowSizeState(): State<WindowSize>
+@Composable
 fun mediaQueryState(query: String): State<Boolean>
+@Composable
 fun localStorageState(key: String, defaultValue: String): MutableState<String>
+@Composable
 fun sessionStorageState(key: String, defaultValue: String): MutableState<String>
 ```
 
@@ -401,57 +465,66 @@ fun sessionStorageState(key: String, defaultValue: String): MutableState<String>
 ```kotlin
 package code.yousef.summon.state.jvm
 
+@Composable
 fun systemPropertiesState(): State<Map<String, String>>
+@Composable
 fun preferencesState(path: String): MutableState<Map<String, String>>
+@Composable
 fun fileBasedState(file: File, serializer: KSerializer<T>): MutableState<T>
 ```
 
 ### Example
 
 ```kotlin
-// JS Platform
-val windowSize by windowSizeState()
-val isDarkMode by mediaQueryState("(prefers-color-scheme: dark)")
-var token by localStorageState("auth_token", "")
+@Composable
+fun JsPlatformStateExample() {
+    // JS Platform
+    val windowSize by windowSizeState()
+    val isDarkMode by mediaQueryState("(prefers-color-scheme: dark)")
+    var token by localStorageState("auth_token", "")
 
-Column {
-    Text("Window width: ${windowSize.width}px")
-    Text("Window height: ${windowSize.height}px")
-    Text("Dark mode: $isDarkMode")
-    
-    if (token.isNotEmpty()) {
-        Text("Logged in with token: $token")
-        Button(
-            text = "Logout",
-            onClick = { token = "" }
-        )
-    } else {
-        Button(
-            text = "Login",
-            onClick = { token = "example-token" }
-        )
+    Column {
+        Text("Window width: ${windowSize.width}px")
+        Text("Window height: ${windowSize.height}px")
+        Text("Dark mode: $isDarkMode")
+        
+        if (token.isNotEmpty()) {
+            Text("Logged in with token: $token")
+            Button(
+                text = "Logout",
+                onClick = { token = "" }
+            )
+        } else {
+            Button(
+                text = "Login",
+                onClick = { token = "example-token" }
+            )
+        }
     }
 }
 
-// JVM Platform
-val systemProps by systemPropertiesState()
-var appPrefs by preferencesState("app_preferences")
+@Composable
+fun JvmPlatformStateExample() {
+    // JVM Platform
+    val systemProps by systemPropertiesState()
+    var appPrefs by preferencesState("app_preferences")
 
-Column {
-    Text("Java version: ${systemProps["java.version"]}")
-    Text("OS name: ${systemProps["os.name"]}")
-    
-    TextField(
-        value = appPrefs["username"] ?: "",
-        onValueChange = { 
-            appPrefs = appPrefs + ("username" to it)
-        },
-        placeholder = "Username"
-    )
-    
-    Button(
-        text = "Save Preferences",
-        onClick = { /* Automatically saved */ }
-    )
+    Column {
+        Text("Java version: ${systemProps["java.version"]}")
+        Text("OS name: ${systemProps["os.name"]}")
+        
+        TextField(
+            value = appPrefs["username"] ?: "",
+            onValueChange = { 
+                appPrefs = appPrefs + ("username" to it)
+            },
+            placeholder = "Username"
+        )
+        
+        Button(
+            text = "Save Preferences",
+            onClick = { /* Automatically saved */ }
+        )
+    }
 }
 ``` 

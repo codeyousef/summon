@@ -153,4 +153,31 @@ fun Modifier.ariaHasPopup(value: Boolean = true): Modifier = attribute("aria-has
  *
  * @param value True if the element is currently being modified.
  */
-fun Modifier.ariaBusy(value: Boolean = true): Modifier = attribute("aria-busy", value.toString()) 
+fun Modifier.ariaBusy(value: Boolean = true): Modifier = attribute("aria-busy", value.toString())
+
+/**
+ * Makes an element focusable but not in the tab order.
+ * Equivalent to setting tabindex="-1".
+ */
+fun Modifier.focusable(): Modifier = tabIndex(-1)
+
+/**
+ * Makes an element focusable and in the tab order.
+ * Equivalent to setting tabindex="0".
+ */
+fun Modifier.tabbable(): Modifier = tabIndex(0)
+
+/**
+ * Marks an element as disabled and not focusable.
+ * Adds both the disabled attribute and aria-disabled.
+ */
+fun Modifier.disabled(): Modifier = 
+    attribute("disabled", "")
+        .ariaDisabled(true)
+        .tabIndex(-1)
+
+/**
+ * Marks an element for autofocus.
+ * The element will be focused when it's rendered.
+ */
+fun Modifier.autoFocus(): Modifier = attribute("autofocus", "") 

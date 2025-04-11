@@ -192,20 +192,31 @@ annotation class Public
 A component that conditionally renders content based on security requirements.
 
 ```kotlin
-class SecuredComponent {
-    fun authenticated(block: () -> Unit)
-    fun unauthenticated(block: () -> Unit)
-    fun withRole(role: Role, block: () -> Unit)
-    fun withPermission(permission: Permission, block: () -> Unit)
+object SecuredComponent {
+    @Composable
+    fun authenticated(content: @Composable () -> Unit)
+    
+    @Composable
+    fun unauthenticated(content: @Composable () -> Unit)
+    
+    @Composable
+    fun withRole(role: Role, content: @Composable () -> Unit)
+    
+    @Composable
+    fun withPermission(permission: Permission, content: @Composable () -> Unit)
+    
+    @Composable
     fun withSecurityRequirements(
         requiresAuthentication: Boolean = false,
         requiredRoles: Set<Role> = emptySet(),
         requiredPermissions: Set<Permission> = emptySet(),
-        block: () -> Unit
+        content: @Composable () -> Unit
     )
+    
+    @Composable
     fun withSecurityRequirements(
         annotation: RequiresAccess,
-        block: () -> Unit
+        content: @Composable () -> Unit
     )
 }
 ```

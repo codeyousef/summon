@@ -10,15 +10,14 @@ You can use Summon within a React application:
 
 ```kotlin
 // Set up the Summon component
-class SummonGreeting(private val name: String) : Composable {
-    override fun render() {
-        Div {
-            Text("Hello, $name from Summon!")
-            Button(
-                text = "Click me",
-                onClick = { console.log("Button clicked!") }
-            )
-        }
+@Composable
+fun SummonGreeting(name: String) {
+    Div {
+        Text("Hello, $name from Summon!")
+        Button(
+            text = "Click me",
+            onClick = { console.log("Button clicked!") }
+        )
     }
 }
 
@@ -33,8 +32,9 @@ val SummonComponent = FC<SummonProps> { props ->
     useEffect({
         // Render Summon component when the component mounts
         val container = containerRef.current ?: return@useEffect
-        val summonComponent = SummonGreeting(props.name)
-        val renderer = renderComposable(container, summonComponent)
+        val renderer = renderComposable(container) {
+            SummonGreeting(props.name)
+        }
         
         // Clean up when the component unmounts
         return@useEffect {
@@ -58,17 +58,16 @@ Integrate Summon with Vue:
 
 ```kotlin
 // Set up the Summon component
-class SummonCounter : Composable {
-    override fun render() {
-        var count by remember { mutableStateOf(0) }
-        
-        Div {
-            Text("Count: $count")
-            Button(
-                text = "Increment",
-                onClick = { count++ }
-            )
-        }
+@Composable
+fun SummonCounter() {
+    var count by remember { mutableStateOf(0) }
+    
+    Div {
+        Text("Count: $count")
+        Button(
+            text = "Increment",
+            onClick = { count++ }
+        )
     }
 }
 
@@ -87,8 +86,9 @@ fun createSummonVueComponent() = js("""
     },
     mounted() {
         const container = this.$refs.summonContainer;
-        const summonComponent = new SummonCounter();
-        this.summonRenderer = renderComposable(container, summonComponent);
+        this.summonRenderer = renderComposable(container, () => {
+            SummonCounter();
+        });
     },
     beforeDestroy() {
         if (this.summonRenderer) {
@@ -105,34 +105,33 @@ Integrate Summon with Angular:
 
 ```kotlin
 // Set up the Summon component
-class SummonTodoList : Composable {
-    override fun render() {
-        var todos by remember { mutableStateOf(listOf("Learn Summon", "Integrate with Angular")) }
-        var newTodo by remember { mutableStateOf("") }
+@Composable
+fun SummonTodoList() {
+    var todos by remember { mutableStateOf(listOf("Learn Summon", "Integrate with Angular")) }
+    var newTodo by remember { mutableStateOf("") }
+    
+    Div {
+        // Input for new todos
+        TextField(
+            value = newTodo,
+            onValueChange = { newTodo = it },
+            placeholder = "Add todo"
+        )
         
-        Div {
-            // Input for new todos
-            TextField(
-                value = newTodo,
-                onValueChange = { newTodo = it },
-                placeholder = "Add todo"
-            )
-            
-            Button(
-                text = "Add",
-                onClick = { 
-                    if (newTodo.isNotEmpty()) {
-                        todos = todos + newTodo
-                        newTodo = ""
-                    }
+        Button(
+            text = "Add",
+            onClick = { 
+                if (newTodo.isNotEmpty()) {
+                    todos = todos + newTodo
+                    newTodo = ""
                 }
-            )
-            
-            // Todo list
-            for (todo in todos) {
-                Div {
-                    Text(todo)
-                }
+            }
+        )
+        
+        // Todo list
+        for (todo in todos) {
+            Div {
+                Text(todo)
             }
         }
     }
@@ -153,8 +152,9 @@ export class SummonComponent implements OnInit, OnDestroy {
   private renderer: any;
 
   ngOnInit() {
-    const summonComponent = new SummonTodoList();
-    this.renderer = renderComposable(this.container.nativeElement, summonComponent);
+    this.renderer = renderComposable(this.container.nativeElement, () => {
+      SummonTodoList();
+    });
   }
 
   ngOnDestroy() {
@@ -181,11 +181,10 @@ import org.springframework.web.bind.annotation.GetMapping
 class SummonController {
     @GetMapping("/")
     fun home(): String {
-        // Create a Summon component
-        val component = HomePage()
-        
         // Render to HTML string
-        val html = renderToString(component)
+        val html = renderToString {
+            HomePage()
+        }
         
         // Return the HTML
         return """
@@ -222,11 +221,10 @@ import kotlinx.html.*
 fun Application.module() {
     routing {
         get("/") {
-            // Create a Summon component
-            val component = HomePage()
-            
             // Render to HTML string
-            val html = renderToString(component)
+            val html = renderToString {
+                HomePage()
+            }
             
             // Return the HTML
             call.respondText(
@@ -269,11 +267,10 @@ class SummonResource {
     @GET
     @Produces(MediaType.TEXT_HTML)
     fun home(): String {
-        // Create a Summon component
-        val component = HomePage()
-        
         // Render to HTML string
-        val html = renderToString(component)
+        val html = renderToString {
+            HomePage()
+        }
         
         // Return the HTML
         return """
@@ -309,11 +306,10 @@ import javafx.stage.Stage
 
 class SummonJavaFXApp : Application() {
     override fun start(stage: Stage) {
-        // Create a Summon component
-        val component = DesktopApp()
-        
         // Render to HTML string
-        val html = renderToString(component)
+        val html = renderToString {
+            DesktopApp()
+        }
         
         // Create a WebView to display the HTML
         val webView = WebView()
@@ -375,11 +371,12 @@ import code.yousef.summon.renderToString
 
 @Composable
 fun SummonInCompose() {
-    // Create a Summon component
-    val summonComponent = remember { DesktopApp() }
-    
     // Render to HTML string
-    val html = remember { renderToString(summonComponent) }
+    val html = remember { 
+        renderToString {
+            DesktopApp()
+        }
+    }
     
     // Use Compose's WebView (requires a dependency)
     WebView(
@@ -416,11 +413,10 @@ class SummonActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        // Create a Summon component
-        val component = MobileApp()
-        
         // Render to HTML string
-        val html = renderToString(component)
+        val html = renderToString {
+            MobileApp()
+        }
         
         // Create a WebView to display the HTML
         val webView = WebView(this)
@@ -489,20 +485,19 @@ Create an isomorphic application that renders on the server and hydrates on the 
 
 ```kotlin
 // src/commonMain/kotlin/SummonApp.kt
-class SummonApp : Composable {
-    override fun render() {
-        var count by remember { mutableStateOf(0) }
+@Composable
+fun SummonApp() {
+    var count by remember { mutableStateOf(0) }
+    
+    Div(
+        modifier = Modifier.padding(16.px)
+    ) {
+        Text("Counter: $count")
         
-        Div(
-            modifier = Modifier.padding(16.px)
-        ) {
-            Text("Counter: $count")
-            
-            Button(
-                text = "Increment",
-                onClick = { count++ }
-            )
-        }
+        Button(
+            text = "Increment",
+            onClick = { count++ }
+        )
     }
 }
 
@@ -520,8 +515,9 @@ fun main() {
         routing {
             get("/") {
                 // Server-side rendering
-                val app = SummonApp()
-                val html = renderToString(app)
+                val html = renderToString {
+                    SummonApp()
+                }
                 
                 // Send hydration-ready HTML
                 call.respondText(
@@ -563,7 +559,9 @@ fun main() {
     val container = document.getElementById("app") ?: error("Container not found")
     
     // Hydrate the app (reuse server-rendered DOM)
-    hydrate(container, SummonApp())
+    hydrate(container) {
+        SummonApp()
+    }
 }
 ```
 
@@ -587,113 +585,112 @@ data class User(
     val email: String
 )
 
-class UserList : Composable {
-    override fun render() {
-        // State for users and loading state
-        var users by remember { mutableStateOf<List<User>>(emptyList()) }
-        var isLoading by remember { mutableStateOf(true) }
-        var error by remember { mutableStateOf<String?>(null) }
-        
-        // Fetch data when component is first rendered
-        onMount {
-            try {
-                isLoading = true
-                error = null
-                
-                // Use a coroutine to fetch data
-                lifecycleCoroutineScope().launch {
-                    try {
-                        // Fetch users from API
-                        val response = fetchUsers()
-                        users = response
-                        error = null
-                    } catch (e: Exception) {
-                        error = "Failed to load users: ${e.message}"
-                    } finally {
-                        isLoading = false
-                    }
+@Composable
+fun UserList() {
+    // State for users and loading state
+    var users by remember { mutableStateOf<List<User>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var error by remember { mutableStateOf<String?>(null) }
+    
+    // Fetch data when component is first rendered
+    onMount {
+        try {
+            isLoading = true
+            error = null
+            
+            // Use a coroutine to fetch data
+            lifecycleCoroutineScope().launch {
+                try {
+                    // Fetch users from API
+                    val response = fetchUsers()
+                    users = response
+                    error = null
+                } catch (e: Exception) {
+                    error = "Failed to load users: ${e.message}"
+                } finally {
+                    isLoading = false
                 }
             }
         }
+    }
+    
+    // UI rendering
+    Div(
+        modifier = Modifier.padding(16.px)
+    ) {
+        Text(
+            text = "User List",
+            modifier = Modifier
+                .fontSize(24.px)
+                .fontWeight(700)
+                .marginBottom(16.px)
+        )
         
-        // UI rendering
-        Div(
-            modifier = Modifier.padding(16.px)
-        ) {
-            Text(
-                text = "User List",
-                modifier = Modifier
-                    .fontSize(24.px)
-                    .fontWeight(700)
-                    .marginBottom(16.px)
-            )
+        when {
+            isLoading -> {
+                // Loading state
+                Text("Loading users...")
+            }
             
-            when {
-                isLoading -> {
-                    // Loading state
-                    Text("Loading users...")
+            error != null -> {
+                // Error state
+                Div(
+                    modifier = Modifier
+                        .padding(16.px)
+                        .backgroundColor("#ffebee")
+                        .color("#c62828")
+                        .borderRadius(4.px)
+                ) {
+                    Text(error ?: "Unknown error")
+                    
+                    Button(
+                        text = "Retry",
+                        onClick = {
+                            // Trigger a refetch
+                            isLoading = true
+                            lifecycleCoroutineScope().launch {
+                                try {
+                                    users = fetchUsers()
+                                    error = null
+                                } catch (e: Exception) {
+                                    error = "Failed to load users: ${e.message}"
+                                } finally {
+                                    isLoading = false
+                                }
+                            }
+                        },
+                        modifier = Modifier.marginTop(8.px)
+                    )
                 }
-                
-                error != null -> {
-                    // Error state
+            }
+            
+            users.isEmpty() -> {
+                // Empty state
+                Text("No users found.")
+            }
+            
+            else -> {
+                // Data display
+                for (user in users) {
                     Div(
                         modifier = Modifier
-                            .padding(16.px)
-                            .backgroundColor("#ffebee")
-                            .color("#c62828")
+                            .padding(8.px)
+                            .marginBottom(8.px)
+                            .border(1.px, "#e0e0e0")
                             .borderRadius(4.px)
                     ) {
-                        Text(error ?: "Unknown error")
-                        
-                        Button(
-                            text = "Retry",
-                            onClick = {
-                                // Trigger a refetch
-                                isLoading = true
-                                lifecycleCoroutineScope().launch {
-                                    try {
-                                        users = fetchUsers()
-                                        error = null
-                                    } catch (e: Exception) {
-                                        error = "Failed to load users: ${e.message}"
-                                    } finally {
-                                        isLoading = false
-                                    }
-                                }
-                            },
-                            modifier = Modifier.marginTop(8.px)
-                        )
-                    }
-                }
-                
-                users.isEmpty() -> {
-                    // Empty state
-                    Text("No users found.")
-                }
-                
-                else -> {
-                    // Data display
-                    for (user in users) {
-                        Div(
+                        Text(
+                            text = user.name,
                             modifier = Modifier
-                                .padding(8.px)
-                                .marginBottom(8.px)
-                                .border(1.px, "#e0e0e0")
-                                .borderRadius(4.px)
-                        ) {
-                            Text(
-                                text = user.name,
-                                modifier = Modifier
-                                    .fontWeight(700)
-                                    .marginBottom(4.px)
-                            )
-                            Text(
-                                text = user.email,
-                                modifier = Modifier
-                                    .fontSize(14.px)
-                                    .color("#666666")
-                            )
-                        }
+                                .fontWeight(700)
+                                .marginBottom(4.px)
+                        )
+                        Text(
+                            text = user.email,
+                            modifier = Modifier
+                                .fontSize(14.px)
+                                .color("#666666")
+                        )
                     }
                 }
             }
@@ -701,7 +698,7 @@ class UserList : Composable {
     }
     
     // Function to fetch users from an API
-    private suspend fun fetchUsers(): List<User> = coroutineScope {
+    suspend fun fetchUsers(): List<User> = coroutineScope {
         // This would typically be a real API call
         // Simulating a network request with delay
         delay(1000)
@@ -713,5 +710,4 @@ class UserList : Composable {
             User(3, "Bob Johnson", "bob@example.com")
         )
     }
-}
-``` 
+} 

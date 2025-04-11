@@ -9,6 +9,7 @@ This document provides detailed information about the Modifier API in the Summon
 - [Appearance Modifiers](#appearance-modifiers)
 - [Interactive Modifiers](#interactive-modifiers)
 - [Animation Modifiers](#animation-modifiers)
+- [Accessibility Modifiers](#accessibility-modifiers)
 - [Utility Modifiers](#utility-modifiers)
 - [Extension Functions](#extension-functions)
 
@@ -587,6 +588,92 @@ Modifier
         duration = 0.3.s,
         timingFunction = TimingFunction.EaseInOut
     )
+```
+
+---
+
+## Accessibility Modifiers
+
+Accessibility modifiers add ARIA attributes and other accessibility features to elements.
+
+### ARIA Attributes
+
+```kotlin
+// Core ARIA attribute modifier
+fun Modifier.attribute(name: String, value: String): Modifier
+fun Modifier.removeAttribute(name: String): Modifier
+
+// Role
+fun Modifier.role(value: String): Modifier
+
+// Labels and Descriptions
+fun Modifier.ariaLabel(value: String): Modifier
+fun Modifier.ariaLabelledBy(value: String): Modifier
+fun Modifier.ariaDescribedBy(value: String): Modifier
+
+// State
+fun Modifier.ariaHidden(value: Boolean): Modifier
+fun Modifier.ariaExpanded(value: Boolean): Modifier
+fun Modifier.ariaPressed(value: Boolean): Modifier
+fun Modifier.ariaChecked(value: Boolean): Modifier
+fun Modifier.ariaChecked(value: String): Modifier
+fun Modifier.ariaSelected(value: Boolean): Modifier
+fun Modifier.ariaDisabled(value: Boolean): Modifier
+fun Modifier.ariaInvalid(value: Boolean): Modifier
+fun Modifier.ariaInvalid(value: String): Modifier
+fun Modifier.ariaRequired(value: Boolean): Modifier
+fun Modifier.ariaCurrent(value: String): Modifier
+fun Modifier.ariaLive(value: String): Modifier
+
+// Relationships
+fun Modifier.ariaControls(id: String): Modifier
+
+// Other
+fun Modifier.ariaHasPopup(value: Boolean = true): Modifier
+fun Modifier.ariaBusy(value: Boolean = true): Modifier
+```
+
+### Focus Management
+
+```kotlin
+fun Modifier.tabIndex(value: Int): Modifier
+fun Modifier.focusable(): Modifier       // Makes an element focusable but not in the tab order
+fun Modifier.tabbable(): Modifier        // Makes an element focusable and in the tab order
+fun Modifier.disabled(): Modifier        // Marks an element as disabled and not focusable
+fun Modifier.autoFocus(): Modifier       // Marks an element for autofocus when rendered
+```
+
+### Example
+
+```kotlin
+// Basic button with accessibility attributes
+Button(
+    onClick = { /* handle click */ },
+    modifier = Modifier
+        .role("button")
+        .ariaLabel("Close dialog")
+        .ariaControls("main-dialog")
+        .tabbable()
+)
+
+// Disabled element
+TextField(
+    value = "",
+    onValueChange = {},
+    modifier = Modifier
+        .disabled()
+        .ariaDisabled(true)
+)
+
+// Element with several accessibility attributes
+Box(
+    modifier = Modifier
+        .role("alertdialog")
+        .ariaLabelledBy("dialog-title")
+        .ariaDescribedBy("dialog-desc")
+        .ariaModal(true)
+        .attribute("data-test-id", "warning-dialog")
+)
 ```
 
 ---

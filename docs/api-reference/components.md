@@ -36,6 +36,9 @@ This document provides detailed information about the built-in components availa
   - [Spinner](#spinner)
   - [Toast](#toast)
   - [Tooltip](#tooltip)
+- [Accessibility Components](#accessibility-components)
+  - [AccessibleElement](#accessibleelement)
+  - [Semantic HTML Components](#semantic-html-components)
 
 ---
 
@@ -668,4 +671,329 @@ Link(
             textDecoration(TextDecoration.Underline)
         }
 )
+```
+
+## Feedback Components
+
+### Alert
+
+A component for displaying alerts.
+
+#### Definition
+
+```kotlin
+fun Alert(
+    text: String,
+    modifier: Modifier = Modifier
+): Composable
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| text | String | The text to display in the alert |
+| modifier | Modifier | Optional styling and layout modifiers |
+
+#### Example
+
+```kotlin
+Alert(
+    text = "This is an alert message."
+)
+```
+
+### ProgressBar
+
+A component for displaying progress.
+
+#### Definition
+
+```kotlin
+fun ProgressBar(
+    progress: Float,
+    modifier: Modifier = Modifier
+): Composable
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| progress | Float | The progress percentage (0-100) |
+| modifier | Modifier | Optional styling and layout modifiers |
+
+#### Example
+
+```kotlin
+ProgressBar(
+    progress = 75.0f
+)
+```
+
+### Spinner
+
+A component for displaying a loading spinner.
+
+#### Definition
+
+```kotlin
+fun Spinner(
+    modifier: Modifier = Modifier
+): Composable
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| modifier | Modifier | Optional styling and layout modifiers |
+
+#### Example
+
+```kotlin
+Spinner()
+```
+
+### Toast
+
+A component for displaying a toast notification.
+
+#### Definition
+
+```kotlin
+fun Toast(
+    text: String,
+    duration: ToastDuration = ToastDuration.Short,
+    modifier: Modifier = Modifier
+): Composable
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| text | String | The text to display in the toast |
+| duration | ToastDuration | The duration of the toast (default: ToastDuration.Short) |
+| modifier | Modifier | Optional styling and layout modifiers |
+
+#### Example
+
+```kotlin
+Toast(
+    text = "This is a toast message."
+)
+```
+
+### Tooltip
+
+A component for displaying a tooltip.
+
+#### Definition
+
+```kotlin
+fun Tooltip(
+    text: String,
+    content: @Composable () -> Unit,
+    modifier: Modifier = Modifier
+): Composable
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| text | String | The text to display in the tooltip |
+| content | @Composable () -> Unit | The content to be displayed inside the tooltip |
+| modifier | Modifier | Optional styling and layout modifiers |
+
+#### Example
+
+```kotlin
+Tooltip(
+    text = "This is a tooltip",
+    content = {
+        Text("Hover over me")
+    }
+)
+```
+
+## Accessibility Components
+
+Accessibility components help make your UI more accessible to users with disabilities.
+
+### AccessibleElement
+
+A wrapper component that adds accessibility attributes to its content.
+
+#### Definition
+
+```kotlin
+@Composable
+fun AccessibleElement(
+    content: @Composable () -> Unit,
+    role: AccessibilityUtils.NodeRole? = null,
+    customRole: String? = null,
+    label: String? = null,
+    relations: Map<String, String> = emptyMap(),
+    modifier: Modifier = Modifier()
+)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| content | @Composable () -> Unit | The content to be rendered inside this element |
+| role | AccessibilityUtils.NodeRole? | The ARIA role for the element from predefined node roles (default: null) |
+| customRole | String? | A custom ARIA role if not available in the predefined roles (default: null) |
+| label | String? | The accessible label for screen readers (aria-label) (default: null) |
+| relations | Map<String, String> | Map of relationship types to target IDs (e.g. "describedby" to "description-id") (default: empty) |
+| modifier | Modifier | Optional styling and layout modifiers (default: Modifier()) |
+
+#### Example
+
+```kotlin
+AccessibleElement(
+    role = AccessibilityUtils.NodeRole.BUTTON,
+    label = "Close dialog",
+    relations = mapOf("controls" to "main-dialog"),
+    modifier = Modifier
+        .padding(8.px)
+        .backgroundColor("#0077cc")
+        .color("#ffffff")
+        .borderRadius(4.px)
+) {
+    Text("Close")
+}
+```
+
+### Semantic HTML Components
+
+Components that create semantically meaningful HTML elements to improve screen reader and assistive technology understanding of content structure.
+
+#### Definition
+
+```kotlin
+@Composable
+fun Header(
+    id: String? = null,
+    className: String? = null,
+    modifier: Modifier = Modifier.create(),
+    content: @Composable () -> Unit
+)
+
+@Composable
+fun Main(
+    id: String? = null,
+    className: String? = null,
+    modifier: Modifier = Modifier.create(),
+    content: @Composable () -> Unit
+)
+
+@Composable
+fun Nav(
+    id: String? = null,
+    className: String? = null,
+    modifier: Modifier = Modifier.create(),
+    content: @Composable () -> Unit
+)
+
+@Composable
+fun Article(
+    id: String? = null,
+    className: String? = null,
+    modifier: Modifier = Modifier.create(),
+    content: @Composable () -> Unit
+)
+
+@Composable
+fun Section(
+    id: String? = null,
+    className: String? = null,
+    modifier: Modifier = Modifier.create(),
+    content: @Composable () -> Unit
+)
+
+@Composable
+fun Aside(
+    id: String? = null, 
+    className: String? = null,
+    modifier: Modifier = Modifier.create(),
+    content: @Composable () -> Unit
+)
+
+@Composable
+fun Footer(
+    id: String? = null,
+    className: String? = null,
+    modifier: Modifier = Modifier.create(),
+    content: @Composable () -> Unit
+)
+
+@Composable
+fun Heading(
+    level: Int,
+    id: String? = null,
+    className: String? = null,
+    modifier: Modifier = Modifier.create(),
+    content: @Composable () -> Unit
+)
+```
+
+#### Parameters (common to all semantic components)
+
+| Name | Type | Description |
+|------|------|-------------|
+| id | String? | Optional ID for the element (default: null) |
+| className | String? | Optional CSS class name for the element (default: null) |
+| modifier | Modifier | Optional styling and layout modifiers (default: Modifier.create()) |
+| content | @Composable () -> Unit | The content to be rendered inside this element |
+| level | Int | For Heading, the heading level (h1-h6) |
+
+#### Example
+
+```kotlin
+Header(
+    id = "site-header",
+    className = "main-header"
+) {
+    Heading(level = 1) {
+        Text("Site Title")
+    }
+    Nav {
+        Row {
+            Link("Home", "/")
+            Link("About", "/about")
+            Link("Contact", "/contact")
+        }
+    }
+}
+
+Main {
+    Section(id = "intro") {
+        Heading(level = 2) {
+            Text("Introduction")
+        }
+        Text("Welcome to our site...")
+    }
+    
+    Article {
+        Heading(level = 2) {
+            Text("Latest News")
+        }
+        Text("News content goes here...")
+    }
+}
+
+Aside {
+    Heading(level = 3) {
+        Text("Related Links")
+    }
+    // Sidebar content
+}
+
+Footer {
+    Text("© 2023 My Company")
+}
 ``` 

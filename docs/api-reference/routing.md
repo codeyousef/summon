@@ -47,11 +47,11 @@ class Router private constructor(
     
     // Factory method
     class Builder {
-        fun route(path: String, component: Composable): Builder
-        fun route(path: String, guard: RouteGuard, component: Composable): Builder
-        fun route(path: String, guards: List<RouteGuard>, component: Composable): Builder
+        fun route(path: String, component: @Composable () -> Unit): Builder
+        fun route(path: String, guard: RouteGuard, component: @Composable () -> Unit): Builder
+        fun route(path: String, guards: List<RouteGuard>, component: @Composable () -> Unit): Builder
         fun route(path: String, builder: Builder.() -> Unit): Builder
-        fun notFound(component: Composable): Builder
+        fun notFound(component: @Composable () -> Unit): Builder
         fun build(): Router
     }
     
@@ -89,23 +89,23 @@ The `Router` class manages navigation and rendering of the current route. It pro
 ```kotlin
 // Define routes
 val router = router {
-    route("/", HomePage())
-    route("/about", AboutPage())
+    route("/") { HomePage() }
+    route("/about") { AboutPage() }
     
     // Route with parameters
-    route("/user/{id}", UserPage())
+    route("/user/{id}") { UserPage() }
     
     // Nested routes
     route("/admin") {
-        route("/dashboard", AdminDashboardPage())
-        route("/users", AdminUsersPage())
+        route("/dashboard") { AdminDashboardPage() }
+        route("/users") { AdminUsersPage() }
     }
     
     // Route with guards
-    route("/profile", authGuard, ProfilePage())
+    route("/profile", authGuard) { ProfilePage() }
     
     // Catch-all for 404
-    notFound(NotFoundPage())
+    notFound { NotFoundPage() }
 }
 
 // Initialize the router
@@ -136,7 +136,7 @@ package code.yousef.summon.routing
 
 class Route(
     val path: String,
-    val component: Composable,
+    val component: @Composable () -> Unit,
     val guards: List<RouteGuard> = emptyList(),
     val children: List<Route> = emptyList()
 ) {
@@ -161,8 +161,8 @@ A `Route` represents a path pattern and its associated component. It can also co
 
 ```kotlin
 // Direct instantiation (not typically used)
-val homeRoute = Route("/", HomePage())
-val userRoute = Route("/user/{id}", UserPage())
+val homeRoute = Route("/", { HomePage() })
+val userRoute = Route("/user/{id}", { UserPage() })
 
 // Checking for match
 val matches = userRoute.matches("/user/123") // true
@@ -212,21 +212,20 @@ class RouteParams(val params: Map<String, String>) {
 
 ```kotlin
 // In a component
-class UserPage : Composable {
-    override fun render() {
-        // Get route parameters
-        val params = RouteParams.current
-        val userId = params["id"] ?: "unknown"
+@Composable
+fun UserPage() {
+    // Get route parameters
+    val params = RouteParams.current
+    val userId = params["id"] ?: "unknown"
+    
+    // Use parameters
+    Column {
+        Text("User ID: $userId")
         
-        // Use parameters
-        Column {
-            Text("User ID: $userId")
-            
-            // Convert to type
-            val userIdInt = params.getInt("id")
-            if (userIdInt != null) {
-                Text("User ID as Int: $userIdInt")
-            }
+        // Convert to type
+        val userIdInt = params.getInt("id")
+        if (userIdInt != null) {
+            Text("User ID as Int: $userIdInt")
         }
     }
 }
@@ -243,13 +242,14 @@ The `Link` component creates navigation links in the application.
 ```kotlin
 package code.yousef.summon.routing
 
+@Composable
 fun Link(
     text: String,
     href: String,
     target: String = "_self",
     modifier: Modifier = Modifier,
     onClick: ((Event) -> Unit)? = null
-): Composable
+)
 ```
 
 ### Description
@@ -341,8 +341,8 @@ val authGuard = AuthGuard(authService)
 val adminGuard = RoleGuard("admin")
 
 val router = router {
-    route("/profile", authGuard, ProfilePage())
-    route("/admin", listOf(authGuard, adminGuard), AdminPage())
+    route("/profile", authGuard) { ProfilePage() }
+    route("/admin", listOf(authGuard, adminGuard)) { AdminPage() }
 }
 ```
 
@@ -395,8 +395,8 @@ Platform adapters connect the router to platform-specific APIs for rendering and
 ```kotlin
 // Browser (JS)
 val router = router {
-    route("/", HomePage())
-    route("/about", AboutPage())
+    route("/") { HomePage() }
+    route("/about") { AboutPage() }
 }
 
 val browserRouter = router.withBrowserAdapter()
@@ -407,8 +407,8 @@ browserRouter.renderIn(document.getElementById("app")!!)
 
 // Server (JVM)
 val router = router {
-    route("/", HomePage())
-    route("/about", AboutPage())
+    route("/") { HomePage() }
+    route("/about") { AboutPage() }
 }
 
 val path = request.getPathInfo() // Get path from request
@@ -491,8 +491,8 @@ val router = router {
     config.caseSensitive = true
     
     // Define routes
-    route("/", HomePage())
-    route("/about", AboutPage())
+    route("/") { HomePage() }
+    route("/about") { AboutPage() }
 }
 
 // Route-specific state
@@ -503,26 +503,25 @@ class SearchState(
 
 val searchState = RouteState<SearchState>("/search")
 
-class SearchPage : Composable {
-    override fun render() {
-        // Get or create state for this route
-        val state = searchState.getOrCreate { SearchState() }
+@Composable
+fun SearchPage() {
+    // Get or create state for this route
+    val state = searchState.getOrCreate { SearchState() }
+    
+    Column {
+        TextField(
+            value = state.query,
+            onValueChange = { 
+                state.query = it
+                // Perform search and update results
+                state.results = performSearch(it)
+            },
+            placeholder = "Search..."
+        )
         
-        Column {
-            TextField(
-                value = state.query,
-                onValueChange = { 
-                    state.query = it
-                    // Perform search and update results
-                    state.results = performSearch(it)
-                },
-                placeholder = "Search..."
-            )
-            
-            // Show results
-            for (result in state.results) {
-                Text(result)
-            }
+        // Show results
+        for (result in state.results) {
+            Text(result)
         }
     }
 }

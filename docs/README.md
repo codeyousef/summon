@@ -46,60 +46,59 @@ If you need help with Summon, you can:
 Here's a simple example of a Summon component:
 
 ```kotlin
-import code.yousef.summon.core.Composable
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.*
 import code.yousef.summon.modifier.*
 import code.yousef.summon.state.*
 
-class Counter : Composable {
-    override fun render() {
-        var count by remember { mutableStateOf(0) }
-        
-        Column(
+@Composable
+fun Counter() {
+    var count by remember { mutableStateOf(0) }
+    
+    Column(
+        modifier = Modifier
+            .padding(16.px)
+            .gap(8.px)
+    ) {
+        Text(
+            text = "Count: $count",
             modifier = Modifier
-                .padding(16.px)
-                .gap(8.px)
+                .fontSize(24.px)
+                .fontWeight(700)
+        )
+        
+        Row(
+            modifier = Modifier.gap(8.px)
         ) {
-            Text(
-                text = "Count: $count",
+            Button(
+                text = "Increment",
+                onClick = { count++ },
                 modifier = Modifier
-                    .fontSize(24.px)
-                    .fontWeight(700)
+                    .backgroundColor("#0077cc")
+                    .color("#ffffff")
+                    .padding(8.px, 16.px)
+                    .borderRadius(4.px)
             )
             
-            Row(
-                modifier = Modifier.gap(8.px)
-            ) {
-                Button(
-                    text = "Increment",
-                    onClick = { count++ },
-                    modifier = Modifier
-                        .backgroundColor("#0077cc")
-                        .color("#ffffff")
-                        .padding(8.px, 16.px)
-                        .borderRadius(4.px)
-                )
-                
-                Button(
-                    text = "Decrement",
-                    onClick = { count-- },
-                    modifier = Modifier
-                        .backgroundColor("#6c757d")
-                        .color("#ffffff")
-                        .padding(8.px, 16.px)
-                        .borderRadius(4.px)
-                )
-                
-                Button(
-                    text = "Reset",
-                    onClick = { count = 0 },
-                    modifier = Modifier
-                        .backgroundColor("#dc3545")
-                        .color("#ffffff")
-                        .padding(8.px, 16.px)
-                        .borderRadius(4.px)
-                )
-            }
+            Button(
+                text = "Decrement",
+                onClick = { count-- },
+                modifier = Modifier
+                    .backgroundColor("#6c757d")
+                    .color("#ffffff")
+                    .padding(8.px, 16.px)
+                    .borderRadius(4.px)
+            )
+            
+            Button(
+                text = "Reset",
+                onClick = { count = 0 },
+                modifier = Modifier
+                    .backgroundColor("#dc3545")
+                    .color("#ffffff")
+                    .padding(8.px, 16.px)
+                    .borderRadius(4.px)
+            )
         }
     }
 }
@@ -121,25 +120,30 @@ val securityConfig = securityConfig {
 
 // Protect routes
 @RequiresAuthentication
-class ProfilePage : Component {
+@Composable
+fun ProfilePage() {
     // Component implementation
 }
 
 @RequiresRoles(["admin"])
-class AdminDashboard : Component {
+@Composable
+fun AdminDashboard() {
     // Component implementation
 }
 
 // Use security-aware components
-SecuredComponent().apply {
-    authenticated {
-        // Show authenticated content
-    }
-    unauthenticated {
-        // Show login form
-    }
-    withRole(Role("admin")) {
-        // Show admin content
+@Composable
+fun SecurityAwareUI() {
+    SecuredComponent {
+        authenticated {
+            // Show authenticated content
+        }
+        unauthenticated {
+            // Show login form
+        }
+        withRole("admin") {
+            // Show admin content
+        }
     }
 }
 ```

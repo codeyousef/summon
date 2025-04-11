@@ -62,17 +62,20 @@ Protect routes using annotations:
 
 ```kotlin
 @RequiresAuthentication
-class ProfilePage : Component {
+@Composable
+fun ProfilePage() {
     // ...
 }
 
 @RequiresRoles(["admin"])
-class AdminPage : Component {
+@Composable
+fun AdminPage() {
     // ...
 }
 
 @RequiresPermissions(["read:users"])
-class UserListPage : Component {
+@Composable
+fun UserListPage() {
     // ...
 }
 ```
@@ -81,10 +84,14 @@ Or use route guards directly:
 
 ```kotlin
 val routes = listOf(
-    Route("/profile", ProfilePage::class) {
+    Route("/profile") { 
+        ProfilePage() 
+    }.apply {
         guards = listOf(AuthenticationGuard())
     },
-    Route("/admin", AdminPage::class) {
+    Route("/admin") { 
+        AdminPage() 
+    }.apply {
         guards = listOf(AuthenticationGuard(), RoleGuard(Role("admin")))
     }
 )
@@ -95,17 +102,18 @@ val routes = listOf(
 Use the `SecuredComponent` to conditionally render content based on security requirements:
 
 ```kotlin
-val secured = SecuredComponent()
-
-secured.authenticated {
+// Only show content to authenticated users
+SecuredComponent.authenticated {
     // Render content for authenticated users
 }
 
-secured.withRole(Role("admin")) {
+// Only show content to users with specific role
+SecuredComponent.withRole(Role("admin")) {
     // Render content for admin users
 }
 
-secured.withPermission(Permission("read:users")) {
+// Only show content to users with specific permission
+SecuredComponent.withPermission(Permission("read:users")) {
     // Render content for users with the read:users permission
 }
 ```
@@ -217,44 +225,43 @@ For detailed API documentation, see the [Security API Reference](api-reference/s
 
 ```kotlin
 @Public
-class LoginPage : Component {
-    private val loginComponent = createLoginComponent(securityService, router)
-    private var username = ""
-    private var password = ""
-    private var error: String? = null
+@Composable
+fun LoginPage() {
+    val loginComponent = remember { createLoginComponent(securityService, router) }
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf<String?>(null) }
 
-    override fun render() {
-        Column {
-            TextField(
-                value = username,
-                onValueChange = { username = it },
-                label = "Username"
-            )
-            TextField(
-                value = password,
-                onValueChange = { password = it },
-                label = "Password",
-                type = TextFieldType.Password
-            )
-            Button(
-                onClick = {
-                    launch {
-                        when (val result = loginComponent.login(username, password)) {
-                            is LoginResult.Success -> {
-                                router.navigate("/")
-                            }
-                            is LoginResult.Failure -> {
-                                error = result.error.message
-                            }
+    Column {
+        TextField(
+            value = username,
+            onValueChange = { username = it },
+            label = "Username"
+        )
+        TextField(
+            value = password,
+            onValueChange = { password = it },
+            label = "Password",
+            type = TextFieldType.Password
+        )
+        Button(
+            onClick = {
+                launchEffect {
+                    when (val result = loginComponent.login(username, password)) {
+                        is LoginResult.Success -> {
+                            router.navigate("/")
+                        }
+                        is LoginResult.Failure -> {
+                            error = result.error.message
                         }
                     }
                 }
-            ) {
-                Text("Login")
             }
-            error?.let {
-                Text(it, color = Color.Red)
-            }
+        ) {
+            Text("Login")
+        }
+        error?.let {
+            Text(it, color = Color.Red)
         }
     }
 }
@@ -264,21 +271,20 @@ class LoginPage : Component {
 
 ```kotlin
 @RequiresAuthentication
-class ProfilePage : Component {
-    private val principal = SecurityContext.getPrincipal()
+@Composable
+fun ProfilePage() {
+    val principal = SecurityContext.getPrincipal()
 
-    override fun render() {
-        Column {
-            Text("Welcome, ${principal?.id}")
-            Button(
-                onClick = {
-                    launch {
-                        loginComponent.logout()
-                    }
+    Column {
+        Text("Welcome, ${principal?.id}")
+        Button(
+            onClick = {
+                launchEffect {
+                    loginComponent.logout()
                 }
-            ) {
-                Text("Logout")
             }
+        ) {
+            Text("Logout")
         }
     }
 }
@@ -288,18 +294,15 @@ class ProfilePage : Component {
 
 ```kotlin
 @RequiresRoles(["admin"])
-class AdminDashboard : Component {
-    private val secured = SecuredComponent()
-
-    override fun render() {
-        Column {
-            Text("Admin Dashboard")
-            secured.withRole(Role("admin")) {
-                Button(
-                    onClick = { /* ... */ }
-                ) {
-                    Text("Manage Users")
-                }
+@Composable
+fun AdminDashboard() {
+    Column {
+        Text("Admin Dashboard")
+        SecuredComponent.withRole(Role("admin")) {
+            Button(
+                onClick = { /* ... */ }
+            ) {
+                Text("Manage Users")
             }
         }
     }

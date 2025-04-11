@@ -9,23 +9,25 @@ Summon provides flexible state management options that work across both JavaScri
 Use the `MutableState` class with `remember` for component-local state:
 
 ```kotlin
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.state.*
+import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.extensions.px
 
-class Counter : Composable {
-    override fun render() {
-        // Create a state variable
-        var count by remember { mutableStateOf(0) }
+@Composable
+fun Counter() {
+    // Create a state variable
+    var count by remember { mutableStateOf(0) }
+    
+    Column(
+        modifier = Modifier.padding(16.px)
+    ) {
+        Text("Count: $count")
         
-        Column(
-            modifier = Modifier.padding(16.px)
-        ) {
-            Text("Count: $count")
-            
-            Button(
-                text = "Increment",
-                onClick = { count++ }
-            )
-        }
+        Button(
+            text = "Increment",
+            onClick = { count++ }
+        )
     }
 }
 ```
@@ -37,28 +39,30 @@ The `remember` function preserves state across recompositions, and changes to th
 Create derived state that updates automatically when its dependencies change:
 
 ```kotlin
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.state.*
+import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.extensions.px
 
-class TemperatureConverter : Composable {
-    override fun render() {
-        var celsius by remember { mutableStateOf(0) }
+@Composable
+fun TemperatureConverter() {
+    var celsius by remember { mutableStateOf(0) }
+    
+    // Derived state - updates when celsius changes
+    val fahrenheit by remember(celsius) { 
+        derivedStateOf { (celsius * 9/5) + 32 }
+    }
+    
+    Column(
+        modifier = Modifier.padding(16.px).gap(8.px)
+    ) {
+        Text("Celsius: $celsius°C")
+        Text("Fahrenheit: $fahrenheit°F")
         
-        // Derived state - updates when celsius changes
-        val fahrenheit by remember(celsius) { 
-            derivedStateOf { (celsius * 9/5) + 32 }
-        }
-        
-        Column(
-            modifier = Modifier.padding(16.px).gap(8.px)
-        ) {
-            Text("Celsius: $celsius°C")
-            Text("Fahrenheit: $fahrenheit°F")
-            
-            Button(
-                text = "Increase Temperature",
-                onClick = { celsius++ }
-            )
-        }
+        Button(
+            text = "Increase Temperature",
+            onClick = { celsius++ }
+        )
     }
 }
 ```
@@ -72,40 +76,39 @@ The `derivedStateOf` function creates a state that is computed from other state 
 For sharing state between multiple components, "lift" the state to a common parent:
 
 ```kotlin
-class ParentComponent : Composable {
-    override fun render() {
-        // State is declared in the parent
-        var sharedValue by remember { mutableStateOf("") }
-        
-        Column {
-            // Pass state down to children
-            ChildInput(
-                value = sharedValue,
-                onValueChange = { sharedValue = it }
-            )
-            
-            ChildDisplay(value = sharedValue)
-        }
-    }
-}
+import code.yousef.summon.annotation.Composable
 
-class ChildInput(
-    private val value: String,
-    private val onValueChange: (String) -> Unit
-) : Composable {
-    override fun render() {
-        TextField(
-            value = value,
-            onValueChange = onValueChange,
-            placeholder = "Enter a value"
+@Composable
+fun ParentComponent() {
+    // State is declared in the parent
+    var sharedValue by remember { mutableStateOf("") }
+    
+    Column {
+        // Pass state down to children
+        ChildInput(
+            value = sharedValue,
+            onValueChange = { sharedValue = it }
         )
+        
+        ChildDisplay(value = sharedValue)
     }
 }
 
-class ChildDisplay(private val value: String) : Composable {
-    override fun render() {
-        Text("Current value: $value")
-    }
+@Composable
+fun ChildInput(
+    value: String,
+    onValueChange: (String) -> Unit
+) {
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        placeholder = "Enter a value"
+    )
+}
+
+@Composable
+fun ChildDisplay(value: String) {
+    Text("Current value: $value")
 }
 ```
 
@@ -114,6 +117,7 @@ class ChildDisplay(private val value: String) : Composable {
 For more complex scenarios, use `StateFlow` for observable state:
 
 ```kotlin
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.state.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -136,30 +140,28 @@ class AppState {
 val appState = AppState()
 
 // Use in components
-class CounterDisplay : Composable {
-    override fun render() {
-        // Collect the StateFlow as state
-        val count by appState.counter.collectAsState()
-        
-        Text("Count: $count")
-    }
+@Composable
+fun CounterDisplay() {
+    // Collect the StateFlow as state
+    val count by appState.counter.collectAsState()
+    
+    Text("Count: $count")
 }
 
-class CounterControls : Composable {
-    override fun render() {
-        Row(
-            modifier = Modifier.gap(8.px)
-        ) {
-            Button(
-                text = "Increment",
-                onClick = { appState.increment() }
-            )
-            
-            Button(
-                text = "Decrement",
-                onClick = { appState.decrement() }
-            )
-        }
+@Composable
+fun CounterControls() {
+    Row(
+        modifier = Modifier.gap(8.px)
+    ) {
+        Button(
+            text = "Increment",
+            onClick = { appState.increment() }
+        )
+        
+        Button(
+            text = "Decrement",
+            onClick = { appState.decrement() }
+        )
     }
 }
 ```
@@ -171,6 +173,7 @@ The `collectAsState` function converts a `StateFlow` into a state object that ca
 For more structured state management, use a state container:
 
 ```kotlin
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.state.*
 
 // Define state and actions
@@ -197,161 +200,115 @@ sealed class TodoAction {
     data class SetFilter(val filter: TodoFilter) : TodoAction()
 }
 
-// Create state container
-class TodoContainer : StateContainer<TodoState, TodoAction>(TodoState()) {
-    override fun reduce(state: TodoState, action: TodoAction): TodoState {
-        return when (action) {
-            is TodoAction.SetNewItemText -> state.copy(
-                newItemText = action.text
+// Create a reducer function
+fun todoReducer(state: TodoState, action: TodoAction): TodoState {
+    return when (action) {
+        is TodoAction.SetNewItemText -> state.copy(newItemText = action.text)
+        is TodoAction.AddItem -> {
+            if (state.newItemText.isBlank()) return state
+            val newItem = TodoItem(
+                id = UUID.randomUUID().toString(),
+                text = state.newItemText,
+                completed = false
             )
-            
-            is TodoAction.AddItem -> {
-                if (state.newItemText.isBlank()) return state
-                
-                state.copy(
-                    items = state.items + TodoItem(
-                        id = generateId(),
-                        text = state.newItemText,
-                        completed = false
-                    ),
-                    newItemText = ""
-                )
-            }
-            
-            is TodoAction.ToggleItem -> state.copy(
-                items = state.items.map { item ->
-                    if (item.id == action.id) {
-                        item.copy(completed = !item.completed)
-                    } else {
-                        item
-                    }
-                }
-            )
-            
-            is TodoAction.RemoveItem -> state.copy(
-                items = state.items.filter { it.id != action.id }
-            )
-            
-            is TodoAction.SetFilter -> state.copy(
-                filter = action.filter
+            state.copy(
+                items = state.items + newItem,
+                newItemText = ""
             )
         }
+        is TodoAction.ToggleItem -> {
+            val updatedItems = state.items.map { item ->
+                if (item.id == action.id) {
+                    item.copy(completed = !item.completed)
+                } else {
+                    item
+                }
+            }
+            state.copy(items = updatedItems)
+        }
+        is TodoAction.RemoveItem -> {
+            val updatedItems = state.items.filter { it.id != action.id }
+            state.copy(items = updatedItems)
+        }
+        is TodoAction.SetFilter -> state.copy(filter = action.filter)
     }
-    
-    private fun generateId(): String = 
-        System.currentTimeMillis().toString()
 }
 
-// Create a singleton instance
-val todoContainer = TodoContainer()
+// Create a store
+val todoStore = createStore(TodoState(), ::todoReducer)
 
 // Use in components
-class TodoApp : Composable {
-    override fun render() {
-        // Get the current state
-        val state by todoContainer.state.collectAsState()
+@Composable
+fun TodoApp() {
+    val state by todoStore.state.collectAsState()
+    
+    Column(
+        modifier = Modifier.padding(16.px).gap(16.px)
+    ) {
+        // Add new todo
+        Row(
+            modifier = Modifier.gap(8.px)
+        ) {
+            TextField(
+                value = state.newItemText,
+                onValueChange = { todoStore.dispatch(TodoAction.SetNewItemText(it)) },
+                placeholder = "Add a new todo"
+            )
+            
+            Button(
+                text = "Add",
+                onClick = { todoStore.dispatch(TodoAction.AddItem) }
+            )
+        }
         
-        // Filtered items
-        val filteredItems = remember(state.items, state.filter) {
-            when (state.filter) {
-                TodoFilter.ALL -> state.items
-                TodoFilter.ACTIVE -> state.items.filter { !it.completed }
-                TodoFilter.COMPLETED -> state.items.filter { it.completed }
+        // Filter controls
+        Row(
+            modifier = Modifier.gap(8.px)
+        ) {
+            TodoFilter.values().forEach { filter ->
+                Button(
+                    text = filter.name,
+                    onClick = { todoStore.dispatch(TodoAction.SetFilter(filter)) },
+                    modifier = Modifier.applyIf(state.filter == filter) {
+                        backgroundColor("#0077cc").color("#ffffff")
+                    }
+                )
             }
+        }
+        
+        // Todo list
+        val filteredItems = when (state.filter) {
+            TodoFilter.ALL -> state.items
+            TodoFilter.ACTIVE -> state.items.filter { !it.completed }
+            TodoFilter.COMPLETED -> state.items.filter { it.completed }
         }
         
         Column(
-            modifier = Modifier.padding(16.px).gap(16.px)
+            modifier = Modifier.gap(8.px)
         ) {
-            // Input for new items
-            Row(
-                modifier = Modifier.gap(8.px)
-            ) {
-                TextField(
-                    value = state.newItemText,
-                    onValueChange = { 
-                        todoContainer.dispatch(TodoAction.SetNewItemText(it))
-                    },
-                    placeholder = "Add new todo"
-                )
-                
-                Button(
-                    text = "Add",
-                    onClick = { 
-                        todoContainer.dispatch(TodoAction.AddItem)
-                    }
-                )
-            }
-            
-            // Filter controls
-            Row(
-                modifier = Modifier.gap(8.px)
-            ) {
-                Button(
-                    text = "All",
-                    onClick = { 
-                        todoContainer.dispatch(TodoAction.SetFilter(TodoFilter.ALL))
-                    },
-                    modifier = Modifier.opacity(
-                        if (state.filter == TodoFilter.ALL) 1.0 else 0.5
+            filteredItems.forEach { item ->
+                Row(
+                    modifier = Modifier
+                        .padding(8.px)
+                        .gap(8.px)
+                        .alignItems(AlignItems.Center)
+                ) {
+                    Checkbox(
+                        checked = item.completed,
+                        onCheckedChange = { todoStore.dispatch(TodoAction.ToggleItem(item.id)) }
                     )
-                )
-                
-                Button(
-                    text = "Active",
-                    onClick = { 
-                        todoContainer.dispatch(TodoAction.SetFilter(TodoFilter.ACTIVE))
-                    },
-                    modifier = Modifier.opacity(
-                        if (state.filter == TodoFilter.ACTIVE) 1.0 else 0.5
+                    
+                    Text(
+                        text = item.text,
+                        modifier = Modifier.applyIf(item.completed) {
+                            textDecoration(TextDecoration.LineThrough)
+                        }
                     )
-                )
-                
-                Button(
-                    text = "Completed",
-                    onClick = { 
-                        todoContainer.dispatch(TodoAction.SetFilter(TodoFilter.COMPLETED))
-                    },
-                    modifier = Modifier.opacity(
-                        if (state.filter == TodoFilter.COMPLETED) 1.0 else 0.5
+                    
+                    Button(
+                        text = "Delete",
+                        onClick = { todoStore.dispatch(TodoAction.RemoveItem(item.id)) }
                     )
-                )
-            }
-            
-            // Todo list
-            Column(
-                modifier = Modifier.gap(8.px)
-            ) {
-                for (item in filteredItems) {
-                    Row(
-                        modifier = Modifier
-                            .padding(8.px)
-                            .gap(8.px)
-                            .alignItems(AlignItems.Center)
-                    ) {
-                        Checkbox(
-                            checked = item.completed,
-                            onCheckedChange = { 
-                                todoContainer.dispatch(TodoAction.ToggleItem(item.id))
-                            }
-                        )
-                        
-                        Text(
-                            text = item.text,
-                            modifier = if (item.completed) {
-                                Modifier.textDecoration(TextDecoration.LineThrough)
-                            } else {
-                                Modifier
-                            }
-                        )
-                        
-                        Button(
-                            text = "Remove",
-                            onClick = { 
-                                todoContainer.dispatch(TodoAction.RemoveItem(item.id))
-                            }
-                        )
-                    }
                 }
             }
         }
@@ -359,7 +316,7 @@ class TodoApp : Composable {
 }
 ```
 
-The `StateContainer` class provides a structured way to manage state using a reducer pattern similar to Redux, making it easier to manage complex state and actions.
+This pattern provides a predictable state container with unidirectional data flow, similar to Redux in the React ecosystem.
 
 ## Persistence
 

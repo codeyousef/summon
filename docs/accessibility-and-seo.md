@@ -33,6 +33,9 @@ Available ARIA modifiers include:
 - `ariaRequired()` - Indicates if an input is required
 - `ariaCurrent()` - Indicates the current item in a set
 - `ariaLive()` - Sets the live region behavior
+- `ariaControls()` - Indicates which element is controlled by the current element
+- `ariaHasPopup()` - Indicates whether the element has a popup
+- `ariaBusy()` - Indicates that an element is being modified
 
 ### Focus Management
 
@@ -52,27 +55,73 @@ modifier.disabled()
 modifier.autoFocus()
 ```
 
+### AccessibleElement Component
+
+Summon provides an `AccessibleElement` wrapper component for easily adding accessibility attributes:
+
+```kotlin
+AccessibleElement(
+    role = AccessibilityUtils.NodeRole.ALERT,
+    label = "Important alert message",
+    relations = mapOf("describedby" to "alert-description"),
+    modifier = Modifier.color("#c62828")
+) {
+    Text("Warning: This action cannot be undone")
+}
+```
+
+### Accessibility Utilities
+
+The `AccessibilityUtils` object provides helpful functions to create and inspect accessibility attributes:
+
+```kotlin
+// Create a modifier with a specific role
+val buttonModifier = AccessibilityUtils.createRoleModifier(AccessibilityUtils.NodeRole.BUTTON)
+
+// Create a modifier with an accessible label
+val labelModifier = AccessibilityUtils.createLabelModifier("Close dialog")
+
+// Create a modifier with relationship to another element
+val relationModifier = AccessibilityUtils.createRelationshipModifier("describedby", "description-id")
+
+// Inspect accessibility attributes on a modifier
+val modifier = Modifier()
+    .role("button")
+    .ariaLabel("Close")
+    
+val accessibilityAttrs = modifier.inspectAccessibility()
+// Result: {"role": "button", "aria-label": "Close"}
+```
+
 ### Semantic HTML
 
 Summon provides semantic HTML components for better accessibility:
 
 ```kotlin
-SemanticHTML.Header {
-    // Header content
+Header {
+    Heading(level = 1) {
+        Text("Site Title")
+    }
 }
 
-SemanticHTML.Main {
-    SemanticHTML.Section {
-        // Section content
+Main {
+    Section {
+        Heading(level = 2) {
+            Text("About Us")
+        }
+        Text("Company information goes here")
     }
     
-    SemanticHTML.Article {
-        // Article content
+    Article {
+        Heading(level = 2) {
+            Text("Latest News")
+        }
+        Text("News content goes here")
     }
 }
 
-SemanticHTML.Footer {
-    // Footer content
+Footer {
+    Text("© 2023 My Company")
 }
 ```
 
@@ -181,6 +230,8 @@ DeepLinking.generateMetaTags(
    - Ensure proper heading hierarchy
    - Make sure all interactive elements are keyboard accessible
    - Test with screen readers
+   - Use the AccessibleElement component for complex interactive elements
+   - Ensure proper focus management throughout your application
 
 2. **SEO**:
    - Use descriptive meta titles and descriptions

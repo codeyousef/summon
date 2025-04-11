@@ -63,39 +63,37 @@ kotlin {
 
 ## Your First Component
 
-Let's create a simple reusable component with Summon:
+Let's create a simple component with Summon:
 
 ```kotlin
-import code.yousef.summon.core.Composable
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.layout.Column
+import code.yousef.summon.annotation.Composable
+import code.yousef.summon.components.Text
+import code.yousef.summon.components.Column
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.extensions.px
 import code.yousef.summon.extensions.rem
 
-class HelloWorld : Composable {
-    override fun <T> compose(receiver: T): T {
-        return Column(
-            content = listOf(
-                Text(
-                    text = "Hello, World!",
-                    modifier = Modifier()
-                        .fontSize(2.rem)
-                        .color("#0077cc")
-                        .marginBottom(16.px)
-                ),
-                Text(
-                    text = "Welcome to Summon - A Kotlin Multiplatform UI library!",
-                    modifier = Modifier()
-                        .color("#333333")
-                        .padding(8.px)
-                )
-            ),
+@Composable
+fun HelloWorld() {
+    Column(
+        modifier = Modifier()
+            .maxWidth(600.px)
+            .padding(24.px)
+            .margin("0 auto")
+    ) {
+        Text(
+            text = "Hello, World!",
             modifier = Modifier()
-                .maxWidth(600.px)
-                .padding(24.px)
-                .margin("0 auto")
-        ).compose(receiver)
+                .fontSize(2.rem)
+                .color("#0077cc")
+                .marginBottom(16.px)
+        )
+        Text(
+            text = "Welcome to Summon - A Kotlin Multiplatform UI library!",
+            modifier = Modifier()
+                .color("#333333")
+                .padding(8.px)
+        )
     }
 }
 ```
@@ -115,7 +113,9 @@ import kotlinx.browser.document
 
 fun main() {
     val container = document.getElementById("app") ?: error("Container not found")
-    renderComposable(container, HelloWorld())
+    renderComposable(container) {
+        HelloWorld()
+    }
 }
 ```
 
@@ -128,7 +128,9 @@ To render your component on the JVM:
 import code.yousef.summon.renderToString
 
 fun main() {
-    val html = renderToString(HelloWorld())
+    val html = renderToString {
+        HelloWorld()
+    }
     println(html)
     // Or use the html string in your server response
 }

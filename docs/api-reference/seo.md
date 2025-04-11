@@ -16,6 +16,15 @@ class MetaTags(
     private val charset: String = "UTF-8",
     private val extraTags: Map<String, String> = emptyMap()
 ) : Composable
+
+companion object {
+    fun standard(
+        title: String,
+        description: String,
+        keywords: String? = null,
+        author: String? = null
+    ): MetaTags
+}
 ```
 
 The `MetaTags` component configures HTML meta tags for search engines.
@@ -125,17 +134,38 @@ The `StructuredData` object provides utilities for generating JSON-LD structured
 
 ```kotlin
 class DeepLinking private constructor() {
+    @Composable
     fun generateMetaTags(
         path: String,
         title: String,
         description: String,
         imageUrl: String? = null,
         type: String = "website"
-    ): Composable
+    )
+    
+    fun createDeepLink(
+        path: String,
+        queryParams: Map<String, String> = emptyMap(),
+        fragment: String? = null
+    ): String
+    
+    fun parseDeepLink(url: String): DeepLinkInfo
+
+    data class DeepLinkInfo(
+        val path: String,
+        val queryParams: Map<String, String>,
+        val fragment: String?
+    )
+    
+    companion object {
+        val current: DeepLinking
+        fun encodeURIComponent(value: String): String
+        fun decodeURIComponent(value: String): String
+    }
 }
 ```
 
-The `DeepLinking` class provides support for deep linking with SEO-friendly URLs.
+The `DeepLinking` class provides support for deep linking with SEO-friendly URLs, creating and parsing deep links, and generating appropriate meta tags.
 
 ## SEO Prerendering
 
@@ -145,14 +175,27 @@ The `DeepLinking` class provides support for deep linking with SEO-friendly URLs
 class SEOPrerenderer {
     fun isSearchEngineCrawler(userAgent: String): Boolean
     fun enrichSeoMetadata(metadata: SeoMetadata): SeoMetadata
+    fun createOpenGraphMetadata(
+        seoMetadata: SeoMetadata,
+        url: String,
+        imageUrl: String = "",
+        siteName: String = ""
+    ): OpenGraphMetadata
 }
 
 object SEOPrerender {
     fun isSearchEngineCrawler(userAgent: String): Boolean
+    fun enrichSeoMetadata(metadata: SeoMetadata): SeoMetadata
+    fun createOpenGraphMetadata(
+        seoMetadata: SeoMetadata,
+        url: String,
+        imageUrl: String = "",
+        siteName: String = ""
+    ): OpenGraphMetadata
 }
 ```
 
-The `SEOPrerenderer` class and `SEOPrerender` object provide utilities for SEO pre-rendering and detecting search engine crawlers.
+The `SEOPrerenderer` class and `SEOPrerender` object provide utilities for SEO pre-rendering, detecting search engine crawlers, and enhancing metadata for better search engine visibility.
 
 ## Examples
 
@@ -164,6 +207,12 @@ MetaTags(
     description = "A description of my website",
     keywords = "summon, ui, web framework",
     author = "Your Name"
+).compose(head)
+
+// Or using the standard helper
+MetaTags.standard(
+    title = "My Website",
+    description = "A description of my website"
 ).compose(head)
 ```
 
@@ -204,37 +253,44 @@ CanonicalLinks(
 ).compose(head)
 ```
 
-### Structured Data
-
-```kotlin
-StructuredData.webPage(
-    name = "Product Page",
-    description = "Our best product details",
-    url = "https://example.com/products/1"
-).compose(head)
-
-StructuredData.organization(
-    name = "Example Company",
-    url = "https://example.com",
-    logo = "https://example.com/logo.png"
-).compose(head)
-
-StructuredData.product(
-    name = "Example Product",
-    description = "This is our featured product",
-    image = "https://example.com/product1.jpg",
-    price = "99.99",
-    currency = "USD"
-).compose(head)
-```
-
 ### Deep Linking
 
 ```kotlin
-DeepLinking.generateMetaTags(
+// Generate meta tags for deep linking
+DeepLinking.current.generateMetaTags(
     path = "/products/1",
     title = "Product Details",
     description = "View our featured product",
     imageUrl = "https://example.com/product1.jpg"
-).compose(head)
+)
+
+// Create a deep link URL
+val url = DeepLinking.current.createDeepLink(
+    path = "/products/1",
+    queryParams = mapOf("color" to "red", "size" to "large"),
+    fragment = "details"
+)
+// Result: "/products/1?color=red&size=large#details"
+
+// Parse a deep link URL
+val deepLinkInfo = DeepLinking.current.parseDeepLink("/products/1?color=red&size=large#details")
+// Result: DeepLinkInfo(path="/products/1", queryParams={"color": "red", "size": "large"}, fragment="details")
+```
+
+### SEO Prerendering
+
+```kotlin
+// Check if request is from a search engine
+val isBot = SEOPrerender.isSearchEngineCrawler(userAgent)
+
+// Enhance metadata for better SEO
+val enhancedMetadata = SEOPrerender.enrichSeoMetadata(basicMetadata)
+
+// Generate OpenGraph metadata
+val ogMetadata = SEOPrerender.createOpenGraphMetadata(
+    seoMetadata = basicMetadata,
+    url = "https://example.com/page",
+    imageUrl = "https://example.com/image.jpg",
+    siteName = "My Website"
+)
 ``` 

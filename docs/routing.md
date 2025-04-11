@@ -10,22 +10,24 @@ First, create your page components:
 
 ```kotlin
 // HomePage.kt
-class HomePage : Composable {
-    override fun render() {
-        Column {
-            Text("Home Page")
-            Link(text = "Go to About", href = "/about")
-        }
+import code.yousef.summon.annotation.Composable
+
+@Composable
+fun HomePage() {
+    Column {
+        Text("Home Page")
+        Link(text = "Go to About", href = "/about")
     }
 }
 
 // AboutPage.kt
-class AboutPage : Composable {
-    override fun render() {
-        Column {
-            Text("About Page")
-            Link(text = "Go to Home", href = "/")
-        }
+import code.yousef.summon.annotation.Composable
+
+@Composable
+fun AboutPage() {
+    Column {
+        Text("About Page")
+        Link(text = "Go to Home", href = "/")
     }
 }
 ```
@@ -36,17 +38,17 @@ Then, register your routes:
 import code.yousef.summon.routing.*
 
 val router = Router {
-    route("/", HomePage())
-    route("/about", AboutPage())
+    route("/", { HomePage() })
+    route("/about", { AboutPage() })
     // Route with parameters
-    route("/user/{id}", UserPage())
+    route("/user/{id}", { UserPage() })
     // Nested routes
     route("/admin") {
-        route("/dashboard", AdminDashboard())
-        route("/users", AdminUsers())
+        route("/dashboard", { AdminDashboard() })
+        route("/users", { AdminUsers() })
     }
     // Catch-all route for 404 pages
-    notFound(NotFoundPage())
+    notFound({ NotFoundPage() })
 }
 ```
 
@@ -96,23 +98,25 @@ fun handleRequest(path: String): String {
 You can define routes with parameters:
 
 ```kotlin
-route("/user/{id}", UserPage())
+route("/user/{id}", { UserPage() })
 ```
 
 And access them in your page component:
 
 ```kotlin
-class UserPage : Composable {
-    override fun render() {
-        // Get the current route parameters
-        val params = RouteParams.current()
-        
-        // Access the 'id' parameter
-        val userId = params["id"]
-        
-        Column {
-            Text("User ID: $userId")
-        }
+import code.yousef.summon.annotation.Composable
+import code.yousef.summon.routing.RouteParams
+
+@Composable
+fun UserPage() {
+    // Get the current route parameters
+    val params = RouteParams.current()
+    
+    // Access the 'id' parameter
+    val userId = params["id"]
+    
+    Column {
+        Text("User ID: $userId")
     }
 }
 ```
@@ -167,19 +171,21 @@ Button(
 Access query parameters in your components:
 
 ```kotlin
-class SearchPage : Composable {
-    override fun render() {
-        // Get the current route
-        val route = Route.current()
-        
-        // Access query parameters
-        val query = route.queryParams["query"] ?: ""
-        val page = route.queryParams["page"]?.toIntOrNull() ?: 1
-        
-        Column {
-            Text("Searching for: $query")
-            Text("Page: $page")
-        }
+import code.yousef.summon.annotation.Composable
+import code.yousef.summon.routing.Route
+
+@Composable
+fun SearchPage() {
+    // Get the current route
+    val route = Route.current()
+    
+    // Access query parameters
+    val query = route.queryParams["query"] ?: ""
+    val page = route.queryParams["page"]?.toIntOrNull() ?: 1
+    
+    Column {
+        Text("Searching for: $query")
+        Text("Page: $page")
     }
 }
 ```
@@ -198,114 +204,88 @@ val authGuard = RouteGuard { next ->
     }
 }
 
-// Apply the guard to routes
-route("/dashboard", DashboardPage(), guards = listOf(authGuard))
+// Apply the guard to a route
+route("/profile", authGuard, { ProfilePage() })
 
-// Apply to a group of routes
-route("/admin", guards = listOf(authGuard)) {
-    route("/users", AdminUsersPage())
-    route("/settings", AdminSettingsPage())
+// Apply multiple guards
+val adminGuard = RouteGuard { next ->
+    if (isAdmin()) {
+        next()
+    } else {
+        Router.navigate("/unauthorized")
+    }
+}
+
+route("/admin/dashboard", listOf(authGuard, adminGuard), { AdminDashboard() })
+```
+
+## Route Groups
+
+You can organize routes into logical groups:
+
+```kotlin
+Router {
+    // Public routes
+    route("/", { HomePage() })
+    route("/about", { AboutPage() })
+    
+    // User routes with authentication
+    group(authGuard) {
+        route("/profile", { ProfilePage() })
+        route("/settings", { SettingsPage() })
+    }
+    
+    // Admin routes with both guards
+    group(listOf(authGuard, adminGuard)) {
+        route("/admin/dashboard", { AdminDashboard() })
+        route("/admin/users", { AdminUsers() })
+    }
 }
 ```
 
-## Nested Layouts
+## Lazy Loading
 
-You can create nested layouts with shared UI elements:
+For better performance, you can lazily load components:
 
 ```kotlin
-// Define a layout
-class AdminLayout(private val content: Composable) : Composable {
-    override fun render() {
-        Column {
-            // Shared header
-            Row {
-                Text("Admin Panel")
-                Link(text = "Dashboard", href = "/admin/dashboard")
-                Link(text = "Users", href = "/admin/users")
-                Link(text = "Settings", href = "/admin/settings")
-            }
-            
-            // Render the nested route content
-            content.render()
-            
-            // Shared footer
-            Text("© 2023 Admin Panel")
+Router {
+    route("/", { HomePage() })
+    
+    // Lazy loaded route
+    route("/large-page") {
+        LazyComponent { 
+            // This will only be loaded when the route is accessed
+            LargePage()
         }
     }
 }
-
-// Use the layout in your router
-route("/admin") {
-    route("/dashboard") { AdminLayout(DashboardPage()).render() }
-    route("/users") { AdminLayout(UsersPage()).render() }
-    route("/settings") { AdminLayout(SettingsPage()).render() }
-}
 ```
 
-## Lazy Loading Routes
+## Route Transitions
 
-For larger applications, you can lazy-load routes:
-
-```kotlin
-// Define a lazy-loaded route
-route("/large-page", lazy { 
-    // This code only executes when the route is visited
-    LargePage() 
-})
-```
-
-## Advanced Features
-
-### Route-Based State Management
-
-Preserve state between navigation events:
+You can add transitions between routes:
 
 ```kotlin
-// Create route-specific state
-val searchState = RouteState<SearchState>("/search")
-
-class SearchPage : Composable {
-    override fun render() {
-        // Get or initialize state for this route
-        val state = searchState.getOrCreate { SearchState() }
+Router {
+    // Apply transitions to all routes
+    transitions {
+        enter = fadeIn(duration = 300.ms)
+        exit = fadeOut(duration = 300.ms)
+    }
+    
+    route("/", { HomePage() })
+    route("/about", { AboutPage() })
+    
+    // Route with custom transition
+    route("/special") {
+        transition {
+            enter = slideIn(direction = SlideDirection.Left, duration = 500.ms)
+            exit = slideOut(direction = SlideDirection.Right, duration = 500.ms)
+        }
         
-        // Use the state
-        Text("Search results: ${state.results.size}")
+        SpecialPage()
     }
 }
 ```
 
-### Location Observers
-
-React to route changes:
-
-```kotlin
-// Add a location observer
-Router.addLocationObserver { location ->
-    println("Route changed to: ${location.path}")
-    
-    // Analytics tracking example
-    trackPageView(location.path)
-}
-```
-
-### Custom Router Configuration
-
-Configure advanced router behavior:
-
-```kotlin
-val router = Router {
-    // Change the base path for all routes
-    basePath = "/app"
-    
-    // Configure hash mode (#) for SPA without server config
-    useHashMode = true
-    
-    // Custom scroll behavior
-    scrollBehavior = ScrollBehavior.SMOOTH
-    
-    // Define routes
-    route("/", HomePage())
-    route("/about", AboutPage())
-}
-``` 
+Check out the [API Reference](api-reference/routing.md) for complete details on the routing system. 

@@ -201,108 +201,164 @@ Badge(
 )
 ```
 
-### Tooltip
+## Accessibility Components
 
-The `Tooltip` component displays additional information on hover.
+### AccessibleElement
+
+The `AccessibleElement` component wraps content with accessibility attributes to improve screen reader support and overall accessibility.
 
 ```kotlin
-Tooltip(
-    text = "This is a tooltip",
-    position = TooltipPosition.Top
+AccessibleElement(
+    role = AccessibilityUtils.NodeRole.BUTTON,
+    label = "Close dialog",
+    relations = mapOf("controls" to "main-dialog"),
+    modifier = Modifier
+        .padding(8.px)
+        .backgroundColor("#0077cc")
+        .color("#ffffff")
 ) {
-    Button(text = "Hover me")
+    Text("Close")
 }
 ```
 
-## Form Components
+### Semantic HTML Components
 
-### Form
-
-The `Form` component creates a form container.
+For better document structure and accessibility, Summon provides semantic HTML wrapper components:
 
 ```kotlin
-Form(
-    onSubmit = { event ->
-        event.preventDefault()
-        // Handle form submission
+Header(id = "site-header") {
+    Heading(level = 1) {
+        Text("Website Title")
     }
+    Nav {
+        Row {
+            Link("Home", "/")
+            Link("About", "/about")
+            Link("Contact", "/contact")
+        }
+    }
+}
+
+Main {
+    Section(id = "intro") {
+        Heading(level = 2) {
+            Text("Introduction")
+        }
+        Text("Welcome to our website...")
+    }
+    
+    Article {
+        Heading(level = 2) {
+            Text("Latest News")
+        }
+        Text("News content goes here...")
+    }
+}
+
+Footer {
+    Text("© 2023 My Company")
+}
+```
+
+## Custom Components
+
+Creating custom components in Summon is straightforward using the `@Composable` annotation:
+
+```kotlin
+import code.yousef.summon.annotation.Composable
+import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.extensions.px
+
+@Composable
+fun CustomCard(
+    title: String,
+    content: String,
+    buttonText: String,
+    onButtonClick: () -> Unit
 ) {
-    Column(
+    Card(
         modifier = Modifier
             .padding(16.px)
-            .gap(16.px)
+            .boxShadow("0 2px 4px rgba(0, 0, 0, 0.1)")
+            .borderRadius(8.px)
     ) {
-        // Form fields
-        Button(text = "Submit")
-    }
-}
-```
-
-### TextArea
-
-The `TextArea` component creates a multi-line text input.
-
-```kotlin
-var text by remember { mutableStateOf("") }
-
-TextArea(
-    value = text,
-    onValueChange = { text = it },
-    placeholder = "Enter your message",
-    rows = 5,
-    modifier = Modifier
-        .width(100.percent)
-        .padding(8.px)
-        .border(1.px, "#cccccc")
-        .borderRadius(4.px)
-)
-```
-
-## Creating Custom Components
-
-You can create custom components by implementing the `Composable` interface:
-
-```kotlin
-class CustomCard(
-    private val title: String,
-    private val content: String,
-    private val onAction: () -> Unit
-) : Composable {
-    override fun render() {
-        Card(
+        Column(
             modifier = Modifier
                 .padding(16.px)
-                .boxShadow("0 2px 4px rgba(0, 0, 0, 0.1)")
-                .borderRadius(8.px)
+                .gap(8.px)
         ) {
-            Column(
+            Text(
+                text = title,
                 modifier = Modifier
-                    .padding(16.px)
-                    .gap(8.px)
-            ) {
-                Text(
-                    text = title,
-                    modifier = Modifier
-                        .fontSize(18.px)
-                        .fontWeight(700)
-                )
-                Text(content)
-                Button(
-                    text = "Action",
-                    onClick = onAction
-                )
-            }
+                    .fontSize(18.px)
+                    .fontWeight(700)
+            )
+            Text(content)
+            Button(
+                text = buttonText,
+                onClick = onButtonClick
+            )
         }
     }
 }
 
 // Usage
-CustomCard(
-    title = "My Card",
-    content = "This is a custom card component",
-    onAction = { println("Action clicked!") }
-)
+@Composable
+fun MyPage() {
+    CustomCard(
+        title = "Welcome",
+        content = "This is a custom component example.",
+        buttonText = "Learn More",
+        onButtonClick = { /* Handle click */ }
+    )
+}
 ```
+
+## Component Composition
+
+Components can be composed together to build more complex UIs:
+
+```kotlin
+@Composable
+fun UserProfile(user: User) {
+    Column(
+        modifier = Modifier
+            .padding(16.px)
+            .gap(16.px)
+    ) {
+        Card {
+            Column(modifier = Modifier.padding(16.px).gap(8.px)) {
+                Text(
+                    text = user.name,
+                    modifier = Modifier.fontSize(24.px).fontWeight(700)
+                )
+                Text(user.email)
+                Text("Member since: ${user.joinDate}")
+            }
+        }
+        
+        Card {
+            Column(modifier = Modifier.padding(16.px).gap(8.px)) {
+                Text(
+                    text = "Recent Activity",
+                    modifier = Modifier.fontSize(18.px).fontWeight(700)
+                )
+                
+                user.activities.forEach { activity ->
+                    Row(
+                        modifier = Modifier
+                            .padding(8.px)
+                            .borderBottom(1.px, "#eeeeee")
+                    ) {
+                        Text(activity.date)
+                        Spacer(width = 16.px)
+                        Text(activity.description)
+                    }
+                }
+            }
+        }
+    }
+}
 
 ## Platform-Specific Extensions
 
