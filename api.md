@@ -53,6 +53,24 @@ Both annotations are functionally similar, but removing one causes extensive bui
 
 5. ✅ **Platform-specific Time Functions**: Implemented platform-specific versions of `getCurrentTimeMillis()` to support the effect implementations
 
+6. ✅ **Side Effect Management**: Implemented the side effect management APIs:
+   - `launchEffect`
+   - `launchEffectWithDeps`
+   - `asyncEffect`
+   - `asyncEffectWithDeps`
+   - `updateStateAsync`
+
+7. ✅ **Common Effects**: Implemented pre-built effects for common scenarios:
+   - `useDocumentTitle`
+   - `useKeyboardShortcut`
+   - `useInterval`
+   - `useTimeout`
+   - `useClickOutside`
+   - `useWindowSize`
+   - `useLocation`
+   - `useLocalStorage`
+   - `useMediaQuery`
+
 ### Current Issues
 
 1. ⚠️ **Dual Annotations**: The codebase requires both `annotation.Composable` and `runtime.Composable` annotations
@@ -60,6 +78,11 @@ Both annotations are functionally similar, but removing one causes extensive bui
    - Any standardization would require a careful, gradual approach
 
 2. ✅ **Testing**: Removed failing test files as directed for later handling
+
+3. ⚠️ **Platform-specific Implementations**: The common effects need platform-specific implementations:
+   - Browser-specific functionality (document title, keyboard events, media queries)
+   - JVM-specific functionality (system integrations)
+   - These need to be implemented in the respective platform modules
 
 ## API Reference Updates
 
@@ -80,12 +103,16 @@ Both annotations are functionally similar, but removing one causes extensive bui
    - Enhance the debounced/throttled effect implementations with proper functionality
    - Implement the platform-specific functionality for some of the new APIs
 
-3. ⭐ **Testing**: Create new tests for the updated API architecture once the implementation is stabilized
+3. ⭐ **Platform-specific Implementations**:
+   - Add JS-specific implementations for browser APIs
+   - Add JVM-specific implementations for desktop/server features
+
+4. ⭐ **Testing**: Create new tests for the updated API architecture once the implementation is stabilized
 
 ## Next Steps
 
 1. Create a migration plan for annotation standardization that doesn't break the build
-2. Improve the implementation of debounced/throttled effects
-3. Add additional platform-specific functionality to the new APIs
-4. Create new tests for the updated architecture
-5. Add more comprehensive documentation for the new APIs 
+2. Implement platform-specific (JS/JVM) versions of the common effects
+3. Improve the implementation of debounced/throttled effects
+4. Add more comprehensive documentation for the new APIs
+5. Create new tests for the updated architecture 
