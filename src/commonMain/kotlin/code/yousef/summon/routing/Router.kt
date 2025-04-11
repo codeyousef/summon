@@ -43,10 +43,67 @@ data class RouteDefinition(
     val canonicalUrl: String? = null
 )
 
+/**
+ * Container for route parameters extracted from the URL path.
+ */
 data class RouteParams(val params: Map<String, String>) {
-    fun get(key: String): String? = params[key]
+    companion object {
+        /**
+         * Gets the current route parameters.
+         */
+        val current: RouteParams
+            @Composable
+            get() = LocalRouteParams.current ?: RouteParams(emptyMap())
+    }
+    
+    /**
+     * Gets a parameter value or null if not found.
+     */
+    operator fun get(key: String): String? = params[key]
+    
+    /**
+     * Gets a parameter value or a default value if not found.
+     */
+    fun getOrDefault(key: String, defaultValue: String): String = params[key] ?: defaultValue
+    
+    /**
+     * Returns the entire params map.
+     */
     fun asMap(): Map<String, String> = params
+    
+    /**
+     * Converts a parameter to Int or returns null if not found or not a valid Int.
+     */
+    fun getInt(key: String): Int? = params[key]?.toIntOrNull()
+    
+    /**
+     * Converts a parameter to Long or returns null if not found or not a valid Long.
+     */
+    fun getLong(key: String): Long? = params[key]?.toLongOrNull()
+    
+    /**
+     * Converts a parameter to Boolean or returns null if not found or not a valid Boolean.
+     */
+    fun getBoolean(key: String): Boolean? = params[key]?.toBoolean()
+    
+    /**
+     * Converts a parameter to Float or returns null if not found or not a valid Float.
+     */
+    fun getFloat(key: String): Float? = params[key]?.toFloatOrNull()
+    
+    /**
+     * Converts a parameter to Double or returns null if not found or not a valid Double.
+     */
+    fun getDouble(key: String): Double? = params[key]?.toDoubleOrNull()
 }
+
+// CompositionLocal for RouteParams
+private val localRouteParams = CompositionLocal.compositionLocalOf<RouteParams?>(null)
+
+/**
+ * Access to the current route parameters.
+ */
+val LocalRouteParams = localRouteParams
 
 data class RouteMatchResult(
     val route: RouteDefinition,

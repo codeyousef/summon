@@ -1,9 +1,9 @@
-package security.guards
+package code.yousef.summon.security.guards
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
-
-import routing.RouteGuard
+import code.yousef.summon.routing.GuardResult
+import code.yousef.summon.routing.Route
+import code.yousef.summon.routing.RouteGuard
+import code.yousef.summon.routing.RouteParams
 import security.Permission
 import security.Role
 import security.SecurityContext
@@ -16,21 +16,39 @@ import security.annotations.RequiresRoles
  * A route guard that checks if the user is authenticated
  */
 class AuthenticationGuard : RouteGuard {
-    override fun canActivate(): Boolean = SecurityContext.isAuthenticated()
+    override fun canActivate(route: Route, params: RouteParams): GuardResult {
+        return if (SecurityContext.isAuthenticated()) {
+            GuardResult.Allow
+        } else {
+            GuardResult.Redirect("/login")
+        }
+    }
 }
 
 /**
  * A route guard that checks if the user has the specified role
  */
 class RoleGuard(private val role: Role) : RouteGuard {
-    override fun canActivate(): Boolean = SecurityContext.hasRole(role)
+    override fun canActivate(route: Route, params: RouteParams): GuardResult {
+        return if (SecurityContext.hasRole(role)) {
+            GuardResult.Allow
+        } else {
+            GuardResult.Deny
+        }
+    }
 }
 
 /**
  * A route guard that checks if the user has the specified permission
  */
 class PermissionGuard(private val permission: Permission) : RouteGuard {
-    override fun canActivate(): Boolean = SecurityContext.hasPermission(permission)
+    override fun canActivate(route: Route, params: RouteParams): GuardResult {
+        return if (SecurityContext.hasPermission(permission)) {
+            GuardResult.Allow
+        } else {
+            GuardResult.Deny
+        }
+    }
 }
 
 /**
@@ -41,13 +59,22 @@ class AnnotationBasedGuard(
     private val requiredRoles: Set<Role> = emptySet(),
     private val requiredPermissions: Set<Permission> = emptySet()
 ) : RouteGuard {
-    override fun canActivate(): Boolean {
+    override fun canActivate(route: Route, params: RouteParams): GuardResult {
         val isAuthenticated = SecurityContext.isAuthenticated()
-        val hasRequiredRoles = requiredRoles.isEmpty() || requiredRoles.any { SecurityContext.hasRole(it) }
-        val hasRequiredPermissions =
-            requiredPermissions.isEmpty() || requiredPermissions.any { SecurityContext.hasPermission(it) }
-
-        return (!requiresAuthentication || isAuthenticated) && hasRequiredRoles && hasRequiredPermissions
+        
+        if (requiresAuthentication && !isAuthenticated) {
+            return GuardResult.Redirect("/login")
+        }
+        
+        if (requiredRoles.isNotEmpty() && !requiredRoles.any { SecurityContext.hasRole(it) }) {
+            return GuardResult.Deny
+        }
+        
+        if (requiredPermissions.isNotEmpty() && !requiredPermissions.any { SecurityContext.hasPermission(it) }) {
+            return GuardResult.Deny
+        }
+        
+        return GuardResult.Allow
     }
 }
 
