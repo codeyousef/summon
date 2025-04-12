@@ -22,6 +22,22 @@ val Modifier.events: Map<String, ModifierHandler>
     get() = emptyMap() // Not implemented in the actual Modifier class
 
 /**
+ * Adds a style attribute to the modifier
+ */
+fun Modifier.style(name: String, value: String): Modifier {
+    // If it's an attribute or event, prefix accordingly
+    val key = when {
+        name == "style" -> name
+        name == "class" -> name
+        name == "id" -> name
+        name.startsWith("hx-") -> name // HTMX attributes
+        name.startsWith("on") -> "__event:${name.substring(2)}" // Events like onClick -> click
+        else -> "__attr:$name" // Regular attributes
+    }
+    return Modifier(styles + (key to value))
+}
+
+/**
  * Applies a code block conditionally to modify this Modifier
  */
 inline fun Modifier.applyIf(condition: Boolean, block: Modifier.() -> Modifier): Modifier {

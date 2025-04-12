@@ -10,4 +10,6 @@ metadata:
   categories:
     - "ui"
     - "web"
-  status: "experimental" 
+  status: "experimental"
+group-id: code.yousef
+artifact-id: summon-jvm 

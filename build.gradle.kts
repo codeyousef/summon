@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "code.yousef"
-version = "0.2.1.0"
+version = "0.2.1.1"
 
 repositories {
     mavenCentral()
@@ -59,17 +59,21 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.10.1")
                 implementation(kotlin("stdlib-jdk8"))
 
-                implementation("io.quarkus:quarkus-core:3.21.1")
-                implementation("io.quarkus:quarkus-qute:3.21.1")
-                implementation("io.quarkiverse.web-bundler:quarkus-web-bundler:1.8.1")
-                implementation("io.quarkus:quarkus-kotlin:3.21.1")
-                implementation("io.quarkus:quarkus-rest:3.21.1")
-                implementation("io.quarkus:quarkus-vertx-http:3.21.1")
+                // Quarkus dependencies for integration
+                implementation("io.quarkus:quarkus-core:3.6.5")
+                implementation("io.quarkus:quarkus-qute:3.6.5")
+                implementation("io.quarkus:quarkus-kotlin:3.6.5")
+                implementation("io.quarkus:quarkus-vertx-http:3.6.5")
+                implementation("io.quarkus:quarkus-resteasy-reactive:3.6.5")
+                implementation("io.quarkus:quarkus-resteasy-reactive-jackson:3.6.5")
+                implementation("io.quarkus:quarkus-websockets:3.6.5")
+                implementation("io.quarkus:quarkus-arc:3.6.5")
                 
-                // Add Quarkus deployment dependencies
-                implementation("io.quarkus:quarkus-core-deployment:3.21.1")
-                implementation("io.quarkus:quarkus-arc-deployment:3.21.1")
-
+                // Quarkus deployment dependencies
+                implementation("io.quarkus:quarkus-core-deployment:3.6.5")
+                implementation("io.quarkus:quarkus-arc-deployment:3.6.5")
+                implementation("io.quarkus:quarkus-security-deployment:3.6.5")
+                
                 // Ktor dependencies
                 implementation("io.ktor:ktor-server-core:2.3.7")
                 implementation("io.ktor:ktor-server-netty:2.3.7")
@@ -105,16 +109,20 @@ kotlin {
 }
 
 dependencies {
-    "quarkusIntegration"("io.quarkus:quarkus-core:3.21.1")
-    "quarkusIntegration"("io.quarkus:quarkus-qute:3.21.1")
-    "quarkusIntegration"("io.quarkiverse.web-bundler:quarkus-web-bundler:1.8.1")
-    "quarkusIntegration"("io.quarkus:quarkus-kotlin:3.21.1")
-    "quarkusIntegration"("io.quarkus:quarkus-rest:3.21.1")
-    "quarkusIntegration"("io.quarkus:quarkus-vertx-http:3.21.1")
+    // Quarkus integration dependencies
+    "quarkusIntegration"("io.quarkus:quarkus-core:3.6.5")
+    "quarkusIntegration"("io.quarkus:quarkus-qute:3.6.5")
+    "quarkusIntegration"("io.quarkus:quarkus-kotlin:3.6.5")
+    "quarkusIntegration"("io.quarkus:quarkus-vertx-http:3.6.5")
+    "quarkusIntegration"("io.quarkus:quarkus-resteasy-reactive:3.6.5")
+    "quarkusIntegration"("io.quarkus:quarkus-resteasy-reactive-jackson:3.6.5")
+    "quarkusIntegration"("io.quarkus:quarkus-websockets:3.6.5")
+    "quarkusIntegration"("io.quarkus:quarkus-arc:3.6.5")
     
     // Add deployment dependencies to the quarkusDeployment configuration
-    "quarkusDeployment"("io.quarkus:quarkus-core-deployment:3.21.1")
-    "quarkusDeployment"("io.quarkus:quarkus-arc-deployment:3.21.1")
+    "quarkusDeployment"("io.quarkus:quarkus-core-deployment:3.6.5")
+    "quarkusDeployment"("io.quarkus:quarkus-arc-deployment:3.6.5")
+    "quarkusDeployment"("io.quarkus:quarkus-security-deployment:3.6.5")
     
     // Add Ktor dependencies to the ktorIntegration configuration
     "ktorIntegration"("io.ktor:ktor-server-core:2.3.7")

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Summon Components</title>
+        <style>
+            body {
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              line-height: 1.6;
+              padding: 20px;
+              background-color: #f9f9f9;
+            }
+            .component-container {
+              max-width: 800px;
+              margin: 40px auto;
+              padding: 20px;
+              border: 1px solid #eee;
+              border-radius: 8px;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+              background-color: #fff;
+            }
+            h1 {
+              color: #4695EB;
+            }
+            button {
+              background-color: #4695EB;
+              color: white;
+              border: none;
+              border-radius: 4px;
+              padding: 8px 16px;
+              cursor: pointer;
+              transition: background-color 0.3s;
+              font-size: 1rem;
+              margin: 10px 0;
+            }
+            button:hover {
+              background-color: #3a85d8;
+            }
+            a {
+              color: #4695EB;
+              text-decoration: none;
+            }
+            a:hover {
+              text-decoration: underline;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="component-container">
+            <h1>Hello from Summon!</h1>
+            <p>This is a simple example of Summon rendering in Quarkus</p>
+            <button onclick="alert('Button clicked!')">Click Me</button>
+            <p><a href="/">Back to Home</a></p>
+        </div>
+        <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    </body>
+</html> 

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="A demonstration of Summon with Quarkus">
+        <title>Summon with Quarkus - Home</title>
+        <style>
+            :root {
+              --primary-color: #4695EB;
+              --secondary-color: #FF4081;
+              --background-color: #FFFFFF;
+              --text-color: #333333;
+              --success-color: #4CAF50;
+              --error-color: #F44336;
+              --warning-color: #FF9800;
+              --info-color: #2196F3;
+            }
+            body {
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              line-height: 1.6;
+              color: var(--text-color);
+              background-color: var(--background-color);
+              margin: 0;
+              padding: 20px;
+            }
+            .container {
+              max-width: 1200px;
+              margin: 0 auto;
+              padding: 0 20px;
+            }
+            .nav {
+              background-color: var(--primary-color);
+              color: white;
+              padding: 1rem;
+              margin-bottom: 1rem;
+              border-radius: 8px;
+            }
+            
+            .nav-list {
+              display: flex;
+              list-style-type: none;
+              margin: 0;
+              padding: 0;
+            }
+            
+            .nav-item {
+              margin-right: 1.5rem;
+            }
+            
+            .nav-link {
+              color: white;
+              text-decoration: none;
+              font-weight: 500;
+            }
+            
+            .nav-link:hover {
+              text-decoration: underline;
+            }
+            .row {
+              display: flex;
+              flex-wrap: wrap;
+              margin: 0 -15px;
+            }
+            .col {
+              flex: 1;
+              padding: 0 15px;
+            }
+            .card {
+              background: white;
+              border-radius: 8px;
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+              padding: 24px;
+              margin-bottom: 24px;
+              transition: transform 0.3s ease;
+            }
+            .card:hover {
+              transform: translateY(-5px);
+            }
+            .btn {
+              display: inline-block;
+              background-color: var(--primary-color);
+              color: white;
+              border: none;
+              border-radius: 4px;
+              padding: 8px 16px;
+              cursor: pointer;
+              transition: background-color 0.3s;
+              font-size: 1rem;
+            }
+            .btn:hover {
+              background-color: #3a85d8;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <nav class="nav">
+                <ul class="nav-list">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/theme">Theme</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/chat">Chat</a></li>
+                </ul>
+            </nav>
+            
+            <h1>Welcome to Summon with Quarkus</h1>
+            <p>This is the home page of the Summon Quarkus integration example.</p>
+            <p>Summon makes it easy to build interactive web UIs with Kotlin.</p>
+            <div class="row">
+                <div class="col">
+                    <div class="card">
+                        <h2>Server-Side Rendering</h2>
+                        <p>Summon provides powerful server-side rendering capabilities.</p>
+                        <button class="btn" onclick="window.location.href='/hello.html'">Try Examples</button>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card">
+                        <h2>Component-Based</h2>
+                        <p>Create reusable UI components with Kotlin.</p>
+                        <button class="btn" onclick="window.location.href='/component.html'">View Components</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    </body>
+</html> 

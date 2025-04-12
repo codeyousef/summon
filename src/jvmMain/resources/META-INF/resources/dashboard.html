@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="A demonstration of Summon with Quarkus">
+        <title>Dashboard</title>
+        <style>
+            :root {
+              --primary-color: #4695EB;
+              --secondary-color: #FF4081;
+              --background-color: #FFFFFF;
+              --text-color: #333333;
+              --success-color: #4CAF50;
+              --error-color: #F44336;
+              --warning-color: #FF9800;
+              --info-color: #2196F3;
+              --light-gray: #f5f7f9;
+              --border-color: #ddd;
+            }
+            
+            body {
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              line-height: 1.6;
+              color: var(--text-color);
+              background-color: var(--light-gray);
+              margin: 0;
+              padding: 20px;
+            }
+            
+            .container {
+              max-width: 1200px;
+              margin: 0 auto;
+              padding: 0;
+            }
+            
+            .nav {
+              background-color: var(--primary-color);
+              color: white;
+              padding: 1rem;
+              margin-bottom: 1rem;
+              border-radius: 8px;
+            }
+            
+            .nav-list {
+              display: flex;
+              list-style-type: none;
+              margin: 0;
+              padding: 0;
+            }
+            
+            .nav-item {
+              margin-right: 1.5rem;
+            }
+            
+            .nav-link {
+              color: white;
+              text-decoration: none;
+              font-weight: 500;
+            }
+            
+            .nav-link:hover {
+              text-decoration: underline;
+            }
+            
+            .dashboard-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 1.5rem;
+            }
+            
+            .dashboard-title h1 {
+              margin: 0;
+              font-size: 1.8rem;
+              color: var(--text-color);
+            }
+            
+            .dashboard-controls {
+              display: flex;
+              gap: 10px;
+            }
+            
+            .dashboard-controls button {
+              padding: 8px 16px;
+              background-color: var(--background-color);
+              border: 1px solid var(--border-color);
+              border-radius: 4px;
+              cursor: pointer;
+              font-size: 0.9rem;
+              display: flex;
+              align-items: center;
+              gap: 5px;
+            }
+            
+            .dashboard-controls button:hover {
+              background-color: #f0f0f0;
+            }
+            
+            .dashboard-grid {
+              display: grid;
+              grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+              gap: 20px;
+              margin-bottom: 30px;
+            }
+            
+            .dashboard-card {
+              background-color: var(--background-color);
+              border-radius: 8px;
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+              padding: 20px;
+              transition: box-shadow 0.3s;
+            }
+            
+            .dashboard-card:hover {
+              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            }
+            
+            .card-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 15px;
+            }
+            
+            .card-title {
+              font-size: 1.1rem;
+              font-weight: 500;
+              margin: 0;
+            }
+            
+            .card-menu {
+              border: none;
+              background: none;
+              cursor: pointer;
+              font-size: 1.2rem;
+            }
+            
+            .stat-card .card-content {
+              display: flex;
+              flex-direction: column;
+            }
+            
+            .stat-value {
+              font-size: 2rem;
+              font-weight: bold;
+              margin-bottom: 5px;
+            }
+            
+            .stat-label {
+              font-size: 0.9rem;
+              color: #666;
+            }
+            
+            .stat-change {
+              display: flex;
+              align-items: center;
+              font-size: 0.9rem;
+              margin-top: 10px;
+            }
+            
+            .stat-change.positive {
+              color: var(--success-color);
+            }
+            
+            .stat-change.negative {
+              color: var(--error-color);
+            }
+            
+            .chart-container {
+              width: 100%;
+              height: 200px;
+              position: relative;
+            }
+            
+            .chart-bar {
+              position: absolute;
+              bottom: 0;
+              width: 20px;
+              background-color: var(--primary-color);
+              border-radius: 4px 4px 0 0;
+              transition: height 0.3s;
+            }
+            
+            .chart-line {
+              width: 100%;
+              height: 100%;
+              position: relative;
+            }
+            
+            .chart-line-path {
+              stroke: var(--primary-color);
+              stroke-width: 2;
+              fill: none;
+            }
+            
+            .chart-line-area {
+              fill: rgba(70, 149, 235, 0.1);
+              stroke: none;
+            }
+            
+            .chart-legend {
+              display: flex;
+              justify-content: center;
+              gap: 15px;
+              margin-top: 10px;
+            }
+            
+            .legend-item {
+              display: flex;
+              align-items: center;
+              gap: 5px;
+              font-size: 0.8rem;
+            }
+            
+            .legend-color {
+              width: 12px;
+              height: 12px;
+              border-radius: 3px;
+            }
+            
+            .dashboard-table {
+              width: 100%;
+              border-collapse: collapse;
+            }
+            
+            .dashboard-table th, .dashboard-table td {
+              padding: 10px;
+              text-align: left;
+              border-bottom: 1px solid var(--border-color);
+            }
+            
+            .dashboard-table th {
+              font-weight: 500;
+              color: #666;
+              font-size: 0.9rem;
+            }
+            
+            .dashboard-table tr:last-child td {
+              border-bottom: none;
+            }
+            
+            .status-badge {
+              display: inline-block;
+              padding: 3px 8px;
+              border-radius: 12px;
+              font-size: 0.75rem;
+              font-weight: 500;
+            }
+            
+            .status-active {
+              background-color: rgba(76, 175, 80, 0.1);
+              color: var(--success-color);
+            }
+            
+            .status-pending {
+              background-color: rgba(255, 152, 0, 0.1);
+              color: var(--warning-color);
+            }
+            
+            .status-inactive {
+              background-color: rgba(158, 158, 158, 0.1);
+              color: #757575;
+            }
+            
+            .avatar {
+              width: 28px;
+              height: 28px;
+              border-radius: 50%;
+              background-color: var(--primary-color);
+              color: white;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 0.8rem;
+              font-weight: 500;
+            }
+            
+            .user-cell {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            }
+            
+            .task-progress {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+            }
+            
+            .progress-bar {
+              flex-grow: 1;
+              height: 6px;
+              background-color: var(--light-gray);
+              border-radius: 3px;
+              overflow: hidden;
+            }
+            
+            .progress-value {
+              height: 100%;
+              background-color: var(--primary-color);
+              border-radius: 3px;
+            }
+            
+            .progress-percent {
+              font-size: 0.85rem;
+              font-weight: 500;
+              min-width: 35px;
+              text-align: right;
+            }
+            
+            .donut-chart {
+              width: 150px;
+              height: 150px;
+              position: relative;
+              border-radius: 50%;
+              background: conic-gradient(
+                var(--primary-color) 0% 60%,
+                var(--secondary-color) 60% 85%,
+                var(--warning-color) 85% 100%
+              );
+              margin: 0 auto 15px;
+            }
+            
+            .donut-hole {
+              position: absolute;
+              width: 90px;
+              height: 90px;
+              top: 30px;
+              left: 30px;
+              background-color: white;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 1.4rem;
+              font-weight: bold;
+            }
+            
+            .wide-card {
+              grid-column: span 2;
+            }
+            
+            @media (max-width: 768px) {
+              .dashboard-grid {
+                grid-template-columns: 1fr;
+              }
+              
+              .wide-card {
+                grid-column: span 1;
+              }
+            }
+            
+            .card-links {
+              list-style: none;
+              padding: 0;
+              margin: 0;
+            }
+            
+            .card-links li {
+              padding: 8px 0;
+              border-bottom: 1px solid var(--border-color);
+            }
+            
+            .card-links li:last-child {
+              border-bottom: none;
+            }
+            
+            .card-links a {
+              text-decoration: none;
+              color: var(--primary-color);
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }
+            
+            .card-links a:hover {
+              text-decoration: underline;
+            }
+            
+            .notification-item {
+              display: flex;
+              gap: 12px;
+              padding: 12px 0;
+              border-bottom: 1px solid var(--border-color);
+            }
+            
+            .notification-item:last-child {
+              border-bottom: none;
+              padding-bottom: 0;
+            }
+            
+            .notification-dot {
+              width: 10px;
+              height: 10px;
+              background-color: var(--primary-color);
+              border-radius: 50%;
+              margin-top: 6px;
+            }
+            
+            .notification-content {
+              flex-grow: 1;
+            }
+            
+            .notification-title {
+              font-weight: 500;
+              margin-bottom: 4px;
+            }
+            
+            .notification-time {
+              font-size: 0.8rem;
+              color: #666;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <nav class="nav">
+                <ul class="nav-list">
+                    <li class="nav-item"><a class="nav-link" href="/index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/api/dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/api/theme">Theme</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/api/chat">Chat</a></li>
+                </ul>
+            </nav>
+            
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <h1>Summon Analytics Dashboard</h1>
+                </div>
+                <div class="dashboard-controls">
+                    <button onclick="alert('This would refresh data in a real application')">Refresh</button>
+                    <button onclick="alert('This would open export options in a real application')">Export Report</button>
+                    <button onclick="alert('This would open filter options in a real application')">Filter</button>
+                </div>
+            </div>
+            
+            <div class="dashboard-grid">
+                <!-- Stat cards row -->
+                <div class="dashboard-card stat-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Active Projects</h3>
+                        <button class="card-menu" onclick="alert('This would open card menu in a real application')">⋮</button>
+                    </div>
+                    <div class="card-content">
+                        <div class="stat-value">35</div>
+                        <div class="stat-label">Total active projects</div>
+                        <div class="stat-change positive">↑ 12% since last month</div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card stat-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Completed Tasks</h3>
+                        <button class="card-menu" onclick="alert('This would open card menu in a real application')">⋮</button>
+                    </div>
+                    <div class="card-content">
+                        <div class="stat-value">149</div>
+                        <div class="stat-label">Tasks completed this month</div>
+                        <div class="stat-change positive">↑ 8% since last month</div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card stat-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Team Members</h3>
+                        <button class="card-menu" onclick="alert('This would open card menu in a real application')">⋮</button>
+                    </div>
+                    <div class="card-content">
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">Active team members</div>
+                        <div class="stat-change positive">↑ 2 new this month</div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card stat-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Open Issues</h3>
+                        <button class="card-menu" onclick="alert('This would open card menu in a real application')">⋮</button>
+                    </div>
+                    <div class="card-content">
+                        <div class="stat-value">28</div>
+                        <div class="stat-label">Issues to be resolved</div>
+                        <div class="stat-change negative">↑ 5 since last week</div>
+                    </div>
+                </div>
+                
+                <!-- Chart cards -->
+                <div class="dashboard-card wide-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Development Activity</h3>
+                        <button class="card-menu" onclick="alert('This would open card menu in a real application')">⋮</button>
+                    </div>
+                    <div class="card-content">
+                        <div class="chart-container" style="height: 250px;">
+                            <svg width="100%" height="100%" viewBox="0 0 600 250" preserveAspectRatio="none">
+                                <!-- Grid lines -->
+                                <line x1="0" y1="50" x2="600" y2="50" stroke="#eee" stroke-width="1"></line>
+                                <line x1="0" y1="100" x2="600" y2="100" stroke="#eee" stroke-width="1"></line>
+                                <line x1="0" y1="150" x2="600" y2="150" stroke="#eee" stroke-width="1"></line>
+                                <line x1="0" y1="200" x2="600" y2="200" stroke="#eee" stroke-width="1"></line>
+                                
+                                <!-- Chart lines -->
+                                <path class="chart-line-area" d="M0,250 L0,150 L50,170 L100,140 L150,130 L200,90 L250,100 L300,80 L350,60 L400,70 L450,50 L500,30 L550,40 L600,20 L600,250 Z"></path>
+                                <path class="chart-line-path" d="M0,150 L50,170 L100,140 L150,130 L200,90 L250,100 L300,80 L350,60 L400,70 L450,50 L500,30 L550,40 L600,20"></path>
+                                
+                                <path class="chart-line-path" style="stroke: var(--secondary-color)" d="M0,180 L50,190 L100,170 L150,180 L200,160 L250,170 L300,150 L350,140 L400,130 L450,110 L500,100 L550,120 L600,90"></path>
+                            </svg>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: var(--primary-color)"></div>
+                                <span>Commits</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: var(--secondary-color)"></div>
+                                <span>Pull Requests</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent projects table -->
+                <div class="dashboard-card wide-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Projects</h3>
+                        <button class="card-menu" onclick="alert('This would open card menu in a real application')">⋮</button>
+                    </div>
+                    <div class="card-content">
+                        <table class="dashboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Project</th>
+                                    <th>Owner</th>
+                                    <th>Status</th>
+                                    <th>Progress</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Summon Core Framework</td>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="avatar">JD</div>
+                                            <span>John Doe</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge status-active">Active</span></td>
+                                    <td>
+                                        <div class="task-progress">
+                                            <div class="progress-bar">
+                                                <div class="progress-value" style="width: 75%"></div>
+                                            </div>
+                                            <span class="progress-percent">75%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Quarkus Integration</td>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="avatar">AS</div>
+                                            <span>Alice Smith</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge status-active">Active</span></td>
+                                    <td>
+                                        <div class="task-progress">
+                                            <div class="progress-bar">
+                                                <div class="progress-value" style="width: 90%"></div>
+                                            </div>
+                                            <span class="progress-percent">90%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Mobile UI Components</td>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="avatar">BJ</div>
+                                            <span>Bob Johnson</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge status-pending">Pending</span></td>
+                                    <td>
+                                        <div class="task-progress">
+                                            <div class="progress-bar">
+                                                <div class="progress-value" style="width: 45%"></div>
+                                            </div>
+                                            <span class="progress-percent">45%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Documentation Update</td>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="avatar">EW</div>
+                                            <span>Emma Wilson</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge status-inactive">Completed</span></td>
+                                    <td>
+                                        <div class="task-progress">
+                                            <div class="progress-bar">
+                                                <div class="progress-value" style="width: 100%"></div>
+                                            </div>
+                                            <span class="progress-percent">100%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Distribution chart -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Platform Distribution</h3>
+                        <button class="card-menu" onclick="alert('This would open card menu in a real application')">⋮</button>
+                    </div>
+                    <div class="card-content">
+                        <div class="donut-chart">
+                            <div class="donut-hole">60%</div>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: var(--primary-color)"></div>
+                                <span>Web (60%)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: var(--secondary-color)"></div>
+                                <span>Desktop (25%)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: var(--warning-color)"></div>
+                                <span>Mobile (15%)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick links -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Quick Links</h3>
+                        <button class="card-menu" onclick="alert('This would open card menu in a real application')">⋮</button>
+                    </div>
+                    <div class="card-content">
+                        <ul class="card-links">
+                            <li><a href="#" onclick="alert('This would navigate to documentation in a real application')">Documentation <span>→</span></a></li>
+                            <li><a href="#" onclick="alert('This would navigate to API reference in a real application')">API Reference <span>→</span></a></li>
+                            <li><a href="#" onclick="alert('This would navigate to sample code in a real application')">Sample Code <span>→</span></a></li>
+                            <li><a href="#" onclick="alert('This would navigate to community forum in a real application')">Community Forum <span>→</span></a></li>
+                            <li><a href="#" onclick="alert('This would navigate to issue tracker in a real application')">Issue Tracker <span>→</span></a></li>
+                            <li><a href="#" onclick="alert('This would navigate to release notes in a real application')">Release Notes <span>→</span></a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Recent notifications -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Notifications</h3>
+                        <button class="card-menu" onclick="alert('This would open card menu in a real application')">⋮</button>
+                    </div>
+                    <div class="card-content">
+                        <div class="notification-item">
+                            <div class="notification-dot"></div>
+                            <div class="notification-content">
+                                <div class="notification-title">New version released: 1.2.0</div>
+                                <div class="notification-text">The latest version includes performance improvements and bug fixes.</div>
+                                <div class="notification-time">2 hours ago</div>
+                            </div>
+                        </div>
+                        <div class="notification-item">
+                            <div class="notification-dot" style="background-color: var(--info-color)"></div>
+                            <div class="notification-content">
+                                <div class="notification-title">Community call scheduled</div>
+                                <div class="notification-text">Join us for the monthly community call on Friday at 3 PM.</div>
+                                <div class="notification-time">Yesterday</div>
+                            </div>
+                        </div>
+                        <div class="notification-item">
+                            <div class="notification-dot" style="background-color: var(--success-color)"></div>
+                            <div class="notification-content">
+                                <div class="notification-title">Documentation updated</div>
+                                <div class="notification-text">New examples and tutorials have been added to the docs.</div>
+                                <div class="notification-time">3 days ago</div>
+                            </div>
+                        </div>
+                        <div class="notification-item">
+                            <div class="notification-dot" style="background-color: var(--warning-color)"></div>
+                            <div class="notification-content">
+                                <div class="notification-title">Maintenance scheduled</div>
+                                <div class="notification-text">Planned downtime for infrastructure updates on Saturday.</div>
+                                <div class="notification-time">5 days ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <p style="text-align: center; color: #666; font-size: 0.8rem; margin-top: 20px;">
+                This is a static demonstration dashboard. In a real application, this data would be dynamically loaded.
+            </p>
+        </div>
+    </body>
+</html> 

@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1.1]
+
+### Fixed
+- Updated Quarkus integration path handling to improve route mapping
+- Fixed inconsistent route handling for navigation links in Quarkus example
+
+### Known Issues
+- The Quarkus example navigation still exhibits inconsistent behavior with some routes. We're actively investigating and will address in a future update. For now, using absolute paths is recommended.
+
 ## [0.2.1.0]
 
 ### Added
