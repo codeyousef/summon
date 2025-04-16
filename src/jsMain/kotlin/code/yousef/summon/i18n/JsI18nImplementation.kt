@@ -22,18 +22,18 @@ private val currentLanguageState = mutableStateOf(
  * JavaScript-specific implementation for loading i18n translation files
  */
 object JsI18nImplementation {
-    
+
     /**
      * Initialize i18n for the JS platform
      */
     fun init() {
         // Set the document direction initially
         updateDocumentDirection()
-        
+
         // Override changeLanguage function for JS platform
         setupLanguageChanging()
     }
-    
+
     /**
      * Load language resources from the specified base path
      * 
@@ -56,13 +56,13 @@ object JsI18nImplementation {
             }
         }
     }
-    
+
     /**
      * Sets up language changing functionality for JS platform
      */
     private fun setupLanguageChanging() {
         val originalChangeLanguage = ::changeLanguage
-        
+
         // Replace the common changeLanguage function with JS-specific implementation
         @Suppress("UNUSED_VARIABLE")
         val newChangeLanguage = { languageCode: String ->
@@ -77,7 +77,7 @@ object JsI18nImplementation {
             }
         }
     }
-    
+
     /**
      * Updates the document direction based on the current language
      */
@@ -92,7 +92,7 @@ object JsI18nImplementation {
 /**
  * Get the current language for JS platform
  */
-fun getCurrentLanguage(): Language {
+fun JsI18nImplementation.getCurrentLanguageJs(): Language {
     return currentLanguageState.value
 }
 

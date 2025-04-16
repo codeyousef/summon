@@ -15,14 +15,30 @@ fun LanguageProvider(
     content: @Composable () -> Unit
 ) {
     val language = mutableStateOf(initialLanguage)
-    
-    // Temporarily set the language and direction directly
+
+    // Store the previous language and direction from CompositionLocal
     val prevLanguage = LocalLanguage.current
     val prevDirection = LocalLayoutDirection.current
-    // TODO: Implement a real implementation
-    // Call content with new language values
-    // Note: In a real implementation, we would use a proper CompositionLocalProvider
-    content()
+
+    try {
+        // Provide the new language and direction via CompositionLocal
+        // This makes them accessible to all child composables
+        // Wrap in lambdas to match the expected Function0<T> type
+        LocalLanguage.provides { language.value }
+        LocalLayoutDirection.provides { initialLanguage.direction }
+
+        // Call content with new language values
+        content()
+    } finally {
+        // Restore the previous language and direction when this composable leaves the composition
+        // We need to preserve the original function references
+        if (prevLanguage is Function0<*>) {
+            LocalLanguage.provides(prevLanguage as Function0<Language>)
+        }
+        if (prevDirection is Function0<*>) {
+            LocalLayoutDirection.provides(prevDirection as Function0<LayoutDirection>)
+        }
+    }
 }
 
 /**
@@ -34,12 +50,12 @@ fun LanguageProvider(
 @Composable
 fun stringResource(key: String): String {
     val languageProvider = LocalLanguage.current
-    
+
     // Always invoke the function to get the actual value
     val currentLanguage = (languageProvider as Function0<Language>).invoke()
-    
+
     val defaultLanguage = I18nConfig.defaultLanguage?.code
-    
+
     return StringResources.getString(key, currentLanguage.code, defaultLanguage)
 }
 
@@ -52,8 +68,32 @@ fun stringResource(key: String): String {
 fun changeLanguage(languageCode: String): Boolean {
     val newLanguage = I18nConfig.supportedLanguages.find { it.code == languageCode }
     if (newLanguage != null) {
-        // This will be implemented by the platform-specific code to handle recomposition
+        // Store the new language in a global variable that can be accessed by platform-specific code
+        currentLanguage = newLanguage
+
+        // Trigger recomposition - platform-specific implementations will handle this differently
+        // For JS, this might involve updating the document's lang attribute and direction
+        // For JVM, this might involve updating the application's locale
+        triggerLanguageChange(newLanguage)
+
         return true
     }
     return false
-} 
+}
+
+// Global variable to store the current language
+private var currentLanguage: Language = I18nConfig.defaultLanguage 
+    ?: Language("en", "English", LayoutDirection.LTR)
+
+/**
+ * Get the current language
+ * 
+ * @return The current language
+ */
+fun getCurrentLanguage(): Language = currentLanguage
+
+/**
+ * Platform-specific implementation to trigger language change
+ * This will be implemented differently for JS and JVM platforms
+ */
+expect fun triggerLanguageChange(language: Language)
