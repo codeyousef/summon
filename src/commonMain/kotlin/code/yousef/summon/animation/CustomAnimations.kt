@@ -44,7 +44,7 @@ fun PulsatingButton(
         PulseEffect.OPACITY -> "pulse-opacity"
         PulseEffect.COLOR -> "pulse-color"
     }
-    
+
     val animatedModifier = modifier
         .attribute("style", "animation: $animationName 1.5s infinite ease-in-out; transform-origin: center;")
         .attribute("class", "$animationName-animation")
@@ -72,16 +72,25 @@ fun TypingText(
 ) {
     // Initial state for how much of the text to show
     val visibleCharacters = mutableStateOf(0)
-    
+
     // Use LaunchedEffect to animate the typing
     LaunchedEffect(text) {
-        // Gradually show characters - this is a simplified implementation
-        // In a real implementation, we'd use proper timers and delays
+        // Reset to 0 characters when text changes
+        visibleCharacters.value = 0
+
+        // Gradually show characters with proper delays
+        val delayMs = typingSpeed.inWholeMilliseconds
+
+        // Reveal one character at a time with the specified delay
         for (i in 1..text.length) {
+            // Update the number of visible characters
             visibleCharacters.value = i
+
+            // Wait for the typing speed duration before showing the next character
+            delay(delayMs)
         }
     }
-    
+
     Text(
         text = text.take(visibleCharacters.value),
         modifier = modifier.attribute("class", "typing-text")
@@ -103,7 +112,7 @@ fun PulseAnimation(
     val pulseModifier = Modifier()
         .attribute("class", "pulse-animation")
         .attribute("style", "animation: pulse ${duration.inWholeMilliseconds}ms infinite ease-in-out; transform-origin: center;")
-    
+
     // Wrap the content with Column to apply modifier
     Column(
         modifier = pulseModifier
@@ -127,7 +136,7 @@ fun StaggeredAnimation(
     val staggerModifier = Modifier()
         .attribute("class", "staggered-container")
         .attribute("data-stagger-delay", staggerDelay.inWholeMilliseconds.toString())
-    
+
     // Wrap the content in a Column with our stagger modifier
     Column(
         modifier = staggerModifier

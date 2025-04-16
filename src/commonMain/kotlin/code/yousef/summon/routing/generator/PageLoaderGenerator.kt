@@ -2,7 +2,7 @@ package code.yousef.summon.routing.generator
 
 import code.yousef.summon.routing.PageRegistry
 import code.yousef.summon.routing.DefaultPageRegistry
-
+// TODO: Implement a real implementation
 /**
  * Generator for page loader code.
  * This simulates a build-time processor that would scan the source directories
@@ -29,6 +29,7 @@ object PageLoaderGenerator {
      * @return Generated Kotlin code as a string
      */
     fun generatePageLoaderCode(): String {
+        // TODO: Implement a real implementation
         // In a real implementation, this would scan the file system
         // For now, we'll simulate it with a hardcoded list
         val pageFiles = listOf(
@@ -111,6 +112,7 @@ object PageLoaderGenerator {
      */
     fun generateAndWriteCode(outputDirectory: String) {
         val code = generatePageLoaderCode()
+        // TODO: Implement a real implementation
         // In a real implementation, this would write to a file
         println(code)
     }

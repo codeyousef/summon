@@ -139,6 +139,7 @@ class JwtAuthenticationProvider(
      * Token validation should be done on the backend.
      */
     private fun createPrincipalFromToken(token: String): Principal {
+        // TODO: Implement a real implementation
         // In a real implementation, this would decode the JWT token (without verifying)
         // and extract user information from the claims
         // For now, we'll return a dummy principal

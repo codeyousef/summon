@@ -31,6 +31,9 @@ expect interface PlatformRenderer {
     /** Renders text content */
     fun renderText(text: String, modifier: Modifier)
 
+    /** Renders a label element with semantic meaning */
+    fun renderLabel(text: String, modifier: Modifier, forElement: String? = null)
+
     // --- Specific Component Renderers ---
     /** Renders a button */
     fun renderButton(

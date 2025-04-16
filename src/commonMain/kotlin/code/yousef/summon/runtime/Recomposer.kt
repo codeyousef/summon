@@ -45,7 +45,7 @@ class Recomposer {
     fun scheduleRecomposition(composer: Composer) {
         // Thread safety handled in platform-specific ways
         addToPendingRecompositions(composer)
-        
+        // TODO: Implement a real implementation
         // In a real implementation, this would also notify a UI thread or coroutine
         // to process the pending recompositions on the next frame
     }

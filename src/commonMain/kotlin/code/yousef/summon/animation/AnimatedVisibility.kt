@@ -3,7 +3,10 @@ package code.yousef.summon.animation
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.LocalPlatformRenderer
+import code.yousef.summon.runtime.LaunchedEffect
+import code.yousef.summon.runtime.remember
 import code.yousef.summon.state.State
+import code.yousef.summon.state.mutableStateOf
 import kotlinx.html.FlowContent
 import code.yousef.summon.modifier.ModifierExtras.attribute
 
@@ -49,28 +52,63 @@ data class TransitionParams(
 
 /**
  * Animates the appearance and disappearance of its content.
- * Note: This version uses simple conditional rendering. Proper exit animations require state management.
+ * This implementation handles both entry and exit animations.
  *
  * @param visible Controls whether the content is visible.
  * @param modifier Modifier for the container.
  * @param enter Enter transition (e.g., EnterTransition.FADE_IN).
  * @param exit Exit transition (e.g., ExitTransition.FADE_OUT).
+ * @param exitDuration Duration of the exit animation in milliseconds.
  * @param content The content to animate.
  */
 @Composable
 fun AnimatedVisibility(
-    visible: Boolean, // Using simple Boolean for now
+    visible: Boolean,
     modifier: Modifier = Modifier(),
-    enter: EnterTransition = EnterTransition.FADE_IN, // Use Enum constant
-    exit: ExitTransition = ExitTransition.FADE_OUT,  // Use Enum constant
+    enter: EnterTransition = EnterTransition.FADE_IN,
+    exit: ExitTransition = ExitTransition.FADE_OUT,
+    exitDuration: Int = 300,
     content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
 
-    // Simple conditional rendering (no exit animation handling yet)
-    if (visible) {
+    // Remember the last visibility state to handle exit animations
+    val isVisible = remember { mutableStateOf(visible) }
+
+    // Track whether we're in an exit animation
+    val isExiting = remember { mutableStateOf(false) }
+
+    // Update visibility state when the visible parameter changes
+    if (visible != isVisible.value && !isExiting.value) {
+        if (!visible) {
+            // Starting exit animation
+            isExiting.value = true
+        } else {
+            // Immediately show when becoming visible
+            isVisible.value = true
+        }
+    }
+
+    // Handle exit animation
+    if (isExiting.value) {
+        LaunchedEffect(Unit) {
+            // Start the exit animation
+            AnimationController.startAnimation(exitDuration)
+
+            // Wait for the exit animation to complete
+            delay(exitDuration.toLong())
+
+            // After the animation duration, hide the content
+            isVisible.value = false
+            isExiting.value = false
+        }
+    }
+
+    // Render content if it's visible or exiting
+    if (isVisible.value || isExiting.value) {
         // Combine base modifier with animation hints
         val finalModifier = modifier.applyTransitionAttributes(enter, exit)
+            .attribute("data-animation-state", if (isExiting.value) "exiting" else "entering")
 
         // Render the container block, content is rendered inside by renderBlock
         renderer.renderBlock(
@@ -78,8 +116,6 @@ fun AnimatedVisibility(
             content = content // Pass content lambda directly
         )
     }
-    // If not visible, render nothing.
-    // TODO: For exit animations, need state to keep rendering during exit.
 }
 
 // Overload for State<Boolean>
@@ -87,17 +123,18 @@ fun AnimatedVisibility(
 fun AnimatedVisibility(
     visible: State<Boolean>, 
     modifier: Modifier = Modifier(),
-    enter: EnterTransition = EnterTransition.FADE_IN, // Use Enum constant
-    exit: ExitTransition = ExitTransition.FADE_OUT,  // Use Enum constant
+    enter: EnterTransition = EnterTransition.FADE_IN,
+    exit: ExitTransition = ExitTransition.FADE_OUT,
+    exitDuration: Int = 300,
     content: @Composable FlowContent.() -> Unit
 ) {
-    // Delegate to the Boolean version for now
-    // Proper implementation would use rememberUpdatedState and LaunchedEffect for exit animations
+    // Delegate to the Boolean version
     AnimatedVisibility(
         visible = visible.value,
         modifier = modifier,
         enter = enter,
         exit = exit,
+        exitDuration = exitDuration,
         content = content
     )
 }

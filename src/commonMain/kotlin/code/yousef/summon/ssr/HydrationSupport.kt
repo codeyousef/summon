@@ -45,6 +45,7 @@ class HydrationContext {
      * Track a composition for hydration
      */
     fun trackComposition(content: () -> Unit) {
+        // TODO: Implement a real implementation
         // Execute the content and track component instances
         // In a real implementation, this would use composition hooks
         content()

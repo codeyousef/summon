@@ -1,6 +1,6 @@
 package code.yousef.summon.routing.generator
 
-
+// TODO: Implement a real implementation of a build plugin for page discovery
 /**
  * Mock implementation of a build plugin for page discovery.
  * In a real implementation, this would be a Gradle plugin that runs during the build process.
@@ -39,6 +39,7 @@ object PageDiscoveryPlugin {
      * Scan the source directories for page files
      */
     private fun scanForPageFiles(): List<String> {
+        // TODO: Implement a real implementation
         // In a real implementation, this would use Gradle's file APIs
         // to scan the source directories
         
@@ -65,6 +66,7 @@ object PageDiscoveryPlugin {
      * Write the generated code to a file
      */
     private fun writeGeneratedCode(code: String) {
+        // TODO: Implement a real implementation
         // In a real implementation, this would write to a file in the build directory
         // and configure Gradle to include it in the compilation
         println("Generated code would be written to $OUTPUT_DIRECTORY/GeneratedPageLoader.kt")

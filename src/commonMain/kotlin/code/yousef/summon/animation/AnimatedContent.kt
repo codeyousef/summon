@@ -48,12 +48,47 @@ fun <T> AnimatedContent(
 ) {
     val renderer = LocalPlatformRenderer.current
 
-    // TODO: Refactor animation handling. renderAnimatedContent was removed from PlatformRenderer.
-    // renderer.renderAnimatedContent(modifier = modifier, content = content) // Commented out - Unresolved reference
-    
-    // Temporary Workaround: Render content statically in a block
-    println("[WARN] AnimatedContent rendering statically via renderBlock due to refactor.")
-    renderer.renderBlock(modifier = modifier, content = { content(targetState.value) })
+    // Apply animation-specific styling to the modifier
+    val animatedModifier = modifier.apply {
+        // Add CSS transition properties based on the animation parameters
+        val cssTransition = when (transitionType) {
+            ContentTransitionType.FADE -> "opacity ${duration}ms ${easing.toCssString()}"
+            ContentTransitionType.SLIDE -> {
+                val property = when (direction) {
+                    ContentDirection.LEFT_TO_RIGHT, ContentDirection.RIGHT_TO_LEFT -> "transform"
+                    ContentDirection.TOP_TO_BOTTOM, ContentDirection.BOTTOM_TO_TOP -> "transform"
+                }
+                "$property ${duration}ms ${easing.toCssString()}"
+            }
+            ContentTransitionType.SCALE -> "transform ${duration}ms ${easing.toCssString()}"
+            ContentTransitionType.CROSSFADE -> "opacity ${duration}ms ${easing.toCssString()}"
+        }
+
+        // Add the transition CSS property to the modifier
+        this.style("transition", cssTransition)
+
+        // Add initial styling based on transition type
+        when (transitionType) {
+            ContentTransitionType.FADE -> this.style("opacity", "1")
+            ContentTransitionType.SLIDE -> {
+                val transform = when (direction) {
+                    ContentDirection.LEFT_TO_RIGHT -> "translateX(0)"
+                    ContentDirection.RIGHT_TO_LEFT -> "translateX(0)"
+                    ContentDirection.TOP_TO_BOTTOM -> "translateY(0)"
+                    ContentDirection.BOTTOM_TO_TOP -> "translateY(0)"
+                }
+                this.style("transform", transform)
+            }
+            ContentTransitionType.SCALE -> this.style("transform", "scale(1)")
+            ContentTransitionType.CROSSFADE -> this.style("opacity", "1")
+        }
+    }
+
+    // Use renderAnimatedContent with the enhanced modifier
+    renderer.renderAnimatedContent(
+        modifier = animatedModifier,
+        content = { content(targetState.value) }
+    )
 }
 
 /**

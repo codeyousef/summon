@@ -36,25 +36,88 @@ class StaticRenderer(
 
     /**
      * Wraps the rendered component HTML in a complete HTML document
+     * with comprehensive SEO metadata support
      */
     internal fun wrapWithHtml(componentHtml: String, context: RenderContext): String {
+        // Extract basic SEO metadata
         val titleValue = getMetadataValue(context, "title", "Static Page")
         val descriptionValue = getMetadataValue(context, "description", "")
         val canonicalValue = getMetadataValue(context, "canonical", "")
 
-        // Build simple HTML document with minimal SEO
+        // Get additional SEO metadata
+        val authorValue = getMetadataValue(context, "author", "")
+        val keywordsValue = getMetadataValue(context, "keywords", "")
+        val robotsValue = getMetadataValue(context, "robots", "")
+        val ogTitleValue = getMetadataValue(context, "og:title", titleValue)
+        val ogDescriptionValue = getMetadataValue(context, "og:description", descriptionValue)
+        val ogImageValue = getMetadataValue(context, "og:image", "")
+        val ogUrlValue = getMetadataValue(context, "og:url", canonicalValue)
+        val ogTypeValue = getMetadataValue(context, "og:type", "website")
+        val twitterCardValue = getMetadataValue(context, "twitter:card", "summary")
+        val twitterSiteValue = getMetadataValue(context, "twitter:site", "")
+        val twitterCreatorValue = getMetadataValue(context, "twitter:creator", authorValue)
+
+        // Get language and direction
+        val langValue = getMetadataValue(context, "lang", "en")
+        val dirValue = getMetadataValue(context, "dir", "ltr")
+
+        // Get favicon
+        val faviconValue = getMetadataValue(context, "favicon", "/favicon.ico")
+
+        // Collect all custom meta tags from context
+        val customMetaTags = context.seoMetadata.customMetaTags.entries
+            .filter { it.key !in listOf("title", "description", "canonical", "author", "keywords", 
+                                        "robots", "og:title", "og:description", "og:image", "og:url", 
+                                        "og:type", "twitter:card", "twitter:site", "twitter:creator", 
+                                        "lang", "dir", "favicon") }
+            .joinToString("\n                ") { (key, value) ->
+                if (key.startsWith("og:") || key.startsWith("twitter:")) {
+                    "<meta property=\"$key\" content=\"$value\">"
+                } else {
+                    "<meta name=\"$key\" content=\"$value\">"
+                }
+            }
+
+        // Get platform-specific head elements
         val headElements = platformRenderer.getHeadElements().joinToString("\n                ")
 
         return """
             <!DOCTYPE html>
-            <html>
+            <html lang="$langValue" dir="$dirValue">
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>$titleValue</title>
+
+                <!-- Basic SEO -->
                 ${if (descriptionValue.isNotEmpty()) "<meta name=\"description\" content=\"$descriptionValue\">" else ""}
+                ${if (authorValue.isNotEmpty()) "<meta name=\"author\" content=\"$authorValue\">" else ""}
+                ${if (keywordsValue.isNotEmpty()) "<meta name=\"keywords\" content=\"$keywordsValue\">" else ""}
+                ${if (robotsValue.isNotEmpty()) "<meta name=\"robots\" content=\"$robotsValue\">" else ""}
                 ${if (canonicalValue.isNotEmpty()) "<link rel=\"canonical\" href=\"$canonicalValue\">" else ""}
+
+                <!-- Open Graph / Facebook -->
+                <meta property="og:type" content="$ogTypeValue">
+                <meta property="og:title" content="$ogTitleValue">
+                ${if (ogDescriptionValue.isNotEmpty()) "<meta property=\"og:description\" content=\"$ogDescriptionValue\">" else ""}
+                ${if (ogImageValue.isNotEmpty()) "<meta property=\"og:image\" content=\"$ogImageValue\">" else ""}
+                ${if (ogUrlValue.isNotEmpty()) "<meta property=\"og:url\" content=\"$ogUrlValue\">" else ""}
+
+                <!-- Twitter -->
+                <meta name="twitter:card" content="$twitterCardValue">
+                ${if (twitterSiteValue.isNotEmpty()) "<meta name=\"twitter:site\" content=\"$twitterSiteValue\">" else ""}
+                ${if (twitterCreatorValue.isNotEmpty()) "<meta name=\"twitter:creator\" content=\"$twitterCreatorValue\">" else ""}
+
+                <!-- Favicon -->
+                <link rel="icon" href="$faviconValue">
+
+                <!-- Custom meta tags -->
+                $customMetaTags
+
+                <!-- Platform-specific head elements -->
                 $headElements
+
+                <!-- Styles -->
                 <link rel="stylesheet" href="/css/styles.css">
             </head>
             <body>
@@ -329,7 +392,7 @@ object StaticSiteGenerator {
         // Create assets directory
         val assetsDir = "$baseOutputDir/assets"
         FileSystemAccess.createDirectory(assetsDir)
-
+        // TODO: Implement a real implementation
         // In a real implementation, this would copy CSS, JS, images, etc.
         // For this example, we'll just create a basic CSS file
         val cssContent = """

@@ -1,3 +1,4 @@
+
 /*
  * This is a sample build.gradle.kts file demonstrating how the page discovery plugin
  * would be configured in a real project. This is not meant to be actually used -

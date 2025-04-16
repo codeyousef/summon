@@ -686,37 +686,47 @@ class JvmPlatformRenderer : PlatformRenderer {
     override fun renderAnimatedVisibility(
         visible: Boolean,
         modifier: Modifier
-        // API Incomplete: Missing content
     ) {
-         if (visible) {
-             requireBuilder().div {
-                 applyModifier(modifier)
-                 comment(" AnimatedVisibility (visible) - Needs content + JS/CSS. API incomplete. ")
-             }
-         } else {
-             requireBuilder().comment(" AnimatedVisibility hidden ")
-         }
+        if (visible) {
+            requireBuilder().div {
+                applyModifier(modifier)
+                attributes["data-animated"] = "true"
+                attributes["data-visible"] = "true"
+                attributes["data-animation-type"] = "visibility"
+                comment(" AnimatedVisibility visible - content missing from signature ")
+            }
+        } else {
+            requireBuilder().div {
+                applyModifier(modifier)
+                attributes["data-animated"] = "true"
+                attributes["data-visible"] = "false"
+                attributes["data-animation-type"] = "visibility"
+                attributes["style"] = "display: none;" // Hide when not visible
+                comment(" AnimatedVisibility hidden - content not rendered ")
+            }
+        }
     }
 
     override fun renderAnimatedVisibility(
         modifier: Modifier,
         content: @Composable () -> Unit
-        // API Incomplete: Missing visibility state
     ) {
         requireBuilder().div {
-            applyModifier(modifier) // JS/CSS must handle visibility/animation
-            comment(" AnimatedVisibility - Visibility/Animation state via Modifier + JS/CSS needed. ")
+            applyModifier(modifier)
+            attributes["data-animated"] = "true"
+            attributes["data-visible"] = "true"
+            attributes["data-animation-type"] = "visibility"
             renderContent(content)
         }
     }
 
-    override fun renderAnimatedContent(modifier: Modifier
-        // API Incomplete: Missing content
-    ) {
-         requireBuilder().div {
-             applyModifier(modifier)
-             comment(" AnimatedContent - Needs content + JS/CSS. API incomplete. ")
-         }
+    override fun renderAnimatedContent(modifier: Modifier) {
+        requireBuilder().div {
+            applyModifier(modifier)
+            attributes["data-animated"] = "true"
+            attributes["data-animation-type"] = "content"
+            comment(" AnimatedContent - Content will be provided separately ")
+        }
     }
 
     override fun renderAnimatedContent(
@@ -724,8 +734,10 @@ class JvmPlatformRenderer : PlatformRenderer {
         content: @Composable () -> Unit
     ) {
         requireBuilder().div {
-            applyModifier(modifier) // JS/CSS must handle animation
-            comment(" AnimatedContent - JS/CSS needed for animation on content change. ")
+            applyModifier(modifier)
+            attributes["data-animated"] = "true"
+            attributes["data-animation-type"] = "content"
+            attributes["data-content-transition"] = "true"
             renderContent(content)
         }
     }
@@ -779,18 +791,35 @@ class JvmPlatformRenderer : PlatformRenderer {
     override fun renderExpansionPanel(
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
-        // API Incomplete: Missing title/summary content
     ) {
         requireBuilder().details { // Use native <details>
             applyModifier(modifier)
-            summary {
-                comment(" ExpansionPanel summary content missing from signature ")
-                +"Details" // Placeholder title
+
+            // Extract title from modifier if available
+            val title = modifier.getAttributeValue("data-expansion-title") ?: "Details"
+            val isOpen = modifier.getAttributeValue("data-expansion-open") == "true"
+
+            // Add open attribute if panel should be expanded by default
+            if (isOpen) {
+                attributes["open"] = "true"
             }
+
+            summary {
+                // Use title from modifier or default
+                +title
+            }
+
             div(classes = "expansion-content") { // Wrapper for styling
                 renderContent(content)
             }
         }
+    }
+
+    // Helper extension to get attribute value from modifier
+    private fun Modifier.getAttributeValue(key: String): String? {
+        // This is a simplified implementation - in a real scenario, you would
+        // have a proper way to extract attributes from the Modifier
+        return null // Placeholder - implement actual attribute extraction
     }
 
     override fun renderGrid(
@@ -831,9 +860,87 @@ class JvmPlatformRenderer : PlatformRenderer {
         content: @Composable (FlowContent.() -> Unit)
     ) {
         requireBuilder().div {
-            applyModifier(modifier) // Relies on Modifier styles (media queries)
-            comment(" Responsive layout relies on Modifier styles ")
+            applyModifier(modifier)
+
+            // Add responsive layout attributes
+            attributes["class"] = "responsive-layout"
+            attributes["data-responsive"] = "true"
+
+            // Add screen size detection script
+            script(type = "text/javascript") {
+                unsafe {
+                    raw("""
+                    (function() {
+                        // Screen size breakpoints
+                        const BREAKPOINTS = {
+                            SMALL: 600,   // Mobile phones (< 600px)
+                            MEDIUM: 960,  // Tablets (600px - 959px)
+                            LARGE: 1280   // Desktop (960px - 1279px)
+                            // XLARGE: >= 1280px (Large desktop)
+                        };
+
+                        // Function to determine current screen size
+                        function determineScreenSize() {
+                            const width = window.innerWidth;
+                            if (width < BREAKPOINTS.SMALL) {
+                                return 'SMALL';
+                            } else if (width < BREAKPOINTS.MEDIUM) {
+                                return 'MEDIUM';
+                            } else if (width < BREAKPOINTS.LARGE) {
+                                return 'LARGE';
+                            } else {
+                                return 'XLARGE';
+                            }
+                        }
+
+                        // Function to update layout based on screen size
+                        function updateLayout() {
+                            const layout = document.currentScript.parentElement;
+                            const screenSize = determineScreenSize();
+
+                            // Remove all screen size classes
+                            layout.classList.remove('small-screen', 'medium-screen', 'large-screen', 'xlarge-screen');
+
+                            // Add current screen size class
+                            layout.classList.add(screenSize.toLowerCase() + '-screen');
+
+                            // Set data attribute for current screen size
+                            layout.setAttribute('data-screen-size', screenSize);
+
+                            // Dispatch custom event for screen size change
+                            const event = new CustomEvent('screenSizeChanged', { 
+                                detail: { screenSize: screenSize } 
+                            });
+                            layout.dispatchEvent(event);
+                        }
+
+                        // Initialize layout
+                        updateLayout();
+
+                        // Update layout on window resize
+                        window.addEventListener('resize', updateLayout);
+                    })();
+                    """)
+                }
+            }
+
+            // Render content
             renderContent(content)
+        }
+    }
+
+    // Render a label element for semantic HTML
+    override fun renderLabel(
+        text: String,
+        modifier: Modifier,
+        forElement: String?
+    ) {
+        requireBuilder().label {
+            applyModifier(modifier)
+            if (forElement != null) {
+                htmlFor = forElement
+            }
+            +text
         }
     }
 
@@ -844,22 +951,22 @@ class JvmPlatformRenderer : PlatformRenderer {
         content: @Composable (FlowContent.() -> Unit)
     ) {
         val builder = requireBuilder()
-        
+
         // Create a div container to hold our custom tag content
         builder.div {
             // Apply the modifier to the div for now
             applyModifier(modifier)
-            
+
             // Add a comment indicating this is a custom tag wrapper
             comment(" Custom tag '$tagName' wrapped in div. JS needed to transform DOM. ")
-            
+
             // Add data attribute to help JS transform this element
             attributes["data-custom-tag"] = tagName
-            
+
             // Render the content in the div
             renderContent(content)
         }
-        
+
         // Add a comment about the limitation
         builder.comment(" Note: Direct custom tag rendering requires JS DOM manipulation ")
     }

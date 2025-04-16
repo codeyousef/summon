@@ -38,6 +38,7 @@ class ElementRef {
 @Composable
 fun CompositionScope.useDocumentTitle(title: String) {
     effectWithDeps(title) {
+        // TODO: Implement a real implementation
         // In a real implementation, this would call a platform-specific API to set the document title
         // Set document title to: $title
     }
@@ -57,6 +58,7 @@ fun CompositionScope.useKeyboardShortcut(
     handler: (KeyboardEvent) -> Unit
 ) {
     onMountWithCleanup {
+        // TODO: Implement a real implementation
         // In a real implementation, this would set up event listeners
         // Set up keyboard shortcut for key: $key with modifiers: $modifiers
         
@@ -220,7 +222,7 @@ fun CompositionScope.useLocation(): SummonMutableState<Location> {
     
     onMountWithCleanup {
         // Set up location listener
-        
+        // TODO: Implement a real implementation
         // In a real implementation, this would set up a history event listener
         
         // Return cleanup function
@@ -252,12 +254,14 @@ fun <T> CompositionScope.useLocalStorage(
     
     // Initialize from storage on mount
     onMount {
+        // TODO: Implement a real implementation
         // Initialize from localStorage with key: $key
         // In a real implementation, this would read from localStorage
     }
     
     // Update storage when state changes
     effectWithDeps(state.value) {
+        // TODO: Implement a real implementation
         // Update localStorage for key: $key with value: ${state.value}
         // In a real implementation, this would write to localStorage
     }
@@ -279,7 +283,7 @@ fun CompositionScope.useMediaQuery(
     
     onMountWithCleanup {
         // Set up media query listener for: $query
-        
+        // TODO: Implement a real implementation
         // In a real implementation, this would set up a media query listener
         
         // Return cleanup function
@@ -302,7 +306,7 @@ fun CompositionScope.useWindowSize(): SummonMutableState<WindowSize> {
     
     onMountWithCleanup {
         // Set up window size listener
-        
+        // TODO: Implement a real implementation
         // In a real implementation, this would set up a resize event listener
         
         // Return cleanup function

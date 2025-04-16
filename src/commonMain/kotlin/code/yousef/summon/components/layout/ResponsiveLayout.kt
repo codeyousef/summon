@@ -3,8 +3,10 @@ package code.yousef.summon.components.layout
 import code.yousef.summon.components.LayoutComponent
 import code.yousef.summon.core.Composable
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.ModifierExtras.attribute
 import code.yousef.summon.runtime.getPlatformRenderer
 import kotlinx.html.TagConsumer
+import kotlinx.html.div
 
 /**
  * Screen size breakpoints for responsive layouts.
@@ -24,12 +26,24 @@ enum class ScreenSize {
  * @param content Map of screen sizes to the composables that should be displayed at those sizes
  * @param defaultContent The default composable to display if no specific content is provided for the current screen size
  * @param modifier The modifier to apply to this composable
+ * @param detectScreenSizeClient Whether to use client-side detection for screen size (default true)
+ * @param serverSideScreenSize The screen size to use for server-side rendering (default LARGE)
  */
 class ResponsiveLayout(
     val content: Map<ScreenSize, Composable>,
     val defaultContent: Composable,
-    val modifier: Modifier = Modifier()
+    val modifier: Modifier = Modifier(),
+    val detectScreenSizeClient: Boolean = true,
+    val serverSideScreenSize: ScreenSize = ScreenSize.LARGE
 ) : Composable, LayoutComponent {
+
+    // Breakpoint values in pixels
+    companion object {
+        const val SMALL_BREAKPOINT = 600
+        const val MEDIUM_BREAKPOINT = 960
+        const val LARGE_BREAKPOINT = 1280
+    }
+
     /**
      * Renders this ResponsiveLayout composable using the platform-specific renderer.
      * @param receiver TagConsumer to render to
@@ -37,18 +51,51 @@ class ResponsiveLayout(
      */
     override fun <T> compose(receiver: T): T {
         if (receiver is TagConsumer<*>) {
+            // Create a modified modifier with responsive layout data
+            val responsiveModifier = modifier
+                .style("position", "relative") // Ensure proper positioning
+                .style("display", "block") // Default display
+                .attribute("data-responsive", "true")
+                .attribute("data-small-breakpoint", SMALL_BREAKPOINT.toString())
+                .attribute("data-medium-breakpoint", MEDIUM_BREAKPOINT.toString())
+                .attribute("data-large-breakpoint", LARGE_BREAKPOINT.toString())
+                .attribute("data-server-size", serverSideScreenSize.name)
+                .attribute("data-client-detection", detectScreenSizeClient.toString())
+
             getPlatformRenderer().renderResponsiveLayout(
-                modifier = modifier,
+                modifier = responsiveModifier,
                 content = { // 'this' is FlowContent scope
-                    // TODO: Implement logic to determine current screen size.
-                    // This usually requires platform-specific APIs (e.g., window dimensions in JS)
-                    // or CSS media queries handled by the browser.
-                    // For now, just rendering the default content.
-                    val contentToRender = defaultContent // Replace with selected content based on screen size
-                    contentToRender.compose(this) // Pass FlowContent scope
+                    if (detectScreenSizeClient) {
+                        // Client-side approach: render all content options with visibility controlled by CSS/JS
+                        for ((screenSize, composable) in content) {
+                            // Wrap each screen size's content in a div with appropriate data attributes
+                            div {
+                                attributes["data-screen-size"] = screenSize.name
+                                attributes["class"] = "responsive-content ${screenSize.name.lowercase()}-content"
+                                attributes["style"] = "display: none;" // Hidden by default, shown by JS
+
+                                // Render the content for this screen size
+                                composable.compose(this)
+                            }
+                        }
+
+                        // Render default content in its own container
+                        div {
+                            attributes["data-screen-size"] = "DEFAULT"
+                            attributes["class"] = "responsive-content default-content"
+                            attributes["style"] = "display: none;" // Hidden by default, shown by JS if no match
+
+                            // Render the default content
+                            defaultContent.compose(this)
+                        }
+                    } else {
+                        // Server-side approach: only render content for the specified screen size
+                        val contentToRender = content[serverSideScreenSize] ?: defaultContent
+                        contentToRender.compose(this)
+                    }
                 }
             )
         }
         return receiver
     }
-} 
+}

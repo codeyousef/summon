@@ -21,6 +21,7 @@ fun Redirect(
     to: String,
     permanent: Boolean = false
 ) {
+    // TODO: Implement a real implementation
     // Get current router - in real implementation would use CompositionLocal
     val router = defaultRouter
 
@@ -37,6 +38,7 @@ fun Redirect(
 
 // Simple LaunchedEffect implementation for testing
 private fun LaunchedEffect(key: Any, block: () -> Unit) {
+    // TODO: Implement a real implementation
     // In a real implementation, this would track key and execute the block
     block()
 }

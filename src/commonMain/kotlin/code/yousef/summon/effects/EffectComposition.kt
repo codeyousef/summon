@@ -114,6 +114,7 @@ private class EffectTimer<T>(
     }
     
     private fun scheduleFutureExecution(action: () -> Unit): Any {
+        // TODO: Implement a real implementation
         // In a real implementation, this would use platform-specific timeout mechanism
         // For now we'll use a simple abstraction
         return setTimeout(delayMs, action)

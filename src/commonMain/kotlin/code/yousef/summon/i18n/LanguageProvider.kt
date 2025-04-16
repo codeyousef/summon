@@ -19,7 +19,7 @@ fun LanguageProvider(
     // Temporarily set the language and direction directly
     val prevLanguage = LocalLanguage.current
     val prevDirection = LocalLayoutDirection.current
-    
+    // TODO: Implement a real implementation
     // Call content with new language values
     // Note: In a real implementation, we would use a proper CompositionLocalProvider
     content()

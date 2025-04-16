@@ -62,3 +62,7 @@ new-portfolio-design.html
 /run-quarkus.bat
 /docs/examples/jvm/quarkus-example/src/main/resources/META-INF/resources/script.js
 /docs/examples/jvm/quarkus-example/src/main/kotlin/code/yousef/example/quarkus/troubleshooting.md
+/docs/js-platform-renderer-progress.md
+/docs/executive-summary.md
+/docs/development-plan.md
+/docs/animation-implementation-summary.md

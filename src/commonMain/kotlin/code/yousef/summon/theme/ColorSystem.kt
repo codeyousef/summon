@@ -233,6 +233,7 @@ object ColorSystem {
      * @return The lightened color
      */
     fun lighten(hexColor: String, percent: Float): String {
+        // TODO: Implement a real implementation
         // This is a simplified implementation
         // In a real implementation, you would convert to HSL and adjust lightness
         return withAlpha(hexColor, 1f - percent.coerceIn(0f, 1f))
@@ -246,6 +247,7 @@ object ColorSystem {
      */
     fun darken(hexColor: String, percent: Float): String {
         // This is a simplified implementation
+        // TODO: Implement a real implementation
         // In a real implementation, you would convert to HSL and adjust lightness
         return withAlpha(hexColor, 1f - percent.coerceIn(0f, 1f))
     }

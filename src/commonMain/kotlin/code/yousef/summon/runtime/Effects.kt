@@ -28,7 +28,7 @@ fun LaunchedEffect(key: Any? = null, block: suspend () -> Unit) {
         
         // Store in the slot
         composer?.setSlot(newState)
-        
+        // TODO: Implement a real implementation
         // In a real implementation, this would launch a coroutine
         println("LaunchedEffect started with key: $key")
         

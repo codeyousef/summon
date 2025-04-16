@@ -191,6 +191,7 @@ private fun getAccessibilityAttributes(
 
 /**
  * A composable that displays text, usually used for labels or descriptions.
+ * This component renders as a semantic HTML label element.
  *
  * @param text The text string to display.
  * @param modifier The modifier to apply to this composable.
@@ -198,16 +199,9 @@ private fun getAccessibilityAttributes(
  */
 @Composable
 fun Label(text: String, modifier: Modifier = Modifier(), forElement: String? = null) {
-    // Call the PlatformRenderer renderText or potentially a new renderLabel
+    // Get the platform renderer
     val renderer = LocalPlatformRenderer.current
 
-    // Add the 'for' attribute if present
-    var finalModifier = modifier
-    forElement?.let { finalModifier = finalModifier.attribute("for", it) }
-
-    // TODO: Semantic distinction? Should Label call renderInline or renderText?
-    // Calling renderText for now.
-    println("[WARN] Label composable rendering as simple Text via renderText.")
-    renderer.renderText(text = text, modifier = finalModifier)
-    // Ideally: renderer.renderLabel(text = text, modifier = finalModifier, forId = forElement)
+    // Use the semantic renderLabel method
+    renderer.renderLabel(text = text, modifier = modifier, forElement = forElement)
 }

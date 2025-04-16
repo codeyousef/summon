@@ -256,6 +256,7 @@ class DynamicRenderer(
      * Generates stylesheet links
      */
     private fun generateStylesheets(context: RenderContext): String {
+        // TODO: Implement a real implementation
         // In a real implementation, this would retrieve stylesheets from the render context
         // For this example, we'll return a placeholder
         return """<link rel="stylesheet" href="/summon.css">"""
@@ -266,7 +267,7 @@ class DynamicRenderer(
      */
     private fun generateInitialStateScript(context: RenderContext): String {
         if (context.initialState.isEmpty()) return ""
-
+// TODO: Implement a real implementation
         // In a real implementation, this would serialize the state to JSON
         // For this example, we'll return a placeholder
         return """<script>window.__SUMMON_INITIAL_STATE__ = ${serializeInitialState(context.initialState)};</script>"""
@@ -277,6 +278,7 @@ class DynamicRenderer(
      * This is a simple placeholder implementation
      */
     private fun serializeInitialState(state: Map<String, Any?>): String {
+        // TODO: Implement a real implementation
         // In a real implementation, this would serialize the state to JSON
         // For this example, we'll return a placeholder
         return "{}"

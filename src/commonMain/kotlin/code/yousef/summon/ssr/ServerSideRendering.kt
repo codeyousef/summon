@@ -17,7 +17,7 @@ interface HtmlBuilder {
      * Add content to the HTML
      */
     fun append(content: String)
-    
+
     /**
      * Finalize and return the HTML string
      */
@@ -29,11 +29,11 @@ interface HtmlBuilder {
  */
 class SimpleHtmlBuilder : HtmlBuilder {
     private val builder = StringBuilder()
-    
+
     override fun append(content: String) {
         builder.append(content)
     }
-    
+
     override fun finalize(): String {
         return builder.toString()
     }
@@ -93,7 +93,7 @@ class RenderContext(
      * Optional state bundle to initialize client-side state
      */
     val initialState: Map<String, Any?> = emptyMap(),
-    
+
     /**
      * List of head elements collected during rendering
      */
@@ -224,9 +224,9 @@ object ServerSideRenderUtils {
         includeHydrationScript: Boolean = true
     ): String {
         println("ServerSideRenderUtils.renderPageToString called.")
-        
+
         val context = RenderContext(initialState = initialData, enableHydration = includeHydrationScript)
-        
+
         // Get the platform renderer (assumes one is available/set)
         val platformRenderer = getPlatformRenderer()
 
@@ -235,25 +235,78 @@ object ServerSideRenderUtils {
         val bodyContent = renderResult.html
         val headElements = renderResult.headElements // Head elements are now collected by renderToString
 
-        // TODO: Collect head elements properly via context or renderer capabilities
-        // val headContent = context.headElements.joinToString("\n") { /* Render head composable? */ "" }
+        // Collect head elements from the renderer
         val headContent = headElements.joinToString("\n") // Join collected head strings
-        
+
         // 4. Optionally generate hydration data
         val hydrationScript = if (includeHydrationScript) {
             generateHydrationScript(initialData)
         } else {
             ""
         }
-        
-        // 5. Construct the final HTML document
-        // TODO: Integrate SEO metadata from context
+
+        // 5. Construct the final HTML document with SEO metadata from context
+        // Extract basic SEO metadata
+        val titleValue = context.seoMetadata.title.ifEmpty { "SSR Page" }
+        val descriptionValue = context.seoMetadata.description
+        val canonicalValue = context.seoMetadata.canonical
+
+        // Get additional SEO metadata
+        val keywordsValue = context.seoMetadata.keywords.joinToString(", ")
+        val robotsValue = context.seoMetadata.robots
+
+        // Get OpenGraph metadata
+        val ogTitle = context.seoMetadata.openGraph.title.ifEmpty { titleValue }
+        val ogDescription = context.seoMetadata.openGraph.description.ifEmpty { descriptionValue }
+        val ogType = context.seoMetadata.openGraph.type
+        val ogUrl = context.seoMetadata.openGraph.url.ifEmpty { canonicalValue }
+        val ogImage = context.seoMetadata.openGraph.image
+
+        // Get Twitter Card metadata
+        val twitterCard = context.seoMetadata.twitterCard.card
+        val twitterSite = context.seoMetadata.twitterCard.site
+        val twitterCreator = context.seoMetadata.twitterCard.creator
+
+        // Collect custom meta tags
+        val customMetaTags = context.seoMetadata.customMetaTags.entries
+            .joinToString("\n    ") { (key, value) ->
+                if (key.startsWith("og:") || key.startsWith("twitter:")) {
+                    "<meta property=\"$key\" content=\"$value\">"
+                } else {
+                    "<meta name=\"$key\" content=\"$value\">"
+                }
+            }
+
         return """
         <!DOCTYPE html>
         <html>
         <head>
             <meta charset="UTF-8">
-            <title>SSR Page</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>$titleValue</title>
+
+            <!-- Basic SEO -->
+            ${if (descriptionValue.isNotEmpty()) "<meta name=\"description\" content=\"$descriptionValue\">" else ""}
+            ${if (keywordsValue.isNotEmpty()) "<meta name=\"keywords\" content=\"$keywordsValue\">" else ""}
+            ${if (robotsValue.isNotEmpty()) "<meta name=\"robots\" content=\"$robotsValue\">" else ""}
+            ${if (canonicalValue.isNotEmpty()) "<link rel=\"canonical\" href=\"$canonicalValue\">" else ""}
+
+            <!-- Open Graph / Facebook -->
+            <meta property="og:type" content="$ogType">
+            <meta property="og:title" content="$ogTitle">
+            ${if (ogDescription.isNotEmpty()) "<meta property=\"og:description\" content=\"$ogDescription\">" else ""}
+            ${if (ogImage.isNotEmpty()) "<meta property=\"og:image\" content=\"$ogImage\">" else ""}
+            ${if (ogUrl.isNotEmpty()) "<meta property=\"og:url\" content=\"$ogUrl\">" else ""}
+
+            <!-- Twitter -->
+            <meta name="twitter:card" content="$twitterCard">
+            ${if (twitterSite.isNotEmpty()) "<meta name=\"twitter:site\" content=\"$twitterSite\">" else ""}
+            ${if (twitterCreator.isNotEmpty()) "<meta name=\"twitter:creator\" content=\"$twitterCreator\">" else ""}
+
+            <!-- Custom meta tags -->
+            $customMetaTags
+
+            <!-- Head elements -->
             $headContent
         </head>
         <body>

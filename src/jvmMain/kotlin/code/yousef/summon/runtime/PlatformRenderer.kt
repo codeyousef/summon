@@ -19,6 +19,8 @@ actual interface PlatformRenderer {
     // --- Core Rendering Primitives ---
     actual fun renderText(text: String, modifier: Modifier)
 
+    actual fun renderLabel(text: String, modifier: Modifier, forElement: String?)
+
     // --- Specific Component Renderers ---
     actual fun renderButton(
         onClick: () -> Unit,

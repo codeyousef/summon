@@ -1,45 +1,60 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.components.LayoutComponent
-import code.yousef.summon.components.ScrollableComponent
-import code.yousef.summon.core.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.getPlatformRenderer
-import kotlinx.html.TagConsumer
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.LocalPlatformRenderer
+import code.yousef.summon.runtime.remember
+import code.yousef.summon.state.mutableStateOf
 
 /**
- * A layout composable that displays a horizontal scrollable list with lazy loading.
- * LazyRow only renders the items that are visible in the viewport, improving performance
- * for large lists. This is similar to RecyclerView in Android or a virtualized list in JS frameworks.
+ * A horizontally scrolling list that only composes and lays out the currently visible items.
  *
- * @param items The list of items to be displayed
- * @param itemContent A function that produces a Composable for each item
- * @param modifier The modifier to apply to this composable
+ * @param modifier The modifier to be applied to the LazyRow
+ * @param state Optional state object that controls and observes scrolling
+ * @param content The content lambda defining the children, scoped to `LazyListScope`.
  */
-class LazyRow<T>(
-    val items: List<T>,
-    val itemContent: (T) -> Composable,
-    val modifier: Modifier = Modifier()
-) : Composable, LayoutComponent, ScrollableComponent {
-    /**
-     * Renders this LazyRow composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T2> compose(receiver: T2): T2 {
-        if (receiver is TagConsumer<*>) {
-            getPlatformRenderer().renderLazyRow(
-                modifier = modifier,
-                content = { // 'this' is FlowContent scope from the renderer
-                    // Similar to LazyColumn, a real impl would handle visibility.
-                    // Render all items for now.
-                    this@LazyRow.items.forEach { item ->
-                        val childComposable = this@LazyRow.itemContent(item)
-                        childComposable.compose(this) // Pass FlowContent scope
-                    }
+@Composable
+fun LazyRow(
+    modifier: Modifier = Modifier(),
+    state: LazyListState = remember { LazyListState() },
+    content: LazyListScope.() -> Unit
+) {
+    val composer = CompositionLocal.currentComposer
+
+    // Create the scope first to collect item definitions
+    val scope = LazyListScopeImpl()
+    scope.content() // Execute user lambda to populate scope.items
+
+    // For now, we'll use a simple approach without JavaScript event handlers
+    // This will be enhanced in a future implementation
+    val finalModifier = modifier.then(
+        Modifier()
+            .style("overflow-x", "auto")
+            .style("display", "flex")
+            .style("flex-direction", "row")
+            .style("max-width", "100%")
+    )
+
+    // Now render the container, passing a content lambda that 
+    // will compose the collected items (or a subset in a real impl).
+    val renderer = LocalPlatformRenderer.current
+
+    // Calculate the visible range based on the current scroll position
+    // In a real implementation, this would be updated when the scroll position changes
+    val containerSize = 600f
+    val visibleRange = state.getVisibleItemRange(containerSize, scope.items.size)
+
+    renderer.renderLazyRow(
+        modifier = finalModifier,
+        content = { // 'this' is FlowContent scope from the renderer
+            // Only render items that are in the visible range
+            for (i in visibleRange) {
+                if (i >= 0 && i < scope.items.size) {
+                    // Execute the composable lambda provided for the visible item
+                    scope.items[i]()
                 }
-            )
+            }
         }
-        return receiver
-    }
-} 
+    )
+}

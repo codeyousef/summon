@@ -32,7 +32,7 @@ class StreamingRenderer(
 
         // Then, emit the body opening tag and root div
         emit("<body>\n<div id=\"root\" data-summon-hydration=\"root\">")
-
+        // TODO: Implement a real implementation
         // Render the component in chunks using a special chunking renderer
         // In a real implementation, this would use a more sophisticated chunking approach
         // For this example, we'll simulate chunking by splitting a full render
@@ -275,7 +275,7 @@ object StreamingSSR {
             // Wrap each chunk with a progress marker for client-side tracking
             emit("<div data-summon-chunk=\"$index\">$chunk</div>\n")
             emit("<script>window.__summonChunkLoaded();</script>\n")
-            
+            // TODO: Implement a real implementation
             // Small delay between chunks to simulate network streaming
             // In a real implementation, this would be controlled by network backpressure
             kotlinx.coroutines.delay(10)
@@ -313,6 +313,7 @@ private object StreamingHydrationSupport {
      * Generates hydration data for client-side reactivation
      */
     fun generateHydrationData(content: @Composable () -> Unit): String {
+        // TODO: Implement a real implementation
         // In a real implementation, this would generate proper hydration data
         // For this example, we'll return a placeholder
         return """{ "hydrationVersion": 1, "components": [] }"""

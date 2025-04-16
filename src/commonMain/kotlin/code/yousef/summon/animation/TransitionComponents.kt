@@ -100,9 +100,44 @@ class Transition<T>(
         // Create a state to hold the animated value
         val animatedValue = remember { mutableStateOf(initialValue) }
 
-        // In a real implementation, this would use the animation system
-        // For simplicity, just return the target value
-        animatedValue.value = targetValue
+        // Get the current progress of the animation (0.0 to 1.0)
+        val progress = remember { mutableStateOf(0f) }
+
+        // Start the animation when targetValue changes
+        val key = targetValue.hashCode()
+
+        // Use LaunchedEffect to handle the animation
+        code.yousef.summon.runtime.LaunchedEffect(key) {
+            // Reset progress
+            progress.value = 0f
+
+            // Get the animation duration
+            val duration = animation.durationMs
+
+            // Use the AnimationController to track animation progress
+            AnimationController.startAnimation(duration)
+
+            // Update the animated value based on progress
+            while (progress.value < 1.0f) {
+                // Get current progress from AnimationController
+                progress.value = AnimationController.progress
+
+                // Calculate the current value based on progress
+                val currentFloat = initialFloat + (targetFloat - initialFloat) * progress.value
+                animatedValue.value = converter.convertFromVector(currentFloat)
+
+                // Check if animation is complete
+                if (progress.value >= 1.0f || AnimationController.status == AnimationStatus.STOPPED) {
+                    break
+                }
+
+                // Small delay to avoid excessive updates
+                code.yousef.summon.animation.delay(16) // ~60fps
+            }
+
+            // Ensure final value is set
+            animatedValue.value = targetValue
+        }
 
         return animatedValue
     }
@@ -177,8 +212,57 @@ class InfiniteTransition {
         // Create a state to hold the animated value
         val animatedValue = remember { mutableStateOf(initialValue) }
 
-        // In a real implementation, this would use the animation system
-        // For simplicity, just return the initial value
+        // Get the initial and target values as floats
+        val initialFloat = converter.convertToVector(initialValue)
+        val targetFloat = converter.convertToVector(targetValue)
+
+        // Create a progress state to track animation progress
+        val progress = remember { mutableStateOf(0f) }
+        val cycleCount = remember { mutableStateOf(0) }
+
+        // Use LaunchedEffect to handle the infinite animation
+        code.yousef.summon.runtime.LaunchedEffect(Unit) {
+            // Start the animation
+            val duration = animation.durationMs
+
+            // Use the AnimationController to track animation progress
+            AnimationController.startAnimation(duration)
+
+            // Continuously update the animated value
+            while (true) {
+                // For infinite animations, we use a sine wave to oscillate between 0 and 1
+                // We'll use the AnimationController's progress and reset it when it completes
+
+                if (AnimationController.status == AnimationStatus.STOPPED) {
+                    // Animation completed, restart it and increment cycle count
+                    cycleCount.value++
+                    AnimationController.startAnimation(duration)
+                }
+
+                // Get current progress and adjust based on cycle count (even/odd)
+                val rawProgress = AnimationController.progress
+                progress.value = if (cycleCount.value % 2 == 0) {
+                    rawProgress // Forward animation
+                } else {
+                    1f - rawProgress // Reverse animation
+                }
+
+                // Apply easing function if available
+                val easedProgress = if (animation is TweenAnimation) {
+                    animation.easing.getValue(progress.value)
+                } else {
+                    progress.value
+                }
+
+                // Calculate the current value based on progress
+                val currentFloat = initialFloat + (targetFloat - initialFloat) * easedProgress
+                animatedValue.value = converter.convertFromVector(currentFloat)
+
+                // Small delay to avoid excessive updates
+                code.yousef.summon.animation.delay(16) // ~60fps
+            }
+        }
+
         return animatedValue
     }
 

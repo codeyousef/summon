@@ -18,6 +18,7 @@ class StandardHydrationSupport : HydrationSupport {
         composable: @Composable () -> Unit,
         strategy: HydrationStrategy
     ): String {
+        // TODO: Implement a real implementation
         // In a real implementation, this would analyze the composable and generate
         // serialized state data for client-side hydration
         
@@ -39,6 +40,7 @@ class StandardHydrationSupport : HydrationSupport {
      * @return HTML with hydration markers
      */
     override fun addHydrationMarkers(html: String, hydrationData: String): String {
+        // TODO: Implement a real implementation
         // In a real implementation, this would parse the HTML and add data attributes
         // for hydration at specific points
         

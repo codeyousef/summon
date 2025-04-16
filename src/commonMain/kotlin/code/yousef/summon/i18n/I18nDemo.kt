@@ -9,6 +9,7 @@ import code.yousef.summon.runtime.Composable
  */
 @Composable
 fun I18nDemo() {
+    // TODO: Implement a real implementation
     // This is a simplified implementation to avoid compilation errors
     // In a real app, this would use the Summon component system
     
@@ -31,7 +32,7 @@ fun I18nDemo() {
     // Output would show welcome message in the current language
     // and would adapt layout based on the text direction
 }
-
+// TODO: Implement a real implementation
 /**
  * Simple placeholder for the language selector - not a real implementation
  */
@@ -42,6 +43,7 @@ private fun LanguageSelector() {
     
     // Example: Display language options in a list
     for (language in I18nConfig.supportedLanguages) {
+        // TODO: Implement a real implementation
         // In the real implementation, this would be buttons for each language
     }
 } 

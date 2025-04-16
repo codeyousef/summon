@@ -64,6 +64,7 @@ fun Modifier.combine(other: Modifier): Modifier = this.then(other)
  */
 fun Modifier.event(eventName: String, handler: ModifierHandler): Modifier {
     // Since we can't store functions in the map, we just add a marker style
+    // TODO: Implement a real implementation
     // In a real implementation, this would need to register the handler elsewhere
     return style("__event:$eventName", "true")
 } 
