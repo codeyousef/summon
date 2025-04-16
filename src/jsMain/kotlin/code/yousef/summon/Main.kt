@@ -2,33 +2,34 @@ package code.yousef.summon
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.Text
-import code.yousef.summon.routing.Pages
-import code.yousef.summon.routing.RouteParams
-import code.yousef.summon.routing.RouteDefinition
 import code.yousef.summon.routing.PageFactory
-import code.yousef.summon.runtime.MigratedPlatformRenderer
+import code.yousef.summon.routing.Pages
+import code.yousef.summon.routing.RouteDefinition
+import code.yousef.summon.routing.RouteParams
+import code.yousef.summon.runtime.JsPlatformRenderer
+import code.yousef.summon.runtime.PlatformRenderer
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.Document
 import org.w3c.dom.HTMLElement
-import org.w3c.dom.css.CSSStyleDeclaration
 import org.w3c.dom.NodeList
+import org.w3c.dom.css.CSSStyleDeclaration
 import org.w3c.dom.events.Event
 
 // Create a variable to hold the current platform renderer
-private var platformRenderer: MigratedPlatformRenderer? = null
+private var platformRenderer: PlatformRenderer? = null
 
 /**
  * Sets the global platform renderer
  */
-fun setPlatformRenderer(renderer: MigratedPlatformRenderer) {
+fun setPlatformRenderer(renderer: PlatformRenderer) {
     platformRenderer = renderer
 }
 
 /**
  * Gets the global platform renderer
  */
-fun getPlatformRenderer(): MigratedPlatformRenderer {
+fun getPlatformRenderer(): PlatformRenderer {
     return platformRenderer ?: throw IllegalStateException("Platform renderer has not been set")
 }
 
@@ -113,7 +114,7 @@ private fun registerAppPages() {
     // Pages.register("/divider") { DividerExample() }
     // Pages.register("/simple") { MySimplePage() }
     // Pages.register("/") { BasicUIDemo() }
-    
+
     // Register a placeholder page for the root
     Pages.register("/") { Text("Welcome to Summon! (Root Page)") }
 
@@ -137,7 +138,7 @@ private fun setupApp() {
     // Convert PageFactory map to List<RouteDefinition>
     val routes = Pages.getRegisteredPages().map { (path, pageFactory) ->
         // Explicitly name the 'content' argument to resolve ambiguity
-        RouteDefinition(path = path, content = { params -> 
+        RouteDefinition(path = path, content = { params ->
             pageFactory(params) // Use params directly since it's already a RouteParams object
         })
     }
@@ -151,10 +152,10 @@ private fun setupApp() {
 
     // Define and use the renderComposable function for JS
     val renderer = JsPlatformRenderer()
-    
+
     // Set the renderer as the platform renderer to be used by composables
     setPlatformRenderer(renderer)
-    
+
     // Render the router component
     renderer.renderComposable({
         RouterComponent(
@@ -162,8 +163,8 @@ private fun setupApp() {
             routes = routes,
             notFound = notFoundHandler
         )
-    }, appContainer)
-    
+    })
+
     // Temporary placeholder content (removed since we implemented proper rendering)
     // appContainer.innerHTML = "<h1>Summon App</h1><p>Router setup needed (path: $initialPath)...</p>"
 }
@@ -196,7 +197,7 @@ private fun RouterComponent(
         // Simple exact matching for now
         route.path == initialPath
     }
-    
+
     if (matchingRoute != null) {
         // Render the matching route content
         val emptyParams = RouteParams(mapOf())

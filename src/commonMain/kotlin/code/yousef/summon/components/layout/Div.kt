@@ -1,9 +1,9 @@
 package code.yousef.summon.components.layout
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.core.PlatformRenderer
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.LocalPlatformRenderer
+import kotlinx.html.FlowContent
 
 /**
  * A basic container component that renders a div element.
@@ -14,11 +14,10 @@ import code.yousef.summon.runtime.LocalPlatformRenderer
 @Composable
 fun Div(
     modifier: Modifier = Modifier.create(),
-    content: @Composable () -> Unit
+    content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
-    renderer.renderDiv(modifier)
-    content()
+    renderer.renderDiv(modifier, content)
 }
 
 /**
@@ -30,11 +29,10 @@ fun Div(
 @Composable
 fun Span(
     modifier: Modifier = Modifier.create(),
-    content: @Composable () -> Unit
+    content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
-    renderer.renderSpan(modifier)
-    content()
+    renderer.renderSpan(modifier, content)
 }
 
 /**

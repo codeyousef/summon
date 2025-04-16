@@ -2,8 +2,9 @@ package code.yousef.summon.components.display
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer
+import code.yousef.summon.modifier.ModifierExtras.attribute
+import kotlinx.html.FlowContent
 
 /**
  * A composable that displays text with enhanced styling and accessibility options.
@@ -45,8 +46,6 @@ fun Text(
     ariaLabel: String? = null,
     ariaDescribedBy: String? = null
 ) {
-    val composer = CompositionLocal.currentComposer
-
     // Apply text-specific styles to the modifier
     val additionalStyles = getAdditionalStyles(
         overflow, lineHeight, textAlign, fontFamily, textDecoration,
@@ -58,20 +57,14 @@ fun Text(
     val accessibilityAttrs = getAccessibilityAttributes(role, ariaLabel, ariaDescribedBy)
 
     // Combine all styles and attributes
-    val finalModifier = if (additionalStyles.isNotEmpty()) {
-        modifier.styles(additionalStyles)
-    } else {
-        modifier
+    var finalModifier = modifier
+    if (additionalStyles.isNotEmpty()) {
+        finalModifier = finalModifier.styles(additionalStyles)
     }
 
-    // Start composition node
-    composer?.startNode()
-    if (composer?.inserting == true) {
-        val renderer = LocalPlatformRenderer.current
-        // Use the correct renderText method with value parameter
-        renderer.renderText(value = text, modifier = finalModifier)
-    }
-    composer?.endNode()
+    // Call the PlatformRenderer
+    val renderer = LocalPlatformRenderer.current
+    renderer.renderText(text = text, modifier = finalModifier)
 }
 
 /**
@@ -194,4 +187,27 @@ private fun getAccessibilityAttributes(
     ariaDescribedBy?.let { attributes["aria-describedby"] = it }
 
     return attributes
-} 
+}
+
+/**
+ * A composable that displays text, usually used for labels or descriptions.
+ *
+ * @param text The text string to display.
+ * @param modifier The modifier to apply to this composable.
+ * @param forElement Optional ID of the element this label is associated with.
+ */
+@Composable
+fun Label(text: String, modifier: Modifier = Modifier(), forElement: String? = null) {
+    // Call the PlatformRenderer renderText or potentially a new renderLabel
+    val renderer = LocalPlatformRenderer.current
+
+    // Add the 'for' attribute if present
+    var finalModifier = modifier
+    forElement?.let { finalModifier = finalModifier.attribute("for", it) }
+
+    // TODO: Semantic distinction? Should Label call renderInline or renderText?
+    // Calling renderText for now.
+    println("[WARN] Label composable rendering as simple Text via renderText.")
+    renderer.renderText(text = text, modifier = finalModifier)
+    // Ideally: renderer.renderLabel(text = text, modifier = finalModifier, forId = forElement)
+}

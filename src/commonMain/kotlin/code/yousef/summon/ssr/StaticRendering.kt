@@ -3,20 +3,15 @@ package code.yousef.summon.ssr
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.routing.RouteDefinition
 import code.yousef.summon.routing.RouteParams
-import code.yousef.summon.runtime.CommonComposer
-import code.yousef.summon.runtime.ComposeManagerContext
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.MigratedPlatformRenderer
+import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.getPlatformRenderer
-import kotlinx.html.TagConsumer
-import kotlinx.html.stream.createHTML
 
 /**
  * Handles static rendering of Summon components to HTML with improved compatibility
  * with the new composition system.
  */
 class StaticRenderer(
-    private val platformRenderer: MigratedPlatformRenderer = getPlatformRenderer()
+    private val platformRenderer: PlatformRenderer = getPlatformRenderer()
 ) : ServerSideRenderer {
     /**
      * Render a composable to HTML
@@ -26,26 +21,19 @@ class StaticRenderer(
      * @return The generated HTML as a string
      */
     override fun render(composable: @Composable () -> Unit, context: RenderContext): String {
-        // Use CommonComposer instead of JvmComposer
-        val composer = CommonComposer()
-        
-        // Execute composable to generate HTML
-        val htmlBuilder = createHTML()
-        ComposeManagerContext.withComposer(composer) {
-            platformRenderer.renderComposable(composable, htmlBuilder as TagConsumer<*>)
+        val componentHtml = platformRenderer.renderComposableRoot {
+            composable()
         }
-        
-        val html = htmlBuilder.finalize()
-        
+
         // Wrap with HTML structure
-        return wrapWithHtml(html, context)
+        return wrapWithHtml(componentHtml, context)
     }
-    
+
     // Get the metadata values safely with defaults
     private fun getMetadataValue(context: RenderContext, key: String, default: String = ""): String {
         return context.metadata[key] ?: context.seoMetadata.customMetaTags[key] ?: default
     }
-    
+
     /**
      * Wraps the rendered component HTML in a complete HTML document
      */
@@ -53,8 +41,10 @@ class StaticRenderer(
         val titleValue = getMetadataValue(context, "title", "Static Page")
         val descriptionValue = getMetadataValue(context, "description", "")
         val canonicalValue = getMetadataValue(context, "canonical", "")
-        
+
         // Build simple HTML document with minimal SEO
+        val headElements = platformRenderer.getHeadElements().joinToString("\n                ")
+
         return """
             <!DOCTYPE html>
             <html>
@@ -64,6 +54,7 @@ class StaticRenderer(
                 <title>$titleValue</title>
                 ${if (descriptionValue.isNotEmpty()) "<meta name=\"description\" content=\"$descriptionValue\">" else ""}
                 ${if (canonicalValue.isNotEmpty()) "<link rel=\"canonical\" href=\"$canonicalValue\">" else ""}
+                $headElements
                 <link rel="stylesheet" href="/css/styles.css">
             </head>
             <body>
@@ -75,25 +66,25 @@ class StaticRenderer(
             </html>
         """.trimIndent()
     }
-    
+
     /**
      * Generate a script for the initial state
      */
     private fun generateInitialStateScript(context: RenderContext): String {
         if (context.initialState.isEmpty()) return ""
-        
+
         // Simple JSON serialization
         val stateJson = context.initialState.entries.joinToString(",\n    ", "{\n    ", "\n}") { (key, value) ->
             "\"${key}\": ${serializeValue(value)}"
         }
-        
+
         return """
             <script>
                 window.__INITIAL_STATE__ = $stateJson;
             </script>
         """.trimIndent()
     }
-    
+
     /**
      * Serialize a value to JSON
      */
@@ -107,9 +98,11 @@ class StaticRenderer(
                     "\"${k}\": ${serializeValue(v)}"
                 }
             }
+
             is List<*> -> {
                 value.joinToString(",", "[", "]") { serializeValue(it) }
             }
+
             else -> "\"${value.toString().replace("\"", "\\\"")}\""
         }
     }
@@ -120,7 +113,7 @@ class StaticRenderer(
  */
 object StaticRendering {
     private val renderer = StaticRenderer()
-    
+
     /**
      * Render a composable to static HTML
      *
@@ -138,7 +131,7 @@ object StaticRendering {
         )
         return renderer.render(composable, context)
     }
-    
+
     /**
      * Create a custom static renderer
      *
@@ -163,7 +156,7 @@ object StaticSiteGenerator {
      */
     fun renderRouteToString(route: RouteDefinition, params: Map<String, String> = emptyMap()): String {
         println("StaticSiteGenerator: Rendering route path '${route.path}' with params $params")
-        
+
         // Create a rendering context based on route information
         val context = RenderContext(
             enableHydration = false, // Static sites typically don't need hydration
@@ -173,27 +166,21 @@ object StaticSiteGenerator {
                 canonical = route.canonicalUrl ?: ""
             )
         )
-        
-        // Set up server-side rendering environment
-        val composer = CommonComposer()
-        val htmlConsumer = createHTML()
-        
+
         // Create a composable that renders the route's content
         val routeComposable: @Composable () -> Unit = {
-            // Pass route parameters to the content composable
             route.content(RouteParams(params))
         }
-        
-        // Wrap with composition context
-        val htmlContent = ComposeManagerContext.withComposer(composer) {
-            // Render the content
-            createHTML().apply {
-                LocalPlatformRenderer.current.renderComposable(routeComposable, this as TagConsumer<*>)
-            }.finalize()
+
+        // Render the content using the modified renderComposableRoot
+        val platformRenderer = getPlatformRenderer()
+        val htmlContent = platformRenderer.renderComposableRoot {
+            routeComposable()
         }
-        
-        // Generate the full HTML document
-        return StaticRenderer().wrapWithHtml(htmlContent, context)
+
+        // Generate the full HTML document using the local StaticRenderer instance
+        // Ensure the platformRenderer instance used for wrapping is the same one used for rendering
+        return StaticRenderer(platformRenderer).wrapWithHtml(htmlContent, context)
     }
 
     /**
@@ -209,10 +196,10 @@ object StaticSiteGenerator {
         dataProvider: suspend (routePath: String, params: Map<String, String>) -> Map<String, Any> = { _, _ -> emptyMap() }
     ) {
         println("StaticSiteGenerator: Generating static site to $baseOutputDir")
-        
+
         // Create base output directory if it doesn't exist
         FileSystemAccess.createDirectory(baseOutputDir)
-        
+
         // Process each route
         routes.forEach { route ->
             if (!route.path.contains("{")) {
@@ -225,10 +212,10 @@ object StaticSiteGenerator {
                 // Dynamic route - needs parameter values
                 println("  - Processing dynamic route: ${route.path}")
                 val dynamicParams = extractRouteParameters(route.path)
-                
+
                 // Generate parameter combinations (in a real app, this would use dataProvider)
                 val paramCombinations = generateParameterCombinations(route.path, dynamicParams)
-                
+
                 // Render each parameter combination
                 paramCombinations.forEach { params ->
                     val resolvedPath = resolvePathWithParams(route.path, params)
@@ -239,7 +226,7 @@ object StaticSiteGenerator {
                 }
             }
         }
-        
+
         // Generate index file if needed
         val indexRoute = routes.find { it.path == "/" || it.path == "" }
         if (indexRoute != null) {
@@ -247,13 +234,13 @@ object StaticSiteGenerator {
             saveHtmlFile("$baseOutputDir/index.html", indexHtml)
             println("  - Generated index page")
         }
-        
+
         // Copy static assets if needed
         copyStaticAssets(baseOutputDir)
-        
+
         println("StaticSiteGenerator: Static site generation completed")
     }
-    
+
     /**
      * Extracts parameter placeholders from a route path
      */
@@ -261,7 +248,7 @@ object StaticSiteGenerator {
         val regex = "\\{([^}]+)\\}".toRegex()
         return regex.findAll(path).map { it.groupValues[1] }.toList()
     }
-    
+
     /**
      * Generates combinations of parameter values for dynamic routes
      * In a real app, this would fetch actual data from the dataProvider
@@ -275,9 +262,11 @@ object StaticSiteGenerator {
             routePath.contains("/products/{id}") -> {
                 (1..5).map { mapOf("id" to "product-$it") }
             }
+
             routePath.contains("/users/{userId}") -> {
                 (1..3).map { mapOf("userId" to "user-$it") }
             }
+
             routePath.contains("/blog/{slug}") -> {
                 listOf(
                     mapOf("slug" to "first-post"),
@@ -285,6 +274,7 @@ object StaticSiteGenerator {
                     mapOf("slug" to "advanced-techniques")
                 )
             }
+
             else -> {
                 // Fallback for other dynamic routes
                 parameters.map { param ->
@@ -293,7 +283,7 @@ object StaticSiteGenerator {
             }
         }
     }
-    
+
     /**
      * Resolves a route path with parameter values
      */
@@ -304,34 +294,34 @@ object StaticSiteGenerator {
         }
         return result
     }
-    
+
     /**
      * Normalizes a path for file system storage
      */
     private fun normalizePath(path: String): String {
         // Convert route path to filename
         var fileName = path.trim('/')
-        
+
         // Handle root path
         if (fileName.isEmpty()) {
             fileName = "index"
         }
-        
+
         // Add .html extension if not present
         if (!fileName.endsWith(".html")) {
             fileName = "$fileName.html"
         }
-        
+
         return fileName
     }
-    
+
     /**
      * Saves HTML content to a file
      */
     private fun saveHtmlFile(path: String, content: String) {
         FileSystemAccess.writeTextFile(path, content)
     }
-    
+
     /**
      * Copies static assets to the output directory
      */
@@ -339,7 +329,7 @@ object StaticSiteGenerator {
         // Create assets directory
         val assetsDir = "$baseOutputDir/assets"
         FileSystemAccess.createDirectory(assetsDir)
-        
+
         // In a real implementation, this would copy CSS, JS, images, etc.
         // For this example, we'll just create a basic CSS file
         val cssContent = """
@@ -359,7 +349,7 @@ object StaticSiteGenerator {
                 text-decoration: underline;
             }
         """.trimIndent()
-        
+
         FileSystemAccess.writeTextFile("$assetsDir/styles.css", cssContent)
     }
 }
@@ -372,12 +362,12 @@ expect object FileSystemAccess {
      * Creates a directory if it doesn't exist
      */
     fun createDirectory(path: String)
-    
+
     /**
      * Writes text content to a file
      */
     fun writeTextFile(path: String, content: String)
-    
+
     /**
      * Reads text content from a file
      */

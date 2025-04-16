@@ -7,6 +7,8 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import java.net.URI
+import org.jboss.logging.Logger
+import jakarta.annotation.PostConstruct
 
 /**
  * Example Quarkus REST resource that demonstrates Summon server-side rendering
@@ -14,8 +16,73 @@ import java.net.URI
 @Path("/")
 class SummonResource {
 
+    private val logger = Logger.getLogger(SummonResource::class.java)
+
     @Inject
     lateinit var renderer: QuarkusExtension.SummonRenderer
+    
+    @PostConstruct
+    fun init() {
+        val port = System.getProperty("quarkus.http.port") ?: "unknown"
+        System.out.println("************************************************************")
+        System.out.println("** SUMMON RESOURCE INITIALIZED - PORT CONFIGURED AS: $port **")
+        System.out.println("************************************************************")
+        
+        try {
+            // Try to create a test log file directly
+            val logFile = java.io.File("D:/Projects/KMP/summon/direct-init.log")
+            logFile.writeText("SummonResource initialized at: ${java.time.LocalDateTime.now()}\n")
+            logFile.appendText("Port configured: $port\n")
+            System.out.println("Direct log file created at: ${logFile.absolutePath}")
+        } catch (e: Exception) {
+            System.out.println("Failed to create direct log file: ${e.message}")
+            e.printStackTrace()
+        }
+    }
+    
+    /**
+     * Simple ping test endpoint
+     */
+    @GET
+    @Path("/ping")
+    @Produces(MediaType.TEXT_PLAIN)
+    fun ping(): String {
+        System.out.println("PING ENDPOINT CALLED")
+        return "Ping successful! The JAX-RS endpoint is working."
+    }
+    
+    /**
+     * Dashboard fallback test endpoint that returns plain text
+     */
+    @GET
+    @Path("/dashboard-test")
+    @Produces(MediaType.TEXT_PLAIN)
+    fun dashboardTest(): String {
+        System.out.println("DASHBOARD-TEST ENDPOINT CALLED")
+        return "Dashboard test successful! This endpoint works."
+    }
+    
+    /**
+     * Theme fallback test endpoint that returns plain text
+     */
+    @GET
+    @Path("/theme-test")
+    @Produces(MediaType.TEXT_PLAIN)
+    fun themeTest(): String {
+        System.out.println("THEME-TEST ENDPOINT CALLED")
+        return "Theme test successful! This endpoint works."
+    }
+    
+    /**
+     * Chat fallback test endpoint that returns plain text
+     */
+    @GET
+    @Path("/chat-test")
+    @Produces(MediaType.TEXT_PLAIN) 
+    fun chatTest(): String {
+        System.out.println("CHAT-TEST ENDPOINT CALLED")
+        return "Chat test successful! This endpoint works."
+    }
     
     /**
      * Endpoint that returns a fully rendered HTML page
@@ -24,6 +91,8 @@ class SummonResource {
     @Path("/hello")
     @Produces(MediaType.TEXT_HTML)
     fun hello(): String {
+        System.out.println("**************** HELLO ENDPOINT CALLED ****************")
+        logger.info("Calling /hello endpoint")
         val heading = renderer.renderHeading(1, "Hello from Summon!")
         val paragraph = renderer.renderParagraph("This is a simple example of Summon rendering in Quarkus")
         val button = renderer.renderButton("Click Me", "alert('Button clicked!')")
@@ -39,6 +108,8 @@ class SummonResource {
     @Path("/component")
     @Produces(MediaType.TEXT_HTML)
     fun component(): String {
+        System.out.println("**************** COMPONENT ENDPOINT CALLED ****************")
+        logger.info("Calling /component endpoint")
         val heading = renderer.renderHeading(1, "Hello from Summon!")
         val paragraph = renderer.renderParagraph("This is a simple example of Summon rendering in Quarkus")
         val button = renderer.renderButton("Click Me", "alert('Button clicked!')")
@@ -50,8 +121,13 @@ class SummonResource {
      * Home page endpoint at root path with custom mapping
      */
     @GET
+    @Path("/")
     @Produces(MediaType.TEXT_HTML)
     fun home(): String {
+        System.out.println("**************** HOME ENDPOINT CALLED ****************")
+        logger.debug(">>>>> DEBUGGING: Entering / (home) endpoint")
+        logger.info("Calling / (home) endpoint")
+        logger.warn("If you see this log message, logging is working correctly for the home page")
         val htmlContent = """
             <div class="container mx-auto px-4 py-8">
                 <header class="mb-8">
@@ -61,10 +137,10 @@ class SummonResource {
                 
                 <nav class="mb-8">
                     <ul class="flex justify-center space-x-6">
-                        <li><a href="/" class="text-blue-500 hover:text-blue-700">Home</a></li>
-                        <li><a href="/dashboard" class="text-blue-500 hover:text-blue-700">Dashboard</a></li>
-                        <li><a href="/theme" class="text-blue-500 hover:text-blue-700">Theme</a></li>
-                        <li><a href="/chat" class="text-blue-500 hover:text-blue-700">Chat</a></li>
+                        <li><a href="/" class="text-blue-500 hover:text-blue-700" hx-get="/" hx-target="body" hx-swap="innerHTML">Home</a></li>
+                        <li><a href="/dashboard" class="text-blue-500 hover:text-blue-700" hx-get="/dashboard" hx-target="body" hx-swap="innerHTML">Dashboard</a></li>
+                        <li><a href="/theme" class="text-blue-500 hover:text-blue-700" hx-get="/theme" hx-target="body" hx-swap="innerHTML">Theme</a></li>
+                        <li><a href="/chat" class="text-blue-500 hover:text-blue-700" hx-get="/chat" hx-target="body" hx-swap="innerHTML">Chat</a></li>
                     </ul>
                 </nav>
                 
@@ -95,7 +171,7 @@ class SummonResource {
                         Each page demonstrates different features and capabilities of the library.
                     </p>
                     <div class="text-center">
-                        <a href="/dashboard" class="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                        <a href="/dashboard" class="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" hx-get="/dashboard" hx-target="body" hx-swap="innerHTML">
                             View Dashboard Demo
                         </a>
                     </div>
@@ -110,6 +186,7 @@ class SummonResource {
     @Path("/direct-test")
     @Produces(MediaType.TEXT_HTML)
     fun getDirectTest(): String {
+        logger.info("Calling /direct-test endpoint")
         return """
             <!DOCTYPE html>
             <html>
@@ -154,7 +231,13 @@ class SummonResource {
     @Path("/dashboard")
     @Produces(MediaType.TEXT_HTML)
     fun getDashboardDirect(): String {
-        return """
+        System.out.println("**************** DASHBOARD ENDPOINT CALLED ****************")
+        logger.debug(">>>>> DEBUGGING: Entering /dashboard endpoint")
+        logger.info("Calling /dashboard endpoint")
+        logger.warn("If you see this log message, logging is working correctly for the dashboard page")
+        logger.info("Starting HTML rendering...")
+        
+        val html = """
             <!DOCTYPE html>
             <html>
                 <head>
@@ -291,10 +374,10 @@ class SummonResource {
                     <div class="container">
                         <nav class="nav">
                             <ul class="nav-list">
-                                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                                <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
-                                <li class="nav-item"><a class="nav-link" href="/theme">Theme</a></li>
-                                <li class="nav-item"><a class="nav-link" href="/chat">Chat</a></li>
+                                <li class="nav-item"><a class="nav-link" href="/" hx-get="/" hx-target="body" hx-swap="innerHTML">Home</a></li>
+                                <li class="nav-item"><a class="nav-link" href="/dashboard" hx-get="/dashboard" hx-target="body" hx-swap="innerHTML">Dashboard</a></li>
+                                <li class="nav-item"><a class="nav-link" href="/theme" hx-get="/theme" hx-target="body" hx-swap="innerHTML">Theme</a></li>
+                                <li class="nav-item"><a class="nav-link" href="/chat" hx-get="/chat" hx-target="body" hx-swap="innerHTML">Chat</a></li>
                             </ul>
                         </nav>
                         
@@ -410,6 +493,9 @@ class SummonResource {
                 </body>
             </html>
         """.trimIndent()
+        
+        logger.info("Finished building HTML, returning content with length: ${html.length}")
+        return html
     }
 
     /**
@@ -419,6 +505,10 @@ class SummonResource {
     @Path("/theme")
     @Produces(MediaType.TEXT_HTML)
     fun getThemeDirect(): String {
+        System.out.println("**************** THEME ENDPOINT CALLED ****************")
+        logger.debug(">>>>> DEBUGGING: Entering /theme endpoint")
+        logger.info("Calling /theme endpoint")
+        logger.warn("If you see this log message, logging is working correctly for the theme page")
         return """
             <!DOCTYPE html>
             <html lang="en">
@@ -688,10 +778,10 @@ class SummonResource {
                     <div class="container">
                         <nav class="nav">
                             <ul class="nav-list">
-                                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                                <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
-                                <li class="nav-item"><a class="nav-link" href="/theme">Theme</a></li>
-                                <li class="nav-item"><a class="nav-link" href="/chat">Chat</a></li>
+                                <li class="nav-item"><a class="nav-link" href="/" hx-get="/" hx-target="body" hx-swap="innerHTML">Home</a></li>
+                                <li class="nav-item"><a class="nav-link" href="/dashboard" hx-get="/dashboard" hx-target="body" hx-swap="innerHTML">Dashboard</a></li>
+                                <li class="nav-item"><a class="nav-link" href="/theme" hx-get="/theme" hx-target="body" hx-swap="innerHTML">Theme</a></li>
+                                <li class="nav-item"><a class="nav-link" href="/chat" hx-get="/chat" hx-target="body" hx-swap="innerHTML">Chat</a></li>
                             </ul>
                         </nav>
                         
@@ -843,6 +933,10 @@ class SummonResource {
     @Path("/chat")
     @Produces(MediaType.TEXT_HTML)
     fun getChatDirect(): String {
+        System.out.println("**************** CHAT ENDPOINT CALLED ****************")
+        logger.debug(">>>>> DEBUGGING: Entering /chat endpoint")
+        logger.info("Calling /chat endpoint")
+        logger.warn("If you see this log message, logging is working correctly for the chat page")
         return """
             <!DOCTYPE html>
             <html lang="en">
@@ -1135,10 +1229,10 @@ class SummonResource {
                     <div class="container">
                         <nav class="nav">
                             <ul class="nav-list">
-                                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                                <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
-                                <li class="nav-item"><a class="nav-link" href="/theme">Theme</a></li>
-                                <li class="nav-item"><a class="nav-link" href="/chat">Chat</a></li>
+                                <li class="nav-item"><a class="nav-link" href="/" hx-get="/" hx-target="body" hx-swap="innerHTML">Home</a></li>
+                                <li class="nav-item"><a class="nav-link" href="/dashboard" hx-get="/dashboard" hx-target="body" hx-swap="innerHTML">Dashboard</a></li>
+                                <li class="nav-item"><a class="nav-link" href="/theme" hx-get="/theme" hx-target="body" hx-swap="innerHTML">Theme</a></li>
+                                <li class="nav-item"><a class="nav-link" href="/chat" hx-get="/chat" hx-target="body" hx-swap="innerHTML">Chat</a></li>
                             </ul>
                         </nav>
                         
@@ -1273,6 +1367,7 @@ class ApiResource {
     @Path("/hello")
     @Produces(MediaType.TEXT_PLAIN)
     fun hello(): String {
+        System.out.println("**************** API HELLO ENDPOINT CALLED ****************")
         return "Hello from Summon Quarkus integration"
     }
     
@@ -1280,6 +1375,7 @@ class ApiResource {
     @Path("/dashboard")
     @Produces(MediaType.TEXT_HTML)
     fun getDashboard(): Response {
+        System.out.println("**************** API DASHBOARD REDIRECT CALLED ****************")
         return Response.seeOther(URI.create("/dashboard")).build()
     }
     
@@ -1287,6 +1383,7 @@ class ApiResource {
     @Path("/chat")
     @Produces(MediaType.TEXT_HTML)
     fun getChat(): Response {
+        System.out.println("**************** API CHAT REDIRECT CALLED ****************")
         return Response.seeOther(URI.create("/chat")).build()
     }
     
@@ -1294,6 +1391,7 @@ class ApiResource {
     @Path("/theme")
     @Produces(MediaType.TEXT_HTML)
     fun getTheme(): Response {
+        System.out.println("**************** API THEME REDIRECT CALLED ****************")
         return Response.seeOther(URI.create("/theme")).build()
     }
 
@@ -1301,6 +1399,7 @@ class ApiResource {
     @Path("/dashboard-direct")
     @Produces(MediaType.TEXT_HTML)
     fun getDirectDashboard(): String {
+        System.out.println("**************** API DASHBOARD-DIRECT CALLED ****************")
         return """
             <!DOCTYPE html>
             <html>
@@ -1401,7 +1500,7 @@ class ApiResource {
                                 <li><a href="/dashboard">Dashboard</a></li>
                                 <li><a href="/theme">Theme</a></li>
                                 <li><a href="/chat">Chat</a></li>
-                                <li><a href="/summon/direct-test">Summon test page</a></li>
+                                <li><a href="/direct-test">Summon test page</a></li>
                             </ul>
                         </div>
                     </div>
@@ -1416,6 +1515,7 @@ class ApiResource {
     @Path("/test")
     @Produces(MediaType.TEXT_HTML)
     fun getApiTest(): String {
+        System.out.println("**************** API TEST PAGE CALLED ****************")
         return """
             <!DOCTYPE html>
             <html>
@@ -1452,7 +1552,7 @@ class ApiResource {
                             <li><a href="/dashboard">Dashboard</a></li>
                             <li><a href="/theme">Theme</a></li>
                             <li><a href="/chat">Chat</a></li>
-                            <li><a href="/summon/direct-test">Summon test page</a></li>
+                            <li><a href="/direct-test">Summon test page</a></li>
                         </ul>
                     </div>
                 </body>

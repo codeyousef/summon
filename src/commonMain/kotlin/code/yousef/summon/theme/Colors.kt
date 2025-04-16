@@ -1,7 +1,5 @@
 package code.yousef.summon.theme
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
 
 /**

@@ -3,6 +3,9 @@ package code.yousef.summon.animation
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.LocalPlatformRenderer
+import code.yousef.summon.state.State
+import kotlinx.html.FlowContent
+import code.yousef.summon.modifier.ModifierExtras.attribute
 
 /**
  * Animation entry mode for AnimatedVisibility
@@ -44,68 +47,67 @@ data class TransitionParams(
     val slideDirection: SlideDirection = SlideDirection.LEFT
 )
 
-
 /**
- * Composable that animates the appearance and disappearance of its content.
+ * Animates the appearance and disappearance of its content.
+ * Note: This version uses simple conditional rendering. Proper exit animations require state management.
  *
- * @param visible Whether the content should be visible.
- * @param modifier Modifier applied to the container.
- * @param enterTransition Enter transition for appearance animation.
- * @param exitTransition Exit transition for disappearance animation.
- * @param enterParams Parameters for enter transition.
- * @param exitParams Parameters for exit transition.
- * @param content The content to be animated.
+ * @param visible Controls whether the content is visible.
+ * @param modifier Modifier for the container.
+ * @param enter Enter transition (e.g., EnterTransition.FADE_IN).
+ * @param exit Exit transition (e.g., ExitTransition.FADE_OUT).
+ * @param content The content to animate.
  */
 @Composable
 fun AnimatedVisibility(
-    visible: Boolean,
+    visible: Boolean, // Using simple Boolean for now
     modifier: Modifier = Modifier(),
-    enterTransition: EnterTransition = EnterTransition.FADE_IN,
-    exitTransition: ExitTransition = ExitTransition.FADE_OUT,
-    enterParams: TransitionParams = TransitionParams(),
-    exitParams: TransitionParams = TransitionParams(),
-    content: @Composable () -> Unit
+    enter: EnterTransition = EnterTransition.FADE_IN, // Use Enum constant
+    exit: ExitTransition = ExitTransition.FADE_OUT,  // Use Enum constant
+    content: @Composable FlowContent.() -> Unit
 ) {
-    // Use platform renderer directly to create the animated container
     val renderer = LocalPlatformRenderer.current
-    
-    // Create a container with animated visibility
-    renderer.renderAnimatedVisibility(visible, modifier)
-    
-    // Only render content if visible
+
+    // Simple conditional rendering (no exit animation handling yet)
     if (visible) {
-        content()
+        // Combine base modifier with animation hints
+        val finalModifier = modifier.applyTransitionAttributes(enter, exit)
+
+        // Render the container block, content is rendered inside by renderBlock
+        renderer.renderBlock(
+            modifier = finalModifier,
+            content = content // Pass content lambda directly
+        )
     }
+    // If not visible, render nothing.
+    // TODO: For exit animations, need state to keep rendering during exit.
+}
+
+// Overload for State<Boolean>
+@Composable
+fun AnimatedVisibility(
+    visible: State<Boolean>, 
+    modifier: Modifier = Modifier(),
+    enter: EnterTransition = EnterTransition.FADE_IN, // Use Enum constant
+    exit: ExitTransition = ExitTransition.FADE_OUT,  // Use Enum constant
+    content: @Composable FlowContent.() -> Unit
+) {
+    // Delegate to the Boolean version for now
+    // Proper implementation would use rememberUpdatedState and LaunchedEffect for exit animations
+    AnimatedVisibility(
+        visible = visible.value,
+        modifier = modifier,
+        enter = enter,
+        exit = exit,
+        content = content
+    )
 }
 
 /**
- * Old implementation for compatibility - supports list of composables.
- * This will be deprecated eventually.
+ * Helper to add data attributes for animation hints.
+ * Platform-specific CSS/JS should target these attributes.
  */
-@Composable
-fun AnimatedVisibility(
-    visible: Boolean,
-    modifier: Modifier = Modifier(),
-    enterTransition: EnterTransition = EnterTransition.FADE_IN,
-    exitTransition: ExitTransition = ExitTransition.FADE_OUT,
-    enterParams: TransitionParams = TransitionParams(),
-    exitParams: TransitionParams = TransitionParams(),
-    content: List<@Composable () -> Unit>
-) {
-    // Use platform renderer directly to create the animated container
-    val renderer = LocalPlatformRenderer.current
-    
-    // Create a container with animated visibility
-    renderer.renderAnimatedVisibility(visible, modifier)
-    
-    // Only render content if visible
-    if (visible) {
-        // Legacy approach for list of composables - not the modern API
-        // In future versions, this will be removed
-        content.forEach { it() }
-    }
+private fun Modifier.applyTransitionAttributes(enter: EnterTransition, exit: ExitTransition): Modifier {
+    return this
+        .attribute("data-enter", enter.name.lowercase()) // Use enum name
+        .attribute("data-exit", exit.name.lowercase())   // Use enum name
 }
-
-// Helper functions for transitions
-fun fadeIn() = EnterTransition.FADE_IN
-fun fadeOut() = ExitTransition.FADE_OUT

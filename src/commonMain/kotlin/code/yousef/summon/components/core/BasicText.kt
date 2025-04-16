@@ -30,10 +30,12 @@ fun BasicText(
     // Get the platform renderer using CompositionLocal
     val renderer = LocalPlatformRenderer.current
     
-    // Render the text using the platform renderer
-    renderer.renderText(modifier) {
-        // Text content would be rendered here
-    }
+    // TODO: Convert TextStyle to Modifier styles if needed.
+    // For now, just use the passed modifier.
+    val finalModifier = modifier
+    
+    // Render the text using the platform renderer with correct arguments
+    renderer.renderText(text = text, modifier = finalModifier)
     
     // Create a layout result (simplified for now)
     val layoutResult = TextLayoutResult(

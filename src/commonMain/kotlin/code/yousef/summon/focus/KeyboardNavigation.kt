@@ -6,6 +6,7 @@ import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.remember
 import code.yousef.summon.runtime.mutableStateOf
 import code.yousef.summon.accessibility.KeyboardNavigation
+import kotlinx.html.FlowContent
 
 /**
  * State holder for keyboard navigation
@@ -31,7 +32,7 @@ fun rememberNavigationState(initialFocusIndex: Int = 0): NavigationState {
 fun KeyboardNavigable(
     modifier: Modifier = Modifier(),
     navigationState: NavigationState = rememberNavigationState(),
-    content: @Composable () -> Unit
+    content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
     

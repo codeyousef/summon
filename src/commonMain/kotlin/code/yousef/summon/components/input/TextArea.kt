@@ -1,24 +1,22 @@
 package code.yousef.summon.components.input
 
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.applyIf
-import code.yousef.summon.modifier.pointerEvents
-import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.LocalPlatformRenderer
-
+import code.yousef.summon.runtime.mutableStateOf
+import code.yousef.summon.runtime.remember
 
 /**
- * A composable that displays a multi-line text input field.
+ * A multi-line text input field.
  *
- * @param value The current text value of the text area.
- * @param onValueChange Callback invoked when the text value changes.
+ * @param value The current text value.
+ * @param onValueChange Callback invoked when the text changes.
  * @param modifier Modifier applied to the text area.
  * @param enabled Controls the enabled state.
- * @param placeholder Optional composable lambda for displaying placeholder text.
- * @param label Optional composable lambda for a label (consider using FormField).
- * @param rows Optional hint for the number of visible text rows.
- * @param maxLength Optional maximum number of characters allowed.
- * @param isError Indicates if the text area should be styled as invalid.
+ * @param readOnly Controls the read-only state.
+ * @param rows The number of visible text lines.
+ * @param maxLength The maximum number of characters allowed.
+ * @param placeholder Placeholder text displayed when the input is empty.
  */
 @Composable
 fun TextArea(
@@ -26,28 +24,52 @@ fun TextArea(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier(),
     enabled: Boolean = true,
-    placeholder: @Composable (() -> Unit)? = null,
-    label: @Composable (() -> Unit)? = null,
+    readOnly: Boolean = false,
     rows: Int? = null,
     maxLength: Int? = null,
-    isError: Boolean = false
+    placeholder: String? = null
 ) {
-    val finalModifier = modifier
-        .opacity(if (enabled) 1f else 0.6f)
-        .cursor(if (enabled) "text" else "default")
-        .applyIf(!enabled) { pointerEvents("none") }
-        .applyIf(isError) { border("1px", "solid", "#D32F2F") }
-
     val renderer = LocalPlatformRenderer.current
 
     renderer.renderTextArea(
         value = value,
-        onValueChange = { newValue -> if (enabled) onValueChange(newValue) },
+        onValueChange = onValueChange,
         enabled = enabled,
-        readOnly = false,
+        readOnly = readOnly,
         rows = rows,
         maxLength = maxLength,
-        placeholder = null,
-        modifier = finalModifier
+        placeholder = placeholder,
+        modifier = modifier
+    )
+}
+
+/**
+ * Stateful version of TextArea.
+ */
+@Composable
+fun StatefulTextArea(
+    initialValue: String = "",
+    onValueChange: (String) -> Unit = {},
+    modifier: Modifier = Modifier(),
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    rows: Int? = null,
+    maxLength: Int? = null,
+    placeholder: String? = null
+) {
+    val textState = remember { mutableStateOf(initialValue) }
+
+    TextArea(
+        value = textState.value,
+        onValueChange = {
+            textState.value = it
+            onValueChange(it)
+        },
+        modifier = modifier,
+        enabled = enabled,
+        readOnly = readOnly,
+        rows = rows,
+        maxLength = maxLength,
+        placeholder = placeholder
     )
 } 

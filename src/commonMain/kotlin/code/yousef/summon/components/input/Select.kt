@@ -1,14 +1,15 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.state.SummonMutableState
 import code.yousef.summon.components.FocusableComponent
 import code.yousef.summon.components.InputComponent
 import code.yousef.summon.core.Composable
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.state.SummonMutableState
 import code.yousef.summon.state.mutableStateOf
-import code.yousef.summon.runtime.PlatformRendererProviderLegacy.getRenderer
 import code.yousef.summon.validation.Validator
 import kotlinx.html.TagConsumer
+import code.yousef.summon.modifier.ModifierExtras.attribute
+import code.yousef.summon.runtime.getPlatformRenderer
 
 /**
  * A composable that displays a dropdown select field.
@@ -45,12 +46,18 @@ class Select<T>(
      */
     override fun <T> compose(receiver: T): T {
         if (receiver is TagConsumer<*>) {
-            getRenderer().renderSelect(
+            // Prepare the modifier, adding the disabled attribute if needed
+            val finalModifier = if (disabled) {
+                modifier.attribute("disabled", "disabled")
+            } else {
+                modifier
+            }
+
+            getPlatformRenderer().renderSelect(
                 selectedValue.value,
                 onSelectedChange,
                 options,
-                !disabled,
-                modifier
+                finalModifier // Pass the correctly prepared modifier
             )
         }
         return receiver

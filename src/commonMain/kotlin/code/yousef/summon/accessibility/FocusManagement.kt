@@ -2,8 +2,11 @@ package code.yousef.summon.accessibility
 
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.ModifierExtras.attribute
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.DisposableEffect
+import code.yousef.summon.runtime.LaunchedEffect
+import code.yousef.summon.accessibility.applyFocusPlatform
 
 /**
  * Utilities for managing focus in web applications.
@@ -197,11 +200,12 @@ fun makeFocusable(
 ): Modifier {
     // Platform-specific focus action that will be used through the platform bridge
     val focusAction: () -> Unit = {
-        // The actual focusing will happen in platform-specific code
-        val platformRenderer = LocalPlatformRenderer.current
-        // We need to notify the renderer to focus this element
-        platformRenderer.applyFocus(focusId)
-        // Call the onFocusChange callback
+        // Call the platform-specific focus implementation
+        val success = applyFocusPlatform(focusId)
+        if (!success) {
+            println("FocusManager (via makeFocusable): Platform reported failure applying focus to $focusId")
+        }
+        // Call the onFocusChange callback if focus was attempted (regardless of platform success)
         onFocusChange?.invoke(true)
     }
 
@@ -229,11 +233,4 @@ fun generateRandomId(): String {
         .map { kotlin.random.Random.nextInt(0, charPool.size) }
         .map(charPool::get)
         .joinToString("")
-}
-
-// Helper function to add an attribute to a modifier
-private fun Modifier.attribute(key: String, value: String): Modifier {
-    val newStyles = this.styles.toMutableMap()
-    newStyles["__attr:$key"] = value
-    return Modifier(newStyles)
 } 

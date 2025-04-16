@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #4695EB;
+        }
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .connection-info {
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .connected {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        .disconnected {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .connecting {
+            background-color: #fff8e1;
+            color: #ff8f00;
+        }
+        .log {
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #f5f5f5;
+            font-family: monospace;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .log-entry {
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+        .timestamp {
+            color: #777;
+            font-size: 12px;
+        }
+        .error { color: red; }
+        .info { color: blue; }
+        .success { color: green; }
+        button {
+            background-color: #4695EB;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #3172b9;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            width: 200px;
+        }
+        .debug-info {
+            font-size: 14px;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Test Page</h1>
+    
+    <div class="debug-info">
+        <p>URL: <span id="current-url"></span></p>
+        <p>Protocol: <span id="protocol"></span></p>
+        <p>Host: <span id="host"></span></p>
+        <p>Port: <span id="port"></span></p>
+    </div>
+    
+    <div class="card">
+        <h2>WebSocket Connection</h2>
+        
+        <div>
+            <label for="username">Username:</label>
+            <input type="text" id="username" value="tester" />
+            <button id="connect-btn">Connect</button>
+            <button id="disconnect-btn" disabled>Disconnect</button>
+        </div>
+        
+        <div id="connection-status" class="connection-info disconnected">
+            Not connected
+        </div>
+        
+        <h3>Connection Log</h3>
+        <div id="log" class="log"></div>
+        
+        <div>
+            <label for="message">Message:</label>
+            <input type="text" id="message" placeholder="Type a message..." disabled />
+            <button id="send-btn" disabled>Send</button>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>Connection Troubleshooting</h2>
+        
+        <h3>Try alternative WebSocket URLs</h3>
+        <ul id="alternative-urls"></ul>
+        
+        <h3>Common Issues</h3>
+        <ul>
+            <li>Check that Quarkus is running on port 8081</li>
+            <li>Ensure the ChatSocket endpoint is correctly registered</li>
+            <li>Check for any CORS or network security settings that might block WebSocket connections</li>
+            <li>Try using a different browser</li>
+            <li>Check server logs for any WebSocket initialization errors</li>
+        </ul>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Display current URL info
+            const currentUrl = window.location.href;
+            const protocol = window.location.protocol;
+            const host = window.location.host;
+            const port = window.location.port || (protocol === 'https:' ? '443' : '80');
+            
+            document.getElementById('current-url').textContent = currentUrl;
+            document.getElementById('protocol').textContent = protocol;
+            document.getElementById('host').textContent = host;
+            document.getElementById('port').textContent = port;
+            
+            // Generate alternative URLs
+            const wsProtocol = protocol === 'https:' ? 'wss:' : 'ws:';
+            const alternativeUrls = [
+                `${wsProtocol}//${host}/chat/tester`,
+                `${wsProtocol}//localhost:8081/chat/tester`,
+                `${wsProtocol}//127.0.0.1:8081/chat/tester`
+            ];
+            
+            const altUrlsList = document.getElementById('alternative-urls');
+            alternativeUrls.forEach(url => {
+                const li = document.createElement('li');
+                li.textContent = url;
+                altUrlsList.appendChild(li);
+            });
+            
+            // DOM elements
+            const connectBtn = document.getElementById('connect-btn');
+            const disconnectBtn = document.getElementById('disconnect-btn');
+            const sendBtn = document.getElementById('send-btn');
+            const usernameInput = document.getElementById('username');
+            const messageInput = document.getElementById('message');
+            const connectionStatus = document.getElementById('connection-status');
+            const logElement = document.getElementById('log');
+            
+            // WebSocket instance
+            let socket = null;
+            
+            // Log function
+            function log(message, type = 'info') {
+                const now = new Date();
+                const timestamp = now.toLocaleTimeString() + '.' + now.getMilliseconds();
+                
+                const entry = document.createElement('div');
+                entry.className = 'log-entry ' + type;
+                
+                entry.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
+                logElement.appendChild(entry);
+                
+                // Auto-scroll to the bottom
+                logElement.scrollTop = logElement.scrollHeight;
+                
+                // Also log to console
+                console.log(`[${timestamp}] ${message}`);
+            }
+            
+            // Update connection status display
+            function updateConnectionStatus(status) {
+                connectionStatus.className = 'connection-info ' + status;
+                
+                switch(status) {
+                    case 'connected':
+                        connectionStatus.textContent = 'Connected to WebSocket server';
+                        connectBtn.disabled = true;
+                        disconnectBtn.disabled = false;
+                        messageInput.disabled = false;
+                        sendBtn.disabled = false;
+                        break;
+                    case 'connecting':
+                        connectionStatus.textContent = 'Connecting to WebSocket server...';
+                        connectBtn.disabled = true;
+                        disconnectBtn.disabled = true;
+                        messageInput.disabled = true;
+                        sendBtn.disabled = true;
+                        break;
+                    case 'disconnected':
+                        connectionStatus.textContent = 'Disconnected from WebSocket server';
+                        connectBtn.disabled = false;
+                        disconnectBtn.disabled = true;
+                        messageInput.disabled = true;
+                        sendBtn.disabled = true;
+                        break;
+                }
+            }
+            
+            // Connect to WebSocket server
+            function connect() {
+                const username = usernameInput.value.trim() || 'tester';
+                
+                try {
+                    updateConnectionStatus('connecting');
+                    const wsUrl = `${wsProtocol}//${host}/chat/${username}`;
+                    
+                    log(`Attempting to connect to: ${wsUrl}`);
+                    
+                    socket = new WebSocket(wsUrl);
+                    
+                    socket.onopen = function(event) {
+                        log('WebSocket connection opened!', 'success');
+                        updateConnectionStatus('connected');
+                    };
+                    
+                    socket.onmessage = function(event) {
+                        log(`Received message: ${event.data}`, 'info');
+                        try {
+                            const data = JSON.parse(event.data);
+                            log(`Parsed message - From: ${data.username}, Message: ${data.message}`);
+                        } catch (e) {
+                            log(`Error parsing message: ${e.message}`, 'error');
+                        }
+                    };
+                    
+                    socket.onclose = function(event) {
+                        if (event.wasClean) {
+                            log(`Connection closed cleanly, code=${event.code}`, 'info');
+                        } else {
+                            log(`Connection died, code=${event.code}`, 'error');
+                        }
+                        updateConnectionStatus('disconnected');
+                    };
+                    
+                    socket.onerror = function(error) {
+                        log('WebSocket error!', 'error');
+                        updateConnectionStatus('disconnected');
+                    };
+                    
+                } catch (e) {
+                    log(`Error creating WebSocket: ${e.message}`, 'error');
+                    updateConnectionStatus('disconnected');
+                }
+            }
+            
+            // Disconnect from WebSocket server
+            function disconnect() {
+                if (socket) {
+                    log('Closing WebSocket connection...');
+                    socket.close();
+                    socket = null;
+                }
+            }
+            
+            // Send message to WebSocket server
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                
+                if (message && socket && socket.readyState === WebSocket.OPEN) {
+                    log(`Sending message: "${message}"`);
+                    socket.send(message);
+                    messageInput.value = '';
+                } else {
+                    log('Cannot send message: WebSocket is not connected', 'error');
+                }
+            }
+            
+            // Event listeners
+            connectBtn.addEventListener('click', connect);
+            disconnectBtn.addEventListener('click', disconnect);
+            sendBtn.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // Initial state
+            updateConnectionStatus('disconnected');
+            log('WebSocket test page loaded', 'info');
+        });
+    </script>
+</body>
+</html> 

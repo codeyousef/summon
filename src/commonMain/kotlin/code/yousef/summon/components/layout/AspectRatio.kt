@@ -3,7 +3,6 @@ package code.yousef.summon.components.layout
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.PlatformRendererProvider
 
 
 /**
@@ -20,11 +19,13 @@ fun AspectRatio(
     content: @Composable () -> Unit
 ) {
     val platformRenderer = LocalPlatformRenderer.current
-    
+
     // Use the platform renderer to create the aspect ratio container
     platformRenderer.renderAspectRatio(
         ratio = ratio,
         modifier = modifier,
-        content = content
+        content = {
+            content()
+        }
     )
 } 

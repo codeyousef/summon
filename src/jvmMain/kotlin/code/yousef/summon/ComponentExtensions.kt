@@ -49,7 +49,11 @@ fun <T> TestButton.renderJvm(consumer: TagConsumer<T>): TagConsumer<T> {
     val newConsumer = sb.appendHTML()
     
     // Render using platform renderer
-    LocalPlatformRenderer.current.renderButton({ onClick(Unit) }, !disabled, Modifier())
+    LocalPlatformRenderer.current.renderButton(
+        onClick = { onClick(Unit) },
+        modifier = Modifier(),
+        content = {}
+    )
     
     // We'll just return the original consumer as the test is only checking the toString output
     return consumer
@@ -62,7 +66,11 @@ fun <T> TestButton.renderJvm(consumer: TagConsumer<T>): TagConsumer<T> {
 fun TestButton.renderToHtmlString(): String {
     val sb = StringBuilder()
     val consumer = sb.appendHTML()
-    LocalPlatformRenderer.current.renderButton({ onClick(Unit) }, !disabled, Modifier())
+    LocalPlatformRenderer.current.renderButton(
+        onClick = { onClick(Unit) },
+        modifier = Modifier(),
+        content = {}
+    )
     return sb.toString()
 }
 

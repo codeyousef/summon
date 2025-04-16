@@ -1,49 +1,67 @@
 package code.yousef.summon.components.input
 
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.applyIf
-import code.yousef.summon.modifier.pointerEvents
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer
+import code.yousef.summon.runtime.mutableStateOf
+import code.yousef.summon.runtime.remember
 
 /**
- * A slider component that allows the user to select a value from a given range.
+ * A composable that allows selecting a single value from a range.
  *
- * @param value The current value of the slider.
- * @param onValueChange Callback invoked when the slider value changes.
- * @param valueRange The range of possible values for the slider.
- * @param steps The number of discrete steps the slider can snap to. If 0, the slider moves continuously.
- * @param modifier The modifier to be applied to the slider.
- * @param enabled Whether the slider is enabled.
+ * @param value The current selected value.
+ * @param onValueChange Callback invoked when the value changes.
+ * @param modifier Modifier applied to the slider layout.
+ * @param valueRange The total range allowed for selection.
+ * @param steps The number of discrete steps. 0 for continuous.
+ * @param enabled Controls the enabled state.
  */
 @Composable
 fun Slider(
     value: Float,
     onValueChange: (Float) -> Unit,
-    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    modifier: Modifier = Modifier(),
+    valueRange: ClosedFloatingPointRange<Float> = 0.0f..1.0f,
+    steps: Int = 0,
+    enabled: Boolean = true
+) {
+    val renderer = LocalPlatformRenderer.current
+
+    renderer.renderSlider(
+        value = value,
+        onValueChange = onValueChange,
+        valueRange = valueRange,
+        steps = steps,
+        enabled = enabled,
+        modifier = modifier
+    )
+}
+
+/**
+ * Stateful version of Slider.
+ *
+ * ... (Add KDoc if needed) ...
+ */
+@Composable
+fun StatefulSlider(
+    initialValue: Float = 0.5f,
+    onValueChange: (Float) -> Unit = {},
+    valueRange: ClosedFloatingPointRange<Float> = 0.0f..1.0f,
     steps: Int = 0,
     modifier: Modifier = Modifier(),
     enabled: Boolean = true
 ) {
-    val composer = CompositionLocal.currentComposer
-    // Apply styling directly to the element via modifier
-    val finalModifier = modifier
-        .opacity(if (enabled) 1f else 0.6f) // Assuming opacity is in Modifier
-        .cursor(if (enabled) "pointer" else "default") // Assuming cursor is in Modifier
-        .applyIf(!enabled) { pointerEvents("none") }
+    val sliderState = remember { mutableStateOf(initialValue) }
 
-    composer?.startNode() // Start Slider node
-    if (composer?.inserting == true) {
-        val renderer = LocalPlatformRenderer.current
-        renderer.renderSlider(
-            value = value,
-            onValueChange = onValueChange,
-            valueRange = valueRange,
-            steps = steps,
-            enabled = enabled,
-            modifier = finalModifier
-        )
-    }
-    composer?.endNode() // End Slider node (self-closing)
+    Slider(
+        value = sliderState.value,
+        onValueChange = {
+            sliderState.value = it
+            onValueChange(it)
+        },
+        valueRange = valueRange,
+        steps = steps,
+        modifier = modifier,
+        enabled = enabled
+    )
 } 

@@ -1,7 +1,11 @@
 package code.yousef.example.quarkus
 
 import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.input.*
+import code.yousef.summon.components.input.Button
+import code.yousef.summon.components.input.Checkbox
+import code.yousef.summon.components.input.RangeSlider
+import code.yousef.summon.components.input.TextArea
+import code.yousef.summon.components.input.TextField
 import code.yousef.summon.components.layout.Box
 import code.yousef.summon.components.layout.Card
 import code.yousef.summon.components.layout.Column
@@ -14,11 +18,10 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 /**
- * Root component that contains the main application layout.
+ * Root component for the application structure.
  */
 @Composable
 fun AppRoot(content: @Composable () -> Unit) {
-    // Use Box which renders a div, apply container class
     Box(modifier = Modifier().style("class", "container")) {
         Column {
             NavigationComponent()
@@ -33,17 +36,14 @@ fun AppRoot(content: @Composable () -> Unit) {
  */
 @Composable
 fun NavigationComponent() {
-    // Use Box, apply nav classes
     Box(modifier = Modifier().style("class", "nav")) {
-        // Use Row for flex layout, apply ul classes
         Row(modifier = Modifier().style("class", "nav-list")) {
-            NavItem("/", "Home")
-            NavItem("/users", "Users")
-            NavItem("/dashboard", "Dashboard")
-            NavItem("/contact", "Contact")
-            NavItem("/theme", "Theme")
-            NavItem("/chat", "Chat")
-            NavItem("/chat-summon", "Chat Summon")
+            NavItem(href = "/", text = "Home")
+            NavItem(href = "/users", text = "Users")
+            NavItem(href = "/dashboard", text = "Dashboard")
+            NavItem(href = "/contact", text = "Contact")
+            NavItem(href = "/theme", text = "Theme")
+            NavItem(href = "/chat", text = "Chat")
         }
     }
 }
@@ -53,9 +53,7 @@ fun NavigationComponent() {
  */
 @Composable
 fun NavItem(href: String, text: String) {
-    // Use Box, apply li classes
     Box(modifier = Modifier().style("class", "nav-item")) {
-        // Use Box, apply a classes and href
         Box(modifier = Modifier().style("class", "nav-link").style("href", href)) {
             Text(text)
         }
@@ -69,32 +67,27 @@ fun NavItem(href: String, text: String) {
 fun FooterComponent() {
     Box(
         modifier = Modifier()
-            .style("class", "footer") // Use class for potential footer styling
+            .style("class", "footer")
             .style(
                 "style",
                 "margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid #ddd; text-align: center;"
             )
     ) {
-        // Use Column for vertical layout
-        Column(modifier = Modifier().style("style", "align-items: center;")) { // Style for alignment
+        Column(
+            modifier = Modifier().style("style", "align-items: center;")
+        ) {
             Text(text = "© ${LocalDateTime.now().year} Summon Quarkus Example. All rights reserved.")
-            // Use Row for horizontal layout
-            Row(modifier = Modifier().style("style", "align-items: center;")) { // Style for alignment
+            Row(
+                modifier = Modifier().style("style", "align-items: center; display: flex; justify-content: center; gap: 5px;")
+            ) {
                 Text(text = "Built with ")
-                // Use Box with href for link
                 Box(
                     modifier = Modifier().style("href", "https://quarkus.io/").style("style", "display: inline;")
-                ) { // Inline display
-                    Text(text = "Quarkus")
-                }
+                ) { Text(text = "Quarkus") }
                 Text(text = " and ")
-                // Use Box with href for link
                 Box(
-                    modifier = Modifier().style("href", "https://github.com/yebaital/summon")
-                        .style("style", "display: inline;")
-                ) { // Inline display
-                    Text(text = "Summon")
-                }
+                    modifier = Modifier().style("href", "https://github.com/yebaital/summon").style("style", "display: inline;")
+                ) { Text(text = "Summon") }
             }
         }
     }
@@ -112,13 +105,16 @@ fun HeroComponent(username: String) {
                 "text-align: center; padding: 4rem 2rem; background: linear-gradient(135deg, #4695EB 0%, #2A5298 100%); color: white; border-radius: 10px; margin-bottom: 2rem;"
             )
     ) {
-        Column(modifier = Modifier().style("style", "align-items: center;")) { // Style for alignment
-            // Use Text and style to mimic H1
+        Column(
+            modifier = Modifier().style("style", "align-items: center;")
+        ) {
             Text(
                 text = "Welcome to Summon with Quarkus",
-                modifier = Modifier().style("style", "font-size: 2.5rem; margin-bottom: 1rem; font-weight: bold;")
+                modifier = Modifier().style(
+                    "style",
+                    "font-size: 2.5rem; margin-bottom: 1rem; font-weight: bold;"
+                )
             )
-            // Use Text and style to mimic P
             Text(
                 text = "Hello, $username! This example showcases how to integrate Summon with Quarkus to build amazing web applications.",
                 modifier = Modifier().style(
@@ -147,7 +143,6 @@ fun HeroComponent(username: String) {
 @Composable
 fun FeatureCardsComponent() {
     Column {
-        // Use Text and style to mimic H2
         Text(
             text = "Key Features",
             modifier = Modifier().style(
@@ -155,7 +150,7 @@ fun FeatureCardsComponent() {
                 "text-align: center; margin: 2rem 0; font-size: 1.8rem; font-weight: bold;"
             )
         )
-        Row(modifier = Modifier().style("class", "row")) {
+        Row(modifier = Modifier().style("class", "row").style("style", "display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;")) {
             FeatureCard(
                 title = "Reactive UI",
                 description = "Build reactive user interfaces with state management.",
@@ -177,14 +172,17 @@ fun FeatureCardsComponent() {
 
 /**
  * Individual feature card component.
+ * Placeholder - Needs definition based on Summon's capabilities or custom implementation.
  */
 @Composable
 fun FeatureCard(title: String, description: String, icon: String) {
     Box(modifier = Modifier().style("class", "col")) {
-        Card(modifier = Modifier().style("style", "text-align: center;")) {
+        Card(modifier = Modifier().style("style", "text-align: center; padding: 1.5rem;")) {
             Column {
-                Text(text = icon, modifier = Modifier().style("style", "font-size: 3rem; margin-bottom: 1rem;"))
-                // Use Text and style to mimic H3
+                Text(
+                    text = icon,
+                    modifier = Modifier().style("style", "font-size: 3rem; margin-bottom: 1rem;")
+                )
                 Text(
                     text = title,
                     modifier = Modifier().style(
@@ -192,7 +190,6 @@ fun FeatureCard(title: String, description: String, icon: String) {
                         "font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;"
                     )
                 )
-                // Use Text and style to mimic P
                 Text(text = description)
             }
         }
@@ -200,62 +197,53 @@ fun FeatureCard(title: String, description: String, icon: String) {
 }
 
 /**
- * Interactive counter component demonstrating state management.
+ * Interactive counter component demonstrating state management (via HTMX workaround).
  */
 @Composable
-fun CounterComponent() {
-    Card(modifier = Modifier().style("class", "card")) {
-        Column {
-            // Use Text and style to mimic H3
+fun CounterComponent(initialValue: Int = 0) {
+    Card(modifier = Modifier().style("style", "text-align: center; padding: 2rem;")) {
+        Column(modifier = Modifier().style("style", "align-items: center;")) {
             Text(
-                text = "Interactive Counter",
-                modifier = Modifier().style("style", "font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;")
-            )
-            Text(
-                text = "This component uses HTMX for updates triggered by buttons below."
+                text = "Interactive Counter (HTMX)",
+                modifier = Modifier().style("style", "font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem;")
             )
 
             Row(
                 modifier = Modifier()
-                    .style("style", "display: flex; align-items: center; justify-content: center; margin: 1rem 0;")
+                    .style("style", "display: flex; align-items: center; justify-content: center; gap: 1rem; margin: 1rem 0;")
             ) {
                 Button(
                     label = "−",
-                    onClick = {}, // Action handled by HTMX
+                    onClick = {},
                     modifier = Modifier()
                         .style("class", "btn")
                         .style("id", "decrement-btn")
+                        .style("style", "background-color: var(--error-color);")
                         .style("hx-post", "/api/counter/decrement")
                         .style("hx-target", "#counter-value")
                         .style("hx-swap", "innerHTML")
-                        .style("style", "margin-right: 1rem;")
                 )
-                // Use Text, style to mimic span
                 Text(
-                    text = "0", // Initial value
+                    text = initialValue.toString(),
                     modifier = Modifier()
                         .style("id", "counter-value")
-                        .style("style", "font-size: 1.5rem; font-weight: 600; margin: 0 1rem;")
+                        .style("style", "font-size: 2rem; font-weight: bold;")
                 )
-
                 Button(
                     label = "+",
-                    onClick = {}, // Action handled by HTMX
+                    onClick = {},
                     modifier = Modifier()
                         .style("class", "btn")
                         .style("id", "increment-btn")
                         .style("hx-post", "/api/counter/increment")
                         .style("hx-target", "#counter-value")
                         .style("hx-swap", "innerHTML")
-                        .style("style", "margin-left: 1rem;")
                 )
             }
-            // Use Text, style to mimic div
             Text(
-                text = "Click the buttons to change the counter via HTMX POST requests.",
+                text = "Click buttons to change counter via HTMX.",
                 modifier = Modifier()
-                    .style("id", "counter-message")
-                    .style("style", "text-align: center; margin-top: 1rem; font-style: italic; color: #666;")
+                    .style("style", "font-style: italic; color: #666; margin-top: 1rem;")
             )
         }
     }
@@ -263,6 +251,7 @@ fun CounterComponent() {
 
 /**
  * Dashboard component showing various metrics and statistics.
+ * Placeholder - Needs definition based on Summon's capabilities or custom implementation.
  */
 @Composable
 fun DashboardComponent() {
@@ -271,44 +260,43 @@ fun DashboardComponent() {
             text = "Dashboard",
             modifier = Modifier().style("style", "font-size: 2rem; font-weight: bold; margin-bottom: 1.5rem;")
         )
-
-        // Statistics overview
-        Row(modifier = Modifier().style("class", "row").style("style", "margin-bottom: 2rem;")) {
-            StatCard(title = "Users", value = "254", iconText = "👥", color = "#3498db")
-            StatCard(title = "Products", value = "1,254", iconText = "📦", color = "#2ecc71")
-            StatCard(title = "Revenue", value = "$10,350", iconText = "💰", color = "#f39c12")
-            StatCard(title = "Orders", value = "846", iconText = "🛒", color = "#9b59b6")
+        Row(
+            modifier = Modifier().style("class", "row").style("style", "display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;")
+        ) {
+            StatCard(title = "Users", value = "1,234", iconText = "👥", color = "#4695EB")
+            StatCard(title = "Revenue", value = "$8,345", iconText = "💰", color = "#4CAF50")
+            StatCard(title = "Products", value = "567", iconText = "📦", color = "#FF9800")
+            StatCard(title = "Orders", value = "890", iconText = "��", color = "#F44336")
         }
 
-        // Recent activity section
-        Card(modifier = Modifier().style("style", "margin-bottom: 2rem;")) {
-            Column {
+        Card(modifier = Modifier().style("style", "margin-top: 2rem;")) {
+            Column(modifier = Modifier().style("style", "padding: 1.5rem;")) {
                 Text(
                     text = "Recent Activity",
-                    modifier = Modifier().style("style", "font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem;")
+                    modifier = Modifier().style("style", "font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: var(--primary-color);")
                 )
-
-                // Activity list
-                ActivityItem(
-                    action = "User Login",
-                    details = "John Doe logged in",
-                    time = "10 minutes ago"
-                )
-                ActivityItem(
-                    action = "New Order",
-                    details = "Order #1234 placed for $129.99",
-                    time = "1 hour ago"
-                )
-                ActivityItem(
-                    action = "User Signup",
-                    details = "Jane Smith created an account",
-                    time = "3 hours ago"
-                )
-                ActivityItem(
-                    action = "Product Update",
-                    details = "Product 'Wireless Headphones' updated",
-                    time = "Yesterday"
-                )
+                Box(modifier = Modifier().style("style", "border-left: 2px solid var(--border-color); margin-left: 0.5rem; padding-left: 1.5rem;")) {
+                    Column {
+                        ActivityItem(
+                            user = "John Doe",
+                            action = "Completed order #12345",
+                            time = "2 hours ago",
+                            icon = "✅"
+                        )
+                        ActivityItem(
+                            user = "Jane Smith",
+                            action = "Updated product inventory",
+                            time = "4 hours ago",
+                            icon = "🔄"
+                        )
+                        ActivityItem(
+                            user = "Mike Johnson",
+                            action = "Added new product",
+                            time = "Yesterday",
+                            icon = "➕"
+                        )
+                    }
+                }
             }
         }
     }
@@ -316,38 +304,24 @@ fun DashboardComponent() {
 
 /**
  * Statistics card for the dashboard.
+ * Placeholder - Needs definition based on Summon's capabilities or custom implementation.
  */
 @Composable
-private fun StatCard(title: String, value: String, iconText: String, color: String) {
-    Box(modifier = Modifier().style("class", "col")) {
-        Card(modifier = Modifier().style("style", "border-top: 4px solid $color;")) {
-            Row(
-                modifier = Modifier().style(
-                    "style",
-                    "align-items: center; padding: 0.5rem;"
+fun StatCard(title: String, value: String, iconText: String, color: String) {
+    Card(modifier = Modifier().style("style", "border-left: 4px solid $color; display: flex; align-items: center; padding: 1.5rem;")) {
+        Row(modifier = Modifier().style("style", "align-items: center; width: 100%;")) {
+            Box(
+                modifier = Modifier().style("style", "font-size: 2rem; margin-right: 1rem; color: $color;")
+            ) { Text(text = iconText) }
+            Column {
+                Text(
+                    text = title,
+                    modifier = Modifier().style("style", "color: var(--text-color); font-size: 1rem; margin: 0;")
                 )
-            ) {
-                // Icon
-                Box(
-                    modifier = Modifier().style(
-                        "style",
-                        "font-size: 2rem; margin-right: 1rem; color: $color;"
-                    )
-                ) {
-                    Text(iconText)
-                }
-
-                // Content
-                Column {
-                    Text(
-                        text = title,
-                        modifier = Modifier().style("style", "color: #7f8c8d; font-size: 0.9rem;")
-                    )
-                    Text(
-                        text = value,
-                        modifier = Modifier().style("style", "font-size: 1.5rem; font-weight: bold;")
-                    )
-                }
+                Text(
+                    text = value,
+                    modifier = Modifier().style("style", "font-size: 1.5rem; font-weight: bold; color: $color; margin: 0.25rem 0 0 0;")
+                )
             }
         }
     }
@@ -355,29 +329,32 @@ private fun StatCard(title: String, value: String, iconText: String, color: Stri
 
 /**
  * Activity item showing a single activity entry.
+ * Placeholder - Needs definition based on Summon's capabilities or custom implementation.
  */
 @Composable
-private fun ActivityItem(action: String, details: String, time: String) {
-    Box(
-        modifier = Modifier().style(
-            "style",
-            "padding: 0.75rem; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;"
-        )
-    ) {
-        Column(modifier = Modifier().style("style", "flex: 1;")) {
+fun ActivityItem(user: String, action: String, time: String, icon: String) {
+    Box(modifier = Modifier().style("style", "display: flex; margin-bottom: 1.5rem; position: relative;")) {
+        Box(
+            modifier = Modifier().style(
+                "style",
+                "width: 2rem; height: 2rem; background-color: var(--panel-color); border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-right: 1rem; position: absolute; left: -2.6rem; top: 0; border: 2px solid var(--border-color);"
+            )
+        ) { Text(text = icon) }
+
+        Column(modifier = Modifier().style("style", "margin-left: 1rem;")) {
+            Text(
+                text = user,
+                modifier = Modifier().style("style", "margin: 0; font-weight: bold; color: var(--primary-color);")
+            )
             Text(
                 text = action,
-                modifier = Modifier().style("style", "font-weight: bold;")
+                modifier = Modifier().style("style", "margin: 0.25rem 0; color: var(--text-color);")
             )
             Text(
-                text = details,
-                modifier = Modifier().style("style", "color: #7f8c8d; font-size: 0.9rem;")
+                text = time,
+                modifier = Modifier().style("style", "margin: 0; font-size: 0.8rem; color: var(--text-color); opacity: 0.7;")
             )
         }
-        Text(
-            text = time,
-            modifier = Modifier().style("style", "color: #95a5a6; font-size: 0.8rem;")
-        )
     }
 }
 
@@ -386,108 +363,54 @@ private fun ActivityItem(action: String, details: String, time: String) {
  */
 @Composable
 fun ContactFormComponent() {
-    Card {
+    Card(modifier = Modifier().style("style", "max-width: 600px; margin: 2rem auto; padding: 2rem;")) {
         Column {
             Text(
                 text = "Contact Us",
-                modifier = Modifier().style("style", "font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem;")
+                modifier = Modifier().style("style", "font-size: 1.8rem; font-weight: bold; margin-bottom: 1rem; text-align: center;")
             )
-            Text(
-                text = "Fill out the form below to get in touch with our team.",
-                modifier = Modifier().style("style", "margin-bottom: 1.5rem;")
-            )
-
-            // Use Box to wrap the form
-            Box(
-                modifier = Modifier()
-                    .style("style", "width: 100%;")
-                    .style("hx-post", "/api/contact")
-                    .style("hx-swap", "outerHTML")
+            HtmxForm(
+                action = "/api/contact",
+                target = "closest .card",
+                swap = "outerHTML"
             ) {
-                Column {
-                    // Name field
-                    Column(modifier = Modifier().style("style", "margin-bottom: 1rem;")) {
-                        Text(
-                            text = "Name",
-                            modifier = Modifier().style(
-                                "style",
-                                "font-weight: 600; display: block; margin-bottom: 0.5rem;"
-                            )
-                        )
+                Column(modifier = Modifier().style("style", "gap: 1rem;")) {
+                    FormGroup("Name") {
                         TextField(
                             value = "",
                             onValueChange = {},
-                            placeholder = "Your Name",
-                            modifier = Modifier()
-                                .style("name", "name")
-                                .style("required", "true")
+                            modifier = Modifier().style("name", "name").style("required", "true").style("placeholder", "Your Name")
                         )
                     }
-
-                    // Email field
-                    Column(modifier = Modifier().style("style", "margin-bottom: 1rem;")) {
-                        Text(
-                            text = "Email",
-                            modifier = Modifier().style(
-                                "style",
-                                "font-weight: 600; display: block; margin-bottom: 0.5rem;"
-                            )
-                        )
+                    FormGroup("Email") {
                         TextField(
                             value = "",
                             onValueChange = {},
-                            placeholder = "Your Email",
-                            modifier = Modifier()
-                                .style("name", "email")
-                                .style("type", "email")
-                                .style("required", "true")
+                            modifier = Modifier().style("name", "email").style("type", "email").style("required", "true").style("placeholder", "Your Email")
                         )
                     }
-
-                    // Subject field
-                    Column(modifier = Modifier().style("style", "margin-bottom: 1rem;")) {
-                        Text(
-                            text = "Subject",
-                            modifier = Modifier().style(
-                                "style",
-                                "font-weight: 600; display: block; margin-bottom: 0.5rem;"
-                            )
-                        )
+                    FormGroup("Subject") {
                         TextField(
                             value = "",
                             onValueChange = {},
-                            placeholder = "Message Subject",
-                            modifier = Modifier()
-                                .style("name", "subject")
-                                .style("required", "true")
+                            modifier = Modifier().style("name", "subject").style("required", "true").style("placeholder", "Message Subject")
                         )
                     }
-
-                    // Message field
-                    Column(modifier = Modifier().style("style", "margin-bottom: 1.5rem;")) {
-                        Text(
-                            text = "Message",
-                            modifier = Modifier().style(
-                                "style",
-                                "font-weight: 600; display: block; margin-bottom: 0.5rem;"
-                            )
-                        )
+                    FormGroup("Message") {
                         TextArea(
                             value = "",
                             onValueChange = {},
-                            placeholder = { Text("Your Message") },
                             modifier = Modifier()
                                 .style("name", "message")
                                 .style("required", "true")
+                                .style("placeholder", "Your Message")
                                 .style("style", "min-height: 120px;")
                         )
                     }
-
-                    // Submit button
                     Button(
                         label = "Send Message",
                         onClick = {},
-                        modifier = Modifier().style("class", "btn")
+                        modifier = Modifier().style("class", "btn").style("style", "width: 100%; margin-top: 1rem;")
                     )
                 }
             }
@@ -496,109 +419,124 @@ fun ContactFormComponent() {
 }
 
 /**
- * Helper component for displaying an H2 heading.
+ * Form group helper component.
+ * Placeholder - Needs definition based on Summon's capabilities or custom implementation.
  */
 @Composable
-fun H2(content: @Composable () -> Unit) {
-    Box(modifier = Modifier().style("style", "font-size: 2rem; font-weight: bold; margin-bottom: 1.5rem;")) {
+fun FormGroup(label: String, content: @Composable () -> Unit) {
+    Column(modifier = Modifier().style("style", "margin-bottom: 1rem;")) {
+        Text(
+            text = label,
+            modifier = Modifier().style("style", "font-weight: 600; display: block; margin-bottom: 0.5rem;")
+        )
         content()
     }
 }
 
 /**
- * Displays the current time, updating every second.
+ * HTMX Form wrapper component.
+ * Placeholder - Needs definition based on Summon's capabilities or custom implementation.
+ */
+@Composable
+fun HtmxForm(
+    action: String,
+    target: String,
+    swap: String = "innerHTML",
+    modifier: Modifier = Modifier(),
+    content: @Composable () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .style("hx-post", action)
+            .style("hx-target", target)
+            .style("hx-swap", swap)
+            .style("element", "form")
+            .style("action", action)
+            .style("method", "post")
+    ) {
+        content()
+    }
+}
+
+/**
+ * Displays the current time, updating via HTMX.
  */
 @Composable
 fun CurrentTimeComponent() {
-    Box(
-        modifier = Modifier()
-            .style("class", "card")
-            .style("style", "margin-bottom: 2rem; text-align: center;")
-    ) {
-        Column {
+    Card(modifier = Modifier().style("style", "text-align: center; padding: 2rem; background-color: var(--panel-color); margin-bottom: 2rem;")) {
+        Column(modifier = Modifier().style("style", "align-items: center;")) {
             Text(
-                text = "Current Server Time",
-                modifier = Modifier().style("style", "font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;")
+                text = "Current Server Time (HTMX)",
+                modifier = Modifier().style("style", "margin-bottom: 1rem; color: var(--primary-color); font-size: 1.2rem;")
             )
-
             Text(
-                text = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                text = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")),
                 modifier = Modifier()
-                    .style("id", "current-time")
-                    .style("style", "font-size: 1.25rem; color: var(--primary-color);")
+                    .style("id", "current-time-htmx")
+                    .style("style", "font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0;")
                     .style("hx-get", "/api/time")
                     .style("hx-trigger", "every 1s")
                     .style("hx-swap", "innerHTML")
+            )
+            Text(
+                text = LocalDateTime.now().format(DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy")),
+                modifier = Modifier().style("style", "font-size: 1rem; color: var(--text-color);")
             )
         }
     }
 }
 
-/**
- * Theme selection component.
- *
- * Note: The actual implementation is in ThemeSelectionComponent.kt
- * to avoid function name conflicts.
- */
-// ThemeSelectionComponent moved to its own file: ThemeSelectionComponent.kt
+@Composable
+fun StatefulExampleComponent() {
+    val textValue = remember { mutableStateOf("") }
 
-/**
- * Form with various input types for testing.
- */
+    Column {
+        Text("Enter text:")
+        TextField(
+            value = textValue.value,
+            onValueChange = { newValue -> textValue.value = newValue },
+            modifier = Modifier().style("name", "statefulText")
+        )
+        Text("You entered: ${textValue.value}")
+    }
+}
+
 @Composable
 fun VariousInputsFormComponent() {
-    // Use direct state access
     val textValue = remember { mutableStateOf("") }
-    val sliderValue = remember { mutableStateOf(50f..50f) }
+    val sliderValue = remember { mutableStateOf(0f..100f) }
     val checkboxChecked = remember { mutableStateOf(false) }
 
-    Card {
-        // Use renamed HtmxForm composable
-        HtmxForm(modifier = Modifier().style("hx-post", "/api/form-test")) {
-            Column(modifier = Modifier().style("style", "gap: 1rem;")) { // Style for gap
+    Card(modifier = Modifier().style("style","padding: 1.5rem;")) {
+        HtmxForm(action = "/api/form-test", target = "#form-test-output") {
+            Column(modifier = Modifier().style("style", "gap: 1rem;")) {
                 Text(
                     text = "Various Input Types Test",
-                    modifier = Modifier().style(
-                        "style",
-                        "font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;"
-                    )
+                    modifier = Modifier().style("style", "font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem;")
                 )
 
                 FormGroup("Text Field") {
                     TextField(
-                        value = textValue.value, // Access state value
-                        onValueChange = { textValue.value = it }, // Update state value
-                        placeholder = "Enter some text",
-                        modifier = Modifier().style("name", "textField")
+                        value = textValue.value,
+                        onValueChange = { textValue.value = it },
+                        modifier = Modifier().style("name", "textField").style("placeholder", "Enter text")
                     )
                 }
 
                 FormGroup("Range Slider (0-100)") {
-                    Row(
-                        modifier = Modifier().style(
-                            "style",
-                            "align-items: center; gap: 1rem;"
-                        )
-                    ) { // Style for alignment and gap
-                        // Assuming RangeSlider exists and takes these parameters
-                        RangeSlider(
-                            value = sliderValue.value, // Now using a ClosedFloatingPointRange<Float>
-                            onValueChange = { sliderValue.value = it }, // Update the range
-                            valueRange = 0f..100f, // Set the range from 0 to 100
-                            // Apply style attributes directly
-                            modifier = Modifier().style("style", "flex: 1;").style("name", "slider")
-                        )
-                        Text(
-                            text = "${sliderValue.value.start.toInt()}-${sliderValue.value.endInclusive.toInt()}"
-                        ) // Format the range display
-                    }
+                    RangeSlider(
+                        value = sliderValue.value,
+                        onValueChange = { sliderValue.value = it },
+                        valueRange = 0f..100f,
+                        modifier = Modifier().style("name", "slider")
+                    )
+                    Text(text = "Value: ${sliderValue.value.start.toInt()} - ${sliderValue.value.endInclusive.toInt()}")
                 }
 
                 FormGroup("Checkbox") {
-                    // Assuming Checkbox exists and takes these parameters
                     Checkbox(
-                        checked = checkboxChecked.value, // Access state value
-                        onCheckedChange = { checkboxChecked.value = it }, // Update state value
+                        checked = checkboxChecked.value,
+                        onCheckedChange = { checkboxChecked.value = it },
                         label = "Agree to terms?",
                         modifier = Modifier().style("name", "checkbox")
                     )
@@ -607,34 +545,13 @@ fun VariousInputsFormComponent() {
                 Button(
                     label = "Submit Inputs",
                     onClick = {},
-                    modifier = Modifier().style("type", "submit").style("class", "btn")
+                    modifier = Modifier().style("class", "btn").style("type", "submit")
                 )
+
+                Box(modifier = Modifier().style("id", "form-test-output").style("style", "margin-top: 1rem; padding: 1rem; border: 1px dashed #ccc;")) {
+                    Text("Form output will appear here.")
+                }
             }
         }
     }
 }
-
-// Renamed custom 'form' composable to avoid conflicts
-@Composable
-fun HtmxForm(
-    modifier: Modifier = Modifier(),
-    content: @Composable () -> Unit
-) {
-    Box(
-        modifier = modifier, // Apply all attributes (id, hx-*) here
-        content = content
-    )
-}
-
-/**
- * A form group that wraps form elements with a label.
- */
-@Composable
-fun FormGroup(label: String, content: @Composable () -> Unit) {
-    Box(modifier = Modifier().style("class", "form-group").style("style", "margin-bottom: 1rem;")) {
-        Box(modifier = Modifier().style("style", "font-weight: bold; margin-bottom: 0.5rem;")) {
-            Text(text = label)
-        }
-        content()
-    }
-} 

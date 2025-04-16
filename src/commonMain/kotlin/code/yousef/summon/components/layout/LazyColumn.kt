@@ -4,12 +4,11 @@ import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.PlatformRendererProvider
 
 
 /**
  * A vertically scrolling list that only composes and lays out the currently visible items.
- * 
+ *
  * @param modifier The modifier to be applied to the LazyColumn
  * @param content The content lambda defining the children, scoped to `LazyListScope`.
  */
@@ -21,24 +20,27 @@ fun LazyColumn(
     val composer = CompositionLocal.currentComposer
     val finalModifier = modifier // Placeholder for potential default styles
 
-    composer?.startNode() // Start LazyColumn node
-    if (composer?.inserting == true) {
-        val renderer = LocalPlatformRenderer.current
-        renderer.renderLazyColumn(finalModifier) // Render the container
-    }
-    
-    // Create the scope, collect the item composables by executing the content lambda
+    // Create the scope first to collect item definitions
     val scope = LazyListScopeImpl()
-    scope.content()
-    
-    // Compose the actual items within the LazyColumn node
-    // In a real implementation, this loop would be driven by the layout state (scroll position)
-    // and only compose visible items.
-    scope.items.forEach { itemContentLambda ->
-        itemContentLambda() // Execute the composable lambda for each item
-    }
+    scope.content() // Execute user lambda to populate scope.items
 
-    composer?.endNode() // End LazyColumn node
+    // Now render the container, passing a content lambda that 
+    // will compose the collected items (or a subset in a real impl).
+    val renderer = LocalPlatformRenderer.current
+    renderer.renderLazyColumn(
+        modifier = finalModifier,
+        content = { // 'this' is FlowContent scope from the renderer
+            // In a real lazy implementation, logic here would decide which items to render
+            // based on scroll state, etc. For now, render all collected items.
+            scope.items.forEach { itemContentLambda ->
+                // Execute the composable lambda provided for each item.
+                // This assumes itemContentLambda is @Composable () -> Unit
+                itemContentLambda()
+            }
+        }
+    )
+    // Node start/end might be handled differently with this structure, TBD.
+    // composer?.startNode() ... composer?.endNode() removal might be needed
 }
 
 // The old LazyColumn class and its methods are removed. 

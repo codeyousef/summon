@@ -1,8 +1,5 @@
 package core
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
-
 /**
  * Interface for validating input fields.
  */
@@ -36,7 +33,7 @@ class EmailValidator(
     override val errorMessage: String = "Please enter a valid email address"
 ) : Validator {
     private val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
-    
+
     override fun validate(value: String): Boolean {
         return value.isEmpty() || value.matches(emailRegex)
     }

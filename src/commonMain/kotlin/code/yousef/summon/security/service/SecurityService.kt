@@ -1,13 +1,14 @@
 package security.service
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
-
+import code.yousef.summon.security.Permission
+import code.yousef.summon.security.Principal
+import code.yousef.summon.security.Role
+import code.yousef.summon.security.SecurityContext
 import security.*
-import security.annotations.RequiresAccess
-import security.annotations.RequiresAuthentication
-import security.annotations.RequiresPermissions
-import security.annotations.RequiresRoles
+import code.yousef.summon.security.annotations.RequiresAccess
+import code.yousef.summon.security.annotations.RequiresAuthentication
+import code.yousef.summon.security.annotations.RequiresPermissions
+import code.yousef.summon.security.annotations.RequiresRoles
 import security.config.SecurityConfig
 
 /**
@@ -82,7 +83,7 @@ class SecurityService(private val config: SecurityConfig) {
      * @param role The role to check
      * @return Boolean Whether the current user has the role
      */
-    fun hasRole(role: security.Role): Boolean {
+    fun hasRole(role: Role): Boolean {
         return SecurityContext.hasRole(role)
     }
     
@@ -91,7 +92,7 @@ class SecurityService(private val config: SecurityConfig) {
      * @param permission The permission to check
      * @return Boolean Whether the current user has the permission
      */
-    fun hasPermission(permission: security.Permission): Boolean {
+    fun hasPermission(permission: Permission): Boolean {
         return SecurityContext.hasPermission(permission)
     }
 

@@ -68,10 +68,10 @@ fun Button(
     }
         .style("cursor", if (disabled) "not-allowed" else "pointer")
         .style("pointer-events", if (disabled) "none" else "auto")
-        .style("onClick", onClick.toString()) // Store onClick as a custom property that the renderer will handle
     
-    // Use the renderButton method with just modifier and content
+    // Use the renderButton method, passing onClick, modifier and content
     renderer.renderButton(
+        onClick = if (disabled) { {} } else onClick,
         modifier = finalModifier
     ) {
         // Button content

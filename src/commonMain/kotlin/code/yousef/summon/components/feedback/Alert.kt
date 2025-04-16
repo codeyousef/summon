@@ -7,16 +7,9 @@ import code.yousef.summon.components.input.ButtonVariant
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.components.layout.Row
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.background
-import code.yousef.summon.modifier.border
-import code.yousef.summon.modifier.color
-import code.yousef.summon.modifier.padding
-import code.yousef.summon.modifier.width
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.theme.Spacer
 
 // Import the AlertVariant enum from its own file
 
@@ -94,50 +87,53 @@ fun Alert(
     if (composer?.inserting == true) {
         val renderer = LocalPlatformRenderer.current
         // Use the renderAlertContainer method with the new signature
-        renderer.renderAlertContainer(variant, finalModifier)
-    }
+        renderer.renderAlertContainer(
+            variant = variant,
+            modifier = finalModifier
+        ) { // Pass the internal layout as the content lambda
+            // Create a structured and accessible alert with appropriate layout
+            Row {
+                // Icon section
+                if (displayIcon != null) {
+                    Column(Modifier().padding("0 8px 0 0")) {
+                        displayIcon()
+                    }
+                }
 
-    // Create a structured and accessible alert with appropriate layout
-    Row {
-        // Icon section
-        if (displayIcon != null) {
-            Column(Modifier().padding("0 8px 0 0")) {
-                displayIcon()
-            }
-        }
+                // Content section (takes most of the space)
+                Column(Modifier().width("100%")) {
+                    if (title != null) {
+                        Column(Modifier().padding("0 0 8px 0")) {
+                            title()
+                        }
+                    }
+                    content() // The main content lambda passed to Alert
+                }
 
-        // Content section (takes most of the space)
-        Column(Modifier().width("100%")) {
-            if (title != null) {
-                Column(Modifier().padding("0 0 8px 0")) {
-                    title()
+                // Action buttons section
+                if (actions != null) {
+                    Column(Modifier().padding("0 0 0 16px")) {
+                        actions()
+                    }
+                }
+
+                // Dismiss button (if provided)
+                if (onDismiss != null) {
+                    Column(Modifier().padding("0 0 0 8px")) {
+                        Button(
+                            onClick = onDismiss,
+                            label = "×", // Consider using an Icon component
+                            modifier = Modifier().padding("4px"),
+                            variant = ButtonVariant.GHOST,
+                            disabled = false,
+                            iconName = null
+                        )
+                    }
                 }
             }
-            content()
-        }
-
-        // Action buttons section
-        if (actions != null) {
-            Column(Modifier().padding("0 0 0 16px")) {
-                actions()
-            }
-        }
-
-        // Dismiss button (if provided)
-        if (onDismiss != null) {
-            Column(Modifier().padding("0 0 0 8px")) {
-                Button(
-                    onClick = onDismiss,
-                    label = "×",
-                    modifier = Modifier().padding("4px"),
-                    variant = ButtonVariant.GHOST,
-                    disabled = false,
-                    iconName = null
-                )
-            }
         }
     }
-    
+
     composer?.endNode() // End Alert node
 }
 

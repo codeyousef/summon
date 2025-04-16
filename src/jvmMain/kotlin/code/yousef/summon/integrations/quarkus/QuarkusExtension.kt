@@ -5,6 +5,7 @@ import jakarta.enterprise.inject.Produces
 import jakarta.inject.Singleton
 import jakarta.servlet.annotation.WebServlet
 import jakarta.servlet.http.HttpServlet
+import org.jboss.logging.Logger
 
 /**
  * Quarkus Extension for Summon - Provides integration with Quarkus for server-side rendering.
@@ -27,12 +28,16 @@ object QuarkusExtension {
      * This is a temporary implementation until we resolve issues with the complete renderer.
      */
     class SummonRenderer {
+        private val logger = Logger.getLogger(SummonRenderer::class.java)
         
         /**
          * Renders a simple HTML template
          */
         fun renderTemplate(title: String, content: String): String {
-            return """
+            logger.info("Rendering template with title: $title")
+            logger.info("Content length: ${content.length} characters")
+            
+            val result = """
                 <!DOCTYPE html>
                 <html>
                     <head>
@@ -121,6 +126,30 @@ object QuarkusExtension {
                             button:hover {
                               background-color: #3a85d8;
                             }
+                            .nav {
+                              background-color: var(--primary-color);
+                              color: white;
+                              padding: 1rem;
+                              margin-bottom: 1rem;
+                              border-radius: 8px;
+                            }
+                            .nav-list {
+                              display: flex;
+                              list-style-type: none;
+                              margin: 0;
+                              padding: 0;
+                            }
+                            .nav-item {
+                              margin-right: 1.5rem;
+                            }
+                            .nav-link {
+                              color: white;
+                              text-decoration: none;
+                              font-weight: 500;
+                            }
+                            .nav-link:hover {
+                              text-decoration: underline;
+                            }
                             @media (max-width: 768px) {
                               .row {
                                 flex-direction: column;
@@ -128,17 +157,37 @@ object QuarkusExtension {
                               .col {
                                 margin-bottom: 1rem;
                               }
+                              .nav-list {
+                                flex-direction: column;
+                              }
+                              .nav-item {
+                                margin-right: 0;
+                                margin-bottom: 0.5rem;
+                              }
                             }
                         </style>
                     </head>
                     <body>
-                        <div id="app">
-                            $content
+                        <div class="container">
+                            <nav class="nav">
+                                <ul class="nav-list">
+                                    <li class="nav-item"><a class="nav-link" href="/" hx-get="/" hx-target="body" hx-swap="innerHTML">Home</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="/dashboard" hx-get="/dashboard" hx-target="body" hx-swap="innerHTML">Dashboard</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="/theme" hx-get="/theme" hx-target="body" hx-swap="innerHTML">Theme</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="/chat" hx-get="/chat" hx-target="body" hx-swap="innerHTML">Chat</a></li>
+                                </ul>
+                            </nav>
+                            <div id="app">
+                                $content
+                            </div>
                         </div>
                         <script src="https://unpkg.com/htmx.org@1.9.12"></script>
                     </body>
                 </html>
             """.trimIndent()
+            
+            logger.info("Finished rendering template, result length: ${result.length} characters")
+            return result
         }
         
         /**

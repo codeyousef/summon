@@ -1,7 +1,4 @@
-package security
-
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
+package code.yousef.summon.security
 
 import kotlin.jvm.JvmInline
 

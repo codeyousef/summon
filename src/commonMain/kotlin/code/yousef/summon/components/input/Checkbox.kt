@@ -7,9 +7,10 @@ import code.yousef.summon.runtime.remember
 import code.yousef.summon.runtime.mutableStateOf
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.applyIf
-import code.yousef.summon.modifier.pointerEvents
+import code.yousef.summon.modifier.ModifierExtras.pointerEvents
 import code.yousef.summon.validation.Validator
 import code.yousef.summon.validation.ValidationResult
+import code.yousef.summon.modifier.cursor
 
 /**
  * A composable that displays a checkbox input field.

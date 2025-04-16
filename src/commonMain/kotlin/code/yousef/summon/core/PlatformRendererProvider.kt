@@ -1,6 +1,6 @@
 package code.yousef.summon.core
 
-import code.yousef.summon.runtime.MigratedPlatformRenderer
+import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.getPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 
@@ -15,7 +15,7 @@ object PlatformRendererProvider {
      * @return The platform renderer.
      * @throws IllegalStateException if no renderer has been set.
      */
-    @Deprecated("Use getPlatformRenderer() instead", ReplaceWith("getPlatformRenderer()"))
+    @Deprecated("Use getPlatformRenderer() directly", ReplaceWith("getPlatformRenderer()"))
     fun getRenderer(): PlatformRenderer {
         return getPlatformRenderer()
     }
@@ -24,12 +24,8 @@ object PlatformRendererProvider {
      * Set the platform renderer.
      * This should be called once during app initialization.
      */
-    @Deprecated("Use setPlatformRenderer() instead", ReplaceWith("setPlatformRenderer(renderer)"))
+    @Deprecated("Use setPlatformRenderer() directly", ReplaceWith("setPlatformRenderer(renderer)"))
     fun setRenderer(renderer: PlatformRenderer) {
-        if (renderer is MigratedPlatformRenderer) {
-            setPlatformRenderer(renderer)
-        } else {
-            throw IllegalArgumentException("Renderer must implement MigratedPlatformRenderer")
-        }
+        setPlatformRenderer(renderer)
     }
 } 

@@ -9,6 +9,9 @@ import code.yousef.summon.runtime.*
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
+import code.yousef.summon.components.layout.Box
+import code.yousef.summon.modifier.alignItems
+import code.yousef.summon.modifier.flex
 
 /**
  * Variants for Snackbar components.
@@ -169,81 +172,54 @@ fun Snackbar(
 
     val displayIcon = icon ?: defaultIcon
 
-    // Render the snackbar
-    composer?.startNode() // Start Snackbar node
-    if (composer?.inserting == true) {
-        val renderer = LocalPlatformRenderer.current
-        // Render the snackbar container with enhanced styling
-        renderer.renderBox(finalModifier)
-    }
-
-    // Internal structure
-    Row {
-        // Icon
-        if (displayIcon != null) {
-            displayIcon()
-            // Add spacing
-            Text("", Modifier().width("8px"))
-        }
-
-        Text(message)
-
-        // Action button
-        if (action != null && onAction != null) {
-            // Add spacing
-            Text("", Modifier().width("16px"))
-
-            // Use correct Button parameters
-            composer?.startNode()
-            if (composer?.inserting == true) {
-                val renderer = LocalPlatformRenderer.current
-                val actionButtonModifier = Modifier()
-
-                // Render action button
-                renderer.renderButton(
-                    onClick = {
-                        onAction.invoke()
-                        visible.value = false
-                    },
-                    enabled = true,
-                    modifier = actionButtonModifier
-                )
+    // Render the snackbar container using the renderer, passing the internal layout as the content
+    val renderer = LocalPlatformRenderer.current
+    renderer.renderBox(modifier = finalModifier) { // Pass the internal Row layout as the lambda
+        // Internal structure
+        Row(modifier = Modifier().padding("8px").alignItems("center")) { // Add padding and vertical alignment
+            // Icon
+            if (displayIcon != null) {
+                Box(Modifier().padding("0px 8px 0px 0px")) { // Fix padding syntax
+                    displayIcon()
+                }
             }
 
-            // Button content
-            Text(action)
-
-            composer?.endNode()
-        }
-
-        // Dismiss button
-        if (onDismiss != null) {
-            // Add spacing
-            Text("", Modifier().width("8px"))
-
-            // Use correct Button parameters
-            composer?.startNode()
-            if (composer?.inserting == true) {
-                val renderer = LocalPlatformRenderer.current
-                val dismissButtonModifier = Modifier().width("24px").height("24px")
-
-                // Render dismiss button
-                renderer.renderButton(
-                    onClick = {
-                        onDismiss.invoke()
-                        visible.value = false
-                    },
-                    enabled = true,
-                    modifier = dismissButtonModifier
-                )
+            // Message Text
+            Box(Modifier().flex("1")) { // Allow message to take remaining space. Use String for flex value.
+                 Text(message)
             }
 
-            // Button content
-            Text("×")
+            // Action button
+            if (action != null && onAction != null) {
+                Box(Modifier().padding("0px 0px 0px 16px")) { // Fix padding syntax
+                    // Render action button, passing text as content
+                    renderer.renderButton(
+                        onClick = {
+                            onAction.invoke()
+                            visible.value = false
+                        },
+                        modifier = Modifier() // Add specific action button styling here if needed
+                    ) {
+                        Text(action) // Pass action text as button content
+                    }
+                }
+            }
 
-            composer?.endNode()
+            // Dismiss button
+            if (onDismiss != null) {
+                Box(Modifier().padding("0px 0px 0px 8px")) { // Fix padding syntax
+                    // Render dismiss button, passing '×' as content
+                    renderer.renderButton(
+                        onClick = {
+                            onDismiss.invoke()
+                            visible.value = false
+                        },
+                        modifier = Modifier().width("24px").height("24px") // Keep dismiss button size
+                    ) {
+                        Text("×") // Pass dismiss symbol as button content
+                    }
+                }
+            }
         }
     }
-
-    composer?.endNode() // End Snackbar node
 } 

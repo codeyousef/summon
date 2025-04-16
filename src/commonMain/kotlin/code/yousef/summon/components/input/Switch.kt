@@ -1,21 +1,18 @@
 package code.yousef.summon.components.input
 
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.applyIf
-import code.yousef.summon.modifier.pointerEvents
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer
-
+import code.yousef.summon.runtime.mutableStateOf
+import code.yousef.summon.runtime.remember
 
 /**
- * A composable that displays a toggle switch control.
- * Switches allow users to toggle a setting on or off.
+ * A toggle switch component.
  *
- * @param checked Whether the switch is currently in the 'on' state.
- * @param onCheckedChange Callback invoked when the checked state changes due to user interaction.
- * @param modifier Modifier applied to the switch element itself.
- * @param enabled Controls the enabled state. When `false`, interaction is disabled.
+ * @param checked The current state of the switch.
+ * @param onCheckedChange Callback invoked when the switch state changes.
+ * @param modifier Modifier applied to the switch.
+ * @param enabled Controls the enabled state.
  */
 @Composable
 fun Switch(
@@ -24,24 +21,35 @@ fun Switch(
     modifier: Modifier = Modifier(),
     enabled: Boolean = true
 ) {
-    val composer = CompositionLocal.currentComposer
-    val finalModifier = modifier
-        .opacity(if (enabled) 1f else 0.6f)
-        .cursor(if (enabled) "pointer" else "default")
-        .applyIf(!enabled) { pointerEvents("none") }
+    val renderer = LocalPlatformRenderer.current
 
-    composer?.startNode()
-    if (composer?.inserting == true) {
-        val renderer = LocalPlatformRenderer.current
+    renderer.renderSwitch(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        enabled = enabled,
+        modifier = modifier
+    )
+}
 
-        // Cast to the specific renderer function with the parameters in the correct order
-        val renderSwitchFunction: (Boolean, (Boolean) -> Unit, Boolean, Modifier) -> Unit = renderer::renderSwitch
-        renderSwitchFunction(
-            checked,
-            { newValue: Boolean -> if (enabled) onCheckedChange(newValue) },
-            enabled,
-            finalModifier
-        )
-    }
-    composer?.endNode()
+/**
+ * Stateful version of Switch.
+ */
+@Composable
+fun StatefulSwitch(
+    initialChecked: Boolean = false,
+    onCheckedChange: (Boolean) -> Unit = {},
+    modifier: Modifier = Modifier(),
+    enabled: Boolean = true
+) {
+    val switchState = remember { mutableStateOf(initialChecked) }
+
+    Switch(
+        checked = switchState.value,
+        onCheckedChange = {
+            switchState.value = it
+            onCheckedChange(it)
+        },
+        modifier = modifier,
+        enabled = enabled
+    )
 } 

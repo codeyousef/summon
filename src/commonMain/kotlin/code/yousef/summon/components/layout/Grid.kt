@@ -4,7 +4,7 @@ import code.yousef.summon.components.LayoutComponent
 import code.yousef.summon.components.ScrollableComponent
 import code.yousef.summon.core.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.PlatformRendererProviderLegacy.getRenderer
+import code.yousef.summon.runtime.getPlatformRenderer
 import kotlinx.html.TagConsumer
 
 /**
@@ -33,7 +33,26 @@ class Grid(
      */
     override fun <T> compose(receiver: T): T {
         if (receiver is TagConsumer<*>) {
-            getRenderer().renderGrid(modifier)
+            // Prepare the modifier with grid styles
+            val gridStyles = mutableMapOf(
+                "display" to "grid",
+                "grid-template-columns" to columns,
+                "grid-template-rows" to rows,
+                "gap" to gap
+            )
+            areas?.let { gridStyles["grid-template-areas"] = it }
+
+            // Combine grid styles with existing modifier styles
+            val finalModifier = modifier.styles(gridStyles)
+
+            getPlatformRenderer().renderGrid(
+                modifier = finalModifier,
+                content = { // 'this' is FlowContent
+                    this@Grid.content.forEach { childComposable ->
+                        childComposable.compose(this)
+                    }
+                }
+            )
         }
         return receiver
     }

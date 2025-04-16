@@ -1,7 +1,7 @@
 package code.yousef.summon.integrations.quarkus
 
 import code.yousef.summon.core.Composable
-import code.yousef.summon.platform.JvmPlatformRenderer
+import code.yousef.summon.runtime.JvmPlatformRenderer
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.WebApplicationException

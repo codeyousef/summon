@@ -5,8 +5,21 @@ import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.attribute
 import code.yousef.summon.modifier.minHeight
 import code.yousef.summon.modifier.minWidth
-import code.yousef.summon.modifier.onClick
+import code.yousef.summon.modifier.ModifierExtras.onClick
+import code.yousef.summon.modifier.background
+import code.yousef.summon.modifier.border
 import code.yousef.summon.runtime.LocalPlatformRenderer
+import code.yousef.summon.modifier.style
+import code.yousef.summon.modifier.padding
+import code.yousef.summon.modifier.color
+import code.yousef.summon.modifier.borderRadius
+import code.yousef.summon.modifier.fontSize
+import code.yousef.summon.modifier.fontWeight
+import code.yousef.summon.components.layout.Row
+import code.yousef.summon.components.layout.Box
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.components.layout.Alignment
+import code.yousef.summon.modifier.alignItems
 
 /**
  * Badge types for different semantic meanings
@@ -32,6 +45,67 @@ enum class BadgeShape {
 }
 
 /**
+ * Creates a status badge with appropriate styling for status indicators.
+ *
+ * @param status The status text to display
+ * @param type The type of status
+ * @param modifier The modifier to apply to this composable
+ */
+@Composable
+fun StatusBadge(
+    status: String,
+    type: BadgeType,
+    modifier: Modifier = Modifier()
+) {
+    Badge(
+        content = status,
+        modifier = modifier,
+        type = type,
+        shape = BadgeShape.PILL
+    )
+}
+
+/**
+ * Creates a counter badge, typically used for notifications or counts.
+ *
+ * @param count The count to display
+ * @param modifier The modifier to apply to this composable
+ */
+@Composable
+fun CounterBadge(
+    count: Int,
+    modifier: Modifier = Modifier()
+) {
+    Badge(
+        content = count.toString(),
+        modifier = modifier,
+        type = BadgeType.PRIMARY,
+        shape = BadgeShape.PILL,
+        size = "small"
+    )
+}
+
+/**
+ * Creates a simple dot badge, typically used to indicate status without text.
+ *
+ * @param type The type of status
+ * @param modifier The modifier to apply to this composable
+ */
+@Composable
+fun DotBadge(
+    type: BadgeType,
+    modifier: Modifier = Modifier()
+) {
+    Badge(
+        content = "",
+        modifier = modifier,
+        type = type,
+        shape = BadgeShape.DOT,
+        size = "small"
+    )
+}
+
+/**
  * A composable that displays a badge, typically used for status indicators, counters, or labels.
  *
  * @param content The text content of the badge
@@ -41,6 +115,9 @@ enum class BadgeShape {
  * @param isOutlined Whether the badge has an outlined style (vs filled)
  * @param size The size of the badge (small, medium, large)
  * @param onClick Optional click handler for the badge
+ * @param displayStart Optional composable lambda to render content before the main text (e.g., an icon)
+ * @param displayEnd Optional composable lambda to render content after the main text (e.g., an icon or dismiss button)
+ * @param iconEnd DEPRECATED: Use displayEnd instead for clarity. Kept for backward compatibility.
  */
 @Composable
 fun Badge(
@@ -50,7 +127,10 @@ fun Badge(
     shape: BadgeShape = BadgeShape.ROUNDED,
     isOutlined: Boolean = false,
     size: String = "medium",
-    onClick: (() -> Unit)? = null
+    onClick: (() -> Unit)? = null,
+    displayStart: (@Composable () -> Unit)? = null,
+    displayEnd: (@Composable () -> Unit)? = null,
+    iconEnd: (@Composable () -> Unit)? = null
 ) {
     // Apply type-specific styling
     val baseStyle = when (type) {
@@ -122,71 +202,42 @@ fun Badge(
             .attribute("aria-label", content)
     }
 
-    // Add the content text as a data attribute for the renderer to use
-    finalModifier = finalModifier.attribute("data-content", content)
+    // Determine start content
+    val effectiveStart = displayStart
 
-    // Render the badge
+    // Determine end content, prioritizing displayEnd over iconEnd
+    val effectiveEnd = displayEnd ?: iconEnd
+
+    // Apply the passed modifier *after* the base styling
+    finalModifier = finalModifier.then(modifier)
+
+    // Render the badge container using the renderer, passing the internal layout as the content
     val renderer = LocalPlatformRenderer.current
-    renderer.renderBadge(finalModifier)
-}
+    renderer.renderBadge(modifier = finalModifier) { // Pass the internal layout as the lambda
+        // Use a Row to arrange icon, text, and end icon/action horizontally
+        Row(
+            modifier = Modifier()
+                .padding("0px 4px")
+                .alignItems("center")
+        ) {
+            // Render start icon if provided
+            if (effectiveStart != null) {
+                Box(Modifier().padding("0px 4px 0px 0px")) {
+                    effectiveStart()
+                }
+            }
 
-/**
- * Creates a status badge with appropriate styling for status indicators.
- *
- * @param status The status text to display
- * @param type The type of status
- * @param modifier The modifier to apply to this composable
- */
-@Composable
-fun StatusBadge(
-    status: String,
-    type: BadgeType,
-    modifier: Modifier = Modifier()
-) {
-    Badge(
-        content = status,
-        modifier = modifier,
-        type = type,
-        shape = BadgeShape.PILL
-    )
-}
+            // Render the main content text (only if not a dot)
+            if (shape != BadgeShape.DOT) {
+                Text(text = content)
+            }
 
-/**
- * Creates a counter badge, typically used for notifications or counts.
- *
- * @param count The count to display
- * @param modifier The modifier to apply to this composable
- */
-@Composable
-fun CounterBadge(
-    count: Int,
-    modifier: Modifier = Modifier()
-) {
-    Badge(
-        content = count.toString(),
-        modifier = modifier,
-        type = BadgeType.PRIMARY,
-        shape = BadgeShape.PILL,
-        size = "small"
-    )
-}
-
-/**
- * Creates a simple dot badge, typically used to indicate status without text.
- *
- * @param type The type of status
- * @param modifier The modifier to apply to this composable
- */
-@Composable
-fun DotBadge(
-    type: BadgeType,
-    modifier: Modifier = Modifier()
-) {
-    Badge(
-        content = "",
-        modifier = modifier,
-        type = type,
-        shape = BadgeShape.DOT,
-        size = "small"
-    )
+            // Render end icon or dismiss action if provided
+            if (effectiveEnd != null) {
+                Box(Modifier().padding("0px 0px 0px 4px")) {
+                    effectiveEnd()
+                }
+            }
+        }
+    }
 }

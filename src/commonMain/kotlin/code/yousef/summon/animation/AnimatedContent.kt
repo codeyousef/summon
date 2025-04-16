@@ -47,10 +47,13 @@ fun <T> AnimatedContent(
     content: @Composable (T) -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
-    renderer.renderAnimatedContent(modifier)
+
+    // TODO: Refactor animation handling. renderAnimatedContent was removed from PlatformRenderer.
+    // renderer.renderAnimatedContent(modifier = modifier, content = content) // Commented out - Unresolved reference
     
-    // Call the content with the current target state
-    content(targetState.value)
+    // Temporary Workaround: Render content statically in a block
+    println("[WARN] AnimatedContent rendering statically via renderBlock due to refactor.")
+    renderer.renderBlock(modifier = modifier, content = { content(targetState.value) })
 }
 
 /**

@@ -3,6 +3,40 @@ package code.yousef.summon.animation
 import kotlin.math.pow
 
 /**
+ * Represents the status of an animation.
+ */
+expect enum class AnimationStatus {
+    IDLE,    // Animation has not started or has been reset.
+    RUNNING, // Animation is currently playing.
+    PAUSED,  // Animation is paused.
+    STOPPED  // Animation has finished or been explicitly stopped.
+}
+
+/**
+ * Controller for managing animations started by the platform renderer.
+ * Allows pausing, resuming, stopping, and querying the state of an animation.
+ */
+expect object AnimationController { // Using object for simplicity, could be interface/class if needed
+    /** Pauses the running animation. */
+    fun pause()
+
+    /** Resumes a paused animation. */
+    fun resume()
+
+    /** Cancels the animation, potentially resetting state. */
+    fun cancel()
+
+    /** Stops the animation, holding its current state. */
+    fun stop()
+
+    /** Gets the current status of the animation. */
+    val status: AnimationStatus
+
+    /** Gets the current progress of the animation (typically 0.0 to 1.0). */
+    val progress: Float
+}
+
+/**
  * Base interface for animations in the Summon framework.
  */
 interface Animation {
@@ -157,8 +191,6 @@ enum class Easing {
             EASE_IN -> EasingFunctions.easeInQuad(fraction)
             EASE_OUT -> EasingFunctions.easeOutQuad(fraction)
             EASE_IN_OUT -> EasingFunctions.easeInOutQuad(fraction)
-            
-            // Advanced easing functions
             SINE_IN -> EasingFunctions.easeInSine(fraction)
             SINE_OUT -> EasingFunctions.easeOutSine(fraction)
             SINE_IN_OUT -> EasingFunctions.easeInOutSine(fraction)
@@ -202,8 +234,6 @@ enum class Easing {
             EASE_IN -> "cubic-bezier(0.4, 0, 1, 1)"
             EASE_OUT -> "cubic-bezier(0, 0, 0.2, 1)"
             EASE_IN_OUT -> "cubic-bezier(0.4, 0, 0.2, 1)"
-            
-            // For advanced easing functions, we'll have predefined cubic-bezier approximations
             SINE_IN -> "cubic-bezier(0.12, 0, 0.39, 0)"
             SINE_OUT -> "cubic-bezier(0.61, 1, 0.88, 1)"
             SINE_IN_OUT -> "cubic-bezier(0.37, 0, 0.63, 1)"

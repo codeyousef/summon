@@ -17,8 +17,12 @@ fun Column(
 ) {
     // Use platform renderer directly
     val renderer = LocalPlatformRenderer.current
-    renderer.renderColumn(modifier)
     
-    // Call content inside the column
-    content()
+    // Call renderColumn and pass the content lambda
+    renderer.renderColumn(
+        modifier = modifier,
+        content = { // Wrap the original content lambda
+            content() 
+        }
+    )
 } 

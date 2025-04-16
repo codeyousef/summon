@@ -1,90 +1,152 @@
 package code.yousef.example.quarkus
 
+import jakarta.annotation.PostConstruct
 import jakarta.enterprise.context.ApplicationScoped
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 
 /**
- * A service for managing users in the application.
- * This is a simple in-memory implementation for the example.
+ * Service class for managing users.
+ * Provides methods to retrieve, add, update, and delete users.
  */
 @ApplicationScoped
 class UserService {
-    private val users = ConcurrentHashMap<Int, User>()
-    private val idCounter = AtomicInteger(1)
-    
-    init {
-        // Add some sample users
-        addUser("John Doe", "john.doe@example.com", "Administrator")
-        addUser("Jane Smith", "jane.smith@example.com", "Editor")
-        addUser("Bob Johnson", "bob.johnson@example.com", "Viewer")
-        addUser("Alice Brown", "alice.brown@example.com", "Editor")
-        addUser("Charlie Wilson", "charlie.wilson@example.com", "Viewer")
-    }
-    
+
+    private val users = ConcurrentHashMap<Long, User>()
+    private val idCounter = AtomicLong(0)
+
     /**
-     * Get all users in the system.
-     * 
+     * Initialize the service with sample users.
+     */
+    @PostConstruct
+    fun init() {
+        addUser(User(idCounter.incrementAndGet(), "John Doe", "john.doe@example.com", "admin"))
+        addUser(User(idCounter.incrementAndGet(), "Jane Smith", "jane.smith@example.com", "editor"))
+        addUser(User(idCounter.incrementAndGet(), "Bob Johnson", "bob.johnson@example.com", "user"))
+        addUser(User(idCounter.incrementAndGet(), "Alice Williams", "alice.williams@example.com", "moderator"))
+    }
+
+    /**
+     * Get all users.
+     *
      * @return List of all users
      */
     fun getAllUsers(): List<User> {
         return users.values.toList()
     }
-    
+
     /**
      * Get a user by ID.
-     * 
-     * @param id The ID of the user to retrieve
-     * @return The user or null if not found
+     *
+     * @param id The user ID
+     * @return The user if found, null otherwise
      */
-    fun getUserById(id: Int): User? {
+    fun getUserById(id: Long): User? {
         return users[id]
     }
-    
+
     /**
-     * Add a new user to the system.
-     * 
-     * @param name The user's name
-     * @param email The user's email address
-     * @param role The user's role
-     * @return The newly created user
+     * Add a new user.
+     *
+     * @param user The user to add
+     * @return The added user with assigned ID
      */
-    fun addUser(name: String, email: String, role: String): User {
-        val id = idCounter.getAndIncrement()
-        val user = User(id, name, email, role)
-        users[id] = user
+    fun addUser(user: User): User {
+        users[user.id] = user
         return user
     }
-    
+
     /**
      * Update an existing user.
-     * 
+     *
      * @param id The ID of the user to update
-     * @param name The updated name (optional)
-     * @param email The updated email (optional)
-     * @param role The updated role (optional)
-     * @return The updated user or null if not found
+     * @param updatedUser The updated user data
+     * @return The updated user if successful, null if user not found
      */
-    fun updateUser(id: Int, name: String? = null, email: String? = null, role: String? = null): User? {
-        val user = users[id] ?: return null
-        
-        val updatedUser = user.copy(
-            name = name ?: user.name,
-            email = email ?: user.email,
-            role = role ?: user.role
-        )
-        
-        users[id] = updatedUser
-        return updatedUser
+    fun updateUser(id: Long, updatedUser: User): User? {
+        if (users.containsKey(id)) {
+            val updated = updatedUser.copy(id = id)
+            users[id] = updated
+            return updated
+        }
+        return null
     }
-    
+
     /**
      * Delete a user by ID.
-     * 
+     *
      * @param id The ID of the user to delete
-     * @return True if the user was deleted, false if not found
+     * @return true if the user was deleted, false if not found
      */
-    fun deleteUser(id: Int): Boolean {
+    fun deleteUser(id: Long): Boolean {
         return users.remove(id) != null
+    }
+
+    /**
+     * Search users by name or email containing the search term.
+     *
+     * @param searchTerm The term to search for in name or email
+     * @return List of matching users
+     */
+    fun searchUsers(searchTerm: String): List<User> {
+        val term = searchTerm.lowercase()
+        return users.values.filter {
+            it.name.lowercase().contains(term) || it.email.lowercase().contains(term)
+        }
+    }
+
+    /**
+     * Get users by role.
+     *
+     * @param role The role to filter by
+     * @return List of users with the specified role
+     */
+    fun getUsersByRole(role: String): List<User> {
+        return users.values.filter { it.role == role }
+    }
+
+    /**
+     * Get all active users.
+     *
+     * @return List of all active users
+     */
+    fun getActiveUsers(): List<User> {
+        return users.values.filter { it.active }.toList()
+    }
+
+    /**
+     * Activate a user.
+     *
+     * @param id The ID of the user to activate
+     * @return The updated user if successful, null if user not found
+     */
+    fun activateUser(id: Long): User? {
+        return getUserById(id)?.let { user ->
+            if (user.active) {
+                user
+            } else {
+                val updatedUser = user.copy(active = true)
+                users[id] = updatedUser
+                updatedUser
+            }
+        }
+    }
+
+    /**
+     * Deactivate a user.
+     *
+     * @param id The ID of the user to deactivate
+     * @return The updated user if successful, null if user not found
+     */
+    fun deactivateUser(id: Long): User? {
+        return getUserById(id)?.let { user ->
+            if (!user.active) {
+                user
+            } else {
+                val updatedUser = user.copy(active = false)
+                users[id] = updatedUser
+                updatedUser
+            }
+        }
     }
 } 

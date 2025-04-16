@@ -1,24 +1,21 @@
 package code.yousef.summon.components.layout
 
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.LocalPlatformRenderer
+import kotlinx.html.FlowContent
 
 /**
- * A layout component that stacks its children on top of each other.
- * 
- * @param modifier The modifier to be applied to this layout
- * @param content The content to be displayed inside the box
+ * A basic layout composable that arranges its children in a block.
+ * Corresponds typically to a `<div>` element in HTML.
+ *
+ * @param modifier The modifier to apply to this layout.
+ * @param content The children composables to place inside the box.
  */
 @Composable
-fun Box(
-    modifier: Modifier = Modifier(),
-    content: @Composable () -> Unit
-) {
-    // Use platform renderer directly
+fun Box(modifier: Modifier = Modifier(), content: @Composable FlowContent.() -> Unit) {
     val renderer = LocalPlatformRenderer.current
-    renderer.renderBox(modifier)
-    
-    // Call content inside the box
-    content()
+    // Call the regular renderBlock method. The renderer implementation
+    // (JvmPlatformRenderer) is responsible for getting the context via LocalFlowContent.
+    renderer.renderBlock(modifier, content)
 }

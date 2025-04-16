@@ -1,0 +1,38 @@
+# Basic settings
+quarkus.application.name=SummonExample
+quarkus.http.port=8081
+quarkus.http.host=0.0.0.0
+
+# Simple logging configuration
+quarkus.log.console.enable=true
+quarkus.log.console.level=DEBUG
+quarkus.log.console.color=true
+quarkus.log.console.format=%d{HH:mm:ss} %-5p [%c{1.}] %s%e%n
+quarkus.log.level=DEBUG
+
+# Add file logging for debugging
+quarkus.log.file.enable=true
+quarkus.log.file.path=D:/Projects/KMP/summon/quarkus-debug.log
+quarkus.log.file.level=DEBUG
+quarkus.log.file.format=%d{HH:mm:ss} %-5p [%c{1.}] %s%e%n
+
+# Display the banner
+quarkus.banner.enabled=true
+
+# Force server port - most important setting
+quarkus.http.port=8081
+
+# Explicitly enable REST
+quarkus.resteasy-reactive.path=/
+
+# Development mode configuration
+quarkus.live-reload.instrumentation=true
+
+# Configure logging for our classes
+quarkus.log.category."code.yousef.summon".level=ALL
+quarkus.log.category."code.yousef.summon".min-level=TRACE
+
+# Configure logging for jakarta packages
+quarkus.log.category."jakarta.ws.rs".level=DEBUG
+quarkus.log.category."io.quarkus".level=DEBUG
+quarkus.log.category."org.jboss".level=DEBUG 

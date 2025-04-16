@@ -3,7 +3,7 @@ package code.yousef.summon.components.layout
 import code.yousef.summon.components.LayoutComponent
 import code.yousef.summon.core.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.PlatformRendererProviderLegacy.getRenderer
+import code.yousef.summon.runtime.getPlatformRenderer
 import kotlinx.html.TagConsumer
 
 /**
@@ -37,7 +37,17 @@ class ResponsiveLayout(
      */
     override fun <T> compose(receiver: T): T {
         if (receiver is TagConsumer<*>) {
-            getRenderer().renderResponsiveLayout(modifier)
+            getPlatformRenderer().renderResponsiveLayout(
+                modifier = modifier,
+                content = { // 'this' is FlowContent scope
+                    // TODO: Implement logic to determine current screen size.
+                    // This usually requires platform-specific APIs (e.g., window dimensions in JS)
+                    // or CSS media queries handled by the browser.
+                    // For now, just rendering the default content.
+                    val contentToRender = defaultContent // Replace with selected content based on screen size
+                    contentToRender.compose(this) // Pass FlowContent scope
+                }
+            )
         }
         return receiver
     }

@@ -3,6 +3,7 @@ package code.yousef.summon.routing.seo
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.LocalPlatformRenderer
+import kotlinx.html.FlowContent
 
 /**
  * SemanticHTML provides components for creating semantically meaningful HTML elements
@@ -17,15 +18,14 @@ fun Header(
     id: String? = null,
     className: String? = null,
     modifier: Modifier = Modifier.create(),
-    content: @Composable () -> Unit
+    content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
     val finalModifier = modifier
         .let { if (id != null) it.style("id", id) else it }
         .let { if (className != null) it.style("class", className) else it }
         .style("role", "banner")
-    renderer.renderDiv(finalModifier)
-    content()
+    renderer.renderBlock(finalModifier, content)
 }
 
 /**
@@ -36,15 +36,14 @@ fun Main(
     id: String? = null,
     className: String? = null,
     modifier: Modifier = Modifier.create(),
-    content: @Composable () -> Unit
+    content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
     val finalModifier = modifier
         .let { if (id != null) it.style("id", id) else it }
         .let { if (className != null) it.style("class", className) else it }
         .style("role", "main")
-    renderer.renderDiv(finalModifier)
-    content()
+    renderer.renderBlock(finalModifier, content)
 }
 
 /**
@@ -55,15 +54,14 @@ fun Nav(
     id: String? = null,
     className: String? = null,
     modifier: Modifier = Modifier.create(),
-    content: @Composable () -> Unit
+    content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
     val finalModifier = modifier
         .let { if (id != null) it.style("id", id) else it }
         .let { if (className != null) it.style("class", className) else it }
         .style("role", "navigation")
-    renderer.renderDiv(finalModifier)
-    content()
+    renderer.renderBlock(finalModifier, content)
 }
 
 /**
@@ -74,15 +72,14 @@ fun Article(
     id: String? = null,
     className: String? = null,
     modifier: Modifier = Modifier.create(),
-    content: @Composable () -> Unit
+    content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
     val finalModifier = modifier
         .let { if (id != null) it.style("id", id) else it }
         .let { if (className != null) it.style("class", className) else it }
         .style("role", "article")
-    renderer.renderDiv(finalModifier)
-    content()
+    renderer.renderBlock(finalModifier, content)
 }
 
 /**
@@ -93,15 +90,14 @@ fun Section(
     id: String? = null,
     className: String? = null,
     modifier: Modifier = Modifier.create(),
-    content: @Composable () -> Unit
+    content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
     val finalModifier = modifier
         .let { if (id != null) it.style("id", id) else it }
         .let { if (className != null) it.style("class", className) else it }
         .style("role", "region")
-    renderer.renderDiv(finalModifier)
-    content()
+    renderer.renderBlock(finalModifier, content)
 }
 
 /**
@@ -112,15 +108,14 @@ fun Aside(
     id: String? = null,
     className: String? = null,
     modifier: Modifier = Modifier.create(),
-    content: @Composable () -> Unit
+    content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
     val finalModifier = modifier
         .let { if (id != null) it.style("id", id) else it }
         .let { if (className != null) it.style("class", className) else it }
         .style("role", "complementary")
-    renderer.renderDiv(finalModifier)
-    content()
+    renderer.renderBlock(finalModifier, content)
 }
 
 /**
@@ -131,15 +126,14 @@ fun Footer(
     id: String? = null,
     className: String? = null,
     modifier: Modifier = Modifier.create(),
-    content: @Composable () -> Unit
+    content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
     val finalModifier = modifier
         .let { if (id != null) it.style("id", id) else it }
         .let { if (className != null) it.style("class", className) else it }
         .style("role", "contentinfo")
-    renderer.renderDiv(finalModifier)
-    content()
+    renderer.renderBlock(finalModifier, content)
 }
 
 /**
@@ -151,7 +145,7 @@ fun Heading(
     id: String? = null,
     className: String? = null,
     modifier: Modifier = Modifier.create(),
-    content: @Composable () -> Unit
+    content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
     val finalModifier = modifier
@@ -159,6 +153,25 @@ fun Heading(
         .let { if (className != null) it.style("class", className) else it }
         .style("role", "heading")
         .style("aria-level", level.toString())
-    renderer.renderDiv(finalModifier)
-    content()
+    renderer.renderBlock(finalModifier, content)
+}
+
+/** Represents the <figure> semantic HTML element. */
+@Composable
+fun Figure(
+    modifier: Modifier = Modifier(),
+    content: @Composable FlowContent.() -> Unit
+) {
+    val renderer = LocalPlatformRenderer.current
+    renderer.renderBlock(modifier, content)
+}
+
+/** Represents the <figcaption> semantic HTML element. */
+@Composable
+fun FigCaption(
+    modifier: Modifier = Modifier(),
+    content: @Composable FlowContent.() -> Unit
+) {
+    val renderer = LocalPlatformRenderer.current
+    renderer.renderInline(modifier, content)
 }

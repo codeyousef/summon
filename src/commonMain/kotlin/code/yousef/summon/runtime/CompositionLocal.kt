@@ -1,5 +1,8 @@
 package code.yousef.summon.runtime
 
+import code.yousef.summon.annotation.Composable
+import kotlinx.html.FlowContent
+
 /**
  * Provides access to composition-local values within a composition.
  */
@@ -113,4 +116,11 @@ private class StaticCompositionLocalProviderImpl<T> : CompositionLocalProvider<T
         this.value = value
         return this
     }
-} 
+}
+
+/**
+ * CompositionLocal to provide the current kotlinx.html FlowContent context during rendering.
+ * This is used by PlatformRenderer implementations (like JvmPlatformRenderer)
+ * to get the correct parent HTML tag to append children to.
+ */
+val LocalFlowContent = CompositionLocal.compositionLocalOf<FlowContent?>(null) 

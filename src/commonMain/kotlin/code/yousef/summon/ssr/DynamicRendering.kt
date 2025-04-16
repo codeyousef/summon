@@ -2,55 +2,71 @@ package code.yousef.summon.ssr
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.feedback.LinearProgress
-import code.yousef.summon.components.input.Button
-import code.yousef.summon.components.layout.Card
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.components.layout.Row
-import code.yousef.summon.components.layout.Spacer
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.background
-import code.yousef.summon.modifier.color
-import code.yousef.summon.modifier.fontWeight
-import code.yousef.summon.modifier.fontSize
-import code.yousef.summon.modifier.height
-import code.yousef.summon.modifier.margin
-import code.yousef.summon.modifier.padding
-import code.yousef.summon.modifier.width
-import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LaunchedEffect
-import code.yousef.summon.runtime.LocalPlatformRenderer
+import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.mutableStateOf
 import code.yousef.summon.runtime.remember
 import kotlinx.coroutines.delay
+import kotlinx.html.body
+import kotlinx.html.head
+import kotlinx.html.html
 import kotlinx.html.stream.createHTML
+import kotlinx.html.unsafe
 
 /**
- * Platform renderer interface to be implemented by platform-specific renderers
+ * Represents the result of a dynamic rendering process.
+ *
+ * @property html The rendered HTML content.
+ * @property headElements A list of HTML strings to be injected into the <head> section.
  */
-interface PlatformRenderer {
-    /**
-     * Render a composable to a consumer
-     */
-    fun <T> renderComposable(composable: @Composable () -> Unit, consumer: T): T
-}
+data class RenderResult(val html: String, val headElements: List<String>)
+
 
 /**
- * Default implementation that delegates to the current platform renderer
+ * Renders a composable function to an HTML string using a specific PlatformRenderer.
+ *
+ * @param T The type of the PlatformRenderer implementation.
+ * @param renderer An instance of the PlatformRenderer.
+ * @param rootComposable The composable function to render.
+ * @return A RenderResult containing the HTML string and head elements.
  */
-class DefaultPlatformRenderer : PlatformRenderer {
-    override fun <T> renderComposable(composable: @Composable () -> Unit, consumer: T): T {
-        // In a real implementation, this would delegate to the platform-specific renderer
-        // For now, return the consumer as-is
-        return consumer
+fun <T : PlatformRenderer> renderToString( // Use the canonical renderer type
+    renderer: T,
+    rootComposable: @Composable () -> Unit
+): RenderResult {
+    val renderedHtml = renderer.renderComposableRoot {
+        rootComposable()
     }
+    return RenderResult(
+        html = renderedHtml,
+        headElements = renderer.getHeadElements()
+    )
 }
 
 /**
- * Get the platform renderer implementation
+ * Renders a full HTML document including head elements.
+ *
+ * @param T The type of the PlatformRenderer implementation.
+ * @param renderer An instance of the PlatformRenderer.
+ * @param rootComposable The composable function to render within the body.
+ * @return The complete HTML document as a string.
  */
-fun getPlatformRenderer(): PlatformRenderer {
-    return DefaultPlatformRenderer()
+fun <T : PlatformRenderer> renderDocumentToString( // Use the canonical renderer type
+    renderer: T,
+    rootComposable: @Composable () -> Unit
+): String {
+    val result = renderToString(renderer, rootComposable)
+
+    return createHTML().html {
+        head { // Use imported head
+            // Inject head elements gathered during rendering
+            result.headElements.forEach { unsafe { raw(it) } } // Use imported unsafe/raw
+        }
+        body { // Use imported body
+            // Inject the rendered body content
+            unsafe { raw(result.html) } // Use imported unsafe/raw
+        }
+    }
 }
 
 /**
@@ -58,7 +74,7 @@ fun getPlatformRenderer(): PlatformRenderer {
  * This renderer can handle dynamic data and produce HTML with hydration markers
  */
 class DynamicRenderer(
-    private val platformRenderer: PlatformRenderer = getPlatformRenderer(),
+    private val platformRenderer: PlatformRenderer = code.yousef.summon.runtime.getPlatformRenderer(),
     private val hydrationSupport: HydrationSupport = StandardHydrationSupport()
 ) : ServerSideRenderer {
     /**
@@ -70,7 +86,7 @@ class DynamicRenderer(
      */
     override fun render(composable: @Composable () -> Unit, context: RenderContext): String {
         // Render the composable to HTML
-        val html = renderToString(composable)
+        val html = renderToString(platformRenderer, composable).html
 
         // If hydration is enabled, add hydration markers
         val finalHtml = if (context.enableHydration) {
@@ -82,17 +98,6 @@ class DynamicRenderer(
 
         // Wrap the HTML in a complete document
         return wrapWithHtml(finalHtml, context)
-    }
-
-    /**
-     * Renders a composable to a string
-     */
-    private fun renderToString(composable: @Composable () -> Unit): String {
-        // Using createHTML from kotlinx.html to render the component
-        return createHTML().let { consumer ->
-            platformRenderer.renderComposable(composable, consumer)
-            consumer.finalize()
-        }
     }
 
     /**
@@ -364,27 +369,27 @@ object DynamicRendering {
 @Composable
 fun DynamicDataComponent(routeId: String) {
     println("DynamicDataComponent composed for route '$routeId'")
-    
+
     // Use remember to store the fetched data with explicit type parameters
     val dataState = remember { mutableStateOf<Map<String, Any>?>(null) }
     val data: Map<String, Any>? = dataState.value
     val setData: (Map<String, Any>?) -> Unit = { dataState.value = it }
-    
+
     val loadingState = remember { mutableStateOf(true) }
-    val isLoading: Boolean = loadingState.value 
+    val isLoading: Boolean = loadingState.value
     val setIsLoading: (Boolean) -> Unit = { loadingState.value = it }
-    
+
     val errorState = remember { mutableStateOf<String?>(null) }
     val error: String? = errorState.value
     val setError: (String?) -> Unit = { errorState.value = it }
-    
+
     // Use LaunchedEffect for data fetching when the component is first composed
     LaunchedEffect(routeId) {
         setIsLoading(true)
         try {
             // Simulate data fetching (in a real app, this would be an API call)
             delay(300) // Simulate network delay
-            
+
             // Create demo data based on routeId
             val fetchedData = when {
                 routeId.startsWith("product-") -> {
@@ -397,6 +402,7 @@ fun DynamicDataComponent(routeId: String) {
                         "rating" to (3.5 + (productId.hashCode() % 15) / 10.0)
                     )
                 }
+
                 routeId.startsWith("user-") -> {
                     val userId = routeId.substringAfter("user-")
                     mapOf(
@@ -406,6 +412,7 @@ fun DynamicDataComponent(routeId: String) {
                         "memberSince" to "2023-${1 + (userId.hashCode() % 12)}-${1 + (userId.hashCode() % 28)}"
                     )
                 }
+
                 else -> {
                     mapOf(
                         "id" to routeId,
@@ -414,7 +421,7 @@ fun DynamicDataComponent(routeId: String) {
                     )
                 }
             }
-            
+
             setData(fetchedData)
             setError(null)
         } catch (e: Exception) {
@@ -424,25 +431,25 @@ fun DynamicDataComponent(routeId: String) {
             setIsLoading(false)
         }
     }
-    
+
     // Simple placeholder content for server rendering
     println("Rendering state - isLoading: $isLoading, error: $error, data: ${data?.size ?: 0} items")
-    
+
     // Note: For SSR, we don't need the full interactive UI components
     // This simpler representation avoids JS platform compatibility issues
     Text("Data for route: $routeId")
-    
+
     if (data != null) {
         Text("Found ${data.size} data items")
-        
+
         // Display basic data properties
         val title = data["title"] ?: data["name"] ?: "Data"
         Text("Title: $title")
-        
+
         if (data.containsKey("description")) {
             Text("Description: ${data["description"]}")
         }
-        
+
         // Display remaining keys
         Text("Properties:")
         data.entries.filter { it.key !in listOf("title", "name", "description") }
@@ -456,7 +463,7 @@ fun DynamicDataComponent(routeId: String) {
     } else {
         Text("No data available")
     }
-    
+
     // The original UI code with platform-specific components is commented out
     /* 
     // Display the appropriate UI based on loading/error/data state

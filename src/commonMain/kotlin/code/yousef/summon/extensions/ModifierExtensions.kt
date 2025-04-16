@@ -1,12 +1,10 @@
 package code.yousef.summon.extensions
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.modifier.Modifier
 
 /**
  * Extensions for Modifier to work with Number values
- * 
+ *
  * @deprecated These extensions are being moved to dedicated modifier packages for better organization.
  * For auto margin modifiers, please import from modifier.AutoMarginModifiers directly.
  */
@@ -21,39 +19,45 @@ fun Modifier.margin(value: Number): Modifier = margin("${value}px")
 /**
  * Sets the margin for vertical and horizontal sides using Numbers in pixels.
  */
-fun Modifier.margin(vertical: Number, horizontal: Number): Modifier = 
+fun Modifier.margin(vertical: Number, horizontal: Number): Modifier =
     margin("${vertical}px ${horizontal}px")
 
 /**
  * Sets the margin for vertical and horizontal sides with the horizontal margins set to auto.
  * Useful for horizontal centering of elements with a fixed width.
- * 
+ *
  * @deprecated Use marginHorizontalAuto from modifier.AutoMarginModifiers instead
  */
-@Deprecated("Use marginHorizontalAuto from modifier.AutoMarginModifiers instead", 
-    ReplaceWith("marginHorizontalAuto(vertical)", "modifier.AutoMarginModifiers.marginHorizontalAuto"))
+@Deprecated(
+    "Use marginHorizontalAuto from modifier.AutoMarginModifiers instead",
+    ReplaceWith("marginHorizontalAuto(vertical)", "modifier.AutoMarginModifiers.marginHorizontalAuto")
+)
 fun Modifier.marginHorizontalAuto(vertical: Number = 0): Modifier =
     margin("${vertical}px auto")
 
 /**
  * Sets the margin for vertical and horizontal sides with the vertical margins set to auto.
  * Useful for vertical centering of elements with a fixed height in certain containers.
- * 
+ *
  * @deprecated Use marginVerticalAuto from modifier.AutoMarginModifiers instead
  */
-@Deprecated("Use marginVerticalAuto from modifier.AutoMarginModifiers instead", 
-    ReplaceWith("marginVerticalAuto(horizontal)", "modifier.AutoMarginModifiers.marginVerticalAuto"))
+@Deprecated(
+    "Use marginVerticalAuto from modifier.AutoMarginModifiers instead",
+    ReplaceWith("marginVerticalAuto(horizontal)", "modifier.AutoMarginModifiers.marginVerticalAuto")
+)
 fun Modifier.marginVerticalAuto(horizontal: Number = 0): Modifier =
     margin("auto ${horizontal}px")
 
 /**
  * Sets all margins to auto.
  * Useful for centering elements both horizontally and vertically in certain contexts.
- * 
+ *
  * @deprecated Use marginAuto from modifier.AutoMarginModifiers instead
  */
-@Deprecated("Use marginAuto from modifier.AutoMarginModifiers instead", 
-    ReplaceWith("marginAuto()", "modifier.AutoMarginModifiers.marginAuto"))
+@Deprecated(
+    "Use marginAuto from modifier.AutoMarginModifiers instead",
+    ReplaceWith("marginAuto()", "modifier.AutoMarginModifiers.marginAuto")
+)
 fun Modifier.marginAuto(): Modifier = margin("auto")
 
 /**
@@ -86,7 +90,7 @@ fun Modifier.padding(value: Number): Modifier = padding("${value}px")
 /**
  * Sets the padding for vertical and horizontal sides using Numbers in pixels.
  */
-fun Modifier.padding(vertical: Number, horizontal: Number): Modifier = 
+fun Modifier.padding(vertical: Number, horizontal: Number): Modifier =
     padding("${vertical}px ${horizontal}px")
 
 /**

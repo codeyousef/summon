@@ -77,7 +77,7 @@ fun ThemeSelectionComponent() {
 @Composable
 fun ThemeOption(name: String, description: String, themeClass: String) {
     Box(
-        modifier = code.yousef.summon.modifier.Modifier()
+        modifier = Modifier()
             .style("data-theme", themeClass)
             .style("class", "theme-option card")
             .style("style", "cursor: pointer; transition: transform 0.2s;")
@@ -89,7 +89,7 @@ fun ThemeOption(name: String, description: String, themeClass: String) {
         Button(
             label = "Select",
             onClick = {},
-            modifier = code.yousef.summon.modifier.Modifier()
+            modifier = Modifier()
                 .style("class", "btn")
                 .style("hx-post", "/api/theme/$themeClass")
                 .style("hx-target", "#theme-response")

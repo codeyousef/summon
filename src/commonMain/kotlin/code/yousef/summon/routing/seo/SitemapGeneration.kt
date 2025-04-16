@@ -1,9 +1,9 @@
 package code.yousef.summon.routing.seo
 
-
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.routing.Route
 import code.yousef.summon.runtime.LocalPlatformRenderer
+import code.yousef.summon.modifier.Modifier
 
 /**
  * SitemapGeneration provides utilities for creating XML sitemaps
@@ -46,8 +46,11 @@ class SitemapGeneration {
         val renderer = LocalPlatformRenderer.current
         val xml = buildSitemapXml(urls, baseUrl)
 
-        renderer.renderHtmlTag("pre", emptyMap()) {
-            println("Rendering sitemap XML: $xml")
+        renderer.renderHtmlTag(
+            tagName = "pre", 
+            modifier = Modifier()
+        ) { 
+            +xml 
         }
     }
 

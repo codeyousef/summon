@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm") version "2.0.0"
-    kotlin("plugin.allopen") version "2.0.0"
+    kotlin("jvm") version "2.1.20"
+    kotlin("plugin.allopen") version "2.1.20"
     id("io.quarkus") version "3.6.5"
 }
 
@@ -27,8 +27,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     
     // Summon dependencies
-    implementation("code.yousef:summon:0.2.1.0")
-    implementation("code.yousef:summon-jvm:0.2.1.0")
+    implementation("code.yousef:summon:0.2.2.0")
+    implementation("code.yousef:summon-jvm:0.2.2.0")
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.12.0")
 }
 
@@ -48,5 +48,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
         jvmTarget = "17"
         javaParameters = true
+        freeCompilerArgs = listOf("-Xskip-metadata-version-check")
     }
 } 

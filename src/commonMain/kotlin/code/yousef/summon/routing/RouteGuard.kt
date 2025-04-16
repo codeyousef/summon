@@ -1,8 +1,5 @@
 package code.yousef.summon.routing
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
-
 /**
  * Interface for route guards.
  * Route guards can be used to protect routes based on certain conditions.

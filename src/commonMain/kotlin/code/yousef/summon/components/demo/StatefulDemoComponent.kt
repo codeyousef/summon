@@ -7,6 +7,8 @@ import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.rememberMutableStateOf
 import code.yousef.summon.state.SummonMutableState
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.components.input.Button
 
 /**
  * A demo component that demonstrates state management within a class.
@@ -60,12 +62,10 @@ private fun StatefulDemoComponentView(
     modifier: Modifier = Modifier()
 ) {
     val renderer = LocalPlatformRenderer.current
-    // Instead of calling a non-existent renderStatefulDemoComponent method
+    // Use renderBox or another layout component if needed for the modifier
     renderer.renderBox(modifier) {
-        // Use basic rendering methods that exist in MigratedPlatformRenderer
-        renderer.renderText(Modifier()) {
-            // Render the text content
-        }
+        // Call the Text composable instead of renderer.renderText
+        Text(text = text)
     }
 }
 
@@ -75,37 +75,25 @@ private fun StatefulDemoComponentView(
  */
 @Composable
 fun StatefulCounter() {
-    // Get the current composer from CompositionLocal
     val composer = CompositionLocal.currentComposer
-
-    // Create a state variable for the counter
     val count: SummonMutableState<Int> = rememberMutableStateOf(0)
 
-    // Start a composition node
     composer?.startNode()
-
-    // Only render if we're in the inserting phase
     if (composer?.inserting == true) {
-        // Access the platform renderer
-        val renderer = LocalPlatformRenderer.current
+        // **Important:** Click handling needs proper JS bridge or use Button composable.
+        // This onClick string won't work as intended with Text.
+        // val onClickJs = "javascript:void(0)" 
+        // val clickModifier = Modifier().onClick(onClickJs)
 
-        // Create a click handler that increments the counter
-        val onClick = "javascript:void(0)" // This would be replaced with a real handler that calls count.value++
-
-        // Prepare the text to display
-        val text = "Clicks: ${count.value}"
-
-        // Create a modified modifier with click handler and styling
-        val modifier = Modifier()
-            .onClick(onClick)
-
-        // Render the component
-        renderer.renderText(modifier) {
-            // Render the text content
-        }
+        // Call the Text composable directly
+        Text(
+            text = "Clicks: ${count.value}",
+            modifier = Modifier() // Add styling or click handler modifier here if needed
+            // modifier = clickModifier // If using a JS-based click handler
+        )
+        // Placeholder Button to actually increment the counter
+        Button(label = "Increment", onClick = { count.value++ })
     }
-
-    // End the composition node
     composer?.endNode()
 }
 
@@ -115,37 +103,27 @@ fun StatefulCounter() {
  */
 @Composable
 fun ToggleDemo() {
-    // Get the current composer from CompositionLocal
     val composer = CompositionLocal.currentComposer
-
-    // Create a state variable for the toggle
     val isToggled: SummonMutableState<Boolean> = rememberMutableStateOf(false)
 
-    // Start a composition node
     composer?.startNode()
-
-    // Only render if we're in the inserting phase
     if (composer?.inserting == true) {
-        // Access the platform renderer
-        val renderer = LocalPlatformRenderer.current
-
-        // Create a click handler that toggles the state
-        val onClick = "javascript:void(0)" // This would be replaced with a real handler
-
-        // Apply different styling based on the toggle state
+        // val onClickJs = "javascript:void(0)" 
         val backgroundColor = if (isToggled.value) "#4CAF50" else "#F44336"
         val text = if (isToggled.value) "ON" else "OFF"
-
-        // Create a modified modifier with styling
-        val modifier = Modifier()
-            .onClick(onClick)
-
-        // Render the component
-        renderer.renderText(modifier) {
-            // Render the text content
-        }
+        
+        // Apply modifier for background color and potentially click handler
+        val textModifier = Modifier()
+             // Example: .background(backgroundColor) // Assuming background modifier exists
+             // Example: .onClick(onClickJs)
+        
+        // Call the Text composable
+        Text(
+            text = text,
+            modifier = textModifier
+        )
+        // Placeholder Button to toggle
+        Button(label = "Toggle", onClick = { isToggled.value = !isToggled.value })
     }
-
-    // End the composition node
     composer?.endNode()
 } 

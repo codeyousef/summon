@@ -3,14 +3,16 @@ package code.yousef.example.quarkus
 /**
  * Represents a user in the system.
  *
- * @property id The unique identifier of the user
- * @property name The name of the user
+ * @property id The unique identifier for the user
+ * @property name The full name of the user
  * @property email The email address of the user
- * @property role The role of the user in the system
+ * @property role The role assigned to the user (e.g., admin, user)
+ * @property active Whether the user account is active
  */
 data class User(
-    val id: Int,
+    val id: Long = 0,
     val name: String,
     val email: String,
-    val role: String
+    val role: String,
+    val active: Boolean = true
 ) 

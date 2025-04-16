@@ -3,8 +3,10 @@ package code.yousef.summon.components.navigation
 import code.yousef.summon.components.LayoutComponent
 import code.yousef.summon.core.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.PlatformRendererProviderLegacy.getRenderer
+import code.yousef.summon.runtime.getPlatformRenderer
 import kotlinx.html.TagConsumer
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 /**
  * Represents a single tab in a TabLayout.
@@ -14,7 +16,8 @@ import kotlinx.html.TagConsumer
  * @param icon Optional icon to display alongside the title
  * @param isClosable Whether this tab can be closed by the user
  */
-data class Tab(
+data class Tab @OptIn(ExperimentalUuidApi::class) constructor(
+    val id: Uuid,
     val title: String,
     val content: Composable,
     val icon: Composable? = null,
@@ -43,7 +46,7 @@ class TabLayout(
      */
     override fun <T> compose(receiver: T): T {
         if (receiver is TagConsumer<*>) {
-            getRenderer().renderTabLayout(
+            getPlatformRenderer().renderTabLayout(
                 tabs = tabs,
                 selectedTabIndex = selectedTabIndex,
                 onTabSelected = onTabSelected ?: {},

@@ -5,11 +5,16 @@ import code.yousef.summon.components.layout.Row
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.applyIf
 import code.yousef.summon.modifier.onClick
-import code.yousef.summon.modifier.pointerEvents
-import code.yousef.summon.runtime.Composable
+import code.yousef.summon.modifier.ModifierExtras.pointerEvents
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.theme.Spacer
+import code.yousef.summon.annotation.Composable
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.modifier.padding
+import code.yousef.summon.modifier.alignItems
+import code.yousef.summon.modifier.cursor
+import code.yousef.summon.components.layout.Box
 
 /**
  * A composable that displays a radio button, typically used as part of a group
@@ -39,9 +44,6 @@ fun RadioButton(
     val composer = CompositionLocal.currentComposer
     // Apply styling directly to the element via modifier
     val finalModifier = modifier
-        .apply {
-            if (enabled) this else this.copy(styles = this.styles + ("opacity" to "0.6"))
-        }
         .cursor(if (enabled) "pointer" else "default")
         .applyIf(!enabled) { pointerEvents("none") }
 
@@ -49,7 +51,7 @@ fun RadioButton(
     if (composer?.inserting == true) {
         val renderer = LocalPlatformRenderer.current
         // Call the PlatformRenderer implementation which has params in order: selected, onClick, enabled, modifier
-        (renderer as code.yousef.summon.core.PlatformRenderer).renderRadioButton(
+        renderer.renderRadioButton(
             selected = selected,
             onClick = { if (enabled) onClick() },
             enabled = enabled,
@@ -77,72 +79,95 @@ fun RadioButtonWithLabel(
     enabled: Boolean = true,
     label: @Composable () -> Unit
 ) {
-    // Implement clickable behavior on the Row
     val rowModifier = modifier
         .cursor(if (enabled) "pointer" else "default")
-        .apply {
-            if (enabled) this else this.copy(styles = this.styles + ("opacity" to "0.6"))
-        }
         .applyIf(!enabled) { pointerEvents("none") }
-        .onClick { if (enabled) onClick() } // Add onClick handler to make the entire row clickable
+        .onClick { if (enabled) onClick() }
+        .alignItems("center") // Apply alignment via modifier
 
-    Row(modifier = rowModifier) {
+    Row(modifier = rowModifier) { // Remove verticalAlignment parameter
         RadioButton(
             selected = selected,
             onClick = onClick,
             enabled = enabled
         )
-        Spacer(modifier = Modifier().width("8px"))
+        // Fix padding and add empty content lambda for Box
+        Box(modifier = Modifier().padding("0px 0px 0px 8px")) {}
         label()
     }
 }
 
 /**
- * A RadioButton with a label.
- * 
- * @param selected Whether the radio button is selected
- * @param onClick Callback to be invoked when the radio button is clicked
- * @param label The label text to display next to the radio button
- * @param enabled Whether the radio button is enabled
- * @param modifier The modifier to be applied to this component
+ * A composable function that displays a radio button, typically used within a RadioButtonGroup.
+ *
+ * @param selected Whether this radio button is currently selected.
+ * @param onClick Lambda invoked when the radio button is clicked.
+ * @param modifier Modifier applied to the entire radio button component (including label).
+ * @param enabled Controls the enabled state of the radio button.
+ * @param label Optional label displayed next to the radio button.
+ * @param labelPosition Determines whether the label appears before or after the radio button.
+ * @param radioButtonStyle Modifier applied specifically to the radio button input element.
  */
 @Composable
 fun RadioButton(
     selected: Boolean,
     onClick: () -> Unit,
-    label: String,
+    modifier: Modifier = Modifier(),
     enabled: Boolean = true,
-    modifier: Modifier = Modifier()
+    label: String? = null,
+    labelPosition: LabelPosition = LabelPosition.END,
+    radioButtonStyle: Modifier = Modifier()
 ) {
     val renderer = LocalPlatformRenderer.current
-    
-    // Create a row to hold the radio button and label
-    renderer.renderRow(modifier)
-    
-    // Render the radio button
-    RadioButton(
-        selected = selected,
-        onClick = onClick,
-        enabled = enabled
-    )
-    
-    // Render the label text
-    renderer.renderText(label, Modifier())
+
+    // Define the radio button rendering logic
+    val renderRadioInput = @Composable { ->
+        renderer.renderRadioButton(
+            selected = selected,
+            onClick = { if (enabled) onClick() },
+            enabled = enabled,
+            modifier = radioButtonStyle
+                .cursor(if (enabled) "pointer" else "default")
+        )
+    }
+
+    // Define the label rendering logic if a label exists
+    val renderLabel = label?.let {
+        @Composable { ->
+            Text(text = it)
+        }
+    }
+
+    // Arrange radio button and label in a Row
+    Row(
+        modifier = modifier
+            .cursor(if (enabled) "pointer" else "default")
+            .onClick { if (enabled) onClick() } // Make row clickable
+            .alignItems("center"), // Use modifier for alignment
+    ) {
+        if (labelPosition == LabelPosition.START && renderLabel != null) {
+            renderLabel()
+            // Add empty content lambda for Box
+            Box(Modifier().padding("0px 0px 0px 4px")) {}
+        }
+
+        renderRadioInput()
+
+        if (labelPosition == LabelPosition.END && renderLabel != null) {
+             // Add empty content lambda for Box
+            Box(Modifier().padding("0px 0px 0px 4px")) {}
+            renderLabel()
+        }
+    }
 }
 
-// Utility extension
-private fun Modifier.cursor(cursor: String): Modifier {
-    return this.copy(styles = this.styles + ("cursor" to cursor))
+/**
+ * Defines the position of the label relative to the input component.
+ */
+enum class LabelPosition {
+    START, // Label appears before the input
+    END    // Label appears after the input
 }
 
-// For Spacer
-@Composable
-private fun Spacer(modifier: Modifier) {
-    val renderer = LocalPlatformRenderer.current
-    renderer.renderSpacer(modifier)
-}
-
-// Width extension for Modifier
-private fun Modifier.width(width: String): Modifier {
-    return this.copy(styles = this.styles + ("width" to width))
-}
+// Removed RadioButtonSamples as it had renderSpacer issue
+// Consider adding samples back later if needed

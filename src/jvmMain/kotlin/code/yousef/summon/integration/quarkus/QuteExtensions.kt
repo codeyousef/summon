@@ -1,7 +1,7 @@
 package code.yousef.summon.integration.quarkus
 
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.platform.JvmPlatformRenderer
+import code.yousef.summon.runtime.JvmPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import kotlinx.html.body
 import kotlinx.html.div

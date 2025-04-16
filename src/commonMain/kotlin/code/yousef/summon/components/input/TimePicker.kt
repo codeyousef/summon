@@ -1,123 +1,75 @@
 package code.yousef.summon.components.input
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.core.LocalTime
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.mutableStateOf
 import code.yousef.summon.runtime.remember
-import code.yousef.summon.validation.Validator
+import kotlinx.datetime.LocalTime
+import code.yousef.summon.state.State
 
 /**
- * A composable that displays a time picker.
+ * A composable for selecting time.
  *
- * @param value The current time value (format: HH:MM or HH:MM:SS)
- * @param onValueChange Callback that is invoked when the selected time changes
- * @param modifier The modifier to apply to this composable
- * @param label Optional label to display for the time picker
- * @param placeholder Placeholder text to show when no time is selected
- * @param use24Hour Whether to use 24-hour format (true) or 12-hour format (false)
- * @param isEnabled Whether the time picker is enabled
- * @param isError Whether the time picker is in an error state
- * @param validators List of validators to apply to the input
+ * @param value The currently selected time (using kotlinx.datetime.LocalTime).
+ * @param onValueChange Lambda called when the time changes.
+ * @param modifier Modifier for styling and attributes.
+ * @param enabled Whether the time picker is enabled.
+ * @param is24Hour Hint for display format (actual display might depend on locale/browser).
+ * @param label Optional label (consider using FormField).
  */
 @Composable
 fun TimePicker(
-    value: String,
-    onValueChange: (String) -> Unit,
+    value: LocalTime?,
+    onValueChange: (LocalTime?) -> Unit,
     modifier: Modifier = Modifier(),
-    label: String? = null,
-    placeholder: String? = null,
-    use24Hour: Boolean = true,
-    isEnabled: Boolean = true,
-    isError: Boolean = false,
-    validators: List<Validator> = emptyList()
+    enabled: Boolean = true,
+    is24Hour: Boolean = false,
+    label: String? = null
 ) {
-    // Internal state to track validation errors
-    val validationErrors = remember { mutableStateOf(emptyList<String>()) }
-
-    // Validate the time
-    val errors = validators.mapNotNull { validator ->
-        val result = validator.validate(value)
-        if (!result.isValid) result.errorMessage else null
-    }
-    validationErrors.value = errors
-
-    // Parse the time value into a LocalTime object for the renderer
-    val time = parseTimeString(value)
-
-    // Get the platform renderer
     val renderer = LocalPlatformRenderer.current
 
-    // Render the time picker using the platform renderer
     renderer.renderTimePicker(
-        time = time,
-        onTimeChange = { newTime ->
-            val newValue = formatLocalTime(newTime, showSeconds = value.split(":").size > 2)
-            onValueChange(newValue)
-        },
-        modifier = modifier,
-        is24Hour = use24Hour
+        value = value,
+        onValueChange = onValueChange,
+        enabled = enabled,
+        is24Hour = is24Hour,
+        modifier = modifier
     )
 
-    // Optionally render a label if provided
-    if (label != null) {
-        // Label would be rendered here in a real implementation
-    }
-
-    // Optionally render validation errors
-    if (validationErrors.value.isNotEmpty()) {
-        // Errors would be displayed here in a real implementation
-    }
+    // Removed direct label rendering
+    // if (label != null) { ... }
 }
 
 /**
- * A stateful version of TimePicker that manages its own state.
- *
- * @param initialValue The initial time value (format: HH:MM or HH:MM:SS)
- * @param onValueChange Callback that is invoked when the selected time changes
- * @param modifier The modifier to apply to this composable
- * @param label Optional label to display for the time picker
- * @param placeholder Placeholder text to show when no time is selected
- * @param use24Hour Whether to use 24-hour format (true) or 12-hour format (false)
- * @param isEnabled Whether the time picker is enabled
- * @param isError Whether the time picker is in an error state
- * @param validators List of validators to apply to the input
+ * Stateful version of TimePicker.
  */
 @Composable
 fun StatefulTimePicker(
-    initialValue: String = "",
-    onValueChange: (String) -> Unit = {},
+    initialValue: LocalTime? = null,
+    onValueChange: (LocalTime?) -> Unit = {},
     modifier: Modifier = Modifier(),
-    label: String? = null,
-    placeholder: String? = null,
-    use24Hour: Boolean = true,
-    isEnabled: Boolean = true,
-    isError: Boolean = false,
-    validators: List<Validator> = emptyList()
+    enabled: Boolean = true,
+    is24Hour: Boolean = false,
+    label: String? = null
 ) {
-    // Create state to store the time value
-    val timeState = remember { mutableStateOf(initialValue) }
+    val timeState = remember { mutableStateOf<LocalTime?>(initialValue) }
 
-    // Use the stateless TimePicker composable
     TimePicker(
         value = timeState.value,
-        onValueChange = { newValue ->
-            timeState.value = newValue
-            onValueChange(newValue)
+        onValueChange = {
+            timeState.value = it
+            onValueChange(it)
         },
         modifier = modifier,
-        label = label,
-        placeholder = placeholder,
-        use24Hour = use24Hour,
-        isEnabled = isEnabled,
-        isError = isError,
-        validators = validators
+        enabled = enabled,
+        is24Hour = is24Hour,
+        label = label
     )
 }
 
 /**
- * Helper function to parse a time string into a LocalTime object.
+ * Helper function to parse a time string into a kotlinx.datetime.LocalTime object.
  */
 private fun parseTimeString(value: String): LocalTime? {
     if (value.isBlank()) return null
@@ -135,7 +87,7 @@ private fun parseTimeString(value: String): LocalTime? {
 }
 
 /**
- * Helper function to format a LocalTime object as a string.
+ * Helper function to format a kotlinx.datetime.LocalTime object as a string.
  */
 private fun formatLocalTime(time: LocalTime?, showSeconds: Boolean): String {
     if (time == null) return ""

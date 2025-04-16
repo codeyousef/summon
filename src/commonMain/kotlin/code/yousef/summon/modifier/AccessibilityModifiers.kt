@@ -1,20 +1,11 @@
 package code.yousef.summon.modifier
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.modifier.ModifierExtras.attribute
 
 /**
  * Extension functions for Accessibility Modifiers
  * These add ARIA attributes through HTML attributes applied to elements
  */
-
-/**
- * Creates a copy of this Modifier with an additional HTML attribute.
- * We use a special "__attr:" prefix to distinguish attributes from CSS properties.
- */
-fun Modifier.attribute(name: String, value: String): Modifier {
-    return style("__attr:$name", value)
-}
 
 /**
  * Removes an attribute from the Modifier
@@ -26,14 +17,22 @@ fun Modifier.removeAttribute(name: String): Modifier {
 }
 
 /**
- * Sets the ARIA role attribute
+ * Creates a Modifier with the role attribute set.
+ *
+ * @param value The ARIA role value
+ * @return A new Modifier with the role attribute
  */
-fun Modifier.role(value: String): Modifier = attribute("role", value)
+fun Modifier.role(value: String): Modifier =
+    attribute("role", value)
 
 /**
- * Sets the aria-label attribute
+ * Creates a Modifier with the aria-label attribute set.
+ *
+ * @param value The ARIA label text
+ * @return A new Modifier with the aria-label attribute
  */
-fun Modifier.ariaLabel(value: String): Modifier = attribute("aria-label", value)
+fun Modifier.ariaLabel(value: String): Modifier =
+    attribute("aria-label", value)
 
 /**
  * Sets the aria-labelledby attribute
@@ -101,9 +100,12 @@ fun Modifier.ariaRequired(value: Boolean): Modifier = attribute("aria-required",
 fun Modifier.ariaCurrent(value: String): Modifier = attribute("aria-current", value)
 
 /**
- * Sets the aria-live attribute
+ * Creates a Modifier with the aria-live attribute set to "assertive".
+ *
+ * @return A new Modifier with the aria-live attribute
  */
-fun Modifier.ariaLive(value: String): Modifier = attribute("aria-live", value)
+fun Modifier.ariaLiveAssertive(): Modifier =
+    attribute("aria-live", "assertive")
 
 /**
  * Sets the tabindex attribute
@@ -114,11 +116,6 @@ fun Modifier.tabIndex(value: Int): Modifier = attribute("tabindex", value.toStri
  * Gets a style property value or null if not present
  */
 fun Modifier.getStyle(name: String): String? = styles[name]
-
-/**
- * Gets an attribute value or null if not present
- */
-fun Modifier.getAttribute(name: String): String? = styles["__attr:$name"]
 
 /**
  * Checks if a style property exists
@@ -171,7 +168,7 @@ fun Modifier.tabbable(): Modifier = tabIndex(0)
  * Marks an element as disabled and not focusable.
  * Adds both the disabled attribute and aria-disabled.
  */
-fun Modifier.disabled(): Modifier = 
+fun Modifier.disabled(): Modifier =
     attribute("disabled", "")
         .ariaDisabled(true)
         .tabIndex(-1)

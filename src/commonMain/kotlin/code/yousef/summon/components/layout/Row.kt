@@ -3,6 +3,7 @@ package code.yousef.summon.components.layout
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.LocalPlatformRenderer
+import kotlinx.html.FlowContent
 
 /**
  * A layout component that places its children in a horizontal sequence.
@@ -13,14 +14,11 @@ import code.yousef.summon.runtime.LocalPlatformRenderer
 @Composable
 fun Row(
     modifier: Modifier = Modifier(),
-    content: @Composable () -> Unit
+    content: @Composable FlowContent.() -> Unit
 ) {
     // Use platform renderer directly
     val renderer = LocalPlatformRenderer.current
-    renderer.renderRow(modifier)
-    
-    // Call content inside the row
-    content()
+    renderer.renderRow(modifier, content)
 }
 
 object Alignment {

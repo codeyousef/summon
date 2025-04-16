@@ -1,7 +1,6 @@
-package security
+package code.yousef.summon.security
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
+import security.Authentication
 
 /**
  * JS implementation of SecurityContextHolder using a simple mutable variable.

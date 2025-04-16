@@ -1,7 +1,8 @@
 package security
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.security.Permission
+import code.yousef.summon.security.Principal
+import code.yousef.summon.security.Role
 
 /**
  * Interface for authentication providers that handle different types of authentication.

@@ -7,54 +7,35 @@ import code.yousef.summon.runtime.mutableStateOf
 import code.yousef.summon.runtime.remember
 
 /**
- * A composable that displays a range slider input field.
+ * A composable that allows selecting a range of values within a given range.
  *
- * @param value The current value of the slider
- * @param onValueChange Callback that is invoked when the value changes
- * @param valueRange The range of values that the slider can take
- * @param steps The number of discrete steps within the range
- * @param modifier The modifier to apply to this composable
- * @param isEnabled Whether the slider is enabled
- * @param label Optional label to display for the slider
- * @param showTooltip Whether to show a tooltip with the current value
- * @param valueFormat Function to format the value for display
+ * @param value The current selected range.
+ * @param onValueChange Callback invoked when the selected range changes.
+ * @param modifier Modifier applied to the slider layout.
+ * @param valueRange The total range allowed for selection (from min to max).
+ * @param steps The number of discrete steps the slider should have. Set to 0 for a continuous slider.
+ * @param enabled Controls the enabled state of the slider.
  */
 @Composable
 fun RangeSlider(
     value: ClosedFloatingPointRange<Float>,
     onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
-    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-    steps: Int = 0,
     modifier: Modifier = Modifier(),
-    isEnabled: Boolean = true,
-    label: String? = null,
-    showTooltip: Boolean = false,
-    valueFormat: (Float) -> String = { it.toString() }
+    valueRange: ClosedFloatingPointRange<Float> = 0.0f..1.0f,
+    steps: Int = 0,
+    enabled: Boolean = true
 ) {
-    // Get the platform renderer
     val renderer = LocalPlatformRenderer.current
 
-    // Render the range slider
+    // Call the platform renderer directly
     renderer.renderRangeSlider(
         value = value,
         onValueChange = onValueChange,
-        modifier = modifier,
-        valueRange = valueRange
+        valueRange = valueRange,
+        steps = steps,
+        enabled = enabled,
+        modifier = modifier
     )
-
-    // Optionally render a label if provided
-    if (label != null) {
-        // Label would be rendered here in a real implementation
-    }
-
-    // Optionally render a tooltip if enabled
-    if (showTooltip) {
-        // Tooltip would be rendered here in a real implementation
-        // Example: showing current values
-        val startValueStr = valueFormat(value.start)
-        val endValueStr = valueFormat(value.endInclusive)
-        // Tooltip content: "$startValueStr - $endValueStr"
-    }
 }
 
 /**
@@ -95,10 +76,7 @@ fun StatefulRangeSlider(
         valueRange = valueRange,
         steps = steps,
         modifier = modifier,
-        isEnabled = isEnabled,
-        label = label,
-        showTooltip = showTooltip,
-        valueFormat = valueFormat
+        enabled = isEnabled
     )
 }
 
@@ -116,4 +94,7 @@ data class FloatRange(
     override fun isEmpty(): Boolean = start > endInclusive
 
     override fun lessThanOrEquals(a: Float, b: Float): Boolean = a <= b
-} 
+}
+
+// Consider adding a sample if needed later, once styling is addressed
+// object RangeSliderSamples { ... } 

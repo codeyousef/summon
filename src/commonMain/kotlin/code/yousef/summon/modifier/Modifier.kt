@@ -1,8 +1,5 @@
 package code.yousef.summon.modifier
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
-
 /**
  * A Modifier is used to add styling information to a composable.
  * It holds a map of CSS property names to their values.
@@ -18,17 +15,17 @@ data class Modifier(val styles: Map<String, String> = emptyMap()) {
     /**
      * Generic style method for adding any CSS property.
      * This is the core method that all other styling methods use.
-     * 
+     *
      * @param propertyName The CSS property name
      * @param value The property value
      * @return A new Modifier with the added style
      */
-    fun style(propertyName: String, value: String): Modifier = 
+    fun style(propertyName: String, value: String): Modifier =
         Modifier(styles + (propertyName to value))
-    
+
     /**
      * Sets multiple style properties at once.
-     * 
+     *
      * @param properties Map of property names to values
      * @return A new Modifier with the added styles
      */
@@ -42,7 +39,7 @@ data class Modifier(val styles: Map<String, String> = emptyMap()) {
      */
     fun background(color: String): Modifier =
         style("background-color", color)
-        
+
     /**
      * Alias for background() to match CSS property name
      */
@@ -68,7 +65,7 @@ data class Modifier(val styles: Map<String, String> = emptyMap()) {
      */
     fun width(value: String): Modifier =
         style("width", value)
-        
+
     /**
      * Sets the maximum width of the element.
      */
@@ -134,7 +131,7 @@ data class Modifier(val styles: Map<String, String> = emptyMap()) {
      */
     fun margin(top: String, right: String, bottom: String, left: String): Modifier =
         style("margin", "$top $right $bottom $left")
-        
+
     /**
      * Sets the object-fit property for images.
      * Valid values include: fill, contain, cover, none, scale-down
@@ -343,11 +340,13 @@ data class Modifier(val styles: Map<String, String> = emptyMap()) {
      * @param lines Maximum number of lines.
      */
     fun maxLines(lines: Int): Modifier =
-        styles(mapOf(
-            "display" to "-webkit-box",
-            "-webkit-line-clamp" to lines.toString(),
-            "-webkit-box-orient" to "vertical",
-            "overflow" to "hidden"
-        ))
+        styles(
+            mapOf(
+                "display" to "-webkit-box",
+                "-webkit-line-clamp" to lines.toString(),
+                "-webkit-box-orient" to "vertical",
+                "overflow" to "hidden"
+            )
+        )
 
 } 

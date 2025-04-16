@@ -1,7 +1,5 @@
 package code.yousef.summon.modifier
 
-import code.yousef.summon.runtime.getPlatformRenderer
-
 /**
  * Extension functions for Layout Modifiers
  * These are implemented to match the test expectations in LayoutModifierTest
@@ -26,28 +24,10 @@ fun Modifier.maxHeight(value: String): Modifier =
     style("max-height", value)
 
 /**
- * Sets the maximum width of the element.
- */
-fun Modifier.maxWidth(value: String): Modifier =
-    style("max-width", value)
-
-/**
  * Sets width to 100%.
  */
 fun Modifier.fillMaxWidth(): Modifier =
     style("width", "100%")
-
-/**
- * Sets the width of the element.
- */
-fun Modifier.width(value: String): Modifier =
-    style("width", value)
-
-/**
- * Sets the height of the element.
- */
-fun Modifier.height(value: String): Modifier =
-    style("height", value)
 
 /**
  * Sets padding on all sides.
@@ -104,46 +84,96 @@ fun Modifier.margin(top: String, right: String, bottom: String, left: String): M
     style("margin", "$top $right $bottom $left")
 
 /**
- * Sets the position type of the element.
+ * Sets margin for specific sides using named parameters.
+ * This allows for more readable code when setting margin on only specific sides.
  */
-fun Modifier.position(value: String): Modifier =
-    style("position", value)
+fun Modifier.marginOf(
+    top: String? = null,
+    right: String? = null,
+    bottom: String? = null,
+    left: String? = null
+): Modifier {
+    // If only one parameter is provided, set that specific margin direction
+    if (top != null && right == null && bottom == null && left == null) {
+        return style("margin-top", top)
+    }
+    if (right != null && top == null && bottom == null && left == null) {
+        return style("margin-right", right)
+    }
+    if (bottom != null && top == null && right == null && left == null) {
+        return style("margin-bottom", bottom)
+    }
+    if (left != null && top == null && right == null && bottom == null) {
+        return style("margin-left", left)
+    }
+    
+    // If multiple parameters are provided, construct the margin string
+    val marginParts = arrayOf(
+        top ?: "0",
+        right ?: "0",
+        bottom ?: "0",
+        left ?: "0"
+    )
+    return style("margin", marginParts.joinToString(" "))
+}
 
 /**
- * Sets the top position of the element.
+ * Sets padding for a specific side using a named parameter.
+ * This allows for more readable code when setting padding on only one side.
  */
-fun Modifier.top(value: String): Modifier =
-    style("top", value)
+fun Modifier.paddingOf(
+    top: String? = null,
+    right: String? = null,
+    bottom: String? = null,
+    left: String? = null
+): Modifier {
+    // If only one parameter is provided, set that specific padding direction
+    if (top != null && right == null && bottom == null && left == null) {
+        return style("padding-top", top)
+    }
+    if (right != null && top == null && bottom == null && left == null) {
+        return style("padding-right", right)
+    }
+    if (bottom != null && top == null && right == null && left == null) {
+        return style("padding-bottom", bottom)
+    }
+    if (left != null && top == null && right == null && bottom == null) {
+        return style("padding-left", left)
+    }
+    
+    // If multiple parameters are provided, construct the padding string
+    val paddingParts = arrayOf(
+        top ?: "0",
+        right ?: "0",
+        bottom ?: "0",
+        left ?: "0"
+    )
+    return style("padding", paddingParts.joinToString(" "))
+}
 
 /**
- * Sets the right position of the element.
+ * Sets margin for the top side of the element.
  */
-fun Modifier.right(value: String): Modifier =
-    style("right", value)
+fun Modifier.marginTop(value: String): Modifier =
+    style("margin-top", value)
 
 /**
- * Sets the bottom position of the element.
+ * Sets margin for the right side of the element.
  */
-fun Modifier.bottom(value: String): Modifier =
-    style("bottom", value)
+fun Modifier.marginRight(value: String): Modifier =
+    style("margin-right", value)
 
 /**
- * Sets the left position of the element.
+ * Sets margin for the bottom side of the element.
  */
-fun Modifier.left(value: String): Modifier =
-    style("left", value)
+fun Modifier.marginBottom(value: String): Modifier =
+    style("margin-bottom", value)
 
 /**
- * Sets the flex property (shorthand for flex-grow, flex-shrink, flex-basis).
+ * Sets margin for the left side of the element.
  */
-fun Modifier.flex(value: String): Modifier =
-    style("flex", value)
-
-/**
- * Sets the flex direction of the element.
- */
-fun Modifier.flexDirection(value: String): Modifier =
-    style("flex-direction", value)
+fun Modifier.marginLeft(value: String): Modifier =
+    style("margin-left", value)
 
 /**
  * Sets the flex wrap property.
@@ -194,40 +224,10 @@ fun Modifier.justifySelf(value: String): Modifier =
     style("justify-self", value)
 
 /**
- * Sets the display property.
- */
-fun Modifier.display(value: String): Modifier =
-    style("display", value)
-
-/**
- * Sets the grid-template-columns property.
- */
-fun Modifier.gridTemplateColumns(value: String): Modifier =
-    style("grid-template-columns", value)
-
-/**
- * Sets the grid-template-rows property.
- */
-fun Modifier.gridTemplateRows(value: String): Modifier =
-    style("grid-template-rows", value)
-
-/**
  * Sets the grid-gap property.
  */
 fun Modifier.gridGap(value: String): Modifier =
     style("grid-gap", value)
-
-/**
- * Sets the grid-column-gap property.
- */
-fun Modifier.gridColumnGap(value: String): Modifier =
-    style("grid-column-gap", value)
-
-/**
- * Sets the grid-row-gap property.
- */
-fun Modifier.gridRowGap(value: String): Modifier =
-    style("grid-row-gap", value)
 
 /**
  * Sets the grid-area property.
@@ -254,12 +254,6 @@ fun Modifier.zIndex(value: String): Modifier =
     style("z-index", value)
 
 /**
- * Sets the overflow property.
- */
-fun Modifier.overflow(value: String): Modifier =
-    style("overflow", value)
-
-/**
  * Sets the overflow-x property.
  */
 fun Modifier.overflowX(value: String): Modifier =
@@ -278,22 +272,10 @@ fun Modifier.visibility(value: String): Modifier =
     style("visibility", value)
 
 /**
- * Sets the border property.
- */
-fun Modifier.border(width: String, style: String, color: String): Modifier =
-    style("border", "$width $style $color")
-
-/**
  * Sets just the border width property.
  */
 fun Modifier.border(width: String): Modifier =
     style("border-width", width)
-
-/**
- * Sets the border-radius property.
- */
-fun Modifier.borderRadius(value: String): Modifier =
-    style("border-radius", value)
 
 /**
  * Sets the border-left property.
@@ -308,27 +290,7 @@ fun Modifier.fontSize(value: String): Modifier =
     style("font-size", value)
 
 /**
- * Sets the font-weight property.
- */
-fun Modifier.fontWeight(value: String): Modifier =
-    style("font-weight", value)
-
-/**
- * Sets the color property.
- */
-fun Modifier.color(value: String): Modifier =
-    style("color", value)
-
-/**
  * Sets the cursor property.
  */
 fun Modifier.cursor(value: String): Modifier =
     style("cursor", value)
-
-/**
- * Sets the onClick event handler.
- */
-fun Modifier.onClick(handler: () -> Unit): Modifier =
-    // This would be implemented differently depending on platform
-    // For now just return this as a placeholder
-    this 

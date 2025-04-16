@@ -1,5 +1,7 @@
 package code.yousef.summon.modifier
 
+import code.yousef.summon.modifier.ModifierExtras.pointerEvents
+
 /**
  * Modifiers for handling pointer events.
  */

@@ -1,6 +1,7 @@
 package code.yousef.summon.platform
 
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.JvmPlatformRenderer
 
 import code.yousef.summon.runtime.setPlatformRenderer
 

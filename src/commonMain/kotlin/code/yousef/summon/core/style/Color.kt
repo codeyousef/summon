@@ -1,8 +1,5 @@
 package code.yousef.summon.core.style
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
-
 /**
  * Represents an RGBA color
  */
@@ -39,7 +36,7 @@ class Color(val value: UInt) {
 
     /**
      * Creates a new color with the specified alpha component
-     * 
+     *
      * @param alpha The alpha value (0.0-1.0)
      * @return A new Color with the updated alpha
      */
@@ -52,7 +49,7 @@ class Color(val value: UInt) {
      * Returns this color as a CSS rgba() string
      */
     fun toRgbaString(): String {
-        return "rgba($red, $green, $blue, ${alpha/255f})"
+        return "rgba($red, $green, $blue, ${alpha / 255f})"
     }
 
     /**
@@ -94,9 +91,9 @@ class Color(val value: UInt) {
             val a = alpha.coerceIn(0, 255)
             return Color(
                 (r.toUInt() shl 24) or
-                (g.toUInt() shl 16) or
-                (b.toUInt() shl 8) or
-                a.toUInt()
+                        (g.toUInt() shl 16) or
+                        (b.toUInt() shl 8) or
+                        a.toUInt()
             )
         }
 
@@ -106,7 +103,7 @@ class Color(val value: UInt) {
         fun fromHex(hex: String): Color {
             // Remove # if present
             val hexVal = if (hex.startsWith("#")) hex.substring(1) else hex
-            
+
             // Parse based on length
             return when (hexVal.length) {
                 3 -> { // #RGB
@@ -115,14 +112,17 @@ class Color(val value: UInt) {
                     val b = hexVal[2].toString().repeat(2).toInt(16)
                     rgb(r, g, b)
                 }
+
                 6 -> { // #RRGGBB
                     val value = hexVal.toUInt(16) shl 8 or 0xFFu
                     Color(value)
                 }
+
                 8 -> { // #RRGGBBAA
                     val value = hexVal.toUInt(16)
                     Color(value)
                 }
+
                 else -> throw IllegalArgumentException("Invalid hex color format: $hex")
             }
         }
@@ -137,7 +137,7 @@ class Color(val value: UInt) {
         val CYAN = rgb(0, 255, 255)
         val MAGENTA = rgb(255, 0, 255)
         val TRANSPARENT = rgba(0, 0, 0, 0)
-        
+
         // Material Design colors
         val PRIMARY = fromHex("#2196F3") // Blue 500
         val PRIMARY_LIGHT = fromHex("#BBDEFB") // Blue 100

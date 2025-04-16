@@ -1,14 +1,12 @@
 package code.yousef.summon.ssr
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.MigratedPlatformRenderer
 import code.yousef.summon.runtime.getPlatformRenderer
 import code.yousef.summon.runtime.CommonComposer
 import code.yousef.summon.runtime.ComposeManagerContext
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.html.stream.createHTML
 import kotlinx.coroutines.delay
 
 /**
@@ -229,122 +227,77 @@ object ServerSideRenderUtils {
         
         val context = RenderContext(initialState = initialData, enableHydration = includeHydrationScript)
         
-        // 1. Set up server-side Composer
-        val composer = CommonComposer()
-        val htmlBuilder = createHTML()
-        
-        // 2. Execute rootComposable within the CompositionContext to collect content
-        ComposeManagerContext.withComposer(composer) {
-            rootComposable()
-        }
-        
-        // 3. Get the main HTML content from the renderer
-        val platformRenderer = code.yousef.summon.runtime.getPlatformRenderer()
-        val bodyContent = createHTML().apply {
-            // Platform renderer will add content to the HTML builder
-            platformRenderer.renderComposable(rootComposable, this)
-        }.finalize()
+        // Get the platform renderer (assumes one is available/set)
+        val platformRenderer = getPlatformRenderer()
+
+        // Use the global renderToString helper which handles renderComposableRoot correctly
+        val renderResult = renderToString(platformRenderer, rootComposable)
+        val bodyContent = renderResult.html
+        val headElements = renderResult.headElements // Head elements are now collected by renderToString
+
+        // TODO: Collect head elements properly via context or renderer capabilities
+        // val headContent = context.headElements.joinToString("\n") { /* Render head composable? */ "" }
+        val headContent = headElements.joinToString("\n") // Join collected head strings
         
         // 4. Optionally generate hydration data
         val hydrationScript = if (includeHydrationScript) {
-            """
-            <script id="summon-hydration-data" type="application/json">
-                ${HydrationUtils.generateHydrationScript(rootComposable)}
-            </script>
-            <script src="/summon-hydration.js"></script>
-            """
+            generateHydrationScript(initialData)
         } else {
             ""
         }
         
-        // 5. Construct the full HTML document manually (without kotlinx.html DSL)
-        val headContent = buildHeadContent(context, initialData)
-        val bodyOpenTag = "<body>"
-        val rootDiv = "<div id=\"summon-root\">${bodyContent}</div>"
-        val stateScript = if (initialData.isNotEmpty()) {
-            "<script>window.__SUMMON_INITIAL_STATE__ = ${serializeStateToJson(initialData)};</script>"
-        } else {
-            ""
-        }
-        val bodyCloseTag = "</body>"
-        
-        return "<!DOCTYPE html>\n<html>\n$headContent\n$bodyOpenTag\n$rootDiv\n$stateScript\n$hydrationScript\n$bodyCloseTag\n</html>"
+        // 5. Construct the final HTML document
+        // TODO: Integrate SEO metadata from context
+        return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>SSR Page</title>
+            $headContent
+        </head>
+        <body>
+            <div id="root">$bodyContent</div>
+            $hydrationScript
+        </body>
+        </html>
+        """.trimIndent()
     }
-    
-    /**
-     * Builds the head content for an HTML document
-     */
-    private fun buildHeadContent(context: RenderContext, initialData: Map<String, Any?>): String {
-        val sb = StringBuilder()
-        
-        sb.append("<head>\n")
-        sb.append("  <meta charset=\"UTF-8\">\n")
-        sb.append("  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n")
-        
-        // Add title
-        val title = if (initialData.containsKey("title")) {
-            initialData["title"] as String
-        } else {
-            "Summon SSR Page"
+
+    private fun generateHydrationScript(initialData: Map<String, Any?>): String {
+        if (initialData.isEmpty()) return ""
+        // Basic JSON-like representation (needs proper serialization)
+        val stateJson = initialData.entries.joinToString(",\n") { 
+            "\"${it.key}\": ${serializeValue(it.value)}"
         }
-        sb.append("  <title>$title</title>\n")
-        
-        // Add description if available
-        if (initialData.containsKey("description")) {
-            sb.append("  <meta name=\"description\" content=\"${initialData["description"]}\">\n")
-        }
-        
-        // Add canonical if available
-        if (initialData.containsKey("canonical")) {
-            sb.append("  <link rel=\"canonical\" href=\"${initialData["canonical"]}\">\n")
-        }
-        
-        // Add stylesheets if available
-        if (initialData.containsKey("stylesheets")) {
-            (initialData["stylesheets"] as? List<String>)?.forEach { stylesheet ->
-                sb.append("  <link rel=\"stylesheet\" href=\"$stylesheet\">\n")
-            }
-        }
-        
-        sb.append("</head>")
-        
-        return sb.toString()
+        return """
+        <script>
+            window.__SUMMON_INITIAL_STATE__ = {\n$stateJson\n};
+        </script>
+        """.trimIndent()
     }
-    
-    /**
-     * Serializes the state to JSON for client-side hydration
-     */
-    private fun serializeStateToJson(state: Map<String, Any?>): String {
-        // Simple implementation - in a real app, use a proper JSON serializer
-        return buildString {
-            append("{")
-            state.entries.forEachIndexed { index, (key, value) ->
-                if (index > 0) append(",")
-                append("\"$key\":")
-                when (value) {
-                    is String -> append("\"${value.replace("\"", "\\\"").replace("\n", "\\n")}\"")
-                    is Number, is Boolean -> append(value)
-                    null -> append("null")
-                    else -> append("\"${value.toString().replace("\"", "\\\"").replace("\n", "\\n")}\"")
-                }
-            }
-            append("}")
+
+    // Basic serialization placeholder
+    private fun serializeValue(value: Any?): String {
+        return when (value) {
+            is String -> "\"${value.replace("\"", "\\\"")}\""
+            is Number, is Boolean -> value.toString()
+            null -> "null"
+            else -> "\"[unsupported object]$\"" // Placeholder
         }
     }
-    
-    /**
-     * Helper object for hydration script generation
-     */
-    private object HydrationUtils {
-        /**
-         * Generates a hydration script for client-side rehydration
-         */
-        fun generateHydrationScript(rootComposable: @Composable () -> Unit): String {
-            // In a real implementation, this would generate proper hydration data
-            // For this example, we'll return a placeholder
-            return "{ \"hydrationVersion\": 1, \"components\": [] }"
-        }
+
+    // Remove the old internal renderToString as it's superseded by the global one
+    /*
+    private fun renderToString(composable: @Composable () -> Unit): String {
+        val platformRenderer = getPlatformRenderer()
+        val htmlBuilder = createHTML()
+        // Incorrect call: platformRenderer.renderComposable(composable, htmlBuilder)
+        // Correct approach uses renderComposableRoot or the global renderToString helper.
+        return htmlBuilder.finalize()
     }
+    */
+
 }
 
 // Removed old SSRServer or related classes that implemented Composable 

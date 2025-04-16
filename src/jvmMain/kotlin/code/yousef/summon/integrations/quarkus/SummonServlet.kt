@@ -1,29 +1,56 @@
 package code.yousef.summon.integrations.quarkus
 
-import jakarta.servlet.annotation.WebServlet
+// import jakarta.servlet.annotation.WebServlet // Temporarily commented out
 import jakarta.servlet.http.HttpServlet
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 
 /**
  * A simple servlet that directly renders HTML pages for Summon.
+ * TEMPORARILY DISABLED FOR DEBUGGING
  */
-@WebServlet(name = "SummonServlet", urlPatterns = ["/*"])
+// @WebServlet(name = "SummonServlet", urlPatterns = ["/servlet/*"]) // Temporarily disabled
 class SummonServlet : HttpServlet() {
 
     /**
      * Handle GET requests for all Summon pages
      */
     override fun doGet(req: HttpServletRequest, resp: HttpServletResponse) {
+        System.out.println("**************** SUMMON SERVLET CALLED: ${req.requestURI} ****************")
         resp.contentType = "text/html;charset=UTF-8"
         
         val requestPath = req.requestURI.removePrefix(req.contextPath)
+        System.out.println("**************** REQUEST PATH: $requestPath ****************")
         
         when {
-            requestPath == "/" || requestPath == "/index.html" -> renderHomePage(resp)
-            requestPath == "/hello" -> renderHelloPage(resp)
-            requestPath == "/component" -> renderComponentPage(resp)
-            else -> renderHomePage(resp)
+            requestPath == "/" || requestPath == "/index.html" -> {
+                System.out.println("**************** RENDERING HOME PAGE FROM SERVLET ****************")
+                renderHomePage(resp)
+            }
+            requestPath == "/hello" -> {
+                System.out.println("**************** RENDERING HELLO PAGE FROM SERVLET ****************")
+                renderHelloPage(resp)
+            }
+            requestPath == "/component" -> {
+                System.out.println("**************** RENDERING COMPONENT PAGE FROM SERVLET ****************")
+                renderComponentPage(resp)
+            }
+            requestPath == "/dashboard" -> {
+                System.out.println("**************** RENDERING DASHBOARD PAGE FROM SERVLET ****************")
+                renderDashboardPage(resp)
+            }
+            requestPath == "/theme" -> {
+                System.out.println("**************** RENDERING THEME PAGE FROM SERVLET ****************")
+                renderThemePage(resp)
+            }
+            requestPath == "/chat" -> {
+                System.out.println("**************** RENDERING CHAT PAGE FROM SERVLET ****************")
+                renderChatPage(resp)
+            }
+            else -> {
+                System.out.println("**************** DEFAULT: RENDERING HOME PAGE FROM SERVLET ****************")
+                renderHomePage(resp)
+            }
         }
     }
     
@@ -244,6 +271,282 @@ class SummonServlet : HttpServlet() {
                     <p>This is a simple example of Summon rendering in Quarkus</p>
                     <button onclick="alert('Button clicked!')">Click Me</button>
                     <p><a href="/">Back to Home</a></p>
+                </div>
+                <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+            </body>
+        </html>
+        """.trimIndent())
+    }
+    
+    /**
+     * Render the dashboard page
+     */
+    private fun renderDashboardPage(resp: HttpServletResponse) {
+        val writer = resp.writer
+        writer.println("""
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Dashboard</title>
+                <style>
+                    :root {
+                      --primary-color: #4695EB;
+                      --background-color: #f5f7f9;
+                      --text-color: #333333;
+                    }
+                    body {
+                      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                      line-height: 1.6;
+                      color: var(--text-color);
+                      background-color: var(--background-color);
+                      margin: 0;
+                      padding: 20px;
+                    }
+                    .container {
+                      max-width: 1200px;
+                      margin: 0 auto;
+                      padding: 20px;
+                    }
+                    h1 {
+                      color: var(--text-color);
+                    }
+                    .card {
+                      background: white;
+                      border-radius: 8px;
+                      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                      padding: 20px;
+                      margin-bottom: 20px;
+                    }
+                    .nav {
+                      background-color: var(--primary-color);
+                      color: white;
+                      padding: 1rem;
+                      margin-bottom: 1rem;
+                      border-radius: 8px;
+                    }
+                    .nav-list {
+                      display: flex;
+                      list-style-type: none;
+                      margin: 0;
+                      padding: 0;
+                    }
+                    .nav-item {
+                      margin-right: 1.5rem;
+                    }
+                    .nav-link {
+                      color: white;
+                      text-decoration: none;
+                      font-weight: 500;
+                    }
+                    .nav-link:hover {
+                      text-decoration: underline;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <nav class="nav">
+                        <ul class="nav-list">
+                            <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/theme">Theme</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/chat">Chat</a></li>
+                        </ul>
+                    </nav>
+                    
+                    <h1>Dashboard Page</h1>
+                    
+                    <div class="card">
+                        <h2>Servlet-Rendered Dashboard</h2>
+                        <p>This dashboard is served directly from the SummonServlet class.</p>
+                        <p>If you can see this page, the direct HTML rendering from servlet is working correctly.</p>
+                    </div>
+                </div>
+                <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+            </body>
+        </html>
+        """.trimIndent())
+    }
+    
+    /**
+     * Render the theme page
+     */
+    private fun renderThemePage(resp: HttpServletResponse) {
+        val writer = resp.writer
+        writer.println("""
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Theme</title>
+                <style>
+                    :root {
+                      --primary-color: #4695EB;
+                      --background-color: #f5f7f9;
+                      --text-color: #333333;
+                    }
+                    body {
+                      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                      line-height: 1.6;
+                      color: var(--text-color);
+                      background-color: var(--background-color);
+                      margin: 0;
+                      padding: 20px;
+                    }
+                    .container {
+                      max-width: 1200px;
+                      margin: 0 auto;
+                      padding: 20px;
+                    }
+                    h1 {
+                      color: var(--text-color);
+                    }
+                    .card {
+                      background: white;
+                      border-radius: 8px;
+                      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                      padding: 20px;
+                      margin-bottom: 20px;
+                    }
+                    .nav {
+                      background-color: var(--primary-color);
+                      color: white;
+                      padding: 1rem;
+                      margin-bottom: 1rem;
+                      border-radius: 8px;
+                    }
+                    .nav-list {
+                      display: flex;
+                      list-style-type: none;
+                      margin: 0;
+                      padding: 0;
+                    }
+                    .nav-item {
+                      margin-right: 1.5rem;
+                    }
+                    .nav-link {
+                      color: white;
+                      text-decoration: none;
+                      font-weight: 500;
+                    }
+                    .nav-link:hover {
+                      text-decoration: underline;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <nav class="nav">
+                        <ul class="nav-list">
+                            <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/theme">Theme</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/chat">Chat</a></li>
+                        </ul>
+                    </nav>
+                    
+                    <h1>Theme Page</h1>
+                    
+                    <div class="card">
+                        <h2>Servlet-Rendered Theme</h2>
+                        <p>This theme page is served directly from the SummonServlet class.</p>
+                        <p>If you can see this page, the direct HTML rendering from servlet is working correctly.</p>
+                    </div>
+                </div>
+                <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+            </body>
+        </html>
+        """.trimIndent())
+    }
+    
+    /**
+     * Render the chat page
+     */
+    private fun renderChatPage(resp: HttpServletResponse) {
+        val writer = resp.writer
+        writer.println("""
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Chat</title>
+                <style>
+                    :root {
+                      --primary-color: #4695EB;
+                      --background-color: #f5f7f9;
+                      --text-color: #333333;
+                    }
+                    body {
+                      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                      line-height: 1.6;
+                      color: var(--text-color);
+                      background-color: var(--background-color);
+                      margin: 0;
+                      padding: 20px;
+                    }
+                    .container {
+                      max-width: 1200px;
+                      margin: 0 auto;
+                      padding: 20px;
+                    }
+                    h1 {
+                      color: var(--text-color);
+                    }
+                    .card {
+                      background: white;
+                      border-radius: 8px;
+                      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                      padding: 20px;
+                      margin-bottom: 20px;
+                    }
+                    .nav {
+                      background-color: var(--primary-color);
+                      color: white;
+                      padding: 1rem;
+                      margin-bottom: 1rem;
+                      border-radius: 8px;
+                    }
+                    .nav-list {
+                      display: flex;
+                      list-style-type: none;
+                      margin: 0;
+                      padding: 0;
+                    }
+                    .nav-item {
+                      margin-right: 1.5rem;
+                    }
+                    .nav-link {
+                      color: white;
+                      text-decoration: none;
+                      font-weight: 500;
+                    }
+                    .nav-link:hover {
+                      text-decoration: underline;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <nav class="nav">
+                        <ul class="nav-list">
+                            <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/theme">Theme</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/chat">Chat</a></li>
+                        </ul>
+                    </nav>
+                    
+                    <h1>Chat Page</h1>
+                    
+                    <div class="card">
+                        <h2>Servlet-Rendered Chat</h2>
+                        <p>This chat page is served directly from the SummonServlet class.</p>
+                        <p>If you can see this page, the direct HTML rendering from servlet is working correctly.</p>
+                    </div>
                 </div>
                 <script src="https://unpkg.com/htmx.org@1.9.12"></script>
             </body>

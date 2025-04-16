@@ -3,9 +3,11 @@ package code.yousef.summon.components.input
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.mutableStateOf
 import code.yousef.summon.runtime.remember
+import code.yousef.summon.state.State
+import code.yousef.summon.runtime.mutableStateOf
 import code.yousef.summon.validation.Validator
+import code.yousef.summon.modifier.attribute
 
 /**
  * A composable that displays a text input field.
@@ -34,39 +36,46 @@ fun TextField(
     isReadOnly: Boolean = false,
     validators: List<Validator> = emptyList()
 ) {
-    // Internal state to track validation errors
+    val renderer = LocalPlatformRenderer.current
     val validationErrors = remember { mutableStateOf(emptyList<String>()) }
 
-    // Get the platform renderer
-    val renderer = LocalPlatformRenderer.current
+    // Add attributes to the modifier based on parameters
+    var finalModifier = modifier
+    placeholder?.let { finalModifier = finalModifier.attribute("placeholder", it) }
+    if (isError || validationErrors.value.isNotEmpty()) {
+        finalModifier = finalModifier.attribute("aria-invalid", "true")
+        // Consider adding an error class: finalModifier = finalModifier.addClass("error")
+    }
+    if (!isEnabled) {
+        finalModifier = finalModifier.attribute("disabled", "true")
+        // Consider opacity/cursor changes: finalModifier = finalModifier.opacity(0.6f).cursor("default")
+    }
+    if (isReadOnly) {
+        finalModifier = finalModifier.attribute("readonly", "true")
+    }
 
-    // Render the TextField
+    // Call the available renderer function
     renderer.renderTextField(
         value = value,
         onValueChange = { newValue ->
-            // Apply validation and then call the callback
+            // Perform validation before calling the external callback
             val errors = validators.mapNotNull { validator ->
                 val result = validator.validate(newValue)
                 if (!result.isValid) result.errorMessage else null
             }
             validationErrors.value = errors
-            onValueChange(newValue)
+            // Only call the external onValueChange if enabled
+            if (isEnabled) {
+                onValueChange(newValue)
+            }
         },
-        modifier = modifier,
-        placeholder = placeholder ?: "",
-        isError = isError || validationErrors.value.isNotEmpty(),
-        type = type.toString().lowercase()
+        modifier = finalModifier,
+        type = type.name.lowercase() // Convert enum to lowercase string for HTML type
     )
 
-    // Optionally render a label if one is provided
-    if (label != null) {
-        // Label would be rendered here in a real implementation
-    }
-
-    // Optionally render validation errors
-    if (validationErrors.value.isNotEmpty()) {
-        // Errors would be displayed here in a real implementation
-    }
+    // Removed rendering logic for label and errors, should be handled externally (e.g., FormField)
+    // if (label != null) { ... }
+    // if (validationErrors.value.isNotEmpty()) { ... }
 }
 
 /**

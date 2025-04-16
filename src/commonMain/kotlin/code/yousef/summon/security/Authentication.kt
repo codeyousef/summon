@@ -1,7 +1,6 @@
 package security
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.security.Principal
 
 /**
  * Represents an authentication request with credentials.

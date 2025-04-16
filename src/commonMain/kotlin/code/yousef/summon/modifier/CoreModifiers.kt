@@ -1,8 +1,5 @@
 package code.yousef.summon.modifier
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
-
 /**
  * Extension functions that add core functionality to the Modifier class
  * This adapts the simple Modifier class to support the features expected by tests

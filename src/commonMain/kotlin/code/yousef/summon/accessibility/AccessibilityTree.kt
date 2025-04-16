@@ -1,11 +1,11 @@
 package code.yousef.summon.accessibility
 
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.attribute
+import code.yousef.summon.modifier.style
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.modifier.getAttribute
+import code.yousef.summon.modifier.ModifierExtras.getAttribute
 
 /**
  * Utilities for accessibility-related tasks.
@@ -57,14 +57,14 @@ object AccessibilityUtils {
      * Adds an ARIA role to a Modifier.
      */
     private fun Modifier.role(role: String): Modifier {
-        return this.attribute("role", role)
+        return this.style("__attr:role", role)
     }
 
     /**
      * Creates a Modifier with an accessible label.
      */
     fun createLabelModifier(label: String): Modifier {
-        return Modifier().attribute("aria-label", label)
+        return Modifier().style("__attr:aria-label", label)
     }
 
     /**
@@ -75,7 +75,7 @@ object AccessibilityUtils {
         relation: String,
         targetId: String
     ): Modifier {
-        return Modifier().attribute("aria-$relation", targetId)
+        return Modifier().style("__attr:aria-$relation", targetId)
     }
 
     /**
@@ -161,7 +161,10 @@ fun ApplyAccessibilityNode(
     
     // Use the platform renderer to create a container with the accessibility attributes
     // and render the content inside it
-    renderer.renderBox(modifier = accessibilityModifier, content = content)
+    renderer.renderBox(
+        modifier = accessibilityModifier,
+        content = { content() } 
+    )
 }
 
 // --- Helper Functions --- (Might need review/update based on usage)
@@ -219,47 +222,40 @@ private fun Modifier.applyAccessibilityAttributes(node: AccessibilityNode): Modi
     var result = this
     
     // Apply role attribute
-    result = result.attribute("role", node.role.name.lowercase())
+    result = result.style("__attr:role", node.role.name.lowercase())
     
     // Apply label as aria-label if available
     node.label?.let { 
-        result = result.attribute("aria-label", it)
+        result = result.style("__attr:aria-label", it)
     }
     
     // Apply description as aria-describedby if available
     node.description?.let {
-        result = result.attribute("aria-describedby", it)
+        result = result.style("__attr:aria-describedby", it)
     }
     
     // Apply state attributes
     for ((state, isActive) in node.state) {
         when (state) {
-            State.BUSY -> if (isActive) result = result.attribute("aria-busy", "true")
-            State.CHECKED -> if (isActive) result = result.attribute("aria-checked", "true")
+            State.BUSY -> if (isActive) result = result.style("__attr:aria-busy", "true")
+            State.CHECKED -> if (isActive) result = result.style("__attr:aria-checked", "true")
             State.DISABLED -> if (isActive) {
-                result = result.attribute("aria-disabled", "true")
-                result = result.attribute("disabled", "")
+                result = result.style("__attr:aria-disabled", "true")
+                result = result.style("__attr:disabled", "")
             }
-            State.EXPANDED -> if (isActive) result = result.attribute("aria-expanded", "true")
-            State.GRABBED -> if (isActive) result = result.attribute("aria-grabbed", "true")
-            State.HIDDEN -> if (isActive) result = result.attribute("aria-hidden", "true")
-            State.INVALID -> if (isActive) result = result.attribute("aria-invalid", "true")
-            State.PRESSED -> if (isActive) result = result.attribute("aria-pressed", "true")
-            State.SELECTED -> if (isActive) result = result.attribute("aria-selected", "true")
+            State.EXPANDED -> if (isActive) result = result.style("__attr:aria-expanded", "true")
+            State.GRABBED -> if (isActive) result = result.style("__attr:aria-grabbed", "true")
+            State.HIDDEN -> if (isActive) result = result.style("__attr:aria-hidden", "true")
+            State.INVALID -> if (isActive) result = result.style("__attr:aria-invalid", "true")
+            State.PRESSED -> if (isActive) result = result.style("__attr:aria-pressed", "true")
+            State.SELECTED -> if (isActive) result = result.style("__attr:aria-selected", "true")
         }
     }
     
-    // Apply additional aria properties
-    for ((property, value) in node.properties) {
-        result = result.attribute(property, value)
+    // Apply all custom properties
+    for ((name, value) in node.properties) {
+        result = result.style("__attr:$name", value)
     }
     
     return result
-}
-
-// Helper function to add an attribute to a modifier
-private fun Modifier.attribute(key: String, value: String): Modifier {
-    val newStyles = this.styles.toMutableMap()
-    newStyles["__attr:$key"] = value
-    return Modifier(newStyles)
 }

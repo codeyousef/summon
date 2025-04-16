@@ -1,76 +1,20 @@
 package code.yousef.summon.runtime
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.modifier.Modifier
+// Removed expect interface PlatformRenderer
 
-/**
- * Platform-specific renderer interface with expect/actual declarations.
- * This is part of the migration to proper multiplatform support.
- */
-expect interface PlatformRenderer {
-    /**
-     * Render a composable to the specified consumer
-     *
-     * @param composable The composable to render
-     * @param consumer The consumer to render to
-     */
-    fun <T> renderComposable(composable: @Composable () -> Unit, consumer: T)
+// Removed redundant top-level render* function declarations:
+// fun <T> renderComposable(composable: @Composable () -> Unit, consumer: T)
+// fun renderText(value: String, modifier: Modifier)
+// fun renderButton(onClick: () -> Unit, enabled: Boolean, modifier: Modifier)
+// fun renderImage(src: String, alt: String, modifier: Modifier)
+// fun renderIcon(name: String, modifier: Modifier)
+// fun renderRow(modifier: Modifier)
+// fun renderColumn(modifier: Modifier)
+// fun renderSpacer(modifier: Modifier)
+// fun renderBox(modifier: Modifier)
+// fun renderCard(modifier: Modifier)
+// fun renderAnimatedVisibility(visible: Boolean, modifier: Modifier)
+// fun renderLink(href: String, modifier: Modifier)
 
-    /**
-     * Render a text component
-     */
-    fun renderText(value: String, modifier: Modifier)
-
-    /**
-     * Render a button component
-     */
-    fun renderButton(onClick: () -> Unit, enabled: Boolean, modifier: Modifier)
-
-    /**
-     * Render an image component
-     */
-    fun renderImage(src: String, alt: String, modifier: Modifier)
-
-    /**
-     * Render an icon component
-     */
-    fun renderIcon(name: String, modifier: Modifier)
-
-    /**
-     * Render a row layout
-     */
-    fun renderRow(modifier: Modifier)
-
-    /**
-     * Render a column layout
-     */
-    fun renderColumn(modifier: Modifier)
-
-    /**
-     * Render a spacer
-     */
-    fun renderSpacer(modifier: Modifier)
-
-    /**
-     * Render a box container
-     */
-    fun renderBox(modifier: Modifier)
-
-    /**
-     * Render a card component
-     */
-    fun renderCard(modifier: Modifier)
-
-    /**
-     * Render an animated visibility component
-     */
-    fun renderAnimatedVisibility(visible: Boolean, modifier: Modifier)
-
-    /**
-     * Render a hyperlink component
-     *
-     * @param href The URL this link points to
-     * @param modifier The modifier to apply to this link
-     */
-    fun renderLink(href: String, modifier: Modifier)
-} 
+// Keep any other unrelated expect declarations below if they exist
+// e.g., expect fun getTimestamp(): Long 

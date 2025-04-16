@@ -3,9 +3,8 @@ package code.yousef.summon.components.layout
 import code.yousef.summon.components.LayoutComponent
 import code.yousef.summon.components.ScrollableComponent
 import code.yousef.summon.core.Composable
-import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.PlatformRendererProviderLegacy.getRenderer
+import code.yousef.summon.runtime.getPlatformRenderer
 import kotlinx.html.TagConsumer
 
 /**
@@ -29,7 +28,17 @@ class LazyRow<T>(
      */
     override fun <T2> compose(receiver: T2): T2 {
         if (receiver is TagConsumer<*>) {
-            getRenderer().renderLazyRow(modifier)
+            getPlatformRenderer().renderLazyRow(
+                modifier = modifier,
+                content = { // 'this' is FlowContent scope from the renderer
+                    // Similar to LazyColumn, a real impl would handle visibility.
+                    // Render all items for now.
+                    this@LazyRow.items.forEach { item ->
+                        val childComposable = this@LazyRow.itemContent(item)
+                        childComposable.compose(this) // Pass FlowContent scope
+                    }
+                }
+            )
         }
         return receiver
     }

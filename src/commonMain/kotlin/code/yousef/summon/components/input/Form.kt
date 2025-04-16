@@ -2,10 +2,10 @@ package code.yousef.summon.components.input
 
 import code.yousef.summon.components.LayoutComponent
 import code.yousef.summon.core.Composable
-import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.PlatformRendererProviderLegacy.getRenderer
+import code.yousef.summon.runtime.getPlatformRenderer
 import kotlinx.html.TagConsumer
+
 
 /**
  * A composable that represents an HTML form.
@@ -73,10 +73,15 @@ class Form(
     override fun <T> compose(receiver: T): T {
         if (receiver is TagConsumer<*>) {
             @Suppress("UNCHECKED_CAST")
-            val renderer = getRenderer()
+            val renderer = getPlatformRenderer()
             renderer.renderForm(
                 onSubmit = { this.submit() },
-                modifier = modifier
+                modifier = modifier,
+                content = {
+                    this@Form.content.forEach { childComposable ->
+                        childComposable.compose(this)
+                    }
+                }
             )
         }
         return receiver

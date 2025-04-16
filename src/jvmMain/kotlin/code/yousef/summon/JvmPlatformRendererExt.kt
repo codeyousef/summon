@@ -1,7 +1,9 @@
 package code.yousef.summon
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.MigratedPlatformRenderer
+import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.JvmPlatformRenderer
+import kotlinx.html.TagConsumer
+import kotlinx.html.html
 import kotlinx.html.stream.createHTML
 
 /**
@@ -14,9 +16,20 @@ import kotlinx.html.stream.createHTML
  * @param content The composable content to render
  * @return HTML string representation of the component
  */
-fun MigratedPlatformRenderer.render(content: @Composable () -> Unit): String {
-    return createHTML().let { consumer ->
-        this.renderComposable(content, consumer)
-        consumer.finalize()
+fun JvmPlatformRenderer.render(content: @Composable () -> Unit): String {
+    return renderComposableRoot(content)
+}
+
+/**
+ * Renders a Composable to a tag consumer.
+ * 
+ * @param content The composable content to render
+ * @param consumer The tag consumer to render to
+ * @return The tag consumer for method chaining
+ */
+fun <T> JvmPlatformRenderer.renderComposable(content: @Composable () -> Unit, consumer: TagConsumer<T>): TagConsumer<T> {
+    consumer.html {
+        renderComposable(content)
     }
+    return consumer
 } 

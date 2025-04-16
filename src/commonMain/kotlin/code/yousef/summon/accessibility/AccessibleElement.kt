@@ -2,6 +2,7 @@ package code.yousef.summon.accessibility
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.ModifierExtras.attribute
 import code.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
@@ -54,6 +55,6 @@ fun AccessibleElement(
 /**
  * Extension function on Modifier to add an HTML attribute
  */
-private fun Modifier.attribute(name: String, value: String): Modifier {
-    return this.style("__attr:$name", value)
-} 
+// private fun Modifier.attribute(name: String, value: String): Modifier {
+//    return this.style("__attr:$name", value)
+// } 

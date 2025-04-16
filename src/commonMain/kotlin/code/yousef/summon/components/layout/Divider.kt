@@ -1,9 +1,8 @@
 package code.yousef.summon.components.layout
 
 import code.yousef.summon.core.Composable
-import code.yousef.summon.core.PlatformRendererProvider
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.PlatformRendererProviderLegacy.getRenderer
+import code.yousef.summon.runtime.getPlatformRenderer
 import kotlinx.html.TagConsumer
 
 /**
@@ -31,7 +30,7 @@ class Divider(
         if (receiver is TagConsumer<*>) {
             @Suppress("UNCHECKED_CAST")
             val tagConsumer = receiver as TagConsumer<*>
-            getRenderer().renderDivider(modifier)
+            getPlatformRenderer().renderDivider(modifier)
         }
         return receiver
     }

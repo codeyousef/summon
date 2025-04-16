@@ -1,7 +1,14 @@
 package code.yousef.summon.components.demo
 
+import code.yousef.summon.annotation.Composable
+import code.yousef.summon.components.layout.Box
+import code.yousef.summon.components.layout.Column
+import code.yousef.summon.components.display.Text
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.*
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.LocalPlatformRenderer
+import code.yousef.summon.runtime.remember
+import code.yousef.summon.runtime.mutableStateOf
 
 /**
  * A demo component that manages its own state using MutableState.
@@ -40,11 +47,10 @@ private fun LocalDemoComponentImpl(
     onTextChange: (String) -> Unit,
     modifier: Modifier = Modifier()
 ) {
-    val renderer = LocalPlatformRenderer.current
-    renderer.renderBox(modifier) {
-        renderer.renderText(Modifier()) {
-            // Content would go here
-        }
+    // Use standard components
+    Box(modifier = modifier) {
+        Text(text = "Current Text: $text") // Display the actual text
+        // Add an input or button here to use onTextChange if needed
     }
 }
 
@@ -62,11 +68,10 @@ fun HoistedDemoComponent(
     onTextChange: (String) -> Unit,
     modifier: Modifier = Modifier()
 ) {
-    val renderer = LocalPlatformRenderer.current
-    renderer.renderBox(modifier) {
-        renderer.renderText(Modifier()) {
-            // Content would go here
-        }
+    // Use standard components
+    Box(modifier = modifier) {
+        Text(text = "Hoisted Text: $text") // Display the actual text
+        // Add an input or button here to use onTextChange if needed
     }
 }
 
@@ -83,22 +88,10 @@ fun LocalDemoContainer(
     modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 ) {
-    val composer = CompositionLocal.currentComposer
-    
-    composer?.startNode()
-    
-    if (composer?.inserting == true) {
-        val renderer = LocalPlatformRenderer.current
-        renderer.renderBox(modifier)
-        
-        // Render the title
-        renderer.renderText(Modifier()) {
-            // Title content would go here
-        }
+    // Use standard components, e.g., Column for layout
+    Column(modifier = modifier) {
+        Text(text = title, modifier = Modifier()) // Display the title using Text
+        // Invoke the content lambda directly within the Column scope
+        content()
     }
-    
-    // Execute the content composable function
-    content()
-    
-    composer?.endNode()
 } 

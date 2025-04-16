@@ -1,7 +1,7 @@
-package security
+package code.yousef.summon.security
 
-import code.yousef.summon.runtime.PlatformRendererProvider
-import code.yousef.summon.runtime.PlatformRenderer
+// import code.yousef.summon.runtime.PlatformRendererProvider // Remove unused import
+import security.Authentication
 
 import java.lang.ThreadLocal
 

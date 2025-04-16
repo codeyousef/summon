@@ -2,6 +2,7 @@ package code.yousef.summon.accessibility
 
 import code.yousef.summon.accessibility.KeyboardNavigation.keyboardNavigation
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.ModifierExtras.attribute
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer
@@ -157,7 +158,7 @@ fun KeyboardNavigableContainer(
     // Use platform renderer to create a container with keyboard navigation attributes
     // This avoids reliance on specific Composer methods which may differ between versions
     val renderer = LocalPlatformRenderer.current
-    renderer.renderBox(modifier = finalModifier, content = content)
+    renderer.renderBox(modifier = finalModifier, content = { content() })
 }
 
 // Helper function to apply attributes to a modifier
@@ -167,11 +168,4 @@ private fun Modifier.applyAttributes(attributes: Map<String, String>): Modifier 
         result = result.attribute(key, value)
     }
     return result
-}
-
-// Extension function for Modifier to add attribute
-private fun Modifier.attribute(key: String, value: String): Modifier {
-    val newStyles = this.styles.toMutableMap()
-    newStyles["__attr:$key"] = value
-    return Modifier(newStyles)
 } 

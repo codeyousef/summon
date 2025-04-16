@@ -1,15 +1,14 @@
 package code.yousef.summon.ssr
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.MigratedPlatformRenderer
-import code.yousef.summon.runtime.getPlatformRenderer
 import code.yousef.summon.runtime.CommonComposer
-import code.yousef.summon.runtime.ComposeManagerContext
-import code.yousef.summon.runtime.LocalPlatformRenderer
+import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.runtime.getPlatformRenderer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.html.stream.createHTML
-import kotlinx.coroutines.delay
+import kotlinx.html.link
+import kotlinx.html.meta
+import kotlinx.html.stream.appendHTML
 
 /**
  * Implementation of streaming server-side rendering for Summon components
@@ -17,7 +16,7 @@ import kotlinx.coroutines.delay
  */
 class StreamingRenderer(
     private val hydrationSupport: HydrationSupport = StandardHydrationSupport(),
-    private val platformRenderer: MigratedPlatformRenderer = getPlatformRenderer(),
+    private val platformRenderer: PlatformRenderer = getPlatformRenderer(),
     private val chunkSize: Int = 4096
 ) : StreamingServerSideRenderer {
     /**
@@ -114,13 +113,8 @@ class StreamingRenderer(
      * Renders a composable to a string
      */
     internal fun renderToString(composable: @Composable () -> Unit): String {
-        // Using createHTML from kotlinx.html to render the component
-        val composer = CommonComposer()
-        return createHTML().let { consumer ->
-            ComposeManagerContext.withComposer(composer) {
-                platformRenderer.renderComposable(composable, consumer)
-            }
-            consumer.finalize()
+        return platformRenderer.renderComposableRoot {
+            composable()
         }
     }
 
@@ -128,95 +122,55 @@ class StreamingRenderer(
      * Builds meta tags from SEO metadata
      */
     private fun buildMetaTags(seo: SeoMetadata, additionalMetadata: Map<String, String>): String {
-        val tags = mutableListOf<String>()
-
-        if (seo.description.isNotEmpty()) {
-            tags.add("""<meta name="description" content="${escapeHtml(seo.description)}">""")
+        val sb = StringBuilder()
+        sb.appendHTML(prettyPrint = false).apply {
+            if (seo.description.isNotEmpty()) {
+                meta(name = "description", content = seo.description)
+            }
+            if (seo.keywords.isNotEmpty()) {
+                meta(name = "keywords", content = seo.keywords.joinToString(", "))
+            }
+            meta(name = "robots", content = seo.robots)
+            seo.customMetaTags.forEach { (name, content) ->
+                meta(name = name, content = content)
+            }
+            additionalMetadata.forEach { (name, content) ->
+                 meta(name = name, content = content)
+            }
         }
-
-        if (seo.keywords.isNotEmpty()) {
-            tags.add("""<meta name="keywords" content="${escapeHtml(seo.keywords.joinToString(", "))}">""")
-        }
-
-        tags.add("""<meta name="robots" content="${escapeHtml(seo.robots)}">""")
-
-        // Add custom meta tags
-        seo.customMetaTags.forEach { (name, content) ->
-            tags.add("""<meta name="${escapeHtml(name)}" content="${escapeHtml(content)}">""")
-        }
-
-        // Add additional metadata
-        additionalMetadata.forEach { (name, content) ->
-            tags.add("""<meta name="${escapeHtml(name)}" content="${escapeHtml(content)}">""")
-        }
-
-        return tags.joinToString("\n")
+        return sb.toString()
     }
 
     /**
      * Builds OpenGraph tags from OpenGraph metadata
      */
     private fun buildOpenGraphTags(og: OpenGraphMetadata): String {
-        val tags = mutableListOf<String>()
-
-        if (og.title.isNotEmpty()) {
-            tags.add("""<meta property="og:title" content="${escapeHtml(og.title)}">""")
-        }
-
-        if (og.description.isNotEmpty()) {
-            tags.add("""<meta property="og:description" content="${escapeHtml(og.description)}">""")
-        }
-
-        if (og.type.isNotEmpty()) {
-            tags.add("""<meta property="og:type" content="${escapeHtml(og.type)}">""")
-        }
-
-        if (og.url.isNotEmpty()) {
-            tags.add("""<meta property="og:url" content="${escapeHtml(og.url)}">""")
-        }
-
-        if (og.image.isNotEmpty()) {
-            tags.add("""<meta property="og:image" content="${escapeHtml(og.image)}">""")
-        }
-
-        if (og.siteName.isNotEmpty()) {
-            tags.add("""<meta property="og:site_name" content="${escapeHtml(og.siteName)}">""")
-        }
-
-        return tags.joinToString("\n")
+        val sb = StringBuilder()
+        sb.appendHTML(prettyPrint = false).apply {
+             if (og.title.isNotEmpty()) meta(name = "og:title", content = og.title)
+             if (og.description.isNotEmpty()) meta(name = "og:description", content = og.description)
+             if (og.type.isNotEmpty()) meta(name = "og:type", content = og.type)
+             if (og.url.isNotEmpty()) meta(name = "og:url", content = og.url)
+             if (og.image.isNotEmpty()) meta(name = "og:image", content = og.image)
+             if (og.siteName.isNotEmpty()) meta(name = "og:site_name", content = og.siteName)
+         }
+         return sb.toString()
     }
 
     /**
      * Builds Twitter Card tags from Twitter Card metadata
      */
     private fun buildTwitterCardTags(twitter: TwitterCardMetadata): String {
-        val tags = mutableListOf<String>()
-
-        if (twitter.card.isNotEmpty()) {
-            tags.add("""<meta name="twitter:card" content="${escapeHtml(twitter.card)}">""")
+        val sb = StringBuilder()
+        sb.appendHTML(prettyPrint = false).apply {
+            if (twitter.card.isNotEmpty()) meta(name = "twitter:card", content = twitter.card)
+            if (twitter.site.isNotEmpty()) meta(name = "twitter:site", content = twitter.site)
+            if (twitter.creator.isNotEmpty()) meta(name = "twitter:creator", content = twitter.creator)
+            if (twitter.title.isNotEmpty()) meta(name = "twitter:title", content = twitter.title)
+            if (twitter.description.isNotEmpty()) meta(name = "twitter:description", content = twitter.description)
+            if (twitter.image.isNotEmpty()) meta(name = "twitter:image", content = twitter.image)
         }
-
-        if (twitter.site.isNotEmpty()) {
-            tags.add("""<meta name="twitter:site" content="${escapeHtml(twitter.site)}">""")
-        }
-
-        if (twitter.creator.isNotEmpty()) {
-            tags.add("""<meta name="twitter:creator" content="${escapeHtml(twitter.creator)}">""")
-        }
-
-        if (twitter.title.isNotEmpty()) {
-            tags.add("""<meta name="twitter:title" content="${escapeHtml(twitter.title)}">""")
-        }
-
-        if (twitter.description.isNotEmpty()) {
-            tags.add("""<meta name="twitter:description" content="${escapeHtml(twitter.description)}">""")
-        }
-
-        if (twitter.image.isNotEmpty()) {
-            tags.add("""<meta name="twitter:image" content="${escapeHtml(twitter.image)}">""")
-        }
-
-        return tags.joinToString("\n")
+        return sb.toString()
     }
 
     /**
@@ -224,29 +178,18 @@ class StreamingRenderer(
      */
     private fun generateCanonicalLink(canonical: String): String {
         return if (canonical.isNotEmpty()) {
-            """<link rel="canonical" href="${escapeHtml(canonical)}">"""
-        } else ""
+             val sb = StringBuilder()
+             sb.appendHTML(prettyPrint = false).link(rel = "canonical", href = canonical)
+             sb.toString()
+         } else ""
     }
 
     /**
      * Generates a script tag with initial state for hydration
      */
     private fun generateInitialStateScript(context: RenderContext): String {
-        // In a real implementation, this would serialize the state to JSON
-        // For this example, we'll return a placeholder
+        // Placeholder implementation
         return """<script>window.__SUMMON_INITIAL_STATE__ = {};</script>"""
-    }
-
-    /**
-     * Escapes HTML special characters in a string
-     */
-    private fun escapeHtml(text: String): String {
-        return text
-            .replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
-            .replace("\"", "&quot;")
-            .replace("'", "&#039;")
     }
 }
 
@@ -276,7 +219,7 @@ object StreamingSSR {
      */
     fun createRenderer(
         hydrationSupport: HydrationSupport = StandardHydrationSupport(),
-        platformRenderer: MigratedPlatformRenderer = getPlatformRenderer(),
+        platformRenderer: PlatformRenderer = getPlatformRenderer(),
         chunkSize: Int = 4096
     ): StreamingRenderer {
         return StreamingRenderer(hydrationSupport, platformRenderer, chunkSize)
