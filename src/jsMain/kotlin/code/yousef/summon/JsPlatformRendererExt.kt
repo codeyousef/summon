@@ -15,15 +15,21 @@ import org.w3c.dom.HTMLElement
  * @param container The DOM element to render into
  */
 fun JsPlatformRenderer.renderComposable(content: @Composable () -> Unit, container: HTMLElement) {
-    // First, render the composable to get the core structure
-    renderComposable(content)
-    // TODO: provide a real implementation
-    // In a real implementation, this would involve JS-specific DOM manipulation
-    // For example, it might:
-    // 1. Create React components
-    // 2. Use a virtual DOM approach
-    // 3. Directly manipulate the DOM
-    
-    // For now, we'll add a placeholder message
-    container.innerHTML = "<div>Rendering composable (JS implementation needed)</div>"
+    // Clear the container first to avoid appending to existing content
+    container.innerHTML = ""
+
+    // Set up the container as the current parent for rendering
+    js("var previousParent = currentParent;")
+    js("currentParent = container;")
+
+    try {
+        // Render the composable content into the container
+        renderComposable(content)
+    } catch (e: Exception) {
+        // Log any errors that occur during rendering
+        js("console.error('Error rendering composable to container: ', e);")
+    } finally {
+        // Restore the previous parent
+        js("currentParent = previousParent;")
+    }
 } 

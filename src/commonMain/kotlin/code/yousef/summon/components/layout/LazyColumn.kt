@@ -108,9 +108,14 @@ fun LazyColumn(
     dataAttributes.forEach { (key, value) ->
         finalModifier = finalModifier.style(key, value)
     }
-    // TODO: provide a real implementation
-    // Now render the container, passing a content lambda that 
-    // will compose the collected items (or a subset in a real impl).
+
+    // Add a scroll handler attribute that the platform renderer can use
+    // This attribute tells the renderer to update the LazyListState when scrolling
+    finalModifier = finalModifier.style("__attr:data-scroll-handler", "updateLazyListState")
+
+    // Add an onscroll event handler to update the scroll position and visible items
+    finalModifier = finalModifier.style("onscroll", "window.summonHandleScroll(event, null)")
+
     val renderer = LocalPlatformRenderer.current
 
     // Calculate the visible range based on the current scroll position
