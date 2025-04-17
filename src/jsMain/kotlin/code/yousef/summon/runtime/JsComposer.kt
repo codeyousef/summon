@@ -81,6 +81,7 @@ class JsComposer : Composer {
     }
     
     override fun reportChanged() {
+        // TODO: provide a real implementation
         // In a JS environment, this would schedule a recomposition
         // For now, we'll simply mark that a change occurred
         // In a real implementation, this would trigger the recomposition process

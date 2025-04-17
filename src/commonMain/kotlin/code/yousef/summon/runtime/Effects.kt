@@ -2,10 +2,11 @@
 
 package code.yousef.summon.runtime
 
-// Remove coroutine imports temporarily to fix compilation
-// import kotlinx.coroutines.CoroutineScope
-// import kotlinx.coroutines.cancel
-// import kotlinx.coroutines.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 /**
  * Side effect that launches a coroutine when the composition enters the scene and cancels it when it leaves.
@@ -17,24 +18,41 @@ package code.yousef.summon.runtime
 @Composable
 fun LaunchedEffect(key: Any? = null, block: suspend () -> Unit) {
     val composer = CompositionLocal.currentComposer
-    
+
     // Get the current slot for this effect
     composer?.nextSlot()
     val effectState = composer?.getSlot() as? EffectState
-    
+
     if (effectState == null || hasKeyChanged(effectState.key, key)) {
-        // Create a new effect state if this is the first time or the key changed
-        val newState = EffectState(key, EffectType.LAUNCHED, null)
-        
+        // Clean up previous effect if any
+        if (effectState?.cleanup != null) {
+            (effectState.cleanup as Job).cancel()
+        }
+
+        // Create a coroutine scope for this effect
+        val coroutineScope = CoroutineScope(Dispatchers.Default)
+
+        // Launch the coroutine
+        val job = coroutineScope.launch {
+            try {
+                block()
+            } catch (e: Exception) {
+                // Log the exception but don't crash the app
+                println("Exception in LaunchedEffect: ${e.message}")
+                e.printStackTrace()
+            }
+        }
+
+        // Create a new effect state with the job for cleanup
+        val newState = EffectState(key, EffectType.LAUNCHED, job)
+
         // Store in the slot
         composer?.setSlot(newState)
-        // TODO: Implement a real implementation
-        // In a real implementation, this would launch a coroutine
-        println("LaunchedEffect started with key: $key")
-        
-        // Register cleanup
+
+        // Register cleanup to cancel the coroutine when the effect is disposed
         composer?.registerDisposable {
-            println("LaunchedEffect disposed: $key")
+            job.cancel()
+            coroutineScope.cancel()
         }
     }
 }
@@ -50,26 +68,26 @@ fun LaunchedEffect(key: Any? = null, block: suspend () -> Unit) {
 @Composable
 fun DisposableEffect(key: Any? = null, effect: () -> (() -> Unit)) {
     val composer = CompositionLocal.currentComposer
-    
+
     // Get the current slot for this effect
     composer?.nextSlot()
     val effectState = composer?.getSlot() as? EffectState
-    
+
     if (effectState == null || hasKeyChanged(effectState.key, key)) {
         // Clean up previous effect if any
         if (effectState?.cleanup != null) {
             (effectState.cleanup as () -> Unit).invoke()
         }
-        
+
         // Call the effect function to get the cleanup function
         val cleanup = effect()
-        
+
         // Create a new effect state with the cleanup function
         val newState = EffectState(key, EffectType.DISPOSABLE, cleanup)
-        
+
         // Store in the slot
         composer?.setSlot(newState)
-        
+
         // Register the cleanup with the composer
         composer?.registerDisposable(cleanup)
     }
@@ -82,7 +100,7 @@ fun DisposableEffect(key: Any? = null, effect: () -> (() -> Unit)) {
 @Composable
 fun SideEffect(effect: () -> Unit) {
     val composer = CompositionLocal.currentComposer
-    
+
     // Execute the effect on every composition
     if (composer?.inserting == true) {
         effect()

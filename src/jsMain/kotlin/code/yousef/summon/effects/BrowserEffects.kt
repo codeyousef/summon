@@ -219,7 +219,7 @@ fun CompositionScope.useIntersectionObserver(
         
         // Create and initialize the IntersectionObserver
         val observer = js("new IntersectionObserver(intersectionCallback, jsOptions)")
-        
+        // TODO: provide a real implementation
         // Get the DOM element from elementRef and start observing
         val elementId = "element-id" // In a real implementation, elementRef would have an id property
         js("var domElement = document.getElementById(elementId)")
@@ -293,7 +293,7 @@ fun CompositionScope.useResizeObserver(
         
         // Create and initialize the ResizeObserver
         val observer = js("new ResizeObserver(resizeCallback)")
-        
+        // TODO: provide a real implementation
         // Get the DOM element from elementRef and start observing
         val elementId = "element-id" // In a real implementation, elementRef would have an id property
         js("var domElement = document.getElementById(elementId)")
@@ -631,7 +631,7 @@ fun CompositionScope.useWebAnimation(
         
         val fill = options.fill
         js("animOptions.fill = fill")
-        
+        // TODO: provide a real implementation
         // Get the DOM element from elementRef
         val elementId = "element-id" // In a real implementation, elementRef would have an id property
         

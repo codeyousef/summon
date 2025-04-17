@@ -117,6 +117,7 @@ fun redirectIf(
  * This is used when no router is provided to redirectTo or redirectIf.
  */
 private fun getDefaultRouter(): Router? {
+    // TODO: provide a real implementation
     // In a real implementation, this would get the current router from a global context
     // For now, we'll return null and let the caller handle it
     return null
@@ -127,6 +128,7 @@ private fun getDefaultRouter(): Router? {
  * This is used to inform search engines about the redirect.
  */
 private fun updateRedirectMetadata(to: String) {
+    // TODO: provide a real implementation
     // In a real implementation, this would add canonical link and meta refresh tags
     // For now, we'll just log the action
     println("Updating redirect metadata for SEO: $to")

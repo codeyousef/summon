@@ -5,9 +5,14 @@ import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.modifier.ModifierExtras.attribute
 import kotlinx.html.FlowContent
+import code.yousef.summon.modifier.style
 
 /**
  * A composable that displays text with enhanced styling and accessibility options.
+ * 
+ * This component is used for general text display and renders as a semantic paragraph or span element.
+ * For form labels that are associated with input elements, use the [Label] component instead.
+ * 
  * @param text The text content to display
  * @param modifier The modifier to apply to this composable
  * @param overflow Determines how text overflow should be handled ('ellipsis', 'clip', etc.)
@@ -25,6 +30,8 @@ import kotlinx.html.FlowContent
  * @param role ARIA role for accessibility
  * @param ariaLabel Accessible name for screen readers
  * @param ariaDescribedBy ID of element that describes this text for accessibility
+ * @param semantic Optional semantic role for the text ('paragraph', 'heading', 'caption', etc.). 
+ *                 This affects the HTML element used for rendering.
  */
 @Composable
 fun Text(
@@ -44,7 +51,8 @@ fun Text(
     maxLines: Int? = null,
     role: String? = null,
     ariaLabel: String? = null,
-    ariaDescribedBy: String? = null
+    ariaDescribedBy: String? = null,
+    semantic: String? = null
 ) {
     // Apply text-specific styles to the modifier
     val additionalStyles = getAdditionalStyles(
@@ -59,7 +67,19 @@ fun Text(
     // Combine all styles and attributes
     var finalModifier = modifier
     if (additionalStyles.isNotEmpty()) {
-        finalModifier = finalModifier.styles(additionalStyles)
+        for ((key, value) in additionalStyles) {
+            finalModifier = finalModifier.style(key, value)
+        }
+    }
+
+    // Add accessibility attributes
+    for ((key, value) in accessibilityAttrs) {
+        finalModifier = finalModifier.attribute(key, value)
+    }
+
+    // Add semantic role if provided
+    if (semantic != null) {
+        finalModifier = finalModifier.attribute("data-semantic", semantic)
     }
 
     // Call the PlatformRenderer
@@ -90,7 +110,8 @@ data class TextComponent(
     val maxLines: Int? = null,
     val role: String? = null,
     val ariaLabel: String? = null,
-    val ariaDescribedBy: String? = null
+    val ariaDescribedBy: String? = null,
+    val semantic: String? = null
 ) {
     /**
      * Renders this Text using the @Composable function.
@@ -115,7 +136,8 @@ data class TextComponent(
             maxLines = maxLines,
             role = role,
             ariaLabel = ariaLabel,
-            ariaDescribedBy = ariaDescribedBy
+            ariaDescribedBy = ariaDescribedBy,
+            semantic = semantic
         )
     }
 
@@ -190,12 +212,17 @@ private fun getAccessibilityAttributes(
 }
 
 /**
- * A composable that displays text, usually used for labels or descriptions.
- * This component renders as a semantic HTML label element.
+ * A composable that displays text specifically designed for form labels.
+ * This component renders as a semantic HTML label element and should be used
+ * when the text is labeling a form control.
+ *
+ * For general text display that is not associated with form controls,
+ * use the [Text] component instead.
  *
  * @param text The text string to display.
  * @param modifier The modifier to apply to this composable.
- * @param forElement Optional ID of the element this label is associated with.
+ * @param forElement Optional ID of the form element this label is associated with.
+ *                   This creates a programmatic association between the label and the form control.
  */
 @Composable
 fun Label(text: String, modifier: Modifier = Modifier(), forElement: String? = null) {

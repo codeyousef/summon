@@ -459,7 +459,7 @@ class WebResource {
     @POST @Path("/api/theme/{theme}") @Produces(MediaType.TEXT_HTML)
     fun changeTheme(@RestPath theme: String): String {
         println("WebResource.changeTheme() - Changing theme to: $theme")
-
+        // TODO: provide a real implementation
         // In a real implementation, we would store the theme in a user session
         // or user preferences. For this example, we just return a success message.
         return """
@@ -490,7 +490,7 @@ class WebResource {
         @FormParam("fontSize") fontSize: String
     ): String {
         println("WebResource.applyCustomTheme() - Applying custom theme")
-
+        // TODO: provide a real implementation
         // In a real implementation, we would store the theme in a user session
         // or user preferences. For this example, we just return a success message.
         return """

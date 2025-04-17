@@ -2,7 +2,7 @@ package code.yousef.summon.routing.generator
 
 import code.yousef.summon.routing.PageRegistry
 import code.yousef.summon.routing.DefaultPageRegistry
-
+// TODO: provide a real implementation
 /**
  * Generator for page loader code.
  * This is a build-time processor that scans the source directories
@@ -103,7 +103,7 @@ object PageLoaderGenerator {
      */
     fun generateAndWriteCode(outputDirectory: String, pageFiles: List<String> = emptyList()) {
         val code = generatePageLoaderCode(pageFiles)
-
+        // TODO: provide a real implementation
         // In a real implementation, this would write to a file
         // For now, we'll just log the code
         println("Generated code would be written to $outputDirectory/GeneratedPageLoader.kt")

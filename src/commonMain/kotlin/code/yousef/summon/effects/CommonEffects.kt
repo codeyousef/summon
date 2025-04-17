@@ -38,9 +38,15 @@ class ElementRef {
 @Composable
 fun CompositionScope.useDocumentTitle(title: String) {
     effectWithDeps(title) {
-        // TODO: Implement a real implementation
-        // In a real implementation, this would call a platform-specific API to set the document title
-        // Set document title to: $title
+        // Get the platform renderer
+        val platformRenderer = code.yousef.summon.runtime.getPlatformRenderer()
+
+        // Add a title tag to the document head
+        // This will replace any existing title tag in the browser
+        platformRenderer.addHeadElement("<title>$title</title>")
+
+        // For debugging
+        println("Document title updated to: $title")
     }
 }
 
@@ -58,13 +64,62 @@ fun CompositionScope.useKeyboardShortcut(
     handler: (KeyboardEvent) -> Unit
 ) {
     onMountWithCleanup {
-        // TODO: Implement a real implementation
-        // In a real implementation, this would set up event listeners
-        // Set up keyboard shortcut for key: $key with modifiers: $modifiers
-        
+        // TODO: provide a real implementation
+        // This is a placeholder implementation that will be replaced by platform-specific code
+        // In a real implementation, this would set up keyboard event listeners
+        println("Setting up keyboard shortcut for key: $key with modifiers: $modifiers")
+
+        // In JavaScript, this would be:
+        // val keydownListener = { event: org.w3c.dom.events.KeyboardEvent ->
+        //     // Check if the key matches
+        //     if (event.key.equals(key, ignoreCase = true)) {
+        //         // Check if all required modifiers are pressed
+        //         val ctrlRequired = modifiers.contains(KeyModifier.CTRL)
+        //         val altRequired = modifiers.contains(KeyModifier.ALT)
+        //         val shiftRequired = modifiers.contains(KeyModifier.SHIFT)
+        //         val metaRequired = modifiers.contains(KeyModifier.META)
+        //         
+        //         val ctrlPressed = event.ctrlKey
+        //         val altPressed = event.altKey
+        //         val shiftPressed = event.shiftKey
+        //         val metaPressed = event.metaKey
+        //         
+        //         // Check if modifiers match
+        //         if ((ctrlRequired == ctrlPressed) &&
+        //             (altRequired == altPressed) &&
+        //             (shiftRequired == shiftPressed) &&
+        //             (metaRequired == metaPressed)) {
+        //             
+        //             // Create our keyboard event
+        //             val activeModifiers = mutableSetOf<KeyModifier>()
+        //             if (ctrlPressed) activeModifiers.add(KeyModifier.CTRL)
+        //             if (altPressed) activeModifiers.add(KeyModifier.ALT)
+        //             if (shiftPressed) activeModifiers.add(KeyModifier.SHIFT)
+        //             if (metaPressed) activeModifiers.add(KeyModifier.META)
+        //             
+        //             val ourEvent = KeyboardEvent(event.key, activeModifiers)
+        //             
+        //             // Prevent default if this is a shortcut
+        //             if (modifiers.isNotEmpty()) {
+        //                 event.preventDefault()
+        //             }
+        //             
+        //             // Call the handler
+        //             handler(ourEvent)
+        //         }
+        //     }
+        // }
+        // document.addEventListener("keydown", keydownListener)
+
         // Return cleanup function
-        {
-            // Remove keyboard shortcut for key: $key
+        return@onMountWithCleanup {
+            // TODO: provide a real implementation
+            // This is a placeholder implementation that will be replaced by platform-specific code
+            // In a real implementation, this would remove the keyboard event listener
+            println("Removing keyboard shortcut for key: $key with modifiers: $modifiers")
+
+            // In JavaScript, this would be:
+            // document.removeEventListener("keydown", keydownListener)
         }
     }
 }
@@ -91,36 +146,69 @@ fun CompositionScope.useInterval(
     delayMs: Int,
     callback: () -> Unit
 ): IntervalControl {
+    // Create mutable states to track the current delay and paused state
+    val currentDelayState = mutableStateOf(delayMs)
+    val isPausedState = mutableStateOf(false)
+    val resetTriggerState = mutableStateOf(0)
+
+    // Create the control object that will be returned
     val control = object : IntervalControl {
-        private var isPaused = false
-        private var currentDelay = delayMs
-        
         override fun pause() {
-            isPaused = true
+            isPausedState.value = true
         }
-        
+
         override fun resume() {
-            isPaused = false
+            isPausedState.value = false
         }
-        
+
         override fun reset() {
-            // Reset implementation
+            // Increment the reset trigger to force the effect to restart
+            resetTriggerState.value++
         }
-        
+
         override fun setDelay(delayMs: Int) {
-            currentDelay = delayMs
+            currentDelayState.value = delayMs
         }
     }
-    
-    onMountWithCleanup {
-        // Set up interval with delay: $delayMs ms
-        
+
+    // Use effectWithDepsAndCleanup to set up the interval and clean it up
+    effectWithDepsAndCleanup(currentDelayState.value, isPausedState.value, resetTriggerState.value) {
+        // Don't set up interval if paused or delay is 0 or negative
+        if (isPausedState.value || currentDelayState.value <= 0) {
+            return@effectWithDepsAndCleanup null
+        }
+        // TODO: provide a real implementation
+        // This is a placeholder implementation that will be replaced by platform-specific code
+        // In a real implementation, this would set up an interval timer that calls the callback
+        // at regular intervals specified by currentDelayState.value
+        println("Setting up interval with delay: ${currentDelayState.value} ms")
+
+        // In JavaScript, this would be:
+        // val intervalId = window.setInterval(callback, currentDelayState.value)
+
+        // In JVM, this would be:
+        // val timer = java.util.Timer()
+        // timer.scheduleAtFixedRate(object : java.util.TimerTask() {
+        //     override fun run() {
+        //         callback()
+        //     }
+        // }, currentDelayState.value.toLong(), currentDelayState.value.toLong())
+
         // Return cleanup function
-        {
-            // Clear interval
+        return@effectWithDepsAndCleanup {
+            // TODO: provide a real implementation
+            // This is a placeholder implementation that will be replaced by platform-specific code
+            // In a real implementation, this would clear the interval timer
+            println("Clearing interval")
+
+            // In JavaScript, this would be:
+            // window.clearInterval(intervalId)
+
+            // In JVM, this would be:
+            // timer.cancel()
         }
     }
-    
+
     return control
 }
 
@@ -145,31 +233,66 @@ fun CompositionScope.useTimeout(
     delayMs: Int,
     callback: () -> Unit
 ): TimeoutControl {
+    // Create mutable states to track the current delay and active state
+    val currentDelayState = mutableStateOf(delayMs)
+    val isActiveState = mutableStateOf(true)
+    val resetTriggerState = mutableStateOf(0)
+
+    // Create the control object that will be returned
     val control = object : TimeoutControl {
-        private var currentDelay = delayMs
-        
         override fun cancel() {
-            // Cancel implementation
+            isActiveState.value = false
         }
-        
+
         override fun reset() {
-            // Reset implementation
+            // Increment the reset trigger to force the effect to restart
+            resetTriggerState.value++
+            isActiveState.value = true
         }
-        
+
         override fun setDelay(delayMs: Int) {
-            currentDelay = delayMs
+            currentDelayState.value = delayMs
         }
     }
-    
-    onMountWithCleanup {
-        // Set up timeout with delay: $delayMs ms
-        
+
+    // Use effectWithDepsAndCleanup to set up the timeout and clean it up
+    effectWithDepsAndCleanup(currentDelayState.value, isActiveState.value, resetTriggerState.value) {
+        // Don't set up timeout if not active or delay is 0 or negative
+        if (!isActiveState.value || currentDelayState.value <= 0) {
+            return@effectWithDepsAndCleanup null
+        }
+        // TODO: provide a real implementation
+        // This is a placeholder implementation that will be replaced by platform-specific code
+        // In a real implementation, this would set up a timeout that calls the callback
+        // after the specified delay
+        println("Setting up timeout with delay: ${currentDelayState.value} ms")
+
+        // In JavaScript, this would be:
+        // val timeoutId = window.setTimeout(callback, currentDelayState.value)
+
+        // In JVM, this would be:
+        // val timer = java.util.Timer()
+        // timer.schedule(object : java.util.TimerTask() {
+        //     override fun run() {
+        //         callback()
+        //     }
+        // }, currentDelayState.value.toLong())
+
         // Return cleanup function
-        {
-            // Clear timeout
+        return@effectWithDepsAndCleanup {
+            // TODO: provide a real implementation
+            // This is a placeholder implementation that will be replaced by platform-specific code
+            // In a real implementation, this would clear the timeout
+            println("Clearing timeout")
+
+            // In JavaScript, this would be:
+            // window.clearTimeout(timeoutId)
+
+            // In JVM, this would be:
+            // timer.cancel()
         }
     }
-    
+
     return control
 }
 
@@ -184,12 +307,36 @@ fun CompositionScope.useClickOutside(
     elementRef: ElementRef,
     handler: (MouseEvent) -> Unit
 ) {
+    // Use onMountWithCleanup to set up the click outside handler and clean it up
     onMountWithCleanup {
-        // Set up click outside handler
-        
+        // TODO: provide a real implementation
+        // This is a placeholder implementation that will be replaced by platform-specific code
+        // In a real implementation, this would set up a click event listener on the document
+        // that checks if the click target is outside the specified element
+        println("Setting up click outside handler for element: $elementRef")
+
+        // In JavaScript, this would be:
+        // val clickHandler = { event: org.w3c.dom.events.MouseEvent ->
+        //     val target = event.target
+        //     // Check if the click is outside the element
+        //     if (target != null && !elementRef.contains(target)) {
+        //         // Convert to our MouseEvent type
+        //         val ourEvent = MouseEvent(target)
+        //         // Call the handler
+        //         handler(ourEvent)
+        //     }
+        // }
+        // document.addEventListener("click", clickHandler)
+
         // Return cleanup function
-        {
-            // Remove click outside handler
+        return@onMountWithCleanup {
+            // TODO: provide a real implementation
+            // This is a placeholder implementation that will be replaced by platform-specific code
+            // In a real implementation, this would remove the click event listener
+            println("Removing click outside handler for element: $elementRef")
+
+            // In JavaScript, this would be:
+            // document.removeEventListener("click", clickHandler)
         }
     }
 }
@@ -218,19 +365,57 @@ data class Location(
  */
 @Composable
 fun CompositionScope.useLocation(): SummonMutableState<Location> {
+    // Create a mutable state to track the current location
     val location = mutableStateOf(Location("/", "", "")) // Default location
-    
+
+    // Use onMountWithCleanup to set up the location listener and clean it up
     onMountWithCleanup {
-        // Set up location listener
-        // TODO: Implement a real implementation
-        // In a real implementation, this would set up a history event listener
-        
+        // TODO: provide a real implementation
+        // This is a placeholder implementation that will be replaced by platform-specific code
+        // In a real implementation, this would set up a history event listener to track URL changes
+        println("Setting up location listener")
+
+        // In JavaScript, this would be:
+        // val updateLocation = {
+        //     val pathname = window.location.pathname
+        //     val search = window.location.search
+        //     val hash = window.location.hash
+        //     location.value = Location(pathname, search, hash)
+        // }
+        // 
+        // // Initialize with current location
+        // updateLocation()
+        // 
+        // // Listen for popstate events (back/forward navigation)
+        // val popstateListener = { _: org.w3c.dom.events.Event ->
+        //     updateLocation()
+        // }
+        // window.addEventListener("popstate", popstateListener)
+        // 
+        // // Optionally, intercept link clicks to use history API
+        // val linkClickListener = { event: org.w3c.dom.events.MouseEvent ->
+        //     val target = event.target
+        //     if (target is HTMLAnchorElement && target.host == window.location.host) {
+        //         event.preventDefault()
+        //         window.history.pushState(null, "", target.href)
+        //         updateLocation()
+        //     }
+        // }
+        // document.addEventListener("click", linkClickListener)
+
         // Return cleanup function
-        {
-            // Remove location listener
+        return@onMountWithCleanup {
+            // TODO: provide a real implementation
+            // This is a placeholder implementation that will be replaced by platform-specific code
+            // In a real implementation, this would remove the event listeners
+            println("Removing location listener")
+
+            // In JavaScript, this would be:
+            // window.removeEventListener("popstate", popstateListener)
+            // document.removeEventListener("click", linkClickListener)
         }
     }
-    
+
     return location
 }
 
@@ -250,22 +435,80 @@ fun <T> CompositionScope.useLocalStorage(
     serializer: (T) -> String = { it.toString() },
     deserializer: (String) -> T
 ): SummonMutableState<T> {
+    // Create a mutable state to track the current value
     val state = mutableStateOf(initialValue)
-    
+
     // Initialize from storage on mount
     onMount {
-        // TODO: Implement a real implementation
-        // Initialize from localStorage with key: $key
+        // TODO: provide a real implementation
+        // This is a placeholder implementation that will be replaced by platform-specific code
         // In a real implementation, this would read from localStorage
+        println("Initializing from localStorage with key: $key")
+
+        // In JavaScript, this would be:
+        // val storedValue = window.localStorage.getItem(key)
+        // if (storedValue != null) {
+        //     try {
+        //         state.value = deserializer(storedValue)
+        //     } catch (e: Exception) {
+        //         println("Error deserializing value from localStorage: ${e.message}")
+        //     }
+        // }
     }
-    
+
     // Update storage when state changes
     effectWithDeps(state.value) {
-        // TODO: Implement a real implementation
-        // Update localStorage for key: $key with value: ${state.value}
+        // TODO: provide a real implementation
+        // This is a placeholder implementation that will be replaced by platform-specific code
         // In a real implementation, this would write to localStorage
+        println("Updating localStorage for key: $key with value: ${state.value}")
+
+        // In JavaScript, this would be:
+        // try {
+        //     val serializedValue = serializer(state.value)
+        //     window.localStorage.setItem(key, serializedValue)
+        // } catch (e: Exception) {
+        //     println("Error serializing value to localStorage: ${e.message}")
+        // }
     }
-    
+
+    // Listen for storage events (when localStorage is modified in another tab)
+    onMountWithCleanup {
+        // TODO: provide a real implementation
+        // This is a placeholder implementation that will be replaced by platform-specific code
+        // In a real implementation, this would listen for storage events
+        println("Setting up storage event listener for key: $key")
+
+        // In JavaScript, this would be:
+        // val storageListener = { event: org.w3c.dom.events.StorageEvent ->
+        //     if (event.key == key) {
+        //         val newValue = event.newValue
+        //         if (newValue != null) {
+        //             try {
+        //                 state.value = deserializer(newValue)
+        //             } catch (e: Exception) {
+        //                 println("Error deserializing value from storage event: ${e.message}")
+        //             }
+        //         } else {
+        //             // Key was removed, reset to initial value
+        //             state.value = initialValue
+        //         }
+        //     }
+        // }
+        // window.addEventListener("storage", storageListener)
+
+        // Return cleanup function
+        return@onMountWithCleanup {
+            // TODO: provide a real implementation
+            // This is a placeholder implementation that will be replaced by platform-specific code
+            // In a real implementation, this would remove the storage event listener
+            println("Removing storage event listener for key: $key")
+
+            // In JavaScript, this would be:
+            // window.removeEventListener("storage", storageListener)
+        }
+    }
+
     return state
 }
 
@@ -279,19 +522,50 @@ fun <T> CompositionScope.useLocalStorage(
 fun CompositionScope.useMediaQuery(
     query: String
 ): SummonMutableState<Boolean> {
+    // Create a mutable state to track whether the media query matches
     val matches = mutableStateOf(false)
-    
+
+    // Use onMountWithCleanup to set up the media query listener and clean it up
     onMountWithCleanup {
-        // Set up media query listener for: $query
-        // TODO: Implement a real implementation
+        // TODO: provide a real implementation
+        // This is a placeholder implementation that will be replaced by platform-specific code
         // In a real implementation, this would set up a media query listener
-        
+        println("Setting up media query listener for: $query")
+
+        // In JavaScript, this would be:
+        // val mediaQueryList = window.matchMedia(query)
+        // 
+        // // Function to update the state when the media query match changes
+        // val updateMatches = { event: org.w3c.dom.events.MediaQueryListEvent ->
+        //     matches.value = event.matches
+        // }
+        // 
+        // // Initialize with current match state
+        // matches.value = mediaQueryList.matches
+        // 
+        // // Add listener for changes
+        // // Modern browsers use addEventListener
+        // mediaQueryList.addEventListener("change", updateMatches)
+        // 
+        // // For older browsers that don't support addEventListener on MediaQueryList
+        // // mediaQueryList.addListener(updateMatches)
+
         // Return cleanup function
-        {
-            // Remove media query listener for: $query
+        return@onMountWithCleanup {
+            // TODO: provide a real implementation
+            // This is a placeholder implementation that will be replaced by platform-specific code
+            // In a real implementation, this would remove the media query listener
+            println("Removing media query listener for: $query")
+
+            // In JavaScript, this would be:
+            // // Modern browsers use removeEventListener
+            // mediaQueryList.removeEventListener("change", updateMatches)
+            // 
+            // // For older browsers that don't support removeEventListener on MediaQueryList
+            // // mediaQueryList.removeListener(updateMatches)
         }
     }
-    
+
     return matches
 }
 
@@ -302,18 +576,43 @@ fun CompositionScope.useMediaQuery(
  */
 @Composable
 fun CompositionScope.useWindowSize(): SummonMutableState<WindowSize> {
+    // Create a mutable state to track the current window size
     val windowSize = mutableStateOf(WindowSize(800, 600)) // Default size
-    
+
+    // Use onMountWithCleanup to set up the resize listener and clean it up
     onMountWithCleanup {
-        // Set up window size listener
-        // TODO: Implement a real implementation
+        // TODO: provide a real implementation
+        // This is a placeholder implementation that will be replaced by platform-specific code
         // In a real implementation, this would set up a resize event listener
-        
+        println("Setting up window size listener")
+
+        // In JavaScript, this would be:
+        // val updateSize = {
+        //     val width = window.innerWidth
+        //     val height = window.innerHeight
+        //     windowSize.value = WindowSize(width, height)
+        // }
+        // 
+        // // Initialize with current size
+        // updateSize()
+        // 
+        // // Listen for resize events
+        // val resizeListener = { _: org.w3c.dom.events.Event ->
+        //     updateSize()
+        // }
+        // window.addEventListener("resize", resizeListener)
+
         // Return cleanup function
-        {
-            // Remove window size listener
+        return@onMountWithCleanup {
+            // TODO: provide a real implementation
+            // This is a placeholder implementation that will be replaced by platform-specific code
+            // In a real implementation, this would remove the resize event listener
+            println("Removing window size listener")
+
+            // In JavaScript, this would be:
+            // window.removeEventListener("resize", resizeListener)
         }
     }
-    
+
     return windowSize
-} 
+}

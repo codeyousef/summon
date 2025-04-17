@@ -17,7 +17,7 @@ import org.w3c.dom.HTMLElement
 fun JsPlatformRenderer.renderComposable(content: @Composable () -> Unit, container: HTMLElement) {
     // First, render the composable to get the core structure
     renderComposable(content)
-    
+    // TODO: provide a real implementation
     // In a real implementation, this would involve JS-specific DOM manipulation
     // For example, it might:
     // 1. Create React components

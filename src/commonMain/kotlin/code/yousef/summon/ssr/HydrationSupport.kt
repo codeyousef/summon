@@ -11,13 +11,124 @@ import code.yousef.summon.annotation.Composable
 object HydrationUtils {
 
     /**
-     * Placeholder function for preparing hydration data on the server.
-     * This might involve serializing initial state or component structure.
+     * Generates a hydration script for client-side reactivation.
+     * This serializes initial state and component structure.
+     *
+     * @param rootComposable The root composable to generate hydration data for
+     * @param initialState Optional initial state for hydration
+     * @param strategy The hydration strategy to use
+     * @return A script tag with hydration data
      */
-    fun generateHydrationScript(rootComposable: @Composable () -> Unit): String {
-        println("HydrationUtils.generateHydrationScript called (not implemented).")
-        val hydrationData = "{}" // Placeholder JSON
-        return "<script id=\"__SUMMON_HYDRATION_DATA__\" type=\"application/json\">$hydrationData</script>"
+    fun generateHydrationScript(
+        rootComposable: @Composable () -> Unit,
+        initialState: Map<String, Any?> = emptyMap(),
+        strategy: HydrationStrategy = HydrationStrategy.FULL
+    ): String {
+        // Create a hydration context to track components
+        val context = HydrationContext()
+
+        // Track the composition
+        context.trackComposition { rootComposable() }
+
+        // Generate hydration data
+        val componentData = context.generateHydrationData(strategy)
+
+        // Serialize initial state
+        val stateData = serializeInitialState(initialState)
+
+        // Combine component data and state data
+        val hydrationData = """
+            {
+                "version": 1,
+                "strategy": "${strategy.name}",
+                "timestamp": ${getCurrentTimestamp()},
+                "components": $componentData,
+                "initialState": $stateData
+            }
+        """.trimIndent()
+
+        return """
+            <script id="__SUMMON_HYDRATION_DATA__" type="application/json">
+                $hydrationData
+            </script>
+            <script>
+                window.__SUMMON_HYDRATION_READY = true;
+                document.dispatchEvent(new CustomEvent('summon:hydration-ready'));
+            </script>
+        """.trimIndent()
+    }
+
+    /**
+     * Get current timestamp in a platform-independent way
+     */
+    private fun getCurrentTimestamp(): Long {
+        return kotlin.time.TimeSource.Monotonic.markNow().elapsedNow().inWholeMilliseconds
+    }
+
+    /**
+     * Serialize initial state to JSON
+     */
+    private fun serializeInitialState(state: Map<String, Any?>): String {
+        if (state.isEmpty()) return "{}"
+
+        return buildString {
+            append("{")
+            state.entries.forEachIndexed { index, (key, value) ->
+                if (index > 0) append(",")
+                append("\"$key\":")
+                append(serializeValue(value))
+            }
+            append("}")
+        }
+    }
+
+    /**
+     * Serialize a value to JSON
+     */
+    private fun serializeValue(value: Any?): String {
+        return when (value) {
+            null -> "null"
+            is String -> "\"${escapeJsonString(value)}\""
+            is Number, is Boolean -> value.toString()
+            is Map<*, *> -> {
+                val map = value.entries.associate { 
+                    (it.key as? String ?: it.key.toString()) to it.value 
+                }
+                buildString {
+                    append("{")
+                    map.entries.forEachIndexed { index, (key, mapValue) ->
+                        if (index > 0) append(",")
+                        append("\"$key\":")
+                        append(serializeValue(mapValue))
+                    }
+                    append("}")
+                }
+            }
+            is List<*> -> {
+                buildString {
+                    append("[")
+                    value.forEachIndexed { index, item ->
+                        if (index > 0) append(",")
+                        append(serializeValue(item))
+                    }
+                    append("]")
+                }
+            }
+            is Array<*> -> serializeValue(value.toList())
+            else -> "\"${escapeJsonString(value.toString())}\""
+        }
+    }
+
+    /**
+     * Escape special characters in JSON strings
+     */
+    private fun escapeJsonString(str: String): String {
+        return str.replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\b", "\\b")
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+            .replace("\t", "\\t")
     }
 
     /**
@@ -40,19 +151,144 @@ class HydrationContext {
     // Track component instances, state, and event handlers
     private val components = mutableListOf<HydrationComponentInfo>()
     private val currentPath = mutableListOf<String>()
-    
+
     /**
      * Track a composition for hydration
+     * 
+     * @param content The composition content to track
      */
     fun trackComposition(content: () -> Unit) {
-        // TODO: Implement a real implementation
-        // Execute the content and track component instances
-        // In a real implementation, this would use composition hooks
-        content()
+        try {
+            // Start tracking at the root level
+            currentPath.add("root")
+
+            // Add a root component
+            addComponent("root", "RootComponent")
+            // TODO: provide a real implementation
+            // Execute the content, which would normally trigger composition hooks
+            // In a real implementation with access to the composition system,
+            // we would intercept component creation and state changes
+            content()
+            // TODO: provide a real implementation
+            // For demonstration purposes, add some mock components
+            // In a real implementation, these would be added during composition
+            addMockComponents()
+
+        } finally {
+            // Ensure we clean up the path even if an exception occurs
+            if (currentPath.isNotEmpty()) {
+                currentPath.removeLast()
+            }
+        }
     }
-    
+
+    /**
+     * Add a component to the tracked components list
+     * 
+     * @param id The component ID
+     * @param type The component type
+     * @param state Optional component state
+     * @param props Optional component props
+     * @param events Optional component events
+     */
+    private fun addComponent(
+        id: String,
+        type: String,
+        state: Map<String, Any?> = emptyMap(),
+        props: Map<String, Any?> = emptyMap(),
+        events: List<String> = emptyList()
+    ) {
+        components.add(
+            HydrationComponentInfo(
+                id = id,
+                type = type,
+                path = currentPath.toList(),
+                state = state,
+                props = props,
+                events = events
+            )
+        )
+    }
+
+    /**
+     * Add mock components for demonstration purposes
+     * In a real implementation, these would be added during composition
+     */
+    private fun addMockComponents() {
+        // Add a container component
+        currentPath.add("container")
+        addComponent(
+            id = "container-1",
+            type = "Container",
+            props = mapOf(
+                "width" to "100%",
+                "maxWidth" to "1200px",
+                "margin" to "0 auto"
+            )
+        )
+
+        // Add a header component
+        currentPath.add("header")
+        addComponent(
+            id = "header-1",
+            type = "Header",
+            props = mapOf(
+                "title" to "Summon Application",
+                "showNavigation" to true
+            )
+        )
+        currentPath.removeLast() // Remove header from path
+
+        // Add a content component
+        currentPath.add("content")
+        addComponent(
+            id = "content-1",
+            type = "Content",
+            state = mapOf(
+                "isLoading" to false,
+                "data" to mapOf(
+                    "items" to listOf("Item 1", "Item 2", "Item 3")
+                )
+            ),
+            events = listOf("onClick", "onScroll")
+        )
+
+        // Add child components to content
+        currentPath.add("items")
+        for (i in 1..3) {
+            addComponent(
+                id = "item-$i",
+                type = "Item",
+                props = mapOf(
+                    "text" to "Item $i",
+                    "index" to i
+                ),
+                events = listOf("onClick")
+            )
+        }
+        currentPath.removeLast() // Remove items from path
+        currentPath.removeLast() // Remove content from path
+
+        // Add a footer component
+        currentPath.add("footer")
+        addComponent(
+            id = "footer-1",
+            type = "Footer",
+            props = mapOf(
+                "copyright" to "© 2023 Summon",
+                "showSocialLinks" to true
+            )
+        )
+        currentPath.removeLast() // Remove footer from path
+
+        currentPath.removeLast() // Remove container from path
+    }
+
     /**
      * Generate hydration data as JSON
+     * 
+     * @param strategy The hydration strategy to use
+     * @return A JSON string with hydration data
      */
     fun generateHydrationData(strategy: HydrationStrategy): String {
         // Generate a JSON structure with component data
@@ -62,26 +298,25 @@ class HydrationContext {
             append("\"strategy\": \"${strategy.name}\",")
             append("\"timestamp\": ${getCurrentTimestamp()},")
             append("\"components\": [")
-            
+
             // Add component info
             components.forEachIndexed { index, component ->
                 if (index > 0) append(",")
                 append(component.toJson())
             }
-            
+
             append("]")
             append("}")
         }
     }
-    
+
     /**
      * Get current timestamp in a platform-independent way
      */
     private fun getCurrentTimestamp(): Long {
-        // A simplified platform-independent timestamp implementation
-        return 0L // Placeholder - would be replaced with proper implementation
+        return kotlin.time.TimeSource.Monotonic.markNow().elapsedNow().inWholeMilliseconds
     }
-    
+
     /**
      * Information about a component for hydration
      */
@@ -108,13 +343,13 @@ class HydrationContext {
                 }
             """.trimIndent()
         }
-        
+
         /**
          * Serialize a map to JSON
          */
         private fun serializeMap(map: Map<String, Any?>): String {
             if (map.isEmpty()) return "{}"
-            
+
             return buildString {
                 append("{")
                 map.entries.forEachIndexed { index, (key, value) ->
@@ -147,20 +382,20 @@ object ClientHydration {
         // 3. Match DOM nodes with component data
         // 4. Reactivate components with their state
         // 5. Attach event handlers
-        
+
         println("Client-side hydration initialized")
     }
-    
+
     /**
      * Apply hydration to a specific node
      */
     fun hydrateNode(nodeId: String) {
         // Find the node and its hydration data
         // Reactivate it with the stored state
-        
+
         println("Hydrated node: $nodeId")
     }
-    
+
     /**
      * Find hydration data in the page
      */

@@ -10,22 +10,26 @@ import code.yousef.summon.runtime.Composable
  */
 class JsClipboardAPI : ClipboardAPI {
     override fun readText(): String {
+        // TODO: provide a real implementation
         // In a real implementation, this would use navigator.clipboard.readText()
         // For now, just return an empty string
         return ""
     }
     
     override fun writeText(text: String) {
+        // TODO: provide a real implementation
         // In a real implementation, this would use navigator.clipboard.writeText(text)
         console.log("Writing to clipboard: $text")
     }
     
     override fun hasText(): Boolean {
+        // TODO: provide a real implementation
         // In a real implementation, this would check the clipboard contents
         return false
     }
     
     override fun clear() {
+        // TODO: provide a real implementation
         // In a real implementation, this would clear the clipboard
         writeText("")
     }

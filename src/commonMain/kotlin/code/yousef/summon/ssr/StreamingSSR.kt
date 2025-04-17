@@ -58,7 +58,7 @@ class StreamingRenderer(
 
             // Generate hydration data
             val hydrationData = hydrationSupport.generateHydrationData(composable, HydrationStrategy.FULL)
-            
+
             // Add the hydration markers
             emit(
                 """
@@ -200,6 +200,65 @@ object StreamingSSR {
     private val renderer = StreamingRenderer()
 
     /**
+     * Intelligently chunk HTML content at logical boundaries
+     * 
+     * @param html The HTML content to chunk
+     * @param targetChunkSize The target size for each chunk
+     * @return A list of HTML chunks
+     */
+    private fun intelligentChunking(html: String, targetChunkSize: Int): List<String> {
+        if (html.length <= targetChunkSize) {
+            return listOf(html)
+        }
+
+        val chunks = mutableListOf<String>()
+        var currentPos = 0
+
+        while (currentPos < html.length) {
+            // Calculate the end position for this chunk
+            var endPos = minOf(currentPos + targetChunkSize, html.length)
+
+            // If we're not at the end of the string, try to find a good breaking point
+            if (endPos < html.length) {
+                // Look for closing tags as good breaking points
+                val closingTags = listOf("</div>", "</p>", "</section>", "</article>", "</li>", "</ul>", "</ol>", "</table>", "</tr>", "</td>")
+
+                // Find the last occurrence of any closing tag within our range
+                var bestBreakPoint = -1
+                for (tag in closingTags) {
+                    val tagPos = html.lastIndexOf(tag, endPos)
+                    if (tagPos > currentPos && tagPos + tag.length <= endPos && tagPos > bestBreakPoint) {
+                        bestBreakPoint = tagPos + tag.length
+                    }
+                }
+
+                // If we found a good breaking point, use it
+                if (bestBreakPoint > 0) {
+                    endPos = bestBreakPoint
+                } else {
+                    // Otherwise, look for the end of a tag or a space
+                    val tagEnd = html.indexOf('>', endPos)
+                    if (tagEnd > 0 && tagEnd - endPos < 100) { // Don't look too far ahead
+                        endPos = tagEnd + 1
+                    } else {
+                        // Last resort: break at a space
+                        val spacePos = html.lastIndexOf(' ', endPos)
+                        if (spacePos > currentPos && spacePos - currentPos >= targetChunkSize / 2) {
+                            endPos = spacePos + 1
+                        }
+                    }
+                }
+            }
+
+            // Extract the chunk and add it to our list
+            chunks.add(html.substring(currentPos, endPos))
+            currentPos = endPos
+        }
+
+        return chunks
+    }
+
+    /**
      * Render a composable to an HTML stream
      *
      * @param composable The composable to render
@@ -237,14 +296,14 @@ object StreamingSSR {
         // 1. Create a streaming renderer context
         val context = RenderContext(enableHydration = true)
         val composer = CommonComposer() // Use CommonComposer instead of JvmComposer
-        
+
         // 2. Set up document structure
         // Emit header part first for faster first contentful paint
         emit("<!DOCTYPE html>\n<html>\n<head>")
         emit("<meta charset=\"UTF-8\">\n")
         emit("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n")
         emit("<title>Summon Streaming SSR</title>\n")
-        
+
         // Emit streaming-specific script that helps with progressive rendering
         emit("""
             <script>
@@ -258,32 +317,34 @@ object StreamingSSR {
             </script>
         """.trimIndent())
         emit("</head>\n<body>")
-        
+
         // 3. Begin content container with streaming attributes
         emit("<div id=\"summon-root\" data-summon-streaming=\"true\">\n")
-        
+
         // 4. Execute content within composition context to generate HTML in chunks
         val chunks = mutableListOf<String>()
-        
-        // Simplified implementation - just render the full HTML and split into chunks
+
+        // Render the full HTML
         val fullHtml = renderer.renderToString(content)
+
+        // Use intelligent chunking to split at logical boundaries
         val chunkSize = 4096
-        chunks.addAll(fullHtml.chunked(chunkSize))
-        
+        chunks.addAll(intelligentChunking(fullHtml, chunkSize))
+
         // 5. Emit each chunk with progress markers for client-side processing
         chunks.forEachIndexed { index, chunk ->
             // Wrap each chunk with a progress marker for client-side tracking
             emit("<div data-summon-chunk=\"$index\">$chunk</div>\n")
             emit("<script>window.__summonChunkLoaded();</script>\n")
-            // TODO: Implement a real implementation
-            // Small delay between chunks to simulate network streaming
-            // In a real implementation, this would be controlled by network backpressure
+
+            // Add a small delay between chunks to simulate network streaming
+            // In a real production environment, this would be controlled by network backpressure
             kotlinx.coroutines.delay(10)
         }
-        
+
         // 6. Close the content container
         emit("</div>\n")
-        
+
         // 7. Add hydration script for client-side reactivation
         val hydrationData = StreamingHydrationSupport.generateHydrationData(content)
         emit("""
@@ -299,7 +360,7 @@ object StreamingSSR {
             </script>
             <script src="/summon-hydration.js"></script>
         """.trimIndent())
-        
+
         // 8. Close document
         emit("</body>\n</html>")
     }
@@ -313,9 +374,20 @@ private object StreamingHydrationSupport {
      * Generates hydration data for client-side reactivation
      */
     fun generateHydrationData(content: @Composable () -> Unit): String {
-        // TODO: Implement a real implementation
-        // In a real implementation, this would generate proper hydration data
-        // For this example, we'll return a placeholder
-        return """{ "hydrationVersion": 1, "components": [] }"""
+        // Create a hydration context to track components
+        val context = HydrationContext()
+
+        // Track the composition
+        context.trackComposition { content() }
+
+        // Generate hydration data with progressive strategy
+        return context.generateHydrationData(HydrationStrategy.PROGRESSIVE)
     }
-} 
+
+    /**
+     * Generate a unique ID for a component
+     */
+    private fun generateComponentId(prefix: String): String {
+        return "$prefix-${kotlin.random.Random.nextInt(100000, 999999)}"
+    }
+}

@@ -160,7 +160,7 @@ internal class RouterJs(
     override fun create(initialPath: String) {
         // Update the current path
         _currentPath = initialPath
-        
+        // TODO: provide a real implementation
         // Set up effect to listen for browser history changes
         // In a real implementation, this would be a LaunchedEffect
         

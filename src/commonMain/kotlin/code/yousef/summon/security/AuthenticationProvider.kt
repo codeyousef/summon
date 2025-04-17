@@ -168,6 +168,7 @@ class JwtAuthenticationProvider(
      * Makes a refresh token request to the backend
      */
     private suspend fun makeRefreshTokenRequest(refreshToken: String): TokenResponse {
+
         // In a real implementation, this would make an HTTP request to the backend
         // For now, we'll return a dummy response
         return TokenResponse(

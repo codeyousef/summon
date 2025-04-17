@@ -81,6 +81,7 @@ class JvmComposer : Composer {
     }
     
     override fun reportChanged() {
+        // TODO: provide a real implementation
         // Trigger a recomposition
         // In a real implementation, this would schedule recomposition
         // on the JVM UI thread (e.g., using SwingUtilities.invokeLater)

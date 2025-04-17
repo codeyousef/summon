@@ -46,6 +46,7 @@ object PageDiscoveryPlugin {
      * @return List of page file paths relative to the pages directory
      */
     private fun scanForPageFiles(): List<String> {
+        // TODO: provide a real implementation
         // In a real implementation, this would use the build system's file APIs
         // to scan the source directories for page files.
 
@@ -127,6 +128,7 @@ object PageDiscoveryPlugin {
      * @param code The generated code
      */
     private fun writeGeneratedCode(code: String) {
+        // TODO: provide a real implementation
         // In a real implementation, this would write to a file in the build directory
         // and configure the build system to include it in the compilation.
 

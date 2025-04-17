@@ -275,13 +275,68 @@ class DynamicRenderer(
 
     /**
      * Serialize the initial state to JSON
-     * This is a simple placeholder implementation
      */
     private fun serializeInitialState(state: Map<String, Any?>): String {
-        // TODO: Implement a real implementation
-        // In a real implementation, this would serialize the state to JSON
-        // For this example, we'll return a placeholder
-        return "{}"
+        if (state.isEmpty()) return "{}"
+
+        return buildString {
+            append("{")
+            state.entries.forEachIndexed { index, (key, value) ->
+                if (index > 0) append(",")
+                append("\"$key\":")
+                append(serializeValue(value))
+            }
+            append("}")
+        }
+    }
+
+    /**
+     * Serialize a value to JSON
+     */
+    private fun serializeValue(value: Any?): String {
+        return when (value) {
+            null -> "null"
+            is String -> "\"${escapeJsonString(value)}\""
+            is Number, is Boolean -> value.toString()
+            is Map<*, *> -> {
+                val map = value.entries.associate { 
+                    (it.key as? String ?: it.key.toString()) to it.value 
+                }
+                buildString {
+                    append("{")
+                    map.entries.forEachIndexed { index, (key, mapValue) ->
+                        if (index > 0) append(",")
+                        append("\"$key\":")
+                        append(serializeValue(mapValue))
+                    }
+                    append("}")
+                }
+            }
+            is List<*> -> {
+                buildString {
+                    append("[")
+                    value.forEachIndexed { index, item ->
+                        if (index > 0) append(",")
+                        append(serializeValue(item))
+                    }
+                    append("]")
+                }
+            }
+            is Array<*> -> serializeValue(value.toList())
+            else -> "\"${escapeJsonString(value.toString())}\""
+        }
+    }
+
+    /**
+     * Escape special characters in JSON strings
+     */
+    private fun escapeJsonString(str: String): String {
+        return str.replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\b", "\\b")
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+            .replace("\t", "\\t")
     }
 
     /**
@@ -352,16 +407,98 @@ object DynamicRendering {
      * @return The rendered output string.
      */
     fun renderToString(content: @Composable () -> Unit): String {
-        println("DynamicRendering.renderToString called (not implemented).")
-        return "<!-- Dynamic SSR Output Placeholder -->"
+        // Get the platform renderer
+        val platformRenderer = code.yousef.summon.runtime.getPlatformRenderer()
+
+        // Use the renderToString helper function to render the composable
+        val renderResult = renderToString(platformRenderer, content)
+
+        // Return the HTML content
+        return renderResult.html
     }
 
     /**
-     * Placeholder for fetching server-side data needed for dynamic rendering.
+     * Fetches server-side data needed for dynamic rendering.
+     * 
+     * @param routeId The route ID to fetch data for
+     * @return A map of data for the route
      */
     suspend fun fetchDataForRoute(routeId: String): Map<String, Any> {
-        println("DynamicRendering.fetchDataForRoute called for '$routeId' (not implemented).")
-        return emptyMap()
+        // TODO: provide a real implementation
+        // In a real implementation, this would fetch data from a database or API
+        // For this implementation, we'll generate mock data based on the route ID
+
+        // Get current timestamp in a platform-independent way
+        val timestamp = kotlin.time.TimeSource.Monotonic.markNow().elapsedNow().inWholeMilliseconds
+
+        return when {
+            routeId.startsWith("product-") -> {
+                val productId = routeId.substringAfter("product-")
+                mapOf(
+                    "id" to productId,
+                    "name" to "Product $productId",
+                    "price" to (10 + productId.hashCode() % 90),
+                    "description" to "This is a dynamic product description for $productId",
+                    "rating" to (3.5 + (productId.hashCode() % 15) / 10.0),
+                    "inStock" to (productId.hashCode() % 2 == 0),
+                    "categories" to listOf("Electronics", "Gadgets", "New Arrivals"),
+                    "metadata" to mapOf(
+                        "sku" to "SKU-$productId",
+                        "weight" to "${1 + productId.hashCode() % 5} kg",
+                        "dimensions" to "${10 + productId.hashCode() % 20} x ${5 + productId.hashCode() % 15} x ${2 + productId.hashCode() % 8} cm"
+                    ),
+                    "timestamp" to timestamp
+                )
+            }
+
+            routeId.startsWith("user-") -> {
+                val userId = routeId.substringAfter("user-")
+                mapOf(
+                    "id" to userId,
+                    "name" to "User $userId",
+                    "email" to "user$userId@example.com",
+                    "memberSince" to "2023-${1 + (userId.hashCode() % 12)}-${1 + (userId.hashCode() % 28)}",
+                    "isActive" to (userId.hashCode() % 3 != 0),
+                    "preferences" to mapOf(
+                        "theme" to if (userId.hashCode() % 2 == 0) "light" else "dark",
+                        "notifications" to (userId.hashCode() % 3 != 1),
+                        "language" to listOf("en", "fr", "de", "es", "ja")[(userId.hashCode() % 5)]
+                    ),
+                    "lastLogin" to "2023-${1 + (userId.hashCode() % 12)}-${1 + (userId.hashCode() % 28)} ${(userId.hashCode() % 24)}:${(userId.hashCode() % 60)}",
+                    "timestamp" to timestamp
+                )
+            }
+
+            routeId.startsWith("blog-") -> {
+                val blogId = routeId.substringAfter("blog-")
+                mapOf(
+                    "id" to blogId,
+                    "title" to "Blog Post $blogId",
+                    "author" to "Author ${1 + (blogId.hashCode() % 10)}",
+                    "date" to "2023-${1 + (blogId.hashCode() % 12)}-${1 + (blogId.hashCode() % 28)}",
+                    "content" to "This is the content of blog post $blogId. It contains dynamic content generated for server-side rendering.",
+                    "tags" to listOf("Technology", "Web Development", "SSR", "Kotlin"),
+                    "comments" to (1..3).map { commentId ->
+                        mapOf(
+                            "id" to "$blogId-comment-$commentId",
+                            "author" to "Commenter $commentId",
+                            "text" to "This is comment $commentId on blog post $blogId",
+                            "date" to "2023-${1 + ((blogId.hashCode() + commentId) % 12)}-${1 + ((blogId.hashCode() + commentId) % 28)}"
+                        )
+                    },
+                    "timestamp" to timestamp
+                )
+            }
+
+            else -> {
+                mapOf(
+                    "id" to routeId,
+                    "title" to "Content for $routeId",
+                    "description" to "This is dynamic content for route ID: $routeId",
+                    "timestamp" to timestamp
+                )
+            }
+        }
     }
 }
 
@@ -506,7 +643,7 @@ fun DynamicDataComponent(routeId: String) {
                     text = title.toString(),
                     modifier = Modifier.fontSize("24px").fontWeight("bold").margin("0 0 16px 0")
                 )
-                
+
                 // Description (if available)
                 if (data.containsKey("description")) {
                     Text(
@@ -514,7 +651,7 @@ fun DynamicDataComponent(routeId: String) {
                         modifier = Modifier.margin("0 0 16px 0")
                     )
                 }
-                
+
                 // Display all data fields
                 Card(modifier = Modifier.padding("16px").background("#f5f5f5")) {
                     Column(modifier = Modifier.padding("16px")) {
@@ -534,7 +671,7 @@ fun DynamicDataComponent(routeId: String) {
                         }
                     }
                 }
-                
+
                 // Action button (example)
                 Spacer(modifier = Modifier.height("16px"))
                 Button(
