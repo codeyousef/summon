@@ -18,18 +18,14 @@ class StandardHydrationSupport : HydrationSupport {
         composable: @Composable () -> Unit,
         strategy: HydrationStrategy
     ): String {
-        // TODO: Implement a real implementation
-        // In a real implementation, this would analyze the composable and generate
-        // serialized state data for client-side hydration
-        
-        // For now, we return a simple JSON object with the strategy
-        return """
-            {
-                "strategy": "${strategy.name}",
-                "timestamp": ${getCurrentTimestamp()},
-                "componentId": "root"
-            }
-        """.trimIndent()
+        // Create a hydration context to track components
+        val context = HydrationContext()
+
+        // Track the composition to gather component information
+        context.trackComposition { composable() }
+
+        // Use the context's generateHydrationData method to generate the hydration data
+        return context.generateHydrationData(strategy)
     }
 
     /**
@@ -40,21 +36,46 @@ class StandardHydrationSupport : HydrationSupport {
      * @return HTML with hydration markers
      */
     override fun addHydrationMarkers(html: String, hydrationData: String): String {
-        // TODO: Implement a real implementation
-        // In a real implementation, this would parse the HTML and add data attributes
-        // for hydration at specific points
-        
-        // For now, we simply wrap the HTML in a div with a data attribute
-        return """
-            <div data-summon-hydration="root">
-                $html
-                <script id="summon-hydration-data" type="application/json" style="display:none">
-                    $hydrationData
-                </script>
-            </div>
-        """.trimIndent()
+        // Parse the hydration data to identify components
+        val hydrationJson = hydrationData.trim()
+
+        // Create a container with hydration attributes
+        val markedHtml = StringBuilder()
+
+        // Add the root container with hydration attributes
+        markedHtml.append("<div data-summon-hydration=\"root\" data-summon-component=\"root\">\n")
+
+        // Add the HTML content
+        markedHtml.append(html)
+
+        // Add the hydration data script
+        markedHtml.append("""
+            <script id="summon-hydration-data" type="application/json" style="display:none">
+                $hydrationJson
+            </script>
+        """.trimIndent())
+
+        // Add the hydration initialization script
+        markedHtml.append("""
+            <script>
+                // Initialize hydration when the DOM is ready
+                document.addEventListener('DOMContentLoaded', function() {
+                    if (window.SummonHydration) {
+                        window.SummonHydration.hydrate();
+                        console.log('Summon hydration initialized');
+                    } else {
+                        console.warn('Summon hydration script not loaded');
+                    }
+                });
+            </script>
+        """.trimIndent())
+
+        // Close the container
+        markedHtml.append("\n</div>")
+
+        return markedHtml.toString()
     }
-    
+
     /**
      * Get the current timestamp in a platform-independent way
      */

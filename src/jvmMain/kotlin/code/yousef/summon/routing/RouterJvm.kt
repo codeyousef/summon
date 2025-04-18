@@ -16,10 +16,38 @@ import java.util.concurrent.ConcurrentHashMap
 private val routerRegistry = ConcurrentHashMap<String, Router>()
 
 /**
- * Object to store the current router in a context
+ * JVM implementation of RouterContext
  */
-object RouterContext {
-    var current: Router? = null
+actual object RouterContext {
+    /**
+     * The current router instance.
+     */
+    actual var current: Router? = null
+        internal set
+
+    /**
+     * Clears the current router instance.
+     */
+    actual fun clear() {
+        current = null
+    }
+
+    /**
+     * Executes a block with the specified router as the current router.
+     *
+     * @param router The router to use for the block
+     * @param block The block to execute
+     * @return The result of the block
+     */
+    actual fun <T> withRouter(router: Router, block: () -> T): T {
+        val previous = current
+        current = router
+        try {
+            return block()
+        } finally {
+            current = previous
+        }
+    }
 }
 
 /**
@@ -126,7 +154,7 @@ actual interface Router {
      */
     @Composable
     actual fun create(initialPath: String)
-    
+
     /**
      * The current path of the router.
      * This helps components like NavLink determine their active state.
@@ -164,7 +192,7 @@ class JvmRouter(private val routes: List<RouteDefinition>, private val notFound:
     override fun create(initialPath: String) {
         // Set the initial path and find matching route
         navigate(initialPath, false)
-        
+
         // Find the route for the current path
         val match = findMatchingRoute(_currentPath)
 

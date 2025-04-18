@@ -2,31 +2,22 @@ package code.yousef.example.quarkus
 
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.input.Button
-import code.yousef.summon.components.input.TextField
 import code.yousef.summon.components.layout.Box
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.components.layout.Row
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
-
 import jakarta.inject.Inject
 import jakarta.ws.rs.*
+import jakarta.ws.rs.container.ContainerRequestContext
+import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.NewCookie
+import jakarta.ws.rs.core.Response
 import org.jboss.resteasy.reactive.RestForm
 import org.jboss.resteasy.reactive.RestPath
 import java.util.concurrent.atomic.AtomicInteger
 
-// Imports needed for UserForm (which remains kotlinx.html for now)
-import kotlinx.html.FlowOrPhrasingContent
-import kotlinx.html.InputType
-import kotlinx.html.div
-import kotlinx.html.form
-import kotlinx.html.h2
-import kotlinx.html.id
-import kotlinx.html.input
-import kotlinx.html.label
-import kotlinx.html.stream.createHTML
-import kotlinx.html.style
 /**
  * Extension function to capitalize the first letter of a string
  */
@@ -47,6 +38,15 @@ class WebResource {
     @Inject
     lateinit var summonRenderer: SummonRenderer
 
+    @Inject
+    lateinit var quteHtmxComponents: QuteHtmxComponents
+
+    @Inject
+    lateinit var quteComponents: QuteComponents
+
+    @Context
+    lateinit var context: ContainerRequestContext
+
     private val counter = AtomicInteger(0)
 
     /**
@@ -58,14 +58,206 @@ class WebResource {
         println("WebResource.home() called - starting to render with Summon")
         try {
             println("WebResource.home() - Using Summon Components rendering")
-            val result = summonRenderer.render(title = "Summon with Quarkus - Home") {
+
+            // Generate the HTML for the hero and counter components
+            val heroHtml = quteComponents.renderHeroComponent("Quarkus User")
+            val counterHtml = quteComponents.renderCounterComponent(counter.get())
+
+            // Render the page without the hero and counter components
+            var result = summonRenderer.render(title = "Summon with Quarkus - Home") {
                 AppRoot { // Use the Summon AppRoot composable
-                    HeroComponent("Quarkus User")
                     CurrentTimeComponent() // Use Summon version
                     FeatureCardsComponent() // Use Summon version
-                    CounterComponent(counter.get()) // Use Summon version
                 }
             }
+
+            // Create a complete HTML string with the hero and counter components and the JavaScript to inject the component HTML
+            val componentsHtml = """
+                <!-- Hero Component Container -->
+                <div id="hero-component-container" data-component="hero">
+                    Loading hero component...
+                </div>
+
+                <!-- Counter Component Container -->
+                <div id="counter-component-container" data-component="counter">
+                    Loading counter component...
+                </div>
+            """.trimIndent()
+
+            // Log the HTML content for debugging
+            println("Hero HTML content (length: ${heroHtml.length}):")
+            println(heroHtml)
+            println("Counter HTML content (length: ${counterHtml.length}):")
+            println(counterHtml)
+
+            // Create JavaScript to inject the HTML into the placeholder divs
+            // Use proper escaping for JavaScript string literals
+            val escapedHeroHtml = heroHtml.replace("\\", "\\\\").replace("`", "\\`").replace("$", "\\$")
+            val escapedCounterHtml = counterHtml.replace("\\", "\\\\").replace("`", "\\`").replace("$", "\\$")
+
+            val injectScript = """
+                <script>
+                    console.log("Component injection script running");
+
+                    // Function to check HTMX status
+                    function checkHtmxStatus() {
+                        console.log("Checking HTMX status");
+                        if (typeof htmx !== 'undefined') {
+                            console.log("HTMX is loaded:", htmx.version);
+
+                            // Log HTMX configuration
+                            console.log("HTMX config:", htmx.config);
+
+                            // Check if HTMX is processing events
+                            const htmxElements = document.querySelectorAll("[hx-get], [hx-post], [hx-put], [hx-delete]");
+                            console.log("Found", htmxElements.length, "elements with HTMX attributes");
+
+                            // Log each HTMX element for debugging
+                            htmxElements.forEach((el, index) => {
+                                console.log("HTMX Element #" + index + ":", {
+                                    element: el.tagName,
+                                    id: el.id,
+                                    hxGet: el.getAttribute('hx-get'),
+                                    hxPost: el.getAttribute('hx-post'),
+                                    hxTarget: el.getAttribute('hx-target'),
+                                    hxSwap: el.getAttribute('hx-swap'),
+                                    hxTrigger: el.getAttribute('hx-trigger')
+                                });
+                            });
+                        } else {
+                            console.error("HTMX is not loaded! Components may not work correctly.");
+                        }
+                    }
+
+                    // Function to inject component HTML
+                    function injectComponentHTML() {
+                        console.log("Injecting component HTML");
+
+                        // Inject hero component HTML
+                        var heroContainer = document.getElementById('hero-component-container');
+                        console.log("Hero container found:", heroContainer);
+                        if (heroContainer) {
+                            heroContainer.innerHTML = `${escapedHeroHtml}`;
+                            console.log("Hero HTML injected");
+                        } else {
+                            console.error("Hero container not found with ID: hero-component-container");
+                        }
+
+                        // Inject counter component HTML
+                        var counterContainer = document.getElementById('counter-component-container');
+                        console.log("Counter container found:", counterContainer);
+                        if (counterContainer) {
+                            counterContainer.innerHTML = `${escapedCounterHtml}`;
+                            console.log("Counter HTML injected");
+                        } else {
+                            console.error("Counter container not found with ID: counter-component-container");
+                        }
+
+                        // Initialize HTMX after components are injected
+                        // This ensures HTMX processes the attributes correctly
+                        function processWithHtmx() {
+                            if (typeof htmx !== 'undefined') {
+                                console.log("HTMX found, processing new content");
+
+                                try {
+                                    // Process the entire document to ensure all HTMX attributes are processed
+                                    htmx.process(document.body);
+                                    console.log("HTMX processing completed successfully");
+
+                                    // Check HTMX status after processing
+                                    setTimeout(checkHtmxStatus, 100);
+
+                                    // Add event listeners to debug HTMX events
+                                    document.body.addEventListener('htmx:beforeRequest', function(event) {
+                                        console.log("HTMX beforeRequest event:", event.detail);
+                                    });
+
+                                    document.body.addEventListener('htmx:afterRequest', function(event) {
+                                        console.log("HTMX afterRequest event:", event.detail);
+                                    });
+
+                                    document.body.addEventListener('htmx:responseError', function(event) {
+                                        console.error("HTMX responseError event:", event.detail);
+                                    });
+                                } catch (e) {
+                                    console.error("Error processing HTMX content:", e);
+                                }
+                            } else {
+                                console.error("HTMX not found! Components may not work correctly.");
+                            }
+                        }
+
+                        // Add a small delay before processing to ensure HTMX is fully initialized
+                        setTimeout(processWithHtmx, 100);
+
+                        // Also add event listener to check when HTMX is loaded if it's not available immediately
+                        if (typeof htmx === 'undefined') {
+                            console.warn("HTMX not immediately available, setting up load listener");
+                            window.addEventListener('load', function() {
+                                console.log("Window loaded, checking if HTMX is available now");
+                                setTimeout(processWithHtmx, 100);
+                            });
+                        }
+                    }
+
+                    // Run on DOMContentLoaded
+                    document.addEventListener('DOMContentLoaded', injectComponentHTML);
+
+                    // Run on popstate (browser back/forward navigation)
+                    window.addEventListener('popstate', injectComponentHTML);
+
+                    // Run immediately if document is already loaded
+                    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                        setTimeout(injectComponentHTML, 0);
+                    }
+                </script>
+            """.trimIndent()
+
+            // Insert the components HTML at a specific location in the page
+            // Look for the opening div#app tag
+            val appDivIndex = result.indexOf("<div id=\"app\">")
+            if (appDivIndex == -1) {
+                println("WARNING: <div id=\"app\"> tag not found in the rendered HTML. Component injection may fail.")
+                // Append the components HTML at the end of the HTML as a fallback
+                result += "\n$componentsHtml"
+            } else {
+                // Insert the components HTML after the opening div#app tag
+                val insertIndex = appDivIndex + "<div id=\"app\">".length
+                val beforeInsert = result.length
+                result = result.substring(0, insertIndex) + "\n$componentsHtml\n" + result.substring(insertIndex)
+                val afterInsert = result.length
+
+                // Verify that the insertion was successful
+                if (afterInsert <= beforeInsert) {
+                    println("WARNING: Component HTML injection may have failed. Length before: $beforeInsert, after: $afterInsert")
+                } else {
+                    println("Component HTML successfully injected. Length before: $beforeInsert, after: $afterInsert")
+                }
+            }
+
+            // Check if the body tag exists in the result
+            if (!result.contains("</body>")) {
+                println("WARNING: </body> tag not found in the rendered HTML. Script injection may fail.")
+                // Append the script at the end of the HTML as a fallback
+                result += "\n$injectScript"
+            } else {
+                // Add the script to the end of the body
+                val beforeReplace = result.length
+                result = result.replace("</body>", "$injectScript\n</body>")
+                val afterReplace = result.length
+
+                // Verify that the replacement was successful
+                if (afterReplace <= beforeReplace) {
+                    println("WARNING: Script injection may have failed. Length before: $beforeReplace, after: $afterReplace")
+                } else {
+                    println("Script successfully injected. Length before: $beforeReplace, after: $afterReplace")
+                }
+            }
+
+            // Log the final HTML for debugging (truncated to avoid excessive output)
+            val htmlPreview = if (result.length > 1000) result.substring(0, 500) + "..." + result.substring(result.length - 500) else result
+            println("Final HTML preview:\n$htmlPreview")
+
             println("WebResource.home() finished rendering, result length: ${result.length}")
             return result
         } catch (e: Exception) {
@@ -164,20 +356,178 @@ class WebResource {
     // --- API Endpoints --- 
 
     @POST @Path("/api/counter/increment") @Produces(MediaType.TEXT_PLAIN)
-    fun incrementCounter(): String = counter.incrementAndGet().toString()
+    fun incrementCounter(): String {
+        val newValue = counter.incrementAndGet()
+        println("=== COUNTER INCREMENT ENDPOINT ===")
+        println("Counter incremented to: $newValue")
+
+        // Log all request headers for comprehensive debugging
+        println("All request headers:")
+        context.headers.forEach { name, values ->
+            println("  - $name: ${values.joinToString(", ")}")
+        }
+
+        // Log HTMX-specific headers
+        println("HTMX headers:")
+        println("  - HX-Request: ${context.getHeaderString("HX-Request") ?: "No"}")
+        println("  - HX-Trigger: ${context.getHeaderString("HX-Trigger") ?: "None"}")
+        println("  - HX-Target: ${context.getHeaderString("HX-Target") ?: "None"}")
+        println("  - HX-Current-URL: ${context.getHeaderString("HX-Current-URL") ?: "None"}")
+
+        // Log request details
+        println("Request details:")
+        println("  - Method: ${context.method}")
+        println("  - URI: ${context.uriInfo.requestUri}")
+        println("  - Content-Type: ${context.getHeaderString("Content-Type") ?: "Not specified"}")
+        println("  - Accept: ${context.getHeaderString("Accept") ?: "Not specified"}")
+
+        // Log response
+        println("Returning value: $newValue")
+        println("=== END COUNTER INCREMENT ENDPOINT ===")
+
+        // Return the value with additional headers for HTMX debugging
+        return newValue.toString()
+    }
 
     @POST @Path("/api/counter/decrement") @Produces(MediaType.TEXT_PLAIN)
-    fun decrementCounter(): String = counter.decrementAndGet().toString()
+    fun decrementCounter(): String {
+        val newValue = counter.decrementAndGet()
+        println("=== COUNTER DECREMENT ENDPOINT ===")
+        println("Counter decremented to: $newValue")
+
+        // Log all request headers for comprehensive debugging
+        println("All request headers:")
+        context.headers.forEach { name, values ->
+            println("  - $name: ${values.joinToString(", ")}")
+        }
+
+        // Log HTMX-specific headers
+        println("HTMX headers:")
+        println("  - HX-Request: ${context.getHeaderString("HX-Request") ?: "No"}")
+        println("  - HX-Trigger: ${context.getHeaderString("HX-Trigger") ?: "None"}")
+        println("  - HX-Target: ${context.getHeaderString("HX-Target") ?: "None"}")
+        println("  - HX-Current-URL: ${context.getHeaderString("HX-Current-URL") ?: "None"}")
+
+        // Log request details
+        println("Request details:")
+        println("  - Method: ${context.method}")
+        println("  - URI: ${context.uriInfo.requestUri}")
+        println("  - Content-Type: ${context.getHeaderString("Content-Type") ?: "Not specified"}")
+        println("  - Accept: ${context.getHeaderString("Accept") ?: "Not specified"}")
+
+        // Log response
+        println("Returning value: $newValue")
+        println("=== END COUNTER DECREMENT ENDPOINT ===")
+
+        // Return the value with additional headers for HTMX debugging
+        return newValue.toString()
+    }
+
+    /**
+     * Implementation of CounterComponent that uses Qute templates to render HTML with the correct attributes.
+     * This ensures that the HTMX attributes are rendered correctly as separate HTML attributes.
+     */
+    @GET @Path("/api/counter-component") @Produces(MediaType.TEXT_HTML)
+    fun counterComponentHtml(): String {
+        val currentValue = counter.get()
+        println("=== COUNTER COMPONENT ENDPOINT ===")
+        println("counterComponentHtml called, returning counter with value: $currentValue")
+
+        // Log detailed request information
+        println("Request details:")
+        println("  - URI: ${context.uriInfo.requestUri}")
+        println("  - Method: ${context.method}")
+        println("  - Content-Type: ${context.getHeaderString("Content-Type") ?: "Not specified"}")
+        println("  - Accept: ${context.getHeaderString("Accept") ?: "Not specified"}")
+
+        // Log HTMX-specific headers
+        println("HTMX headers:")
+        println("  - HX-Request: ${context.getHeaderString("HX-Request") ?: "No"}")
+        println("  - HX-Trigger: ${context.getHeaderString("HX-Trigger") ?: "None"}")
+        println("  - HX-Target: ${context.getHeaderString("HX-Target") ?: "None"}")
+        println("  - HX-Current-URL: ${context.getHeaderString("HX-Current-URL") ?: "None"}")
+
+        // Log all headers for comprehensive debugging
+        println("All request headers:")
+        context.headers.forEach { name, values ->
+            println("  - $name: ${values.joinToString(", ")}")
+        }
+
+        // Use the Qute template to render the counter component
+        val html = quteComponents.renderCounterComponent(currentValue)
+
+        // Log the generated HTML in a more readable format
+        println("Generated HTML for counter component:")
+        println("----------------------------------------")
+        println(html)
+        println("----------------------------------------")
+        println("HTML length: ${html.length}")
+        println("=== END COUNTER COMPONENT ENDPOINT ===")
+
+        return html
+    }
+
+    /**
+     * Implementation of the hero component that uses Qute templates to render HTML with the correct attributes.
+     * This ensures that the HTMX attributes are rendered correctly as separate HTML attributes.
+     */
+    @GET @Path("/api/hero-component") @Produces(MediaType.TEXT_HTML)
+    fun heroComponentHtml(@QueryParam("username") username: String = "Quarkus User"): String {
+        println("=== HERO COMPONENT ENDPOINT ===")
+        println("heroComponentHtml called with username: $username")
+
+        // Log detailed request information
+        println("Request details:")
+        println("  - URI: ${context.uriInfo.requestUri}")
+        println("  - Method: ${context.method}")
+        println("  - Content-Type: ${context.getHeaderString("Content-Type") ?: "Not specified"}")
+        println("  - Accept: ${context.getHeaderString("Accept") ?: "Not specified"}")
+        println("  - Query parameters: ${context.uriInfo.queryParameters}")
+
+        // Log HTMX-specific headers
+        println("HTMX headers:")
+        println("  - HX-Request: ${context.getHeaderString("HX-Request") ?: "No"}")
+        println("  - HX-Trigger: ${context.getHeaderString("HX-Trigger") ?: "None"}")
+        println("  - HX-Target: ${context.getHeaderString("HX-Target") ?: "None"}")
+        println("  - HX-Current-URL: ${context.getHeaderString("HX-Current-URL") ?: "None"}")
+
+        // Log all headers for comprehensive debugging
+        println("All request headers:")
+        context.headers.forEach { name, values ->
+            println("  - $name: ${values.joinToString(", ")}")
+        }
+
+        // Use the Qute template to render the hero component
+        val html = quteComponents.renderHeroComponent(username)
+
+        // Log the generated HTML in a more readable format
+        println("Generated HTML for hero component:")
+        println("----------------------------------------")
+        println(html)
+        println("----------------------------------------")
+        println("HTML length: ${html.length}")
+        println("=== END HERO COMPONENT ENDPOINT ===")
+
+        return html
+    }
 
     // --- User Form and CRUD API --- 
 
     @GET @Path("/api/users/form") @Produces(MediaType.TEXT_HTML)
-    fun getUserForm(): String = UserForm(null, "/api/users", "post") // UserForm still generates HTML string
+    fun getUserForm(): String {
+        // Use the Summon-based UserFormComponent
+        return summonRenderer.render {
+            UserFormComponent(null, "/api/users", "post")
+        }
+    }
 
     @GET @Path("/api/users/{id}/edit") @Produces(MediaType.TEXT_HTML)
     fun getUserEditForm(@RestPath id: Long): String {
         val user = userService.getUserById(id) ?: return "User not found"
-        return UserForm(user, "/api/users/$id", "put") // UserForm still generates HTML string
+        // Use the Summon-based UserFormComponent
+        return summonRenderer.render {
+            UserFormComponent(user, "/api/users/$id", "put")
+        }
     }
 
     @GET @Path("/api/users/cancel-form") @Produces(MediaType.TEXT_HTML)
@@ -189,11 +539,17 @@ class WebResource {
             val nextId = userService.getAllUsers().maxOfOrNull { it.id }?.plus(1) ?: 1L
             val user = User(nextId, name, email, role, true)
             userService.addUser(user)
-            // Revert to returning HTML string from UserForm for now due to render ambiguity
-            return UserForm(null, "/api/users", "post") 
+            // Use the Summon-based UserFormComponent
+            return summonRenderer.render {
+                UserFormComponent(null, "/api/users", "post")
+            }
         } catch (e: Exception) {
             System.err.println("ERROR in addUser: ${e.message}")
-            return "<div style='color:red'>Error adding user: ${e.message}</div>"
+            return summonRenderer.render {
+                Box(modifier = Modifier().style("style", "color:red")) {
+                    Text("Error adding user: ${e.message}")
+                }
+            }
         }
     }
 
@@ -203,11 +559,17 @@ class WebResource {
             val currentUser = userService.getUserById(id)
             val updatedUser = User(id, name, email, role, currentUser?.active ?: true)
             userService.updateUser(id, updatedUser)
-            // Revert to returning HTML string from UserForm for now
-            return UserForm(updatedUser, "/api/users/$id", "put") 
+            // Use the Summon-based UserFormComponent
+            return summonRenderer.render {
+                UserFormComponent(updatedUser, "/api/users/$id", "put")
+            }
          } catch (e: Exception) {
             System.err.println("ERROR in updateUser: ${e.message}")
-            return "<div style='color:red'>Error updating user: ${e.message}</div>"
+            return summonRenderer.render {
+                Box(modifier = Modifier().style("style", "color:red")) {
+                    Text("Error updating user: ${e.message}")
+                }
+            }
         }
     }
 
@@ -224,13 +586,38 @@ class WebResource {
             return "<div style='color:red'>Error deleting user: ${e.message}</div>"
         }
     }
-    
+
     // --- Contact Form API --- 
 
     @POST @Path("/api/contact") @Consumes(MediaType.APPLICATION_FORM_URLENCODED) @Produces(MediaType.TEXT_HTML)
     fun processContactForm(@RestForm("name") name: String, @RestForm("email") email: String, @RestForm("subject") subject: String, @RestForm("message") message: String): String {
         // Return simple confirmation string (can be enhanced later)
-        return "<div class='card' style='background-color: #e8f5e9; padding: 1rem;'><h3>Message Sent!</h3><p>Thank you, $name.</p></div>"
+        return summonRenderer.render {
+            Box(modifier = Modifier().style("class", "card").style("style", "background-color: #e8f5e9; padding: 1rem;")) {
+                Column {
+                    Text("Message Sent!", modifier = Modifier().style("style", "font-size: 1.5rem; font-weight: bold;"))
+                    Text("Thank you, $name.")
+                }
+            }
+        }
+    }
+
+    // --- Component API Endpoints --- 
+
+    @POST @Path("/api/color-change") @Consumes(MediaType.APPLICATION_FORM_URLENCODED) @Produces(MediaType.TEXT_PLAIN)
+    fun handleColorChange(@RestForm("value") value: String): String {
+        // This endpoint handles color picker changes
+        // In a real application, you might store this value in a session or database
+        println("Color changed to: $value")
+        return "Color updated" // Simple response as we're using hx-swap="none"
+    }
+
+    @POST @Path("/api/slider-change") @Consumes(MediaType.APPLICATION_FORM_URLENCODED) @Produces(MediaType.TEXT_PLAIN)
+    fun handleSliderChange(@RestForm("value") value: String): String {
+        // This endpoint handles slider changes
+        // In a real application, you might store this value in a session or database
+        println("Slider value changed to: $value")
+        return "Slider updated" // Simple response as we're using hx-swap="none"
     }
 
     // --- Test Endpoints --- 
@@ -280,7 +667,7 @@ class WebResource {
             val result = summonRenderer.render(title = "Simple Summon Test") {
                  AppRoot {
                      Text(text = "Minimal Summon Test Content")
-                     HeroComponent("Simple Test User")
+                     HtmxHeroComponent("Simple Test User")
                  }
             }
             println("WebResource.simpleTest() finished rendering, result length: ${result.length}")
@@ -302,10 +689,10 @@ class WebResource {
                          Text("Summon Component Testing Page")
                          // Test individual Summon components
                          testSummonComponent("NavigationComponent") { NavigationComponent() }
-                         testSummonComponent("HeroComponent") { HeroComponent("Test User") }
+                         testSummonComponent("HtmxHeroComponent") { HtmxHeroComponent("Test User") }
                          testSummonComponent("CurrentTimeComponent") { CurrentTimeComponent() }
                          testSummonComponent("FeatureCardsComponent") { FeatureCardsComponent() }
-                         testSummonComponent("CounterComponent") { CounterComponent(counter.get()) }
+                         testSummonComponent("HtmxCounterComponent") { HtmxCounterComponent(counter.get()) }
                          testSummonComponent("DashboardComponent") { DashboardComponent() }
                          testSummonComponent("ContactFormComponent") { ContactFormComponent() }
                          testSummonComponent("User Table") { WebResourceUserTable(userService.getAllUsers()) }
@@ -376,10 +763,10 @@ class WebResource {
             // Second section: Test components using HTMLComponents
             debugOutput.append("<div class='debug section'><h2>Summon Components Test</h2>")
             debugOutput.append(renderDebugSummonComponent("NavigationComponent") { NavigationComponent() })
-            debugOutput.append(renderDebugSummonComponent("HeroComponent") { HeroComponent("Debug User") })
+            debugOutput.append(renderDebugSummonComponent("HtmxHeroComponent") { HtmxHeroComponent("Debug User") })
             debugOutput.append(renderDebugSummonComponent("CurrentTimeComponent") { CurrentTimeComponent() })
             debugOutput.append(renderDebugSummonComponent("FeatureCardsComponent") { FeatureCardsComponent() })
-            debugOutput.append(renderDebugSummonComponent("CounterComponent") { CounterComponent(counter.get()) })
+            debugOutput.append(renderDebugSummonComponent("HtmxCounterComponent") { HtmxCounterComponent(counter.get()) })
             debugOutput.append(renderDebugSummonComponent("DashboardComponent") { DashboardComponent() })
             debugOutput.append(renderDebugSummonComponent("ContactFormComponent") { ContactFormComponent() })
             debugOutput.append(renderDebugSummonComponent("User Table") { WebResourceUserTable(userService.getAllUsers()) })
@@ -388,22 +775,22 @@ class WebResource {
 
             // Section 3: Test rendering within a container (replaces AppRoot tests)
             debugOutput.append("<div class='debug section'><h2>Testing Components in AppRoot</h2>")
-            debugOutput.append("<div class='component-test'><h3>AppRoot with HeroComponent</h3>")
+            debugOutput.append("<div class='component-test'><h3>AppRoot with HtmxHeroComponent</h3>")
             try {
                  val renderedHtml = summonRenderer.render(title = "Debug Render Test 1") {
                      AppRoot {
                          Text("AppRoot Content:")
-                         HeroComponent("Render Test User")
+                         HtmxHeroComponent("Render Test User")
                      }
                  }
                  // We don't insert the full renderedHtml here, just confirm it didn't throw
-                 debugOutput.append("<p class='success'>✅ SummonRenderer.render() with AppRoot/HeroComponent succeeded.</p>")
+                 debugOutput.append("<p class='success'>✅ SummonRenderer.render() with AppRoot/HtmxHeroComponent succeeded.</p>")
              } catch (e: Exception) {
-                 debugOutput.append("<p class='error'>❌ SummonRenderer.render() with AppRoot/HeroComponent failed: ${e.message}</p>")
+                 debugOutput.append("<p class='error'>❌ SummonRenderer.render() with AppRoot/HtmxHeroComponent failed: ${e.message}</p>")
                  debugOutput.append("<pre>${e.stackTraceToString().take(300)}</pre>")
              }
              debugOutput.append("</div>")
-             
+
              debugOutput.append("<div class='component-test'><h3>AppRoot with DashboardComponent</h3>")
              try {
                   val renderedHtml = summonRenderer.render(title = "Debug Render Test 2") {
@@ -456,31 +843,56 @@ class WebResource {
     }
 
     // --- Theme API --- 
+
+    companion object {
+        // Session attribute key for storing theme
+        const val SESSION_THEME_KEY = "user_theme"
+        // Session attribute key for storing custom theme
+        const val SESSION_CUSTOM_THEME_KEY = "user_custom_theme"
+    }
+
     @POST @Path("/api/theme/{theme}") @Produces(MediaType.TEXT_HTML)
-    fun changeTheme(@RestPath theme: String): String {
+    fun changeTheme(@RestPath theme: String, @CookieParam(SESSION_THEME_KEY) currentTheme: String?): Response {
         println("WebResource.changeTheme() - Changing theme to: $theme")
-        // TODO: provide a real implementation
-        // In a real implementation, we would store the theme in a user session
-        // or user preferences. For this example, we just return a success message.
-        return """
+
+        // Create a cookie to store the theme
+        val themeCookie = NewCookie.Builder(SESSION_THEME_KEY)
+            .value(theme)
+            .path("/")
+            .maxAge(60 * 60 * 24 * 30) // 30 days
+            .build()
+
+        // Log that we stored the theme in a cookie
+        println("Theme '$theme' stored in cookie")
+
+        val htmlContent = """
             <div id="theme-response">Theme changed to $theme</div>
             <script>
                 // Apply the theme via CSS variables
                 document.documentElement.setAttribute('data-theme', '$theme');
-                
+
                 // Update the current theme name
                 document.getElementById('current-theme-name').textContent = '${theme.capitalize()}';
-                
+
                 // Remove active class from all theme options
                 document.querySelectorAll('.theme-option').forEach(option => {
                     option.classList.remove('active');
                 });
-                
+
                 // Add active class to the selected theme
-                document.querySelector(`.theme-option[data-theme="${theme}"]`)?.classList.add('active');
+                document.querySelector(".theme-option[data-theme=\"$theme\"]")?.classList.add('active');
+
+                // Store theme preference in localStorage for client-side persistence
+                localStorage.setItem('summon_theme', '$theme');
             </script>
         """.trimIndent()
+
+        // Return the response with the cookie
+        return Response.ok(htmlContent)
+            .cookie(themeCookie)
+            .build()
     }
+
 
     @POST @Path("/api/theme/custom") @Consumes(MediaType.APPLICATION_FORM_URLENCODED) @Produces(MediaType.TEXT_HTML)
     fun applyCustomTheme(
@@ -488,12 +900,36 @@ class WebResource {
         @FormParam("textColor") textColor: String,
         @FormParam("backgroundColor") backgroundColor: String,
         @FormParam("fontSize") fontSize: String
-    ): String {
+    ): Response {
         println("WebResource.applyCustomTheme() - Applying custom theme")
-        // TODO: provide a real implementation
-        // In a real implementation, we would store the theme in a user session
-        // or user preferences. For this example, we just return a success message.
-        return """
+
+        // Create a JSON string to store the custom theme settings
+        val customThemeJson = """
+            {
+                "primaryColor": "$primaryColor",
+                "textColor": "$textColor",
+                "backgroundColor": "$backgroundColor",
+                "fontSize": "$fontSize"
+            }
+        """.trimIndent()
+
+        // Create cookies to store the theme settings
+        val themeCookie = NewCookie.Builder(SESSION_THEME_KEY)
+            .value("custom")
+            .path("/")
+            .maxAge(60 * 60 * 24 * 30) // 30 days
+            .build()
+
+        val customThemeCookie = NewCookie.Builder(SESSION_CUSTOM_THEME_KEY)
+            .value(customThemeJson)
+            .path("/")
+            .maxAge(60 * 60 * 24 * 30) // 30 days
+            .build()
+
+        // Log that we stored the custom theme in cookies
+        println("Custom theme stored in cookies")
+
+        val htmlContent = """
             <div id="theme-response">Custom theme applied</div>
             <script>
                 // Apply the theme via CSS variables
@@ -501,16 +937,30 @@ class WebResource {
                 document.documentElement.style.setProperty('--text-color', '$textColor');
                 document.documentElement.style.setProperty('--bg-color', '$backgroundColor');
                 document.documentElement.style.setProperty('--font-size', '${fontSize}px');
-                
+
                 // Update the current theme name
                 document.getElementById('current-theme-name').textContent = 'Custom';
-                
+
                 // Remove active class from all theme options
                 document.querySelectorAll('.theme-option').forEach(option => {
                     option.classList.remove('active');
                 });
+
+                // Store custom theme preferences in localStorage for client-side persistence
+                localStorage.setItem('summon_theme', 'custom');
+                localStorage.setItem('summon_custom_theme', JSON.stringify({
+                    primaryColor: '$primaryColor',
+                    textColor: '$textColor',
+                    backgroundColor: '$backgroundColor',
+                    fontSize: '$fontSize'
+                }));
             </script>
         """.trimIndent()
+
+        // Return the response with the cookies
+        return Response.ok(htmlContent)
+            .cookie(themeCookie, customThemeCookie)
+            .build()
     }
 
     @GET @Path("/theme-html") @Produces(MediaType.TEXT_HTML)
@@ -634,14 +1084,37 @@ class WebResource {
         }
     }
 
-    // Simple HTML error page helper
+    // Error page helper using Summon components
     private fun errorHtml(title: String, e: Exception): String {
-        return """
-            <!DOCTYPE html><html><head><title>Error</title></head><body>
-            <h1 style="color: red;">$title</h1>
-            <p>${e.message}</p><hr/><pre>${e.stackTraceToString()}</pre>
-            </body></html>
-        """.trimIndent()
+        return summonRenderer.render(title = "Error") {
+            Column(modifier = Modifier().style("style", "padding: 1rem;")) {
+                Text(
+                    text = title,
+                    modifier = Modifier().style("style", "color: red; font-size: 1.5rem; font-weight: bold;")
+                )
+                Text(
+                    text = e.message ?: "Unknown error",
+                    modifier = Modifier().style("style", "margin: 1rem 0;")
+                )
+                Box(
+                    modifier = Modifier().style("style", "border-top: 1px solid #ddd; padding-top: 1rem; margin-top: 1rem;")
+                ) {
+                    Text(
+                        text = e.stackTraceToString(),
+                        modifier = Modifier().style("element", "pre").style("style", "font-family: monospace; font-size: 0.9rem; overflow-x: auto;")
+                    )
+                }
+                Box(
+                    modifier = Modifier().style("style", "margin-top: 1rem;")
+                ) {
+                    Box(
+                        modifier = Modifier().style("href", "/").style("style", "color: blue; text-decoration: underline;")
+                    ) {
+                        Text("Return to Home")
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -650,72 +1123,72 @@ class WebResource {
 // Moved UsersPage outside the WebResource class
 @Composable
 fun UsersPage(users: List<User>) {
-    Column {
-        Text("User Management (Summon)") // Updated title
-        // TODO: Add Summon components for header, form placeholder
-        Box(modifier = Modifier().style("id", "user-form-container")) { /* Placeholder for form */ }
-        // Call the Summon table composable (defined within WebResource for now)
-        WebResource().WebResourceUserTable(users)
+    Column(modifier = Modifier().style("style", "width: 100%; max-width: 1200px; margin: 0 auto; padding: 1rem;")) {
+        // Header section with title and description
+        Box(modifier = Modifier().style("style", "background-color: var(--panel-color); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;")) {
+            Column {
+                Text(
+                    "User Management Dashboard", 
+                    modifier = Modifier().style("style", "font-size: 1.75rem; font-weight: bold; color: var(--primary-color); margin-bottom: 0.5rem;")
+                )
+                Text(
+                    "Manage your users with this Summon-powered interface", 
+                    modifier = Modifier().style("style", "color: var(--text-secondary-color); font-size: 1rem;")
+                )
+
+                // Add action buttons row
+                Row(modifier = Modifier().style("style", "margin-top: 1rem; gap: 0.75rem;")) {
+                    Button(
+                        label = "Add New User",
+                        onClick = { /* HTMX Triggered */ },
+                        modifier = Modifier()
+                            .style("class", "btn btn-primary")
+                            .style("style", "background-color: var(--primary-color); color: white; padding: 0.5rem 1rem;")
+                            .style("hx-get", "/api/users/new")
+                            .style("hx-target", "#user-form-container")
+                            .style("hx-swap", "innerHTML")
+                    )
+                    Button(
+                        label = "Refresh List",
+                        onClick = { /* HTMX Triggered */ },
+                        modifier = Modifier()
+                            .style("class", "btn btn-secondary")
+                            .style("style", "background-color: var(--secondary-color); color: white; padding: 0.5rem 1rem;")
+                            .style("hx-get", "/api/users")
+                            .style("hx-target", "#users-table-wrapper")
+                            .style("hx-swap", "outerHTML")
+                    )
+                }
+            }
+        }
+
+        // Form container with styling
+        Box(
+            modifier = Modifier()
+                .style("id", "user-form-container")
+                .style("style", "background-color: var(--panel-color); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; display: none;")
+        ) { 
+            // This is empty by default and will be populated by HTMX
+            // Adding a placeholder message
+            Text(
+                "User form will appear here when adding or editing a user", 
+                modifier = Modifier().style("style", "color: var(--text-secondary-color); font-style: italic;")
+            )
+        }
+
+        // Users table section with a title
+        Box(modifier = Modifier().style("style", "background-color: var(--panel-color); padding: 1.5rem; border-radius: 8px;")) {
+            Column {
+                Text(
+                    "Current Users", 
+                    modifier = Modifier().style("style", "font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem;")
+                )
+
+                // Call the Summon table composable
+                WebResource().WebResourceUserTable(users)
+            }
+        }
     }
 }
 
-// --- kotlinx.html UserForm and Helpers (Kept for now) --- 
-
-fun UserForm(
-    user: User? = null,
-    action: String,
-    method: String = "post"
-): String {
-    val isUpdate = user != null
-    val formId = if (isUpdate) "edit-user-form-${user?.id}" else "add-user-form"
-    return createHTML().form {
-        id = formId
-        this.action = action
-        this.method = kotlinx.html.FormMethod.post // Always use POST for HTML form method
-        
-        attributes["hx-${method.lowercase()}"] = action
-        attributes["hx-target"] = "#users-table-wrapper"
-        attributes["hx-swap"] = "outerHTML"
-        // Fix: Try setting class via attributes map
-        attributes["class"] = "user-form card"
-        style = "padding: 1.5rem; margin-bottom: 1.5rem;"
-
-        h2 { +(if (isUpdate) "Edit User" else "Add New User") }
-        
-        if (method.equals("put", ignoreCase = true) || method.equals("delete", ignoreCase = true)) {
-            input(type = InputType.hidden, name = "_method") { value = method.uppercase() }
-        }
-        
-        formField(label = "Name", name = "name", value = user?.name ?: "", required = true)
-        formField(label = "Email", name = "email", type = InputType.email, value = user?.email ?: "", required = true)
-        formField(label = "Role", name = "role", value = user?.role ?: "User", required = true)
-        
-        // Buttons omitted for brevity
-    }
-}
-
-private fun FlowOrPhrasingContent.formField(
-    label: String, 
-    name: String, 
-    type: InputType = InputType.text, 
-    value: String = "",
-    required: Boolean = false
-) {
-    // Fix: Use explicit consumer.div call
-    consumer.div(classes = "form-group") { 
-        this.style = "margin-bottom: 1rem;"
-        // Use 'consumer' explicitly for nested tags as well, if needed
-        // or rely on the implicit receiver within the div block.
-        label { 
-            attributes["for"] = name
-            style = "display: block; margin-bottom: 0.3rem;"
-            +label 
-        }
-        input(type = type, name = name) {
-            id = name
-            attributes["class"] = "form-control"
-            this.value = value
-            this.required = required
-        }
-    }
-} 
+// The kotlinx.html UserForm and helper functions have been replaced with Summon-based components

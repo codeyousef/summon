@@ -389,31 +389,210 @@ object StaticSiteGenerator {
      * Copies static assets to the output directory
      */
     private fun copyStaticAssets(baseOutputDir: String) {
-        // Create assets directory
+        // Create assets directory structure
         val assetsDir = "$baseOutputDir/assets"
+        val cssDir = "$assetsDir/css"
+        val jsDir = "$assetsDir/js"
+        val imgDir = "$assetsDir/img"
+        val fontsDir = "$assetsDir/fonts"
+
+        // Create all required directories
         FileSystemAccess.createDirectory(assetsDir)
-        // TODO: Implement a real implementation
-        // In a real implementation, this would copy CSS, JS, images, etc.
-        // For this example, we'll just create a basic CSS file
-        val cssContent = """
+        FileSystemAccess.createDirectory(cssDir)
+        FileSystemAccess.createDirectory(jsDir)
+        FileSystemAccess.createDirectory(imgDir)
+        FileSystemAccess.createDirectory(fontsDir)
+
+        // Create main CSS file
+        val mainCssContent = """
+            /* Main Summon Framework Styles */
+            :root {
+                --primary-color: #0070f3;
+                --secondary-color: #0070f3;
+                --background-color: #ffffff;
+                --text-color: #333333;
+                --error-color: #e53935;
+                --success-color: #43a047;
+                --border-radius: 4px;
+                --spacing-unit: 8px;
+                --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            }
+
             body {
-                font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+                font-family: var(--font-family);
                 line-height: 1.5;
-                color: #333;
+                color: var(--text-color);
+                background-color: var(--background-color);
+                margin: 0;
+                padding: 0;
+            }
+
+            .container {
                 max-width: 1200px;
                 margin: 0 auto;
-                padding: 16px;
+                padding: calc(var(--spacing-unit) * 2);
             }
+
             a {
-                color: #0070f3;
+                color: var(--primary-color);
                 text-decoration: none;
             }
+
             a:hover {
                 text-decoration: underline;
             }
-        """.trimIndent()
 
-        FileSystemAccess.writeTextFile("$assetsDir/styles.css", cssContent)
+            button, .button {
+                background-color: var(--primary-color);
+                color: white;
+                border: none;
+                border-radius: var(--border-radius);
+                padding: var(--spacing-unit) calc(var(--spacing-unit) * 2);
+                cursor: pointer;
+                font-family: var(--font-family);
+                font-size: 1rem;
+                transition: background-color 0.2s;
+            }
+
+            button:hover, .button:hover {
+                background-color: color-mix(in srgb, var(--primary-color) 80%, black);
+            }
+
+            /* Utility classes */
+            .text-center { text-align: center; }
+            .text-left { text-align: left; }
+            .text-right { text-align: right; }
+            .mt-1 { margin-top: var(--spacing-unit); }
+            .mt-2 { margin-top: calc(var(--spacing-unit) * 2); }
+            .mb-1 { margin-bottom: var(--spacing-unit); }
+            .mb-2 { margin-bottom: calc(var(--spacing-unit) * 2); }
+        """.trimIndent()
+        FileSystemAccess.writeTextFile("$cssDir/main.css", mainCssContent)
+
+        // Create reset CSS file
+        val resetCssContent = """
+            /* Reset CSS */
+            *, *::before, *::after {
+                box-sizing: border-box;
+            }
+
+            body, h1, h2, h3, h4, h5, h6, p, ul, ol, dl, figure, blockquote, fieldset, legend {
+                margin: 0;
+                padding: 0;
+            }
+
+            html {
+                scroll-behavior: smooth;
+            }
+
+            img, picture, video, canvas, svg {
+                display: block;
+                max-width: 100%;
+            }
+
+            input, button, textarea, select {
+                font: inherit;
+            }
+        """.trimIndent()
+        FileSystemAccess.writeTextFile("$cssDir/reset.css", resetCssContent)
+
+        // Create hydration JavaScript file
+        val hydrationJsContent = """
+            // Summon Hydration Script
+            window.SummonHydration = (function() {
+                // Find hydration data in the page
+                function findHydrationData() {
+                    const dataScript = document.getElementById('summon-hydration-data');
+                    if (!dataScript) {
+                        console.warn('No hydration data found');
+                        return null;
+                    }
+
+                    try {
+                        return JSON.parse(dataScript.textContent);
+                    } catch (e) {
+                        console.error('Error parsing hydration data:', e);
+                        return null;
+                    }
+                }
+
+                // Hydrate the page
+                function hydrate() {
+                    const data = findHydrationData();
+                    if (!data) return;
+
+                    console.log('Hydrating with strategy:', data.strategy);
+
+                    // Find all components that need hydration
+                    const components = document.querySelectorAll('[data-summon-component]');
+
+                    // Hydrate each component
+                    components.forEach(function(element) {
+                        const componentId = element.getAttribute('data-summon-component');
+                        hydrateComponent(element, componentId, data);
+                    });
+
+                    // Dispatch event when hydration is complete
+                    document.dispatchEvent(new CustomEvent('summon:hydration-complete'));
+                }
+
+                // Hydrate a specific component
+                function hydrateComponent(element, componentId, data) {
+                    // Find component data
+                    const componentData = data.components.find(function(c) { return c.id === componentId; });
+                    if (!componentData) return;
+
+                    // Attach event handlers
+                    attachEventHandlers(element, componentData);
+
+                    // Mark as hydrated
+                    element.setAttribute('data-summon-hydrated', 'true');
+                }
+
+                // Attach event handlers to a component
+                function attachEventHandlers(element, componentData) {
+                    if (!componentData.events || !componentData.events.length) return;
+
+                    componentData.events.forEach(function(eventName) {
+                        // For demonstration purposes, we'll just log the events
+                        element.addEventListener(eventName.replace('on', '').toLowerCase(), function(e) {
+                            console.log('Event ' + eventName + ' triggered on component ' + componentData.id);
+                        });
+                    });
+                }
+
+                // Public API
+                return {
+                    hydrate: hydrate
+                };
+            })();
+        """.trimIndent()
+        FileSystemAccess.writeTextFile("$jsDir/summon-hydration.js", hydrationJsContent)
+
+        // Create a placeholder image
+        val placeholderSvg = """
+            <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+                <rect width="200" height="200" fill="#f0f0f0"/>
+                <text x="50%" y="50%" font-family="sans-serif" font-size="24" text-anchor="middle" dominant-baseline="middle" fill="#666">
+                    Summon
+                </text>
+            </svg>
+        """.trimIndent()
+        FileSystemAccess.writeTextFile("$imgDir/placeholder.svg", placeholderSvg)
+
+        // Create a favicon
+        val faviconSvg = """
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                <rect width="32" height="32" fill="#0070f3"/>
+                <text x="50%" y="50%" font-family="sans-serif" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="white">
+                    S
+                </text>
+            </svg>
+        """.trimIndent()
+        FileSystemAccess.writeTextFile("$baseOutputDir/favicon.svg", faviconSvg)
+
+        // Copy the files to the output directory
+        println("Static assets copied to $assetsDir")
     }
 }
 

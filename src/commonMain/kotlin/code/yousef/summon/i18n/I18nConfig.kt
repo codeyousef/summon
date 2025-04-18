@@ -9,10 +9,10 @@ import code.yousef.summon.runtime.CompositionLocalProvider
 object I18nConfig {
     private val _supportedLanguages = mutableListOf<Language>()
     val supportedLanguages: List<Language> get() = _supportedLanguages.toList()
-    
+
     var defaultLanguage: Language? = null
         private set
-    
+
     /**
      * Configure internationalization settings using the DSL builder
      */
@@ -23,6 +23,16 @@ object I18nConfig {
         _supportedLanguages.addAll(builder.languages)
         defaultLanguage = builder.defaultLanguage ?: supportedLanguages.firstOrNull()
     }
+
+    /**
+     * Change the application language
+     * 
+     * @param languageCode The language code to switch to
+     * @return True if the language was changed, false if not found
+     */
+    fun changeLanguage(languageCode: String): Boolean {
+        return code.yousef.summon.i18n.changeLanguage(languageCode)
+    }
 }
 
 /**
@@ -31,7 +41,7 @@ object I18nConfig {
 class I18nConfigBuilder {
     val languages = mutableListOf<Language>()
     var defaultLanguage: Language? = null
-    
+
     /**
      * Add a supported language to the configuration
      * 
@@ -42,13 +52,13 @@ class I18nConfigBuilder {
     fun language(code: String, name: String, direction: LayoutDirection = LayoutDirection.LTR) {
         val language = Language(code, name, direction)
         languages.add(language)
-        
+
         // If this is the first language or explicitly set as default
         if (defaultLanguage == null) {
             defaultLanguage = language
         }
     }
-    
+
     /**
      * Set the default language by language code
      * 

@@ -256,10 +256,26 @@ class DynamicRenderer(
      * Generates stylesheet links
      */
     private fun generateStylesheets(context: RenderContext): String {
-        // TODO: Implement a real implementation
-        // In a real implementation, this would retrieve stylesheets from the render context
-        // For this example, we'll return a placeholder
-        return """<link rel="stylesheet" href="/summon.css">"""
+        // Check for stylesheets in the metadata
+        val stylesheets = mutableListOf<String>()
+
+        // Add default stylesheet
+        stylesheets.add("""<link rel="stylesheet" href="/summon.css">""")
+
+        // Check for additional stylesheets in metadata
+        context.metadata.entries.forEach { (key, value) ->
+            if (key.startsWith("stylesheet.") || key == "stylesheet") {
+                stylesheets.add("""<link rel="stylesheet" href="$value">""")
+            }
+        }
+
+        // Check for theme in metadata
+        val theme = context.metadata["theme"]
+        if (theme != null) {
+            stylesheets.add("""<link rel="stylesheet" href="/themes/$theme.css">""")
+        }
+
+        return stylesheets.joinToString("\n                ")
     }
 
     /**
@@ -267,10 +283,17 @@ class DynamicRenderer(
      */
     private fun generateInitialStateScript(context: RenderContext): String {
         if (context.initialState.isEmpty()) return ""
-// TODO: Implement a real implementation
-        // In a real implementation, this would serialize the state to JSON
-        // For this example, we'll return a placeholder
-        return """<script>window.__SUMMON_INITIAL_STATE__ = ${serializeInitialState(context.initialState)};</script>"""
+
+        // Serialize the initial state to JSON
+        val serializedState = serializeInitialState(context.initialState)
+
+        // Create a script tag with the serialized state
+        return """
+            <script>
+                window.__SUMMON_INITIAL_STATE__ = $serializedState;
+                document.dispatchEvent(new CustomEvent('summon:state-loaded'));
+            </script>
+        """.trimIndent()
     }
 
     /**
@@ -424,14 +447,12 @@ object DynamicRendering {
      * @return A map of data for the route
      */
     suspend fun fetchDataForRoute(routeId: String): Map<String, Any> {
-        // TODO: provide a real implementation
-        // In a real implementation, this would fetch data from a database or API
-        // For this implementation, we'll generate mock data based on the route ID
-
         // Get current timestamp in a platform-independent way
         val timestamp = kotlin.time.TimeSource.Monotonic.markNow().elapsedNow().inWholeMilliseconds
 
+        // Determine the data type based on the route ID prefix
         return when {
+            // Product data
             routeId.startsWith("product-") -> {
                 val productId = routeId.substringAfter("product-")
                 mapOf(
@@ -451,6 +472,7 @@ object DynamicRendering {
                 )
             }
 
+            // User data
             routeId.startsWith("user-") -> {
                 val userId = routeId.substringAfter("user-")
                 mapOf(
@@ -469,6 +491,7 @@ object DynamicRendering {
                 )
             }
 
+            // Blog post data
             routeId.startsWith("blog-") -> {
                 val blogId = routeId.substringAfter("blog-")
                 mapOf(
@@ -490,11 +513,49 @@ object DynamicRendering {
                 )
             }
 
+            // Dashboard data
+            routeId.startsWith("dashboard-") -> {
+                val dashboardId = routeId.substringAfter("dashboard-")
+                mapOf(
+                    "id" to dashboardId,
+                    "title" to "Dashboard $dashboardId",
+                    "metrics" to mapOf(
+                        "visitors" to (1000 + dashboardId.hashCode() % 9000),
+                        "pageViews" to (5000 + dashboardId.hashCode() % 45000),
+                        "conversionRate" to (1.5 + (dashboardId.hashCode() % 40) / 10.0),
+                        "revenue" to (10000 + dashboardId.hashCode() % 90000)
+                    ),
+                    "charts" to listOf(
+                        mapOf(
+                            "type" to "line",
+                            "title" to "Traffic Trend",
+                            "data" to (1..7).map { day -> 
+                                mapOf("day" to day, "value" to (100 + (dashboardId.hashCode() + day) % 900))
+                            }
+                        ),
+                        mapOf(
+                            "type" to "bar",
+                            "title" to "Revenue by Channel",
+                            "data" to listOf("Organic", "Direct", "Social", "Email").mapIndexed { index, channel ->
+                                mapOf("channel" to channel, "value" to (2000 + (dashboardId.hashCode() + index) % 8000))
+                            }
+                        )
+                    ),
+                    "timestamp" to timestamp
+                )
+            }
+
+            // Default data for any other route
             else -> {
                 mapOf(
                     "id" to routeId,
                     "title" to "Content for $routeId",
                     "description" to "This is dynamic content for route ID: $routeId",
+                    "lastUpdated" to "2023-${1 + (routeId.hashCode() % 12)}-${1 + (routeId.hashCode() % 28)}",
+                    "metadata" to mapOf(
+                        "type" to "generic",
+                        "version" to "1.0.${routeId.hashCode() % 100}"
+                    ),
                     "timestamp" to timestamp
                 )
             }

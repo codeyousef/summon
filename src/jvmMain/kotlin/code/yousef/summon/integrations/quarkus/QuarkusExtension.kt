@@ -14,7 +14,7 @@ object QuarkusExtension {
 
     // Constants
     const val FEATURE = "summon"
-    
+
     /**
      * Get the servlet class for web page rendering.
      * This is needed for Quarkus to detect the servlet.
@@ -29,14 +29,14 @@ object QuarkusExtension {
      */
     class SummonRenderer {
         private val logger = Logger.getLogger(SummonRenderer::class.java)
-        
+
         /**
          * Renders a simple HTML template
          */
         fun renderTemplate(title: String, content: String): String {
             logger.info("Rendering template with title: $title")
             logger.info("Content length: ${content.length} characters")
-            
+
             val result = """
                 <!DOCTYPE html>
                 <html>
@@ -45,6 +45,30 @@ object QuarkusExtension {
                         <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <meta name="description" content="A demonstration of Summon with Quarkus">
                         <title>$title</title>
+                        <!-- Configure HTMX before loading it -->
+                        <script>
+                            // Create a global object to configure HTMX
+                            window.htmxConfig = {
+                                // Enable debug mode to log more information
+                                debug: true,
+                                // Set a longer timeout for AJAX requests
+                                timeout: 10000,
+                                // Configure HTMX to process the document on load
+                                processOnLoad: true,
+                                // Configure HTMX to include additional headers in requests
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                // Log all HTMX events
+                                logger: function(elt, event, data) {
+                                    if (console) {
+                                        console.log("HTMX Event:", event, "Data:", data, "Element:", elt);
+                                    }
+                                }
+                            };
+                        </script>
+                        <!-- Load HTMX in the head to ensure it's available before components are injected -->
+                        <script src="https://unpkg.com/htmx.org@1.9.12"></script>
                         <style>
                             :root {
                               --primary-color: #4695EB;
@@ -55,6 +79,20 @@ object QuarkusExtension {
                               --error-color: #F44336;
                               --warning-color: #FF9800;
                               --info-color: #2196F3;
+                            }
+
+                            /* HTMX indicator styles */
+                            .htmx-indicator {
+                              opacity: 0;
+                              transition: opacity 200ms ease-in;
+                            }
+                            .htmx-request .htmx-indicator {
+                              opacity: 1;
+                              display: inline-block !important;
+                            }
+                            .htmx-request.htmx-indicator {
+                              opacity: 1;
+                              display: inline-block !important;
                             }
                             body {
                               font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -181,29 +219,79 @@ object QuarkusExtension {
                                 $content
                             </div>
                         </div>
-                        <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+                        <!-- Add a script to log any HTMX errors -->
+                        <script>
+                            // Log any HTMX errors
+                            document.body.addEventListener('htmx:responseError', function(event) {
+                                console.error("HTMX Response Error:", event.detail);
+                            });
+
+                            document.body.addEventListener('htmx:sendError', function(event) {
+                                console.error("HTMX Send Error:", event.detail);
+                            });
+
+                            document.body.addEventListener('htmx:afterRequest', function(event) {
+                                console.log("HTMX After Request:", event.detail);
+                            });
+
+                            document.body.addEventListener('htmx:beforeRequest', function(event) {
+                                console.log("HTMX Before Request:", event.detail);
+                            });
+
+                            // Log HTMX initialization status
+                            console.log("HTMX Loaded:", typeof htmx !== 'undefined');
+                            if (typeof htmx !== 'undefined') {
+                                console.log("HTMX Version:", htmx.version);
+                                console.log("HTMX Config:", htmx.config);
+
+                                // Manually process the document to ensure HTMX attributes are processed
+                                setTimeout(function() {
+                                    console.log("Manually processing document with HTMX");
+                                    htmx.process(document.body);
+
+                                    // Log all elements with HTMX attributes
+                                    const htmxElements = document.querySelectorAll("[hx-get], [hx-post], [hx-put], [hx-delete]");
+                                    console.log("Found", htmxElements.length, "elements with HTMX attributes after manual processing");
+
+                                    // Add click event listeners to all buttons with HTMX attributes
+                                    document.querySelectorAll("button[hx-get], button[hx-post]").forEach(function(button) {
+                                        console.log("Adding debug click listener to button:", button.id || button.textContent);
+                                        button.addEventListener('click', function(event) {
+                                            console.log("Button clicked:", this.id || this.textContent);
+                                            console.log("HTMX attributes:", {
+                                                hxGet: this.getAttribute('hx-get'),
+                                                hxPost: this.getAttribute('hx-post'),
+                                                hxTarget: this.getAttribute('hx-target'),
+                                                hxSwap: this.getAttribute('hx-swap'),
+                                                hxTrigger: this.getAttribute('hx-trigger')
+                                            });
+                                        });
+                                    });
+                                }, 500);
+                            }
+                        </script>
                     </body>
                 </html>
             """.trimIndent()
-            
+
             logger.info("Finished rendering template, result length: ${result.length} characters")
             return result
         }
-        
+
         /**
          * Renders a heading element
          */
         fun renderHeading(level: Int, text: String): String {
             return "<h$level>$text</h$level>"
         }
-        
+
         /**
          * Renders a paragraph element
          */
         fun renderParagraph(text: String): String {
             return "<p>$text</p>"
         }
-        
+
         /**
          * Renders a button element
          */

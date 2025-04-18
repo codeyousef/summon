@@ -2,48 +2,111 @@ package code.yousef.summon.i18n
 
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.components.layout.Div
+import code.yousef.summon.components.input.Button
+import code.yousef.summon.components.input.ButtonVariant
 
 /**
- * Demonstration component showing i18n capabilities - simplified to avoid compilation errors
- * NOTE: This is a placeholder implementation that would need to be integrated with actual UI components
+ * Demonstration component showing i18n capabilities with full integration with Summon components
  */
 @Composable
 fun I18nDemo() {
-    // TODO: Implement a real implementation
-    // This is a simplified implementation to avoid compilation errors
-    // In a real app, this would use the Summon component system
-    
     // Get current language and layout direction
     val languageProvider = LocalLanguage.current
     val layoutDirection = LocalLayoutDirection.current
-    
-    // Always invoke the function to get the actual value
+
+    // Get the actual values
     val currentLanguage = (languageProvider as Function0<Language>).invoke()
-    
-    // Always invoke the function to get the actual value
     val actualDirection = (layoutDirection as Function0<LayoutDirection>).invoke()
-    
+
     val isRtl = actualDirection == LayoutDirection.RTL
-    
-    // Demonstrate language and direction information
-    val directionText = if (isRtl) "RTL" else "LTR"
+
+    // Create directional modifier based on layout direction
+    val containerModifier = Modifier()
+        .width("100%")
+        .padding("16px")
+        .style("direction", if (isRtl) "rtl" else "ltr")
+        .style("text-align", if (isRtl) "right" else "left")
+
+    // Get localized welcome message
     val welcomeText = StringResources.getString("common.welcome", currentLanguage.code)
-    
-    // Output would show welcome message in the current language
-    // and would adapt layout based on the text direction
+    val directionText = if (isRtl) "RTL" else "LTR"
+    val languageText = "${currentLanguage.name} (${currentLanguage.code})"
+
+    // Create a container with the appropriate direction
+    Div(modifier = containerModifier) {
+        // Title with current language and direction
+        Text(
+            text = "I18n Demo",
+            modifier = Modifier()
+                .fontSize("24px")
+                .fontWeight("bold")
+                .margin("0 0 16px 0")
+        )
+
+        // Welcome message in the current language
+        Text(
+            text = welcomeText,
+            modifier = Modifier()
+                .fontSize("18px")
+                .margin("0 0 8px 0")
+        )
+
+        // Display current language and direction
+        Text(
+            text = "Current Language: $languageText",
+            modifier = Modifier().margin("0 0 4px 0")
+        )
+
+        Text(
+            text = "Text Direction: $directionText",
+            modifier = Modifier().margin("0 0 16px 0")
+        )
+
+        // Add language selector
+        LanguageSelector()
+    }
 }
-// TODO: Implement a real implementation
 /**
- * Simple placeholder for the language selector - not a real implementation
+ * Language selector component that displays buttons for each supported language
  */
 @Composable
 private fun LanguageSelector() {
-    // This would show language buttons for each supported language
-    // When clicked, it would call changeLanguage()
-    
-    // Example: Display language options in a list
-    for (language in I18nConfig.supportedLanguages) {
-        // TODO: Implement a real implementation
-        // In the real implementation, this would be buttons for each language
+    // Get current language
+    val languageProvider = LocalLanguage.current
+    val currentLanguage = (languageProvider as Function0<Language>).invoke()
+
+    // Create a container for the language buttons
+    Div(modifier = Modifier().margin("8px 0")) {
+        // Title for the language selector
+        Text(
+            text = "Select Language:",
+            modifier = Modifier()
+                .fontWeight("bold")
+                .margin("0 0 8px 0")
+        )
+
+        // Create a horizontal row of language buttons
+        Div(modifier = Modifier().style("display", "flex").style("gap", "8px")) {
+            // Create a button for each supported language
+            for (language in I18nConfig.supportedLanguages) {
+                // Determine if this is the current language
+                val isCurrentLanguage = language.code == currentLanguage.code
+
+                // Create a button with appropriate styling
+                Button(
+                    onClick = { 
+                        // Change the language when clicked
+                        I18nConfig.changeLanguage(language.code)
+                    },
+                    label = language.name,
+                    variant = if (isCurrentLanguage) ButtonVariant.PRIMARY else ButtonVariant.SECONDARY,
+                    modifier = Modifier()
+                        .margin("4px")
+                        .style("min-width", "100px")
+                )
+            }
+        }
     }
-} 
+}

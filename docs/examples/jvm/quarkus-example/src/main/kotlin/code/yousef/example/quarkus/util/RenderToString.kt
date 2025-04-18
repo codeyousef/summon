@@ -1,7 +1,10 @@
 package code.yousef.example.quarkus.util
 
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.platform.JvmPlatformRenderer
+import code.yousef.summon.runtime.JvmPlatformRenderer
+// The renderComposable import has been removed because the extension function was causing issues.
+// It was calling renderComposable without first setting up the context via renderComposableRoot,
+// which was causing the error "Rendering function called outside of renderComposableRoot scope".
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 
@@ -23,15 +26,10 @@ object RenderToString {
      * Render a composable to HTML string.
      */
     fun basic(renderer: JvmPlatformRenderer, composable: @Composable () -> Unit): String {
-        val docType = "<!DOCTYPE html>\n"
-        val htmlString = createHTML().html {
-            body {
-                renderer.renderComposable(composable, this)
-            }
-        }
-        return docType + htmlString
+        // Use renderComposableRoot instead of renderComposable to properly set up the rendering context
+        return renderer.renderComposableRoot(composable)
     }
-    
+
     /**
      * Render a composable to HTML string with metadata.
      */
@@ -40,40 +38,35 @@ object RenderToString {
         metadata: PageMetadata,
         composable: @Composable () -> Unit
     ): String {
-        val docTypeString = if (metadata.includeDocType) "<!DOCTYPE html>\n" else ""
-        val htmlString = createHTML().html {
-            head {
-                metadata.title?.let { title(it) }
-                metadata.description?.let {
-                    meta {
-                        name = "description"
-                        content = it
-                    }
-                }
-                
-                meta {
-                    name = "viewport"
-                    content = "width=device-width, initial-scale=1.0"
-                }
-                meta {
-                    charset = "UTF-8"
-                }
-                
-                // Add custom head elements
-                metadata.customHeadElements.forEach { element ->
-                    unsafe { +element }
-                }
-                
-                // Add head elements from the renderer
-                renderer.getHeadElements().forEach { element ->
-                    unsafe { +element }
-                }
-            }
-            body {
-                renderer.renderComposable(composable, this)
-            }
+        // Create a wrapper composable that includes the metadata
+        val wrappedComposable: @Composable () -> Unit = {
+            // The metadata will be added by renderComposableRoot
+            // Just call the original composable
+            composable()
         }
-        return docTypeString + htmlString
+
+        // Add head elements to the renderer
+        if (metadata.title != null) {
+            renderer.addHeadElement("<title>${metadata.title}</title>")
+        }
+        if (metadata.description != null) {
+            renderer.addHeadElement("<meta name=\"description\" content=\"${metadata.description}\">")
+        }
+
+        // Add custom head elements
+        metadata.customHeadElements.forEach { element ->
+            renderer.addHeadElement(element)
+        }
+
+        // Use renderComposableRoot to properly set up the rendering context
+        val result = renderer.renderComposableRoot(wrappedComposable)
+
+        // Add doctype if needed
+        return if (metadata.includeDocType && !result.startsWith("<!DOCTYPE")) {
+            "<!DOCTYPE html>\n$result"
+        } else {
+            result
+        }
     }
 }
 

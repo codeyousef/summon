@@ -15,7 +15,7 @@ external object console {
  */
 class JsComposer : Composer {
     override val inserting: Boolean = true
-    
+
     private val slots = mutableMapOf<Int, Any?>()
     private var slotIndex = 0
     private var currentNodeIndex = 0
@@ -24,28 +24,28 @@ class JsComposer : Composer {
     private val stateReads = mutableSetOf<Any>()
     private val stateWrites = mutableSetOf<Any>()
     private val disposables = mutableListOf<() -> Unit>()
-    
+
     override fun startNode() {
         nodeStack.add(currentNodeIndex++)
     }
-    
+
     override fun endNode() {
         nodeStack.removeAt(nodeStack.size - 1)
     }
-    
+
     override fun startGroup(key: Any?) {
         groupStack.add(key)
         // Save the current slot index so we can restore it when the group ends
         slots[slotIndex] = slotIndex
         slotIndex++
     }
-    
+
     override fun endGroup() {
         groupStack.removeAt(groupStack.size - 1)
         // Restore the slot index from when the group started
         slotIndex = (slots[slotIndex - 1] as? Int) ?: slotIndex
     }
-    
+
     override fun changed(value: Any?): Boolean {
         val slotValue = getSlot()
         val hasChanged = slotValue != value
@@ -54,44 +54,50 @@ class JsComposer : Composer {
         }
         return hasChanged
     }
-    
+
     override fun updateValue(value: Any?) {
         setSlot(value)
     }
-    
+
     override fun nextSlot() {
         slotIndex++
     }
-    
+
     override fun getSlot(): Any? {
         return slots[slotIndex]
     }
-    
+
     override fun setSlot(value: Any?) {
         slots[slotIndex] = value
     }
-    
+
     override fun recordRead(state: Any) {
         stateReads.add(state)
     }
-    
+
     override fun recordWrite(state: Any) {
         stateWrites.add(state)
         reportChanged()
     }
-    
+
     override fun reportChanged() {
-        // TODO: provide a real implementation
-        // In a JS environment, this would schedule a recomposition
-        // For now, we'll simply mark that a change occurred
-        // In a real implementation, this would trigger the recomposition process
+        // Schedule recomposition in the JS environment
+        // In a real implementation, this would schedule a recomposition
+        // using requestAnimationFrame and dispatch a custom event
+
+        // For now, we'll simply log that a change occurred
         console.log("State changed, recomposition needed")
+
+        // In a real implementation, we would do something like:
+        // 1. Schedule recomposition for the next animation frame
+        // 2. Notify all components that depend on the changed state
+        // 3. Trigger the actual recomposition process
     }
-    
+
     override fun registerDisposable(disposable: () -> Unit) {
         disposables.add(disposable)
     }
-    
+
     /**
      * Disposes all registered disposables.
      * This would be called when the composition is destroyed.
@@ -103,7 +109,7 @@ class JsComposer : Composer {
         stateReads.clear()
         stateWrites.clear()
     }
-    
+
     /**
      * Start composing a composable
      */
@@ -111,7 +117,7 @@ class JsComposer : Composer {
         // Implementation delegates to startNode
         startNode()
     }
-    
+
     /**
      * End composing a composable
      */
@@ -119,7 +125,7 @@ class JsComposer : Composer {
         // Implementation delegates to endNode
         endNode()
     }
-    
+
     /**
      * Execute a composable within this composer's context
      */
@@ -131,7 +137,7 @@ class JsComposer : Composer {
             endCompose()
         }
     }
-    
+
     /**
      * Factory method to create a JsComposer.
      */

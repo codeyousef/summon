@@ -22,14 +22,18 @@ dependencies {
     implementation("io.quarkus:quarkus-scheduler")
     implementation("io.quarkus:quarkus-cache")
     implementation("io.quarkus:quarkus-security")
+    implementation("io.quarkus:quarkus-undertow") // Add undertow for servlet support
 
     // Kotlin dependencies
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    
+
     // Summon dependencies
-    implementation("code.yousef:summon:0.2.2.0")
-    implementation("code.yousef:summon-jvm:0.2.2.0")
+    implementation("code.yousef:summon:0.2.3.0")
+    implementation("code.yousef:summon-jvm:0.2.3.0")
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.12.0")
+
+    // Jakarta Servlet API
+    implementation("jakarta.servlet:jakarta.servlet-api:6.0.0")
 }
 
 // Apply the allopen plugin for Quarkus

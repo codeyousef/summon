@@ -20,16 +20,7 @@ fun JvmPlatformRenderer.render(content: @Composable () -> Unit): String {
     return renderComposableRoot(content)
 }
 
-/**
- * Renders a Composable to a tag consumer.
- * 
- * @param content The composable content to render
- * @param consumer The tag consumer to render to
- * @return The tag consumer for method chaining
- */
-fun <T> JvmPlatformRenderer.renderComposable(content: @Composable () -> Unit, consumer: TagConsumer<T>): TagConsumer<T> {
-    consumer.html {
-        renderComposable(content)
-    }
-    return consumer
-} 
+// The renderComposable extension function has been removed because it was causing issues.
+// It was calling renderComposable without first setting up the context via renderComposableRoot,
+// which was causing the error "Rendering function called outside of renderComposableRoot scope".
+// Use the render extension function instead, which uses renderComposableRoot correctly.

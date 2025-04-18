@@ -1,0 +1,13 @@
+<div class="card" style="text-align: center; padding: 2rem;">
+  <div style="align-items: center;">
+    <span style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem;">Interactive Counter (HTMX)</span>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin: 1rem 0;">
+      <button class="btn" id="decrement-btn" style="background-color: var(--error-color);" 
+              hx-post="/api/counter/decrement" hx-target="#counter-value" hx-swap="innerHTML">−</button>
+      <span id="counter-value" style="font-size: 2rem; font-weight: bold;">{currentValue}</span>
+      <button class="btn" id="increment-btn" 
+              hx-post="/api/counter/increment" hx-target="#counter-value" hx-swap="innerHTML">+</button>
+    </div>
+    <span style="font-style: italic; color: #666; margin-top: 1rem;">Click buttons to change counter via HTMX.</span>
+  </div>
+</div>

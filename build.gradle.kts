@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "code.yousef"
-version = "0.2.2.0"
+version = "0.2.3.0"
 
 repositories {
     mavenCentral()

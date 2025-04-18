@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap
  */
 class JvmComposer : Composer {
     override val inserting: Boolean = true
-    
+
     private val slots = mutableMapOf<Int, Any?>()
     private var slotIndex = 0
     private var currentNodeIndex = 0
@@ -19,24 +19,24 @@ class JvmComposer : Composer {
     private val stateReads = mutableSetOf<Any>()
     private val stateWriteListeners = ConcurrentHashMap<Any, MutableList<() -> Unit>>()
     private val disposables = mutableListOf<() -> Unit>()
-    
+
     override fun startNode() {
         nodeStack.add(currentNodeIndex++)
     }
-    
+
     override fun endNode() {
         if (nodeStack.isNotEmpty()) {
             nodeStack.removeAt(nodeStack.size - 1)
         }
     }
-    
+
     override fun startGroup(key: Any?) {
         groupStack.add(key)
         // Save the current slot index so we can restore it when the group ends
         slots[slotIndex] = slotIndex
         slotIndex++
     }
-    
+
     override fun endGroup() {
         if (groupStack.isNotEmpty()) {
             groupStack.removeAt(groupStack.size - 1)
@@ -44,7 +44,7 @@ class JvmComposer : Composer {
             slotIndex = (slots[slotIndex - 1] as? Int) ?: slotIndex
         }
     }
-    
+
     override fun changed(value: Any?): Boolean {
         val slotValue = getSlot()
         val hasChanged = slotValue != value
@@ -53,44 +53,72 @@ class JvmComposer : Composer {
         }
         return hasChanged
     }
-    
+
     override fun updateValue(value: Any?) {
         setSlot(value)
     }
-    
+
     override fun nextSlot() {
         slotIndex++
     }
-    
+
     override fun getSlot(): Any? {
         return slots[slotIndex]
     }
-    
+
     override fun setSlot(value: Any?) {
         slots[slotIndex] = value
     }
-    
+
     override fun recordRead(state: Any) {
         stateReads.add(state)
     }
-    
+
     override fun recordWrite(state: Any) {
         // Trigger recomposition for all composers that depend on this state
         stateWriteListeners[state]?.forEach { it() }
         reportChanged()
     }
-    
+
     override fun reportChanged() {
-        // TODO: provide a real implementation
-        // Trigger a recomposition
-        // In a real implementation, this would schedule recomposition
-        // on the JVM UI thread (e.g., using SwingUtilities.invokeLater)
+        // Schedule recomposition on the JVM UI thread
+        try {
+            // Try to use SwingUtilities if available
+            val swingUtilitiesClass = Class.forName("javax.swing.SwingUtilities")
+            val invokeLaterMethod = swingUtilitiesClass.getMethod("invokeLater", Runnable::class.java)
+
+            invokeLaterMethod.invoke(null, Runnable {
+                // Trigger recomposition by notifying any registered listeners
+                stateWriteListeners.values.forEach { listeners ->
+                    listeners.forEach { it() }
+                }
+            })
+        } catch (e: ClassNotFoundException) {
+            // Swing not available, try to use JavaFX Platform.runLater if available
+            try {
+                val platformClass = Class.forName("javafx.application.Platform")
+                val runLaterMethod = platformClass.getMethod("runLater", Runnable::class.java)
+
+                runLaterMethod.invoke(null, Runnable {
+                    // Trigger recomposition by notifying any registered listeners
+                    stateWriteListeners.values.forEach { listeners ->
+                        listeners.forEach { it() }
+                    }
+                })
+            } catch (e: ClassNotFoundException) {
+                // Neither Swing nor JavaFX available, use a simple direct call
+                // This is not ideal for UI thread safety but provides a fallback
+                stateWriteListeners.values.forEach { listeners ->
+                    listeners.forEach { it() }
+                }
+            }
+        }
     }
-    
+
     override fun registerDisposable(disposable: () -> Unit) {
         disposables.add(disposable)
     }
-    
+
     /**
      * Registers a callback to be triggered when a specific state changes.
      * This is used for implementing recomposition.
@@ -101,7 +129,7 @@ class JvmComposer : Composer {
     fun registerStateListener(state: Any, callback: () -> Unit) {
         stateWriteListeners.getOrPut(state) { mutableListOf() }.add(callback)
     }
-    
+
     /**
      * Tracks dependencies between this composer and state objects.
      * Called after a composition to set up change listeners.
@@ -109,7 +137,7 @@ class JvmComposer : Composer {
     fun trackStateDependencies() {
         // Clear previous listeners related to this composer
         clearStateListeners()
-        
+
         // Set up listeners for each state that was read during composition
         for (state in stateReads) {
             registerStateListener(state) {
@@ -118,7 +146,7 @@ class JvmComposer : Composer {
             }
         }
     }
-    
+
     /**
      * Clears all state listeners associated with this composer.
      */
@@ -128,7 +156,7 @@ class JvmComposer : Composer {
             listeners.removeAll { true } // Remove all listeners for simplicity
         }
     }
-    
+
     /**
      * Disposes all registered disposables.
      * This would be called when the composition is destroyed.
@@ -153,7 +181,7 @@ class JvmComposer : Composer {
         stateReads.clear()
         startNode()
     }
-    
+
     /**
      * End composing a composable
      */
@@ -162,7 +190,7 @@ class JvmComposer : Composer {
         // After composition ends, set up change tracking for recomposition
         trackStateDependencies()
     }
-    
+
     /**
      * Execute a composable within this composer's context
      */

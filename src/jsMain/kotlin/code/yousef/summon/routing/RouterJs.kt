@@ -3,7 +3,7 @@ package code.yousef.summon.routing
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
 import kotlinx.browser.window
-import routing.RouterContext
+import code.yousef.summon.routing.RouterContext
 
 /**
  * JavaScript actual implementation of the Router interface
@@ -51,7 +51,7 @@ fun setupRouterForBrowser(router: Router) {
     globalRouter = router
 
     // Set as current router in context
-    RouterContext.setCurrent(router)
+    RouterContext.current = router
 
     // Expose the navigation function to JavaScript
     js("window.summonRouterNavigate = function(path, pushState) { summonRouterNavigate(path, pushState !== false); }")
@@ -75,17 +75,17 @@ fun createBrowserRouter(
     notFoundComponent: (@Composable (RouteParams) -> Unit)? = null
 ): Router {
     val routerBuilder = RouterBuilderImpl()
-    
+
     // Add routes
     routes.forEach { path ->
         routerBuilder.route(path) { params ->
             // Default empty content, will be replaced when routes are registered
         }
     }
-    
+
     // Set not found page if provided
     notFoundComponent?.let { routerBuilder.setNotFound(it) }
-    
+
     // Create router
     val router = RouterJs(routerBuilder.routes, routerBuilder.notFoundPage)
     setupRouterForBrowser(router)
@@ -98,7 +98,7 @@ fun createBrowserRouter(
 fun createBrowserRouter(init: RouterBuilder.() -> Unit): Router {
     val routerBuilder = RouterBuilderImpl()
     routerBuilder.apply(init)
-    
+
     val router = RouterJs(routerBuilder.routes, routerBuilder.notFoundPage)
     setupRouterForBrowser(router)
     return router
@@ -131,11 +131,11 @@ class BrowserHistory {
     fun push(path: String) {
         window.history.pushState(null, "", path)
     }
-    
+
     fun replace(path: String) {
         window.history.replaceState(null, "", path)
     }
-    
+
     fun getCurrentPath(): String {
         return window.location.pathname + window.location.search
     }
@@ -151,7 +151,7 @@ internal class RouterJs(
 
     private val history = BrowserHistory()
     private var _currentPath = window.location.pathname + window.location.search
-    
+
     // Implement the currentPath property from the Router interface
     override val currentPath: String
         get() = _currentPath
@@ -163,10 +163,10 @@ internal class RouterJs(
         // TODO: provide a real implementation
         // Set up effect to listen for browser history changes
         // In a real implementation, this would be a LaunchedEffect
-        
+
         // Find matching route for the initial path
         val matchResult = findMatchingRoute(initialPath)
-        
+
         if (matchResult != null) {
             // Render the matched route's content
             val (route, params) = matchResult
@@ -176,11 +176,11 @@ internal class RouterJs(
             notFoundPage(RouteParams(mapOf("path" to initialPath)))
         }
     }
-    
+
     override fun navigate(path: String, pushState: Boolean) {
         // Update the current path
         _currentPath = path
-        
+
         // Handle browser history if needed
         if (pushState) {
             history.push(path)
@@ -188,7 +188,7 @@ internal class RouterJs(
             history.replace(path)
         }
     }
-    
+
     /**
      * Find the matching route for a given path.
      */
@@ -201,7 +201,7 @@ internal class RouterJs(
         }
         return null
     }
-    
+
     /**
      * Try to match a route path pattern against an actual path.
      * Returns a map of parameters if match is successful, null otherwise.

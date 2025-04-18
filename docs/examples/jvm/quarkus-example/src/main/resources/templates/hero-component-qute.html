@@ -1,0 +1,22 @@
+<div style="text-align: center; padding: 4rem 2rem; background: linear-gradient(135deg, #4695EB 0%, #2A5298 100%); color: white; border-radius: 10px; margin-bottom: 2rem;">
+  <div style="align-items: center;">
+    <span style="font-size: 2.5rem; margin-bottom: 1rem; font-weight: bold; display: block;">Welcome to Summon with Quarkus</span>
+    <span style="font-size: 1.25rem; margin-bottom: 2rem; max-width: 800px; margin-left: auto; margin-right: auto; display: block;">
+      Hello, {username}! This example showcases how to integrate Summon with Quarkus to build amazing web applications.
+    </span>
+    <div style="position: relative; display: inline-block;">
+      <!-- Hero indicator positioned absolutely to prevent layout shifts -->
+      <div id="hero-indicator" class="htmx-indicator" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30px; height: 30px; border-radius: 50%; background-color: rgba(255,255,255,0.2); display: none;"></div>
+
+      <button class="btn" id="get-started-btn" 
+              style="background: white; color: var(--primary-color); font-weight: 600; padding: 12px 24px; font-size: 1.1rem; min-width: 150px;"
+              hx-get="/dashboard" 
+              hx-target="body" 
+              hx-swap="innerHTML"
+              hx-indicator="#hero-indicator"
+              onclick="console.log('Get Started button clicked')">
+        Get Started
+      </button>
+    </div>
+  </div>
+</div>

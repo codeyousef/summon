@@ -1,73 +1,82 @@
 package code.yousef.summon.routing.seo
 
-import code.yousef.summon.core.Composable
-import kotlinx.html.HEAD
-import kotlinx.html.meta
-import kotlinx.html.title
+import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.getPlatformRenderer
 
 /**
  * MetaTags component for easily configuring page metadata in HTML head
  *
- * @property title The page title
- * @property description Meta description for search engines
- * @property keywords Keywords for search engines (comma separated)
- * @property author Content author
- * @property viewport Viewport settings (defaults to responsive configuration)
- * @property charset Character set (defaults to UTF-8)
- * @property extraTags Map of additional meta tags (name/content pairs)
+ * @param title The page title
+ * @param description Meta description for search engines
+ * @param keywords Keywords for search engines (comma separated)
+ * @param author Content author
+ * @param viewport Viewport settings (defaults to responsive configuration)
+ * @param charset Character set (defaults to UTF-8)
+ * @param extraTags Map of additional meta tags (name/content pairs)
  */
-class MetaTags(
-    private val title: String? = null,
-    private val description: String? = null,
-    private val keywords: String? = null,
-    private val author: String? = null,
-    private val viewport: String = "width=device-width, initial-scale=1.0",
-    private val charset: String = "UTF-8",
-    private val extraTags: Map<String, String> = emptyMap()
-) : Composable {
+@Composable
+fun MetaTags(
+    title: String? = null,
+    description: String? = null,
+    keywords: String? = null,
+    author: String? = null,
+    viewport: String = "width=device-width, initial-scale=1.0",
+    charset: String = "UTF-8",
+    extraTags: Map<String, String> = emptyMap()
+) {
+    val renderer = getPlatformRenderer()
 
-    @Suppress("UNCHECKED_CAST")
-    override fun <T> compose(receiver: T): T {
-        if (receiver is HEAD) {
-            receiver.apply {
-                // Set page title if provided
-                title?.let { title(it) }
-
-                // Add charset tag
-                meta(charset = charset)
-
-                // Add viewport
-                meta(name = "viewport", content = viewport)
-
-                // Add basic SEO meta tags if provided
-                description?.let { meta(name = "description", content = it) }
-                keywords?.let { meta(name = "keywords", content = it) }
-                author?.let { meta(name = "author", content = it) }
-
-                // Add any additional meta tags
-                extraTags.forEach { (name, content) ->
-                    meta(name = name, content = content)
-                }
-            }
-        }
-
-        return receiver
+    // Add title if provided
+    title?.let { 
+        renderer.addHeadElement("<title>$it</title>") 
     }
 
-    companion object {
-        /**
-         * Create a MetaTags instance with common metadata
-         */
-        fun standard(
-            title: String,
-            description: String,
-            keywords: String? = null,
-            author: String? = null
-        ): MetaTags = MetaTags(
-            title = title,
-            description = description,
-            keywords = keywords,
-            author = author
-        )
+    // Add charset meta tag
+    renderer.addHeadElement("<meta charset=\"$charset\">")
+
+    // Add viewport meta tag
+    renderer.addHeadElement("<meta name=\"viewport\" content=\"$viewport\">")
+
+    // Add description meta tag if provided
+    description?.let { 
+        renderer.addHeadElement("<meta name=\"description\" content=\"$it\">") 
     }
-} 
+
+    // Add keywords meta tag if provided
+    keywords?.let { 
+        renderer.addHeadElement("<meta name=\"keywords\" content=\"$it\">") 
+    }
+
+    // Add author meta tag if provided
+    author?.let { 
+        renderer.addHeadElement("<meta name=\"author\" content=\"$it\">") 
+    }
+
+    // Add any additional meta tags
+    extraTags.forEach { (name, content) ->
+        renderer.addHeadElement("<meta name=\"$name\" content=\"$content\">")
+    }
+}
+
+/**
+ * Create MetaTags with common metadata
+ *
+ * @param title The page title
+ * @param description Meta description for search engines
+ * @param keywords Keywords for search engines (comma separated)
+ * @param author Content author
+ */
+@Composable
+fun StandardMetaTags(
+    title: String,
+    description: String,
+    keywords: String? = null,
+    author: String? = null
+) {
+    MetaTags(
+        title = title,
+        description = description,
+        keywords = keywords,
+        author = author
+    )
+}

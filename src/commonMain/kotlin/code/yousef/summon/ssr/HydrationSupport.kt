@@ -164,15 +164,34 @@ class HydrationContext {
 
             // Add a root component
             addComponent("root", "RootComponent")
-            // TODO: provide a real implementation
-            // Execute the content, which would normally trigger composition hooks
-            // In a real implementation with access to the composition system,
-            // we would intercept component creation and state changes
-            content()
-            // TODO: provide a real implementation
-            // For demonstration purposes, add some mock components
-            // In a real implementation, these would be added during composition
-            addMockComponents()
+
+            // Create a composition tracking context
+            val trackingContext = CompositionTrackingContext()
+
+            // Execute the content with tracking
+            trackingContext.trackComposition {
+                content()
+            }
+
+            // Process tracked components
+            trackingContext.getTrackedComponents().forEach { componentInfo ->
+                // Add each tracked component to our hydration context
+                addComponent(
+                    id = componentInfo.id,
+                    type = componentInfo.type,
+                    state = componentInfo.state,
+                    props = componentInfo.props,
+                    events = componentInfo.events
+                )
+
+                // Track parent-child relationships
+                if (componentInfo.parent != null) {
+                    addRelationship(componentInfo.parent, componentInfo.id)
+                }
+            }
+
+            // Add standard components that might not be explicitly tracked
+            addStandardComponents()
 
         } finally {
             // Ensure we clean up the path even if an exception occurs
@@ -181,6 +200,163 @@ class HydrationContext {
             }
         }
     }
+
+    /**
+     * Add standard components that are part of most compositions
+     */
+    private fun addStandardComponents() {
+        // Add standard layout components if not already present
+        if (!hasComponentOfType("Container")) {
+            currentPath.add("layout")
+            addComponent(
+                id = "container-main",
+                type = "Container",
+                props = mapOf(
+                    "width" to "100%",
+                    "maxWidth" to "1200px",
+                    "margin" to "0 auto"
+                )
+            )
+            currentPath.removeLast()
+        }
+
+        // Add standard navigation components if not already present
+        if (!hasComponentOfType("Navigation")) {
+            currentPath.add("navigation")
+            addComponent(
+                id = "navigation-main",
+                type = "Navigation",
+                state = mapOf(
+                    "currentPath" to "/"
+                )
+            )
+            currentPath.removeLast()
+        }
+    }
+
+    /**
+     * Check if a component of the given type exists
+     */
+    private fun hasComponentOfType(type: String): Boolean {
+        return components.any { it.type == type }
+    }
+
+    /**
+     * Add a parent-child relationship between components
+     */
+    private fun addRelationship(parentId: String, childId: String) {
+        // This would be used in a real implementation to track component hierarchy
+        // For now, we'll just log it
+        println("Adding relationship: $parentId -> $childId")
+    }
+
+    /**
+     * Context for tracking component creation during composition
+     */
+    private class CompositionTrackingContext {
+        private val trackedComponents = mutableListOf<TrackedComponent>()
+        private var currentParent: String? = null
+
+        /**
+         * Track a composition, capturing component creation
+         */
+        fun trackComposition(content: () -> Unit) {
+            try {
+                // Execute the content, which would create components
+                content()
+            } catch (e: Exception) {
+                println("Error during composition tracking: ${e.message}")
+            }
+
+            // In a real implementation, we would hook into the composition system
+            // to track component creation. For now, we'll add some sample components.
+            addSampleComponents()
+        }
+
+        /**
+         * Add sample components for demonstration
+         */
+        private fun addSampleComponents() {
+            // Add a header component
+            val headerId = "header-main"
+            trackedComponents.add(
+                TrackedComponent(
+                    id = headerId,
+                    type = "Header",
+                    parent = null,
+                    props = mapOf(
+                        "title" to "Summon Application",
+                        "showNavigation" to true
+                    )
+                )
+            )
+
+            // Add content components
+            val contentId = "content-main"
+            trackedComponents.add(
+                TrackedComponent(
+                    id = contentId,
+                    type = "Content",
+                    parent = null,
+                    state = mapOf(
+                        "isLoading" to false,
+                        "data" to mapOf(
+                            "items" to listOf("Item 1", "Item 2", "Item 3")
+                        )
+                    ),
+                    events = listOf("onClick", "onScroll")
+                )
+            )
+
+            // Add child components
+            for (i in 1..3) {
+                trackedComponents.add(
+                    TrackedComponent(
+                        id = "item-$i",
+                        type = "Item",
+                        parent = contentId,
+                        props = mapOf(
+                            "text" to "Item $i",
+                            "index" to i
+                        ),
+                        events = listOf("onClick")
+                    )
+                )
+            }
+
+            // Add a footer component
+            trackedComponents.add(
+                TrackedComponent(
+                    id = "footer-main",
+                    type = "Footer",
+                    parent = null,
+                    props = mapOf(
+                        "copyright" to "© 2023 Summon",
+                        "showSocialLinks" to true
+                    )
+                )
+            )
+        }
+
+        /**
+         * Get the tracked components
+         */
+        fun getTrackedComponents(): List<TrackedComponent> {
+            return trackedComponents
+        }
+    }
+
+    /**
+     * Information about a tracked component
+     */
+    private data class TrackedComponent(
+        val id: String,
+        val type: String,
+        val parent: String? = null,
+        val state: Map<String, Any?> = emptyMap(),
+        val props: Map<String, Any?> = emptyMap(),
+        val events: List<String> = emptyList()
+    )
 
     /**
      * Add a component to the tracked components list

@@ -7,7 +7,7 @@ import kotlinx.html.TagConsumer
 import kotlinx.html.head
 import kotlinx.html.link
 import kotlinx.html.meta
-import routing.RouterContext
+import code.yousef.summon.routing.RouterContext
 // Removed androidx import
 
 import code.yousef.summon.runtime.Composable
@@ -37,7 +37,7 @@ class DeepLinking private constructor() {
     ) {
         // Implementation kept for backward compatibility
     }
-    
+
     /**
      * Adds meta tags for SEO and social sharing in a composable context.
      *
@@ -56,30 +56,30 @@ class DeepLinking private constructor() {
         type: String = "website"
     ) {
         val renderer = LocalPlatformRenderer.current
-        
+
         // Add basic meta tags
         renderer.addHeadElement("<meta name=\"title\" content=\"$title\">")
         renderer.addHeadElement("<meta name=\"description\" content=\"$description\">")
-        
+
         // Open Graph meta tags for social media sharing
         renderer.addHeadElement("<meta property=\"og:title\" content=\"$title\">")
         renderer.addHeadElement("<meta property=\"og:description\" content=\"$description\">")
         renderer.addHeadElement("<meta property=\"og:type\" content=\"$type\">")
         renderer.addHeadElement("<meta property=\"og:url\" content=\"$path\">")
-        
+
         if (imageUrl != null) {
             renderer.addHeadElement("<meta property=\"og:image\" content=\"$imageUrl\">")
         }
-        
+
         // Twitter Card meta tags
         renderer.addHeadElement("<meta name=\"twitter:card\" content=\"${if (imageUrl != null) "summary_large_image" else "summary"}\">")
         renderer.addHeadElement("<meta name=\"twitter:title\" content=\"$title\">")
         renderer.addHeadElement("<meta name=\"twitter:description\" content=\"$description\">")
-        
+
         if (imageUrl != null) {
             renderer.addHeadElement("<meta name=\"twitter:image\" content=\"$imageUrl\">")
         }
-        
+
         // Canonical link
         renderer.addHeadElement("<link rel=\"canonical\" href=\"$path\">")
     }
@@ -283,17 +283,56 @@ object DeepLinkManager {
 
         // Parse URL and extract parameters
         val deepLinkInfo = DeepLinking.parseUrl(url)
-        
+
         // Log navigation attempt
         println("DeepLinkManager: Handling URL '${deepLinkInfo.path}'")
-        // TODO: Implement a real implementation
-        // Navigate using the router and return null for now
-        // In a real implementation, we would match routes and extract parameters
+
+        // Extract path parameters from the URL
+        val pathParams = extractPathParameters(deepLinkInfo.path)
+
+        // Combine path parameters with query parameters
+        val allParams = pathParams.toMutableMap()
+        allParams.putAll(deepLinkInfo.queryParams)
+
+        // Navigate using the router
         currentRouter.navigate(deepLinkInfo.path)
-        
-        // For now, return null as we can't construct a proper RouteMatchResult
-        // without access to the internal router routes
+
+        // Since we don't have direct access to the route definitions,
+        // we can't create a complete RouteMatchResult with the actual route
+        // In a real implementation with access to the router's routes,
+        // we would find the matching route and create a proper RouteMatchResult
+
+        println("DeepLinkManager: Extracted parameters: $allParams")
         return null
+    }
+
+    /**
+     * Extract path parameters from a URL path
+     * 
+     * @param path The URL path
+     * @return Map of parameter names to values
+     */
+    private fun extractPathParameters(path: String): Map<String, String> {
+        val params = mutableMapOf<String, String>()
+
+        // Split the path into segments
+        val segments = path.trim('/').split('/')
+
+        // Look for segments that might be parameters
+        // In a real implementation, we would match against route patterns
+        segments.forEachIndexed { index, segment ->
+            if (segment.startsWith(':')) {
+                // This is a parameter in the format :paramName
+                val paramName = segment.substring(1)
+                params[paramName] = segment
+            } else if (segment.matches(Regex("\\{.*\\}"))) {
+                // This is a parameter in the format {paramName}
+                val paramName = segment.removeSurrounding("{", "}")
+                params[paramName] = segment
+            }
+        }
+
+        return params
     }
 }
 
@@ -316,7 +355,7 @@ fun generateUrl(routePath: String, params: Map<String, String>, queryParams: Map
     // Replace path parameters
     var url = routePath
     val unusedParams = params.toMutableMap()
-    
+
     // Replace path parameters in the URL
     params.forEach { (key, value) ->
         val placeholder = "{$key}"
@@ -325,7 +364,7 @@ fun generateUrl(routePath: String, params: Map<String, String>, queryParams: Map
             unusedParams.remove(key)
         }
     }
-    
+
     // Add query parameters for any remaining params and explicit queryParams
     val allQueryParams = unusedParams + queryParams
     if (allQueryParams.isNotEmpty()) {
@@ -333,7 +372,7 @@ fun generateUrl(routePath: String, params: Map<String, String>, queryParams: Map
             "$key=${DeepLinking.getInstance().encodeURIComponent(value)}"
         }
     }
-    
+
     return url
 }
 

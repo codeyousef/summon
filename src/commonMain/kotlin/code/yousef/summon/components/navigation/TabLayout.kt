@@ -1,10 +1,8 @@
 package code.yousef.summon.components.navigation
 
-import code.yousef.summon.components.LayoutComponent
-import code.yousef.summon.core.Composable
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.getPlatformRenderer
-import kotlinx.html.TagConsumer
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -19,8 +17,8 @@ import kotlin.uuid.Uuid
 data class Tab @OptIn(ExperimentalUuidApi::class) constructor(
     val id: Uuid,
     val title: String,
-    val content: Composable,
-    val icon: Composable? = null,
+    val content: @Composable () -> Unit,
+    val icon: (@Composable () -> Unit)? = null,
     val isClosable: Boolean = false
 )
 
@@ -33,26 +31,17 @@ data class Tab @OptIn(ExperimentalUuidApi::class) constructor(
  * @param onTabSelected Callback function that is invoked when a tab is selected
  * @param modifier The modifier to apply to this composable
  */
-class TabLayout(
-    val tabs: List<Tab>,
-    val selectedTabIndex: Int = 0,
-    val onTabSelected: ((Int) -> Unit)? = null,
-    val modifier: Modifier = Modifier()
-) : Composable, LayoutComponent {
-    /**
-     * Renders this TabLayout composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            getPlatformRenderer().renderTabLayout(
-                tabs = tabs,
-                selectedTabIndex = selectedTabIndex,
-                onTabSelected = onTabSelected ?: {},
-                modifier = modifier
-            )
-        }
-        return receiver
-    }
-} 
+@Composable
+fun TabLayout(
+    tabs: List<Tab>,
+    selectedTabIndex: Int = 0,
+    onTabSelected: ((Int) -> Unit)? = null,
+    modifier: Modifier = Modifier()
+) {
+    getPlatformRenderer().renderTabLayout(
+        tabs = tabs,
+        selectedTabIndex = selectedTabIndex,
+        onTabSelected = onTabSelected ?: {},
+        modifier = modifier
+    )
+}

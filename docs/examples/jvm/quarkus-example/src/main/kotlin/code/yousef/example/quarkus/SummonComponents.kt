@@ -10,6 +10,7 @@ import code.yousef.summon.components.layout.Box
 import code.yousef.summon.components.layout.Card
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.components.layout.Row
+import code.yousef.summon.modifier.AttributeModifiers.attribute
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.mutableStateOf
@@ -19,12 +20,13 @@ import java.time.format.DateTimeFormatter
 
 /**
  * Root component for the application structure.
+ * Note: Navigation is provided by the template, so we don't include NavigationComponent here.
  */
 @Composable
 fun AppRoot(content: @Composable () -> Unit) {
     Box(modifier = Modifier().style("class", "container")) {
         Column {
-            NavigationComponent()
+            // NavigationComponent removed to avoid duplication with the template's navbar
             content()
             FooterComponent()
         }
@@ -95,46 +97,27 @@ fun FooterComponent() {
 
 /**
  * Hero section component with a welcome message and call-to-action button.
+ * 
+ * This version uses a direct HTML approach to ensure the HTMX attributes are correctly rendered.
  */
 @Composable
 fun HeroComponent(username: String) {
+    println("HeroComponent rendering with username: $username")
+
+    // Create a container with HTMX attributes to load the hero component
+    // Use style() method directly for all attributes to ensure they're rendered correctly in HTML
     Box(
         modifier = Modifier()
-            .style(
-                "style",
-                "text-align: center; padding: 4rem 2rem; background: linear-gradient(135deg, #4695EB 0%, #2A5298 100%); color: white; border-radius: 10px; margin-bottom: 2rem;"
-            )
+            .style("id", "hero-container")
+            .style("hx-get", "/api/hero-component?username=$username")
+            .style("hx-trigger", "load")
+            .style("min-height", "300px")
     ) {
-        Column(
-            modifier = Modifier().style("style", "align-items: center;")
-        ) {
-            Text(
-                text = "Welcome to Summon with Quarkus",
-                modifier = Modifier().style(
-                    "style",
-                    "font-size: 2.5rem; margin-bottom: 1rem; font-weight: bold;"
-                )
-            )
-            Text(
-                text = "Hello, $username! This example showcases how to integrate Summon with Quarkus to build amazing web applications.",
-                modifier = Modifier().style(
-                    "style",
-                    "font-size: 1.25rem; margin-bottom: 2rem; max-width: 800px; margin-left: auto; margin-right: auto;"
-                )
-            )
-            Button(
-                label = "Get Started",
-                onClick = { /* onClick JS execution needs Summon specific solution */ },
-                modifier = Modifier()
-                    .style("class", "btn")
-                    .style(
-                        "style",
-                        "background: white; color: var(--primary-color); font-weight: 600; padding: 12px 24px; font-size: 1.1rem;"
-                    )
-                    .style("id", "get-started-btn")
-            )
-        }
+        // Initial loading state or fallback content
+        Text("Loading hero component...")
     }
+
+    println("HeroComponent rendering completed")
 }
 
 /**
@@ -197,56 +180,28 @@ fun FeatureCard(title: String, description: String, icon: String) {
 }
 
 /**
- * Interactive counter component demonstrating state management (via HTMX workaround).
+ * Interactive counter component demonstrating state management.
+ * 
+ * This version uses a direct HTML approach to ensure the HTMX attributes are correctly rendered.
  */
 @Composable
 fun CounterComponent(initialValue: Int = 0) {
-    Card(modifier = Modifier().style("style", "text-align: center; padding: 2rem;")) {
-        Column(modifier = Modifier().style("style", "align-items: center;")) {
-            Text(
-                text = "Interactive Counter (HTMX)",
-                modifier = Modifier().style("style", "font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem;")
-            )
+    println("CounterComponent rendering with initialValue: $initialValue")
 
-            Row(
-                modifier = Modifier()
-                    .style("style", "display: flex; align-items: center; justify-content: center; gap: 1rem; margin: 1rem 0;")
-            ) {
-                Button(
-                    label = "−",
-                    onClick = {},
-                    modifier = Modifier()
-                        .style("class", "btn")
-                        .style("id", "decrement-btn")
-                        .style("style", "background-color: var(--error-color);")
-                        .style("hx-post", "/api/counter/decrement")
-                        .style("hx-target", "#counter-value")
-                        .style("hx-swap", "innerHTML")
-                )
-                Text(
-                    text = initialValue.toString(),
-                    modifier = Modifier()
-                        .style("id", "counter-value")
-                        .style("style", "font-size: 2rem; font-weight: bold;")
-                )
-                Button(
-                    label = "+",
-                    onClick = {},
-                    modifier = Modifier()
-                        .style("class", "btn")
-                        .style("id", "increment-btn")
-                        .style("hx-post", "/api/counter/increment")
-                        .style("hx-target", "#counter-value")
-                        .style("hx-swap", "innerHTML")
-                )
-            }
-            Text(
-                text = "Click buttons to change counter via HTMX.",
-                modifier = Modifier()
-                    .style("style", "font-style: italic; color: #666; margin-top: 1rem;")
-            )
-        }
+    // Create a container with HTMX attributes to load the counter component
+    // Use style() method directly for all attributes to ensure they're rendered correctly in HTML
+    Box(
+        modifier = Modifier()
+            .style("id", "counter-container")
+            .style("hx-get", "/api/counter-component")
+            .style("hx-trigger", "load")
+            .style("min-height", "200px")
+    ) {
+        // Initial loading state or fallback content
+        Text("Loading counter component...")
     }
+
+    println("CounterComponent rendering completed")
 }
 
 /**
@@ -551,6 +506,109 @@ fun VariousInputsFormComponent() {
                 Box(modifier = Modifier().style("id", "form-test-output").style("style", "margin-top: 1rem; padding: 1rem; border: 1px dashed #ccc;")) {
                     Text("Form output will appear here.")
                 }
+            }
+        }
+    }
+}
+
+/**
+ * A Summon-based UserForm component to replace the kotlinx.html-based implementation.
+ * 
+ * @param user The user to edit, or null if creating a new user
+ * @param action The form action URL
+ * @param method The HTTP method to use (post, put, etc.)
+ */
+@Composable
+fun UserFormComponent(
+    user: User? = null,
+    action: String,
+    method: String = "post"
+) {
+    val isUpdate = user != null
+    val formId = if (isUpdate) "edit-user-form-${user?.id}" else "add-user-form"
+
+    Box(
+        modifier = Modifier()
+            .style("id", formId)
+            .style("class", "user-form card")
+            .style("style", "padding: 1.5rem; margin-bottom: 1.5rem;")
+            .style("hx-${method.lowercase()}", action)
+            .style("hx-target", "#users-table-wrapper")
+            .style("hx-swap", "outerHTML")
+            .style("element", "form")
+            .style("action", action)
+            .style("method", "post")
+    ) {
+        Column {
+            Text(
+                text = if (isUpdate) "Edit User" else "Add New User",
+                modifier = Modifier().style("style", "font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem;")
+            )
+
+            // Add hidden method field for PUT/DELETE requests
+            if (method.equals("put", ignoreCase = true) || method.equals("delete", ignoreCase = true)) {
+                Box(
+                    modifier = Modifier()
+                        .style("type", "hidden")
+                        .style("name", "_method")
+                        .style("value", method.uppercase())
+                        .style("element", "input")
+                ) {}
+            }
+
+            // Name field
+            FormGroup("Name") {
+                TextField(
+                    value = user?.name ?: "",
+                    onValueChange = {},  // No-op since this is server-rendered
+                    modifier = Modifier()
+                        .style("name", "name")
+                        .style("required", "true")
+                )
+            }
+
+            // Email field
+            FormGroup("Email") {
+                TextField(
+                    value = user?.email ?: "",
+                    onValueChange = {},  // No-op since this is server-rendered
+                    modifier = Modifier()
+                        .style("name", "email")
+                        .style("type", "email")
+                        .style("required", "true")
+                )
+            }
+
+            // Role field
+            FormGroup("Role") {
+                TextField(
+                    value = user?.role ?: "User",
+                    onValueChange = {},  // No-op since this is server-rendered
+                    modifier = Modifier()
+                        .style("name", "role")
+                        .style("required", "true")
+                )
+            }
+
+            // Form buttons
+            Row(modifier = Modifier().style("style", "gap: 0.5rem; margin-top: 1rem;")) {
+                Button(
+                    label = if (isUpdate) "Update User" else "Add User",
+                    onClick = {},  // No-op since this is server-rendered
+                    modifier = Modifier()
+                        .style("class", "btn btn-primary")
+                        .style("type", "submit")
+                )
+
+                Button(
+                    label = "Cancel",
+                    onClick = {},  // No-op since this is server-rendered
+                    modifier = Modifier()
+                        .style("class", "btn btn-secondary")
+                        .style("hx-get", "/api/users/cancel-form")
+                        .style("hx-target", "#user-form-container")
+                        .style("hx-swap", "innerHTML")
+                )
             }
         }
     }

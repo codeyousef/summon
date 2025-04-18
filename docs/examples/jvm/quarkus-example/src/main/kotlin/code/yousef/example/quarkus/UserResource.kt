@@ -7,9 +7,9 @@ import jakarta.ws.rs.core.Response.Status
 import jakarta.inject.Inject
 import code.yousef.example.quarkus.components.RegistrationPage
 import code.yousef.example.quarkus.components.UserEditPage
-import code.yousef.summon.platform.JvmPlatformRenderer
 import code.yousef.summon.platform.PageMetadata
 import code.yousef.summon.platform.RenderToString
+import code.yousef.summon.runtime.JvmPlatformRenderer
 
 /**
  * REST resource for managing users in the system.

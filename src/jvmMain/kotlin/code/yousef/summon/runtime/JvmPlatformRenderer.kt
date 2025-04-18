@@ -630,8 +630,8 @@ class JvmPlatformRenderer : PlatformRenderer {
                         val savedBuilder = currentBuilder
                         currentBuilder = this
                         try {
-                            // Handle imported Tab.content as a Composable object
-                            tab.content.compose(this)
+                            // Handle imported Tab.content as a @Composable function
+                            tab.content()
                         } finally {
                             currentBuilder = savedBuilder
                         }

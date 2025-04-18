@@ -83,10 +83,8 @@ object ColorHelpers {
             ColorSystem.ThemeMode.LIGHT -> light
             ColorSystem.ThemeMode.DARK -> dark
             ColorSystem.ThemeMode.SYSTEM -> {
-                // TODO: provide a real implementation
-                // In a real implementation, we would detect system preference
-                // For now, default to light mode
-                light
+                // Use the ColorSystem's implementation to detect system preference
+                if (ColorSystem.isSystemInDarkMode()) dark else light
             }
         }
     }

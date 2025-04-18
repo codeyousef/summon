@@ -23,16 +23,10 @@ object RenderToString {
      * Render a composable to HTML string.
      */
     fun basic(renderer: JvmPlatformRenderer, composable: @Composable () -> Unit): String {
-        val docType = "<!DOCTYPE html>\n"
-        val consumer = createHTML()
-        val htmlString = consumer.html {
-            body {
-                renderer.renderComposable(composable)
-            }
-        }
-        return docType + htmlString
+        // Use renderComposableRoot instead of renderComposable to properly set up the rendering context
+        return renderer.renderComposableRoot(composable)
     }
-    
+
     /**
      * Render a composable to HTML string with metadata.
      */
@@ -41,41 +35,32 @@ object RenderToString {
         metadata: PageMetadata,
         composable: @Composable () -> Unit
     ): String {
-        val docTypeString = if (metadata.includeDocType) "<!DOCTYPE html>\n" else ""
-        val consumer = createHTML()
-        val htmlString = consumer.html {
-            head {
-                metadata.title?.let { title(it) }
-                metadata.description?.let {
-                    meta {
-                        name = "description"
-                        content = it
-                    }
-                }
-                
-                meta {
-                    name = "viewport"
-                    content = "width=device-width, initial-scale=1.0"
-                }
-                meta {
-                    charset = "UTF-8"
-                }
-                
-                // Add custom head elements
-                metadata.customHeadElements.forEach { element ->
-                    unsafe { +element }
-                }
-                
-                // Add head elements from the renderer
-                renderer.getHeadElements().forEach { element ->
-                    unsafe { +element }
-                }
-            }
-            body {
-                renderer.renderComposable(composable)
-            }
+        // Add head elements to the renderer
+        if (metadata.title != null) {
+            renderer.addHeadElement("<title>${metadata.title}</title>")
         }
-        return docTypeString + htmlString
+        if (metadata.description != null) {
+            renderer.addHeadElement("<meta name=\"description\" content=\"${metadata.description}\">")
+        }
+
+        // Add viewport and charset meta tags
+        renderer.addHeadElement("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">")
+        renderer.addHeadElement("<meta charset=\"UTF-8\">")
+
+        // Add custom head elements
+        metadata.customHeadElements.forEach { element ->
+            renderer.addHeadElement(element)
+        }
+
+        // Use renderComposableRoot to properly set up the rendering context
+        val result = renderer.renderComposableRoot(composable)
+
+        // Add doctype if needed
+        return if (metadata.includeDocType && !result.startsWith("<!DOCTYPE")) {
+            "<!DOCTYPE html>\n$result"
+        } else {
+            result
+        }
     }
 }
 

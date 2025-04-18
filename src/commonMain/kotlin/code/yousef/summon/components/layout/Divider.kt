@@ -1,6 +1,6 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.core.Composable
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.getPlatformRenderer
 import kotlinx.html.TagConsumer
@@ -14,24 +14,13 @@ import kotlinx.html.TagConsumer
  * @param length The length of the divider (width for horizontal, height for vertical)
  * @param modifier The modifier to apply to this composable
  */
-class Divider(
-    val isVertical: Boolean = false,
-    val thickness: String = "1px",
-    val color: String = "#CCCCCC",
-    val length: String = "100%",
-    val modifier: Modifier = Modifier()
-) : Composable {
-    /**
-     * Renders this Divider composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            val tagConsumer = receiver as TagConsumer<*>
-            getPlatformRenderer().renderDivider(modifier)
-        }
-        return receiver
-    }
-} 
+@Composable
+fun Divider(
+    isVertical: Boolean = false,
+    thickness: String = "1px",
+    color: String = "#CCCCCC",
+    length: String = "100%",
+    modifier: Modifier = Modifier()
+) {
+    getPlatformRenderer().renderDivider(modifier)
+}

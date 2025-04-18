@@ -1,35 +1,24 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.components.LayoutComponent
-import code.yousef.summon.core.Composable
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.getPlatformRenderer
-import kotlinx.html.TagConsumer
-
+import kotlinx.html.FlowContent
 
 /**
- * A composable that represents an HTML form.
- * It manages form state, validation, and submission.
- *
- * @param content The form content containing input fields and submit buttons
- * @param onSubmit Callback that is invoked when the form is submitted
- * @param modifier The modifier to apply to this composable
+ * Base interface for form fields
  */
-class Form(
-    val content: List<Composable>,
-    val onSubmit: (Map<String, String>) -> Unit = {},
-    val modifier: Modifier = Modifier()
-) : Composable, LayoutComponent {
-    private val formFields = mutableListOf<FormField>()
+interface FormField {
+    val label: String?
+    val value: String
+    fun validate(): Boolean
+}
 
-    /**
-     * Base interface for form fields
-     */
-    interface FormField {
-        val label: String?
-        val value: String
-        fun validate(): Boolean
-    }
+/**
+ * Class that manages form state, validation, and submission.
+ */
+class FormState {
+    private val formFields = mutableListOf<FormField>()
 
     /**
      * Registers a form field with this form.
@@ -51,7 +40,7 @@ class Form(
      * Submits the form if validation passes.
      * @return True if form was submitted, false if validation failed
      */
-    fun submit(): Boolean {
+    fun submit(onSubmit: (Map<String, String>) -> Unit): Boolean {
         if (validate()) {
             // Collect all form values
             val formData = formFields.associate { field ->
@@ -64,26 +53,27 @@ class Form(
         }
         return false
     }
+}
 
-    /**
-     * Renders this Form composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            @Suppress("UNCHECKED_CAST")
-            val renderer = getPlatformRenderer()
-            renderer.renderForm(
-                onSubmit = { this.submit() },
-                modifier = modifier,
-                content = {
-                    this@Form.content.forEach { childComposable ->
-                        childComposable.compose(this)
-                    }
-                }
-            )
-        }
-        return receiver
-    }
-} 
+/**
+ * A composable that represents an HTML form.
+ * It manages form state, validation, and submission.
+ *
+ * @param onSubmit Callback that is invoked when the form is submitted
+ * @param modifier The modifier to apply to this composable
+ * @param content The form content containing input fields and submit buttons
+ */
+@Composable
+fun Form(
+    onSubmit: (Map<String, String>) -> Unit = {},
+    modifier: Modifier = Modifier(),
+    content: @Composable FlowContent.() -> Unit
+) {
+    val formState = FormState()
+
+    getPlatformRenderer().renderForm(
+        onSubmit = { formState.submit(onSubmit) },
+        modifier = modifier,
+        content = content
+    )
+}

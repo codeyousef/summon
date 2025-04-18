@@ -1,12 +1,16 @@
 package code.yousef.summon
 
-import code.yousef.summon.components.layout.Divider
-
-
 /**
- * JavaScript-specific extensions for the Divider component.
+ * JavaScript-specific utilities for the Divider component.
  */
-fun Divider.setupJsEventHandlers(dividerId: String) {
-    // We don't need event handlers for the divider, but if we did, they would go here
-    // This function is a placeholder for consistency with other components
-} 
+object DividerJs {
+    /**
+     * Sets up JavaScript event handlers for a divider element.
+     * 
+     * @param dividerId The ID of the divider element in the DOM
+     */
+    fun setupEventHandlers(dividerId: String) {
+        // We don't need event handlers for the divider, but if we did, they would go here
+        // This function is a placeholder for consistency with other components
+    }
+}

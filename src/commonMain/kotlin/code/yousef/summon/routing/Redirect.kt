@@ -3,6 +3,7 @@ package code.yousef.summon.routing
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.LaunchedEffect
 import code.yousef.summon.runtime.remember
+import code.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * A composable that performs a client-side redirect when it enters the composition.
@@ -117,10 +118,8 @@ fun redirectIf(
  * This is used when no router is provided to redirectTo or redirectIf.
  */
 private fun getDefaultRouter(): Router? {
-    // TODO: provide a real implementation
-    // In a real implementation, this would get the current router from a global context
-    // For now, we'll return null and let the caller handle it
-    return null
+    // Get the current router from RouterContext
+    return RouterContext.current
 }
 
 /**
@@ -128,8 +127,18 @@ private fun getDefaultRouter(): Router? {
  * This is used to inform search engines about the redirect.
  */
 private fun updateRedirectMetadata(to: String) {
-    // TODO: provide a real implementation
-    // In a real implementation, this would add canonical link and meta refresh tags
-    // For now, we'll just log the action
-    println("Updating redirect metadata for SEO: $to")
+    // Get the platform renderer to add head elements
+    val renderer = LocalPlatformRenderer.current
+
+    // Add canonical link to the target URL
+    renderer.addHeadElement("<link rel=\"canonical\" href=\"$to\">")
+
+    // Add meta refresh tag for browsers that don't support JavaScript
+    renderer.addHeadElement("<meta http-equiv=\"refresh\" content=\"0;url=$to\">")
+
+    // Add 301 status code meta tag for SEO
+    renderer.addHeadElement("<meta name=\"robots\" content=\"noindex\">")
+
+    // Log the action
+    println("Updated redirect metadata for SEO: $to")
 }

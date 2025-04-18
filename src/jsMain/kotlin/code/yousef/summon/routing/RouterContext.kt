@@ -1,20 +1,21 @@
 package code.yousef.summon.routing
 
 /**
- * Provides a context for accessing the current router instance.
- * This is a simple implementation of the context pattern.
+ * JS implementation of RouterContext
  */
-expect object RouterContext {
+actual object RouterContext {
     /**
      * The current router instance.
      */
-    var current: Router?
+    actual var current: Router? = null
         internal set
 
     /**
      * Clears the current router instance.
      */
-    fun clear()
+    actual fun clear() {
+        current = null
+    }
 
     /**
      * Executes a block with the specified router as the current router.
@@ -23,5 +24,13 @@ expect object RouterContext {
      * @param block The block to execute
      * @return The result of the block
      */
-    fun <T> withRouter(router: Router, block: () -> T): T
+    actual fun <T> withRouter(router: Router, block: () -> T): T {
+        val previous = current
+        current = router
+        try {
+            return block()
+        } finally {
+            current = previous
+        }
+    }
 }

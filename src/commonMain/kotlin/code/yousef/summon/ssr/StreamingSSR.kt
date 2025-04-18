@@ -4,6 +4,7 @@ import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.CommonComposer
 import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.getPlatformRenderer
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.html.link
@@ -30,21 +31,46 @@ class StreamingRenderer(
         // First, emit the HTML header
         emit(generateHtmlHeader(context))
 
-        // Then, emit the body opening tag and root div
-        emit("<body>\n<div id=\"root\" data-summon-hydration=\"root\">")
-        // TODO: Implement a real implementation
-        // Render the component in chunks using a special chunking renderer
-        // In a real implementation, this would use a more sophisticated chunking approach
-        // For this example, we'll simulate chunking by splitting a full render
-        val fullHtml = renderToString(composable)
-        val chunks = fullHtml.chunked(chunkSize)
+        // Then, emit the body opening tag and root div with streaming attributes
+        emit("""<body>
+               |<div id="root" data-summon-hydration="root" data-summon-streaming="true">
+               |<script>
+               |    // Initialize streaming state
+               |    window.__SUMMON_STREAMING = {
+               |        chunks: 0,
+               |        complete: false,
+               |        startTime: Date.now()
+               |    };
+               |    // Function to mark chunk as loaded
+               |    window.__SUMMON_CHUNK_LOADED = function(index) {
+               |        window.__SUMMON_STREAMING.chunks++;
+               |        document.dispatchEvent(new CustomEvent('summon:chunk-loaded', { 
+               |            detail: { index: index, total: window.__SUMMON_STREAMING.chunks }
+               |        }));
+               |    };
+               |</script>
+               |""".trimMargin())
 
-        // Emit each chunk
-        chunks.forEach { chunk ->
-            emit(chunk)
+        // Render the component in chunks
+        val fullHtml = renderToString(composable)
+
+        // Use intelligent chunking for better HTML structure preservation
+        val chunks = intelligentChunking(fullHtml, chunkSize)
+
+        // Emit each chunk with progress tracking
+        chunks.forEachIndexed { index, chunk ->
+            // Wrap chunk in a container with data attribute for tracking
+            emit("""<div data-summon-chunk="${index + 1}">$chunk</div>""")
+
+            // Add a script to mark this chunk as loaded
+            emit("""<script>window.__SUMMON_CHUNK_LOADED(${index + 1});</script>""")
+
+            // Add a small delay between chunks to simulate network conditions
+            // and allow the browser to process each chunk
+            delay(10) // Small delay for demonstration purposes
         }
 
-        // Emit the closing tags and scripts
+        // Emit the closing div tag
         emit("</div>")
 
         // Add initial state script if needed
@@ -54,23 +80,104 @@ class StreamingRenderer(
 
         // Add hydration script if needed
         if (context.enableHydration) {
-            emit("<script src=\"/summon-hydration.js\"></script>")
-
             // Generate hydration data
-            val hydrationData = hydrationSupport.generateHydrationData(composable, HydrationStrategy.FULL)
+            val hydrationData = hydrationSupport.generateHydrationData(composable, HydrationStrategy.PROGRESSIVE)
 
-            // Add the hydration markers
-            emit(
-                """
-                <script type="application/json" id="summon-hydration-data" style="display:none">
-                    $hydrationData
-                </script>
-            """.trimIndent()
-            )
+            // Add the hydration data script
+            emit("""
+                |<script type="application/json" id="summon-hydration-data" style="display:none">
+                |    $hydrationData
+                |</script>
+                |""".trimMargin())
+
+            // Add the streaming completion script
+            emit("""
+                |<script>
+                |    // Mark streaming as complete
+                |    window.__SUMMON_STREAMING.complete = true;
+                |    window.__SUMMON_STREAMING.totalChunks = ${chunks.size};
+                |    window.__SUMMON_STREAMING.endTime = Date.now();
+                |    window.__SUMMON_STREAMING.duration = window.__SUMMON_STREAMING.endTime - window.__SUMMON_STREAMING.startTime;
+                |    
+                |    // Dispatch completion event
+                |    document.dispatchEvent(new CustomEvent('summon:streaming-complete', {
+                |        detail: { 
+                |            chunks: ${chunks.size},
+                |            duration: window.__SUMMON_STREAMING.duration
+                |        }
+                |    }));
+                |    
+                |    console.log('Summon streaming complete:', window.__SUMMON_STREAMING);
+                |</script>
+                |""".trimMargin())
+
+            // Add the hydration script
+            emit("<script src=\"/summon-hydration.js\"></script>")
         }
 
         // Close the body and html tags
         emit("\n</body>\n</html>")
+    }
+
+    /**
+     * Intelligently chunk HTML content at logical boundaries
+     * 
+     * @param html The HTML content to chunk
+     * @param targetChunkSize The target size for each chunk
+     * @return A list of HTML chunks
+     */
+    private fun intelligentChunking(html: String, targetChunkSize: Int): List<String> {
+        if (html.length <= targetChunkSize) {
+            return listOf(html)
+        }
+
+        val chunks = mutableListOf<String>()
+        var currentPos = 0
+
+        while (currentPos < html.length) {
+            // Calculate the end position for this chunk
+            var endPos = minOf(currentPos + targetChunkSize, html.length)
+
+            // If we're not at the end of the string, try to find a good breaking point
+            if (endPos < html.length) {
+                // Look for closing tags as good breaking points
+                val closingTags = listOf("</div>", "</p>", "</section>", "</article>", 
+                                         "</li>", "</ul>", "</ol>", "</table>", 
+                                         "</tr>", "</td>", "</h1>", "</h2>", "</h3>")
+
+                // Find the last occurrence of any closing tag within our range
+                var bestBreakPoint = -1
+                for (tag in closingTags) {
+                    val tagPos = html.lastIndexOf(tag, endPos)
+                    if (tagPos > currentPos && tagPos + tag.length <= endPos && tagPos > bestBreakPoint) {
+                        bestBreakPoint = tagPos + tag.length
+                    }
+                }
+
+                // If we found a good breaking point, use it
+                if (bestBreakPoint > 0) {
+                    endPos = bestBreakPoint
+                } else {
+                    // Otherwise, look for the end of a tag or a space
+                    val tagEnd = html.indexOf('>', endPos)
+                    if (tagEnd > 0 && tagEnd - endPos < 100) { // Don't look too far ahead
+                        endPos = tagEnd + 1
+                    } else {
+                        // Last resort: break at a space
+                        val spacePos = html.lastIndexOf(' ', endPos)
+                        if (spacePos > currentPos && spacePos - currentPos >= targetChunkSize / 2) {
+                            endPos = spacePos + 1
+                        }
+                    }
+                }
+            }
+
+            // Extract the chunk and add it to our list
+            chunks.add(html.substring(currentPos, endPos))
+            currentPos = endPos
+        }
+
+        return chunks
     }
 
     /**
@@ -188,8 +295,87 @@ class StreamingRenderer(
      * Generates a script tag with initial state for hydration
      */
     private fun generateInitialStateScript(context: RenderContext): String {
-        // Placeholder implementation
-        return """<script>window.__SUMMON_INITIAL_STATE__ = {};</script>"""
+        if (context.initialState.isEmpty()) {
+            return """<script>window.__SUMMON_INITIAL_STATE__ = {};</script>"""
+        }
+
+        // Serialize the initial state to JSON
+        val serializedState = serializeInitialState(context.initialState)
+
+        // Create a script tag with the serialized state and event dispatch
+        return """
+            <script>
+                window.__SUMMON_INITIAL_STATE__ = $serializedState;
+                document.dispatchEvent(new CustomEvent('summon:state-loaded'));
+                console.log('Summon initial state loaded');
+            </script>
+        """.trimIndent()
+    }
+
+    /**
+     * Serialize the initial state to JSON
+     */
+    private fun serializeInitialState(state: Map<String, Any?>): String {
+        if (state.isEmpty()) return "{}"
+
+        return buildString {
+            append("{")
+            state.entries.forEachIndexed { index, (key, value) ->
+                if (index > 0) append(",")
+                append("\n    \"$key\": ")
+                append(serializeValue(value))
+            }
+            append("\n}")
+        }
+    }
+
+    /**
+     * Serialize a value to JSON
+     */
+    private fun serializeValue(value: Any?): String {
+        return when (value) {
+            null -> "null"
+            is String -> "\"${escapeJsonString(value)}\""
+            is Number, is Boolean -> value.toString()
+            is Map<*, *> -> {
+                val map = value.entries.associate { 
+                    (it.key as? String ?: it.key.toString()) to it.value 
+                }
+                buildString {
+                    append("{")
+                    map.entries.forEachIndexed { index, (key, mapValue) ->
+                        if (index > 0) append(", ")
+                        append("\"$key\": ")
+                        append(serializeValue(mapValue))
+                    }
+                    append("}")
+                }
+            }
+            is List<*> -> {
+                buildString {
+                    append("[")
+                    value.forEachIndexed { index, item ->
+                        if (index > 0) append(", ")
+                        append(serializeValue(item))
+                    }
+                    append("]")
+                }
+            }
+            is Array<*> -> serializeValue(value.toList())
+            else -> "\"${escapeJsonString(value.toString())}\""
+        }
+    }
+
+    /**
+     * Escape special characters in JSON strings
+     */
+    private fun escapeJsonString(str: String): String {
+        return str.replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\b", "\\b")
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+            .replace("\t", "\\t")
     }
 }
 

@@ -1,10 +1,9 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.components.LayoutComponent
-import code.yousef.summon.core.Composable
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.getPlatformRenderer
-import kotlinx.html.TagConsumer
+import kotlinx.html.FlowContent
 
 /**
  * A layout composable that creates a collapsible panel with a header and expandable content.
@@ -12,34 +11,23 @@ import kotlinx.html.TagConsumer
  * information needs to be progressively disclosed.
  *
  * @param title The title to display in the header
- * @param content The content to display when expanded
  * @param isExpanded Whether the panel is initially expanded
  * @param onToggle Callback function that is invoked when the expanded state changes
  * @param icon Optional icon to display in the header
  * @param modifier The modifier to apply to this composable
+ * @param content The content to display when expanded
  */
-class ExpansionPanel(
-    val title: String,
-    val content: Composable,
-    val isExpanded: Boolean = false,
-    val onToggle: (() -> Unit)? = null,
-    val icon: Composable? = null,
-    val modifier: Modifier = Modifier()
-) : Composable, LayoutComponent {
-    /**
-     * Renders this ExpansionPanel composable using the platform-specific renderer.
-     * @param receiver TagConsumer to render to
-     * @return The TagConsumer for method chaining
-     */
-    override fun <T> compose(receiver: T): T {
-        if (receiver is TagConsumer<*>) {
-            getPlatformRenderer().renderExpansionPanel(
-                modifier = modifier,
-                content = {
-                    this@ExpansionPanel.content.compose(this)
-                }
-            )
-        }
-        return receiver
-    }
-} 
+@Composable
+fun ExpansionPanel(
+    title: String,
+    isExpanded: Boolean = false,
+    onToggle: (() -> Unit)? = null,
+    icon: @Composable (() -> Unit)? = null,
+    modifier: Modifier = Modifier(),
+    content: @Composable FlowContent.() -> Unit
+) {
+    getPlatformRenderer().renderExpansionPanel(
+        modifier = modifier,
+        content = content
+    )
+}

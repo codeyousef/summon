@@ -29,20 +29,29 @@ fun BasicText(
 ) {
     // Get the platform renderer using CompositionLocal
     val renderer = LocalPlatformRenderer.current
-    
-    // TODO: Convert TextStyle to Modifier styles if needed.
-    // For now, just use the passed modifier.
-    val finalModifier = modifier
-    
+
+    // Convert TextStyle to Modifier styles
+    var finalModifier = modifier
+
+    // Apply text style properties to the modifier
+    style.fontFamily?.let { finalModifier = finalModifier.fontFamily(it) }
+    style.fontSize?.let { finalModifier = finalModifier.fontSize(it) }
+    style.fontWeight?.let { finalModifier = finalModifier.fontWeight(it) }
+    style.fontStyle?.let { finalModifier = finalModifier.style("font-style", it) }
+    style.color?.let { finalModifier = finalModifier.color(it) }
+    style.textDecoration?.let { finalModifier = finalModifier.textDecoration(it) }
+    style.lineHeight?.let { finalModifier = finalModifier.lineHeight(it) }
+    style.letterSpacing?.let { finalModifier = finalModifier.letterSpacing(it) }
+
     // Render the text using the platform renderer with correct arguments
     renderer.renderText(text = text, modifier = finalModifier)
-    
+
     // Create a layout result (simplified for now)
     val layoutResult = TextLayoutResult(
         width = text.length.toFloat() * 8, // Rough estimate
         height = 20f // Default height
     )
-    
+
     // Notify the callback
     onTextLayout(layoutResult)
 }
