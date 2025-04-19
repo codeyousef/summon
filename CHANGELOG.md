@@ -2,6 +2,54 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.3.0]
+
+### Added
+- Enhanced Quarkus integration with improved component rendering
+- Comprehensive HTMX support for dynamic UI interactions
+- Qute template integration for hybrid rendering approaches
+- Navigation support with automatic component processing after navigation
+- New `HtmxContainer` component for loading content via HTMX
+- New `QuteTemplate` component for rendering Qute templates in Summon components
+- Extensive logging for debugging component rendering issues
+- New documentation for Quarkus integration with detailed examples
+
+### Changed
+- Improved HTML attribute handling in JvmPlatformRenderer
+- Enhanced component processing with support for raw HTML content
+- Updated documentation structure with new examples and guides
+- Refactored navigation support for better integration with HTMX
+
+### Fixed
+- Fixed issue with HTMX attributes being rendered incorrectly
+- Fixed component rendering issues with malformed HTML
+- Fixed navigation issues with duplicate navigation bars
+- Fixed issues with buttons not working due to incorrect attribute rendering
+- Fixed issues with components showing "Loading..." messages instead of actual content
+- Fixed HTML structure issues with nested components
+- Fixed issues with escaped HTML entities in component rendering
+
+## [0.2.2.0]
+
+### Added
+- Server-side rendering (SSR) capabilities for improved performance
+- Enhanced theme system with dark mode support
+- Accessibility improvements with ARIA support
+- SEO features with meta tag support
+- Improved documentation with more examples and guides
+
+### Changed
+- Refactored component system for better performance
+- Improved styling system with more flexible modifiers
+- Enhanced state management with better reactivity
+- Updated dependencies to latest versions
+
+### Fixed
+- Fixed issues with component rendering in nested structures
+- Fixed styling inconsistencies across platforms
+- Fixed state management issues with complex state objects
+- Fixed navigation issues with dynamic routes
+
 ## [0.2.1.1]
 
 ### Fixed
