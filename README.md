@@ -98,19 +98,19 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("code.yousef:summon:0.2.1.1")
+                implementation("code.yousef:summon:0.2.3.0")
             }
         }
-        
+
         val jvmMain by getting {
             dependencies {
-                implementation("code.yousef:summon-jvm:0.2.1.1")
+                implementation("code.yousef:summon-jvm:0.2.3.0")
             }
         }
-        
+
         val jsMain by getting {
             dependencies {
-                implementation("code.yousef:summon-js:0.2.1.1")
+                implementation("code.yousef:summon-js:0.2.3.0")
             }
         }
     }

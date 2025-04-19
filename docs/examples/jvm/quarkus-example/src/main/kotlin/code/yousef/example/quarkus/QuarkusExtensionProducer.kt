@@ -1,6 +1,6 @@
 package code.yousef.example.quarkus
 
-import code.yousef.summon.integrations.quarkus.QuarkusExtension
+import code.yousef.summon.integrations.quarkus.EnhancedQuarkusExtension
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Produces
 import jakarta.inject.Singleton
@@ -11,16 +11,16 @@ import jakarta.inject.Singleton
  */
 @ApplicationScoped
 class QuarkusExtensionProducer {
-    
+
     /**
-     * Produces a SummonRenderer instance for injection.
-     * This makes the QuarkusExtension.SummonRenderer available for CDI injection.
+     * Produces an EnhancedSummonRenderer instance for injection.
+     * This makes the EnhancedQuarkusExtension.EnhancedSummonRenderer available for CDI injection.
      * 
-     * @return A singleton instance of QuarkusExtension.SummonRenderer
+     * @return A singleton instance of EnhancedQuarkusExtension.EnhancedSummonRenderer
      */
     @Produces
     @Singleton
-    fun produceSummonRenderer(): QuarkusExtension.SummonRenderer {
-        return QuarkusExtension.SummonRenderer()
+    fun produceSummonRenderer(): EnhancedQuarkusExtension.EnhancedSummonRenderer {
+        return EnhancedQuarkusExtension.EnhancedSummonRenderer()
     }
 }

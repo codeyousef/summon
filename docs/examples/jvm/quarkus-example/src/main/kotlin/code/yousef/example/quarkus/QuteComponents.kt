@@ -1,20 +1,19 @@
 package code.yousef.example.quarkus
 
-import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.layout.Box
+import code.yousef.summon.integrations.quarkus.qute.QuteTemplate
+import code.yousef.summon.integrations.quarkus.qute.QuteTemplateRenderer
+import code.yousef.summon.integrations.quarkus.htmx.htmlAttribute
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import io.quarkus.qute.Template
 import io.quarkus.qute.Location
-import io.quarkus.qute.RawString
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import kotlinx.html.stream.createHTML
 
 /**
  * Components that use Qute templates to render UI components.
- * This approach follows Strategy 1 from the Qute integration guide:
- * Embedding kotlinx.html Output in Qute Templates.
+ * This class uses the library's QuteTemplateRenderer to render Qute templates.
  */
 @ApplicationScoped
 class QuteComponents {
@@ -34,7 +33,7 @@ class QuteComponents {
      * @return The rendered HTML
      */
     fun renderHeroComponent(username: String): String {
-        return heroTemplate.data("username", username).render()
+        return QuteTemplateRenderer.renderTemplate(heroTemplate, "username" to username)
     }
 
     /**
@@ -44,7 +43,7 @@ class QuteComponents {
      * @return The rendered HTML
      */
     fun renderCounterComponent(currentValue: Int): String {
-        return counterTemplate.data("currentValue", currentValue).render()
+        return QuteTemplateRenderer.renderTemplate(counterTemplate, "currentValue" to currentValue)
     }
 }
 
@@ -59,23 +58,14 @@ class QuteComponents {
 fun QuteHeroComponent(username: String, quteComponents: QuteComponents) {
     println("QuteHeroComponent rendering with username: $username")
 
-    // Generate the HTML for the hero component using the Qute template
-    val html = quteComponents.renderHeroComponent(username)
-    println("QuteHeroComponent - Generated HTML length: ${html.length}")
-
-    // Create a div element to hold the hero component
-    // We'll use direct HTML injection in WebResource.kt instead of trying to use Box with html style
-    // Use a more direct approach to ensure the ID is properly set
-    Box(
-        Modifier()
-            .style("id", "hero-component-container")
-            .style("data-component", "hero")  // Add a data attribute for easier debugging
-    ) {
-        Text("Hero component will be rendered here")
-    }
-
-    // Log that we've created the hero container
-    println("Created hero container with ID: hero-component-container")
+    // Use the library's QuteTemplate component to render the hero component
+    QuteTemplate(
+        template = quteComponents.heroTemplate,
+        modifier = Modifier()
+            .htmlAttribute("id", "hero-component-container")
+            .htmlAttribute("data-component", "hero"),
+        "username" to username
+    )
 
     println("QuteHeroComponent rendering completed")
 }
@@ -91,23 +81,14 @@ fun QuteHeroComponent(username: String, quteComponents: QuteComponents) {
 fun QuteCounterComponent(initialValue: Int, quteComponents: QuteComponents) {
     println("QuteCounterComponent rendering with initialValue: $initialValue")
 
-    // Generate the HTML for the counter component using the Qute template
-    val html = quteComponents.renderCounterComponent(initialValue)
-    println("QuteCounterComponent - Generated HTML length: ${html.length}")
-
-    // Create a div element to hold the counter component
-    // We'll use direct HTML injection in WebResource.kt instead of trying to use Box with html style
-    // Use a more direct approach to ensure the ID is properly set
-    Box(
-        Modifier()
-            .style("id", "counter-component-container")
-            .style("data-component", "counter")  // Add a data attribute for easier debugging
-    ) {
-        Text("Counter component will be rendered here")
-    }
-
-    // Log that we've created the counter container
-    println("Created counter container with ID: counter-component-container")
+    // Use the library's QuteTemplate component to render the counter component
+    QuteTemplate(
+        template = quteComponents.counterTemplate,
+        modifier = Modifier()
+            .htmlAttribute("id", "counter-component-container")
+            .htmlAttribute("data-component", "counter"),
+        "currentValue" to initialValue
+    )
 
     println("QuteCounterComponent rendering completed")
 }

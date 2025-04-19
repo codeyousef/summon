@@ -38,9 +38,9 @@ dependencies {
     // Existing Quarkus dependencies...
 
     // Summon dependencies
-    implementation("code.yousef:summon:0.2.1.1")
-    implementation("code.yousef:summon-jvm:0.2.1.1")
-    
+    implementation("code.yousef:summon:0.2.3.0")
+    implementation("code.yousef:summon-jvm:0.2.3.0")
+
     // For HTML generation
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.12.0")
 }
@@ -135,7 +135,7 @@ Summon's state management works seamlessly with Quarkus server-side rendering:
 @Composable
 fun CounterComponent(initialCount: Int = 0) {
     val count = remember { mutableStateOf(initialCount) }
-    
+
     // Component UI that uses and updates state
 }
 ```

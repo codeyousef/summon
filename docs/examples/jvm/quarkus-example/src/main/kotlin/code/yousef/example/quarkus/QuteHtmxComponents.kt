@@ -2,6 +2,7 @@ package code.yousef.example.quarkus
 
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.layout.Box
+import code.yousef.summon.integrations.quarkus.htmx.HtmxContainer
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import io.quarkus.qute.Template
@@ -47,14 +48,14 @@ class QuteHtmxComponents {
 }
 
 /**
- * A composable function that renders the hero component using Qute.
+ * A composable function that renders the hero component using HTMX.
  * This function is used in Summon components to render the hero component.
  * 
  * @param username The username to display in the hero component
  */
 @Composable
-fun QuteHeroComponent(username: String) {
-    println("QuteHeroComponent rendering with username: $username")
+fun QuteHtmxHeroComponent(username: String) {
+    println("QuteHtmxHeroComponent rendering with username: $username")
 
     HtmxContainer(
         id = "hero-container",
@@ -63,18 +64,18 @@ fun QuteHeroComponent(username: String) {
         loadingText = "Loading hero component..."
     )
 
-    println("QuteHeroComponent rendering completed")
+    println("QuteHtmxHeroComponent rendering completed")
 }
 
 /**
- * A composable function that renders the counter component using Qute.
+ * A composable function that renders the counter component using HTMX.
  * This function is used in Summon components to render the counter component.
  * 
  * @param initialValue The initial value of the counter
  */
 @Composable
-fun QuteCounterComponent(initialValue: Int = 0) {
-    println("QuteCounterComponent rendering with initialValue: $initialValue")
+fun QuteHtmxCounterComponent(initialValue: Int = 0) {
+    println("QuteHtmxCounterComponent rendering with initialValue: $initialValue")
 
     HtmxContainer(
         id = "counter-container",
@@ -83,5 +84,5 @@ fun QuteCounterComponent(initialValue: Int = 0) {
         loadingText = "Loading counter component..."
     )
 
-    println("QuteCounterComponent rendering completed")
+    println("QuteHtmxCounterComponent rendering completed")
 }

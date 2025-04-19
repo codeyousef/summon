@@ -2,12 +2,9 @@ package code.yousef.example.quarkus
 
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.layout.Box
-import code.yousef.summon.integrations.quarkus.QuarkusExtension
+import code.yousef.summon.integrations.quarkus.EnhancedQuarkusExtension
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.JvmPlatformRenderer
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.platform.renderToString
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import kotlinx.html.*
@@ -17,14 +14,14 @@ import org.jboss.logging.Logger
 /**
  * A renderer for HTML components integrated with Quarkus.
  * This class handles the transformation of components into HTML.
- * It uses the SummonRenderer from the Summon library's Quarkus integration.
+ * It uses the EnhancedSummonRenderer from the Summon library's Quarkus integration.
  */
 @ApplicationScoped
 class SummonRenderer {
     private val logger = Logger.getLogger(SummonRenderer::class.java)
 
     @Inject
-    private lateinit var summonRenderer: QuarkusExtension.SummonRenderer
+    private lateinit var summonRenderer: EnhancedQuarkusExtension.EnhancedSummonRenderer
 
     // Store chat JavaScript separately
     private val chatJavaScript = """
@@ -157,32 +154,14 @@ class SummonRenderer {
         """
 
     /**
-     * Helper method to provide the LocalPlatformRenderer CompositionLocal and render the content.
-     * This method renders just the composable content without generating a complete HTML document.
+     * Helper method to render the composable content using the EnhancedSummonRenderer.
      * 
      * @param content The composable content lambda
      * @return The rendered HTML as a string
      */
-    private fun renderWithPlatformRenderer(content: @Composable () -> Unit): String {
-        // Create a JvmPlatformRenderer instance
-        val renderer = JvmPlatformRenderer()
-
-        // Provide the renderer to the LocalPlatformRenderer CompositionLocal
-        val provided = LocalPlatformRenderer.provides(renderer)
-
-        // Use renderComposableRoot to generate the complete HTML document
-        val fullHtml = renderer.renderComposableRoot { 
-            provided.run {
-                content()
-            }
-        }
-
-        // Extract just the content from the body tag using a regular expression
-        val bodyContentRegex = Regex("<body>(.*?)</body>", RegexOption.DOT_MATCHES_ALL)
-        val bodyContentMatch = bodyContentRegex.find(fullHtml)
-
-        // Return just the content, or the full HTML if the regex doesn't match
-        return bodyContentMatch?.groupValues?.get(1)?.trim() ?: fullHtml
+    private fun renderWithEnhancedRenderer(content: @Composable () -> Unit): String {
+        // Use the EnhancedSummonRenderer to render the composable content
+        return summonRenderer.renderToString(content)
     }
 
     /**
@@ -203,19 +182,19 @@ class SummonRenderer {
         logger.info("SummonRenderer.render() called with title: $title")
 
         try {
-            // Use the Summon library's QuarkusExtension.SummonRenderer to render the content
-            logger.info("SummonRenderer.render() - Rendering composable content using Summon's QuarkusExtension...")
+            // Use the Summon library's EnhancedQuarkusExtension.EnhancedSummonRenderer to render the content
+            logger.info("SummonRenderer.render() - Rendering composable content using Summon's EnhancedQuarkusExtension...")
 
             // Render the composable content to a string
             val renderedComposableHtml = try {
-                renderWithPlatformRenderer(content)
+                renderWithEnhancedRenderer(content)
             } catch (e: Exception) {
                 logger.error("ERROR rendering composable content: ${e.message}", e)
                 // Provide error details within the page structure
-                renderWithPlatformRenderer { ErrorComponent("Composable Rendering Error", e) }
+                renderWithEnhancedRenderer { ErrorComponent("Composable Rendering Error", e) }
             }
 
-            // Use the Summon library's QuarkusExtension.SummonRenderer to render the template
+            // Use the Summon library's EnhancedQuarkusExtension.EnhancedSummonRenderer to render the template
             val result = summonRenderer.renderTemplate(title, renderedComposableHtml)
 
             logger.info("SummonRenderer.render() completed successfully, result length: ${result.length}")
@@ -238,8 +217,8 @@ class SummonRenderer {
         logger.info("SummonRenderer.render() called without title (component-only)")
 
         try {
-            // Render the composable directly using Summon's SSR function with platform renderer
-            val result = renderWithPlatformRenderer(content)
+            // Render the composable directly using EnhancedSummonRenderer
+            val result = renderWithEnhancedRenderer(content)
 
             logger.info("SummonRenderer.render() completed successfully for component, result length: ${result.length}")
             return result
@@ -272,8 +251,8 @@ class SummonRenderer {
 
     @Composable
     private fun ErrorComponent(title: String, e: Exception) {
-        // The LocalPlatformRenderer CompositionLocal is now provided by the renderWithPlatformRenderer helper method
-        Box(modifier = Modifier().style("color", "red").padding("1rem")) {
+        // The EnhancedSummonRenderer handles the rendering context
+        Box(modifier = Modifier().style("color", "red").style("padding", "1rem")) {
             Text("Error: $title")
             Text("Message: ${e.message ?: "No details"}")
         }

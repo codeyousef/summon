@@ -38,8 +38,7 @@ class WebResource {
     @Inject
     lateinit var summonRenderer: SummonRenderer
 
-    @Inject
-    lateinit var quteHtmxComponents: QuteHtmxComponents
+    // QuteHtmxComponents is no longer needed as we're using the library's components
 
     @Inject
     lateinit var quteComponents: QuteComponents
@@ -59,204 +58,16 @@ class WebResource {
         try {
             println("WebResource.home() - Using Summon Components rendering")
 
-            // Generate the HTML for the hero and counter components
-            val heroHtml = quteComponents.renderHeroComponent("Quarkus User")
-            val counterHtml = quteComponents.renderCounterComponent(counter.get())
-
-            // Render the page without the hero and counter components
+            // Render the page with the hero and counter components
             var result = summonRenderer.render(title = "Summon with Quarkus - Home") {
                 AppRoot { // Use the Summon AppRoot composable
+                    // Add the hero and counter components directly
+                    QuteHeroComponent("Quarkus User", quteComponents)
                     CurrentTimeComponent() // Use Summon version
                     FeatureCardsComponent() // Use Summon version
+                    QuteCounterComponent(counter.get(), quteComponents)
                 }
             }
-
-            // Create a complete HTML string with the hero and counter components and the JavaScript to inject the component HTML
-            val componentsHtml = """
-                <!-- Hero Component Container -->
-                <div id="hero-component-container" data-component="hero">
-                    Loading hero component...
-                </div>
-
-                <!-- Counter Component Container -->
-                <div id="counter-component-container" data-component="counter">
-                    Loading counter component...
-                </div>
-            """.trimIndent()
-
-            // Log the HTML content for debugging
-            println("Hero HTML content (length: ${heroHtml.length}):")
-            println(heroHtml)
-            println("Counter HTML content (length: ${counterHtml.length}):")
-            println(counterHtml)
-
-            // Create JavaScript to inject the HTML into the placeholder divs
-            // Use proper escaping for JavaScript string literals
-            val escapedHeroHtml = heroHtml.replace("\\", "\\\\").replace("`", "\\`").replace("$", "\\$")
-            val escapedCounterHtml = counterHtml.replace("\\", "\\\\").replace("`", "\\`").replace("$", "\\$")
-
-            val injectScript = """
-                <script>
-                    console.log("Component injection script running");
-
-                    // Function to check HTMX status
-                    function checkHtmxStatus() {
-                        console.log("Checking HTMX status");
-                        if (typeof htmx !== 'undefined') {
-                            console.log("HTMX is loaded:", htmx.version);
-
-                            // Log HTMX configuration
-                            console.log("HTMX config:", htmx.config);
-
-                            // Check if HTMX is processing events
-                            const htmxElements = document.querySelectorAll("[hx-get], [hx-post], [hx-put], [hx-delete]");
-                            console.log("Found", htmxElements.length, "elements with HTMX attributes");
-
-                            // Log each HTMX element for debugging
-                            htmxElements.forEach((el, index) => {
-                                console.log("HTMX Element #" + index + ":", {
-                                    element: el.tagName,
-                                    id: el.id,
-                                    hxGet: el.getAttribute('hx-get'),
-                                    hxPost: el.getAttribute('hx-post'),
-                                    hxTarget: el.getAttribute('hx-target'),
-                                    hxSwap: el.getAttribute('hx-swap'),
-                                    hxTrigger: el.getAttribute('hx-trigger')
-                                });
-                            });
-                        } else {
-                            console.error("HTMX is not loaded! Components may not work correctly.");
-                        }
-                    }
-
-                    // Function to inject component HTML
-                    function injectComponentHTML() {
-                        console.log("Injecting component HTML");
-
-                        // Inject hero component HTML
-                        var heroContainer = document.getElementById('hero-component-container');
-                        console.log("Hero container found:", heroContainer);
-                        if (heroContainer) {
-                            heroContainer.innerHTML = `${escapedHeroHtml}`;
-                            console.log("Hero HTML injected");
-                        } else {
-                            console.error("Hero container not found with ID: hero-component-container");
-                        }
-
-                        // Inject counter component HTML
-                        var counterContainer = document.getElementById('counter-component-container');
-                        console.log("Counter container found:", counterContainer);
-                        if (counterContainer) {
-                            counterContainer.innerHTML = `${escapedCounterHtml}`;
-                            console.log("Counter HTML injected");
-                        } else {
-                            console.error("Counter container not found with ID: counter-component-container");
-                        }
-
-                        // Initialize HTMX after components are injected
-                        // This ensures HTMX processes the attributes correctly
-                        function processWithHtmx() {
-                            if (typeof htmx !== 'undefined') {
-                                console.log("HTMX found, processing new content");
-
-                                try {
-                                    // Process the entire document to ensure all HTMX attributes are processed
-                                    htmx.process(document.body);
-                                    console.log("HTMX processing completed successfully");
-
-                                    // Check HTMX status after processing
-                                    setTimeout(checkHtmxStatus, 100);
-
-                                    // Add event listeners to debug HTMX events
-                                    document.body.addEventListener('htmx:beforeRequest', function(event) {
-                                        console.log("HTMX beforeRequest event:", event.detail);
-                                    });
-
-                                    document.body.addEventListener('htmx:afterRequest', function(event) {
-                                        console.log("HTMX afterRequest event:", event.detail);
-                                    });
-
-                                    document.body.addEventListener('htmx:responseError', function(event) {
-                                        console.error("HTMX responseError event:", event.detail);
-                                    });
-                                } catch (e) {
-                                    console.error("Error processing HTMX content:", e);
-                                }
-                            } else {
-                                console.error("HTMX not found! Components may not work correctly.");
-                            }
-                        }
-
-                        // Add a small delay before processing to ensure HTMX is fully initialized
-                        setTimeout(processWithHtmx, 100);
-
-                        // Also add event listener to check when HTMX is loaded if it's not available immediately
-                        if (typeof htmx === 'undefined') {
-                            console.warn("HTMX not immediately available, setting up load listener");
-                            window.addEventListener('load', function() {
-                                console.log("Window loaded, checking if HTMX is available now");
-                                setTimeout(processWithHtmx, 100);
-                            });
-                        }
-                    }
-
-                    // Run on DOMContentLoaded
-                    document.addEventListener('DOMContentLoaded', injectComponentHTML);
-
-                    // Run on popstate (browser back/forward navigation)
-                    window.addEventListener('popstate', injectComponentHTML);
-
-                    // Run immediately if document is already loaded
-                    if (document.readyState === 'complete' || document.readyState === 'interactive') {
-                        setTimeout(injectComponentHTML, 0);
-                    }
-                </script>
-            """.trimIndent()
-
-            // Insert the components HTML at a specific location in the page
-            // Look for the opening div#app tag
-            val appDivIndex = result.indexOf("<div id=\"app\">")
-            if (appDivIndex == -1) {
-                println("WARNING: <div id=\"app\"> tag not found in the rendered HTML. Component injection may fail.")
-                // Append the components HTML at the end of the HTML as a fallback
-                result += "\n$componentsHtml"
-            } else {
-                // Insert the components HTML after the opening div#app tag
-                val insertIndex = appDivIndex + "<div id=\"app\">".length
-                val beforeInsert = result.length
-                result = result.substring(0, insertIndex) + "\n$componentsHtml\n" + result.substring(insertIndex)
-                val afterInsert = result.length
-
-                // Verify that the insertion was successful
-                if (afterInsert <= beforeInsert) {
-                    println("WARNING: Component HTML injection may have failed. Length before: $beforeInsert, after: $afterInsert")
-                } else {
-                    println("Component HTML successfully injected. Length before: $beforeInsert, after: $afterInsert")
-                }
-            }
-
-            // Check if the body tag exists in the result
-            if (!result.contains("</body>")) {
-                println("WARNING: </body> tag not found in the rendered HTML. Script injection may fail.")
-                // Append the script at the end of the HTML as a fallback
-                result += "\n$injectScript"
-            } else {
-                // Add the script to the end of the body
-                val beforeReplace = result.length
-                result = result.replace("</body>", "$injectScript\n</body>")
-                val afterReplace = result.length
-
-                // Verify that the replacement was successful
-                if (afterReplace <= beforeReplace) {
-                    println("WARNING: Script injection may have failed. Length before: $beforeReplace, after: $afterReplace")
-                } else {
-                    println("Script successfully injected. Length before: $beforeReplace, after: $afterReplace")
-                }
-            }
-
-            // Log the final HTML for debugging (truncated to avoid excessive output)
-            val htmlPreview = if (result.length > 1000) result.substring(0, 500) + "..." + result.substring(result.length - 500) else result
-            println("Final HTML preview:\n$htmlPreview")
 
             println("WebResource.home() finished rendering, result length: ${result.length}")
             return result
@@ -424,6 +235,27 @@ class WebResource {
     }
 
     /**
+     * Endpoint to return the current server time.
+     * This is used by the CurrentTimeComponent to update the time display every second.
+     */
+    @GET @Path("/api/time") @Produces(MediaType.TEXT_PLAIN)
+    fun getCurrentTime(): String {
+        val currentTime = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"))
+        println("=== TIME ENDPOINT ===")
+        println("Returning current time: $currentTime")
+
+        // Log HTMX-specific headers
+        println("HTMX headers:")
+        println("  - HX-Request: ${context.getHeaderString("HX-Request") ?: "No"}")
+        println("  - HX-Trigger: ${context.getHeaderString("HX-Trigger") ?: "None"}")
+        println("  - HX-Target: ${context.getHeaderString("HX-Target") ?: "None"}")
+
+        println("=== END TIME ENDPOINT ===")
+
+        return currentTime
+    }
+
+    /**
      * Implementation of CounterComponent that uses Qute templates to render HTML with the correct attributes.
      * This ensures that the HTMX attributes are rendered correctly as separate HTML attributes.
      */
@@ -433,34 +265,17 @@ class WebResource {
         println("=== COUNTER COMPONENT ENDPOINT ===")
         println("counterComponentHtml called, returning counter with value: $currentValue")
 
-        // Log detailed request information
-        println("Request details:")
-        println("  - URI: ${context.uriInfo.requestUri}")
-        println("  - Method: ${context.method}")
-        println("  - Content-Type: ${context.getHeaderString("Content-Type") ?: "Not specified"}")
-        println("  - Accept: ${context.getHeaderString("Accept") ?: "Not specified"}")
-
         // Log HTMX-specific headers
         println("HTMX headers:")
         println("  - HX-Request: ${context.getHeaderString("HX-Request") ?: "No"}")
         println("  - HX-Trigger: ${context.getHeaderString("HX-Trigger") ?: "None"}")
         println("  - HX-Target: ${context.getHeaderString("HX-Target") ?: "None"}")
-        println("  - HX-Current-URL: ${context.getHeaderString("HX-Current-URL") ?: "None"}")
 
-        // Log all headers for comprehensive debugging
-        println("All request headers:")
-        context.headers.forEach { name, values ->
-            println("  - $name: ${values.joinToString(", ")}")
+        // Render the counter component using the Summon renderer
+        val html = summonRenderer.render {
+            QuteCounterComponent(currentValue, quteComponents)
         }
 
-        // Use the Qute template to render the counter component
-        val html = quteComponents.renderCounterComponent(currentValue)
-
-        // Log the generated HTML in a more readable format
-        println("Generated HTML for counter component:")
-        println("----------------------------------------")
-        println(html)
-        println("----------------------------------------")
         println("HTML length: ${html.length}")
         println("=== END COUNTER COMPONENT ENDPOINT ===")
 
@@ -476,35 +291,17 @@ class WebResource {
         println("=== HERO COMPONENT ENDPOINT ===")
         println("heroComponentHtml called with username: $username")
 
-        // Log detailed request information
-        println("Request details:")
-        println("  - URI: ${context.uriInfo.requestUri}")
-        println("  - Method: ${context.method}")
-        println("  - Content-Type: ${context.getHeaderString("Content-Type") ?: "Not specified"}")
-        println("  - Accept: ${context.getHeaderString("Accept") ?: "Not specified"}")
-        println("  - Query parameters: ${context.uriInfo.queryParameters}")
-
         // Log HTMX-specific headers
         println("HTMX headers:")
         println("  - HX-Request: ${context.getHeaderString("HX-Request") ?: "No"}")
         println("  - HX-Trigger: ${context.getHeaderString("HX-Trigger") ?: "None"}")
         println("  - HX-Target: ${context.getHeaderString("HX-Target") ?: "None"}")
-        println("  - HX-Current-URL: ${context.getHeaderString("HX-Current-URL") ?: "None"}")
 
-        // Log all headers for comprehensive debugging
-        println("All request headers:")
-        context.headers.forEach { name, values ->
-            println("  - $name: ${values.joinToString(", ")}")
+        // Render the hero component using the Summon renderer
+        val html = summonRenderer.render {
+            QuteHeroComponent(username, quteComponents)
         }
 
-        // Use the Qute template to render the hero component
-        val html = quteComponents.renderHeroComponent(username)
-
-        // Log the generated HTML in a more readable format
-        println("Generated HTML for hero component:")
-        println("----------------------------------------")
-        println(html)
-        println("----------------------------------------")
         println("HTML length: ${html.length}")
         println("=== END HERO COMPONENT ENDPOINT ===")
 

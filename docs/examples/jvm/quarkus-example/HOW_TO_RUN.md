@@ -44,10 +44,10 @@ For Gradle:
 ```kotlin
 dependencies {
     // Existing dependencies...
-    
+
     // Summon dependencies
-    implementation("code.yousef:summon:0.2.1.0")
-    implementation("code.yousef:summon-jvm:0.2.1.0")
+    implementation("code.yousef:summon:0.2.3.0")
+    implementation("code.yousef:summon-jvm:0.2.3.0")
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.12.0")
 }
 
@@ -71,12 +71,12 @@ For Maven:
     <dependency>
         <groupId>code.yousef</groupId>
         <artifactId>summon</artifactId>
-        <version>0.2.1.0</version>
+        <version>0.2.3.0</version>
     </dependency>
     <dependency>
         <groupId>code.yousef</groupId>
         <artifactId>summon-jvm</artifactId>
-        <version>0.2.1.0</version>
+        <version>0.2.3.0</version>
     </dependency>
     <dependency>
         <groupId>org.jetbrains.kotlinx</groupId>
@@ -112,25 +112,14 @@ Here's a minimal example to test the Summon integration:
 
 ```kotlin
 // HelloResource.kt
-package org.example
-
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.platform.JvmPlatformRenderer
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.layout.Column
-import jakarta.ws.rs.GET
-import jakarta.ws.rs.Path
-import jakarta.ws.rs.Produces
-import jakarta.ws.rs.core.MediaType
-
 @Path("/hello")
 class HelloResource {
     private val renderer = JvmPlatformRenderer()
-    
+
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     fun hello() = "Hello from Quarkus!"
-    
+
     @GET
     @Path("/summon")
     @Produces(MediaType.TEXT_HTML)

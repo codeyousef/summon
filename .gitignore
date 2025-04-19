@@ -49,7 +49,7 @@ npm-debug.log
 /docs/js-test-guide.md
 /src/jsTestSkip/
 /docs/JavaScript Testing.md
-new-portfolio-design.html
+../portfolio/new-portfolio-design.html
 /scripts/prepare-for-publish.ps1
 /scripts/prepare-for-publish.sh
 /.vscode/
@@ -69,3 +69,9 @@ new-portfolio-design.html
 /docs/examples/jvm/quarkus-example/navigation-fix.md
 /docs/examples/jvm/quarkus-example/src/main/kotlin/code/yousef/example/quarkus/Qute integration.md
 /docs/examples/jvm/quarkus-example/troubleshooting.md
+/cleanup-summary.md
+/src/jvmMain/kotlin/code/yousef/summon/integrations/quarkus/renderer/html-structure-fixes.md
+/src/jvmMain/kotlin/code/yousef/summon/integrations/quarkus/htmx/htmx-rendering-fixes.md
+/integration-plan.md
+/integration-summary.md
+/plan.md

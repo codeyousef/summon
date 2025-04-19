@@ -1,4 +1,4 @@
-package code.yousef.example.quarkus.util
+package code.yousef.example.quarkus.utils
 
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.JvmPlatformRenderer
@@ -7,6 +7,7 @@ import code.yousef.summon.runtime.JvmPlatformRenderer
 // which was causing the error "Rendering function called outside of renderComposableRoot scope".
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
+import kotlinx.html.title
 
 /**
  * Metadata for HTML pages
