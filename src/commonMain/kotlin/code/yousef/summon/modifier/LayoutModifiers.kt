@@ -106,7 +106,7 @@ fun Modifier.marginOf(
     if (left != null && top == null && right == null && bottom == null) {
         return style("margin-left", left)
     }
-    
+
     // If multiple parameters are provided, construct the margin string
     val marginParts = arrayOf(
         top ?: "0",
@@ -140,7 +140,7 @@ fun Modifier.paddingOf(
     if (left != null && top == null && right == null && bottom == null) {
         return style("padding-left", left)
     }
-    
+
     // If multiple parameters are provided, construct the padding string
     val paddingParts = arrayOf(
         top ?: "0",
@@ -180,6 +180,12 @@ fun Modifier.marginLeft(value: String): Modifier =
  */
 fun Modifier.flexWrap(value: String): Modifier =
     style("flex-wrap", value)
+
+/**
+ * Sets the flex wrap property using the FlexWrap enum.
+ */
+fun Modifier.flexWrap(value: FlexWrap): Modifier =
+    style("flex-wrap", value.toString())
 
 /**
  * Sets the flex grow property.
@@ -284,6 +290,12 @@ fun Modifier.borderLeft(width: String, style: String, color: String): Modifier =
     style("border-left", "$width $style $color")
 
 /**
+ * Sets the border-left property using the BorderStyle enum.
+ */
+fun Modifier.borderLeft(width: String, style: BorderStyle, color: String): Modifier =
+    style("border-left", "$width ${style.toString()} $color")
+
+/**
  * Sets the font-size property.
  */
 fun Modifier.fontSize(value: String): Modifier =
@@ -294,3 +306,9 @@ fun Modifier.fontSize(value: String): Modifier =
  */
 fun Modifier.cursor(value: String): Modifier =
     style("cursor", value)
+
+/**
+ * Sets the cursor property using the Cursor enum.
+ */
+fun Modifier.cursor(value: Cursor): Modifier =
+    style("cursor", value.toString())

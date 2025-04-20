@@ -172,13 +172,15 @@ Modifier
     // Typography
     .fontFamily("Arial, sans-serif")
     .fontSize(16.px)
-    .fontWeight(400)
+    .fontWeight(400)                        // Using numeric value
+    .fontWeight(FontWeight.Bold)            // Using FontWeight enum
+    .fontWeight(FontWeight.SemiBold)        // Using FontWeight enum
     .fontStyle(FontStyle.Italic)
     .textAlign(TextAlign.Center)
     .textDecoration(TextDecoration.Underline)
     .textTransform(TextTransform.Uppercase)
     .letterSpacing(0.5.px)
-    .lineHeight(1.5)
+    .lineHeight(1.5)                        // Using numeric value directly
     .whiteSpace(WhiteSpace.NoWrap)
 
     // Backgrounds
@@ -186,6 +188,7 @@ Modifier
     .backgroundSize(BackgroundSize.Cover)
     .backgroundPosition("center")
     .backgroundRepeat(BackgroundRepeat.NoRepeat)
+    .backgroundClip(BackgroundClip.Text) // Clip background to text
 
     // Radial gradients
     .radialGradient(
@@ -199,6 +202,64 @@ Modifier
         innerPosition = "0%",
         outerPosition = "70%"
     )
+    .radialGradient(
+        innerColor = Color.rgba(0, 247, 255, 0.15f), // Using float alpha (0.0-1.0)
+        outerColor = Color.rgba(0, 247, 255, 0f),    // Using float alpha (0.0-1.0)
+        innerPosition = "0%",
+        outerPosition = "70%"
+    )
+    .radialGradient(
+        shape = "circle",
+        colorStops = listOf(
+            Color.rgba(0, 247, 255, 0.15f) to "0%", // Using float alpha (0.0-1.0)
+            Color.hex("#ff2a6d") to "100%"
+        ),
+        position = "center"
+    )
+    // Using enum values for shape and position
+    .radialGradient(
+        shape = RadialGradientShape.Circle,
+        colors = listOf("rgba(0, 247, 255, 0.15) 0%", "rgba(0, 247, 255, 0) 70%"),
+        position = RadialGradientPosition.Center
+    )
+    // Using numeric values for positions (converted to percentages)
+    .radialGradient(
+        innerColor = "rgba(0, 247, 255, 0.15)",
+        outerColor = "rgba(0, 247, 255, 0)",
+        innerPosition = 0,
+        outerPosition = 70,
+        shape = "circle",
+        position = "center"
+    )
+    // Using Color objects, enum values, and numeric positions
+    .radialGradient(
+        innerColor = Color.rgba(0, 247, 255, 0.15f),
+        outerColor = Color.rgba(0, 247, 255, 0f),
+        innerPosition = 0,
+        outerPosition = 70,
+        shape = RadialGradientShape.Ellipse,
+        position = RadialGradientPosition.TopLeft
+    )
+
+    // Linear gradients
+    .linearGradient(
+        direction = "to right",
+        colors = listOf("rgba(255, 0, 0, 0.8) 0%", "rgba(0, 0, 255, 0.8) 100%")
+    )
+    .linearGradient(
+        direction = "90deg",
+        colors = listOf("#00f7ff 0%", "#ff2a6d 100%")
+    )
+    .linearGradient(
+        startColor = "rgba(255, 0, 0, 0.8)",
+        endColor = "rgba(0, 0, 255, 0.8)",
+        direction = "to bottom"
+    )
+    .linearGradient(
+        gradientDirection = "45deg",
+        startColor = Color.rgb(255, 0, 0),
+        endColor = Color.rgb(0, 0, 255)
+    )
 
     // Filters
     .filter("blur(5px)")
@@ -207,6 +268,20 @@ Modifier
     // Transitions
     .transition("background-color 0.3s ease")
     .transition("all 0.3s ease")
+
+    // Transitions with enums and time unit extensions
+    .transition(
+        property = TransitionProperty.BackgroundColor,
+        duration = 0.3.s,
+        timingFunction = TransitionTimingFunction.EaseInOut,
+        delay = 0.s
+    )
+
+    // Individual transition properties with enums
+    .transitionProperty(TransitionProperty.All)
+    .transitionDuration(300.ms)
+    .transitionTimingFunction(TransitionTimingFunction.Ease)
+    .transitionDelay(0.ms)
 
     // Visibility
     .display(Display.None)
@@ -266,6 +341,13 @@ Apply animations to components:
 Modifier
     // Transition animations
     .transition("all 0.3s ease")
+
+    // Using enums and time unit extensions
+    .transition(
+        property = TransitionProperty.All,
+        duration = 0.3.s,
+        timingFunction = TransitionTimingFunction.EaseInOut
+    )
 
     // Transform
     .transform("rotate(45deg)")
@@ -377,7 +459,117 @@ fun MyApp() {
 
 ## Themes
 
-Create and apply themes for consistent styling:
+Summon provides two approaches for creating and applying themes for consistent styling:
+
+### 1. Using the Theme API (Recommended)
+
+The Theme API provides a centralized way to define and access theme values with type-safe properties:
+
+```kotlin
+import code.yousef.summon.theme.*
+
+// Create a custom theme using the Theme API
+val customTheme = Theme.createTheme(Theme.Themes.light) {
+    copy(
+        colorPalette = ColorSystem.blue,
+        typographyTheme = Theme.TypographyTheme(
+            h1 = Theme.TextStyle(fontSize = "2.5rem", fontWeight = "bold"),
+            body = Theme.TextStyle(fontSize = "1rem", lineHeight = "1.5")
+        ),
+        spacingTheme = Theme.SpacingTheme(
+            md = "16px",
+            lg = "24px"
+        ),
+        borderRadiusTheme = Theme.BorderRadiusTheme(
+            md = "8px"
+        ),
+        elevationTheme = Theme.ElevationTheme(
+            md = "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+        ),
+        customValues = mapOf(
+            "customColor" to "#ff5722",
+            "customSpacing" to "24px"
+        )
+    )
+}
+
+// Set the custom theme
+Theme.setTheme(customTheme)
+
+// Access theme values using typed getters
+@Composable
+fun ThemedComponent() {
+    // Get typed theme objects
+    val typography = Theme.getTypographyTheme()
+    val spacing = Theme.getSpacingTheme()
+    val borderRadius = Theme.getBorderRadiusTheme()
+    val elevation = Theme.getElevationTheme()
+
+    Column(
+        modifier = Modifier
+            .padding(spacing.md)
+            .backgroundColor(Theme.getColor("background"))
+    ) {
+        Text(
+            text = "Heading",
+            modifier = Modifier
+                .fontSize(typography.h1.fontSize!!)
+                .fontWeight(typography.h1.fontWeight!!)
+                .marginBottom(spacing.sm)
+        )
+
+        Card(
+            modifier = Modifier
+                .padding(spacing.sm)
+                .borderRadius(borderRadius.md)
+                .boxShadow(elevation.md)
+        ) {
+            Text(
+                text = "Card content",
+                modifier = Modifier
+                    .fontSize(typography.body.fontSize!!)
+                    .lineHeight(typography.body.lineHeight!!)
+                    .padding(spacing.md)
+            )
+        }
+    }
+}
+
+// Use theme modifiers for simplified access
+@Composable
+fun ThemedComponentWithModifiers() {
+    Column(
+        modifier = Modifier
+            .themePadding("md")
+            .themeBackgroundColor("background")
+    ) {
+        Text(
+            text = "Heading",
+            modifier = Modifier
+                .themeTextStyle("h1")
+                .themeMargin(bottom = "sm")
+        )
+
+        Card(
+            modifier = Modifier
+                .themePadding("sm")
+                .themeBorderRadius("md")
+                .themeElevation("md")
+        ) {
+            Text(
+                text = "Card content",
+                modifier = Modifier
+                    .themeTextStyle("body")
+                    .themePadding("md")
+            )
+        }
+    }
+}
+```
+
+### 2. Using Custom Theme Objects (Alternative)
+
+For more manual control, you can define your own theme object:
 
 ```kotlin
 import code.yousef.summon.theme.*
@@ -663,3 +855,148 @@ Modifier
 
 The `marginHorizontalAutoZero()` and `marginVerticalAutoZero()` convenience functions are provided
 to avoid ambiguity issues with overloaded functions. 
+
+## Color System
+
+Summon provides a comprehensive color system with various ways to create and use colors:
+
+### Color Creation
+
+```kotlin
+// Create colors using hex values
+val blue = Color.hex("#0077cc")
+val redWithAlpha = Color.hex("#FF0000AA") // With alpha
+
+// Create colors using RGB values
+val green = Color.rgb(0, 255, 0)
+val yellow = Color.rgb(255, 255, 0)
+
+// Create colors using RGBA values
+val transparentBlue1 = Color.rgba(0, 0, 255, 128)  // Alpha as int (0-255)
+val transparentBlue2 = Color.rgba(0, 0, 255, 0.5f) // Alpha as float (0.0-1.0)
+```
+
+### Color Properties and Methods
+
+```kotlin
+val color = Color.hex("#FF5500")
+
+// Access color components
+val red = color.red       // 255
+val green = color.green   // 85
+val blue = color.blue     // 0
+val alpha = color.alpha   // 255
+val alphaFloat = color.alphaFloat // 1.0
+
+// Create a new color with modified alpha
+val transparent = color.withAlpha(0.5f)
+
+// Convert to strings
+val rgbaString = color.toRgbaString() // "rgba(255, 85, 0, 1.0)"
+val hexString = color.toHexString()   // "#FF5500FF"
+```
+
+### Color Presets
+
+Summon includes a wide range of predefined colors:
+
+```kotlin
+// Basic colors
+val black = Color.BLACK
+val white = Color.WHITE
+val red = Color.RED
+val green = Color.GREEN
+val blue = Color.BLUE
+val yellow = Color.YELLOW
+val transparent = Color.TRANSPARENT
+
+// Additional colors
+val orange = Color.ORANGE
+val purple = Color.PURPLE
+val teal = Color.TEAL
+val pink = Color.PINK
+```
+
+### Material Design 3 Colors
+
+```kotlin
+// Material Design 3 colors
+val primary = Color.Material3.PRIMARY
+val onPrimary = Color.Material3.ON_PRIMARY
+val secondary = Color.Material3.SECONDARY
+val surface = Color.Material3.SURFACE
+val error = Color.Material3.ERROR
+```
+
+### Catppuccin Colors
+
+```kotlin
+// Catppuccin Latte (Light) colors
+val latteBlue = Color.Catppuccin.Latte.BLUE
+val latteRed = Color.Catppuccin.Latte.RED
+val latteGreen = Color.Catppuccin.Latte.GREEN
+
+// Catppuccin Mocha (Dark) colors
+val mochaBlue = Color.Catppuccin.Mocha.BLUE
+val mochaRed = Color.Catppuccin.Mocha.RED
+val mochaGreen = Color.Catppuccin.Mocha.GREEN
+```
+
+### Using Colors with Modifiers
+
+```kotlin
+Modifier
+    // Using color strings
+    .backgroundColor("#0077cc")
+    .color("#ffffff")
+
+    // Using Color objects directly
+    .backgroundColor(Color.Material3.PRIMARY)
+    .color(Color.Material3.ON_PRIMARY)
+    .color(Color.TRANSPARENT)
+    .backgroundColor(Color.hex("#00f7ff"))
+
+    // Using Color objects with gradients
+    .linearGradient(
+        direction = "to right",
+        startColor = Color.Catppuccin.Mocha.BLUE,
+        endColor = Color.Catppuccin.Mocha.PINK
+    )
+```
+
+## Typography Enhancements
+
+### Font Weight
+
+Summon provides a `FontWeight` enum for common font weight presets:
+
+```kotlin
+// Using FontWeight enum
+Modifier.fontWeight(FontWeight.Thin)        // 100
+Modifier.fontWeight(FontWeight.ExtraLight)  // 200
+Modifier.fontWeight(FontWeight.Light)       // 300
+Modifier.fontWeight(FontWeight.Normal)      // 400
+Modifier.fontWeight(FontWeight.Medium)      // 500
+Modifier.fontWeight(FontWeight.SemiBold)    // 600
+Modifier.fontWeight(FontWeight.Bold)        // 700
+Modifier.fontWeight(FontWeight.ExtraBold)   // 800
+Modifier.fontWeight(FontWeight.Black)       // 900
+
+// Using numeric values directly
+Modifier.fontWeight(400)  // Normal
+Modifier.fontWeight(700)  // Bold
+```
+
+### Line Height
+
+The `lineHeight` modifier accepts numeric values directly:
+
+```kotlin
+// Using numeric values directly
+Modifier.lineHeight(1.5)   // 1.5 times the font size
+Modifier.lineHeight(2.0)   // Double the font size
+
+// Using string values
+Modifier.lineHeight("1.5em")
+Modifier.lineHeight("24px")
+```

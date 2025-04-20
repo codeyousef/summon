@@ -88,3 +88,17 @@ val Number.pt: String
  */
 val Number.pc: String
     get() = "${this}pc" 
+
+/**
+ * Converts a number to a CSS seconds value (e.g., 0.3.s -> "0.3s")
+ * Used for animations and transitions
+ */
+val Number.s: String
+    get() = "${this}s"
+
+/**
+ * Converts a number to a CSS milliseconds value (e.g., 300.ms -> "300ms")
+ * Used for animations and transitions
+ */
+val Number.ms: String
+    get() = "${this}ms"

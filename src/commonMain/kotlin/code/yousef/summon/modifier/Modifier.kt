@@ -97,6 +97,12 @@ data class Modifier(val styles: Map<String, String> = emptyMap()) {
         this.style("border", "$width $style $color")
 
     /**
+     * Adds a border to the element using the BorderStyle enum.
+     */
+    fun border(width: String, style: BorderStyle, color: String): Modifier =
+        this.style("border", "$width ${style.toString()} $color")
+
+    /**
      * Sets the border radius for rounded corners.
      */
     fun borderRadius(value: String): Modifier =
@@ -248,6 +254,12 @@ data class Modifier(val styles: Map<String, String> = emptyMap()) {
         style("cursor", value)
 
     /**
+     * Sets the cursor style using the Cursor enum.
+     */
+    fun cursor(value: Cursor): Modifier =
+        style("cursor", value.toString())
+
+    /**
      * Sets the z-index of the element.
      */
     fun zIndex(value: Int): Modifier =
@@ -261,6 +273,13 @@ data class Modifier(val styles: Map<String, String> = emptyMap()) {
      */
     fun textAlign(value: String): Modifier =
         style("text-align", value)
+
+    /**
+     * Sets the text alignment using the TextAlign enum.
+     * @param value TextAlign enum value (e.g., TextAlign.Left, TextAlign.Center, TextAlign.Right)
+     */
+    fun textAlign(value: TextAlign): Modifier =
+        style("text-align", value.toString())
 
     /**
      * Sets the font family.
@@ -284,11 +303,25 @@ data class Modifier(val styles: Map<String, String> = emptyMap()) {
         style("text-transform", value)
 
     /**
+     * Sets the text transformation using the TextTransform enum.
+     * @param value TextTransform enum value (e.g., TextTransform.None, TextTransform.Uppercase)
+     */
+    fun textTransform(value: TextTransform): Modifier =
+        style("text-transform", value.toString())
+
+    /**
      * Sets the letter spacing.
      * @param value CSS letter-spacing value (e.g., "normal", "1px", "0.1em")
      */
     fun letterSpacing(value: String): Modifier =
         style("letter-spacing", value)
+
+    /**
+     * Sets the letter spacing with a numeric value in pixels.
+     * @param value Numeric value in pixels (e.g., 1 becomes "1px")
+     */
+    fun letterSpacing(value: Number): Modifier =
+        style("letter-spacing", "${value}px")
 
     /**
      * Sets how white space inside the element is handled.

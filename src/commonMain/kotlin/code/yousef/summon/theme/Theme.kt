@@ -1,7 +1,9 @@
 package code.yousef.summon.theme
 
+import code.yousef.summon.core.style.Color
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.boxShadow
+import code.yousef.summon.modifier.FontWeight
 
 
 /**
@@ -15,6 +17,7 @@ object Theme {
      * Uses String? for nullable CSS values.
      */
     data class TextStyle(
+        // String-based properties for backward compatibility
         val fontFamily: String? = null,
         val fontSize: String? = null,
         val fontWeight: String? = null,
@@ -22,8 +25,171 @@ object Theme {
         val color: String? = null,
         val textDecoration: String? = null, // e.g., "underline"
         val lineHeight: String? = null,
-        val letterSpacing: String? = null
+        val letterSpacing: String? = null,
+        // Typed properties for more type-safe access
+        val fontWeightEnum: FontWeight? = null,
+        val fontSizeNumber: Number? = null,
+        val fontSizeUnit: String? = null, // e.g., "px", "rem", "em"
+        val lineHeightNumber: Number? = null,
+        val letterSpacingNumber: Number? = null,
+        val letterSpacingUnit: String? = null, // e.g., "px", "em"
+        val colorValue: Color? = null
         // Add other relevant CSS text properties as needed
+    ) {
+        companion object {
+            /**
+             * Creates a TextStyle with typed properties, automatically setting string equivalents
+             */
+            fun create(
+                fontFamily: String? = null,
+                fontSize: Number? = null,
+                fontSizeUnit: String? = "rem",
+                fontWeight: FontWeight? = null,
+                fontStyle: String? = null,
+                color: Color? = null,
+                textDecoration: String? = null,
+                lineHeight: Number? = null,
+                letterSpacing: Number? = null,
+                letterSpacingUnit: String? = "em"
+            ): TextStyle {
+                // Convert typed properties to string equivalents
+                val fontSizeStr = if (fontSize != null && fontSizeUnit != null) "$fontSize$fontSizeUnit" else null
+                val fontWeightStr = fontWeight?.value
+                val colorStr = color?.toHexString()
+                val lineHeightStr = if (lineHeight != null) "$lineHeight" else null
+                val letterSpacingStr = if (letterSpacing != null && letterSpacingUnit != null) "$letterSpacing$letterSpacingUnit" else null
+
+                return TextStyle(
+                    fontFamily = fontFamily,
+                    fontSize = fontSizeStr,
+                    fontWeight = fontWeightStr,
+                    fontStyle = fontStyle,
+                    color = colorStr,
+                    textDecoration = textDecoration,
+                    lineHeight = lineHeightStr,
+                    letterSpacing = letterSpacingStr,
+                    fontWeightEnum = fontWeight,
+                    fontSizeNumber = fontSize,
+                    fontSizeUnit = fontSizeUnit,
+                    lineHeightNumber = lineHeight,
+                    letterSpacingNumber = letterSpacing,
+                    letterSpacingUnit = letterSpacingUnit,
+                    colorValue = color
+                )
+            }
+        }
+    }
+
+    /**
+     * Typed theme typography configuration
+     */
+    data class TypographyTheme(
+        // Using the new create method with typed properties
+        val h1: TextStyle = TextStyle.create(
+            fontSize = 2.5,
+            fontWeight = FontWeight.Bold
+        ),
+        val h2: TextStyle = TextStyle.create(
+            fontSize = 2.0,
+            fontWeight = FontWeight.Bold
+        ),
+        val h3: TextStyle = TextStyle.create(
+            fontSize = 1.75,
+            fontWeight = FontWeight.Bold
+        ),
+        val h4: TextStyle = TextStyle.create(
+            fontSize = 1.5,
+            fontWeight = FontWeight.Bold
+        ),
+        val h5: TextStyle = TextStyle.create(
+            fontSize = 1.25,
+            fontWeight = FontWeight.Bold
+        ),
+        val h6: TextStyle = TextStyle.create(
+            fontSize = 1.0,
+            fontWeight = FontWeight.Bold
+        ),
+        val subtitle: TextStyle = TextStyle.create(
+            fontSize = 1.1,
+            fontWeight = FontWeight.Medium,
+            color = Color.hex("#6c757d")
+        ),
+        val body: TextStyle = TextStyle.create(
+            fontSize = 1.0,
+            fontWeight = FontWeight.Normal
+        ),
+        val bodyLarge: TextStyle = TextStyle.create(
+            fontSize = 1.1,
+            fontWeight = FontWeight.Normal
+        ),
+        val bodySmall: TextStyle = TextStyle.create(
+            fontSize = 0.9,
+            fontWeight = FontWeight.Normal
+        ),
+        val caption: TextStyle = TextStyle.create(
+            fontSize = 0.8,
+            fontWeight = FontWeight.Normal,
+            color = Color.hex("#868e96")
+        ),
+        val button: TextStyle = TextStyle.create(
+            fontSize = 1.0,
+            fontWeight = FontWeight.Medium,
+            textDecoration = "none"
+        ),
+        val overline: TextStyle = TextStyle.create(
+            fontSize = 0.75,
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = 0.05,
+            textDecoration = "uppercase"
+        ),
+        val link: TextStyle = TextStyle.create(
+            fontSize = 1.0,
+            fontWeight = FontWeight.Normal,
+            color = Color.hex("#0d6efd"),
+            textDecoration = "underline"
+        ),
+        val code: TextStyle = TextStyle.create(
+            fontSize = 0.9,
+            fontFamily = "monospace"
+        )
+    )
+
+    /**
+     * Typed theme spacing configuration
+     */
+    data class SpacingTheme(
+        val xs: String = Spacing.xs,
+        val sm: String = Spacing.sm,
+        val md: String = Spacing.md,
+        val lg: String = Spacing.lg,
+        val xl: String = Spacing.xl,
+        val xxl: String = Spacing.xxl
+    )
+
+    /**
+     * Typed theme border radius configuration
+     */
+    data class BorderRadiusTheme(
+        val none: String = "0",
+        val sm: String = "4px",
+        val md: String = "8px",
+        val lg: String = "16px",
+        val xl: String = "24px",
+        val pill: String = "9999px",
+        val circle: String = "50%"
+    )
+
+    /**
+     * Typed theme elevation configuration
+     */
+    data class ElevationTheme(
+        val none: String = "none",
+        val xs: String = "0 1px 2px rgba(0, 0, 0, 0.05)",
+        val sm: String = "0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)",
+        val md: String = "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+        val lg: String = "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+        val xl: String = "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+        val xxl: String = "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
     )
 
     /**
@@ -35,7 +201,12 @@ object Theme {
         val spacing: Map<String, String> = defaultSpacing,
         val borderRadius: Map<String, String> = defaultBorderRadius,
         val elevation: Map<String, String> = defaultElevation,
-        val customValues: Map<String, String> = emptyMap()
+        val customValues: Map<String, String> = emptyMap(),
+        // Typed theme properties for direct access
+        val typographyTheme: TypographyTheme = TypographyTheme(),
+        val spacingTheme: SpacingTheme = SpacingTheme(),
+        val borderRadiusTheme: BorderRadiusTheme = BorderRadiusTheme(),
+        val elevationTheme: ElevationTheme = ElevationTheme()
     )
 
     /**
@@ -47,26 +218,26 @@ object Theme {
      * Default typography values from Typography object
      */
     private val defaultTypography: Map<String, TextStyle> = mapOf(
-        "h1" to TextStyle(fontSize = "2.5rem", fontWeight = "bold"),
-        "h2" to TextStyle(fontSize = "2rem", fontWeight = "bold"),
-        "h3" to TextStyle(fontSize = "1.75rem", fontWeight = "bold"),
-        "h4" to TextStyle(fontSize = "1.5rem", fontWeight = "bold"),
-        "h5" to TextStyle(fontSize = "1.25rem", fontWeight = "bold"),
-        "h6" to TextStyle(fontSize = "1rem", fontWeight = "bold"),
-        "subtitle" to TextStyle(fontSize = "1.1rem", fontWeight = "500", color = "#6c757d"),
-        "body" to TextStyle(fontSize = "1rem", fontWeight = "normal"),
-        "bodyLarge" to TextStyle(fontSize = "1.1rem", fontWeight = "normal"),
-        "bodySmall" to TextStyle(fontSize = "0.9rem", fontWeight = "normal"),
-        "caption" to TextStyle(fontSize = "0.8rem", fontWeight = "normal", color = "#868e96"),
-        "button" to TextStyle(fontSize = "1rem", fontWeight = "500", textDecoration = "none"),
-        "overline" to TextStyle(
-            fontSize = "0.75rem",
-            fontWeight = "600",
-            letterSpacing = "0.05em",
+        "h1" to TextStyle.create(fontSize = 2.5, fontWeight = FontWeight.Bold),
+        "h2" to TextStyle.create(fontSize = 2.0, fontWeight = FontWeight.Bold),
+        "h3" to TextStyle.create(fontSize = 1.75, fontWeight = FontWeight.Bold),
+        "h4" to TextStyle.create(fontSize = 1.5, fontWeight = FontWeight.Bold),
+        "h5" to TextStyle.create(fontSize = 1.25, fontWeight = FontWeight.Bold),
+        "h6" to TextStyle.create(fontSize = 1.0, fontWeight = FontWeight.Bold),
+        "subtitle" to TextStyle.create(fontSize = 1.1, fontWeight = FontWeight.Medium, color = Color.hex("#6c757d")),
+        "body" to TextStyle.create(fontSize = 1.0, fontWeight = FontWeight.Normal),
+        "bodyLarge" to TextStyle.create(fontSize = 1.1, fontWeight = FontWeight.Normal),
+        "bodySmall" to TextStyle.create(fontSize = 0.9, fontWeight = FontWeight.Normal),
+        "caption" to TextStyle.create(fontSize = 0.8, fontWeight = FontWeight.Normal, color = Color.hex("#868e96")),
+        "button" to TextStyle.create(fontSize = 1.0, fontWeight = FontWeight.Medium, textDecoration = "none"),
+        "overline" to TextStyle.create(
+            fontSize = 0.75,
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = 0.05,
             textDecoration = "uppercase"
         ),
-        "link" to TextStyle(fontSize = "1rem", fontWeight = "normal", color = "#0d6efd", textDecoration = "underline"),
-        "code" to TextStyle(fontSize = "0.9rem", fontFamily = "monospace")
+        "link" to TextStyle.create(fontSize = 1.0, fontWeight = FontWeight.Normal, color = Color.hex("#0d6efd"), textDecoration = "underline"),
+        "code" to TextStyle.create(fontSize = 0.9, fontFamily = "monospace")
     )
 
     /**
@@ -229,6 +400,30 @@ object Theme {
     fun createTheme(baseTheme: ThemeConfig = Themes.light, modifications: ThemeConfig.() -> ThemeConfig): ThemeConfig {
         return baseTheme.modifications()
     }
+
+    /**
+     * Get the typography theme from the current theme
+     * @return The typography theme
+     */
+    fun getTypographyTheme(): TypographyTheme = currentTheme.typographyTheme
+
+    /**
+     * Get the spacing theme from the current theme
+     * @return The spacing theme
+     */
+    fun getSpacingTheme(): SpacingTheme = currentTheme.spacingTheme
+
+    /**
+     * Get the border radius theme from the current theme
+     * @return The border radius theme
+     */
+    fun getBorderRadiusTheme(): BorderRadiusTheme = currentTheme.borderRadiusTheme
+
+    /**
+     * Get the elevation theme from the current theme
+     * @return The elevation theme
+     */
+    fun getElevationTheme(): ElevationTheme = currentTheme.elevationTheme
 }
 
 /**
@@ -270,14 +465,53 @@ fun Modifier.themeStyleBorder(
 fun Modifier.themeTextStyle(styleName: String): Modifier {
     val style = Theme.getTextStyle(styleName)
     var modified = this
+
+    // Apply font family
     style.fontFamily?.let { modified = modified.fontFamily(it) }
-    style.fontSize?.let { modified = modified.fontSize(it) }
-    style.fontWeight?.let { modified = modified.fontWeight(it) }
+
+    // Apply font size - prefer typed property if available
+    if (style.fontSizeNumber != null && style.fontSizeUnit != null) {
+        val fontSize = "${style.fontSizeNumber}${style.fontSizeUnit}"
+        modified = modified.fontSize(fontSize)
+    } else {
+        style.fontSize?.let { modified = modified.fontSize(it) }
+    }
+
+    // Apply font weight - prefer enum if available
+    if (style.fontWeightEnum != null) {
+        modified = modified.fontWeight(style.fontWeightEnum.value)
+    } else {
+        style.fontWeight?.let { modified = modified.fontWeight(it) }
+    }
+
+    // Apply font style
     style.fontStyle?.let { modified = modified.style("font-style", it) }
-    style.color?.let { modified = modified.color(it) }
+
+    // Apply color - prefer Color object if available
+    if (style.colorValue != null) {
+        modified = modified.color(style.colorValue.toString())
+    } else {
+        style.color?.let { modified = modified.color(it) }
+    }
+
+    // Apply text decoration
     style.textDecoration?.let { modified = modified.textDecoration(it) }
-    style.lineHeight?.let { modified = modified.lineHeight(it) }
-    style.letterSpacing?.let { modified = modified.letterSpacing(it) }
+
+    // Apply line height - prefer number if available
+    if (style.lineHeightNumber != null) {
+        modified = modified.lineHeight(style.lineHeightNumber.toString())
+    } else {
+        style.lineHeight?.let { modified = modified.lineHeight(it) }
+    }
+
+    // Apply letter spacing - prefer typed property if available
+    if (style.letterSpacingNumber != null && style.letterSpacingUnit != null) {
+        val letterSpacing = "${style.letterSpacingNumber}${style.letterSpacingUnit}"
+        modified = modified.letterSpacing(letterSpacing)
+    } else {
+        style.letterSpacing?.let { modified = modified.letterSpacing(it) }
+    }
+
     return modified
 }
 

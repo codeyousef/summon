@@ -17,6 +17,7 @@ object TextComponents {
         styleName: String,
         modifier: Modifier = Modifier()
     ) {
+        // For backward compatibility, still use getTextStyle
         val style = Theme.getTextStyle(styleName)
         val styledModifier = modifier.let { mod ->
             var result = mod

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "code.yousef"
-version = "0.2.3.0"
+version = "0.2.4.0"
 
 repositories {
     mavenCentral()
@@ -39,7 +39,7 @@ kotlin {
         }
         binaries.executable()
     }
-    
+
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -68,19 +68,19 @@ kotlin {
                 implementation("io.quarkus:quarkus-resteasy-reactive-jackson:3.6.5")
                 implementation("io.quarkus:quarkus-websockets:3.6.5")
                 implementation("io.quarkus:quarkus-arc:3.6.5")
-                
+
                 // Quarkus deployment dependencies
                 implementation("io.quarkus:quarkus-core-deployment:3.6.5")
                 implementation("io.quarkus:quarkus-arc-deployment:3.6.5")
                 implementation("io.quarkus:quarkus-security-deployment:3.6.5")
-                
+
                 // Ktor dependencies
                 implementation("io.ktor:ktor-server-core:2.3.7")
                 implementation("io.ktor:ktor-server-netty:2.3.7")
                 implementation("io.ktor:ktor-server-html-builder:2.3.7")
                 implementation("io.ktor:ktor-server-content-negotiation:2.3.7")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
-                
+
                 // Spring Boot dependencies
                 implementation("org.springframework.boot:spring-boot-starter-web:3.2.3")
                 implementation("org.springframework.boot:spring-boot-starter-thymeleaf:3.2.3")
@@ -118,19 +118,19 @@ dependencies {
     "quarkusIntegration"("io.quarkus:quarkus-resteasy-reactive-jackson:3.6.5")
     "quarkusIntegration"("io.quarkus:quarkus-websockets:3.6.5")
     "quarkusIntegration"("io.quarkus:quarkus-arc:3.6.5")
-    
+
     // Add deployment dependencies to the quarkusDeployment configuration
     "quarkusDeployment"("io.quarkus:quarkus-core-deployment:3.6.5")
     "quarkusDeployment"("io.quarkus:quarkus-arc-deployment:3.6.5")
     "quarkusDeployment"("io.quarkus:quarkus-security-deployment:3.6.5")
-    
+
     // Add Ktor dependencies to the ktorIntegration configuration
     "ktorIntegration"("io.ktor:ktor-server-core:2.3.7")
     "ktorIntegration"("io.ktor:ktor-server-netty:2.3.7")
     "ktorIntegration"("io.ktor:ktor-server-html-builder:2.3.7")
     "ktorIntegration"("io.ktor:ktor-server-content-negotiation:2.3.7")
     "ktorIntegration"("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
-    
+
     // Add Spring Boot dependencies to the springBootIntegration configuration
     "springBootIntegration"("org.springframework.boot:spring-boot-starter-web:3.2.3")
     "springBootIntegration"("org.springframework.boot:spring-boot-starter-thymeleaf:3.2.3")
@@ -194,7 +194,7 @@ publishing {
         // Publishing is automatically configured by the Kotlin Multiplatform plugin
         // This will create publications for all targets (jvm, js)
     }
-    
+
     // Configure repositories if needed
     // repositories {
     //     maven {

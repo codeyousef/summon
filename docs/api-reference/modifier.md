@@ -433,9 +433,19 @@ fun Modifier.whiteSpace(value: WhiteSpace): Modifier
 #### Enums
 
 ```kotlin
-enum class FontWeight { Normal, Bold, Bolder, Lighter, W100, W200, W300, W400, W500, W600, W700, W800, W900 }
+enum class FontWeight(val value: String) {
+    Thin("100"),
+    ExtraLight("200"),
+    Light("300"),
+    Normal("400"),
+    Medium("500"),
+    SemiBold("600"),
+    Bold("700"),
+    ExtraBold("800"),
+    Black("900")
+}
 enum class FontStyle { Normal, Italic, Oblique }
-enum class TextAlign { Left, Right, Center, Justify }
+enum class TextAlign { Left, Right, Center, Justify, Start, End }
 enum class TextDecoration { None, Underline, Overline, LineThrough }
 enum class TextTransform { None, Capitalize, Uppercase, Lowercase }
 enum class WhiteSpace { Normal, NoWrap, Pre, PreWrap, PreLine }
@@ -460,8 +470,17 @@ fun Modifier.backgroundSize(value: BackgroundSize): Modifier
 fun Modifier.backgroundSize(value: String): Modifier
 fun Modifier.backgroundPosition(value: String): Modifier
 fun Modifier.backgroundRepeat(value: BackgroundRepeat): Modifier
+fun Modifier.backgroundClip(value: String): Modifier
+fun Modifier.backgroundClip(value: BackgroundClip): Modifier
 fun Modifier.radialGradient(shape: String = "circle", colors: List<String>, position: String = "center"): Modifier
 fun Modifier.radialGradient(innerColor: String, outerColor: String, innerPosition: String = "0%", outerPosition: String = "100%", shape: String = "circle", position: String = "center"): Modifier
+fun Modifier.radialGradient(shape: String = "circle", colorStops: List<Pair<Color, String>>, position: String = "center"): Modifier
+fun Modifier.radialGradient(innerColor: Color, outerColor: Color, innerPosition: String = "0%", outerPosition: String = "100%", shape: String = "circle", position: String = "center"): Modifier
+fun Modifier.linearGradient(direction: String = "to right", colors: List<String>): Modifier
+fun Modifier.linearGradient(startColor: String, endColor: String, startPosition: String = "0%", endPosition: String = "100%", direction: String = "to right"): Modifier
+fun Modifier.linearGradient(direction: String = "to right", colorStops: List<Pair<Color, String>>): Modifier
+fun Modifier.linearGradient(startColor: Color, endColor: Color, startPosition: String = "0%", endPosition: String = "100%", direction: String = "to right"): Modifier
+fun Modifier.linearGradient(gradientDirection: String, startColor: Color, endColor: Color, startPosition: String = "0%", endPosition: String = "100%"): Modifier
 ```
 
 #### Enums
@@ -469,6 +488,7 @@ fun Modifier.radialGradient(innerColor: String, outerColor: String, innerPositio
 ```kotlin
 enum class BackgroundSize { Cover, Contain, Auto }
 enum class BackgroundRepeat { Repeat, RepeatX, RepeatY, NoRepeat, Space, Round }
+enum class BackgroundClip { BorderBox, PaddingBox, ContentBox, Text }
 ```
 
 #### Example
@@ -480,6 +500,12 @@ Modifier
     .backgroundSize(BackgroundSize.Cover)
     .backgroundPosition("center")
     .backgroundRepeat(BackgroundRepeat.NoRepeat)
+
+// Background clip
+Modifier
+    .backgroundClip(BackgroundClip.Text)
+    .color("transparent")
+    .backgroundImage("url('pattern.jpg')")
 
 // Radial gradient with list of colors
 Modifier
@@ -496,6 +522,96 @@ Modifier
         outerColor = "rgba(0, 247, 255, 0)",
         innerPosition = "0%",
         outerPosition = "70%"
+    )
+
+// Radial gradient with Color objects
+Modifier
+    .radialGradient(
+        innerColor = Color.rgba(0, 247, 255, 38),
+        outerColor = Color.rgba(0, 247, 255, 0),
+        innerPosition = "0%",
+        outerPosition = "70%"
+    )
+
+// Radial gradient with Color objects and custom positions
+Modifier
+    .radialGradient(
+        shape = "circle",
+        colorStops = listOf(
+            Color.rgba(0, 247, 255, 38) to "0%",
+            Color.hex("#ff2a6d") to "100%"
+        ),
+        position = "center"
+    )
+
+// Radial gradient with enum values for shape and position
+Modifier
+    .radialGradient(
+        shape = RadialGradientShape.Circle,
+        colors = listOf("rgba(0, 247, 255, 0.15) 0%", "rgba(0, 247, 255, 0) 70%"),
+        position = RadialGradientPosition.Center
+    )
+
+// Radial gradient with numeric values for positions
+Modifier
+    .radialGradient(
+        innerColor = "rgba(0, 247, 255, 0.15)",
+        outerColor = "rgba(0, 247, 255, 0)",
+        innerPosition = 0,
+        outerPosition = 70,
+        shape = "circle",
+        position = "center"
+    )
+
+// Radial gradient with Color objects, enum values, and numeric positions
+Modifier
+    .radialGradient(
+        innerColor = Color.rgba(0, 247, 255, 0.15f),
+        outerColor = Color.rgba(0, 247, 255, 0f),
+        innerPosition = 0,
+        outerPosition = 70,
+        shape = RadialGradientShape.Ellipse,
+        position = RadialGradientPosition.TopLeft
+    )
+
+// Linear gradient with list of colors
+Modifier
+    .linearGradient(
+        direction = "to right",
+        colors = listOf("rgba(255, 0, 0, 0.8) 0%", "rgba(0, 0, 255, 0.8) 100%")
+    )
+
+// Linear gradient with angle in degrees
+Modifier
+    .linearGradient(
+        direction = "90deg",
+        colors = listOf("#00f7ff 0%", "#ff2a6d 100%")
+    )
+
+// Simplified linear gradient with two colors
+Modifier
+    .linearGradient(
+        startColor = "rgba(255, 0, 0, 0.8)",
+        endColor = "rgba(0, 0, 255, 0.8)",
+        direction = "to bottom"
+    )
+
+// Linear gradient with Color objects
+Modifier
+    .linearGradient(
+        startColor = Color.rgb(255, 0, 0),
+        endColor = Color.rgb(0, 0, 255),
+        direction = "45deg"
+    )
+
+// Linear gradient with Color objects and custom positions
+Modifier
+    .linearGradient(
+        direction = "to right",
+        colorStops = listOf(
+            Color.rgba(0, 247, 255, 128) to "0%",
+            Color.hex("#ff2a6d") to "100%"
+        )
     )
 ```
 
@@ -587,28 +703,131 @@ Animation modifiers control transitions and animations.
 ### Transition
 
 ```kotlin
+// Basic transition
 fun Modifier.transition(value: String): Modifier
+
+// Parameterized transitions
+fun Modifier.transition(
+    property: TransitionProperty = TransitionProperty.All,
+    duration: Number = 300,
+    timingFunction: TransitionTimingFunction = TransitionTimingFunction.Ease,
+    delay: Number = 0
+): Modifier
+
+fun Modifier.transition(
+    property: String,
+    duration: Number = 300,
+    timingFunction: TransitionTimingFunction = TransitionTimingFunction.Ease,
+    delay: Number = 0
+): Modifier
+
+fun Modifier.transition(
+    property: TransitionProperty = TransitionProperty.All,
+    duration: String,
+    timingFunction: TransitionTimingFunction = TransitionTimingFunction.Ease,
+    delay: String = "0ms"
+): Modifier
+
+// Individual transition properties
 fun Modifier.transitionProperty(value: String): Modifier
-fun Modifier.transitionDuration(value: CSSTime): Modifier
-fun Modifier.transitionTimingFunction(value: TimingFunction): Modifier
-fun Modifier.transitionDelay(value: CSSTime): Modifier
+fun Modifier.transitionProperty(value: TransitionProperty): Modifier
+fun Modifier.transitionDuration(value: String): Modifier
+fun Modifier.transitionDuration(value: Number): Modifier
+fun Modifier.transitionTimingFunction(value: String): Modifier
+fun Modifier.transitionTimingFunction(value: TransitionTimingFunction): Modifier
+fun Modifier.transitionDelay(value: String): Modifier
+fun Modifier.transitionDelay(value: Number): Modifier
 ```
 
 #### Enums
 
 ```kotlin
-enum class TimingFunction { 
-    Linear, Ease, EaseIn, EaseOut, EaseInOut, StepStart, StepEnd
+enum class TransitionProperty(val value: String) {
+    All("all"),
+    None("none"),
+    Transform("transform"),
+    Opacity("opacity"),
+    Background("background"),
+    BackgroundColor("background-color"),
+    Color("color"),
+    Height("height"),
+    Width("width"),
+    Margin("margin"),
+    Padding("padding"),
+    Border("border"),
+    BorderColor("border-color"),
+    BorderRadius("border-radius"),
+    BoxShadow("box-shadow"),
+    TextShadow("text-shadow"),
+    FontSize("font-size"),
+    FontWeight("font-weight"),
+    LineHeight("line-height"),
+    LetterSpacing("letter-spacing"),
+    Visibility("visibility"),
+    ZIndex("z-index");
+
+    override fun toString(): String = value
+}
+
+enum class TransitionTimingFunction(val value: String) {
+    Ease("ease"),
+    Linear("linear"),
+    EaseIn("ease-in"),
+    EaseOut("ease-out"),
+    EaseInOut("ease-in-out"),
+    StepStart("step-start"),
+    StepEnd("step-end"),
+    CubicBezier("cubic-bezier(0.4, 0, 0.2, 1)"); // Material Design standard easing
+
+    override fun toString(): String = value
 }
 ```
 
-#### Example
+#### Time Unit Extensions
 
 ```kotlin
+val Number.s: String  // Seconds (e.g., 0.3.s -> "0.3s")
+val Number.ms: String // Milliseconds (e.g., 300.ms -> "300ms")
+```
+
+#### Examples
+
+```kotlin
+// Basic string transition
 Modifier
     .transition("all 0.3s ease")
     .hover {
         backgroundColor("#005599")
+    }
+
+// Using enums and time unit extensions
+Modifier
+    .transition(
+        property = TransitionProperty.BackgroundColor,
+        duration = 0.3.s,
+        timingFunction = TransitionTimingFunction.EaseInOut,
+        delay = 0.s
+    )
+    .hover {
+        backgroundColor("#005599")
+    }
+
+// Using individual properties with enums
+Modifier
+    .transitionProperty(TransitionProperty.All)
+    .transitionDuration(300.ms)
+    .transitionTimingFunction(TransitionTimingFunction.Ease)
+    .transitionDelay(0.ms)
+    .hover {
+        backgroundColor("#005599")
+    }
+
+// Multiple transitions
+Modifier
+    .transition("background-color 0.3s ease, color 0.2s ease-in-out")
+    .hover {
+        backgroundColor("#005599")
+        color("#ffffff")
     }
 ```
 

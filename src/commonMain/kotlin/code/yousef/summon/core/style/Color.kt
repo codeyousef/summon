@@ -75,6 +75,21 @@ class Color(val value: UInt) {
 
     companion object {
         /**
+         * Helper object for creating colors from RGB values
+         */
+        val rgb = RGB()
+
+        /**
+         * Helper object for creating colors from RGBA values
+         */
+        val rgba = RGBA()
+
+        /**
+         * Helper object for creating colors from hex strings
+         */
+        val hex = HEX()
+
+        /**
          * Creates a Color from RGB values (0-255) with alpha=255
          */
         fun rgb(red: Int, green: Int, blue: Int): Color {
@@ -82,7 +97,7 @@ class Color(val value: UInt) {
         }
 
         /**
-         * Creates a Color from RGBA values (0-255)
+         * Creates a Color from RGBA values (0-255) with alpha as int (0-255)
          */
         fun rgba(red: Int, green: Int, blue: Int, alpha: Int): Color {
             val r = red.coerceIn(0, 255)
@@ -95,6 +110,14 @@ class Color(val value: UInt) {
                         (b.toUInt() shl 8) or
                         a.toUInt()
             )
+        }
+
+        /**
+         * Creates a Color from RGBA values (0-255) with alpha as float (0.0-1.0)
+         */
+        fun rgba(red: Int, green: Int, blue: Int, alpha: Float): Color {
+            val alphaByte = (alpha.coerceIn(0f, 1f) * 255).toInt()
+            return rgba(red, green, blue, alphaByte)
         }
 
         /**
@@ -138,6 +161,24 @@ class Color(val value: UInt) {
         val MAGENTA = rgb(255, 0, 255)
         val TRANSPARENT = rgba(0, 0, 0, 0)
 
+        // Additional basic colors
+        val GRAY = rgb(128, 128, 128)
+        val LIGHT_GRAY = rgb(211, 211, 211)
+        val DARK_GRAY = rgb(169, 169, 169)
+        val ORANGE = rgb(255, 165, 0)
+        val PINK = rgb(255, 192, 203)
+        val PURPLE = rgb(128, 0, 128)
+        val BROWN = rgb(165, 42, 42)
+        val NAVY = rgb(0, 0, 128)
+        val TEAL = rgb(0, 128, 128)
+        val OLIVE = rgb(128, 128, 0)
+        val MAROON = rgb(128, 0, 0)
+        val LIME = rgb(0, 255, 0)
+        val INDIGO = rgb(75, 0, 130)
+        val VIOLET = rgb(238, 130, 238)
+        val SILVER = rgb(192, 192, 192)
+        val GOLD = rgb(255, 215, 0)
+
         // Material Design colors
         val PRIMARY = fromHex("#2196F3") // Blue 500
         val PRIMARY_LIGHT = fromHex("#BBDEFB") // Blue 100
@@ -147,5 +188,140 @@ class Color(val value: UInt) {
         val WARNING = fromHex("#FFC107") // Amber 500
         val INFO = fromHex("#2196F3") // Blue 500
         val SUCCESS = fromHex("#4CAF50") // Green 500
+
+        // Material Design 3 colors
+        object Material3 {
+            val PRIMARY = fromHex("#6750A4")
+            val ON_PRIMARY = fromHex("#FFFFFF")
+            val PRIMARY_CONTAINER = fromHex("#EADDFF")
+            val ON_PRIMARY_CONTAINER = fromHex("#21005D")
+            val SECONDARY = fromHex("#625B71")
+            val ON_SECONDARY = fromHex("#FFFFFF")
+            val SECONDARY_CONTAINER = fromHex("#E8DEF8")
+            val ON_SECONDARY_CONTAINER = fromHex("#1D192B")
+            val TERTIARY = fromHex("#7D5260")
+            val ON_TERTIARY = fromHex("#FFFFFF")
+            val TERTIARY_CONTAINER = fromHex("#FFD8E4")
+            val ON_TERTIARY_CONTAINER = fromHex("#31111D")
+            val ERROR = fromHex("#B3261E")
+            val ON_ERROR = fromHex("#FFFFFF")
+            val ERROR_CONTAINER = fromHex("#F9DEDC")
+            val ON_ERROR_CONTAINER = fromHex("#410E0B")
+            val BACKGROUND = fromHex("#FFFBFE")
+            val ON_BACKGROUND = fromHex("#1C1B1F")
+            val SURFACE = fromHex("#FFFBFE")
+            val ON_SURFACE = fromHex("#1C1B1F")
+            val SURFACE_VARIANT = fromHex("#E7E0EC")
+            val ON_SURFACE_VARIANT = fromHex("#49454F")
+            val OUTLINE = fromHex("#79747E")
+            val OUTLINE_VARIANT = fromHex("#CAC4D0")
+            val SCRIM = fromHex("#000000")
+        }
+
+        // Catppuccin colors
+        object Catppuccin {
+            // Latte (Light) theme
+            object Latte {
+                val ROSEWATER = fromHex("#DC8A78")
+                val FLAMINGO = fromHex("#DD7878")
+                val PINK = fromHex("#EA76CB")
+                val MAUVE = fromHex("#8839EF")
+                val RED = fromHex("#D20F39")
+                val MAROON = fromHex("#E64553")
+                val PEACH = fromHex("#FE640B")
+                val YELLOW = fromHex("#DF8E1D")
+                val GREEN = fromHex("#40A02B")
+                val TEAL = fromHex("#179299")
+                val SKY = fromHex("#04A5E5")
+                val SAPPHIRE = fromHex("#209FB5")
+                val BLUE = fromHex("#1E66F5")
+                val LAVENDER = fromHex("#7287FD")
+                val TEXT = fromHex("#4C4F69")
+                val SUBTEXT1 = fromHex("#5C5F77")
+                val SUBTEXT0 = fromHex("#6C6F85")
+                val OVERLAY2 = fromHex("#7C7F93")
+                val OVERLAY1 = fromHex("#8C8FA1")
+                val OVERLAY0 = fromHex("#9CA0B0")
+                val SURFACE2 = fromHex("#ACB0BE")
+                val SURFACE1 = fromHex("#BCC0CC")
+                val SURFACE0 = fromHex("#CCD0DA")
+                val BASE = fromHex("#EFF1F5")
+                val MANTLE = fromHex("#E6E9EF")
+                val CRUST = fromHex("#DCE0E8")
+            }
+
+            // Mocha (Dark) theme
+            object Mocha {
+                val ROSEWATER = fromHex("#F5E0DC")
+                val FLAMINGO = fromHex("#F2CDCD")
+                val PINK = fromHex("#F5C2E7")
+                val MAUVE = fromHex("#CBA6F7")
+                val RED = fromHex("#F38BA8")
+                val MAROON = fromHex("#EBA0AC")
+                val PEACH = fromHex("#FAB387")
+                val YELLOW = fromHex("#F9E2AF")
+                val GREEN = fromHex("#A6E3A1")
+                val TEAL = fromHex("#94E2D5")
+                val SKY = fromHex("#89DCEB")
+                val SAPPHIRE = fromHex("#74C7EC")
+                val BLUE = fromHex("#89B4FA")
+                val LAVENDER = fromHex("#B4BEFE")
+                val TEXT = fromHex("#CDD6F4")
+                val SUBTEXT1 = fromHex("#BAC2DE")
+                val SUBTEXT0 = fromHex("#A6ADC8")
+                val OVERLAY2 = fromHex("#9399B2")
+                val OVERLAY1 = fromHex("#7F849C")
+                val OVERLAY0 = fromHex("#6C7086")
+                val SURFACE2 = fromHex("#585B70")
+                val SURFACE1 = fromHex("#45475A")
+                val SURFACE0 = fromHex("#313244")
+                val BASE = fromHex("#1E1E2E")
+                val MANTLE = fromHex("#181825")
+                val CRUST = fromHex("#11111B")
+            }
+        }
     }
-} 
+}
+
+/**
+ * Helper class for creating colors from RGB values
+ */
+class RGB {
+    /**
+     * Creates a Color from RGB values (0-255) with alpha=255
+     */
+    operator fun invoke(red: Int, green: Int, blue: Int): Color {
+        return Color.rgb(red, green, blue)
+    }
+}
+
+/**
+ * Helper class for creating colors from RGBA values
+ */
+class RGBA {
+    /**
+     * Creates a Color from RGBA values (0-255) with alpha as int (0-255)
+     */
+    operator fun invoke(red: Int, green: Int, blue: Int, alpha: Int): Color {
+        return Color.rgba(red, green, blue, alpha)
+    }
+
+    /**
+     * Creates a Color from RGBA values (0-255) with alpha as float (0.0-1.0)
+     */
+    operator fun invoke(red: Int, green: Int, blue: Int, alpha: Float): Color {
+        return Color.rgba(red, green, blue, alpha)
+    }
+}
+
+/**
+ * Helper class for creating colors from hex strings
+ */
+class HEX {
+    /**
+     * Creates a Color from a CSS hex string (#RRGGBB or #RRGGBBAA)
+     */
+    operator fun invoke(hex: String): Color {
+        return Color.fromHex(hex)
+    }
+}
