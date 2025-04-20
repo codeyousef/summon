@@ -13,6 +13,8 @@ All notable changes to this project will be documented in this file.
 - New `QuteTemplate` component for rendering Qute templates in Summon components
 - Extensive logging for debugging component rendering issues
 - New documentation for Quarkus integration with detailed examples
+- Added `Position`, `Overflow`, `Display`, `JustifyContent`, `JustifyItems`, and `JustifySelf` enums with proper string value representation
+- Added radial gradient background functions with flexible API options
 
 ### Changed
 - Improved HTML attribute handling in JvmPlatformRenderer
@@ -28,6 +30,7 @@ All notable changes to this project will be documented in this file.
 - Fixed issues with components showing "Loading..." messages instead of actual content
 - Fixed HTML structure issues with nested components
 - Fixed issues with escaped HTML entities in component rendering
+- Fixed issue with rem number extension not working with padding and margin functions
 
 ## [0.2.2.0]
 

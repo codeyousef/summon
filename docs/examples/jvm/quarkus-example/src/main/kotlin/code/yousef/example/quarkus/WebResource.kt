@@ -59,7 +59,7 @@ class WebResource {
             println("WebResource.home() - Using Summon Components rendering")
 
             // Render the page with the hero and counter components
-            var result = summonRenderer.render(title = "Summon with Quarkus - Home") {
+            val result = summonRenderer.render(title = "Summon with Quarkus - Home") {
                 AppRoot { // Use the Summon AppRoot composable
                     // Add the hero and counter components directly
                     QuteHeroComponent("Quarkus User", quteComponents)

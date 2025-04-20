@@ -17,6 +17,13 @@ import code.yousef.summon.modifier.Modifier
 fun Modifier.margin(value: Number): Modifier = margin("${value}px")
 
 /**
+ * Sets the margin for all sides using a String value.
+ * This allows using extension properties like rem, em, etc.
+ * Example: margin(2.rem)
+ */
+fun Modifier.margin(value: String): Modifier = style("margin", value)
+
+/**
  * Sets the margin for vertical and horizontal sides using Numbers in pixels.
  */
 fun Modifier.margin(vertical: Number, horizontal: Number): Modifier =
@@ -66,9 +73,23 @@ fun Modifier.marginAuto(): Modifier = margin("auto")
 fun Modifier.marginTop(value: Number): Modifier = marginTop("${value}px")
 
 /**
+ * Sets the top margin using a String value.
+ * This allows using extension properties like rem, em, etc.
+ * Example: marginTop(1.rem)
+ */
+fun Modifier.marginTop(value: String): Modifier = style("margin-top", value)
+
+/**
  * Sets the right margin using a Number in pixels.
  */
 fun Modifier.marginRight(value: Number): Modifier = marginRight("${value}px")
+
+/**
+ * Sets the right margin using a String value.
+ * This allows using extension properties like rem, em, etc.
+ * Example: marginRight(1.rem)
+ */
+fun Modifier.marginRight(value: String): Modifier = style("margin-right", value)
 
 /**
  * Sets the bottom margin using a Number in pixels.
@@ -76,9 +97,23 @@ fun Modifier.marginRight(value: Number): Modifier = marginRight("${value}px")
 fun Modifier.marginBottom(value: Number): Modifier = marginBottom("${value}px")
 
 /**
+ * Sets the bottom margin using a String value.
+ * This allows using extension properties like rem, em, etc.
+ * Example: marginBottom(1.rem)
+ */
+fun Modifier.marginBottom(value: String): Modifier = style("margin-bottom", value)
+
+/**
  * Sets the left margin using a Number in pixels.
  */
 fun Modifier.marginLeft(value: Number): Modifier = marginLeft("${value}px")
+
+/**
+ * Sets the left margin using a String value.
+ * This allows using extension properties like rem, em, etc.
+ * Example: marginLeft(1.rem)
+ */
+fun Modifier.marginLeft(value: String): Modifier = style("margin-left", value)
 
 // Padding extensions
 
@@ -86,6 +121,13 @@ fun Modifier.marginLeft(value: Number): Modifier = marginLeft("${value}px")
  * Sets the padding for all sides using a Number in pixels.
  */
 fun Modifier.padding(value: Number): Modifier = padding("${value}px")
+
+/**
+ * Sets the padding for all sides using a String value.
+ * This allows using extension properties like rem, em, etc.
+ * Example: padding(2.rem)
+ */
+fun Modifier.padding(value: String): Modifier = style("padding", value)
 
 /**
  * Sets the padding for vertical and horizontal sides using Numbers in pixels.
@@ -99,9 +141,23 @@ fun Modifier.padding(vertical: Number, horizontal: Number): Modifier =
 fun Modifier.paddingTop(value: Number): Modifier = style("padding-top", "${value}px")
 
 /**
+ * Sets the top padding using a String value.
+ * This allows using extension properties like rem, em, etc.
+ * Example: paddingTop(1.rem)
+ */
+fun Modifier.paddingTop(value: String): Modifier = style("padding-top", value)
+
+/**
  * Sets the right padding using a Number in pixels.
  */
 fun Modifier.paddingRight(value: Number): Modifier = style("padding-right", "${value}px")
+
+/**
+ * Sets the right padding using a String value.
+ * This allows using extension properties like rem, em, etc.
+ * Example: paddingRight(1.rem)
+ */
+fun Modifier.paddingRight(value: String): Modifier = style("padding-right", value)
 
 /**
  * Sets the bottom padding using a Number in pixels.
@@ -109,9 +165,23 @@ fun Modifier.paddingRight(value: Number): Modifier = style("padding-right", "${v
 fun Modifier.paddingBottom(value: Number): Modifier = style("padding-bottom", "${value}px")
 
 /**
+ * Sets the bottom padding using a String value.
+ * This allows using extension properties like rem, em, etc.
+ * Example: paddingBottom(1.rem)
+ */
+fun Modifier.paddingBottom(value: String): Modifier = style("padding-bottom", value)
+
+/**
  * Sets the left padding using a Number in pixels.
  */
 fun Modifier.paddingLeft(value: Number): Modifier = style("padding-left", "${value}px")
+
+/**
+ * Sets the left padding using a String value.
+ * This allows using extension properties like rem, em, etc.
+ * Example: paddingLeft(1.rem)
+ */
+fun Modifier.paddingLeft(value: String): Modifier = style("padding-left", value)
 
 // Size extensions
 

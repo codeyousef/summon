@@ -33,7 +33,7 @@ class Modifier {
     // Methods to apply CSS properties
     fun property(name: String, value: String): Modifier
     fun rawCss(css: String): Modifier
-    
+
     // Create a combined modifier
     operator fun plus(other: Modifier): Modifier
 }
@@ -172,7 +172,7 @@ Modifier
     .margin(8.px)
     .padding(16.px, 24.px)
     .marginTop(32.px)
-    
+
 // Centering with auto margins
 // Center element horizontally (most common usage, no parameters needed)
 .width(200.px)
@@ -205,6 +205,8 @@ Modifier
 fun Modifier.display(value: Display): Modifier
 fun Modifier.flexDirection(value: FlexDirection): Modifier
 fun Modifier.justifyContent(value: JustifyContent): Modifier
+fun Modifier.justifyItems(value: JustifyItems): Modifier
+fun Modifier.justifySelf(value: JustifySelf): Modifier
 fun Modifier.alignItems(value: AlignItems): Modifier
 fun Modifier.alignSelf(value: AlignSelf): Modifier
 fun Modifier.flexWrap(value: FlexWrap): Modifier
@@ -220,9 +222,48 @@ fun Modifier.columnGap(value: CSSSize): Modifier
 #### Enums
 
 ```kotlin
-enum class Display { None, Block, Inline, InlineBlock, Flex, Grid, InlineFlex, InlineGrid }
+enum class Display(val value: String) {
+    None("none"),
+    Block("block"),
+    Inline("inline"),
+    InlineBlock("inline-block"),
+    Flex("flex"),
+    Grid("grid"),
+    InlineFlex("inline-flex"),
+    InlineGrid("inline-grid");
+
+    override fun toString(): String = value
+}
 enum class FlexDirection { Row, Column, RowReverse, ColumnReverse }
-enum class JustifyContent { FlexStart, FlexEnd, Center, SpaceBetween, SpaceAround, SpaceEvenly }
+enum class JustifyContent(val value: String) {
+    FlexStart("flex-start"),
+    FlexEnd("flex-end"),
+    Center("center"),
+    SpaceBetween("space-between"),
+    SpaceAround("space-around"),
+    SpaceEvenly("space-evenly");
+
+    override fun toString(): String = value
+}
+enum class JustifyItems(val value: String) {
+    Start("start"),
+    End("end"),
+    Center("center"),
+    Stretch("stretch"),
+    Baseline("baseline");
+
+    override fun toString(): String = value
+}
+enum class JustifySelf(val value: String) {
+    Auto("auto"),
+    Start("start"),
+    End("end"),
+    Center("center"),
+    Stretch("stretch"),
+    Baseline("baseline");
+
+    override fun toString(): String = value
+}
 enum class AlignItems { FlexStart, FlexEnd, Center, Baseline, Stretch }
 enum class AlignSelf { Auto, FlexStart, FlexEnd, Center, Baseline, Stretch }
 enum class FlexWrap { NoWrap, Wrap, WrapReverse }
@@ -235,6 +276,8 @@ Modifier
     .display(Display.Flex)
     .flexDirection(FlexDirection.Column)
     .justifyContent(JustifyContent.Center)
+    .justifyItems(JustifyItems.Center)
+    .justifySelf(JustifySelf.Center)
     .alignItems(AlignItems.Center)
     .gap(16.px)
 ```
@@ -282,7 +325,15 @@ fun Modifier.zIndex(value: Int): Modifier
 #### Enums
 
 ```kotlin
-enum class Position { Static, Relative, Absolute, Fixed, Sticky }
+enum class Position(val value: String) {
+    Static("static"),
+    Relative("relative"),
+    Absolute("absolute"),
+    Fixed("fixed"),
+    Sticky("sticky");
+
+    override fun toString(): String = value
+}
 ```
 
 #### Example
@@ -409,6 +460,8 @@ fun Modifier.backgroundSize(value: BackgroundSize): Modifier
 fun Modifier.backgroundSize(value: String): Modifier
 fun Modifier.backgroundPosition(value: String): Modifier
 fun Modifier.backgroundRepeat(value: BackgroundRepeat): Modifier
+fun Modifier.radialGradient(shape: String = "circle", colors: List<String>, position: String = "center"): Modifier
+fun Modifier.radialGradient(innerColor: String, outerColor: String, innerPosition: String = "0%", outerPosition: String = "100%", shape: String = "circle", position: String = "center"): Modifier
 ```
 
 #### Enums
@@ -421,11 +474,29 @@ enum class BackgroundRepeat { Repeat, RepeatX, RepeatY, NoRepeat, Space, Round }
 #### Example
 
 ```kotlin
+// Basic background image
 Modifier
     .backgroundImage("url('image.jpg')")
     .backgroundSize(BackgroundSize.Cover)
     .backgroundPosition("center")
     .backgroundRepeat(BackgroundRepeat.NoRepeat)
+
+// Radial gradient with list of colors
+Modifier
+    .radialGradient(
+        shape = "circle",
+        colors = listOf("rgba(0, 247, 255, 0.15) 0%", "rgba(0, 247, 255, 0) 70%"),
+        position = "center"
+    )
+
+// Simplified radial gradient with two colors
+Modifier
+    .radialGradient(
+        innerColor = "rgba(0, 247, 255, 0.15)",
+        outerColor = "rgba(0, 247, 255, 0)",
+        innerPosition = "0%",
+        outerPosition = "70%"
+    )
 ```
 
 ### Visibility
@@ -441,7 +512,14 @@ fun Modifier.overflowY(value: Overflow): Modifier
 
 ```kotlin
 enum class Visibility { Visible, Hidden, Collapse }
-enum class Overflow { Visible, Hidden, Scroll, Auto }
+enum class Overflow(val value: String) {
+    Visible("visible"),
+    Hidden("hidden"),
+    Scroll("scroll"),
+    Auto("auto");
+
+    override fun toString(): String = value
+}
 ```
 
 #### Example

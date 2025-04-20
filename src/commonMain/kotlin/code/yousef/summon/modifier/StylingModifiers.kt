@@ -279,4 +279,47 @@ fun Modifier.hover(hoverModifier: Modifier): Modifier {
  * Common values: "auto", "none".
  */
 fun Modifier.pointerEvents(value: String): Modifier =
-    style("pointer-events", value) 
+    style("pointer-events", value)
+
+/**
+ * Creates a radial gradient background.
+ * 
+ * @param shape The shape of the gradient (e.g., "circle", "ellipse")
+ * @param colors List of color stops in the format "color position" (e.g., "rgba(0, 247, 255, 0.15) 0%")
+ * @param position Optional position of the gradient center (e.g., "center", "top left")
+ * @return A new Modifier with the radial gradient background
+ */
+fun Modifier.radialGradient(
+    shape: String = "circle",
+    colors: List<String>,
+    position: String = "center"
+): Modifier {
+    val colorStops = colors.joinToString(", ")
+    return backgroundImage("radial-gradient($shape at $position, $colorStops)")
+}
+
+/**
+ * Creates a radial gradient background with a simplified API.
+ * 
+ * @param innerColor The color at the center of the gradient
+ * @param outerColor The color at the edge of the gradient
+ * @param innerPosition The position of the inner color (e.g., "0%")
+ * @param outerPosition The position of the outer color (e.g., "70%")
+ * @param shape The shape of the gradient (e.g., "circle", "ellipse")
+ * @param position Optional position of the gradient center (e.g., "center", "top left")
+ * @return A new Modifier with the radial gradient background
+ */
+fun Modifier.radialGradient(
+    innerColor: String,
+    outerColor: String,
+    innerPosition: String = "0%",
+    outerPosition: String = "100%",
+    shape: String = "circle",
+    position: String = "center"
+): Modifier {
+    return radialGradient(
+        shape = shape,
+        colors = listOf("$innerColor $innerPosition", "$outerColor $outerPosition"),
+        position = position
+    )
+}

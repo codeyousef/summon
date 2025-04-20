@@ -76,7 +76,7 @@ Modifier
     .marginRight(16.px)   // Only apply to right margin
     .marginBottom(8.px)   // Only apply to bottom margin
     .marginLeft(16.px)    // Only apply to left margin
-    
+
     // Individual padding properties
     .paddingTop(8.px)     // Only apply to top padding
     .paddingRight(16.px)  // Only apply to right padding
@@ -94,7 +94,7 @@ Modifier
     .size(200.px, 100.px)
     .maxWidth(500.px)
     .minHeight(50.px)
-    
+
     // Margin and padding
     .margin(8.px)
     .margin(8.px, 16.px) // vertical, horizontal
@@ -102,7 +102,7 @@ Modifier
     .padding(8.px)
     .padding(8.px, 16.px) // vertical, horizontal
     .padding(8.px, 16.px, 8.px, 16.px) // top, right, bottom, left
-    
+
     // Auto margins for centering
     .marginAuto() // center in all directions
     .marginHorizontalAutoZero() // center horizontally (no parameters needed)
@@ -111,11 +111,13 @@ Modifier
     .marginVerticalAuto() // center vertically only (no left/right margins)
     .marginHorizontalAuto(20.px) // center horizontally with 20px top/bottom margins
     .marginVerticalAuto(10.px) // center vertically with 10px left/right margins
-    
+
     // Flexbox layout
     .display(Display.Flex)
     .flexDirection(FlexDirection.Column)
     .justifyContent(JustifyContent.SpaceBetween)
+    .justifyItems(JustifyItems.Center)
+    .justifySelf(JustifySelf.Center)
     .alignItems(AlignItems.Center)
     .flexWrap(FlexWrap.Wrap)
     .gap(8.px)
@@ -125,7 +127,7 @@ Modifier
     .flexGrow(1)
     .flexShrink(0)
     .flexBasis("auto")
-    
+
     // Grid layout
     .display(Display.Grid)
     .gridTemplateColumns("1fr 1fr 1fr")
@@ -133,7 +135,7 @@ Modifier
     .gridColumn("1 / 3")
     .gridRow("1 / 2")
     .gridArea("header")
-    
+
     // Positioning
     .position(Position.Relative)
     .position(Position.Absolute)
@@ -152,7 +154,7 @@ Modifier
     .backgroundColor("#f0f0f0")
     .color("#333333")
     .opacity(0.8)
-    
+
     // Borders
     .border(1.px, "#cccccc")
     .border(1.px, BorderStyle.Dashed, "#cccccc")
@@ -162,11 +164,11 @@ Modifier
     .borderLeft(1.px, "#cccccc")
     .borderRadius(4.px)
     .borderRadius(4.px, 0.px, 4.px, 0.px) // top-left, top-right, bottom-right, bottom-left
-    
+
     // Shadows
     .boxShadow("0 2px 4px rgba(0, 0, 0, 0.1)")
     .textShadow("1px 1px 2px rgba(0, 0, 0, 0.2)")
-    
+
     // Typography
     .fontFamily("Arial, sans-serif")
     .fontSize(16.px)
@@ -178,21 +180,34 @@ Modifier
     .letterSpacing(0.5.px)
     .lineHeight(1.5)
     .whiteSpace(WhiteSpace.NoWrap)
-    
+
     // Backgrounds
     .backgroundImage("url('image.jpg')")
     .backgroundSize(BackgroundSize.Cover)
     .backgroundPosition("center")
     .backgroundRepeat(BackgroundRepeat.NoRepeat)
-    
+
+    // Radial gradients
+    .radialGradient(
+        shape = "circle",
+        colors = listOf("rgba(0, 247, 255, 0.15) 0%", "rgba(0, 247, 255, 0) 70%"),
+        position = "center"
+    )
+    .radialGradient(
+        innerColor = "rgba(0, 247, 255, 0.15)",
+        outerColor = "rgba(0, 247, 255, 0)",
+        innerPosition = "0%",
+        outerPosition = "70%"
+    )
+
     // Filters
     .filter("blur(5px)")
     .filter("brightness(150%)")
-    
+
     // Transitions
     .transition("background-color 0.3s ease")
     .transition("all 0.3s ease")
-    
+
     // Visibility
     .display(Display.None)
     .visibility(Visibility.Hidden)
@@ -212,30 +227,30 @@ Modifier
         backgroundColor("#f0f0f0")
         color("#0077cc")
     }
-    
+
     // Focus state
     .focus {
         outline("2px solid #0077cc")
         boxShadow("0 0 0 3px rgba(0, 119, 204, 0.3)")
     }
-    
+
     // Active state
     .active {
         backgroundColor("#005599")
         transform("scale(0.98)")
     }
-    
+
     // Disabled state
     .disabled {
         opacity(0.5)
         cursor(Cursor.NotAllowed)
     }
-    
+
     // Visited state (for links)
     .visited {
         color("#551A8B")
     }
-    
+
     // Custom state based on a condition
     .applyIf(isSelected) {
         backgroundColor("#e0f0ff")
@@ -251,25 +266,25 @@ Apply animations to components:
 Modifier
     // Transition animations
     .transition("all 0.3s ease")
-    
+
     // Transform
     .transform("rotate(45deg)")
     .transform("scale(1.1)")
     .transform("translateX(10px)")
-    
+
     // Individual transforms
     .rotate(45.deg)
     .scale(1.1)
     .translateX(10.px)
     .translateY(-5.px)
-    
+
     // Predefined animations
     .animation(
         name = "fadeIn", 
         duration = 0.3.s, 
         timingFunction = TimingFunction.EaseInOut
     )
-    
+
     // Custom animation
     .keyframes("slideIn") {
         from {
@@ -298,7 +313,7 @@ Modifier
         flexDirection(FlexDirection.Column)
         gap(8.px)
     }
-    
+
     // Predefined breakpoints
     .small {
         fontSize(14.px)
@@ -328,14 +343,14 @@ fun MyApp() {
             fontFamily("Arial, sans-serif")
             backgroundColor("#f9f9f9")
         }
-        
+
         // Target classes
         style(".container") {
             maxWidth(1200.px)
             margin(0.px, "auto")
             padding(16.px)
         }
-        
+
         // Target components
         style(Button::class) {
             backgroundColor("#0077cc")
@@ -343,13 +358,13 @@ fun MyApp() {
             padding(8.px, 16.px)
             borderRadius(4.px)
             cursor(Cursor.Pointer)
-            
+
             hover {
                 backgroundColor("#005599")
             }
         }
     }
-    
+
     // Application content
     Div(
         modifier = Modifier.className("container")
@@ -379,29 +394,29 @@ object MyTheme {
     val background = "#f8f9fa"
     val surface = "#ffffff"
     val onPrimary = "#ffffff"
-    
+
     // Typography
     val fontFamily = "Roboto, Arial, sans-serif"
     val fontSize = 16.px
     val fontWeightLight = 300
     val fontWeightNormal = 400
     val fontWeightBold = 700
-    
+
     // Spacing
     val spacingSmall = 4.px
     val spacingMedium = 8.px
     val spacingLarge = 16.px
     val spacingXLarge = 32.px
-    
+
     // Borders
     val borderRadius = 4.px
     val borderWidth = 1.px
-    
+
     // Shadows
     val shadowSmall = "0 1px 2px rgba(0, 0, 0, 0.1)"
     val shadowMedium = "0 2px 4px rgba(0, 0, 0, 0.1)"
     val shadowLarge = "0 4px 8px rgba(0, 0, 0, 0.1)"
-    
+
     // Create button style
     val buttonStyle = Modifier
         .backgroundColor(primary)
@@ -423,7 +438,7 @@ fun ThemedButton(
     variant: ButtonVariant = ButtonVariant.PRIMARY
 ) {
     enum class ButtonVariant { PRIMARY, SECONDARY, SUCCESS, ERROR }
-    
+
     val style = when (variant) {
         ButtonVariant.PRIMARY -> Modifier
             .backgroundColor(MyTheme.primary)
@@ -438,7 +453,7 @@ fun ThemedButton(
             .backgroundColor(MyTheme.error)
             .color(MyTheme.onPrimary)
     }
-    
+
     Button(
         text = text,
         onClick = onClick,
@@ -471,7 +486,7 @@ fun MyApp() {
                 .fontFamily(MyTheme.fontFamily)
                 .color(MyTheme.primary)
         )
-        
+
         Row(
             modifier = Modifier
                 .gap(MyTheme.spacingMedium)
@@ -481,19 +496,19 @@ fun MyApp() {
                 onClick = { println("Primary clicked") },
                 variant = ThemedButton.ButtonVariant.PRIMARY
             )
-            
+
             ThemedButton(
                 text = "Secondary Button",
                 onClick = { println("Secondary clicked") },
                 variant = ThemedButton.ButtonVariant.SECONDARY
             )
-            
+
             ThemedButton(
                 text = "Success Button",
                 onClick = { println("Success clicked") },
                 variant = ThemedButton.ButtonVariant.SUCCESS
             )
-            
+
             ThemedButton(
                 text = "Error Button",
                 onClick = { println("Error clicked") },
@@ -525,18 +540,18 @@ fun StyledComponent() {
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        
+
         .container:hover {
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
-        
+
         .heading {
             font-size: 24px;
             font-weight: 700;
             color: #333333;
             margin-bottom: 16px;
         }
-        
+
         .button {
             padding: 8px 16px;
             background-color: #0077cc;
@@ -545,23 +560,23 @@ fun StyledComponent() {
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
-        
+
         .button:hover {
             background-color: #005599;
         }
-        
+
         @media (max-width: 768px) {
             .container {
                 padding: 16px;
             }
-            
+
             .heading {
                 font-size: 20px;
             }
         }
         """
     }
-    
+
     // Use the defined styles
     Div(
         modifier = Modifier
@@ -572,7 +587,7 @@ fun StyledComponent() {
             text = "CSS-in-JS Example",
             modifier = Modifier.className("heading")
         )
-        
+
         Button(
             text = "Click me",
             onClick = { println("Button clicked") },
