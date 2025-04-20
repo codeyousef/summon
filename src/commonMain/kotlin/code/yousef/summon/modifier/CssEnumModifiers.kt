@@ -47,3 +47,21 @@ fun Modifier.justifyItems(value: JustifyItems): Modifier = justifyItems(value.to
  * @param value The CSS justify-self value as a JustifySelf enum
  */
 fun Modifier.justifySelf(value: JustifySelf): Modifier = justifySelf(value.toString())
+
+/**
+ * Sets the align-items property of the element using an AlignItems enum value.
+ * @param value The CSS align-items value as an AlignItems enum
+ */
+fun Modifier.alignItems(value: AlignItems): Modifier = alignItems(value.toString())
+
+/**
+ * Sets the align-self property of the element using an AlignSelf enum value.
+ * @param value The CSS align-self value as an AlignSelf enum
+ */
+fun Modifier.alignSelf(value: AlignSelf): Modifier = alignSelf(value.toString())
+
+/**
+ * Sets the align-content property of the element using an AlignContent enum value.
+ * @param value The CSS align-content value as an AlignContent enum
+ */
+fun Modifier.alignContent(value: AlignContent): Modifier = alignContent(value.toString())

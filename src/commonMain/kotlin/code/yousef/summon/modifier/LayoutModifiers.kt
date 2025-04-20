@@ -278,24 +278,6 @@ fun Modifier.visibility(value: String): Modifier =
     style("visibility", value)
 
 /**
- * Sets just the border width property.
- */
-fun Modifier.border(width: String): Modifier =
-    style("border-width", width)
-
-/**
- * Sets the border-left property.
- */
-fun Modifier.borderLeft(width: String, style: String, color: String): Modifier =
-    style("border-left", "$width $style $color")
-
-/**
- * Sets the border-left property using the BorderStyle enum.
- */
-fun Modifier.borderLeft(width: String, style: BorderStyle, color: String): Modifier =
-    style("border-left", "$width ${style.toString()} $color")
-
-/**
  * Sets the font-size property.
  */
 fun Modifier.fontSize(value: String): Modifier =

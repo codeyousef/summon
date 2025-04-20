@@ -119,6 +119,8 @@ Modifier
     .justifyItems(JustifyItems.Center)
     .justifySelf(JustifySelf.Center)
     .alignItems(AlignItems.Center)
+    .alignSelf(AlignSelf.FlexStart)
+    .alignContent(AlignContent.SpaceBetween)
     .flexWrap(FlexWrap.Wrap)
     .gap(8.px)
     .rowGap(8.px)
@@ -127,6 +129,10 @@ Modifier
     .flexGrow(1)
     .flexShrink(0)
     .flexBasis("auto")
+
+    // Row and Column specific alignment
+    .verticalAlignment(Alignment.Vertical.CenterVertically) // For Row components
+    .horizontalAlignment(Alignment.Horizontal.CenterHorizontally) // For Column components
 
     // Grid layout
     .display(Display.Grid)
@@ -155,13 +161,19 @@ Modifier
     .color("#333333")
     .opacity(0.8)
 
-    // Borders
-    .border(1.px, "#cccccc")
-    .border(1.px, BorderStyle.Dashed, "#cccccc")
-    .borderTop(1.px, "#cccccc")
-    .borderRight(1.px, "#cccccc")
-    .borderBottom(1.px, "#cccccc")
-    .borderLeft(1.px, "#cccccc")
+    // Borders - comprehensive border modifier
+    .border(width = 1, style = BorderStyle.Solid, color = "#cccccc", radius = 4)
+    .border(width = 1, style = "dashed", color = "#cccccc")
+
+    // Individual border properties
+    .borderWidth(1) // Sets all borders to 1px
+    .borderWidth(2, BorderSide.Top) // Sets top border to 2px
+    .borderTopWidth(2) // Sets top border to 2px
+    .borderRightWidth(1) // Sets right border to 1px
+    .borderBottomWidth(2) // Sets bottom border to 2px
+    .borderLeftWidth(1) // Sets left border to 1px
+    .borderStyle(BorderStyle.Dashed)
+    .borderColor("#cccccc")
     .borderRadius(4.px)
     .borderRadius(4.px, 0.px, 4.px, 0.px) // top-left, top-right, bottom-right, bottom-left
 

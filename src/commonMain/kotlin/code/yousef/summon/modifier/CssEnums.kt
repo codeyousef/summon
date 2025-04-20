@@ -293,3 +293,57 @@ enum class TextTransform(val value: String) {
 
     override fun toString(): String = value
 }
+
+/**
+ * CSS border side values.
+ */
+enum class BorderSide(val value: String) {
+    Top("top"),
+    Right("right"),
+    Bottom("bottom"),
+    Left("left"),
+    All("all");
+
+    override fun toString(): String = value
+}
+
+/**
+ * CSS align-items values.
+ */
+enum class AlignItems(val value: String) {
+    FlexStart("flex-start"),
+    FlexEnd("flex-end"),
+    Center("center"),
+    Baseline("baseline"),
+    Stretch("stretch");
+
+    override fun toString(): String = value
+}
+
+/**
+ * CSS align-content values.
+ */
+enum class AlignContent(val value: String) {
+    FlexStart("flex-start"),
+    FlexEnd("flex-end"),
+    Center("center"),
+    SpaceBetween("space-between"),
+    SpaceAround("space-around"),
+    Stretch("stretch");
+
+    override fun toString(): String = value
+}
+
+/**
+ * CSS align-self values.
+ */
+enum class AlignSelf(val value: String) {
+    Auto("auto"),
+    FlexStart("flex-start"),
+    FlexEnd("flex-end"),
+    Center("center"),
+    Baseline("baseline"),
+    Stretch("stretch");
+
+    override fun toString(): String = value
+}

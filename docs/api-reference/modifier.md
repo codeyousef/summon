@@ -116,6 +116,10 @@ fun Modifier.maxWidth(value: CSSSize): Modifier
 fun Modifier.maxHeight(value: CSSSize): Modifier
 fun Modifier.minWidth(value: CSSSize): Modifier
 fun Modifier.minHeight(value: CSSSize): Modifier
+// Note: These are member functions of the Modifier class, not extension functions
+fun Modifier.fillMaxWidth(): Modifier
+fun Modifier.fillMaxHeight(): Modifier
+fun Modifier.fillMaxSize(): Modifier
 ```
 
 #### Example
@@ -208,7 +212,13 @@ fun Modifier.justifyContent(value: JustifyContent): Modifier
 fun Modifier.justifyItems(value: JustifyItems): Modifier
 fun Modifier.justifySelf(value: JustifySelf): Modifier
 fun Modifier.alignItems(value: AlignItems): Modifier
+fun Modifier.alignItems(value: String): Modifier
 fun Modifier.alignSelf(value: AlignSelf): Modifier
+fun Modifier.alignSelf(value: String): Modifier
+fun Modifier.alignContent(value: AlignContent): Modifier
+fun Modifier.alignContent(value: String): Modifier
+fun Modifier.verticalAlignment(alignment: Alignment.Vertical): Modifier
+fun Modifier.horizontalAlignment(alignment: Alignment.Horizontal): Modifier
 fun Modifier.flexWrap(value: FlexWrap): Modifier
 fun Modifier.flex(value: Number): Modifier
 fun Modifier.flexGrow(value: Number): Modifier
@@ -264,14 +274,54 @@ enum class JustifySelf(val value: String) {
 
     override fun toString(): String = value
 }
-enum class AlignItems { FlexStart, FlexEnd, Center, Baseline, Stretch }
-enum class AlignSelf { Auto, FlexStart, FlexEnd, Center, Baseline, Stretch }
-enum class FlexWrap { NoWrap, Wrap, WrapReverse }
+enum class AlignItems(val value: String) {
+    FlexStart("flex-start"),
+    FlexEnd("flex-end"),
+    Center("center"),
+    Baseline("baseline"),
+    Stretch("stretch");
+
+    override fun toString(): String = value
+}
+enum class AlignSelf(val value: String) {
+    Auto("auto"),
+    FlexStart("flex-start"),
+    FlexEnd("flex-end"),
+    Center("center"),
+    Baseline("baseline"),
+    Stretch("stretch");
+
+    override fun toString(): String = value
+}
+enum class AlignContent(val value: String) {
+    FlexStart("flex-start"),
+    FlexEnd("flex-end"),
+    Center("center"),
+    SpaceBetween("space-between"),
+    SpaceAround("space-around"),
+    Stretch("stretch");
+
+    override fun toString(): String = value
+}
+enum class FlexWrap(val value: String) {
+    NoWrap("nowrap"),
+    Wrap("wrap"),
+    WrapReverse("wrap-reverse");
+
+    override fun toString(): String = value
+}
+
+// Alignment enums for Row and Column components
+object Alignment {
+    enum class Vertical { Top, CenterVertically, Bottom }
+    enum class Horizontal { Start, CenterHorizontally, End }
+}
 ```
 
 #### Example
 
 ```kotlin
+// Basic flexbox layout
 Modifier
     .display(Display.Flex)
     .flexDirection(FlexDirection.Column)
@@ -280,6 +330,26 @@ Modifier
     .justifySelf(JustifySelf.Center)
     .alignItems(AlignItems.Center)
     .gap(16.px)
+
+// Using string values
+Modifier
+    .alignItems("center")
+    .alignSelf("flex-start")
+    .alignContent("space-between")
+
+// Using enum values
+Modifier
+    .alignItems(AlignItems.Center)
+    .alignSelf(AlignSelf.FlexStart)
+    .alignContent(AlignContent.SpaceBetween)
+
+// Row with vertical alignment
+Modifier
+    .verticalAlignment(Alignment.Vertical.CenterVertically)
+
+// Column with horizontal alignment
+Modifier
+    .horizontalAlignment(Alignment.Horizontal.CenterHorizontally)
 ```
 
 ### Grid Layout
@@ -372,12 +442,22 @@ Modifier
 ### Borders
 
 ```kotlin
-fun Modifier.border(width: CSSSize, color: String): Modifier
-fun Modifier.border(width: CSSSize, style: BorderStyle, color: String): Modifier
-fun Modifier.borderTop(width: CSSSize, color: String): Modifier
-fun Modifier.borderRight(width: CSSSize, color: String): Modifier
-fun Modifier.borderBottom(width: CSSSize, color: String): Modifier
-fun Modifier.borderLeft(width: CSSSize, color: String): Modifier
+// Comprehensive border modifier with all properties
+fun Modifier.border(width: Number? = null, style: String? = null, color: String? = null, radius: Number? = null): Modifier
+fun Modifier.border(width: Number? = null, style: BorderStyle? = null, color: String? = null, radius: Number? = null): Modifier
+fun Modifier.border(width: String? = null, style: String? = null, color: String? = null, radius: String? = null): Modifier
+fun Modifier.border(width: String? = null, style: BorderStyle? = null, color: String? = null, radius: String? = null): Modifier
+
+// Individual border properties
+fun Modifier.borderWidth(value: Number): Modifier
+fun Modifier.borderWidth(value: Number, side: BorderSide = BorderSide.All): Modifier
+fun Modifier.borderTopWidth(value: Number): Modifier
+fun Modifier.borderRightWidth(value: Number): Modifier
+fun Modifier.borderBottomWidth(value: Number): Modifier
+fun Modifier.borderLeftWidth(value: Number): Modifier
+fun Modifier.borderStyle(value: String): Modifier
+fun Modifier.borderStyle(value: BorderStyle): Modifier
+fun Modifier.borderColor(value: String): Modifier
 fun Modifier.borderRadius(value: CSSSize): Modifier
 fun Modifier.borderRadius(topLeft: CSSSize, topRight: CSSSize, bottomRight: CSSSize, bottomLeft: CSSSize): Modifier
 ```
@@ -385,8 +465,29 @@ fun Modifier.borderRadius(topLeft: CSSSize, topRight: CSSSize, bottomRight: CSSS
 #### Enums
 
 ```kotlin
-enum class BorderStyle { 
-    None, Hidden, Solid, Dashed, Dotted, Double, Groove, Ridge, Inset, Outset
+enum class BorderStyle(val value: String) { 
+    None("none"),
+    Hidden("hidden"),
+    Dotted("dotted"),
+    Dashed("dashed"),
+    Solid("solid"),
+    Double("double"),
+    Groove("groove"),
+    Ridge("ridge"),
+    Inset("inset"),
+    Outset("outset");
+
+    override fun toString(): String = value
+}
+
+enum class BorderSide(val value: String) {
+    Top("top"),
+    Right("right"),
+    Bottom("bottom"),
+    Left("left"),
+    All("all");
+
+    override fun toString(): String = value
 }
 ```
 
@@ -417,17 +518,31 @@ Modifier
 ### Typography
 
 ```kotlin
-fun Modifier.fontFamily(value: String): Modifier
-fun Modifier.fontSize(value: CSSSize): Modifier
-fun Modifier.fontWeight(value: Int): Modifier
-fun Modifier.fontWeight(value: FontWeight): Modifier
-fun Modifier.fontStyle(value: FontStyle): Modifier
-fun Modifier.textAlign(value: TextAlign): Modifier
-fun Modifier.textDecoration(value: TextDecoration): Modifier
-fun Modifier.textTransform(value: TextTransform): Modifier
-fun Modifier.letterSpacing(value: CSSSize): Modifier
-fun Modifier.lineHeight(value: Number): Modifier
-fun Modifier.whiteSpace(value: WhiteSpace): Modifier
+// Type-safe modifiers (recommended)
+fun Modifier.fontFamily(value: String, component: TextComponent? = null): Modifier
+fun Modifier.fontSize(value: CSSSize, component: TextComponent? = null): Modifier
+fun Modifier.fontWeight(value: Int, component: TextComponent? = null): Modifier
+fun Modifier.fontWeight(value: FontWeight, component: TextComponent? = null): Modifier
+fun Modifier.fontStyle(value: FontStyle, component: TextComponent? = null): Modifier
+fun Modifier.textAlign(value: TextAlign, component: TextComponent? = null): Modifier
+fun Modifier.textDecoration(value: TextDecoration, component: TextComponent? = null): Modifier
+fun Modifier.textTransform(value: TextTransform, component: TextComponent? = null): Modifier
+fun Modifier.letterSpacing(value: CSSSize, component: TextComponent? = null): Modifier
+fun Modifier.lineHeight(value: Number, component: TextComponent? = null): Modifier
+fun Modifier.whiteSpace(value: WhiteSpace, component: TextComponent? = null): Modifier
+
+// Legacy modifiers (deprecated)
+@Deprecated fun Modifier.fontFamily(value: String): Modifier
+@Deprecated fun Modifier.fontSize(value: CSSSize): Modifier
+@Deprecated fun Modifier.fontWeight(value: Int): Modifier
+@Deprecated fun Modifier.fontWeight(value: FontWeight): Modifier
+@Deprecated fun Modifier.fontStyle(value: FontStyle): Modifier
+@Deprecated fun Modifier.textAlign(value: TextAlign): Modifier
+@Deprecated fun Modifier.textDecoration(value: TextDecoration): Modifier
+@Deprecated fun Modifier.textTransform(value: TextTransform): Modifier
+@Deprecated fun Modifier.letterSpacing(value: CSSSize): Modifier
+@Deprecated fun Modifier.lineHeight(value: Number): Modifier
+@Deprecated fun Modifier.whiteSpace(value: WhiteSpace): Modifier
 ```
 
 #### Enums

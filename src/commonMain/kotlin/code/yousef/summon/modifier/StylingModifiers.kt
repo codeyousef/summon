@@ -55,75 +55,160 @@ fun Modifier.background(color: String, image: String, position: String, size: St
 
 /**
  * Sets the font family.
+ * @deprecated Use the version with component parameter for type safety
  */
+@Deprecated("Use the version with component parameter for type safety", ReplaceWith("fontFamily(value, null)"))
 fun Modifier.fontFamily(value: String): Modifier =
-    style("font-family", value)
+    fontFamily(value, null)
 
 /**
  * Sets the font style (normal, italic, etc).
+ * @deprecated Use the version with component parameter for type safety
  */
+@Deprecated("Use the version with component parameter for type safety", ReplaceWith("fontStyle(value, null)"))
 fun Modifier.fontStyle(value: String): Modifier =
-    style("font-style", value)
+    fontStyle(value, null)
 
 /**
  * Sets the text alignment.
+ * @deprecated Use the version with component parameter for type safety
  */
+@Deprecated("Use the version with component parameter for type safety", ReplaceWith("textAlign(value, null)"))
 fun Modifier.textAlign(value: String): Modifier =
-    style("text-align", value)
+    textAlign(value, null)
 
 /**
  * Sets the text alignment using the TextAlign enum.
+ * @deprecated Use the version with component parameter for type safety
  */
+@Deprecated("Use the version with component parameter for type safety", ReplaceWith("textAlign(value, null)"))
 fun Modifier.textAlign(value: TextAlign): Modifier =
-    style("text-align", value.toString())
+    textAlign(value, null)
 
 /**
  * Sets the text decoration (underline, line-through, etc).
+ * @deprecated Use the version with component parameter for type safety
  */
+@Deprecated("Use the version with component parameter for type safety", ReplaceWith("textDecoration(value, null)"))
 fun Modifier.textDecoration(value: String): Modifier =
-    style("text-decoration", value)
+    textDecoration(value, null)
 
 /**
  * Sets the line height with a string value.
+ * @deprecated Use the version with component parameter for type safety
  */
+@Deprecated("Use the version with component parameter for type safety", ReplaceWith("lineHeight(value, null)"))
 fun Modifier.lineHeight(value: String): Modifier =
-    style("line-height", value)
+    lineHeight(value, null)
 
 /**
  * Sets the line height with a numeric value (e.g., 1.5).
+ * @deprecated Use the version with component parameter for type safety
  */
+@Deprecated("Use the version with component parameter for type safety", ReplaceWith("lineHeight(value, null)"))
 fun Modifier.lineHeight(value: Number): Modifier =
-    style("line-height", value.toString())
+    lineHeight(value, null)
 
 /**
  * Sets the letter spacing.
+ * @deprecated Use the version with component parameter for type safety
  */
+@Deprecated("Use the version with component parameter for type safety", ReplaceWith("letterSpacing(value, null)"))
 fun Modifier.letterSpacing(value: String): Modifier =
-    style("letter-spacing", value)
+    letterSpacing(value, null)
 
 /**
  * Sets the letter spacing with a numeric value in pixels.
+ * @deprecated Use the version with component parameter for type safety
  */
+@Deprecated("Use the version with component parameter for type safety", ReplaceWith("letterSpacing(value, null)"))
 fun Modifier.letterSpacing(value: Number): Modifier =
-    style("letter-spacing", "${value}px")
+    letterSpacing(value, null)
 
 /**
  * Sets the text transformation (uppercase, lowercase, etc).
+ * @deprecated Use the version with component parameter for type safety
  */
+@Deprecated("Use the version with component parameter for type safety", ReplaceWith("textTransform(value, null)"))
 fun Modifier.textTransform(value: String): Modifier =
-    style("text-transform", value)
+    textTransform(value, null)
 
 /**
  * Sets the text transformation using the TextTransform enum.
+ * @deprecated Use the version with component parameter for type safety
  */
+@Deprecated("Use the version with component parameter for type safety", ReplaceWith("textTransform(value, null)"))
 fun Modifier.textTransform(value: TextTransform): Modifier =
-    style("text-transform", value.toString())
+    textTransform(value, null)
 
 /**
  * Sets the border width.
+ * @deprecated Use the version with number parameter for type safety
  */
+@Deprecated("Use the version with number parameter for type safety", ReplaceWith("borderWidth(value.toDouble())"))
 fun Modifier.borderWidth(value: String): Modifier =
     style("border-width", value)
+
+/**
+ * Sets the border width with a numeric value in pixels.
+ * 
+ * @param value The width in pixels
+ * @return A new Modifier with the border width style added
+ */
+fun Modifier.borderWidth(value: Number): Modifier =
+    style("border-width", "${value}px")
+
+/**
+ * Sets the border width for a specific side with a numeric value in pixels.
+ * 
+ * @param value The width in pixels
+ * @param side The side to apply the border width to (default is BorderSide.All)
+ * @return A new Modifier with the border width style added
+ */
+fun Modifier.borderWidth(value: Number, side: BorderSide = BorderSide.All): Modifier =
+    when (side) {
+        BorderSide.All -> style("border-width", "${value}px")
+        BorderSide.Top -> style("border-top-width", "${value}px")
+        BorderSide.Right -> style("border-right-width", "${value}px")
+        BorderSide.Bottom -> style("border-bottom-width", "${value}px")
+        BorderSide.Left -> style("border-left-width", "${value}px")
+    }
+
+/**
+ * Sets the top border width with a numeric value in pixels.
+ * 
+ * @param value The width in pixels
+ * @return A new Modifier with the top border width style added
+ */
+fun Modifier.borderTopWidth(value: Number): Modifier =
+    style("border-top-width", "${value}px")
+
+/**
+ * Sets the right border width with a numeric value in pixels.
+ * 
+ * @param value The width in pixels
+ * @return A new Modifier with the right border width style added
+ */
+fun Modifier.borderRightWidth(value: Number): Modifier =
+    style("border-right-width", "${value}px")
+
+/**
+ * Sets the bottom border width with a numeric value in pixels.
+ * 
+ * @param value The width in pixels
+ * @return A new Modifier with the bottom border width style added
+ */
+fun Modifier.borderBottomWidth(value: Number): Modifier =
+    style("border-bottom-width", "${value}px")
+
+/**
+ * Sets the left border width with a numeric value in pixels.
+ * 
+ * @param value The width in pixels
+ * @return A new Modifier with the left border width style added
+ */
+fun Modifier.borderLeftWidth(value: Number): Modifier =
+    style("border-left-width", "${value}px")
 
 /**
  * Sets the border style (solid, dashed, etc).
@@ -143,29 +228,130 @@ fun Modifier.borderStyle(value: BorderStyle): Modifier =
 fun Modifier.borderColor(value: String): Modifier =
     style("border-color", value)
 
-/**
- * Sets the top border.
- */
-fun Modifier.borderTop(value: String): Modifier =
-    style("border-top", value)
 
 /**
- * Sets the right border.
+ * Sets the border with all properties in one function.
+ * 
+ * @param width The border width (can be a Number or a String)
+ * @param style The border style (can be a String or BorderStyle)
+ * @param color The border color
+ * @param radius The border radius (can be a Number or a String)
+ * @return A new Modifier with all border properties applied
  */
-fun Modifier.borderRight(value: String): Modifier =
-    style("border-right", value)
+fun Modifier.border(
+    width: Number? = null,
+    style: String? = null,
+    color: String? = null,
+    radius: Number? = null
+): Modifier {
+    var modifier = this
+    if (width != null) {
+        modifier = modifier.borderWidth(width)
+    }
+    if (style != null) {
+        modifier = modifier.borderStyle(style)
+    }
+    if (color != null) {
+        modifier = modifier.borderColor(color)
+    }
+    if (radius != null) {
+        modifier = modifier.borderRadius("${radius}px")
+    }
+    return modifier
+}
 
 /**
- * Sets the bottom border.
+ * Sets the border with all properties in one function.
+ * 
+ * @param width The border width (can be a Number or a String)
+ * @param style The border style as a BorderStyle enum
+ * @param color The border color
+ * @param radius The border radius (can be a Number or a String)
+ * @return A new Modifier with all border properties applied
  */
-fun Modifier.borderBottom(value: String): Modifier =
-    style("border-bottom", value)
+fun Modifier.border(
+    width: Number? = null,
+    style: BorderStyle? = null,
+    color: String? = null,
+    radius: Number? = null
+): Modifier {
+    var modifier = this
+    if (width != null) {
+        modifier = modifier.borderWidth(width)
+    }
+    if (style != null) {
+        modifier = modifier.borderStyle(style)
+    }
+    if (color != null) {
+        modifier = modifier.borderColor(color)
+    }
+    if (radius != null) {
+        modifier = modifier.borderRadius("${radius}px")
+    }
+    return modifier
+}
 
 /**
- * Sets the left border.
+ * Sets the border with all properties in one function.
+ * 
+ * @param width The border width as a String
+ * @param style The border style (can be a String or BorderStyle)
+ * @param color The border color
+ * @param radius The border radius as a String
+ * @return A new Modifier with all border properties applied
  */
-fun Modifier.borderLeft(value: String): Modifier =
-    style("border-left", value)
+fun Modifier.border(
+    width: String? = null,
+    style: String? = null,
+    color: String? = null,
+    radius: String? = null
+): Modifier {
+    var modifier = this
+    if (width != null) {
+        modifier = modifier.style("border-width", width)
+    }
+    if (style != null) {
+        modifier = modifier.borderStyle(style)
+    }
+    if (color != null) {
+        modifier = modifier.borderColor(color)
+    }
+    if (radius != null) {
+        modifier = modifier.borderRadius(radius)
+    }
+    return modifier
+}
+
+/**
+ * Sets the border with all properties in one function.
+ * 
+ * @param width The border width as a String
+ * @param style The border style as a BorderStyle enum
+ * @param color The border color
+ * @param radius The border radius as a String
+ * @return A new Modifier with all border properties applied
+ */
+fun Modifier.border(
+    width: String? = null,
+    style: BorderStyle? = null,
+    color: String? = null,
+    radius: String? = null
+): Modifier {
+    var modifier = this
+    if (width != null) {
+        modifier = modifier.style("border-width", width)
+    }
+    if (style != null) {
+        modifier = modifier.borderStyle(style)
+    }
+    if (color != null) {
+        modifier = modifier.borderColor(color)
+    }
+    if (radius != null) {
+        modifier = modifier.borderRadius(radius)
+    }
+    return modifier
+}
 
 /**
  * Sets the box shadow.
@@ -556,15 +742,19 @@ fun Modifier.animationIterationCount(value: String): Modifier =
 
 /**
  * Sets the scroll behavior.
+ * @deprecated Use the version with component parameter for type safety
  */
+@Deprecated("Use the version with component parameter for type safety", ReplaceWith("scrollBehavior(value, null)"))
 fun Modifier.scrollBehavior(value: String): Modifier =
-    style("scroll-behavior", value)
+    scrollBehavior(value, null)
 
 /**
  * Sets the scrollbar width.
+ * @deprecated Use the version with component parameter for type safety
  */
+@Deprecated("Use the version with component parameter for type safety", ReplaceWith("scrollbarWidth(value, null)"))
 fun Modifier.scrollbarWidth(value: String): Modifier =
-    style("scrollbar-width", value)
+    scrollbarWidth(value, null)
 
 /**
  * Adds hover effect using another Modifier.

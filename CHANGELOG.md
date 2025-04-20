@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [0.2.4.0]
 
 ### Added
 - Enhanced theme system with typed theme classes for more type-safe access
@@ -10,15 +10,18 @@ All notable changes to this project will be documented in this file.
 - Added direct access methods for typed theme properties (getTypographyTheme, getSpacingTheme, etc.)
 - Enhanced TextStyle class to support FontWeight enum, numeric values, and Color objects
 - Added TextStyle.create() factory method for type-safe TextStyle creation
+- Added fillMaxHeight() and fillMaxSize() modifier extensions to complement existing fillMaxWidth()
 - Updated documentation with examples of both string-based and typed theme APIs
-
-### Changed
-- Improved ThemeConfig to support both string-based maps (for backward compatibility) and typed properties
-- Enhanced theme documentation with comprehensive examples
-
-## [0.2.4.0]
-
-### Added
+- Added component-specific type-safe modifiers to ensure modifiers are only applied to appropriate components
+- Added TextComponent, MediaComponent, LayoutComponent, InputComponent, ScrollableComponent, ClickableComponent, and FocusableComponent marker interfaces
+- Added BorderSide enum for specifying which side of an element to apply border properties to
+- Enhanced borderWidth modifier to accept numeric values directly (e.g., 1 becomes "1px")
+- Added side-specific borderWidth function that takes a BorderSide parameter
+- Added individual border width functions for each side (borderTopWidth, borderRightWidth, etc.)
+- Added AlignItems, AlignContent, and AlignSelf enums for more type-safe alignment
+- Added verticalAlignment and horizontalAlignment modifier extensions for Row and Column components
+- Enhanced alignSelf and alignContent modifiers to accept enum values
+- Added comprehensive border modifier that accepts width, style, color, and radius as parameters
 - Added linear gradient background functions with flexible API options
 - Added color extensions (Color.hex, Color.rgb, Color.rgba) for easier color creation
 - Added extensive color presets including basic colors, Material3, and Catppuccin palettes
@@ -51,7 +54,17 @@ All notable changes to this project will be documented in this file.
 - Enhanced transition-related functions to accept enums and numeric values directly
 - Added parameterized transition function with support for all transition properties
 
+### Removed
+- Removed old unnecessary border extensions (borderTop, borderRight, borderBottom, borderLeft)
+- Removed duplicate border functions from LayoutModifiers.kt
+
 ### Changed
+- Improved ThemeConfig to support both string-based maps (for backward compatibility) and typed properties
+- Enhanced theme documentation with comprehensive examples
+- Modified text-specific modifiers (fontFamily, fontWeight, textAlign, etc.) to require TextComponent parameter
+- Modified media-specific modifiers (objectFit) to require MediaComponent parameter
+- Modified scrollable-specific modifiers (scrollBehavior, scrollbarWidth) to require ScrollableComponent parameter
+- Updated modifier documentation to reflect type-safe modifier changes
 - Version update to 0.2.4.0 to reflect significant enhancements
 - Improved color system with more comprehensive options
 - Enhanced styling capabilities with additional gradient options

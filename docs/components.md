@@ -105,7 +105,7 @@ Row(
 
 ### Column
 
-The `Column` component arranges its children vertically.
+The `Column` component arranges its children vertically. By default, it applies the `fillMaxSize` modifier to fill the maximum available width and height.
 
 ```kotlin
 Column(
@@ -118,6 +118,8 @@ Column(
     Text("Item 3")
 }
 ```
+
+Note that the `fillMaxSize` modifier is applied automatically, so the Column will fill its parent container by default. If you want to override this behavior, you can provide your own size modifiers.
 
 ### Grid
 
@@ -246,7 +248,7 @@ Main {
         }
         Text("Welcome to our website...")
     }
-    
+
     Article {
         Heading(level = 2) {
             Text("Latest News")
@@ -336,14 +338,14 @@ fun UserProfile(user: User) {
                 Text("Member since: ${user.joinDate}")
             }
         }
-        
+
         Card {
             Column(modifier = Modifier.padding(16.px).gap(8.px)) {
                 Text(
                     text = "Recent Activity",
                     modifier = Modifier.fontSize(18.px).fontWeight(700)
                 )
-                
+
                 user.activities.forEach { activity ->
                     Row(
                         modifier = Modifier

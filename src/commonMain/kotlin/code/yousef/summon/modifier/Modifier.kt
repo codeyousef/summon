@@ -122,9 +122,11 @@ data class Modifier(val styles: Map<String, String> = emptyMap()) {
 
     /**
      * Sets the font weight (normal, bold, etc).
+     * @deprecated Use the version with component parameter for type safety
      */
+    @Deprecated("Use the version with component parameter for type safety", ReplaceWith("fontWeight(value, null)"))
     fun fontWeight(value: String): Modifier =
-        style("font-weight", value)
+        fontWeight(value, null)
 
     /**
      * Sets margins around the element.
@@ -141,9 +143,11 @@ data class Modifier(val styles: Map<String, String> = emptyMap()) {
     /**
      * Sets the object-fit property for images.
      * Valid values include: fill, contain, cover, none, scale-down
+     * @deprecated Use the version with component parameter for type safety
      */
+    @Deprecated("Use the version with component parameter for type safety", ReplaceWith("objectFit(value, null)"))
     fun objectFit(value: String): Modifier =
-        style("object-fit", value)
+        objectFit(value, null)
 
     /**
      * Sets the element to fill its container.
