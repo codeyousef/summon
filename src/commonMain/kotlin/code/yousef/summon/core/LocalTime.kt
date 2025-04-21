@@ -1,6 +1,7 @@
 package code.yousef.summon.core
 
-import kotlinx.datetime.LocalTime
+// Commented out to avoid name conflict with the custom LocalTime class
+// import kotlinx.datetime.LocalTime
 
 /**
  * A simplified LocalTime implementation for multiplatform use.

@@ -1,14 +1,14 @@
 # Summon
 
 **Summon** is a powerful, type-safe UI toolkit for Kotlin Multiplatform that brings the elegance of Jetpack Compose to both browser and JVM environments. Build beautiful, responsive applications with a declarative syntax that feels natural to Kotlin developers.
- 
+  
 > 🎨 **Type-safe styling** with an intuitive modifier API inspired by Compose.
 > 
 > 🧩 **Component-based architecture** for maximum reusability and maintainability.
 > 
 > 🔄 **Reactive state management** that automatically updates your UI when data changes.
 
-Summon combines the best ideas from modern UI frameworks like React, Compose, and SwiftUI, while leveraging Kotlin's powerful type system to catch errors at compile time rather than runtime. Whether you're building a simple website, a complex web application, or a desktop app, Summon provides the tools you need to create polished, professional UIs with less code and fewer bugs.
+Summon combines the best ideas from modern UI frameworks like React, Compose, and SwiftUI, while leveraging Kotlin's powerful type system to catch errors at compile time rather than runtime. Whether you're building a simple website, a complex web application, Summon provides the tools you need to create polished, professional UIs with less code and fewer bugs.
 
 ## Features
 

@@ -24,7 +24,14 @@ object RenderToString {
      */
     fun basic(renderer: JvmPlatformRenderer, composable: @Composable () -> Unit): String {
         // Use renderComposableRoot instead of renderComposable to properly set up the rendering context
-        return renderer.renderComposableRoot(composable)
+        val result = renderer.renderComposableRoot(composable)
+
+        // Add doctype if needed
+        return if (!result.startsWith("<!DOCTYPE")) {
+            "<!DOCTYPE html>\n$result"
+        } else {
+            result
+        }
     }
 
     /**

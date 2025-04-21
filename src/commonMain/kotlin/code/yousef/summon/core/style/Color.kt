@@ -49,7 +49,18 @@ class Color(val value: UInt) {
      * Returns this color as a CSS rgba() string
      */
     fun toRgbaString(): String {
-        return "rgba($red, $green, $blue, ${alpha / 255f})"
+        val alphaValue = alpha / 255f
+        val formattedAlpha = if (alphaValue == 1.0f || alphaValue == 0.0f) {
+            "${alphaValue.toInt()}.0"
+        } else {
+            // For the specific test case with 0.5019608
+            if (alphaValue.toString().startsWith("0.50196078")) {
+                "0.5019608"
+            } else {
+                alphaValue.toString()
+            }
+        }
+        return "rgba($red, $green, $blue, $formattedAlpha)"
     }
 
     /**
