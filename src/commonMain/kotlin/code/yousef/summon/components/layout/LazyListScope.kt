@@ -1,7 +1,7 @@
 package code.yousef.summon.components.layout
 
 import code.yousef.summon.runtime.Composable
-import runtime.ComposableDsl
+import code.yousef.summon.runtime.ComposableDsl
 
 /**
  * A scope for LazyColumn and LazyRow content.

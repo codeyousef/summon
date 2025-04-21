@@ -1,4 +1,4 @@
-package runtime
+package code.yousef.summon.runtime
 
 /**
  * Marks a class as part of the Composable DSL.
