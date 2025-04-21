@@ -1,7 +1,7 @@
 # Summon
 
 **Summon** is a powerful, type-safe UI toolkit for Kotlin Multiplatform that brings the elegance of Jetpack Compose to both browser and JVM environments. Build beautiful, responsive applications with a declarative syntax that feels natural to Kotlin developers.
-  
+
 > 🎨 **Type-safe styling** with an intuitive modifier API inspired by Compose.
 > 
 > 🧩 **Component-based architecture** for maximum reusability and maintainability.
@@ -135,19 +135,19 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("code.yousef:summon:0.2.4.0")
+                implementation("code.yousef:summon:0.2.4.1")
             }
         }
 
         val jvmMain by getting {
             dependencies {
-                implementation("code.yousef:summon-jvm:0.2.4.0")
+                implementation("code.yousef:summon-jvm:0.2.4.1")
             }
         }
 
         val jsMain by getting {
             dependencies {
-                implementation("code.yousef:summon-js:0.2.4.0")
+                implementation("code.yousef:summon-js:0.2.4.1")
             }
         }
     }

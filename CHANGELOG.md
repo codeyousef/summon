@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.4.1]
+
+### Added
+- Comprehensive thread safety improvements to FlowBinding.kt
+- Added Mutex for thread-safe access to the scopes map in FlowCollectionRegistry
+- Implemented double-check locking pattern in getScope method for improved performance while maintaining thread safety
+- Enhanced cancelScope and cancelAll methods with proper locking mechanisms
+- Started comprehensive testing
+
+### Changed
+- Improved thread safety documentation with detailed notes for each method
+- Enhanced error handling for race conditions in flow binding operations
+
 ## [0.2.4.0]
 
 ### Added
