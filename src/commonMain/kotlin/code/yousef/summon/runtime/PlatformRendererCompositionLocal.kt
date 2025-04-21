@@ -13,5 +13,17 @@ val LocalPlatformRenderer = CompositionLocal.staticCompositionLocalOf<PlatformRe
  * properly scoped access to the renderer within composition.
  */
 fun getCurrentRenderer(): PlatformRenderer {
-    return LocalPlatformRenderer.current
-} 
+    // Check if we're inside a composition context with a provided renderer
+    if (CompositionLocal.currentComposer == null) {
+        // Not inside a composition context, throw exception
+        throw IllegalStateException("No PlatformRenderer provided in the current composition")
+    }
+
+    // Inside a composition context, try to get the renderer
+    try {
+        return LocalPlatformRenderer.current
+    } catch (e: Exception) {
+        // No renderer provided, throw exception
+        throw IllegalStateException("No PlatformRenderer provided in the current composition")
+    }
+}
