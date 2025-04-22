@@ -65,9 +65,16 @@ class LazyListState {
 
     // Get data attributes for the lazy container
     fun getDataAttributes(totalItems: Int): Map<String, String> {
+        // Ensure itemSize always has a decimal point for consistent representation across platforms
+        val formattedItemSize = if (itemSize == itemSize.toInt().toFloat()) {
+            "${itemSize.toInt()}.0"
+        } else {
+            itemSize.toString()
+        }
+
         return mapOf(
             "data-total-items" to totalItems.toString(),
-            "data-item-size" to itemSize.toString(),
+            "data-item-size" to formattedItemSize,
             "data-overscroll-items" to overscrollItems.toString(),
             "data-lazy-container" to "true"
         )

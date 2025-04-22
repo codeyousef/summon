@@ -197,10 +197,10 @@ object Theme {
      */
     data class ThemeConfig(
         val colorPalette: ColorSystem.ColorPalette = ColorSystem.default,
-        val typography: Map<String, TextStyle> = defaultTypography,
-        val spacing: Map<String, String> = defaultSpacing,
-        val borderRadius: Map<String, String> = defaultBorderRadius,
-        val elevation: Map<String, String> = defaultElevation,
+        val typography: Map<String, TextStyle> = emptyMap(),
+        val spacing: Map<String, String> = emptyMap(),
+        val borderRadius: Map<String, String> = emptyMap(),
+        val elevation: Map<String, String> = emptyMap(),
         val customValues: Map<String, String> = emptyMap(),
         // Typed theme properties for direct access
         val typographyTheme: TypographyTheme = TypographyTheme(),
@@ -208,11 +208,6 @@ object Theme {
         val borderRadiusTheme: BorderRadiusTheme = BorderRadiusTheme(),
         val elevationTheme: ElevationTheme = ElevationTheme()
     )
-
-    /**
-     * Current active theme configuration
-     */
-    private var currentTheme: ThemeConfig = ThemeConfig()
 
     /**
      * Default typography values from Typography object
@@ -279,6 +274,16 @@ object Theme {
     )
 
     /**
+     * Current active theme configuration
+     */
+    private var currentTheme: ThemeConfig = ThemeConfig(
+        typography = defaultTypography,
+        spacing = defaultSpacing,
+        borderRadius = defaultBorderRadius,
+        elevation = defaultElevation
+    )
+
+    /**
      * Predefined themes
      */
     object Themes {
@@ -286,35 +291,55 @@ object Theme {
          * Default light theme
          */
         val light = ThemeConfig(
-            colorPalette = ColorSystem.default
+            colorPalette = ColorSystem.default,
+            typography = defaultTypography,
+            spacing = defaultSpacing,
+            borderRadius = defaultBorderRadius,
+            elevation = defaultElevation
         )
 
         /**
          * Default dark theme
          */
         val dark = ThemeConfig(
-            colorPalette = ColorSystem.default
+            colorPalette = ColorSystem.default,
+            typography = defaultTypography,
+            spacing = defaultSpacing,
+            borderRadius = defaultBorderRadius,
+            elevation = defaultElevation
         )
 
         /**
          * Blue theme
          */
         val blue = ThemeConfig(
-            colorPalette = ColorSystem.blue
+            colorPalette = ColorSystem.blue,
+            typography = defaultTypography,
+            spacing = defaultSpacing,
+            borderRadius = defaultBorderRadius,
+            elevation = defaultElevation
         )
 
         /**
          * Green theme
          */
         val green = ThemeConfig(
-            colorPalette = ColorSystem.green
+            colorPalette = ColorSystem.green,
+            typography = defaultTypography,
+            spacing = defaultSpacing,
+            borderRadius = defaultBorderRadius,
+            elevation = defaultElevation
         )
 
         /**
          * Purple theme
          */
         val purple = ThemeConfig(
-            colorPalette = ColorSystem.purple
+            colorPalette = ColorSystem.purple,
+            typography = defaultTypography,
+            spacing = defaultSpacing,
+            borderRadius = defaultBorderRadius,
+            elevation = defaultElevation
         )
     }
 

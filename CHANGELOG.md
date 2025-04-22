@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.4.2]
+
+### Fixed
+- Fixed floating point representation issue in LazyListState.getDataAttributes method
+- Ensured consistent decimal formatting across platforms
+
 ## [0.2.4.1]
 
 ### Added
