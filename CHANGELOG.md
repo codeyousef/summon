@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.4.3]
+
+### Changed
+- Updated version number to 0.2.4.3
+
 ## [0.2.4.2]
 
 ### Fixed
