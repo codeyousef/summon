@@ -6,6 +6,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.test.assertFalse
+import kotlin.test.assertFailsWith
 import code.yousef.summon.runtime.Composable
 
 class CompositionContextTest {
@@ -115,5 +116,23 @@ class CompositionContextTest {
         val exceptionWithCause = SummonRenderException("Test error with cause", cause)
         assertEquals("Test error with cause", exceptionWithCause.message, "Exception should have the provided message")
         assertEquals(cause, exceptionWithCause.cause, "Exception should have the provided cause")
+    }
+
+    @Test
+    fun testTestRendererDispose() {
+        val renderer = TestRenderer()
+        assertFalse(renderer.disposeCalled, "disposeCalled should be false initially")
+        renderer.dispose()
+        assertTrue(renderer.disposeCalled, "disposeCalled should be true after calling dispose()")
+    }
+
+    @Test
+    fun testRenderUtilsPlaceholders() {
+        // Test that RenderUtils methods throw NotImplementedError in common code
+        // Note: These might have actual implementations in platform-specific tests
+        assertFailsWith<NotImplementedError> { RenderUtils.renderComposable("dummyContainer") {} }
+        assertFailsWith<NotImplementedError> { RenderUtils.hydrate("dummyContainer") {} }
+        assertFailsWith<NotImplementedError> { RenderUtils.renderToString {} }
+        assertFailsWith<NotImplementedError> { RenderUtils.renderToFile({}, "dummyFile") }
     }
 }

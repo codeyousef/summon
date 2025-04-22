@@ -84,7 +84,13 @@ data class RouteParams(val params: Map<String, String>) {
     /**
      * Converts a parameter to Boolean or returns null if not found or not a valid Boolean.
      */
-    fun getBoolean(key: String): Boolean? = params[key]?.toBoolean()
+    fun getBoolean(key: String): Boolean? = params[key]?.let {
+        when (it.lowercase()) {
+            "true" -> true
+            "false" -> false
+            else -> null // Return null for other strings
+        }
+    }
     
     /**
      * Converts a parameter to Float or returns null if not found or not a valid Float.

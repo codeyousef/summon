@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Updated version number to 0.2.4.3
+- Improved Boolean parameter handling in RouteParams.getBoolean() method to explicitly check for "true" and "false" strings (case-insensitive)
+
+### Added
+- Comprehensive test suite for routing functionality
+- JVM-specific router tests including server-side session management
+- Enhanced test coverage for composition context and rendering utilities
 
 ## [0.2.4.2]
 
