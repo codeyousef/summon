@@ -27,10 +27,17 @@ fun RangeSlider(
 ) {
     val renderer = LocalPlatformRenderer.current
 
+    // Wrap the callback to only execute if enabled
+    val wrappedOnValueChange: (ClosedFloatingPointRange<Float>) -> Unit = {
+        if (enabled) {
+            onValueChange(it)
+        }
+    }
+
     // Call the platform renderer directly
     renderer.renderRangeSlider(
         value = value,
-        onValueChange = onValueChange,
+        onValueChange = wrappedOnValueChange,
         valueRange = valueRange,
         steps = steps,
         enabled = enabled,

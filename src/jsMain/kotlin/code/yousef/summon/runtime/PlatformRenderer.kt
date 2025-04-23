@@ -5,7 +5,6 @@ import code.yousef.summon.components.display.IconType
 import code.yousef.summon.components.feedback.AlertVariant
 import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.input.FileInfo
-import code.yousef.summon.components.input.SelectOption
 import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.modifier.Modifier
 import kotlinx.datetime.LocalDate
@@ -39,7 +38,7 @@ actual interface PlatformRenderer {
     actual fun <T> renderSelect(
         selectedValue: T?,
         onSelectedChange: (T?) -> Unit,
-        options: List<SelectOption<T>>,
+        options: List<code.yousef.summon.runtime.SelectOption<T>>,
         modifier: Modifier
     )
 
@@ -71,7 +70,7 @@ actual interface PlatformRenderer {
     actual fun renderComposableRoot(composable: @Composable () -> Unit): String
 
     /**
-     * Renders a composable into the current context. 
+     * Renders a composable into the current context.
      * This is a convenience method for rendering a composable without directly accessing the DOM.
      */
     actual fun renderComposable(composable: @Composable () -> Unit)

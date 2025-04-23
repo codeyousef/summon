@@ -1,11 +1,8 @@
 package code.yousef.summon.accessibility
 
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.style
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.modifier.ModifierExtras.getAttribute
 
 /**
  * Utilities for accessibility-related tasks.
@@ -80,18 +77,20 @@ object AccessibilityUtils {
 
     /**
      * Inspects and extracts all accessibility-related attributes from a Modifier.
-     * 
+     *
      * @param modifier The modifier to inspect
      * @return A map of accessibility attribute names to their values
      */
     fun inspectAccessibility(modifier: Modifier): Map<String, String> {
         return modifier.styles.entries
-            .filter { it.key.startsWith("__attr:") && (
-                it.key.contains("aria-") || it.key.contains("role") || 
-                it.key.contains("tabindex") || it.key.contains("disabled")
-            )}
-            .associate { 
-                it.key.removePrefix("__attr:") to it.value 
+            .filter {
+                it.key.startsWith("__attr:") && (
+                        it.key.contains("aria-") || it.key.contains("role") ||
+                                it.key.contains("tabindex") || it.key.contains("disabled")
+                        )
+            }
+            .associate {
+                it.key.removePrefix("__attr:") to it.value
             }
     }
 }
@@ -154,16 +153,16 @@ fun ApplyAccessibilityNode(
 ) {
     // Get current platform renderer
     val renderer = LocalPlatformRenderer.current
-    
+
     // Apply accessibility attributes to the modifier
     val accessibilityModifier = node.modifier
         .applyAccessibilityAttributes(node)
-    
+
     // Use the platform renderer to create a container with the accessibility attributes
     // and render the content inside it
     renderer.renderBox(
         modifier = accessibilityModifier,
-        content = { content() } 
+        content = { content() }
     )
 }
 
@@ -214,26 +213,26 @@ fun Semantics(
 
 /**
  * Extension function for Modifier to apply accessibility attributes from an AccessibilityNode.
- * 
+ *
  * @param node The AccessibilityNode containing accessibility data
  * @return A modifier with accessibility attributes applied
  */
 private fun Modifier.applyAccessibilityAttributes(node: AccessibilityNode): Modifier {
     var result = this
-    
+
     // Apply role attribute
     result = result.style("__attr:role", node.role.name.lowercase())
-    
+
     // Apply label as aria-label if available
-    node.label?.let { 
+    node.label?.let {
         result = result.style("__attr:aria-label", it)
     }
-    
+
     // Apply description as aria-describedby if available
     node.description?.let {
         result = result.style("__attr:aria-describedby", it)
     }
-    
+
     // Apply state attributes
     for ((state, isActive) in node.state) {
         when (state) {
@@ -243,6 +242,7 @@ private fun Modifier.applyAccessibilityAttributes(node: AccessibilityNode): Modi
                 result = result.style("__attr:aria-disabled", "true")
                 result = result.style("__attr:disabled", "")
             }
+
             State.EXPANDED -> if (isActive) result = result.style("__attr:aria-expanded", "true")
             State.GRABBED -> if (isActive) result = result.style("__attr:aria-grabbed", "true")
             State.HIDDEN -> if (isActive) result = result.style("__attr:aria-hidden", "true")
@@ -251,11 +251,11 @@ private fun Modifier.applyAccessibilityAttributes(node: AccessibilityNode): Modi
             State.SELECTED -> if (isActive) result = result.style("__attr:aria-selected", "true")
         }
     }
-    
+
     // Apply all custom properties
     for ((name, value) in node.properties) {
         result = result.style("__attr:$name", value)
     }
-    
+
     return result
 }

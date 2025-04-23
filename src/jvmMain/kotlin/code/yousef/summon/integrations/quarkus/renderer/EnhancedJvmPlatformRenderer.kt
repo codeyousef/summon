@@ -5,7 +5,6 @@ import code.yousef.summon.components.display.IconType
 import code.yousef.summon.components.feedback.AlertVariant
 import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.input.FileInfo
-import code.yousef.summon.components.input.SelectOption
 import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.integrations.quarkus.htmx.HtmxAttributeHandler
 import code.yousef.summon.modifier.Modifier
@@ -97,7 +96,7 @@ class EnhancedJvmPlatformRenderer : PlatformRenderer {
         delegate.renderTextField(value, onValueChange, processModifier(modifier), type)
     }
     
-    override fun <T> renderSelect(selectedValue: T?, onSelectedChange: (T?) -> Unit, options: List<SelectOption<T>>, modifier: Modifier) {
+    override fun <T> renderSelect(selectedValue: T?, onSelectedChange: (T?) -> Unit, options: List<code.yousef.summon.runtime.SelectOption<T>>, modifier: Modifier) {
         delegate.renderSelect(selectedValue, onSelectedChange, options, processModifier(modifier))
     }
     

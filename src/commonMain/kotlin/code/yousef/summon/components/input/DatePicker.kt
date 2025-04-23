@@ -64,6 +64,8 @@ fun DatePicker(
                 }
             },
             enabled = enabled,
+            min = minDate,
+            max = maxDate,
             modifier = finalModifier.applyIf(label != null) { 
                 attribute("data-label", label ?: "")
             }.applyIf(dateFormat.isNotEmpty()) {

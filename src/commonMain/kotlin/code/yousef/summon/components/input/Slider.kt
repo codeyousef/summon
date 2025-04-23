@@ -27,9 +27,16 @@ fun Slider(
 ) {
     val renderer = LocalPlatformRenderer.current
 
+    // Wrap the callback to only execute if enabled
+    val wrappedOnValueChange: (Float) -> Unit = {
+        if (enabled) {
+            onValueChange(it)
+        }
+    }
+
     renderer.renderSlider(
         value = value,
-        onValueChange = onValueChange,
+        onValueChange = wrappedOnValueChange, // Use the wrapped callback
         valueRange = valueRange,
         steps = steps,
         enabled = enabled,

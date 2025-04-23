@@ -9,15 +9,11 @@ import kotlinx.html.FlowContent
 import code.yousef.summon.components.feedback.AlertVariant
 import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.input.FileInfo
-import code.yousef.summon.components.input.SelectOption
 import code.yousef.summon.components.navigation.Tab
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.test.assertFalse
-import kotlin.test.assertSame
 import kotlin.test.assertNotNull
-import kotlin.test.assertContains
 
 /**
  * Tests for the Icon component
@@ -49,7 +45,7 @@ class IconTest {
         override fun renderLabel(text: String, modifier: Modifier, forElement: String?) {}
         override fun renderTextField(value: String, onValueChange: (String) -> Unit, modifier: Modifier, type: String) {}
         override fun renderButton(onClick: () -> Unit, modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun <T> renderSelect(selectedValue: T?, onSelectedChange: (T?) -> Unit, options: List<SelectOption<T>>, modifier: Modifier) {}
+        override fun <T> renderSelect(selectedValue: T?, onSelectedChange: (T?) -> Unit, options: List<code.yousef.summon.runtime.SelectOption<T>>, modifier: Modifier) {}
         override fun renderDatePicker(value: LocalDate?, onValueChange: (LocalDate?) -> Unit, enabled: Boolean, min: LocalDate?, max: LocalDate?, modifier: Modifier) {}
         override fun renderTextArea(value: String, onValueChange: (String) -> Unit, enabled: Boolean, readOnly: Boolean, rows: Int?, maxLength: Int?, placeholder: String?, modifier: Modifier) {}
         override fun addHeadElement(content: String) {}

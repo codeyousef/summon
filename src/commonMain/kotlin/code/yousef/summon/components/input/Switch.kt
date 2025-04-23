@@ -23,9 +23,16 @@ fun Switch(
 ) {
     val renderer = LocalPlatformRenderer.current
 
+    // Wrap the callback to only execute if enabled
+    val wrappedOnCheckedChange: (Boolean) -> Unit = {
+        if (enabled) {
+            onCheckedChange(it)
+        }
+    }
+
     renderer.renderSwitch(
         checked = checked,
-        onCheckedChange = onCheckedChange,
+        onCheckedChange = wrappedOnCheckedChange, // Use the wrapped callback
         enabled = enabled,
         modifier = modifier
     )

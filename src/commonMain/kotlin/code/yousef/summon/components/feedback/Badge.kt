@@ -1,25 +1,12 @@
 package code.yousef.summon.components.feedback
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.attribute
-import code.yousef.summon.modifier.minHeight
-import code.yousef.summon.modifier.minWidth
-import code.yousef.summon.modifier.ModifierExtras.onClick
-import code.yousef.summon.modifier.background
-import code.yousef.summon.modifier.border
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.modifier.style
-import code.yousef.summon.modifier.padding
-import code.yousef.summon.modifier.color
-import code.yousef.summon.modifier.borderRadius
-import code.yousef.summon.modifier.fontSize
-import code.yousef.summon.modifier.fontWeight
-import code.yousef.summon.components.layout.Row
-import code.yousef.summon.components.layout.Box
 import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.layout.Alignment
-import code.yousef.summon.modifier.alignItems
+import code.yousef.summon.components.layout.Box
+import code.yousef.summon.components.layout.Row
+import code.yousef.summon.modifier.*
+import code.yousef.summon.modifier.ModifierExtras.onClick
+import code.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * Badge types for different semantic meanings
@@ -182,9 +169,11 @@ fun Badge(
         "small" -> finalModifier
             .fontSize("0.75rem")
             .padding(if (shape != BadgeShape.DOT) "0.125rem 0.375rem" else "0")
+
         "large" -> finalModifier
             .fontSize("1rem")
             .padding(if (shape != BadgeShape.DOT) "0.375rem 0.75rem" else "0")
+
         else -> finalModifier
             .fontSize("0.875rem")
             .padding(if (shape != BadgeShape.DOT) "0.25rem 0.5rem" else "0")

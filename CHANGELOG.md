@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.4.4]
+
+### Fixed
+- **Modifier Prefixing Logic:** Resolved inconsistencies in how internal prefixes (`__attr:`, `__event:`) were applied to HTML attributes and event handlers, which caused widespread test failures.
+    - Reverted the `Modifier.style` member function (`Modifier.kt`) to its original behavior, ensuring it only handles standard CSS properties without adding any prefixes.
+    - Updated helper extension functions (`AttributeModifiers.attribute` in `ModifierUtils.kt`, `CoreModifiers.event` in `CoreModifiers.kt`, and pointer event handlers like `onClick`, `onMouseEnter` in `PointerEventModifiers.kt`) to explicitly add the required prefixes (`__attr:` or `__event:`) to the style map keys.
+
+### Changed
+- **Component Attribute/Event Handling:** Ensured correct HTML attribute and event handler application in various components and utilities that rely on the fixed modifier helper functions. This includes, but is not limited to:
+    - Accessibility utilities (`AccessibilityTree.kt`) relying on `__attr:` prefixes.
+    - Components using `.attribute()` or event modifiers (e.g., `Badge.kt`, `DatePicker.kt`, `Select.kt`, `Text.kt`).
+    - Note: Platform renderers (`JvmPlatformRenderer.kt`, `EnhancedJvmPlatformRenderer.kt`, `JsPlatformRenderer.kt`) and components calling them directly (`RangeSlider.kt`, `Slider.kt`, `Switch.kt`, `TimePicker.kt`) were not directly modified but benefit from the corrected modifier data they receive. `PlatformRenderer.kt` interface was unchanged.
+- Updated project version number to 0.2.4.4.
+
 ## [0.2.4.3]
 
 ### Changed

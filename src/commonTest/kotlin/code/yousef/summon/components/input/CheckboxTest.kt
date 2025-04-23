@@ -12,13 +12,12 @@ import code.yousef.summon.components.display.IconType
 import code.yousef.summon.components.feedback.AlertVariant
 import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.navigation.Tab
+import code.yousef.summon.runtime.SelectOption
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.assertFalse
-import kotlin.test.assertSame
 import kotlin.test.assertNotNull
-import kotlin.test.assertContains
 
 /**
  * Tests for the Checkbox component

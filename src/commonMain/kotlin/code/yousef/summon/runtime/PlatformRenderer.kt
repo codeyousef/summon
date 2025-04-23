@@ -5,7 +5,6 @@ import code.yousef.summon.components.display.IconType
 import code.yousef.summon.components.feedback.AlertVariant
 import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.input.FileInfo
-import code.yousef.summon.components.input.SelectOption
 import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.modifier.Modifier
 import kotlinx.datetime.LocalDate
@@ -54,7 +53,7 @@ expect interface PlatformRenderer {
     fun <T> renderSelect(
         selectedValue: T?, // The value that should be marked selected
         onSelectedChange: (T?) -> Unit, // JS hook needed for JVM/JS
-        options: List<SelectOption<T>>, // Data for <option> tags
+        options: List<code.yousef.summon.runtime.SelectOption<T>>, // Data for <option> tags
         modifier: Modifier
     )
 
@@ -87,8 +86,8 @@ expect interface PlatformRenderer {
     // --- Composition Root ---
     fun renderComposableRoot(composable: @Composable () -> Unit): String
 
-    /** 
-     * Renders a composable component into the current context 
+    /**
+     * Renders a composable component into the current context
      * This is a convenience method for rendering a composable without directly accessing FlowContent
      */
     fun renderComposable(composable: @Composable () -> Unit)

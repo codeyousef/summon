@@ -2,11 +2,12 @@ package code.yousef.summon.components.input
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.ModifierExtras.attribute
+import code.yousef.summon.runtime.getPlatformRenderer
 import code.yousef.summon.state.SummonMutableState
 import code.yousef.summon.state.mutableStateOf
 import code.yousef.summon.validation.Validator
-import code.yousef.summon.modifier.ModifierExtras.attribute
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.SelectOption as RendererSelectOption
 
 /**
  * Class that manages select state and validation.
@@ -44,7 +45,7 @@ class SelectState<T>(
 }
 
 /**
- * Data class representing a select option.
+ * Data class representing a select option (Component's internal version).
  */
 data class SelectOption<T>(
     val value: T,
@@ -88,10 +89,20 @@ fun <T> Select(
         modifier
     }
 
+    // Map the component's SelectOption list to the renderer's SelectOption list
+    val rendererOptions = options.map { componentOption ->
+        RendererSelectOption(
+            value = componentOption.value,
+            label = componentOption.label,
+            disabled = componentOption.disabled
+            // Note: componentOption.selected is not used here as RendererSelectOption lacks it
+        )
+    }
+
     getPlatformRenderer().renderSelect(
-        selectedValue.value,
-        onSelectedChange,
-        options,
-        finalModifier // Pass the correctly prepared modifier
+        selectedValue = selectedValue.value,
+        onSelectedChange = onSelectedChange,
+        options = rendererOptions, // Pass the mapped list
+        modifier = finalModifier
     )
 }

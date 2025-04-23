@@ -19,22 +19,6 @@ val Modifier.events: Map<String, ModifierHandler>
     get() = emptyMap() // Not implemented in the actual Modifier class
 
 /**
- * Adds a style attribute to the modifier
- */
-fun Modifier.style(name: String, value: String): Modifier {
-    // If it's an attribute or event, prefix accordingly
-    val key = when {
-        name == "style" -> name
-        name == "class" -> name
-        name == "id" -> name
-        name.startsWith("hx-") -> name // HTMX attributes
-        name.startsWith("on") -> "__event:${name.substring(2)}" // Events like onClick -> click
-        else -> "__attr:$name" // Regular attributes
-    }
-    return Modifier(styles + (key to value))
-}
-
-/**
  * Applies a code block conditionally to modify this Modifier
  */
 inline fun Modifier.applyIf(condition: Boolean, block: Modifier.() -> Modifier): Modifier {
@@ -63,8 +47,10 @@ fun Modifier.combine(other: Modifier): Modifier = this.then(other)
  * as the actual handler function can't be stored in styles.
  */
 fun Modifier.event(eventName: String, handler: ModifierHandler): Modifier {
-    // Since we can't store functions in the map, we just add a marker style
-    // TODO: Implement a real implementation
-    // In a real implementation, this would need to register the handler elsewhere
-    return style("__event:$eventName", "true")
-} 
+    // Directly add the prefixed event key to the map
+    val key = "__event:$eventName"
+    // Store a marker or potentially a serialized handler if possible
+    return Modifier(this.styles + (key to "true")) // Store "true" as marker
+}
+
+//    style("__event:$eventName", "true") // Old implementation 

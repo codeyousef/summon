@@ -4,26 +4,16 @@ import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.IconType
 import code.yousef.summon.components.feedback.AlertVariant
 import code.yousef.summon.components.feedback.ProgressType
-import code.yousef.summon.components.input.FileInfo
-import code.yousef.summon.components.input.SelectOption
 import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.*
-import code.yousef.summon.validation.ValidationResult
-import code.yousef.summon.validation.Validator
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.html.FlowContent
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-import kotlin.test.assertFalse
-import kotlin.test.assertSame
-import kotlin.test.assertNotNull
-import kotlin.test.assertContains
+import kotlin.test.*
 
 // Extension functions for testing
-private fun Modifier.hasAttribute(name: String, value: String): Boolean = 
+private fun Modifier.hasAttribute(name: String, value: String): Boolean =
     styles["__attr:$name"] == value
 
 /**
@@ -52,10 +42,43 @@ class TextFieldTest {
         // Minimal implementations for other required methods
         override fun renderText(text: String, modifier: Modifier) {}
         override fun renderLabel(text: String, modifier: Modifier, forElement: String?) {}
-        override fun renderButton(onClick: () -> Unit, modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun <T> renderSelect(selectedValue: T?, onSelectedChange: (T?) -> Unit, options: List<SelectOption<T>>, modifier: Modifier) {}
-        override fun renderDatePicker(value: LocalDate?, onValueChange: (LocalDate?) -> Unit, enabled: Boolean, min: LocalDate?, max: LocalDate?, modifier: Modifier) {}
-        override fun renderTextArea(value: String, onValueChange: (String) -> Unit, enabled: Boolean, readOnly: Boolean, rows: Int?, maxLength: Int?, placeholder: String?, modifier: Modifier) {}
+        override fun renderButton(
+            onClick: () -> Unit,
+            modifier: Modifier,
+            content: @Composable FlowContent.() -> Unit
+        ) {
+        }
+
+        override fun <T> renderSelect(
+            selectedValue: T?,
+            onSelectedChange: (T?) -> Unit,
+            options: List<code.yousef.summon.runtime.SelectOption<T>>,
+            modifier: Modifier
+        ) {
+        }
+
+        override fun renderDatePicker(
+            value: LocalDate?,
+            onValueChange: (LocalDate?) -> Unit,
+            enabled: Boolean,
+            min: LocalDate?,
+            max: LocalDate?,
+            modifier: Modifier
+        ) {
+        }
+
+        override fun renderTextArea(
+            value: String,
+            onValueChange: (String) -> Unit,
+            enabled: Boolean,
+            readOnly: Boolean,
+            rows: Int?,
+            maxLength: Int?,
+            placeholder: String?,
+            modifier: Modifier
+        ) {
+        }
+
         override fun addHeadElement(content: String) {}
         override fun getHeadElements(): List<String> = emptyList()
         override fun renderComposableRoot(composable: @Composable () -> Unit): String = ""
@@ -64,28 +87,129 @@ class TextFieldTest {
         override fun renderColumn(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
         override fun renderBox(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
         override fun renderImage(src: String, alt: String, modifier: Modifier) {}
-        override fun renderIcon(name: String, modifier: Modifier, onClick: (() -> Unit)?, svgContent: String?, type: IconType) {}
-        override fun renderAlertContainer(variant: AlertVariant?, modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
+        override fun renderIcon(
+            name: String,
+            modifier: Modifier,
+            onClick: (() -> Unit)?,
+            svgContent: String?,
+            type: IconType
+        ) {
+        }
+
+        override fun renderAlertContainer(
+            variant: AlertVariant?,
+            modifier: Modifier,
+            content: @Composable FlowContent.() -> Unit
+        ) {
+        }
+
         override fun renderBadge(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderCheckbox(checked: Boolean, onCheckedChange: (Boolean) -> Unit, enabled: Boolean, modifier: Modifier) {}
+        override fun renderCheckbox(
+            checked: Boolean,
+            onCheckedChange: (Boolean) -> Unit,
+            enabled: Boolean,
+            modifier: Modifier
+        ) {
+        }
+
         override fun renderProgress(value: Float?, type: ProgressType, modifier: Modifier) {}
-        override fun renderFileUpload(onFilesSelected: (List<FileInfo>) -> Unit, accept: String?, multiple: Boolean, enabled: Boolean, capture: String?, modifier: Modifier): () -> Unit = {}
-        override fun renderForm(onSubmit: (() -> Unit)?, modifier: Modifier, content: @Composable FormContent.() -> Unit) {}
-        override fun renderFormField(modifier: Modifier, labelId: String?, isRequired: Boolean, isError: Boolean, errorMessageId: String?, content: @Composable FlowContent.() -> Unit) {}
+        override fun renderFileUpload(
+            onFilesSelected: (List<FileInfo>) -> Unit,
+            accept: String?,
+            multiple: Boolean,
+            enabled: Boolean,
+            capture: String?,
+            modifier: Modifier
+        ): () -> Unit = {}
+
+        override fun renderForm(
+            onSubmit: (() -> Unit)?,
+            modifier: Modifier,
+            content: @Composable FormContent.() -> Unit
+        ) {
+        }
+
+        override fun renderFormField(
+            modifier: Modifier,
+            labelId: String?,
+            isRequired: Boolean,
+            isError: Boolean,
+            errorMessageId: String?,
+            content: @Composable FlowContent.() -> Unit
+        ) {
+        }
+
         override fun renderRadioButton(selected: Boolean, onClick: () -> Unit, enabled: Boolean, modifier: Modifier) {}
         override fun renderSpacer(modifier: Modifier) {}
-        override fun renderRangeSlider(value: ClosedFloatingPointRange<Float>, onValueChange: (ClosedFloatingPointRange<Float>) -> Unit, valueRange: ClosedFloatingPointRange<Float>, steps: Int, enabled: Boolean, modifier: Modifier) {}
-        override fun renderSlider(value: Float, onValueChange: (Float) -> Unit, valueRange: ClosedFloatingPointRange<Float>, steps: Int, enabled: Boolean, modifier: Modifier) {}
-        override fun renderSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit, enabled: Boolean, modifier: Modifier) {}
-        override fun renderTimePicker(value: LocalTime?, onValueChange: (LocalTime?) -> Unit, enabled: Boolean, is24Hour: Boolean, modifier: Modifier) {}
+        override fun renderRangeSlider(
+            value: ClosedFloatingPointRange<Float>,
+            onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
+            valueRange: ClosedFloatingPointRange<Float>,
+            steps: Int,
+            enabled: Boolean,
+            modifier: Modifier
+        ) {
+        }
+
+        override fun renderSlider(
+            value: Float,
+            onValueChange: (Float) -> Unit,
+            valueRange: ClosedFloatingPointRange<Float>,
+            steps: Int,
+            enabled: Boolean,
+            modifier: Modifier
+        ) {
+        }
+
+        override fun renderSwitch(
+            checked: Boolean,
+            onCheckedChange: (Boolean) -> Unit,
+            enabled: Boolean,
+            modifier: Modifier
+        ) {
+        }
+
+        override fun renderTimePicker(
+            value: LocalTime?,
+            onValueChange: (LocalTime?) -> Unit,
+            enabled: Boolean,
+            is24Hour: Boolean,
+            modifier: Modifier
+        ) {
+        }
+
         override fun renderAspectRatio(ratio: Float, modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
         override fun renderCard(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
         override fun renderLink(href: String, modifier: Modifier) {}
         override fun renderLink(modifier: Modifier, href: String, content: @Composable () -> Unit) {}
-        override fun renderEnhancedLink(href: String, target: String?, title: String?, ariaLabel: String?, ariaDescribedBy: String?, modifier: Modifier) {}
-        override fun renderTabLayout(tabs: List<Tab>, selectedTabIndex: Int, onTabSelected: (Int) -> Unit, modifier: Modifier) {}
+        override fun renderEnhancedLink(
+            href: String,
+            target: String?,
+            title: String?,
+            ariaLabel: String?,
+            ariaDescribedBy: String?,
+            modifier: Modifier
+        ) {
+        }
+
+        override fun renderTabLayout(
+            tabs: List<Tab>,
+            selectedTabIndex: Int,
+            onTabSelected: (Int) -> Unit,
+            modifier: Modifier
+        ) {
+        }
+
         override fun renderTabLayout(modifier: Modifier, content: @Composable () -> Unit) {}
-        override fun renderTabLayout(tabs: List<String>, selectedTab: String, onTabSelected: (String) -> Unit, modifier: Modifier, content: () -> Unit) {}
+        override fun renderTabLayout(
+            tabs: List<String>,
+            selectedTab: String,
+            onTabSelected: (String) -> Unit,
+            modifier: Modifier,
+            content: () -> Unit
+        ) {
+        }
+
         override fun renderAnimatedVisibility(visible: Boolean, modifier: Modifier) {}
         override fun renderAnimatedVisibility(modifier: Modifier, content: @Composable () -> Unit) {}
         override fun renderAnimatedContent(modifier: Modifier) {}
@@ -144,7 +268,7 @@ class TextFieldTest {
             // Call the TextField component with default parameters
             TextField(
                 value = "Initial text",
-                onValueChange = { 
+                onValueChange = {
                     textChanged = true
                     newValue = it
                 }
@@ -192,8 +316,10 @@ class TextFieldTest {
 
             // Verify the placeholder attribute
             assertNotNull(mockRenderer.lastModifier, "Modifier should not be null")
-            assertTrue(mockRenderer.lastModifier!!.hasAttribute("placeholder", "Enter text here"), 
-                "Modifier should have placeholder attribute")
+            assertTrue(
+                mockRenderer.lastModifier!!.hasAttribute("placeholder", "Enter text here"),
+                "Modifier should have placeholder attribute"
+            )
         }
     }
 
@@ -216,8 +342,10 @@ class TextFieldTest {
                 )
 
                 // Verify the type
-                assertEquals(type.name.lowercase(), mockRenderer.lastType, 
-                    "Type should be '${type.name.lowercase()}'")
+                assertEquals(
+                    type.name.lowercase(), mockRenderer.lastType,
+                    "Type should be '${type.name.lowercase()}'"
+                )
             }
         }
     }
@@ -245,8 +373,10 @@ class TextFieldTest {
 
             // Verify the disabled attribute
             assertNotNull(mockRenderer.lastModifier, "Modifier should not be null")
-            assertTrue(mockRenderer.lastModifier!!.hasAttribute("disabled", "true"), 
-                "Modifier should have disabled attribute")
+            assertTrue(
+                mockRenderer.lastModifier!!.hasAttribute("disabled", "true"),
+                "Modifier should have disabled attribute"
+            )
 
             // Verify the onValueChange handler doesn't update when disabled
             mockRenderer.lastOnValueChange?.invoke("New text")
@@ -276,8 +406,10 @@ class TextFieldTest {
 
             // Verify the readonly attribute
             assertNotNull(mockRenderer.lastModifier, "Modifier should not be null")
-            assertTrue(mockRenderer.lastModifier!!.hasAttribute("readonly", "true"), 
-                "Modifier should have readonly attribute")
+            assertTrue(
+                mockRenderer.lastModifier!!.hasAttribute("readonly", "true"),
+                "Modifier should have readonly attribute"
+            )
         }
     }
 
@@ -303,8 +435,10 @@ class TextFieldTest {
 
             // Verify the aria-invalid attribute is set when isError is true
             assertNotNull(mockRenderer.lastModifier, "Modifier should not be null")
-            assertTrue(mockRenderer.lastModifier!!.hasAttribute("aria-invalid", "true"), 
-                "Modifier should have aria-invalid attribute when isError is true")
+            assertTrue(
+                mockRenderer.lastModifier!!.hasAttribute("aria-invalid", "true"),
+                "Modifier should have aria-invalid attribute when isError is true"
+            )
 
             // Call the TextField again with isError=false
             TextField(
@@ -314,8 +448,10 @@ class TextFieldTest {
             )
 
             // Verify the aria-invalid attribute is not set when isError is false
-            assertFalse(mockRenderer.lastModifier!!.hasAttribute("aria-invalid", "true"), 
-                "Modifier should not have aria-invalid attribute when isError is false")
+            assertFalse(
+                mockRenderer.lastModifier!!.hasAttribute("aria-invalid", "true"),
+                "Modifier should not have aria-invalid attribute when isError is false"
+            )
         }
     }
 
@@ -334,7 +470,7 @@ class TextFieldTest {
             // Call the StatefulTextField component
             StatefulTextField(
                 initialValue = "Initial text",
-                onValueChange = { 
+                onValueChange = {
                     externalValueChanged = true
                     externalNewValue = it
                 }

@@ -233,8 +233,10 @@ object AttributeModifiers {
     /**
      * Adds a custom attribute to the element.
      */
-    fun Modifier.attribute(name: String, value: String): Modifier = 
-        style("__attr:$name", value)
+    fun Modifier.attribute(name: String, value: String): Modifier {
+        val key = "__attr:$name"
+        return Modifier(this.styles + (key to value))
+    }
 
     /**
      * Gets an attribute value or null if not present.

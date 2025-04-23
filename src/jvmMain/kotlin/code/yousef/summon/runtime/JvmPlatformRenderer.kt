@@ -5,16 +5,13 @@ import code.yousef.summon.components.display.IconType
 import code.yousef.summon.components.feedback.AlertVariant
 import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.input.FileInfo
-import code.yousef.summon.components.input.SelectOption
 import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.modifier.Modifier
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.html.*
-import kotlinx.html.attributes.AttributeEncoder
-import kotlinx.html.attributes.StringAttribute
 import kotlinx.html.stream.appendHTML
-import java.util.UUID
+import java.util.*
 import kotlin.uuid.ExperimentalUuidApi
 
 // Interface defined in PlatformRenderer.kt commonMain
@@ -33,7 +30,7 @@ class JvmPlatformRenderer : PlatformRenderer {
     private fun FlowOrMetaDataContent.applyModifier(modifier: Modifier) {
         val styleString = modifier.toStyleString()
         if (styleString.isNotBlank()) {
-             (this as? CommonAttributeGroupFacade)?.style = styleString
+            (this as? CommonAttributeGroupFacade)?.style = styleString
         }
     }
 
@@ -89,29 +86,29 @@ class JvmPlatformRenderer : PlatformRenderer {
         }
     }
 
-     override fun <T> renderSelect(
-         selectedValue: T?,
-         onSelectedChange: (T?) -> Unit,
-         options: List<SelectOption<T>>,
-         modifier: Modifier
-     ) {
-         requireBuilder().select {
-             applyModifier(modifier)
-             id = "select-${UUID.randomUUID()}"
-             name = id
-             attributes["data-onchange-action"] = "true"
-             comment(" onSelectedChange handler needed (JS) ")
+    override fun <T> renderSelect(
+        selectedValue: T?,
+        onSelectedChange: (T?) -> Unit,
+        options: List<code.yousef.summon.runtime.SelectOption<T>>,
+        modifier: Modifier
+    ) {
+        requireBuilder().select {
+            applyModifier(modifier)
+            id = "select-${UUID.randomUUID()}"
+            name = id
+            attributes["data-onchange-action"] = "true"
+            comment(" onSelectedChange handler needed (JS) ")
 
-             options.forEach { optionData ->
-                 option {
-                     this.value = optionData.value.toString()
-                     if (optionData.value == selectedValue) this.selected = true
-                     this.disabled = optionData.disabled
-                     +optionData.label
-                 }
-             }
-         }
-     }
+            options.forEach { optionData ->
+                option {
+                    this.value = optionData.value.toString()
+                    if (optionData.value == selectedValue) this.selected = true
+                    this.disabled = optionData.disabled
+                    +optionData.label
+                }
+            }
+        }
+    }
 
     override fun renderDatePicker(
         value: LocalDate?,
@@ -178,8 +175,8 @@ class JvmPlatformRenderer : PlatformRenderer {
 
     override fun renderComposableRoot(composable: @Composable (() -> Unit)): String {
         if (currentBuilder != null) {
-             System.err.println("Warning: JvmPlatformRenderer.renderComposableRoot called while currentBuilder is set.")
-         }
+            System.err.println("Warning: JvmPlatformRenderer.renderComposableRoot called while currentBuilder is set.")
+        }
         val previousBuilder = currentBuilder
         val sb = StringBuilder()
         currentBuilder = null // Ensure clean context
@@ -202,12 +199,12 @@ class JvmPlatformRenderer : PlatformRenderer {
                 }
             }
         } finally {
-             if (currentBuilder != null) { // Double-check clearance on exception
-                 System.err.println("Warning: currentBuilder not cleared properly in renderComposableRoot.")
-                 currentBuilder = null
-             }
-             // Restore previous context if needed (should be null)
-             // currentBuilder = previousBuilder
+            if (currentBuilder != null) { // Double-check clearance on exception
+                System.err.println("Warning: currentBuilder not cleared properly in renderComposableRoot.")
+                currentBuilder = null
+            }
+            // Restore previous context if needed (should be null)
+            // currentBuilder = previousBuilder
         }
         return sb.toString()
     }
@@ -258,18 +255,18 @@ class JvmPlatformRenderer : PlatformRenderer {
         type: IconType
     ) {
         requireBuilder().span {
-             applyModifier(modifier)
-             if (onClick != null) {
-                 attributes["data-onclick-action"] = "true"
-                 comment(" JS Hook needed for onClick ")
-                 val currentStyle = attributes["style"] ?: ""
-                 if ("cursor" !in currentStyle) attributes["style"] = "$currentStyle;cursor:pointer;".trimStart(';')
-             }
+            applyModifier(modifier)
+            if (onClick != null) {
+                attributes["data-onclick-action"] = "true"
+                comment(" JS Hook needed for onClick ")
+                val currentStyle = attributes["style"] ?: ""
+                if ("cursor" !in currentStyle) attributes["style"] = "$currentStyle;cursor:pointer;".trimStart(';')
+            }
             if (svgContent != null) {
                 unsafe { raw(svgContent) }
             } else {
-                 i { comment(" Icon font class for '$name' needed via CSS/Modifier ") }
-             }
+                i { comment(" Icon font class for '$name' needed via CSS/Modifier ") }
+            }
         }
     }
 
@@ -384,12 +381,12 @@ class JvmPlatformRenderer : PlatformRenderer {
             comment(" Label (for=$labelId) expected separately. isRequired=$isRequired ")
             renderContent(content) // Render input(s)
             if (isError && errorMessageId != null) {
-                 div { // Error message container
-                     id = errorMessageId
-                     attributes["role"] = "alert"
-                     comment(" Error message content needed here ")
-                 }
-             }
+                div { // Error message container
+                    id = errorMessageId
+                    attributes["role"] = "alert"
+                    comment(" Error message content needed here ")
+                }
+            }
         }
     }
 
@@ -428,9 +425,10 @@ class JvmPlatformRenderer : PlatformRenderer {
         requireBuilder().div { // Requires JS library
             applyModifier(modifier)
             comment(" Range Slider requires JS library. Rendering basic inputs fallback. ")
-             val stepValue = if (steps > 0) ((valueRange.endInclusive - valueRange.start) / steps) else null
+            val stepValue = if (steps > 0) ((valueRange.endInclusive - valueRange.start) / steps) else null
 
-            label { +"Start: "; input(type = InputType.range) {
+            label {
+                +"Start: "; input(type = InputType.range) {
                 id = "range-start-${UUID.randomUUID()}"
                 min = valueRange.start.toString()
                 max = valueRange.endInclusive.toString()
@@ -438,17 +436,20 @@ class JvmPlatformRenderer : PlatformRenderer {
                 this.value = value.start.toString()
                 this.disabled = !enabled
                 attributes["data-onchange-action"] = "true"
-            }}
-             br()
-             label { +"End: "; input(type = InputType.range) {
-                 id = "range-end-${UUID.randomUUID()}"
-                 min = valueRange.start.toString()
-                 max = valueRange.endInclusive.toString()
-                 stepValue?.let { this.step = it.toString() }
-                 this.value = value.endInclusive.toString()
-                 this.disabled = !enabled
-                 attributes["data-onchange-action"] = "true"
-             }}
+            }
+            }
+            br()
+            label {
+                +"End: "; input(type = InputType.range) {
+                id = "range-end-${UUID.randomUUID()}"
+                min = valueRange.start.toString()
+                max = valueRange.endInclusive.toString()
+                stepValue?.let { this.step = it.toString() }
+                this.value = value.endInclusive.toString()
+                this.disabled = !enabled
+                attributes["data-onchange-action"] = "true"
+            }
+            }
             comment(" onValueChange handler needed (JS) to coordinate sliders ")
         }
     }
@@ -487,7 +488,8 @@ class JvmPlatformRenderer : PlatformRenderer {
             input(type = InputType.checkBox) {
                 this.checked = checked
                 this.disabled = !enabled
-                attributes["style"] = "position:absolute; opacity:0; pointer-events:none; width:0; height:0;" // Hide visually
+                attributes["style"] =
+                    "position:absolute; opacity:0; pointer-events:none; width:0; height:0;" // Hide visually
                 attributes["data-onchange-action"] = "true"
                 comment(" onCheckedChange handler needed (JS) ")
             }
@@ -522,12 +524,12 @@ class JvmPlatformRenderer : PlatformRenderer {
         requireBuilder().div {
             applyModifier(modifier)
             comment(" Aspect ratio styling should be handled by Modifier/CSS. Applying directly if needed. ")
-             val currentStyle = attributes["style"] ?: ""
-             // Check the modifier's internal styles instead of the element's current style attribute
-             val modifierStyles = modifier.styles // Assuming Modifier has a 'styles' property
-             if ("aspect-ratio" !in modifierStyles) { // Check if modifier already sets it
-                 attributes["style"] = "$currentStyle;aspect-ratio: $ratio;".trimStart(';')
-             }
+            val currentStyle = attributes["style"] ?: ""
+            // Check the modifier's internal styles instead of the element's current style attribute
+            val modifierStyles = modifier.styles // Assuming Modifier has a 'styles' property
+            if ("aspect-ratio" !in modifierStyles) { // Check if modifier already sets it
+                attributes["style"] = "$currentStyle;aspect-ratio: $ratio;".trimStart(';')
+            }
             renderContent(content)
         }
     }
@@ -664,15 +666,15 @@ class JvmPlatformRenderer : PlatformRenderer {
             applyModifier(modifier)
             comment(" Tab layout (String list variant) requires JS ")
             div(classes = "tab-list") {
-                 attributes["role"] = "tablist"
+                attributes["role"] = "tablist"
                 tabs.forEach { tabName ->
-                     button(classes = "tab-item ${if (tabName == selectedTab) "selected" else ""}") {
-                         attributes["role"] = "tab"
+                    button(classes = "tab-item ${if (tabName == selectedTab) "selected" else ""}") {
+                        attributes["role"] = "tab"
                         attributes["aria-selected"] = (tabName == selectedTab).toString()
-                         attributes["data-tab-name"] = tabName
-                         attributes["data-onclick-action"] = "true"
-                         comment(" onTabSelected handler needed (JS) ")
-                         +tabName
+                        attributes["data-tab-name"] = tabName
+                        attributes["data-onclick-action"] = "true"
+                        comment(" onTabSelected handler needed (JS) ")
+                        +tabName
                     }
                 }
             }
@@ -869,7 +871,8 @@ class JvmPlatformRenderer : PlatformRenderer {
             // Add screen size detection script
             script(type = "text/javascript") {
                 unsafe {
-                    raw("""
+                    raw(
+                        """
                     (function() {
                         // Screen size breakpoints
                         const BREAKPOINTS = {
@@ -920,7 +923,8 @@ class JvmPlatformRenderer : PlatformRenderer {
                         // Update layout on window resize
                         window.addEventListener('resize', updateLayout);
                     })();
-                    """)
+                    """
+                    )
                 }
             }
 

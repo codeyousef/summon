@@ -2,17 +2,15 @@ package code.yousef.summon.components.display
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.modifier.ModifierExtras.attribute
-import kotlinx.html.FlowContent
-import code.yousef.summon.modifier.style
+import code.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * A composable that displays text with enhanced styling and accessibility options.
- * 
+ *
  * This component is used for general text display and renders as a semantic paragraph or span element.
  * For form labels that are associated with input elements, use the [Label] component instead.
- * 
+ *
  * @param text The text content to display
  * @param modifier The modifier to apply to this composable
  * @param overflow Determines how text overflow should be handled ('ellipsis', 'clip', etc.)
@@ -30,7 +28,7 @@ import code.yousef.summon.modifier.style
  * @param role ARIA role for accessibility
  * @param ariaLabel Accessible name for screen readers
  * @param ariaDescribedBy ID of element that describes this text for accessibility
- * @param semantic Optional semantic role for the text ('paragraph', 'heading', 'caption', etc.). 
+ * @param semantic Optional semantic role for the text ('paragraph', 'heading', 'caption', etc.).
  *                 This affects the HTML element used for rendering.
  */
 @Composable

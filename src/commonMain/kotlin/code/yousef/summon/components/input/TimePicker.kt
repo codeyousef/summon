@@ -29,9 +29,16 @@ fun TimePicker(
 ) {
     val renderer = LocalPlatformRenderer.current
 
+    // Wrap the callback to only execute if enabled
+    val wrappedOnValueChange: (LocalTime?) -> Unit = {
+        if (enabled) {
+            onValueChange(it)
+        }
+    }
+
     renderer.renderTimePicker(
         value = value,
-        onValueChange = onValueChange,
+        onValueChange = wrappedOnValueChange, // Use the wrapped callback
         enabled = enabled,
         is24Hour = is24Hour,
         modifier = modifier
