@@ -77,15 +77,18 @@ fun <T> createEffect(
 fun combineEffects(
     vararg effects: Pair<CompositionScope.() -> Unit, EffectPriority>
 ): CompositionScope.() -> Unit = {
-    val scope = EffectScope()
+    val compositionScope = this
+    compose {
+        val scope = EffectScope()
 
-    // Add all effects to the scope with their priorities
-    effects.forEach { (effect, priority) ->
-        scope.addEffect({ effect(this) }, priority)
+        // Add all effects to the scope with their priorities
+        effects.forEach { (effect, priority) ->
+            scope.addEffect({ effect(compositionScope) }, priority)
+        }
+
+        // Execute all effects in priority order
+        scope.executeEffects()
     }
-
-    // Execute all effects in priority order
-    scope.executeEffects()
 }
 
 /**
@@ -96,15 +99,18 @@ fun combineEffects(
 fun combineEffects(
     vararg effects: CompositionScope.() -> Unit
 ): CompositionScope.() -> Unit = {
-    val scope = EffectScope()
+    val compositionScope = this
+    compose {
+        val scope = EffectScope()
 
-    // Add all effects to the scope with default priority
-    effects.forEach { effect ->
-        scope.addEffect({ effect(this) })
+        // Add all effects to the scope with default priority
+        effects.forEach { effect ->
+            scope.addEffect({ effect(compositionScope) })
+        }
+
+        // Execute all effects in priority order
+        scope.executeEffects()
     }
-
-    // Execute all effects in priority order
-    scope.executeEffects()
 }
 
 /**
@@ -119,11 +125,14 @@ fun conditionalEffect(
     effect: CompositionScope.() -> Unit,
     priority: EffectPriority = EffectPriority.NORMAL
 ): CompositionScope.() -> Unit = {
-    val scope = EffectScope()
+    val compositionScope = this
 
     if (condition()) {
-        scope.addEffect({ effect(this) }, priority)
-        scope.executeEffects()
+        compose {
+            val scope = EffectScope()
+            scope.addEffect({ effect(compositionScope) }, priority)
+            scope.executeEffects()
+        }
     }
 }
 
@@ -215,9 +224,11 @@ fun <T> debouncedEffect(
 ): CompositionScope.() -> Unit = {
     val value = producer()
 
-    LaunchedEffect(value) {
-        delay(delayMs.milliseconds)
-        effect(value)
+    compose {
+        LaunchedEffect(value) {
+            delay(delayMs.milliseconds)
+            effect(value)
+        }
     }
 }
 
@@ -235,14 +246,16 @@ fun <T> throttledEffect(
 ): CompositionScope.() -> Unit = {
     val value = producer()
 
-    var lastExecutionTime = 0L
-    LaunchedEffect(value) {
-        val currentTime = Clock.System.now().toEpochMilliseconds()
-        val elapsed = currentTime - lastExecutionTime
+    compose {
+        var lastExecutionTime = 0L
+        LaunchedEffect(value) {
+            val currentTime = Clock.System.now().toEpochMilliseconds()
+            val elapsed = currentTime - lastExecutionTime
 
-        if (elapsed >= delayMs) {
-            effect(value)
-            lastExecutionTime = currentTime
+            if (elapsed >= delayMs) {
+                effect(value)
+                lastExecutionTime = currentTime
+            }
         }
     }
 }
@@ -288,11 +301,13 @@ fun intervalEffect(
         }
     }
 
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(intervalDelay.milliseconds)
-            if (isActive) {
-                function()
+    compose {
+        LaunchedEffect(Unit) {
+            while (true) {
+                delay(intervalDelay.milliseconds)
+                if (isActive) {
+                    function()
+                }
             }
         }
     }
@@ -327,12 +342,14 @@ fun timeoutEffect(
         }
     }
 
-    LaunchedEffect(Unit) {
-        delay(timeoutDelay.milliseconds)
-        if (isActive) {
-            function()
+    compose {
+        LaunchedEffect(Unit) {
+            delay(timeoutDelay.milliseconds)
+            if (isActive) {
+                function()
+            }
         }
     }
 
     control
-} 
+}

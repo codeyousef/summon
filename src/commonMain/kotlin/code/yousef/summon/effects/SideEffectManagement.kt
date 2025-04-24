@@ -1,8 +1,8 @@
 package code.yousef.summon.effects
 
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.LaunchedEffect
 import code.yousef.summon.runtime.DisposableEffect
+import code.yousef.summon.runtime.LaunchedEffect
 import code.yousef.summon.state.SummonMutableState
 
 /**
@@ -31,10 +31,12 @@ class SimpleJob : JobLike {
 fun CompositionScope.launchEffect(
     block: suspend () -> Unit
 ): JobLike {
-    LaunchedEffect(Unit) {
-        block()
+    compose {
+        LaunchedEffect(Unit) {
+            block()
+        }
     }
-    
+
     return SimpleJob()
 }
 
@@ -50,10 +52,12 @@ fun CompositionScope.launchEffectWithDeps(
     vararg dependencies: Any?,
     block: suspend () -> Unit
 ): JobLike {
-    LaunchedEffect(dependencies) {
-        block()
+    compose {
+        LaunchedEffect(dependencies) {
+            block()
+        }
     }
-    
+
     return SimpleJob()
 }
 
@@ -66,9 +70,11 @@ fun CompositionScope.launchEffectWithDeps(
 fun CompositionScope.asyncEffect(
     effect: () -> (() -> Unit)
 ) {
-    DisposableEffect(Unit) {
-        val cleanup = effect()
-        cleanup
+    compose {
+        DisposableEffect(Unit) {
+            val cleanup = effect()
+            cleanup
+        }
     }
 }
 
@@ -83,9 +89,11 @@ fun CompositionScope.asyncEffectWithDeps(
     vararg dependencies: Any?,
     effect: () -> (() -> Unit)
 ) {
-    DisposableEffect(dependencies) {
-        val cleanup = effect()
-        cleanup
+    compose {
+        DisposableEffect(dependencies) {
+            val cleanup = effect()
+            cleanup
+        }
     }
 }
 
@@ -101,14 +109,16 @@ fun <T> CompositionScope.updateStateAsync(
     state: SummonMutableState<T>,
     block: suspend () -> T
 ): JobLike {
-    LaunchedEffect(Unit) {
-        try {
-            val result = block()
-            state.value = result
-        } catch (e: Exception) {
-            // Handle exceptions
+    compose {
+        LaunchedEffect(Unit) {
+            try {
+                val result = block()
+                state.value = result
+            } catch (e: Exception) {
+                // Handle exceptions
+            }
         }
     }
-    
+
     return SimpleJob()
-} 
+}

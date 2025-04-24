@@ -403,7 +403,13 @@ fun Modifier.transition(
  * @return A new Modifier with the opacity style added
  */
 fun Modifier.animOpacity(value: Float): Modifier {
-    return Modifier(this.styles + ("opacity" to value.toString()))
+    // Ensure decimal point is always included, even for whole numbers
+    val formattedValue = if (value == value.toInt().toFloat()) {
+        "${value.toInt()}.0"
+    } else {
+        value.toString()
+    }
+    return Modifier(this.styles + ("opacity" to formattedValue))
 }
 
 /**

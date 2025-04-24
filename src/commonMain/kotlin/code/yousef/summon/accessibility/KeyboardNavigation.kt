@@ -4,7 +4,6 @@ import code.yousef.summon.accessibility.KeyboardNavigation.keyboardNavigation
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.ModifierExtras.attribute
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
@@ -112,18 +111,23 @@ object KeyboardNavigation {
             modified = modified.focusTrap(trapId)
         }
 
-        if (config.keyHandlers.isNotEmpty()) {
-            modified = modified.keyboardHandlers(config.keyHandlers)
+        // Combine custom key handlers and arrow key handlers if needed
+        val allKeyHandlers = mutableMapOf<String, () -> Unit>()
+
+        // Add custom key handlers
+        allKeyHandlers.putAll(config.keyHandlers)
+
+        // Add arrow key handlers if enabled
+        if (config.useArrowKeys) {
+            allKeyHandlers[KeyboardKeys.ARROW_UP] = {}
+            allKeyHandlers[KeyboardKeys.ARROW_DOWN] = {}
+            allKeyHandlers[KeyboardKeys.ARROW_LEFT] = {}
+            allKeyHandlers[KeyboardKeys.ARROW_RIGHT] = {}
         }
 
-        if (config.useArrowKeys) {
-            val arrowKeyHandlers = mapOf(
-                KeyboardKeys.ARROW_UP to {},
-                KeyboardKeys.ARROW_DOWN to {},
-                KeyboardKeys.ARROW_LEFT to {},
-                KeyboardKeys.ARROW_RIGHT to {}
-            )
-            modified = modified.keyboardHandlers(arrowKeyHandlers)
+        // Apply all key handlers at once if there are any
+        if (allKeyHandlers.isNotEmpty()) {
+            modified = modified.keyboardHandlers(allKeyHandlers)
         }
 
         return modified
@@ -144,17 +148,17 @@ fun KeyboardNavigableContainer(
     content: @Composable () -> Unit
 ) {
     val navModifier = modifier.keyboardNavigation(config)
-    
+
     // Create a container element with the keyboard navigation attributes
     val containerAttrs = mapOf(
         "class" to "keyboard-navigable-container",
         "data-keyboard-nav" to "true",
         "role" to "group"
     )
-    
+
     // Apply attributes to the modifier
     val finalModifier = navModifier.applyAttributes(containerAttrs)
-    
+
     // Use platform renderer to create a container with keyboard navigation attributes
     // This avoids reliance on specific Composer methods which may differ between versions
     val renderer = LocalPlatformRenderer.current

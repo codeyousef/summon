@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "code.yousef"
-version = "0.2.4.4"
+version = "0.2.4.5"
 
 repositories {
     mavenCentral()
@@ -52,6 +52,8 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2") // Or the latest compatible version
+
             }
         }
         val jvmMain by getting {

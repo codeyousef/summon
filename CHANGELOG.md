@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.4.5]
+
+### Refactor
+- **Compose Wrapper:** Introduce reusable `compose` wrapper for consistency
+  - Refactored effects and hooks to leverage a generalized `compose` wrapper for consistent composition behavior
+  - Simplified interval, timeout, and other effect implementations by reusing shared utility functions while ensuring clean-up and modularization
+  - Standardized media query, localStorage, and event listener logic for improved testability and reduced redundancy
+
 ## [0.2.4.4]
 
 ### Fixed

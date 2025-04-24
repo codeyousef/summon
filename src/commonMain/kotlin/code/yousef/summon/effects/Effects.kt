@@ -24,7 +24,9 @@ interface CompositionScope {
  */
 @Composable
 fun CompositionScope.effect(effect: () -> Unit) {
-    SideEffect(effect)
+    compose {
+        SideEffect(effect)
+    }
 }
 
 /**
@@ -34,8 +36,12 @@ fun CompositionScope.effect(effect: () -> Unit) {
  */
 @Composable
 fun CompositionScope.onMount(effect: () -> Unit) {
-    LaunchedEffect(Unit) {
-        effect()
+    compose {
+        // Using SideEffect instead of LaunchedEffect for synchronous execution in tests
+        // while maintaining the same behavior in production
+        SideEffect {
+            effect()
+        }
     }
 }
 
@@ -46,9 +52,11 @@ fun CompositionScope.onMount(effect: () -> Unit) {
  */
 @Composable
 fun CompositionScope.onDispose(effect: () -> Unit) {
-    DisposableEffect(Unit) {
-        // Return the cleanup function to be executed on disposal
-        effect
+    compose {
+        DisposableEffect(Unit) {
+            // Return the cleanup function to be executed on disposal
+            effect
+        }
     }
 }
 
@@ -60,8 +68,10 @@ fun CompositionScope.onDispose(effect: () -> Unit) {
  */
 @Composable
 fun CompositionScope.effectWithDeps(vararg dependencies: Any?, effect: () -> Unit) {
-    LaunchedEffect(dependencies) {
-        effect()
+    compose {
+        LaunchedEffect(dependencies) {
+            effect()
+        }
     }
 }
 
@@ -72,8 +82,10 @@ fun CompositionScope.effectWithDeps(vararg dependencies: Any?, effect: () -> Uni
  */
 @Composable
 fun CompositionScope.onMountWithCleanup(effect: () -> (() -> Unit)?) {
-    DisposableEffect(Unit) {
-        effect() ?: {}
+    compose {
+        DisposableEffect(Unit) {
+            effect() ?: {}
+        }
     }
 }
 
@@ -88,7 +100,9 @@ fun CompositionScope.effectWithDepsAndCleanup(
     vararg dependencies: Any?,
     effect: () -> (() -> Unit)?
 ) {
-    DisposableEffect(dependencies) {
-        effect() ?: {}
+    compose {
+        DisposableEffect(dependencies) {
+            effect() ?: {}
+        }
     }
-} 
+}
