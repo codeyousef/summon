@@ -1,0 +1,34 @@
+{
+  "app": {
+    "title": "Gestionnaire de Tâches Summon"
+  },
+  "common": {
+    "language": "Langue",
+    "back": "Retour",
+    "next": "Suivant"
+  },
+  "theme": {
+    "title": "Thème",
+    "light": "Passer au Mode Clair",
+    "dark": "Passer au Mode Sombre"
+  },
+  "tasks": {
+    "yourTasks": "Vos Tâches",
+    "addNew": "Ajouter une Nouvelle Tâche",
+    "titlePlaceholder": "Entrez le titre de la tâche...",
+    "add": "Ajouter",
+    "delete": "Supprimer",
+    "empty": "Pas encore de tâches. Ajoutez votre première tâche ci-dessus !",
+    "summary": "Total : {0} tâches, Terminées : {1}"
+  },
+  "filters": {
+    "all": "Toutes",
+    "active": "Actives",
+    "completed": "Terminées"
+  },
+  "validation": {
+    "required": "Ce champ est obligatoire",
+    "minLength": "Doit contenir au moins {0} caractères",
+    "maxLength": "Doit contenir au maximum {0} caractères"
+  }
+}

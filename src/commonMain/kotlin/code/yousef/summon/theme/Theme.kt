@@ -4,6 +4,10 @@ import code.yousef.summon.core.style.Color
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.boxShadow
 import code.yousef.summon.modifier.FontWeight
+import code.yousef.summon.modifier.StylingModifierExtras.textDecoration
+import code.yousef.summon.modifier.fontFamily
+import code.yousef.summon.modifier.letterSpacing
+import code.yousef.summon.modifier.lineHeight
 
 
 /**
@@ -492,7 +496,7 @@ fun Modifier.themeTextStyle(styleName: String): Modifier {
     var modified = this
 
     // Apply font family
-    style.fontFamily?.let { modified = modified.fontFamily(it) }
+    style.fontFamily?.let { modified = modified.fontFamily(it, null) }
 
     // Apply font size - prefer typed property if available
     if (style.fontSizeNumber != null && style.fontSizeUnit != null) {
@@ -524,17 +528,17 @@ fun Modifier.themeTextStyle(styleName: String): Modifier {
 
     // Apply line height - prefer number if available
     if (style.lineHeightNumber != null) {
-        modified = modified.lineHeight(style.lineHeightNumber.toString())
+        modified = modified.lineHeight(style.lineHeightNumber.toString(), null)
     } else {
-        style.lineHeight?.let { modified = modified.lineHeight(it) }
+        style.lineHeight?.let { modified = modified.lineHeight(it, null) }
     }
 
     // Apply letter spacing - prefer typed property if available
     if (style.letterSpacingNumber != null && style.letterSpacingUnit != null) {
         val letterSpacing = "${style.letterSpacingNumber}${style.letterSpacingUnit}"
-        modified = modified.letterSpacing(letterSpacing)
+        modified = modified.letterSpacing(letterSpacing, null)
     } else {
-        style.letterSpacing?.let { modified = modified.letterSpacing(it) }
+        style.letterSpacing?.let { modified = modified.letterSpacing(it, null) }
     }
 
     return modified

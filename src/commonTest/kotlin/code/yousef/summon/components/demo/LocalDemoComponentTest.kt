@@ -8,6 +8,7 @@ import code.yousef.summon.components.input.FileInfo as ExpectFileInfo
 import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.modifier.BorderStyle
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.StylingModifiers.border
 import code.yousef.summon.runtime.*
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime

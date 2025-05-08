@@ -18,9 +18,9 @@ fun Column(
     // Use platform renderer directly
     val renderer = LocalPlatformRenderer.current
 
-    // Call renderColumn and pass the content lambda with fillMaxSize modifier
+    // Call renderColumn and pass the content lambda
     renderer.renderColumn(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier,
         content = { // Wrap the original content lambda
             content() 
         }

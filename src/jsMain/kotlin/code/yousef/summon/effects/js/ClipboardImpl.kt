@@ -15,25 +15,25 @@ class JsClipboardAPI : ClipboardAPI {
         // For now, just return an empty string
         return ""
     }
-    
+
     override fun writeText(text: String) {
         // TODO: provide a real implementation
         // In a real implementation, this would use navigator.clipboard.writeText(text)
-        console.log("Writing to clipboard: $text")
+        js("console.log('Writing to clipboard: ' + text)")
     }
-    
+
     override fun hasText(): Boolean {
         // TODO: provide a real implementation
         // In a real implementation, this would check the clipboard contents
         return false
     }
-    
+
     override fun clear() {
         // TODO: provide a real implementation
         // In a real implementation, this would clear the clipboard
         writeText("")
     }
-    
+
     // JS-specific implementation could include additional methods
     fun writeHtml(html: String) {
         // Implementation for writing HTML to clipboard
@@ -48,16 +48,16 @@ class JsClipboardAPI : ClipboardAPI {
 @Composable
 fun CompositionScope.useClipboard(): ClipboardAPI {
     val clipboard = JsClipboardAPI()
-    
+
     onMountWithCleanup {
         // Set up any necessary event listeners or resources
-        
+
         // Return cleanup function
         {
             // Clean up any resources
         }
     }
-    
+
     return clipboard
 }
 

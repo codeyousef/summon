@@ -1,6 +1,7 @@
 package code.yousef.summon.theme
 
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.lineHeight
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -187,7 +188,7 @@ class MediaQueryTest {
     fun testMediaQueryModifierAnd() {
         // Create two media query modifiers
         val minWidthModifier = MediaQuery.minWidth(768, Modifier().fontSize("18px"))
-        val maxWidthModifier = MediaQuery.maxWidth(1024, Modifier().lineHeight("1.5"))
+        val maxWidthModifier = MediaQuery.maxWidth(1024, Modifier().lineHeight("1.5", null))
 
         // Combine them with and()
         val combinedMediaQuery = minWidthModifier.and(maxWidthModifier)

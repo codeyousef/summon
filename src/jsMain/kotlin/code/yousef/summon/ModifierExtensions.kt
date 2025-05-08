@@ -40,4 +40,38 @@ private fun Modifier.getEventHandlers(): Map<String, Any>? {
     // This would access the event handlers stored in the Modifier class
     // For now, return an empty map as a placeholder
     return emptyMap()
-} 
+}
+
+fun Modifier.toStyleStringCamelCase(): String {
+    if (this.styles.isEmpty()) {
+        return ""
+    }
+
+    // Converts e.g. {"background-color": "red", "font-size": "12px"}
+    // to "backgroundColor: red; fontSize: 12px;"
+    // The format is "key1: value1; key2: value2;".
+    return this.styles
+        .map { (key, value) -> "${key.kebabToCamelCase()}: $value" }
+        .joinToString(separator = "; ", postfix = ";")
+}
+
+private fun String.kebabToCamelCase(): String {
+    if (!this.contains('-')) {
+        // Return as-is if empty or no hyphens (already camelCase or single word)
+        return this
+    }
+
+    val parts = this.split('-')
+    val firstPart = parts.first()
+
+    val remainingParts = parts.drop(1).joinToString("") { part ->
+        if (part.isEmpty()) {
+            "" // Handle potential empty parts from consecutive hyphens (e.g., "foo--bar")
+        } else {
+            // Capitalize the first letter of the part
+            part.replaceFirstChar { if (it.isLowerCase()) it.titlecaseChar() else it }
+        }
+    }
+
+    return firstPart + remainingParts
+}

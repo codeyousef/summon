@@ -17,7 +17,7 @@ import kotlinx.html.FlowContent
 fun Header(
     id: String? = null,
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
@@ -35,7 +35,7 @@ fun Header(
 fun Main(
     id: String? = null,
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
@@ -53,7 +53,7 @@ fun Main(
 fun Nav(
     id: String? = null,
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
@@ -71,7 +71,7 @@ fun Nav(
 fun Article(
     id: String? = null,
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
@@ -89,7 +89,7 @@ fun Article(
 fun Section(
     id: String? = null,
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
@@ -107,7 +107,7 @@ fun Section(
 fun Aside(
     id: String? = null,
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
@@ -125,7 +125,7 @@ fun Aside(
 fun Footer(
     id: String? = null,
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
@@ -144,7 +144,7 @@ fun Heading(
     level: Int,
     id: String? = null,
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current

@@ -3,6 +3,7 @@ package code.yousef.summon.components.navigation
 
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.StylingModifierExtras.textDecoration
 import code.yousef.summon.modifier.applyIf
 import code.yousef.summon.modifier.attribute
 import code.yousef.summon.modifier.hover

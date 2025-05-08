@@ -1,5 +1,6 @@
 package code.yousef.summon.platform
 
+import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.JsPlatformRenderer
 import code.yousef.summon.runtime.getPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
@@ -38,9 +39,10 @@ class JsPlatformRendererTest {
         // Test rendering a composable root
         val renderer = JsPlatformRenderer()
 
-        // Render a simple composable
+        // Render a composable with content
         val result = renderer.renderComposableRoot {
-            // Empty composable
+            // Add some content to ensure the result is not empty
+            renderer.renderText("Test content", Modifier())
         }
 
         // Verify the result is a string (in JS, this would be the DOM element ID)

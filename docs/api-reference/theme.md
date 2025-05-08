@@ -229,6 +229,15 @@ object ThemeManager {
 
     fun getTypography(): Typography
     fun setTypography(typography: Typography)
+
+    // Whether dark mode is enabled
+    var isDarkMode: Boolean
+
+    // Initialize the theme manager with the given dark mode setting
+    fun initialize(isDarkMode: Boolean)
+
+    // Toggle between light and dark mode
+    fun toggleTheme()
 }
 
 interface ThemeConfiguration {
@@ -243,7 +252,7 @@ class DefaultThemeConfiguration : ThemeConfiguration {
 
 ### Description
 
-The `ThemeManager` provides a way to manage typography settings for the application. It's a simpler alternative to the full `Theme` object when you only need to manage typography.
+The `ThemeManager` provides a way to manage typography settings and theme mode for the application. It's a simpler alternative to the full `Theme` object when you only need to manage typography and dark/light mode. It includes functionality to initialize the theme system, check if dark mode is enabled, and toggle between light and dark modes.
 
 ### Example
 
@@ -254,6 +263,15 @@ val typography = ThemeManager.getTypography()
 // Set a custom typography
 val customTypography = Typography()
 ThemeManager.setTypography(customTypography)
+
+// Initialize theme system with default theme (e.g., based on system preference)
+ThemeManager.initialize(isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches)
+
+// Check if dark mode is enabled
+val isDarkMode = ThemeManager.isDarkMode
+
+// Toggle between light and dark mode
+ThemeManager.toggleTheme()
 
 // Create a custom theme configuration
 class MyThemeConfiguration : ThemeConfiguration {

@@ -4,6 +4,7 @@ import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.modifier.ariaLabel
+import code.yousef.summon.modifier.fontFamily
 import code.yousef.summon.modifier.role
 
 
@@ -47,7 +48,7 @@ fun Icon(
     var finalModifier = modifier
     size?.let { finalModifier = finalModifier.size(it) }
     color?.let { finalModifier = finalModifier.color(it) }
-    fontFamily?.let { finalModifier = finalModifier.fontFamily(it) }
+    fontFamily?.let { finalModifier = finalModifier.fontFamily(it, null) }
     
     // Apply accessibility attributes if provided
     if (ariaLabel != null) {

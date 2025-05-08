@@ -2,6 +2,11 @@ package code.yousef.summon.components.core
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.StylingModifiers.lineHeight
+import code.yousef.summon.modifier.fontFamily
+import code.yousef.summon.modifier.letterSpacing
+import code.yousef.summon.modifier.lineHeight
+import code.yousef.summon.modifier.textDecoration
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.theme.TextStyle
 
@@ -34,14 +39,14 @@ fun BasicText(
     var finalModifier = modifier
 
     // Apply text style properties to the modifier
-    style.fontFamily?.let { finalModifier = finalModifier.fontFamily(it) }
+    style.fontFamily?.let { finalModifier = finalModifier.fontFamily(it, null) }
     style.fontSize?.let { finalModifier = finalModifier.fontSize(it) }
     style.fontWeight?.let { finalModifier = finalModifier.fontWeight(it) }
     style.fontStyle?.let { finalModifier = finalModifier.style("font-style", it) }
     style.color?.let { finalModifier = finalModifier.color(it) }
-    style.textDecoration?.let { finalModifier = finalModifier.textDecoration(it) }
-    style.lineHeight?.let { finalModifier = finalModifier.lineHeight(it) }
-    style.letterSpacing?.let { finalModifier = finalModifier.letterSpacing(it) }
+    style.textDecoration?.let { finalModifier = finalModifier.textDecoration(it, null) }
+    style.lineHeight?.let { finalModifier = finalModifier.lineHeight(it, null) }
+    style.letterSpacing?.let { finalModifier = finalModifier.letterSpacing(it, null) }
 
     // Render the text using the platform renderer with correct arguments
     renderer.renderText(text = text, modifier = finalModifier)

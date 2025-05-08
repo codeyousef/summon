@@ -2,7 +2,6 @@ package code.yousef.summon.accessibility
 
 import code.yousef.summon.accessibility.KeyboardNavigation.keyboardNavigation
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.ModifierExtras.attribute
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.LocalPlatformRenderer
 
@@ -12,7 +11,7 @@ import code.yousef.summon.runtime.LocalPlatformRenderer
 object KeyboardKeys {
     const val TAB = "Tab"
     const val ENTER = "Enter"
-    const val SPACE = " "
+    const val SPACE = " " // Note: "Spacebar" or "Space" might be more common, ensure consistency with event.key
     const val ESCAPE = "Escape"
     const val ARROW_UP = "ArrowUp"
     const val ARROW_DOWN = "ArrowDown"
@@ -35,141 +34,160 @@ object KeyboardNavigation {
         val trapFocus: Boolean = false,
         val useArrowKeys: Boolean = false,
         val autoFocus: Boolean = false,
-        val tabIndex: Int = 0,
+        val tabIndex: Int = 0, // 0 for focusable in natural order, -1 for not focusable by keyboard
         val keyHandlers: Map<String, () -> Unit> = emptyMap()
     )
 
     /**
      * Makes an element focusable and sets its tab index.
      *
-     * @param tabIndex The tabindex attribute value (-1 for not focusable via keyboard)
-     * @return Modifier with tabindex attribute
+     * @param tabIndex The tabindex attribute value (e.g., 0 for default, -1 to remove from tab order).
+     * @return Modifier with tabindex attribute.
      */
     fun Modifier.focusable(tabIndex: Int = 0): Modifier {
-        return Modifier.create().then(this).then(Modifier(mapOf("tabindex" to tabIndex.toString())))
+        return this.attribute("tabindex", tabIndex.toString())
     }
 
     /**
      * Creates a focus trap that keeps keyboard focus within a component.
      * Useful for modals, dialogs, and other components that should trap focus.
      *
-     * @param trapId Unique identifier for the focus trap
-     * @return Modified Modifier with focus trap attributes
+     * @param trapId Unique identifier for the focus trap (can be dynamically generated).
+     * @return Modified Modifier with focus trap attributes.
      */
     fun Modifier.focusTrap(trapId: String): Modifier {
-        val attributes = mapOf(
+        val trapAttributes = mapOf(
             "data-focus-trap" to trapId,
-            "data-focus-trap-active" to "true"
+            "data-focus-trap-active" to "true" // Assuming JS will look for this
         )
-        return this.then(Modifier(attributes))
+        return this.attributes(trapAttributes)
     }
 
     /**
-     * Causes an element to be auto-focused when rendered.
+     * Causes an element to be autofocused when rendered.
+     * Note: Use sparingly, as autofocus can be disruptive to accessibility.
      *
-     * @return Modified Modifier with autofocus attribute
+     * @return Modified Modifier with autofocus attribute.
      */
     fun Modifier.autoFocus(): Modifier {
-        return this.then(Modifier(mapOf("autofocus" to "true")))
+        // HTML standard is just 'autofocus', the value doesn't strictly matter if present.
+        // However, setting to "true" is common.
+        return this.attribute("autofocus", "true")
     }
 
     /**
      * Adds keyboard handler attributes to a component.
+     * These attributes are intended to be picked up by JavaScript to attach event listeners.
      *
-     * @param keyHandlers Map of key codes to handler functions
-     * @return Modified Modifier with keyboard event handlers
+     * @param keyHandlers Map of key codes (e.g., from `KeyboardKeys`) to handler functions.
+     *                    The functions themselves are not directly transferred; this setup assumes
+     *                    JS will re-connect these based on IDs or a similar mechanism.
+     * @return Modified Modifier with keyboard event handler placeholder attributes.
      */
     fun Modifier.keyboardHandlers(keyHandlers: Map<String, () -> Unit>): Modifier {
         val keyHandlerAttributes = mutableMapOf<String, String>()
 
+        // This approach of embedding handler information in data attributes is for
+        // a client-side script to interpret. The lambdas themselves aren't serialized.
         keyHandlers.entries.forEachIndexed { index, (key, _) ->
-            val handlerId = "kbd_handler_$index"
+            // A unique ID for the handler might be useful if JS needs to map back to specific Kotlin logic,
+            // though direct execution of Kotlin lambdas from these attributes is complex.
+            // For now, just marking the key and a generic handler ID.
+            val handlerId = "kbd_handler_${key.replace(Regex("[^A-Za-z0-9]"), "_")}_$index"
             keyHandlerAttributes["data-kbd-key-$index"] = key
-            keyHandlerAttributes["data-kbd-handler-$index"] = handlerId
+            keyHandlerAttributes["data-kbd-handler-id-$index"] = handlerId // Identifier for JS to potentially use
         }
 
-        keyHandlerAttributes["data-kbd-handlers-count"] = keyHandlers.size.toString()
+        if (keyHandlers.isNotEmpty()) {
+            keyHandlerAttributes["data-kbd-handlers-count"] = keyHandlers.size.toString()
+        }
 
-        return this.then(Modifier(keyHandlerAttributes))
+        return if (keyHandlerAttributes.isNotEmpty()) this.attributes(keyHandlerAttributes) else this
     }
 
     /**
      * Sets keyboard navigation attributes for a component.
      *
-     * @param config The keyboard navigation configuration
-     * @return Modified Modifier with keyboard navigation attributes
+     * @param config The keyboard navigation configuration.
+     * @return Modified Modifier with keyboard navigation attributes.
      */
     fun Modifier.keyboardNavigation(config: KeyboardNavigationConfig): Modifier {
-        var modified = this.focusable(config.tabIndex)
+        var modifiedModifier = this.focusable(config.tabIndex)
 
         if (config.autoFocus) {
-            modified = modified.autoFocus()
+            modifiedModifier = modifiedModifier.autoFocus()
         }
 
         if (config.trapFocus) {
-            val trapId = "focus-trap-${config.hashCode()}"
-            modified = modified.focusTrap(trapId)
+            // Generate a unique ID for the trap if not provided
+            val trapId = "focus-trap-${config.hashCode().toString(16)}"
+            modifiedModifier = modifiedModifier.focusTrap(trapId)
         }
 
-        // Combine custom key handlers and arrow key handlers if needed
         val allKeyHandlers = mutableMapOf<String, () -> Unit>()
-
-        // Add custom key handlers
         allKeyHandlers.putAll(config.keyHandlers)
 
-        // Add arrow key handlers if enabled
         if (config.useArrowKeys) {
-            allKeyHandlers[KeyboardKeys.ARROW_UP] = {}
-            allKeyHandlers[KeyboardKeys.ARROW_DOWN] = {}
-            allKeyHandlers[KeyboardKeys.ARROW_LEFT] = {}
-            allKeyHandlers[KeyboardKeys.ARROW_RIGHT] = {}
+            // Placeholder handlers; actual navigation logic would be in JS or more complex Kotlin.
+            // These entries signal to the `keyboardHandlers` function to add data attributes for these keys.
+            // Only add default arrow key handlers if they haven't been provided in config.keyHandlers
+            if (!allKeyHandlers.containsKey(KeyboardKeys.ARROW_UP)) {
+                allKeyHandlers[KeyboardKeys.ARROW_UP] = { /* Default Arrow Up Action Placeholder */ }
+            }
+            if (!allKeyHandlers.containsKey(KeyboardKeys.ARROW_DOWN)) {
+                allKeyHandlers[KeyboardKeys.ARROW_DOWN] = { /* Default Arrow Down Action Placeholder */ }
+            }
+            if (!allKeyHandlers.containsKey(KeyboardKeys.ARROW_LEFT)) {
+                allKeyHandlers[KeyboardKeys.ARROW_LEFT] = { /* Default Arrow Left Action Placeholder */ }
+            }
+            if (!allKeyHandlers.containsKey(KeyboardKeys.ARROW_RIGHT)) {
+                allKeyHandlers[KeyboardKeys.ARROW_RIGHT] = { /* Default Arrow Right Action Placeholder */ }
+            }
         }
 
-        // Apply all key handlers at once if there are any
         if (allKeyHandlers.isNotEmpty()) {
-            modified = modified.keyboardHandlers(allKeyHandlers)
+            modifiedModifier = modifiedModifier.keyboardHandlers(allKeyHandlers)
         }
 
-        return modified
+        return modifiedModifier
     }
 }
 
 /**
- * A composable function that provides keyboard navigation capabilities.
+ * A composable function that wraps content with keyboard navigation capabilities.
  *
- * @param modifier The modifier to apply to the container
- * @param config The keyboard navigation configuration
- * @param content The content to make keyboard navigable
+ * @param modifier The base modifier to apply to the container.
+ * @param config The keyboard navigation configuration.
+ * @param content The composable content to be made keyboard navigable.
  */
 @Composable
 fun KeyboardNavigableContainer(
-    modifier: Modifier = Modifier(),
+    modifier: Modifier = Modifier(), // Uses the @JsExported Modifier
     config: KeyboardNavigation.KeyboardNavigationConfig = KeyboardNavigation.KeyboardNavigationConfig(),
     content: @Composable () -> Unit
 ) {
+    // Apply keyboard navigation configurations to the passed modifier
     val navModifier = modifier.keyboardNavigation(config)
 
-    // Create a container element with the keyboard navigation attributes
-    val containerAttrs = mapOf(
-        "class" to "keyboard-navigable-container",
-        "data-keyboard-nav" to "true",
-        "role" to "group"
+    // Define base attributes for the container
+    val containerBaseAttributes = mapOf(
+        "class" to "keyboard-navigable-container", // For styling or JS selection
+        "data-keyboard-nav" to "true",             // Marker for JS
+        "role" to "group"                          // ARIA role for a group of related elements
     )
 
-    // Apply attributes to the modifier
-    val finalModifier = navModifier.applyAttributes(containerAttrs)
+    // Combine the navigation modifier with these base attributes
+    val finalModifier = navModifier.attributes(containerBaseAttributes)
 
-    // Use platform renderer to create a container with keyboard navigation attributes
-    // This avoids reliance on specific Composer methods which may differ between versions
+    // Use the platform renderer to render a simple Box or div-like container
+    // The actual element type (e.g., "div") would be determined by the renderer's renderBox implementation.
     val renderer = LocalPlatformRenderer.current
-    renderer.renderBox(modifier = finalModifier, content = { content() })
+    renderer.renderBox(modifier = finalModifier) {
+        content()
+    }
 }
 
-// Helper function to apply attributes to a modifier
-private fun Modifier.applyAttributes(attributes: Map<String, String>): Modifier {
-    var result = this
-    for ((key, value) in attributes) {
-        result = result.attribute(key, value)
-    }
-    return result
-} 
+// The local applyAttributes helper is no longer strictly necessary if Modifier.attributes covers its use case,
+// but it was used to apply a map of attributes. Modifier.attributes(attrs: Map<String, String>) does this now.
+// If it was used for other specific logic, it might need to be re-evaluated.
+// For now, KeyboardNavigableContainer uses navModifier.attributes(containerBaseAttributes) directly.

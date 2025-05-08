@@ -879,7 +879,7 @@ Components that create semantically meaningful HTML elements to improve screen r
 fun Header(
     id: String? = null,
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 )
 
@@ -887,7 +887,7 @@ fun Header(
 fun Main(
     id: String? = null,
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 )
 
@@ -895,7 +895,7 @@ fun Main(
 fun Nav(
     id: String? = null,
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 )
 
@@ -903,7 +903,7 @@ fun Nav(
 fun Article(
     id: String? = null,
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 )
 
@@ -911,7 +911,7 @@ fun Article(
 fun Section(
     id: String? = null,
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 )
 
@@ -919,7 +919,7 @@ fun Section(
 fun Aside(
     id: String? = null, 
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 )
 
@@ -927,7 +927,7 @@ fun Aside(
 fun Footer(
     id: String? = null,
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 )
 
@@ -936,7 +936,7 @@ fun Heading(
     level: Int,
     id: String? = null,
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 )
 ```
@@ -947,7 +947,7 @@ fun Heading(
 |------|------|-------------|
 | id | String? | Optional ID for the element (default: null) |
 | className | String? | Optional CSS class name for the element (default: null) |
-| modifier | Modifier | Optional styling and layout modifiers (default: Modifier.create()) |
+| modifier | Modifier | Optional styling and layout modifiers (default: Modifier()) |
 | content | @Composable () -> Unit | The content to be rendered inside this element |
 | level | Int | For Heading, the heading level (h1-h6) |
 

@@ -138,7 +138,7 @@ class DivTest {
 
             // Verify that renderDiv was called with the correct parameters
             assertTrue(mockRenderer.renderDivCalled, "renderDiv should have been called")
-            assertEquals(Modifier.create(), mockRenderer.lastModifier, "Modifier should be the default")
+            assertEquals(Modifier(), mockRenderer.lastModifier, "Modifier should be the default")
             assertTrue(mockRenderer.lastContent != null, "Content should not be null")
         }
     }
@@ -149,7 +149,7 @@ class DivTest {
         val mockRenderer = MockPlatformRenderer()
 
         // Create a custom modifier
-        val customModifier = Modifier.create().background("red")
+        val customModifier = Modifier().background("red")
 
         // Set up the composition context
         CompositionLocal.provideComposer(MockComposer()) {
@@ -185,7 +185,7 @@ class DivTest {
 
             // Verify that renderSpan was called with the correct parameters
             assertTrue(mockRenderer.renderSpanCalled, "renderSpan should have been called")
-            assertEquals(Modifier.create(), mockRenderer.lastModifier, "Modifier should be the default")
+            assertEquals(Modifier(), mockRenderer.lastModifier, "Modifier should be the default")
             assertTrue(mockRenderer.lastContent != null, "Content should not be null")
         }
     }
@@ -196,7 +196,7 @@ class DivTest {
         val mockRenderer = MockPlatformRenderer()
 
         // Create a custom modifier
-        val customModifier = Modifier.create().background("blue")
+        val customModifier = Modifier().background("blue")
 
         // Set up the composition context
         CompositionLocal.provideComposer(MockComposer()) {

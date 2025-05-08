@@ -1,0 +1,34 @@
+{
+  "app": {
+    "title": "Summon Task Manager"
+  },
+  "common": {
+    "language": "Language",
+    "back": "Back",
+    "next": "Next"
+  },
+  "theme": {
+    "title": "Theme",
+    "light": "Switch to Light Mode",
+    "dark": "Switch to Dark Mode"
+  },
+  "tasks": {
+    "yourTasks": "Your Tasks",
+    "addNew": "Add New Task",
+    "titlePlaceholder": "Enter task title...",
+    "add": "Add Task",
+    "delete": "Delete",
+    "empty": "No tasks yet. Add your first task above!",
+    "summary": "Total: {0} tasks, Completed: {1}"
+  },
+  "filters": {
+    "all": "All",
+    "active": "Active",
+    "completed": "Completed"
+  },
+  "validation": {
+    "required": "This field is required",
+    "minLength": "Must be at least {0} characters",
+    "maxLength": "Must be at most {0} characters"
+  }
+}

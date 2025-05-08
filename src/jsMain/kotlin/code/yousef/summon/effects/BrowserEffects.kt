@@ -7,42 +7,57 @@ import code.yousef.summon.effects.onMountWithCleanup
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.state.SummonMutableState
 import code.yousef.summon.state.mutableStateOf
+import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.events.Event
 
 /**
- * Browser history interface
+ * External interface for browser history
+ */
+external interface BrowserHistory {
+    fun back()
+    fun forward()
+    fun pushState(data: dynamic, title: String, url: String? = definedExternally)
+    fun replaceState(data: dynamic, title: String, url: String? = definedExternally)
+    val length: Int
+    val state: dynamic
+}
+
+/**
+ * Browser history wrapper
  */
 class History {
+    private val browserHistory = window.asDynamic().history as BrowserHistory
+
     fun back() {
-        js("window.history.back()")
+        browserHistory.back()
     }
-    
+
     fun forward() {
-        js("window.history.forward()")
+        browserHistory.forward()
     }
-    
+
     fun push(path: String) {
-        js("window.history.pushState({}, '', path)")
+        browserHistory.pushState(js("{}"), "", path)
     }
-    
+
     fun replace(path: String) {
-        js("window.history.replaceState({}, '', path)")
+        browserHistory.replaceState(js("{}"), "", path)
     }
-    
+
     fun getLength(): Int {
-        return js("window.history.length") as Int
+        return browserHistory.length
     }
-    
+
     fun getState(): dynamic {
-        return js("window.history.state")
+        return browserHistory.state
     }
 }
 
 /**
- * Browser navigator information
+ * External interface for browser navigator
  */
-class Navigator {
+external interface BrowserNavigator {
     val language: String
     val userAgent: String
     val onLine: Boolean
@@ -51,39 +66,84 @@ class Navigator {
     val hardwareConcurrency: Int
     val maxTouchPoints: Int
     val pdfViewerEnabled: Boolean
-    
-    init {
-        // Initialize with actual navigator properties
-        language = js("navigator.language || 'en-US'") as String
-        userAgent = js("navigator.userAgent || ''") as String
-        onLine = js("navigator.onLine || true") as Boolean
-        platform = js("navigator.platform || ''") as String
-        cookieEnabled = js("navigator.cookieEnabled || false") as Boolean
-        hardwareConcurrency = js("navigator.hardwareConcurrency || 1") as Int
-        maxTouchPoints = js("navigator.maxTouchPoints || 0") as Int
-        pdfViewerEnabled = js("navigator.pdfViewerEnabled || false") as Boolean
-    }
-    
+    val mimeTypes: dynamic
+    val geolocation: dynamic
+    val vibrate: dynamic
+}
+
+/**
+ * Browser navigator information
+ */
+class Navigator {
+    private val browserNavigator = window.asDynamic().navigator as BrowserNavigator
+
+    val language: String = browserNavigator.language ?: "en-US"
+    val userAgent: String = browserNavigator.userAgent ?: ""
+    val onLine: Boolean = browserNavigator.onLine ?: true
+    val platform: String = browserNavigator.platform ?: ""
+    val cookieEnabled: Boolean = browserNavigator.cookieEnabled ?: false
+    val hardwareConcurrency: Int = browserNavigator.hardwareConcurrency ?: 1
+    val maxTouchPoints: Int = browserNavigator.maxTouchPoints ?: 0
+    val pdfViewerEnabled: Boolean = browserNavigator.pdfViewerEnabled ?: false
+
     /**
      * Check if the given MIME type is supported
      */
     fun mimeTypeSupported(mimeType: String): Boolean {
-        return js("navigator.mimeTypes && navigator.mimeTypes.length > 0 && navigator.mimeTypes[mimeType] !== undefined") as Boolean
+        val mimeTypes = browserNavigator.mimeTypes
+        return mimeTypes != null && 
+               js("mimeTypes.length > 0 && mimeTypes[mimeType] !== undefined") as Boolean
     }
-    
+
     /**
      * Check if the browser has vibration support
      */
     fun hasVibrationSupport(): Boolean {
-        return js("'vibrate' in navigator") as Boolean
+        return browserNavigator.vibrate != null
     }
-    
+
     /**
      * Check if the browser has geolocation support
      */
     fun hasGeolocationSupport(): Boolean {
-        return js("'geolocation' in navigator") as Boolean
+        return browserNavigator.geolocation != null
     }
+}
+
+/**
+ * External interface for IntersectionObserver
+ */
+external class IntersectionObserver(
+    callback: (Array<IntersectionObserverEntry>, IntersectionObserver) -> Unit,
+    options: dynamic = definedExternally
+) {
+    fun observe(target: dynamic)
+    fun unobserve(target: dynamic)
+    fun disconnect()
+}
+
+/**
+ * External interface for IntersectionObserverEntry
+ */
+external interface IntersectionObserverEntry {
+    val boundingClientRect: DOMRectReadOnly
+    val intersectionRatio: Double
+    val isIntersecting: Boolean
+    val target: dynamic
+}
+
+/**
+ * External interface for DOMRectReadOnly
+ */
+external interface DOMRectReadOnly {
+    val x: Double
+    val y: Double
+    val width: Double
+    val height: Double
+    val top: Double
+    val right: Double
+    val bottom: Double
+    val left: Double
 }
 
 /**
@@ -126,21 +186,21 @@ data class DOMRect(
 @Composable
 fun CompositionScope.useHistory(): History {
     val history = History()
-    
+
     onMountWithCleanup {
         // Set up a popstate event listener to handle browser navigation
         val handlePopState = { event: Event ->
             // You can add additional handling for popstate events if needed
             // For example, notify a state manager that navigation occurred
         }
-        
+
         window.addEventListener("popstate", handlePopState)
-        
+
         return@onMountWithCleanup {
             window.removeEventListener("popstate", handlePopState)
         }
     }
-    
+
     return history
 }
 
@@ -172,67 +232,85 @@ fun CompositionScope.useIntersectionObserver(
         intersectionRatio = 0f,
         boundingClientRect = DOMRect(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
     )
-    
+
     val state = mutableStateOf(initialState)
-    
+
     onMountWithCleanup {
         // Define the intersection callback
-        val intersectionCallback = { entries: dynamic, _: dynamic ->
+        val intersectionCallback = { entries: Array<IntersectionObserverEntry>, _: IntersectionObserver ->
             // Get the first entry (we're only observing one element)
             val entry = entries[0]
-            
+
             // Extract DOMRect from the entry
             val rect = entry.boundingClientRect
             val domRect = DOMRect(
-                x = rect.x as Double,
-                y = rect.y as Double,
-                width = rect.width as Double,
-                height = rect.height as Double,
-                top = rect.top as Double,
-                right = rect.right as Double,
-                bottom = rect.bottom as Double,
-                left = rect.left as Double
+                x = rect.x,
+                y = rect.y,
+                width = rect.width,
+                height = rect.height,
+                top = rect.top,
+                right = rect.right,
+                bottom = rect.bottom,
+                left = rect.left
             )
-            
+
             // Update the state with intersection information
             state.value = IntersectionState(
-                isIntersecting = entry.isIntersecting as Boolean,
+                isIntersecting = entry.isIntersecting,
                 intersectionRatio = entry.intersectionRatio.toFloat(),
                 boundingClientRect = domRect
             )
         }
-        
+
         // Create IntersectionObserver options
         val jsOptions = js("({})")
-        
+
         if (options.root != null) {
-            js("jsOptions.root = options.root")
+            jsOptions.root = options.root
         }
-        
+
         // Set rootMargin
-        val rootMargin = options.rootMargin
-        js("jsOptions.rootMargin = rootMargin")
-        
+        jsOptions.rootMargin = options.rootMargin
+
         // Set threshold
-        val threshold = options.threshold
-        js("jsOptions.threshold = threshold")
-        
+        jsOptions.threshold = options.threshold
+
         // Create and initialize the IntersectionObserver
-        val observer = js("new IntersectionObserver(intersectionCallback, jsOptions)")
+        val observer = IntersectionObserver(intersectionCallback, jsOptions)
+
         // TODO: provide a real implementation
         // Get the DOM element from elementRef and start observing
         val elementId = "element-id" // In a real implementation, elementRef would have an id property
-        js("var domElement = document.getElementById(elementId)")
-        js("if (domElement !== null) { observer.observe(domElement) }")
-        
+        val domElement = document.getElementById(elementId)
+        if (domElement != null) {
+            observer.observe(domElement)
+        }
+
         // Return cleanup function
         return@onMountWithCleanup {
             // Disconnect the IntersectionObserver
-            js("observer.disconnect()")
+            observer.disconnect()
         }
     }
-    
+
     return state
+}
+
+/**
+ * External interface for ResizeObserver
+ */
+external class ResizeObserver(callback: (Array<ResizeObserverEntryJS>) -> Unit) {
+    fun observe(target: dynamic)
+    fun unobserve(target: dynamic)
+    fun disconnect()
+}
+
+/**
+ * External interface for ResizeObserverEntry
+ */
+external interface ResizeObserverEntryJS {
+    val contentRect: DOMRectReadOnly
+    val target: dynamic
 }
 
 /**
@@ -262,54 +340,57 @@ fun CompositionScope.useResizeObserver(
 ): ResizeObserverCleanup {
     // Function to disconnect the observer
     var disconnectObserver: (() -> Unit)? = null
-    
+
     onMountWithCleanup {
         // Define the resize callback
-        val resizeCallback = { entries: dynamic ->
+        val resizeCallback = { entries: Array<ResizeObserverEntryJS> ->
             // Get the first entry (we're only observing one element)
             val entry = entries[0]
-            
+
             // Extract the content rectangle
             val rect = entry.contentRect
             val domRect = DOMRect(
-                x = rect.x as Double,
-                y = rect.y as Double,
-                width = rect.width as Double,
-                height = rect.height as Double,
-                top = rect.top as Double,
-                right = rect.right as Double,
-                bottom = rect.bottom as Double,
-                left = rect.left as Double
+                x = rect.x,
+                y = rect.y,
+                width = rect.width,
+                height = rect.height,
+                top = rect.top,
+                right = rect.right,
+                bottom = rect.bottom,
+                left = rect.left
             )
-            
+
             // Create ResizeObserverEntry and invoke the callback
             val resizeEntry = ResizeObserverEntry(
                 contentRect = domRect,
                 target = entry.target
             )
-            
+
             callback(resizeEntry)
         }
-        
+
         // Create and initialize the ResizeObserver
-        val observer = js("new ResizeObserver(resizeCallback)")
+        val observer = ResizeObserver(resizeCallback)
+
         // TODO: provide a real implementation
         // Get the DOM element from elementRef and start observing
         val elementId = "element-id" // In a real implementation, elementRef would have an id property
-        js("var domElement = document.getElementById(elementId)")
-        js("if (domElement !== null) { observer.observe(domElement) }")
-        
+        val domElement = document.getElementById(elementId)
+        if (domElement != null) {
+            observer.observe(domElement)
+        }
+
         // Set up disconnect function
         disconnectObserver = {
-            js("observer.disconnect()")
+            observer.disconnect()
         }
-        
+
         // Return cleanup function
         return@onMountWithCleanup {
             disconnectObserver?.invoke()
         }
     }
-    
+
     // Return a function that will disconnect the observer when called
     return {
         disconnectObserver?.invoke()
@@ -324,22 +405,23 @@ fun CompositionScope.useResizeObserver(
 @Composable
 fun CompositionScope.useOnlineStatus(): SummonMutableState<Boolean> {
     // Initialize with the current online status from the browser
-    val online = mutableStateOf(js("navigator.onLine") as Boolean)
-    
+    val browserNavigator = window.asDynamic().navigator as BrowserNavigator
+    val online = mutableStateOf(browserNavigator.onLine)
+
     onMountWithCleanup {
         // Create event handlers
         val handleOnline = { _: Event -> 
             online.value = true 
         }
-        
+
         val handleOffline = { _: Event -> 
             online.value = false 
         }
-        
+
         // Add event listeners
         window.addEventListener("online", handleOnline)
         window.addEventListener("offline", handleOffline)
-        
+
         // Return cleanup function
         return@onMountWithCleanup {
             // Remove event listeners
@@ -347,8 +429,56 @@ fun CompositionScope.useOnlineStatus(): SummonMutableState<Boolean> {
             window.removeEventListener("offline", handleOffline)
         }
     }
-    
+
     return online
+}
+
+/**
+ * External interface for Geolocation
+ */
+external interface Geolocation {
+    fun getCurrentPosition(
+        successCallback: (GeolocationPosition) -> Unit,
+        errorCallback: (GeolocationPositionError) -> Unit,
+        options: dynamic = definedExternally
+    )
+
+    fun watchPosition(
+        successCallback: (GeolocationPosition) -> Unit,
+        errorCallback: (GeolocationPositionError) -> Unit,
+        options: dynamic = definedExternally
+    ): Int
+
+    fun clearWatch(watchId: Int)
+}
+
+/**
+ * External interface for GeolocationPosition
+ */
+external interface GeolocationPosition {
+    val coords: GeolocationCoordinates
+    val timestamp: Number
+}
+
+/**
+ * External interface for GeolocationCoordinates
+ */
+external interface GeolocationCoordinates {
+    val latitude: Double
+    val longitude: Double
+    val altitude: Double?
+    val accuracy: Double
+    val altitudeAccuracy: Double?
+    val heading: Double?
+    val speed: Double?
+}
+
+/**
+ * External interface for GeolocationPositionError
+ */
+external interface GeolocationPositionError {
+    val code: Int
+    val message: String
 }
 
 /**
@@ -407,27 +537,27 @@ fun CompositionScope.useGeolocation(
             loading = true
         )
     )
-    
+
     onMountWithCleanup {
         // Set up success callback
-        val successCallback = { jsPosition: dynamic ->
+        val successCallback = { jsPosition: GeolocationPosition ->
             // Extract coordinates from JS position object
             val coords = Coordinates(
-                latitude = jsPosition.coords.latitude as Double,
-                longitude = jsPosition.coords.longitude as Double,
-                altitude = jsPosition.coords.altitude as? Double,
-                accuracy = jsPosition.coords.accuracy as Double,
-                altitudeAccuracy = jsPosition.coords.altitudeAccuracy as? Double,
-                heading = jsPosition.coords.heading as? Double,
-                speed = jsPosition.coords.speed as? Double
+                latitude = jsPosition.coords.latitude,
+                longitude = jsPosition.coords.longitude,
+                altitude = jsPosition.coords.altitude,
+                accuracy = jsPosition.coords.accuracy,
+                altitudeAccuracy = jsPosition.coords.altitudeAccuracy,
+                heading = jsPosition.coords.heading,
+                speed = jsPosition.coords.speed
             )
-            
+
             // Create Position object
             val position = Position(
                 coords = coords,
-                timestamp = (jsPosition.timestamp as Number).toLong()
+                timestamp = jsPosition.timestamp.toLong()
             )
-            
+
             // Update state
             state.value = GeolocationState(
                 position = position,
@@ -435,42 +565,45 @@ fun CompositionScope.useGeolocation(
                 loading = false
             )
         }
-        
+
         // Set up error callback
-        val errorCallback = { jsError: dynamic ->
+        val errorCallback = { jsError: GeolocationPositionError ->
             state.value = GeolocationState(
                 position = null,
-                error = jsError.message as String,
+                error = jsError.message,
                 loading = false
             )
         }
-        
+
         // Geolocation watch ID for cleanup
-        var watchId: dynamic = null
-        
+        var watchId: Int? = null
+
+        // Get navigator
+        val browserNavigator = window.asDynamic().navigator as BrowserNavigator
+
         // Check if geolocation is available
-        if (js("'geolocation' in navigator") as Boolean) {
+        if (browserNavigator.geolocation != null) {
+            val geolocation = browserNavigator.geolocation as Geolocation
+
             // Create geolocation options
             val jsOptions = js("({})")
-            js("jsOptions.enableHighAccuracy = true")
-            js("jsOptions.timeout = 5000")
-            js("jsOptions.maximumAge = 0")
-            
+            jsOptions.enableHighAccuracy = options.enableHighAccuracy
+            jsOptions.timeout = options.timeout
+            jsOptions.maximumAge = options.maximumAge
+
             // Start watching position
-            js("""
-                watchId = navigator.geolocation.watchPosition(
-                    successCallback,
-                    errorCallback,
-                    jsOptions
-                );
-                
-                // Initial position request
-                navigator.geolocation.getCurrentPosition(
-                    successCallback,
-                    errorCallback,
-                    jsOptions
-                );
-            """)
+            watchId = geolocation.watchPosition(
+                successCallback,
+                errorCallback,
+                jsOptions
+            )
+
+            // Initial position request
+            geolocation.getCurrentPosition(
+                successCallback,
+                errorCallback,
+                jsOptions
+            )
         } else {
             // Geolocation not available
             state.value = GeolocationState(
@@ -479,16 +612,17 @@ fun CompositionScope.useGeolocation(
                 loading = false
             )
         }
-        
+
         // Return cleanup function
         return@onMountWithCleanup {
             // Clear the geolocation watch if it was set
-            if (js("watchId !== null") as Boolean) {
-                js("navigator.geolocation.clearWatch(watchId)")
+            if (watchId != null) {
+                val geolocation = browserNavigator.geolocation as? Geolocation
+                geolocation?.clearWatch(watchId)
             }
         }
     }
-    
+
     return state
 }
 
@@ -514,58 +648,79 @@ data class AnimationOptions(
 )
 
 /**
+ * External interface for Web Animation
+ */
+external interface WebAnimation {
+    fun play()
+    fun pause()
+    fun cancel()
+    fun finish()
+    fun reverse()
+    var currentTime: Double?
+    var playbackRate: Double
+    val playState: String
+}
+
+/**
  * Web animation API interface
  */
 class WebAnimationAPI {
-    private var animation: dynamic = null
-    
+    private var animation: WebAnimation? = null
+
     fun play() {
-        js("if (this.animation) this.animation.play()")
+        animation?.play()
     }
-    
+
     fun pause() {
-        js("if (this.animation) this.animation.pause()")
+        animation?.pause()
     }
-    
+
     fun cancel() {
-        js("if (this.animation) this.animation.cancel()")
+        animation?.cancel()
     }
-    
+
     fun finish() {
-        js("if (this.animation) this.animation.finish()")
+        animation?.finish()
     }
-    
+
     fun reverse() {
-        js("if (this.animation) this.animation.reverse()")
+        animation?.reverse()
     }
-    
-    fun setAnimation(anim: dynamic) {
+
+    fun setAnimation(anim: WebAnimation) {
         animation = anim
     }
-    
+
     fun getCurrentTime(): Double {
-        return js("this.animation ? this.animation.currentTime : 0") as Double
+        return animation?.currentTime ?: 0.0
     }
-    
+
     fun setCurrentTime(time: Double) {
-        js("if (this.animation) this.animation.currentTime = time")
+        animation?.currentTime = time
     }
-    
+
     fun getPlaybackRate(): Double {
-        return js("this.animation ? this.animation.playbackRate : 1.0") as Double
+        return animation?.playbackRate ?: 1.0
     }
-    
+
     fun setPlaybackRate(rate: Double) {
-        js("if (this.animation) this.animation.playbackRate = rate")
+        animation?.let { it.playbackRate = rate }
     }
-    
+
     fun isPaused(): Boolean {
-        return js("this.animation && this.animation.playState === 'paused'") as Boolean
+        return animation?.playState == "paused"
     }
-    
+
     fun isRunning(): Boolean {
-        return js("this.animation && this.animation.playState === 'running'") as Boolean
+        return animation?.playState == "running"
     }
+}
+
+/**
+ * External interface for HTMLElement with animate method
+ */
+external interface AnimatableElement {
+    fun animate(keyframes: dynamic, options: dynamic): WebAnimation
 }
 
 /**
@@ -583,73 +738,60 @@ fun CompositionScope.useWebAnimation(
     options: AnimationOptions
 ): WebAnimationAPI {
     val api = WebAnimationAPI()
-    
+
     onMountWithCleanup {
         // Convert Keyframes to JS objects
-        js("var keyframesArray = []")
-        
+        val keyframesArray = js("[]")
+
         for (keyframe in keyframes) {
-            js("var frame = {}")
-            
+            val frame = js("{}")
+
             // Set offset if provided
             if (keyframe.offset != null) {
-                val offset = keyframe.offset
-                js("frame.offset = offset")
+                frame.offset = keyframe.offset
             }
-            
+
             // Set easing if provided
             if (keyframe.easing != null) {
-                val easing = keyframe.easing
-                js("frame.easing = easing")
+                frame.easing = keyframe.easing
             }
-            
+
             // Add all properties from the properties map
             for ((key, value) in keyframe.properties) {
-                js("frame[key] = value")
+                frame[key] = value
             }
-            
-            js("keyframesArray.push(frame)")
+
+            keyframesArray.push(frame)
         }
-        
+
         // Create animation options
-        js("var animOptions = {}")
-        
-        val duration = options.duration
-        js("animOptions.duration = duration")
-        
-        val iterations = options.iterations
-        js("animOptions.iterations = iterations")
-        
-        val delay = options.delay
-        js("animOptions.delay = delay")
-        
-        val easing = options.easing
-        js("animOptions.easing = easing")
-        
-        val direction = options.direction
-        js("animOptions.direction = direction")
-        
-        val fill = options.fill
-        js("animOptions.fill = fill")
+        val animOptions = js("{}")
+
+        animOptions.duration = options.duration
+        animOptions.iterations = options.iterations
+        animOptions.delay = options.delay
+        animOptions.easing = options.easing
+        animOptions.direction = options.direction
+        animOptions.fill = options.fill
+
         // TODO: provide a real implementation
         // Get the DOM element from elementRef
         val elementId = "element-id" // In a real implementation, elementRef would have an id property
-        
+        val element = document.getElementById(elementId)
+
         // Create and start the animation
-        js("""
-            var element = document.getElementById(elementId);
-            if (element) {
-                var animation = element.animate(keyframesArray, animOptions);
-                api.setAnimation(animation);
-            }
-        """)
-        
+        if (element != null) {
+            val animatableElement = element.asDynamic() as AnimatableElement
+            val animation = animatableElement.animate(keyframesArray, animOptions)
+            api.setAnimation(animation)
+        }
+
         // Return cleanup function
         return@onMountWithCleanup {
             // Cancel the animation on cleanup
             api.cancel()
         }
     }
-    
+
     return api
-} 
+}

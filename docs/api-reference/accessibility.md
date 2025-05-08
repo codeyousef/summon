@@ -109,7 +109,7 @@ The `AccessibleElement` function is a wrapper component that adds accessibility 
 fun Header(
     id: String? = null,
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 )
 
@@ -117,7 +117,7 @@ fun Header(
 fun Main(
     id: String? = null,
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 )
 
@@ -125,7 +125,7 @@ fun Main(
 fun Nav(
     id: String? = null,
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 )
 
@@ -133,7 +133,7 @@ fun Nav(
 fun Article(
     id: String? = null,
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 )
 
@@ -141,7 +141,7 @@ fun Article(
 fun Section(
     id: String? = null,
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 )
 
@@ -149,7 +149,7 @@ fun Section(
 fun Aside(
     id: String? = null, 
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 )
 
@@ -157,7 +157,7 @@ fun Aside(
 fun Footer(
     id: String? = null,
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 )
 
@@ -166,7 +166,7 @@ fun Heading(
     level: Int,
     id: String? = null,
     className: String? = null,
-    modifier: Modifier = Modifier.create(),
+    modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 )
 ```

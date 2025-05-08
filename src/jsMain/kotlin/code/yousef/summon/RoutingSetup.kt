@@ -6,11 +6,8 @@ import code.yousef.summon.runtime.Composable
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.HTMLElement
-
-/**
- * External JS console object for logging
- */
-external val console: dynamic
+import code.yousef.summon.js.Console
+import code.yousef.summon.js.console
 
 /**
  * Sets up the routing system for the application.
@@ -24,17 +21,17 @@ fun setupRouting() {
             // Home page content
             renderHomePage()
         }
-        
+
         route("/about") { params ->
             // About page content
             renderAboutPage()
         }
-        
+
         route("/users/profile") { params ->
             // Profile page content with parameters
             renderProfilePage(params.get("userId") ?: "")
         }
-        
+
         // Set a not found page
         setNotFound { params ->
             renderNotFoundPage(params.get("path") ?: "")

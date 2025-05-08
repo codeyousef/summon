@@ -7,17 +7,37 @@ import code.yousef.summon.theme.Typography
  */
 object ThemeManager {
     private var currentTypography: Typography = Typography()
-    
+
     /**
      * Returns the current typography settings.
      */
     fun getTypography(): Typography = currentTypography
-    
+
     /**
      * Sets the typography settings.
      */
     fun setTypography(typography: Typography) {
         currentTypography = typography
+    }
+
+    /**
+     * Whether dark mode is enabled.
+     */
+    var isDarkMode: Boolean = false
+        private set
+
+    /**
+     * Initializes the theme manager with the given dark mode setting.
+     */
+    fun initialize(isDarkMode: Boolean) {
+        this.isDarkMode = isDarkMode
+    }
+
+    /**
+     * Toggles between light and dark mode.
+     */
+    fun toggleTheme() {
+        isDarkMode = !isDarkMode
     }
 }
 

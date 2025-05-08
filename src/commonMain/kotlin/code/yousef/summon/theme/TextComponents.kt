@@ -2,6 +2,8 @@ package code.yousef.summon.theme
 
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.fontFamily
+import code.yousef.summon.modifier.letterSpacing
 import code.yousef.summon.runtime.Composable
 
 /**
@@ -21,10 +23,10 @@ object TextComponents {
         val style = Theme.getTextStyle(styleName)
         val styledModifier = modifier.let { mod ->
             var result = mod
-            if (style.fontFamily != null) result = result.fontFamily(style.fontFamily)
+            if (style.fontFamily != null) result = result.fontFamily(style.fontFamily, null)
             if (style.fontSize != null) result = result.fontSize(style.fontSize)
             if (style.fontWeight != null) result = result.fontWeight(style.fontWeight)
-            if (style.letterSpacing != null) result = result.letterSpacing(style.letterSpacing)
+            if (style.letterSpacing != null) result = result.letterSpacing(style.letterSpacing, null)
             if (style.color != null) result = result.color(style.color)
             if (style.textDecoration != null) result = result.style("text-decoration", style.textDecoration)
             if (style.lineHeight != null) result = result.style("line-height", style.lineHeight)

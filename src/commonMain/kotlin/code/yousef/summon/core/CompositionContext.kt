@@ -18,12 +18,12 @@ class CompositionContext private constructor(
      * The parent context, if this is a child context.
      */
     val parent: CompositionContext?,
-    
+
     /**
      * The depth of this context in the composition hierarchy.
      */
     val depth: Int,
-    
+
     /**
      * The renderer associated with this context.
      */
@@ -31,13 +31,13 @@ class CompositionContext private constructor(
 ) {
     companion object {
         private val threadLocal = ThreadLocalHolder<CompositionContext>()
-        
+
         /**
          * Returns the current composition context, or null if no composition is in progress.
          */
         val current: CompositionContext?
             get() = threadLocal.get()
-        
+
         /**
          * Executes a block with a specific composition context.
          * 
@@ -54,7 +54,7 @@ class CompositionContext private constructor(
                 threadLocal.set(previous)
             }
         }
-        
+
         /**
          * Creates a root composition context.
          * 
@@ -65,7 +65,7 @@ class CompositionContext private constructor(
             return CompositionContext(null, 0, renderer)
         }
     }
-    
+
     /**
      * Creates a child context with this context as the parent.
      * 
@@ -74,12 +74,12 @@ class CompositionContext private constructor(
     fun createChildContext(): CompositionContext {
         return CompositionContext(this, depth + 1, renderer)
     }
-    
+
     /**
      * The composables currently being composed in this context.
      */
     private val composables = mutableListOf<Any>()
-    
+
     /**
      * Adds a composable to this context.
      * 
@@ -88,7 +88,7 @@ class CompositionContext private constructor(
     internal fun addComposable(composable: Any) {
         composables.add(composable)
     }
-    
+
     /**
      * Gets all composables in this context.
      * 
@@ -110,7 +110,7 @@ interface Renderer<T> {
      * @return The rendered result
      */
     fun render(composable: @Composable () -> Unit): T
-    
+
     /**
      * Disposes of any resources used by this renderer.
      */
@@ -120,7 +120,7 @@ interface Renderer<T> {
 /**
  * Utility functions for rendering components.
  */
-object RenderUtils {
+expect object RenderUtils {
     /**
      * Renders a composable to a DOM element (JavaScript platform).
      * 
@@ -128,11 +128,8 @@ object RenderUtils {
      * @param composable The composable to render
      * @return A renderer instance
      */
-    fun renderComposable(container: Any, composable: @Composable () -> Unit): Renderer<Any> {
-        // Platform-specific implementation to be provided
-        throw NotImplementedError("Platform-specific implementation required")
-    }
-    
+    fun renderComposable(container: Any, composable: @Composable () -> Unit): Renderer<Any>
+
     /**
      * Hydrates a server-rendered DOM tree with a composable (JavaScript platform).
      * 
@@ -140,32 +137,23 @@ object RenderUtils {
      * @param composable The composable to hydrate with
      * @return A renderer instance
      */
-    fun hydrate(container: Any, composable: @Composable () -> Unit): Renderer<Any> {
-        // Platform-specific implementation to be provided
-        throw NotImplementedError("Platform-specific implementation required")
-    }
-    
+    fun hydrate(container: Any, composable: @Composable () -> Unit): Renderer<Any>
+
     /**
      * Renders a composable to a string (JVM platform).
      * 
      * @param composable The composable to render
      * @return The rendered HTML string
      */
-    fun renderToString(composable: @Composable () -> Unit): String {
-        // Platform-specific implementation to be provided
-        throw NotImplementedError("Platform-specific implementation required")
-    }
-    
+    fun renderToString(composable: @Composable () -> Unit): String
+
     /**
      * Renders a composable to a file (JVM platform).
      * 
      * @param composable The composable to render
      * @param file The file to write to
      */
-    fun renderToFile(composable: @Composable () -> Unit, file: Any) {
-        // Platform-specific implementation to be provided
-        throw NotImplementedError("Platform-specific implementation required")
-    }
+    fun renderToFile(composable: @Composable () -> Unit, file: Any)
 }
 
 /**
