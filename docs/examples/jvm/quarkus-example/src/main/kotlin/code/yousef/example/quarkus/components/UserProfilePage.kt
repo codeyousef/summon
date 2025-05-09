@@ -10,9 +10,6 @@ import code.yousef.summon.components.layout.Box
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.components.layout.Row
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.width
-import code.yousef.summon.modifier.style
-import code.yousef.summon.modifier.attribute
 import code.yousef.summon.runtime.Composable
 import kotlinx.html.div
 import kotlinx.html.h3
@@ -20,7 +17,7 @@ import kotlinx.html.script
 
 /**
  * User profile page component that displays and allows editing of user information.
- * 
+ *
  * @param user The user data to display
  */
 @Composable
@@ -45,7 +42,7 @@ fun UserProfilePage(user: User) {
                         .style("font-weight", "bold")
                         .style("margin-bottom", "1rem")
                 )
-                
+
                 // Profile information card
                 Box(
                     modifier = Modifier()
@@ -61,13 +58,13 @@ fun UserProfilePage(user: User) {
                         attributes["hx-trigger"] = "submit"
                         attributes["hx-target"] = "#page-content"
                         attributes["hx-swap"] = "innerHTML"
-                        
+
                         // User information section
                         consumer.h3 {
                             attributes["style"] = "font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem;"
                             +"Personal Information"
                         }
-                        
+
                         // User information fields
                         Column(
                             modifier = Modifier()
@@ -86,7 +83,7 @@ fun UserProfilePage(user: User) {
                                         .style("font-size", "0.875rem")
                                         .style("color", "#6c757d")
                                 )
-                                
+
                                 CustomTextField(
                                     name = "id",
                                     value = user.id,
@@ -100,7 +97,7 @@ fun UserProfilePage(user: User) {
                                         .style("background-color", "#f8f9fa")
                                 )
                             }
-                            
+
                             // Name field
                             Column(
                                 modifier = Modifier()
@@ -112,7 +109,7 @@ fun UserProfilePage(user: User) {
                                         .style("font-weight", "500")
                                         .style("font-size", "0.875rem")
                                 )
-                                
+
                                 CustomTextField(
                                     name = "name",
                                     value = user.name,
@@ -125,7 +122,7 @@ fun UserProfilePage(user: User) {
                                         .style("border-radius", "0.375rem")
                                 )
                             }
-                            
+
                             // Email field
                             Column(
                                 modifier = Modifier()
@@ -137,7 +134,7 @@ fun UserProfilePage(user: User) {
                                         .style("font-weight", "500")
                                         .style("font-size", "0.875rem")
                                 )
-                                
+
                                 CustomTextField(
                                     name = "email",
                                     value = user.email,
@@ -150,7 +147,7 @@ fun UserProfilePage(user: User) {
                                         .style("border-radius", "0.375rem")
                                 )
                             }
-                            
+
                             // Role field (read-only)
                             Column(
                                 modifier = Modifier()
@@ -162,7 +159,7 @@ fun UserProfilePage(user: User) {
                                         .style("font-weight", "500")
                                         .style("font-size", "0.875rem")
                                 )
-                                
+
                                 CustomTextField(
                                     name = "role",
                                     value = user.role,
@@ -176,7 +173,7 @@ fun UserProfilePage(user: User) {
                                         .style("background-color", "#f8f9fa")
                                 )
                             }
-                            
+
                             // Status field (read-only)
                             Column(
                                 modifier = Modifier()
@@ -188,7 +185,7 @@ fun UserProfilePage(user: User) {
                                         .style("font-weight", "500")
                                         .style("font-size", "0.875rem")
                                 )
-                                
+
                                 Row(
                                     modifier = Modifier()
                                         .style("align-items", "center")
@@ -201,7 +198,7 @@ fun UserProfilePage(user: User) {
                                             .style("border-radius", "50%")
                                             .style("background-color", if (user.active) "#10b981" else "#ef4444")
                                     ) {}
-                                    
+
                                     Text(
                                         text = if (user.active) "Active" else "Inactive",
                                         modifier = Modifier()
@@ -210,7 +207,7 @@ fun UserProfilePage(user: User) {
                                     )
                                 }
                             }
-                            
+
                             // Action buttons
                             Row(
                                 modifier = Modifier()
@@ -232,7 +229,7 @@ fun UserProfilePage(user: User) {
                                         .style("cursor", "pointer")
                                         .attribute("type", "submit")
                                 )
-                                
+
                                 // Back button
                                 Button(
                                     onClick = { /* HTMX handles navigation */ },
@@ -250,7 +247,7 @@ fun UserProfilePage(user: User) {
                                         .attribute("hx-target", "#page-content")
                                         .attribute("hx-swap", "innerHTML")
                                 )
-                                
+
                                 // Conditionally show activate/deactivate button
                                 if (user.active) {
                                     Button(
@@ -268,7 +265,10 @@ fun UserProfilePage(user: User) {
                                             .attribute("hx-delete", "/api/users/${user.id}/deactivate")
                                             .attribute("hx-target", "#page-content")
                                             .attribute("hx-swap", "innerHTML")
-                                            .attribute("hx-confirm", "Are you sure you want to deactivate this account?")
+                                            .attribute(
+                                                "hx-confirm",
+                                                "Are you sure you want to deactivate this account?"
+                                            )
                                     )
                                 } else {
                                     Button(
@@ -290,18 +290,19 @@ fun UserProfilePage(user: User) {
                                 }
                             }
                         }
-                        
+
                         // Error message placeholder
                         div {
                             attributes["id"] = "profile-error"
                             attributes["class"] = "alert alert-danger mt-3"
-                            attributes["style"] = "display: none; margin-top: 1rem; padding: 0.75rem; color: #842029; background-color: #f8d7da; border: 1px solid #f5c2c7; border-radius: 0.375rem;"
+                            attributes["style"] =
+                                "display: none; margin-top: 1rem; padding: 0.75rem; color: #842029; background-color: #f8d7da; border: 1px solid #f5c2c7; border-radius: 0.375rem;"
                         }
                     }
                 }
             }
         }
-        
+
         // Add validation script
         val consumer = currentConsumer()
         consumer.script {

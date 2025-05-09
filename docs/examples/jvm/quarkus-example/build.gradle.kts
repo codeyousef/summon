@@ -28,8 +28,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
     // Summon dependencies
-    implementation("code.yousef:summon:0.2.3.0")
-    implementation("code.yousef:summon-jvm:0.2.3.0")
+    implementation("code.yousef:summon:0.2.5.1")
+    implementation("code.yousef:summon-jvm:0.2.5.1")
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.12.0")
 
     // Jakarta Servlet API

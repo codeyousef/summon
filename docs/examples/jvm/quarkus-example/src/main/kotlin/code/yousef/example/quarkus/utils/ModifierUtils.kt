@@ -1,7 +1,6 @@
 package code.yousef.example.quarkus.utils
 
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.style
 
 /**
  * Utility extension functions for Modifiers to avoid name conflicts

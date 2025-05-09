@@ -9,10 +9,11 @@ import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.layout.Box
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.components.layout.Row
+import code.yousef.summon.modifier.BorderStyle
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.StylingModifierExtras.textAlign
 import code.yousef.summon.modifier.alignItems
-import code.yousef.summon.modifier.attribute
-import code.yousef.summon.modifier.borderBottom
+import code.yousef.summon.modifier.border
 import code.yousef.summon.modifier.display
 import code.yousef.summon.modifier.flex
 import code.yousef.summon.modifier.flexWrap
@@ -136,7 +137,7 @@ fun DashboardPage() {
                         modifier = Modifier()
                             .width("100%")
                             .paddingVH("16px", "20px")
-                            .borderBottom("1px solid #e9ecef")
+                            .border(1, style = BorderStyle.Solid, color = "#e9ecef")
                     ) {
                         Heading(
                             level = 2,
@@ -207,7 +208,7 @@ fun DashboardPage() {
                             modifier = Modifier()
                                 .width("100%")
                                 .paddingVH("16px", "20px")
-                                .borderBottom("1px solid #e9ecef")
+                                .border(1, style = BorderStyle.Solid, color = "#e9ecef")
                         ) {
                             Heading(
                                 level = 3,
@@ -256,7 +257,7 @@ fun DashboardPage() {
                             modifier = Modifier()
                                 .width("100%")
                                 .paddingVH("16px", "20px")
-                                .borderBottom("1px solid #e9ecef")
+                                .border(1, style = BorderStyle.Solid, color = "#e9ecef")
                         ) {
                             Heading(
                                 level = 3,

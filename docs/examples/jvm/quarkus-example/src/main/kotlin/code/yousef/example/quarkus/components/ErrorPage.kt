@@ -8,6 +8,7 @@ import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.layout.Box
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.StylingModifierExtras.textAlign
 import code.yousef.summon.modifier.alignItems
 import code.yousef.summon.modifier.attribute
 import code.yousef.summon.modifier.justifyContent

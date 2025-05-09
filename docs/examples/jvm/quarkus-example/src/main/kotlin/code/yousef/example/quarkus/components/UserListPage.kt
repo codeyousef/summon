@@ -4,8 +4,6 @@ import code.yousef.example.quarkus.AppRoot
 import code.yousef.example.quarkus.User
 import code.yousef.example.quarkus.currentConsumer
 import code.yousef.example.quarkus.utils.paddingVH
-import code.yousef.example.quarkus.utils.backgroundColor
-import code.yousef.example.quarkus.utils.padding
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.input.TextField
@@ -13,23 +11,12 @@ import code.yousef.summon.components.layout.Box
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.components.layout.Row
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.width
-import code.yousef.summon.modifier.style
-import code.yousef.summon.modifier.attribute
 import code.yousef.summon.runtime.Composable
-import kotlinx.html.div
-import kotlinx.html.h1
-import kotlinx.html.script
-import kotlinx.html.table
-import kotlinx.html.tbody
-import kotlinx.html.td
-import kotlinx.html.th
-import kotlinx.html.thead
-import kotlinx.html.tr
+import kotlinx.html.*
 
 /**
  * User list page component that displays all users with actions.
- * 
+ *
  * @param users The list of users to display
  */
 @Composable
@@ -59,7 +46,7 @@ fun UserListPage(users: List<User>) {
                         attributes["style"] = "font-size: 2rem; font-weight: bold; margin: 0;"
                         +"User Management"
                     }
-                    
+
                     // Add user button
                     Button(
                         onClick = { /* No action needed */ },
@@ -78,7 +65,7 @@ fun UserListPage(users: List<User>) {
                             .attribute("hx-swap", "innerHTML")
                     )
                 }
-                
+
                 // Search box
                 Row(
                     modifier = Modifier()
@@ -89,7 +76,7 @@ fun UserListPage(users: List<User>) {
                     consumer.div {
                         attributes["class"] = "search-container"
                         attributes["style"] = "width: 100%; max-width: 500px; position: relative;"
-                        
+
                         TextField(
                             value = "",
                             onValueChange = { /* Handled by search script */ },
@@ -105,7 +92,7 @@ fun UserListPage(users: List<User>) {
                         )
                     }
                 }
-                
+
                 // Users table
                 Box(
                     modifier = Modifier()
@@ -118,37 +105,43 @@ fun UserListPage(users: List<User>) {
                         attributes["class"] = "table table-hover"
                         attributes["style"] = "width: 100%; border-collapse: collapse;"
                         attributes["id"] = "users-table"
-                        
+
                         // Table header
                         thead {
                             tr {
-                                th { 
-                                    attributes["style"] = "padding: 0.75rem; border-bottom: 2px solid #dee2e6; text-align: left; font-weight: 600;"
-                                    +"ID" 
+                                th {
+                                    attributes["style"] =
+                                        "padding: 0.75rem; border-bottom: 2px solid #dee2e6; text-align: left; font-weight: 600;"
+                                    +"ID"
                                 }
-                                th { 
-                                    attributes["style"] = "padding: 0.75rem; border-bottom: 2px solid #dee2e6; text-align: left; font-weight: 600;"
-                                    +"Name" 
+                                th {
+                                    attributes["style"] =
+                                        "padding: 0.75rem; border-bottom: 2px solid #dee2e6; text-align: left; font-weight: 600;"
+                                    +"Name"
                                 }
-                                th { 
-                                    attributes["style"] = "padding: 0.75rem; border-bottom: 2px solid #dee2e6; text-align: left; font-weight: 600;"
-                                    +"Email" 
+                                th {
+                                    attributes["style"] =
+                                        "padding: 0.75rem; border-bottom: 2px solid #dee2e6; text-align: left; font-weight: 600;"
+                                    +"Email"
                                 }
-                                th { 
-                                    attributes["style"] = "padding: 0.75rem; border-bottom: 2px solid #dee2e6; text-align: left; font-weight: 600;"
-                                    +"Role" 
+                                th {
+                                    attributes["style"] =
+                                        "padding: 0.75rem; border-bottom: 2px solid #dee2e6; text-align: left; font-weight: 600;"
+                                    +"Role"
                                 }
-                                th { 
-                                    attributes["style"] = "padding: 0.75rem; border-bottom: 2px solid #dee2e6; text-align: left; font-weight: 600;"
-                                    +"Status" 
+                                th {
+                                    attributes["style"] =
+                                        "padding: 0.75rem; border-bottom: 2px solid #dee2e6; text-align: left; font-weight: 600;"
+                                    +"Status"
                                 }
-                                th { 
-                                    attributes["style"] = "padding: 0.75rem; border-bottom: 2px solid #dee2e6; text-align: center; font-weight: 600;"
-                                    +"Actions" 
+                                th {
+                                    attributes["style"] =
+                                        "padding: 0.75rem; border-bottom: 2px solid #dee2e6; text-align: center; font-weight: 600;"
+                                    +"Actions"
                                 }
                             }
                         }
-                        
+
                         // Table body
                         tbody {
                             users.forEach { user ->
@@ -157,26 +150,27 @@ fun UserListPage(users: List<User>) {
                                     attributes["class"] = "user-row"
                                     attributes["data-name"] = user.name.lowercase()
                                     attributes["data-email"] = user.email.lowercase()
-                                    
-                                    td { 
+
+                                    td {
                                         attributes["style"] = "padding: 0.75rem; border-bottom: 1px solid #dee2e6;"
-                                        +user.id 
+                                        +user.id
                                     }
-                                    td { 
-                                        attributes["style"] = "padding: 0.75rem; border-bottom: 1px solid #dee2e6; font-weight: 500;"
-                                        +user.name 
+                                    td {
+                                        attributes["style"] =
+                                            "padding: 0.75rem; border-bottom: 1px solid #dee2e6; font-weight: 500;"
+                                        +user.name
                                     }
-                                    td { 
+                                    td {
                                         attributes["style"] = "padding: 0.75rem; border-bottom: 1px solid #dee2e6;"
-                                        +user.email 
+                                        +user.email
                                     }
-                                    td { 
+                                    td {
                                         attributes["style"] = "padding: 0.75rem; border-bottom: 1px solid #dee2e6;"
-                                        +user.role 
+                                        +user.role
                                     }
-                                    td { 
+                                    td {
                                         attributes["style"] = "padding: 0.75rem; border-bottom: 1px solid #dee2e6;"
-                                        
+
                                         Box(
                                             modifier = Modifier()
                                                 .style("display", "inline-flex")
@@ -190,7 +184,7 @@ fun UserListPage(users: List<User>) {
                                                     .style("border-radius", "50%")
                                                     .backgroundColor(if (user.active) "#10b981" else "#ef4444")
                                             ) {}
-                                            
+
                                             Text(
                                                 text = if (user.active) "Active" else "Inactive",
                                                 modifier = Modifier()
@@ -198,9 +192,10 @@ fun UserListPage(users: List<User>) {
                                             )
                                         }
                                     }
-                                    td { 
-                                        attributes["style"] = "padding: 0.75rem; border-bottom: 1px solid #dee2e6; text-align: center;"
-                                        
+                                    td {
+                                        attributes["style"] =
+                                            "padding: 0.75rem; border-bottom: 1px solid #dee2e6; text-align: center;"
+
                                         Row(
                                             modifier = Modifier()
                                                 .style("justify-content", "center")
@@ -218,7 +213,7 @@ fun UserListPage(users: List<User>) {
                                                     .attribute("hx-target", "#page-content")
                                                     .attribute("hx-swap", "innerHTML")
                                             )
-                                            
+
                                             // Delete button
                                             Button(
                                                 onClick = { /* No action needed */ },
@@ -230,17 +225,20 @@ fun UserListPage(users: List<User>) {
                                                     .attribute("hx-delete", "/api/users/${user.id}")
                                                     .attribute("hx-target", "#page-content")
                                                     .attribute("hx-swap", "innerHTML")
-                                                    .attribute("hx-confirm", "Are you sure you want to delete this user?")
+                                                    .attribute(
+                                                        "hx-confirm",
+                                                        "Are you sure you want to delete this user?"
+                                                    )
                                             )
                                         }
                                     }
                                 }
                             }
-                            
+
                             // Empty state if no users
                             if (users.isEmpty()) {
                                 tr {
-                                    td { 
+                                    td {
                                         attributes["colspan"] = "6"
                                         attributes["style"] = "padding: 2rem; text-align: center; color: #6c757d;"
                                         +"No users found. Click 'Add New User' to create one."
@@ -252,7 +250,7 @@ fun UserListPage(users: List<User>) {
                 }
             }
         }
-        
+
         // Add search functionality script
         val consumer = currentConsumer()
         consumer.script {

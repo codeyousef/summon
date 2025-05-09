@@ -55,7 +55,7 @@ fun UsersPage(users: List<User>) {
                         label = "Add New User",
                         modifier = Modifier()
                             .paddingVH(vertical = "8px", horizontal = "16px")
-                            .border("none")
+                            .border(style = BorderStyle.None, width = "0px")
                             .borderRadius("4px")
                             .backgroundColor("#28a745")
                             .color("#fff")
@@ -71,7 +71,7 @@ fun UsersPage(users: List<User>) {
                     modifier = Modifier()
                         .fillMaxWidth()
                         .style("overflow", "auto")
-                        .border("1px solid #dee2e6")
+                        .border(1, style = BorderStyle.Solid, color = "#dee2e6")
                         .borderRadius("4px")
                 ) {
                     // Table header
@@ -80,7 +80,7 @@ fun UsersPage(users: List<User>) {
                             .fillMaxWidth()
                             .backgroundColor("#f8f9fa")
                             .padding("12px")
-                            .borderBottom("1px solid #dee2e6")
+                            .border(1, style = BorderStyle.Solid, color = "#dee2e6")
                             .fontWeight("bold")
                     ) {
                         Box(modifier = Modifier().width("5%").textAlign("center")) {
@@ -125,7 +125,7 @@ fun UsersPage(users: List<User>) {
                                     modifier = Modifier()
                                         .fillMaxWidth()
                                         .padding("12px")
-                                        .borderBottom("1px solid #dee2e6")
+                                        .border(1, style = BorderStyle.Solid, color = "#dee2e6")
                                         .backgroundColor("#ffffff")
                                         .hover(
                                             backgroundColor = "#f8f9fa"
@@ -198,7 +198,7 @@ fun UsersPage(users: List<User>) {
                                                 label = "Edit",
                                                 modifier = Modifier()
                                                     .paddingVH(vertical = "4px", horizontal = "8px")
-                                                    .border("none")
+                                                    .border(style = BorderStyle.None, width = "0px")
                                                     .borderRadius("4px")
                                                     .backgroundColor("#007bff")
                                                     .color("#fff")
@@ -214,7 +214,7 @@ fun UsersPage(users: List<User>) {
                                                 label = if (user.active) "Deactivate" else "Activate",
                                                 modifier = Modifier()
                                                     .paddingVH(vertical = "4px", horizontal = "8px")
-                                                    .border("none")
+                                                    .border(style = BorderStyle.None, width = "0px")
                                                     .borderRadius("4px")
                                                     .backgroundColor(
                                                         if (user.active) "#dc3545" else "#28a745"
