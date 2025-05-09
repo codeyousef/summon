@@ -84,8 +84,11 @@ npm-debug.log
 /testing_results.md
 /testing_summary.md
 /testing_update.md
-/docs/examples/js/js-example/kotlin-js-store/yarn.lock
-/docs/examples/js/js-example/js-troubleshooting.md
-/docs/examples/js/js-example/js-test-results.md
-/docs/examples/js/js-example/js-test-summary.md
+/docs/private
+/.windsurfrules
 /src/jsMain/resources/initialize-summon.js
+/docs/examples/js/js-example/debug-findings.md
+/docs/examples/js/js-example/modifier-extensions-analysis.md
+/docs/examples/js/js-example/modifier-flow-analysis.md
+/docs/examples/js/js-example/stylesheet-analysis.md
+/docs/examples/js/js-example/kotlin-js-store/yarn.lock

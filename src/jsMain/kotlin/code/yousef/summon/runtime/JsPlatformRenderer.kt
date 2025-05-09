@@ -10,7 +10,7 @@ import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.js.console
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.style.toSummonClass
-import code.yousef.summon.toStyleStringCamelCase
+import code.yousef.summon.toStyleString
 import kotlinx.browser.document
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
@@ -118,7 +118,7 @@ class JsPlatformRenderer : PlatformRenderer {
         if (filteredStyles.isNotEmpty()) {
             val filteredModifier = Modifier().withStyles(filteredStyles)
 
-            val styleString = filteredModifier.toStyleStringCamelCase()
+            val styleString = filteredModifier.toStyleString()
 
 
             if (styleString.isNotEmpty()) {

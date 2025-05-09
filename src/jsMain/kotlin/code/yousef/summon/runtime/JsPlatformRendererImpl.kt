@@ -8,6 +8,7 @@ import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.input.FileInfo
 import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.toStyleString
 import code.yousef.summon.toStyleStringCamelCase
 import kotlinx.browser.document
 import kotlinx.datetime.LocalDate
@@ -83,8 +84,8 @@ class JsPlatformRendererImpl : PlatformRenderer {
     }
 
     private fun applyModifier(element: Element, modifier: Modifier) {
-        // Apply styles using the toStyleStringCamelCase method from Modifier
-        val styleString = modifier.toStyleStringCamelCase()
+        // Apply styles using the toStyleString method which converts camelCase properties to kebab-case
+        val styleString = modifier.toStyleString()
         if (js("styleString.length > 0") as Boolean) {
             element.setAttribute("style", styleString)
         }

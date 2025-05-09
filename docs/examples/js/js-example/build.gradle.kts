@@ -1,5 +1,6 @@
 import org.gradle.api.file.DuplicatesStrategy
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalDistributionDsl
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
     kotlin("multiplatform") version "2.2.0-Beta1"
@@ -25,7 +26,7 @@ kotlin {
             }
             runTask {
                 mainOutputFileName = "js-example.js"
-                devServerProperty = devServer.copy(
+                devServerProperty = KotlinWebpackConfig.DevServer(
                     port = 8082,
                     static = mutableListOf("${layout.buildDirectory.get().asFile}/processedResources/js/main")
                 )
@@ -43,7 +44,7 @@ kotlin {
         val jsMain by getting {
             dependencies {
                 // Depend on the Summon library
-                implementation("code.yousef:summon-js:0.2.5.0")
+                implementation("code.yousef:summon-js:0.2.5.1")
 
                 // Standard JS dependencies
                 implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.12.0")

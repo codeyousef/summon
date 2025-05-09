@@ -1,412 +1,287 @@
 package code.yousef.summon.examples.js
 
-import code.yousef.summon.core.RenderUtils
-import code.yousef.summon.core.RenderUtilsJs
-import code.yousef.summon.examples.js.core.initializeCustomRenderUtils
-import code.yousef.summon.i18n.I18nConfig
-import code.yousef.summon.i18n.JsI18nImplementation
-import code.yousef.summon.i18n.LayoutDirection
-import code.yousef.summon.examples.js.theme.ThemeManager
-import code.yousef.summon.init.InitSummon
-import code.yousef.summon.init.InitSummonContext
-import code.yousef.summon.js.console
-import code.yousef.summon.modifier.initializeModifierJs
-import code.yousef.summon.initializeModifierJsModule
-import code.yousef.summon.style.SummonStyleSheet
-import code.yousef.summon.setupHoverEffects
-import code.yousef.summon.applyClassesToElements
+import code.yousef.summon.annotation.Composable
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.components.input.Button
+import code.yousef.summon.components.layout.Box
+import code.yousef.summon.components.layout.Column
+import code.yousef.summon.components.layout.Row
+import code.yousef.summon.extensions.minHeight
+import code.yousef.summon.extensions.px
+import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.StylingModifierExtras.transform
+import code.yousef.summon.modifier.StylingModifiers.boxShadow
+import code.yousef.summon.modifier.StylingModifiers.fontWeight
+import code.yousef.summon.modifier.StylingModifiers.lineHeight
+import code.yousef.summon.modifier.StylingModifiers.transition
+import code.yousef.summon.modifier.alignItems
+import code.yousef.summon.modifier.backgroundImage
+import code.yousef.summon.modifier.backgroundSize
+import code.yousef.summon.modifier.flexWrap
+import code.yousef.summon.modifier.fontFamily
+import code.yousef.summon.modifier.gap
+import code.yousef.summon.modifier.hover
+import code.yousef.summon.modifier.justifyContent
+import code.yousef.summon.modifier.letterSpacing
+import code.yousef.summon.modifier.padding
+import code.yousef.summon.modifier.position
+import code.yousef.summon.modifier.top
+import code.yousef.summon.routing.seo.Header
+import code.yousef.summon.routing.seo.Main
+import code.yousef.summon.routing.seo.Nav
+import code.yousef.summon.runtime.JsPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
+import code.yousef.summon.runtime.setPlatformRenderer
 import kotlinx.browser.document
-import kotlinx.browser.window
-import org.w3c.dom.HTMLElement
-import org.w3c.dom.events.Event
+import kotlinx.html.org.w3c.dom.events.Event
+import web.html.HTMLElement
 
 /**
- * Entry point for the Summon JavaScript example application.
- * This sets up the application, configures internationalization,
- * and renders the main App component.
- * 
- * This implementation follows the Kobweb-inspired approach.
+ * Enum class to represent different showcase sections
  */
+enum class ShowcaseSection {
+    CORE_COMPONENTS,
+    LAYOUT_COMPONENTS,
+    FEEDBACK_COMPONENTS,
+    CUSTOM_COMPONENTS
+}
+
+/**
+ * Main application content
+ */
+@Composable
+fun SummonShowcase() {
+    // Track the active section (in a real app would use state)
+    var activeSection = ShowcaseSection.CORE_COMPONENTS
+
+    // Create the page structure with modernized styling
+    Column(
+        modifier = Modifier()
+            .fontFamily(
+                "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif",
+                null
+            )
+    ) {
+        // Header with navigation - modern gradient background
+        Header(
+            modifier = Modifier()
+                .padding(20.px)
+                .boxShadow("0 4px 12px rgba(0, 0, 0, 0.08)")
+                .backgroundColor("#ffffff")
+                .border(2.px, "solid", "#f0f0f0")
+                .position("sticky")
+                .top(0.px)
+                .zIndex(100)
+        ) {
+            Row(
+                modifier = Modifier()
+                    .padding(8.px)
+                    .gap(24.px)
+                    .alignItems("center")
+                    .justifyContent("space-between")
+                    .maxWidth(1200.px)
+                    .margin("0 auto")
+                    .width("100%")
+            ) {
+                // App title with gradient text effect
+                Text(
+                    text = "Summon JS Showcase",
+                    modifier = Modifier()
+                        .fontSize(28.px)
+                        .fontWeight(800)
+                        .background("linear-gradient(45deg, #4568dc, #b06ab3)")
+                        .letterSpacing("0.5px", null)
+                )
+
+                // Navigation with modern styling
+                Nav(
+                    modifier = Modifier()
+                        .padding(8.px)
+                ) {
+                    Row(
+                        modifier = Modifier()
+                            .gap(12.px)
+                            .flexWrap("wrap")
+                            .justifyContent("center")
+                    ) {
+                        NavButton(
+                            text = "Core Components",
+                            isActive = activeSection == ShowcaseSection.CORE_COMPONENTS,
+                            onClick = {
+                                activeSection = ShowcaseSection.CORE_COMPONENTS
+                                scrollToSection("core-components")
+                            }
+                        )
+
+                        NavButton(
+                            text = "Layout Components",
+                            isActive = activeSection == ShowcaseSection.LAYOUT_COMPONENTS,
+                            onClick = {
+                                activeSection = ShowcaseSection.LAYOUT_COMPONENTS
+                                scrollToSection("layout-components")
+                            }
+                        )
+
+                        NavButton(
+                            text = "Feedback Components",
+                            isActive = activeSection == ShowcaseSection.FEEDBACK_COMPONENTS,
+                            onClick = {
+                                activeSection = ShowcaseSection.FEEDBACK_COMPONENTS
+                                scrollToSection("feedback-components")
+                            }
+                        )
+
+                        NavButton(
+                            text = "Custom Components",
+                            isActive = activeSection == ShowcaseSection.CUSTOM_COMPONENTS,
+                            onClick = {
+                                activeSection = ShowcaseSection.CUSTOM_COMPONENTS
+                                scrollToSection("custom-components")
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        // Main content with subtle background pattern
+        Main(
+            modifier = Modifier()
+                .padding(24.px)
+                .backgroundColor("#f8f9fa")
+                .backgroundImage("radial-gradient(#e0e0e0 1px, transparent 1px)")
+                .backgroundSize("20px 20px")
+                .minHeight("calc(100vh - 80px)")
+        ) {
+            Column(
+                modifier = Modifier()
+                    .maxWidth(1200.px)
+                    .margin("0 auto")
+                    .gap(40.px)
+                    .padding(8.px)
+            ) {
+                // Introduction section with modern card styling
+                Box(
+                    modifier = Modifier()
+                        .padding(24.px)
+                        .backgroundColor("#ffffff")
+                        .borderRadius(16.px)
+                        .boxShadow("0 12px 24px rgba(0, 0, 0, 0.06)")
+                        .border(1.px, "solid", "rgba(230, 230, 230, 0.7)")
+                ) {
+                    Column(modifier = Modifier().padding(16.px).gap(20.px)) {
+                        Text(
+                            text = "Welcome to Summon JS Showcase",
+                            modifier = Modifier()
+                                .fontSize(32.px)
+                                .fontWeight(800)
+                                .color("#2d3748")
+                                .lineHeight(1.2)
+                        )
+
+                        Text(
+                            text = "This showcase demonstrates the various components and features available in the Summon library for Kotlin/JS applications. Browse through the examples to see what's possible and how to use each component.",
+                            modifier = Modifier()
+                                .fontSize(16.px)
+                                .lineHeight(1.6)
+                                .color("#4a5568")
+                        )
+                    }
+                }
+
+                // Core Components Section
+                Box(
+                    modifier = Modifier()
+                        .id("core-components")
+                ) {
+                    CoreComponentsShowcase()
+                }
+
+                // Layout Components Section
+                Box(
+                    modifier = Modifier()
+                        .id("layout-components")
+                ) {
+                    LayoutComponentsShowcase()
+                }
+
+                // Feedback Components Section
+                Box(
+                    modifier = Modifier()
+                        .id("feedback-components")
+
+                ) {
+                    FeedbackComponentsShowcase()
+                }
+
+                // Custom Components Section
+                Box(
+                    modifier = Modifier()
+                        .id("custom-components")
+                ) {
+                    CustomComponentsShowcase()
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Navigation button component with enhanced styling and hover effects
+ */
+@Composable
+fun NavButton(text: String, isActive: Boolean, onClick: () -> Unit) {
+    Button(
+        label = text,
+        onClick = onClick,
+        modifier = Modifier()
+            .padding(10.px, 14.px)
+            .borderRadius(8.px)
+            .backgroundColor(if (isActive) "#4568dc" else "transparent")
+            .color(if (isActive) "#ffffff" else "#4a5568")
+            .fontWeight(600)
+            .fontSize(15.px)
+            .boxShadow(if (isActive) "0 4px 8px rgba(69, 104, 220, 0.25)" else "none")
+            .border(1.px, "solid", if (isActive) "#4568dc" else "transparent")
+            .transition("all 0.2s ease")
+            .hover(
+                Modifier()
+                    .backgroundColor(if (isActive) "#4568dc" else "rgba(240, 240, 240, 0.5)")
+                    .boxShadow(if (isActive) "0 6px 12px rgba(69, 104, 220, 0.3)" else "none")
+                    .transform("translateY(-2px)")
+            )
+    )
+}
+
+/**
+ * JavaScript function to scroll to a section by ID
+ */
+fun scrollToSection(elementId: String) {
+    val element = document.getElementById(elementId)
+    element?.scrollIntoView(js("{ behavior: 'smooth', block: 'start' }"))
+}
+
 fun main() {
-    // Check if RenderUtils and protoOf are defined
-    js("""
-    if (typeof RenderUtils === 'undefined') {
-        console.error("RenderUtils is not defined in main, this should have been defined in index.html");
-    }
+    document.addEventListener("DOMContentLoaded", { _: Event ->
+        val rootElement = document.getElementById("root") as? HTMLElement
+            ?: document.createElement("div").apply {
+                id = "root"
+                document.body?.appendChild(this)
+            } as HTMLElement
 
-    if (typeof protoOf === 'undefined') {
-        console.error("protoOf is not defined in main, this should have been defined in index.html");
-    }
-    """)
+        // Clear the root element
+        rootElement.innerHTML = ""
 
-    // Initialize JavaScript-specific implementations
-    RenderUtilsJs.initialize()
+        // Configure the renderer
+        val renderer = JsPlatformRenderer()
+        setPlatformRenderer(renderer)
 
-    // Initialize custom renderComposable implementation
-    initializeCustomRenderUtils()
+        // Provide the renderer in the composition
+        val rendererProvider = LocalPlatformRenderer.provides(renderer)
 
-    // Initialize ModifierJs to expose it to JavaScript
-    initializeModifierJs()
-
-    // Initialize SummonStyleSheet before rendering
-    try {
-        // First, try to initialize SummonStyleSheet directly from Kotlin
-        try {
-            console.log("[DEBUG] Initializing SummonStyleSheet directly from Kotlin")
-            SummonStyleSheet.initialize()
-            console.log("[DEBUG] SummonStyleSheet initialized successfully from Kotlin")
-        } catch (e: Throwable) {
-            console.error("[DEBUG] Error initializing SummonStyleSheet from Kotlin: ${e.message}")
-
-            // Fallback to JavaScript initialization
-            js("""
-                // Initialize SummonStyleSheet directly
-                if (typeof code !== 'undefined' && 
-                    typeof code.yousef !== 'undefined' && 
-                    typeof code.yousef.summon !== 'undefined' && 
-                    typeof code.yousef.summon.style !== 'undefined' && 
-                    typeof code.yousef.summon.style.SummonStyleSheet !== 'undefined') {
-                    console.log("[DEBUG] Initializing SummonStyleSheet directly from JS");
-                    code.yousef.summon.style.SummonStyleSheet.initialize();
-                    console.log("[DEBUG] SummonStyleSheet initialized successfully from JS");
-                } else {
-                    console.error("[DEBUG] SummonStyleSheet not found");
-                }
-            """)
+        // Render the application
+        renderer.renderComposable {
+            SummonShowcase()
         }
-    } catch (e: Throwable) {
-        console.error("[DEBUG] Error initializing SummonStyleSheet: ${e.message}")
-    }
-
-    // Initialize ModifierJs module to expose additional functions
-    initializeModifierJsModule()
-
-    // Add logging to track modifier usage
-//    js("""
-//    // Monkey patch Modifier.toStyleString to add logging
-//    if (typeof code !== 'undefined' &&
-//        typeof code.yousef !== 'undefined' &&
-//        typeof code.yousef.summon !== 'undefined' &&
-//        typeof code.yousef.summon.modifier !== 'undefined' &&
-//        typeof code.yousef.summon.modifier.Modifier !== 'undefined') {
-//
-//        var originalToStyleString = code.yousef.summon.modifier.Modifier.prototype.toStyleString;
-//
-//        code.yousef.summon.modifier.Modifier.prototype.toStyleString = function() {
-//            var result = originalToStyleString.call(this);
-//            console.log("[DEBUG] Modifier.toStyleString called, styles: ", this.styles, " result: ", result);
-//            return result;
-//        };
-//
-//        console.log("[DEBUG] Monkey patched Modifier.toStyleString");
-//    } else {
-//        console.error("[DEBUG] Could not find Modifier class to monkey patch");
-//    }
-//    """)
-
-    // Initialize LocalPlatformRenderer with a JsPlatformRenderer instance
-    try {
-        // Create a JsPlatformRenderer instance
-        val renderer = js("new code.yousef.summon.runtime.JsPlatformRenderer()")
-
-        // Provide it to LocalPlatformRenderer using the Kobweb approach
-        js("""
-            try {
-                if (typeof code.yousef.summon.runtime.LocalPlatformRenderer !== 'undefined' && 
-                    typeof code.yousef.summon.runtime.LocalPlatformRenderer.provides === 'function') {
-                    console.log("[DEBUG] Using LocalPlatformRenderer.provides function");
-                    console.log("[DEBUG] Providing renderer directly");
-                    code.yousef.summon.runtime.LocalPlatformRenderer.provides(renderer);
-                } else {
-                    console.error("[DEBUG] LocalPlatformRenderer or provides function not found");
-                }
-            } catch (e) {
-                console.error("[DEBUG] Error in JS providing renderer: " + e);
-            }
-        """)
-
-        console.log("[DEBUG] LocalPlatformRenderer initialized with JsPlatformRenderer instance")
-    } catch (e: Throwable) {
-        console.error("[DEBUG] Error initializing LocalPlatformRenderer: " + e.message)
-        console.error("[DEBUG] Error stack: " + e.stackTraceToString())
-    }
-
-    // Configure supported languages
-    I18nConfig.configure {
-        language("en", "English")
-        language("ar", "العربية", LayoutDirection.RTL)
-        language("fr", "Français")
-
-        // Set default language
-        setDefault("en")
-    }
-
-    // Initialize i18n system
-    JsI18nImplementation.init()
-
-    // Define the internal function to handle the actual rendering
-    fun renderAppInternal() {
-        try {
-            console.log("[DEBUG] DOM content loaded, attempting to render app")
-
-            // Add logging to track element creation and styling
-            js("""
-            // Monkey patch createElement to add logging
-            var originalCreateElement = document.createElement;
-            document.createElement = function(tagName) {
-                var element = originalCreateElement.call(document, tagName);
-                console.log("[DEBUG] Created element: " + tagName);
-
-                // Add a class to track elements created by our code
-                element.classList.add('summon-element');
-
-                // Store the original classList.add method
-                var originalClassListAdd = element.classList.add;
-
-                // Override classList.add to log class additions
-                element.classList.add = function() {
-                    console.log("[DEBUG] Adding classes to " + tagName + " element: ", arguments);
-                    return originalClassListAdd.apply(this, arguments);
-                };
-
-                // Store the original setAttribute method
-                var originalSetAttribute = element.setAttribute;
-
-                // Override setAttribute to log style changes
-                element.setAttribute = function(name, value) {
-                    if (name === 'style') {
-                        console.log("[DEBUG] Setting style attribute on " + tagName + " element: ", value);
-                    } else if (name === 'class') {
-                        console.log("[DEBUG] Setting class attribute on " + tagName + " element: ", value);
-                    }
-                    return originalSetAttribute.call(this, name, value);
-                };
-
-                // Monitor style property changes
-                var originalStyleDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'style');
-                if (originalStyleDescriptor && originalStyleDescriptor.set) {
-                    try {
-                        // Create a proxy for the style object
-                        var originalStyle = element.style;
-                        var styleProxy = new Proxy(originalStyle, {
-                            set: function(target, prop, value) {
-                                console.log("[DEBUG] Setting style property on " + tagName + " element: " + prop + " = " + value);
-                                target[prop] = value;
-                                return true;
-                            }
-                        });
-
-                        // Replace the style object with our proxy
-                        Object.defineProperty(element, 'style', {
-                            get: function() { return styleProxy; },
-                            set: originalStyleDescriptor.set,
-                            enumerable: true,
-                            configurable: true
-                        });
-                    } catch (e) {
-                        console.error("[DEBUG] Error setting up style proxy: ", e);
-                    }
-                }
-
-                return element;
-            };
-            console.log("[DEBUG] Monkey patched document.createElement");
-            """)
-
-            // Get the root element
-            val rootElement = document.getElementById("root")
-            console.log("[DEBUG] Root element found: " + (rootElement != null))
-
-            if (rootElement == null) {
-                console.error("[DEBUG] Root element not found. Make sure there's a div with id 'root' in your HTML.")
-                throw IllegalStateException("Root element not found. Make sure there's a div with id 'root' in your HTML.")
-            }
-
-            // Cast to HTMLElement
-            val htmlElement = rootElement as HTMLElement
-
-            // Clear the root element
-            console.log("[DEBUG] Clearing root element")
-            htmlElement.innerHTML = ""
-
-            // Explicitly render the App component
-            console.log("[DEBUG] Attempting to render App component")
-            try {
-                RenderUtils.renderComposable(htmlElement) {
-                    console.log("[DEBUG] Inside renderComposable block")
-                    App {
-                        console.log("[DEBUG] Inside App component")
-                        // This is where router content would go in a real app
-                    }
-                }
-                console.log("[DEBUG] App rendered successfully")
-
-                // Apply styles after rendering
-                try {
-                    // First, try to initialize SummonStyleSheet directly from Kotlin
-                    try {
-                        console.log("[DEBUG] Initializing SummonStyleSheet before applying styles")
-                        SummonStyleSheet.initialize()
-                        console.log("[DEBUG] SummonStyleSheet initialized successfully before applying styles")
-                    } catch (e: Throwable) {
-                        console.error("[DEBUG] Error initializing SummonStyleSheet before applying styles: ${e.message}")
-                    }
-
-                    // Try to call setupHoverEffects and applyClassesToElements directly from Kotlin
-                    try {
-                        console.log("[DEBUG] Applying styles directly from Kotlin")
-                        setupHoverEffects()
-                        applyClassesToElements()
-                        console.log("[DEBUG] Styles applied successfully from Kotlin")
-                    } catch (e: Throwable) {
-                        console.error("[DEBUG] Error applying styles from Kotlin: ${e.message}")
-
-                        // Fallback to JavaScript
-                        js("""
-                        try {
-                            console.log("[DEBUG] Applying styles after rendering");
-
-                            // First, ensure SummonStyleSheet is initialized
-                            if (typeof code !== 'undefined' && 
-                                typeof code.yousef !== 'undefined' && 
-                                typeof code.yousef.summon !== 'undefined' && 
-                                typeof code.yousef.summon.style !== 'undefined' && 
-                                typeof code.yousef.summon.style.SummonStyleSheet !== 'undefined' &&
-                                typeof code.yousef.summon.style.SummonStyleSheet.initialize === 'function') {
-                                console.log("[DEBUG] Initializing SummonStyleSheet before applying styles");
-                                code.yousef.summon.style.SummonStyleSheet.initialize();
-                                console.log("[DEBUG] SummonStyleSheet initialized successfully");
-                            } else {
-                                console.warn("[DEBUG] SummonStyleSheet not found or initialize method not available");
-                            }
-
-                            // Call our global function to apply styles
-                            if (typeof window.applySummonStyles === 'function') {
-                                console.log("[DEBUG] Calling applySummonStyles");
-                                window.applySummonStyles();
-                            } else {
-                                console.warn("[DEBUG] applySummonStyles function not found");
-                            }
-
-                            // Try to call setupHoverEffects from the global namespace
-                            if (typeof window.setupHoverEffects === 'function') {
-                                console.log("[DEBUG] Calling setupHoverEffects from window");
-                                window.setupHoverEffects();
-                            } else if (typeof code !== 'undefined' && 
-                                typeof code.yousef !== 'undefined' && 
-                                typeof code.yousef.summon !== 'undefined' && 
-                                typeof code.yousef.summon.setupHoverEffects === 'function') {
-                                console.log("[DEBUG] Calling setupHoverEffects from code.yousef.summon");
-                                code.yousef.summon.setupHoverEffects();
-                            } else {
-                                console.warn("[DEBUG] setupHoverEffects function not found in any namespace");
-                            }
-
-                            // Try to call applyClassesToElements from the global namespace
-                            if (typeof window.applyClassesToElements === 'function') {
-                                console.log("[DEBUG] Calling applyClassesToElements from window");
-                                window.applyClassesToElements();
-                            } else if (typeof code !== 'undefined' && 
-                                typeof code.yousef !== 'undefined' && 
-                                typeof code.yousef.summon !== 'undefined' && 
-                                typeof code.yousef.summon.applyClassesToElements === 'function') {
-                                console.log("[DEBUG] Calling applyClassesToElements from code.yousef.summon");
-                                code.yousef.summon.applyClassesToElements();
-                            } else {
-                                console.warn("[DEBUG] applyClassesToElements function not found in any namespace");
-
-                                // Apply basic classes based on tag names as a fallback
-                                console.warn("[DEBUG] Using fallback approach to apply styles");
-                                var elements = document.querySelectorAll('*');
-                                for (var i = 0; i < elements.length; i++) {
-                                    var element = elements[i];
-                                    var tagName = element.tagName.toLowerCase();
-
-                                    if (tagName === 'button' && !element.classList.contains('summon-button')) {
-                                        console.log("[DEBUG] Adding summon-button class to button element");
-                                        element.classList.add('summon-button');
-                                    } 
-                                    else if ((tagName === 'span' || tagName === 'p' || tagName === 'h1' || 
-                                             tagName === 'h2' || tagName === 'h3' || tagName === 'h4') && 
-                                             !element.classList.contains('summon-text')) {
-                                        console.log("[DEBUG] Adding summon-text class to text element");
-                                        element.classList.add('summon-text');
-                                    }
-                                }
-
-                                // Apply layout classes based on computed styles
-                                var divs = document.querySelectorAll('div');
-                                for (var i = 0; i < divs.length; i++) {
-                                    var div = divs[i];
-                                    var style = window.getComputedStyle(div);
-
-                                    if (style.display === 'flex') {
-                                        if (style.flexDirection === 'row' && !div.classList.contains('summon-row')) {
-                                            console.log("[DEBUG] Adding summon-row class to row element");
-                                            div.classList.add('summon-row');
-                                        } else if (style.flexDirection === 'column' && !div.classList.contains('summon-column')) {
-                                            console.log("[DEBUG] Adding summon-column class to column element");
-                                            div.classList.add('summon-column');
-                                        }
-                                    }
-                                }
-                            }
-
-                            console.log("[DEBUG] Style application completed");
-                        } catch (e) {
-                            console.error("[DEBUG] JavaScript error applying styles: " + e);
-                        }
-                        """)
-                    }
-                    console.log("[DEBUG] Style application attempt completed")
-                } catch (e: Throwable) {
-                    console.error("[DEBUG] Kotlin error applying styles: " + e.message)
-                    console.error("[DEBUG] Error stack: " + e.stackTraceToString())
-                }
-            } catch (e: Throwable) {
-                console.error("[DEBUG] Error rendering App: " + e.message)
-                console.error("[DEBUG] Error stack: " + e.stackTraceToString())
-            }
-
-            console.log("[DEBUG] App rendering process completed")
-        } catch (e: Throwable) {
-            console.error("[DEBUG] Uncaught error in renderAppInternal: " + e.message)
-            console.error("[DEBUG] Error stack: " + e.stackTraceToString())
-        }
-    }
-
-    // Function to render the app after resources are loaded
-    fun renderApp() {
-        // Wait for the DOM to be loaded
-        if (document.readyState.toString() == "loading") {
-            document.addEventListener("DOMContentLoaded", { _: Event ->
-                renderAppInternal()
-            })
-        } else {
-            // DOM already loaded, render immediately
-            renderAppInternal()
-        }
-    }
-
-    // Load translations from resources with a callback to render the app
-    JsI18nImplementation.loadLanguageResources("i18n/") {
-        console.log("[DEBUG] Language resources loaded, now rendering the app")
-        renderApp()
-    }
-
-    // Initialize theme system with default theme
-    ThemeManager.initialize(isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches)
+    })
 }
-
-/**
- * Initialize Summon with the router.
- * This is called automatically by the Summon framework.
- */
-@InitSummon
-fun initializeApp(ctx: InitSummonContext) {
-    // Register routes if needed
-    // In this example, we're using a single-page application
-    // so we don't need to register any routes
-}
-
-// The App function is now implemented directly in App.kt and annotated with @App

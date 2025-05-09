@@ -42,6 +42,11 @@ private fun Modifier.getEventHandlers(): Map<String, Any>? {
     return emptyMap()
 }
 
+/**
+ * Convert modifier styles to a camelCase style string for JavaScript.
+ * NOTE: This is only appropriate for DOM object style property access, not for HTML style attributes.
+ * For HTML style attributes, use toStyleString() instead which outputs kebab-case properties.
+ */
 fun Modifier.toStyleStringCamelCase(): String {
     if (this.styles.isEmpty()) {
         return ""
@@ -55,6 +60,34 @@ fun Modifier.toStyleStringCamelCase(): String {
         .joinToString(separator = "; ", postfix = ";")
 }
 
+/**
+ * Convert modifier styles to a valid CSS style string that can be used in HTML style attributes.
+ * This ensures all property names are in kebab-case format as required by browsers.
+ */
+fun Modifier.toStyleString(): String {
+    if (this.styles.isEmpty()) {
+        return ""
+    }
+    
+    // Determine if the key is already in kebab-case or needs conversion from camelCase
+    return this.styles
+        .map { (key, value) -> 
+            val cssPropertyName = if (key.contains('-')) {
+                // Already in kebab-case
+                key
+            } else {
+                // Convert from camelCase to kebab-case
+                key.camelToKebabCase()
+            }
+            "$cssPropertyName: $value"
+        }
+        .joinToString(separator = "; ", postfix = ";")
+}
+
+/**
+ * Converts a kebab-case string to camelCase.
+ * For example: "background-color" becomes "backgroundColor"
+ */
 private fun String.kebabToCamelCase(): String {
     if (!this.contains('-')) {
         // Return as-is if empty or no hyphens (already camelCase or single word)
@@ -74,4 +107,17 @@ private fun String.kebabToCamelCase(): String {
     }
 
     return firstPart + remainingParts
+}
+
+/**
+ * Converts a camelCase string to kebab-case.
+ * For example: "backgroundColor" becomes "background-color"
+ */
+private fun String.camelToKebabCase(): String {
+    if (this.isEmpty()) {
+        return this
+    }
+    
+    // Replace each uppercase letter with a hyphen followed by the lowercase letter
+    return this.replace(Regex("([a-z])([A-Z])"), "$1-$2").lowercase()
 }
