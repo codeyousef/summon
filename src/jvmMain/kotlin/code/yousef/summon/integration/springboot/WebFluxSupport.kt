@@ -1,7 +1,7 @@
 package code.yousef.summon.integration.springboot
 
-import code.yousef.summon.runtime.JvmPlatformRenderer
-import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.setPlatformRenderer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -21,7 +21,7 @@ import kotlin.coroutines.EmptyCoroutineContext
  * - io.projectreactor.kotlin:reactor-kotlin-extensions
  */
 object WebFluxSupport {
-    private val renderer = JvmPlatformRenderer()
+    private val renderer = PlatformRenderer()
     
     /**
      * Renders a Summon composable function to a Flux of HTML chunks.

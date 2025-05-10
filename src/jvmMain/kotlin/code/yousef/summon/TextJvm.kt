@@ -2,6 +2,7 @@ package code.yousef.summon
 
 import code.yousef.summon.modifier.Modifier
 import kotlinx.html.*
+import code.yousef.summon.modifier.toStyleString
 
 /**
  * Data class to hold Text-related properties for JVM rendering
@@ -12,13 +13,6 @@ data class TextJvmExtension(
     val additionalStyles: Map<String, String> = emptyMap(),
     val accessibilityAttributes: Map<String, String> = emptyMap()
 )
-
-/**
- * Extension function to convert Modifier to CSS style string
- */
-fun Modifier.toStyleString(): String {
-    return this.styles.entries.joinToString(";") { (key, value) -> "$key:$value" }
-}
 
 /**
  * JVM implementation for the Text component rendering.

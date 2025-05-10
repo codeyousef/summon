@@ -1,5 +1,6 @@
 package code.yousef.summon.routing
 
+import code.yousef.summon.modifier.EventModifiers.onClick
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.onClick
 import code.yousef.summon.runtime.Composable

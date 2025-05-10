@@ -13,8 +13,10 @@ import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.modifier.padding
 import code.yousef.summon.modifier.alignItems
+import code.yousef.summon.modifier.AlignItems
 import code.yousef.summon.modifier.cursor
 import code.yousef.summon.components.layout.Box
+import code.yousef.summon.modifier.EventModifiers.onClick
 
 /**
  * A composable that displays a radio button, typically used as part of a group
@@ -83,7 +85,7 @@ fun RadioButtonWithLabel(
         .cursor(if (enabled) "pointer" else "default")
         .applyIf(!enabled) { pointerEvents("none") }
         .onClick { if (enabled) onClick() }
-        .alignItems("center") // Apply alignment via modifier
+        .alignItems(AlignItems.Center) // Corrected to AlignItems.Center
 
     Row(modifier = rowModifier) { // Remove verticalAlignment parameter
         RadioButton(
@@ -143,7 +145,7 @@ fun RadioButton(
         modifier = modifier
             .cursor(if (enabled) "pointer" else "default")
             .onClick { if (enabled) onClick() } // Make row clickable
-            .alignItems("center"), // Use modifier for alignment
+            .alignItems(AlignItems.Center), // Corrected to AlignItems.Center
     ) {
         if (labelPosition == LabelPosition.START && renderLabel != null) {
             renderLabel()

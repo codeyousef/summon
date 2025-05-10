@@ -16,7 +16,7 @@ data class BadgeJsExtension(
 
 /**
  * Sets up a JavaScript click handler for the Badge component.
- * This extension function is called from JsPlatformRenderer.
+ * This extension function is called from PlatformRenderer.
  *
  * @param badgeId The ID of the badge element in the DOM
  * @param badgeExt Extension properties containing callbacks

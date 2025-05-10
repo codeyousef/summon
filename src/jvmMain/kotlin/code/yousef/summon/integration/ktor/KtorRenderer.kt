@@ -1,7 +1,7 @@
 package code.yousef.summon.integration.ktor
 
-import code.yousef.summon.runtime.JvmPlatformRenderer
-import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.setPlatformRenderer
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -21,7 +21,7 @@ import kotlinx.html.stream.createHTML
  * - io.ktor:ktor-server-html-builder
  */
 class KtorRenderer {
-    val renderer = JvmPlatformRenderer()
+    val renderer = PlatformRenderer()
 
     /**
      * Renders a Summon composable function to an HTML string.

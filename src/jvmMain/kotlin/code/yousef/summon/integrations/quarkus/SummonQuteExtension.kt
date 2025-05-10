@@ -1,7 +1,5 @@
 package code.yousef.summon.integrations.quarkus
 
-import code.yousef.summon.core.Composable
-import code.yousef.summon.runtime.JvmPlatformRenderer
 import io.quarkus.qute.EngineBuilder
 import io.quarkus.qute.EvalContext
 import io.quarkus.qute.NamespaceResolver

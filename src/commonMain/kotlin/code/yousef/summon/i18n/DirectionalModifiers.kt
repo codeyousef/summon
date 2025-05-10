@@ -1,7 +1,6 @@
 package code.yousef.summon.i18n
 
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.attribute
 import code.yousef.summon.runtime.Composable
 
 /**

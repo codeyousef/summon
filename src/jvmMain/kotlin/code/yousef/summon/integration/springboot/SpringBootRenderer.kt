@@ -1,7 +1,7 @@
 package code.yousef.summon.integration.springboot
 
-import code.yousef.summon.runtime.JvmPlatformRenderer
-import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.setPlatformRenderer
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
@@ -20,7 +20,7 @@ import jakarta.servlet.http.HttpServletResponse
  * - org.springframework.boot:spring-boot-starter-thymeleaf (optional, for template integration)
  */
 class SpringBootRenderer {
-    private val renderer = JvmPlatformRenderer()
+    private val renderer = PlatformRenderer()
 
     /**
      * Renders a Summon composable function to a Spring ResponseEntity.

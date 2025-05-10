@@ -5,6 +5,7 @@ import code.yousef.summon.modifier.onClick
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.components.navigation.Link
+import code.yousef.summon.modifier.EventModifiers.onClick
 import code.yousef.summon.routing.LocalRouter
 
 

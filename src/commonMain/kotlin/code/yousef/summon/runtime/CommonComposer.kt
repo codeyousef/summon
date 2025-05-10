@@ -3,28 +3,6 @@ package code.yousef.summon.runtime
 import code.yousef.summon.annotation.Composable
 
 /**
- * A common interface for all Composer implementations across platforms
- * @deprecated Use [Composer] interface instead
- */
-@Deprecated("Use Composer interface instead", ReplaceWith("Composer"))
-interface ComposeManager {
-    /**
-     * Start composing a composable
-     */
-    fun startCompose()
-    
-    /**
-     * End composing a composable
-     */
-    fun endCompose()
-    
-    /**
-     * Execute a composable within this composer's context
-     */
-    fun <T> compose(composable: @Composable () -> T): T
-}
-
-/**
  * A simple implementation of Composer that can be used on any platform
  */
 class CommonComposer : Composer {
@@ -112,7 +90,7 @@ class CommonComposer : Composer {
 /**
  * Utility object for managing the composition context
  */
-object ComposeManagerContext {
+object ComposerContext {
     // Current composer, using platform-independent storage
     private var currentComposer: Composer? = null
     

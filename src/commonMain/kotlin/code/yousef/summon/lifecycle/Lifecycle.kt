@@ -23,8 +23,8 @@ expect interface LifecycleObserver {
     fun onDestroy()
 }
 
-expect interface LifecycleOwner {
-    val currentState: LifecycleState
+expect class LifecycleOwner {
+    var currentState: LifecycleState
     fun addObserver(observer: LifecycleObserver)
     fun removeObserver(observer: LifecycleObserver)
 }

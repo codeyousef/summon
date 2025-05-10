@@ -13,7 +13,7 @@ data class IconJsExtension(
 
 /**
  * Sets up a JavaScript click handler for the Icon component.
- * This extension function is called from JsPlatformRenderer.
+ * This extension function is called from PlatformRenderer.
  *
  * @param iconId The ID of the icon element in the DOM
  * @param iconExt Extension properties containing callbacks

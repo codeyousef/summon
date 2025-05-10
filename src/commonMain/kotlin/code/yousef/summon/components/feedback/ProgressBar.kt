@@ -1,9 +1,6 @@
 package code.yousef.summon.components.feedback
 
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.background
-import code.yousef.summon.modifier.borderRadius
-import code.yousef.summon.modifier.height
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer

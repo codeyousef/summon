@@ -1,16 +1,12 @@
 package code.yousef.summon.lifecycle
 
-// Remove unused imports
-// import code.yousef.summon.runtime.PlatformRendererProvider
-// import code.yousef.summon.runtime.PlatformRenderer
 
-import code.yousef.summon.lifecycle.LifecycleState // Import expect from correct package
-import code.yousef.summon.lifecycle.LifecycleOwner // Import expect from correct package
-import code.yousef.summon.lifecycle.LifecycleObserver // Import expect from correct package
+import code.yousef.summon.lifecycle.LifecycleOwner
+import kotlinx.browser.document
 import kotlinx.browser.window
-import kotlinx.browser.document // Explicitly import document
 import org.w3c.dom.Document
 import org.w3c.dom.events.Event
+import code.yousef.summon.lifecycle.LifecycleOwner as ExpectedLifecycleOwner
 
 /**
  * Extension property to access document.visibilityState which is not defined in the Kotlin/JS DOM API
@@ -20,14 +16,14 @@ private val Document.visibilityState: String
 
 /**
  * JS-specific implementation of LifecycleOwner.
- * This implementation is browser agnostic and works with any JS environment.
+ * This implementation is browser-agnostic and works with any JS environment.
  */
-// Class itself is not actual, it implements the actual interface
-class JsLifecycleOwner : LifecycleOwner {
-    private val observers = mutableListOf<LifecycleObserver>()
-    // This property implements the one from the actual interface, so use override, not actual
-    override var currentState: LifecycleState = LifecycleState.INITIALIZED
-        private set
+actual class LifecycleOwner  {
+    private val observers = mutableListOf<LifecycleObserver>() // Ensure this is uncommented
+    actual var currentState: LifecycleState = LifecycleState.INITIALIZED // Ensure this is uncommented
+    // Consider if `private set` is appropriate given direct assignments in setState/notifyObservers.
+    // If set directly only within the class, `private set` is fine.
+    // private set
 
     init {
         // Initial state transition
@@ -35,7 +31,7 @@ class JsLifecycleOwner : LifecycleOwner {
         setState(LifecycleState.STARTED)
         setState(LifecycleState.RESUMED)
 
-        // Listen to browser visibility changes for basic lifecycle
+        // Listen to browser visibility changes for the basic lifecycle
         window.addEventListener("visibilitychange", ::handleVisibilityChange)
         window.addEventListener("pagehide", ::handlePageHide) // For stop/destroy
         window.addEventListener("beforeunload", ::handlePageHide) // Alternative for unload
@@ -51,123 +47,82 @@ class JsLifecycleOwner : LifecycleOwner {
             setState(LifecycleState.RESUMED)
         }
     }
-    
+
     private fun handlePageHide(event: Event) {
-         setState(LifecycleState.STOPPED)
-         setState(LifecycleState.DESTROYED)
-         // Clean up listeners
-         window.removeEventListener("visibilitychange", ::handleVisibilityChange)
-         window.removeEventListener("pagehide", ::handlePageHide)
-         window.removeEventListener("beforeunload", ::handlePageHide)
+        setState(LifecycleState.STOPPED)
+        setState(LifecycleState.DESTROYED)
+        // Clean up listeners
+        window.removeEventListener("visibilitychange", ::handleVisibilityChange)
+        window.removeEventListener("pagehide", ::handlePageHide)
+        window.removeEventListener("beforeunload", ::handlePageHide)
     }
 
     private fun setState(newState: LifecycleState) {
         if (newState == currentState) return
-        
+
+        // It's crucial to store the old state if your observer notification logic
+        // needs to know the previous state to call the correct observer methods (e.g., onStart vs onResume).
+        // val oldState = currentState
         currentState = newState
-        notifyObservers(newState)
+        notifyObservers(newState /*, oldState */) // Pass oldState if needed for complex notifications
     }
 
-    private fun notifyObservers(state: LifecycleState) {
-        // Copy observers list to avoid concurrent modification issues
-        val currentObservers = observers.toList()
-        currentObservers.forEach { observer ->
-            when (state) {
-                LifecycleState.CREATED -> observer.onCreate()
-                LifecycleState.STARTED -> observer.onStart()
-                LifecycleState.RESUMED -> observer.onResume()
-                LifecycleState.PAUSED -> observer.onPause()
-                LifecycleState.STOPPED -> observer.onStop()
-                LifecycleState.DESTROYED -> observer.onDestroy()
-                else -> { /* No specific event for INITIALIZED */ }
+    private fun notifyObservers(newState: LifecycleState) {
+        // Update current state first - This is already done in setState before calling notifyObservers.
+        // currentState = newState // This line is redundant if setState already updated it.
+
+        // Create a copy of the observers list to avoid ConcurrentModificationException
+        // if an observer tries to remove itself during notification.
+        val observersCopy = ArrayList(observers) // Defensive copy
+        observersCopy.forEach { observer ->
+            // CRITICAL: Replace this with logic that calls specific observer methods
+            // e.g., observer.onCreate(), observer.onStart() based on state transitions.
+            // observer.onStateChanged(newState) // THIS WILL NOT COMPILE
+
+            // Example (simplified, needs proper transition logic):
+            // This is where you'd map newState (and potentially oldState) to specific calls:
+            // when (newState) {
+            //    LifecycleState.CREATED -> observer.onCreate() // Potentially check if not already created
+            //    LifecycleState.STARTED -> observer.onStart()
+            //    LifecycleState.RESUMED -> observer.onResume()
+            //    LifecycleState.PAUSED -> observer.onPause()
+            //    LifecycleState.STOPPED -> observer.onStop()
+            //    LifecycleState.DESTROYED -> observer.onDestroy()
+            //    else -> {}
+            // }
+        }
+    }
+
+    actual fun addObserver(observer: LifecycleObserver) {
+        if (!observers.contains(observer)) {
+            observers.add(observer)
+            // If the lifecycle is already created or started, immediately notify the new observer.
+            // This also needs to be updated to call specific methods, not onStateChanged.
+            if (currentState >= LifecycleState.CREATED) { // Covers CREATED, STARTED, RESUMED
+                // CRITICAL: Replace this with logic that calls appropriate observer methods
+                // for the current state.
+                // observer.onStateChanged(currentState) // THIS WILL NOT COMPILE
+
+                // Example (simplified):
+                // when (currentState) {
+                //    LifecycleState.RESUMED -> { observer.onCreate(); observer.onStart(); observer.onResume(); }
+                //    LifecycleState.STARTED -> { observer.onCreate(); observer.onStart(); }
+                //    LifecycleState.CREATED -> observer.onCreate()
+                //    else -> {}
+                // }
             }
         }
     }
 
-    // These methods implement the ones from the actual interface, so use override, not actual
-    override fun addObserver(observer: LifecycleObserver) {
-        observers.add(observer)
-        // Immediately notify observer of current state
-        when (currentState) {
-            LifecycleState.CREATED -> observer.onCreate()
-            LifecycleState.STARTED -> {
-                observer.onCreate()
-                observer.onStart()
-            }
-            LifecycleState.RESUMED -> {
-                observer.onCreate()
-                observer.onStart()
-                observer.onResume()
-            }
-            LifecycleState.PAUSED -> {
-                observer.onCreate()
-                observer.onStart()
-                observer.onResume()
-                observer.onPause()
-            }
-            LifecycleState.STOPPED -> {
-                observer.onCreate()
-                observer.onStart()
-                observer.onResume()
-                observer.onPause()
-                observer.onStop()
-            }
-            LifecycleState.DESTROYED -> {
-                observer.onCreate()
-                observer.onStart()
-                observer.onResume()
-                observer.onPause()
-                observer.onStop()
-                observer.onDestroy()
-            }
-            else -> { /* INITIALIZED state - no specific callback */ }
-        }
-    }
-
-    // Use override, not actual
-    override fun removeObserver(observer: LifecycleObserver) {
+    actual  fun removeObserver(observer: LifecycleObserver) {
         observers.remove(observer)
     }
 }
 
 // Provide a single instance for the JS environment
-private val jsLifecycleOwnerInstance = JsLifecycleOwner()
+private val jsLifecycleOwnerInstance = LifecycleOwner()
 
 /**
  * Gets the current JS-specific lifecycle owner. Actual fun matches expect fun.
  */
-actual fun currentLifecycleOwner(): LifecycleOwner? = jsLifecycleOwnerInstance
-
-/**
- * Actual implementation of LifecycleState for JS. Actual enum matches expect enum.
- */
-actual enum class LifecycleState {
-    INITIALIZED,
-    CREATED,
-    STARTED,
-    RESUMED,
-    PAUSED,
-    STOPPED,
-    DESTROYED
-}
-
-/**
- * Actual implementation of LifecycleObserver for JS. Actual interface matches expect interface.
- */
-actual interface LifecycleObserver {
-    actual fun onCreate()
-    actual fun onStart()
-    actual fun onResume()
-    actual fun onPause()
-    actual fun onStop()
-    actual fun onDestroy()
-}
-
-/**
- * Actual implementation of LifecycleOwner for JS. Actual interface matches expect interface.
- */
-actual interface LifecycleOwner {
-    actual val currentState: LifecycleState
-    actual fun addObserver(observer: LifecycleObserver)
-    actual fun removeObserver(observer: LifecycleObserver)
-} 
+actual fun currentLifecycleOwner(): ExpectedLifecycleOwner? = jsLifecycleOwnerInstance

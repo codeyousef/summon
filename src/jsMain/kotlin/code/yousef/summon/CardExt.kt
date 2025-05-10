@@ -13,7 +13,7 @@ data class CardJsExtension(
 
 /**
  * Sets up a JavaScript click handler for the Card component.
- * This extension function is called from JsPlatformRenderer.
+ * This extension function is called from PlatformRenderer.
  *
  * @param cardId The ID of the card element in the DOM
  * @param cardExt Extension properties containing callbacks

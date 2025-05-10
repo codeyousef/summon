@@ -10,7 +10,7 @@ import code.yousef.summon.routing.Router
 import code.yousef.summon.routing.RouteParams
 import code.yousef.summon.routing.createBrowserRouter
 import code.yousef.summon.routing.setupRouterForBrowser
-import code.yousef.summon.runtime.JsPlatformRenderer
+import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import kotlinx.browser.document
 import kotlinx.browser.window
@@ -86,7 +86,7 @@ private fun renderApp(
     router: Router
 ) {
     // Create a platform renderer
-    val renderer = JsPlatformRenderer()
+    val renderer = PlatformRenderer()
 
     // Set the renderer as the platform renderer to be used by composables
     setPlatformRenderer(renderer)

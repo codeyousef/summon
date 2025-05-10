@@ -3,7 +3,7 @@ package code.yousef.summon.ssr
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.getPlatformRenderer
 import code.yousef.summon.runtime.CommonComposer
-import code.yousef.summon.runtime.ComposeManagerContext
+import code.yousef.summon.runtime.ComposerContext
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -352,5 +352,3 @@ object ServerSideRenderUtils {
     */
 
 }
-
-// Removed old SSRServer or related classes that implemented Composable 

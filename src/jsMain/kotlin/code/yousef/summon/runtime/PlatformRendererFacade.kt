@@ -8,15 +8,15 @@ import org.w3c.dom.HTMLElement
 import kotlin.js.JsName
 
 /**
- * JavaScript-friendly facade for JsPlatformRenderer.
+ * JavaScript-friendly facade for PlatformRenderer.
  * This class is exported to JavaScript and only exposes JavaScript-friendly methods.
- * It delegates to JsPlatformRendererImpl for the actual implementation.
+ * It delegates to PlatformRenderer for the actual implementation.
  */
 @OptIn(ExperimentalJsExport::class)
 @JsExport
-class JsPlatformRendererFacade() {
+class PlatformRendererFacade() {
     // The actual implementation that handles all the non-exportable types
-    private val impl = JsPlatformRendererImpl()
+    private val impl = PlatformRenderer()
 
     /**
      * Renders text with the given style string.

@@ -1,7 +1,5 @@
 package code.yousef.summon.integrations.quarkus
 
-import code.yousef.summon.core.Composable
-import code.yousef.summon.runtime.JvmPlatformRenderer
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Produces
 import jakarta.enterprise.inject.spi.InjectionPoint

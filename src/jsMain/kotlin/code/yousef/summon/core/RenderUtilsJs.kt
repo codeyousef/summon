@@ -1,7 +1,7 @@
 package code.yousef.summon.core
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.JsPlatformRenderer
+import code.yousef.summon.runtime.PlatformRenderer
 import kotlinx.browser.document
 import org.w3c.dom.HTMLElement
 import kotlin.collections.ArrayDeque // More idiomatic Kotlin for a stack
@@ -11,7 +11,7 @@ import kotlin.collections.ArrayDeque // More idiomatic Kotlin for a stack
  */
 actual object RenderUtils {
 
-    private val renderer = JsPlatformRenderer()
+    private val renderer = PlatformRenderer()
 
     // --- Internal State Management ---
     // currentParent will now be managed by Kotlin.
@@ -20,12 +20,12 @@ actual object RenderUtils {
     // but for JS (single-threaded event loop), a simple var in the object can work,
     // though care must be taken if there are async operations during rendering.
     // For simplicity here, let's make it internal to RenderUtils.
-    // The JsPlatformRenderer will likely be the one needing access to the current parent.
+    // The PlatformRenderer will likely be the one needing access to the current parent.
 
     // Option 1: Pass currentParent explicitly (cleaner)
-    // Option 2: Make JsPlatformRenderer aware of a stack (more encapsulated)
+    // Option 2: Make PlatformRenderer aware of a stack (more encapsulated)
 
-    // Let's assume JsPlatformRenderer can handle the parent context.
+    // Let's assume PlatformRenderer can handle the parent context.
     // If not, we might need a small internal stack here.
 
     // For the parent stack previously in JS:
@@ -33,8 +33,8 @@ actual object RenderUtils {
     // currentParent needs to be accessible by the composable functions when they create elements.
     // kotlinx.html builders usually take a consumer or append to a specific parent.
     // We need to see how `composable()` actually appends to the DOM.
-    // For now, let's assume JsPlatformRenderer handles this.
-    // If JsPlatformRenderer needs it, it should be passed or be part of its state.
+    // For now, let's assume PlatformRenderer handles this.
+    // If PlatformRenderer needs it, it should be passed or be part of its state.
 
     // Let's reconsider. The `composable()` lambda is opaque here. It's likely that
     // other parts of Summon (like element builders Box, Text, etc.) implicitly
@@ -91,7 +91,7 @@ actual object RenderUtils {
     }
 
     actual fun renderToString(composable: @Composable () -> Unit): String {
-        // This looks fine, assuming JsPlatformRenderer is designed for string rendering.
+        // This looks fine, assuming PlatformRenderer is designed for string rendering.
         // It would internally build up a string representation.
         return renderer.renderComposableRoot(composable)
     }

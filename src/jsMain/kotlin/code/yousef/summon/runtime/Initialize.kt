@@ -29,9 +29,9 @@ private object SummonDomInitializer {
             };
         }
         
-        // Add a JsPlatformRenderer constructor globally
-        window.JsPlatformRenderer = function() {
-            return new code.yousef.summon.runtime.JsPlatformRenderer();
+        // Add a PlatformRenderer constructor globally
+        window.PlatformRenderer = function() {
+            return new code.yousef.summon.runtime.PlatformRenderer();
         };
         """)
     }

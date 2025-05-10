@@ -23,7 +23,7 @@ class TextUtilsTest {
     /**
      * A mock implementation of PlatformRenderer for testing
      */
-    private class MockPlatformRenderer : PlatformRenderer {
+    private class MockPlatformRenderer : PlatformRenderer() {
         var renderTextCalled = false
         var lastText: String? = null
         var lastModifier: Modifier? = null
@@ -88,7 +88,7 @@ class TextUtilsTest {
         override fun renderRow(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
         override fun renderColumn(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
         override fun renderBox(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderImage(src: String, alt: String, modifier: Modifier) {}
+        override fun renderImage(src: String, alt: String?, modifier: Modifier) {}
         override fun renderIcon(
             name: String,
             modifier: Modifier,

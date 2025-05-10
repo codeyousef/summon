@@ -1,7 +1,7 @@
 package code.yousef.summon.integration.ktor
 
-import code.yousef.summon.runtime.JvmPlatformRenderer
-import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.setPlatformRenderer
 import io.ktor.server.application.*
 import io.ktor.http.*
@@ -22,7 +22,7 @@ import kotlinx.html.stream.createHTML
  * - io.ktor:ktor-server-html-builder
  */
 object KtorStreamingSupport {
-    private val renderer = JvmPlatformRenderer()
+    private val renderer = PlatformRenderer()
 
     /**
      * Creates a Flow of HTML chunks for a Summon component.

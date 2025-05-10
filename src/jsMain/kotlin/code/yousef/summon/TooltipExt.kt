@@ -16,7 +16,7 @@ data class TooltipJsExtension(
 
 /**
  * Sets up JavaScript event handlers for the Tooltip component.
- * This function is called from JsPlatformRenderer.
+ * This function is called from PlatformRenderer.
  *
  * @param tooltipId The ID of the tooltip wrapper element in the DOM
  * @param contentId The ID of the tooltip content element in the DOM

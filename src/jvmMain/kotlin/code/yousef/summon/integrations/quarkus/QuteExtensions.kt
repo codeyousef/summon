@@ -1,6 +1,6 @@
 package code.yousef.summon.integrations.quarkus
 
-import code.yousef.summon.runtime.JvmPlatformRenderer
+
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.setPlatformRenderer
 import io.quarkus.qute.TemplateExtension

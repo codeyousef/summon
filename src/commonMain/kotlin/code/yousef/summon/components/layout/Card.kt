@@ -1,6 +1,7 @@
 package code.yousef.summon.components.layout
 
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.modifier.EventModifiers.onClick
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.onClick
 import code.yousef.summon.runtime.LocalPlatformRenderer

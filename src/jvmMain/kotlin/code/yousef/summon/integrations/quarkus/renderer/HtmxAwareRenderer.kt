@@ -1,15 +1,11 @@
 package code.yousef.summon.integrations.quarkus.renderer
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.integrations.quarkus.htmx.HtmxAttributeHandler
 import code.yousef.summon.integrations.quarkus.htmx.htmlAttribute
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.JvmPlatformRenderer
-import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.LocalPlatformRenderer
-import kotlinx.html.FlowContent
-import kotlinx.html.stream.createHTML
 import kotlinx.html.div
+import kotlinx.html.stream.createHTML
 import kotlinx.html.unsafe
 import org.jboss.logging.Logger
 
@@ -24,7 +20,7 @@ class HtmxAwareRenderer {
 
     /**
      * Renders a composable component to a string, handling HTMX attributes and raw HTML content.
-     * 
+     *
      * @param content The composable content to render
      * @return The rendered HTML as a string
      */
@@ -62,7 +58,7 @@ class HtmxAwareRenderer {
      * This method processes the HTML output from the JvmPlatformRenderer and
      * converts style attributes containing HTMX attributes and raw HTML content
      * into proper HTML attributes and content.
-     * 
+     *
      * @param html The HTML to process
      * @return The processed HTML
      */
@@ -80,7 +76,8 @@ class HtmxAwareRenderer {
         // Process __html_attr_ prefixed attributes
         // This pattern looks for __html_attr_id:value;__html_attr_data-component:value;__html_attr___raw_html:content
         logger.debug("HtmxAwareRenderer.processHtml() - Processing __html_attr_ prefixed attributes")
-        val htmlAttrPrefixedRegex = Regex("""style="__html_attr_id:([^;]+);__html_attr_data-component:([^;]+);__html_attr___raw_html:([^"]+)""")
+        val htmlAttrPrefixedRegex =
+            Regex("""style="__html_attr_id:([^;]+);__html_attr_data-component:([^;]+);__html_attr___raw_html:([^"]+)""")
         logger.debug("HtmxAwareRenderer.processHtml() - __html_attr_ prefixed attributes regex pattern: ${htmlAttrPrefixedRegex.pattern}")
         var match = htmlAttrPrefixedRegex.find(processedHtml)
         logger.debug("HtmxAwareRenderer.processHtml() - __html_attr_ prefixed attributes match found: ${match != null}")
@@ -92,9 +89,24 @@ class HtmxAwareRenderer {
             val component = match.groupValues[2]
             val rawHtml = match.groupValues[3]
 
-            logger.debug("HtmxAwareRenderer.processHtml() - Found __html_attr_ prefixed attributes: id=$id, component=$component, rawHtml=${rawHtml.take(50)}...")
+            logger.debug(
+                "HtmxAwareRenderer.processHtml() - Found __html_attr_ prefixed attributes: id=$id, component=$component, rawHtml=${
+                    rawHtml.take(
+                        50
+                    )
+                }..."
+            )
             logger.debug("HtmxAwareRenderer.processHtml() - Full match: $fullMatch")
-            logger.debug("HtmxAwareRenderer.processHtml() - HTML context: ${processedHtml.substring(Math.max(0, match.range.first - 50), Math.min(processedHtml.length, match.range.last + 50))}")
+            logger.debug(
+                "HtmxAwareRenderer.processHtml() - HTML context: ${
+                    processedHtml.substring(
+                        Math.max(
+                            0,
+                            match.range.first - 50
+                        ), Math.min(processedHtml.length, match.range.last + 50)
+                    )
+                }"
+            )
             htmlAttrPrefixedCount++
 
             // Decode the raw HTML content
@@ -110,7 +122,8 @@ class HtmxAwareRenderer {
                 .replace("&#x3D;", "=")
 
             // Replace with proper HTML attributes and raw HTML content
-            processedHtml = processedHtml.replaceFirst(fullMatch, """id="$id" data-component="$component">$decodedHtml""")
+            processedHtml =
+                processedHtml.replaceFirst(fullMatch, """id="$id" data-component="$component">$decodedHtml""")
 
             // Find the next match
             match = htmlAttrPrefixedRegex.find(processedHtml, match.range.first + 1)
@@ -135,7 +148,16 @@ class HtmxAwareRenderer {
 
             logger.debug("HtmxAwareRenderer.processHtml() - Found trailing component attribute: id=$id, component=$component")
             logger.debug("HtmxAwareRenderer.processHtml() - Full match: $fullMatch")
-            logger.debug("HtmxAwareRenderer.processHtml() - HTML context: ${processedHtml.substring(Math.max(0, match.range.first - 50), Math.min(processedHtml.length, match.range.last + 50))}")
+            logger.debug(
+                "HtmxAwareRenderer.processHtml() - HTML context: ${
+                    processedHtml.substring(
+                        Math.max(
+                            0,
+                            match.range.first - 50
+                        ), Math.min(processedHtml.length, match.range.last + 50)
+                    )
+                }"
+            )
             trailingAttrCount++
 
             // Replace with proper HTML attributes, preserving the ending character
@@ -221,7 +243,8 @@ class HtmxAwareRenderer {
 
         // Handle the case where style attribute contains id and data-component attributes
         // This pattern looks for style=" id="value" data-component="value" &lt;div style="&quot;text-align:
-        val styleWithIdAndComponentRegex = Regex("""style="\s*id="([^"]+)"\s*data-component="([^"]+)"\s*&lt;div\s*style="&quot;text-align:""")
+        val styleWithIdAndComponentRegex =
+            Regex("""style="\s*id="([^"]+)"\s*data-component="([^"]+)"\s*&lt;div\s*style="&quot;text-align:""")
         match = styleWithIdAndComponentRegex.find(processedHtml)
 
         while (match != null) {
@@ -230,7 +253,8 @@ class HtmxAwareRenderer {
             val component = match.groupValues[2]
 
             // Replace with proper HTML attributes
-            processedHtml = processedHtml.replaceFirst(fullMatch, """id="$id" data-component="$component" style="text-align:""")
+            processedHtml =
+                processedHtml.replaceFirst(fullMatch, """id="$id" data-component="$component" style="text-align:""")
 
             // Find the next match
             match = styleWithIdAndComponentRegex.find(processedHtml, match.range.first + 1)
@@ -273,7 +297,8 @@ class HtmxAwareRenderer {
         // Handle the case where style attribute is followed by id and data-component attributes and a malformed div tag
         // This pattern looks for style=" id="hero-component-container" data-component="hero" &lt;div style="&quot;text-align:
         logger.debug("HtmxAwareRenderer.processHtml() - Processing style attribute followed by id and data-component attributes and a malformed div tag")
-        val styleFollowedByIdAndComponentAndMalformedDivRegex = Regex("""style="\s*id="([^"]+)"\s*data-component="([^"]+)"\s*&lt;div\s*style="&quot;([^:]+):""")
+        val styleFollowedByIdAndComponentAndMalformedDivRegex =
+            Regex("""style="\s*id="([^"]+)"\s*data-component="([^"]+)"\s*&lt;div\s*style="&quot;([^:]+):""")
         logger.debug("HtmxAwareRenderer.processHtml() - Style followed by id and component and malformed div regex pattern: ${styleFollowedByIdAndComponentAndMalformedDivRegex.pattern}")
         match = styleFollowedByIdAndComponentAndMalformedDivRegex.find(processedHtml)
         logger.debug("HtmxAwareRenderer.processHtml() - Style followed by id and component and malformed div match found: ${match != null}")
@@ -287,11 +312,23 @@ class HtmxAwareRenderer {
 
             logger.debug("HtmxAwareRenderer.processHtml() - Found style attribute followed by id and data-component attributes and a malformed div tag: id=$id, component=$component, styleProperty=$styleProperty")
             logger.debug("HtmxAwareRenderer.processHtml() - Full match: $fullMatch")
-            logger.debug("HtmxAwareRenderer.processHtml() - HTML context: ${processedHtml.substring(Math.max(0, match.range.first - 50), Math.min(processedHtml.length, match.range.last + 50))}")
+            logger.debug(
+                "HtmxAwareRenderer.processHtml() - HTML context: ${
+                    processedHtml.substring(
+                        Math.max(
+                            0,
+                            match.range.first - 50
+                        ), Math.min(processedHtml.length, match.range.last + 50)
+                    )
+                }"
+            )
             styleFollowedByIdAndComponentAndMalformedDivCount++
 
             // Replace with proper HTML attributes and fix the malformed div tag
-            processedHtml = processedHtml.replaceFirst(fullMatch, """id="$id" data-component="$component"><div style="$styleProperty:""")
+            processedHtml = processedHtml.replaceFirst(
+                fullMatch,
+                """id="$id" data-component="$component"><div style="$styleProperty:"""
+            )
 
             // Find the next match
             match = styleFollowedByIdAndComponentAndMalformedDivRegex.find(processedHtml, match.range.first + 1)
@@ -302,7 +339,8 @@ class HtmxAwareRenderer {
         // Handle the case where id and data-component attributes are followed by a malformed div tag with escaped HTML entities
         // This pattern looks for id="hero-component-container" data-component="hero" &lt;div style="&quot;text-align:"
         logger.debug("HtmxAwareRenderer.processHtml() - Processing id and data-component attributes followed by malformed div tag")
-        val idComponentFollowedByMalformedDivRegex = Regex("""id="([^"]+)"\s*data-component="([^"]+)"\s*&lt;div\s*style="&quot;([^:]+):""")
+        val idComponentFollowedByMalformedDivRegex =
+            Regex("""id="([^"]+)"\s*data-component="([^"]+)"\s*&lt;div\s*style="&quot;([^:]+):""")
         logger.debug("HtmxAwareRenderer.processHtml() - Id and component followed by malformed div regex pattern: ${idComponentFollowedByMalformedDivRegex.pattern}")
         match = idComponentFollowedByMalformedDivRegex.find(processedHtml)
         logger.debug("HtmxAwareRenderer.processHtml() - Id and component followed by malformed div match found: ${match != null}")
@@ -316,11 +354,23 @@ class HtmxAwareRenderer {
 
             logger.debug("HtmxAwareRenderer.processHtml() - Found malformed div tag: id=$id, component=$component, styleProperty=$styleProperty")
             logger.debug("HtmxAwareRenderer.processHtml() - Full match: $fullMatch")
-            logger.debug("HtmxAwareRenderer.processHtml() - HTML context: ${processedHtml.substring(Math.max(0, match.range.first - 50), Math.min(processedHtml.length, match.range.last + 50))}")
+            logger.debug(
+                "HtmxAwareRenderer.processHtml() - HTML context: ${
+                    processedHtml.substring(
+                        Math.max(
+                            0,
+                            match.range.first - 50
+                        ), Math.min(processedHtml.length, match.range.last + 50)
+                    )
+                }"
+            )
             malformedDivCount++
 
             // Replace with proper HTML attributes and fix the malformed div tag
-            processedHtml = processedHtml.replaceFirst(fullMatch, """id="$id" data-component="$component"><div style="$styleProperty:""")
+            processedHtml = processedHtml.replaceFirst(
+                fullMatch,
+                """id="$id" data-component="$component"><div style="$styleProperty:"""
+            )
 
             // Find the next match
             match = idComponentFollowedByMalformedDivRegex.find(processedHtml, match.range.first + 1)
@@ -331,7 +381,8 @@ class HtmxAwareRenderer {
         // Handle the case where id and data-component attributes are followed by a malformed div tag with class attribute
         // This pattern looks for id="counter-component-container" data-component="counter" &lt;div class=&quot;card&quot;
         logger.debug("HtmxAwareRenderer.processHtml() - Processing id and data-component attributes followed by malformed div tag with class attribute")
-        val idComponentFollowedByMalformedDivWithClassRegex = Regex("""id="([^"]+)"\s*data-component="([^"]+)"\s*&lt;div\s*class=&quot;([^&]+)&quot;\s*style="&quot;""")
+        val idComponentFollowedByMalformedDivWithClassRegex =
+            Regex("""id="([^"]+)"\s*data-component="([^"]+)"\s*&lt;div\s*class=&quot;([^&]+)&quot;\s*style="&quot;""")
         logger.debug("HtmxAwareRenderer.processHtml() - Id and component followed by malformed div with class regex pattern: ${idComponentFollowedByMalformedDivWithClassRegex.pattern}")
         match = idComponentFollowedByMalformedDivWithClassRegex.find(processedHtml)
         logger.debug("HtmxAwareRenderer.processHtml() - Id and component followed by malformed div with class match found: ${match != null}")
@@ -345,11 +396,23 @@ class HtmxAwareRenderer {
 
             logger.debug("HtmxAwareRenderer.processHtml() - Found malformed div tag with class attribute: id=$id, component=$component, className=$className")
             logger.debug("HtmxAwareRenderer.processHtml() - Full match: $fullMatch")
-            logger.debug("HtmxAwareRenderer.processHtml() - HTML context: ${processedHtml.substring(Math.max(0, match.range.first - 50), Math.min(processedHtml.length, match.range.last + 50))}")
+            logger.debug(
+                "HtmxAwareRenderer.processHtml() - HTML context: ${
+                    processedHtml.substring(
+                        Math.max(
+                            0,
+                            match.range.first - 50
+                        ), Math.min(processedHtml.length, match.range.last + 50)
+                    )
+                }"
+            )
             malformedDivWithClassCount++
 
             // Replace with proper HTML attributes and fix the malformed div tag
-            processedHtml = processedHtml.replaceFirst(fullMatch, """id="$id" data-component="$component"><div class="$className" style="text-align:""")
+            processedHtml = processedHtml.replaceFirst(
+                fullMatch,
+                """id="$id" data-component="$component"><div class="$className" style="text-align:"""
+            )
 
             // Find the next match
             match = idComponentFollowedByMalformedDivWithClassRegex.find(processedHtml, match.range.first + 1)
@@ -371,7 +434,8 @@ class HtmxAwareRenderer {
             val endChar = if (fullMatch.endsWith(">") || fullMatch.endsWith("&gt;")) ">" else ""
 
             // Replace with proper HTML attributes
-            processedHtml = processedHtml.replaceFirst(fullMatch, """ $attr1Name="$attr1Value" $attr2Name="$attr2Value"$endChar""")
+            processedHtml =
+                processedHtml.replaceFirst(fullMatch, """ $attr1Name="$attr1Value" $attr2Name="$attr2Value"$endChar""")
 
             // Find the next match
             match = equalsAttrRegex.find(processedHtml, match.range.first + 1)
@@ -593,8 +657,9 @@ class HtmxAwareRenderer {
             val styleContent = match.groupValues[1]
 
             // Check if this style attribute contains HTMX attributes or __html_attr_ prefixed attributes
-            if (styleContent.contains("hx-") || styleContent.contains("__html_attr_") || 
-                styleContent.contains("div style=") || styleContent.contains("div class=")) {
+            if (styleContent.contains("hx-") || styleContent.contains("__html_attr_") ||
+                styleContent.contains("div style=") || styleContent.contains("div class=")
+            ) {
 
                 // Handle the case where the style attribute contains escaped HTML with HTMX attributes
                 if (styleContent.contains("div style=") || styleContent.contains("div class=")) {
@@ -1043,7 +1108,7 @@ class HtmxAwareRenderer {
 
     /**
      * Renders a template with the given title and content.
-     * 
+     *
      * @param title The page title
      * @param content The HTML content to include in the template
      * @return The rendered HTML as a string
@@ -1218,7 +1283,7 @@ class HtmxAwareRenderer {
 
     /**
      * Creates a composable function that renders raw HTML content.
-     * 
+     *
      * @param html The HTML content to render
      * @param modifier Additional modifiers to apply
      */

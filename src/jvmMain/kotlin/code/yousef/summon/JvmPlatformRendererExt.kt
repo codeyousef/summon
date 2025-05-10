@@ -1,10 +1,7 @@
 package code.yousef.summon
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.JvmPlatformRenderer
-import kotlinx.html.TagConsumer
-import kotlinx.html.html
-import kotlinx.html.stream.createHTML
+import code.yousef.summon.runtime.PlatformRenderer
 
 /**
  * Extension functions for JvmPlatformRenderer.
@@ -16,7 +13,7 @@ import kotlinx.html.stream.createHTML
  * @param content The composable content to render
  * @return HTML string representation of the component
  */
-fun JvmPlatformRenderer.render(content: @Composable () -> Unit): String {
+fun PlatformRenderer.render(content: @Composable () -> Unit): String {
     return renderComposableRoot(content)
 }
 

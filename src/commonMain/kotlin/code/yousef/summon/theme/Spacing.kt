@@ -2,12 +2,7 @@ package code.yousef.summon.theme
 
 import code.yousef.summon.components.layout.Spacer
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.height
-import code.yousef.summon.modifier.margin
-import code.yousef.summon.modifier.padding
-import code.yousef.summon.modifier.width
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer
 
 
@@ -145,7 +140,7 @@ object Spacing {
     @code.yousef.summon.runtime.Composable
     fun Space(size: Int, vertical: Boolean = true): Unit {
         val renderer = LocalPlatformRenderer.current
-        
+
         // Create appropriate modifier based on direction
         val sizeValue = "${size}px"
         val modifier = if (vertical) {
@@ -153,7 +148,7 @@ object Spacing {
         } else {
             Modifier().width(sizeValue)
         }
-        
+
         // Render the spacer with the modifier
         renderer.renderSpacer(modifier)
     }

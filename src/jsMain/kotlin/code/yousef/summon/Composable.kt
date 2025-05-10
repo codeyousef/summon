@@ -1,7 +1,7 @@
 package code.yousef.summon
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.JsPlatformRenderer
+import code.yousef.summon.runtime.PlatformRenderer
 import org.w3c.dom.HTMLElement
 
 /**
@@ -14,7 +14,7 @@ import org.w3c.dom.HTMLElement
  * @param composable The composable to render
  * @param container The DOM element to render into
  */
-fun renderComposable(renderer: JsPlatformRenderer, composable: @Composable () -> Unit, container: HTMLElement) {
+fun renderComposable(renderer: PlatformRenderer, composable: @Composable () -> Unit, container: HTMLElement) {
     // Clear the container first to avoid appending to existing content
     container.innerHTML = ""
 

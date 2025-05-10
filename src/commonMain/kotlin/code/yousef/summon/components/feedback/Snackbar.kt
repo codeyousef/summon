@@ -3,15 +3,17 @@ package code.yousef.summon.components.feedback
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.IconDefaults
 import code.yousef.summon.components.display.Text
+import code.yousef.summon.components.layout.Box
 import code.yousef.summon.components.layout.Row
+import code.yousef.summon.modifier.AlignItems
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.alignItems
+import code.yousef.summon.modifier.flexGrow
+import code.yousef.summon.modifier.padding
 import code.yousef.summon.runtime.*
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.delay
-import code.yousef.summon.components.layout.Box
-import code.yousef.summon.modifier.alignItems
-import code.yousef.summon.modifier.flex
+
 
 /**
  * Variants for Snackbar components.
@@ -111,10 +113,10 @@ fun Snackbar(
     if (duration.isFinite()) {
         LaunchedEffect(Unit) {
             val durationMs = duration.inWholeMilliseconds
-            
+
             // Using a basic delay to simulate a timer
             kotlinx.coroutines.delay(durationMs)
-            
+
             // After duration, set visible to false and call onDismiss
             if (visible.value) {
                 visible.value = false
@@ -176,7 +178,7 @@ fun Snackbar(
     val renderer = LocalPlatformRenderer.current
     renderer.renderBox(modifier = finalModifier) { // Pass the internal Row layout as the lambda
         // Internal structure
-        Row(modifier = Modifier().padding("8px").alignItems("center")) { // Add padding and vertical alignment
+        Row(modifier = Modifier().padding("8px").alignItems(AlignItems.Center)) { // Add padding and vertical alignment
             // Icon
             if (displayIcon != null) {
                 Box(Modifier().padding("0px 8px 0px 0px")) { // Fix padding syntax
@@ -185,8 +187,8 @@ fun Snackbar(
             }
 
             // Message Text
-            Box(Modifier().flex("1")) { // Allow message to take remaining space. Use String for flex value.
-                 Text(message)
+            Box(Modifier().flexGrow(1)) { // Allow message to take remaining space. Use flexGrow.
+                Text(message)
             }
 
             // Action button

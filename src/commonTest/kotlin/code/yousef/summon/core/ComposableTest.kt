@@ -2,10 +2,12 @@ package code.yousef.summon.core
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.CommonComposer
-import code.yousef.summon.runtime.ComposeManagerContext
+import code.yousef.summon.runtime.ComposerContext
+import code.yousef.summon.runtime.Composer
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * Tests for the @Composable annotation functionality
@@ -97,9 +99,9 @@ class ComposableTest {
 
     @Test
     fun testComposableWithComposeManagerContext() {
-        // Get the current composer from the context
-        val currentComposer = ComposeManagerContext.current
-        assertNotNull(currentComposer, "Default composer should not be null")
+        // This test relies on the global ComposerContext
+        val currentComposer = ComposerContext.current
+        assertTrue(currentComposer is CommonComposer, "Default composer from context should be CommonComposer")
 
         // Define a composable function
         @Composable

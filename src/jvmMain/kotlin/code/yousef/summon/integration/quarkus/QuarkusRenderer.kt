@@ -1,7 +1,7 @@
 package code.yousef.summon.integration.quarkus
 
-import code.yousef.summon.runtime.JvmPlatformRenderer
-import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.setPlatformRenderer
 import io.vertx.core.http.HttpServerResponse
 import io.vertx.ext.web.RoutingContext
@@ -18,7 +18,7 @@ import kotlinx.html.stream.appendHTML
  * - io.quarkus:quarkus-kotlin
  */
 class QuarkusRenderer(private val response: HttpServerResponse) {
-    private val renderer = JvmPlatformRenderer()
+    private val renderer = PlatformRenderer()
 
     /**
      * Renders a Summon composable function to the HTTP response.

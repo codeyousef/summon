@@ -7,12 +7,11 @@ import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.input.ButtonVariant
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.attribute
-import code.yousef.summon.state.mutableStateOf
-import code.yousef.summon.runtime.getPlatformRenderer
 import code.yousef.summon.runtime.LaunchedEffect
+import code.yousef.summon.state.mutableStateOf
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+
 // Import existing declarations
 // PulseEffect comes from CustomAnimations.kt
 // EnterTransition, TweenAnimation and Easing
@@ -56,7 +55,7 @@ fun animatedText(
     // Create text with animation
     val initialAlpha = 0.0
     val targetAlpha = 1.0
-    
+
     // Calculate initial and target positions based on entrance type
     val initialOffset = when (enterTransition) {
         EnterTransition.SLIDE_IN -> Offset(0.0, 50.0)
@@ -64,7 +63,7 @@ fun animatedText(
         EnterTransition.EXPAND_IN -> Offset(0.0, 0.0)
         EnterTransition.ZOOM_IN -> Offset(0.0, 0.0)
     }
-    
+
     // Create the text component with animation
     return TextComponent(
         text = text,
@@ -87,7 +86,7 @@ interface InfiniteAnimation {
         targetValue: Float,
         animation: TweenAnimation
     ): Float
-    
+
     fun animateInt(
         initialValue: Int,
         targetValue: Int,
@@ -142,7 +141,7 @@ fun <T> staggeredAnimation(
     Column(
         modifier = modifier
     ) {
-        items.forEach { item -> 
+        items.forEach { item ->
             itemContent(item)
         }
     }
@@ -185,7 +184,7 @@ fun pulsatingButton(
         PulseEffect.OPACITY -> "pulse-opacity"
         PulseEffect.COLOR -> "pulse-color"
     }
-    
+
     val animatedModifier = modifier
         .attribute("style", "animation: $animationName 1.5s infinite ease-in-out; transform-origin: center;")
         .attribute("class", "$animationName-animation")
@@ -210,7 +209,7 @@ fun animateInText(
     // Create text with animation
     val initialAlpha = 0.0
     val targetAlpha = 1.0
-    
+
     // Calculate initial and target positions based on entrance type
     val initialOffset = when (enterTransition) {
         EnterTransition.SLIDE_IN -> Offset(0.0, 50.0)
@@ -218,7 +217,7 @@ fun animateInText(
         EnterTransition.EXPAND_IN -> Offset(0.0, 0.0)
         EnterTransition.ZOOM_IN -> Offset(0.0, 0.0)
     }
-    
+
     // Create the text component with animation
     return TextComponent(
         text = text,
@@ -248,7 +247,7 @@ fun typingText(
 ) {
     // Initial state for how much of the text to show
     val visibleCharacters = mutableStateOf(0)
-    
+
     // Use LaunchedEffect to animate the typing
     LaunchedEffect(text) {
         // Gradually show characters
@@ -258,7 +257,7 @@ fun typingText(
             // This is a simplified implementation
         }
     }
-    
+
     Text(
         text = text.take(visibleCharacters.value),
         modifier = modifier.attribute("class", "typing-text")
@@ -276,8 +275,11 @@ fun pulseAnimation(
     // Apply pulse animation using CSS class and attributes
     val pulseModifier = Modifier()
         .attribute("class", "general-pulse-animation")
-        .attribute("style", "animation: general-pulse ${duration.inWholeMilliseconds}ms infinite ease-in-out; transform-origin: center;")
-    
+        .attribute(
+            "style",
+            "animation: general-pulse ${duration.inWholeMilliseconds}ms infinite ease-in-out; transform-origin: center;"
+        )
+
     // Wrap the content with Column to apply modifier
     Column(
         modifier = pulseModifier
@@ -298,7 +300,7 @@ fun staggeredAnimation(
     val staggerModifier = Modifier()
         .attribute("class", "staggered-container")
         .attribute("data-stagger-delay", staggerDelay.inWholeMilliseconds.toString())
-    
+
     // Wrap the content in a Column with our stagger modifier
     Column(
         modifier = staggerModifier

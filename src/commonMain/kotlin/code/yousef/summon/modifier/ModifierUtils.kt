@@ -112,6 +112,21 @@ object LayoutModifiers {
      * Sets the overflow property.
      */
     fun Modifier.overflow(value: String): Modifier = style("overflow", value)
+
+    /**
+     * Sets the gap property.
+     */
+    fun Modifier.gap(value: String): Modifier = style("gap", value)
+
+    /**
+     * Sets the justify-content property.
+     */
+    fun Modifier.justifyContent(value: String): Modifier = style("justify-content", value)
+
+    /**
+     * Sets the align-items property.
+     */
+    fun Modifier.alignItems(value: String): Modifier = style("align-items", value)
 }
 
 /**
@@ -209,6 +224,16 @@ object StylingModifiers {
      * Sets the transform property.
      */
     fun Modifier.transform(value: String): Modifier = style("transform", value)
+
+    /**
+     * Sets the opacity property.
+     */
+    fun Modifier.opacity(value: Float): Modifier = style("opacity", value.toString())
+
+    /**
+     * Sets the opacity property.
+     */
+    fun Modifier.opacity(value: String): Modifier = style("opacity", value)
 }
 
 /**
@@ -250,3 +275,42 @@ typealias Layout = LayoutModifiers
 typealias Styling = StylingModifiers
 typealias Events = EventModifiers
 typealias Attributes = AttributeModifiers 
+
+// --- Moved from jsMain/ModifierExtensions.kt ---
+
+/**
+ * Convert modifier styles to a valid CSS style string that can be used in HTML style attributes.
+ * This ensures all property names are in kebab-case format as required by browsers.
+ */
+fun Modifier.toStyleString(): String {
+    if (this.styles.isEmpty()) {
+        return ""
+    }
+    
+    // Determine if the key is already in kebab-case or needs conversion from camelCase
+    return this.styles
+        .map { (key, value) -> 
+            val cssPropertyName = if (key.contains('-')) {
+                // Already in kebab-case
+                key
+            } else {
+                // Convert from camelCase to kebab-case
+                key.camelToKebabCase()
+            }
+            "$cssPropertyName: $value"
+        }
+        .joinToString(separator = "; ", postfix = ";")
+}
+
+/**
+ * Converts a camelCase string to kebab-case.
+ * For example: "backgroundColor" becomes "background-color"
+ */
+private fun String.camelToKebabCase(): String {
+    if (this.isEmpty()) {
+        return this
+    }
+    
+    // Replace each uppercase letter with a hyphen followed by the lowercase letter
+    return this.replace(Regex("([a-z])([A-Z])"), "$1-$2").lowercase()
+}

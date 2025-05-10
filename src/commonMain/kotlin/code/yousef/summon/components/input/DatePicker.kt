@@ -2,17 +2,11 @@ package code.yousef.summon.components.input
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.applyIf
-import code.yousef.summon.modifier.cursor
 import code.yousef.summon.modifier.ModifierExtras.pointerEvents
-import code.yousef.summon.modifier.attribute
+import code.yousef.summon.modifier.applyIf
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.remember
-import code.yousef.summon.state.State
-import code.yousef.summon.runtime.mutableStateOf
 import kotlinx.datetime.LocalDate
-import code.yousef.summon.components.display.Text
 
 /**
  * A composable that allows users to select a date.
@@ -56,8 +50,8 @@ fun DatePicker(
                 if (enabled) {
                     // Only allow dates within the min/max range
                     val isValid = (minDate == null || (newDate != null && newDate >= minDate)) &&
-                                 (maxDate == null || (newDate != null && newDate <= maxDate))
-                    
+                            (maxDate == null || (newDate != null && newDate <= maxDate))
+
                     if (isValid || newDate == null) {
                         onValueChange(newDate)
                     }
@@ -66,7 +60,7 @@ fun DatePicker(
             enabled = enabled,
             min = minDate,
             max = maxDate,
-            modifier = finalModifier.applyIf(label != null) { 
+            modifier = finalModifier.applyIf(label != null) {
                 attribute("data-label", label ?: "")
             }.applyIf(dateFormat.isNotEmpty()) {
                 attribute("data-date-format", dateFormat)

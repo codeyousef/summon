@@ -6,9 +6,8 @@ import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.input.ButtonVariant
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.attribute
-import code.yousef.summon.state.mutableStateOf
 import code.yousef.summon.runtime.LaunchedEffect
+import code.yousef.summon.state.mutableStateOf
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -111,7 +110,10 @@ fun PulseAnimation(
     // Apply pulse animation using CSS class and attributes
     val pulseModifier = Modifier()
         .attribute("class", "pulse-animation")
-        .attribute("style", "animation: pulse ${duration.inWholeMilliseconds}ms infinite ease-in-out; transform-origin: center;")
+        .attribute(
+            "style",
+            "animation: pulse ${duration.inWholeMilliseconds}ms infinite ease-in-out; transform-origin: center;"
+        )
 
     // Wrap the content with Column to apply modifier
     Column(

@@ -4,9 +4,6 @@ package code.yousef.summon.components.navigation
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.StylingModifierExtras.textDecoration
-import code.yousef.summon.modifier.applyIf
-import code.yousef.summon.modifier.attribute
-import code.yousef.summon.modifier.hover
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer
@@ -63,7 +60,7 @@ fun Link(
     composer?.startNode() // Start Link node
     if (composer?.inserting == true) {
         val renderer = LocalPlatformRenderer.current
-        
+
         // Use the enhanced link renderer with accessibility attributes
         renderer.renderEnhancedLink(
             href = href,
@@ -124,10 +121,12 @@ fun ButtonLink(
         .color("white")
         .borderRadius("4px")
         .textDecoration("none")
-        .hover(mapOf(
-            "background-color" to "#45a049",
-            "box-shadow" to "0 2px 4px rgba(0,0,0,0.2)"
-        ))
+        .hover(
+            mapOf(
+                "background-color" to "#45a049",
+                "box-shadow" to "0 2px 4px rgba(0,0,0,0.2)"
+            )
+        )
 ) {
     Link(
         href = href,

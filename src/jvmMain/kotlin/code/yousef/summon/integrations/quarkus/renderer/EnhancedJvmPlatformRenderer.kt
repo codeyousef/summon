@@ -9,7 +9,6 @@ import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.integrations.quarkus.htmx.HtmxAttributeHandler
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.FormContent
-import code.yousef.summon.runtime.JvmPlatformRenderer
 import code.yousef.summon.runtime.PlatformRenderer
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
@@ -19,7 +18,7 @@ import kotlinx.datetime.LocalTime
  * This class implements the PlatformRenderer interface and delegates to JvmPlatformRenderer for most operations,
  * but adds custom handling for HTMX attributes and raw HTML content.
  */
-class EnhancedJvmPlatformRenderer : PlatformRenderer {
+class EnhancedJvmPlatformRenderer : PlatformRenderer() {
     private val delegate = JvmPlatformRenderer()
     
     /**

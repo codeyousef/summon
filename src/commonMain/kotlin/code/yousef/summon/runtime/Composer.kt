@@ -116,8 +116,3 @@ interface Composer {
      */
     fun <T> compose(composable: @Composable () -> T): T
 }
-
-/**
- * Typealias for backward compatibility
- */
-typealias ExtendedComposer = Composer 

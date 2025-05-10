@@ -9,7 +9,7 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 
 /**
- * Tests for the JsPlatformRenderer implementation of renderComposable.
+ * Tests for the PlatformRenderer implementation of renderComposable.
  * These tests verify that renderComposable is properly implemented on the JS platform.
  */
 class JsPlatformRendererTest {
@@ -41,8 +41,8 @@ class JsPlatformRendererTest {
 
         try {
 
-            // Create a JsPlatformRenderer
-            val renderer = JsPlatformRenderer()
+            // Create a PlatformRenderer
+            val renderer = PlatformRenderer()
 
             // This should not throw a NotImplementedError
             try {
@@ -52,10 +52,10 @@ class JsPlatformRendererTest {
                 }
 
                 // If we get here, the test passes because no exception was thrown
-                console.log("[DEBUG_LOG] JsPlatformRenderer.renderComposable did not throw an exception")
+                console.log("[DEBUG_LOG] PlatformRenderer.renderComposable did not throw an exception")
             } catch (e: Throwable) {
                 // If an exception was thrown, the test fails
-                fail("JsPlatformRenderer.renderComposable should not throw an exception, but it threw: ${e.message}")
+                fail("PlatformRenderer.renderComposable should not throw an exception, but it threw: ${e.message}")
             }
 
             // Check if any errors were captured
@@ -64,7 +64,7 @@ class JsPlatformRendererTest {
 
             // Verify that no NotImplementedError was captured
             assertTrue(!errorCaptured || !errorMessage.contains("Platform-specific implementation required"),
-                "JsPlatformRenderer.renderComposable should not produce a NotImplementedError")
+                "PlatformRenderer.renderComposable should not produce a NotImplementedError")
 
             // Log success
             console.log("[DEBUG_LOG] renderComposable NotImplementedError test completed successfully")
@@ -102,29 +102,29 @@ class JsPlatformRendererTest {
                 console.log("[DEBUG_LOG] Initialized currentParent to document.body");
             }
 
-            // Make JsPlatformRenderer available in the global scope
-            window.JsPlatformRenderer = function() {
+            // Make PlatformRenderer available in the global scope
+            window.PlatformRenderer = function() {
                 return {
                     renderComposable: function(composable) {
-                        console.log('Using global JsPlatformRenderer.renderComposable');
+                        console.log('Using global PlatformRenderer.renderComposable');
                         if (typeof composable === 'function') {
                             composable();
                         }
                     },
                     renderComposable_udbimr: function(composable) {
-                        console.log('Using global JsPlatformRenderer.renderComposable_udbimr');
+                        console.log('Using global PlatformRenderer.renderComposable_udbimr');
                         if (typeof composable === 'function') {
                             composable();
                         }
                     },
                     renderComposable_udbimr_k$: function(composable) {
-                        console.log('Using global JsPlatformRenderer.renderComposable_udbimr_k$');
+                        console.log('Using global PlatformRenderer.renderComposable_udbimr_k$');
                         if (typeof composable === 'function') {
                             composable();
                         }
                     },
                     renderComposableRoot: function(composable) {
-                        console.log('Using global JsPlatformRenderer.renderComposableRoot');
+                        console.log('Using global PlatformRenderer.renderComposableRoot');
                         if (typeof composable === 'function') {
                             composable();
                         }
@@ -154,28 +154,28 @@ class JsPlatformRendererTest {
                             }
                         },
                         runtime: {
-                            JsPlatformRenderer: function() {
+                            PlatformRenderer: function() {
                                 return {
                                     renderComposable: function(composable) {
-                                        console.log('Using mock JsPlatformRenderer.renderComposable');
+                                        console.log('Using mock PlatformRenderer.renderComposable');
                                         if (typeof composable === 'function') {
                                             composable();
                                         }
                                     },
                                     renderComposable_udbimr: function(composable) {
-                                        console.log('Using mock JsPlatformRenderer.renderComposable_udbimr');
+                                        console.log('Using mock PlatformRenderer.renderComposable_udbimr');
                                         if (typeof composable === 'function') {
                                             composable();
                                         }
                                     },
                                     renderComposable_udbimr_k$: function(composable) {
-                                        console.log('Using mock JsPlatformRenderer.renderComposable_udbimr_k$');
+                                        console.log('Using mock PlatformRenderer.renderComposable_udbimr_k$');
                                         if (typeof composable === 'function') {
                                             composable();
                                         }
                                     },
                                     renderComposableRoot: function(composable) {
-                                        console.log('Using mock JsPlatformRenderer.renderComposableRoot');
+                                        console.log('Using mock PlatformRenderer.renderComposableRoot');
                                         if (typeof composable === 'function') {
                                             composable();
                                         }

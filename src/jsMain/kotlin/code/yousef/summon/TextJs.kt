@@ -19,7 +19,7 @@ data class TextJsExtension(
 
 /**
  * JS implementation for the Text component rendering.
- * This is used by the JsPlatformRenderer.
+ * This is used by the PlatformRenderer.
  */
 fun <T> renderTextJs(consumer: TagConsumer<T>, textExt: TextJsExtension): TagConsumer<T> {
     consumer.span {

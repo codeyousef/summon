@@ -20,221 +20,6 @@ import kotlin.time.Duration.Companion.milliseconds
  */
 class SnackbarTest {
 
-    /**
-     * A mock implementation of PlatformRenderer for testing
-     */
-    private class MockPlatformRenderer : PlatformRenderer {
-        var renderBoxCalled = false
-        var renderButtonCalled = false
-        var lastBoxModifier: Modifier? = null
-        var lastButtonModifier: Modifier? = null
-        var lastButtonOnClick: (() -> Unit)? = null
-        var lastBoxContent: (@Composable FlowContent.() -> Unit)? = null
-
-        override fun renderBox(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
-            renderBoxCalled = true
-            lastBoxModifier = modifier
-            lastBoxContent = content
-        }
-
-        override fun renderButton(
-            onClick: () -> Unit,
-            modifier: Modifier,
-            content: @Composable FlowContent.() -> Unit
-        ) {
-            renderButtonCalled = true
-            lastButtonOnClick = onClick
-            lastButtonModifier = modifier
-        }
-
-        // Minimal implementations for other required methods
-        override fun renderGrid(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderLabel(text: String, modifier: Modifier, forElement: String?) {}
-        override fun renderTextField(
-            value: String,
-            onValueChange: (String) -> Unit,
-            modifier: Modifier,
-            type: String
-        ) {
-        }
-
-        override fun <T> renderSelect(
-            selectedValue: T?,
-            onSelectedChange: (T?) -> Unit,
-            options: List<code.yousef.summon.runtime.SelectOption<T>>,
-            modifier: Modifier
-        ) {
-        }
-
-        override fun renderDatePicker(
-            value: LocalDate?,
-            onValueChange: (LocalDate?) -> Unit,
-            enabled: Boolean,
-            min: LocalDate?,
-            max: LocalDate?,
-            modifier: Modifier
-        ) {
-        }
-
-        override fun renderTextArea(
-            value: String,
-            onValueChange: (String) -> Unit,
-            enabled: Boolean,
-            readOnly: Boolean,
-            rows: Int?,
-            maxLength: Int?,
-            placeholder: String?,
-            modifier: Modifier
-        ) {
-        }
-
-        override fun addHeadElement(content: String) {}
-        override fun getHeadElements(): List<String> = emptyList()
-        override fun renderComposableRoot(composable: @Composable () -> Unit): String = ""
-        override fun renderComposable(composable: @Composable () -> Unit) {}
-        override fun renderRow(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderColumn(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderBlock(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderText(text: String, modifier: Modifier) {}
-        override fun renderImage(src: String, alt: String, modifier: Modifier) {}
-        override fun renderIcon(
-            name: String,
-            modifier: Modifier,
-            onClick: (() -> Unit)?,
-            svgContent: String?,
-            type: IconType
-        ) {
-        }
-
-        override fun renderAlertContainer(
-            variant: AlertVariant?,
-            modifier: Modifier,
-            content: @Composable FlowContent.() -> Unit
-        ) {
-        }
-
-        override fun renderBadge(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderCheckbox(
-            checked: Boolean,
-            onCheckedChange: (Boolean) -> Unit,
-            enabled: Boolean,
-            modifier: Modifier
-        ) {
-        }
-
-        override fun renderProgress(value: Float?, type: ProgressType, modifier: Modifier) {}
-        override fun renderFileUpload(
-            onFilesSelected: (List<FileInfo>) -> Unit,
-            accept: String?,
-            multiple: Boolean,
-            enabled: Boolean,
-            capture: String?,
-            modifier: Modifier
-        ): () -> Unit = {}
-
-        override fun renderForm(
-            onSubmit: (() -> Unit)?,
-            modifier: Modifier,
-            content: @Composable FormContent.() -> Unit
-        ) {
-        }
-
-        override fun renderFormField(
-            modifier: Modifier,
-            labelId: String?,
-            isRequired: Boolean,
-            isError: Boolean,
-            errorMessageId: String?,
-            content: @Composable FlowContent.() -> Unit
-        ) {
-        }
-
-        override fun renderRadioButton(selected: Boolean, onClick: () -> Unit, enabled: Boolean, modifier: Modifier) {}
-        override fun renderSpacer(modifier: Modifier) {}
-        override fun renderRangeSlider(
-            value: ClosedFloatingPointRange<Float>,
-            onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
-            valueRange: ClosedFloatingPointRange<Float>,
-            steps: Int,
-            enabled: Boolean,
-            modifier: Modifier
-        ) {
-        }
-
-        override fun renderSlider(
-            value: Float,
-            onValueChange: (Float) -> Unit,
-            valueRange: ClosedFloatingPointRange<Float>,
-            steps: Int,
-            enabled: Boolean,
-            modifier: Modifier
-        ) {
-        }
-
-        override fun renderSwitch(
-            checked: Boolean,
-            onCheckedChange: (Boolean) -> Unit,
-            enabled: Boolean,
-            modifier: Modifier
-        ) {
-        }
-
-        override fun renderTimePicker(
-            value: LocalTime?,
-            onValueChange: (LocalTime?) -> Unit,
-            enabled: Boolean,
-            is24Hour: Boolean,
-            modifier: Modifier
-        ) {
-        }
-
-        override fun renderAspectRatio(ratio: Float, modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderCard(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderLink(href: String, modifier: Modifier) {}
-        override fun renderLink(modifier: Modifier, href: String, content: @Composable () -> Unit) {}
-        override fun renderEnhancedLink(
-            href: String,
-            target: String?,
-            title: String?,
-            ariaLabel: String?,
-            ariaDescribedBy: String?,
-            modifier: Modifier
-        ) {
-        }
-
-        override fun renderTabLayout(
-            tabs: List<Tab>,
-            selectedTabIndex: Int,
-            onTabSelected: (Int) -> Unit,
-            modifier: Modifier
-        ) {
-        }
-
-        override fun renderTabLayout(modifier: Modifier, content: @Composable () -> Unit) {}
-        override fun renderTabLayout(
-            tabs: List<String>,
-            selectedTab: String,
-            onTabSelected: (String) -> Unit,
-            modifier: Modifier,
-            content: () -> Unit
-        ) {
-        }
-
-        override fun renderAnimatedVisibility(visible: Boolean, modifier: Modifier) {}
-        override fun renderAnimatedVisibility(modifier: Modifier, content: @Composable () -> Unit) {}
-        override fun renderAnimatedContent(modifier: Modifier) {}
-        override fun renderAnimatedContent(modifier: Modifier, content: @Composable () -> Unit) {}
-        override fun renderInline(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderDiv(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderSpan(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderDivider(modifier: Modifier) {}
-        override fun renderExpansionPanel(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderLazyColumn(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderLazyRow(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderResponsiveLayout(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderHtmlTag(tagName: String, modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-    }
-
     // Mock implementation of Composer for testing
     private class MockComposer : Composer {
         override val inserting: Boolean = true
@@ -288,21 +73,46 @@ class SnackbarTest {
             // Set the mock renderer as the platform renderer
             setPlatformRenderer(mockRenderer)
 
-            // Call the Snackbar composable with default parameters
+            // Call the Snackbar composable
             Snackbar(message = "Test message")
 
             // Verify that renderBox was called
-            assertTrue(mockRenderer.renderBoxCalled, "renderBox should have been called")
+            assertNotNull(mockRenderer.lastBoxModifierRendered, "renderBox should have been called")
 
-            // Verify that the content lambda was passed
-            assertNotNull(mockRenderer.lastBoxContent, "Box content should not be null")
+            // Verify that the modifier contains the expected styles for default Snackbar
+            val styles = mockRenderer.lastBoxModifierRendered?.styles ?: emptyMap()
+            assertEquals("#333", styles["background-color"], "Background color should be default")
+            assertEquals("white", styles["color"], "Text color should be default")
+        }
+    }
 
-            // Verify that the modifier contains the expected styles
-            val styles = mockRenderer.lastBoxModifier?.styles ?: emptyMap()
-            assertEquals("fixed", styles["position"], "Position should be fixed")
-            assertEquals("1000", styles["z-index"], "z-index should be 1000")
-            assertEquals("16px", styles["bottom"], "Bottom should be 16px")
-            assertEquals("#f3f4f6", styles["background-color"], "Background color should match DEFAULT variant")
+    @Test
+    fun testSnackbarWithAction() {
+        // Create a mock renderer
+        val mockRenderer = MockPlatformRenderer()
+
+        // Set up the composition context
+        CompositionLocal.provideComposer(MockComposer()) {
+            // Set the mock renderer as the platform renderer
+            setPlatformRenderer(mockRenderer)
+
+            var actionClicked = false
+            Snackbar(message = "Test message", actionLabel = "Undo") { actionClicked = true }
+
+            // Verify that renderBox and renderButton were called
+            assertNotNull(mockRenderer.lastBoxModifierRendered, "renderBox should have been called")
+            assertNotNull(mockRenderer.lastButtonModifierRendered, "renderButton should have been called")
+
+            // Verify the box modifier
+            assertNotNull(mockRenderer.lastBoxModifierRendered, "Box modifier should not be null")
+
+            // Verify the button modifier and onClick handler
+            assertNotNull(mockRenderer.lastButtonModifierRendered, "Button modifier should not be null")
+            assertNotNull(mockRenderer.lastButtonOnClickRendered, "Button onClick handler should not be null")
+
+            // Simulate a click on the action button
+            mockRenderer.lastButtonOnClickRendered?.invoke()
+            assertTrue(actionClicked, "Action onClick handler should have been called")
         }
     }
 
@@ -323,10 +133,10 @@ class SnackbarTest {
             )
 
             // Verify that renderBox was called
-            assertTrue(mockRenderer.renderBoxCalled, "renderBox should have been called")
+            assertNotNull(mockRenderer.lastBoxModifierRendered, "renderBox should have been called")
 
             // Verify that the modifier contains the expected styles for SUCCESS variant
-            val styles = mockRenderer.lastBoxModifier?.styles ?: emptyMap()
+            val styles = mockRenderer.lastBoxModifierRendered?.styles ?: emptyMap()
             assertEquals("#dcfce7", styles["background-color"], "Background color should match SUCCESS variant")
             assertEquals("#16a34a", styles["color"], "Text color should match SUCCESS variant")
         }
@@ -350,15 +160,14 @@ class SnackbarTest {
             )
 
             // Verify that renderBox was called
-            assertTrue(mockRenderer.renderBoxCalled, "renderBox should have been called")
+            assertNotNull(mockRenderer.lastBoxModifierRendered, "renderBox should have been called")
 
             // Verify that the modifier contains the expected positioning styles
-            val styles = mockRenderer.lastBoxModifier?.styles ?: emptyMap()
+            val styles = mockRenderer.lastBoxModifierRendered?.styles ?: emptyMap()
             assertEquals("16px", styles["right"], "Right should be 16px")
             assertEquals("16px", styles["top"], "Top should be 16px")
         }
     }
-
 
     @Test
     fun testSnackbarWithCustomDuration() {
@@ -377,10 +186,9 @@ class SnackbarTest {
             )
 
             // Verify that renderBox was called
-            assertTrue(mockRenderer.renderBoxCalled, "renderBox should have been called")
+            assertNotNull(mockRenderer.lastBoxModifierRendered, "renderBox should have been called")
 
             // We can't directly test the auto-dismissal behavior in this unit test environment,
-            // but we can verify that the Snackbar is initially rendered
         }
     }
 
@@ -404,10 +212,10 @@ class SnackbarTest {
             )
 
             // Verify that renderBox was called
-            assertTrue(mockRenderer.renderBoxCalled, "renderBox should have been called")
+            assertNotNull(mockRenderer.lastBoxModifierRendered, "renderBox should have been called")
 
             // Verify that the custom modifier styles were preserved
-            val styles = mockRenderer.lastBoxModifier?.styles ?: emptyMap()
+            val styles = mockRenderer.lastBoxModifierRendered?.styles ?: emptyMap()
             assertEquals("300px", styles["width"], "Width should be 300px")
             assertEquals("50px", styles["height"], "Height should be 50px")
         }

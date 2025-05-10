@@ -1,7 +1,6 @@
 package code.yousef.summon.integrations.quarkus
 
-import code.yousef.summon.core.Composable
-import code.yousef.summon.runtime.JvmPlatformRenderer
+import code.yousef.summon.annotation.Composable
 import io.quarkus.qute.RawString
 import io.quarkus.qute.TemplateExtension
 import java.io.StringWriter
@@ -43,7 +42,7 @@ object QuteTagExtension {
     fun isSummonComponent(obj: Any?): Boolean {
         // Check if the class is annotated with @Composable
         return obj != null && obj::class.java.annotations.any { 
-            it.annotationClass == Composable::class 
+            it.annotationClass == Composable::class
         }
     }
 

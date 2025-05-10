@@ -19,7 +19,7 @@ class ProgressTest {
     /**
      * A mock implementation of PlatformRenderer for testing
      */
-    private class MockPlatformRenderer : PlatformRenderer {
+    private class MockPlatformRenderer : PlatformRenderer() {
         var renderProgressCalled = false
         var lastProgressValue: Float? = null
         var lastProgressType: ProgressType? = null
@@ -89,7 +89,7 @@ class ProgressTest {
         override fun renderBox(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
         override fun renderBlock(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
         override fun renderText(text: String, modifier: Modifier) {}
-        override fun renderImage(src: String, alt: String, modifier: Modifier) {}
+        override fun renderImage(src: String, alt: String?, modifier: Modifier) {}
         override fun renderIcon(
             name: String,
             modifier: Modifier,

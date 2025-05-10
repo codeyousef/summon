@@ -99,20 +99,20 @@ class CommonComposerTest {
     @Test
     fun testComposeManagerContext() {
         // Test getting the current composer
-        val defaultComposer = ComposeManagerContext.current
+        val defaultComposer = ComposerContext.current
         assertNotNull(defaultComposer, "Default composer should not be null")
         
         // Test withComposer
         val customComposer = CommonComposer()
-        val result = ComposeManagerContext.withComposer(customComposer) {
-            assertEquals(customComposer, ComposeManagerContext.current, "Current composer should be the custom one")
+        val result = ComposerContext.withComposer(customComposer) {
+            assertEquals(customComposer, ComposerContext.current, "Current composer should be the custom one")
             "Result"
         }
         
         assertEquals("Result", result, "withComposer should return the result of the block")
         
         // After the block, the current composer should be reset
-        assertTrue(ComposeManagerContext.current !== customComposer, 
+        assertTrue(ComposerContext.current !== customComposer, 
             "Current composer should be reset after withComposer")
     }
     
@@ -121,14 +121,14 @@ class CommonComposerTest {
         val outerComposer = CommonComposer()
         val innerComposer = CommonComposer()
         
-        ComposeManagerContext.withComposer(outerComposer) {
-            assertEquals(outerComposer, ComposeManagerContext.current, "Current composer should be the outer one")
+        ComposerContext.withComposer(outerComposer) {
+            assertEquals(outerComposer, ComposerContext.current, "Current composer should be the outer one")
             
-            ComposeManagerContext.withComposer(innerComposer) {
-                assertEquals(innerComposer, ComposeManagerContext.current, "Current composer should be the inner one")
+            ComposerContext.withComposer(innerComposer) {
+                assertEquals(innerComposer, ComposerContext.current, "Current composer should be the inner one")
             }
             
-            assertEquals(outerComposer, ComposeManagerContext.current, 
+            assertEquals(outerComposer, ComposerContext.current, 
                 "Current composer should be restored to the outer one")
         }
     }

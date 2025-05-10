@@ -207,7 +207,7 @@ fun Badge(
         Row(
             modifier = Modifier()
                 .padding("0px 4px")
-                .alignItems("center")
+                .alignItems(AlignItems.Center)
         ) {
             // Render start icon if provided
             if (effectiveStart != null) {

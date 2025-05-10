@@ -1,7 +1,7 @@
 package code.yousef.summon.core
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.JsPlatformRenderer
+import code.yousef.summon.runtime.PlatformRenderer
 import kotlinx.browser.document
 import org.w3c.dom.HTMLElement
 
@@ -82,8 +82,8 @@ fun RenderUtils.hydrate(container: Any, composable: @Composable () -> Unit): Ren
  * @return The rendered HTML string
  */
 fun RenderUtils.renderToString(composable: @Composable () -> Unit): String {
-    // Create a JsPlatformRenderer
-    val renderer = JsPlatformRenderer()
+    // Create a PlatformRenderer
+    val renderer = PlatformRenderer()
 
     // Use renderComposableRoot to render the composable to a string
     return renderer.renderComposableRoot(composable)

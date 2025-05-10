@@ -1,7 +1,7 @@
 package code.yousef.summon.integration.springboot
 
-import code.yousef.summon.runtime.JvmPlatformRenderer
-import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.setPlatformRenderer
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono
  * - io.projectreactor.kotlin:reactor-kotlin-extensions
  */
 class WebFluxRenderer {
-    private val renderer = JvmPlatformRenderer()
+    private val renderer = PlatformRenderer()
 
     /**
      * Renders a Summon component as HTML and returns it as a Mono<String>.

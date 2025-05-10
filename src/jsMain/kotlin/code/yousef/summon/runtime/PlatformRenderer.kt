@@ -7,10 +7,9 @@ import code.yousef.summon.components.feedback.AlertVariant
 import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.input.FileInfo
 import code.yousef.summon.components.navigation.Tab
-import code.yousef.summon.js.console
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.style.toSummonClass
-import code.yousef.summon.toStyleString
+import code.yousef.summon.modifier.withAttribute
+import code.yousef.summon.modifier.withAttributes
 import kotlinx.browser.document
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
@@ -22,9 +21,9 @@ import org.w3c.dom.events.Event as DomEvent
 /**
  * JavaScript platform implementation of PlatformRenderer.
  * This implementation follows Kobweb's approach using direct DOM manipulation.
+ * This class is not exported to JavaScript and contains all the non-exportable types.
  */
-
-class JsPlatformRenderer : PlatformRenderer {
+actual open class PlatformRenderer {
     // Element stack for managing parent-child relationships
     private val elementStack = ElementStack()
 
@@ -41,10 +40,8 @@ class JsPlatformRenderer : PlatformRenderer {
         }
 
         fun pop() {
-            if (stack.isNotEmpty()) stack.removeLast()
+            if (stack.size > 0) stack.removeAt(stack.lastIndex)
         }
-
-        fun isEmpty(): Boolean = stack.isEmpty()
 
         fun withElement(element: Element, block: () -> Unit) {
             push(element)
@@ -56,22 +53,6 @@ class JsPlatformRenderer : PlatformRenderer {
         }
     }
 
-    /**
-     * Executes a composable function, rendering its output into the provided rootElement.
-     * This is intended to be called by a top-level coordinator like RenderUtils.
-     *
-     * @param rootElement The DOM element to render into.
-     * @param composable The composable function to execute.
-     */
-    fun renderInto(rootElement: Element, composable: @Composable () -> Unit) {
-        elementStack.withElement(rootElement) {
-            // The composable will execute, and all its direct children
-            // will be appended to rootElement because it's now elementStack.current
-            this.renderComposable(composable) // or simply composable() if PlatformRenderer.renderComposable is just that
-        }
-    }
-
-
     private fun createElement(
         tagName: String,
         modifier: Modifier,
@@ -79,18 +60,23 @@ class JsPlatformRenderer : PlatformRenderer {
         content: (@Composable () -> Unit)? = null
     ): Element {
         val element = document.createElement(tagName)
-        setup?.invoke(element)
+
         // Apply modifiers
         applyModifier(element, modifier)
+
+        // Apply custom setup
+        setup?.invoke(element)
 
         // Add to current parent
         elementStack.current.appendChild(element)
 
         // Render content if provided
         if (content != null) {
-            // If there's nested content, this new element becomes the parent for that content
-            elementStack.withElement(element) {
-                this.renderComposable(content)
+            elementStack.push(element)
+            try {
+                content()
+            } finally {
+                elementStack.pop()
             }
         }
 
@@ -98,41 +84,10 @@ class JsPlatformRenderer : PlatformRenderer {
     }
 
     private fun applyModifier(element: Element, modifier: Modifier) {
-
-        // First, apply CSS classes based on element type and styles
-        applyAppropriateClasses(element, modifier)
-
-        // Create a filtered modifier without styles that are handled by CSS classes
-        val filteredStyles = modifier.styles.filterNot { (key, value) ->
-            // Remove layout styles that are handled by CSS classes
-            key == "display" || key == "flexDirection" || 
-            key == "justifyContent" || key == "alignItems" ||
-            key == "width" && value == "100%" ||
-            key == "textAlign" && (value == "center" || value == "right" || value == "left") ||
-            key == "fontWeight" && value == "bold" ||
-            key == "fontStyle" && value == "italic" ||
-            key == "textDecoration" && value.contains("line-through")
-        }
-
-        // Apply remaining styles that don't have corresponding CSS classes
-        if (filteredStyles.isNotEmpty()) {
-            val filteredModifier = Modifier().withStyles(filteredStyles)
-
-            val styleString = filteredModifier.toStyleString()
-
-
-            if (styleString.isNotEmpty()) {
-
-                element.setAttribute("style", styleString)
-
-                // Verify the style was set correctly
-                val appliedStyle = element.getAttribute("style")
-
-            } else {
-                console.log("[DEBUG] Style string is empty, not setting style attribute")
-            }
-        } else {
-            console.log("[DEBUG] No inline styles to apply after filtering")
+        // Apply styles using the toStyleString method which converts camelCase properties to kebab-case
+        val styleString = modifier.toStyleString()
+        if (js("styleString.length > 0") as Boolean) {
+            element.setAttribute("style", styleString)
         }
 
         // Apply other attributes from the modifier
@@ -141,347 +96,20 @@ class JsPlatformRenderer : PlatformRenderer {
         }
     }
 
-    /**
-     * Applies appropriate CSS classes to elements based on their tag name and styles.
-     * This version uses the SummonStyleSheet classes instead of hardcoded class names.
-     * It's more robust by using includes() for padding, margin, and color values,
-     * and by checking both inline styles and computed styles.
-     */
-    private fun applyAppropriateClasses(element: Element, modifier: Modifier) {
-        val tagName = element.tagName.lowercase()
-        val classes = mutableListOf<String>()
-
-        // Add base classes based on element type
-        when (tagName) {
-            "button" -> classes.add("button".toSummonClass())
-            "span", "p", "h1", "h2", "h3", "h4", "h5", "h6", "label" -> classes.add("text".toSummonClass())
-            "input" -> {
-                val type = element.getAttribute("type")
-                if (type == "checkbox") {
-                    classes.add("checkbox".toSummonClass())
-                } else {
-                    classes.add("input".toSummonClass())
-                }
-            }
-            "textarea" -> classes.add("textarea".toSummonClass())
-            "select" -> classes.add("select".toSummonClass())
-            "a" -> classes.add("link".toSummonClass())
-            "img" -> classes.add("image".toSummonClass())
-            "form" -> classes.add("form".toSummonClass())
-        }
-
-        // Add layout classes based on styles
-        if (modifier.styles.containsKey("display")) {
-            when (modifier.styles["display"]) {
-                "flex" -> {
-                    if (modifier.styles["flexDirection"] == "row") {
-                        classes.add("row".toSummonClass())
-                    } else if (modifier.styles["flexDirection"] == "column") {
-                        classes.add("column".toSummonClass())
-                    }
-                }
-                "block" -> classes.add("w-100".toSummonClass())
-                "inline-block" -> classes.add("inline-block".toSummonClass())
-            }
-        }
-
-        // Add width and height classes
-        if (modifier.styles["width"] == "100%") {
-            classes.add("w-100".toSummonClass())
-        }
-        if (modifier.styles["height"] == "100%") {
-            classes.add("h-100".toSummonClass())
-        }
-
-        // Add alignment classes
-        // Justify content
-        when (modifier.styles["justifyContent"]) {
-            "space-between" -> classes.add("justify-between".toSummonClass())
-            "center" -> classes.add("justify-center".toSummonClass())
-            "flex-start" -> classes.add("justify-start".toSummonClass())
-            "flex-end" -> classes.add("justify-end".toSummonClass())
-            "space-around" -> classes.add("justify-around".toSummonClass())
-            "space-evenly" -> classes.add("justify-evenly".toSummonClass())
-        }
-
-        // Align items
-        when (modifier.styles["alignItems"]) {
-            "center" -> classes.add("align-center".toSummonClass())
-            "flex-start" -> classes.add("align-start".toSummonClass())
-            "flex-end" -> classes.add("align-end".toSummonClass())
-            "stretch" -> classes.add("align-stretch".toSummonClass())
-            "baseline" -> classes.add("align-baseline".toSummonClass())
-        }
-
-        // Add text alignment classes
-        when (modifier.styles["textAlign"]) {
-            "center" -> classes.add("text-center".toSummonClass())
-            "right" -> classes.add("text-right".toSummonClass())
-            "left" -> classes.add("text-left".toSummonClass())
-            "justify" -> classes.add("text-justify".toSummonClass())
-        }
-
-        // Add font style classes
-        if (modifier.styles["fontWeight"] == "bold" || (modifier.styles["fontWeight"]?.toIntOrNull() ?: 0) >= 700) {
-            classes.add("font-bold".toSummonClass())
-        }
-
-        if (modifier.styles["fontStyle"] == "italic") {
-            classes.add("font-italic".toSummonClass())
-        }
-
-        // Add text decoration classes
-        if (modifier.styles["textDecoration"]?.contains("line-through") == true) {
-            classes.add("completed-text".toSummonClass())
-        } else if (modifier.styles["textDecoration"]?.contains("underline") == true) {
-            classes.add("underline".toSummonClass())
-        }
-
-        // Check for app-container class - more flexible check
-        if (tagName == "div" && 
-            (modifier.styles["display"] == "flex" || modifier.styles["display"] == "block") && 
-            modifier.styles["maxWidth"]?.contains("1200") == true && 
-            (modifier.styles["margin"] == "0 auto" || 
-             (modifier.styles["marginLeft"] == "auto" && modifier.styles["marginRight"] == "auto"))) {
-            classes.add("app-container".toSummonClass())
-        }
-
-        // Check for app-header class - more flexible check
-        if (tagName == "div" && 
-            modifier.styles["padding"]?.contains("20") == true && 
-            (modifier.styles["background"]?.contains("fff") == true || 
-             modifier.styles["backgroundColor"]?.contains("fff") == true) && 
-            modifier.styles["borderRadius"] != null && 
-            modifier.styles["borderRadius"] != "0" && 
-            modifier.styles["borderRadius"] != "0px" && 
-            modifier.styles["marginBottom"]?.contains("20") == true && 
-            modifier.styles["boxShadow"] != null) {
-            classes.add("app-header".toSummonClass())
-        }
-
-        // Check for text style classes - more flexible check
-        if (tagName == "span" || tagName == "p" || tagName == "h1" || 
-            tagName == "h2" || tagName == "h3" || tagName == "h4") {
-            // App title
-            if (modifier.styles["fontSize"]?.contains("24") == true &&
-                (modifier.styles["fontWeight"] == "bold" || (modifier.styles["fontWeight"]?.toIntOrNull()
-                    ?: 0) >= 700) &&
-                modifier.styles["color"]?.contains("333") == true &&
-                modifier.styles["marginBottom"]?.contains("16") == true
-            ) {
-                classes.add("app-title".toSummonClass())
-            }
-            // Section title
-            else if (modifier.styles["fontSize"]?.contains("18") == true &&
-                (modifier.styles["fontWeight"] == "bold" || (modifier.styles["fontWeight"]?.toIntOrNull()
-                    ?: 0) >= 700) &&
-                modifier.styles["color"]?.contains("333") == true
-            ) {
-                classes.add("section-title".toSummonClass())
-            }
-            // List title
-            else if (modifier.styles["fontSize"]?.contains("20") == true &&
-                (modifier.styles["fontWeight"] == "bold" || (modifier.styles["fontWeight"]?.toIntOrNull()
-                    ?: 0) >= 700) &&
-                modifier.styles["color"]?.contains("333") == true
-            ) {
-                classes.add("list-title".toSummonClass())
-            }
-            // Error message
-            else if (modifier.styles["color"]?.contains("ff4d4d") == true || 
-                     modifier.styles["color"]?.contains("red") == true) {
-                classes.add("error-message".toSummonClass())
-            }
-            // Completed text
-            else if (modifier.styles["textDecoration"]?.contains("line-through") == true || 
-                     modifier.styles["color"]?.contains("888") == true) {
-                classes.add("completed-text".toSummonClass())
-            }
-        }
-
-        // Add specific component classes - more flexible checks
-        if (tagName == "div") {
-            // Task form
-            if (modifier.styles["padding"]?.contains("20") == true && 
-                modifier.styles["marginBottom"]?.contains("20") == true && 
-                (modifier.styles["background"]?.contains("fff") == true || 
-                 modifier.styles["backgroundColor"]?.contains("fff") == true) && 
-                modifier.styles["borderRadius"] != null && 
-                modifier.styles["borderRadius"] != "0" && 
-                modifier.styles["borderRadius"] != "0px" && 
-                modifier.styles["boxShadow"] != null) {
-                classes.add("task-form".toSummonClass())
-            }
-            // Task list
-            else if (modifier.styles["padding"]?.contains("20") == true && 
-                     (modifier.styles["background"]?.contains("fff") == true || 
-                      modifier.styles["backgroundColor"]?.contains("fff") == true) && 
-                     modifier.styles["borderRadius"] != null && 
-                     modifier.styles["borderRadius"] != "0" && 
-                     modifier.styles["borderRadius"] != "0px" && 
-                     modifier.styles["boxShadow"] != null && 
-                     modifier.styles["maxHeight"]?.contains("400") == true) {
-                classes.add("task-list".toSummonClass())
-            }
-            // Filter controls
-            else if (modifier.styles["padding"]?.contains("15") == true && 
-                     modifier.styles["marginBottom"]?.contains("20") == true && 
-                     (modifier.styles["background"]?.contains("fff") == true || 
-                      modifier.styles["backgroundColor"]?.contains("fff") == true) && 
-                     modifier.styles["borderRadius"] != null && 
-                     modifier.styles["borderRadius"] != "0" && 
-                     modifier.styles["borderRadius"] != "0px" && 
-                     modifier.styles["boxShadow"] != null) {
-                classes.add("filter-controls".toSummonClass())
-            }
-            // Empty state
-            else if (modifier.styles["padding"]?.contains("20") == true && 
-                     (modifier.styles["margin"]?.contains("10") == true || 
-                      modifier.styles["marginTop"]?.contains("10") == true || 
-                      modifier.styles["marginBottom"]?.contains("10") == true) && 
-                     (modifier.styles["background"]?.contains("f9") == true || 
-                      modifier.styles["backgroundColor"]?.contains("f9") == true) && 
-                     modifier.styles["borderRadius"] != null && 
-                     modifier.styles["borderRadius"] != "0" && 
-                     modifier.styles["borderRadius"] != "0px" && 
-                     modifier.styles["textAlign"] == "center" && 
-                     (modifier.styles["color"]?.contains("666") == true || 
-                      modifier.styles["color"]?.contains("gray") == true)) {
-                classes.add("empty-state".toSummonClass())
-            }
-        }
-
-        // Add task item classes - more flexible check
-        if (tagName == "div" && 
-            modifier.styles["display"] == "flex" && 
-            (modifier.styles["alignItems"] == "center" || 
-             modifier.styles["alignItems"] == "flex-start") && 
-            (modifier.styles["justifyContent"] == "space-between" || 
-             modifier.styles["justifyContent"] == "flex-start") && 
-            modifier.styles["padding"]?.contains("10") == true && 
-            (modifier.styles["margin"]?.contains("5") == true || 
-             modifier.styles["marginTop"]?.contains("5") == true || 
-             modifier.styles["marginBottom"]?.contains("5") == true)) {
-            classes.add("task-item".toSummonClass())
-
-            // Check if it's a completed task - more flexible check
-            if (modifier.styles["backgroundColor"]?.contains("f0f8ff") == true || 
-                modifier.styles["backgroundColor"]?.contains("lightblue") == true || 
-                modifier.styles["background"]?.contains("f0f8ff") == true || 
-                modifier.styles["background"]?.contains("lightblue") == true) {
-                classes.add("completed".toSummonClass())
-            }
-        }
-
-        // Add task content class - more flexible check
-        if (tagName == "div" && 
-            modifier.styles["display"] == "flex" && 
-            (modifier.styles["alignItems"] == "center" || 
-             modifier.styles["alignItems"] == "flex-start") && 
-            (modifier.styles["flex"] == "1" || 
-             modifier.styles["flexGrow"] == "1")) {
-            classes.add("task-content".toSummonClass())
-        }
-
-        // Add button-specific classes - more flexible checks
-        if (tagName == "button") {
-            // Add task button
-            if (modifier.styles["padding"]?.contains("10") == true &&
-                modifier.styles["padding"]?.contains("20") == true &&
-                (modifier.styles["backgroundColor"]?.contains("4285f4") == true ||
-                        modifier.styles["backgroundColor"]?.contains("blue") == true ||
-                        modifier.styles["background"]?.contains("4285f4") == true ||
-                        modifier.styles["background"]?.contains("blue") == true) &&
-                (modifier.styles["color"]?.contains("fff") == true ||
-                        modifier.styles["color"]?.contains("white") == true) &&
-                modifier.styles["borderRadius"] != null &&
-                modifier.styles["borderRadius"] != "0" &&
-                modifier.styles["borderRadius"] != "0px" &&
-                (modifier.styles["fontWeight"] == "bold" ||
-                        (modifier.styles["fontWeight"]?.toIntOrNull() ?: 0) >= 700)
-            ) {
-                classes.add("add-task-button".toSummonClass())
-            }
-            // Delete task button
-            else if (modifier.styles["padding"]?.contains("5") == true && 
-                     modifier.styles["padding"]?.contains("10") == true && 
-                     (modifier.styles["backgroundColor"]?.contains("ff4d4d") == true || 
-                      modifier.styles["backgroundColor"]?.contains("red") == true || 
-                      modifier.styles["background"]?.contains("ff4d4d") == true || 
-                      modifier.styles["background"]?.contains("red") == true) && 
-                     (modifier.styles["color"]?.contains("fff") == true || 
-                      modifier.styles["color"]?.contains("white") == true) && 
-                     modifier.styles["borderRadius"] != null && 
-                     modifier.styles["borderRadius"] != "0" && 
-                     modifier.styles["borderRadius"] != "0px") {
-                classes.add("delete-task-button".toSummonClass())
-            }
-            // Filter button
-            else if ((modifier.styles["margin"] == "0 5px" || 
-                      (modifier.styles["marginLeft"]?.contains("5") == true && 
-                       modifier.styles["marginRight"]?.contains("5") == true)) && 
-                     modifier.styles["padding"]?.contains("8") == true && 
-                     modifier.styles["padding"]?.contains("12") == true && 
-                     modifier.styles["borderRadius"] != null && 
-                     modifier.styles["borderRadius"] != "0" && 
-                     modifier.styles["borderRadius"] != "0px") {
-                classes.add("filter-button".toSummonClass())
-
-                // Check if it's selected - more flexible check
-                if ((modifier.styles["backgroundColor"]?.contains("4285f4") == true || 
-                     modifier.styles["backgroundColor"]?.contains("blue") == true || 
-                     modifier.styles["background"]?.contains("4285f4") == true || 
-                     modifier.styles["background"]?.contains("blue") == true) && 
-                    (modifier.styles["color"]?.contains("fff") == true || 
-                     modifier.styles["color"]?.contains("white") == true)) {
-                    classes.add("selected".toSummonClass())
-                }
-            }
-        }
-
-        // Add utility classes
-        if (modifier.styles["textAlign"] == "center") {
-            classes.add("text-center".toSummonClass())
-        } else if (modifier.styles["textAlign"] == "right") {
-            classes.add("text-right".toSummonClass())
-        }
-
-        if (modifier.styles["fontWeight"] == "bold") {
-            classes.add("font-bold".toSummonClass())
-        }
-
-        if (modifier.styles["fontStyle"] == "italic") {
-            classes.add("font-italic".toSummonClass())
-        }
-
-        // Apply the classes to the element
-        if (classes.isNotEmpty()) {
-            val existingClasses = element.getAttribute("class") ?: ""
-            val newClasses = if (existingClasses.isEmpty()) {
-                classes.joinToString(" ")
-            } else {
-                "$existingClasses ${classes.joinToString(" ")}"
-            }
-
-            console.log("[DEBUG] Adding CSS classes to element: $newClasses")
-            element.setAttribute("class", newClasses)
-        }
+    actual open fun renderText(text: String, modifier: Modifier) {
+        createElement("span", modifier, { element ->
+            element.textContent = text
+        })
     }
 
-    override fun renderText(text: String, modifier: Modifier) {
-        val span = createElement("span", modifier) // Or just createTextNode and append
-        span.textContent = text
-
-    }
-
-    override fun renderLabel(text: String, modifier: Modifier, forElement: String?) {
+    actual open fun renderLabel(text: String, modifier: Modifier, forElement: String?) {
         createElement("label", modifier, { element ->
             element.textContent = text
             forElement?.let { id -> element.setAttribute("for", id) }
         })
     }
 
-    override fun renderButton(
+    actual open fun renderButton(
         onClick: () -> Unit,
         modifier: Modifier,
         content: @Composable FlowContent.() -> Unit
@@ -493,7 +121,7 @@ class JsPlatformRenderer : PlatformRenderer {
         }
     }
 
-    override fun renderTextField(
+    actual open fun renderTextField(
         value: String,
         onValueChange: (String) -> Unit,
         modifier: Modifier,
@@ -509,7 +137,7 @@ class JsPlatformRenderer : PlatformRenderer {
         })
     }
 
-    override fun <T> renderSelect(
+    actual open fun <T> renderSelect(
         selectedValue: T?,
         onSelectedChange: (T?) -> Unit,
         options: List<SelectOption<T>>,
@@ -544,7 +172,7 @@ class JsPlatformRenderer : PlatformRenderer {
         })
     }
 
-    override fun renderDatePicker(
+    actual open fun renderDatePicker(
         value: LocalDate?,
         onValueChange: (LocalDate?) -> Unit,
         enabled: Boolean,
@@ -580,7 +208,7 @@ class JsPlatformRenderer : PlatformRenderer {
         })
     }
 
-    override fun renderTextArea(
+    actual open fun renderTextArea(
         value: String,
         onValueChange: (String) -> Unit,
         enabled: Boolean,
@@ -599,238 +227,275 @@ class JsPlatformRenderer : PlatformRenderer {
             placeholder?.let { element.setAttribute("placeholder", it) }
 
             element.addEventListener("input", { event ->
-                onValueChange(js("event.target.value") as String)
+                val textareaValue = js("event.target.value")
+                onValueChange(textareaValue as String)
             })
         })
     }
 
-    override fun addHeadElement(content: String) {
-        headElements.add(content)
-
-        // Add to document head if available
-        val head = document.head
-        if (head != null) {
-            val tempDiv = document.createElement("div")
-            tempDiv.innerHTML = content
-
-            // Move all nodes from tempDiv to head
-            while (tempDiv.firstChild != null) {
-                head.appendChild(tempDiv.firstChild!!)
-            }
+    actual open fun addHeadElement(content: String) {
+        // Add the raw string content for a head element (e.g., a <link> or <style> tag)
+        val trimmedContent = content.trim()
+        if (trimmedContent.startsWith("<") && trimmedContent.endsWith(">")) {
+            headElements.add(trimmedContent)
         }
     }
 
-    override fun getHeadElements(): List<String> {
-        return headElements.toList()
+    actual open fun getHeadElements(): List<String> = headElements.toList()
+
+    actual open fun renderComposable(composable: @Composable () -> Unit) {
+        // This function usually relies on an existing parent from the elementStack
+        // It's primarily for rendering nested composables within an existing structure
+        composable()
     }
 
-    override fun renderComposable(composable: @Composable () -> Unit) {
-        try {
+    actual open fun renderComposableRoot(composable: @Composable () -> Unit): String {
+        // Create a detached root element for rendering if not using a specific container
+        val rootElement = document.createElement("div")
+        // Temporarily set this as the current element for rendering
+        elementStack.withElement(rootElement) {
             composable()
-        } catch (e: Throwable) {
-            console.error("Error in renderComposable: $e")
         }
-    }
-
-    override fun renderComposableRoot(composable: @Composable () -> Unit): String {
-        val container = document.createElement("div") as HTMLElement
-
-        try {
-            elementStack.withElement(container) {
-                composable()
-            }
-            return container.innerHTML
-        } catch (e: Throwable) {
-            console.error("Error in renderComposableRoot: $e")
-            return "<div>Error: ${e.message}</div>"
-        }
+        return rootElement.outerHTML
     }
 
     // Helper to create FlowContent
     private fun createFlowContent(tagName: String): FlowContent {
+        val consumer = createTagConsumer()
         return object : FlowContent {
-            override val tagName: String = tagName
-            override val consumer: TagConsumer<*> = createTagConsumer()
-            override val namespace: String? = null
-            override val attributes: MutableMap<String, String> = mutableMapOf()
-            override val attributesEntries: Collection<Map.Entry<String, String>> = attributes.entries
-            override val inlineTag: Boolean = false
-            override val emptyTag: Boolean = false
+            override val tagName: String
+                get() = TODO("Not yet implemented")
+            override val consumer: TagConsumer<*>
+                get() = TODO("Not yet implemented")
+            override val namespace: String?
+                get() = TODO("Not yet implemented")
+            override val attributes: MutableMap<String, String>
+                get() = TODO("Not yet implemented")
+            override val attributesEntries: Collection<Map.Entry<String, String>>
+                get() = TODO("Not yet implemented")
+            override val inlineTag: Boolean
+                get() = TODO("Not yet implemented")
+            override val emptyTag: Boolean
+                get() = TODO("Not yet implemented")
         }
     }
 
     // Helper to create FormContent
     private fun createFormContent(): FormContent {
+        val consumer = createTagConsumer()
         return object : FormContent {
-            override val tagName: String = "form"
-            override val consumer: TagConsumer<*> = createTagConsumer()
-            override val namespace: String? = null
-            override val attributes: MutableMap<String, String> = mutableMapOf()
-            override val attributesEntries: Collection<Map.Entry<String, String>> = attributes.entries
-            override val inlineTag: Boolean = false
-            override val emptyTag: Boolean = false
+            override val tagName: String
+                get() = TODO("Not yet implemented")
+            override val consumer: TagConsumer<*>
+                get() = TODO("Not yet implemented")
+            override val namespace: String?
+                get() = TODO("Not yet implemented")
+            override val attributes: MutableMap<String, String>
+                get() = TODO("Not yet implemented")
+            override val attributesEntries: Collection<Map.Entry<String, String>>
+                get() = TODO("Not yet implemented")
+            override val inlineTag: Boolean
+                get() = TODO("Not yet implemented")
+            override val emptyTag: Boolean
+                get() = TODO("Not yet implemented")
         }
     }
 
     // Create a tag consumer for the flow content
-    private fun createTagConsumer(): TagConsumer<Element> {
-        return object : TagConsumer<Element> {
-            override fun onTagStart(tag: Tag) {}
-            override fun onTagEnd(tag: Tag) {}
-            override fun onTagAttributeChange(tag: Tag, attribute: String, value: String?) {}
-            override fun onTagEvent(tag: Tag, event: String, value: (DomEvent) -> Unit) {}
-            override fun onTagContent(content: CharSequence) {}
-            override fun onTagContentEntity(entity: Entities) {}
-            override fun onTagContentUnsafe(block: Unsafe.() -> Unit) {}
-            override fun onTagComment(content: CharSequence) {}
-            override fun finalize(): Element = document.createElement("div")
+    private fun createTagConsumer(): TagConsumer<Element> = object : TagConsumer<Element> {
+        override fun onTagStart(tag: Tag) {
+            val newElement = document.createElement(tag.tagName)
+            tag.attributes.forEach { (key, value) ->
+                newElement.setAttribute(key, value)
+            }
+            elementStack.current.appendChild(newElement)
+            elementStack.push(newElement)
+        }
+
+        override fun onTagEnd(tag: Tag) {
+            elementStack.pop()
+        }
+
+        override fun onTagAttributeChange(tag: Tag, attribute: String, value: String?) {
+            if (value == null) {
+                elementStack.current.removeAttribute(attribute)
+            } else {
+                elementStack.current.setAttribute(attribute, value)
+            }
+        }
+
+        override fun onTagEvent(tag: Tag, event: String, value: (DomEvent) -> Unit) {
+            elementStack.current.addEventListener(event, value)
+        }
+
+        override fun onTagContent(content: CharSequence) {
+            elementStack.current.appendChild(document.createTextNode(content.toString()))
+        }
+
+        override fun onTagContentEntity(entity: Entities) {
+            // Entities are not directly supported in DOM manipulation this way.
+            // This would require parsing the entity or using innerHTML, which we are trying to avoid for direct composable rendering.
+            // For now, we'll append as text, but this might not render correctly for all entities.
+            elementStack.current.appendChild(document.createTextNode(entity.text))
+        }
+
+        override fun onTagContentUnsafe(block: Unsafe.() -> Unit) {
+            // Similar to onTagContentEntity, direct unsafe HTML is tricky.
+            // The most straightforward way in DOM is innerHTML, but that has security implications and bypasses some of the controlled rendering.
+            // We'll create a temporary element, set its innerHTML, and then append its children.
+            // This is a common workaround but should be used judiciously.
+            val tempDiv = document.createElement("div")
+            val unsafe = object : Unsafe {
+                override operator fun String.unaryPlus() {
+                    tempDiv.innerHTML += this
+                }
+            }
+            unsafe.block()
+            while (tempDiv.firstChild != null) {
+                elementStack.current.appendChild(tempDiv.firstChild!!)
+            }
+        }
+
+        override fun finalize(): Element {
+            // This finalize is more for builder patterns where a single root is constructed and returned.
+            // In our direct manipulation model, elements are added to the stack's current parent directly.
+            // Returning the current element on the stack, or perhaps the initial root, might make sense
+            // depending on how the consumer of this TagConsumer is structured.
+            // For FlowContent used within renderButton etc., this might not be directly used to return a value.
+            return elementStack.current
+        }
+
+        override fun onTagComment(content: CharSequence) { // Renamed from onComment and added override
+            elementStack.current.appendChild(document.createComment(content.toString()))
         }
     }
 
-    // Implement layout methods
-    override fun renderRow(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
-        // Add the summon-row class instead of setting inline styles
-        val rowModifier = modifier.addClass("summon-row")
+    // Extended PlatformRenderer methods with default implementations or TODOs
 
-        createElement("div", rowModifier) {
-            content(createFlowContent("div"))
-        }
-    }
-
-    override fun renderColumn(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
-        // Add the summon-column class instead of setting inline styles
-        val columnModifier = modifier.addClass("summon-column")
-
+    actual open fun renderColumn(
+        modifier: Modifier,
+        content: @Composable (FlowContent.() -> Unit)
+    ) {
+        val columnModifier = Modifier(
+            modifier.styles + mapOf(
+                "display" to "flex",
+                "flexDirection" to "column"
+            )
+        )
         createElement("div", columnModifier) {
             content(createFlowContent("div"))
         }
     }
 
-    override fun renderBox(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
-        createElement("div", modifier) {
+    actual open fun renderRow(
+        modifier: Modifier,
+        content: @Composable (FlowContent.() -> Unit)
+    ) {
+        val rowModifier = Modifier(
+            modifier.styles + mapOf(
+                "display" to "flex",
+                "flexDirection" to "row"
+            )
+        )
+        createElement("div", rowModifier) {
             content(createFlowContent("div"))
         }
     }
 
-    // Implement the remaining methods in a similar way
-    override fun renderImage(src: String, alt: String, modifier: Modifier) {
-        createElement("img", modifier, { element ->
-            element.setAttribute("src", src)
-            element.setAttribute("alt", alt)
-        })
+    actual open fun renderBoxContainer(modifier: Modifier, content: @Composable () -> Unit) {
+        createElement("div", modifier) {
+            content()
+        }
     }
 
-    override fun renderIcon(
+    actual open fun renderBox(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+        createElement("div", modifier) { // Apply box-specific styles
+            // The 'content' lambda has a FlowContent receiver, so we need to provide one.
+            // This typically involves setting up an HTML-specific context.
+            // For now, a placeholder or direct call if applicable.
+            // content(createFlowContent("div")) // Example if createFlowContent is suitable here
+            TODO("Implement renderBox with FlowContent receiver for JS")
+        }
+    }
+
+    actual open fun renderIcon(
         name: String,
         modifier: Modifier,
         onClick: (() -> Unit)?,
         svgContent: String?,
         type: IconType
     ) {
-        TODO("Not yet implemented")
+        // Assuming IconType has a method to get its SVG path or similar representation
+        // For simplicity, let's assume it's a class name for a font icon or an SVG string
+        // This needs a more concrete implementation based on how IconType is defined
+        createElement("i", modifier, setup = { element -> // Explicitly named 'setup'
+            // If IconType provides a class name:
+            // element.className = icon.getClassName()
+            // If IconType provides SVG content:
+            // element.innerHTML = icon.getSvgContent()
+        })
     }
 
-    override fun renderAlertContainer(
-        variant: AlertVariant?,
-        modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+    actual open fun renderImage(
+        src: String,
+        alt: String?,
+        modifier: Modifier
     ) {
-        TODO("Not yet implemented")
+        createElement("img", modifier, { element ->
+            element.setAttribute("src", src)
+            alt?.let { element.setAttribute("alt", it) }
+        })
     }
 
-    override fun renderBadge(
-        modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+    actual open fun renderCheckbox(
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+        enabled: Boolean,
+        label: String?,
+        modifier: Modifier
     ) {
-        TODO("Not yet implemented")
+        // Checkboxes are often complex with labels. Simplistic version:
+        createElement("input", modifier, { element ->
+            element.setAttribute("type", "checkbox")
+            element.asDynamic().checked = checked
+            if (!enabled) element.setAttribute("disabled", "disabled")
+            element.addEventListener("change", { event ->
+                onCheckedChange(js("event.target.checked") as Boolean)
+            })
+        })
+        label?.let { renderText(it, Modifier()) }
     }
 
-    override fun renderCheckbox(
+    actual open fun renderRadioButton(
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+        label: String?,
+        enabled: Boolean,
+        modifier: Modifier
+    ) {
+        createElement("input", modifier, { element ->
+            element.setAttribute("type", "radio")
+            element.asDynamic().checked = checked
+            if (!enabled) element.setAttribute("disabled", "disabled")
+            element.addEventListener("change", { event ->
+                onCheckedChange(js("event.target.checked") as Boolean)
+            })
+        })
+        label?.let { renderText(it, Modifier()) }
+    }
+
+    actual open fun renderSwitch(
         checked: Boolean,
         onCheckedChange: (Boolean) -> Unit,
         enabled: Boolean,
         modifier: Modifier
     ) {
-        TODO("Not yet implemented")
+        // Switches are custom components, often CSS-based or using a div and checkbox
+        // This is a placeholder for a more complex component
+        renderCheckbox(checked, onCheckedChange, enabled, null, modifier.withAttribute("role", "switch"))
     }
 
-    override fun renderProgress(
-        value: Float?,
-        type: ProgressType,
-        modifier: Modifier
-    ) {
-        TODO("Not yet implemented")
-    }
-
-    override fun renderFileUpload(
-        onFilesSelected: (List<FileInfo>) -> Unit,
-        accept: String?,
-        multiple: Boolean,
-        enabled: Boolean,
-        capture: String?,
-        modifier: Modifier
-    ): () -> Unit {
-        TODO("Not yet implemented")
-    }
-
-    // Add other required method implementations...
-
-    // Example of a more complex rendering method
-    override fun renderForm(
-        onSubmit: (() -> Unit)?,
-        modifier: Modifier,
-        content: @Composable FormContent.() -> Unit
-    ) {
-        createElement("form", modifier, { element ->
-            onSubmit?.let { submit ->
-                element.addEventListener("submit", { event ->
-                    js("event.preventDefault()")
-                    submit()
-                })
-            }
-        }).let { formElement ->
-            elementStack.withElement(formElement) {
-                content(createFormContent())
-            }
-        }
-    }
-
-    override fun renderFormField(
-        modifier: Modifier,
-        labelId: String?,
-        isRequired: Boolean,
-        isError: Boolean,
-        errorMessageId: String?,
-        content: @Composable (FlowContent.() -> Unit)
-    ) {
-        TODO("Not yet implemented")
-    }
-
-    override fun renderRadioButton(
-        selected: Boolean,
-        onClick: () -> Unit,
-        enabled: Boolean,
-        modifier: Modifier
-    ) {
-        TODO("Not yet implemented")
-    }
-
-    override fun renderSpacer(modifier: Modifier) {
-        TODO("Not yet implemented")
-    }
-
-    override fun renderRangeSlider(
-        value: ClosedFloatingPointRange<Float>,
-        onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
-        valueRange: ClosedFloatingPointRange<Float>,
-        steps: Int,
-        enabled: Boolean,
-        modifier: Modifier
-    ) {
-        TODO("Not yet implemented")
-    }
-
-    override fun renderSlider(
+    actual open fun renderSlider(
         value: Float,
         onValueChange: (Float) -> Unit,
         valueRange: ClosedFloatingPointRange<Float>,
@@ -838,48 +503,265 @@ class JsPlatformRenderer : PlatformRenderer {
         enabled: Boolean,
         modifier: Modifier
     ) {
-        TODO("Not yet implemented")
+        createElement("input", modifier, { element ->
+            element.setAttribute("type", "range")
+            element.setAttribute("value", value.toString())
+            element.setAttribute("min", valueRange.start.toString())
+            element.setAttribute("max", valueRange.endInclusive.toString())
+            if (steps > 0) {
+                val stepValue = (valueRange.endInclusive - valueRange.start) / (steps + 1)
+                element.setAttribute("step", stepValue.toString())
+            }
+            if (!enabled) element.setAttribute("disabled", "disabled")
+
+            element.addEventListener("input", { event ->
+                onValueChange((js("event.target.value") as String).toFloat())
+            })
+        })
     }
 
-    override fun renderSwitch(
-        checked: Boolean,
-        onCheckedChange: (Boolean) -> Unit,
-        enabled: Boolean,
-        modifier: Modifier
+    actual open fun renderDropdownMenu(
+        expanded: Boolean,
+        onDismissRequest: () -> Unit,
+        modifier: Modifier,
+        content: @Composable () -> Unit // ColumnScope.() -> Unit for specific layout
     ) {
-        TODO("Not yet implemented")
+        // Dropdown menus are complex. This is a very basic representation.
+        if (expanded) {
+            createElement("div", modifier) { // This div would be styled as a dropdown
+                content()
+            }
+            // Might need a global click listener to handle onDismissRequest
+        }
     }
 
-    override fun renderTimePicker(
+    actual open fun renderAlertDialog(
+        onDismissRequest: () -> Unit,
+        confirmButton: @Composable () -> Unit,
+        modifier: Modifier,
+        dismissButton: (@Composable () -> Unit)?,
+        icon: (@Composable () -> Unit)?,
+        title: (@Composable () -> Unit)?,
+        text: (@Composable () -> Unit)?
+    ) {
+        // Dialogs typically overlay content and require specific styling and structure
+        // This is a placeholder structure
+        createElement("div", modifier.withAttributes(mapOf("role" to "alertdialog"))) { // Styled as a dialog
+            icon?.invoke()
+            title?.invoke()
+            text?.invoke()
+            confirmButton()
+            dismissButton?.invoke()
+            // A button or mechanism to call onDismissRequest would be part of this structure
+        }
+    }
+
+    actual open fun renderModalBottomSheet(
+        onDismissRequest: () -> Unit,
+        modifier: Modifier,
+        content: @Composable () -> Unit // ColumnScope.() -> Unit usually
+    ) {
+        // Similar to AlertDialog, requires specific structure and styling
+        createElement("div", modifier) { // Styled as a bottom sheet
+            content()
+            // Mechanism for onDismissRequest
+        }
+    }
+
+    actual open fun renderCircularProgressIndicator(
+        progress: Float?,
+        modifier: Modifier,
+        type: ProgressType
+    ) {
+        // Placeholder - could be an SVG or a styled div
+        createElement("div", modifier, setup = { element -> // Explicitly named 'setup'
+            element.setAttribute("role", "progressbar")
+            progress?.let { element.setAttribute("aria-valuenow", it.toString()) }
+            // Apply styles for circular progress
+        })
+    }
+
+    actual open fun renderLinearProgressIndicator(
+        progress: Float?,
+        modifier: Modifier,
+        type: ProgressType
+    ) {
+        createElement("progress", modifier, setup = { element -> // Explicitly named 'setup'
+            progress?.let { element.setAttribute("value", it.toString()) }
+            // Linear progress elements might need max attribute if progress is not 0-1
+        })
+    }
+
+    actual open fun renderTooltip(
+        text: String,
+        modifier: Modifier,
+        content: @Composable () -> Unit
+    ) {
+        // Tooltips often wrap content and show text on hover/focus
+        // Basic: wrap content in a div with a title attribute
+        createElement("div", modifier.withAttribute("title", text)) {
+            content()
+        }
+    }
+
+    actual open fun renderCard(
+        modifier: Modifier,
+        elevation: Int,
+        content: @Composable () -> Unit
+    ) {
+        // Cards are styled containers
+        createElement("div", modifier) { // Apply card-specific styles, possibly using elevation
+            content()
+        }
+    }
+
+    actual open fun renderAlert(
+        message: String,
+        variant: AlertVariant,
+        modifier: Modifier,
+        title: String?,
+        icon: @Composable (() -> Unit)?,
+        actions: @Composable (() -> Unit)?
+    ) {
+        createElement(
+            "div",
+            modifier.withAttribute("role", if (variant == AlertVariant.ERROR) "alert" else "status")
+        ) { // Base alert div
+            // Apply styles based on variant (success, info, warning, error)
+            icon?.invoke()
+            title?.let { renderText(it, Modifier()) } // Needs specific styling for title
+            renderText(message, Modifier()) // Needs specific styling for message
+            actions?.invoke()
+        }
+    }
+
+    actual open fun renderFilePicker(
+        onFilesSelected: (List<FileInfo>) -> Unit,
+        enabled: Boolean,
+        multiple: Boolean,
+        accept: String?,
+        modifier: Modifier,
+        actions: @Composable (() -> Unit)?
+    ) {
+        createElement("input", modifier, { element ->
+            element.setAttribute("type", "file")
+            if (multiple) element.setAttribute("multiple", "")
+            accept?.let { element.setAttribute("accept", it) }
+            if (!enabled) element.setAttribute("disabled", "disabled")
+
+            element.addEventListener("change", { event ->
+                val files = js("event.target.files")
+                val fileList = mutableListOf<FileInfo>()
+                val length = js("files.length") as Int
+                for (i in 0 until length) {
+                    val file = js("files[i]")
+                    fileList.add(
+                        FileInfo(
+                            name = js("file.name") as String,
+                            size = js("file.size") as Long,
+                            type = js("file.type") as String,
+                            jsFile = file
+                        )
+                    )
+                }
+                onFilesSelected(fileList)
+            })
+        })
+    }
+
+    actual open fun renderTimePicker(
         value: LocalTime?,
         onValueChange: (LocalTime?) -> Unit,
         enabled: Boolean,
         is24Hour: Boolean,
         modifier: Modifier
     ) {
+        createElement("input", modifier, { element ->
+            element.setAttribute("type", "time")
+            value?.let {
+                element.setAttribute(
+                    "value",
+                    it.toString().substringBeforeLast('.')
+                )
+            } // Format as HH:mm or HH:mm:ss
+            if (!enabled) element.setAttribute("disabled", "disabled")
+
+            element.addEventListener("change", { event ->
+                val timeValue = js("event.target.value") as String?
+                if (timeValue != null && js("timeValue.length > 0") as Boolean) {
+                    try {
+                        val parts = timeValue.split(':')
+                        val hour = parts[0].toInt()
+                        val minute = parts[1].toInt()
+                        val second = if (parts.size > 2) parts[2].toInt() else 0
+                        onValueChange(LocalTime(hour, minute, second))
+                    } catch (e: Exception) {
+                        console.error("Error parsing time: $e")
+                        onValueChange(null)
+                    }
+                } else {
+                    onValueChange(null)
+                }
+            })
+        })
+    }
+
+
+    actual open fun renderHorizontalPager(
+        count: Int,
+        state: Any, // PagerState equivalent
+        modifier: Modifier,
+        content: @Composable (page: Int) -> Unit
+    ) {
         TODO("Not yet implemented")
     }
 
-    override fun renderAspectRatio(
-        ratio: Float,
+    actual open fun renderVerticalPager(
+        count: Int,
+        state: Any, // PagerState equivalent
+        modifier: Modifier,
+        content: @Composable (page: Int) -> Unit
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    actual open fun renderSwipeToDismiss(
+        state: Any, // DismissState equivalent
+        background: @Composable () -> Unit,
+        modifier: Modifier,
+        content: @Composable () -> Unit
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    actual open fun renderSurface(
+        modifier: Modifier,
+        elevation: Int,
+        content: @Composable (() -> Unit)
+    ) {
+        createElement("div", modifier) { // Apply surface styles, elevation
+            content()
+        }
+    }
+
+    actual open fun renderHtml(htmlContent: String, modifier: Modifier) {
+        createElement("div", modifier, setup = { element ->
+            (element as? HTMLElement)?.innerHTML = htmlContent
+        })
+    }
+
+    actual open fun renderScreen(
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
         TODO("Not yet implemented")
     }
 
-    override fun renderCard(
-        modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
-    ) {
+    actual open fun renderLink(href: String, modifier: Modifier) {
         TODO("Not yet implemented")
     }
 
-    override fun renderLink(href: String, modifier: Modifier) {
-        TODO("Not yet implemented")
-    }
-
-    override fun renderLink(
+    actual open fun renderLink(
         modifier: Modifier,
         href: String,
         content: @Composable (() -> Unit)
@@ -887,7 +769,7 @@ class JsPlatformRenderer : PlatformRenderer {
         TODO("Not yet implemented")
     }
 
-    override fun renderEnhancedLink(
+    actual open fun renderEnhancedLink(
         href: String,
         target: String?,
         title: String?,
@@ -898,7 +780,7 @@ class JsPlatformRenderer : PlatformRenderer {
         TODO("Not yet implemented")
     }
 
-    override fun renderTabLayout(
+    actual open fun renderTabLayout(
         tabs: List<Tab>,
         selectedTabIndex: Int,
         onTabSelected: (Int) -> Unit,
@@ -907,14 +789,14 @@ class JsPlatformRenderer : PlatformRenderer {
         TODO("Not yet implemented")
     }
 
-    override fun renderTabLayout(
+    actual open fun renderTabLayout(
         modifier: Modifier,
-        content: @Composable (() -> Unit)
+        content: @Composable () -> Unit
     ) {
         TODO("Not yet implemented")
     }
 
-    override fun renderTabLayout(
+    actual open fun renderTabLayout(
         tabs: List<String>,
         selectedTab: String,
         onTabSelected: (String) -> Unit,
@@ -924,48 +806,52 @@ class JsPlatformRenderer : PlatformRenderer {
         TODO("Not yet implemented")
     }
 
-    override fun renderAnimatedVisibility(visible: Boolean, modifier: Modifier) {
+    actual open fun renderAnimatedVisibility(visible: Boolean, modifier: Modifier) {
         TODO("Not yet implemented")
     }
 
-    override fun renderAnimatedVisibility(
+    actual open fun renderAnimatedVisibility(
         modifier: Modifier,
-        content: @Composable (() -> Unit)
+        content: @Composable () -> Unit
     ) {
         TODO("Not yet implemented")
     }
 
-    override fun renderAnimatedContent(modifier: Modifier) {
+    actual open fun renderAnimatedContent(modifier: Modifier) {
         TODO("Not yet implemented")
     }
 
-    override fun renderAnimatedContent(
+    actual open fun renderAnimatedContent(
         modifier: Modifier,
-        content: @Composable (() -> Unit)
+        content: @Composable () -> Unit
     ) {
         TODO("Not yet implemented")
     }
 
-    override fun renderBlock(
+    actual open fun renderBlock(
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
-        // Add the summon-w-100 class instead of setting inline styles
-        val blockModifier = modifier.addClass("summon-w-100")
+        // Create a block element (div with display: block)
+        val blockModifier = Modifier(
+            modifier.styles + mapOf(
+                "display" to "block"
+            )
+        )
 
         createElement("div", blockModifier) {
             content(createFlowContent("div"))
         }
     }
 
-    override fun renderInline(
+    actual open fun renderInline(
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
         TODO("Not yet implemented")
     }
 
-    override fun renderDiv(
+    actual open fun renderDiv(
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
@@ -974,57 +860,177 @@ class JsPlatformRenderer : PlatformRenderer {
         }
     }
 
-    override fun renderSpan(
+    actual open fun renderSpan(
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
         TODO("Not yet implemented")
     }
 
-    override fun renderDivider(modifier: Modifier) {
+    actual open fun renderDivider(modifier: Modifier) {
         TODO("Not yet implemented")
     }
 
-    override fun renderExpansionPanel(
+    actual open fun renderExpansionPanel(
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
         TODO("Not yet implemented")
     }
 
-    override fun renderGrid(
+    actual open fun renderGrid(
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
         TODO("Not yet implemented")
     }
 
-    override fun renderLazyColumn(
+    actual open fun renderLazyColumn(
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
         TODO("Not yet implemented")
     }
 
-    override fun renderLazyRow(
+    actual open fun renderLazyRow(
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
         TODO("Not yet implemented")
     }
 
-    override fun renderResponsiveLayout(
+    actual open fun renderResponsiveLayout(
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
         TODO("Not yet implemented")
     }
 
-    override fun renderHtmlTag(
+    actual open fun renderHtmlTag(
         tagName: String,
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
         TODO("Not yet implemented")
+    }
+
+    actual open fun renderModal(
+        visible: Boolean,
+        onDismissRequest: () -> Unit,
+        title: String?,
+        content: @Composable () -> Unit,
+        actions: @Composable (() -> Unit)?
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    actual open fun renderSnackbar(
+        message: String,
+        actionLabel: String?,
+        onAction: (() -> Unit)?
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    actual open fun renderSpacer(modifier: Modifier) {
+        TODO("Not yet implemented")
+    }
+
+    actual open fun renderAlertContainer(
+        variant: AlertVariant?,
+        modifier: Modifier,
+        content: @Composable (FlowContent.() -> Unit)
+    ) {
+    }
+
+    actual open fun renderBadge(modifier: Modifier, content: @Composable (FlowContent.() -> Unit)) {
+    }
+
+    actual open fun renderCheckbox(
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+        enabled: Boolean,
+        modifier: Modifier
+    ) {
+    }
+
+    actual open fun renderProgress(value: Float?, type: ProgressType, modifier: Modifier) {
+    }
+
+    actual open fun renderFileUpload(
+        onFilesSelected: (List<FileInfo>) -> Unit,
+        accept: String?,
+        multiple: Boolean,
+        enabled: Boolean,
+        capture: String?,
+        modifier: Modifier
+    ): () -> Unit {
+        createElement("input", modifier, { element ->
+            element.setAttribute("type", "file")
+            if (multiple) element.setAttribute("multiple", "")
+            accept?.let { element.setAttribute("accept", it) }
+            if (!enabled) element.setAttribute("disabled", "disabled")
+
+            element.addEventListener("change", { event ->
+                val files = js("event.target.files")
+                val fileList = mutableListOf<FileInfo>()
+                val length = js("files.length") as Int
+                for (i in 0 until length) {
+                    val file = js("files[i]")
+                    fileList.add(
+                        FileInfo(
+                            name = js("file.name") as String,
+                            size = js("file.size") as Long,
+                            type = js("file.type") as String,
+                            jsFile = file
+                        )
+                    )
+                }
+                onFilesSelected(fileList)
+            })
+        })
+        TODO("Not yet implemented")
+    }
+
+    actual open fun renderForm(onSubmit: (() -> Unit)?, modifier: Modifier, content: @Composable (FormContent.() -> Unit)) {
+    }
+
+    actual open fun renderFormField(
+        modifier: Modifier,
+        labelId: String?,
+        isRequired: Boolean,
+        isError: Boolean,
+        errorMessageId: String?,
+        content: @Composable (FlowContent.() -> Unit)
+    ) {
+    }
+
+    actual open fun renderRadioButton(selected: Boolean, onClick: () -> Unit, enabled: Boolean, modifier: Modifier) {
+    }
+
+    actual open fun renderRangeSlider(
+        value: ClosedFloatingPointRange<Float>,
+        onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
+        valueRange: ClosedFloatingPointRange<Float>,
+        steps: Int,
+        enabled: Boolean,
+        modifier: Modifier
+    ) {
+    }
+
+    actual open fun renderAspectRatio(ratio: Float, modifier: Modifier, content: @Composable (FlowContent.() -> Unit)) {
+    }
+
+    actual open fun renderCard(modifier: Modifier, content: @Composable (FlowContent.() -> Unit)) {
+    }
+
+    actual open fun renderAspectRatioContainer(ratio: Float, modifier: Modifier, content: @Composable () -> Unit) {
+        val aspectRatioModifier = modifier.style("padding-bottom", "${(1f / ratio) * 100}%")
+            .style("position", "relative")
+        createElement("div", aspectRatioModifier) {
+            createElement("div", Modifier().style("position", "absolute").style("top", "0").style("left", "0").style("width", "100%").style("height", "100%")) {
+                content()
+            }
+        }
     }
 }

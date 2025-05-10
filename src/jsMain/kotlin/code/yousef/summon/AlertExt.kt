@@ -15,7 +15,7 @@ data class AlertJsExtension(
 
 /**
  * Sets up a JavaScript action handler for the Alert component.
- * This extension function is called from JsPlatformRenderer.
+ * This extension function is called from PlatformRenderer.
  *
  * @param actionId The ID of the action button element in the DOM
  * @param alertExt Extension properties containing callbacks
@@ -47,7 +47,7 @@ fun setupJsActionHandler(actionId: String, alertExt: AlertJsExtension) {
 
 /**
  * Sets up a JavaScript dismiss handler for the Alert component.
- * This extension function is called from JsPlatformRenderer.
+ * This extension function is called from PlatformRenderer.
  *
  * @param dismissId The ID of the dismiss button element in the DOM
  * @param alertId The ID of the alert element in the DOM

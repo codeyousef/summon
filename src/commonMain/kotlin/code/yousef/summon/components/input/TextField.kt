@@ -3,11 +3,9 @@ package code.yousef.summon.components.input
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.remember
-import code.yousef.summon.state.State
 import code.yousef.summon.runtime.mutableStateOf
+import code.yousef.summon.runtime.remember
 import code.yousef.summon.validation.Validator
-import code.yousef.summon.modifier.attribute
 
 /**
  * A composable that displays a text input field.

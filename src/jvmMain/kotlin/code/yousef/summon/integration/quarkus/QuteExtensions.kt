@@ -1,7 +1,7 @@
 package code.yousef.summon.integration.quarkus
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.JvmPlatformRenderer
+import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import kotlinx.html.body
 import kotlinx.html.div
@@ -54,7 +54,7 @@ object SummonQuteExtensions {
         val composable = componentFactory(props)
         
         // Initialize the renderer
-        val renderer = JvmPlatformRenderer()
+        val renderer = PlatformRenderer()
         setPlatformRenderer(renderer)
         
         // Render to string

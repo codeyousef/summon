@@ -17,8 +17,9 @@ import kotlin.uuid.ExperimentalUuidApi
 // Interface defined in PlatformRenderer.kt commonMain
 // interface FormContent : FlowContent
 
-// JvmPlatformRenderer implementation
-class JvmPlatformRenderer : PlatformRenderer {
+// PlatformRenderer implementation
+@OptIn(ExperimentalUuidApi::class)
+actual open class PlatformRenderer {
 
     private val headElements = mutableListOf<String>()
 
@@ -50,17 +51,27 @@ class JvmPlatformRenderer : PlatformRenderer {
         return currentBuilder ?: error("Rendering function called outside of renderComposableRoot scope")
     }
 
-    override fun renderText(text: String, modifier: Modifier) {
+    actual open fun renderText(text: String, modifier: Modifier) {
         requireBuilder().span {
             applyModifier(modifier)
             +text
         }
     }
 
-    override fun renderButton(
+    actual open fun renderLabel(text: String, modifier: Modifier, forElement: String?) {
+        requireBuilder().label {
+            applyModifier(modifier)
+            if (forElement != null) {
+                htmlFor = forElement // Changed from htmlFor
+            }
+        }
+        +text
+    }
+
+    actual open fun renderButton(
         onClick: () -> Unit,
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable FlowContent.() -> Unit
     ) {
         requireBuilder().button {
             applyModifier(modifier)
@@ -70,7 +81,7 @@ class JvmPlatformRenderer : PlatformRenderer {
         }
     }
 
-    override fun renderTextField(
+    actual open fun renderTextField(
         value: String,
         onValueChange: (String) -> Unit,
         modifier: Modifier,
@@ -86,7 +97,7 @@ class JvmPlatformRenderer : PlatformRenderer {
         }
     }
 
-    override fun <T> renderSelect(
+    actual open fun <T> renderSelect(
         selectedValue: T?,
         onSelectedChange: (T?) -> Unit,
         options: List<code.yousef.summon.runtime.SelectOption<T>>,
@@ -110,7 +121,7 @@ class JvmPlatformRenderer : PlatformRenderer {
         }
     }
 
-    override fun renderDatePicker(
+    actual open fun renderDatePicker(
         value: LocalDate?,
         onValueChange: (LocalDate?) -> Unit,
         enabled: Boolean,
@@ -131,7 +142,7 @@ class JvmPlatformRenderer : PlatformRenderer {
         }
     }
 
-    override fun renderTextArea(
+    actual open fun renderTextArea(
         value: String,
         onValueChange: (String) -> Unit,
         enabled: Boolean,
@@ -156,33 +167,32 @@ class JvmPlatformRenderer : PlatformRenderer {
         }
     }
 
-    override fun addHeadElement(content: String) {
-        synchronized(headElements) { headElements.add(content) }
+    actual open fun addHeadElement(content: String) {
+        headElements.add(content)
     }
 
-    override fun getHeadElements(): List<String> {
+    actual open fun getHeadElements(): List<String> {
         return headElements.toList()
     }
 
-    /**
-     * Renders a composable component in the current context
-     * This is a convenience method for rendering a composable without directly accessing FlowContent
-     */
-    override fun renderComposable(composable: @Composable () -> Unit) {
-        requireBuilder() // Ensure context exists before calling content
-        renderContent(composable) // Delegate to the internal renderContent helper
+    // Renders a composable component in the current context
+// This is a convenience method for rendering a composable without directly accessing FlowContent
+    actual open fun renderComposable(composable: @Composable () -> Unit) {
+        currentBuilder?.let { builder ->
+            // If there's a current builder, execute content within its context
+            // This assumes composable() will use the implicit receiver (builder)
+            // Or, if composable() itself manages FlowContent, it might work differently.
+            // For kotlinx.html, direct execution like this should be fine if composable uses html {} blocks.
+            composable()
+        }
+            ?: error("renderComposable called without an active FlowContent builder. Ensure it's within renderComposableRoot or a parent Composable.")
     }
 
-    override fun renderComposableRoot(composable: @Composable (() -> Unit)): String {
-        if (currentBuilder != null) {
-            System.err.println("Warning: JvmPlatformRenderer.renderComposableRoot called while currentBuilder is set.")
-        }
-        val previousBuilder = currentBuilder
-        val sb = StringBuilder()
-        currentBuilder = null // Ensure clean context
-
+    actual open fun renderComposableRoot(composable: @Composable (() -> Unit)): String {
+        val currentContext = currentBuilder
+        val result = StringBuilder()
         try {
-            sb.appendHTML(prettyPrint = false).html {
+            result.appendHTML(prettyPrint = false).html {
                 head {
                     meta(charset = "UTF-8")
                     meta(name = "viewport", content = "width=device-width, initial-scale=1.0")
@@ -206,10 +216,10 @@ class JvmPlatformRenderer : PlatformRenderer {
             // Restore previous context if needed (should be null)
             // currentBuilder = previousBuilder
         }
-        return sb.toString()
+        return result.toString()
     }
 
-    override fun renderRow(
+    actual open fun renderRow(
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
@@ -220,7 +230,7 @@ class JvmPlatformRenderer : PlatformRenderer {
         }
     }
 
-    override fun renderColumn(
+    actual open fun renderColumn(
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
@@ -231,7 +241,7 @@ class JvmPlatformRenderer : PlatformRenderer {
         }
     }
 
-    override fun renderBox(
+    actual open fun renderBox(
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
@@ -241,13 +251,22 @@ class JvmPlatformRenderer : PlatformRenderer {
         }
     }
 
-    override fun renderImage(src: String, alt: String, modifier: Modifier) {
-        requireBuilder().img(alt = alt, src = src) {
+    actual open fun renderBoxContainer(modifier: Modifier, content: @Composable () -> Unit) {
+        requireBuilder().div {
+            applyModifier(modifier.then(Modifier.display("block"))) // Typically a div
+            renderContent(content)
+        }
+    }
+
+    actual open fun renderImage(src: String, alt: String?, modifier: Modifier) {
+        requireBuilder().img {
+            this.src = src
+            this.alt = alt ?: ""
             applyModifier(modifier)
         }
     }
 
-    override fun renderIcon(
+    actual open fun renderIcon(
         name: String,
         modifier: Modifier,
         onClick: (() -> Unit)?,
@@ -270,7 +289,7 @@ class JvmPlatformRenderer : PlatformRenderer {
         }
     }
 
-    override fun renderAlertContainer(
+    actual open fun renderAlertContainer(
         variant: AlertVariant?,
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
@@ -283,7 +302,7 @@ class JvmPlatformRenderer : PlatformRenderer {
         }
     }
 
-    override fun renderBadge(
+    actual open fun renderBadge(
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
@@ -294,7 +313,7 @@ class JvmPlatformRenderer : PlatformRenderer {
         }
     }
 
-    override fun renderCheckbox(
+    actual open fun renderCheckbox(
         checked: Boolean,
         onCheckedChange: (Boolean) -> Unit,
         enabled: Boolean,
@@ -311,110 +330,29 @@ class JvmPlatformRenderer : PlatformRenderer {
         }
     }
 
-    override fun renderProgress(
-        value: Float?,
-        type: ProgressType,
+    actual open fun renderSlider(
+        value: Float,
+        onValueChange: (Float) -> Unit,
+        valueRange: ClosedFloatingPointRange<Float>,
+        steps: Int,
+        enabled: Boolean,
         modifier: Modifier
     ) {
-        requireBuilder().progress {
+        requireBuilder().input(type = InputType.range) {
             applyModifier(modifier)
-            if (value != null) this.value = value.coerceIn(0f, 1f).toString()
-            comment(" Progress type '${type.name}' styling needed via Modifier/CSS ")
-        }
-    }
-
-    override fun renderFileUpload(
-        onFilesSelected: (List<FileInfo>) -> Unit,
-        accept: String?,
-        multiple: Boolean,
-        enabled: Boolean,
-        capture: String?,
-        modifier: Modifier
-    ): () -> Unit {
-        val inputId = "file-${UUID.randomUUID()}"
-        requireBuilder().input(type = InputType.file) {
-            applyModifier(modifier)
-            if (accept != null) this.accept = accept
-            this.multiple = multiple
+            min = valueRange.start.toString()
+            max = valueRange.endInclusive.toString()
+            if (steps > 0) step = ((valueRange.endInclusive - valueRange.start) / steps).toString()
+            this.value = value.toString()
             this.disabled = !enabled
-            if (capture != null) this.attributes["capture"] = capture
-            id = inputId
+            id = "slider-${UUID.randomUUID()}"
             name = id
-            comment(" onFilesSelected handler needed (JS) ")
+            comment(" onValueChange handler needed (JS) ")
             attributes["data-onchange-action"] = "true"
         }
-        return { System.err.println("Programmatic file upload trigger not available server-side.") }
     }
 
-    override fun renderForm(
-        onSubmit: (() -> Unit)?,
-        modifier: Modifier,
-        content: @Composable (FormContent.() -> Unit)
-    ) {
-        requireBuilder().form {
-            applyModifier(modifier)
-            if (onSubmit != null) {
-                attributes["data-onsubmit-action"] = "true"
-                comment(" onSubmit handler needed (JS). Form action/method? ")
-            }
-            // Fix duplicate supertype: FormContent extends FlowContent
-            val formContentImpl = object : FormContent by this {}
-            content(formContentImpl)
-        }
-    }
-
-    override fun renderFormField(
-        modifier: Modifier,
-        labelId: String?,
-        isRequired: Boolean,
-        isError: Boolean,
-        errorMessageId: String?,
-        content: @Composable (FlowContent.() -> Unit)
-    ) {
-        requireBuilder().div { // Wrapper div
-            applyModifier(modifier)
-            if (isError) {
-                attributes["aria-invalid"] = "true"
-                if (errorMessageId != null) attributes["aria-describedby"] = errorMessageId
-                comment(" Error state styling needed via CSS/Modifier ")
-            }
-            comment(" Label (for=$labelId) expected separately. isRequired=$isRequired ")
-            renderContent(content) // Render input(s)
-            if (isError && errorMessageId != null) {
-                div { // Error message container
-                    id = errorMessageId
-                    attributes["role"] = "alert"
-                    comment(" Error message content needed here ")
-                }
-            }
-        }
-    }
-
-    override fun renderRadioButton(
-        selected: Boolean,
-        onClick: () -> Unit,
-        enabled: Boolean,
-        modifier: Modifier
-    ) {
-        requireBuilder().input(type = InputType.radio) {
-            applyModifier(modifier)
-            this.checked = selected
-            this.disabled = !enabled
-            id = "radio-${UUID.randomUUID()}"
-            comment(" Radio button 'name' attribute MUST be provided for grouping. onClick handler needed (JS). ")
-            attributes["data-onclick-action"] = "true"
-        }
-    }
-
-    override fun renderSpacer(modifier: Modifier) {
-        requireBuilder().div {
-            applyModifier(modifier) // Modifier MUST define size via styles
-            comment(" Spacer size must be defined by Modifier styles ")
-            attributes["aria-hidden"] = "true"
-        }
-    }
-
-    override fun renderRangeSlider(
+    actual open fun renderRangeSlider(
         value: ClosedFloatingPointRange<Float>,
         onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
         valueRange: ClosedFloatingPointRange<Float>,
@@ -454,61 +392,17 @@ class JvmPlatformRenderer : PlatformRenderer {
         }
     }
 
-    override fun renderSlider(
-        value: Float,
-        onValueChange: (Float) -> Unit,
-        valueRange: ClosedFloatingPointRange<Float>,
-        steps: Int,
-        enabled: Boolean,
-        modifier: Modifier
-    ) {
-        requireBuilder().input(type = InputType.range) {
-            applyModifier(modifier)
-            min = valueRange.start.toString()
-            max = valueRange.endInclusive.toString()
-            if (steps > 0) step = ((valueRange.endInclusive - valueRange.start) / steps).toString()
-            this.value = value.toString()
-            this.disabled = !enabled
-            id = "slider-${UUID.randomUUID()}"
-            name = id
-            comment(" onValueChange handler needed (JS) ")
-            attributes["data-onchange-action"] = "true"
-        }
-    }
-
-    override fun renderSwitch(
-        checked: Boolean,
-        onCheckedChange: (Boolean) -> Unit,
-        enabled: Boolean,
-        modifier: Modifier
-    ) {
-        requireBuilder().label { // Requires specific CSS
-            applyModifier(modifier) // Style label, CSS targets input/span
-            comment(" Switch requires CSS styling ")
-            input(type = InputType.checkBox) {
-                this.checked = checked
-                this.disabled = !enabled
-                attributes["style"] =
-                    "position:absolute; opacity:0; pointer-events:none; width:0; height:0;" // Hide visually
-                attributes["data-onchange-action"] = "true"
-                comment(" onCheckedChange handler needed (JS) ")
-            }
-            span { comment(" CSS needed for switch slider appearance ") }
-        }
-    }
-
-    override fun renderTimePicker(
+    actual open fun renderTimePicker(
         value: LocalTime?,
         onValueChange: (LocalTime?) -> Unit,
         enabled: Boolean,
-        is24Hour: Boolean,
         modifier: Modifier
     ) {
         requireBuilder().input(type = InputType.time) {
             applyModifier(modifier)
             if (value != null) this.value = value.toString().take(8) // HH:MM:SS
             this.disabled = !enabled
-            comment(" 12/24 hour display depends on browser/locale. is24Hour=$is24Hour hint ignored. ")
+            comment(" 12/24 hour display depends on browser/locale. ")
             id = "time-${UUID.randomUUID()}"
             name = id
             attributes["data-onchange-action"] = "true"
@@ -516,46 +410,17 @@ class JvmPlatformRenderer : PlatformRenderer {
         }
     }
 
-    override fun renderAspectRatio(
-        ratio: Float,
-        modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
-    ) {
-        requireBuilder().div {
-            applyModifier(modifier)
-            comment(" Aspect ratio styling should be handled by Modifier/CSS. Applying directly if needed. ")
-            val currentStyle = attributes["style"] ?: ""
-            // Check the modifier's internal styles instead of the element's current style attribute
-            val modifierStyles = modifier.styles // Assuming Modifier has a 'styles' property
-            if ("aspect-ratio" !in modifierStyles) { // Check if modifier already sets it
-                attributes["style"] = "$currentStyle;aspect-ratio: $ratio;".trimStart(';')
-            }
-            renderContent(content)
-        }
-    }
-
-    override fun renderCard(
-        modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
-    ) {
-        requireBuilder().div {
-            applyModifier(modifier)
-            comment(" Card styling via Modifier/CSS needed ")
-            renderContent(content)
-        }
-    }
-
-    override fun renderLink(href: String, modifier: Modifier) {
+    actual open fun renderLink(href: String, modifier: Modifier) {
         requireBuilder().a(href = href) {
             applyModifier(modifier)
             +href
         }
     }
 
-    override fun renderLink(
-        modifier: Modifier,
+    actual open fun renderLink(
         href: String,
-        content: @Composable () -> Unit
+        modifier: Modifier,
+        content: @Composable FlowContent.() -> Unit
     ) {
         requireBuilder().a(href = href) {
             applyModifier(modifier)
@@ -563,31 +428,45 @@ class JvmPlatformRenderer : PlatformRenderer {
         }
     }
 
-    override fun renderEnhancedLink(
-        href: String,
-        target: String?,
-        title: String?,
-        ariaLabel: String?,
-        ariaDescribedBy: String?,
+    actual open fun renderFileUpload(
+        onFileSelected: (FileInfo?) -> Unit,
+        enabled: Boolean,
         modifier: Modifier
     ) {
-        requireBuilder().a(href = href, target = target) {
+        val inputId = "file-${UUID.randomUUID()}"
+        requireBuilder().input(type = InputType.file) {
             applyModifier(modifier)
-            if (title != null) this.title = title
-            if (ariaLabel != null) attributes["aria-label"] = ariaLabel
-            if (ariaDescribedBy != null) attributes["aria-describedby"] = ariaDescribedBy
-            comment(" EnhancedLink content missing from signature - using href ")
-            +href
+            this.disabled = !enabled
+            id = inputId
+            name = id
+            comment(" onFileSelected handler needed (JS) ")
+            attributes["data-onchange-action"] = "true"
+        }
+        return { System.err.println("Programmatic file upload trigger not available server-side.") }
+    }
+
+    actual open fun renderForm(
+        onSubmit: () -> Unit,
+        modifier: Modifier,
+        content: @Composable (FlowContent.() -> Unit)
+    ) {
+        requireBuilder().form {
+            applyModifier(modifier)
+            if (onSubmit != null) {
+                attributes["data-onsubmit-action"] = "true"
+                comment(" onSubmit handler needed (JS). Form action/method? ")
+            }
+            // Fix duplicate supertype: FormContent extends FlowContent
+            val formContentImpl = object : FormContent by this {}
+            content(formContentImpl)
         }
     }
 
-    // Fix 3: Assume Tab.content is () -> Unit
-    @OptIn(ExperimentalUuidApi::class)
-    override fun renderTabLayout(
-        tabs: List<Tab>,
+    actual open fun renderTabs(
         selectedTabIndex: Int,
         onTabSelected: (Int) -> Unit,
-        modifier: Modifier
+        modifier: Modifier,
+        tabs: List<Tab>
     ) {
         val builder = requireBuilder() // Get the builder context once
         builder.div { // Outer container
@@ -644,312 +523,41 @@ class JvmPlatformRenderer : PlatformRenderer {
         }
     }
 
-    override fun renderTabLayout(
+    actual open fun renderTab(
+        selected: Boolean,
+        onClick: () -> Unit,
         modifier: Modifier,
-        content: @Composable () -> Unit
+        content: @Composable (FlowContent.() -> Unit)
     ) {
         requireBuilder().div {
             applyModifier(modifier)
-            comment(" Assuming content lambda defines the full tab structure ")
+            comment(" Tab content should be wrapped in a tab panel ")
             renderContent(content)
         }
     }
 
-    override fun renderTabLayout(
-        tabs: List<String>,
-        selectedTab: String,
-        onTabSelected: (String) -> Unit,
-        modifier: Modifier,
-        content: () -> Unit
-    ) {
-        requireBuilder().div {
-            applyModifier(modifier)
-            comment(" Tab layout (String list variant) requires JS ")
-            div(classes = "tab-list") {
-                attributes["role"] = "tablist"
-                tabs.forEach { tabName ->
-                    button(classes = "tab-item ${if (tabName == selectedTab) "selected" else ""}") {
-                        attributes["role"] = "tab"
-                        attributes["aria-selected"] = (tabName == selectedTab).toString()
-                        attributes["data-tab-name"] = tabName
-                        attributes["data-onclick-action"] = "true"
-                        comment(" onTabSelected handler needed (JS) ")
-                        +tabName
-                    }
-                }
-            }
-            div(classes = "tab-panels") {
-                comment(" Content lambda called unconditionally. Panel logic unclear. ")
-                content()
-            }
-        }
-    }
-
-    override fun renderAnimatedVisibility(
-        visible: Boolean,
+    actual open fun renderSwitch(
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+        enabled: Boolean,
         modifier: Modifier
     ) {
-        if (visible) {
-            requireBuilder().div {
-                applyModifier(modifier)
-                attributes["data-animated"] = "true"
-                attributes["data-visible"] = "true"
-                attributes["data-animation-type"] = "visibility"
-                comment(" AnimatedVisibility visible - content missing from signature ")
+        requireBuilder().label { // Requires specific CSS
+            applyModifier(modifier) // Style label, CSS targets input/span
+            comment(" Switch requires CSS styling ")
+            input(type = InputType.checkBox) {
+                this.checked = checked
+                this.disabled = !enabled
+                attributes["style"] =
+                    "position:absolute; opacity:0; pointer-events:none; width:0; height:0;" // Hide visually
+                attributes["data-onchange-action"] = "true"
+                comment(" onCheckedChange handler needed (JS) ")
             }
-        } else {
-            requireBuilder().div {
-                applyModifier(modifier)
-                attributes["data-animated"] = "true"
-                attributes["data-visible"] = "false"
-                attributes["data-animation-type"] = "visibility"
-                attributes["style"] = "display: none;" // Hide when not visible
-                comment(" AnimatedVisibility hidden - content not rendered ")
-            }
+            span { comment(" CSS needed for switch slider appearance ") }
         }
     }
 
-    override fun renderAnimatedVisibility(
-        modifier: Modifier,
-        content: @Composable () -> Unit
-    ) {
-        requireBuilder().div {
-            applyModifier(modifier)
-            attributes["data-animated"] = "true"
-            attributes["data-visible"] = "true"
-            attributes["data-animation-type"] = "visibility"
-            renderContent(content)
-        }
-    }
-
-    override fun renderAnimatedContent(modifier: Modifier) {
-        requireBuilder().div {
-            applyModifier(modifier)
-            attributes["data-animated"] = "true"
-            attributes["data-animation-type"] = "content"
-            comment(" AnimatedContent - Content will be provided separately ")
-        }
-    }
-
-    override fun renderAnimatedContent(
-        modifier: Modifier,
-        content: @Composable () -> Unit
-    ) {
-        requireBuilder().div {
-            applyModifier(modifier)
-            attributes["data-animated"] = "true"
-            attributes["data-animation-type"] = "content"
-            attributes["data-content-transition"] = "true"
-            renderContent(content)
-        }
-    }
-
-    override fun renderBlock(
-        modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
-    ) {
-        requireBuilder().div { // Default block element
-            applyModifier(modifier)
-            renderContent(content)
-        }
-    }
-
-    override fun renderInline(
-        modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
-    ) {
-        requireBuilder().span { // Default inline element
-            applyModifier(modifier)
-            renderContent(content)
-        }
-    }
-
-    override fun renderDiv(
-        modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
-    ) {
-        requireBuilder().div {
-            applyModifier(modifier)
-            renderContent(content)
-        }
-    }
-
-    override fun renderSpan(
-        modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
-    ) {
-        requireBuilder().span {
-            applyModifier(modifier)
-            renderContent(content)
-        }
-    }
-
-    override fun renderDivider(modifier: Modifier) {
-        requireBuilder().hr {
-            applyModifier(modifier)
-        }
-    }
-
-    override fun renderExpansionPanel(
-        modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
-    ) {
-        requireBuilder().details { // Use native <details>
-            applyModifier(modifier)
-
-            // Extract title from modifier if available
-            val title = modifier.getAttributeValue("data-expansion-title") ?: "Details"
-            val isOpen = modifier.getAttributeValue("data-expansion-open") == "true"
-
-            // Add open attribute if panel should be expanded by default
-            if (isOpen) {
-                attributes["open"] = "true"
-            }
-
-            summary {
-                // Use title from modifier or default
-                +title
-            }
-
-            div(classes = "expansion-content") { // Wrapper for styling
-                renderContent(content)
-            }
-        }
-    }
-
-    // Helper extension to get attribute value from modifier
-    private fun Modifier.getAttributeValue(key: String): String? {
-        // This is a simplified implementation - in a real scenario, you would
-        // have a proper way to extract attributes from the Modifier
-        return null // Placeholder - implement actual attribute extraction
-    }
-
-    override fun renderGrid(
-        modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
-    ) {
-        requireBuilder().div {
-            applyModifier(modifier) // Modifier must apply display:grid styles
-            comment(" Grid layout styles needed via Modifier ")
-            renderContent(content)
-        }
-    }
-
-    override fun renderLazyColumn(
-        modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
-    ) {
-        requireBuilder().div { // Requires JS for true laziness
-            applyModifier(modifier) // Modifier must set height/overflow
-            comment(" LazyColumn rendered as scrollable div. Needs JS for true laziness. ")
-            renderContent(content) // Render all items
-        }
-    }
-
-    override fun renderLazyRow(
-        modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
-    ) {
-        requireBuilder().div { // Requires JS for true laziness
-            applyModifier(modifier) // Modifier must set width/overflow
-            comment(" LazyRow rendered as scrollable div. Needs JS for true laziness. ")
-            renderContent(content) // Render all items
-        }
-    }
-
-    override fun renderResponsiveLayout(
-        modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
-    ) {
-        requireBuilder().div {
-            applyModifier(modifier)
-
-            // Add responsive layout attributes
-            attributes["class"] = "responsive-layout"
-            attributes["data-responsive"] = "true"
-
-            // Add screen size detection script
-            script(type = "text/javascript") {
-                unsafe {
-                    raw(
-                        """
-                    (function() {
-                        // Screen size breakpoints
-                        const BREAKPOINTS = {
-                            SMALL: 600,   // Mobile phones (< 600px)
-                            MEDIUM: 960,  // Tablets (600px - 959px)
-                            LARGE: 1280   // Desktop (960px - 1279px)
-                            // XLARGE: >= 1280px (Large desktop)
-                        };
-
-                        // Function to determine current screen size
-                        function determineScreenSize() {
-                            const width = window.innerWidth;
-                            if (width < BREAKPOINTS.SMALL) {
-                                return 'SMALL';
-                            } else if (width < BREAKPOINTS.MEDIUM) {
-                                return 'MEDIUM';
-                            } else if (width < BREAKPOINTS.LARGE) {
-                                return 'LARGE';
-                            } else {
-                                return 'XLARGE';
-                            }
-                        }
-
-                        // Function to update layout based on screen size
-                        function updateLayout() {
-                            const layout = document.currentScript.parentElement;
-                            const screenSize = determineScreenSize();
-
-                            // Remove all screen size classes
-                            layout.classList.remove('small-screen', 'medium-screen', 'large-screen', 'xlarge-screen');
-
-                            // Add current screen size class
-                            layout.classList.add(screenSize.toLowerCase() + '-screen');
-
-                            // Set data attribute for current screen size
-                            layout.setAttribute('data-screen-size', screenSize);
-
-                            // Dispatch custom event for screen size change
-                            const event = new CustomEvent('screenSizeChanged', { 
-                                detail: { screenSize: screenSize } 
-                            });
-                            layout.dispatchEvent(event);
-                        }
-
-                        // Initialize layout
-                        updateLayout();
-
-                        // Update layout on window resize
-                        window.addEventListener('resize', updateLayout);
-                    })();
-                    """
-                    )
-                }
-            }
-
-            // Render content
-            renderContent(content)
-        }
-    }
-
-    // Render a label element for semantic HTML
-    override fun renderLabel(
-        text: String,
-        modifier: Modifier,
-        forElement: String?
-    ) {
-        requireBuilder().label {
-            applyModifier(modifier)
-            if (forElement != null) {
-                htmlFor = forElement
-            }
-            +text
-        }
-    }
-
-    // Fix 4: Fix HTMLTag rendering to avoid visit() issues
-    override fun renderHtmlTag(
+    actual open fun renderHtmlTag(
         tagName: String,
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
@@ -973,5 +581,455 @@ class JvmPlatformRenderer : PlatformRenderer {
 
         // Add a comment about the limitation
         builder.comment(" Note: Direct custom tag rendering requires JS DOM manipulation ")
+    }
+
+    actual open fun renderSpan(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+        requireBuilder().span {
+            applyModifier(modifier)
+            renderContent(content)
+        }
+    }
+
+    actual open fun renderDivider(modifier: Modifier) {
+        requireBuilder().hr {
+            applyModifier(modifier)
+        }
+    }
+
+    actual open fun renderExpansionPanel(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+        // Basic div implementation for JVM, actual expansion behavior might need JS
+        requireBuilder().div {
+            applyModifier(modifier.then(Modifier.border(1, "solid", "grey")))
+            comment(" ExpansionPanel: JS might be needed for interactive expand/collapse ")
+            renderContent(content)
+        }
+    }
+
+    actual open fun renderGrid(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+        requireBuilder().div {
+            applyModifier(modifier.then(Modifier.display("grid")))
+            renderContent(content)
+        }
+    }
+
+    actual open fun renderLazyColumn(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+        // JVM equivalent: scrollable div
+        requireBuilder().div {
+            applyModifier(modifier.then(Modifier.overflowY("auto")))
+            renderContent(content)
+        }
+    }
+
+    actual open fun renderLazyRow(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+        // JVM equivalent: scrollable div
+        requireBuilder().div {
+            applyModifier(modifier.then(Modifier.overflowX("auto")))
+            renderContent(content)
+        }
+    }
+
+    actual open fun renderResponsiveLayout(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+        // Basic div, actual responsiveness will depend on CSS within modifier and content
+        requireBuilder().div {
+            applyModifier(modifier)
+            comment(" ResponsiveLayout: Ensure CSS handles different screen sizes ")
+            // Add screen size detection script (example from previous JvmPlatformRenderer)
+            script(type = "text/javascript") {
+                unsafe {
+                    raw(
+                        """
+                    (function() {
+                        const BREAKPOINTS = { SMALL: 600, MEDIUM: 960, LARGE: 1280 };
+                        function determineScreenSize() {
+                            const width = window.innerWidth;
+                            if (width < BREAKPOINTS.SMALL) return 'SMALL';
+                            else if (width < BREAKPOINTS.MEDIUM) return 'MEDIUM';
+                            else if (width < BREAKPOINTS.LARGE) return 'LARGE';
+                            else return 'XLARGE';
+                        }
+                        function updateLayout() {
+                            const layout = document.currentScript ? document.currentScript.parentElement : document.body;
+                            const screenSize = determineScreenSize();
+                            layout.classList.remove('small-screen', 'medium-screen', 'large-screen', 'xlarge-screen');
+                            layout.classList.add(screenSize.toLowerCase() + '-screen');
+                            layout.setAttribute('data-screen-size', screenSize);
+                            const event = new CustomEvent('screenSizeChanged', { detail: { screenSize: screenSize } });
+                            layout.dispatchEvent(event);
+                        }
+                        if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', updateLayout); }
+                        else { updateLayout(); }
+                        window.addEventListener('resize', updateLayout);
+                    })();
+                    """
+                    )
+                }
+            }
+            renderContent(content)
+        }
+    }
+
+    actual open fun renderSnackbar(message: String, actionLabel: String?, onAction: (() -> Unit)?) {
+        // JVM: Simple text representation, or a div styled to look like a snackbar.
+        // Actual snackbar behavior (timing, dismissal) is typically JS-driven.
+        requireBuilder().div {
+            style =
+                "position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: #333; color: white; padding: 10px 20px; border-radius: 4px; z-index: 1000;"
+            +message
+            if (actionLabel != null) {
+                button {
+                    style = "margin-left: 15px; background: none; border: none; color: #80deea; cursor: pointer;"
+                    +actionLabel
+                    if (onAction != null) {
+                        comment(" JS hook for onAction on snackbar button needed ")
+                        // attributes["data-onclick-action"] = createJsAction(onAction) // Placeholder for JS hookup
+                    }
+                }
+            }
+            comment(" Snackbar: JS needed for timeout and dismissal ")
+        }
+    }
+
+    actual open fun renderDropdownMenu(
+        expanded: Boolean,
+        onDismissRequest: () -> Unit,
+        modifier: Modifier,
+        content: @Composable (() -> Unit)
+    ) {
+        if (expanded) {
+            requireBuilder().div {
+                applyModifier(
+                    modifier.then(
+                        Modifier.position("absolute").border(1, "solid", "#ccc").backgroundColor("white").zIndex(100)
+                    )
+                )
+                comment(" DropdownMenu: JS for positioning and dismissal (onDismissRequest) needed ")
+                attributes["data-onclick-dismiss"] = "true" // Example for JS hook
+                renderContent(content)
+            }
+        }
+    }
+
+    actual open fun renderTooltip(text: String, modifier: Modifier, content: @Composable (() -> Unit)) {
+        requireBuilder().div {
+            applyModifier(modifier.then(Modifier.position("relative")))
+            attributes["title"] = text // Basic browser tooltip
+            comment(" Tooltip: For custom styling, JS/CSS solution is better ")
+            renderContent(content)
+        }
+    }
+
+    actual open fun renderModal(
+        visible: Boolean,
+        onDismissRequest: () -> Unit,
+        title: String?,
+        content: @Composable (() -> Unit),
+        actions: @Composable (() -> Unit)?
+    ) {
+        if (visible) {
+            requireBuilder().div { // Modal overlay
+                style =
+                    "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 2000;"
+                attributes["data-onclick-dismiss-modal"] = "true" // Hook for closing by clicking overlay
+
+                div { // Modal content
+                    style =
+                        "background-color: white; padding: 20px; border-radius: 5px; min-width: 300px; max-width: 80%;"
+                    applyModifier(modifier) // Apply user modifier to content box
+                    if (title != null) {
+                        h3 { +title }
+                    }
+                    renderContent(content)
+                    if (actions != null) {
+                        div { style = "margin-top: 10px;"; renderContent(actions) }
+                    }
+                }
+                comment(" Modal: JS for onDismissRequest and complex interactions needed ")
+            }
+        }
+    }
+
+    actual open fun renderScreen(modifier: Modifier, content: @Composable (FlowContent.() -> Unit)) {
+        requireBuilder().div {
+            applyModifier(modifier.then(Modifier.width("100%").height("100vh")))
+            renderContent(content)
+        }
+    }
+
+    actual open fun renderHtml(htmlContent: String, modifier: Modifier) {
+        requireBuilder().div { // Wrapper div to apply modifier
+            applyModifier(modifier)
+            unsafe { raw(htmlContent) }
+        }
+    }
+
+    actual open fun renderSurface(modifier: Modifier, elevation: Int, content: @Composable (() -> Unit)) {
+        // Elevation can be simulated with box-shadow
+        val elevationStyle = when (elevation) {
+            1 -> "box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);"
+            2 -> "box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);"
+            // Add more levels as needed
+            else -> ""
+        }
+        requireBuilder().div {
+            applyModifier(modifier)
+            if (elevationStyle.isNotBlank()) {
+                attributes["style"] = (attributes["style"] ?: "") + elevationStyle
+            }
+            renderContent(content)
+        }
+    }
+
+    actual open fun renderSwipeToDismiss(
+        state: Any, // State object, likely for JS interop
+        background: @Composable (() -> Unit),
+        modifier: Modifier,
+        content: @Composable (() -> Unit)
+    ) {
+        requireBuilder().div {
+            applyModifier(modifier)
+            comment(" SwipeToDismiss: Full functionality requires JS. This is a static representation. ")
+            div { // Background placeholder
+                style = "position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 0;"
+                renderContent(background)
+            }
+            div { // Content placeholder
+                style = "position: relative; z-index: 1; background-color: white;" // Ensure content is above background
+                renderContent(content)
+            }
+        }
+    }
+
+    actual open fun renderVerticalPager(count: Int, state: Any, modifier: Modifier, content: @Composable ((Int) -> Unit)) {
+        requireBuilder().div {
+            applyModifier(modifier)
+            comment(" VerticalPager: JS for pagination logic needed. Displaying first page. ")
+            if (count > 0) {
+                renderContent { content(0) } // Render first page as placeholder
+            }
+        }
+    }
+
+    actual open fun renderHorizontalPager(count: Int, state: Any, modifier: Modifier, content: @Composable ((Int) -> Unit)) {
+        requireBuilder().div {
+            applyModifier(modifier)
+            comment(" HorizontalPager: JS for pagination logic needed. Displaying first page. ")
+            if (count > 0) {
+                renderContent { content(0) } // Render first page as placeholder
+            }
+        }
+    }
+
+    actual open fun renderAspectRatioContainer(ratio: Float, modifier: Modifier, content: @Composable (() -> Unit)) {
+        requireBuilder().div {
+            // CSS trick for aspect ratio box
+            val paddingBottom = "${(1f / ratio) * 100}%"
+            val outerStyle = "position: relative; width: 100%; height: 0; padding-bottom: $paddingBottom;"
+            val innerStyle = "position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+
+            attributes["style"] = (attributes["style"] ?: "") + outerStyle
+            applyModifier(modifier) // Apply user modifier to outer div
+
+            div { // Inner div for content
+                attributes["style"] = innerStyle
+                renderContent(content)
+            }
+        }
+    }
+
+    actual open fun renderFilePicker(
+        onFilesSelected: (List<FileInfo>) -> Unit,
+        enabled: Boolean,
+        multiple: Boolean,
+        accept: String?,
+        modifier: Modifier,
+        actions: @Composable (() -> Unit)? // Content for the button itself
+    ) {
+        requireBuilder().input(type = InputType.file) {
+            applyModifier(modifier)
+            this.multiple = multiple
+            if (accept != null) this.accept = accept
+            this.disabled = !enabled
+            // JS needed to handle onFilesSelected and map to FileInfo
+            comment(" FilePicker: JS needed for onFilesSelected callback and FileInfo creation ")
+            attributes["data-onfilesselected-action"] = "true"
+            // 'actions' would typically be the content of a button that triggers this input if it's hidden
+            // For a direct input, 'actions' might not be directly applicable this way.
+            // If 'actions' represents the button text/content for a styled picker:
+            if (actions != null) {
+                comment(" FilePicker 'actions' provided, but direct input shown. Consider custom styling with a label/button. ")
+                // This actual implementation shows a raw file input. To use `actions` as the clickable element,
+                // this input would need to be hidden and triggered by a button rendered via `actions`.
+            }
+        }
+    }
+
+    actual open fun renderAlert(
+        message: String,
+        variant: AlertVariant,
+        modifier: Modifier,
+        title: String?,
+        icon: @Composable (() -> Unit)?,
+        actions: @Composable (() -> Unit)?
+    ) {
+        val alertColor = when (variant) {
+            AlertVariant.INFO -> "#e0f7fa"
+            AlertVariant.SUCCESS -> "#e8f5e9"
+            AlertVariant.WARNING -> "#fff3e0"
+            AlertVariant.ERROR -> "#ffebee"
+        }
+        requireBuilder().div {
+            style =
+                "padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px; background-color: $alertColor;"
+            applyModifier(modifier)
+            if (icon != null) {
+                span { style = "margin-right: 10px;"; renderContent(icon) }
+            }
+            if (title != null) {
+                strong { +title; style = "display: block; margin-bottom: 5px;" }
+            }
+            +message
+            if (actions != null) {
+                div { style = "margin-top: 10px;"; renderContent(actions) }
+            }
+        }
+    }
+
+    actual open fun renderCard(modifier: Modifier, elevation: Int, content: @Composable (() -> Unit)) {
+        // Re-use renderSurface for card appearance
+        renderSurface(modifier.then(Modifier.border(1, "solid", "#ddd")), elevation, content)
+    }
+
+    actual open fun renderLinearProgressIndicator(progress: Float?, modifier: Modifier, type: ProgressType) {
+        requireBuilder().progress {
+            applyModifier(modifier)
+            if (type == ProgressType.DETERMINATE && progress != null) {
+                this.value = progress.toString()
+                max = "1"
+            } else {
+                comment(" Indeterminate LinearProgressIndicator ")
+                // No value attribute for indeterminate HTML progress, styling might be needed
+            }
+        }
+    }
+
+    actual open fun renderCircularProgressIndicator(progress: Float?, modifier: Modifier, type: ProgressType) {
+        // HTML doesn't have a native circular progress. Simulate with text or requires SVG/JS.
+        requireBuilder().div {
+            applyModifier(modifier)
+            if (type == ProgressType.DETERMINATE && progress != null) {
+                +"Progress: ${(progress * 100).toInt()}% (Circular - requires SVG/JS for visual)"
+            } else {
+                +"Loading... (Circular - requires SVG/JS for visual)"
+            }
+            comment(" CircularProgressIndicator: Visual representation requires SVG/CSS or JS library. ")
+        }
+    }
+
+    actual open fun renderModalBottomSheet(
+        onDismissRequest: () -> Unit,
+        modifier: Modifier,
+        content: @Composable (() -> Unit)
+    ) {
+        // Simplified modal for JVM, true bottom sheet behavior is JS/CSS driven.
+        requireBuilder().div { // Overlay
+            style =
+                "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.3); display: flex; align-items: flex-end; justify-content: center; z-index: 1500;"
+            attributes["data-onclick-dismiss-modal-sheet"] = "true"
+
+            div { // Sheet content
+                style =
+                    "background-color: white; padding: 20px; border-top-left-radius: 8px; border-top-right-radius: 8px; width: 100%; max-width: 600px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);"
+                applyModifier(modifier)
+                renderContent(content)
+            }
+            comment(" ModalBottomSheet: JS for onDismissRequest and animations needed ")
+        }
+    }
+
+    actual open fun renderAlertDialog(
+        onDismissRequest: () -> Unit,
+        confirmButton: @Composable (() -> Unit),
+        modifier: Modifier,
+        dismissButton: @Composable (() -> Unit)?,
+        icon: @Composable (() -> Unit)?,
+        title: @Composable (() -> Unit)?,
+        text: @Composable (() -> Unit)?
+    ) {
+        requireBuilder().div { // Overlay
+            style =
+                "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 2500;"
+
+            div { // Dialog box
+                style =
+                    "background-color: white; padding: 25px; border-radius: 8px; min-width: 280px; max-width: 560px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);"
+                applyModifier(modifier)
+                if (icon != null) {
+                    div { style = "text-align: center; margin-bottom: 15px;"; renderContent(icon) }
+                }
+                if (title != null) {
+                    div { style = "font-size: 1.25em; font-weight: bold; margin-bottom: 10px;"; renderContent(title) }
+                }
+                if (text != null) {
+                    div { style = "margin-bottom: 20px;"; renderContent(text) }
+                }
+                div { // Buttons
+                    style = "display: flex; justify-content: flex-end; gap: 10px;"
+                    if (dismissButton != null) {
+                        renderContent(dismissButton)
+                    }
+                    renderContent(confirmButton)
+                }
+                comment(" AlertDialog: JS for onDismissRequest and button actions needed ")
+            }
+        }
+    }
+
+    actual open fun renderRadioButton(
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+        label: String?,
+        enabled: Boolean,
+        modifier: Modifier
+    ) {
+        val radioId = "radio-${UUID.randomUUID()}"
+        requireBuilder().span { // Wrapper for radio and label
+            applyModifier(modifier)
+            input(
+                type = InputType.radio,
+                name = "radio-group-${hashCode()}"
+            ) { // Ensure unique name for groups if needed
+                id = radioId
+                this.checked = checked
+                this.disabled = !enabled
+                attributes["data-onchange-action"] = "true"
+                comment(" onCheckedChange JS hook needed ")
+            }
+            if (label != null) {
+                label(htmlFor = radioId) { +label; style = "margin-left: 8px;" }
+            }
+        }
+    }
+
+    actual open fun renderCheckbox(
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+        enabled: Boolean,
+        label: String?,
+        modifier: Modifier
+    ) {
+        val checkboxId = "checkbox-${UUID.randomUUID()}"
+        requireBuilder().span { // Wrapper for checkbox and label
+            applyModifier(modifier)
+            input(type = InputType.checkBox) {
+                id = checkboxId
+                this.checked = checked
+                this.disabled = !enabled
+                attributes["data-onchange-action"] = "true"
+                comment(" onCheckedChange JS hook needed ")
+            }
+            if (label != null) {
+                label(htmlFor = checkboxId) { +label; style = "margin-left: 8px;" }
+            }
+        }
     }
 }
