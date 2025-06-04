@@ -5,7 +5,9 @@
 
 set -e
 
+echo "==============================================="
 echo "Publishing to Maven Central Portal..."
+echo "==============================================="
 
 # Check for required environment variables
 if [ -z "$CENTRAL_USERNAME" ] || [ -z "$CENTRAL_PASSWORD" ]; then
