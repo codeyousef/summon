@@ -57,6 +57,10 @@ All notable changes to this project will be documented in this file.
   - Added Maven Central publishing to snapshot builds (on push to main)
   - Updated signing configuration to use environment variables for CI/CD
   - Added GPG key import to snapshot publishing job
+  - Added support for new Maven Central Portal publishing via REST API
+  - Created publish-to-central-portal.sh and .bat scripts for bundle creation and upload
+  - Updated CI/CD to use Central Portal publishing scripts instead of traditional OSSRH
+  - Changed publishing type from USER_MANAGED to AUTOMATIC for immediate Maven Central publication
 - **Documentation:** Updated project description
   - Changed terminology from "UI toolkit" to "frontend framework" to better reflect Summon's comprehensive nature
   - Updated README.md and project documentation with new terminology

@@ -184,9 +184,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_ACTOR: ${{ github.actor }}
         
-    - name: Publish to Maven Central
+    - name: Publish to Maven Central Portal
       continue-on-error: true
-      run: ./gradlew publishAllPublicationsToOSSRHRepository --no-daemon --stacktrace
+      run: ./publish-to-central-portal.sh
       env:
         CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
         CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
@@ -229,9 +229,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_ACTOR: ${{ github.actor }}
         
-    - name: Publish to Maven Central
+    - name: Publish to Maven Central Portal
       continue-on-error: true
-      run: ./gradlew publishAllPublicationsToOSSRHRepository --no-daemon --stacktrace
+      run: ./publish-to-central-portal.sh
       env:
         CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
         CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}

@@ -224,7 +224,7 @@ publishing {
                     developer {
                         id.set("yousef")
                         name.set("Yousef") // Update with your actual name
-                        email.set("your.email@example.com") // Update with your email
+                        email.set("publishing.rental535@passmail.net") // Update with your email
                     }
                 }
                 
@@ -295,6 +295,21 @@ tasks.register("testAll") {
     dependsOn("allTests")
     group = "verification"
     description = "Run all tests for all targets"
+}
+
+// New Maven Central Portal - Create bundle and upload via REST API
+tasks.register("createCentralPortalBundle") {
+    group = "publishing"
+    description = "Create a bundle for the new Maven Central Portal"
+    
+    doLast {
+        // This task would need to:
+        // 1. Create a staging directory
+        // 2. Copy all artifacts (JARs, POMs, signatures) to staging
+        // 3. Create a ZIP bundle
+        // For now, we'll use the traditional approach
+        println("Bundle creation for Central Portal would go here")
+    }
 }
 
 // Make publish depend on tests - commented out to allow publishing with failing tests

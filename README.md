@@ -156,13 +156,16 @@ Summon now includes automated publishing and continuous integration. The project
 Publishing happens automatically through GitHub Actions:
 
 - **On push to `main`**: 
-  - Snapshot builds are published to both GitHub Packages and Maven Central
-  - Version is automatically changed to `X.X.X-SNAPSHOT`
+  - Builds are automatically published to GitHub Packages
+  - Bundle is created and uploaded to Maven Central Portal
+  - Maven Central publication happens automatically after validation
+  - Version is automatically changed to `X.X.X-SNAPSHOT` for snapshots
   - No manual action required - just push to main!
   
 - **On GitHub release**:
   - Release builds are published to both GitHub Packages and Maven Central
   - Uses the version tag from the release
+  - Automatic publication to Maven Central (no manual approval needed)
   
 - **Pull request testing**: All tests run automatically on pull requests
 
@@ -186,22 +189,37 @@ Publishing configuration includes:
   - `SIGNING_SECRET_KEY` - Your GPG private key (base64 encoded)
 - Publishing will run automatically on releases
 
-**For Local Publishing:**
-- Export the same variables as environment variables in your shell:
+**For Local Publishing to Maven Central Portal:**
+- Export the required environment variables:
   ```bash
-  export CENTRAL_USERNAME="your-ossrh-username"
-  export CENTRAL_PASSWORD="your-ossrh-password"
+  export CENTRAL_USERNAME="your-central-portal-username"
+  export CENTRAL_PASSWORD="your-central-portal-token"
   ```
-- Run `./gradlew publishAllPublicationsToOSSRHRepository` (note: OSSRH in uppercase)
+- Run the publishing script:
+  ```bash
+  ./publish-to-central-portal.sh  # Linux/macOS
+  # or
+  publish-to-central-portal.bat   # Windows (requires manual upload step)
+  ```
+- This creates a bundle and uploads it to the Central Portal
+- The bundle is automatically published to Maven Central after validation
+- Monitor status at https://central.sonatype.com
 
 **Publishing to GitHub Packages (currently active):**
 - Ensure `GITHUB_TOKEN` is set with `write:packages` permission
 - Run `./gradlew publishAllPublicationsToGitHubPackagesRepository`
 
 **Troubleshooting:**
-- If you see errors about `publishJsPublicationToCentralRepository`, run `./gradlew clean` first
+- If you see errors about `publishJsPublicationToCentralRepository` or wrong URLs:
+  - Run `./clean-gradle-cache.sh` (Linux/macOS) or `clean-gradle-cache.bat` (Windows)
+  - This completely clears Gradle's cache to remove any stale configuration
 - The repository has been renamed from "central" to "OSSRH" to avoid conflicts
 - Maven Central publishing requires proper OSSRH credentials and namespace verification
+- If the error persists showing `https://central.sonatype.com/api/v1/publisher/deployments/`:
+  - This is the new Central Portal API URL (for accounts created in 2024+)
+  - The new Central Portal requires different configuration than traditional OSSRH
+  - **Current workaround**: Use GitHub Packages for publishing (working and configured)
+  - To check your account type: Log in to https://central.sonatype.com - if it works, you have a Central Portal account
 
 ### Quick Testing
 
@@ -290,9 +308,9 @@ kotlin {
 
 ## Using Published Versions
 
-Summon is currently published to GitHub Packages. Maven Central publishing is being configured.
+Summon is published to GitHub Packages, with Maven Central support coming soon.
 
-### From GitHub Packages
+### From GitHub Packages (Recommended)
 ```kotlin
 repositories {
     maven {
