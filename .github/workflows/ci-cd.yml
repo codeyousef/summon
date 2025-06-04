@@ -204,31 +204,23 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
-    - name: Import GPG key
-      continue-on-error: true
-      env:
-        GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-        GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-      run: |
-        echo "$GPG_PRIVATE_KEY" | base64 --decode | gpg --batch --import
-        gpg --list-secret-keys --keyid-format LONG
-        
-    - name: Publish to Maven Central
-      continue-on-error: true
-      run: ./gradlew publishAllPublicationsToOssrhRepository --no-daemon --stacktrace
-      env:
-        CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
-        CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
-        SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
-        SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-        SIGNING_SECRET_KEY: ${{ secrets.SIGNING_SECRET_KEY }}
-        
-    - name: Publish to GitHub Packages (fallback)
-      continue-on-error: true
+    - name: Publish to GitHub Packages
       run: ./gradlew publishAllPublicationsToGitHubPackagesRepository --no-daemon --stacktrace
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_ACTOR: ${{ github.actor }}
+        
+    # Maven Central publishing temporarily disabled
+    # Uncomment and configure when Central Portal credentials are ready
+    # - name: Publish to Maven Central
+    #   if: env.CENTRAL_USERNAME != '' && env.CENTRAL_PASSWORD != ''
+    #   run: ./gradlew publishAllPublicationsToCentralRepository --no-daemon --stacktrace
+    #   env:
+    #     CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+    #     CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+    #     SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
+    #     SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+    #     SIGNING_SECRET_KEY: ${{ secrets.SIGNING_SECRET_KEY }}
 
   security-scan:
     name: Security Scan

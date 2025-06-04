@@ -1,3 +1,9 @@
+import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.plugins.signing.SigningExtension
+import org.gradle.api.publish.tasks.GenerateModuleMetadata
+import org.gradle.api.publish.maven.tasks.AbstractPublishToMaven
+import org.gradle.plugins.signing.Sign
+
 plugins {
     kotlin("multiplatform") version "2.2.0-Beta1"
     kotlin("plugin.serialization") version "2.2.0-Beta1"
@@ -232,33 +238,7 @@ publishing {
     }
     
     repositories {
-        // Maven Central - Try traditional OSSRH first (comment out if using new Central Portal)
-        maven {
-            name = "ossrh"
-            val releasesUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-            val snapshotsUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-            url = if (version.toString().endsWith("SNAPSHOT")) snapshotsUrl else releasesUrl
-            
-            credentials {
-                username = project.findProperty("centralUsername") as String? ?: System.getenv("CENTRAL_USERNAME")
-                password = project.findProperty("centralPassword") as String? ?: System.getenv("CENTRAL_PASSWORD")
-            }
-        }
-        
-        // Alternative: New Central Portal (uncomment if account is migrated)
-        // maven {
-        //     name = "central"
-        //     val releasesUrl = uri("https://central.sonatype.com/api/v1/publisher/deployments/")
-        //     val snapshotsUrl = uri("https://central.sonatype.com/api/v1/publisher/deployments/")
-        //     url = if (version.toString().endsWith("SNAPSHOT")) snapshotsUrl else releasesUrl
-        //     
-        //     credentials {
-        //         username = project.findProperty("centralUsername") as String? ?: System.getenv("CENTRAL_USERNAME")
-        //         password = project.findProperty("centralPassword") as String? ?: System.getenv("CENTRAL_PASSWORD")
-        //     }
-        // }
-        
-        // GitHub Packages (alternative)
+        // GitHub Packages - Working and reliable
         maven {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/codeyousef/summon")
@@ -267,6 +247,20 @@ publishing {
                 password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
             }
         }
+        
+        // Maven Central repositories temporarily disabled until Central Portal setup is complete
+        // Uncomment when ready:
+        // maven {
+        //     name = "central"
+        //     val releasesUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+        //     val snapshotsUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+        //     url = if (version.toString().endsWith("SNAPSHOT")) snapshotsUrl else releasesUrl
+        //     
+        //     credentials {
+        //         username = project.findProperty("centralUsername") as String? ?: System.getenv("CENTRAL_USERNAME")
+        //         password = project.findProperty("centralPassword") as String? ?: System.getenv("CENTRAL_PASSWORD")
+        //     }
+        // }
     }
 }
 
