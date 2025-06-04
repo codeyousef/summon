@@ -147,14 +147,52 @@ Comprehensive API reference documentation is available in the [docs/api-referenc
 - [SEO API](docs/api-reference/seo.md) - SEO features and meta tags
 - [Internationalization API](docs/api-reference/i18n-api.md) - Multi-language and RTL layout support
 
+## Publishing and CI/CD
+
+Summon now includes automated publishing and continuous integration. The project supports publishing to both Maven Central and GitHub Packages with comprehensive testing.
+
+### Automated Publishing
+
+- **Snapshot builds**: Automatically published to GitHub Packages on every push to `main`
+- **Release builds**: Published to Maven Central when you create a GitHub release
+- **Pull request testing**: All tests run automatically on pull requests
+
+### Setting Up Publishing
+
+For detailed setup instructions, see [PUBLISHING.md](PUBLISHING.md) which covers:
+
+- Maven Central setup (Sonatype OSSRH)
+- GPG key generation and configuration
+- GitHub Secrets configuration
+- Local development setup
+
+### Quick Testing
+
+Run the included test scripts to verify everything works locally:
+
+**Linux/macOS:**
+```bash
+./test-and-build.sh
+```
+
+**Windows:**
+```cmd
+test-and-build.bat
+```
+
+These scripts will:
+- ✅ Run all tests (JVM, JS with Chrome headless, and common)
+- 🔨 Build all targets
+- 📦 Optionally test local publishing
+
 ## Local Development Setup
 
-Since Summon is not yet published to Maven Central, you'll need to build it locally:
+For development or if you want to use a locally built version:
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yebaital/summon.git
+git clone https://github.com/codeyousef/summon.git
 cd summon
 ```
 
@@ -187,20 +225,48 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("code.yousef:summon:0.2.5.1")
+                implementation("io.github.codeyousef:summon:0.2.5.1")
             }
         }
 
         val jvmMain by getting {
             dependencies {
-                implementation("code.yousef:summon-jvm:0.2.5.1")
+                implementation("io.github.codeyousef:summon-jvm:0.2.5.1")
             }
         }
 
         val jsMain by getting {
             dependencies {
-                implementation("code.yousef:summon-js:0.2.5.1")
+                implementation("io.github.codeyousef:summon-js:0.2.5.1")
             }
+        }
+    }
+}
+```
+
+## Using Published Versions
+
+Once published, you can include Summon directly from Maven repositories:
+
+### From Maven Central (coming soon)
+```kotlin
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("io.github.codeyousef:summon:0.2.5.1")
+}
+```
+
+### From GitHub Packages
+```kotlin
+repositories {
+    maven {
+        url = uri("https://maven.pkg.github.com/codeyousef/summon")
+        credentials {
+            username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
+            password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
         }
     }
 }

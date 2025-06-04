@@ -111,9 +111,9 @@ class ModifierExtensionsTest {
         val modifier3 = Modifier().minWidth(50)
         verifyStyle(modifier3, "min-width", "50px")
 
-        // Test minWidth with String
-        val modifier4 = Modifier().minWidth("10rem")
-        verifyStyle(modifier4, "min-width", "10rem")
+        // Test minWidth with another Number
+        val modifier4 = Modifier().minWidth(160)
+        verifyStyle(modifier4, "min-width", "160px")
 
         // Test minHeight with Number
         val modifier5 = Modifier().minHeight(75)

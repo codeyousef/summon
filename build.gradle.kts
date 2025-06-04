@@ -2,9 +2,10 @@ plugins {
     kotlin("multiplatform") version "2.2.0-Beta1"
     kotlin("plugin.serialization") version "2.2.0-Beta1"
     `maven-publish`
+    signing
 }
 
-group = "code.yousef"
+group = "io.github.codeyousef"
 version = "0.2.5.1"
 
 repositories {
@@ -34,6 +35,13 @@ kotlin {
             commonWebpackConfig {
                 cssSupport {
                     enabled.set(true)
+                }
+            }
+            testTask {
+                useKarma {
+                    useChromeHeadless()
+                    // Additional Chrome arguments for CI environments
+                    webpackConfig.devtool = "source-map"
                 }
             }
         }
@@ -112,19 +120,19 @@ kotlin {
 
 dependencies {
     // Quarkus integration dependencies
-    "quarkusIntegration"("io.quarkus:quarkus-core:3.6.5")
-    "quarkusIntegration"("io.quarkus:quarkus-qute:3.6.5")
-    "quarkusIntegration"("io.quarkus:quarkus-kotlin:3.6.5")
-    "quarkusIntegration"("io.quarkus:quarkus-vertx-http:3.6.5")
-    "quarkusIntegration"("io.quarkus:quarkus-resteasy-reactive:3.6.5")
-    "quarkusIntegration"("io.quarkus:quarkus-resteasy-reactive-jackson:3.6.5")
-    "quarkusIntegration"("io.quarkus:quarkus-websockets:3.6.5")
-    "quarkusIntegration"("io.quarkus:quarkus-arc:3.6.5")
+    "quarkusIntegration"("io.quarkus:quarkus-core:3.9.2")
+    "quarkusIntegration"("io.quarkus:quarkus-qute:3.9.2")
+    "quarkusIntegration"("io.quarkus:quarkus-kotlin:3.9.2")
+    "quarkusIntegration"("io.quarkus:quarkus-vertx-http:3.9.2")
+    "quarkusIntegration"("io.quarkus:quarkus-resteasy-reactive:3.9.2")
+    "quarkusIntegration"("io.quarkus:quarkus-resteasy-reactive-jackson:3.9.2")
+    "quarkusIntegration"("io.quarkus:quarkus-websockets:3.9.2")
+    "quarkusIntegration"("io.quarkus:quarkus-arc:3.9.2")
 
     // Add deployment dependencies to the quarkusDeployment configuration
-    "quarkusDeployment"("io.quarkus:quarkus-core-deployment:3.6.5")
-    "quarkusDeployment"("io.quarkus:quarkus-arc-deployment:3.6.5")
-    "quarkusDeployment"("io.quarkus:quarkus-security-deployment:3.6.5")
+    "quarkusDeployment"("io.quarkus:quarkus-core-deployment:3.9.2")
+    "quarkusDeployment"("io.quarkus:quarkus-arc-deployment:3.9.2")
+    "quarkusDeployment"("io.quarkus:quarkus-security-deployment:3.9.2")
 
     // Add Ktor dependencies to the ktorIntegration configuration
     "ktorIntegration"("io.ktor:ktor-server-core:2.3.7")
@@ -188,20 +196,97 @@ tasks.register("verifySpringBootIntegration") {
     }
 }
 
-// --- Custom Tasks & Publishing will be enabled later --- 
-
-// Configure maven publishing
+// Enhanced Publishing Configuration
 publishing {
     publications {
-        // Publishing is automatically configured by the Kotlin Multiplatform plugin
-        // This will create publications for all targets (jvm, js)
+        // Publications are automatically created by the Kotlin Multiplatform plugin
+        withType<MavenPublication> {
+            // Configure common metadata for all publications
+            pom {
+                name.set("Summon")
+                description.set("A Kotlin Multiplatform UI framework for building web applications")
+                url.set("https://github.com/yourusername/summon") // Update with your actual GitHub URL
+                
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("https://opensource.org/licenses/MIT")
+                    }
+                }
+                
+                developers {
+                    developer {
+                        id.set("yousef")
+                        name.set("Yousef") // Update with your actual name
+                        email.set("your.email@example.com") // Update with your email
+                    }
+                }
+                
+                scm {
+                    connection.set("scm:git:git://github.com/yourusername/summon.git")
+                    developerConnection.set("scm:git:ssh://github.com/yourusername/summon.git")
+                    url.set("https://github.com/yourusername/summon")
+                }
+            }
+        }
     }
+    
+    repositories {
+        // Maven Central (New Central Portal)
+        maven {
+            name = "central"
+            val releasesUrl = uri("https://central.sonatype.com/api/v1/publisher/deployments/")
+            val snapshotsUrl = uri("https://central.sonatype.com/api/v1/publisher/deployments/")
+            url = if (version.toString().endsWith("SNAPSHOT")) snapshotsUrl else releasesUrl
+            
+            credentials {
+                username = project.findProperty("centralUsername") as String? ?: System.getenv("CENTRAL_USERNAME")
+                password = project.findProperty("centralPassword") as String? ?: System.getenv("CENTRAL_PASSWORD")
+            }
+        }
+        
+        // GitHub Packages (alternative)
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/yourusername/summon") // Update with your GitHub username/repo
+            credentials {
+                username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
+                password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+}
 
-    // Configure repositories if needed
-    // repositories {
-    //     maven {
-    //         name = "MyRepo"
-    //         url = uri("https://example.com/repository")
-    //     }
-    // }
-} 
+// Configure signing for Maven Central
+if (project.hasProperty("signing.keyId")) {
+    configure<SigningExtension> {
+        sign(publishing.publications)
+    }
+}
+
+// Javadoc JAR task for Maven Central compliance
+tasks.register<Jar>("javadocJar") {
+    archiveClassifier.set("javadoc")
+    from("$projectDir/docs") // You can put documentation here
+}
+
+// Sources JAR is automatically created by Kotlin Multiplatform plugin
+// But you can customize it if needed
+tasks.withType<AbstractPublishToMaven> {
+    dependsOn(tasks.withType<Sign>())
+}
+
+// Task to run all tests before publishing
+tasks.register("testAll") {
+    dependsOn("allTests")
+    group = "verification"
+    description = "Run all tests for all targets"
+}
+
+// Make publish depend on tests
+tasks.withType<PublishToMavenRepository> {
+    dependsOn("testAll")
+}
+
+// Configure JS tests to use headless Chrome
+// (This configuration is now moved to the kotlin block above) 

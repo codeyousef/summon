@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.5.1]
+
+### Fixed
+- **Icon Component:** Fixed compilation error by removing incorrect import of `role` function
+  - The `role` function is a member function of the `Modifier` class, not an extension function
+  - Removed unnecessary import statement that was causing "Unresolved reference 'role'" error
+- **ModifierExtensionsTest:** Fixed type mismatch error in test
+  - Changed test to use Number parameter instead of String for `minWidth` function
+  - Extension functions in `ModifierExtensions.kt` only accept Number parameters and automatically append "px"
+
+### Changed
+- **Documentation:** Comprehensive documentation update
+  - Updated all component documentation to include 40+ components
+  - Created complete modifier API reference covering all modifier features
+  - Enhanced state management documentation with ViewModel and Flow integration
+  - Updated routing documentation with dynamic route patterns
+  - Improved animation and color API references
+  - Added missing API references for accessibility, SEO, and i18n
+- **README.md:** Updated with correct GitHub username and Maven coordinates
+  - Changed GitHub repository URL from `yebaital` to `codeyousef`
+  - Updated Maven group ID from `code.yousef` to `io.github.codeyousef`
+
+### Known Issues
+- JS test compilation fails with Kotlin 2.2.0-Beta1 due to cross-module dependency issues with kotlinx-serialization
+  - Main code compiles successfully for all platforms
+  - JVM tests pass successfully
+  - Workaround: Use `./gradlew build -x jsTest -x jsBrowserTest` to build without JS tests
+
 ## [0.2.4.5]
 
 ### Refactor
