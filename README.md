@@ -166,6 +166,23 @@ Publishing configuration includes:
 - GitHub Secrets configuration
 - Local development setup
 
+**Important:** Publishing to Maven Central requires authentication:
+
+**For CI/CD (GitHub Actions):**
+- Set up the following as GitHub repository secrets (Settings → Secrets and variables → Actions):
+  - `CENTRAL_USERNAME` - Your Sonatype OSSRH username
+  - `CENTRAL_PASSWORD` - Your Sonatype OSSRH password
+  - `SIGNING_KEY_ID` - Your GPG key ID for signing artifacts
+  - `SIGNING_PASSWORD` - Your GPG key passphrase
+  - `SIGNING_SECRET_KEY` - Your GPG private key (base64 encoded)
+- Publishing will run automatically on releases
+
+**For Local Publishing:**
+- Export the same variables as environment variables in your shell
+- Run `./gradlew publishAllPublicationsToOssrhRepository`
+
+The project is configured to use traditional OSSRH URLs. If your account has been migrated to the new Central Portal, you may need to update the repository URLs in `build.gradle.kts`.
+
 ### Quick Testing
 
 Run the included test scripts to verify everything works locally:

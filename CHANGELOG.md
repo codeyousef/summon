@@ -44,6 +44,11 @@ All notable changes to this project will be documented in this file.
   - Updated GitHub repository URLs in publishing configuration from `yourusername` to `codeyousef`
   - Fixed group ID from `io.github.yourusername` to `io.github.codeyousef` to match repository owner
   - Added both traditional OSSRH and new Central Portal repository configurations for flexibility
+  - Renamed Maven Central repository from "central" to "ossrh" to avoid conflicts with cached configurations
+  - Added documentation about required environment variables for Maven Central publishing
+  - Updated CI/CD workflow to use the renamed "ossrh" repository instead of "central"
+  - Added continue-on-error flags to publishing steps to handle cases where secrets might not be configured
+  - Clarified documentation for local vs CI/CD publishing with repository secrets
 - **Documentation:** Updated project description
   - Changed terminology from "UI toolkit" to "frontend framework" to better reflect Summon's comprehensive nature
   - Updated README.md and project documentation with new terminology

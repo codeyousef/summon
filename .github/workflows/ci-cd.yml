@@ -205,7 +205,7 @@ jobs:
       run: chmod +x gradlew
       
     - name: Import GPG key
-      if: env.GPG_PRIVATE_KEY != ''
+      continue-on-error: true
       env:
         GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
         GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
@@ -214,8 +214,8 @@ jobs:
         gpg --list-secret-keys --keyid-format LONG
         
     - name: Publish to Maven Central
-      if: env.CENTRAL_USERNAME != '' && env.CENTRAL_PASSWORD != ''
-      run: ./gradlew publishAllPublicationsToCentralRepository --no-daemon --stacktrace
+      continue-on-error: true
+      run: ./gradlew publishAllPublicationsToOssrhRepository --no-daemon --stacktrace
       env:
         CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
         CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
@@ -224,7 +224,7 @@ jobs:
         SIGNING_SECRET_KEY: ${{ secrets.SIGNING_SECRET_KEY }}
         
     - name: Publish to GitHub Packages (fallback)
-      if: env.CENTRAL_USERNAME == '' || env.CENTRAL_PASSWORD == ''
+      continue-on-error: true
       run: ./gradlew publishAllPublicationsToGitHubPackagesRepository --no-daemon --stacktrace
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
