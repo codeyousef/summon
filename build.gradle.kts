@@ -232,11 +232,11 @@ publishing {
     }
     
     repositories {
-        // Maven Central (New Central Portal)
+        // Maven Central (New Central Portal) - Using traditional Maven publishing
         maven {
             name = "central"
-            val releasesUrl = uri("https://central.sonatype.com/api/v1/publisher/deployments/")
-            val snapshotsUrl = uri("https://central.sonatype.com/api/v1/publisher/deployments/")
+            val releasesUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            val snapshotsUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
             url = if (version.toString().endsWith("SNAPSHOT")) snapshotsUrl else releasesUrl
             
             credentials {
