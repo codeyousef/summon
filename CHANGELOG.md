@@ -49,6 +49,14 @@ All notable changes to this project will be documented in this file.
   - Updated CI/CD workflow to use the renamed "ossrh" repository instead of "central"
   - Added continue-on-error flags to publishing steps to handle cases where secrets might not be configured
   - Clarified documentation for local vs CI/CD publishing with repository secrets
+  - Updated documentation to reflect current GitHub Packages publishing setup
+  - Added troubleshooting section for common publishing errors
+  - Note: Maven Central publishing is temporarily using GitHub Packages while OSSRH credentials are being configured
+  - Fixed environment variable names in build.gradle.kts to use CENTRAL_USERNAME/CENTRAL_PASSWORD to match GitHub secrets
+  - Re-enabled Maven Central publishing in CI/CD workflow with correct OSSRH repository name
+  - Added Maven Central publishing to snapshot builds (on push to main)
+  - Updated signing configuration to use environment variables for CI/CD
+  - Added GPG key import to snapshot publishing job
 - **Documentation:** Updated project description
   - Changed terminology from "UI toolkit" to "frontend framework" to better reflect Summon's comprehensive nature
   - Updated README.md and project documentation with new terminology

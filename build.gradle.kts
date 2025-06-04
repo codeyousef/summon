@@ -1,14 +1,14 @@
 import org.gradle.api.publish.maven.MavenPublication
-// import org.gradle.plugins.signing.SigningExtension  // Not needed for GitHub Packages
+import org.gradle.plugins.signing.SigningExtension  // Required for Maven Central
 import org.gradle.api.publish.tasks.GenerateModuleMetadata
 import org.gradle.api.publish.maven.tasks.AbstractPublishToMaven
-// import org.gradle.plugins.signing.Sign  // Not needed for GitHub Packages
+import org.gradle.plugins.signing.Sign  // Required for Maven Central
 
 plugins {
     kotlin("multiplatform") version "2.2.0-Beta1"
     kotlin("plugin.serialization") version "2.2.0-Beta1"
     `maven-publish`
-    // signing  // Not needed for GitHub Packages
+    signing  // Required for Maven Central
 }
 
 group = "io.github.codeyousef"
@@ -238,7 +238,20 @@ publishing {
     }
     
     repositories {
-        // ONLY GitHub Packages - reliable and works without additional setup
+        // Maven Central via OSSRH (works with both old OSSRH and new Central Portal credentials)
+        maven {
+            name = "OSSRH"
+            val releasesUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            val snapshotsUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+            url = if (version.toString().endsWith("SNAPSHOT")) snapshotsUrl else releasesUrl
+            
+            credentials {
+                username = project.findProperty("ossrhUsername") as String? ?: System.getenv("CENTRAL_USERNAME")
+                password = project.findProperty("ossrhPassword") as String? ?: System.getenv("CENTRAL_PASSWORD")
+            }
+        }
+        
+        // GitHub Packages (fallback)
         maven {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/codeyousef/summon")
@@ -250,13 +263,20 @@ publishing {
     }
 }
 
-// GitHub Packages doesn't require signing
-// Configure signing for Maven Central when needed:
-// if (project.hasProperty("signing.keyId")) {
-//     configure<SigningExtension> {
-//         sign(publishing.publications)
-//     }
-// }
+// Configure signing for Maven Central
+val signingKeyId = project.findProperty("signing.keyId") as String? ?: System.getenv("SIGNING_KEY_ID")
+val signingPassword = project.findProperty("signing.password") as String? ?: System.getenv("SIGNING_PASSWORD")
+val signingSecretKey = project.findProperty("signing.secretKeyRingFile") as String? ?: System.getenv("SIGNING_SECRET_KEY")
+
+if (signingKeyId != null) {
+    configure<SigningExtension> {
+        if (signingSecretKey != null && signingSecretKey.startsWith("-----")) {
+            // Use in-memory signing for CI/CD
+            useInMemoryPgpKeys(signingKeyId, signingSecretKey, signingPassword)
+        }
+        sign(publishing.publications)
+    }
+}
 
 // Javadoc JAR task for Maven Central compliance
 tasks.register<Jar>("javadocJar") {

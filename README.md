@@ -153,8 +153,17 @@ Summon now includes automated publishing and continuous integration. The project
 
 ### Automated Publishing
 
-- **Snapshot builds**: Automatically published to GitHub Packages on every push to `main`
-- **Release builds**: Published to Maven Central when you create a GitHub release
+Publishing happens automatically through GitHub Actions:
+
+- **On push to `main`**: 
+  - Snapshot builds are published to both GitHub Packages and Maven Central
+  - Version is automatically changed to `X.X.X-SNAPSHOT`
+  - No manual action required - just push to main!
+  
+- **On GitHub release**:
+  - Release builds are published to both GitHub Packages and Maven Central
+  - Uses the version tag from the release
+  
 - **Pull request testing**: All tests run automatically on pull requests
 
 ### Setting Up Publishing
@@ -178,10 +187,21 @@ Publishing configuration includes:
 - Publishing will run automatically on releases
 
 **For Local Publishing:**
-- Export the same variables as environment variables in your shell
-- Run `./gradlew publishAllPublicationsToOssrhRepository`
+- Export the same variables as environment variables in your shell:
+  ```bash
+  export CENTRAL_USERNAME="your-ossrh-username"
+  export CENTRAL_PASSWORD="your-ossrh-password"
+  ```
+- Run `./gradlew publishAllPublicationsToOSSRHRepository` (note: OSSRH in uppercase)
 
-The project is configured to use traditional OSSRH URLs. If your account has been migrated to the new Central Portal, you may need to update the repository URLs in `build.gradle.kts`.
+**Publishing to GitHub Packages (currently active):**
+- Ensure `GITHUB_TOKEN` is set with `write:packages` permission
+- Run `./gradlew publishAllPublicationsToGitHubPackagesRepository`
+
+**Troubleshooting:**
+- If you see errors about `publishJsPublicationToCentralRepository`, run `./gradlew clean` first
+- The repository has been renamed from "central" to "OSSRH" to avoid conflicts
+- Maven Central publishing requires proper OSSRH credentials and namespace verification
 
 ### Quick Testing
 
@@ -270,18 +290,7 @@ kotlin {
 
 ## Using Published Versions
 
-Once published, you can include Summon directly from Maven repositories:
-
-### From Maven Central (coming soon)
-```kotlin
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    implementation("io.github.codeyousef:summon:0.2.5.1")
-}
-```
+Summon is currently published to GitHub Packages. Maven Central publishing is being configured.
 
 ### From GitHub Packages
 ```kotlin
