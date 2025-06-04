@@ -42,6 +42,8 @@ All notable changes to this project will be documented in this file.
   - Modified CI/CD workflow to allow build job to run even if tests fail using `if: always()` condition
   - Removed test dependency from publish tasks in `build.gradle.kts` to allow publishing despite test failures
   - Updated GitHub repository URLs in publishing configuration from `yourusername` to `codeyousef`
+  - Fixed group ID from `io.github.yourusername` to `io.github.codeyousef` to match repository owner
+  - Added both traditional OSSRH and new Central Portal repository configurations for flexibility
 - **Documentation:** Updated project description
   - Changed terminology from "UI toolkit" to "frontend framework" to better reflect Summon's comprehensive nature
   - Updated README.md and project documentation with new terminology

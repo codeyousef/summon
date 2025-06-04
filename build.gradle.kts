@@ -5,7 +5,7 @@ plugins {
     signing
 }
 
-group = "io.github.yourusername"  // Update with your GitHub username for Central Portal
+group = "io.github.codeyousef"
 version = "0.2.5.1"
 
 repositories {
@@ -232,7 +232,7 @@ publishing {
     }
     
     repositories {
-        // Maven Central (New Central Portal) - Using traditional Maven publishing
+        // Maven Central - Try traditional OSSRH first (comment out if using new Central Portal)
         maven {
             name = "central"
             val releasesUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
@@ -244,6 +244,19 @@ publishing {
                 password = project.findProperty("centralPassword") as String? ?: System.getenv("CENTRAL_PASSWORD")
             }
         }
+        
+        // Alternative: New Central Portal (uncomment if account is migrated)
+        // maven {
+        //     name = "central"
+        //     val releasesUrl = uri("https://central.sonatype.com/api/v1/publisher/deployments/")
+        //     val snapshotsUrl = uri("https://central.sonatype.com/api/v1/publisher/deployments/")
+        //     url = if (version.toString().endsWith("SNAPSHOT")) snapshotsUrl else releasesUrl
+        //     
+        //     credentials {
+        //         username = project.findProperty("centralUsername") as String? ?: System.getenv("CENTRAL_USERNAME")
+        //         password = project.findProperty("centralPassword") as String? ?: System.getenv("CENTRAL_PASSWORD")
+        //     }
+        // }
         
         // GitHub Packages (alternative)
         maven {
