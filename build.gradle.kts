@@ -5,7 +5,7 @@ plugins {
     signing
 }
 
-group = "io.github.codeyousef"
+group = "io.github.yourusername"  // Update with your GitHub username for Central Portal
 version = "0.2.5.1"
 
 repositories {
