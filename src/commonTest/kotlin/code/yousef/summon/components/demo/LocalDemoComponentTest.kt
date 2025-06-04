@@ -63,11 +63,11 @@ class LocalDemoComponentTest {
             // Call the LocalDemoComponent with default parameters
             LocalDemoComponent()
 
-            // Verify that renderBlock was called
-            assertTrue(mockRenderer.renderBlockCalled, "renderBlock should have been called")
+            // Verify that renderBox was called
+            assertTrue(mockRenderer.renderBoxCalled, "renderBox should have been called")
 
             // Verify that the content lambda was passed
-            assertNotNull(mockRenderer.lastBlockContentRendered, "Block content should not be null")
+            assertNotNull(mockRenderer.boxModifierUsed, "Box modifier should not be null")
         }
     }
 
@@ -90,16 +90,13 @@ class LocalDemoComponentTest {
                 modifier = customModifier
             )
 
-            // Verify that renderBlock was called with the correct parameters
-            assertTrue(mockRenderer.renderBlockCalled, "renderBlock should have been called")
+            // Verify that renderBox was called with the correct parameters
+            assertTrue(mockRenderer.renderBoxCalled, "renderBox should have been called")
 
-            // Verify that the content lambda was passed
-            assertNotNull(mockRenderer.lastBlockContentRendered, "Block content should not be null")
-
-            // Verify that the custom modifier was passed to the Block
-            val blockModifier = mockRenderer.lastBlockModifierRendered
-            assertNotNull(blockModifier, "Block modifier should not be null")
-            val styles = blockModifier.styles
+            // Verify that the custom modifier was passed to the Box
+            val boxModifier = mockRenderer.boxModifierUsed
+            assertNotNull(boxModifier, "Box modifier should not be null")
+            val styles = boxModifier.styles
             assertTrue(styles.containsKey("background-color"), "background style should be present")
             assertEquals("red", styles["background-color"], "background should be set to red")
         }
@@ -129,16 +126,13 @@ class LocalDemoComponentTest {
                 modifier = customModifier
             )
 
-            // Verify that renderBlock was called with the correct parameters
-            assertTrue(mockRenderer.renderBlockCalled, "renderBlock should have been called")
+            // Verify that renderBox was called with the correct parameters
+            assertTrue(mockRenderer.renderBoxCalled, "renderBox should have been called")
 
-            // Verify that the content lambda was passed
-            assertNotNull(mockRenderer.lastBlockContentRendered, "Block content should not be null")
-
-            // Verify that the custom modifier was passed to the Block
-            val blockModifier = mockRenderer.lastBlockModifierRendered
-            assertNotNull(blockModifier, "Block modifier should not be null")
-            val styles = blockModifier.styles
+            // Verify that the custom modifier was passed to the Box
+            val boxModifier = mockRenderer.boxModifierUsed
+            assertNotNull(boxModifier, "Box modifier should not be null")
+            val styles = boxModifier.styles
             assertTrue(styles.containsKey("padding"), "padding style should be present")
             assertEquals("10px", styles["padding"], "padding should be set to 10px")
         }

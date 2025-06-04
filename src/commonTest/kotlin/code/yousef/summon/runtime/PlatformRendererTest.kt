@@ -20,16 +20,14 @@ class PlatformRendererTest {
     /**
      * A test implementation of PlatformRenderer that tracks method calls
      */
-    private class TestPlatformRenderer : PlatformRenderer {
+    private class TestPlatformRenderer : MockPlatformRenderer() {
         // Tracking variables for method calls
-        var renderTextCalled = false
-        var renderButtonCalled = false
-        var renderTextFieldCalled = false
-        var renderSelectCalled = false
+        override var renderTextCalled = false
+        override var renderButtonCalled = false
         var renderComposableRootCalled = false
-        var renderRowCalled = false
-        var renderColumnCalled = false
-        var renderBoxCalled = false
+        override var renderRowCalled = false
+        override var renderColumnCalled = false
+        override var renderBoxCalled = false
 
         // Parameters passed to methods
         var lastTextContent = ""
@@ -121,7 +119,7 @@ class PlatformRendererTest {
         override fun addHeadElement(content: String) {}
         override fun getHeadElements(): List<String> = emptyList()
         override fun renderComposable(composable: @Composable () -> Unit) {}
-        override fun renderImage(src: String, alt: String, modifier: Modifier) {}
+        override fun renderImage(src: String, alt: String?, modifier: Modifier) {}
         override fun renderIcon(
             name: String,
             modifier: Modifier,

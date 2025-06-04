@@ -28,16 +28,15 @@ object ModifierExtras {
      * @return The attribute value or null if not found
      */
     fun Modifier.getAttribute(name: String): String? = 
-        styles["__attr:$name"]
+        attributes[name]
         
     /**
      * Creates a copy of the Modifier with an added HTML attribute.
-     * HTML attributes are prefixed with "__attr:" to differentiate them from CSS properties.
      * 
      * @param name The attribute name
      * @param value The attribute value
      * @return A new Modifier with the added attribute
      */
     fun Modifier.attribute(name: String, value: String): Modifier =
-        style("__attr:$name", value)
+        Modifier(styles, attributes + (name to value))
 } 

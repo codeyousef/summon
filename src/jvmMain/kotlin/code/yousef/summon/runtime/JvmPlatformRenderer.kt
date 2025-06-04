@@ -7,6 +7,10 @@ import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.input.FileInfo
 import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.overflowX
+import code.yousef.summon.modifier.overflowY
+import code.yousef.summon.modifier.LayoutModifiers.width
+import code.yousef.summon.modifier.LayoutModifiers.height
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.html.*
@@ -26,12 +30,32 @@ actual open class PlatformRenderer {
     // Fix 1: Remove ThreadLocal, use instance variable.
     private var currentBuilder: FlowContent? = null
 
-    // Apply Modifier based *only* on Modifier.toStyleString()
+    // Apply Modifier - handles both styles and attributes
     // This extension function applies to any FlowOrMetaDataContent
     private fun FlowOrMetaDataContent.applyModifier(modifier: Modifier) {
-        val styleString = modifier.toStyleString()
-        if (styleString.isNotBlank()) {
-            (this as? CommonAttributeGroupFacade)?.style = styleString
+        // Apply CSS styles
+        if (modifier.styles.isNotEmpty()) {
+            val styleString = modifier.styles
+                .map { (key, value) -> 
+                    val cssPropertyName = if (key.contains('-')) {
+                        key
+                    } else {
+                        key.replace(Regex("([a-z])([A-Z])"), "$1-$2").lowercase()
+                    }
+                    "$cssPropertyName: $value"
+                }
+                .joinToString(separator = "; ", postfix = ";")
+            
+            if (styleString.isNotBlank()) {
+                (this as? CommonAttributeGroupFacade)?.style = styleString
+            }
+        }
+        
+        // Apply HTML attributes
+        if (modifier.attributes.isNotEmpty() && this is CommonAttributeGroupFacade) {
+            modifier.attributes.forEach { (name, value) ->
+                this.attributes[name] = value
+            }
         }
     }
 
@@ -64,8 +88,8 @@ actual open class PlatformRenderer {
             if (forElement != null) {
                 htmlFor = forElement // Changed from htmlFor
             }
+            +text
         }
-        +text
     }
 
     actual open fun renderButton(
@@ -253,7 +277,7 @@ actual open class PlatformRenderer {
 
     actual open fun renderBoxContainer(modifier: Modifier, content: @Composable () -> Unit) {
         requireBuilder().div {
-            applyModifier(modifier.then(Modifier.display("block"))) // Typically a div
+            applyModifier(modifier.then(Modifier().style("display", "block"))) // Typically a div
             renderContent(content)
         }
     }
@@ -396,6 +420,7 @@ actual open class PlatformRenderer {
         value: LocalTime?,
         onValueChange: (LocalTime?) -> Unit,
         enabled: Boolean,
+        is24Hour: Boolean,
         modifier: Modifier
     ) {
         requireBuilder().input(type = InputType.time) {
@@ -418,9 +443,9 @@ actual open class PlatformRenderer {
     }
 
     actual open fun renderLink(
-        href: String,
         modifier: Modifier,
-        content: @Composable FlowContent.() -> Unit
+        href: String,
+        content: @Composable () -> Unit
     ) {
         requireBuilder().a(href = href) {
             applyModifier(modifier)
@@ -429,26 +454,32 @@ actual open class PlatformRenderer {
     }
 
     actual open fun renderFileUpload(
-        onFileSelected: (FileInfo?) -> Unit,
+        onFilesSelected: (List<FileInfo>) -> Unit,
+        accept: String?,
+        multiple: Boolean,
         enabled: Boolean,
+        capture: String?,
         modifier: Modifier
-    ) {
+    ): () -> Unit {
         val inputId = "file-${UUID.randomUUID()}"
         requireBuilder().input(type = InputType.file) {
             applyModifier(modifier)
             this.disabled = !enabled
+            if (accept != null) this.accept = accept
+            this.multiple = multiple
+            if (capture != null) attributes["capture"] = capture
             id = inputId
             name = id
-            comment(" onFileSelected handler needed (JS) ")
+            comment(" onFilesSelected handler needed (JS) ")
             attributes["data-onchange-action"] = "true"
         }
         return { System.err.println("Programmatic file upload trigger not available server-side.") }
     }
 
     actual open fun renderForm(
-        onSubmit: () -> Unit,
+        onSubmit: (() -> Unit)?,
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable FormContent.() -> Unit
     ) {
         requireBuilder().form {
             applyModifier(modifier)
@@ -462,6 +493,8 @@ actual open class PlatformRenderer {
         }
     }
 
+    // NOTE: Commented out because no corresponding expect declaration
+    /*
     actual open fun renderTabs(
         selectedTabIndex: Int,
         onTabSelected: (Int) -> Unit,
@@ -522,7 +555,10 @@ actual open class PlatformRenderer {
             }
         }
     }
+    */
 
+    // NOTE: Commented out because no corresponding expect declaration
+    /*
     actual open fun renderTab(
         selected: Boolean,
         onClick: () -> Unit,
@@ -535,6 +571,7 @@ actual open class PlatformRenderer {
             renderContent(content)
         }
     }
+    */
 
     actual open fun renderSwitch(
         checked: Boolean,
@@ -599,7 +636,7 @@ actual open class PlatformRenderer {
     actual open fun renderExpansionPanel(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
         // Basic div implementation for JVM, actual expansion behavior might need JS
         requireBuilder().div {
-            applyModifier(modifier.then(Modifier.border(1, "solid", "grey")))
+            applyModifier(modifier.then(Modifier().style("border", "1px solid grey")))
             comment(" ExpansionPanel: JS might be needed for interactive expand/collapse ")
             renderContent(content)
         }
@@ -607,7 +644,7 @@ actual open class PlatformRenderer {
 
     actual open fun renderGrid(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
         requireBuilder().div {
-            applyModifier(modifier.then(Modifier.display("grid")))
+            applyModifier(modifier.then(Modifier().style("display", "grid")))
             renderContent(content)
         }
     }
@@ -615,7 +652,7 @@ actual open class PlatformRenderer {
     actual open fun renderLazyColumn(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
         // JVM equivalent: scrollable div
         requireBuilder().div {
-            applyModifier(modifier.then(Modifier.overflowY("auto")))
+            applyModifier(modifier.then(Modifier().overflowY("auto")))
             renderContent(content)
         }
     }
@@ -623,7 +660,7 @@ actual open class PlatformRenderer {
     actual open fun renderLazyRow(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
         // JVM equivalent: scrollable div
         requireBuilder().div {
-            applyModifier(modifier.then(Modifier.overflowX("auto")))
+            applyModifier(modifier.then(Modifier().overflowX("auto")))
             renderContent(content)
         }
     }
@@ -699,7 +736,7 @@ actual open class PlatformRenderer {
             requireBuilder().div {
                 applyModifier(
                     modifier.then(
-                        Modifier.position("absolute").border(1, "solid", "#ccc").backgroundColor("white").zIndex(100)
+                        Modifier().style("position", "absolute").style("border", "1px solid #ccc").style("background-color", "white").style("z-index", "100")
                     )
                 )
                 comment(" DropdownMenu: JS for positioning and dismissal (onDismissRequest) needed ")
@@ -711,7 +748,7 @@ actual open class PlatformRenderer {
 
     actual open fun renderTooltip(text: String, modifier: Modifier, content: @Composable (() -> Unit)) {
         requireBuilder().div {
-            applyModifier(modifier.then(Modifier.position("relative")))
+            applyModifier(modifier.then(Modifier().style("position", "relative")))
             attributes["title"] = text // Basic browser tooltip
             comment(" Tooltip: For custom styling, JS/CSS solution is better ")
             renderContent(content)
@@ -734,7 +771,6 @@ actual open class PlatformRenderer {
                 div { // Modal content
                     style =
                         "background-color: white; padding: 20px; border-radius: 5px; min-width: 300px; max-width: 80%;"
-                    applyModifier(modifier) // Apply user modifier to content box
                     if (title != null) {
                         h3 { +title }
                     }
@@ -750,7 +786,7 @@ actual open class PlatformRenderer {
 
     actual open fun renderScreen(modifier: Modifier, content: @Composable (FlowContent.() -> Unit)) {
         requireBuilder().div {
-            applyModifier(modifier.then(Modifier.width("100%").height("100vh")))
+            applyModifier(modifier.then(Modifier().width("100%").height("100vh")))
             renderContent(content)
         }
     }
@@ -876,6 +912,7 @@ actual open class PlatformRenderer {
             AlertVariant.SUCCESS -> "#e8f5e9"
             AlertVariant.WARNING -> "#fff3e0"
             AlertVariant.ERROR -> "#ffebee"
+            AlertVariant.NEUTRAL -> "#f5f5f5"
         }
         requireBuilder().div {
             style =
@@ -896,13 +933,13 @@ actual open class PlatformRenderer {
 
     actual open fun renderCard(modifier: Modifier, elevation: Int, content: @Composable (() -> Unit)) {
         // Re-use renderSurface for card appearance
-        renderSurface(modifier.then(Modifier.border(1, "solid", "#ddd")), elevation, content)
+        renderSurface(modifier.then(Modifier().style("border", "1px solid #ddd")), elevation, content)
     }
 
     actual open fun renderLinearProgressIndicator(progress: Float?, modifier: Modifier, type: ProgressType) {
         requireBuilder().progress {
             applyModifier(modifier)
-            if (type == ProgressType.DETERMINATE && progress != null) {
+            if (type != ProgressType.INDETERMINATE && progress != null) {
                 this.value = progress.toString()
                 max = "1"
             } else {
@@ -916,7 +953,7 @@ actual open class PlatformRenderer {
         // HTML doesn't have a native circular progress. Simulate with text or requires SVG/JS.
         requireBuilder().div {
             applyModifier(modifier)
-            if (type == ProgressType.DETERMINATE && progress != null) {
+            if (type != ProgressType.INDETERMINATE && progress != null) {
                 +"Progress: ${(progress * 100).toInt()}% (Circular - requires SVG/JS for visual)"
             } else {
                 +"Loading... (Circular - requires SVG/JS for visual)"
@@ -1005,7 +1042,11 @@ actual open class PlatformRenderer {
                 comment(" onCheckedChange JS hook needed ")
             }
             if (label != null) {
-                label(htmlFor = radioId) { +label; style = "margin-left: 8px;" }
+                label { 
+                    htmlFor = radioId
+                    +label
+                    style = "margin-left: 8px;" 
+                }
             }
         }
     }
@@ -1028,8 +1069,195 @@ actual open class PlatformRenderer {
                 comment(" onCheckedChange JS hook needed ")
             }
             if (label != null) {
-                label(htmlFor = checkboxId) { +label; style = "margin-left: 8px;" }
+                label { 
+                    htmlFor = checkboxId
+                    +label
+                    style = "margin-left: 8px;" 
+                }
             }
+        }
+    }
+
+    // Additional methods required by expect declarations
+    actual open fun renderProgress(value: Float?, type: ProgressType, modifier: Modifier) {
+        renderLinearProgressIndicator(value, modifier, type)
+    }
+
+    actual open fun renderFormField(
+        modifier: Modifier,
+        labelId: String?,
+        isRequired: Boolean,
+        isError: Boolean,
+        errorMessageId: String?,
+        content: @Composable FlowContent.() -> Unit
+    ) {
+        requireBuilder().div {
+            applyModifier(modifier)
+            attributes["role"] = "group"
+            if (labelId != null) attributes["aria-labelledby"] = labelId
+            if (errorMessageId != null && isError) attributes["aria-describedby"] = errorMessageId
+            if (isRequired) attributes["aria-required"] = "true"
+            if (isError) attributes["aria-invalid"] = "true"
+            renderContent(content)
+        }
+    }
+
+    actual open fun renderRadioButton(
+        selected: Boolean,
+        onClick: () -> Unit,
+        enabled: Boolean,
+        modifier: Modifier
+    ) {
+        requireBuilder().input(type = InputType.radio) {
+            applyModifier(modifier)
+            this.checked = selected
+            this.disabled = !enabled
+            attributes["data-onclick-action"] = "true"
+            comment(" onClick JS hook needed ")
+        }
+    }
+
+    actual open fun renderSpacer(modifier: Modifier) {
+        requireBuilder().div {
+            applyModifier(modifier)
+            comment(" Spacer element ")
+        }
+    }
+
+    actual open fun renderAspectRatio(
+        ratio: Float,
+        modifier: Modifier,
+        content: @Composable FlowContent.() -> Unit
+    ) {
+        renderAspectRatioContainer(ratio, modifier) { 
+            requireBuilder().renderContent(content)
+        }
+    }
+
+    actual open fun renderCard(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+        renderCard(modifier, 1) { 
+            requireBuilder().renderContent(content)
+        }
+    }
+
+    actual open fun renderEnhancedLink(
+        href: String,
+        target: String?,
+        title: String?,
+        ariaLabel: String?,
+        ariaDescribedBy: String?,
+        modifier: Modifier
+    ) {
+        requireBuilder().a(href = href) {
+            applyModifier(modifier)
+            if (target != null) this.target = target
+            if (title != null) this.title = title
+            if (ariaLabel != null) attributes["aria-label"] = ariaLabel
+            if (ariaDescribedBy != null) attributes["aria-describedby"] = ariaDescribedBy
+            +href
+        }
+    }
+
+    actual open fun renderTabLayout(
+        tabs: List<Tab>,
+        selectedTabIndex: Int,
+        onTabSelected: (Int) -> Unit,
+        modifier: Modifier
+    ) {
+        // Delegate to the commented out renderTabs implementation
+        requireBuilder().div {
+            applyModifier(modifier)
+            comment(" TabLayout not fully implemented - requires JS ")
+            tabs.forEachIndexed { index, tab ->
+                button {
+                    if (index == selectedTabIndex) {
+                        classes = setOf("selected")
+                    }
+                    attributes["data-tab-index"] = index.toString()
+                    +(tab.title ?: "Tab ${index + 1}")
+                }
+            }
+        }
+    }
+
+    actual open fun renderTabLayout(modifier: Modifier, content: @Composable () -> Unit) {
+        requireBuilder().div {
+            applyModifier(modifier)
+            renderContent(content)
+        }
+    }
+
+    actual open fun renderTabLayout(
+        tabs: List<String>,
+        selectedTab: String,
+        onTabSelected: (String) -> Unit,
+        modifier: Modifier,
+        content: () -> Unit
+    ) {
+        requireBuilder().div {
+            applyModifier(modifier)
+            comment(" String-based TabLayout ")
+            tabs.forEach { tab ->
+                button {
+                    if (tab == selectedTab) {
+                        classes = setOf("selected")
+                    }
+                    attributes["data-tab-name"] = tab
+                    +tab
+                }
+            }
+            content()
+        }
+    }
+
+    actual open fun renderAnimatedVisibility(visible: Boolean, modifier: Modifier) {
+        if (visible) {
+            requireBuilder().div {
+                applyModifier(modifier)
+                comment(" AnimatedVisibility placeholder ")
+            }
+        }
+    }
+
+    actual open fun renderAnimatedVisibility(modifier: Modifier, content: @Composable () -> Unit) {
+        requireBuilder().div {
+            applyModifier(modifier)
+            renderContent(content)
+        }
+    }
+
+    actual open fun renderAnimatedContent(modifier: Modifier) {
+        requireBuilder().div {
+            applyModifier(modifier)
+            comment(" AnimatedContent placeholder ")
+        }
+    }
+
+    actual open fun renderAnimatedContent(modifier: Modifier, content: @Composable () -> Unit) {
+        requireBuilder().div {
+            applyModifier(modifier)
+            renderContent(content)
+        }
+    }
+
+    actual open fun renderBlock(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+        requireBuilder().div {
+            applyModifier(modifier.then(Modifier().style("display", "block")))
+            renderContent(content)
+        }
+    }
+
+    actual open fun renderInline(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+        requireBuilder().span {
+            applyModifier(modifier.then(Modifier().style("display", "inline")))
+            renderContent(content)
+        }
+    }
+
+    actual open fun renderDiv(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+        requireBuilder().div {
+            applyModifier(modifier)
+            renderContent(content)
         }
     }
 }

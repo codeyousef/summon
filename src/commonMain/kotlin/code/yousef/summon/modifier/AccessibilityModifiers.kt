@@ -1,6 +1,6 @@
 package code.yousef.summon.modifier
 
-import code.yousef.summon.modifier.ModifierExtras.attribute
+import code.yousef.summon.modifier.AttributeModifiers.attribute
 
 /**
  * Extension functions for Accessibility Modifiers
@@ -11,19 +11,11 @@ import code.yousef.summon.modifier.ModifierExtras.attribute
  * Removes an attribute from the Modifier
  */
 fun Modifier.removeAttribute(name: String): Modifier {
-    val attributeKey = "__attr:$name"
-    if (!styles.containsKey(attributeKey)) return this
-    return Modifier(styles.filterKeys { it != attributeKey })
+    if (!attributes.containsKey(name)) return this
+    return Modifier(styles, attributes.filterKeys { it != name })
 }
 
-/**
- * Creates a Modifier with the role attribute set.
- *
- * @param value The ARIA role value
- * @return A new Modifier with the role attribute
- */
-fun Modifier.role(value: String): Modifier =
-    attribute("role", value)
+// role(String) removed - exists as member function in Modifier class
 
 /**
  * Creates a Modifier with the aria-label attribute set.
@@ -107,10 +99,7 @@ fun Modifier.ariaCurrent(value: String): Modifier = attribute("aria-current", va
 fun Modifier.ariaLiveAssertive(): Modifier =
     attribute("aria-live", "assertive")
 
-/**
- * Sets the tabindex attribute
- */
-fun Modifier.tabIndex(value: Int): Modifier = attribute("tabindex", value.toString())
+// tabIndex(Int) removed - exists as member function in Modifier class
 
 /**
  * Gets a style property value or null if not present
@@ -125,7 +114,7 @@ fun Modifier.hasStyle(name: String): Boolean = styles.containsKey(name)
 /**
  * Checks if an attribute exists
  */
-fun Modifier.hasAttribute(name: String): Boolean = styles.containsKey("__attr:$name")
+fun Modifier.hasAttribute(name: String): Boolean = attributes.containsKey(name)
 
 /**
  * Adds an aria-controls attribute to the element.

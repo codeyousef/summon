@@ -23,17 +23,9 @@ fun Modifier.minHeight(value: String): Modifier =
 fun Modifier.maxHeight(value: String): Modifier =
     style("max-height", value)
 
-/**
- * Sets width to 100%.
- */
-fun Modifier.fillMaxWidth(): Modifier =
-    style("width", "100%")
+// fillMaxWidth() removed - exists as member function in Modifier class
 
-/**
- * Sets padding on all sides.
- */
-fun Modifier.padding(value: String): Modifier =
-    style("padding", value)
+// padding(String) removed - exists as member function in Modifier class
 
 /**
  * Sets different padding for horizontal and vertical.
@@ -65,11 +57,7 @@ fun Modifier.paddingBottom(value: String): Modifier =
 fun Modifier.paddingLeft(value: String): Modifier =
     style("padding-left", value)
 
-/**
- * Sets margin for all sides.
- */
-fun Modifier.margin(value: String): Modifier =
-    style("margin", value)
+// margin(String) removed - exists as member function in Modifier class
 
 /**
  * Sets margin for horizontal and vertical dimensions.
@@ -151,29 +139,13 @@ fun Modifier.paddingOf(
     return style("padding", paddingParts.joinToString(" "))
 }
 
-/**
- * Sets margin for the top side of the element.
- */
-fun Modifier.marginTop(value: String): Modifier =
-    style("margin-top", value)
+// marginTop(String) removed - exists as member function in Modifier class
 
-/**
- * Sets margin for the right side of the element.
- */
-fun Modifier.marginRight(value: String): Modifier =
-    style("margin-right", value)
+// marginRight(String) removed - exists as member function in Modifier class
 
-/**
- * Sets margin for the bottom side of the element.
- */
-fun Modifier.marginBottom(value: String): Modifier =
-    style("margin-bottom", value)
+// marginBottom(String) removed - exists as member function in Modifier class
 
-/**
- * Sets margin for the left side of the element.
- */
-fun Modifier.marginLeft(value: String): Modifier =
-    style("margin-left", value)
+// marginLeft(String) removed - exists as member function in Modifier class
 
 /**
  * Sets the flex wrap property.
@@ -254,7 +226,7 @@ fun Modifier.gridRow(value: String): Modifier =
     style("grid-row", value)
 
 /**
- * Sets the z-index property.
+ * Sets the z-index property as String (member function takes Int).
  */
 fun Modifier.zIndex(value: String): Modifier =
     style("z-index", value)
@@ -277,17 +249,9 @@ fun Modifier.overflowY(value: String): Modifier =
 fun Modifier.visibility(value: String): Modifier =
     style("visibility", value)
 
-/**
- * Sets the font-size property.
- */
-fun Modifier.fontSize(value: String): Modifier =
-    style("font-size", value)
+// fontSize(String) removed - exists as member function in Modifier class
 
-/**
- * Sets the cursor property.
- */
-fun Modifier.cursor(value: String): Modifier =
-    style("cursor", value)
+// cursor(String) removed - exists as member function in Modifier class
 
 /**
  * Sets the cursor property using the Cursor enum.

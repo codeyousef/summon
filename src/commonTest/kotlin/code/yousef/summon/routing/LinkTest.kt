@@ -74,7 +74,7 @@ class LinkTest {
     }
 
     // Mock Renderer for testing Link component
-    private class MockLinkRenderer : PlatformRenderer {
+    private class MockLinkRenderer : MockPlatformRenderer() {
         var lastHref: String? = null
         var lastTarget: String? = null
         var lastModifier: Modifier? = null
@@ -120,7 +120,7 @@ class LinkTest {
         override fun renderRow(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
         override fun renderColumn(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
         override fun renderBox(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderImage(src: String, alt: String, modifier: Modifier) {}
+        override fun renderImage(src: String, alt: String?, modifier: Modifier) {}
         override fun renderIcon(name: String, modifier: Modifier, onClick: (() -> Unit)?, svgContent: String?, type: IconType) {}
         override fun renderAlertContainer(variant: AlertVariant?, modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
         override fun renderBadge(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}

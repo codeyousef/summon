@@ -1,6 +1,7 @@
 package code.yousef.summon.integrations.quarkus
 
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.PlatformRenderer
 import io.quarkus.qute.RawString
 import io.quarkus.qute.TemplateExtension
 import java.io.StringWriter
@@ -26,7 +27,7 @@ object QuteTagExtension {
      */
     @JvmStatic
     fun render(component: Any): RawString {
-        val renderer = JvmPlatformRenderer()
+        val renderer = PlatformRenderer()
         // Create a simple HTML representation
         val html = "<div class=\"summon-component\">Component: ${component::class.simpleName}</div>"
         return RawString(html)

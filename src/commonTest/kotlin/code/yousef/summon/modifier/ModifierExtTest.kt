@@ -1,5 +1,29 @@
 package code.yousef.summon.modifier
 
+import code.yousef.summon.modifier.LayoutModifiers.gap
+import code.yousef.summon.modifier.LayoutModifiers.position
+import code.yousef.summon.modifier.LayoutModifiers.top
+import code.yousef.summon.modifier.LayoutModifiers.right
+import code.yousef.summon.modifier.LayoutModifiers.bottom
+import code.yousef.summon.modifier.LayoutModifiers.left
+import code.yousef.summon.modifier.LayoutModifiers.display
+import code.yousef.summon.modifier.LayoutModifiers.flexDirection
+import code.yousef.summon.modifier.LayoutModifiers.justifyContent
+import code.yousef.summon.modifier.LayoutModifiers.alignItems
+import code.yousef.summon.modifier.LayoutModifiers.overflow
+import code.yousef.summon.modifier.LayoutModifiers.flex
+import code.yousef.summon.modifier.LayoutModifiers.gridTemplateColumns
+import code.yousef.summon.modifier.LayoutModifiers.gridColumnGap
+import code.yousef.summon.modifier.LayoutModifiers.gridRowGap
+import code.yousef.summon.modifier.StylingModifiers.opacity
+import code.yousef.summon.modifier.StylingModifiers.border
+import code.yousef.summon.modifier.StylingModifiers.borderRadius
+import code.yousef.summon.modifier.StylingModifiers.fontWeight
+import code.yousef.summon.modifier.StylingModifiers.color
+import code.yousef.summon.modifier.LayoutModifiers.width
+import code.yousef.summon.modifier.LayoutModifiers.height
+import code.yousef.summon.modifier.AttributeModifiers.attribute
+import code.yousef.summon.modifier.EventModifiers.onClick
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -144,7 +168,7 @@ class ModifierExtTest {
         val value = "button"
         val modifier = Modifier().attribute(name, value)
         // Testing the specific implementation in ModifierExt.kt
-        assertEquals(value, modifier.styles["__attr:$name"])
+        assertEquals(value, modifier.attributes[name])
     }
 
     @Test

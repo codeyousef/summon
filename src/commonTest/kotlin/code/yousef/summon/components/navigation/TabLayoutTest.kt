@@ -61,12 +61,12 @@ class TabLayoutTest {
     }
 
     // Mock Renderer focusing on renderTabLayout
-    class MockTabLayoutRenderer : PlatformRenderer {
+    class MockTabLayoutRenderer : MockPlatformRenderer() {
         var lastTabs: List<Tab>? = null
         var lastSelectedTabIndex: Int? = null
         var lastOnTabSelected: ((Int) -> Unit)? = null
         var lastModifier: Modifier? = null
-        var renderTabLayoutCalled = false
+        override var renderTabLayoutCalled = false
 
         // The specific overload called by the TabLayout composable
         override fun renderTabLayout(
@@ -137,7 +137,7 @@ class TabLayoutTest {
         override fun renderRow(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
         override fun renderColumn(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
         override fun renderBox(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderImage(src: String, alt: String, modifier: Modifier) {}
+        override fun renderImage(src: String, alt: String?, modifier: Modifier) {}
         override fun renderIcon(
             name: String,
             modifier: Modifier,

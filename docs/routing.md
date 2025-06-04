@@ -124,7 +124,17 @@ fun handleRequest(path: String): String {
 You can define routes with parameters:
 
 ```kotlin
+// Single parameter
 route("/user/{id}", { UserPage() })
+
+// Multiple parameters
+route("/blog/{year}/{month}/{slug}", { BlogPost() })
+
+// Optional parameters
+route("/products/{category?}", { ProductList() })
+
+// Wildcard parameters (catch-all)
+route("/docs/{...path}", { Documentation() })
 ```
 
 And access them in your page component:
@@ -145,7 +155,41 @@ fun UserPage() {
         Text("User ID: $userId")
     }
 }
+
+@Composable
+fun BlogPost() {
+    val params = RouteParams.current()
+    val year = params["year"]
+    val month = params["month"] 
+    val slug = params["slug"]
+    
+    Column {
+        Text("Blog Post: $year/$month/$slug")
+    }
+}
+
+@Composable
+fun Documentation() {
+    val params = RouteParams.current()
+    // For wildcard routes, the parameter contains the remaining path
+    val path = params["path"] // e.g., "getting-started/installation"
+    
+    Column {
+        Text("Documentation: /$path")
+    }
+}
 ```
+
+### Dynamic Route Patterns
+
+Summon supports various dynamic route patterns:
+
+| Pattern | Example | Matches | Description |
+|---------|---------|---------|-------------|
+| `{param}` | `/user/{id}` | `/user/123` | Single parameter |
+| `{param?}` | `/shop/{category?}` | `/shop` or `/shop/electronics` | Optional parameter |
+| `{...param}` | `/files/{...path}` | `/files/docs/readme.md` | Catch-all parameter |
+| Multiple | `/posts/{year}/{month}` | `/posts/2024/01` | Multiple parameters |
 
 ## Navigation
 

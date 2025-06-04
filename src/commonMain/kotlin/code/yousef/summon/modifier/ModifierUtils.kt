@@ -259,15 +259,14 @@ object AttributeModifiers {
      * Adds a custom attribute to the element.
      */
     fun Modifier.attribute(name: String, value: String): Modifier {
-        val key = "__attr:$name"
-        return Modifier(this.styles + (key to value))
+        return Modifier(this.styles, this.attributes + (name to value))
     }
 
     /**
      * Gets an attribute value or null if not present.
      */
     fun Modifier.getAttribute(name: String): String? = 
-        styles["__attr:$name"]
+        attributes[name]
 }
 
 // Add additional semantic aliases for common usage patterns
@@ -281,14 +280,16 @@ typealias Attributes = AttributeModifiers
 /**
  * Convert modifier styles to a valid CSS style string that can be used in HTML style attributes.
  * This ensures all property names are in kebab-case format as required by browsers.
+ * Excludes attributes (keys starting with "__attr:") as they are not CSS styles.
  */
 fun Modifier.toStyleString(): String {
     if (this.styles.isEmpty()) {
         return ""
     }
     
-    // Determine if the key is already in kebab-case or needs conversion from camelCase
+    // Filter out attributes and determine if the key is already in kebab-case or needs conversion from camelCase
     return this.styles
+        .filterNot { (key, _) -> key.startsWith("__attr:") }
         .map { (key, value) -> 
             val cssPropertyName = if (key.contains('-')) {
                 // Already in kebab-case

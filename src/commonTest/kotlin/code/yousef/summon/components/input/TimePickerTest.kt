@@ -27,13 +27,13 @@ import kotlin.test.assertNull
 import kotlin.test.assertSame
 
 // Mock Renderer implementing PlatformRenderer, focusing on renderTimePicker
-class MockTimePickerRenderer : PlatformRenderer {
+class MockTimePickerRenderer : MockPlatformRenderer() {
     var lastValue: LocalTime? = null
     var lastOnValueChange: ((LocalTime?) -> Unit)? = null
     var lastEnabled: Boolean? = null
     var lastIs24Hour: Boolean? = null
     var lastModifier: Modifier? = null
-    var renderTimePickerCalled = false
+    override var renderTimePickerCalled = false
 
     override fun renderTimePicker(
         value: LocalTime?,
@@ -66,7 +66,7 @@ class MockTimePickerRenderer : PlatformRenderer {
     override fun renderRow(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
     override fun renderColumn(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
     override fun renderBox(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-    override fun renderImage(src: String, alt: String, modifier: Modifier) {}
+    override fun renderImage(src: String, alt: String?, modifier: Modifier) {}
     override fun renderIcon(name: String, modifier: Modifier, onClick: (() -> Unit)?, svgContent: String?, type: IconType) {}
     override fun renderAlertContainer(variant: AlertVariant?, modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
     override fun renderBadge(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}

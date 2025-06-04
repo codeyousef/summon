@@ -28,6 +28,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertSame
 import code.yousef.summon.util.TestFileInfo // Import the test fixture
 import code.yousef.summon.runtime.MockPlatformRenderer
+import code.yousef.summon.components.input.FileInfo
 
 // REMOVED Test-specific implementation for FileInfo - Moved to TestFixtures.kt
 
@@ -36,14 +37,14 @@ class FileUploadTest {
     @Test
     fun testBasicFileUploadRenderingAndCallback() {
         val mockRenderer = MockPlatformRenderer()
-        var selectedTestFiles: List<ExpectFileInfo>? = null 
+        var selectedTestFiles: List<FileInfo>? = null 
         val acceptType = "image/png,image/jpeg"
         val modifier = Modifier() 
         val buttonStyle = Modifier()
         // Lambda passed to component uses the expect FileInfo signature
-        val onFilesSelectedLambda: (List<ExpectFileInfo>) -> Unit = { files ->
-            // Adapt received expect FileInfo list to TestFileInfo list for assertion
-            selectedTestFiles = files.map { TestFileInfo(it.name, it.size, it.type) }
+        val onFilesSelectedLambda: (List<FileInfo>) -> Unit = { files ->
+            // Store received FileInfo list for assertion
+            selectedTestFiles = files
         }
 
         runTestComposable(mockRenderer) {

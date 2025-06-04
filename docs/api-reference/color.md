@@ -300,3 +300,134 @@ val red = Color.Catppuccin.Latte.RED
 val darkBlue = Color.Catppuccin.Mocha.BLUE
 val darkRed = Color.Catppuccin.Mocha.RED
 ```
+
+---
+
+## Material Design Color Palettes
+
+Summon provides comprehensive Material Design color palettes with multiple shade levels:
+
+### Color Palette Structure
+
+Each Material Design color includes shades from 50 (lightest) to 900 (darkest), plus accent variants:
+
+```kotlin
+object Red {
+    val `50`: Color = Color.fromHex("#FFEBEE")
+    val `100`: Color = Color.fromHex("#FFCDD2")
+    val `200`: Color = Color.fromHex("#EF9A9A")
+    val `300`: Color = Color.fromHex("#E57373")
+    val `400`: Color = Color.fromHex("#EF5350")
+    val `500`: Color = Color.fromHex("#F44336")  // Primary shade
+    val `600`: Color = Color.fromHex("#E53935")
+    val `700`: Color = Color.fromHex("#D32F2F")
+    val `800`: Color = Color.fromHex("#C62828")
+    val `900`: Color = Color.fromHex("#B71C1C")
+    
+    // Accent shades
+    val A100: Color = Color.fromHex("#FF8A80")
+    val A200: Color = Color.fromHex("#FF5252")
+    val A400: Color = Color.fromHex("#FF1744")
+    val A700: Color = Color.fromHex("#D50000")
+}
+```
+
+### Available Color Palettes
+
+```kotlin
+// Primary colors
+Color.Red[500]      // Primary red
+Color.Pink[500]     // Primary pink
+Color.Purple[500]   // Primary purple
+Color.DeepPurple[500]
+Color.Indigo[500]
+Color.Blue[500]
+Color.LightBlue[500]
+Color.Cyan[500]
+Color.Teal[500]
+Color.Green[500]
+Color.LightGreen[500]
+Color.Lime[500]
+Color.Yellow[500]
+Color.Amber[500]
+Color.Orange[500]
+Color.DeepOrange[500]
+
+// Neutral colors
+Color.Brown[500]
+Color.Grey[500]
+Color.BlueGrey[500]
+
+// Accessing different shades
+val lightBlue = Color.Blue[100]
+val primaryBlue = Color.Blue[500]
+val darkBlue = Color.Blue[900]
+val accentBlue = Color.Blue.A200
+```
+
+### Using Material Design Colors
+
+```kotlin
+// Building a theme with Material Design colors
+Column(
+    modifier = Modifier
+        .backgroundColor(Color.Blue[50])  // Light background
+) {
+    // App bar
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .backgroundColor(Color.Blue[700])  // Primary color
+            .padding(16.px)
+    ) {
+        Text(
+            "App Title",
+            modifier = Modifier.color(Color.WHITE)
+        )
+    }
+    
+    // Content area
+    Card(
+        modifier = Modifier
+            .margin(16.px)
+            .backgroundColor(Color.WHITE)
+            .boxShadow("0", "2px", "4px", "0", Color.Grey[300])
+    ) {
+        Text(
+            "Card content",
+            modifier = Modifier
+                .padding(16.px)
+                .color(Color.Grey[900])  // Dark text
+        )
+        
+        Button(
+            onClick = { },
+            modifier = Modifier
+                .backgroundColor(Color.Blue.A200)  // Accent color
+                .color(Color.WHITE)
+        ) {
+            Text("Action")
+        }
+    }
+}
+```
+
+### Material Design Color Utilities
+
+```kotlin
+// Check if a color is light or dark
+fun Color.isLight(): Boolean
+fun Color.isDark(): Boolean
+
+// Get contrasting text color (black or white)
+fun Color.contrastingTextColor(): Color
+
+// Blend two colors
+fun Color.blend(other: Color, ratio: Float = 0.5f): Color
+
+// Example usage
+val backgroundColor = Color.Blue[500]
+val textColor = backgroundColor.contrastingTextColor()  // Returns white
+
+val blendedColor = Color.Red[500].blend(Color.Blue[500], 0.3f)  // 30% blue, 70% red
+```

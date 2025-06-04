@@ -21,7 +21,7 @@ private fun Modifier.hasStyle(property: String, value: String): Boolean =
     styles[property] == value
 
 private fun Modifier.hasAttribute(name: String, value: String): Boolean =
-    styles["__attr:$name"] == value
+    attributes[name] == value
 
 /**
  * Tests for the Text component
@@ -92,6 +92,9 @@ class TextTest {
             // Call the Text component with styling parameters
             Text(
                 text = "Styled Text",
+                modifier = Modifier()
+                    .fontSize("16px")
+                    .color("#FF0000"),
                 overflow = "ellipsis",
                 lineHeight = "1.5",
                 textAlign = "center",

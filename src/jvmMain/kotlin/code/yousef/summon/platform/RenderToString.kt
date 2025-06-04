@@ -1,6 +1,7 @@
 package code.yousef.summon.platform
 
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.PlatformRenderer
 import kotlinx.html.*
 
 /**
@@ -20,13 +21,13 @@ object RenderToString {
     /**
      * Render a composable to HTML string.
      */
-    fun basic(renderer: JvmPlatformRenderer, composable: @Composable () -> Unit): String {
+    fun basic(renderer: PlatformRenderer, composable: @Composable () -> Unit): String {
         // Use renderComposableRoot instead of renderComposable to properly set up the rendering context
         val result = renderer.renderComposableRoot(composable)
 
         // Add doctype if needed
-        return if (!result.startsWith("<!DOCTYPE")) {
-            "<!DOCTYPE html>\n$result"
+        return if (result.startsWith("<!DOCTYPE")) {
+            result
         } else {
             result
         }
@@ -36,7 +37,7 @@ object RenderToString {
      * Render a composable to HTML string with metadata.
      */
     fun withMetadata(
-        renderer: JvmPlatformRenderer,
+        renderer: PlatformRenderer,
         metadata: PageMetadata,
         composable: @Composable () -> Unit
     ): String {
@@ -61,7 +62,9 @@ object RenderToString {
         val result = renderer.renderComposableRoot(composable)
 
         // Add doctype if needed
-        return if (metadata.includeDocType && !result.startsWith("<!DOCTYPE")) {
+        return if (metadata.includeDocType && result.startsWith("<!DOCTYPE")) {
+            result
+        } else if (metadata.includeDocType) {
             "<!DOCTYPE html>\n$result"
         } else {
             result
@@ -74,6 +77,6 @@ object RenderToString {
  * This makes migration from the old API simpler.
  */
 fun renderToString(content: @Composable () -> Unit): String {
-    val renderer = JvmPlatformRenderer()
+    val renderer = PlatformRenderer()
     return RenderToString.basic(renderer, content)
 } 

@@ -52,7 +52,7 @@ class SelectTest {
         assertEquals(true, renderer.lastSelectOptionsRendered!![1].disabled)
 
         assertNotNull(renderer.lastSelectModifierRendered)
-        assertEquals(null, renderer.lastSelectModifierRendered?.styles?.get("__attr:disabled"))
+        assertEquals(null, renderer.lastSelectModifierRendered?.attributes?.get("disabled"))
     }
 
     @Test
@@ -84,7 +84,7 @@ class SelectTest {
 
         assertEquals(true, renderer.renderSelectCalled)
         assertNotNull(renderer.lastSelectModifierRendered)
-        assertEquals("disabled", renderer.lastSelectModifierRendered?.styles?.get("__attr:disabled"))
+        assertEquals("disabled", renderer.lastSelectModifierRendered?.attributes?.get("disabled"))
     }
 
     // TODO: Test other parameters like multiple, size, label, placeholder

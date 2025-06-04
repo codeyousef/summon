@@ -530,4 +530,247 @@ Box(
         .backgroundColor("#0077cc")
         .applyAnimation(fadeAndScale)
 )
+```
+
+---
+
+## Animation Extensions
+
+Convenient extension functions for common animation scenarios.
+
+### Extension Functions
+
+```kotlin
+package code.yousef.summon.animation
+
+// Animate numeric properties
+@Composable
+fun animateFloatAsState(
+    targetValue: Float,
+    animationSpec: AnimationSpec<Float> = spring(),
+    visibilityThreshold: Float = 0.01f,
+    label: String = "FloatAnimation"
+): State<Float>
+
+@Composable
+fun animateIntAsState(
+    targetValue: Int,
+    animationSpec: AnimationSpec<Int> = spring(),
+    label: String = "IntAnimation"
+): State<Int>
+
+// Animate size properties
+@Composable
+fun animateDpAsState(
+    targetValue: Dp,
+    animationSpec: AnimationSpec<Dp> = spring(),
+    label: String = "DpAnimation"
+): State<Dp>
+
+// Animate color
+@Composable
+fun animateColorAsState(
+    targetValue: Color,
+    animationSpec: AnimationSpec<Color> = spring(),
+    label: String = "ColorAnimation"
+): State<Color>
+
+// Animation specs
+fun <T> spring(
+    dampingRatio: Float = Spring.DampingRatioNoBouncy,
+    stiffness: Float = Spring.StiffnessMedium,
+    visibilityThreshold: T? = null
+): SpringSpec<T>
+
+fun <T> tween(
+    durationMillis: Int = 300,
+    delayMillis: Int = 0,
+    easing: Easing = FastOutSlowInEasing
+): TweenSpec<T>
+
+fun <T> repeatable(
+    iterations: Int,
+    animation: DurationBasedAnimationSpec<T>,
+    repeatMode: RepeatMode = RepeatMode.Restart
+): RepeatableSpec<T>
+
+fun <T> infiniteRepeatable(
+    animation: DurationBasedAnimationSpec<T>,
+    repeatMode: RepeatMode = RepeatMode.Restart
+): InfiniteRepeatableSpec<T>
+```
+
+### Example
+
+```kotlin
+@Composable
+fun AnimatedComponent() {
+    var expanded by remember { mutableStateOf(false) }
+    
+    // Animate size
+    val width by animateDpAsState(
+        targetValue = if (expanded) 300.dp else 100.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        )
+    )
+    
+    // Animate color
+    val backgroundColor by animateColorAsState(
+        targetValue = if (expanded) Color.Blue else Color.Red,
+        animationSpec = tween(durationMillis = 500)
+    )
+    
+    Box(
+        modifier = Modifier
+            .width(width)
+            .height(100.dp)
+            .backgroundColor(backgroundColor)
+            .clickable { expanded = !expanded }
+    )
+}
+```
+
+---
+
+## Animation Utils
+
+Utility functions and classes for working with animations.
+
+### Functions
+
+```kotlin
+package code.yousef.summon.animation
+
+// Create animated values
+fun Animatable(
+    initialValue: Float,
+    visibilityThreshold: Float = 0.01f
+): Animatable<Float, AnimationVector1D>
+
+// Animate to target value
+suspend fun <T, V : AnimationVector> Animatable<T, V>.animateTo(
+    targetValue: T,
+    animationSpec: AnimationSpec<T> = spring(),
+    initialVelocity: T? = null,
+    block: (Animatable<T, V>.() -> Unit)? = null
+): AnimationResult<T, V>
+
+// Snap to value immediately
+suspend fun <T, V : AnimationVector> Animatable<T, V>.snapTo(targetValue: T)
+
+// Stop animation
+fun <T, V : AnimationVector> Animatable<T, V>.stop()
+
+// Animation state
+data class AnimationState<T, V : AnimationVector>(
+    val value: T,
+    val velocity: V,
+    val isRunning: Boolean,
+    val finishedTimeNanos: Long
+)
+```
+
+### Example
+
+```kotlin
+@Composable
+fun DraggableComponent() {
+    val offsetX = remember { Animatable(0f) }
+    val offsetY = remember { Animatable(0f) }
+    
+    Box(
+        modifier = Modifier
+            .offset { IntOffset(offsetX.value.roundToInt(), offsetY.value.roundToInt()) }
+            .size(100.dp)
+            .backgroundColor(Color.Blue)
+            .draggable(
+                orientation = Orientation.Horizontal,
+                state = rememberDraggableState { delta ->
+                    coroutineScope.launch {
+                        offsetX.animateTo(
+                            targetValue = offsetX.value + delta,
+                            animationSpec = spring(stiffness = Spring.StiffnessHigh)
+                        )
+                    }
+                }
+            )
+    )
+}
+```
+
+---
+
+## Keyframes Generator
+
+Advanced keyframe generation utilities.
+
+### Functions
+
+```kotlin
+package code.yousef.summon.animation
+
+// Generate keyframes from a sequence
+fun generateKeyframes(
+    name: String,
+    frames: List<KeyframeDefinition>
+): String
+
+// Keyframe definition
+data class KeyframeDefinition(
+    val percentage: Int,
+    val properties: Map<String, String>
+)
+
+// Keyframe builder DSL
+fun keyframeSequence(
+    name: String,
+    builder: KeyframeSequenceBuilder.() -> Unit
+): String
+
+class KeyframeSequenceBuilder {
+    fun frame(percentage: Int, builder: KeyframeBuilder.() -> Unit)
+    fun frames(vararg percentages: Int, builder: KeyframeBuilder.() -> Unit)
+    fun interpolate(
+        from: Int,
+        to: Int,
+        property: String,
+        fromValue: String,
+        toValue: String,
+        easing: EasingFunction = EasingFunctions.Linear
+    )
+}
+```
+
+### Example
+
+```kotlin
+// Complex keyframe animation
+val complexAnimation = keyframeSequence("complexMove") {
+    frame(0) {
+        transform("translate(0, 0) scale(1)")
+        opacity(1f)
+    }
+    
+    // Interpolate between frames
+    interpolate(
+        from = 0,
+        to = 50,
+        property = "transform",
+        fromValue = "translate(0, 0)",
+        toValue = "translate(100px, 0)",
+        easing = EasingFunctions.EaseInOut
+    )
+    
+    frame(50) {
+        transform("translate(100px, 0) scale(1.5)")
+        backgroundColor("#ff0000")
+    }
+    
+    frames(75, 100) {
+        transform("translate(0, 0) scale(1)")
+        opacity(0.5f)
+    }
+}
 ``` 

@@ -1,5 +1,6 @@
 package code.yousef.summon.integrations.quarkus
 
+import code.yousef.summon.runtime.PlatformRenderer
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.WebApplicationException
@@ -35,7 +36,7 @@ import java.lang.reflect.Type
 @ApplicationScoped
 class SummonMessageBodyWriter : MessageBodyWriter<Any> {
 
-    private val renderer = JvmPlatformRenderer()
+    private val renderer = PlatformRenderer()
 
     override fun isWriteable(
         type: Class<*>?,

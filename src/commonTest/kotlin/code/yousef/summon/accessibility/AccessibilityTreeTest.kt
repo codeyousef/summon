@@ -12,35 +12,38 @@ class AccessibilityTreeTest {
     fun testCreateRoleModifier() {
         // Test creating a role modifier with enum
         val roleModifier = AccessibilityUtils.createRoleModifier(AccessibilityUtils.NodeRole.BUTTON)
-        assertEquals("button", roleModifier.styles["__attr:role"])
+        assertEquals("button", roleModifier.attributes["role"])
         
         // Test creating a role modifier with custom string
         val customRoleModifier = AccessibilityUtils.createRoleModifier("custom-role")
-        assertEquals("custom-role", customRoleModifier.styles["__attr:role"])
+        assertEquals("custom-role", customRoleModifier.attributes["role"])
     }
     
     @Test
     fun testCreateLabelModifier() {
         val labelModifier = AccessibilityUtils.createLabelModifier("Test Label")
-        assertEquals("Test Label", labelModifier.styles["__attr:aria-label"])
+        assertEquals("Test Label", labelModifier.attributes["aria-label"])
     }
     
     @Test
     fun testCreateRelationshipModifier() {
         val relationshipModifier = AccessibilityUtils.createRelationshipModifier("describedby", "element-id")
-        assertEquals("element-id", relationshipModifier.styles["__attr:aria-describedby"])
+        assertEquals("element-id", relationshipModifier.attributes["aria-describedby"])
     }
     
     @Test
     fun testInspectAccessibility() {
         // Create a modifier with multiple accessibility attributes
-        val modifier = Modifier()
-            .style("__attr:role", "button")
-            .style("__attr:aria-label", "Test Button")
-            .style("__attr:aria-describedby", "description-id")
-            .style("__attr:tabindex", "0")
-            .style("__attr:disabled", "")
-            .style("color", "red") // Non-accessibility attribute
+        val modifier = Modifier(
+            styles = mapOf("color" to "red"), // Non-accessibility attribute
+            attributes = mapOf(
+                "role" to "button",
+                "aria-label" to "Test Button",
+                "aria-describedby" to "description-id",
+                "tabindex" to "0",
+                "disabled" to ""
+            )
+        )
         
         // Inspect accessibility attributes
         val accessibilityAttrs = AccessibilityUtils.inspectAccessibility(modifier)
@@ -58,9 +61,12 @@ class AccessibilityTreeTest {
     @Test
     fun testModifierInspectAccessibilityExtension() {
         // Create a modifier with accessibility attributes
-        val modifier = Modifier()
-            .style("__attr:role", "button")
-            .style("__attr:aria-label", "Test Button")
+        val modifier = Modifier(
+            attributes = mapOf(
+                "role" to "button",
+                "aria-label" to "Test Button"
+            )
+        )
         
         // Use the extension function
         val accessibilityAttrs = modifier.inspectAccessibility()

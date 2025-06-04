@@ -43,11 +43,11 @@ class PointerEventModifiersTest {
     fun testDraggableModifier() {
         val modifierTrue = Modifier().draggable(true)
         assertEquals("true", modifierTrue.getAttribute("draggable"), "draggable(true) failed.")
-        assertEquals("true", modifierTrue.styles["__attr:draggable"], "draggable(true) did not store correctly.")
+        assertEquals("true", modifierTrue.attributes["draggable"], "draggable(true) did not store correctly.")
 
         val modifierFalse = Modifier().draggable(false)
         assertEquals("false", modifierFalse.getAttribute("draggable"), "draggable(false) failed.")
-        assertEquals("false", modifierFalse.styles["__attr:draggable"], "draggable(false) did not store correctly.")
+        assertEquals("false", modifierFalse.attributes["draggable"], "draggable(false) did not store correctly.")
     }
 
     // Add tests for other event handlers (onMouseLeave, onTouch*, onDrag*) if desired,

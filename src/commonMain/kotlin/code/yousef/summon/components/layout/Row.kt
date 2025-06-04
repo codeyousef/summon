@@ -18,7 +18,14 @@ fun Row(
 ) {
     // Use platform renderer directly
     val renderer = LocalPlatformRenderer.current
-    renderer.renderRow(modifier, content)
+    
+    // Apply default flex styles for Row
+    val rowModifier = Modifier()
+        .style("display", "flex")
+        .style("flex-direction", "row")
+        .then(modifier)
+    
+    renderer.renderRow(rowModifier, content)
 }
 
 object Alignment {

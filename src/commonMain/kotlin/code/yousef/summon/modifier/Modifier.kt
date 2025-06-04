@@ -141,9 +141,7 @@ data class Modifier(
      * @return A new Modifier with the border style.
      */
     fun border(width: String, style: String, color: String): Modifier =
-        this.style("border-width", width)
-            .style("border-style", style)
-            .style("border-color", color)
+        this.style("border", "$width $style $color")
 
     /**
      * Adds a border to the element using a BorderStyle enum (if defined and convertible to string).
@@ -377,6 +375,16 @@ data class Modifier(
             }.lowercase() // Ensure fully kebab, e.g. backgroundColor -> background-color
             "$kebabKey:$value"
         }.ifEmpty { "" }
+    }
+    
+    /**
+     * Checks if this modifier has a specific style with the given key and value.
+     * @param key The style key to check
+     * @param value The expected value for the style
+     * @return true if the style exists with the given value, false otherwise
+     */
+    fun hasStyle(key: String, value: String): Boolean {
+        return styles[key] == value
     }
 
     // --- Common HTML Attributes as methods ---

@@ -1,5 +1,6 @@
 package code.yousef.summon.integrations.quarkus
 
+import code.yousef.summon.runtime.PlatformRenderer
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Produces
 import jakarta.enterprise.inject.spi.InjectionPoint
@@ -74,7 +75,7 @@ class CDISupport {
      */
     @ApplicationScoped
     class CDIAwareRenderer {
-        private val renderer = JvmPlatformRenderer()
+        private val renderer = PlatformRenderer()
 
         /**
          * Renders a component, ensuring all CDI dependencies are injected first.
@@ -159,12 +160,12 @@ class SummonCDISupport {
      * The renderer can be injected into CDI beans using:
      * ```
      * @Inject
-     * lateinit var renderer: JvmPlatformRenderer
+     * lateinit var renderer: PlatformRenderer
      * ```
      */
     @Produces
-    fun produceRenderer(): JvmPlatformRenderer {
-        return JvmPlatformRenderer()
+    fun produceRenderer(): PlatformRenderer {
+        return PlatformRenderer()
     }
     
     /**

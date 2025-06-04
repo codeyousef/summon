@@ -58,7 +58,7 @@ class LinkTest {
     }
 
     // Mock Renderer implementing PlatformRenderer directly
-    class MockLinkRenderer : PlatformRenderer {
+    class MockLinkRenderer : MockPlatformRenderer() {
         var lastHref: String? = null
         var lastTarget: String? = null
         var lastTitle: String? = null
@@ -141,7 +141,7 @@ class LinkTest {
         override fun renderRow(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
         override fun renderColumn(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
         override fun renderBox(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderImage(src: String, alt: String, modifier: Modifier) {}
+        override fun renderImage(src: String, alt: String?, modifier: Modifier) {}
         override fun renderIcon(
             name: String,
             modifier: Modifier,
@@ -312,7 +312,7 @@ class LinkTest {
         assertNull(renderer.lastAriaLabel)
         assertNull(renderer.lastAriaDescribedBy)
         assertNotNull(renderer.lastModifier)
-        assertEquals(null, renderer.lastModifier?.styles?.get("__attr:rel"))
+        assertEquals(null, renderer.lastModifier?.attributes?.get("rel"))
     }
 
     @Test
@@ -325,7 +325,7 @@ class LinkTest {
         assertEquals("/internal", renderer.lastHref)
         assertEquals("_blank", renderer.lastTarget)
         assertNotNull(renderer.lastModifier)
-        assertEquals("noopener noreferrer", renderer.lastModifier?.styles?.get("__attr:rel"))
+        assertEquals("noopener noreferrer", renderer.lastModifier?.attributes?.get("rel"))
     }
 
     @Test
@@ -338,7 +338,7 @@ class LinkTest {
         assertEquals("https://external.site", renderer.lastHref)
         assertNull(renderer.lastTarget) // Target not set explicitly
         assertNotNull(renderer.lastModifier)
-        assertEquals("noopener noreferrer", renderer.lastModifier?.styles?.get("__attr:rel"))
+        assertEquals("noopener noreferrer", renderer.lastModifier?.attributes?.get("rel"))
     }
 
     @Test
@@ -349,7 +349,7 @@ class LinkTest {
         }
         assertEquals(true, renderer.renderEnhancedLinkCalled)
         assertNotNull(renderer.lastModifier)
-        assertEquals("nofollow", renderer.lastModifier?.styles?.get("__attr:rel"))
+        assertEquals("nofollow", renderer.lastModifier?.attributes?.get("rel"))
     }
 
     @Test
@@ -367,7 +367,7 @@ class LinkTest {
         assertNotNull(renderer.lastModifier)
         val expectedRelParts = setOf("author", "external", "noopener", "noreferrer", "nofollow")
         val actualRelParts =
-            renderer.lastModifier?.styles?.get("__attr:rel")?.split(" ")?.filter { it.isNotBlank() }?.toSet()
+            renderer.lastModifier?.attributes?.get("rel")?.split(" ")?.filter { it.isNotBlank() }?.toSet()
         assertEquals(expectedRelParts, actualRelParts)
     }
 

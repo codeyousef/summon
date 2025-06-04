@@ -1,7 +1,7 @@
 package code.yousef.summon.platform
 
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.JsPlatformRenderer
+import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.getPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import kotlin.test.Test
@@ -15,20 +15,20 @@ class JsPlatformRendererTest {
 
     @Test
     fun testJsPlatformRendererCreation() {
-        // Test that JsPlatformRenderer can be created
-        val renderer = JsPlatformRenderer()
+        // Test that PlatformRenderer can be created
+        val renderer = PlatformRenderer()
         assertNotNull(renderer)
     }
 
     @Test
     fun testSetAndGetPlatformRenderer() {
         // Test setting and getting the platform renderer
-        val renderer = JsPlatformRenderer()
+        val renderer = PlatformRenderer()
         setPlatformRenderer(renderer)
         val retrievedRenderer = getPlatformRenderer()
 
         assertNotNull(retrievedRenderer)
-        assertTrue(retrievedRenderer is JsPlatformRenderer)
+        assertTrue(retrievedRenderer is PlatformRenderer)
     }
 
     // Note: Removed testHeadElementManagement as it requires more complex setup for JS environment
@@ -37,7 +37,7 @@ class JsPlatformRendererTest {
     @Test
     fun testRenderComposableRoot() {
         // Test rendering a composable root
-        val renderer = JsPlatformRenderer()
+        val renderer = PlatformRenderer()
 
         // Render a composable with content
         val result = renderer.renderComposableRoot {

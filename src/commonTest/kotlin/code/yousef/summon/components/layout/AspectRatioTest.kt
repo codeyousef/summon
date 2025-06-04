@@ -17,6 +17,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.assertSame
+import kotlin.test.assertNotNull
 
 /**
  * Tests for the AspectRatio component

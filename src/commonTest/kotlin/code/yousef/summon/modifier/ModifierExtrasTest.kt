@@ -35,7 +35,7 @@ class ModifierExtrasTest {
         }
         
         // Check internal storage
-        assertEquals(attrValue, modifier.styles["__attr:$attrName"], "Internal attribute storage failed.")
+        assertEquals(attrValue, modifier.attributes[attrName], "Internal attribute storage failed.")
 
         // Check retrieval using getAttribute
         val retrievedValue = with(ModifierExtras) {

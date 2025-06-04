@@ -1303,10 +1303,10 @@ class HtmxAwareRenderer {
 
             logger.debug("HtmxAwareRenderer.RawHtml() - HTML content created, length: ${htmlContent.length}")
 
-            // Render a block with the raw HTML content
+            // Render a box with the raw HTML content
             // Use htmlAttribute instead of style to ensure proper processing
-            logger.debug("HtmxAwareRenderer.RawHtml() - Rendering block with raw HTML content")
-            renderer.renderBlock(modifier.htmlAttribute("__raw_html", htmlContent)) { }
+            logger.debug("HtmxAwareRenderer.RawHtml() - Rendering box with raw HTML content")
+            renderer.renderBox(modifier.htmlAttribute("__raw_html", htmlContent)) { }
 
             logger.debug("HtmxAwareRenderer.RawHtml() - Raw HTML content rendered successfully")
         } catch (e: Exception) {

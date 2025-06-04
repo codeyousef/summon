@@ -20,7 +20,7 @@ class GridTest {
     fun testGridWithDefaultParameters() {
         val mockRenderer = MockPlatformRenderer()
         runTestComposable(mockRenderer) {
-            Grid {
+            Grid(columns = "1fr 1fr") {
                 // Empty content
             }
             assertTrue(mockRenderer.renderGridCalled, "renderGrid should have been called")
@@ -28,9 +28,9 @@ class GridTest {
 
             val styles = mockRenderer.lastGridModifierRendered?.styles ?: emptyMap()
             assertEquals("grid", styles["display"], "display should be set to grid")
-            assertTrue(!styles.containsKey("grid-template-columns"), "grid-template-columns should not be set by default")
-            assertTrue(!styles.containsKey("grid-template-rows"), "grid-template-rows should not be set by default")
-            assertTrue(!styles.containsKey("gap"), "gap should not be set by default")
+            assertEquals("1fr 1fr", styles["grid-template-columns"], "grid-template-columns should be set to '1fr 1fr'")
+            assertEquals("auto", styles["grid-template-rows"], "grid-template-rows should be set to 'auto' by default")
+            assertEquals("0", styles["gap"], "gap should be set to '0' by default")
             assertTrue(!styles.containsKey("grid-template-areas"), "grid-template-areas should not be set by default")
         }
     }

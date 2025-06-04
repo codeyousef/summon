@@ -55,6 +55,58 @@ Recent enhancements to Summon include:
 - **Animation Enhancements** with keyframes and transition support
 - **Improved Documentation** with comprehensive examples and API references
 
+## Component Categories
+
+Summon provides a comprehensive set of UI components organized into logical categories:
+
+### Input Components
+- **TextField** - Single-line text input
+- **TextArea** - Multi-line text input
+- **Button** - Clickable button with various styles
+- **Checkbox** - Checkbox input with label
+- **RadioButton** - Radio button for single selection
+- **Switch** - Toggle switch component
+- **Select** - Dropdown selection component
+- **Slider** - Single value slider
+- **RangeSlider** - Dual-handle range slider
+- **DatePicker** - Date selection component
+- **TimePicker** - Time selection component
+- **FileUpload** - File upload with drag & drop support
+- **Form** & **FormField** - Form management components
+
+### Layout Components
+- **Row** - Horizontal layout with alignment controls
+- **Column** - Vertical layout with alignment controls
+- **Box** - Container with positioning capabilities
+- **Grid** - CSS Grid layout component
+- **Spacer** - Flexible spacing component
+- **Divider** - Visual separator
+- **Card** - Elevated container with shadow
+- **AspectRatio** - Maintains aspect ratio for content
+- **ExpansionPanel** - Collapsible/expandable panel
+- **LazyColumn** & **LazyRow** - Virtualized lists for performance
+- **ResponsiveLayout** - Responsive layout utilities
+
+### Display Components
+- **Text** - Text display with styling
+- **Image** - Image display component
+- **Icon** - Icon component with various sources
+- **Badge** - Small status indicator
+
+### Feedback Components
+- **Alert** - Dismissible alert messages
+- **Snackbar** & **SnackbarHost** - Temporary notifications
+- **Progress** & **ProgressBar** - Progress indicators
+- **Tooltip** - Hover tooltips
+
+### Navigation Components
+- **Link** - Navigation links
+- **TabLayout** - Tab-based navigation
+
+### Utility Components
+- **Div** - Basic container element
+- **AccessibleElement** - Accessibility wrapper
+
 ## Inspiration
 
 Summon is proudly inspired by [Kobweb](https://github.com/varabyte/kobweb), a modern framework for full stack web apps in Kotlin built upon Compose HTML. Kobweb's elegant API design and approach to creating web applications using Kotlin has been instrumental in shaping Summon's philosophy. We highly recommend checking out Kobweb if you're looking for a mature, feature-rich solution for Kotlin web development.
@@ -135,19 +187,19 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("code.yousef:summon:0.2.4.5")
+                implementation("code.yousef:summon:0.2.5.1")
             }
         }
 
         val jvmMain by getting {
             dependencies {
-                implementation("code.yousef:summon-jvm:0.2.4.5")
+                implementation("code.yousef:summon-jvm:0.2.5.1")
             }
         }
 
         val jsMain by getting {
             dependencies {
-                implementation("code.yousef:summon-js:0.2.4.5")
+                implementation("code.yousef:summon-js:0.2.5.1")
             }
         }
     }

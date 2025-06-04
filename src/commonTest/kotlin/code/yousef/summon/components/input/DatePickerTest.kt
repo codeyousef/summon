@@ -16,8 +16,8 @@ import code.yousef.summon.components.display.IconType
 import code.yousef.summon.components.feedback.AlertVariant
 import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.navigation.Tab
-import code.yousef.summon.modifier.attribute
-import code.yousef.summon.modifier.attributes
+import code.yousef.summon.modifier.withAttribute
+import code.yousef.summon.modifier.withAttributes
 import code.yousef.summon.modifier.pointerEvents
 import kotlinx.datetime.LocalTime
 import kotlinx.html.FlowContent

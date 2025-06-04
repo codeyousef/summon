@@ -16,8 +16,8 @@ class ModifierUtilsTest {
 
         val modified = modifier.attribute(attrName, attrValue)
 
-        // Verify the internal map contains the prefixed key
-        assertEquals(attrValue, modified.styles["__attr:$attrName"], "Attribute not stored correctly in styles map")
+        // Verify the internal map contains the attribute
+        assertEquals(attrValue, modified.attributes[attrName], "Attribute not stored correctly in attributes map")
     }
 
     @Test

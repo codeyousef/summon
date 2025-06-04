@@ -14,7 +14,7 @@ import kotlin.test.*
 
 // Extension functions for testing
 private fun Modifier.hasAttribute(name: String, value: String): Boolean =
-    styles["__attr:$name"] == value
+    attributes[name] == value
 
 /**
  * Tests for the TextField component
@@ -24,8 +24,8 @@ class TextFieldTest {
     /**
      * A mock implementation of PlatformRenderer for testing
      */
-    private class MockPlatformRenderer : PlatformRenderer {
-        var renderTextFieldCalled = false
+    private class MockPlatformRenderer : code.yousef.summon.runtime.MockPlatformRenderer() {
+        override var renderTextFieldCalled = false
         var lastValue: String? = null
         var lastOnValueChange: ((String) -> Unit)? = null
         var lastModifier: Modifier? = null
@@ -86,7 +86,7 @@ class TextFieldTest {
         override fun renderRow(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
         override fun renderColumn(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
         override fun renderBox(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderImage(src: String, alt: String, modifier: Modifier) {}
+        override fun renderImage(src: String, alt: String?, modifier: Modifier) {}
         override fun renderIcon(
             name: String,
             modifier: Modifier,

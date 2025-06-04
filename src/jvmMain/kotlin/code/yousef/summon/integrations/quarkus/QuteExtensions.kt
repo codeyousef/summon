@@ -2,6 +2,7 @@ package code.yousef.summon.integrations.quarkus
 
 
 import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import io.quarkus.qute.TemplateExtension
 import io.quarkus.qute.TemplateInstance
@@ -14,7 +15,7 @@ import kotlinx.html.stream.appendHTML
  */
 object QuteComponentRegistry {
     private val components = mutableMapOf<String, @Composable () -> Unit>()
-    private val renderer = JvmPlatformRenderer()
+    private val renderer = PlatformRenderer()
 
     /**
      * Register a component with a specific name

@@ -45,8 +45,7 @@ class RowTest {
                 // Empty content
             }
             assertTrue(mockRenderer.renderRowCalled, "renderRow should have been called")
-            assertSame(customModifier, mockRenderer.lastRowModifierRendered, "Modifier should be the custom one")
-
+            
             val styles = mockRenderer.lastRowModifierRendered?.styles ?: emptyMap()
             assertContains(styles, "background-color")
             assertEquals("green", styles["background-color"])

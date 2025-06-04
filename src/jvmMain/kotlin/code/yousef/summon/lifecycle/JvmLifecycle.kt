@@ -45,19 +45,31 @@ actual class LifecycleOwner  {
     private fun notifyObservers(newState: LifecycleState) {
         // Update current state first
         currentState = newState
-        observers.forEach { it.onStateChanged(newState) }
-    }
-
-    actual override fun addObserver(observer: LifecycleObserver) {
-        if (observers.addIfAbsent(observer)) {
-            // If the lifecycle is already created or started, immediately notify the new observer.
-            if (currentState >= LifecycleState.CREATED) { // Covers CREATED, STARTED, RESUMED
-                observer.onStateChanged(currentState)
+        observers.forEach { observer ->
+            when (newState) {
+                LifecycleState.CREATED -> observer.onCreate()
+                LifecycleState.STARTED -> observer.onStart()
+                LifecycleState.RESUMED -> observer.onResume()
+                LifecycleState.PAUSED -> observer.onPause()
+                LifecycleState.STOPPED -> observer.onStop()
+                LifecycleState.DESTROYED -> observer.onDestroy()
+                LifecycleState.INITIALIZED -> {} // No callback for INITIALIZED
+                else -> {} // Compiler requires else for expect enum
             }
         }
     }
 
-    actual override fun removeObserver(observer: LifecycleObserver) {
+    actual fun addObserver(observer: LifecycleObserver) {
+        if (observers.addIfAbsent(observer)) {
+            // If the lifecycle is already created or started, immediately notify the new observer.
+            // Notify all states up to current state
+            if (currentState >= LifecycleState.CREATED) observer.onCreate()
+            if (currentState >= LifecycleState.STARTED) observer.onStart()
+            if (currentState >= LifecycleState.RESUMED) observer.onResume()
+        }
+    }
+
+    actual fun removeObserver(observer: LifecycleObserver) {
         observers.remove(observer)
     }
 }

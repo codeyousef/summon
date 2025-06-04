@@ -109,5 +109,5 @@ fun EnhancedQuteTemplate(
 
     // Render a Box with the raw HTML content
     // Use htmlAttribute instead of style to ensure proper processing by HtmxAwareRenderer
-    renderer.renderBlock(modifier.htmlAttribute("__raw_html", html)) { }
+    renderer.renderBox(modifier.htmlAttribute("__raw_html", html)) { }
 }

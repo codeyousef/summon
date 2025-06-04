@@ -31,8 +31,8 @@ class ResponsiveLayoutTest {
             val styles = mockRenderer.lastResponsiveLayoutModifierRendered?.styles ?: emptyMap()
             assertContains(styles, "position")
             assertEquals("relative", styles["position"])
-            assertContains(styles, "__attr:data-client-detection")
-            assertEquals("true", styles["__attr:data-client-detection"]) // Default is client-side detection
+            assertContains(mockRenderer.lastResponsiveLayoutModifierRendered?.attributes ?: emptyMap(), "data-client-detection")
+            assertEquals("true", mockRenderer.lastResponsiveLayoutModifierRendered?.attributes?.get("data-client-detection")) // Default is client-side detection
 
             assertNotNull(mockRenderer.lastResponsiveLayoutContentRendered, "Content should not be null")
         }
@@ -81,10 +81,11 @@ class ResponsiveLayoutTest {
             assertTrue(mockRenderer.renderResponsiveLayoutCalled, "renderResponsiveLayout should have been called")
 
             val styles = mockRenderer.lastResponsiveLayoutModifierRendered?.styles ?: emptyMap()
-            assertContains(styles, "__attr:data-client-detection")
-            assertEquals("false", styles["__attr:data-client-detection"])
-            assertContains(styles, "__attr:data-server-size")
-            assertEquals("MEDIUM", styles["__attr:data-server-size"])
+            val attributes = mockRenderer.lastResponsiveLayoutModifierRendered?.attributes ?: emptyMap()
+            assertContains(attributes, "data-client-detection")
+            assertEquals("false", attributes["data-client-detection"])
+            assertContains(attributes, "data-server-size")
+            assertEquals("MEDIUM", attributes["data-server-size"])
 
             assertNotNull(mockRenderer.lastResponsiveLayoutContentRendered, "Content should not be null")
         }

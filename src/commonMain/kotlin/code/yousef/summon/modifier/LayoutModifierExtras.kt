@@ -134,7 +134,7 @@ object LayoutModifierExtras {
      * @return A new Modifier with the added style
      */
     fun Modifier.border(width: String, style: String, color: String): Modifier =
-        style("border", "$width $style $color")
+        this.style("border", "$width $style $color")
         
     /**
      * Sets the border-radius property of the element.

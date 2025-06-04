@@ -42,9 +42,9 @@ class CoreModifiersTest {
         assertEquals("value", m.style("width", "value").styles["width"], "Member style function should not prefix CSS.")
         assertEquals("value", m.style("margin", "value").styles["margin"], "Member style function should not prefix CSS.")
 
-        // Test that AttributeModifiers.attribute helper DOES add __attr: prefix
-        assertEquals("value", m.attribute("data-attr", "value").styles["__attr:data-attr"], "attribute() helper prefix failed.")
-        assertEquals("value", m.attribute("aria-label", "value").styles["__attr:aria-label"], "attribute() helper prefix failed.")
+        // Test that AttributeModifiers.attribute helper adds to attributes map
+        assertEquals("value", m.attribute("data-attr", "value").attributes["data-attr"], "attribute() helper failed.")
+        assertEquals("value", m.attribute("aria-label", "value").attributes["aria-label"], "attribute() helper failed.")
 
         // Test that PointerEventModifiers helpers DO add __event: prefix
         assertEquals("value", m.onClick("value").styles["__event:click"], "onClick() helper prefix failed.")

@@ -15,7 +15,6 @@ import kotlinx.html.FlowContent
 @Composable
 fun Box(modifier: Modifier = Modifier(), content: @Composable FlowContent.() -> Unit) {
     val renderer = LocalPlatformRenderer.current
-    // Call the regular renderBlock method. The renderer implementation
-    // (JvmPlatformRenderer) is responsible for getting the context via LocalFlowContent.
-    renderer.renderBlock(modifier, content)
+    // Call the renderBox method
+    renderer.renderBox(modifier, content)
 }

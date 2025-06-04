@@ -42,7 +42,7 @@ class JvmPlatformRendererTest {
 
             // Verify that the HTML was generated
             assertNotNull(html, "renderComposableRoot should return non-null HTML")
-            assertFalse(html.isEmpty(), "renderComposableRoot should return non-empty HTML")
+            assertTrue(html.isNotEmpty(), "renderComposableRoot should return non-empty HTML")
 
             // Verify that the HTML does not contain an error message
             assertFalse(html.contains("NotImplementedError"), "HTML should not contain NotImplementedError")
@@ -87,7 +87,7 @@ class JvmPlatformRendererTest {
     /**
      * Helper method to create a JvmPlatformRenderer for testing.
      */
-    private fun createJvmPlatformRenderer(): JvmPlatformRenderer {
-        return JvmPlatformRenderer()
+    private fun createJvmPlatformRenderer(): PlatformRenderer {
+        return PlatformRenderer()
     }
 }

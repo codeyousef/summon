@@ -7,10 +7,32 @@ Welcome to the Summon documentation! Summon is a Kotlin Multiplatform library fo
 ### Getting Started
 - [Components](components.md) - Learn about Summon's built-in UI components
 - [Routing](routing.md) - Set up navigation in your application with Next.js-style file-based routing
+- [File-Based Routing](file-based-routing.md) - Next.js-style automatic page discovery
 - [State Management](state-management.md) - Manage application state effectively
 - [Styling](styling.md) - Apply styles to your components
+- [Security](security.md) - Authentication and authorization features
+- [Accessibility Guide](accessibility-guide.md) - Build accessible applications
 - [Accessibility and SEO](accessibility-and-seo.md) - Build accessible and SEO-friendly applications
 - [Internationalization](i18n.md) - Add multi-language support with RTL layouts
+
+### API Reference
+- [Core API](api-reference/core.md) - Core interfaces and classes
+- [Components API](api-reference/components.md) - All UI components reference
+- [Modifier API](api-reference/modifier.md) - Styling and layout modifiers
+- [State API](api-reference/state.md) - State management utilities
+- [Routing API](api-reference/routing.md) - Navigation and routing
+- [Effects API](api-reference/effects.md) - Side effects and lifecycle
+- [Events API](api-reference/events.md) - Event handling
+- [Animation API](api-reference/animation.md) - Animations and transitions
+- [Theme API](api-reference/theme.md) - Theming system
+- [Color API](api-reference/color.md) - Color system
+- [Focus API](api-reference/focus.md) - Focus management
+- [Validation API](api-reference/validation.md) - Form validation
+- [Security API](api-reference/security.md) - Security features
+- [Authentication API](api-reference/auth.md) - Authentication providers
+- [Accessibility API](api-reference/accessibility.md) - Accessibility features
+- [SEO API](api-reference/seo.md) - SEO features
+- [I18n API](api-reference/i18n-api.md) - Internationalization
 
 ### Lifecycle & Environment Integration
 - [Framework-Agnostic Lifecycle Integration](lifecycle-integration.md) - Lifecycle management across different UI frameworks
@@ -19,6 +41,11 @@ Welcome to the Summon documentation! Summon is a Kotlin Multiplatform library fo
 
 ### Integration Guides
 - [Integration Guides](integration-guides.md) - Integrate with existing frameworks and platforms
+
+### Examples
+- [JS Example](examples/js/js-example/README.md) - JavaScript platform example
+- [Quarkus Example](examples/jvm/quarkus-example/README.md) - Quarkus integration example
+- [I18n Example](examples/i18n-example.md) - Internationalization example
 
 
 ## Key Features
@@ -33,6 +60,37 @@ Welcome to the Summon documentation! Summon is a Kotlin Multiplatform library fo
 - **SSR Support**: Server-side rendering capabilities
 - **Theme System**: Flexible theming with dark mode support
 - **Internationalization**: Full i18n support with RTL layouts for languages like Arabic and Hebrew
+
+## Advanced Features
+
+### State Management
+- **ViewModel Support**: Base ViewModel class for MVVM pattern
+- **Flow Integration**: Kotlin Flow integration for reactive state
+- **Remember Saveable**: State preservation across recompositions
+- **State Hoisting**: Pattern for lifting state up
+
+### Performance Optimization
+- **LazyColumn/LazyRow**: Virtualized lists for large datasets
+- **Streaming SSR**: Progressive server-side rendering
+- **Dynamic Rendering**: On-demand content rendering
+- **Static Generation**: Pre-render static content
+
+### Accessibility & SEO
+- **ARIA Support**: Comprehensive ARIA attributes
+- **Keyboard Navigation**: Full keyboard support
+- **Focus Management**: Advanced focus control
+- **Screen Reader Support**: Optimized for assistive technologies
+- **Meta Tags**: SEO meta tag management
+- **Structured Data**: JSON-LD support
+- **Sitemap Generation**: Automatic sitemap creation
+
+### Styling & Theming
+- **CSS-in-Kotlin**: Type-safe CSS properties
+- **Media Queries**: Responsive design utilities
+- **Dark Mode**: Built-in dark mode support
+- **Custom Themes**: Create custom theme systems
+- **Gradient Support**: Linear and radial gradients
+- **Animation**: Keyframes and transitions
 
 ## Getting Help
 

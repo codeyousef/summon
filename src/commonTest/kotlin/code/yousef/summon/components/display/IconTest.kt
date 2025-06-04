@@ -187,7 +187,7 @@ class IconTest {
             val styles = mockRenderer.lastIconModifierRendered!!.styles
 
             assertEquals("pointer", styles["cursor"], "cursor should be 'pointer'")
-            assertEquals("button", styles["__attr:role"], "role should be 'button'")
+            assertEquals("button", mockRenderer.lastIconModifierRendered!!.attributes["role"], "role should be 'button'")
 
             // Call the onClick handler and verify it works
             mockRenderer.lastIconOnClickRendered?.invoke()
@@ -221,8 +221,9 @@ class IconTest {
             assertNotNull(mockRenderer.lastIconModifierRendered, "Modifier should not be null")
             val styles = mockRenderer.lastIconModifierRendered!!.styles
 
-            assertEquals("Accessible Icon", styles["__attr:aria-label"], "aria-label should be 'Accessible Icon'")
-            assertEquals("img", styles["__attr:role"], "role should be 'img'")
+            val attributes = mockRenderer.lastIconModifierRendered!!.attributes
+            assertEquals("Accessible Icon", attributes["aria-label"], "aria-label should be 'Accessible Icon'")
+            assertEquals("img", attributes["role"], "role should be 'img'")
         }
     }
 
@@ -296,10 +297,10 @@ class IconTest {
 
             // Verify the modifier
             assertNotNull(mockRenderer.lastIconModifierRendered, "Modifier should not be null")
-            val styles = mockRenderer.lastIconModifierRendered!!.styles
+            val attributes = mockRenderer.lastIconModifierRendered!!.attributes
 
-            assertEquals("Warning Icon", styles["__attr:aria-label"], "aria-label should be 'Warning Icon'")
-            assertEquals("img", styles["__attr:role"], "role should be 'img'")
+            assertEquals("Warning Icon", attributes["aria-label"], "aria-label should be 'Warning Icon'")
+            assertEquals("img", attributes["role"], "role should be 'img'")
         }
     }
 }

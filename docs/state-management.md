@@ -406,6 +406,256 @@ class SettingsComponent : Composable {
 
 The `persistentStateOf` function creates a state that is automatically saved to local storage on the JS platform and preferences/properties on the JVM platform.
 
+## ViewModel Pattern
+
+Summon supports the ViewModel pattern for managing component state:
+
+```kotlin
+import code.yousef.summon.state.ViewModel
+import code.yousef.summon.state.*
+import kotlinx.coroutines.flow.StateFlow
+
+class CounterViewModel : ViewModel() {
+    private val _count = MutableStateFlow(0)
+    val count: StateFlow<Int> = _count.asStateFlow()
+    
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    
+    fun increment() {
+        _count.value++
+    }
+    
+    fun decrement() {
+        _count.value--
+    }
+    
+    fun loadData() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                // Simulate async operation
+                delay(1000)
+                _count.value = 42
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+}
+
+@Composable
+fun CounterScreen() {
+    val viewModel = rememberViewModel { CounterViewModel() }
+    val count by viewModel.count.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    
+    Column(modifier = Modifier.padding(16.px)) {
+        if (isLoading) {
+            Progress()
+        } else {
+            Text("Count: $count")
+            Row(modifier = Modifier.gap(8.px)) {
+                Button("Increment") { viewModel.increment() }
+                Button("Decrement") { viewModel.decrement() }
+                Button("Load Data") { viewModel.loadData() }
+            }
+        }
+    }
+}
+```
+
+## RememberSaveable
+
+For state that should survive configuration changes and process death:
+
+```kotlin
+@Composable
+fun FormScreen() {
+    // State that survives configuration changes
+    var name by rememberSaveable { mutableStateOf("") }
+    var email by rememberSaveable { mutableStateOf("") }
+    var agreed by rememberSaveable { mutableStateOf(false) }
+    
+    // Complex state with custom saver
+    var formData by rememberSaveable(
+        saver = FormDataSaver
+    ) { mutableStateOf(FormData()) }
+    
+    Column {
+        TextField(
+            value = name,
+            onValueChange = { name = it },
+            placeholder = "Name"
+        )
+        TextField(
+            value = email,
+            onValueChange = { email = it },
+            placeholder = "Email"
+        )
+        Checkbox(
+            checked = agreed,
+            onCheckedChange = { agreed = it },
+            label = "I agree to terms"
+        )
+    }
+}
+
+// Custom saver for complex objects
+object FormDataSaver : Saver<FormData, Bundle> {
+    override fun save(value: FormData): Bundle = Bundle().apply {
+        putString("name", value.name)
+        putString("email", value.email)
+        putBoolean("agreed", value.agreed)
+    }
+    
+    override fun restore(value: Bundle): FormData = FormData(
+        name = value.getString("name", ""),
+        email = value.getString("email", ""),
+        agreed = value.getBoolean("agreed", false)
+    )
+}
+```
+
+## Flow Integration
+
+Seamless integration with Kotlin Flow for reactive programming:
+
+```kotlin
+@Composable
+fun SearchScreen() {
+    var query by remember { mutableStateOf("") }
+    
+    // Convert state to flow
+    val queryFlow = snapshotFlow { query }
+    
+    // Debounced search
+    val searchResults by queryFlow
+        .debounce(300)
+        .flatMapLatest { searchQuery ->
+            if (searchQuery.isBlank()) {
+                flowOf(emptyList())
+            } else {
+                searchRepository.search(searchQuery)
+            }
+        }
+        .collectAsState(initial = emptyList())
+    
+    Column {
+        TextField(
+            value = query,
+            onValueChange = { query = it },
+            placeholder = "Search..."
+        )
+        
+        LazyColumn {
+            items(searchResults) { result ->
+                SearchResultItem(result)
+            }
+        }
+    }
+}
+
+// Combine multiple flows
+@Composable
+fun DashboardScreen() {
+    val userFlow = userRepository.currentUser
+    val notificationsFlow = notificationRepository.unreadCount
+    
+    val dashboardState by combine(
+        userFlow,
+        notificationsFlow
+    ) { user, notificationCount ->
+        DashboardState(user, notificationCount)
+    }.collectAsState(initial = DashboardState.Loading)
+    
+    when (dashboardState) {
+        is DashboardState.Loading -> Progress()
+        is DashboardState.Success -> {
+            Column {
+                Text("Welcome, ${dashboardState.user.name}")
+                Badge("${dashboardState.notificationCount}")
+            }
+        }
+    }
+}
+```
+
+## State Hoisting Patterns
+
+Advanced patterns for managing state across component hierarchies:
+
+```kotlin
+// State holder class
+class FormState(
+    initialValues: FormValues = FormValues()
+) {
+    var values by mutableStateOf(initialValues)
+        private set
+    
+    var errors by mutableStateOf<Map<String, String>>(emptyMap())
+        private set
+    
+    val isValid: Boolean
+        get() = errors.isEmpty() && values.isComplete()
+    
+    fun updateField(field: String, value: String) {
+        values = values.copy(field to value)
+        validateField(field, value)
+    }
+    
+    private fun validateField(field: String, value: String) {
+        val error = when (field) {
+            "email" -> if (!value.contains("@")) "Invalid email" else null
+            "password" -> if (value.length < 8) "Too short" else null
+            else -> null
+        }
+        
+        errors = if (error != null) {
+            errors + (field to error)
+        } else {
+            errors - field
+        }
+    }
+}
+
+@Composable
+fun rememberFormState(
+    initialValues: FormValues = FormValues()
+): FormState = remember {
+    FormState(initialValues)
+}
+
+// Usage
+@Composable
+fun RegistrationForm() {
+    val formState = rememberFormState()
+    
+    Column {
+        FormField(
+            value = formState.values.email,
+            onValueChange = { formState.updateField("email", it) },
+            error = formState.errors["email"],
+            label = "Email"
+        )
+        
+        FormField(
+            value = formState.values.password,
+            onValueChange = { formState.updateField("password", it) },
+            error = formState.errors["password"],
+            label = "Password",
+            type = "password"
+        )
+        
+        Button(
+            text = "Register",
+            enabled = formState.isValid,
+            onClick = { submitForm(formState.values) }
+        )
+    }
+}
+```
+
 ## Platform-Specific State
 
 Summon provides platform-specific state extensions:
@@ -422,6 +672,22 @@ Column {
     Text("Window width: ${windowSize.width}px")
     Text("Window height: ${windowSize.height}px")
 }
+
+// Media query state
+val isMobile by mediaQueryState("(max-width: 768px)")
+
+if (isMobile) {
+    MobileLayout()
+} else {
+    DesktopLayout()
+}
+
+// Online status
+val isOnline by onlineState()
+
+if (!isOnline) {
+    Banner("You are offline")
+}
 ```
 
 ### JVM Platform
@@ -436,4 +702,12 @@ Column {
     Text("Java version: ${systemProperties["java.version"]}")
     Text("OS name: ${systemProperties["os.name"]}")
 }
+
+// File system state
+val diskSpace by diskSpaceState("/")
+
+ProgressBar(
+    progress = diskSpace.used / diskSpace.total,
+    label = "Disk Usage"
+)
 ``` 
