@@ -172,18 +172,25 @@ Run the included test scripts to verify everything works locally:
 
 **Linux/macOS:**
 ```bash
-./test-and-build.sh
+./run-tests.sh
 ```
 
 **Windows:**
 ```cmd
-test-and-build.bat
+run-tests.bat
 ```
 
 These scripts will:
 - ✅ Run all tests (JVM, JS with Chrome headless, and common)
-- 🔨 Build all targets
-- 📦 Optionally test local publishing
+- 🔨 Generate test reports in `build/reports/tests/`
+- 📋 Show test results summary
+
+**Note:** JS tests may fail due to a known issue with Kotlin 2.2.0-Beta1 and kotlinx-serialization. This is a temporary issue that doesn't affect the main code compilation.
+
+For a full build including packaging:
+```bash
+./gradlew build -x jsTest -x jsBrowserTest
+```
 
 ## Local Development Setup
 

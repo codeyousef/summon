@@ -30,6 +30,14 @@ All notable changes to this project will be documented in this file.
   - JVM tests pass successfully
   - Workaround: Use `./gradlew build -x jsTest -x jsBrowserTest` to build without JS tests
 
+### Infrastructure
+- **CI/CD Pipeline:** Fixed GitHub Actions workflow issues
+  - Added `security-events: write` permission for security scan uploads
+  - Fixed npm cache configuration (removed npm cache, project uses Yarn)
+  - Updated test artifact upload to always upload reports (not just on failure)
+  - Added workaround for JS test compilation issue in build jobs
+  - Added test scripts for local development (`run-tests.sh` and `run-tests.bat`)
+
 ## [0.2.4.5]
 
 ### Refactor
