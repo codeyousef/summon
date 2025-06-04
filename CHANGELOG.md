@@ -41,7 +41,7 @@ All notable changes to this project will be documented in this file.
   - Reorganized `.gitignore` to properly track the gradle wrapper jar file
 - **Documentation:** Updated project description
   - Changed terminology from "UI toolkit" to "frontend framework" to better reflect Summon's comprehensive nature
-  - Updated README.md and CLAUDE.md with new terminology
+  - Updated README.md and project documentation with new terminology
 
 ## [0.2.4.5]
 

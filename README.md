@@ -159,7 +159,7 @@ Summon now includes automated publishing and continuous integration. The project
 
 ### Setting Up Publishing
 
-For detailed setup instructions, see [PUBLISHING.md](PUBLISHING.md) which covers:
+Publishing configuration includes:
 
 - Maven Central setup (Sonatype OSSRH)
 - GPG key generation and configuration

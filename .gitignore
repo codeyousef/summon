@@ -43,6 +43,15 @@ local.properties
 # Development tool directories
 .claude/
 
+# Internal documentation and backup files
+SETUP-*.md
+PUBLISHING.md
+*UPDATE_SUMMARY.md
+*.backup
+*.bak
+*.old
+*.tmp
+
 # Node.js (if using JS target)
 node_modules/
 npm-debug.log
