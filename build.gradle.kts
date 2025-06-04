@@ -1,14 +1,14 @@
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.plugins.signing.SigningExtension
+// import org.gradle.plugins.signing.SigningExtension  // Not needed for GitHub Packages
 import org.gradle.api.publish.tasks.GenerateModuleMetadata
 import org.gradle.api.publish.maven.tasks.AbstractPublishToMaven
-import org.gradle.plugins.signing.Sign
+// import org.gradle.plugins.signing.Sign  // Not needed for GitHub Packages
 
 plugins {
     kotlin("multiplatform") version "2.2.0-Beta1"
     kotlin("plugin.serialization") version "2.2.0-Beta1"
     `maven-publish`
-    signing
+    // signing  // Not needed for GitHub Packages
 }
 
 group = "io.github.codeyousef"
@@ -202,7 +202,7 @@ tasks.register("verifySpringBootIntegration") {
     }
 }
 
-// Enhanced Publishing Configuration
+// Enhanced Publishing Configuration - GitHub Packages ONLY
 publishing {
     publications {
         // Publications are automatically created by the Kotlin Multiplatform plugin
@@ -238,7 +238,7 @@ publishing {
     }
     
     repositories {
-        // GitHub Packages - Working and reliable
+        // ONLY GitHub Packages - reliable and works without additional setup
         maven {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/codeyousef/summon")
@@ -247,29 +247,16 @@ publishing {
                 password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
             }
         }
-        
-        // Maven Central repositories temporarily disabled until Central Portal setup is complete
-        // Uncomment when ready:
-        // maven {
-        //     name = "central"
-        //     val releasesUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-        //     val snapshotsUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-        //     url = if (version.toString().endsWith("SNAPSHOT")) snapshotsUrl else releasesUrl
-        //     
-        //     credentials {
-        //         username = project.findProperty("centralUsername") as String? ?: System.getenv("CENTRAL_USERNAME")
-        //         password = project.findProperty("centralPassword") as String? ?: System.getenv("CENTRAL_PASSWORD")
-        //     }
-        // }
     }
 }
 
-// Configure signing for Maven Central
-if (project.hasProperty("signing.keyId")) {
-    configure<SigningExtension> {
-        sign(publishing.publications)
-    }
-}
+// GitHub Packages doesn't require signing
+// Configure signing for Maven Central when needed:
+// if (project.hasProperty("signing.keyId")) {
+//     configure<SigningExtension> {
+//         sign(publishing.publications)
+//     }
+// }
 
 // Javadoc JAR task for Maven Central compliance
 tasks.register<Jar>("javadocJar") {
@@ -278,10 +265,10 @@ tasks.register<Jar>("javadocJar") {
 }
 
 // Sources JAR is automatically created by Kotlin Multiplatform plugin
-// But you can customize it if needed
-tasks.withType<AbstractPublishToMaven> {
-    dependsOn(tasks.withType<Sign>())
-}
+// GitHub Packages doesn't require signing
+// tasks.withType<AbstractPublishToMaven> {
+//     dependsOn(tasks.withType<Sign>())
+// }
 
 // Task to run all tests before publishing
 tasks.register("testAll") {
