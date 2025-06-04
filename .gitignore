@@ -40,6 +40,9 @@ Desktop.ini
 # Local configuration file
 local.properties
 
+# Development tool directories
+.claude/
+
 # Node.js (if using JS target)
 node_modules/
 npm-debug.log
