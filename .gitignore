@@ -1,7 +1,6 @@
 # Gradle
 .gradle/
 build/
-!gradle/wrapper/gradle-wrapper.jar
 
 # IntelliJ IDEA
 .idea/
@@ -18,6 +17,8 @@ out/
 
 # Package files
 *.jar
+# But keep the gradle wrapper jar
+!gradle/wrapper/gradle-wrapper.jar
 *.war
 *.nar
 *.ear

@@ -37,6 +37,8 @@ All notable changes to this project will be documented in this file.
   - Updated test artifact upload to always upload reports (not just on failure)
   - Added workaround for JS test compilation issue in build jobs
   - Added test scripts for local development (`run-tests.sh` and `run-tests.bat`)
+  - Fixed missing `gradle-wrapper.jar` file that was causing CI/CD builds to fail
+  - Reorganized `.gitignore` to properly track the gradle wrapper jar file
 
 ## [0.2.4.5]
 
