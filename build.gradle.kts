@@ -238,20 +238,7 @@ publishing {
     }
     
     repositories {
-        // Maven Central via OSSRH (works with both old OSSRH and new Central Portal credentials)
-        maven {
-            name = "OSSRH"
-            val releasesUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-            val snapshotsUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-            url = if (version.toString().endsWith("SNAPSHOT")) snapshotsUrl else releasesUrl
-            
-            credentials {
-                username = project.findProperty("ossrhUsername") as String? ?: System.getenv("CENTRAL_USERNAME")
-                password = project.findProperty("ossrhPassword") as String? ?: System.getenv("CENTRAL_PASSWORD")
-            }
-        }
-        
-        // GitHub Packages (fallback)
+        // GitHub Packages only - Maven Central publishing handled by custom script
         maven {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/codeyousef/summon")
