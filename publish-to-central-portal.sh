@@ -33,17 +33,19 @@ echo "Collecting artifacts..."
 LOCAL_REPO="$HOME/.m2/repository/io/github/codeyousef/summon"
 VERSION="0.2.5.1"
 
-# Copy all module artifacts
+# Copy all module artifacts (excluding .klib files for Central Portal)
 for module in "" "-js" "-jvm"; do
     MODULE_NAME="summon${module}"
     MODULE_DIR="$LOCAL_REPO${module}/$VERSION"
     
     if [ -d "$MODULE_DIR" ]; then
         echo "Copying $MODULE_NAME artifacts..."
+        # Copy JAR files (not KLIB)
         cp -v "$MODULE_DIR"/*.jar "$STAGING_DIR/" 2>/dev/null || true
         cp -v "$MODULE_DIR"/*.pom "$STAGING_DIR/" 2>/dev/null || true
         cp -v "$MODULE_DIR"/*.asc "$STAGING_DIR/" 2>/dev/null || true
-        cp -v "$MODULE_DIR"/*.module "$STAGING_DIR/" 2>/dev/null || true
+        # Skip .klib files as Maven Central doesn't accept them
+        # Skip .module files as they reference the .klib files
     fi
 done
 

@@ -52,13 +52,6 @@ kotlin {
             }
         }
         binaries.executable()
-        
-        // Generate JAR instead of KLIB for Maven Central compatibility
-        compilations.all {
-            kotlinOptions {
-                moduleKind = "umd"
-            }
-        }
     }
 
     sourceSets {
@@ -212,15 +205,6 @@ tasks.register("verifySpringBootIntegration") {
 // Enhanced Publishing Configuration - GitHub Packages ONLY
 publishing {
     publications {
-        // Ensure JS publications use JAR instead of KLIB for Maven Central
-        matching { it.name.contains("js", ignoreCase = true) }.all {
-            val publication = this as MavenPublication
-            // Remove KLIB artifacts and keep only JAR artifacts
-            artifacts.removeIf { artifact ->
-                artifact.extension == "klib"
-            }
-        }
-        
         // Publications are automatically created by the Kotlin Multiplatform plugin
         withType<MavenPublication> {
             // Configure common metadata for all publications
@@ -313,10 +297,6 @@ tasks.register("testAll") {
     description = "Run all tests for all targets"
 }
 
-// Ensure JS JAR is created for Maven publishing
-tasks.named("jsJar") {
-    // This task should already exist and create a JAR
-}
 
 // New Maven Central Portal - Create bundle and upload via REST API
 tasks.register("createCentralPortalBundle") {
