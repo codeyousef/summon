@@ -201,7 +201,7 @@ tasks.register("verifySpringBootIntegration") {
 mavenPublishing {
 //    coordinates("io.github.codeyousef", "summon", "0.2.6")
 
-    publishToMavenCentral(SonatypeHost.DEFAULT)
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
     signAllPublications()
 
     pom {
