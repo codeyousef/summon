@@ -61,6 +61,7 @@ All notable changes to this project will be documented in this file.
   - Created publish-to-central-portal.sh and .bat scripts for bundle creation and upload
   - Updated CI/CD to use Central Portal publishing scripts instead of traditional OSSRH
   - Changed publishing type from USER_MANAGED to AUTOMATIC for immediate Maven Central publication
+  - Fixed Kotlin/JS publication to exclude .klib files and use .jar files for Maven Central compatibility
 - **Documentation:** Updated project description
   - Changed terminology from "UI toolkit" to "frontend framework" to better reflect Summon's comprehensive nature
   - Updated README.md and project documentation with new terminology
