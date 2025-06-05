@@ -64,6 +64,8 @@ All notable changes to this project will be documented in this file.
   - Fixed Kotlin/JS publication metadata issue by allowing standard Kotlin multiplatform publications
   - Updated Central Portal publishing script to exclude .klib files from bundle (Maven Central doesn't accept them)
   - Removed OSSRH repository from build.gradle.kts - Maven Central publishing now handled exclusively by custom script
+  - Fixed cache cleaning scripts to reference correct repository names (GitHubPackages instead of OSSRH)
+  - Added comprehensive troubleshooting for phantom task errors caused by Gradle cache
 - **Documentation:** Updated project description
   - Changed terminology from "UI toolkit" to "frontend framework" to better reflect Summon's comprehensive nature
   - Updated README.md and project documentation with new terminology

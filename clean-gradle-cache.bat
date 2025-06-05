@@ -22,6 +22,9 @@ echo.
 echo Gradle cache cleaned successfully!
 echo.
 echo Now you can run:
-echo   gradlew.bat publishAllPublicationsToOSSRHRepository
+echo   gradlew.bat publishAllPublicationsToGitHubPackagesRepository
 echo.
-echo Or for CI/CD, push to main branch for automatic publishing.
+echo Or for Maven Central publishing:
+echo   publish-to-central-portal.bat
+echo.
+echo For CI/CD, just push to main branch for automatic publishing.

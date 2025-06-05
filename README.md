@@ -209,17 +209,20 @@ Publishing configuration includes:
 - Ensure `GITHUB_TOKEN` is set with `write:packages` permission
 - Run `./gradlew publishAllPublicationsToGitHubPackagesRepository`
 
-**Troubleshooting:**
-- If you see errors about `publishJsPublicationToCentralRepository` or wrong URLs:
-  - Run `./clean-gradle-cache.sh` (Linux/macOS) or `clean-gradle-cache.bat` (Windows)
-  - This completely clears Gradle's cache to remove any stale configuration
-- The repository has been renamed from "central" to "OSSRH" to avoid conflicts
-- Maven Central publishing requires proper OSSRH credentials and namespace verification
-- If the error persists showing `https://central.sonatype.com/api/v1/publisher/deployments/`:
-  - This is the new Central Portal API URL (for accounts created in 2024+)
-  - The new Central Portal requires different configuration than traditional OSSRH
-  - **Current workaround**: Use GitHub Packages for publishing (working and configured)
-  - To check your account type: Log in to https://central.sonatype.com - if it works, you have a Central Portal account
+**Troubleshooting Publishing Issues:**
+
+**If you see errors about `publishJsPublicationToCentralRepository` or similar phantom tasks:**
+- This is a Gradle cache issue where removed repository configurations are still cached
+- Solution: Run `./clean-gradle-cache.sh` (Linux/macOS) or `clean-gradle-cache.bat` (Windows)
+- This completely clears Gradle's cache and removes all stale configurations
+- After cleaning, only `GitHubPackagesRepository` tasks will be available
+
+**Maven Central Publishing Notes:**
+- Maven Central now uses the Central Portal (https://central.sonatype.com) for new accounts
+- Traditional OSSRH publishing no longer works for accounts created in 2024+
+- Use the provided `publish-to-central-portal.sh` script for Maven Central
+- The script handles .klib file exclusion and automatic publishing
+- GitHub Packages publishing works immediately without additional configuration
 
 ### Quick Testing
 

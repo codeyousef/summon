@@ -1,14 +1,9 @@
-import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.plugins.signing.SigningExtension  // Required for Maven Central
-import org.gradle.api.publish.tasks.GenerateModuleMetadata
-import org.gradle.api.publish.maven.tasks.AbstractPublishToMaven
-import org.gradle.plugins.signing.Sign  // Required for Maven Central
+import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
     kotlin("multiplatform") version "2.2.0-Beta1"
     kotlin("plugin.serialization") version "2.2.0-Beta1"
-    `maven-publish`
-    signing  // Required for Maven Central
+    id("com.vanniktech.maven.publish") version "0.29.0"
 }
 
 group = "io.github.codeyousef"
@@ -202,43 +197,44 @@ tasks.register("verifySpringBootIntegration") {
     }
 }
 
-// Enhanced Publishing Configuration - GitHub Packages ONLY
-publishing {
-    publications {
-        // Publications are automatically created by the Kotlin Multiplatform plugin
-        withType<MavenPublication> {
-            // Configure common metadata for all publications
-            pom {
-                name.set("Summon")
-                description.set("A Kotlin Multiplatform UI framework for building web applications")
-                url.set("https://github.com/codeyousef/summon")
-                
-                licenses {
-                    license {
-                        name.set("MIT License")
-                        url.set("https://opensource.org/licenses/MIT")
-                    }
-                }
-                
-                developers {
-                    developer {
-                        id.set("yousef")
-                        name.set("Yousef") // Update with your actual name
-                        email.set("publishing.rental535@passmail.net") // Update with your email
-                    }
-                }
-                
-                scm {
-                    connection.set("scm:git:git://github.com/codeyousef/summon.git")
-                    developerConnection.set("scm:git:ssh://github.com/codeyousef/summon.git")
-                    url.set("https://github.com/codeyousef/summon")
-                }
+// Publishing Configuration with vanniktech plugin
+mavenPublishing {
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+    signAllPublications()
+    
+    coordinates("io.github.codeyousef", "summon", "0.2.5.1")
+    
+    pom {
+        name.set("Summon")
+        description.set("A Kotlin Multiplatform UI framework for building web applications")
+        url.set("https://github.com/codeyousef/summon")
+        
+        licenses {
+            license {
+                name.set("MIT License")
+                url.set("https://opensource.org/licenses/MIT")
             }
         }
+        
+        developers {
+            developer {
+                id.set("yousef")
+                name.set("Yousef")
+                email.set("publishing.rental535@passmail.net")
+            }
+        }
+        
+        scm {
+            connection.set("scm:git:git://github.com/codeyousef/summon.git")
+            developerConnection.set("scm:git:ssh://github.com/codeyousef/summon.git")
+            url.set("https://github.com/codeyousef/summon")
+        }
     }
-    
+}
+
+// Also publish to GitHub Packages
+publishing {
     repositories {
-        // GitHub Packages only - Maven Central publishing handled by custom script
         maven {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/codeyousef/summon")
@@ -247,21 +243,6 @@ publishing {
                 password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
             }
         }
-    }
-}
-
-// Configure signing for Maven Central
-val signingKeyId = project.findProperty("signing.keyId") as String? ?: System.getenv("SIGNING_KEY_ID")
-val signingPassword = project.findProperty("signing.password") as String? ?: System.getenv("SIGNING_PASSWORD")
-val signingSecretKey = project.findProperty("signing.secretKeyRingFile") as String? ?: System.getenv("SIGNING_SECRET_KEY")
-
-if (signingKeyId != null) {
-    configure<SigningExtension> {
-        if (signingSecretKey != null && signingSecretKey.startsWith("-----")) {
-            // Use in-memory signing for CI/CD
-            useInMemoryPgpKeys(signingKeyId, signingSecretKey, signingPassword)
-        }
-        sign(publishing.publications)
     }
 }
 
