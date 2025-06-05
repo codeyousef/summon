@@ -42,13 +42,28 @@ Navigate to your repository Settings → Secrets and variables → Actions, then
 
 ## How It Works
 
-The publishing workflow (`.github/workflows/publish.yml`) is triggered when you create a new release on GitHub:
+### Release Publishing
+
+The release workflow (`.github/workflows/publish.yml`) is triggered when you create a new release on GitHub:
 
 1. **Trigger**: Create a new release via GitHub UI
 2. **Build**: The workflow builds and tests your project
-3. **Publish**: Automatically publishes to:
+3. **Sign**: Signs all artifacts with GPG
+4. **Publish**: Automatically publishes to:
    - Maven Central Portal (using vanniktech plugin)
    - GitHub Packages
+
+### Snapshot Publishing
+
+The snapshot workflow (`.github/workflows/publish-snapshot.yml`) is triggered on:
+- Pushes to `main` or `develop` branches
+- Manual workflow dispatch
+
+Snapshots:
+- Automatically append `-SNAPSHOT` to the version
+- Don't require GPG signing
+- Are published to Maven Central's snapshot repository
+- Are useful for testing pre-release versions
 
 ## Creating a Release
 
@@ -94,8 +109,14 @@ export ORG_GRADLE_PROJECT_signingInMemoryKey="your_gpg_key"
    - Verify GPG_KEY_CONTENTS includes full armor block
    - Check SIGNING_KEY_ID is exactly 8 characters
    - Ensure signing password is correct
+   - For snapshots: Signing is optional and will be skipped if credentials aren't available
 
-3. **Authentication failures**
+3. **"Cannot perform signing task because it has no configured signatory"**
+   - This happens when signing credentials aren't properly configured
+   - For snapshots: The build.gradle.kts now includes conditional signing
+   - For releases: Ensure all signing environment variables are set
+
+4. **Authentication failures**
    - Verify Central Portal credentials (not OSSRH)
    - Ensure tokens haven't expired
    - Check secret names match exactly

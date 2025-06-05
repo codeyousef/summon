@@ -200,7 +200,16 @@ tasks.register("verifySpringBootIntegration") {
 // Publishing Configuration with vanniktech plugin
 mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
-    signAllPublications()
+    
+    // Configure signing - required for releases, optional for snapshots
+    val isSnapshot = version.toString().endsWith("-SNAPSHOT")
+    val hasSigningKey = providers.environmentVariable("ORG_GRADLE_PROJECT_signingInMemoryKey").isPresent ||
+                        providers.gradleProperty("signingInMemoryKey").isPresent ||
+                        providers.gradleProperty("signing.keyId").isPresent
+    
+    if (!isSnapshot || hasSigningKey) {
+        signAllPublications()
+    }
     
     coordinates("io.github.codeyousef", "summon", "0.2.5.1")
     
