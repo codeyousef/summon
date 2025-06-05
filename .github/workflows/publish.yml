@@ -26,6 +26,19 @@ jobs:
       - name: Build and Test
         run: ./gradlew build
       
+      - name: Verify Maven Central Credentials
+        run: |
+          echo "Verifying Maven Central credentials..."
+          if [ -z "${{ secrets.MAVEN_CENTRAL_USERNAME }}" ]; then
+            echo "::error::MAVEN_CENTRAL_USERNAME secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.MAVEN_CENTRAL_PASSWORD }}" ]; then
+            echo "::error::MAVEN_CENTRAL_PASSWORD secret is not set"
+            exit 1
+          fi
+          echo "✅ Credentials are configured"
+      
       - name: Publish to Maven Central and GitHub Packages
         run: |
           ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache
