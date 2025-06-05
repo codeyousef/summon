@@ -6,6 +6,10 @@ on:
       - develop
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   publish-snapshot:
     runs-on: ubuntu-latest

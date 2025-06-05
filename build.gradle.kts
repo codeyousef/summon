@@ -1,3 +1,5 @@
+import org.gradle.api.publish.maven.MavenPublication
+
 plugins {
     kotlin("multiplatform") version "2.2.0-RC2"
     kotlin("plugin.serialization") version "2.2.0-RC2"
@@ -197,6 +199,34 @@ tasks.register("verifySpringBootIntegration") {
 
 // Configure publishing for GitHub Packages only
 publishing {
+    publications {
+        withType<MavenPublication> {
+            pom {
+                name.set("Summon")
+                description.set("A Kotlin Multiplatform UI framework for building web applications")
+                url.set("https://github.com/codeyousef/summon")
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("https://opensource.org/licenses/MIT")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("codeyousef")
+                        name.set("codeyousef")
+                        url.set("https://github.com/codeyousef/")
+                    }
+                }
+                scm {
+                    url.set("https://github.com/codeyousef/summon/")
+                    connection.set("scm:git:git://github.com/codeyousef/summon.git")
+                    developerConnection.set("scm:git:ssh://git@github.com/codeyousef/summon.git")
+                }
+            }
+        }
+    }
+    
     repositories {
         maven {
             name = "GitHubPackages"
