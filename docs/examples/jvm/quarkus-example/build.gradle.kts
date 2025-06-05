@@ -6,7 +6,14 @@ plugins {
 
 repositories {
     mavenCentral()
-    mavenLocal() // For Summon library published locally
+    // For GitHub Packages (optional)
+    maven {
+        url = uri("https://maven.pkg.github.com/codeyousef/summon")
+        credentials {
+            username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
+            password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
 }
 
 val quarkusVersion = "3.6.5"
@@ -28,8 +35,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
     // Summon dependencies
-    implementation("code.yousef:summon:0.2.5.1")
-    implementation("code.yousef:summon-jvm:0.2.5.1")
+    implementation("io.github.codeyousef:summon:0.2.6")
+    implementation("io.github.codeyousef:summon-jvm:0.2.6")
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.12.0")
 
     // Jakarta Servlet API

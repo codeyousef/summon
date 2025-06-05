@@ -29,7 +29,7 @@ mkdir %STAGING_DIR%
 REM Copy all artifacts from local Maven repository
 echo Collecting artifacts...
 set LOCAL_REPO=%USERPROFILE%\.m2\repository\io\github\codeyousef\summon
-set VERSION=0.2.5.1
+set VERSION=0.2.6
 
 REM Copy main module artifacts
 set MODULE_DIR=%LOCAL_REPO%\%VERSION%

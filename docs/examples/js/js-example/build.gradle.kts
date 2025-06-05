@@ -9,7 +9,14 @@ plugins {
 
 repositories {
     mavenCentral()
-    mavenLocal() // For accessing the locally published Summon library
+    // For GitHub Packages (optional)
+    maven {
+        url = uri("https://maven.pkg.github.com/codeyousef/summon")
+        credentials {
+            username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
+            password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
 }
 
 kotlin {
@@ -44,7 +51,7 @@ kotlin {
         val jsMain by getting {
             dependencies {
                 // Depend on the Summon library
-                implementation("code.yousef:summon-js:0.2.5.1")
+                implementation("io.github.codeyousef:summon-js:0.2.6")
 
                 // Standard JS dependencies
                 implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.12.0")

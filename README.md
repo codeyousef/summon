@@ -250,70 +250,47 @@ For a full build including packaging:
 ./gradlew build -x jsTest -x jsBrowserTest
 ```
 
-## Local Development Setup
+## Installation
 
-For development or if you want to use a locally built version:
+Summon is available from both Maven Central and GitHub Packages.
 
-### 1. Clone the Repository
+### From Maven Central (Recommended)
 
-```bash
-git clone https://github.com/codeyousef/summon.git
-cd summon
-```
-
-### 2. Build and Install to Local Maven Repository
-
-```bash
-./gradlew publishToMavenLocal
-```
-
-### 3. Add the Local Repository to Your Project
-
-In your project's `settings.gradle.kts` file:
+Add Summon to your project dependencies:
 
 ```kotlin
-dependencyResolutionManagement {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        // other repositories
-    }
+repositories {
+    mavenCentral()
 }
-```
 
-### 4. Include the Dependency
-
-In your project's `build.gradle.kts` file:
-
-```kotlin
 kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("io.github.codeyousef:summon:0.2.5.1")
+                implementation("io.github.codeyousef:summon:0.2.6")
             }
         }
 
+        // Platform-specific dependencies (optional)
         val jvmMain by getting {
             dependencies {
-                implementation("io.github.codeyousef:summon-jvm:0.2.5.1")
+                implementation("io.github.codeyousef:summon-jvm:0.2.6")
             }
         }
 
         val jsMain by getting {
             dependencies {
-                implementation("io.github.codeyousef:summon-js:0.2.5.1")
+                implementation("io.github.codeyousef:summon-js:0.2.6")
             }
         }
     }
 }
 ```
 
-## Using Published Versions
+### From GitHub Packages
 
-Summon is published to GitHub Packages, with Maven Central support coming soon.
+If you prefer using GitHub Packages:
 
-### From GitHub Packages (Recommended)
 ```kotlin
 repositories {
     maven {
@@ -324,4 +301,15 @@ repositories {
         }
     }
 }
+
+// Dependencies same as above
 ```
+
+**Note**: GitHub Packages requires authentication. Add your credentials to `~/.gradle/gradle.properties`:
+
+```properties
+gpr.user=YOUR_GITHUB_USERNAME
+gpr.key=YOUR_GITHUB_TOKEN
+```
+
+Generate a GitHub token with `read:packages` permission at https://github.com/settings/tokens

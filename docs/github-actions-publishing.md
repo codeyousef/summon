@@ -146,7 +146,7 @@ ls -la ~/.m2/repository/io/github/codeyousef/summon/
 The version is defined in `build.gradle.kts`:
 
 ```kotlin
-version = "0.2.5.1"
+version = "0.2.6"
 ```
 
 Update this before creating a new release to ensure proper versioning.

@@ -31,7 +31,7 @@ mkdir -p $STAGING_DIR
 # Copy all artifacts from local Maven repository
 echo "Collecting artifacts..."
 LOCAL_REPO="$HOME/.m2/repository/io/github/codeyousef/summon"
-VERSION="0.2.5.1"
+VERSION="0.2.6"
 
 # Copy all module artifacts (excluding .klib files for Central Portal)
 for module in "" "-js" "-jvm"; do

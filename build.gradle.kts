@@ -1,13 +1,14 @@
 import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
-    kotlin("multiplatform") version "2.2.0-Beta1"
-    kotlin("plugin.serialization") version "2.2.0-Beta1"
-    id("com.vanniktech.maven.publish") version "0.29.0"
+    id("com.vanniktech.maven.publish") version "0.32.0"
+    kotlin("multiplatform") version "2.2.0-RC2"
+    kotlin("plugin.serialization") version "2.2.0-RC2"
+
 }
 
 group = "io.github.codeyousef"
-version = "0.2.5.1"
+version = "0.2.6"
 
 repositories {
     mavenCentral()
@@ -121,32 +122,32 @@ kotlin {
 
 dependencies {
     // Quarkus integration dependencies
-    "quarkusIntegration"("io.quarkus:quarkus-core:3.9.2")
-    "quarkusIntegration"("io.quarkus:quarkus-qute:3.9.2")
-    "quarkusIntegration"("io.quarkus:quarkus-kotlin:3.9.2")
-    "quarkusIntegration"("io.quarkus:quarkus-vertx-http:3.9.2")
-    "quarkusIntegration"("io.quarkus:quarkus-resteasy-reactive:3.9.2")
-    "quarkusIntegration"("io.quarkus:quarkus-resteasy-reactive-jackson:3.9.2")
-    "quarkusIntegration"("io.quarkus:quarkus-websockets:3.9.2")
-    "quarkusIntegration"("io.quarkus:quarkus-arc:3.9.2")
+    "quarkusIntegration"("io.quarkus:quarkus-core:3.23.0")
+    "quarkusIntegration"("io.quarkus:quarkus-qute:3.23.0")
+    "quarkusIntegration"("io.quarkus:quarkus-kotlin:3.23.0")
+    "quarkusIntegration"("io.quarkus:quarkus-vertx-http:3.23.0")
+    "quarkusIntegration"("io.quarkus:quarkus-resteasy-reactive:3.23.0")
+    "quarkusIntegration"("io.quarkus:quarkus-resteasy-reactive-jackson:3.23.0")
+    "quarkusIntegration"("io.quarkus:quarkus-websockets:3.23.0")
+    "quarkusIntegration"("io.quarkus:quarkus-arc:3.23.0")
 
     // Add deployment dependencies to the quarkusDeployment configuration
-    "quarkusDeployment"("io.quarkus:quarkus-core-deployment:3.9.2")
-    "quarkusDeployment"("io.quarkus:quarkus-arc-deployment:3.9.2")
-    "quarkusDeployment"("io.quarkus:quarkus-security-deployment:3.9.2")
+    "quarkusDeployment"("io.quarkus:quarkus-core-deployment:3.23.0")
+    "quarkusDeployment"("io.quarkus:quarkus-arc-deployment:3.23.0")
+    "quarkusDeployment"("io.quarkus:quarkus-security-deployment:3.23.0")
 
     // Add Ktor dependencies to the ktorIntegration configuration
-    "ktorIntegration"("io.ktor:ktor-server-core:2.3.7")
-    "ktorIntegration"("io.ktor:ktor-server-netty:2.3.7")
-    "ktorIntegration"("io.ktor:ktor-server-html-builder:2.3.7")
-    "ktorIntegration"("io.ktor:ktor-server-content-negotiation:2.3.7")
-    "ktorIntegration"("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
+    "ktorIntegration"("io.ktor:ktor-server-core:3.1.3")
+    "ktorIntegration"("io.ktor:ktor-server-netty:3.1.3")
+    "ktorIntegration"("io.ktor:ktor-server-html-builder:3.1.3")
+    "ktorIntegration"("io.ktor:ktor-server-content-negotiation:3.1.3")
+    "ktorIntegration"("io.ktor:ktor-serialization-kotlinx-json:3.1.3")
 
     // Add Spring Boot dependencies to the springBootIntegration configuration
-    "springBootIntegration"("org.springframework.boot:spring-boot-starter-web:3.2.3")
-    "springBootIntegration"("org.springframework.boot:spring-boot-starter-thymeleaf:3.2.3")
-    "springBootIntegration"("org.springframework.boot:spring-boot-starter-webflux:3.2.3")
-    "springBootIntegration"("io.projectreactor.kotlin:reactor-kotlin-extensions:1.2.2")
+    "springBootIntegration"("org.springframework.boot:spring-boot-starter-web:3.5.0")
+    "springBootIntegration"("org.springframework.boot:spring-boot-starter-thymeleaf:3.5.0")
+    "springBootIntegration"("org.springframework.boot:spring-boot-starter-webflux:3.5.0")
+    "springBootIntegration"("io.projectreactor.kotlin:reactor-kotlin-extensions:1.2.3")
 }
 
 kotlin.sourceSets.all {
@@ -197,49 +198,39 @@ tasks.register("verifySpringBootIntegration") {
     }
 }
 
-// Publishing Configuration with vanniktech plugin
 mavenPublishing {
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
-    
-    // Configure signing - required for releases, optional for snapshots
-    val isSnapshot = version.toString().endsWith("-SNAPSHOT")
-    val hasSigningKey = providers.environmentVariable("ORG_GRADLE_PROJECT_signingInMemoryKey").isPresent ||
-                        providers.gradleProperty("signingInMemoryKey").isPresent ||
-                        providers.gradleProperty("signing.keyId").isPresent
-    
-    if (!isSnapshot || hasSigningKey) {
-        signAllPublications()
-    }
-    
-    coordinates("io.github.codeyousef", "summon", "0.2.5.1")
-    
+//    coordinates("io.github.codeyousef", "summon", "0.2.6")
+
+    publishToMavenCentral(SonatypeHost.DEFAULT)
+    signAllPublications()
+
     pom {
         name.set("Summon")
         description.set("A Kotlin Multiplatform UI framework for building web applications")
+        inceptionYear.set("2025")
         url.set("https://github.com/codeyousef/summon")
-        
         licenses {
             license {
                 name.set("MIT License")
                 url.set("https://opensource.org/licenses/MIT")
+                distribution.set("https://opensource.org/licenses/MIT")
             }
         }
-        
         developers {
             developer {
-                id.set("yousef")
-                name.set("Yousef")
-                email.set("publishing.rental535@passmail.net")
+                id.set("codeyousef")
+                name.set("codeyousef")
+                url.set("https://github.com/codeyousef/")
             }
         }
-        
         scm {
+            url.set("https://github.com/username/mylibrary/")
             connection.set("scm:git:git://github.com/codeyousef/summon.git")
-            developerConnection.set("scm:git:ssh://github.com/codeyousef/summon.git")
-            url.set("https://github.com/codeyousef/summon")
+            developerConnection.set("scm:git:ssh://git@github.com/codeyousef/summon.git")
         }
     }
 }
+
 
 // Also publish to GitHub Packages
 publishing {
