@@ -172,42 +172,9 @@ Publishing happens automatically through GitHub Actions:
 - GitHub Token is automatically available in Actions
 - Publishing runs automatically on releases and main branch pushes
 
-**For Local Publishing:**
-- Ensure `GITHUB_TOKEN` is set with `write:packages` permission
-- Run `./gradlew publishAllPublicationsToGitHubPackagesRepository`
 
-**Troubleshooting Publishing Issues:**
 
-**If you see errors about phantom publishing tasks:**
-- This is a Gradle cache issue where removed configurations are still cached
-- Solution: Run `./clean-gradle-cache.sh` (Linux/macOS) or `clean-gradle-cache.bat` (Windows)
-- This completely clears Gradle's cache and removes all stale configurations
 
-### Quick Testing
-
-Run the included test scripts to verify everything works locally:
-
-**Linux/macOS:**
-```bash
-./run-tests.sh
-```
-
-**Windows:**
-```cmd
-run-tests.bat
-```
-
-These scripts will:
-- ✅ Run all tests (JVM, JS with Chrome headless, and common)
-- 🔨 Generate test reports in `build/reports/tests/`
-- 📋 Show test results summary
-
-**Note:** JS tests may fail due to a known issue with Kotlin 2.2.0-Beta1 and kotlinx-serialization. This is a temporary issue that doesn't affect the main code compilation.
-
-For a full build including packaging:
-```bash
-./gradlew build -x jsTest -x jsBrowserTest
-```
 
 ## Installation
 

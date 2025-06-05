@@ -43,6 +43,9 @@ local.properties
 # Development tool directories
 .claude/
 
+# Claude.ai configuration
+CLAUDE.md
+
 # Internal documentation and backup files
 SETUP-*.md
 PUBLISHING.md
