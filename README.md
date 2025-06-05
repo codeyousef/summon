@@ -147,35 +147,6 @@ Comprehensive API reference documentation is available in the [docs/api-referenc
 - [SEO API](docs/api-reference/seo.md) - SEO features and meta tags
 - [Internationalization API](docs/api-reference/i18n-api.md) - Multi-language and RTL layout support
 
-## Publishing and CI/CD
-
-Summon includes automated publishing and continuous integration with comprehensive testing. The project is published to GitHub Packages.
-
-### Automated Publishing
-
-Publishing happens automatically through GitHub Actions:
-
-- **On push to `main`**: 
-  - Snapshot builds are automatically published to GitHub Packages
-  - Version is automatically changed to `X.X.X-SNAPSHOT`
-  - No manual action required - just push to main!
-  
-- **On GitHub release**:
-  - Release builds are published to GitHub Packages
-  - Uses the version tag from the release
-  
-- **Pull request testing**: All tests run automatically on pull requests
-
-### Publishing to GitHub Packages
-
-**For CI/CD (GitHub Actions):**
-- GitHub Token is automatically available in Actions
-- Publishing runs automatically on releases and main branch pushes
-
-
-
-
-
 ## Installation
 
 Add Summon to your project dependencies from GitHub Packages:
