@@ -48,24 +48,19 @@ mvn io.quarkus.platform:quarkus-maven-plugin:3.6.5:create \
 
 ### Step 2: Add Summon Dependencies
 
-Since Summon is not yet published to Maven Central, you'll need to build it locally first:
-
-```bash
-# Clone the Summon repository
-git clone https://github.com/yebaital/summon.git
-cd summon
-
-# Build and publish to local Maven repository
-./gradlew publishToMavenLocal
-```
-
-Now, add the Summon dependencies to your Quarkus project:
+Add the Summon dependencies to your Quarkus project.
 
 For Gradle (`build.gradle.kts`):
 ```kotlin
 repositories {
     mavenCentral()
-    mavenLocal()  // Add this to access locally published artifacts
+    maven {
+        url = uri("https://maven.pkg.github.com/codeyousef/summon")
+        credentials {
+            username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
+            password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
 }
 
 dependencies {

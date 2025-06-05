@@ -4,11 +4,11 @@ This example demonstrates how to use the Summon UI library with Quarkus. It show
 
 ## How to Run This Example
 
-Before running this example, make sure you have Summon published to your local Maven repository:
+Before running this example, configure GitHub Packages authentication in `~/.gradle/gradle.properties`:
 
-```bash
-# From the Summon project root
-./gradlew publishToMavenLocal
+```properties
+gpr.user=YOUR_GITHUB_USERNAME
+gpr.key=YOUR_GITHUB_TOKEN
 ```
 
 To properly set up and run this example, you need to:
@@ -34,12 +34,22 @@ mvn io.quarkus.platform:quarkus-maven-plugin:3.8.3:create \
 
 ```kotlin
 // In build.gradle.kts
+repositories {
+    mavenCentral()
+    maven {
+        url = uri("https://maven.pkg.github.com/codeyousef/summon")
+        credentials {
+            username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
+            password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
+}
+
 dependencies {
     // Existing Quarkus dependencies...
 
     // Summon dependencies
-    implementation("code.yousef:summon:0.2.3.0")
-    implementation("code.yousef:summon-jvm:0.2.3.0")
+    implementation("io.github.codeyousef:summon:0.2.6")
 
     // For HTML generation
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.12.0")

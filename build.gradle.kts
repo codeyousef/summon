@@ -1,10 +1,7 @@
-import com.vanniktech.maven.publish.SonatypeHost
-
 plugins {
-    id("com.vanniktech.maven.publish") version "0.32.0"
     kotlin("multiplatform") version "2.2.0-RC2"
     kotlin("plugin.serialization") version "2.2.0-RC2"
-
+    `maven-publish`
 }
 
 group = "io.github.codeyousef"
@@ -198,41 +195,7 @@ tasks.register("verifySpringBootIntegration") {
     }
 }
 
-mavenPublishing {
-//    coordinates("io.github.codeyousef", "summon", "0.2.6")
-
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
-    signAllPublications()
-
-    pom {
-        name.set("Summon")
-        description.set("A Kotlin Multiplatform UI framework for building web applications")
-        inceptionYear.set("2025")
-        url.set("https://github.com/codeyousef/summon")
-        licenses {
-            license {
-                name.set("MIT License")
-                url.set("https://opensource.org/licenses/MIT")
-                distribution.set("https://opensource.org/licenses/MIT")
-            }
-        }
-        developers {
-            developer {
-                id.set("codeyousef")
-                name.set("codeyousef")
-                url.set("https://github.com/codeyousef/")
-            }
-        }
-        scm {
-            url.set("https://github.com/username/mylibrary/")
-            connection.set("scm:git:git://github.com/codeyousef/summon.git")
-            developerConnection.set("scm:git:ssh://git@github.com/codeyousef/summon.git")
-        }
-    }
-}
-
-
-// Also publish to GitHub Packages
+// Configure publishing for GitHub Packages only
 publishing {
     repositories {
         maven {
@@ -246,17 +209,11 @@ publishing {
     }
 }
 
-// Javadoc JAR task for Maven Central compliance
+// Javadoc JAR task (optional for GitHub Packages)
 tasks.register<Jar>("javadocJar") {
     archiveClassifier.set("javadoc")
     from("$projectDir/docs") // You can put documentation here
 }
-
-// Sources JAR is automatically created by Kotlin Multiplatform plugin
-// GitHub Packages doesn't require signing
-// tasks.withType<AbstractPublishToMaven> {
-//     dependsOn(tasks.withType<Sign>())
-// }
 
 // Task to run all tests before publishing
 tasks.register("testAll") {
@@ -266,25 +223,7 @@ tasks.register("testAll") {
 }
 
 
-// New Maven Central Portal - Create bundle and upload via REST API
-tasks.register("createCentralPortalBundle") {
-    group = "publishing"
-    description = "Create a bundle for the new Maven Central Portal"
-    
-    doLast {
-        // This task would need to:
-        // 1. Create a staging directory
-        // 2. Copy all artifacts (JARs, POMs, signatures) to staging
-        // 3. Create a ZIP bundle
-        // For now, we'll use the traditional approach
-        println("Bundle creation for Central Portal would go here")
-    }
-}
-
-// Make publish depend on tests - commented out to allow publishing with failing tests
+// Make publish depend on tests (optional)
 // tasks.withType<PublishToMavenRepository> {
 //     dependsOn("testAll")
-// }
-
-// Configure JS tests to use headless Chrome
-// (This configuration is now moved to the kotlin block above) 
+// } 

@@ -1,4 +1,4 @@
-name: Publish to Maven Central
+name: Publish to GitHub Packages
 on:
   release:
     types: [created]
@@ -41,51 +41,7 @@ jobs:
       - name: Build and Test
         run: ./gradlew build
       
-      - name: Verify Maven Central Credentials
-        run: |
-          echo "Verifying Maven Central credentials..."
-          if [ -z "${{ secrets.MAVEN_CENTRAL_USERNAME }}" ]; then
-            echo "::error::MAVEN_CENTRAL_USERNAME secret is not set"
-            exit 1
-          fi
-          if [ -z "${{ secrets.MAVEN_CENTRAL_PASSWORD }}" ]; then
-            echo "::error::MAVEN_CENTRAL_PASSWORD secret is not set"
-            exit 1
-          fi
-          echo "✅ Credentials are configured"
-      
-      - name: Verify Signing Configuration
-        run: |
-          echo "Verifying signing configuration..."
-          if [ -z "${{ secrets.SIGNING_KEY_ID }}" ]; then
-            echo "::error::SIGNING_KEY_ID secret is not set"
-            exit 1
-          fi
-          if [ -z "${{ secrets.SIGNING_PASSWORD }}" ]; then
-            echo "::error::SIGNING_PASSWORD secret is not set"
-            exit 1
-          fi
-          if [ -z "${{ secrets.GPG_KEY_CONTENTS }}" ]; then
-            echo "::error::GPG_KEY_CONTENTS secret is not set"
-            exit 1
-          fi
-          echo "✅ Signing configuration is complete"
-      
-      - name: Publish to Maven Central and GitHub Packages
-        run: |
-          ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache
-          ./gradlew publishAllPublicationsToGitHubPackagesRepository
+      - name: Publish to GitHub Packages
+        run: ./gradlew publishAllPublicationsToGitHubPackagesRepository
         env:
-          # Maven Central credentials
-          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-          # Signing configuration
-          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_KEY_ID }}
-          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
-          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_KEY_CONTENTS }}
-          # Additional signing properties for vanniktech plugin
-          ORG_GRADLE_PROJECT_signing.keyId: ${{ secrets.SIGNING_KEY_ID }}
-          ORG_GRADLE_PROJECT_signing.password: ${{ secrets.SIGNING_PASSWORD }}
-          ORG_GRADLE_PROJECT_signing.key: ${{ secrets.GPG_KEY_CONTENTS }}
-          # GitHub token for GitHub Packages
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

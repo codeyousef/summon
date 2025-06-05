@@ -28,13 +28,16 @@ mvn io.quarkus.platform:quarkus-maven-plugin:3.6.5:create \
   -Dextensions="resteasy-reactive,qute,kotlin,jackson"
 ```
 
-## Step 3: Publish Summon to Your Local Maven Repository
+## Step 3: Configure GitHub Packages Authentication
 
-From the root of the Summon project, run:
+Add your GitHub credentials to `~/.gradle/gradle.properties`:
 
-```bash
-./gradlew publishToMavenLocal
+```properties
+gpr.user=YOUR_GITHUB_USERNAME
+gpr.key=YOUR_GITHUB_TOKEN
 ```
+
+Note: You need a GitHub token with `read:packages` permission.
 
 ## Step 4: Add Summon Dependencies to Your Project
 
@@ -46,14 +49,19 @@ dependencies {
     // Existing dependencies...
 
     // Summon dependencies
-    implementation("code.yousef:summon:0.2.3.0")
-    implementation("code.yousef:summon-jvm:0.2.3.0")
+    implementation("io.github.codeyousef:summon:0.2.6")
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.12.0")
 }
 
 repositories {
     // Existing repositories...
-    mavenLocal()  // Add this to access locally published artifacts
+    maven {
+        url = uri("https://maven.pkg.github.com/codeyousef/summon")
+        credentials {
+            username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
+            password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
 }
 ```
 
@@ -61,22 +69,20 @@ For Maven:
 ```xml
 <repositories>
     <repository>
-        <id>local-maven-repo</id>
-        <url>file://${user.home}/.m2/repository</url>
+        <id>github</id>
+        <url>https://maven.pkg.github.com/codeyousef/summon</url>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
     </repository>
 </repositories>
 
 <dependencies>
     <!-- Summon Dependencies -->
     <dependency>
-        <groupId>code.yousef</groupId>
+        <groupId>io.github.codeyousef</groupId>
         <artifactId>summon</artifactId>
-        <version>0.2.3.0</version>
-    </dependency>
-    <dependency>
-        <groupId>code.yousef</groupId>
-        <artifactId>summon-jvm</artifactId>
-        <version>0.2.3.0</version>
+        <version>0.2.6</version>
     </dependency>
     <dependency>
         <groupId>org.jetbrains.kotlinx</groupId>
@@ -85,6 +91,8 @@ For Maven:
     </dependency>
 </dependencies>
 ```
+
+Note: For Maven, you'll need to configure authentication in your `~/.m2/settings.xml` file.
 
 ## Step 5: Copy the Example Files
 
@@ -155,7 +163,7 @@ fun JvmPlatformRenderer.renderToHtml(content: @Composable () -> Unit): String {
 
 If you encounter issues:
 
-1. Ensure Summon is properly published to your local Maven repository
+1. Ensure you have proper GitHub authentication configured
 2. Check that the packages and imports match your project structure
 3. Verify that the Kotlin version in your Quarkus project is compatible with Summon (2.0.0 or later)
 4. If you get compile errors with Summon imports, make sure you're using the correct artifact IDs and versions

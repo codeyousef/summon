@@ -1,4 +1,4 @@
-name: Publish Snapshot
+name: Publish Snapshot to GitHub Packages
 on:
   push:
     branches:
@@ -37,14 +37,7 @@ jobs:
       - name: Build
         run: ./gradlew build -x jsTest -x jsBrowserTest
       
-      - name: Publish Snapshot to Maven Central
-        run: ./gradlew publishToMavenCentral --no-configuration-cache
-        env:
-          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-          # Snapshots don't require signing on Maven Central
-      
-      - name: Publish to GitHub Packages
+      - name: Publish Snapshot to GitHub Packages
         run: ./gradlew publishAllPublicationsToGitHubPackagesRepository
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

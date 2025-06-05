@@ -149,80 +149,39 @@ Comprehensive API reference documentation is available in the [docs/api-referenc
 
 ## Publishing and CI/CD
 
-Summon now includes automated publishing and continuous integration. The project supports publishing to both Maven Central and GitHub Packages with comprehensive testing.
+Summon includes automated publishing and continuous integration with comprehensive testing. The project is published to GitHub Packages.
 
 ### Automated Publishing
 
 Publishing happens automatically through GitHub Actions:
 
 - **On push to `main`**: 
-  - Builds are automatically published to GitHub Packages
-  - Bundle is created and uploaded to Maven Central Portal
-  - Maven Central publication happens automatically after validation
-  - Version is automatically changed to `X.X.X-SNAPSHOT` for snapshots
+  - Snapshot builds are automatically published to GitHub Packages
+  - Version is automatically changed to `X.X.X-SNAPSHOT`
   - No manual action required - just push to main!
   
 - **On GitHub release**:
-  - Release builds are published to both GitHub Packages and Maven Central
+  - Release builds are published to GitHub Packages
   - Uses the version tag from the release
-  - Automatic publication to Maven Central (no manual approval needed)
   
 - **Pull request testing**: All tests run automatically on pull requests
 
-### Setting Up Publishing
-
-Publishing configuration includes:
-
-- Maven Central setup (Sonatype OSSRH)
-- GPG key generation and configuration
-- GitHub Secrets configuration
-- Local development setup
-
-**Important:** Publishing to Maven Central requires authentication:
+### Publishing to GitHub Packages
 
 **For CI/CD (GitHub Actions):**
-- Set up the following as GitHub repository secrets (Settings → Secrets and variables → Actions):
-  - `CENTRAL_USERNAME` - Your Sonatype OSSRH username
-  - `CENTRAL_PASSWORD` - Your Sonatype OSSRH password
-  - `SIGNING_KEY_ID` - Your GPG key ID for signing artifacts
-  - `SIGNING_PASSWORD` - Your GPG key passphrase
-  - `SIGNING_SECRET_KEY` - Your GPG private key (base64 encoded)
-- Publishing will run automatically on releases
+- GitHub Token is automatically available in Actions
+- Publishing runs automatically on releases and main branch pushes
 
-**For Local Publishing to Maven Central Portal:**
-- Export the required environment variables:
-  ```bash
-  export CENTRAL_USERNAME="your-central-portal-username"
-  export CENTRAL_PASSWORD="your-central-portal-token"
-  ```
-- Run the publishing script:
-  ```bash
-  ./publish-to-central-portal.sh  # Linux/macOS
-  # or
-  publish-to-central-portal.bat   # Windows (requires manual upload step)
-  ```
-- This creates a bundle and uploads it to the Central Portal
-- The bundle is automatically published to Maven Central after validation
-- Monitor status at https://central.sonatype.com
-
-**Publishing to GitHub Packages (currently active):**
+**For Local Publishing:**
 - Ensure `GITHUB_TOKEN` is set with `write:packages` permission
 - Run `./gradlew publishAllPublicationsToGitHubPackagesRepository`
 
 **Troubleshooting Publishing Issues:**
 
-**If you see errors about `publishJsPublicationToCentralRepository` or similar phantom tasks:**
-- This is a Gradle cache issue where removed repository configurations are still cached
+**If you see errors about phantom publishing tasks:**
+- This is a Gradle cache issue where removed configurations are still cached
 - Solution: Run `./clean-gradle-cache.sh` (Linux/macOS) or `clean-gradle-cache.bat` (Windows)
 - This completely clears Gradle's cache and removes all stale configurations
-- After cleaning, only `GitHubPackagesRepository` tasks will be available
-
-**Maven Central Publishing Notes:**
-- Maven Central now uses the Central Portal (https://central.sonatype.com) for new accounts
-- Traditional OSSRH publishing no longer works for accounts created in 2024+
-- Use the provided `publish-to-central-portal.sh` script for Maven Central
-- The script handles .klib file exclusion and automatic publishing
-- GitHub Packages publishing works immediately without additional configuration
 
 ### Quick Testing
 
@@ -252,44 +211,7 @@ For a full build including packaging:
 
 ## Installation
 
-Summon is available from both Maven Central and GitHub Packages.
-
-### From Maven Central (Recommended)
-
-Add Summon to your project dependencies:
-
-```kotlin
-repositories {
-    mavenCentral()
-}
-
-kotlin {
-    sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation("io.github.codeyousef:summon:0.2.6")
-            }
-        }
-
-        // Platform-specific dependencies (optional)
-        val jvmMain by getting {
-            dependencies {
-                implementation("io.github.codeyousef:summon-jvm:0.2.6")
-            }
-        }
-
-        val jsMain by getting {
-            dependencies {
-                implementation("io.github.codeyousef:summon-js:0.2.6")
-            }
-        }
-    }
-}
-```
-
-### From GitHub Packages
-
-If you prefer using GitHub Packages:
+Add Summon to your project dependencies from GitHub Packages:
 
 ```kotlin
 repositories {
