@@ -8,6 +8,12 @@ on:
   release:
     types: [ published ]
   workflow_dispatch:  # Allow manual triggering
+    inputs:
+      clear_cache:
+        description: 'Clear Gradle cache before running'
+        required: false
+        default: 'false'
+        type: boolean
 
 env:
   GRADLE_OPTS: -Dorg.gradle.daemon=false
@@ -66,8 +72,17 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
+    - name: Clear Gradle cache if forced
+      if: contains(github.event.head_commit.message, '[clear-cache]') || github.event.inputs.clear_cache == 'true'
+      run: |
+        echo "Clearing Gradle cache..."
+        rm -rf ~/.gradle/caches/build-cache-*
+        rm -rf ~/.gradle/caches/modules-2/modules-2.lock
+        rm -rf ~/.gradle/caches/*/executionHistory/
+        ./gradlew --stop || true
+        
     - name: Run JVM tests
-      run: ./gradlew jvmTest --no-daemon --stacktrace
+      run: ./gradlew clean jvmTest --no-daemon --stacktrace
       
     - name: Run JS tests with Chrome headless (allow failure)
       run: ./gradlew jsTest --no-daemon --stacktrace || true
@@ -119,8 +134,17 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
+    - name: Clear Gradle cache if forced
+      if: contains(github.event.head_commit.message, '[clear-cache]') || github.event.inputs.clear_cache == 'true'
+      run: |
+        echo "Clearing Gradle cache..."
+        rm -rf ~/.gradle/caches/build-cache-*
+        rm -rf ~/.gradle/caches/modules-2/modules-2.lock
+        rm -rf ~/.gradle/caches/*/executionHistory/
+        ./gradlew --stop || true
+        
     - name: Build all targets (with JS test workaround)
-      run: ./gradlew build -x jsTest -x jsBrowserTest --no-daemon --stacktrace
+      run: ./gradlew clean build -x jsTest -x jsBrowserTest --no-daemon --stacktrace
       
     - name: Generate documentation
       run: ./gradlew dokkaHtml --no-daemon || true  # Allow failure for now
