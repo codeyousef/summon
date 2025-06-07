@@ -48,14 +48,15 @@ class FlowBindingTest {
         // Convert the flow to a state
         val state = flowToState(stateFlow, "default")
 
-        // Initial value should be the default since flow collection happens asynchronously
+        // Since flow collection is asynchronous and we return immediately,
+        // the initial value "default" should be present
         assertEquals("default", state.value)
 
         // Update the StateFlow
         stateFlow.value = "updated"
 
-        // The state should eventually be updated, but we can't test this synchronously
-        // In a real-world scenario, this would happen asynchronously
+        // The state should eventually be updated asynchronously
+        // We can't test the async update synchronously in unit tests
     }
 
     @Test
@@ -66,7 +67,7 @@ class FlowBindingTest {
         // Convert the flow to a state with a component ID
         val state = componentFlowToState(stateFlow, "default", "testComponent")
 
-        // Initial value should be the default since flow collection happens asynchronously
+        // Since flow collection is asynchronous, initial value should be "default"
         assertEquals("default", state.value)
 
         // Update the StateFlow
@@ -81,7 +82,7 @@ class FlowBindingTest {
         // Convert the flow to a state with the same component ID
         val state2 = componentFlowToState(stateFlow2, "default2", "testComponent")
 
-        // Initial value should be the default since flow collection happens asynchronously
+        // Since flow collection is asynchronous, initial value should be "default2"
         assertEquals("default2", state2.value)
     }
 
@@ -112,14 +113,14 @@ class FlowBindingTest {
         val stateFlow = MutableStateFlow("test")
         val state = flowToState(stateFlow, "default")
 
-        // Verify the state is properly initialized with the default value
-        // since flow collection happens asynchronously
+        // Since flow collection is asynchronous, initial value should be "default"
         assertEquals("default", state.value)
 
         // Verify that component flow registry works with multiple components
         val state1 = componentFlowToState(stateFlow, "default", "component1")
         val state2 = componentFlowToState(stateFlow, "default", "component2")
 
+        // Since flow collection is asynchronous, both should have "default" value
         assertEquals("default", state1.value)
         assertEquals("default", state2.value)
 
@@ -129,6 +130,7 @@ class FlowBindingTest {
         // The other component should still work
         val newFlow = MutableStateFlow("new")
         val state3 = componentFlowToState(newFlow, "default", "component2")
+        // Since flow collection is asynchronous, initial value should be "default"
         assertEquals("default", state3.value)
     }
 }

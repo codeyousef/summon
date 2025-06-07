@@ -197,19 +197,13 @@ fun <T> componentFlowToState(
         CoroutineScope(Dispatchers.Default + Job())
     }
 
-    // Use a flag to track if this is the first emission
-    var isFirstEmission = true
-
     // Ensure all state updates happen on the same thread
     flow
         .flowOn(Dispatchers.Default) // Process flow events on a single thread
         .onEach { newValue ->
-            // Only update the state if this is not the first emission
-            // This ensures the initial value is respected
-            if (!isFirstEmission) {
-                state.value = newValue
-            }
-            isFirstEmission = false
+            // Update the state with flow values
+            // For StateFlow, this will immediately emit the current value, which is what we want
+            state.value = newValue
         }
         .launchIn(scope)
 
