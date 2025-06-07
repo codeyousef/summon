@@ -100,8 +100,9 @@ fun main() {
 The browser adapter automatically handles:
 - URL changes
 - History API integration
-- Back/forward navigation
+- Back/forward navigation (v0.2.7+)
 - Link click interception
+- Browser history popstate events (v0.2.7+)
 
 ## JVM Platform Setup
 
@@ -135,6 +136,10 @@ route("/products/{category?}", { ProductList() })
 
 // Wildcard parameters (catch-all)
 route("/docs/{...path}", { Documentation() })
+
+// Dynamic parameters (v0.2.7+)
+route("/user/:id", { UserPage() })
+route("/posts/:category/:slug", { BlogPost() })
 ```
 
 And access them in your page component:

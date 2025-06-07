@@ -97,6 +97,21 @@ interface Composer {
     fun registerDisposable(disposable: () -> Unit)
 
     /**
+     * Recomposes the UI, re-running composable functions that have changed.
+     */
+    fun recompose()
+    
+    /**
+     * Remembers a value for the given key.
+     */
+    fun rememberedValue(key: Any): Any?
+    
+    /**
+     * Updates a remembered value for the given key.
+     */
+    fun updateRememberedValue(key: Any, value: Any?)
+    
+    /**
      * Disposes the composer and cleans up all resources.
      */
     fun dispose()

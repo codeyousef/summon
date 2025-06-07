@@ -1,9 +1,10 @@
 package code.yousef.summon.routing
 
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.DisposableEffect
+import code.yousef.summon.runtime.LaunchedEffect
+import code.yousef.summon.runtime.rememberMutableStateOf
 import kotlinx.browser.window
-import code.yousef.summon.routing.RouterContext
 
 /**
  * JavaScript actual implementation of the Router interface
@@ -158,22 +159,45 @@ internal class RouterJs(
 
     @Composable
     override fun create(initialPath: String) {
-        // Update the current path
-        _currentPath = initialPath
-        // TODO: provide a real implementation
-        // Set up effect to listen for browser history changes
-        // In a real implementation, this would be a LaunchedEffect
+        // Remember the current route state
+        val currentRoute = rememberMutableStateOf(initialPath)
 
-        // Find matching route for the initial path
-        val matchResult = findMatchingRoute(initialPath)
+        // Set up effect to listen for browser history changes
+        DisposableEffect(Unit) {
+            // Create a popstate event listener
+            val listener: (dynamic) -> Unit = { _ ->
+                val newPath = window.location.pathname + window.location.search
+                _currentPath = newPath
+                currentRoute.value = newPath
+            }
+
+            // Add the event listener
+            window.addEventListener("popstate", listener)
+
+            // Cleanup function to remove the listener
+            return@DisposableEffect {
+                window.removeEventListener("popstate", listener)
+            }
+        }
+
+        // Update internal state when route changes
+        LaunchedEffect(currentRoute.value) {
+            _currentPath = currentRoute.value
+        }
+
+        // Find matching route for the current path
+        val matchResult = findMatchingRoute(currentRoute.value)
 
         if (matchResult != null) {
             // Render the matched route's content
             val (route, params) = matchResult
+            LocalRouteParams.provides(params)
             route.content(params)
         } else {
             // Render the not found page
-            notFoundPage(RouteParams(mapOf("path" to initialPath)))
+            val params = RouteParams(mapOf("path" to currentRoute.value))
+            LocalRouteParams.provides(params)
+            notFoundPage(params)
         }
     }
 
@@ -207,12 +231,44 @@ internal class RouterJs(
      * Returns a map of parameters if match is successful, null otherwise.
      */
     private fun tryMatchRoute(pattern: String, path: String): Map<String, String>? {
-        // Simple implementation for now
-        // Would need to handle path parameters like "/users/:id" etc.
+        // Handle exact matches first
         if (pattern == path) {
             return emptyMap()
         }
-        return null
+
+        // Handle dynamic parameters (e.g., /user/:id)
+        val patternParts = pattern.split("/").filter { it.isNotEmpty() }
+        val pathParts = path.split("/").filter { it.isNotEmpty() }
+
+        // Different number of segments means no match
+        if (patternParts.size != pathParts.size) {
+            return null
+        }
+
+        val params = mutableMapOf<String, String>()
+
+        for (i in patternParts.indices) {
+            val patternPart = patternParts[i]
+            val pathPart = pathParts[i]
+
+            when {
+                // Dynamic parameter
+                patternPart.startsWith(":") -> {
+                    val paramName = patternPart.substring(1)
+                    params[paramName] = pathPart
+                }
+                // Wildcard
+                patternPart == "*" -> {
+                    // Accept any value
+                }
+                // Exact match required
+                patternPart != pathPart -> {
+                    return null
+                }
+            }
+        }
+
+        return params
     }
 }
 

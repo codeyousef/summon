@@ -2,23 +2,13 @@ package code.yousef.summon.components.input
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.*
-import code.yousef.summon.validation.Validator
-import code.yousef.summon.validation.ValidationResult
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
-import kotlinx.html.FlowContent
-import code.yousef.summon.components.display.IconType
-import code.yousef.summon.components.feedback.AlertVariant
-import code.yousef.summon.components.feedback.ProgressType
-import code.yousef.summon.components.navigation.Tab
-import code.yousef.summon.runtime.SelectOption
+import code.yousef.summon.runtime.Composer
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.MockPlatformRenderer
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
+import code.yousef.summon.validation.ValidationResult
+import code.yousef.summon.validation.Validator
+import kotlin.test.*
 
 /**
  * Tests for the Checkbox component
@@ -48,6 +38,18 @@ class CheckboxTest {
         override fun <T> compose(composable: @Composable () -> T): T {
             @Suppress("UNCHECKED_CAST")
             return null as T
+        }
+
+        override fun recompose() {
+            // Mock implementation
+        }
+
+        override fun rememberedValue(key: Any): Any? {
+            return null
+        }
+
+        override fun updateRememberedValue(key: Any, value: Any?) {
+            // Mock implementation
         }
     }
 
@@ -90,7 +92,11 @@ class CheckboxTest {
             assertNotNull(mockRenderer.lastCheckboxModifierRendered, "Modifier should not be null")
             // The default modifier includes cursor=pointer
             val expectedStyles = mapOf("cursor" to "pointer")
-            assertEquals(expectedStyles, mockRenderer.lastCheckboxModifierRendered!!.styles, "Modifier should have the expected default styles")
+            assertEquals(
+                expectedStyles,
+                mockRenderer.lastCheckboxModifierRendered!!.styles,
+                "Modifier should have the expected default styles"
+            )
 
             // Verify the onCheckedChange callback
             assertNotNull(mockRenderer.lastCheckboxOnCheckedChangeRendered, "onCheckedChange should not be null")
@@ -226,7 +232,7 @@ class CheckboxTest {
             // Call the StatefulCheckbox component
             StatefulCheckbox(
                 initialChecked = true,
-                onCheckedChange = { 
+                onCheckedChange = {
                     callbackCalled = true
                     callbackValue = it
                 }

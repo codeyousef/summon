@@ -1,7 +1,8 @@
 package code.yousef.summon.components.feedback
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.*
+import code.yousef.summon.runtime.Composer
+import code.yousef.summon.runtime.CompositionLocal
 import kotlin.test.*
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -33,6 +34,18 @@ class SnackbarHostTest {
         override fun <T> compose(composable: @Composable () -> T): T {
             @Suppress("UNCHECKED_CAST")
             return null as T
+        }
+
+        override fun recompose() {
+            // Mock implementation
+        }
+
+        override fun rememberedValue(key: Any): Any? {
+            return null
+        }
+
+        override fun updateRememberedValue(key: Any, value: Any?) {
+            // Mock implementation
         }
     }
 

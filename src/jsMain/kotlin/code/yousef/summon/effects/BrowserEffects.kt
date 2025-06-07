@@ -1,15 +1,11 @@
-package code.yousef.summon.effects.js
+package code.yousef.summon.effects
 
-import code.yousef.summon.effects.ClipboardAPI
-import code.yousef.summon.effects.CompositionScope
-import code.yousef.summon.effects.ElementRef
-import code.yousef.summon.effects.onMountWithCleanup
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.state.SummonMutableState
 import code.yousef.summon.state.mutableStateOf
-import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.events.Event
+import kotlin.collections.iterator
 
 /**
  * External interface for browser history
@@ -91,8 +87,8 @@ class Navigator {
      */
     fun mimeTypeSupported(mimeType: String): Boolean {
         val mimeTypes = browserNavigator.mimeTypes
-        return mimeTypes != null && 
-               js("mimeTypes.length > 0 && mimeTypes[mimeType] !== undefined") as Boolean
+        return mimeTypes != null &&
+                js("mimeTypes.length > 0 && mimeTypes[mimeType] !== undefined") as Boolean
     }
 
     /**
@@ -278,10 +274,8 @@ fun CompositionScope.useIntersectionObserver(
         // Create and initialize the IntersectionObserver
         val observer = IntersectionObserver(intersectionCallback, jsOptions)
 
-        // TODO: provide a real implementation
         // Get the DOM element from elementRef and start observing
-        val elementId = "element-id" // In a real implementation, elementRef would have an id property
-        val domElement = document.getElementById(elementId)
+        val domElement = elementRef.getElement()
         if (domElement != null) {
             observer.observe(domElement)
         }
@@ -372,10 +366,8 @@ fun CompositionScope.useResizeObserver(
         // Create and initialize the ResizeObserver
         val observer = ResizeObserver(resizeCallback)
 
-        // TODO: provide a real implementation
         // Get the DOM element from elementRef and start observing
-        val elementId = "element-id" // In a real implementation, elementRef would have an id property
-        val domElement = document.getElementById(elementId)
+        val domElement = elementRef.getElement()
         if (domElement != null) {
             observer.observe(domElement)
         }
@@ -410,12 +402,12 @@ fun CompositionScope.useOnlineStatus(): SummonMutableState<Boolean> {
 
     onMountWithCleanup {
         // Create event handlers
-        val handleOnline = { _: Event -> 
-            online.value = true 
+        val handleOnline = { _: Event ->
+            online.value = true
         }
 
-        val handleOffline = { _: Event -> 
-            online.value = false 
+        val handleOffline = { _: Event ->
+            online.value = false
         }
 
         // Add event listeners
@@ -774,10 +766,8 @@ fun CompositionScope.useWebAnimation(
         animOptions.direction = options.direction
         animOptions.fill = options.fill
 
-        // TODO: provide a real implementation
         // Get the DOM element from elementRef
-        val elementId = "element-id" // In a real implementation, elementRef would have an id property
-        val element = document.getElementById(elementId)
+        val element = elementRef.getElement()
 
         // Create and start the animation
         if (element != null) {

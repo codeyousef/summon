@@ -1,7 +1,6 @@
 package code.yousef.summon.runtime
 
 import code.yousef.summon.annotation.Composable
-import kotlin.js.JsName
 
 // External declaration for JavaScript console access
 @JsName("console")
@@ -96,6 +95,18 @@ class JsComposer : Composer {
 
     override fun registerDisposable(disposable: () -> Unit) {
         disposables.add(disposable)
+    }
+
+    override fun recompose() {
+        reportChanged()
+    }
+
+    override fun rememberedValue(key: Any): Any? {
+        return slots[key.hashCode()]
+    }
+
+    override fun updateRememberedValue(key: Any, value: Any?) {
+        slots[key.hashCode()] = value
     }
 
     /**

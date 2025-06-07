@@ -61,6 +61,18 @@ class EffectsTest {
             disposables.forEach { it() }
             disposables.clear()
         }
+        
+        override fun recompose() {
+            // Mock/Test implementation
+        }
+        
+        override fun rememberedValue(key: Any): Any? {
+            return null
+        }
+        
+        override fun updateRememberedValue(key: Any, value: Any?) {
+            // Mock/Test implementation
+        }
 
         override fun startCompose() {}
 

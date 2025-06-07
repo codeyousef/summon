@@ -9,7 +9,7 @@ import code.yousef.summon.modifier.Modifier
 /**
  * Extracts onClick handler from a modifier if present.
  * This looks for a special onClick attribute or event handler in the modifier.
- * 
+ *
  * @return The onClick handler function or null if none exists
  */
 fun Modifier.extractOnClick(): (() -> Unit)? {
@@ -22,7 +22,7 @@ fun Modifier.extractOnClick(): (() -> Unit)? {
             return handler as? (() -> Unit)
         }
     }
-    
+
     // Fallback: check custom attributes for click handler
     // This is a placeholder - actual implementation would depend on how click handlers
     // are stored in the modifier system
@@ -33,7 +33,7 @@ fun Modifier.extractOnClick(): (() -> Unit)? {
  * Gets all event handlers stored in this modifier.
  * This is a placeholder method - the actual implementation would depend on
  * how events are stored in the Modifier class.
- * 
+ *
  * @return A map of event names to handler functions
  */
 private fun Modifier.getEventHandlers(): Map<String, Any>? {
@@ -42,20 +42,8 @@ private fun Modifier.getEventHandlers(): Map<String, Any>? {
     return emptyMap()
 }
 
-/**
- * Convert modifier styles to a kebab-case style string for HTML style attributes.
- * For example: {"background-color": "red", "font-size": "12px"}
- * becomes "background-color: red; font-size: 12px;"
- */
-fun Modifier.toStyleString(): String {
-    if (this.styles.isEmpty()) {
-        return ""
-    }
-    // Assumes keys in this.styles are already in kebab-case or valid CSS property names.
-    return this.styles
-        .map { (key, value) -> "$key: $value" }
-        .joinToString(separator = "; ", postfix = ";")
-}
+// Note: toStyleString() is now defined as a member function in Modifier.kt
+// The extension function has been removed to avoid conflicts
 
 /**
  * Convert modifier styles to a camelCase style string for JavaScript.

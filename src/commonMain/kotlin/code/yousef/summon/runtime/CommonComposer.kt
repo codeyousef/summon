@@ -81,6 +81,18 @@ class CommonComposer : Composer {
         // Simple implementation
     }
     
+    override fun recompose() {
+        // Simple implementation - trigger recomposition
+    }
+    
+    override fun rememberedValue(key: Any): Any? {
+        return slots[key.hashCode()]
+    }
+    
+    override fun updateRememberedValue(key: Any, value: Any?) {
+        slots[key.hashCode()] = value
+    }
+    
     override fun dispose() {
         // Simple implementation
         slots.clear()

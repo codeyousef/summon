@@ -13,7 +13,7 @@ class ModifierExtensionsTest {
         val styles = styleString.split(";").map { it.trim() }
         val styleEntry = styles.find { it.startsWith("$property:") }
         assertNotNull(styleEntry, "Style property '$property' not found in: $styleString")
-        assertEquals("$property:$expectedValue", styleEntry)
+        assertEquals("$property: $expectedValue", styleEntry)
     }
 
     @Test

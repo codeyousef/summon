@@ -1,8 +1,5 @@
 package code.yousef.summon.modifier
 
-import code.yousef.summon.modifier.ModifierExtras.attribute
-import code.yousef.summon.modifier.ModifierExtras.getAttribute
-
 /**
  * This file contains all modifier functions organized by category.
  * It resolves ambiguity issues by providing a single implementation
@@ -151,18 +148,19 @@ object StylingModifiers {
     /**
      * Sets the background-color property using a Color object.
      */
-    fun Modifier.backgroundColor(value: code.yousef.summon.core.style.Color): Modifier = style("background-color", value.toString())
+    fun Modifier.backgroundColor(value: code.yousef.summon.core.style.Color): Modifier =
+        style("background-color", value.toString())
 
     /**
      * Sets the border property.
      */
-    fun Modifier.border(width: String, style: String, color: String): Modifier = 
+    fun Modifier.border(width: String, style: String, color: String): Modifier =
         style("border", "$width $style $color")
 
     /**
      * Sets the border property using the BorderStyle enum.
      */
-    fun Modifier.border(width: String, style: BorderStyle, color: String): Modifier = 
+    fun Modifier.border(width: String, style: BorderStyle, color: String): Modifier =
         style("border", "$width ${style.toString()} $color")
 
     /**
@@ -265,7 +263,7 @@ object AttributeModifiers {
     /**
      * Gets an attribute value or null if not present.
      */
-    fun Modifier.getAttribute(name: String): String? = 
+    fun Modifier.getAttribute(name: String): String? =
         attributes[name]
 }
 
@@ -273,45 +271,9 @@ object AttributeModifiers {
 typealias Layout = LayoutModifiers
 typealias Styling = StylingModifiers
 typealias Events = EventModifiers
-typealias Attributes = AttributeModifiers 
+typealias Attributes = AttributeModifiers
 
 // --- Moved from jsMain/ModifierExtensions.kt ---
 
-/**
- * Convert modifier styles to a valid CSS style string that can be used in HTML style attributes.
- * This ensures all property names are in kebab-case format as required by browsers.
- * Excludes attributes (keys starting with "__attr:") as they are not CSS styles.
- */
-fun Modifier.toStyleString(): String {
-    if (this.styles.isEmpty()) {
-        return ""
-    }
-    
-    // Filter out attributes and determine if the key is already in kebab-case or needs conversion from camelCase
-    return this.styles
-        .filterNot { (key, _) -> key.startsWith("__attr:") }
-        .map { (key, value) -> 
-            val cssPropertyName = if (key.contains('-')) {
-                // Already in kebab-case
-                key
-            } else {
-                // Convert from camelCase to kebab-case
-                key.camelToKebabCase()
-            }
-            "$cssPropertyName: $value"
-        }
-        .joinToString(separator = "; ", postfix = ";")
-}
-
-/**
- * Converts a camelCase string to kebab-case.
- * For example: "backgroundColor" becomes "background-color"
- */
-private fun String.camelToKebabCase(): String {
-    if (this.isEmpty()) {
-        return this
-    }
-    
-    // Replace each uppercase letter with a hyphen followed by the lowercase letter
-    return this.replace(Regex("([a-z])([A-Z])"), "$1-$2").lowercase()
-}
+// Note: toStyleString() is now defined as a member function in Modifier.kt
+// The extension function has been removed to avoid conflicts

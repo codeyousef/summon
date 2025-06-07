@@ -1,17 +1,8 @@
 package code.yousef.summon.runtime
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.IconType
-import code.yousef.summon.components.feedback.AlertVariant
-import code.yousef.summon.components.feedback.ProgressType
-import code.yousef.summon.components.input.FileInfo
-import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.modifier.Modifier
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
-import kotlinx.html.FlowContent
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
 
@@ -87,6 +78,18 @@ class PlatformRendererCompositionLocalTest {
         override fun endCompose() {}
         override fun <T> compose(composable: @Composable () -> T): T {
             throw UnsupportedOperationException("Not implemented in mock")
+        }
+
+        override fun recompose() {
+            // Mock implementation
+        }
+
+        override fun rememberedValue(key: Any): Any? {
+            return null
+        }
+
+        override fun updateRememberedValue(key: Any, value: Any?) {
+            // Mock implementation
         }
     }
 }

@@ -53,7 +53,7 @@ class ProgressTest {
         override fun <T> renderSelect(
             selectedValue: T?,
             onSelectedChange: (T?) -> Unit,
-            options: List<code.yousef.summon.runtime.SelectOption<T>>,
+            options: List<SelectOption<T>>,
             modifier: Modifier
         ) {
         }
@@ -250,6 +250,18 @@ class ProgressTest {
         override fun <T> compose(composable: @Composable () -> T): T {
             @Suppress("UNCHECKED_CAST")
             return null as T
+        }
+
+        override fun recompose() {
+            // Mock implementation
+        }
+
+        override fun rememberedValue(key: Any): Any? {
+            return null
+        }
+
+        override fun updateRememberedValue(key: Any, value: Any?) {
+            // Mock implementation
         }
     }
 

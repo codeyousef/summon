@@ -3,10 +3,9 @@ package code.yousef.summon.effects
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.Composer
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.DisposableEffect
-import code.yousef.summon.runtime.LaunchedEffect
-import code.yousef.summon.runtime.SideEffect
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * A test-specific implementation of Composer that actually executes composable blocks.
@@ -69,6 +68,18 @@ private class TestExecutingComposer : Composer {
         disposables.clear()
     }
 
+    override fun recompose() {
+        // Mock/Test implementation
+    }
+
+    override fun rememberedValue(key: Any): Any? {
+        return null
+    }
+
+    override fun updateRememberedValue(key: Any, value: Any?) {
+        // Mock/Test implementation
+    }
+
     override fun startCompose() {}
 
     override fun endCompose() {}
@@ -122,8 +133,8 @@ class EffectsExecutionTest {
         var effectCalled = false
 
         // Call the effect function
-        scope.effect { 
-            effectCalled = true 
+        scope.effect {
+            effectCalled = true
         }
 
         // Verify that the effect was called
@@ -137,8 +148,8 @@ class EffectsExecutionTest {
         var mountEffectCalled = false
 
         // Call the onMount function
-        scope.onMount { 
-            mountEffectCalled = true 
+        scope.onMount {
+            mountEffectCalled = true
         }
 
         // Verify that the effect was called
@@ -152,8 +163,8 @@ class EffectsExecutionTest {
         var disposeEffectCalled = false
 
         // Call the onDispose function
-        scope.onDispose { 
-            disposeEffectCalled = true 
+        scope.onDispose {
+            disposeEffectCalled = true
         }
 
         // Verify that compose was called
@@ -174,8 +185,8 @@ class EffectsExecutionTest {
         val dep2 = 123
 
         // Call the effectWithDeps function
-        scope.effectWithDeps(dep1, dep2) { 
-            effectCalled = true 
+        scope.effectWithDeps(dep1, dep2) {
+            effectCalled = true
         }
 
         // Verify that compose was called
@@ -197,7 +208,7 @@ class EffectsExecutionTest {
         var cleanupCalled = false
 
         // Call the onMountWithCleanup function
-        scope.onMountWithCleanup { 
+        scope.onMountWithCleanup {
             mountEffectCalled = true
             { cleanupCalled = true }
         }
@@ -222,7 +233,7 @@ class EffectsExecutionTest {
         val dep2 = 123
 
         // Call the effectWithDepsAndCleanup function
-        scope.effectWithDepsAndCleanup(dep1, dep2) { 
+        scope.effectWithDepsAndCleanup(dep1, dep2) {
             effectCalled = true
             { cleanupCalled = true }
         }
@@ -244,8 +255,8 @@ class EffectsExecutionTest {
         var callbackCount = 0
 
         // Call the useInterval function
-        val intervalControl = scope.useInterval(100) { 
-            callbackCount++ 
+        val intervalControl = scope.useInterval(100) {
+            callbackCount++
         }
 
         // Verify that compose was called
@@ -270,8 +281,8 @@ class EffectsExecutionTest {
         var callbackCalled = false
 
         // Call the useTimeout function
-        val timeoutControl = scope.useTimeout(100) { 
-            callbackCalled = true 
+        val timeoutControl = scope.useTimeout(100) {
+            callbackCalled = true
         }
 
         // Verify that compose was called

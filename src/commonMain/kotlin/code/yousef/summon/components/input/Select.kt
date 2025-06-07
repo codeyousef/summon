@@ -2,7 +2,6 @@ package code.yousef.summon.components.input
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.ModifierExtras.attribute
 import code.yousef.summon.runtime.getPlatformRenderer
 import code.yousef.summon.state.SummonMutableState
 import code.yousef.summon.state.mutableStateOf
@@ -82,26 +81,78 @@ fun <T> Select(
 ) {
     val selectState = SelectState(selectedValue, validators)
 
-    // Prepare the modifier, adding the disabled attribute if needed
-    val finalModifier = if (disabled) {
-        modifier.attribute("disabled", "disabled")
+    // Prepare the modifier, adding attributes as needed
+    var finalModifier = modifier
+
+    // Check if the modifier already has an ID
+    val existingId = finalModifier.attributes?.get("id")
+
+    // Generate an ID for the select element if label is provided and no ID exists
+    val selectId = if (label != null) {
+        existingId ?: "select-${selectedValue.hashCode()}"
     } else {
-        modifier
+        existingId
+    }
+
+    if (disabled) {
+        finalModifier = finalModifier.attribute("disabled", "disabled")
+    }
+
+    if (multiple) {
+        finalModifier = finalModifier.attribute("multiple", "true")
+    }
+
+    if (size > 1) {
+        finalModifier = finalModifier.attribute("size", size.toString())
+    }
+
+    // Only set the ID if we generated one (not if it already existed)
+    if (selectId != null && existingId == null) {
+        finalModifier = finalModifier.id(selectId)
     }
 
     // Map the component's SelectOption list to the renderer's SelectOption list
-    val rendererOptions = options.map { componentOption ->
+    val rendererOptions = mutableListOf<RendererSelectOption<T?>>()
+
+    // Add placeholder option if provided
+    if (placeholder != null) {
+        rendererOptions.add(
+            RendererSelectOption<T?>(
+                value = null,
+                label = placeholder,
+                disabled = true
+            )
+        )
+    }
+
+    // Add all the regular options
+    rendererOptions.addAll(options.map { componentOption ->
         RendererSelectOption(
             value = componentOption.value,
             label = componentOption.label,
             disabled = componentOption.disabled
             // Note: componentOption.selected is not used here as RendererSelectOption lacks it
         )
+    })
+
+    // Render label if provided
+    if (label != null) {
+        getPlatformRenderer().renderLabel(
+            text = label,
+            modifier = Modifier(),
+            forElement = selectId
+        )
     }
 
-    getPlatformRenderer().renderSelect(
+    // Update onSelectedChange to also update the state
+    val enhancedOnSelectedChange: (T?) -> Unit = { value ->
+        selectedValue.value = value
+        onSelectedChange(value)
+    }
+
+    getPlatformRenderer().renderSelect<T?>(
         selectedValue = selectedValue.value,
-        onSelectedChange = onSelectedChange,
+        onSelectedChange = enhancedOnSelectedChange,
         options = rendererOptions, // Pass the mapped list
         modifier = finalModifier
     )

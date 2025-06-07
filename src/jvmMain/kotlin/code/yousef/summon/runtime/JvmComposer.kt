@@ -1,8 +1,8 @@
 package code.yousef.summon.runtime
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.core.Composable as CoreComposable
 import java.util.concurrent.ConcurrentHashMap
+import code.yousef.summon.core.Composable as CoreComposable
 
 /**
  * JVM implementation of the Composer interface.
@@ -155,6 +155,18 @@ class JvmComposer : Composer {
         stateWriteListeners.values.forEach { listeners ->
             listeners.removeAll { true } // Remove all listeners for simplicity
         }
+    }
+
+    override fun recompose() {
+        reportChanged()
+    }
+
+    override fun rememberedValue(key: Any): Any? {
+        return slots[key.hashCode()]
+    }
+
+    override fun updateRememberedValue(key: Any, value: Any?) {
+        slots[key.hashCode()] = value
     }
 
     /**

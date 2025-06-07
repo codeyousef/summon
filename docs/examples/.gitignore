@@ -1,0 +1,17 @@
+# Gradle properties files that may contain credentials
+gradle.properties
+
+# Build directories
+build/
+.gradle/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+
+# Local configuration
+local.properties
+
+# Gradle wrapper (examples should use their own)
+!gradle/wrapper/gradle-wrapper.jar

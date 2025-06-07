@@ -51,7 +51,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("io.github.codeyousef:summon:0.2.6")
+                implementation("io.github.codeyousef:summon:0.2.7")
             }
         }
     }
@@ -78,7 +78,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.codeyousef:summon-jvm:0.2.6")
+    implementation("io.github.codeyousef:summon-jvm:0.2.7")
 }
 ```
 
@@ -109,7 +109,7 @@ kotlin {
 }
 
 dependencies {
-    implementation("io.github.codeyousef:summon-js:0.2.6")
+    implementation("io.github.codeyousef:summon-js:0.2.7")
 }
 ```
 
@@ -198,7 +198,7 @@ Create `src/jsMain/resources/index.html`:
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("io.github.codeyousef:summon-jvm:0.2.6")
+    implementation("io.github.codeyousef:summon-jvm:0.2.7")
     implementation("io.ktor:ktor-server-core:2.3.7")
     implementation("io.ktor:ktor-server-netty:2.3.7")
     implementation("io.ktor:ktor-server-html-builder:2.3.7")
@@ -328,7 +328,7 @@ If you prefer GitHub Packages over Maven Central:
 ### Can't find Summon dependency?
 
 Make sure you're using:
-- Version: `0.2.6`
+- Version: `0.2.7`
 - Group ID: `io.github.codeyousef`
 - Repository: `mavenCentral()`
 

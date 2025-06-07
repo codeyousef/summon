@@ -6,12 +6,12 @@ plugins {
 
 repositories {
     mavenCentral()
-    // For GitHub Packages (optional)
+    // GitHub Packages - required for Summon library
     maven {
         url = uri("https://maven.pkg.github.com/codeyousef/summon")
         credentials {
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+            username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
+            password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
         }
     }
 }
@@ -35,8 +35,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
     // Summon dependencies
-    implementation("io.github.codeyousef:summon:0.2.6")
-    implementation("io.github.codeyousef:summon-jvm:0.2.6")
+    implementation("io.github.codeyousef:summon:0.2.7")
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.12.0")
 
     // Jakarta Servlet API

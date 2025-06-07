@@ -69,6 +69,100 @@ fun TemperatureConverter() {
 
 The `derivedStateOf` function creates a state that is computed from other state values and automatically updates when those dependencies change.
 
+### Advanced Derived State (v0.2.7+)
+
+The new `simpleDerivedStateOf` function provides a more straightforward way to create derived state:
+
+```kotlin
+@Composable
+fun ShoppingCart() {
+    val items = remember { mutableStateListOf<Item>() }
+    
+    // Automatically recalculates when items change
+    val totalPrice = simpleDerivedStateOf {
+        items.sumOf { it.price }
+    }
+    
+    val itemCount = simpleDerivedStateOf {
+        items.size
+    }
+    
+    Column {
+        Text("Items: ${itemCount.value}")
+        Text("Total: $${totalPrice.value}")
+        
+        Button(
+            text = "Add Item",
+            onClick = { 
+                items.add(Item("Product", 9.99))
+            }
+        )
+    }
+}
+```
+
+### Producing State from Suspend Functions (v0.2.7+)
+
+Use `produceState` to create state from asynchronous operations:
+
+```kotlin
+@Composable
+fun UserProfile(userId: String) {
+    val userProfile = produceState<UserProfile?>(
+        initialValue = null,
+        key1 = userId
+    ) {
+        value = fetchUserProfile(userId)
+    }
+    
+    when (val profile = userProfile.value) {
+        null -> Text("Loading...")
+        else -> Text("Welcome, ${profile.name}")
+    }
+}
+```
+
+### Collecting Flow as State (v0.2.7+)
+
+Convert Kotlin Flow to Summon State with `collectAsState`:
+
+```kotlin
+@Composable
+fun LiveDataDisplay(dataFlow: Flow<String>) {
+    val currentData = dataFlow.collectAsState()
+    
+    Text("Current value: ${currentData.value}")
+}
+```
+
+### Observable Lists (v0.2.7+)
+
+Use `mutableStateListOf` for lists that trigger recomposition on modification:
+
+```kotlin
+@Composable
+fun TodoList() {
+    val todos = remember { mutableStateListOf<String>() }
+    
+    Column {
+        todos.forEach { todo ->
+            Row {
+                Text(todo)
+                Button(
+                    text = "Remove",
+                    onClick = { todos.remove(todo) }
+                )
+            }
+        }
+        
+        Button(
+            text = "Add Todo",
+            onClick = { todos.add("New Todo ${todos.size + 1}") }
+        )
+    }
+}
+```
+
 ## Shared State
 
 ### State Hoisting

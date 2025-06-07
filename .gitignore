@@ -19,6 +19,8 @@ out/
 *.jar
 # But keep the gradle wrapper jar
 !gradle/wrapper/gradle-wrapper.jar
+# Keep gradle wrapper jars in examples
+!docs/examples/*/gradle/wrapper/gradle-wrapper.jar
 *.war
 *.nar
 *.ear
@@ -76,7 +78,8 @@ npm-debug.log
 /quarkus-example-debug.log.4
 /quarkus-example-debug.log.5
 /run-quarkus.bat
-/docs/examples/jvm/quarkus-example/src/main/resources/META-INF/resources/script.js
+# Commented out to allow script.js in examples
+# /docs/examples/jvm/quarkus-example/src/main/resources/META-INF/resources/script.js
 /docs/examples/jvm/quarkus-example/src/main/kotlin/code/yousef/example/quarkus/troubleshooting.md
 /docs/js-platform-renderer-progress.md
 /docs/executive-summary.md
@@ -107,4 +110,5 @@ npm-debug.log
 /docs/examples/js/js-example/modifier-extensions-analysis.md
 /docs/examples/js/js-example/modifier-flow-analysis.md
 /docs/examples/js/js-example/stylesheet-analysis.md
-/docs/examples/js/js-example/kotlin-js-store/yarn.lock
+# Commented out to allow yarn.lock in examples
+# /docs/examples/js/js-example/kotlin-js-store/yarn.lock

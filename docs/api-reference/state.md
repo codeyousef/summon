@@ -7,6 +7,10 @@ This document provides detailed information about the state management APIs in t
 - [MutableState](#mutablestate)
 - [Remember](#remember)
 - [DerivedState](#derivedstate)
+- [SimpleDerivedState](#simplederivedstate) (v0.2.7+)
+- [ProduceState](#producestate) (v0.2.7+)
+- [CollectAsState](#collectasstate) (v0.2.7+)
+- [MutableStateList](#mutablestatelist) (v0.2.7+)
 - [StateFlow Integration](#stateflow-integration)
 - [StateContainer](#statecontainer)
 - [Persistent State](#persistent-state)
@@ -175,6 +179,196 @@ fun DerivedStateExample() {
             value = lastName.value,
             onValueChange = { lastName.value = it },
             label = "Last Name"
+        )
+    }
+}
+```
+
+---
+
+## SimpleDerivedState
+
+*Available in v0.2.7+*
+
+A simplified implementation of derived state that automatically recomputes when dependencies change.
+
+### Function Definition
+
+```kotlin
+package code.yousef.summon.state
+
+fun <T> simpleDerivedStateOf(
+    calculation: () -> T
+): State<T>
+```
+
+### Description
+
+`simpleDerivedStateOf` creates a state that is computed from other state values without explicit dependency tracking. It automatically detects which states are read during calculation and updates when they change.
+
+### Example
+
+```kotlin
+@Composable
+fun CartSummary() {
+    val items = remember { mutableStateListOf<CartItem>() }
+    
+    val subtotal = simpleDerivedStateOf {
+        items.sumOf { it.price * it.quantity }
+    }
+    
+    val tax = simpleDerivedStateOf {
+        subtotal.value * 0.08
+    }
+    
+    val total = simpleDerivedStateOf {
+        subtotal.value + tax.value
+    }
+    
+    Column {
+        Text("Subtotal: $${subtotal.value}")
+        Text("Tax: $${tax.value}")
+        Text("Total: $${total.value}")
+    }
+}
+```
+
+---
+
+## ProduceState
+
+*Available in v0.2.7+*
+
+Creates state from a suspend function, perfect for async operations.
+
+### Function Definition
+
+```kotlin
+package code.yousef.summon.state
+
+@Composable
+fun <T> produceState(
+    initialValue: T,
+    vararg keys: Any?,
+    producer: suspend ProduceStateScope<T>.() -> Unit
+): State<T>
+
+interface ProduceStateScope<T> : CoroutineScope {
+    var value: T
+}
+```
+
+### Description
+
+`produceState` launches a coroutine that can update the state value asynchronously. The coroutine is cancelled and restarted when any of the keys change.
+
+### Example
+
+```kotlin
+@Composable
+fun WeatherWidget(city: String) {
+    val weather = produceState<Weather?>(
+        initialValue = null,
+        key1 = city
+    ) {
+        value = WeatherApi.getWeather(city)
+        
+        // Update every 5 minutes
+        while (true) {
+            delay(5.minutes)
+            value = WeatherApi.getWeather(city)
+        }
+    }
+    
+    weather.value?.let { w ->
+        Text("${w.temperature}°C in $city")
+    } ?: Text("Loading weather...")
+}
+```
+
+---
+
+## CollectAsState
+
+*Available in v0.2.7+*
+
+Converts a Kotlin Flow to Summon State.
+
+### Function Definition
+
+```kotlin
+package code.yousef.summon.state
+
+@Composable
+fun <T> Flow<T>.collectAsState(): State<T>
+```
+
+### Description
+
+`collectAsState` collects values from a Flow and exposes them as State. The collection is lifecycle-aware and automatically cancelled when the composable leaves the composition.
+
+### Example
+
+```kotlin
+@Composable
+fun StockTicker(symbol: String) {
+    val stockPrice = StockApi
+        .getPriceFlow(symbol)
+        .collectAsState()
+    
+    Text("$symbol: $${stockPrice.value}")
+}
+```
+
+---
+
+## MutableStateList
+
+*Available in v0.2.7+*
+
+An observable list implementation that triggers recomposition on modifications.
+
+### Function Definition
+
+```kotlin
+package code.yousef.summon.runtime
+
+fun <T> mutableStateListOf(vararg elements: T): MutableList<T>
+```
+
+### Description
+
+`mutableStateListOf` creates a MutableList that notifies observers when its contents are modified. Any composable reading from this list will recompose when items are added, removed, or modified.
+
+### Example
+
+```kotlin
+@Composable
+fun TaskList() {
+    val tasks = remember { mutableStateListOf<Task>() }
+    
+    Column {
+        tasks.forEachIndexed { index, task ->
+            Row {
+                Checkbox(
+                    checked = task.completed,
+                    onCheckedChange = { 
+                        tasks[index] = task.copy(completed = it)
+                    }
+                )
+                Text(task.title)
+                Button(
+                    text = "Delete",
+                    onClick = { tasks.removeAt(index) }
+                )
+            }
+        }
+        
+        Button(
+            text = "Add Task",
+            onClick = { 
+                tasks.add(Task("New Task", false))
+            }
         )
     }
 }

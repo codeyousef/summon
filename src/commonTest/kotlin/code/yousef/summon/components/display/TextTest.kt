@@ -1,16 +1,11 @@
 package code.yousef.summon.components.display
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.feedback.AlertVariant
-import code.yousef.summon.components.feedback.ProgressType
-import code.yousef.summon.components.input.FileInfo
-import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.*
+import code.yousef.summon.runtime.Composer
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.MockPlatformRenderer
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
-import kotlinx.html.FlowContent
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -51,6 +46,18 @@ class TextTest {
         override fun <T> compose(composable: @Composable () -> T): T {
             @Suppress("UNCHECKED_CAST")
             return null as T
+        }
+
+        override fun recompose() {
+            // Mock implementation
+        }
+
+        override fun rememberedValue(key: Any): Any? {
+            return null
+        }
+
+        override fun updateRememberedValue(key: Any, value: Any?) {
+            // Mock implementation
         }
     }
 
@@ -243,7 +250,11 @@ class TextTest {
             assertEquals("Username", mockRenderer.lastLabelTextRendered, "Text should be 'Username'")
 
             // Verify the forElement parameter
-            assertEquals("username-input", mockRenderer.lastLabelForElementRendered, "forElement should be 'username-input'")
+            assertEquals(
+                "username-input",
+                mockRenderer.lastLabelForElementRendered,
+                "forElement should be 'username-input'"
+            )
         }
     }
 

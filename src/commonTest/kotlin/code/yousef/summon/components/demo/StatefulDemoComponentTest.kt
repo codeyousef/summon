@@ -1,16 +1,11 @@
 package code.yousef.summon.components.demo
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.IconType
-import code.yousef.summon.components.feedback.AlertVariant
-import code.yousef.summon.components.feedback.ProgressType
-import code.yousef.summon.components.input.FileInfo as ExpectFileInfo
-import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.*
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
-import kotlinx.html.FlowContent
+import code.yousef.summon.runtime.Composer
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.MockPlatformRenderer
+import code.yousef.summon.runtime.setPlatformRenderer
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -41,7 +36,7 @@ class StatefulDemoComponentTest {
             // Note: The content lambda containing Text is not executed by the mock renderer,
             // so we cannot verify renderText was called. This is a limitation of the current
             // mock renderer design which captures but doesn't execute content lambdas.
-            
+
             // Verify that the content lambda was passed
             assertNotNull(mockRenderer.lastBoxContentRendered, "Box content lambda should not be null")
 
@@ -154,5 +149,17 @@ private class MockComposer : Composer {
     override fun <T> compose(composable: @Composable () -> T): T {
         @Suppress("UNCHECKED_CAST")
         return null as T
+    }
+
+    override fun recompose() {
+        // Mock implementation
+    }
+
+    override fun rememberedValue(key: Any): Any? {
+        return null
+    }
+
+    override fun updateRememberedValue(key: Any, value: Any?) {
+        // Mock implementation
     }
 }

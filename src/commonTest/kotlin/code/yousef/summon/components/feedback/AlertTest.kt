@@ -2,18 +2,14 @@ package code.yousef.summon.components.feedback
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.*
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
-import kotlinx.html.FlowContent
-import code.yousef.summon.components.display.IconType
-import code.yousef.summon.components.input.FileInfo
-import code.yousef.summon.components.navigation.Tab
+import code.yousef.summon.runtime.Composer
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.MockPlatformRenderer
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * Tests for the Alert component
@@ -43,6 +39,18 @@ class AlertTest {
         override fun <T> compose(composable: @Composable () -> T): T {
             @Suppress("UNCHECKED_CAST")
             return null as T
+        }
+
+        override fun recompose() {
+            // Mock implementation
+        }
+
+        override fun rememberedValue(key: Any): Any? {
+            return null
+        }
+
+        override fun updateRememberedValue(key: Any, value: Any?) {
+            // Mock implementation
         }
     }
 

@@ -6,7 +6,10 @@ import code.yousef.summon.components.feedback.AlertVariant
 import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.*
+import code.yousef.summon.runtime.Composer
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.FormContent
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.html.FlowContent
@@ -250,6 +253,18 @@ class TextFieldTest {
         override fun <T> compose(composable: @Composable () -> T): T {
             @Suppress("UNCHECKED_CAST")
             return null as T
+        }
+
+        override fun recompose() {
+            // Mock implementation
+        }
+
+        override fun rememberedValue(key: Any): Any? {
+            return null
+        }
+
+        override fun updateRememberedValue(key: Any, value: Any?) {
+            // Mock implementation
         }
     }
 

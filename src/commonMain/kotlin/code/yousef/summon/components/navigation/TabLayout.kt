@@ -20,7 +20,22 @@ data class Tab @OptIn(ExperimentalUuidApi::class) constructor(
     val content: @Composable () -> Unit,
     val icon: (@Composable () -> Unit)? = null,
     val isClosable: Boolean = false
-)
+) {
+    companion object {
+        /**
+         * Creates a Tab with generated ID for testing purposes
+         */
+        @OptIn(ExperimentalUuidApi::class)
+        operator fun invoke(
+            label: String,
+            value: String
+        ): Tab = Tab(
+            id = Uuid.random(),
+            title = label,
+            content = { }
+        )
+    }
+}
 
 /**
  * A layout composable that displays a tabbed interface.

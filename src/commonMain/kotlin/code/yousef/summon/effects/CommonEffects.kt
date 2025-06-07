@@ -1,8 +1,6 @@
 package code.yousef.summon.effects
 
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.LaunchedEffect
-import code.yousef.summon.runtime.DisposableEffect
 import code.yousef.summon.state.SummonMutableState
 import code.yousef.summon.state.mutableStateOf
 
@@ -48,11 +46,11 @@ class KeyboardEvent(val key: String, val modifiers: Set<KeyModifier>)
 class MouseEvent(val target: Any?)
 
 /**
- * Interface for DOM element reference
+ * Platform-specific reference to a UI element.
+ * On JS, this provides access to DOM elements.
+ * On JVM, this could provide access to server-side element representations.
  */
-class ElementRef {
-    // Platform-specific implementation would provide actual DOM element access
-}
+expect class ElementRef()
 
 /**
  * Effect for updating document title

@@ -1,15 +1,11 @@
 package code.yousef.summon
 
-import code.yousef.summon.annotation.App
+import code.yousef.summon.annotation.AppRegistry
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.core.SummonApp
 import code.yousef.summon.init.initSummon
-import code.yousef.summon.routing.PageFactory
 import code.yousef.summon.routing.Pages
 import code.yousef.summon.routing.Router
-import code.yousef.summon.routing.RouteParams
 import code.yousef.summon.routing.createBrowserRouter
-import code.yousef.summon.routing.setupRouterForBrowser
 import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import kotlinx.browser.document
@@ -72,9 +68,8 @@ private fun createRootElement(): HTMLElement {
  * Otherwise, the default SummonApp will be used.
  */
 private fun findAppEntry(): @Composable ((@Composable () -> Unit) -> Unit) {
-    // TODO: Implement scanning for @App annotation
-    // For now, return the default SummonApp
-    return { content -> SummonApp(content) }
+    // Get the registered app entry from the AppRegistry
+    return AppRegistry.getAppEntry()
 }
 
 /**

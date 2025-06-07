@@ -2,6 +2,137 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.7]
+
+### Added
+- **State Management & Recomposition:** Complete implementation of advanced state management features
+  - `simpleDerivedStateOf()` - Creates derived states that automatically recompute when dependencies change
+  - `produceState()` - Creates state from suspend functions with proper lifecycle management
+  - `collectAsState()` - Converts Kotlin Flow to Summon State for reactive data streams
+  - `mutableStateListOf()` - Observable list implementation that triggers recomposition on modifications
+  - Recomposition optimization annotations: `@Skippable`, `@Stable`, `@Immutable`
+  - Enhanced Composer interface with `recompose()`, `rememberedValue()`, and `updateRememberedValue()` methods
+  - `startRestartableGroup()` and `key()` methods for fine-grained recomposition control
+
+- **Router Enhancements:** Complete browser history integration
+  - Automatic browser back/forward button handling with popstate event listener
+  - Dynamic route parameter support (e.g., `/user/:id`, `/posts/:category/:slug`)
+  - Wildcard route support with `*` pattern
+  - Proper cleanup of event listeners when router is disposed
+  - Route state management with reactive updates on navigation
+
+- **JS Platform Renderer Implementations:**
+  - `renderLink()` - Full implementation with href and content support
+  - `renderEnhancedLink()` - Advanced link with target, title, and ARIA attributes
+  - `renderTabLayout()` - Complete tab navigation with keyboard support and ARIA roles
+  - `renderDivider()` - Simple HR element rendering
+  - `renderCheckbox()` - Delegated implementation to version with label parameter
+  - `renderRadioButton()` - Delegated implementation to version with label parameter
+  - `renderRangeSlider()` - Custom implementation with two range inputs for start/end values
+  - `renderForm()` - Form element with submit event handling and preventDefault
+  - `renderFileUpload()` - File input with trigger function return for programmatic access
+  - `renderSnackbar()` - Fixed position notification with optional action button
+  - `renderAspectRatio()` - Container maintaining aspect ratio using padding-bottom trick
+  - `renderExpansionPanel()` - Using details/summary for native expand/collapse
+  - `renderResponsiveLayout()` - Flexbox container with wrap for responsive behavior
+  - `renderLazyColumn()` - Scrollable vertical list container
+  - `renderLazyRow()` - Scrollable horizontal list container
+  - `renderAnimatedContent()` - Content with CSS transition support
+  - `renderSpacer()` - Empty div for spacing
+  - `renderBox()` - Basic div container with FlowContent support
+  - `renderScreen()` - Full-height container for screen layouts
+  - `renderInline()` - Inline span element
+  - `renderSpan()` - Span element with FlowContent support
+  - `renderGrid()` - CSS Grid container
+  - `renderHtmlTag()` - Generic HTML tag renderer
+  - `renderModal()` - Modal dialog with backdrop and dismiss handling
+  - Proper event handling and attribute management for all components
+
+- **Recomposer Scheduling:** Complete scheduling infrastructure for automatic UI updates
+  - Platform-specific schedulers (requestAnimationFrame for JS, coroutines for JVM)
+  - Automatic recomposition when state changes with proper dependency tracking
+  - Coalescing of multiple state changes into single recomposition
+  - Proper cleanup of dependencies when components are disposed
+  - Integration with MutableState to trigger recomposition on value changes
+
+- **App Registration System:** Complete implementation of @App annotation support
+  - AppRegistry for managing custom app entry points
+  - Support for single custom @App composable registration
+  - Warning for multiple @App registrations
+  - Fallback to default SummonApp when no custom app is registered
+  - Integration with Main.kt for automatic app discovery
+  - Test coverage for registration behavior
+
+- **ElementRef System:** Complete implementation for DOM element access
+  - Platform-specific ElementRef implementations (JS and JVM)
+  - JS implementation provides full DOM element access and lifecycle management
+  - Automatic ID generation for elements without IDs
+  - isAttached() method to check DOM attachment status
+  - useElementRef() composable for creating refs in components
+  - Modifier extensions for attaching refs to elements
+  - Integration with IntersectionObserver and ResizeObserver effects
+  - Test coverage for all ElementRef functionality
+
+- **Clipboard API:** Full browser clipboard implementation
+  - Modern Clipboard API support with fallback for older browsers
+  - Secure context detection and graceful degradation
+  - Text reading and writing with Promise-based API
+  - Fallback implementation using execCommand for legacy browsers
+  - Clipboard state caching for synchronous interface compatibility
+  - Console logging for debugging clipboard operations
+
+### Changed
+- Updated all Composer implementations (CommonComposer, JvmComposer, JsComposer) to support new interface methods
+- Enhanced Router to properly track and update current path state
+- Improved test infrastructure with comprehensive test coverage for new features
+
+### Fixed
+- Fixed compilation errors in test files by adding required Composer interface methods
+- Resolved syntax errors in MockComposer implementations across test files
+- Fixed router navigation state synchronization with browser history
+- Corrected modifier method usage in JS renderer (attribute() instead of withAttribute())
+- **Recomposer Circular Dependency:** Fixed StackOverflowError in Recomposer state tracking
+  - Removed circular call between Recomposer.recordRead() and Composer.recordRead()
+  - Updated state tracking to avoid infinite recursion during composition
+- **Select Component ID Handling:** Fixed issue where Select component overrode user-provided IDs
+  - Now preserves existing ID from modifier when rendering with label
+  - Only generates automatic ID when no ID is provided
+- **ElementRef Test Fixes:** Updated ElementRef tests to avoid incorrect mocking of @Composable functions
+
+### Testing
+- **Select Component Tests:** Added comprehensive test coverage
+  - Tests for label rendering and 'for' attribute linkage
+  - Tests for placeholder option generation
+  - Tests for onSelectionChange callback behavior
+  - Tests for multiple and size attributes
+  - Tests for custom modifiers
+  - Tests for all parameter combinations
+  
+- **Link Component Tests:** Added extensive test coverage
+  - Tests for basic link rendering with href
+  - Tests for target="_blank" with automatic rel attributes
+  - Tests for external link handling
+  - Tests for nofollow attribute
+  - Tests for combined rel attributes
+  - Tests for ARIA attributes (ariaLabel, ariaDescribedBy)
+  - Tests for title attribute
+  - Tests for custom modifiers
+  - Tests for various link types (mailto, tel, anchor, relative)
+  - Tests for different target values (_self, _parent, _top)
+
+### Technical Details
+- State management implementation follows Jetpack Compose patterns adapted for multiplatform
+- Router now properly handles browser history API events and state changes
+- Clipboard API uses type-safe external declarations for browser APIs
+- ElementRef provides platform-specific element access with proper lifecycle management
+- All implementations maintain backward compatibility with existing code
+
+### Known Issues
+- JS test compilation fails with Kotlin 2.2.0-Beta1 due to kotlinx-serialization issues
+  - Main code compiles successfully for all platforms
+  - JVM tests pass successfully (758/758 tests passing)
+  - Workaround: Use `./gradlew build -x jsTest -x jsBrowserTest`
+
 ## [0.2.5.1]
 
 ### Fixed

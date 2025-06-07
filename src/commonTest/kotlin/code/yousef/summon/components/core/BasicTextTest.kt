@@ -2,22 +2,12 @@ package code.yousef.summon.components.core
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.*
-import code.yousef.summon.theme.TextStyle
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
-import kotlinx.html.FlowContent
-import code.yousef.summon.components.display.IconType
-import code.yousef.summon.components.feedback.AlertVariant
-import code.yousef.summon.components.feedback.ProgressType
-import code.yousef.summon.components.input.FileInfo as ExpectFileInfo
-import code.yousef.summon.components.navigation.Tab
+import code.yousef.summon.runtime.Composer
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.MockPlatformRenderer
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
+import code.yousef.summon.theme.TextStyle
+import kotlin.test.*
 
 /**
  * Tests for the BasicText component
@@ -47,6 +37,18 @@ class BasicTextTest {
         override fun <T> compose(composable: @Composable () -> T): T {
             @Suppress("UNCHECKED_CAST")
             return null as T
+        }
+
+        override fun recompose() {
+            // Mock implementation
+        }
+
+        override fun rememberedValue(key: Any): Any? {
+            return null
+        }
+
+        override fun updateRememberedValue(key: Any, value: Any?) {
+            // Mock implementation
         }
     }
 
@@ -151,7 +153,11 @@ class BasicTextTest {
             assertTrue(mockRenderer.renderTextCalled, "renderText should have been called")
 
             // Verify the text
-            assertEquals("Text with Custom Modifier", mockRenderer.lastTextRendered, "Text should be 'Text with Custom Modifier'")
+            assertEquals(
+                "Text with Custom Modifier",
+                mockRenderer.lastTextRendered,
+                "Text should be 'Text with Custom Modifier'"
+            )
 
             // Verify the modifier
             assertNotNull(mockRenderer.lastModifierRendered, "Modifier should not be null")
@@ -191,7 +197,11 @@ class BasicTextTest {
             assertTrue(mockRenderer.renderTextCalled, "renderText should have been called")
 
             // Verify the text
-            assertEquals("Text with Layout Callback", mockRenderer.lastTextRendered, "Text should be 'Text with Layout Callback'")
+            assertEquals(
+                "Text with Layout Callback",
+                mockRenderer.lastTextRendered,
+                "Text should be 'Text with Layout Callback'"
+            )
 
             // Verify the callback was called
             assertTrue(callbackCalled, "onTextLayout callback should have been called")

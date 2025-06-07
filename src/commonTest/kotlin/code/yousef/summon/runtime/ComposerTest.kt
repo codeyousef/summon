@@ -123,6 +123,22 @@ class ComposerTest {
             return result
         }
         
+        override fun recompose() {
+            // Mock implementation
+        }
+        
+        override fun rememberedValue(key: Any): Any? {
+            return slots.getOrNull(key.hashCode())
+        }
+        
+        override fun updateRememberedValue(key: Any, value: Any?) {
+            val index = key.hashCode()
+            while (slots.size <= index) {
+                slots.add(null)
+            }
+            slots[index] = value
+        }
+        
         // Helper methods for testing
         fun getNodeCount(): Int = nodeCount
         fun getGroupCount(): Int = groupCount

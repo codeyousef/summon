@@ -1,10 +1,8 @@
 package code.yousef.summon.runtime
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.state.SummonMutableState
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
@@ -63,6 +61,18 @@ class RememberTest {
         override fun dispose() {
             disposables.forEach { it() }
             disposables.clear()
+        }
+
+        override fun recompose() {
+            // Mock/Test implementation
+        }
+
+        override fun rememberedValue(key: Any): Any? {
+            return null
+        }
+
+        override fun updateRememberedValue(key: Any, value: Any?) {
+            // Mock/Test implementation
         }
 
         override fun startCompose() {}
@@ -253,8 +263,8 @@ class RememberTest {
             val source2 = rememberMutableStateOf(5)
 
             // Create a derived state with explicit dependencies
-            val derived = derivedStateOf(source1.value, source2.value) { 
-                source1.value + source2.value 
+            val derived = derivedStateOf(source1.value, source2.value) {
+                source1.value + source2.value
             }
 
             // Verify the derived state has the correct initial value

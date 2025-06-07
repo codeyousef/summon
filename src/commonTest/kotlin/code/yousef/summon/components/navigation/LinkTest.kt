@@ -41,6 +41,18 @@ class LinkTest {
         override fun reportChanged() {}
         override fun registerDisposable(disposable: () -> Unit) {}
         override fun dispose() {}
+        override fun recompose() {
+            // Mock/Test implementation
+        }
+
+        override fun rememberedValue(key: Any): Any? {
+            return null
+        }
+
+        override fun updateRememberedValue(key: Any, value: Any?) {
+            // Mock/Test implementation
+        }
+
         override fun startCompose() {
             startNode()
         }
@@ -107,7 +119,7 @@ class LinkTest {
         override fun <T> renderSelect(
             selectedValue: T?,
             onSelectedChange: (T?) -> Unit,
-            options: List<code.yousef.summon.runtime.SelectOption<T>>,
+            options: List<SelectOption<T>>,
             modifier: Modifier
         ) {
         }
@@ -386,7 +398,212 @@ class LinkTest {
         assertEquals("link-description", renderer.lastAriaDescribedBy)
     }
 
-    // TODO: Test ExternalLink helper
-    // TODO: Test ButtonLink helper
-    // TODO: Test link content rendering
+    @Test
+    fun testLinkWithTitle() {
+        val renderer = MockLinkRenderer()
+        runTestComposable(renderer) {
+            Link(
+                href = "/about",
+                title = "Learn more about us"
+            ) { /* Content */ }
+        }
+        assertEquals(true, renderer.renderEnhancedLinkCalled)
+        assertEquals("/about", renderer.lastHref)
+        assertEquals("Learn more about us", renderer.lastTitle)
+    }
+
+    @Test
+    fun testLinkWithCustomModifier() {
+        val renderer = MockLinkRenderer()
+        runTestComposable(renderer) {
+            Link(
+                href = "/contact",
+                modifier = Modifier().className("nav-link").id("contact-link")
+            ) { /* Content */ }
+        }
+        assertEquals(true, renderer.renderEnhancedLinkCalled)
+        assertEquals("/contact", renderer.lastHref)
+        assertNotNull(renderer.lastModifier)
+        assertEquals("nav-link", renderer.lastModifier?.attributes?.get("class"))
+        assertEquals("contact-link", renderer.lastModifier?.attributes?.get("id"))
+    }
+
+    @Test
+    fun testLinkWithAllAttributes() {
+        val renderer = MockLinkRenderer()
+        runTestComposable(renderer) {
+            Link(
+                href = "https://docs.example.com",
+                target = "_blank",
+                rel = "help",
+                title = "Documentation",
+                ariaLabel = "View documentation",
+                ariaDescribedBy = "docs-desc",
+                isExternal = true,
+                isNoFollow = true,
+                modifier = Modifier().style("color", "blue")
+            ) { /* Content */ }
+        }
+
+        assertEquals(true, renderer.renderEnhancedLinkCalled)
+        assertEquals("https://docs.example.com", renderer.lastHref)
+        assertEquals("_blank", renderer.lastTarget)
+        assertEquals("Documentation", renderer.lastTitle)
+        assertEquals("View documentation", renderer.lastAriaLabel)
+        assertEquals("docs-desc", renderer.lastAriaDescribedBy)
+
+        // Check combined rel attributes
+        assertNotNull(renderer.lastModifier)
+        val relValue = renderer.lastModifier?.attributes?.get("rel")
+        val relParts = relValue?.split(" ")?.filter { it.isNotBlank() }?.toSet()
+        val expectedRelParts = setOf("help", "noopener", "noreferrer", "nofollow")
+        assertEquals(expectedRelParts, relParts)
+
+        // Check custom style
+        assertEquals("color: blue;", renderer.lastModifier?.toStyleString())
+    }
+
+    @Test
+    fun testInternalLinkWithNoAttributes() {
+        val renderer = MockLinkRenderer()
+        runTestComposable(renderer) {
+            Link(href = "/home") { /* Content */ }
+        }
+
+        assertEquals(true, renderer.renderEnhancedLinkCalled)
+        assertEquals("/home", renderer.lastHref)
+        assertNull(renderer.lastTarget)
+        assertNull(renderer.lastTitle)
+        assertNull(renderer.lastAriaLabel)
+        assertNull(renderer.lastAriaDescribedBy)
+        assertNull(renderer.lastModifier?.attributes?.get("rel"))
+    }
+
+    @Test
+    fun testRelativeLink() {
+        val renderer = MockLinkRenderer()
+        runTestComposable(renderer) {
+            Link(href = "../parent-page") { /* Content */ }
+        }
+
+        assertEquals(true, renderer.renderEnhancedLinkCalled)
+        assertEquals("../parent-page", renderer.lastHref)
+        assertNull(renderer.lastModifier?.attributes?.get("rel"))
+    }
+
+    @Test
+    fun testAnchorLink() {
+        val renderer = MockLinkRenderer()
+        runTestComposable(renderer) {
+            Link(href = "#section-header") { /* Content */ }
+        }
+
+        assertEquals(true, renderer.renderEnhancedLinkCalled)
+        assertEquals("#section-header", renderer.lastHref)
+        assertNull(renderer.lastModifier?.attributes?.get("rel"))
+    }
+
+    @Test
+    fun testLinkWithMultipleRelValues() {
+        val renderer = MockLinkRenderer()
+        runTestComposable(renderer) {
+            Link(
+                href = "/resource",
+                rel = "author license"
+            ) { /* Content */ }
+        }
+
+        assertEquals(true, renderer.renderEnhancedLinkCalled)
+        assertNotNull(renderer.lastModifier)
+        assertEquals("author license", renderer.lastModifier?.attributes?.get("rel"))
+    }
+
+    @Test
+    fun testLinkWithEmptyHref() {
+        val renderer = MockLinkRenderer()
+        runTestComposable(renderer) {
+            Link(href = "") { /* Content */ }
+        }
+
+        assertEquals(true, renderer.renderEnhancedLinkCalled)
+        assertEquals("", renderer.lastHref)
+    }
+
+    @Test
+    fun testMailtoLink() {
+        val renderer = MockLinkRenderer()
+        runTestComposable(renderer) {
+            Link(
+                href = "mailto:support@example.com",
+                title = "Send us an email"
+            ) { /* Content */ }
+        }
+
+        assertEquals(true, renderer.renderEnhancedLinkCalled)
+        assertEquals("mailto:support@example.com", renderer.lastHref)
+        assertEquals("Send us an email", renderer.lastTitle)
+    }
+
+    @Test
+    fun testTelLink() {
+        val renderer = MockLinkRenderer()
+        runTestComposable(renderer) {
+            Link(
+                href = "tel:+1234567890",
+                ariaLabel = "Call us"
+            ) { /* Content */ }
+        }
+
+        assertEquals(true, renderer.renderEnhancedLinkCalled)
+        assertEquals("tel:+1234567890", renderer.lastHref)
+        assertEquals("Call us", renderer.lastAriaLabel)
+    }
+
+    @Test
+    fun testLinkTargetSelf() {
+        val renderer = MockLinkRenderer()
+        runTestComposable(renderer) {
+            Link(
+                href = "/page",
+                target = "_self"
+            ) { /* Content */ }
+        }
+
+        assertEquals(true, renderer.renderEnhancedLinkCalled)
+        assertEquals("_self", renderer.lastTarget)
+        // Should not add noopener noreferrer for _self
+        assertNull(renderer.lastModifier?.attributes?.get("rel"))
+    }
+
+    @Test
+    fun testLinkTargetParent() {
+        val renderer = MockLinkRenderer()
+        runTestComposable(renderer) {
+            Link(
+                href = "/page",
+                target = "_parent"
+            ) { /* Content */ }
+        }
+
+        assertEquals(true, renderer.renderEnhancedLinkCalled)
+        assertEquals("_parent", renderer.lastTarget)
+        // Should not add noopener noreferrer for _parent
+        assertNull(renderer.lastModifier?.attributes?.get("rel"))
+    }
+
+    @Test
+    fun testLinkTargetTop() {
+        val renderer = MockLinkRenderer()
+        runTestComposable(renderer) {
+            Link(
+                href = "/page",
+                target = "_top"
+            ) { /* Content */ }
+        }
+
+        assertEquals(true, renderer.renderEnhancedLinkCalled)
+        assertEquals("_top", renderer.lastTarget)
+        // Should not add noopener noreferrer for _top
+        assertNull(renderer.lastModifier?.attributes?.get("rel"))
+    }
 } 

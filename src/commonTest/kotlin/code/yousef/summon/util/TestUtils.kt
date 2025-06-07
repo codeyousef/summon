@@ -55,6 +55,18 @@ internal class TestComposer : Composer {
         endCompose()
         return result
     }
+    
+    override fun recompose() {
+        // Test implementation
+    }
+    
+    override fun rememberedValue(key: Any): Any? {
+        return slots[key.hashCode()]
+    }
+    
+    override fun updateRememberedValue(key: Any, value: Any?) {
+        slots[key.hashCode()] = value
+    }
 }
 
 // Helper to run composable in test environment (moved from component tests)

@@ -2,19 +2,14 @@ package code.yousef.summon.components.display
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.*
+import code.yousef.summon.runtime.Composer
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.MockPlatformRenderer
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
-import kotlinx.html.FlowContent
-import code.yousef.summon.components.feedback.AlertVariant
-import code.yousef.summon.components.feedback.ProgressType
-import code.yousef.summon.components.input.FileInfo
-import code.yousef.summon.components.navigation.Tab
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * Tests for the Icon component
@@ -45,6 +40,18 @@ class IconTest {
             @Suppress("UNCHECKED_CAST")
             return null as T
         }
+
+        override fun recompose() {
+            // Mock implementation
+        }
+
+        override fun rememberedValue(key: Any): Any? {
+            return null
+        }
+
+        override fun updateRememberedValue(key: Any, value: Any?) {
+            // Mock implementation
+        }
     }
 
     @Test
@@ -71,7 +78,11 @@ class IconTest {
 
             // Verify the modifier
             assertNotNull(mockRenderer.lastIconModifierRendered, "Modifier should not be null")
-            assertEquals(Modifier().styles, mockRenderer.lastIconModifierRendered!!.styles, "Modifier should be the default")
+            assertEquals(
+                Modifier().styles,
+                mockRenderer.lastIconModifierRendered!!.styles,
+                "Modifier should be the default"
+            )
 
             // Verify that onClick is null
             assertEquals(null, mockRenderer.lastIconOnClickRendered, "onClick should be null")
@@ -187,7 +198,11 @@ class IconTest {
             val styles = mockRenderer.lastIconModifierRendered!!.styles
 
             assertEquals("pointer", styles["cursor"], "cursor should be 'pointer'")
-            assertEquals("button", mockRenderer.lastIconModifierRendered!!.attributes["role"], "role should be 'button'")
+            assertEquals(
+                "button",
+                mockRenderer.lastIconModifierRendered!!.attributes["role"],
+                "role should be 'button'"
+            )
 
             // Call the onClick handler and verify it works
             mockRenderer.lastIconOnClickRendered?.invoke()
@@ -275,7 +290,8 @@ class IconTest {
             val provider = LocalPlatformRenderer.provides(mockRenderer)
 
             // Sample SVG content
-            val svgContent = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2L2 22h20L12 2z'/></svg>"
+            val svgContent =
+                "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2L2 22h20L12 2z'/></svg>"
 
             // Call the SvgIcon component
             SvgIcon(

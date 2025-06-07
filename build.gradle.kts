@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "io.github.codeyousef"
-version = "0.2.6"
+version = "0.2.7"
 
 repositories {
     mavenCentral()
@@ -56,6 +56,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-html:0.12.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
+                implementation("org.jetbrains.kotlinx:atomicfu:0.23.2")
             }
         }
         val commonTest by getting {

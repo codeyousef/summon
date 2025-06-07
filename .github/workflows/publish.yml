@@ -28,6 +28,11 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       
+      - name: Setup Chrome for JS tests
+        uses: browser-actions/setup-chrome@latest
+        with:
+          chrome-version: stable
+      
       - name: Extract and Verify Version
         id: version
         run: |

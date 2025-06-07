@@ -278,7 +278,7 @@ Card(
 
 ### Divider
 
-A component for creating visual separators.
+A component for creating visual separators. **v0.2.7+**: Full JS platform implementation.
 
 #### Definition
 
@@ -294,6 +294,8 @@ fun Divider(
 | Name | Type | Description |
 |------|------|-------------|
 | modifier | Modifier | Modifiers to style the divider |
+
+**v0.2.7+ Note**: In the JS platform, renders as an `<hr>` element with proper semantic meaning.
 
 #### Example
 
@@ -1077,7 +1079,7 @@ fun FormScope.FormField(
 
 ### Link
 
-A navigation link component.
+A navigation link component. **v0.2.7+**: Full JS platform implementation with enhanced link support.
 
 #### Definition
 
@@ -1088,6 +1090,25 @@ fun Link(
     href: String,
     modifier: Modifier = Modifier,
     target: String = "_self"
+)
+
+// v0.2.7+ Enhanced link with content
+@Composable
+fun Link(
+    modifier: Modifier = Modifier,
+    href: String,
+    content: @Composable (() -> Unit)
+)
+
+// v0.2.7+ Enhanced link with ARIA support
+@Composable
+fun EnhancedLink(
+    href: String,
+    target: String? = null,
+    title: String? = null,
+    ariaLabel: String? = null,
+    ariaDescribedBy: String? = null,
+    modifier: Modifier = Modifier
 )
 ```
 
@@ -1102,17 +1123,36 @@ fun Link(
 
 ### TabLayout
 
-A tab-based navigation component.
+A tab-based navigation component. **v0.2.7+**: Full JS platform implementation with ARIA support.
 
 #### Definition
 
 ```kotlin
 @Composable
 fun TabLayout(
-    selectedIndex: Int,
-    onTabSelected: (Int) -> Unit,
+    tabs: List<Tab>,
+    selectedTabIndex: Int = 0,
+    onTabSelected: ((Int) -> Unit)? = null,
+    modifier: Modifier = Modifier()
+)
+
+// Tab data class
+data class Tab(
+    val id: Uuid,
+    val title: String,
+    val content: @Composable () -> Unit,
+    val icon: (@Composable () -> Unit)? = null,
+    val isClosable: Boolean = false
+)
+
+// Alternative string-based API
+@Composable
+fun TabLayout(
     tabs: List<String>,
-    modifier: Modifier = Modifier
+    selectedTab: String,
+    onTabSelected: (String) -> Unit,
+    modifier: Modifier = Modifier(),
+    content: () -> Unit
 )
 ```
 
@@ -1120,10 +1160,38 @@ fun TabLayout(
 
 | Name | Type | Description |
 |------|------|-------------|
-| selectedIndex | Int | Currently selected tab index |
-| onTabSelected | (Int) -> Unit | Callback when tab is selected |
-| tabs | List<String> | Tab labels |
+| tabs | List<Tab> or List<String> | Tab items or labels |
+| selectedTabIndex | Int | Currently selected tab index |
+| selectedTab | String | Currently selected tab (string API) |
+| onTabSelected | Function | Callback when tab is selected |
 | modifier | Modifier | Optional styling and layout modifiers |
+| content | () -> Unit | Tab content (string API) |
+
+#### Example
+
+```kotlin
+// Using Tab objects
+val tabs = listOf(
+    Tab("1", "Profile", { ProfileContent() }),
+    Tab("2", "Settings", { SettingsContent() }),
+    Tab("3", "Help", { HelpContent() })
+)
+
+TabLayout(
+    tabs = tabs,
+    selectedTabIndex = currentTab,
+    onTabSelected = { index -> currentTab = index }
+)
+
+// Using string labels
+TabLayout(
+    tabs = listOf("Profile", "Settings", "Help"),
+    selectedTab = selectedTabName,
+    onTabSelected = { tab -> selectedTabName = tab }
+) {
+    // Render content based on selectedTabName
+}
+```
 
 ---
 

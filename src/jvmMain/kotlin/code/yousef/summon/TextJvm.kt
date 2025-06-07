@@ -1,8 +1,9 @@
 package code.yousef.summon
 
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.*
-import code.yousef.summon.modifier.toStyleString
+import kotlinx.html.TagConsumer
+import kotlinx.html.span
+import kotlinx.html.style
 
 /**
  * Data class to hold Text-related properties for JVM rendering
@@ -26,7 +27,8 @@ fun <T> renderTextJvm(consumer: TagConsumer<T>, textExt: TextJvmExtension): TagC
         // Apply additional text-specific styles
         if (textExt.additionalStyles.isNotEmpty()) {
             val existingStyle = this.attributes["style"] ?: ""
-            val additionalStyleString = textExt.additionalStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
+            val additionalStyleString =
+                textExt.additionalStyles.entries.joinToString(";") { (key, value) -> "$key:$value" }
             this.attributes["style"] =
                 if (existingStyle.isEmpty()) additionalStyleString else "$existingStyle;$additionalStyleString"
         }

@@ -1,16 +1,11 @@
 package code.yousef.summon.components.display
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.feedback.AlertVariant
-import code.yousef.summon.components.feedback.ProgressType
-import code.yousef.summon.components.input.FileInfo
-import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.*
+import code.yousef.summon.runtime.Composer
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.MockPlatformRenderer
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
-import kotlinx.html.FlowContent
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -45,6 +40,18 @@ class ImageTest {
             @Suppress("UNCHECKED_CAST")
             return null as T
         }
+
+        override fun recompose() {
+            // Mock implementation
+        }
+
+        override fun rememberedValue(key: Any): Any? {
+            return null
+        }
+
+        override fun updateRememberedValue(key: Any, value: Any?) {
+            // Mock implementation
+        }
     }
 
     @Test
@@ -67,14 +74,22 @@ class ImageTest {
             assertTrue(mockRenderer.renderImageCalled, "renderImage should have been called")
 
             // Verify the src
-            assertEquals("https://example.com/image.jpg", mockRenderer.lastImageSrcRendered, "src should be 'https://example.com/image.jpg'")
+            assertEquals(
+                "https://example.com/image.jpg",
+                mockRenderer.lastImageSrcRendered,
+                "src should be 'https://example.com/image.jpg'"
+            )
 
             // Verify the alt
             assertEquals("Example image", mockRenderer.lastImageAltRendered, "alt should be 'Example image'")
 
             // Verify the modifier
             assertNotNull(mockRenderer.lastImageModifierRendered, "Modifier should not be null")
-            assertEquals(Modifier().styles, mockRenderer.lastImageModifierRendered!!.styles, "Modifier should be the default")
+            assertEquals(
+                Modifier().styles,
+                mockRenderer.lastImageModifierRendered!!.styles,
+                "Modifier should be the default"
+            )
         }
     }
 
@@ -106,7 +121,11 @@ class ImageTest {
             assertTrue(mockRenderer.renderImageCalled, "renderImage should have been called")
 
             // Verify the src
-            assertEquals("https://example.com/custom.png", mockRenderer.lastImageSrcRendered, "src should be 'https://example.com/custom.png'")
+            assertEquals(
+                "https://example.com/custom.png",
+                mockRenderer.lastImageSrcRendered,
+                "src should be 'https://example.com/custom.png'"
+            )
 
             // Verify the alt
             assertEquals("Custom image", mockRenderer.lastImageAltRendered, "alt should be 'Custom image'")

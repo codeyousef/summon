@@ -262,43 +262,55 @@ actual open class PlatformRenderer {
     // Helper to create FlowContent
     private fun createFlowContent(tagName: String): FlowContent {
         val consumer = createTagConsumer()
+        val attrs = mutableMapOf<String, String>()
+
         return object : FlowContent {
-            override val tagName: String
-                get() = TODO("Not yet implemented")
-            override val consumer: TagConsumer<*>
-                get() = TODO("Not yet implemented")
-            override val namespace: String?
-                get() = TODO("Not yet implemented")
-            override val attributes: MutableMap<String, String>
-                get() = TODO("Not yet implemented")
+            override val tagName: String = tagName
+            override val consumer: TagConsumer<*> = consumer
+            override val namespace: String? = null
+            override val attributes: MutableMap<String, String> = attrs
             override val attributesEntries: Collection<Map.Entry<String, String>>
-                get() = TODO("Not yet implemented")
-            override val inlineTag: Boolean
-                get() = TODO("Not yet implemented")
-            override val emptyTag: Boolean
-                get() = TODO("Not yet implemented")
+                get() = attributes.entries
+            override val inlineTag: Boolean = tagName in setOf(
+                "span",
+                "a",
+                "b",
+                "i",
+                "em",
+                "strong",
+                "code",
+                "cite",
+                "q",
+                "small",
+                "mark",
+                "del",
+                "ins",
+                "sub",
+                "sup"
+            )
+            override val emptyTag: Boolean = tagName in setOf(
+                "br",
+                "hr",
+                "img",
+                "input",
+                "meta",
+                "area",
+                "base",
+                "col",
+                "embed",
+                "link",
+                "param",
+                "source",
+                "track",
+                "wbr"
+            )
         }
     }
 
     // Helper to create FormContent
     private fun createFormContent(): FormContent {
-        val consumer = createTagConsumer()
-        return object : FormContent {
-            override val tagName: String
-                get() = TODO("Not yet implemented")
-            override val consumer: TagConsumer<*>
-                get() = TODO("Not yet implemented")
-            override val namespace: String?
-                get() = TODO("Not yet implemented")
-            override val attributes: MutableMap<String, String>
-                get() = TODO("Not yet implemented")
-            override val attributesEntries: Collection<Map.Entry<String, String>>
-                get() = TODO("Not yet implemented")
-            override val inlineTag: Boolean
-                get() = TODO("Not yet implemented")
-            override val emptyTag: Boolean
-                get() = TODO("Not yet implemented")
-        }
+        // Since FormContent is a typealias for FlowContent, we can just use createFlowContent
+        return createFlowContent("form")
     }
 
     // Create a tag consumer for the flow content
@@ -409,12 +421,8 @@ actual open class PlatformRenderer {
     }
 
     actual open fun renderBox(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
-        createElement("div", modifier) { // Apply box-specific styles
-            // The 'content' lambda has a FlowContent receiver, so we need to provide one.
-            // This typically involves setting up an HTML-specific context.
-            // For now, a placeholder or direct call if applicable.
-            // content(createFlowContent("div")) // Example if createFlowContent is suitable here
-            TODO("Implement renderBox with FlowContent receiver for JS")
+        createElement("div", modifier) {
+            content(createFlowContent("div"))
         }
     }
 
@@ -492,7 +500,7 @@ actual open class PlatformRenderer {
     ) {
         // Switches are custom components, often CSS-based or using a div and checkbox
         // This is a placeholder for a more complex component
-        renderCheckbox(checked, onCheckedChange, enabled, null, modifier.withAttribute("role", "switch"))
+        renderCheckbox(checked, onCheckedChange, enabled, null, modifier.attribute("role", "switch"))
     }
 
     actual open fun renderSlider(
@@ -754,11 +762,20 @@ actual open class PlatformRenderer {
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
-        TODO("Not yet implemented")
+        // Screen is typically a full-height container
+        val screenModifier = modifier
+            .style("minHeight", "100vh")
+            .style("width", "100%")
+
+        createElement("div", screenModifier) {
+            content(createFlowContent("div"))
+        }
     }
 
     actual open fun renderLink(href: String, modifier: Modifier) {
-        TODO("Not yet implemented")
+        createElement("a", modifier, { element ->
+            element.setAttribute("href", href)
+        })
     }
 
     actual open fun renderLink(
@@ -766,7 +783,11 @@ actual open class PlatformRenderer {
         href: String,
         content: @Composable (() -> Unit)
     ) {
-        TODO("Not yet implemented")
+        createElement("a", modifier, { element ->
+            element.setAttribute("href", href)
+        }) {
+            content()
+        }
     }
 
     actual open fun renderEnhancedLink(
@@ -777,7 +798,13 @@ actual open class PlatformRenderer {
         ariaDescribedBy: String?,
         modifier: Modifier
     ) {
-        TODO("Not yet implemented")
+        createElement("a", modifier, { element ->
+            element.setAttribute("href", href)
+            target?.let { element.setAttribute("target", it) }
+            title?.let { element.setAttribute("title", it) }
+            ariaLabel?.let { element.setAttribute("aria-label", it) }
+            ariaDescribedBy?.let { element.setAttribute("aria-describedby", it) }
+        })
     }
 
     actual open fun renderTabLayout(
@@ -786,14 +813,34 @@ actual open class PlatformRenderer {
         onTabSelected: (Int) -> Unit,
         modifier: Modifier
     ) {
-        TODO("Not yet implemented")
+        createElement("div", modifier.attribute("role", "tablist")) {
+            tabs.forEachIndexed { index, tab ->
+                createElement(
+                    "button",
+                    Modifier()
+                        .attribute("role", "tab")
+                        .attribute("aria-selected", (index == selectedTabIndex).toString())
+                        .attribute("tabindex", if (index == selectedTabIndex) "0" else "-1")
+                        .className(if (index == selectedTabIndex) "tab-active" else "tab"),
+                    { element ->
+                        element.addEventListener("click", {
+                            onTabSelected(index)
+                        })
+                    }
+                ) {
+                    renderText(tab.title, Modifier())
+                }
+            }
+        }
     }
 
     actual open fun renderTabLayout(
         modifier: Modifier,
         content: @Composable () -> Unit
     ) {
-        TODO("Not yet implemented")
+        createElement("div", modifier.attribute("role", "tablist")) {
+            content()
+        }
     }
 
     actual open fun renderTabLayout(
@@ -803,7 +850,27 @@ actual open class PlatformRenderer {
         modifier: Modifier,
         content: () -> Unit
     ) {
-        TODO("Not yet implemented")
+        createElement("div", modifier.attribute("role", "tablist")) {
+            tabs.forEach { tab ->
+                createElement(
+                    "button",
+                    Modifier()
+                        .attribute("role", "tab")
+                        .attribute("aria-selected", (tab == selectedTab).toString())
+                        .attribute("tabindex", if (tab == selectedTab) "0" else "-1")
+                        .className(if (tab == selectedTab) "tab-active" else "tab"),
+                    { element ->
+                        element.addEventListener("click", {
+                            onTabSelected(tab)
+                        })
+                    }
+                ) {
+                    renderText(tab, Modifier())
+                }
+            }
+        }
+        // Render content area
+        content()
     }
 
     actual open fun renderAnimatedVisibility(visible: Boolean, modifier: Modifier) {
@@ -818,14 +885,22 @@ actual open class PlatformRenderer {
     }
 
     actual open fun renderAnimatedContent(modifier: Modifier) {
-        TODO("Not yet implemented")
+        // Simple animated content container with transition classes
+        createElement("div", modifier.className("animated-content"))
     }
 
     actual open fun renderAnimatedContent(
         modifier: Modifier,
         content: @Composable () -> Unit
     ) {
-        TODO("Not yet implemented")
+        // Animated content with transition support
+        val animatedModifier = modifier
+            .className("animated-content")
+            .style("transition", "all 0.3s ease")
+
+        createElement("div", animatedModifier) {
+            content()
+        }
     }
 
     actual open fun renderBlock(
@@ -848,7 +923,16 @@ actual open class PlatformRenderer {
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
-        TODO("Not yet implemented")
+        // Create an inline element (span with display: inline)
+        val inlineModifier = Modifier(
+            modifier.styles + mapOf(
+                "display" to "inline"
+            )
+        )
+
+        createElement("span", inlineModifier) {
+            content(createFlowContent("span"))
+        }
     }
 
     actual open fun renderDiv(
@@ -864,46 +948,83 @@ actual open class PlatformRenderer {
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
-        TODO("Not yet implemented")
+        createElement("span", modifier) {
+            content(createFlowContent("span"))
+        }
     }
 
     actual open fun renderDivider(modifier: Modifier) {
-        TODO("Not yet implemented")
+        createElement("hr", modifier)
     }
 
     actual open fun renderExpansionPanel(
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
-        TODO("Not yet implemented")
+        // Expansion panels typically have a header and expandable content
+        // Using details/summary HTML elements for native expand/collapse behavior
+        createElement("details", modifier) {
+            content(createFlowContent("details"))
+        }
     }
 
     actual open fun renderGrid(
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
-        TODO("Not yet implemented")
+        // Grid layout using CSS Grid
+        val gridModifier = modifier
+            .style("display", "grid")
+
+        createElement("div", gridModifier) {
+            content(createFlowContent("div"))
+        }
     }
 
     actual open fun renderLazyColumn(
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
-        TODO("Not yet implemented")
+        // Lazy column is a scrollable vertical list
+        val lazyColumnModifier = modifier
+            .style("display", "flex")
+            .style("flexDirection", "column")
+            .style("overflowY", "auto")
+
+        createElement("div", lazyColumnModifier) {
+            content(createFlowContent("div"))
+        }
     }
 
     actual open fun renderLazyRow(
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
-        TODO("Not yet implemented")
+        // Lazy row is a scrollable horizontal list
+        val lazyRowModifier = modifier
+            .style("display", "flex")
+            .style("flexDirection", "row")
+            .style("overflowX", "auto")
+            .style("whiteSpace", "nowrap")
+
+        createElement("div", lazyRowModifier) {
+            content(createFlowContent("div"))
+        }
     }
 
     actual open fun renderResponsiveLayout(
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
-        TODO("Not yet implemented")
+        // Responsive layout container with flexbox for adaptability
+        val responsiveModifier = modifier
+            .style("display", "flex")
+            .style("flexWrap", "wrap")
+            .style("width", "100%")
+
+        createElement("div", responsiveModifier) {
+            content(createFlowContent("div"))
+        }
     }
 
     actual open fun renderHtmlTag(
@@ -911,7 +1032,9 @@ actual open class PlatformRenderer {
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
-        TODO("Not yet implemented")
+        createElement(tagName, modifier) {
+            content(createFlowContent(tagName))
+        }
     }
 
     actual open fun renderModal(
@@ -921,7 +1044,74 @@ actual open class PlatformRenderer {
         content: @Composable () -> Unit,
         actions: @Composable (() -> Unit)?
     ) {
-        TODO("Not yet implemented")
+        if (visible) {
+            // Modal backdrop
+            createElement(
+                "div", Modifier()
+                    .className("modal-backdrop")
+                    .style("position", "fixed")
+                    .style("top", "0")
+                    .style("left", "0")
+                    .style("width", "100%")
+                    .style("height", "100%")
+                    .style("backgroundColor", "rgba(0, 0, 0, 0.5)")
+                    .style("display", "flex")
+                    .style("alignItems", "center")
+                    .style("justifyContent", "center")
+                    .style("zIndex", "1000"),
+                { element ->
+                    element.addEventListener("click", { event ->
+                        // Only dismiss if clicking backdrop, not modal content
+                        if (event.target == element) {
+                            onDismissRequest()
+                        }
+                    })
+                }
+            ) {
+                // Modal content
+                createElement(
+                    "div", Modifier()
+                        .className("modal-content")
+                        .style("backgroundColor", "white")
+                        .style("borderRadius", "8px")
+                        .style("padding", "24px")
+                        .style("maxWidth", "500px")
+                        .style("width", "90%"),
+                    { element ->
+                        // Stop propagation to prevent backdrop click
+                        element.addEventListener("click", { event ->
+                            event.stopPropagation()
+                        })
+                    }
+                ) {
+                    // Title
+                    title?.let {
+                        renderText(
+                            it, Modifier()
+                                .style("fontSize", "20px")
+                                .style("fontWeight", "bold")
+                                .style("marginBottom", "16px")
+                        )
+                    }
+
+                    // Content
+                    content()
+
+                    // Actions
+                    actions?.let {
+                        createElement(
+                            "div", Modifier()
+                                .style("marginTop", "24px")
+                                .style("display", "flex")
+                                .style("justifyContent", "flex-end")
+                                .style("gap", "8px")
+                        ) {
+                            it()
+                        }
+                    }
+                }
+            }
+        }
     }
 
     actual open fun renderSnackbar(
@@ -929,11 +1119,51 @@ actual open class PlatformRenderer {
         actionLabel: String?,
         onAction: (() -> Unit)?
     ) {
-        TODO("Not yet implemented")
+        // Snackbar is typically shown at the bottom of the screen
+        // Creating a div positioned at the bottom
+        createElement(
+            "div", Modifier()
+                .className("snackbar")
+                .style("position", "fixed")
+                .style("bottom", "20px")
+                .style("left", "50%")
+                .style("transform", "translateX(-50%)")
+                .style("backgroundColor", "#323232")
+                .style("color", "white")
+                .style("padding", "16px")
+                .style("borderRadius", "4px")
+                .style("display", "flex")
+                .style("alignItems", "center")
+                .style("gap", "16px")
+                .style("zIndex", "1000")
+        ) {
+            // Message text
+            renderText(message, Modifier())
+
+            // Action button if provided
+            if (actionLabel != null && onAction != null) {
+                createElement(
+                    "button", Modifier()
+                        .style("background", "none")
+                        .style("border", "none")
+                        .style("color", "#4CAF50")
+                        .style("cursor", "pointer")
+                        .style("textTransform", "uppercase")
+                        .style("fontWeight", "bold")
+                        .style("padding", "8px"),
+                    { element ->
+                        element.addEventListener("click", { onAction() })
+                    }
+                ) {
+                    renderText(actionLabel, Modifier())
+                }
+            }
+        }
     }
 
     actual open fun renderSpacer(modifier: Modifier) {
-        TODO("Not yet implemented")
+        // Spacer is just an empty div with specified dimensions
+        createElement("div", modifier)
     }
 
     actual open fun renderAlertContainer(
@@ -952,6 +1182,7 @@ actual open class PlatformRenderer {
         enabled: Boolean,
         modifier: Modifier
     ) {
+        renderCheckbox(checked, onCheckedChange, enabled, null, modifier)
     }
 
     actual open fun renderProgress(value: Float?, type: ProgressType, modifier: Modifier) {
@@ -965,10 +1196,13 @@ actual open class PlatformRenderer {
         capture: String?,
         modifier: Modifier
     ): () -> Unit {
-        createElement("input", modifier, { element ->
+        var inputElement: Element? = null
+
+        inputElement = createElement("input", modifier, { element ->
             element.setAttribute("type", "file")
             if (multiple) element.setAttribute("multiple", "")
             accept?.let { element.setAttribute("accept", it) }
+            capture?.let { element.setAttribute("capture", it) }
             if (!enabled) element.setAttribute("disabled", "disabled")
 
             element.addEventListener("change", { event ->
@@ -989,10 +1223,28 @@ actual open class PlatformRenderer {
                 onFilesSelected(fileList)
             })
         })
-        TODO("Not yet implemented")
+
+        // Return a trigger function that programmatically clicks the input
+        return {
+            inputElement?.asDynamic()?.click()
+        }
     }
 
-    actual open fun renderForm(onSubmit: (() -> Unit)?, modifier: Modifier, content: @Composable (FormContent.() -> Unit)) {
+    actual open fun renderForm(
+        onSubmit: (() -> Unit)?,
+        modifier: Modifier,
+        content: @Composable (FormContent.() -> Unit)
+    ) {
+        createElement("form", modifier, { element ->
+            if (onSubmit != null) {
+                element.addEventListener("submit", { event ->
+                    event.preventDefault() // Prevent default form submission
+                    onSubmit()
+                })
+            }
+        }) {
+            content(createFlowContent("form"))
+        }
     }
 
     actual open fun renderFormField(
@@ -1006,6 +1258,7 @@ actual open class PlatformRenderer {
     }
 
     actual open fun renderRadioButton(selected: Boolean, onClick: () -> Unit, enabled: Boolean, modifier: Modifier) {
+        renderRadioButton(selected, { onClick() }, null, enabled, modifier)
     }
 
     actual open fun renderRangeSlider(
@@ -1016,9 +1269,65 @@ actual open class PlatformRenderer {
         enabled: Boolean,
         modifier: Modifier
     ) {
+        // Range sliders require custom implementation with two inputs
+        // For now, create a wrapper div with two range inputs
+        createElement("div", modifier.className("range-slider")) {
+            // Start value slider
+            createElement("input", Modifier().attribute("type", "range"), { element ->
+                element.setAttribute("min", valueRange.start.toString())
+                element.setAttribute("max", valueRange.endInclusive.toString())
+                element.setAttribute("value", value.start.toString())
+                if (steps > 0) {
+                    val stepValue = (valueRange.endInclusive - valueRange.start) / (steps + 1)
+                    element.setAttribute("step", stepValue.toString())
+                }
+                if (!enabled) element.setAttribute("disabled", "disabled")
+
+                element.addEventListener("input", { event ->
+                    val newStart = (js("event.target.value") as String).toFloat()
+                    val newEnd = maxOf(newStart, value.endInclusive)
+                    onValueChange(newStart..newEnd)
+                })
+            })
+
+            // End value slider
+            createElement("input", Modifier().attribute("type", "range"), { element ->
+                element.setAttribute("min", valueRange.start.toString())
+                element.setAttribute("max", valueRange.endInclusive.toString())
+                element.setAttribute("value", value.endInclusive.toString())
+                if (steps > 0) {
+                    val stepValue = (valueRange.endInclusive - valueRange.start) / (steps + 1)
+                    element.setAttribute("step", stepValue.toString())
+                }
+                if (!enabled) element.setAttribute("disabled", "disabled")
+
+                element.addEventListener("input", { event ->
+                    val newEnd = (js("event.target.value") as String).toFloat()
+                    val newStart = minOf(value.start, newEnd)
+                    onValueChange(newStart..newEnd)
+                })
+            })
+        }
     }
 
     actual open fun renderAspectRatio(ratio: Float, modifier: Modifier, content: @Composable (FlowContent.() -> Unit)) {
+        // Use padding-bottom trick to maintain aspect ratio
+        val aspectRatioModifier = modifier
+            .style("position", "relative")
+            .style("paddingBottom", "${(1f / ratio) * 100}%")
+
+        createElement("div", aspectRatioModifier) {
+            createElement(
+                "div", Modifier()
+                    .style("position", "absolute")
+                    .style("top", "0")
+                    .style("left", "0")
+                    .style("width", "100%")
+                    .style("height", "100%")
+            ) {
+                content(createFlowContent("div"))
+            }
+        }
     }
 
     actual open fun renderCard(modifier: Modifier, content: @Composable (FlowContent.() -> Unit)) {
@@ -1028,7 +1337,11 @@ actual open class PlatformRenderer {
         val aspectRatioModifier = modifier.style("padding-bottom", "${(1f / ratio) * 100}%")
             .style("position", "relative")
         createElement("div", aspectRatioModifier) {
-            createElement("div", Modifier().style("position", "absolute").style("top", "0").style("left", "0").style("width", "100%").style("height", "100%")) {
+            createElement(
+                "div",
+                Modifier().style("position", "absolute").style("top", "0").style("left", "0").style("width", "100%")
+                    .style("height", "100%")
+            ) {
                 content()
             }
         }

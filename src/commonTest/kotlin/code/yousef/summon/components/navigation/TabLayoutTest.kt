@@ -44,6 +44,18 @@ class TabLayoutTest {
         override fun reportChanged() {}
         override fun registerDisposable(disposable: () -> Unit) {}
         override fun dispose() {}
+        override fun recompose() {
+            // Mock/Test implementation
+        }
+
+        override fun rememberedValue(key: Any): Any? {
+            return null
+        }
+
+        override fun updateRememberedValue(key: Any, value: Any?) {
+            // Mock/Test implementation
+        }
+
         override fun startCompose() {
             startNode()
         }

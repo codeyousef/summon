@@ -183,7 +183,8 @@ data class Modifier(
      * @param component (Optional) Placeholder for potential component context, currently unused.
      * @return A new Modifier with the font-weight style.
      */
-    fun fontWeight(value: String, component: Any? = null): Modifier = // Added component parameter for consistency if other deprecated methods had it
+    fun fontWeight(value: String, component: Any? = null): Modifier =
+        // Added component parameter for consistency if other deprecated methods had it
         style("font-weight", value)
 
     /**
@@ -309,13 +310,14 @@ data class Modifier(
         // are usually handled by CSS pseudo-classes (:hover) or JavaScript event listeners.
         // Storing it this way would require a custom rendering logic to interpret.
         // For demonstration, let's assume it adds a custom attribute.
-        val currentHover = attributes["data-hover-styles"]?.let { prev -> // Uses the JS renamed `htmlAttributes` in Kotlin via `attributes`
-            // Crude merge, could be improved
-            prev.split(';').associate {
-                val parts = it.split(':')
-                parts[0].trim() to parts[1].trim()
-            } + hoverStyles
-        } ?: hoverStyles
+        val currentHover =
+            attributes["data-hover-styles"]?.let { prev -> // Uses the JS renamed `htmlAttributes` in Kotlin via `attributes`
+                // Crude merge, could be improved
+                prev.split(';').associate {
+                    val parts = it.split(':')
+                    parts[0].trim() to parts[1].trim()
+                } + hoverStyles
+            } ?: hoverStyles
         val hoverString = currentHover.entries.joinToString(";") { "${it.key}:${it.value}" }
         return attribute("data-hover-styles", hoverString)
     }
@@ -355,11 +357,14 @@ data class Modifier(
 
     /**
      * Converts the styles map to a CSS inline style string.
-     * Example: "color:red;font-size:12px"
+     * Example: "color: red; font-size: 12px;"
      * @return A string representation of styles suitable for inline CSS.
      */
     fun toStyleString(): String =
-        styles.entries.joinToString(separator = ";") { "${it.key}:${it.value}" }.ifEmpty { "" }
+        if (styles.isEmpty()) "" else styles.entries.joinToString(
+            separator = "; ",
+            postfix = ";"
+        ) { "${it.key}: ${it.value}" }
 
 
     /**
@@ -376,7 +381,7 @@ data class Modifier(
             "$kebabKey:$value"
         }.ifEmpty { "" }
     }
-    
+
     /**
      * Checks if this modifier has a specific style with the given key and value.
      * @param key The style key to check
@@ -413,7 +418,8 @@ data class Modifier(
      * @return A new Modifier with the updated class attribute.
      */
     fun addClass(value: String): Modifier {
-        val existingClasses = attributes["class"]?.split(' ')?.toSet() ?: emptySet() // Accesses the Kotlin property `attributes`
+        val existingClasses =
+            attributes["class"]?.split(' ')?.toSet() ?: emptySet() // Accesses the Kotlin property `attributes`
         val newClasses = (existingClasses + value.trim()).filter { it.isNotEmpty() }.joinToString(" ")
         return attribute("class", newClasses)
     }

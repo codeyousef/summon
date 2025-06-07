@@ -1,10 +1,10 @@
 package code.yousef.summon.runtime
 
+import code.yousef.summon.annotation.Composable
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
-import code.yousef.summon.annotation.Composable
 
 class CompositionContextTest {
 
@@ -74,6 +74,18 @@ class CompositionContextTest {
             disposeCalled = true
         }
 
+        override fun recompose() {
+            // Mock implementation
+        }
+
+        override fun rememberedValue(key: Any): Any? {
+            return null
+        }
+
+        override fun updateRememberedValue(key: Any, value: Any?) {
+            // Mock implementation
+        }
+
         override fun startCompose() {
             // Not needed for these tests
         }
@@ -116,13 +128,17 @@ class CompositionContextTest {
             // Test the compose method
             context.compose {
                 composeCalled = true
-                assertNotNull(CompositionLocal.currentComposer, 
-                    "Current composer should be set during composition")
+                assertNotNull(
+                    CompositionLocal.currentComposer,
+                    "Current composer should be set during composition"
+                )
             }
 
             assertEquals(true, composeCalled, "Content should be executed")
-            assertNull(CompositionLocal.currentComposer, 
-                "Current composer should be reset after composition")
+            assertNull(
+                CompositionLocal.currentComposer,
+                "Current composer should be reset after composition"
+            )
         } finally {
             // Restore the original composer
             CompositionLocal.setCurrentComposer(originalComposer)
@@ -141,8 +157,10 @@ class CompositionContextTest {
             // Test the dispose method
             context.dispose()
 
-            assertNull(CompositionLocal.currentComposer, 
-                "Current composer should be reset after dispose")
+            assertNull(
+                CompositionLocal.currentComposer,
+                "Current composer should be reset after dispose"
+            )
         } finally {
             // Restore the original composer
             CompositionLocal.setCurrentComposer(originalComposer)
