@@ -49,6 +49,13 @@ jobs:
       with:
         node-version: '18'
         
+    - name: Start virtual display
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y xvfb
+        export DISPLAY=:99
+        Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        
     - name: Cache Gradle packages
       uses: actions/cache@v4
       with:
@@ -84,8 +91,8 @@ jobs:
     - name: Run JVM tests
       run: ./gradlew clean jvmTest --no-daemon --stacktrace
       
-    - name: Run JS tests with Chrome headless (allow failure)
-      run: ./gradlew jsTest --no-daemon --stacktrace || true
+    - name: Run JS tests with Chrome headless
+      run: ./gradlew jsTest --no-daemon --stacktrace
       env:
         CHROME_BIN: /usr/bin/google-chrome
         DISPLAY: :99.0
@@ -143,8 +150,23 @@ jobs:
         rm -rf ~/.gradle/caches/*/executionHistory/
         ./gradlew --stop || true
         
-    - name: Build all targets (with JS test workaround)
-      run: ./gradlew clean build -x jsTest -x jsBrowserTest --no-daemon --stacktrace
+    - name: Setup Chrome headless for build
+      uses: browser-actions/setup-chrome@v1
+      with:
+        chrome-version: stable
+        
+    - name: Start virtual display for build
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y xvfb
+        export DISPLAY=:99
+        Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        
+    - name: Build all targets
+      run: ./gradlew clean build --no-daemon --stacktrace
+      env:
+        CHROME_BIN: /usr/bin/google-chrome
+        DISPLAY: :99.0
       
     - name: Generate documentation
       run: ./gradlew dokkaHtml --no-daemon || true  # Allow failure for now

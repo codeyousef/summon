@@ -41,7 +41,6 @@ kotlin {
             testTask {
                 useKarma {
                     useChromeHeadless()
-                    // Additional Chrome arguments for CI environments
                     webpackConfig.devtool = "source-map"
                 }
             }
