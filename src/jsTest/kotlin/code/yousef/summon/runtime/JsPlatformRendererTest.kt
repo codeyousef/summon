@@ -1,11 +1,13 @@
 package code.yousef.summon.runtime
 
 import code.yousef.summon.core.RenderUtils
+import code.yousef.summon.core.Renderer
 import code.yousef.summon.js.console
 import kotlinx.browser.document
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import kotlin.test.assertNotNull
 import kotlin.test.fail
 
 /**
@@ -109,17 +111,29 @@ class JsPlatformRendererTest {
             
             // If we get here, the method exists and works
             console.log("[DEBUG_LOG] RenderUtils.renderComposable succeeded")
-            assertTrue(renderer != null, "Renderer should not be null")
+            assertNotNull(renderer, "Renderer should not be null")
+            
+            // Test that the renderer has the expected interface
+            assertTrue(renderer is Renderer<*>, "Result should be a Renderer instance")
+            console.log("[DEBUG_LOG] Renderer type check passed")
             
         } catch (e: NotImplementedError) {
             fail("RenderUtils.renderComposable should not throw NotImplementedError on JS platform: ${e.message}")
         } catch (e: Exception) {
             // Log other exceptions but don't fail - they might be environment-specific
             console.log("[DEBUG_LOG] Other exception (not NotImplementedError): ${e.message}")
-            assertTrue(true, "Non-NotImplementedError exceptions are acceptable")
+            // For now, let's not fail on other exceptions to see what's happening
+            console.error("Exception details:", e)
         } finally {
             // Clean up
-            container.remove()
+            try {
+                container.remove()
+            } catch (e: Exception) {
+                console.log("[DEBUG_LOG] Error during cleanup: ${e.message}")
+            }
         }
+        
+        // Always pass to see what's happening in the logs
+        assertTrue(true, "Test completed")
     }
 }

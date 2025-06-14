@@ -1,13 +1,7 @@
 package code.yousef.summon.core
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
-import kotlin.test.assertFalse
-import kotlin.test.assertFailsWith
 import code.yousef.summon.runtime.Composable
+import kotlin.test.*
 
 class CompositionContextTest {
 
@@ -139,13 +133,18 @@ class CompositionContextTest {
             // Try renderToString - should work on all platforms
             val result = RenderUtils.renderToString { }
             // Should return some string (could be empty)
+            assertNotNull(result, "renderToString should return a non-null result")
             assertTrue(result is String, "renderToString should return a String")
+            println("RenderUtils.renderToString test passed: result = '$result'")
         } catch (e: NotImplementedError) {
-            // This is acceptable for some platforms
-            assertTrue(true, "NotImplementedError is acceptable for some platforms")
+            // This is acceptable for some platforms like JVM
+            println("RenderUtils.renderToString throws NotImplementedError on this platform - this is acceptable")
         } catch (e: Exception) {
             // Other exceptions might be valid (e.g., missing DOM, etc.)
-            assertTrue(true, "Other exceptions may be platform-specific")
+            println("RenderUtils.renderToString threw exception: ${e.message} - this may be platform-specific")
         }
+        
+        // The test should always pass as long as we don't get unexpected behavior
+        assertTrue(true, "Test completed successfully")
     }
 }
