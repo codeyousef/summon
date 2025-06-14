@@ -79,6 +79,9 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
+    - name: Upgrade Yarn lock file
+      run: ./gradlew kotlinUpgradeYarnLock --no-daemon
+      
     - name: Clear Gradle cache if forced
       if: contains(github.event.head_commit.message, '[clear-cache]') || github.event.inputs.clear_cache == 'true'
       run: |
@@ -140,6 +143,9 @@ jobs:
           
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+      
+    - name: Upgrade Yarn lock file
+      run: ./gradlew kotlinUpgradeYarnLock --no-daemon
       
     - name: Clear Gradle cache if forced
       if: contains(github.event.head_commit.message, '[clear-cache]') || github.event.inputs.clear_cache == 'true'
