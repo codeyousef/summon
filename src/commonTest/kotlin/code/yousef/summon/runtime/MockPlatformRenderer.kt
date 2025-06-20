@@ -65,14 +65,14 @@ open class MockPlatformRenderer : PlatformRenderer() {
     var lastButtonModifierRendered: Modifier? = null
     var lastButtonOnClickRendered: (() -> Unit)? = null
     var lastButtonContentRendered: (@Composable FlowContent.() -> Unit)? = null
-    
+
     // Checkbox tracking properties
     var renderCheckboxCalled = false
     var lastCheckboxCheckedRendered: Boolean? = null
     var lastCheckboxEnabledRendered: Boolean? = null
     var lastCheckboxModifierRendered: Modifier? = null
     var lastCheckboxOnCheckedChangeRendered: ((Boolean) -> Unit)? = null
-    
+
     // DatePicker tracking properties
     var renderDatePickerCalled = false
     var lastDatePickerValueRendered: LocalDate? = null
@@ -81,7 +81,7 @@ open class MockPlatformRenderer : PlatformRenderer() {
     var lastDatePickerEnabledRendered: Boolean? = null
     var lastDatePickerModifierRendered: Modifier? = null
     var lastDatePickerOnValueChangeRendered: ((LocalDate?) -> Unit)? = null
-    
+
     // FileUpload tracking properties
     var renderFileUploadCalled = false
     var lastFileUploadAcceptRendered: String? = null
@@ -91,7 +91,7 @@ open class MockPlatformRenderer : PlatformRenderer() {
     var lastFileUploadOnFilesSelectedRendered: ((List<FileInfo>) -> Unit)? = null
     var lastFileUploadCaptureRendered: String? = null
     var lastFileUploadReturnedTriggerFunctionRendered: (() -> Unit)? = null
-    
+
     // FormField tracking properties
     var lastFormFieldModifierRendered: Modifier? = null
     var lastFormFieldLabelIdRendered: String? = null
@@ -99,13 +99,13 @@ open class MockPlatformRenderer : PlatformRenderer() {
     var lastFormFieldIsErrorRendered: Boolean? = null
     var lastFormFieldErrorMessageIdRendered: String? = null
     var lastFormFieldContentLambdaRendered: (@Composable FlowContent.() -> Unit)? = null
-    
+
     // RadioButton tracking properties
     var lastRadioButtonSelectedRendered: Boolean? = null
     var lastRadioButtonEnabledRendered: Boolean? = null
     var lastRadioButtonModifierRendered: Modifier? = null
     var lastRadioButtonOnClickRendered: (() -> Unit)? = null
-    
+
     // RangeSlider tracking properties
     var renderRangeSliderCalled = false
     var lastRangeSliderValueRendered: ClosedFloatingPointRange<Float>? = null
@@ -114,7 +114,7 @@ open class MockPlatformRenderer : PlatformRenderer() {
     var lastRangeSliderEnabledRendered: Boolean? = null
     var lastRangeSliderModifierRendered: Modifier? = null
     var lastRangeSliderOnValueChangeRendered: ((ClosedFloatingPointRange<Float>) -> Unit)? = null
-    
+
     // Slider tracking properties
     var renderSliderCalled = false
     var lastSliderValueRendered: Float? = null
@@ -123,21 +123,21 @@ open class MockPlatformRenderer : PlatformRenderer() {
     var lastSliderEnabledRendered: Boolean? = null
     var lastSliderModifierRendered: Modifier? = null
     var lastSliderOnValueChangeRendered: ((Float) -> Unit)? = null
-    
+
     // Select tracking properties
     var renderSelectCalled = false
     var lastSelectSelectedValueRendered: Any? = null
     var lastSelectOptionsRendered: List<SelectOption<*>>? = null
     var lastSelectModifierRendered: Modifier? = null
     var lastSelectOnSelectedChangeRendered: ((Any?) -> Unit)? = null
-    
+
     // TextField tracking properties
     open var renderTextFieldCalled = false
     var lastTextFieldValueRendered: String? = null
     var lastTextFieldTypeRendered: String? = null
     var lastTextFieldModifierRendered: Modifier? = null
     var lastTextFieldOnValueChangeRendered: ((String) -> Unit)? = null
-    
+
     // TextArea tracking properties
     var renderTextAreaCalled = false
     var lastTextAreaValueRendered: String? = null
@@ -148,7 +148,7 @@ open class MockPlatformRenderer : PlatformRenderer() {
     var lastTextAreaPlaceholderRendered: String? = null
     var lastTextAreaModifierRendered: Modifier? = null
     var lastTextAreaOnValueChangeRendered: ((String) -> Unit)? = null
-    
+
     // TimePicker tracking properties
     open var renderTimePickerCalled = false
     var lastTimePickerValueRendered: LocalTime? = null
@@ -156,82 +156,82 @@ open class MockPlatformRenderer : PlatformRenderer() {
     var lastTimePickerIs24HourRendered: Boolean? = null
     var lastTimePickerModifierRendered: Modifier? = null
     var lastTimePickerOnValueChangeRendered: ((LocalTime?) -> Unit)? = null
-    
+
     // Switch tracking properties
     var renderSwitchCalled = false
     var lastSwitchCheckedRendered: Boolean? = null
     var lastSwitchEnabledRendered: Boolean? = null
     var lastSwitchModifierRendered: Modifier? = null
     var lastSwitchOnCheckedChangeRendered: ((Boolean) -> Unit)? = null
-    
+
     // Spacer tracking properties
     open var renderSpacerCalled = false
     var lastSpacerModifierRendered: Modifier? = null
-    
+
     // Link tracking properties
     var renderLinkCalled = false
     var lastLinkHrefRendered: String? = null
     var lastLinkModifierRendered: Modifier? = null
-    
+
     // Divider tracking properties
     var renderDividerCalled = false
     var lastDividerModifierRendered: Modifier? = null
-    
+
     // Grid tracking properties
     var renderGridCalled = false
     var lastGridModifierRendered: Modifier? = null
     var lastGridContentRendered: (@Composable FlowContent.() -> Unit)? = null
-    
+
     // Card tracking properties
     var renderCardCalled = false
     var lastCardModifierRendered: Modifier? = null
     var lastCardContentRendered: (@Composable FlowContent.() -> Unit)? = null
-    
+
     // TabLayout tracking properties
     open var renderTabLayoutCalled = false
     var lastTabLayoutTabsRendered: List<Tab>? = null
     var lastTabLayoutSelectedTabIndexRendered: Int? = null
     var lastTabLayoutOnTabSelectedRendered: ((Int) -> Unit)? = null
     var lastTabLayoutModifierRendered: Modifier? = null
-    
+
     // AspectRatio tracking properties
     var renderAspectRatioCalled = false
     var lastAspectRatioRatioRendered: Float? = null
     var lastAspectRatioModifierRendered: Modifier? = null
     var lastAspectRatioContentRendered: (@Composable FlowContent.() -> Unit)? = null
-    
+
     // ExpansionPanel tracking properties
     var renderExpansionPanelCalled = false
     var lastExpansionPanelModifierRendered: Modifier? = null
     var lastExpansionPanelContentRendered: (@Composable FlowContent.() -> Unit)? = null
-    
+
     // LazyColumn tracking properties
     var renderLazyColumnCalled = false
     var lastLazyColumnModifierRendered: Modifier? = null
     var lastLazyColumnContentRendered: (@Composable FlowContent.() -> Unit)? = null
-    
+
     // LazyRow tracking properties
     var renderLazyRowCalled = false
     var lastLazyRowModifierRendered: Modifier? = null
     var lastLazyRowContentRendered: (@Composable FlowContent.() -> Unit)? = null
-    
+
     // ResponsiveLayout tracking properties
     var renderResponsiveLayoutCalled = false
     var lastResponsiveLayoutModifierRendered: Modifier? = null
     var lastResponsiveLayoutContentRendered: (@Composable FlowContent.() -> Unit)? = null
-    
+
     // Snackbar tracking properties
     var renderSnackbarCalled = false
     var lastSnackbarMessageRendered: String? = null
     var lastSnackbarActionLabelRendered: String? = null
     var lastSnackbarOnActionRendered: (() -> Unit)? = null
-    
+
     // Tooltip tracking properties
     var renderTooltipCalled = false
     var lastTooltipTextRendered: String? = null
     var lastTooltipModifierRendered: Modifier? = null
     var lastTooltipContentRendered: (@Composable () -> Unit)? = null
-    
+
     // Additional tracking properties
     var lastBoxContentRendered: (@Composable FlowContent.() -> Unit)? = null
     var renderDivCalled = false
@@ -292,14 +292,14 @@ open class MockPlatformRenderer : PlatformRenderer() {
         lastButtonModifierRendered = null
         lastButtonOnClickRendered = null
         lastButtonContentRendered = null
-        
+
         // Reset checkbox tracking properties
         renderCheckboxCalled = false
         lastCheckboxCheckedRendered = null
         lastCheckboxEnabledRendered = null
         lastCheckboxModifierRendered = null
         lastCheckboxOnCheckedChangeRendered = null
-        
+
         // Reset datePicker tracking properties
         renderDatePickerCalled = false
         lastDatePickerValueRendered = null
@@ -308,7 +308,7 @@ open class MockPlatformRenderer : PlatformRenderer() {
         lastDatePickerEnabledRendered = null
         lastDatePickerModifierRendered = null
         lastDatePickerOnValueChangeRendered = null
-        
+
         // Reset fileUpload tracking properties
         renderFileUploadCalled = false
         lastFileUploadAcceptRendered = null
@@ -318,7 +318,7 @@ open class MockPlatformRenderer : PlatformRenderer() {
         lastFileUploadOnFilesSelectedRendered = null
         lastFileUploadCaptureRendered = null
         lastFileUploadReturnedTriggerFunctionRendered = null
-        
+
         // Reset formField tracking properties
         lastFormFieldModifierRendered = null
         lastFormFieldLabelIdRendered = null
@@ -326,13 +326,13 @@ open class MockPlatformRenderer : PlatformRenderer() {
         lastFormFieldIsErrorRendered = null
         lastFormFieldErrorMessageIdRendered = null
         lastFormFieldContentLambdaRendered = null
-        
+
         // Reset radioButton tracking properties
         lastRadioButtonSelectedRendered = null
         lastRadioButtonEnabledRendered = null
         lastRadioButtonModifierRendered = null
         lastRadioButtonOnClickRendered = null
-        
+
         // Reset rangeSlider tracking properties
         renderRangeSliderCalled = false
         lastRangeSliderValueRendered = null
@@ -341,7 +341,7 @@ open class MockPlatformRenderer : PlatformRenderer() {
         lastRangeSliderEnabledRendered = null
         lastRangeSliderModifierRendered = null
         lastRangeSliderOnValueChangeRendered = null
-        
+
         // Reset slider tracking properties
         renderSliderCalled = false
         lastSliderValueRendered = null
@@ -350,21 +350,21 @@ open class MockPlatformRenderer : PlatformRenderer() {
         lastSliderEnabledRendered = null
         lastSliderModifierRendered = null
         lastSliderOnValueChangeRendered = null
-        
+
         // Reset select tracking properties
         renderSelectCalled = false
         lastSelectSelectedValueRendered = null
         lastSelectOptionsRendered = null
         lastSelectModifierRendered = null
         lastSelectOnSelectedChangeRendered = null
-        
+
         // Reset textField tracking properties
         renderTextFieldCalled = false
         lastTextFieldValueRendered = null
         lastTextFieldTypeRendered = null
         lastTextFieldModifierRendered = null
         lastTextFieldOnValueChangeRendered = null
-        
+
         // Reset textArea tracking properties
         renderTextAreaCalled = false
         lastTextAreaValueRendered = null
@@ -375,7 +375,7 @@ open class MockPlatformRenderer : PlatformRenderer() {
         lastTextAreaPlaceholderRendered = null
         lastTextAreaModifierRendered = null
         lastTextAreaOnValueChangeRendered = null
-        
+
         // Reset timePicker tracking properties
         renderTimePickerCalled = false
         lastTimePickerValueRendered = null
@@ -383,82 +383,82 @@ open class MockPlatformRenderer : PlatformRenderer() {
         lastTimePickerIs24HourRendered = null
         lastTimePickerModifierRendered = null
         lastTimePickerOnValueChangeRendered = null
-        
+
         // Reset switch tracking properties
         renderSwitchCalled = false
         lastSwitchCheckedRendered = null
         lastSwitchEnabledRendered = null
         lastSwitchModifierRendered = null
         lastSwitchOnCheckedChangeRendered = null
-        
+
         // Reset spacer tracking properties
         renderSpacerCalled = false
         lastSpacerModifierRendered = null
-        
+
         // Reset link tracking properties
         renderLinkCalled = false
         lastLinkHrefRendered = null
         lastLinkModifierRendered = null
-        
+
         // Reset divider tracking properties
         renderDividerCalled = false
         lastDividerModifierRendered = null
-        
+
         // Reset grid tracking properties
         renderGridCalled = false
         lastGridModifierRendered = null
         lastGridContentRendered = null
-        
+
         // Reset card tracking properties
         renderCardCalled = false
         lastCardModifierRendered = null
         lastCardContentRendered = null
-        
+
         // Reset tabLayout tracking properties
         renderTabLayoutCalled = false
         lastTabLayoutTabsRendered = null
         lastTabLayoutSelectedTabIndexRendered = null
         lastTabLayoutOnTabSelectedRendered = null
         lastTabLayoutModifierRendered = null
-        
+
         // Reset aspectRatio tracking properties
         renderAspectRatioCalled = false
         lastAspectRatioRatioRendered = null
         lastAspectRatioModifierRendered = null
         lastAspectRatioContentRendered = null
-        
+
         // Reset expansionPanel tracking properties
         renderExpansionPanelCalled = false
         lastExpansionPanelModifierRendered = null
         lastExpansionPanelContentRendered = null
-        
+
         // Reset lazyColumn tracking properties
         renderLazyColumnCalled = false
         lastLazyColumnModifierRendered = null
         lastLazyColumnContentRendered = null
-        
+
         // Reset lazyRow tracking properties
         renderLazyRowCalled = false
         lastLazyRowModifierRendered = null
         lastLazyRowContentRendered = null
-        
+
         // Reset responsiveLayout tracking properties
         renderResponsiveLayoutCalled = false
         lastResponsiveLayoutModifierRendered = null
         lastResponsiveLayoutContentRendered = null
-        
+
         // Reset snackbar tracking properties
         renderSnackbarCalled = false
         lastSnackbarMessageRendered = null
         lastSnackbarActionLabelRendered = null
         lastSnackbarOnActionRendered = null
-        
+
         // Reset tooltip tracking properties
         renderTooltipCalled = false
         lastTooltipTextRendered = null
         lastTooltipModifierRendered = null
         lastTooltipContentRendered = null
-        
+
         // Reset additional tracking properties
         lastBoxContentRendered = null
         renderDivCalled = false
@@ -513,6 +513,7 @@ open class MockPlatformRenderer : PlatformRenderer() {
         lastTextFieldTypeRendered = type
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T> renderSelect(
         selectedValue: T?,
         onSelectedChange: (T?) -> Unit,

@@ -149,7 +149,9 @@ class SnackbarHostTest {
         CompositionLocal.provideComposer(mockComposer) {
             val hostState = rememberSnackbarHostState()
             assertNotNull(hostState)
-            assertTrue(hostState is SnackbarHostState)
+            // Verify we can use it as a SnackbarHostState
+            hostState.showSnackbar("Test message")
+            assertTrue(hostState.snackbars.isNotEmpty())
         }
     }
 

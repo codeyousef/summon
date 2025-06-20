@@ -1,13 +1,14 @@
 import org.gradle.api.publish.maven.MavenPublication
+import java.util.Properties
+
+// Apply version management
+apply(from = "version.gradle.kts")
 
 plugins {
     kotlin("multiplatform") version "2.2.0-RC2"
     kotlin("plugin.serialization") version "2.2.0-RC2"
     `maven-publish`
 }
-
-group = "io.github.codeyousef"
-version = "0.2.7"
 
 repositories {
     mavenCentral()
@@ -153,7 +154,7 @@ kotlin.sourceSets.all {
     languageSettings {
         optIn("kotlin.RequiresOptIn")
         optIn("kotlinx.serialization.ExperimentalSerializationApi")
-        enableLanguageFeature("ExpectActualClasses")
+        optIn("kotlin.ExperimentalMultiplatform")
     }
 }
 
@@ -197,6 +198,23 @@ tasks.register("verifySpringBootIntegration") {
     }
 }
 
+// Load properties from local.properties if it exists
+val localProperties = Properties().apply {
+    val localFile = rootProject.file("local.properties")
+    if (localFile.exists()) {
+        load(localFile.inputStream())
+    }
+}
+
+// Get GitHub credentials with priority: local.properties > gradle.properties > environment variables
+val githubUser = localProperties.getProperty("gpr.user") 
+    ?: project.findProperty("gpr.user") as String? 
+    ?: System.getenv("GITHUB_ACTOR")
+
+val githubToken = localProperties.getProperty("gpr.key") 
+    ?: project.findProperty("gpr.key") as String? 
+    ?: System.getenv("GITHUB_TOKEN")
+
 // Configure publishing for GitHub Packages only
 publishing {
     publications {
@@ -226,14 +244,14 @@ publishing {
             }
         }
     }
-    
+
     repositories {
         maven {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/codeyousef/summon")
             credentials {
-                username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
-                password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+                username = githubUser
+                password = githubToken
             }
         }
     }
@@ -250,6 +268,19 @@ tasks.register("testAll") {
     dependsOn("allTests")
     group = "verification"
     description = "Run all tests for all targets"
+}
+
+// Task to clean node_modules directory
+tasks.register<Delete>("cleanNodeModules") {
+    group = "build"
+    description = "Delete the node_modules directory"
+    delete(file("${rootProject.buildDir}/js/node_modules"))
+    delete(file("${rootProject.buildDir}/js/packages"))
+}
+
+// Make clean task depend on cleanNodeModules
+tasks.named("clean") {
+    dependsOn("cleanNodeModules")
 }
 
 

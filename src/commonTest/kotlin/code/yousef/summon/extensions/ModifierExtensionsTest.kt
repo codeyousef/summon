@@ -1,6 +1,9 @@
 package code.yousef.summon.extensions
 
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.marginAuto
+import code.yousef.summon.modifier.marginHorizontalAuto
+import code.yousef.summon.modifier.marginVerticalAuto
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -52,13 +55,13 @@ class ModifierExtensionsTest {
     }
 
     @Test
-    fun testDeprecatedMarginExtensions() {
-        // Test marginHorizontalAuto
-        val modifier1 = Modifier().marginHorizontalAuto(5)
+    fun testAutoMarginModifiers() {
+        // Test marginHorizontalAuto with vertical parameter
+        val modifier1 = Modifier().marginHorizontalAuto(vertical = 5)
         verifyStyle(modifier1, "margin", "5px auto")
 
-        // Test marginVerticalAuto
-        val modifier2 = Modifier().marginVerticalAuto(10)
+        // Test marginVerticalAuto with horizontal parameter
+        val modifier2 = Modifier().marginVerticalAuto(horizontal = 10)
         verifyStyle(modifier2, "margin", "auto 10px")
 
         // Test marginAuto

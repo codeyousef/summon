@@ -28,7 +28,11 @@ class JsPlatformRendererTest {
         val retrievedRenderer = getPlatformRenderer()
 
         assertNotNull(retrievedRenderer)
-        assertTrue(retrievedRenderer is PlatformRenderer)
+        // Verify we can use it as a PlatformRenderer by calling a method on it
+        val result = retrievedRenderer.renderComposableRoot {
+            retrievedRenderer.renderText("Test content", Modifier())
+        }
+        assertNotNull(result)
     }
 
     // Note: Removed testHeadElementManagement as it requires more complex setup for JS environment

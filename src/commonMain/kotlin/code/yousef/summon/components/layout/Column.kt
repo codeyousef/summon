@@ -17,9 +17,9 @@ fun Column(
 ) {
     // Use platform renderer directly
     val renderer = LocalPlatformRenderer.current
-    
-    // Apply default styles for Column including fillMaxSize
-    val columnModifier = modifier.fillMaxSize()
+
+    // Use the provided modifier directly
+    val columnModifier = modifier
 
     // Call renderColumn and pass the content lambda
     renderer.renderColumn(

@@ -26,15 +26,18 @@ class ModifierComponentsTest {
     @Test
     fun testMarkerInterfacesCanBeImplemented() {
         val component = TestComponent()
-        
-        // Verify component implements each interface
-        assertTrue(component is ScrollableComponent, "Component should implement ScrollableComponent")
-        assertTrue(component is InputComponent, "Component should implement InputComponent")
-        assertTrue(component is TextComponent, "Component should implement TextComponent")
-        assertTrue(component is LayoutComponent, "Component should implement LayoutComponent")
-        assertTrue(component is ClickableComponent, "Component should implement ClickableComponent")
-        assertTrue(component is FocusableComponent, "Component should implement FocusableComponent")
-        assertTrue(component is MediaComponent, "Component should implement MediaComponent")
+
+        // Verify component can be used where these interfaces are required
+        val scrollable: ScrollableComponent = component
+        val input: InputComponent = component
+        val text: TextComponent = component
+        val layout: LayoutComponent = component
+        val clickable: ClickableComponent = component
+        val focusable: FocusableComponent = component
+        val media: MediaComponent = component
+
+        // Just assert true to show the test passed
+        assertTrue(true, "Component successfully implements all marker interfaces")
     }
 
     /**
@@ -43,17 +46,19 @@ class ModifierComponentsTest {
     @Test
     fun testTypeChecking() {
         val component = TestComponent()
-        
+
         // Function that accepts only ScrollableComponent
         fun acceptScrollable(scrollable: ScrollableComponent) {
-            assertTrue(scrollable is ScrollableComponent)
+            // Just verify we can call the function with this parameter
+            assertTrue(true, "Successfully passed ScrollableComponent")
         }
-        
+
         // Function that accepts only InputComponent
         fun acceptInput(input: InputComponent) {
-            assertTrue(input is InputComponent)
+            // Just verify we can call the function with this parameter
+            assertTrue(true, "Successfully passed InputComponent")
         }
-        
+
         // Verify component can be passed to functions requiring specific interfaces
         acceptScrollable(component)
         acceptInput(component)

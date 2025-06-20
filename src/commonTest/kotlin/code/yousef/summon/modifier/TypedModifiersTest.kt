@@ -3,6 +3,7 @@ package code.yousef.summon.modifier
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@Suppress("DEPRECATION")
 class TypedModifiersTest {
 
     // --- Text Tests --- 
@@ -80,7 +81,7 @@ class TypedModifiersTest {
     }
 
     // --- Media Tests ---
-    
+
     @Test
     fun testObjectFit() {
         val value = "contain"

@@ -19,17 +19,17 @@ import code.yousef.summon.modifier.backgroundImage
 import code.yousef.summon.modifier.backgroundSize
 import code.yousef.summon.modifier.flexWrap
 import code.yousef.summon.modifier.fontFamily
-import code.yousef.summon.modifier.gap
+import code.yousef.summon.modifier.LayoutModifiers.gap
 import code.yousef.summon.modifier.hover
 import code.yousef.summon.modifier.justifyContent
 import code.yousef.summon.modifier.letterSpacing
 import code.yousef.summon.modifier.padding
 import code.yousef.summon.modifier.position
-import code.yousef.summon.modifier.top
+import code.yousef.summon.modifier.LayoutModifiers.top
 import code.yousef.summon.routing.seo.Header
 import code.yousef.summon.routing.seo.Main
 import code.yousef.summon.routing.seo.Nav
-import code.yousef.summon.runtime.JsPlatformRenderer
+import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import kotlinx.browser.document
@@ -273,7 +273,7 @@ fun main() {
         rootElement.innerHTML = ""
 
         // Configure the renderer
-        val renderer = JsPlatformRenderer()
+        val renderer = PlatformRenderer()
         setPlatformRenderer(renderer)
 
         // Provide the renderer in the composition

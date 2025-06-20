@@ -1,3 +1,6 @@
+// Apply version helper to get Summon version information
+apply(from = "../../../version-helper.gradle.kts")
+
 plugins {
     kotlin("jvm") version "2.1.20"
     kotlin("plugin.allopen") version "2.1.20"
@@ -34,8 +37,8 @@ dependencies {
     // Kotlin dependencies
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    // Summon dependencies
-    implementation("io.github.codeyousef:summon:0.2.7")
+    // Summon dependencies using version from version-helper.gradle.kts
+    implementation(project.extra["summonDependency"] as String)
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.12.0")
 
     // Jakarta Servlet API

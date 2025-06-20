@@ -173,3 +173,66 @@ gpr.key=YOUR_GITHUB_TOKEN
 ```
 
 Generate a GitHub token with `read:packages` permission at https://github.com/settings/tokens
+
+## Version Management
+
+Summon uses a centralized version management approach to ensure consistency across the main project and example projects. The version information is defined in a single place and referenced from all other places.
+
+For more information, see [VERSIONING.md](VERSIONING.md).
+
+## Security Best Practices
+
+### Protecting Sensitive Credentials
+
+To prevent accidentally committing sensitive credentials to the repository, Summon includes a Git pre-commit hook that checks for actual credentials in `gradle.properties`.
+
+#### Installing the Git Hook
+
+1. **Windows**:
+   ```
+   .git-hooks\install-hooks.bat
+   ```
+
+2. **Unix/Linux/macOS**:
+   ```
+   chmod +x .git-hooks/install-hooks.sh
+   .git-hooks/install-hooks.sh
+   ```
+
+The pre-commit hook will prevent commits that contain actual credentials (not placeholders) in `gradle.properties`.
+
+#### Recommended Approach for Credentials
+
+For local development:
+
+1. Keep placeholder values in `gradle.properties` (which is version controlled):
+   ```properties
+   gpr.user=your_github_username
+   gpr.key=your_github_token
+   ```
+
+2. Store your actual credentials in `local.properties` (which is ignored by Git):
+   ```properties
+   gpr.user=YOUR_ACTUAL_USERNAME
+   gpr.key=YOUR_ACTUAL_TOKEN
+   ```
+
+3. In your build script, prioritize values from `local.properties` over `gradle.properties`:
+   ```kotlin
+   val localProperties = java.util.Properties().apply {
+       val localFile = rootProject.file("local.properties")
+       if (localFile.exists()) {
+           load(localFile.inputStream())
+       }
+   }
+
+   val githubUser = localProperties.getProperty("gpr.user") 
+       ?: project.findProperty("gpr.user") as String? 
+       ?: System.getenv("GITHUB_ACTOR")
+
+   val githubToken = localProperties.getProperty("gpr.key") 
+       ?: project.findProperty("gpr.key") as String? 
+       ?: System.getenv("GITHUB_TOKEN")
+   ```
+
+This approach ensures that sensitive credentials are never committed to version control while maintaining a clear example of what credentials are needed in the version-controlled `gradle.properties` file.

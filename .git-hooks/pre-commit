@@ -1,0 +1,60 @@
+#!/bin/sh
+
+# Pre-commit hook to prevent committing sensitive credentials in gradle.properties
+# This script checks for actual credentials (not placeholders) in gradle.properties
+
+echo "Checking for sensitive credentials in gradle.properties..."
+
+# Path to gradle.properties
+GRADLE_PROPERTIES="gradle.properties"
+
+# Check if gradle.properties is staged for commit
+if git diff --cached --name-only | grep -q "$GRADLE_PROPERTIES"; then
+    # Check for GitHub credentials
+    if grep -q "gpr.user=\S*" "$GRADLE_PROPERTIES" | grep -v "gpr.user=your_github_username"; then
+        echo "ERROR: Actual GitHub username found in $GRADLE_PROPERTIES"
+        echo "Please remove or replace with a placeholder before committing."
+        exit 1
+    fi
+    
+    if grep -q "gpr.key=\S*" "$GRADLE_PROPERTIES" | grep -v "gpr.key=your_github_token"; then
+        echo "ERROR: Actual GitHub token found in $GRADLE_PROPERTIES"
+        echo "Please remove or replace with a placeholder before committing."
+        exit 1
+    fi
+    
+    # Check for Maven Central credentials
+    if grep -q "centralUsername=\S*" "$GRADLE_PROPERTIES" | grep -v "centralUsername=your_central_portal_username"; then
+        echo "ERROR: Actual Maven Central username found in $GRADLE_PROPERTIES"
+        echo "Please remove or replace with a placeholder before committing."
+        exit 1
+    fi
+    
+    if grep -q "centralPassword=\S*" "$GRADLE_PROPERTIES" | grep -v "centralPassword=your_central_portal_token"; then
+        echo "ERROR: Actual Maven Central password found in $GRADLE_PROPERTIES"
+        echo "Please remove or replace with a placeholder before committing."
+        exit 1
+    fi
+    
+    # Check for signing credentials
+    if grep -q "signing.keyId=\S*" "$GRADLE_PROPERTIES" | grep -v "signing.keyId=your_key_id"; then
+        echo "ERROR: Actual signing key ID found in $GRADLE_PROPERTIES"
+        echo "Please remove or replace with a placeholder before committing."
+        exit 1
+    fi
+    
+    if grep -q "signing.password=\S*" "$GRADLE_PROPERTIES" | grep -v "signing.password=your_signing_password"; then
+        echo "ERROR: Actual signing password found in $GRADLE_PROPERTIES"
+        echo "Please remove or replace with a placeholder before committing."
+        exit 1
+    fi
+    
+    if grep -q "signing.secretKeyRingFile=\S*" "$GRADLE_PROPERTIES" | grep -v "signing.secretKeyRingFile=path_to_your_secret_keyring"; then
+        echo "ERROR: Actual signing key ring file path found in $GRADLE_PROPERTIES"
+        echo "Please remove or replace with a placeholder before committing."
+        exit 1
+    fi
+fi
+
+# All checks passed
+exit 0

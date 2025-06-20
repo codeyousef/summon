@@ -22,9 +22,9 @@ class ColumnTest {
                 // Empty content
             }
             assertTrue(mockRenderer.renderColumnCalled, "renderColumn should have been called")
-            // Verify that fillMaxSize was applied to the modifier
-            val expectedStyles = Modifier().fillMaxSize().styles
-            assertEquals(expectedStyles, mockRenderer.lastColumnModifierRendered?.styles, "Modifier should have fillMaxSize applied")
+            // Verify that fillMaxSize is NOT applied to the modifier
+            val expectedStyles = Modifier().styles
+            assertEquals(expectedStyles, mockRenderer.lastColumnModifierRendered?.styles, "Modifier should not have fillMaxSize applied")
             assertNotNull(mockRenderer.lastColumnContentRendered, "Content should not be null")
         }
     }
@@ -38,9 +38,9 @@ class ColumnTest {
                 // Empty content
             }
             assertTrue(mockRenderer.renderColumnCalled, "renderColumn should have been called")
-            // Verify that fillMaxSize was applied to the custom modifier
-            val expectedStyles = customModifier.fillMaxSize().styles
-            assertEquals(expectedStyles, mockRenderer.lastColumnModifierRendered?.styles, "Modifier should be the custom one with fillMaxSize applied")
+            // Verify that the custom modifier is used as-is without applying fillMaxSize
+            val expectedStyles = customModifier.styles
+            assertEquals(expectedStyles, mockRenderer.lastColumnModifierRendered?.styles, "Modifier should be the custom one without fillMaxSize applied")
             assertNotNull(mockRenderer.lastColumnContentRendered, "Content should not be null")
         }
     }

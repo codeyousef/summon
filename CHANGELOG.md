@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.7.1]
+
+### Changed
+- Updated version number to 0.2.7.1
+- Fixed various issues with the build process
+
 ## [0.2.7]
 
 ### Added
@@ -107,7 +113,7 @@ All notable changes to this project will be documented in this file.
   - Tests for multiple and size attributes
   - Tests for custom modifiers
   - Tests for all parameter combinations
-  
+
 - **Link Component Tests:** Added extensive test coverage
   - Tests for basic link rendering with href
   - Tests for target="_blank" with automatic rel attributes

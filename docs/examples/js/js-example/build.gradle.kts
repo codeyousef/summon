@@ -2,6 +2,9 @@ import org.gradle.api.file.DuplicatesStrategy
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalDistributionDsl
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
+// Apply version helper to get Summon version information
+apply(from = "../../../version-helper.gradle.kts")
+
 plugins {
     kotlin("multiplatform") version "2.2.0-Beta1"
     kotlin("plugin.serialization") version "2.2.0-Beta1"
@@ -50,8 +53,8 @@ kotlin {
     sourceSets {
         val jsMain by getting {
             dependencies {
-                // Depend on the Summon library
-                implementation("io.github.codeyousef:summon:0.2.7")
+                // Depend on the Summon library using version from version-helper.gradle.kts
+                implementation(project.extra["summonDependency"] as String)
 
                 // Standard JS dependencies
                 implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.12.0")

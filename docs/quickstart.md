@@ -45,13 +45,13 @@ kotlin {
         browser()
         binaries.executable()
     }
-    
+
     jvm()
-    
+
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("io.github.codeyousef:summon:0.2.7")
+                implementation("io.github.codeyousef:summon:0.2.7.1")
             }
         }
     }
@@ -78,7 +78,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.codeyousef:summon-jvm:0.2.7")
+    implementation("io.github.codeyousef:summon-jvm:0.2.7.1")
 }
 ```
 
@@ -109,7 +109,7 @@ kotlin {
 }
 
 dependencies {
-    implementation("io.github.codeyousef:summon-js:0.2.7")
+    implementation("io.github.codeyousef:summon-js:0.2.7.1")
 }
 ```
 
@@ -135,7 +135,7 @@ import kotlinx.browser.document
 @Composable
 fun App() {
     val count = remember { mutableStateOf(0) }
-    
+
     Column(
         modifier = Modifier
             .padding("20px")
@@ -143,7 +143,7 @@ fun App() {
     ) {
         Text("Hello, Summon! 🎉")
         Text("Count: ${count.value}")
-        
+
         Button(
             onClick = { count.value++ }
         ) {
@@ -155,7 +155,7 @@ fun App() {
 fun main() {
     val root = document.getElementById("root")
         ?: error("Root element not found")
-    
+
     renderComposable(root) {
         App()
     }
@@ -198,7 +198,7 @@ Create `src/jsMain/resources/index.html`:
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("io.github.codeyousef:summon-jvm:0.2.7")
+    implementation("io.github.codeyousef:summon-jvm:0.2.7.1")
     implementation("io.ktor:ktor-server-core:2.3.7")
     implementation("io.ktor:ktor-server-netty:2.3.7")
     implementation("io.ktor:ktor-server-html-builder:2.3.7")
@@ -245,7 +245,7 @@ fun main() {
 fun Counter() {
     // Local state
     val count = remember { mutableStateOf(0) }
-    
+
     Column {
         Text("Count: ${count.value}")
         Button(onClick = { count.value++ }) {
@@ -280,7 +280,7 @@ fun StyledComponent() {
 @Composable
 fun ItemList() {
     val items = remember { mutableStateOf(listOf("Apple", "Banana", "Orange")) }
-    
+
     LazyColumn {
         items(items.value) { item ->
             Card(modifier = Modifier.margin("8px")) {
@@ -328,7 +328,7 @@ If you prefer GitHub Packages over Maven Central:
 ### Can't find Summon dependency?
 
 Make sure you're using:
-- Version: `0.2.7`
+- Version: `0.2.7.1`
 - Group ID: `io.github.codeyousef`
 - Repository: `mavenCentral()`
 

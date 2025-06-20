@@ -63,7 +63,7 @@ class StylingModifiersTest {
         // This test assumes the intention was to set individual properties.
         // If the function is called, it might fail due to the recursion.
         // For now, we construct the expected state manually based on chained calls.
-        
+
         // Construct expected modifier by chaining individual calls (mimicking the function's likely intent)
         val expectedModifier = Modifier()
             .style("background-color", color) // Assuming this was the intent instead of recursion
@@ -91,7 +91,9 @@ class StylingModifiersTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testBorderWidthStringModifier() {
+        // Using deprecated function for testing legacy behavior
         val width = "thin"
         val modifier = Modifier().borderWidth(width)
         assertEquals(width, modifier.styles["border-width"], "borderWidth(String) failed.")
@@ -156,6 +158,6 @@ class StylingModifiersTest {
         assertEquals(color, modifier.styles["border-color"], "Combined border(color) failed.")
         assertEquals("${radius}px", modifier.styles["border-radius"], "Combined border(radius) failed.")
     }
-    
+
     // Deprecated text functions are skipped for now.
 } 

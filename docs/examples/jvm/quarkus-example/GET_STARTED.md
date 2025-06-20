@@ -67,8 +67,8 @@ dependencies {
     // Existing Quarkus dependencies...
 
     // Summon dependencies
-    implementation("io.github.codeyousef:summon:0.2.7")
-    implementation("io.github.codeyousef:summon-jvm:0.2.7")
+    implementation("io.github.codeyousef:summon:0.2.7.1")
+    implementation("io.github.codeyousef:summon-jvm:0.2.7.1")
 
     // For HTML generation
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.12.0")
@@ -91,12 +91,12 @@ For Maven (`pom.xml`):
     <dependency>
         <groupId>io.github.codeyousef</groupId>
         <artifactId>summon</artifactId>
-        <version>0.2.7</version>
+        <version>0.2.7.1</version>
     </dependency>
     <dependency>
         <groupId>io.github.codeyousef</groupId>
         <artifactId>summon-jvm</artifactId>
-        <version>0.2.7</version>
+        <version>0.2.7.1</version>
     </dependency>
     <dependency>
         <groupId>org.jetbrains.kotlinx</groupId>
