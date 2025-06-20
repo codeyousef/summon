@@ -253,6 +253,11 @@ publishing {
                 username = githubUser
                 password = githubToken
             }
+            isAllowInsecureProtocol = false
+            metadataSources {
+                mavenPom()
+                artifact()
+            }
         }
     }
 }

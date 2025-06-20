@@ -51,7 +51,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("io.github.codeyousef:summon:0.2.7.1")
+                implementation("io.github.codeyousef:summon:0.2.7.2")
             }
         }
     }
@@ -78,7 +78,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.codeyousef:summon-jvm:0.2.7.1")
+    implementation("io.github.codeyousef:summon-jvm:0.2.7.2")
 }
 ```
 
@@ -109,7 +109,7 @@ kotlin {
 }
 
 dependencies {
-    implementation("io.github.codeyousef:summon-js:0.2.7.1")
+    implementation("io.github.codeyousef:summon-js:0.2.7.2")
 }
 ```
 
@@ -328,7 +328,7 @@ If you prefer GitHub Packages over Maven Central:
 ### Can't find Summon dependency?
 
 Make sure you're using:
-- Version: `0.2.7.1`
+- Version: `0.2.7.2`
 - Group ID: `io.github.codeyousef`
 - Repository: `mavenCentral()`
 

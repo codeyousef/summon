@@ -9,7 +9,7 @@ The version information for Summon is centralized in a single file:
 - **version.properties**: Contains the version number, group ID, and artifact ID
 
 ```properties
-VERSION=0.2.7.1
+VERSION=0.2.7.2
 GROUP=io.github.codeyousef
 ARTIFACT_ID=summon
 ```
@@ -102,7 +102,7 @@ fun findRootDir(currentDir: File): File? {
     if (versionFile.exists()) {
         return currentDir
     }
-    
+
     val parentDir = currentDir.parentFile ?: return null
     return findRootDir(parentDir)
 }
@@ -113,11 +113,11 @@ if (rootDir != null) {
     val versionPropsFile = File(rootDir, "version.properties")
     val versionProps = java.util.Properties()
     versionPropsFile.inputStream().use { versionProps.load(it) }
-    
+
     val version = versionProps.getProperty("VERSION") ?: "0.0.0"
     val group = versionProps.getProperty("GROUP") ?: "io.github.codeyousef"
     val artifactId = versionProps.getProperty("ARTIFACT_ID") ?: "summon"
-    
+
     // Make version information available to the project
     project.extra["summonVersion"] = version
     project.extra["summonGroup"] = group

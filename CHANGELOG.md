@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.7.2]
+
+### Changed
+- Updated version number to 0.2.7.2
+- Fixed GitHub Packages publishing conflict by incrementing version
+
 ## [0.2.7.1]
 
 ### Changed
