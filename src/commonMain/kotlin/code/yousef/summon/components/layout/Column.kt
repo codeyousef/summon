@@ -1,6 +1,8 @@
 package code.yousef.summon.components.layout
 
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.Display
+import code.yousef.summon.modifier.FlexDirection
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.LocalPlatformRenderer
 
@@ -18,8 +20,11 @@ fun Column(
     // Use platform renderer directly
     val renderer = LocalPlatformRenderer.current
 
-    // Use the provided modifier directly
-    val columnModifier = modifier
+    // Apply default flex styles for Column using type-safe enums
+    val columnModifier = Modifier()
+        .style("display", Display.Flex.value)
+        .style("flex-direction", FlexDirection.Column.value)
+        .then(modifier)
 
     // Call renderColumn and pass the content lambda
     renderer.renderColumn(

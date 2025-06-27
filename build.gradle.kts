@@ -5,8 +5,8 @@ import java.util.Properties
 apply(from = "version.gradle.kts")
 
 plugins {
-    kotlin("multiplatform") version "2.2.0-RC2"
-    kotlin("plugin.serialization") version "2.2.0-RC2"
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlin.serialization)
     `maven-publish`
 }
 
@@ -52,68 +52,69 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
-                implementation("org.jetbrains.kotlinx:kotlinx-html:0.12.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
-                implementation("org.jetbrains.kotlinx:atomicfu:0.23.2")
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.serialization.json)
+                implementation(libs.kotlinx.html)
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.atomicfu)
             }
         }
         val commonTest by getting {
             dependencies {
-                implementation(kotlin("test"))
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2") // Or the latest compatible version
-
+                implementation(libs.kotlin.test)
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
         val jvmMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.10.1")
-                implementation(kotlin("stdlib-jdk8"))
+                implementation(libs.kotlinx.coroutines.jdk8)
+                implementation(libs.kotlin.stdlib.jdk8)
 
                 // Quarkus dependencies for integration
-                implementation("io.quarkus:quarkus-core:3.6.5")
-                implementation("io.quarkus:quarkus-qute:3.6.5")
-                implementation("io.quarkus:quarkus-kotlin:3.6.5")
-                implementation("io.quarkus:quarkus-vertx-http:3.6.5")
-                implementation("io.quarkus:quarkus-resteasy-reactive:3.6.5")
-                implementation("io.quarkus:quarkus-resteasy-reactive-jackson:3.6.5")
-                implementation("io.quarkus:quarkus-websockets:3.6.5")
-                implementation("io.quarkus:quarkus-arc:3.6.5")
+                implementation(libs.quarkus.core.jvm)
+                implementation(libs.quarkus.qute.jvm)
+                implementation(libs.quarkus.kotlin.jvm)
+                implementation(libs.quarkus.vertx.http.jvm)
+                implementation(libs.quarkus.resteasy.reactive.jvm)
+                implementation(libs.quarkus.resteasy.reactive.jackson.jvm)
+                implementation(libs.quarkus.websockets.jvm)
+                implementation(libs.quarkus.arc.jvm)
 
                 // Quarkus deployment dependencies
-                implementation("io.quarkus:quarkus-core-deployment:3.6.5")
-                implementation("io.quarkus:quarkus-arc-deployment:3.6.5")
-                implementation("io.quarkus:quarkus-security-deployment:3.6.5")
+                implementation(libs.quarkus.core.deployment.jvm)
+                implementation(libs.quarkus.arc.deployment.jvm)
+                implementation(libs.quarkus.security.deployment.jvm)
 
                 // Ktor dependencies
-                implementation("io.ktor:ktor-server-core:2.3.7")
-                implementation("io.ktor:ktor-server-netty:2.3.7")
-                implementation("io.ktor:ktor-server-html-builder:2.3.7")
-                implementation("io.ktor:ktor-server-content-negotiation:2.3.7")
-                implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
+                implementation(libs.ktor.server.core)
+                implementation(libs.ktor.server.netty)
+                implementation(libs.ktor.server.html.builder)
+                implementation(libs.ktor.server.content.negotiation)
+                implementation(libs.ktor.serialization.kotlinx.json)
 
                 // Spring Boot dependencies
-                implementation("org.springframework.boot:spring-boot-starter-web:3.2.3")
-                implementation("org.springframework.boot:spring-boot-starter-thymeleaf:3.2.3")
-                implementation("org.springframework.boot:spring-boot-starter-webflux:3.2.3")
-                implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.2.2")
+                implementation(libs.spring.boot.starter.web.jvm)
+                implementation(libs.spring.boot.starter.thymeleaf.jvm)
+                implementation(libs.spring.boot.starter.webflux.jvm)
+                implementation(libs.reactor.kotlin.extensions.jvm)
 
-                implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.12.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.8.1")
+                implementation(libs.kotlinx.html.jvm)
+                implementation(libs.kotlinx.serialization.json.jvm)
             }
         }
         val jvmTest by getting
         val jsMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.12.0")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-js:2025.4.6")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-extensions:1.0.1-pre.823")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-browser:2025.4.6")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:2025.4.6-19.1.0")
+                implementation(libs.kotlinx.html.js)
+                implementation(libs.kotlin.js)
+                implementation(libs.kotlin.extensions)
+                implementation(libs.kotlin.browser)
+                implementation(libs.kotlin.react.dom)
                 implementation(npm("core-js", "3.31.0"))
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.10.1")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-js:1.8.1")
+                implementation(libs.kotlinx.coroutines.core.js)
+                implementation(libs.kotlinx.serialization.json.js)
+                implementation(libs.kotlin.stdlib.js)
+                implementation(libs.kotlin.stdlib.common)
             }
         }
         val jsTest by getting
@@ -122,32 +123,32 @@ kotlin {
 
 dependencies {
     // Quarkus integration dependencies
-    "quarkusIntegration"("io.quarkus:quarkus-core:3.23.0")
-    "quarkusIntegration"("io.quarkus:quarkus-qute:3.23.0")
-    "quarkusIntegration"("io.quarkus:quarkus-kotlin:3.23.0")
-    "quarkusIntegration"("io.quarkus:quarkus-vertx-http:3.23.0")
-    "quarkusIntegration"("io.quarkus:quarkus-resteasy-reactive:3.23.0")
-    "quarkusIntegration"("io.quarkus:quarkus-resteasy-reactive-jackson:3.23.0")
-    "quarkusIntegration"("io.quarkus:quarkus-websockets:3.23.0")
-    "quarkusIntegration"("io.quarkus:quarkus-arc:3.23.0")
+    "quarkusIntegration"(libs.quarkus.core)
+    "quarkusIntegration"(libs.quarkus.qute)
+    "quarkusIntegration"(libs.quarkus.kotlin)
+    "quarkusIntegration"(libs.quarkus.vertx.http)
+    "quarkusIntegration"(libs.quarkus.resteasy.reactive)
+    "quarkusIntegration"(libs.quarkus.resteasy.reactive.jackson)
+    "quarkusIntegration"(libs.quarkus.websockets)
+    "quarkusIntegration"(libs.quarkus.arc)
 
     // Add deployment dependencies to the quarkusDeployment configuration
-    "quarkusDeployment"("io.quarkus:quarkus-core-deployment:3.23.0")
-    "quarkusDeployment"("io.quarkus:quarkus-arc-deployment:3.23.0")
-    "quarkusDeployment"("io.quarkus:quarkus-security-deployment:3.23.0")
+    "quarkusDeployment"(libs.quarkus.core.deployment)
+    "quarkusDeployment"(libs.quarkus.arc.deployment)
+    "quarkusDeployment"(libs.quarkus.security.deployment)
 
     // Add Ktor dependencies to the ktorIntegration configuration
-    "ktorIntegration"("io.ktor:ktor-server-core:3.1.3")
-    "ktorIntegration"("io.ktor:ktor-server-netty:3.1.3")
-    "ktorIntegration"("io.ktor:ktor-server-html-builder:3.1.3")
-    "ktorIntegration"("io.ktor:ktor-server-content-negotiation:3.1.3")
-    "ktorIntegration"("io.ktor:ktor-serialization-kotlinx-json:3.1.3")
+    "ktorIntegration"(libs.ktor.server.core)
+    "ktorIntegration"(libs.ktor.server.netty)
+    "ktorIntegration"(libs.ktor.server.html.builder)
+    "ktorIntegration"(libs.ktor.server.content.negotiation)
+    "ktorIntegration"(libs.ktor.serialization.kotlinx.json)
 
     // Add Spring Boot dependencies to the springBootIntegration configuration
-    "springBootIntegration"("org.springframework.boot:spring-boot-starter-web:3.5.0")
-    "springBootIntegration"("org.springframework.boot:spring-boot-starter-thymeleaf:3.5.0")
-    "springBootIntegration"("org.springframework.boot:spring-boot-starter-webflux:3.5.0")
-    "springBootIntegration"("io.projectreactor.kotlin:reactor-kotlin-extensions:1.2.3")
+    "springBootIntegration"(libs.spring.boot.starter.web)
+    "springBootIntegration"(libs.spring.boot.starter.thymeleaf)
+    "springBootIntegration"(libs.spring.boot.starter.webflux)
+    "springBootIntegration"(libs.reactor.kotlin.extensions)
 }
 
 kotlin.sourceSets.all {
@@ -155,6 +156,7 @@ kotlin.sourceSets.all {
         optIn("kotlin.RequiresOptIn")
         optIn("kotlinx.serialization.ExperimentalSerializationApi")
         optIn("kotlin.ExperimentalMultiplatform")
+        optIn("kotlin.js.ExperimentalJsExport")
     }
 }
 

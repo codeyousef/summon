@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.8.0]
+
+### Added
+- **Unified Version Catalog:** Migrated to Gradle's version catalog (libs.versions.toml) for centralized dependency management
+  - All dependencies now use type-safe version references
+  - Consistent versions across main project and examples
+  - Easier dependency updates and maintenance
+  
+### Changed
+- **Build Configuration:** Migrated from hardcoded dependency versions to version catalog references
+  - Updated all dependency declarations in build.gradle.kts files
+  - Improved build consistency and maintainability
+- **GitHub Actions:** Added Claude PR Assistant workflow for automated PR reviews
+- **JS Example Project:** Major refactoring and cleanup
+  - Consolidated multiple test files into a more organized structure
+  - Removed redundant example components
+  - Simplified Main.kt with cleaner example implementation
+  - Updated dependencies to use version catalog
+
 ## [0.2.7.2]
 
 ### Changed

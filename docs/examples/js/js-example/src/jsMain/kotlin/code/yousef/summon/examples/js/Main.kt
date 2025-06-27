@@ -2,286 +2,182 @@ package code.yousef.summon.examples.js
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.layout.Box
 import code.yousef.summon.components.layout.Column
-import code.yousef.summon.components.layout.Row
-import code.yousef.summon.extensions.minHeight
+import code.yousef.summon.core.style.Color
 import code.yousef.summon.extensions.px
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.StylingModifierExtras.transform
-import code.yousef.summon.modifier.StylingModifiers.boxShadow
 import code.yousef.summon.modifier.StylingModifiers.fontWeight
-import code.yousef.summon.modifier.StylingModifiers.lineHeight
-import code.yousef.summon.modifier.StylingModifiers.transition
-import code.yousef.summon.modifier.alignItems
-import code.yousef.summon.modifier.backgroundImage
-import code.yousef.summon.modifier.backgroundSize
-import code.yousef.summon.modifier.flexWrap
-import code.yousef.summon.modifier.fontFamily
-import code.yousef.summon.modifier.LayoutModifiers.gap
-import code.yousef.summon.modifier.hover
-import code.yousef.summon.modifier.justifyContent
-import code.yousef.summon.modifier.letterSpacing
-import code.yousef.summon.modifier.padding
-import code.yousef.summon.modifier.position
-import code.yousef.summon.modifier.LayoutModifiers.top
-import code.yousef.summon.routing.seo.Header
-import code.yousef.summon.routing.seo.Main
-import code.yousef.summon.routing.seo.Nav
-import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.LocalPlatformRenderer
+import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.runtime.RecomposerHolder
 import code.yousef.summon.runtime.setPlatformRenderer
+import code.yousef.summon.runtime.Composer
+import code.yousef.summon.runtime.CompositionLocal
 import kotlinx.browser.document
+import kotlinx.browser.window
 import kotlinx.html.org.w3c.dom.events.Event
-import web.html.HTMLElement
-
-/**
- * Enum class to represent different showcase sections
- */
-enum class ShowcaseSection {
-    CORE_COMPONENTS,
-    LAYOUT_COMPONENTS,
-    FEEDBACK_COMPONENTS,
-    CUSTOM_COMPONENTS
-}
+import code.yousef.summon.js.console
+import kotlin.js.js
 
 /**
  * Main application content
  */
 @Composable
-fun SummonShowcase() {
-    // Track the active section (in a real app would use state)
-    var activeSection = ShowcaseSection.CORE_COMPONENTS
-
-    // Create the page structure with modernized styling
+fun MainApp() {
     Column(
         modifier = Modifier()
-            .fontFamily(
-                "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif",
-                null
-            )
+            .padding(16.px)
     ) {
-        // Header with navigation - modern gradient background
-        Header(
+        Text(
+            text = "Summon JS Example",
             modifier = Modifier()
-                .padding(20.px)
-                .boxShadow("0 4px 12px rgba(0, 0, 0, 0.08)")
-                .backgroundColor("#ffffff")
-                .border(2.px, "solid", "#f0f0f0")
-                .position("sticky")
-                .top(0.px)
-                .zIndex(100)
-        ) {
-            Row(
-                modifier = Modifier()
-                    .padding(8.px)
-                    .gap(24.px)
-                    .alignItems("center")
-                    .justifyContent("space-between")
-                    .maxWidth(1200.px)
-                    .margin("0 auto")
-                    .width("100%")
-            ) {
-                // App title with gradient text effect
-                Text(
-                    text = "Summon JS Showcase",
-                    modifier = Modifier()
-                        .fontSize(28.px)
-                        .fontWeight(800)
-                        .background("linear-gradient(45deg, #4568dc, #b06ab3)")
-                        .letterSpacing("0.5px", null)
-                )
+                .fontSize(28.px)
+                .fontWeight("700")
+                .color("#333333")
+                .margin("0 0 16px 0")
+        )
 
-                // Navigation with modern styling
-                Nav(
-                    modifier = Modifier()
-                        .padding(8.px)
-                ) {
-                    Row(
-                        modifier = Modifier()
-                            .gap(12.px)
-                            .flexWrap("wrap")
-                            .justifyContent("center")
-                    ) {
-                        NavButton(
-                            text = "Core Components",
-                            isActive = activeSection == ShowcaseSection.CORE_COMPONENTS,
-                            onClick = {
-                                activeSection = ShowcaseSection.CORE_COMPONENTS
-                                scrollToSection("core-components")
-                            }
-                        )
-
-                        NavButton(
-                            text = "Layout Components",
-                            isActive = activeSection == ShowcaseSection.LAYOUT_COMPONENTS,
-                            onClick = {
-                                activeSection = ShowcaseSection.LAYOUT_COMPONENTS
-                                scrollToSection("layout-components")
-                            }
-                        )
-
-                        NavButton(
-                            text = "Feedback Components",
-                            isActive = activeSection == ShowcaseSection.FEEDBACK_COMPONENTS,
-                            onClick = {
-                                activeSection = ShowcaseSection.FEEDBACK_COMPONENTS
-                                scrollToSection("feedback-components")
-                            }
-                        )
-
-                        NavButton(
-                            text = "Custom Components",
-                            isActive = activeSection == ShowcaseSection.CUSTOM_COMPONENTS,
-                            onClick = {
-                                activeSection = ShowcaseSection.CUSTOM_COMPONENTS
-                                scrollToSection("custom-components")
-                            }
-                        )
-                    }
-                }
-            }
-        }
-
-        // Main content with subtle background pattern
-        Main(
+        Text(
+            text = "This example demonstrates the Summon library for Kotlin/JS applications.",
             modifier = Modifier()
-                .padding(24.px)
-                .backgroundColor("#f8f9fa")
-                .backgroundImage("radial-gradient(#e0e0e0 1px, transparent 1px)")
-                .backgroundSize("20px 20px")
-                .minHeight("calc(100vh - 80px)")
+                .fontSize(16.px)
+                .color("#666666")
+                .margin("0 0 24px 0")
+        )
+
+        Box(
+            modifier = Modifier()
+                .backgroundColor(Color.GREEN.toHexString())
+                .padding(16.px)
+                .margin("16px 0")
+                .borderRadius(8.px)
         ) {
-            Column(
+            Text(
+                text = "This box should have a GREEN background",
                 modifier = Modifier()
-                    .maxWidth(1200.px)
-                    .margin("0 auto")
-                    .gap(40.px)
-                    .padding(8.px)
-            ) {
-                // Introduction section with modern card styling
-                Box(
-                    modifier = Modifier()
-                        .padding(24.px)
-                        .backgroundColor("#ffffff")
-                        .borderRadius(16.px)
-                        .boxShadow("0 12px 24px rgba(0, 0, 0, 0.06)")
-                        .border(1.px, "solid", "rgba(230, 230, 230, 0.7)")
-                ) {
-                    Column(modifier = Modifier().padding(16.px).gap(20.px)) {
-                        Text(
-                            text = "Welcome to Summon JS Showcase",
-                            modifier = Modifier()
-                                .fontSize(32.px)
-                                .fontWeight(800)
-                                .color("#2d3748")
-                                .lineHeight(1.2)
-                        )
-
-                        Text(
-                            text = "This showcase demonstrates the various components and features available in the Summon library for Kotlin/JS applications. Browse through the examples to see what's possible and how to use each component.",
-                            modifier = Modifier()
-                                .fontSize(16.px)
-                                .lineHeight(1.6)
-                                .color("#4a5568")
-                        )
-                    }
-                }
-
-                // Core Components Section
-                Box(
-                    modifier = Modifier()
-                        .id("core-components")
-                ) {
-                    CoreComponentsShowcase()
-                }
-
-                // Layout Components Section
-                Box(
-                    modifier = Modifier()
-                        .id("layout-components")
-                ) {
-                    LayoutComponentsShowcase()
-                }
-
-                // Feedback Components Section
-                Box(
-                    modifier = Modifier()
-                        .id("feedback-components")
-
-                ) {
-                    FeedbackComponentsShowcase()
-                }
-
-                // Custom Components Section
-                Box(
-                    modifier = Modifier()
-                        .id("custom-components")
-                ) {
-                    CustomComponentsShowcase()
-                }
-            }
+                    .color(Color.BLACK.toHexString())
+            )
         }
     }
 }
 
 /**
- * Navigation button component with enhanced styling and hover effects
+ * Generate the HTML document structure
  */
-@Composable
-fun NavButton(text: String, isActive: Boolean, onClick: () -> Unit) {
-    Button(
-        label = text,
-        onClick = onClick,
-        modifier = Modifier()
-            .padding(10.px, 14.px)
-            .borderRadius(8.px)
-            .backgroundColor(if (isActive) "#4568dc" else "transparent")
-            .color(if (isActive) "#ffffff" else "#4a5568")
-            .fontWeight(600)
-            .fontSize(15.px)
-            .boxShadow(if (isActive) "0 4px 8px rgba(69, 104, 220, 0.25)" else "none")
-            .border(1.px, "solid", if (isActive) "#4568dc" else "transparent")
-            .transition("all 0.2s ease")
-            .hover(
-                Modifier()
-                    .backgroundColor(if (isActive) "#4568dc" else "rgba(240, 240, 240, 0.5)")
-                    .boxShadow(if (isActive) "0 6px 12px rgba(69, 104, 220, 0.3)" else "none")
-                    .transform("translateY(-2px)")
-            )
-    )
-}
-
-/**
- * JavaScript function to scroll to a section by ID
- */
-fun scrollToSection(elementId: String) {
-    val element = document.getElementById(elementId)
-    element?.scrollIntoView(js("{ behavior: 'smooth', block: 'start' }"))
+fun generateHtmlDocument() {
+    // Create a style element for basic styling
+    val styleElement = document.createElement("style")
+    styleElement.textContent = """
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8fafc;
+            padding: 20px;
+        }
+        
+        #root {
+            min-height: 100vh;
+            width: 100%;
+        }
+    """.trimIndent()
+    document.head?.appendChild(styleElement)
+    
+    // Create a title element
+    val titleElement = document.createElement("title")
+    titleElement.textContent = "Summon JS Example"
+    document.head?.appendChild(titleElement)
+    
+    // Create a meta element for viewport
+    val metaElement = document.createElement("meta")
+    metaElement.setAttribute("name", "viewport")
+    metaElement.setAttribute("content", "width=device-width, initial-scale=1.0")
+    document.head?.appendChild(metaElement)
+    
+    // Create a root element if it doesn't exist
+    if (document.getElementById("root") == null) {
+        val rootElement = document.createElement("div")
+        rootElement.id = "root"
+        document.body?.appendChild(rootElement)
+    }
 }
 
 fun main() {
+    console.log("Main function called - Summon JS Example")
+
+    // Ensure that the window object is properly initialized
+    js("""
+    if (typeof window.currentParent === 'undefined') {
+        console.log("Initializing window.currentParent");
+        window.currentParent = document.body;
+        window._parentStack = [];
+
+        window.pushParent = function(element) {
+            window._parentStack.push(window.currentParent);
+            window.currentParent = element;
+        };
+
+        window.popParent = function() {
+            if (window._parentStack.length > 0) {
+                window.currentParent = window._parentStack.pop();
+            } else {
+                window.currentParent = document.body;
+            }
+        };
+    } else {
+        console.log("window.currentParent already initialized");
+    }
+    """)
+
     document.addEventListener("DOMContentLoaded", { _: Event ->
-        val rootElement = document.getElementById("root") as? HTMLElement
-            ?: document.createElement("div").apply {
-                id = "root"
-                document.body?.appendChild(this)
-            } as HTMLElement
-
-        // Clear the root element
-        rootElement.innerHTML = ""
-
-        // Configure the renderer
-        val renderer = PlatformRenderer()
-        setPlatformRenderer(renderer)
-
-        // Provide the renderer in the composition
-        val rendererProvider = LocalPlatformRenderer.provides(renderer)
-
-        // Render the application
-        renderer.renderComposable {
-            SummonShowcase()
+        console.log("DOM content loaded event fired")
+        
+        try {
+            // Generate the HTML document structure
+            generateHtmlDocument()
+            
+            // Get or create the root element
+            val rootElement = document.getElementById("root")
+                ?: document.createElement("div").apply {
+                    id = "root"
+                    document.body?.appendChild(this)
+                }
+            
+            // Clear the root element
+            rootElement.innerHTML = ""
+            
+            // Configure the renderer
+            val renderer = PlatformRenderer()
+            setPlatformRenderer(renderer)
+            
+            // Create a composer for the composition
+            val composer = RecomposerHolder.createComposer()
+            
+            // Provide the composer and renderer in the composition
+            CompositionLocal.provideComposer(composer) {
+                val rendererProvider = LocalPlatformRenderer.provides(renderer)
+                
+                // Explicitly set the current parent element to the root element
+                js("window.currentParent = document.getElementById('root')")
+                
+                // Render the main application
+                renderer.renderComposable {
+                    MainApp()
+                }
+                
+                console.log("Render complete!")
+            }
+        } catch (e: Exception) {
+            console.error("Error during rendering: ${e.message}")
+            console.error("Stack trace: ${e.stackTraceToString()}")
+            window.alert("Rendering failed: ${e.message}")
         }
     })
 }

@@ -4,7 +4,11 @@ import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.components.display.Icon
 import code.yousef.summon.components.display.Text
-import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.*
+import code.yousef.summon.modifier.StylingModifiers.fontWeight
+import code.yousef.summon.modifier.StylingModifiers.borderRadius
+import code.yousef.summon.modifier.StylingModifiers.transition
+import code.yousef.summon.modifier.StylingModifiers.border
 
 /**
  * A button component that triggers an action when clicked.
@@ -35,40 +39,112 @@ fun Button(
     iconPosition: IconPosition = IconPosition.START
 ) {
     val renderer = LocalPlatformRenderer.current
-    
+
+    // Apply base button styling
+    val baseModifier = modifier
+        .style("display", "inline-flex")
+        .style("align-items", "center")
+        .style("justify-content", "center")
+        .style("padding", "8px 16px")
+        .style("border", "none")
+        .style("border-radius", "6px")
+        .style("cursor", "pointer")
+        .style("transition", "all 0.2s ease")
+        .style("margin", "0.25rem")
+        .hover(Modifier()
+            .style("transform", "translateY(-1px)")
+        )
+
     // Apply variant-specific styling to the modifier
     val finalModifier = when (variant) {
-        ButtonVariant.PRIMARY -> modifier
-            .background("#0d6efd")
-            .color("#ffffff")
-        ButtonVariant.SECONDARY -> modifier
-            .background("#6c757d")
-            .color("#ffffff")
-        ButtonVariant.DANGER -> modifier
-            .background("#dc3545")
-            .color("#ffffff")
-        ButtonVariant.SUCCESS -> modifier
-            .background("#198754")
-            .color("#ffffff")
-        ButtonVariant.WARNING -> modifier
-            .background("#ffc107")
-            .color("#000000")
-        ButtonVariant.INFO -> modifier
-            .background("#0dcaf0")
-            .color("#000000")
-        ButtonVariant.LINK -> modifier
-            .background("transparent")
-            .color("#0d6efd")
-        ButtonVariant.GHOST -> modifier
-            .background("transparent")
-            .color("inherit")
-        ButtonVariant.TERTIARY -> modifier
-            .background("#f8f9fa")
-            .color("#000000")
+        ButtonVariant.PRIMARY -> baseModifier
+            // Minimal inline styles for PRIMARY - CSS classes will handle the styling
+            .transition("all 0.2s ease")
+        ButtonVariant.SECONDARY -> baseModifier
+            // Minimal inline styles for SECONDARY - CSS classes will handle the styling
+            .transition("all 0.2s ease")
+        ButtonVariant.DANGER -> baseModifier
+            .style("background-color", "#dc3545 !important")
+            .style("color", "#ffffff !important")
+            .style("border", "none !important")
+            .padding("10px 16px")
+            .borderRadius("30px")
+            .fontWeight("700")
+            .style("text-transform", "capitalize !important")
+            .style("box-shadow", "0 2px 4px rgba(220, 53, 69, 0.4) !important")
+            .transition("all 0.2s ease")
+            .hover(Modifier()
+                .style("background-color", "#bb2d3b !important")
+                .style("transform", "translateY(-3px) !important")
+                .style("box-shadow", "0 4px 8px rgba(220, 53, 69, 0.5) !important")
+            )
+        ButtonVariant.SUCCESS -> baseModifier
+            .style("background-color", "#198754 !important")
+            .style("color", "#ffffff !important")
+            .padding("8px")
+            .borderRadius("4px")
+            .fontWeight("500")
+            .transition("all 0.2s ease")
+            .hover(Modifier()
+                .style("background-color", "#157347 !important")
+            )
+        ButtonVariant.WARNING -> baseModifier
+            .style("background-color", "#ffc107 !important")
+            .style("color", "#000000 !important")
+            .padding("8px")
+            .borderRadius("4px")
+            .fontWeight("500")
+            .transition("all 0.2s ease")
+            .hover(Modifier()
+                .style("background-color", "#ffca2c !important")
+            )
+        ButtonVariant.INFO -> baseModifier
+            .style("background-color", "#0dcaf0 !important")
+            .style("color", "#000000 !important")
+            .padding("8px")
+            .borderRadius("4px")
+            .fontWeight("500")
+            .transition("all 0.2s ease")
+            .hover(Modifier()
+                .style("background-color", "#31d2f2 !important")
+            )
+        ButtonVariant.LINK -> baseModifier
+            .style("background-color", "transparent !important")
+            .style("color", "#0d6efd !important")
+            .padding("8px")
+            .fontWeight("500")
+            .style("text-decoration", "underline")
+            .transition("all 0.2s ease")
+            .hover(Modifier()
+                .style("color", "#0a58ca !important")
+            )
+        ButtonVariant.GHOST -> baseModifier
+            .style("background-color", "transparent !important")
+            .style("color", "inherit !important")
+            .padding("8px")
+            .borderRadius("4px")
+            .border("1px", "solid", "transparent")
+            .transition("all 0.2s ease")
+            .hover(Modifier()
+                .style("background-color", "rgba(0, 0, 0, 0.05) !important")
+            )
+        ButtonVariant.TERTIARY -> baseModifier
+            .style("background-color", "#f8f9fa !important")
+            .style("color", "#000000 !important")
+            .padding("8px")
+            .borderRadius("4px")
+            .border("1px", "solid", "#dee2e6")
+            .fontWeight("500")
+            .transition("all 0.2s ease")
+            .hover(Modifier()
+                .style("background-color", "#e9ecef !important")
+            )
     }
         .style("cursor", if (disabled) "not-allowed" else "pointer")
         .style("pointer-events", if (disabled) "none" else "auto")
-    
+        // Add data-variant attribute for CSS targeting
+        .withAttribute("data-variant", variant.name.lowercase())
+
     // Use the renderButton method, passing onClick, modifier and content
     renderer.renderButton(
         onClick = if (disabled) { {} } else onClick,
@@ -78,9 +154,9 @@ fun Button(
         if (iconName != null && iconPosition == IconPosition.START) {
             Icon(iconName)
         }
-        
+
         Text(label)
-        
+
         if (iconName != null && iconPosition == IconPosition.END) {
             Icon(iconName)
         }
@@ -124,7 +200,7 @@ object ButtonSamples {
             label = "Click Me"
         )
     }
-    
+
     /**
      * Example of a button with an icon.
      */
@@ -137,7 +213,7 @@ object ButtonSamples {
             variant = ButtonVariant.PRIMARY
         )
     }
-    
+
     /**
      * Example of a disabled button.
      */

@@ -10,14 +10,14 @@ actual class FileBasedRouter actual constructor() : Router {
     private val registry = DefaultPageRegistry()
     private var _currentPath = window.location.pathname
     private var currentRouteParams = RouteParams(emptyMap())
-    
+
     actual override val currentPath: String
         get() = _currentPath
-    
+
     init {
         // Load pages automatically when created
         loadPages()
-        
+
         // Set up browser history listener
         window.onpopstate = { event ->
             val newPath = window.location.pathname
@@ -25,15 +25,15 @@ actual class FileBasedRouter actual constructor() : Router {
             event
         }
     }
-    
+
     actual fun loadPages() {
         // Register all pages from the file system
         PageLoader.registerPages(registry)
     }
-    
+
     actual override fun navigate(path: String, pushState: Boolean) {
         navigateInternal(path, pushState)
-        
+
         // Update browser URL
         if (pushState) {
             window.history.pushState(null, "", path)
@@ -41,18 +41,18 @@ actual class FileBasedRouter actual constructor() : Router {
             window.history.replaceState(null, "", path)
         }
     }
-    
+
     private fun navigateInternal(path: String, pushState: Boolean) {
         _currentPath = path
-        
+
         // Find matching route and extract parameters
         val routeMatch = findMatchingRoute(path)
         currentRouteParams = RouteParams(routeMatch?.params ?: mapOf("path" to path))
     }
-    
+
     private fun findMatchingRoute(path: String): RouteMatchResult? {
         val pages = registry.getPages()
-        
+
         // Check each registered route for a match
         return pages.entries.firstOrNull { (routePath, _) ->
             val paramMap = matchRoute(routePath, path)
@@ -62,7 +62,7 @@ actual class FileBasedRouter actual constructor() : Router {
             RouteMatchResult(RouteDefinition(routePath, pageFactory), params)
         }
     }
-    
+
     /**
      * Match a route pattern against a path, extracting parameters.
      */
@@ -70,7 +70,7 @@ actual class FileBasedRouter actual constructor() : Router {
         // Split pattern and path into segments
         val patternSegments = pattern.trim('/').split('/')
         val pathSegments = path.trim('/').split('/')
-        
+
         // Quick check for catchall routes
         if (patternSegments.lastOrNull() == "*") {
             val paramName = patternSegments.last().removePrefix("*")
@@ -85,19 +85,19 @@ actual class FileBasedRouter actual constructor() : Router {
             }
             return null
         }
-        
+
         // If segment counts don't match (and not a catchall), it's not a match
         if (patternSegments.size != pathSegments.size) {
             return null
         }
-        
+
         val params = mutableMapOf<String, String>()
-        
+
         // Match each segment
         for (i in patternSegments.indices) {
             val patternSegment = patternSegments[i]
             val pathSegment = pathSegments[i]
-            
+
             if (patternSegment.startsWith(":")) {
                 // Parameter segment
                 val paramName = patternSegment.drop(1)
@@ -107,29 +107,29 @@ actual class FileBasedRouter actual constructor() : Router {
                 return null
             }
         }
-        
+
         return params
     }
-    
+
     @Composable
     actual override fun create(initialPath: String) {
         // Initialize with correct path if provided
         if (initialPath != _currentPath) {
             navigateInternal(initialPath, false)
         }
-        
+
         // Find the component to render
         val route = findMatchingRoute(_currentPath)
         val content = route?.route?.content ?: registry.getNotFoundPage() ?: { NotFoundPage() }
-        
+
         // Update the route params in the RouteParams companion object's storage
         // This makes it accessible via RouteParams.current
-        val provider = LocalRouteParams.provides(currentRouteParams)
-        
+        // Use a different approach to provide route params
+
         // Call the content with the current route parameters
         content(currentRouteParams)
     }
-    
+
     @Composable
     private fun NotFoundPage() {
         // Simple not found page as a fallback

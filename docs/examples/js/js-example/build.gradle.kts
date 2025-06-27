@@ -3,10 +3,10 @@ import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalDistributionDsl
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 // Apply version helper to get Summon version information
-apply(from = "../../../version-helper.gradle.kts")
+apply(from = "../../../../version-helper.gradle.kts")
 
 plugins {
-    kotlin("multiplatform") version "2.2.0-Beta1"
+    kotlin("multiplatform") version "2.2.0-RC2"
     kotlin("plugin.serialization") version "2.2.0-Beta1"
 }
 
@@ -32,12 +32,12 @@ kotlin {
             }
             // Configure webpack dev server
             webpackTask {
-                mainOutputFileName = "js-example.js"
+                mainOutputFileName = "js.js"
             }
             runTask {
-                mainOutputFileName = "js-example.js"
+                mainOutputFileName = "js.js"
                 devServerProperty = KotlinWebpackConfig.DevServer(
-                    port = 8082,
+                    port = 8080,
                     static = mutableListOf("${layout.buildDirectory.get().asFile}/processedResources/js/main")
                 )
             }
@@ -60,7 +60,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.12.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.10.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-js:1.8.1")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-browser:2025.4.6")
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-browser:1.0.0-pre.682")
             }
             resources.srcDirs("src/jsMain/resources")
         }
@@ -69,7 +69,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-js"))
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-browser:2025.4.6")
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-browser:1.0.0-pre.682")
             }
         }
     }
@@ -119,3 +119,14 @@ tasks.named("jsTestTestDevelopmentExecutableCompileSync") {
 tasks.named("compileTestDevelopmentExecutableKotlinJs") {
     dependsOn("copyI18nResources")
 }
+
+// Task to copy JS files from kotlin output to processedResources
+tasks.register<Exec>("copyJsFiles") {
+    workingDir = projectDir
+    commandLine("node", "copy-js-files.js")
+
+    // Make this task run after the JS compilation is complete
+    dependsOn("jsBrowserDevelopmentWebpack")
+}
+
+// Removed the reference to jsBrowserRun task since it doesn't exist

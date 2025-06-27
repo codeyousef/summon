@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summon Button Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .instructions {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        #root {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Summon Button Test</h1>
+
+    <div class="instructions">
+        <p>This page tests the styling of primary and secondary buttons in the Summon library.</p>
+        <p>You should see two buttons below with different styles:</p>
+        <ul>
+            <li>Primary button: Purple background with white text and rounded corners</li>
+            <li>Secondary button: White background with gray text and border</li>
+        </ul>
+    </div>
+
+    <div id="root">
+        <!-- Buttons will be rendered here -->
+    </div>
+
+    <script>
+        // This will be replaced by the actual script when the Kotlin/JS code is compiled
+        document.addEventListener("DOMContentLoaded", function() {
+            // Call the runButtonTest function from the Kotlin/JS code
+            if (typeof summon !== 'undefined' && typeof summon.code !== 'undefined') {
+                try {
+                    summon.code.yousef.summon.test.runButtonTest();
+                } catch (e) {
+                    console.error("Error running button test:", e);
+                    document.getElementById("root").innerHTML = 
+                        "<p style='color: red;'>Error running button test: " + e.message + "</p>";
+                }
+            } else {
+                document.getElementById("root").innerHTML = 
+                    "<p style='color: red;'>Summon library not loaded. Make sure the Kotlin/JS code is properly compiled and included.</p>";
+            }
+        });
+    </script>
+</body>
+</html>

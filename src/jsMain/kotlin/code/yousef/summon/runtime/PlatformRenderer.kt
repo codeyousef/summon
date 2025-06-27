@@ -92,7 +92,30 @@ actual open class PlatformRenderer {
 
         // Apply other attributes from the modifier
         for ((key, value) in modifier.attributes) {
-            element.setAttribute(key, value)
+            if (key == "data-hover-styles") {
+                // Create a unique class name for this element's hover styles
+                val uniqueClassName = "hover-${js("Math.random().toString(36).substring(2, 10)") as String}"
+
+                // Add the class to the element
+                val currentClasses = element.getAttribute("class") ?: ""
+                element.setAttribute("class", "$currentClasses $uniqueClassName")
+
+                // Create a style element for the hover styles
+                val styleElement = document.createElement("style")
+                val hoverStyles = value.split(";").filter { it.isNotEmpty() }
+                    .joinToString("") { "  ${it.trim()};\n" }
+
+                styleElement.textContent = """
+                    .$uniqueClassName:hover {
+                    $hoverStyles
+                    }
+                """.trimIndent()
+
+                // Add the style element to the document head
+                document.head?.appendChild(styleElement)
+            } else {
+                element.setAttribute(key, value)
+            }
         }
     }
 
@@ -114,8 +137,105 @@ actual open class PlatformRenderer {
         modifier: Modifier,
         content: @Composable FlowContent.() -> Unit
     ) {
-        createElement("button", modifier, { element ->
+        // Create a style element for button variants if it doesn't exist yet
+        if (document.getElementById("summon-button-styles") == null) {
+            val styleElement = document.createElement("style")
+            styleElement.id = "summon-button-styles"
+            styleElement.textContent = """
+                /* Primary Button - Purple background with white text and rounded corners */
+                button.summon-btn-primary {
+                    background-color: #6200ee !important;
+                    color: #ffffff !important;
+                    border: none !important;
+                    padding: 12px 24px !important;
+                    border-radius: 30px !important;
+                    font-weight: 700 !important;
+                    text-transform: uppercase !important;
+                    letter-spacing: 1px !important;
+                    transition: all 0.3s ease !important;
+                    box-shadow: 0 4px 8px rgba(98, 0, 238, 0.3) !important;
+                }
+
+                button.summon-btn-primary:hover {
+                    background-color: #7c4dff !important;
+                    transform: translateY(-3px) !important;
+                    box-shadow: 0 6px 12px rgba(98, 0, 238, 0.4) !important;
+                }
+
+                /* Secondary Button - White background with gray text and border */
+                button.summon-btn-secondary {
+                    background-color: #ffffff !important;
+                    color: #6c757d !important;
+                    border: 2px solid #6c757d !important;
+                    padding: 10px 16px !important;
+                    border-radius: 6px !important;
+                    font-weight: 600 !important;
+                    text-transform: none !important;
+                    transition: all 0.3s ease !important;
+                    box-shadow: none !important;
+                }
+
+                button.summon-btn-secondary:hover {
+                    background-color: #f8f9fa !important;
+                    color: #5c636a !important;
+                    border-color: #5c636a !important;
+                    transform: translateY(-2px) !important;
+                    box-shadow: 0 2px 4px rgba(108, 117, 125, 0.2) !important;
+                }
+            """.trimIndent()
+            document.head?.appendChild(styleElement)
+        }
+
+        // Extract the variant from the modifier
+        val variant = modifier.attributes["data-variant"]
+
+        // Create a new modifier without certain style properties that would conflict with our CSS classes
+        val filteredStyles = modifier.styles.filterKeys { key -> 
+            when (variant) {
+                "primary", "secondary" -> !listOf(
+                    // Colors and borders
+                    "background-color", "color", "border", "border-color", 
+                    "border-width", "border-style", "border-radius",
+                    // Typography
+                    "font-weight", "text-transform", "letter-spacing", "font-size",
+                    // Spacing
+                    "padding", "padding-top", "padding-right", "padding-bottom", "padding-left",
+                    "margin", "margin-top", "margin-right", "margin-bottom", "margin-left",
+                    // Effects
+                    "box-shadow", "transform", "transition", "box-shadow",
+                    // Hover effects will be handled by CSS
+                    "hover"
+                ).contains(key)
+                else -> true
+            }
+        }
+
+        // Also filter out hover styles attribute for primary and secondary buttons
+        val filteredAttributes = if (variant == "primary" || variant == "secondary") {
+            modifier.attributes.filterKeys { key -> key != "data-hover-styles" }
+        } else {
+            modifier.attributes
+        }
+
+        val filteredModifier = Modifier(
+            styles = filteredStyles,
+            attributes = filteredAttributes
+        )
+
+        createElement("button", filteredModifier, { element ->
             element.addEventListener("click", { onClick() })
+
+            // Add variant-specific class based on data-variant attribute
+            when (variant) {
+                "primary" -> {
+                    val currentClasses = element.getAttribute("class") ?: ""
+                    element.setAttribute("class", "$currentClasses summon-btn-primary")
+                }
+                "secondary" -> {
+                    val currentClasses = element.getAttribute("class") ?: ""
+                    element.setAttribute("class", "$currentClasses summon-btn-secondary")
+                }
+            }
         }) {
             content(createFlowContent("button"))
         }
@@ -388,12 +508,10 @@ actual open class PlatformRenderer {
         modifier: Modifier,
         content: @Composable (FlowContent.() -> Unit)
     ) {
-        val columnModifier = Modifier(
-            modifier.styles + mapOf(
-                "display" to "flex",
-                "flexDirection" to "column"
-            )
-        )
+        val columnModifier = modifier
+            .style("display", "flex")
+            .style("flexDirection", "column")
+
         createElement("div", columnModifier) {
             content(createFlowContent("div"))
         }
@@ -554,7 +672,11 @@ actual open class PlatformRenderer {
     ) {
         // Dialogs typically overlay content and require specific styling and structure
         // This is a placeholder structure
-        createElement("div", modifier.withAttributes(mapOf("role" to "alertdialog"))) { // Styled as a dialog
+        createElement(
+            "div",
+            modifier.withAttribute("role", "alertdialog")
+        ) { // Base alert div
+            // Apply styles based on variant (success, info, warning, error)
             icon?.invoke()
             title?.invoke()
             text?.invoke()
@@ -620,6 +742,21 @@ actual open class PlatformRenderer {
         // Cards are styled containers
         createElement("div", modifier) { // Apply card-specific styles, possibly using elevation
             content()
+        }
+    }
+
+    actual open fun renderCard(modifier: Modifier, content: @Composable (FlowContent.() -> Unit)) {
+        // Cards are styled containers with default card styling
+        val cardModifier = modifier
+            .style("border", "1px solid #e0e0e0")
+            .style("borderRadius", "8px")
+            .style("boxShadow", "0 2px 4px rgba(0,0,0,0.1)")
+            .style("backgroundColor", "white")
+            .style("padding", "16px")
+            .style("margin", "8px 0")
+
+        createElement("div", cardModifier) {
+            content(createFlowContent("div"))
         }
     }
 
@@ -1328,9 +1465,6 @@ actual open class PlatformRenderer {
                 content(createFlowContent("div"))
             }
         }
-    }
-
-    actual open fun renderCard(modifier: Modifier, content: @Composable (FlowContent.() -> Unit)) {
     }
 
     actual open fun renderAspectRatioContainer(ratio: Float, modifier: Modifier, content: @Composable () -> Unit) {

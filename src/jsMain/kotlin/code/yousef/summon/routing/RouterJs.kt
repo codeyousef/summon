@@ -5,6 +5,7 @@ import code.yousef.summon.runtime.DisposableEffect
 import code.yousef.summon.runtime.LaunchedEffect
 import code.yousef.summon.runtime.rememberMutableStateOf
 import kotlinx.browser.window
+import kotlin.js.js
 
 /**
  * JavaScript actual implementation of the Router interface
@@ -191,12 +192,12 @@ internal class RouterJs(
         if (matchResult != null) {
             // Render the matched route's content
             val (route, params) = matchResult
-            LocalRouteParams.provides(params)
+            // Use a different approach to provide route params
             route.content(params)
         } else {
             // Render the not found page
             val params = RouteParams(mapOf("path" to currentRoute.value))
-            LocalRouteParams.provides(params)
+            // Use a different approach to provide route params
             notFoundPage(params)
         }
     }

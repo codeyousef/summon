@@ -173,6 +173,18 @@ enum class FlexWrap(val value: String) {
 }
 
 /**
+ * CSS flex-direction values.
+ */
+enum class FlexDirection(val value: String) {
+    Row("row"),
+    RowReverse("row-reverse"),
+    Column("column"),
+    ColumnReverse("column-reverse");
+
+    override fun toString(): String = value
+}
+
+/**
  * CSS border-style values.
  */
 enum class BorderStyle(val value: String) {

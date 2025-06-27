@@ -2,54 +2,31 @@ package code.yousef.summon
 
 import code.yousef.summon.annotation.AppRegistry
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.init.initSummon
-import code.yousef.summon.routing.Pages
-import code.yousef.summon.routing.Router
-import code.yousef.summon.routing.createBrowserRouter
+import code.yousef.summon.routing.createRouter
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
+import code.yousef.summon.showcase.SummonShowcase
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.HTMLElement
-import org.w3c.dom.events.Event
 
 /**
  * Entry point for Summon applications in the JS target.
  * This is automatically called when the page loads.
  */
 fun main() {
-    // Wait for the DOM to be loaded
-    document.addEventListener("DOMContentLoaded", { _: Event ->
-        // Create a router
-        val router = createBrowserRouter()
+    // Initialize the platform renderer
+    val renderer = PlatformRenderer()
 
-        // Initialize Summon with the router
-        initSummon(router) { ctx ->
-            // Register pages from the Pages registry
-            Pages.getRegisteredPages().forEach { (path, pageFactory) ->
-                ctx.router.navigate(path, false)
-                // TODO: Implement proper page registration
-            }
-
-            // Register the not found handler
-            Pages.getNotFoundHandler()?.let { notFoundHandler ->
-                // TODO: Implement proper not found handler registration
-            }
-        }
-
-        // Get the root element or create one if it doesn't exist
-        val rootElement = document.getElementById("root") as? HTMLElement
-            ?: createRootElement()
-
-        // Clear the root element
-        rootElement.innerHTML = ""
-
-        // Find the app entry point
-        val appEntry = findAppEntry()
-
-        // Render the app
-        renderApp(rootElement, appEntry, router)
-    })
+    // Wait for the DOM to be ready
+    if (document.readyState.asDynamic() == "complete" || document.readyState.asDynamic() == "interactive") {
+        renderApp(renderer)
+    } else {
+        document.addEventListener("DOMContentLoaded", {
+            renderApp(renderer)
+        })
+    }
 }
 
 /**
@@ -75,22 +52,46 @@ private fun findAppEntry(): @Composable ((@Composable () -> Unit) -> Unit) {
 /**
  * Renders the application with the given app entry point and router.
  */
-private fun renderApp(
-    rootElement: HTMLElement,
-    appEntry: @Composable ((@Composable () -> Unit) -> Unit),
-    router: Router
-) {
-    // Create a platform renderer
-    val renderer = PlatformRenderer()
+private fun renderApp(renderer: PlatformRenderer) {
+    // Create router with routes
+    val router = createRouter {
+        // Register root route with showcase
+        route("/") { params ->
+            SummonShowcase()
+        }
+
+        // Register other routes as needed
+        route("/example") { params ->
+            SummonShowcase()
+        }
+
+        // Set not found handler
+        setNotFound { params ->
+            SummonShowcase()
+        }
+    }
+
+    // Get the root element or create one if it doesn't exist
+    val rootElement = document.getElementById("root") as? HTMLElement
+        ?: createRootElement()
+
+    // Clear the root element
+    rootElement.innerHTML = ""
+
+    // Find the app entry point
+    val appEntry = findAppEntry()
 
     // Set the renderer as the platform renderer to be used by composables
     setPlatformRenderer(renderer)
 
-    // Render the app
-    renderer.renderComposable {
+    // Provide LocalPlatformRenderer in the composition context
+    LocalPlatformRenderer.provides(renderer)
+
+    // Render the app using the extension function that takes container and composable
+    renderComposable(renderer, {
         appEntry {
             // Render the active page from the router
             router.create(window.location.pathname + window.location.search)
         }
-    }
+    }, rootElement)
 }

@@ -1,5 +1,5 @@
 // Apply version helper to get Summon version information
-apply(from = "../../../version-helper.gradle.kts")
+apply(from = "../../../../version-helper.gradle.kts")
 
 plugins {
     kotlin("jvm") version "2.1.20"

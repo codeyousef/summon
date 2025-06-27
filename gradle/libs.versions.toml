@@ -1,0 +1,111 @@
+[versions]
+# Kotlin
+kotlin = "2.2.0"
+
+# Kotlinx
+kotlinxCoroutines = "1.10.2"
+kotlinxCoroutinesJs = "1.10.1"
+kotlinxCoroutinesJdk8 = "1.10.1"
+kotlinxSerialization = "1.8.1"
+kotlinxHtml = "0.12.0"
+kotlinxDatetime = "0.6.2"
+atomicfu = "0.23.2"
+
+# Kotlin Wrappers
+kotlinWrappersBase = "1.0.0-pre.682"
+kotlinWrappersExtensions = "1.0.1-pre.682"
+kotlinReactDom = "18.2.0-pre.682"
+
+# NPM
+coreJs = "3.31.0"
+
+# Quarkus
+quarkus = "3.23.0"
+quarkusJvm = "3.6.5"
+
+# Ktor
+ktor = "2.3.7"
+
+# Spring Boot
+springBoot = "3.5.0"
+springBootJvm = "3.2.3"
+reactorKotlin = "1.2.3"
+reactorKotlinJvm = "1.2.2"
+
+[libraries]
+# Kotlin
+kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8" }
+kotlin-stdlib-js = { module = "org.jetbrains.kotlin:kotlin-stdlib-js" }
+kotlin-stdlib-common = { module = "org.jetbrains.kotlin:kotlin-stdlib-common" }
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test" }
+
+# Kotlinx
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-jdk8 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8", version.ref = "kotlinxCoroutinesJdk8" }
+kotlinx-coroutines-core-js = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-js", version.ref = "kotlinxCoroutinesJs" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+kotlinx-serialization-json-jvm = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm", version.ref = "kotlinxSerialization" }
+kotlinx-serialization-json-js = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json-js", version.ref = "kotlinxSerialization" }
+kotlinx-html = { module = "org.jetbrains.kotlinx:kotlinx-html", version.ref = "kotlinxHtml" }
+kotlinx-html-jvm = { module = "org.jetbrains.kotlinx:kotlinx-html-jvm", version.ref = "kotlinxHtml" }
+kotlinx-html-js = { module = "org.jetbrains.kotlinx:kotlinx-html-js", version.ref = "kotlinxHtml" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
+atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicfu" }
+
+# Kotlin Wrappers
+kotlin-js = { module = "org.jetbrains.kotlin-wrappers:kotlin-js", version.ref = "kotlinWrappersBase" }
+kotlin-extensions = { module = "org.jetbrains.kotlin-wrappers:kotlin-extensions", version.ref = "kotlinWrappersExtensions" }
+kotlin-browser = { module = "org.jetbrains.kotlin-wrappers:kotlin-browser", version.ref = "kotlinWrappersBase" }
+kotlin-react-dom = { module = "org.jetbrains.kotlin-wrappers:kotlin-react-dom", version.ref = "kotlinReactDom" }
+
+# NPM dependencies are handled differently - removing this entry
+
+# Quarkus for JVM
+quarkus-core-jvm = { module = "io.quarkus:quarkus-core", version.ref = "quarkusJvm" }
+quarkus-qute-jvm = { module = "io.quarkus:quarkus-qute", version.ref = "quarkusJvm" }
+quarkus-kotlin-jvm = { module = "io.quarkus:quarkus-kotlin", version.ref = "quarkusJvm" }
+quarkus-vertx-http-jvm = { module = "io.quarkus:quarkus-vertx-http", version.ref = "quarkusJvm" }
+quarkus-resteasy-reactive-jvm = { module = "io.quarkus:quarkus-resteasy-reactive", version.ref = "quarkusJvm" }
+quarkus-resteasy-reactive-jackson-jvm = { module = "io.quarkus:quarkus-resteasy-reactive-jackson", version.ref = "quarkusJvm" }
+quarkus-websockets-jvm = { module = "io.quarkus:quarkus-websockets", version.ref = "quarkusJvm" }
+quarkus-arc-jvm = { module = "io.quarkus:quarkus-arc", version.ref = "quarkusJvm" }
+quarkus-core-deployment-jvm = { module = "io.quarkus:quarkus-core-deployment", version.ref = "quarkusJvm" }
+quarkus-arc-deployment-jvm = { module = "io.quarkus:quarkus-arc-deployment", version.ref = "quarkusJvm" }
+quarkus-security-deployment-jvm = { module = "io.quarkus:quarkus-security-deployment", version.ref = "quarkusJvm" }
+
+# Quarkus for Integration
+quarkus-core = { module = "io.quarkus:quarkus-core", version.ref = "quarkus" }
+quarkus-qute = { module = "io.quarkus:quarkus-qute", version.ref = "quarkus" }
+quarkus-kotlin = { module = "io.quarkus:quarkus-kotlin", version.ref = "quarkus" }
+quarkus-vertx-http = { module = "io.quarkus:quarkus-vertx-http", version.ref = "quarkus" }
+quarkus-resteasy-reactive = { module = "io.quarkus:quarkus-resteasy-reactive", version.ref = "quarkus" }
+quarkus-resteasy-reactive-jackson = { module = "io.quarkus:quarkus-resteasy-reactive-jackson", version.ref = "quarkus" }
+quarkus-websockets = { module = "io.quarkus:quarkus-websockets", version.ref = "quarkus" }
+quarkus-arc = { module = "io.quarkus:quarkus-arc", version.ref = "quarkus" }
+quarkus-core-deployment = { module = "io.quarkus:quarkus-core-deployment", version.ref = "quarkus" }
+quarkus-arc-deployment = { module = "io.quarkus:quarkus-arc-deployment", version.ref = "quarkus" }
+quarkus-security-deployment = { module = "io.quarkus:quarkus-security-deployment", version.ref = "quarkus" }
+
+# Ktor
+ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
+ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
+ktor-server-html-builder = { module = "io.ktor:ktor-server-html-builder", version.ref = "ktor" }
+ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+
+# Spring Boot for JVM
+spring-boot-starter-web-jvm = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "springBootJvm" }
+spring-boot-starter-thymeleaf-jvm = { module = "org.springframework.boot:spring-boot-starter-thymeleaf", version.ref = "springBootJvm" }
+spring-boot-starter-webflux-jvm = { module = "org.springframework.boot:spring-boot-starter-webflux", version.ref = "springBootJvm" }
+reactor-kotlin-extensions-jvm = { module = "io.projectreactor.kotlin:reactor-kotlin-extensions", version.ref = "reactorKotlinJvm" }
+
+# Spring Boot for Integration
+spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "springBoot" }
+spring-boot-starter-thymeleaf = { module = "org.springframework.boot:spring-boot-starter-thymeleaf", version.ref = "springBoot" }
+spring-boot-starter-webflux = { module = "org.springframework.boot:spring-boot-starter-webflux", version.ref = "springBoot" }
+reactor-kotlin-extensions = { module = "io.projectreactor.kotlin:reactor-kotlin-extensions", version.ref = "reactorKotlin" }
+
+[plugins]
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
