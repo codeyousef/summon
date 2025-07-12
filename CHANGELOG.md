@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.8.2]
+
+### Fixed
+- **Version Conflict:** Bumped version to resolve GitHub Packages publishing conflict
+- No code changes from 0.2.8.1, just a version increment to allow successful publishing
+
 ## [0.2.8.1]
 
 ### Fixed
