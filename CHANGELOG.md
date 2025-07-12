@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.8.5]
+
+### Fixed
+- **CI/CD Snapshot Publishing:** Fixed snapshot version modification to use version.properties
+- Snapshot builds now correctly append -SNAPSHOT to distinguish from release versions
+- Prevents version conflicts between snapshot and release publishing
+
 ## [0.2.8.4]
 
 ### Fixed
