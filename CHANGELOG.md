@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.8.4]
+
+### Fixed
+- **CI/CD Pipeline:** Resolved duplicate snapshot publishing workflows causing 409 conflicts
+- Disabled standalone publish-snapshot workflow to prevent race conditions
+- CI/CD pipeline now handles all publishing after successful tests
+
 ## [0.2.8.3]
 
 ### Fixed
