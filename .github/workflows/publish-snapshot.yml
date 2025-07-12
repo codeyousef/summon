@@ -1,9 +1,10 @@
 name: Publish Snapshot to GitHub Packages
 on:
-  push:
-    branches:
-      - main
-      - develop
+  # Disabled to prevent conflicts with CI/CD pipeline
+  # push:
+  #   branches:
+  #     - main
+  #     - develop
   workflow_dispatch:
 
 permissions:
