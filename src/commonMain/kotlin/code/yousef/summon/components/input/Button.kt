@@ -58,10 +58,12 @@ fun Button(
     // Apply variant-specific styling to the modifier
     val finalModifier = when (variant) {
         ButtonVariant.PRIMARY -> baseModifier
-            // Minimal inline styles for PRIMARY - CSS classes will handle the styling
+            .style("background-color", "#0d6efd")
+            .style("color", "#ffffff")
             .transition("all 0.2s ease")
         ButtonVariant.SECONDARY -> baseModifier
-            // Minimal inline styles for SECONDARY - CSS classes will handle the styling
+            .style("background-color", "#6c757d")
+            .style("color", "#ffffff")
             .transition("all 0.2s ease")
         ButtonVariant.DANGER -> baseModifier
             .style("background-color", "#dc3545 !important")

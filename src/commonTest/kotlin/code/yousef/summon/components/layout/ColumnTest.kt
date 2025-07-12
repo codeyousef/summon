@@ -22,9 +22,12 @@ class ColumnTest {
                 // Empty content
             }
             assertTrue(mockRenderer.renderColumnCalled, "renderColumn should have been called")
-            // Verify that fillMaxSize is NOT applied to the modifier
-            val expectedStyles = Modifier().styles
-            assertEquals(expectedStyles, mockRenderer.lastColumnModifierRendered?.styles, "Modifier should not have fillMaxSize applied")
+            // Verify that default flex styles are applied
+            val expectedStyles = Modifier()
+                .style("display", "flex")
+                .style("flex-direction", "column")
+                .styles
+            assertEquals(expectedStyles, mockRenderer.lastColumnModifierRendered?.styles, "Modifier should have default flex styles applied")
             assertNotNull(mockRenderer.lastColumnContentRendered, "Content should not be null")
         }
     }
@@ -38,9 +41,13 @@ class ColumnTest {
                 // Empty content
             }
             assertTrue(mockRenderer.renderColumnCalled, "renderColumn should have been called")
-            // Verify that the custom modifier is used as-is without applying fillMaxSize
-            val expectedStyles = customModifier.styles
-            assertEquals(expectedStyles, mockRenderer.lastColumnModifierRendered?.styles, "Modifier should be the custom one without fillMaxSize applied")
+            // Verify that default flex styles are applied along with custom modifier
+            val expectedStyles = Modifier()
+                .style("display", "flex")
+                .style("flex-direction", "column")
+                .background("blue")
+                .styles
+            assertEquals(expectedStyles, mockRenderer.lastColumnModifierRendered?.styles, "Modifier should have both default flex styles and custom modifier applied")
             assertNotNull(mockRenderer.lastColumnContentRendered, "Content should not be null")
         }
     }

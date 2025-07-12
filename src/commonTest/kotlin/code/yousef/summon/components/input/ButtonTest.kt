@@ -16,10 +16,11 @@ private fun Modifier.hasStyle(property: String, value: String): Boolean =
     styles[property] == value
 
 private fun Modifier.hasBackground(color: String): Boolean =
-    hasStyle("background", color) || hasStyle("background-color", color)
+    hasStyle("background", color) || hasStyle("background-color", color) ||
+    hasStyle("background", "$color !important") || hasStyle("background-color", "$color !important")
 
 private fun Modifier.hasColor(color: String): Boolean =
-    hasStyle("color", color)
+    hasStyle("color", color) || hasStyle("color", "$color !important")
 
 /**
  * Tests for the Button component
