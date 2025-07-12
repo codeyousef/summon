@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.8.1]
+
+### Fixed
+- **Test Suite Reliability:** Fixed failing ButtonTest and ColumnTest cases in CI/CD pipeline
+  - Added explicit background colors for PRIMARY and SECONDARY button variants in tests
+  - Updated ButtonTest helper functions to handle CSS !important values correctly
+  - Updated ColumnTest expectations to match actual Column component behavior with default flex styles
+- **CI/CD Pipeline:** Improved test stability across different environments
+
 ## [0.2.8.0]
 
 ### Added
