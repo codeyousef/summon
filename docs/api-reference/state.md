@@ -7,10 +7,10 @@ This document provides detailed information about the state management APIs in t
 - [MutableState](#mutablestate)
 - [Remember](#remember)
 - [DerivedState](#derivedstate)
-- [SimpleDerivedState](#simplederivedstate) (v0.2.7+)
-- [ProduceState](#producestate) (v0.2.7+)
-- [CollectAsState](#collectasstate) (v0.2.7+)
-- [MutableStateList](#mutablestatelist) (v0.2.7+)
+- [SimpleDerivedState](#simplederivedstate) (v0.2.8+)
+- [ProduceState](#producestate) (v0.2.8+)
+- [CollectAsState](#collectasstate) (v0.2.8+)
+- [MutableStateList](#mutablestatelist) (v0.2.8+)
 - [StateFlow Integration](#stateflow-integration)
 - [StateContainer](#statecontainer)
 - [Persistent State](#persistent-state)
@@ -188,7 +188,7 @@ fun DerivedStateExample() {
 
 ## SimpleDerivedState
 
-*Available in v0.2.7+*
+*Available in v0.2.8+*
 
 A simplified implementation of derived state that automatically recomputes when dependencies change.
 
@@ -237,7 +237,7 @@ fun CartSummary() {
 
 ## ProduceState
 
-*Available in v0.2.7+*
+*Available in v0.2.8+*
 
 Creates state from a suspend function, perfect for async operations.
 
@@ -290,7 +290,7 @@ fun WeatherWidget(city: String) {
 
 ## CollectAsState
 
-*Available in v0.2.7+*
+*Available in v0.2.8+*
 
 Converts a Kotlin Flow to Summon State.
 
@@ -324,7 +324,7 @@ fun StockTicker(symbol: String) {
 
 ## MutableStateList
 
-*Available in v0.2.7+*
+*Available in v0.2.8+*
 
 An observable list implementation that triggers recomposition on modifications.
 

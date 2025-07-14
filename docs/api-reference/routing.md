@@ -85,7 +85,7 @@ data class Location(
 
 The `Router` class manages navigation and rendering of the current route. It provides a fluent API for defining routes and their associated components. 
 
-**v0.2.7+ Features:**
+**v0.2.8+ Features:**
 - Full browser history integration with automatic popstate event handling
 - Support for dynamic route parameters with `:param` syntax
 - Automatic cleanup of event listeners on disposal
@@ -213,7 +213,7 @@ class RouteParams(val params: Map<String, String>) {
 
 ### Description
 
-`RouteParams` provides access to path parameters from dynamic route segments. In v0.2.7+, supports both `{param}` and `:param` syntax for route parameters.
+`RouteParams` provides access to path parameters from dynamic route segments. In v0.2.8+, supports both `{param}` and `:param` syntax for route parameters.
 
 ### Example
 

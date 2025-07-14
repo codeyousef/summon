@@ -16,8 +16,9 @@ import java.time.format.DateTimeFormatter
 fun renderHeroComponent(username: String): String {
     return createHTML().div {
         classes = setOf("hero-section")
-        style = "background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4rem 0; text-align: center; margin-bottom: 2rem;"
-        
+        style =
+            "background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4rem 0; text-align: center; margin-bottom: 2rem;"
+
         div {
             classes = setOf("container")
             h1 {
@@ -48,7 +49,7 @@ fun renderFeatureCardsComponent(): String {
         }
         div {
             classes = setOf("row")
-            
+
             // Feature card 1
             div {
                 classes = setOf("col-md-4", "mb-4")
@@ -71,7 +72,7 @@ fun renderFeatureCardsComponent(): String {
                     }
                 }
             }
-            
+
             // Feature card 2
             div {
                 classes = setOf("col-md-4", "mb-4")
@@ -94,7 +95,7 @@ fun renderFeatureCardsComponent(): String {
                     }
                 }
             }
-            
+
             // Feature card 3
             div {
                 classes = setOf("col-md-4", "mb-4")
@@ -128,7 +129,7 @@ fun renderCounterComponent(initialValue: Int = 0): String {
     return createHTML().div {
         classes = setOf("card", "text-center")
         style = "max-width: 400px; margin: 2rem auto;"
-        
+
         div {
             classes = setOf("card-body", "p-4")
             h5 {
@@ -171,11 +172,11 @@ fun renderDashboardComponent(): String {
             classes = setOf("mb-4")
             +"📊 Dashboard"
         }
-        
+
         // Statistics Cards
         div {
             classes = setOf("row", "mb-4")
-            
+
             // Stat card 1
             div {
                 classes = setOf("col-md-3")
@@ -198,7 +199,7 @@ fun renderDashboardComponent(): String {
                     }
                 }
             }
-            
+
             // Stat card 2
             div {
                 classes = setOf("col-md-3")
@@ -221,7 +222,7 @@ fun renderDashboardComponent(): String {
                     }
                 }
             }
-            
+
             // Stat card 3
             div {
                 classes = setOf("col-md-3")
@@ -244,7 +245,7 @@ fun renderDashboardComponent(): String {
                     }
                 }
             }
-            
+
             // Stat card 4
             div {
                 classes = setOf("col-md-3")
@@ -281,7 +282,7 @@ fun renderDashboardComponent(): String {
             }
             div {
                 classes = setOf("card-body")
-                
+
                 div {
                     classes = setOf("d-flex", "mb-3")
                     div {
@@ -301,7 +302,7 @@ fun renderDashboardComponent(): String {
                         }
                     }
                 }
-                
+
                 div {
                     classes = setOf("d-flex", "mb-3")
                     div {
@@ -321,7 +322,7 @@ fun renderDashboardComponent(): String {
                         }
                     }
                 }
-                
+
                 div {
                     classes = setOf("d-flex")
                     div {
@@ -352,7 +353,7 @@ fun renderDashboardComponent(): String {
 fun renderUserTableComponent(users: List<User>): String {
     return createHTML().div {
         classes = setOf("card")
-        
+
         div {
             classes = setOf("card-header")
             h5 {
@@ -360,7 +361,7 @@ fun renderUserTableComponent(users: List<User>): String {
                 +"User Management"
             }
         }
-        
+
         div {
             classes = setOf("card-body", "p-0")
             if (users.isEmpty()) {
@@ -376,7 +377,7 @@ fun renderUserTableComponent(users: List<User>): String {
                     classes = setOf("table-responsive")
                     table {
                         classes = setOf("table", "table-hover", "mb-0")
-                        
+
                         thead {
                             tr {
                                 th { +"ID" }
@@ -387,12 +388,12 @@ fun renderUserTableComponent(users: List<User>): String {
                                 th { +"Actions" }
                             }
                         }
-                        
+
                         tbody {
                             users.forEach { user ->
                                 tr {
                                     attributes["data-user-id"] = user.id.toString()
-                                    
+
                                     td { +user.id.toString() }
                                     td { +user.name }
                                     td { +user.email }
@@ -403,7 +404,10 @@ fun renderUserTableComponent(users: List<User>): String {
                                         }
                                     }
                                     td {
-                                        val statusClass = if (user.active) setOf("badge", "bg-success") else setOf("badge", "bg-secondary")
+                                        val statusClass = if (user.active) setOf("badge", "bg-success") else setOf(
+                                            "badge",
+                                            "bg-secondary"
+                                        )
                                         val statusText = if (user.active) "Active" else "Inactive"
                                         span {
                                             classes = statusClass
@@ -414,7 +418,7 @@ fun renderUserTableComponent(users: List<User>): String {
                                         div {
                                             classes = setOf("btn-group", "btn-group-sm")
                                             attributes["role"] = "group"
-                                            
+
                                             button {
                                                 classes = setOf("btn", "btn-outline-primary")
                                                 onClick = "editUser(${user.id})"
@@ -425,8 +429,12 @@ fun renderUserTableComponent(users: List<User>): String {
                                                 onClick = "deleteUser(${user.id}, '${user.name}')"
                                                 +"Delete"
                                             }
-                                            
-                                            val toggleClass = if (user.active) setOf("btn", "btn-outline-warning") else setOf("btn", "btn-outline-success")
+
+                                            val toggleClass =
+                                                if (user.active) setOf("btn", "btn-outline-warning") else setOf(
+                                                    "btn",
+                                                    "btn-outline-success"
+                                                )
                                             val toggleText = if (user.active) "Deactivate" else "Activate"
                                             button {
                                                 classes = toggleClass
@@ -452,7 +460,7 @@ fun renderContactFormComponent(): String {
     return createHTML().div {
         classes = setOf("card")
         style = "max-width: 600px; margin: 2rem auto;"
-        
+
         div {
             classes = setOf("card-header", "text-center")
             h1 {
@@ -460,13 +468,13 @@ fun renderContactFormComponent(): String {
                 +"📧 Contact Us"
             }
         }
-        
+
         div {
             classes = setOf("card-body")
             form {
                 action = "/contact"
                 method = FormMethod.post
-                
+
                 div {
                     classes = setOf("mb-3")
                     label {
@@ -482,7 +490,7 @@ fun renderContactFormComponent(): String {
                         required = true
                     }
                 }
-                
+
                 div {
                     classes = setOf("mb-3")
                     label {
@@ -498,7 +506,7 @@ fun renderContactFormComponent(): String {
                         required = true
                     }
                 }
-                
+
                 div {
                     classes = setOf("mb-3")
                     label {
@@ -514,7 +522,7 @@ fun renderContactFormComponent(): String {
                         required = true
                     }
                 }
-                
+
                 div {
                     classes = setOf("mb-3")
                     label {
@@ -530,7 +538,7 @@ fun renderContactFormComponent(): String {
                         required = true
                     }
                 }
-                
+
                 div {
                     classes = setOf("d-grid")
                     button {
@@ -550,10 +558,10 @@ fun renderContactFormComponent(): String {
 fun renderCurrentTimeComponent(): String {
     val currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
     val currentDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy"))
-    
+
     return createHTML().div {
         classes = setOf("card", "text-center", "mb-4")
-        
+
         div {
             classes = setOf("card-body", "py-4")
             h5 {

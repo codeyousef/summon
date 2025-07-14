@@ -12,14 +12,14 @@ plugins {
 
 repositories {
     mavenCentral()
-    // GitHub Packages - required for Summon library
-    maven {
-        url = uri("https://maven.pkg.github.com/codeyousef/summon")
-        credentials {
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
-        }
-    }
+    // Using standalone implementation - no GitHub Packages required
+    // maven {
+    //     url = uri("https://maven.pkg.github.com/codeyousef/summon")
+    //     credentials {
+    //         username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
+    //         password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+    //     }
+    // }
 }
 
 kotlin {
@@ -53,8 +53,8 @@ kotlin {
     sourceSets {
         val jsMain by getting {
             dependencies {
-                // Depend on the Summon library using version from version-helper.gradle.kts
-                implementation(project.extra["summonDependency"] as String)
+                // Using standalone implementation - no external dependencies required
+                // implementation(project.extra["summonDependency"] as String)
 
                 // Standard JS dependencies
                 implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.12.0")
@@ -105,6 +105,11 @@ tasks.named<Copy>("jsProcessResources").configure {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
+// Handle duplicates in distribution task
+tasks.withType<Copy> {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
 // Add dependency for jsJar task
 tasks.named("jsJar") {
     dependsOn("copyI18nResources")
@@ -120,13 +125,18 @@ tasks.named("compileTestDevelopmentExecutableKotlinJs") {
     dependsOn("copyI18nResources")
 }
 
-// Task to copy JS files from kotlin output to processedResources
-tasks.register<Exec>("copyJsFiles") {
-    workingDir = projectDir
-    commandLine("node", "copy-js-files.js")
-
-    // Make this task run after the JS compilation is complete
+// Task to copy compiled JS to processedResources for dev server
+tasks.register<Copy>("copyCompiledJs") {
+    from("${layout.buildDirectory.get().asFile}/kotlin-webpack/js/developmentExecutable")
+    into("${layout.buildDirectory.get().asFile}/processedResources/js/main")
+    include("*.js")
+    
     dependsOn("jsBrowserDevelopmentWebpack")
+}
+
+// Make sure the JS file is copied before running the dev server
+tasks.named("jsBrowserDevelopmentRun") {
+    dependsOn("copyCompiledJs")
 }
 
 // Removed the reference to jsBrowserRun task since it doesn't exist

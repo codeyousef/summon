@@ -1,88 +1,133 @@
-# Summon JavaScript Example
+# Summon JS Example (Standalone)
 
-This example demonstrates how to use Summon in a JavaScript/browser environment.
+This example demonstrates the standalone Summon implementation for Kotlin/JS applications.
 
-## Prerequisites
+## Features
 
-- JDK 17 or higher
-- GitHub account with access to read packages
-- Personal Access Token with `read:packages` permission
+- ✅ **No external dependencies required** - Uses standalone implementation
+- ✅ **Type-safe CSS styling** with enums and unit extensions
+- ✅ **Interactive components** with JavaScript interop
+- ✅ **Working out-of-the-box** - No authentication needed
 
-## Setup
+## Quick Start
 
-### GitHub Packages Authentication
+### Option 1: Simple HTTP Server (Recommended)
 
-This example uses Summon from GitHub Packages, which requires authentication even for public packages.
-
-1. **Create a Personal Access Token:**
-   - Go to GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
-   - Generate a new token with `read:packages` permission
-   - Copy the token value
-
-2. **Configure authentication** (choose one method):
-
-   **Method A: gradle.properties file (Recommended)**
-   Create a `gradle.properties` file in this directory:
-   ```properties
-   gpr.user=YOUR_GITHUB_USERNAME
-   gpr.key=YOUR_PERSONAL_ACCESS_TOKEN
-   ```
-
-   **Method B: Environment variables**
-   Set these environment variables:
+1. **Build the project:**
    ```bash
-   export USERNAME=YOUR_GITHUB_USERNAME
-   export TOKEN=YOUR_PERSONAL_ACCESS_TOKEN
+   ./gradlew jsBrowserDevelopmentWebpack
    ```
 
-3. **Run the example:**
+2. **Copy the compiled JavaScript:**
+   ```bash
+   cp build/kotlin-webpack/js/developmentExecutable/js.js build/processedResources/js/main/
+   ```
+
+3. **Start HTTP server:**
+   ```bash
+   cd build/processedResources/js/main
+   python3 -m http.server 8081
+   ```
+
+4. **Open browser:** http://localhost:8081
+
+   **✅ Status**: This method is tested and working!
+
+### Option 2: Gradle Development Server
+
+1. **Run the development server:**
    ```bash
    ./gradlew jsBrowserDevelopmentRun
    ```
 
+2. **Open browser:** http://localhost:8080
+
+   **Note:** If you see "Cannot GET /" error, use Option 1 instead.
+
 ## Available Gradle Tasks
 
-- `./gradlew jsBrowserDevelopmentRun` - Start development server at http://localhost:8082
-- `./gradlew jsBrowserProductionWebpack` - Build production bundle
-- `./gradlew jsBrowserTest` - Run tests
+- `./gradlew jsBrowserDevelopmentWebpack` - Build for development
+- `./gradlew jsBrowserProductionWebpack` - Build production bundle  
+- `./gradlew jsBrowserDevelopmentRun` - Start development server
+- `./gradlew compileKotlinJs` - Compile Kotlin to JavaScript
 
 ## What's Included
 
-- **Main.kt**: Entry point with routing setup
-- **Components.kt**: Example Summon components
-- **MinimalExample.kt**: Minimal component examples
-- **index.html**: HTML page template
-- **i18n/**: Internationalization resources
+- **StandaloneMain.kt**: Complete standalone Summon implementation
+- **index.html**: HTML entry point with proper setup
+- **Type-safe CSS**: Enums for all CSS properties and units
+- **Interactive demo**: Counter with JavaScript interop
 
 ## Features Demonstrated
 
-- Basic component composition
-- State management with `remember` and `mutableStateOf`
-- Event handling
-- Styling with Summon modifiers
-- Internationalization (i18n)
-- Routing (basic setup)
+- **Type-Safe Styling**: Use `Cursor.Pointer` instead of `"pointer"`
+- **CSS Unit Extensions**: Use `16.px` instead of `"16px"`
+- **Component Composition**: Composable functions with `@Composable`
+- **State Management**: `mutableStateOf()` and `remember()` functions
+- **Event Handling**: JavaScript interop for user interactions
+- **Professional UI**: Modern design with cards, buttons, and layouts
 
-## Development
+## Code Examples
 
-The development server supports hot reload. Changes to Kotlin files will automatically rebuild and refresh the browser.
+### Type-Safe CSS Styling
+```kotlin
+StandaloneModifier()
+    .backgroundColor(Color.BLUE.toHexString())
+    .padding(8.px, 16.px)
+    .borderRadius(4.px)
+    .cursor(Cursor.Pointer)
+    .fontWeight(FontWeight.Bold)
+```
+
+### Component Structure  
+```kotlin
+@Composable
+fun MainApp(): String {
+    return Column(
+        modifier = EmptyModifier().padding(16.px)
+    ) {
+        Text("Hello, Summon!") +
+        Button("Click Me", EmptyModifier().onClick("alert('Hello!')"))
+    }
+}
+```
 
 ## Troubleshooting
 
+### "Cannot GET /" Error
+- **Cause**: Missing `index.html` or `js.js` files in the served directory
+- **Solution**: Follow Option 1 (Simple HTTP Server) from Quick Start
+- **Check**: Verify files exist in `build/processedResources/js/main/`
+
+### JavaScript Errors in Browser
+- **Check browser console** for compilation or runtime errors
+- **Verify compilation**: Run `./gradlew compileKotlinJs` first
+- **Check file paths**: Ensure `js.js` matches the script src in `index.html`
+
 ### Build Issues
+- **Clean rebuild**: `./gradlew clean jsBrowserDevelopmentWebpack`
+- **Check Kotlin version**: Ensure compatibility with Kotlin 2.2.0-RC2
+- **Verify dependencies**: No external Summon dependencies required
 
-1. **Gradle wrapper permission error**: Run `chmod +x gradlew` on Unix systems
-2. **Dependency resolution issues**: Make sure Summon is published to local Maven (`./gradlew publishToMavenLocal` from root)
-3. **Port conflicts**: Change the port in `build.gradle.kts` if 8082 is in use
+## Project Structure
 
-### Runtime Issues
-
-1. Check browser console for JavaScript errors
-2. Verify that all resources are loaded correctly in the Network tab
-3. Ensure the development server is running and accessible
+```
+src/jsMain/
+├── kotlin/code/yousef/summon/examples/js/
+│   └── StandaloneMain.kt          # Complete standalone implementation
+├── resources/
+│   └── index.html                 # HTML entry point
+└── build/
+    ├── kotlin-webpack/js/developmentExecutable/
+    │   └── js.js                  # Compiled JavaScript
+    └── processedResources/js/main/
+        ├── index.html             # Processed HTML
+        └── js.js                  # JavaScript for serving
+```
 
 ## Next Steps
 
-- Explore the [Summon documentation](../../../README.md)
-- Check out the [JVM Quarkus example](../../jvm/quarkus-example/)
-- Review the [component API reference](../../../api-reference/components.md)
+- **Explore the working example** - Use Option 1 to see the full demo
+- **Modify components** - Edit `StandaloneMain.kt` and rebuild
+- **Check other examples** - See the [Quarkus example](../../jvm/quarkus-example/) for server-side usage
+- **Review documentation** - Visit the [main docs](../../../README.md) for complete API reference

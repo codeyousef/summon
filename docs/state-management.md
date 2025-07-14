@@ -6,70 +6,88 @@ Summon provides flexible state management options that work across both JavaScri
 
 ### Basic State
 
-Use the `MutableState` class with `remember` for component-local state:
+Use the standalone state implementation for component-local state:
 
 ```kotlin
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.state.*
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.extensions.px
-
+// Using the standalone Summon implementation - no imports needed
 @Composable
-fun Counter() {
+fun Counter(): String {
     // Create a state variable
-    var count by remember { mutableStateOf(0) }
+    val count = remember { mutableStateOf(0) }
     
-    Column(
-        modifier = Modifier.padding(16.px)
+    return Column(
+        modifier = Modifier().padding("16px").gap("8px")
     ) {
-        Text("Count: $count")
-        
+        Text("Count: ${count.value}") + 
         Button(
             text = "Increment",
-            onClick = { count++ }
+            modifier = Modifier()
+                .backgroundColor("#0077cc")
+                .color("white")
+                .padding("8px 16px")
+                .borderRadius("4px")
+                .cursor("pointer")
+                .onClick("incrementCounter()")
         )
     }
 }
+
+// The remember function preserves state across recompositions in your JavaScript code
+// Example JavaScript for interactivity:
+// let counterValue = 0;
+// function incrementCounter() {
+//     counterValue++;
+//     document.getElementById('app').innerHTML = Counter();
+// }
 ```
 
-The `remember` function preserves state across recompositions, and changes to the state value trigger recomposition of components that use the state.
+The `remember` function preserves state, and you can implement reactivity through JavaScript event handlers.
 
 ### Derived State
 
-Create derived state that updates automatically when its dependencies change:
+Create derived state using computed values:
 
 ```kotlin
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.state.*
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.extensions.px
-
 @Composable
-fun TemperatureConverter() {
-    var celsius by remember { mutableStateOf(0) }
+fun TemperatureConverter(): String {
+    val celsius = remember { mutableStateOf(0) }
     
-    // Derived state - updates when celsius changes
-    val fahrenheit by remember(celsius) { 
-        derivedStateOf { (celsius * 9/5) + 32 }
-    }
+    // Derived state - computed from celsius
+    val fahrenheit = (celsius.value * 9/5) + 32
     
-    Column(
-        modifier = Modifier.padding(16.px).gap(8.px)
+    return Column(
+        modifier = Modifier().padding("16px").gap("8px")
     ) {
-        Text("Celsius: $celsius°C")
-        Text("Fahrenheit: $fahrenheit°F")
-        
+        Text("Celsius: ${celsius.value}°C") +
+        Text("Fahrenheit: ${fahrenheit}°F") +
         Button(
             text = "Increase Temperature",
-            onClick = { celsius++ }
+            modifier = Modifier()
+                .backgroundColor("#0077cc")
+                .color("white")
+                .padding("8px 16px")
+                .borderRadius("4px")
+                .cursor("pointer")
+                .onClick("increaseTemperature()")
         )
     }
 }
+
+// Example JavaScript for managing derived state:
+// let celsiusValue = 0;
+// function increaseTemperature() {
+//     celsiusValue++;
+//     updateTemperatureDisplay();
+// }
+// function updateTemperatureDisplay() {
+//     const fahrenheit = (celsiusValue * 9/5) + 32;
+//     document.getElementById('app').innerHTML = TemperatureConverter();
+// }
 ```
 
-The `derivedStateOf` function creates a state that is computed from other state values and automatically updates when those dependencies change.
+Derived state can be computed directly from other state values, with JavaScript handling the updates.
 
-### Advanced Derived State (v0.2.7+)
+### Advanced Derived State (v0.2.8+)
 
 The new `simpleDerivedStateOf` function provides a more straightforward way to create derived state:
 
@@ -101,7 +119,7 @@ fun ShoppingCart() {
 }
 ```
 
-### Producing State from Suspend Functions (v0.2.7+)
+### Producing State from Suspend Functions (v0.2.8+)
 
 Use `produceState` to create state from asynchronous operations:
 
@@ -122,7 +140,7 @@ fun UserProfile(userId: String) {
 }
 ```
 
-### Collecting Flow as State (v0.2.7+)
+### Collecting Flow as State (v0.2.8+)
 
 Convert Kotlin Flow to Summon State with `collectAsState`:
 
@@ -135,7 +153,7 @@ fun LiveDataDisplay(dataFlow: Flow<String>) {
 }
 ```
 
-### Observable Lists (v0.2.7+)
+### Observable Lists (v0.2.8+)
 
 Use `mutableStateListOf` for lists that trigger recomposition on modification:
 
@@ -170,40 +188,50 @@ fun TodoList() {
 For sharing state between multiple components, "lift" the state to a common parent:
 
 ```kotlin
-import code.yousef.summon.annotation.Composable
-
 @Composable
-fun ParentComponent() {
-    // State is declared in the parent
-    var sharedValue by remember { mutableStateOf("") }
+fun ParentComponent(): String {
+    // State is declared in the parent - managed via JavaScript
+    val sharedValue = remember { mutableStateOf("") }
     
-    Column {
-        // Pass state down to children
-        ChildInput(
-            value = sharedValue,
-            onValueChange = { sharedValue = it }
-        )
-        
-        ChildDisplay(value = sharedValue)
+    return Column(
+        modifier = Modifier().gap("16px")
+    ) {
+        ChildInput(sharedValue.value) +
+        ChildDisplay(sharedValue.value)
     }
 }
 
 @Composable
-fun ChildInput(
-    value: String,
-    onValueChange: (String) -> Unit
-) {
-    TextField(
+fun ChildInput(value: String): String {
+    return TextField(
         value = value,
-        onValueChange = onValueChange,
-        placeholder = "Enter a value"
+        placeholder = "Enter a value",
+        modifier = Modifier()
+            .style("width", "200px")
+            .padding("8px")
+            .style("border", "1px solid #ccc")
+            .borderRadius("4px")
+            .attribute("oninput", "updateSharedValue(this.value)")
     )
 }
 
 @Composable
-fun ChildDisplay(value: String) {
-    Text("Current value: $value")
+fun ChildDisplay(value: String): String {
+    return Text(
+        text = "Current value: $value",
+        modifier = Modifier()
+            .padding("8px")
+            .backgroundColor("#f0f0f0")
+            .borderRadius("4px")
+    )
 }
+
+// Example JavaScript for state hoisting:
+// let sharedState = "";
+// function updateSharedValue(newValue) {
+//     sharedState = newValue;
+//     document.getElementById('app').innerHTML = ParentComponent();
+// }
 ```
 
 ### StateFlow
@@ -211,8 +239,8 @@ fun ChildDisplay(value: String) {
 For more complex scenarios, use `StateFlow` for observable state:
 
 ```kotlin
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.state.*
+// Composable annotation using standalone implementation
+// State management using standalone implementation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -267,8 +295,8 @@ The `collectAsState` function converts a `StateFlow` into a state object that ca
 For more structured state management, use a state container:
 
 ```kotlin
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.state.*
+// Composable annotation using standalone implementation
+// State management using standalone implementation
 
 // Define state and actions
 data class TodoState(
@@ -417,7 +445,7 @@ This pattern provides a predictable state container with unidirectional data flo
 Summon provides cross-platform persistence for state:
 
 ```kotlin
-import code.yousef.summon.state.*
+// State management using standalone implementation
 
 // Define persisted state
 data class UserPreferences(
@@ -505,8 +533,8 @@ The `persistentStateOf` function creates a state that is automatically saved to 
 Summon supports the ViewModel pattern for managing component state:
 
 ```kotlin
-import code.yousef.summon.state.ViewModel
-import code.yousef.summon.state.*
+// ViewModel using standalone implementation
+// State management using standalone implementation
 import kotlinx.coroutines.flow.StateFlow
 
 class CounterViewModel : ViewModel() {
@@ -757,7 +785,7 @@ Summon provides platform-specific state extensions:
 ### JS Platform
 
 ```kotlin
-import code.yousef.summon.state.*
+// State management using standalone implementation
 
 // Use browser-specific state
 val windowSize by windowSizeState()
@@ -787,7 +815,7 @@ if (!isOnline) {
 ### JVM Platform
 
 ```kotlin
-import code.yousef.summon.state.*
+// State management using standalone implementation
 
 // Use JVM-specific state
 val systemProperties by systemPropertiesState()

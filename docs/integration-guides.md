@@ -1,192 +1,271 @@
 # Integration Guides
 
-Summon is designed to work with various frameworks and platforms. These guides will help you integrate Summon into your existing applications.
+Summon's standalone implementation is designed to work with various frameworks and platforms. These guides will help you integrate the standalone Summon components into your existing applications.
 
 ## Web Frameworks
 
 ### React Integration
 
-You can use Summon within a React application:
+You can use standalone Summon components within a React application:
 
 ```kotlin
-// Set up the Summon component
+// File: src/main/kotlin/SummonComponents.kt  
+// Include the complete standalone Summon implementation (from quickstart.md)
+
+// Create Summon components
 @Composable
-fun SummonGreeting(name: String) {
-    Div {
-        Text("Hello, $name from Summon!")
+fun SummonGreeting(name: String): String {
+    return Div(
+        modifier = Modifier().padding("16px").gap("8px")
+    ) {
+        Text("Hello, $name from Summon!", modifier = Modifier().fontSize("18px").fontWeight("bold")) +
         Button(
             text = "Click me",
-            onClick = { console.log("Button clicked!") }
+            modifier = Modifier()
+                .backgroundColor("#0077cc")
+                .color("white")
+                .padding("8px 16px")
+                .borderRadius("4px")
+                .cursor("pointer")
+                .onClick("console.log('Button clicked from Summon!')")
         )
     }
 }
 
-// Create a React wrapper
-external interface SummonProps : Props {
-    var name: String
+// Export function for React to use
+@JsExport
+@JsName("renderSummonGreeting")
+fun renderSummonGreeting(name: String): String {
+    return SummonGreeting(name)
+}
+```
+
+```typescript
+// React component that uses Summon (TypeScript/JavaScript)
+import React, { useEffect, useRef } from 'react';
+
+interface SummonProps {
+  name: string;
 }
 
-val SummonComponent = FC<SummonProps> { props ->
-    val containerRef = useRef<HTMLDivElement>()
-    
-    useEffect({
-        // Render Summon component when the component mounts
-        val container = containerRef.current ?: return@useEffect
-        val renderer = renderComposable(container) {
-            SummonGreeting(props.name)
-        }
-        
-        // Clean up when the component unmounts
-        return@useEffect {
-            renderer.dispose()
-        }
-    }, arrayOf(props.name))
-    
-    // Create a container for Summon to render into
-    return@FC createElement("div", createObj {
-        ref = containerRef
-    })
-}
+const SummonComponent: React.FC<SummonProps> = ({ name }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    if (containerRef.current) {
+      // Use the exported Summon function
+      const summonHtml = (window as any).renderSummonGreeting(name);
+      containerRef.current.innerHTML = summonHtml;
+    }
+  }, [name]);
+  
+  return <div ref={containerRef} />;
+};
 
-// Use in React
+export default SummonComponent;
+
+// Usage in React:
 // <SummonComponent name="World" />
 ```
 
 ### Vue Integration
 
-Integrate Summon with Vue:
+Integrate standalone Summon with Vue:
 
 ```kotlin
-// Set up the Summon component
+// Summon counter component
 @Composable
-fun SummonCounter() {
-    var count by remember { mutableStateOf(0) }
-    
-    Div {
-        Text("Count: $count")
+fun SummonCounter(count: Int): String {
+    return Div(
+        modifier = Modifier().padding("16px").gap("8px")
+    ) {
+        Text("Count: $count", modifier = Modifier().fontSize("18px")) +
         Button(
             text = "Increment",
-            onClick = { count++ }
+            modifier = Modifier()
+                .backgroundColor("#28a745")
+                .color("white")
+                .padding("8px 16px")
+                .borderRadius("4px")
+                .cursor("pointer")
+                .onClick("incrementCounter()")
         )
     }
 }
 
-// Create a Vue component that uses Summon
+// Export for Vue to use
 @JsExport
-@JsName("createSummonVueComponent")
-fun createSummonVueComponent() = js("""
-{
-    name: 'SummonCounter',
-    props: {},
-    template: '<div ref="summonContainer"></div>',
-    data() {
-        return {
-            summonRenderer: null
-        };
-    },
-    mounted() {
-        const container = this.$refs.summonContainer;
-        this.summonRenderer = renderComposable(container, () => {
-            SummonCounter();
-        });
-    },
-    beforeDestroy() {
-        if (this.summonRenderer) {
-            this.summonRenderer.dispose();
-        }
-    }
+@JsName("renderSummonCounter")
+fun renderSummonCounter(count: Int): String {
+    return SummonCounter(count)
 }
-""")
+```
+
+```javascript
+// Vue component that uses Summon (JavaScript)
+const SummonCounterComponent = {
+  name: 'SummonCounter',
+  data() {
+    return {
+      count: 0
+    };
+  },
+  template: '<div ref="summonContainer"></div>',
+  mounted() {
+    this.updateSummonContent();
+    
+    // Add global increment function
+    window.incrementCounter = () => {
+      this.count++;
+      this.updateSummonContent();
+    };
+  },
+  watch: {
+    count() {
+      this.updateSummonContent();
+    }
+  },
+  methods: {
+    updateSummonContent() {
+      if (this.$refs.summonContainer) {
+        const summonHtml = window.renderSummonCounter(this.count);
+        this.$refs.summonContainer.innerHTML = summonHtml;
+      }
+    }
+  },
+  beforeDestroy() {
+    // Clean up global function
+    delete window.incrementCounter;
+  }
+};
+
+// Usage in Vue:
+// <SummonCounter />
 ```
 
 ### Angular Integration
 
-Integrate Summon with Angular:
+Integrate standalone Summon with Angular:
 
 ```kotlin
-// Set up the Summon component
+// Simple todo list component
 @Composable
-fun SummonTodoList() {
-    var todos by remember { mutableStateOf(listOf("Learn Summon", "Integrate with Angular")) }
-    var newTodo by remember { mutableStateOf("") }
-    
-    Div {
-        // Input for new todos
-        TextField(
-            value = newTodo,
-            onValueChange = { newTodo = it },
-            placeholder = "Add todo"
-        )
+fun SummonTodoList(todos: List<String>): String {
+    return Div(
+        modifier = Modifier().padding("16px").gap("8px")
+    ) {
+        Text("Todo List", modifier = Modifier().fontSize("20px").fontWeight("bold")) +
+        
+        todos.joinToString("") { todo ->
+            Div(
+                modifier = Modifier()
+                    .padding("8px")
+                    .backgroundColor("#f8f9fa")
+                    .borderRadius("4px")
+                    .style("margin-bottom", "4px")
+            ) {
+                Text("• $todo")
+            }
+        } +
         
         Button(
-            text = "Add",
-            onClick = { 
-                if (newTodo.isNotEmpty()) {
-                    todos = todos + newTodo
-                    newTodo = ""
-                }
-            }
+            text = "Add New Todo",
+            modifier = Modifier()
+                .backgroundColor("#007bff")
+                .color("white")
+                .padding("8px 16px")
+                .borderRadius("4px")
+                .cursor("pointer")
+                .onClick("addNewTodo()")
         )
-        
-        // Todo list
-        for (todo in todos) {
-            Div {
-                Text(todo)
-            }
-        }
     }
 }
 
-// Angular integration code in TypeScript:
-/*
-import { Component, ElementRef, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { renderComposable } from 'summon-js';
-import { SummonTodoList } from './summon-components';
+// Export for Angular
+@JsExport
+@JsName("renderSummonTodoList")
+fun renderSummonTodoList(todos: Array<String>): String {
+    return SummonTodoList(todos.toList())
+}
+```
+
+```typescript
+// Angular component (TypeScript)
+import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-summon',
+  selector: 'app-summon-todo',
   template: '<div #summonContainer></div>'
 })
-export class SummonComponent implements OnInit, OnDestroy {
-  @ViewChild('summonContainer', { static: true }) container: ElementRef;
-  private renderer: any;
+export class SummonTodoComponent implements OnInit {
+  @ViewChild('summonContainer', { static: true }) container!: ElementRef;
+  
+  todos: string[] = ['Learn Summon', 'Integrate with Angular', 'Build amazing apps'];
 
   ngOnInit() {
-    this.renderer = renderComposable(this.container.nativeElement, () => {
-      SummonTodoList();
-    });
+    this.updateSummonContent();
+    
+    // Add global function for Summon to call
+    (window as any).addNewTodo = () => {
+      this.todos.push(`New todo ${this.todos.length + 1}`);
+      this.updateSummonContent();
+    };
   }
-
-  ngOnDestroy() {
-    if (this.renderer) {
-      this.renderer.dispose();
+  
+  private updateSummonContent() {
+    if (this.container?.nativeElement) {
+      const html = (window as any).renderSummonTodoList(this.todos);
+      this.container.nativeElement.innerHTML = html;
     }
   }
 }
-*/
 ```
 
 ## Backend Frameworks
 
 ### Spring Boot Integration
 
-Integrate Summon with Spring Boot for server-side rendering:
+Integrate standalone Summon with Spring Boot for server-side rendering:
 
 ```kotlin
-import code.yousef.summon.renderToString
+// Include the standalone Summon implementation
+
+@Composable
+fun HomePage(): String {
+    return Column(
+        modifier = Modifier().padding("20px").gap("16px")
+    ) {
+        Text("Welcome to Spring Boot + Summon!", modifier = Modifier().fontSize("24px").fontWeight("bold")) +
+        Text("This page is rendered server-side with Spring Boot and Summon.") +
+        Button(
+            text = "Click me",
+            modifier = Modifier()
+                .backgroundColor("#28a745")
+                .color("white")
+                .padding("10px 20px")
+                .borderRadius("4px")
+                .cursor("pointer")
+                .onClick("alert('Hello from Spring Boot + Summon!')")
+        )
+    }
+}
+
+// Spring Boot controller
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ResponseBody
+import org.springframework.http.MediaType
 
 @Controller
 class SummonController {
-    @GetMapping("/")
+    
+    @GetMapping("/", produces = [MediaType.TEXT_HTML_VALUE])
+    @ResponseBody
     fun home(): String {
-        // Render to HTML string
-        val html = renderToString {
-            HomePage()
-        }
+        // Render Summon component to HTML string
+        val summonHtml = HomePage()
         
-        // Return the HTML
+        // Return complete HTML page
         return """
         <!DOCTYPE html>
         <html>
@@ -194,344 +273,93 @@ class SummonController {
             <title>Summon with Spring Boot</title>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                body { 
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    margin: 0; 
+                    padding: 0; 
+                    background-color: #f8f9fa;
+                }
+            </style>
         </head>
         <body>
-            $html
-            <script src="/js/app.js"></script>
+            $summonHtml
         </body>
         </html>
         """.trimIndent()
+    }
+    
+    @GetMapping("/api/data")
+    @ResponseBody
+    fun apiData(): String {
+        // You can also use Summon to generate JSON responses or partial HTML
+        return """{"message": "Hello from Spring Boot API"}"""
     }
 }
 ```
 
 ### Ktor Integration
 
-Integrate Summon with Ktor for server-side rendering:
+Integrate standalone Summon with Ktor for server-side rendering:
 
 ```kotlin
-import code.yousef.summon.renderToString
-import io.ktor.application.*
-import io.ktor.html.*
-import io.ktor.http.*
-import io.ktor.response.*
-import io.ktor.routing.*
-import kotlinx.html.*
-
-fun Application.module() {
-    routing {
-        get("/") {
-            // Render to HTML string
-            val html = renderToString {
-                HomePage()
-            }
-            
-            // Return the HTML
-            call.respondText(
-                """
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Summon with Ktor</title>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                </head>
-                <body>
-                    $html
-                    <script src="/js/app.js"></script>
-                </body>
-                </html>
-                """.trimIndent(),
-                ContentType.Text.Html
-            )
-        }
-    }
-}
-```
-
-### Quarkus Integration
-
-Integrate Summon with Quarkus for server-side rendering:
-
-```kotlin
-import code.yousef.summon.renderToString
-import javax.enterprise.context.ApplicationScoped
-import javax.ws.rs.GET
-import javax.ws.rs.Path
-import javax.ws.rs.Produces
-import javax.ws.rs.core.MediaType
-
-@Path("/")
-@ApplicationScoped
-class SummonResource {
-    @GET
-    @Produces(MediaType.TEXT_HTML)
-    fun home(): String {
-        // Render to HTML string
-        val html = renderToString {
-            HomePage()
-        }
-        
-        // Return the HTML
-        return """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Summon with Quarkus</title>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        </head>
-        <body>
-            $html
-            <script src="/js/app.js"></script>
-        </body>
-        </html>
-        """.trimIndent()
-    }
-}
-```
-
-## Desktop Integration
-
-### JavaFX Integration
-
-Integrate Summon with JavaFX for desktop applications:
-
-```kotlin
-import code.yousef.summon.renderToString
-import javafx.application.Application
-import javafx.scene.Scene
-import javafx.scene.web.WebView
-import javafx.stage.Stage
-
-class SummonJavaFXApp : Application() {
-    override fun start(stage: Stage) {
-        // Render to HTML string
-        val html = renderToString {
-            DesktopApp()
-        }
-        
-        // Create a WebView to display the HTML
-        val webView = WebView()
-        val webEngine = webView.engine
-        
-        // Load the HTML
-        webEngine.loadContent("""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Summon with JavaFX</title>
-            <meta charset="UTF-8">
-            <style>
-                body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; }
-            </style>
-        </head>
-        <body>
-            $html
-            <script>
-                // Bridge between Kotlin and JavaScript
-                window.javaFXBridge = {
-                    callKotlin: function(methodName, args) {
-                        // This will be implemented in the WebEngine
-                    }
-                };
-            </script>
-        </body>
-        </html>
-        """.trimIndent())
-        
-        // Set up two-way communication
-        webEngine.javaScriptEngineEnabled = true
-        
-        // Create the scene
-        val scene = Scene(webView, 800.0, 600.0)
-        stage.title = "Summon JavaFX App"
-        stage.scene = scene
-        stage.show()
-    }
-}
-
-fun main() {
-    Application.launch(SummonJavaFXApp::class.java)
-}
-```
-
-### Compose for Desktop Integration
-
-Integrate Summon with Compose for Desktop:
-
-```kotlin
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.application
-import code.yousef.summon.renderToString
+// Include the standalone Summon implementation
 
 @Composable
-fun SummonInCompose() {
-    // Render to HTML string
-    val html = remember { 
-        renderToString {
-            DesktopApp()
-        }
-    }
-    
-    // Use Compose's WebView (requires a dependency)
-    WebView(
-        modifier = Modifier.fillMaxSize(),
-        content = html,
-        onEvent = { event ->
-            // Handle events from Summon
-            println("Event from Summon: $event")
-        }
-    )
-}
-
-fun main() = application {
-    Window(onCloseRequest = ::exitApplication, title = "Summon in Compose") {
-        SummonInCompose()
-    }
-}
-```
-
-## Mobile Integration
-
-### Android Integration
-
-Integrate Summon with Android for mobile applications:
-
-```kotlin
-import android.os.Bundle
-import android.webkit.JavascriptInterface
-import android.webkit.WebView
-import androidx.appcompat.app.AppCompatActivity
-import code.yousef.summon.renderToString
-
-class SummonActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        
-        // Render to HTML string
-        val html = renderToString {
-            MobileApp()
-        }
-        
-        // Create a WebView to display the HTML
-        val webView = WebView(this)
-        webView.settings.javaScriptEnabled = true
-        
-        // Add JavaScript interface
-        webView.addJavascriptInterface(WebAppInterface(this), "Android")
-        
-        // Load the HTML
-        webView.loadDataWithBaseURL(
-            "file:///android_asset/",
-            """
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Summon on Android</title>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-                <style>
-                    body { font-family: 'Roboto', sans-serif; margin: 0; padding: 0; }
-                </style>
-            </head>
-            <body>
-                $html
-                <script>
-                    // Bridge between Kotlin and JavaScript
-                    window.androidBridge = {
-                        callKotlin: function(methodName, args) {
-                            Android.callFromJs(methodName, JSON.stringify(args));
-                        }
-                    };
-                </script>
-            </body>
-            </html>
-            """.trimIndent(),
-            "text/html",
-            "UTF-8",
-            null
-        )
-        
-        // Set the WebView as the content view
-        setContentView(webView)
-    }
-    
-    // JavaScript interface class
-    class WebAppInterface(private val activity: SummonActivity) {
-        @JavascriptInterface
-        fun callFromJs(methodName: String, args: String) {
-            // Handle calls from JavaScript
-            println("Call from JS: $methodName, args: $args")
-            
-            // Example: Show a native Android toast
-            if (methodName == "showToast") {
-                activity.runOnUiThread {
-                    Toast.makeText(activity, args, Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-}
-```
-
-## Isomorphic Apps (Server + Client)
-
-Create an isomorphic application that renders on the server and hydrates on the client:
-
-```kotlin
-// src/commonMain/kotlin/SummonApp.kt
-@Composable
-fun SummonApp() {
-    var count by remember { mutableStateOf(0) }
-    
-    Div(
-        modifier = Modifier.padding(16.px)
+fun KtorHomePage(): String {
+    return Column(
+        modifier = Modifier().padding("20px").gap("16px")
     ) {
-        Text("Counter: $count")
-        
+        Text("Welcome to Ktor + Summon!", modifier = Modifier().fontSize("24px").fontWeight("bold")) +
+        Text("This page is rendered server-side with Ktor and Summon.") +
+        Text("Ktor provides a lightweight, asynchronous server framework.") +
         Button(
-            text = "Increment",
-            onClick = { count++ }
+            text = "Ktor Power!",
+            modifier = Modifier()
+                .backgroundColor("#0077cc")
+                .color("white")
+                .padding("10px 20px")
+                .borderRadius("4px")
+                .cursor("pointer")
+                .onClick("alert('Hello from Ktor + Summon!')")
         )
     }
 }
 
-// src/jvmMain/kotlin/Server.kt
-import code.yousef.summon.renderToString
-import io.ktor.application.*
-import io.ktor.http.*
-import io.ktor.response.*
-import io.ktor.routing.*
+// Ktor application setup
+import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.http.*
 
 fun main() {
     embeddedServer(Netty, port = 8080) {
         routing {
             get("/") {
-                // Server-side rendering
-                val html = renderToString {
-                    SummonApp()
-                }
+                // Render Summon component to HTML
+                val summonHtml = KtorHomePage()
                 
-                // Send hydration-ready HTML
                 call.respondText(
                     """
                     <!DOCTYPE html>
                     <html>
                     <head>
-                        <title>Isomorphic Summon App</title>
+                        <title>Summon with Ktor</title>
                         <meta charset="UTF-8">
                         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <style>
+                            body { 
+                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                                margin: 0; 
+                                padding: 0; 
+                                background-color: #f8f9fa;
+                            }
+                        </style>
                     </head>
                     <body>
-                        <div id="app">$html</div>
-                        <script src="/js/app.js"></script>
+                        $summonHtml
                     </body>
                     </html>
                     """.trimIndent(),
@@ -539,175 +367,262 @@ fun main() {
                 )
             }
             
-            get("/js/app.js") {
-                // Serve the compiled JS
-                call.respondBytes(
-                    this::class.java.classLoader.getResource("app.js")?.readBytes() ?: ByteArray(0),
-                    ContentType.Text.JavaScript
-                )
+            get("/api/health") {
+                call.respondText("""{"status": "healthy", "framework": "Ktor + Summon"}""")
             }
         }
     }.start(wait = true)
 }
+```
 
-// src/jsMain/kotlin/Client.kt
-import code.yousef.summon.hydrate
-import kotlinx.browser.document
+### Quarkus Integration
 
-fun main() {
-    // Get the container with server-rendered content
-    val container = document.getElementById("app") ?: error("Container not found")
+Integrate standalone Summon with Quarkus for server-side rendering:
+
+```kotlin
+// Include the standalone Summon implementation
+
+@Composable
+fun QuarkusHomePage(): String {
+    return Column(
+        modifier = Modifier().padding("20px").gap("16px")
+    ) {
+        Text("Welcome to Quarkus + Summon!", modifier = Modifier().fontSize("24px").fontWeight("bold")) +
+        Text("This page is rendered server-side with Quarkus and Summon.") +
+        Text("Quarkus provides supersonic, subatomic Java frameworks.") +
+        Button(
+            text = "Quarkus Speed!",
+            modifier = Modifier()
+                .backgroundColor("#4695EB")
+                .color("white")
+                .padding("10px 20px")
+                .borderRadius("4px")
+                .cursor("pointer")
+                .onClick("alert('Hello from Quarkus + Summon!')")
+        )
+    }
+}
+
+// Quarkus resource
+import jakarta.ws.rs.GET
+import jakarta.ws.rs.Path
+import jakarta.ws.rs.Produces
+import jakarta.ws.rs.core.MediaType
+
+@Path("/")
+class SummonResource {
     
-    // Hydrate the app (reuse server-rendered DOM)
-    hydrate(container) {
-        SummonApp()
+    @GET
+    @Produces(MediaType.TEXT_HTML)
+    fun home(): String {
+        // Render Summon component to HTML
+        val summonHtml = QuarkusHomePage()
+        
+        return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Summon with Quarkus</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                body { 
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    margin: 0; 
+                    padding: 0; 
+                    background-color: #f8f9fa;
+                }
+            </style>
+        </head>
+        <body>
+            $summonHtml
+        </body>
+        </html>
+        """.trimIndent()
+    }
+    
+    @GET
+    @Path("/api/health")
+    @Produces(MediaType.APPLICATION_JSON)
+    fun health(): String {
+        return """{"status": "healthy", "framework": "Quarkus + Summon"}"""
     }
 }
 ```
 
-## Using Summon with REST APIs
+## Simple Integration Examples
 
-Integrate Summon with a REST API:
+### Static HTML Generation
+
+Use Summon to generate static HTML content:
 
 ```kotlin
-import code.yousef.summon.core.*
-import code.yousef.summon.components.*
-import code.yousef.summon.state.*
-import kotlinx.coroutines.*
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-
-// Data class for a typical API response
-@Serializable
-data class User(
-    val id: Int,
-    val name: String,
-    val email: String
-)
+// Include the standalone Summon implementation
 
 @Composable
-fun UserList() {
-    // State for users and loading state
-    var users by remember { mutableStateOf<List<User>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
-    var error by remember { mutableStateOf<String?>(null) }
-    
-    // Fetch data when component is first rendered
-    onMount {
-        try {
-            isLoading = true
-            error = null
-            
-            // Use a coroutine to fetch data
-            lifecycleCoroutineScope().launch {
-                try {
-                    // Fetch users from API
-                    val response = fetchUsers()
-                    users = response
-                    error = null
-                } catch (e: Exception) {
-                    error = "Failed to load users: ${e.message}"
-                } finally {
-                    isLoading = false
-                }
-            }
-        }
-    }
-    
-    // UI rendering
-    Div(
-        modifier = Modifier.padding(16.px)
+fun StaticPage(): String {
+    return Column(
+        modifier = Modifier().padding("20px").gap("16px")
     ) {
-        Text(
-            text = "User List",
-            modifier = Modifier
-                .fontSize(24.px)
-                .fontWeight(700)
-                .marginBottom(16.px)
-        )
-        
-        when {
-            isLoading -> {
-                // Loading state
-                Text("Loading users...")
-            }
-            
-            error != null -> {
-                // Error state
-                Div(
-                    modifier = Modifier
-                        .padding(16.px)
-                        .backgroundColor("#ffebee")
-                        .color("#c62828")
-                        .borderRadius(4.px)
-                ) {
-                    Text(error ?: "Unknown error")
-                    
-                    Button(
-                        text = "Retry",
-                        onClick = {
-                            // Trigger a refetch
-                            isLoading = true
-                            lifecycleCoroutineScope().launch {
-                                try {
-                                    users = fetchUsers()
-                                    error = null
-                                } catch (e: Exception) {
-                                    error = "Failed to load users: ${e.message}"
-                                } finally {
-                                    isLoading = false
-                                }
-                            }
-                        },
-                        modifier = Modifier.marginTop(8.px)
-                    )
+        Text("Static HTML Page", modifier = Modifier().fontSize("24px").fontWeight("bold")) +
+        Text("This page was generated using standalone Summon components.") +
+        Text("Perfect for static site generators, email templates, or reports.")
+    }
+}
+
+// Generate HTML file
+fun main() {
+    val html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Static Summon Page</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                body { 
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    margin: 0; 
+                    padding: 0; 
+                    background-color: #f8f9fa;
                 }
-            }
-            
-            users.isEmpty() -> {
-                // Empty state
-                Text("No users found.")
-            }
-            
-            else -> {
-                // Data display
-                for (user in users) {
-                    Div(
-                        modifier = Modifier
-                            .padding(8.px)
-                            .marginBottom(8.px)
-                            .border(1.px, "#e0e0e0")
-                            .borderRadius(4.px)
-                    ) {
-                        Text(
-                            text = user.name,
-                            modifier = Modifier
-                                .fontWeight(700)
-                                .marginBottom(4.px)
-                        )
-                        Text(
-                            text = user.email,
-                            modifier = Modifier
-                                .fontSize(14.px)
-                                .color("#666666")
-                        )
-                    }
-                }
-            }
+            </style>
+        </head>
+        <body>
+            ${StaticPage()}
+        </body>
+        </html>
+    """.trimIndent()
+    
+    // Write to file or use in your application
+    println(html)
+}
+```
+
+### Simple API Response Generation
+
+Use Summon to generate API responses:
+
+```kotlin
+// Data classes for API responses
+data class User(val id: Int, val name: String, val email: String)
+
+@Composable
+fun UserCard(user: User): String {
+    return Div(
+        modifier = Modifier()
+            .backgroundColor("#ffffff")
+            .padding("16px")
+            .borderRadius("8px")
+            .style("border", "1px solid #e0e0e0")
+            .style("margin-bottom", "8px")
+    ) {
+        Text(user.name, modifier = Modifier().fontSize("18px").fontWeight("bold")) +
+        Text(user.email, modifier = Modifier().color("#666").fontSize("14px"))
+    }
+}
+
+@Composable
+fun UserList(users: List<User>): String {
+    return Column(modifier = Modifier().gap("8px")) {
+        users.joinToString("") { user -> UserCard(user) }
+    }
+}
+
+// Use in API endpoint
+fun getUsersHtml(): String {
+    val users = listOf(
+        User(1, "John Doe", "john@example.com"),
+        User(2, "Jane Smith", "jane@example.com"),
+        User(3, "Bob Johnson", "bob@example.com")
+    )
+    
+    return UserList(users)
+}
+```
+
+## Best Practices for Integration
+
+### 1. Keep Components Pure
+
+```kotlin
+// Good: Pure function that always returns the same output for the same input
+@Composable
+fun ProductCard(product: Product): String {
+    return Div(
+        modifier = Modifier()
+            .backgroundColor("white")
+            .padding("16px")
+            .borderRadius("8px")
+    ) {
+        Text(product.name, modifier = Modifier().fontSize("18px").fontWeight("bold")) +
+        Text("$${product.price}", modifier = Modifier().color("#28a745"))
+    }
+}
+```
+
+### 2. Use Framework-Specific Patterns
+
+```kotlin
+// For Spring Boot - Use @Controller pattern
+@RestController
+class HtmlController {
+    @GetMapping("/products", produces = [MediaType.TEXT_HTML_VALUE])
+    fun products(): String = ProductList(getProducts())
+}
+
+// For Ktor - Use routing DSL
+fun Application.configureRouting() {
+    routing {
+        get("/products") {
+            call.respondText(ProductList(getProducts()), ContentType.Text.Html)
         }
     }
-    
-    // Function to fetch users from an API
-    suspend fun fetchUsers(): List<User> = coroutineScope {
-        // This would typically be a real API call
-        // Simulating a network request with delay
-        delay(1000)
-        
-        // Sample data
-        listOf(
-            User(1, "John Doe", "john@example.com"),
-            User(2, "Jane Smith", "jane@example.com"),
-            User(3, "Bob Johnson", "bob@example.com")
+}
+
+// For Quarkus - Use JAX-RS annotations
+@Path("/products")
+class ProductResource {
+    @GET
+    @Produces(MediaType.TEXT_HTML)
+    fun products(): String = ProductList(getProducts())
+}
+```
+
+### 3. Handle State Management Appropriately
+
+```kotlin
+// For client-side: Use simple state tracking
+var appState = AppState()
+
+@Composable
+fun StatefulComponent(): String {
+    return Div {
+        Text("Current user: ${appState.currentUser}") +
+        Button(
+            text = "Login",
+            modifier = Modifier().onClick("handleLogin()")
         )
     }
-} 
+}
+
+// For server-side: Pass data as parameters
+@Composable
+fun ServerComponent(user: User?, isLoggedIn: Boolean): String {
+    return when {
+        isLoggedIn && user != null -> Text("Welcome, ${user.name}!")
+        else -> Text("Please log in")
+    }
+}
+```
+
+This standalone approach gives you:
+
+✅ **Framework Flexibility**: Works with any JVM or JS framework  
+✅ **No Dependencies**: No external libraries required  
+✅ **Simple Integration**: Easy to understand and integrate  
+✅ **Type Safety**: Full Kotlin type checking  
+✅ **Performance**: Lightweight with minimal overhead  
+✅ **Debugging**: Simple, debuggable code  
+
+The standalone Summon implementation is particularly well-suited for server-side rendering, static site generation, and simple web applications where you want the benefits of a component system without complex dependencies. 

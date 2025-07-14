@@ -4,65 +4,79 @@ Summon provides a powerful and intuitive styling system that works across platfo
 
 ## Modifier API
 
-The primary way to style components in Summon is through the `Modifier` API, which provides a fluent interface for applying styles:
+The primary way to style components in Summon is through the `Modifier` API, which provides a fluent interface for applying styles using the standalone implementation:
 
 ```kotlin
-import code.yousef.summon.modifier.*
-import code.yousef.summon.extensions.*
+// Using the standalone Summon implementation - no imports needed
+@Composable
+fun StyledButton(): String {
+    return Button(
+        text = "Click me",
+        modifier = Modifier()
+            .padding("16px")
+            .backgroundColor("#0077cc")
+            .color("#ffffff")
+            .borderRadius("4px")
+            .fontWeight("700")
+            .cursor("pointer")
+            .onClick("handleClick()")
+            // Hover effect can be added via CSS
+            .style("transition", "background-color 0.3s ease")
+    )
+}
 
-Button(
-    text = "Click me",
-    onClick = { /* handle click */ },
-    modifier = Modifier
-        .padding(16.px)
-        .backgroundColor("#0077cc")
-        .color("#ffffff")
-        .borderRadius(4.px)
-        .fontWeight(700)
-        .hover {
-            backgroundColor("#005599")
-        }
-)
+// You can also add CSS for hover effects
+// <style>
+// button:hover { background-color: #005599 !important; }
+// </style>
 ```
 
 ## CSS Units
 
-Summon provides convenient extension properties for numbers to create CSS dimension values without needing to add string units manually:
+In the standalone implementation, CSS units are provided as simple string values:
 
 ```kotlin
-import code.yousef.summon.extensions.*
+// CSS unit helper functions (you can add these to your standalone implementation)
+fun Int.px() = "${this}px"
+fun Double.px() = "${this}px"
+fun Int.rem() = "${this}rem"
+fun Double.rem() = "${this}rem"
+fun Int.em() = "${this}em"
+fun Double.em() = "${this}em"
+fun Int.percent() = "${this}%"
+fun Double.percent() = "${this}%"
+fun Int.vw() = "${this}vw"
+fun Int.vh() = "${this}vh"
+fun Int.ch() = "${this}ch"
+fun Int.ex() = "${this}ex"
 
-// General CSS units
-val pixels = 16.px        // "16px"
-val rootEm = 1.5.rem      // "1.5rem"
-val emUnits = 1.2.em      // "1.2em"
-val percentage = 50.percent  // "50%"
-val viewportWidth = 100.vw   // "100vw"
-val viewportHeight = 100.vh  // "100vh"
-val viewportMin = 50.vmin    // "50vmin"
-val viewportMax = 50.vmax    // "50vmax"
+// Or use string values directly
+@Composable
+fun StyledText(): String {
+    return Text(
+        text = "Styled text with various units",
+        modifier = Modifier()
+            .style("width", "200px")
+            .fontSize("1.2rem")           // Root relative unit
+            .style("margin-top", "10px")  // Pixels
+            .style("margin-bottom", "1.5em")  // Relative to current font size
+            .style("letter-spacing", "0.5ex") // Based on x-height
+            .style("line-height", "2ch")      // Based on character width
+    )
+}
 
-// Font-specific CSS units
-val scaleIndependentPixels = 14.sp   // "14sp" - Scale-independent pixels for font sizes
-val characterUnits = 2.ch            // "2ch" - Width of the "0" character
-val xHeight = 3.ex                   // "3ex" - Height of the letter 'x'
-val points = 12.pt                   // "12pt" - Traditional print measurement (1/72 inch)
-val picas = 6.pc                     // "6pc" - Traditional print measurement (1pc = 12pt)
-```
-
-These extensions can be used with all modifiers that accept CSS dimension values:
-
-```kotlin
-Text(
-    text = "Styled text with various units",
-    modifier = Modifier
-        .width(200.px)
-        .fontSize(1.2.rem)         // Root relative unit
-        .marginTop(10.px)          // Pixels
-        .marginBottom(1.5.em)      // Relative to current font size
-        .letterSpacing(0.5.ex)     // Based on x-height
-        .lineHeight(2.ch)          // Based on character width
-)
+// Using helper functions
+@Composable
+fun StyledTextWithHelpers(): String {
+    return Text(
+        text = "Styled text with helper functions",
+        modifier = Modifier()
+            .style("width", 200.px())
+            .fontSize(1.2.rem())
+            .style("margin-top", 10.px())
+            .style("margin-bottom", 1.5.em())
+    )
+}
 ```
 
 ## Individual Property Modifiers
@@ -86,70 +100,67 @@ Modifier
 
 ### Layout Modifiers
 
+With the standalone implementation, you can extend the Modifier class to add these layout functions:
+
 ```kotlin
-Modifier
-    // Size modifiers
-    .width(200.px)
-    .height(100.px)
-    .size(200.px, 100.px)
-    .maxWidth(500.px)
-    .minHeight(50.px)
+// Extended Modifier for layout (add these to your standalone implementation)
+fun Modifier.width(value: String): Modifier = style("width", value)
+fun Modifier.height(value: String): Modifier = style("height", value)
+fun Modifier.maxWidth(value: String): Modifier = style("max-width", value)
+fun Modifier.minHeight(value: String): Modifier = style("min-height", value)
 
-    // Margin and padding
-    .margin(8.px)
-    .margin(8.px, 16.px) // vertical, horizontal
-    .margin(8.px, 16.px, 8.px, 16.px) // top, right, bottom, left
-    .padding(8.px)
-    .padding(8.px, 16.px) // vertical, horizontal
-    .padding(8.px, 16.px, 8.px, 16.px) // top, right, bottom, left
+// Margin and padding helpers
+fun Modifier.margin(value: String): Modifier = style("margin", value)
+fun Modifier.margin(vertical: String, horizontal: String): Modifier = style("margin", "$vertical $horizontal")
+fun Modifier.margin(top: String, right: String, bottom: String, left: String): Modifier = 
+    style("margin", "$top $right $bottom $left")
 
-    // Auto margins for centering
-    .marginAuto() // center in all directions
-    .marginHorizontalAutoZero() // center horizontally (no parameters needed)
-    .marginHorizontalAuto() // center horizontally only (no top/bottom margins)
-    .marginVerticalAutoZero() // center vertically (no parameters needed)
-    .marginVerticalAuto() // center vertically only (no left/right margins)
-    .marginHorizontalAuto(20.px) // center horizontally with 20px top/bottom margins
-    .marginVerticalAuto(10.px) // center vertically with 10px left/right margins
+// Usage examples
+@Composable
+fun LayoutExample(): String {
+    return Column(
+        modifier = Modifier()
+            .width("200px")
+            .height("100px")
+            .style("max-width", "500px")
+            .style("min-height", "50px")
+            .margin("8px")
+            .padding("16px")
+            
+            // Flexbox layout
+            .display("flex")
+            .flexDirection("column")
+            .style("justify-content", "space-between")
+            .alignItems(AlignItems.Center)
+            .gap("8px")
+            
+            // Grid layout
+            .display(Display.Grid)
+            .style("grid-template-columns", "1fr 1fr 1fr")
+            .style("grid-template-rows", "auto")
+            
+            // Positioning
+            .style("position", "relative")
+            .style("top", "0px")
+            .style("z-index", "10")
+    ) {
+        Text("Layout content example")
+    }
+}
 
-    // Flexbox layout
-    .display(Display.Flex)
-    .flexDirection(FlexDirection.Column)
-    .justifyContent(JustifyContent.SpaceBetween)
-    .justifyItems(JustifyItems.Center)
-    .justifySelf(JustifySelf.Center)
-    .alignItems(AlignItems.Center)
-    .alignSelf(AlignSelf.FlexStart)
-    .alignContent(AlignContent.SpaceBetween)
-    .flexWrap(FlexWrap.Wrap)
-    .gap(8.px)
-    .rowGap(8.px)
-    .columnGap(16.px)
-    .flex(1)
-    .flexGrow(1)
-    .flexShrink(0)
-    .flexBasis("auto")
-
-    // Row and Column specific alignment
-    .verticalAlignment(Alignment.Vertical.CenterVertically) // For Row components
-    .horizontalAlignment(Alignment.Horizontal.CenterHorizontally) // For Column components
-
-    // Grid layout
-    .display(Display.Grid)
-    .gridTemplateColumns("1fr 1fr 1fr")
-    .gridTemplateRows("auto")
-    .gridColumn("1 / 3")
-    .gridRow("1 / 2")
-    .gridArea("header")
-
-    // Positioning
-    .position(Position.Relative)
-    .position(Position.Absolute)
-    .top(0.px)
-    .right(0.px)
-    .bottom(0.px)
-    .left(0.px)
-    .zIndex(10)
+// Auto margins for centering
+@Composable 
+fun CenteredElement(): String {
+    return Div(
+        modifier = Modifier()
+            .width("200px")
+            .height("100px")
+            .style("margin", "0 auto") // Horizontal centering
+            .backgroundColor("#f0f0f0")
+    ) {
+        Text("Centered content")
+    }
+}
 ```
 
 ### Appearance Modifiers
@@ -425,7 +436,7 @@ Modifier
 Define global styles that apply to all components:
 
 ```kotlin
-import code.yousef.summon.theme.*
+// Theme configuration using standalone implementation
 
 @Composable
 fun MyApp() {
@@ -478,7 +489,7 @@ Summon provides two approaches for creating and applying themes for consistent s
 The Theme API provides a centralized way to define and access theme values with type-safe properties:
 
 ```kotlin
-import code.yousef.summon.theme.*
+// Theme configuration using standalone implementation
 
 // Create a custom theme using the Theme API
 val customTheme = Theme.createTheme(Theme.Themes.light) {
@@ -584,7 +595,7 @@ fun ThemedComponentWithModifiers() {
 For more manual control, you can define your own theme object:
 
 ```kotlin
-import code.yousef.summon.theme.*
+// Theme configuration using standalone implementation
 
 // Define theme variables
 object MyTheme {
@@ -728,7 +739,7 @@ fun MyApp() {
 For complex styling needs, you can use the CSS-in-JS approach:
 
 ```kotlin
-import code.yousef.summon.theme.*
+// Theme configuration using standalone implementation
 
 @Composable
 fun StyledComponent() {
@@ -808,7 +819,7 @@ fun StyledComponent() {
 For browser-specific styling:
 
 ```kotlin
-import code.yousef.summon.modifier.*
+// Modifier system using standalone implementation
 
 Div(
     modifier = Modifier
@@ -826,7 +837,7 @@ Div(
 For JVM-specific styling:
 
 ```kotlin
-import code.yousef.summon.modifier.*
+// Modifier system using standalone implementation
 
 Div(
     modifier = Modifier
@@ -844,11 +855,7 @@ The library provides specialized auto margin modifiers for easy element centerin
 Import these functions from the dedicated package:
 
 ```kotlin
-import code.yousef.summon.modifier.AutoMarginModifiers.marginHorizontalAuto
-import code.yousef.summon.modifier.AutoMarginModifiers.marginVerticalAuto
-import code.yousef.summon.modifier.AutoMarginModifiers.marginAuto
-import code.yousef.summon.modifier.AutoMarginModifiers.marginHorizontalAutoZero
-import code.yousef.summon.modifier.AutoMarginModifiers.marginVerticalAutoZero
+// Auto margin utilities using standalone implementation
 ```
 
 You can then use them in your modifiers:

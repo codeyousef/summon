@@ -102,61 +102,105 @@ If you need help with Summon, you can:
 
 ## Example
 
-Here's a simple example of a Summon component:
+Here's a simple example of a Summon component using the standalone implementation:
 
 ```kotlin
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.*
-import code.yousef.summon.modifier.*
-import code.yousef.summon.state.*
+// Standalone Summon implementation - no external dependencies required
+@Target(AnnotationTarget.FUNCTION)
+annotation class Composable
+
+data class Modifier(
+    val styles: Map<String, String> = emptyMap(),
+    val attributes: Map<String, String> = emptyMap()
+) {
+    fun style(propertyName: String, value: String): Modifier =
+        copy(styles = this.styles + (propertyName to value))
+    fun padding(value: String): Modifier = style("padding", value)
+    fun gap(value: String): Modifier = style("gap", value)
+    fun backgroundColor(color: String): Modifier = style("background-color", color)
+    fun color(value: String): Modifier = style("color", value)
+    fun fontSize(value: String): Modifier = style("font-size", value)
+    fun fontWeight(value: String): Modifier = style("font-weight", value)
+    fun borderRadius(value: String): Modifier = style("border-radius", value)
+    fun display(value: String): Modifier = style("display", value)
+    fun flexDirection(value: String): Modifier = style("flex-direction", value)
+    fun cursor(value: String): Modifier = style("cursor", value)
+    fun onClick(handler: String): Modifier = copy(attributes = attributes + ("onclick" to handler))
+}
+
+class State<T>(var value: T)
+fun <T> mutableStateOf(initial: T) = State(initial)
+fun <T> remember(calculation: () -> State<T>) = calculation()
+fun Modifier(): Modifier = Modifier(emptyMap(), emptyMap())
 
 @Composable
-fun Counter() {
-    var count by remember { mutableStateOf(0) }
+fun Text(text: String, modifier: Modifier = Modifier()): String {
+    val styleStr = if (modifier.styles.isNotEmpty()) " style=\"${modifier.styles.entries.joinToString("; ") { "${it.key}: ${it.value}" }}\"" else ""
+    val attrsStr = if (modifier.attributes.isNotEmpty()) " ${modifier.attributes.entries.joinToString(" ") { "${it.key}=\"${it.value}\"" }}" else ""
+    return "<span$attrsStr$styleStr>$text</span>"
+}
+
+@Composable
+fun Button(text: String, modifier: Modifier = Modifier()): String {
+    val styleStr = if (modifier.styles.isNotEmpty()) " style=\"${modifier.styles.entries.joinToString("; ") { "${it.key}: ${it.value}" }}\"" else ""
+    val attrsStr = if (modifier.attributes.isNotEmpty()) " ${modifier.attributes.entries.joinToString(" ") { "${it.key}=\"${it.value}\"" }}" else ""
+    return "<button$attrsStr$styleStr>$text</button>"
+}
+
+@Composable
+fun Column(modifier: Modifier = Modifier(), content: () -> String): String {
+    val columnModifier = modifier.display("flex").flexDirection("column")
+    val styleStr = if (columnModifier.styles.isNotEmpty()) " style=\"${columnModifier.styles.entries.joinToString("; ") { "${it.key}: ${it.value}" }}\"" else ""
+    return "<div$styleStr>${content()}</div>"
+}
+
+@Composable
+fun Row(modifier: Modifier = Modifier(), content: () -> String): String {
+    val rowModifier = modifier.display("flex").flexDirection("row")
+    val styleStr = if (rowModifier.styles.isNotEmpty()) " style=\"${rowModifier.styles.entries.joinToString("; ") { "${it.key}: ${it.value}" }}\"" else ""
+    return "<div$styleStr>${content()}</div>"
+}
+
+@Composable
+fun Counter(): String {
+    val count = remember { mutableStateOf(0) }
     
-    Column(
-        modifier = Modifier
-            .padding(16.px)
-            .gap(8.px)
+    return Column(
+        modifier = Modifier().padding("16px").gap("8px")
     ) {
         Text(
-            text = "Count: $count",
-            modifier = Modifier
-                .fontSize(24.px)
-                .fontWeight(700)
-        )
-        
-        Row(
-            modifier = Modifier.gap(8.px)
+            text = "Count: ${count.value}",
+            modifier = Modifier().fontSize("24px").fontWeight("700")
+        ) + Row(
+            modifier = Modifier().gap("8px")
         ) {
             Button(
                 text = "Increment",
-                onClick = { count++ },
-                modifier = Modifier
+                modifier = Modifier()
                     .backgroundColor("#0077cc")
                     .color("#ffffff")
-                    .padding(8.px, 16.px)
-                    .borderRadius(4.px)
-            )
-            
-            Button(
-                text = "Decrement",
-                onClick = { count-- },
-                modifier = Modifier
+                    .padding("8px 16px")
+                    .borderRadius("4px")
+                    .cursor(Cursor.Pointer)
+                    .onClick("incrementCounter()")
+            ) + Button(
+                text = "Decrement", 
+                modifier = Modifier()
                     .backgroundColor("#6c757d")
                     .color("#ffffff")
-                    .padding(8.px, 16.px)
-                    .borderRadius(4.px)
-            )
-            
-            Button(
+                    .padding("8px 16px")
+                    .borderRadius("4px")
+                    .cursor(Cursor.Pointer)
+                    .onClick("decrementCounter()")
+            ) + Button(
                 text = "Reset",
-                onClick = { count = 0 },
-                modifier = Modifier
+                modifier = Modifier()
                     .backgroundColor("#dc3545")
                     .color("#ffffff")
-                    .padding(8.px, 16.px)
-                    .borderRadius(4.px)
+                    .padding("8px 16px")
+                    .borderRadius("4px")
+                    .cursor(Cursor.Pointer)
+                    .onClick("resetCounter()")
             )
         }
     }
@@ -165,44 +209,74 @@ fun Counter() {
 
 ## Security
 
-Summon provides a comprehensive security system for handling authentication and authorization:
+Summon provides security patterns that can be implemented with the standalone components:
 
 ```kotlin
-// Configure security
-val securityConfig = securityConfig {
-    authenticationProvider = createJwtAuthenticationProvider(
-        apiBaseUrl = "https://api.example.com"
-    )
-    loginUrl = "/login"
-    defaultSuccessUrl = "/"
+// Security-aware component pattern
+@Composable
+fun SecurityAwareUI(isAuthenticated: Boolean, userRole: String): String {
+    return when {
+        !isAuthenticated -> LoginForm()
+        userRole == "admin" -> AdminDashboard()
+        else -> UserDashboard()
+    }
 }
 
-// Protect routes
-@RequiresAuthentication
 @Composable
-fun ProfilePage() {
-    // Component implementation
+fun LoginForm(): String {
+    return Column(
+        modifier = Modifier().padding("20px").gap("10px")
+    ) {
+        Text("Please log in", modifier = Modifier().fontSize("24px").fontWeight(FontWeight.Bold)) +
+        Text("Enter your credentials to continue") +
+        Button(
+            text = "Login",
+            modifier = Modifier()
+                .backgroundColor("#0077cc")
+                .color("white")
+                .padding("10px 20px")
+                .borderRadius("5px")
+                .cursor(Cursor.Pointer)
+                .onClick("handleLogin()")
+        )
+    }
 }
 
-@RequiresRoles(["admin"])
 @Composable
-fun AdminDashboard() {
-    // Component implementation
+fun AdminDashboard(): String {
+    return Column(
+        modifier = Modifier().padding("20px").gap("15px")
+    ) {
+        Text("Admin Dashboard", modifier = Modifier().fontSize("28px").fontWeight(FontWeight.Bold)) +
+        Text("Welcome, Administrator!", modifier = Modifier().fontSize("18px")) +
+        Button(
+            text = "Manage Users",
+            modifier = Modifier()
+                .backgroundColor("#28a745")
+                .color("white")
+                .padding("10px 20px")
+                .borderRadius("5px")
+                .cursor(Cursor.Pointer)
+        )
+    }
 }
 
-// Use security-aware components
 @Composable
-fun SecurityAwareUI() {
-    SecuredComponent {
-        authenticated {
-            // Show authenticated content
-        }
-        unauthenticated {
-            // Show login form
-        }
-        withRole("admin") {
-            // Show admin content
-        }
+fun UserDashboard(): String {
+    return Column(
+        modifier = Modifier().padding("20px").gap("15px")
+    ) {
+        Text("User Dashboard", modifier = Modifier().fontSize("28px").fontWeight(FontWeight.Bold)) +
+        Text("Welcome back!", modifier = Modifier().fontSize("18px")) +
+        Button(
+            text = "View Profile",
+            modifier = Modifier()
+                .backgroundColor("#0077cc")
+                .color("white")
+                .padding("10px 20px")
+                .borderRadius("5px")
+                .cursor(Cursor.Pointer)
+        )
     }
 }
 ```
@@ -211,55 +285,94 @@ See [Security Documentation](security.md) for more details.
 
 ## Internationalization
 
-Summon provides a flexible internationalization system that supports multiple languages including right-to-left (RTL) languages:
+Summon supports internationalization patterns with the standalone implementation:
 
 ```kotlin
-// Configure supported languages
-I18nConfig.configure {
-    language("en", "English")
-    language("fr", "Français")
-    language("ar", "العربية", LayoutDirection.RTL)
-    language("he", "עברית", LayoutDirection.RTL)
+// Simple i18n implementation
+data class I18nConfig(
+    val currentLanguage: String = "en",
+    val isRTL: Boolean = false,
+    val translations: Map<String, Map<String, String>> = emptyMap()
+)
+
+@Composable
+fun createI18nConfig(language: String = "en"): I18nConfig {
+    val translations = mapOf(
+        "en" to mapOf(
+            "welcome" to "Welcome",
+            "greeting" to "Hello, World!",
+            "language_switcher" to "Language"
+        ),
+        "fr" to mapOf(
+            "welcome" to "Bienvenue",
+            "greeting" to "Bonjour le monde!",
+            "language_switcher" to "Langue"
+        ),
+        "ar" to mapOf(
+            "welcome" to "مرحبا",
+            "greeting" to "مرحبا بالعالم!",
+            "language_switcher" to "اللغة"
+        )
+    )
     
-    // Set default language
-    setDefault("en")
+    return I18nConfig(
+        currentLanguage = language,
+        isRTL = language in listOf("ar", "he"),
+        translations = translations
+    )
 }
 
-// Initialize i18n (for JS platform)
-JsI18nImplementation.init()
-JsI18nImplementation.loadLanguageResources("/i18n/")
-
-// Use translated strings in components
 @Composable
-fun HelloWorld() {
-    Text(stringResource("common.welcome"))
+fun HelloWorld(i18n: I18nConfig): String {
+    val welcomeText = i18n.translations[i18n.currentLanguage]?.get("welcome") ?: "Welcome"
+    val greetingText = i18n.translations[i18n.currentLanguage]?.get("greeting") ?: "Hello, World!"
     
-    // Direction-aware modifiers for RTL support
-    Row(Modifier.directionalRow()) {
-        // Content will adapt to current language direction
-        Text(
-            stringResource("common.greeting"),
-            modifier = Modifier
-                .paddingStart("10px")  // Left in LTR, Right in RTL
-                .paddingEnd("20px")    // Right in LTR, Left in RTL
-        )
+    return Column(
+        modifier = Modifier()
+            .padding("20px")
+            .style("direction", if (i18n.isRTL) "rtl" else "ltr")
+    ) {
+        Text(welcomeText, modifier = Modifier().fontSize("24px").fontWeight(FontWeight.Bold)) +
+        Text(greetingText, modifier = Modifier().fontSize("18px"))
     }
 }
 
-// Language switcher
 @Composable
-fun LanguageSwitcher() {
-    val currentLanguage = LocalLanguage.current
+fun LanguageSwitcher(currentLanguage: String): String {
+    val languages = listOf(
+        "en" to "English",
+        "fr" to "Français", 
+        "ar" to "العربية"
+    )
     
-    Row {
-        I18nConfig.supportedLanguages.forEach { language ->
+    return Row(
+        modifier = Modifier().gap("10px")
+    ) {
+        languages.joinToString("") { (code, name) ->
             Button(
-                onClick = { changeLanguage(language.code) },
-                modifier = Modifier.marginEnd("10px")
-            ) {
-                Text(language.name)
-            }
+                text = name,
+                modifier = Modifier()
+                    .backgroundColor(if (code == currentLanguage) "#0077cc" else "#f0f0f0")
+                    .color(if (code == currentLanguage) "white" else "black")
+                    .padding("8px 16px")
+                    .borderRadius("4px")
+                    .cursor(Cursor.Pointer)
+                    .onClick("changeLanguage('$code')")
+            )
         }
+    }
+}
+
+// Usage example
+@Composable
+fun MultilingualApp(language: String = "en"): String {
+    val i18n = createI18nConfig(language)
+    
+    return Column(
+        modifier = Modifier().padding("20px").gap("20px")
+    ) {
+        LanguageSwitcher(language) +
+        HelloWorld(i18n)
     }
 }
 ```

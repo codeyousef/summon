@@ -9,13 +9,17 @@ Summon provides a rich set of built-in components for creating consistent user i
 The `Text` component is used to display text content.
 
 ```kotlin
-Text(
-    text = "Hello, World!",
-    modifier = Modifier
-        .fontSize(16.px)
-        .fontWeight(500)
-        .color("#333333")
-)
+// Using the standalone Summon implementation
+@Composable
+fun TextExample(): String {
+    return Text(
+        text = "Hello, World!",
+        modifier = Modifier()
+            .fontSize(16.px)
+            .fontWeight(FontWeight.Medium)
+            .color("#333333")
+    )
+}
 ```
 
 ### Button
@@ -23,17 +27,19 @@ Text(
 The `Button` component creates clickable buttons with various styles.
 
 ```kotlin
-Button(
-    text = "Submit",
-    onClick = { 
-        // Handle click
-    },
-    modifier = Modifier
-        .padding(8.px, 16.px)
-        .backgroundColor("#0077cc")
-        .color("#ffffff")
-        .borderRadius(4.px)
-)
+@Composable
+fun ButtonExample(): String {
+    return Button(
+        text = "Submit",
+        modifier = Modifier()
+            .padding(8.px, 16.px)
+            .backgroundColor("#0077cc")
+            .color("#ffffff")
+            .borderRadius(4.px)
+            .cursor(Cursor.Pointer)
+            .onClick("handleSubmit()")
+    )
+}
 ```
 
 ### TextField
@@ -41,18 +47,34 @@ Button(
 The `TextField` component creates input fields for text entry.
 
 ```kotlin
-var text by remember { mutableStateOf("") }
+// Add TextField to your standalone implementation
+@Composable
+fun TextField(
+    value: String = "",
+    placeholder: String = "",
+    modifier: Modifier = Modifier()
+): String {
+    val styleStr = if (modifier.styles.isNotEmpty()) " style=\"${modifier.toStyleString()}\"" else ""
+    val attrsStr = if (modifier.attributes.isNotEmpty()) " ${modifier.toAttributesString()}" else ""
+    val placeholderAttr = if (placeholder.isNotEmpty()) " placeholder=\"$placeholder\"" else ""
+    return "<input type=\"text\" value=\"$value\"$placeholderAttr$attrsStr$styleStr>"
+}
 
-TextField(
-    value = text,
-    onValueChange = { text = it },
-    placeholder = "Enter your name",
-    modifier = Modifier
-        .width(200.px)
-        .padding(8.px)
-        .border(1.px, "#cccccc")
-        .borderRadius(4.px)
-)
+@Composable
+fun TextFieldExample(): String {
+    val text = remember { mutableStateOf("") }
+    
+    return TextField(
+        value = text.value,
+        placeholder = "Enter your name",
+        modifier = Modifier()
+            .width(200.px)
+            .padding(8.px)
+            .border(1.px, BorderStyle.Solid, "#cccccc")
+            .borderRadius(4.px)
+            .attribute("oninput", "updateTextValue(this.value)")
+    )
+}
 ```
 
 ### Checkbox
@@ -60,14 +82,36 @@ TextField(
 The `Checkbox` component creates selectable checkboxes.
 
 ```kotlin
-var checked by remember { mutableStateOf(false) }
+// Add Checkbox to your standalone implementation
+@Composable
+fun Checkbox(
+    checked: Boolean = false,
+    label: String = "",
+    modifier: Modifier = Modifier()
+): String {
+    val styleStr = if (modifier.styles.isNotEmpty()) " style=\"${modifier.toStyleString()}\"" else ""
+    val attrsStr = if (modifier.attributes.isNotEmpty()) " ${modifier.toAttributesString()}" else ""
+    val checkedAttr = if (checked) " checked" else ""
+    
+    return if (label.isNotEmpty()) {
+        "<label$styleStr><input type=\"checkbox\"$checkedAttr$attrsStr> $label</label>"
+    } else {
+        "<input type=\"checkbox\"$checkedAttr$attrsStr$styleStr>"
+    }
+}
 
-Checkbox(
-    checked = checked,
-    onCheckedChange = { checked = it },
-    label = "Accept terms and conditions",
-    modifier = Modifier.padding(8.px)
-)
+@Composable
+fun CheckboxExample(): String {
+    val checked = remember { mutableStateOf(false) }
+    
+    return Checkbox(
+        checked = checked.value,
+        label = "Accept terms and conditions",
+        modifier = Modifier()
+            .padding(8.px)
+            .attribute("onchange", "updateCheckbox(this.checked)")
+    )
+}
 ```
 
 ### Link
@@ -79,7 +123,7 @@ Link(
     text = "Visit our website",
     href = "https://example.com",
     target = "_blank",
-    modifier = Modifier
+    modifier = Modifier()
         .color("#0077cc")
         .textDecoration(TextDecoration.Underline)
 )
@@ -92,34 +136,36 @@ Link(
 The `Row` component arranges its children horizontally.
 
 ```kotlin
-Row(
-    modifier = Modifier
-        .padding(16.px)
-        .gap(8.px)
-) {
-    Text("Item 1")
-    Text("Item 2")
-    Text("Item 3")
+@Composable
+fun RowExample(): String {
+    return Row(
+        modifier = Modifier()
+            .padding(16.px)
+            .gap(8.px)
+    ) {
+        Text("Item 1") + Text("Item 2") + Text("Item 3")
+    }
 }
 ```
 
 ### Column
 
-The `Column` component arranges its children vertically. By default, it applies the `fillMaxSize` modifier to fill the maximum available width and height.
+The `Column` component arranges its children vertically.
 
 ```kotlin
-Column(
-    modifier = Modifier
-        .padding(16.px)
-        .gap(8.px)
-) {
-    Text("Item 1")
-    Text("Item 2")
-    Text("Item 3")
+@Composable
+fun ColumnExample(): String {
+    return Column(
+        modifier = Modifier()
+            .padding(16.px)
+            .gap(8.px)
+    ) {
+        Text("Item 1") + Text("Item 2") + Text("Item 3")
+    }
 }
 ```
 
-Note that the `fillMaxSize` modifier is applied automatically, so the Column will fill its parent container by default. If you want to override this behavior, you can provide your own size modifiers.
+Note: The Column component in the standalone implementation uses flexbox with `flex-direction: column` for vertical layout.
 
 ### Grid
 
@@ -127,13 +173,13 @@ The `Grid` component creates a CSS grid layout.
 
 ```kotlin
 Grid(
-    modifier = Modifier
+    modifier = Modifier()
         .gridTemplateColumns("1fr 1fr 1fr")
         .gap(16.px)
 ) {
     repeat(9) { index ->
         Div(
-            modifier = Modifier
+            modifier = Modifier()
                 .padding(16.px)
                 .backgroundColor("#f0f0f0")
                 .borderRadius(4.px)
@@ -150,21 +196,21 @@ The `Card` component creates a container with a shadow and border.
 
 ```kotlin
 Card(
-    modifier = Modifier
+    modifier = Modifier()
         .padding(16.px)
         .boxShadow("0 2px 4px rgba(0, 0, 0, 0.1)")
         .borderRadius(8.px)
 ) {
     Column(
-        modifier = Modifier
+        modifier = Modifier()
             .padding(16.px)
             .gap(8.px)
     ) {
         Text(
             text = "Card Title",
-            modifier = Modifier
+            modifier = Modifier()
                 .fontSize(18.px)
-                .fontWeight(700)
+                .fontWeight(FontWeight.Bold)
         )
         Text("Card content goes here")
         Button(text = "Learn More")
@@ -194,7 +240,7 @@ The `Badge` component displays a small status indicator.
 ```kotlin
 Badge(
     text = "New",
-    modifier = Modifier
+    modifier = Modifier()
         .backgroundColor("#ff0000")
         .color("#ffffff")
         .padding(4.px, 8.px)
@@ -214,7 +260,7 @@ AccessibleElement(
     role = AccessibilityUtils.NodeRole.BUTTON,
     label = "Close dialog",
     relations = mapOf("controls" to "main-dialog"),
-    modifier = Modifier
+    modifier = Modifier()
         .padding(8.px)
         .backgroundColor("#0077cc")
         .color("#ffffff")
@@ -267,38 +313,51 @@ Footer {
 Creating custom components in Summon is straightforward using the `@Composable` annotation:
 
 ```kotlin
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.extensions.px
+// Add Card component to your standalone implementation
+@Composable
+fun Card(
+    modifier: Modifier = Modifier(),
+    content: () -> String
+): String {
+    val cardModifier = modifier
+        .backgroundColor("white")
+        .borderRadius(8.px)
+        .boxShadow("0 2px 4px rgba(0, 0, 0, 0.1)")
+        .padding(16.px)
+    return Div(cardModifier) { content() }
+}
 
 @Composable
 fun CustomCard(
     title: String,
     content: String,
-    buttonText: String,
-    onButtonClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
+    buttonText: String
+): String {
+    return Card(
+        modifier = Modifier()
             .padding(16.px)
             .boxShadow("0 2px 4px rgba(0, 0, 0, 0.1)")
             .borderRadius(8.px)
     ) {
         Column(
-            modifier = Modifier
+            modifier = Modifier()
                 .padding(16.px)
                 .gap(8.px)
         ) {
             Text(
                 text = title,
-                modifier = Modifier
+                modifier = Modifier()
                     .fontSize(18.px)
-                    .fontWeight(700)
-            )
-            Text(content)
-            Button(
+                    .fontWeight(FontWeight.Bold)
+            ) + Text(content) + Button(
                 text = buttonText,
-                onClick = onButtonClick
+                modifier = Modifier()
+                    .backgroundColor("#0077cc")
+                    .color("white")
+                    .padding(8.px, 16.px)
+                    .borderRadius(4.px)
+                    .cursor(Cursor.Pointer)
+                    .onClick("handleCardButton()")
             )
         }
     }
@@ -306,12 +365,11 @@ fun CustomCard(
 
 // Usage
 @Composable
-fun MyPage() {
-    CustomCard(
+fun MyPage(): String {
+    return CustomCard(
         title = "Welcome",
         content = "This is a custom component example.",
-        buttonText = "Learn More",
-        onButtonClick = { /* Handle click */ }
+        buttonText = "Learn More"
     )
 }
 ```
@@ -324,15 +382,15 @@ Components can be composed together to build more complex UIs:
 @Composable
 fun UserProfile(user: User) {
     Column(
-        modifier = Modifier
+        modifier = Modifier()
             .padding(16.px)
             .gap(16.px)
     ) {
         Card {
-            Column(modifier = Modifier.padding(16.px).gap(8.px)) {
+            Column(modifier = Modifier().padding(16.px).gap(8.px)) {
                 Text(
                     text = user.name,
-                    modifier = Modifier.fontSize(24.px).fontWeight(700)
+                    modifier = Modifier().fontSize(24.px).fontWeight(FontWeight.Bold)
                 )
                 Text(user.email)
                 Text("Member since: ${user.joinDate}")
@@ -340,17 +398,17 @@ fun UserProfile(user: User) {
         }
 
         Card {
-            Column(modifier = Modifier.padding(16.px).gap(8.px)) {
+            Column(modifier = Modifier().padding(16.px).gap(8.px)) {
                 Text(
                     text = "Recent Activity",
-                    modifier = Modifier.fontSize(18.px).fontWeight(700)
+                    modifier = Modifier().fontSize(18.px).fontWeight(FontWeight.Bold)
                 )
 
                 user.activities.forEach { activity ->
                     Row(
-                        modifier = Modifier
+                        modifier = Modifier()
                             .padding(8.px)
-                            .borderBottom(1.px, "#eeeeee")
+                            .borderBottom(1.px, BorderStyle.Solid, "#eeeeee")
                     ) {
                         Text(activity.date)
                         Spacer(width = 16.px)
@@ -378,10 +436,10 @@ TextArea(
     onValueChange = { text = it },
     placeholder = "Enter your message",
     rows = 5,
-    modifier = Modifier
+    modifier = Modifier()
         .width(300.px)
         .padding(8.px)
-        .border(1.px, "#cccccc")
+        .border(1.px, BorderStyle.Solid, "#cccccc")
         .borderRadius(4.px)
 )
 ```
@@ -393,7 +451,7 @@ The `RadioButton` component creates radio buttons for single selection.
 ```kotlin
 var selectedOption by remember { mutableStateOf("option1") }
 
-Column(modifier = Modifier.gap(8.px)) {
+Column(modifier = Modifier().gap(8.px)) {
     RadioButton(
         selected = selectedOption == "option1",
         onClick = { selectedOption = "option1" },
@@ -418,7 +476,7 @@ Switch(
     checked = enabled,
     onCheckedChange = { enabled = it },
     label = "Enable notifications",
-    modifier = Modifier.padding(8.px)
+    modifier = Modifier().padding(8.px)
 )
 ```
 
@@ -438,7 +496,7 @@ Select(
         SelectOption("large", "Large")
     ),
     placeholder = "Choose size",
-    modifier = Modifier.width(200.px)
+    modifier = Modifier().width(200.px)
 )
 ```
 
@@ -455,7 +513,7 @@ Slider(
     min = 0f,
     max = 100f,
     step = 1f,
-    modifier = Modifier.width(300.px)
+    modifier = Modifier().width(300.px)
 )
 ```
 
@@ -472,7 +530,7 @@ RangeSlider(
     min = 0f,
     max = 100f,
     step = 1f,
-    modifier = Modifier.width(300.px)
+    modifier = Modifier().width(300.px)
 )
 ```
 
@@ -487,7 +545,7 @@ DatePicker(
     value = selectedDate,
     onValueChange = { selectedDate = it },
     placeholder = "Select date",
-    modifier = Modifier.width(200.px)
+    modifier = Modifier().width(200.px)
 )
 ```
 
@@ -502,7 +560,7 @@ TimePicker(
     value = selectedTime,
     onValueChange = { selectedTime = it },
     placeholder = "Select time",
-    modifier = Modifier.width(200.px)
+    modifier = Modifier().width(200.px)
 )
 ```
 
@@ -519,14 +577,14 @@ FileUpload(
     },
     accept = "image/*",
     multiple = true,
-    modifier = Modifier
+    modifier = Modifier()
         .width(400.px)
         .height(200.px)
-        .border(2.px, "#cccccc", BorderStyle.Dashed)
+        .border(2.px, BorderStyle.Dashed, "#cccccc")
         .borderRadius(8.px)
 ) {
     Column(
-        modifier = Modifier
+        modifier = Modifier()
             .fillMaxSize()
             .justifyContent(JustifyContent.Center)
             .alignItems(AlignItems.Center)
@@ -547,7 +605,7 @@ The `Box` component creates a container with positioning capabilities.
 
 ```kotlin
 Box(
-    modifier = Modifier
+    modifier = Modifier()
         .size(200.px)
         .backgroundColor("#f0f0f0")
         .position(Position.Relative)
@@ -555,7 +613,7 @@ Box(
     // Positioned child
     Text(
         "Top Right",
-        modifier = Modifier
+        modifier = Modifier()
             .position(Position.Absolute)
             .top(8.px)
             .right(8.px)
@@ -564,7 +622,7 @@ Box(
     // Centered child
     Text(
         "Center",
-        modifier = Modifier
+        modifier = Modifier()
             .position(Position.Absolute)
             .top(50.percent)
             .left(50.percent)
@@ -580,9 +638,9 @@ The `Spacer` component creates flexible spacing.
 ```kotlin
 Row {
     Text("Start")
-    Spacer(modifier = Modifier.width(16.px))
+    Spacer(modifier = Modifier().width(16.px))
     Text("Middle")
-    Spacer(modifier = Modifier.weight(1f)) // Flexible spacer
+    Spacer(modifier = Modifier().weight(1f)) // Flexible spacer
     Text("End")
 }
 ```
@@ -592,10 +650,10 @@ Row {
 The `Divider` component creates visual separators.
 
 ```kotlin
-Column(modifier = Modifier.gap(16.px)) {
+Column(modifier = Modifier().gap(16.px)) {
     Text("Section 1")
     Divider(
-        modifier = Modifier
+        modifier = Modifier()
             .fillMaxWidth()
             .height(1.px)
             .backgroundColor("#cccccc")
@@ -611,7 +669,7 @@ The `AspectRatio` component maintains aspect ratio for its content.
 ```kotlin
 AspectRatio(
     ratio = 16f / 9f,
-    modifier = Modifier
+    modifier = Modifier()
         .fillMaxWidth()
         .backgroundColor("#000000")
 ) {
@@ -635,17 +693,17 @@ ExpansionPanel(
     onExpandedChange = { expanded = it },
     header = {
         Row(
-            modifier = Modifier
+            modifier = Modifier()
                 .fillMaxWidth()
                 .padding(16.px)
                 .justifyContent(JustifyContent.SpaceBetween)
         ) {
-            Text("Click to expand", modifier = Modifier.fontWeight(600))
+            Text("Click to expand", modifier = Modifier().fontWeight(FontWeight.SemiBold))
             Icon(if (expanded) "▼" else "▶")
         }
     }
 ) {
-    Column(modifier = Modifier.padding(16.px)) {
+    Column(modifier = Modifier().padding(16.px)) {
         Text("Expanded content goes here")
         Text("This content is only visible when expanded")
     }
@@ -659,17 +717,17 @@ The `LazyColumn` and `LazyRow` components create virtualized lists for better pe
 ```kotlin
 // LazyColumn for vertical scrolling
 LazyColumn(
-    modifier = Modifier
+    modifier = Modifier()
         .fillMaxWidth()
         .height(400.px)
 ) {
     items(1000) { index ->
         Card(
-            modifier = Modifier
+            modifier = Modifier()
                 .fillMaxWidth()
                 .padding(8.px)
         ) {
-            Text("Item $index", modifier = Modifier.padding(16.px))
+            Text("Item $index", modifier = Modifier().padding(16.px))
         }
     }
     
@@ -677,10 +735,10 @@ LazyColumn(
     item {
         Text(
             "Header",
-            modifier = Modifier
+            modifier = Modifier()
                 .padding(16.px)
                 .fontSize(20.px)
-                .fontWeight(700)
+                .fontWeight(FontWeight.Bold)
         )
     }
     
@@ -691,7 +749,7 @@ LazyColumn(
 
 // LazyRow for horizontal scrolling
 LazyRow(
-    modifier = Modifier
+    modifier = Modifier()
         .fillMaxWidth()
         .height(200.px)
 ) {
@@ -699,7 +757,7 @@ LazyRow(
         Image(
             src = image.url,
             alt = image.description,
-            modifier = Modifier
+            modifier = Modifier()
                 .width(150.px)
                 .height(150.px)
                 .padding(8.px)
@@ -718,7 +776,7 @@ The `Image` component displays images with various options.
 Image(
     src = "/logo.png",
     alt = "Company logo",
-    modifier = Modifier
+    modifier = Modifier()
         .width(200.px)
         .height(100.px)
         .objectFit(ObjectFit.Cover)
@@ -734,7 +792,7 @@ The `Icon` component displays icons from various sources.
 // Text-based icon
 Icon(
     content = "✓",
-    modifier = Modifier
+    modifier = Modifier()
         .size(24.px)
         .color("#00cc00")
 )
@@ -743,7 +801,7 @@ Icon(
 Icon(
     src = "/icons/settings.svg",
     alt = "Settings",
-    modifier = Modifier
+    modifier = Modifier()
         .size(24.px)
         .color("#666666")
 )
@@ -758,7 +816,7 @@ The `Progress` and `ProgressBar` components show progress indicators.
 ```kotlin
 // Indeterminate progress
 Progress(
-    modifier = Modifier.size(32.px)
+    modifier = Modifier().size(32.px)
 )
 
 // Determinate progress bar
@@ -766,7 +824,7 @@ var progress by remember { mutableStateOf(0.7f) }
 
 ProgressBar(
     progress = progress,
-    modifier = Modifier
+    modifier = Modifier()
         .fillMaxWidth()
         .height(8.px)
         .backgroundColor("#e0e0e0")
@@ -783,7 +841,7 @@ The `Snackbar` components show temporary notifications.
 fun MyApp() {
     val snackbarHostState = remember { SnackbarHostState() }
     
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier().fillMaxSize()) {
         // Your app content
         Column {
             Button(
@@ -803,7 +861,7 @@ fun MyApp() {
         // Snackbar host positioned at the bottom
         SnackbarHost(
             hostState = snackbarHostState,
-            modifier = Modifier
+            modifier = Modifier()
                 .align(Alignment.BottomCenter)
                 .padding(16.px)
         )
@@ -820,7 +878,7 @@ Tooltip(
     content = {
         Text(
             "This is a helpful tooltip",
-            modifier = Modifier
+            modifier = Modifier()
                 .padding(8.px)
                 .backgroundColor("#333333")
                 .color("#ffffff")
@@ -848,9 +906,9 @@ Column {
         selectedIndex = selectedTab,
         onTabSelected = { selectedTab = it },
         tabs = listOf("Overview", "Details", "Reviews"),
-        modifier = Modifier
+        modifier = Modifier()
             .fillMaxWidth()
-            .borderBottom(1.px, "#cccccc")
+            .borderBottom(1.px, BorderStyle.Solid, "#cccccc")
     )
     
     // Tab content
@@ -889,7 +947,7 @@ fun RegistrationForm() {
                 onValueChange = field.onChange,
                 placeholder = "Username",
                 error = field.error,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier().fillMaxWidth()
             )
         }
         
@@ -903,14 +961,14 @@ fun RegistrationForm() {
                 placeholder = "Email",
                 type = "email",
                 error = field.error,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier().fillMaxWidth()
             )
         }
         
         Button(
             onClick = { formState.submit() },
             enabled = formState.isValid,
-            modifier = Modifier.marginTop(16.px)
+            modifier = Modifier().marginTop(16.px)
         ) {
             Text("Register")
         }

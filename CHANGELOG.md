@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.8.7]
+
+### Changed
+- **Version Bump:** Updated all documentation examples and version references to 0.2.8.7
+- **Documentation Updates:** Updated feature version references from v0.2.7+ to v0.2.8+
+- **Example Updates:** Updated Quarkus and Spring Boot example dependencies to 0.2.8.7
+
 ## [0.2.8.6]
 
 ### Added

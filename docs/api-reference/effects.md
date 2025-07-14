@@ -651,7 +651,7 @@ fun useResizeObserver(
 @Composable
 fun useOnlineStatus(): MutableState<Boolean>
 
-// Effect for clipboard API (v0.2.7+: Full implementation with fallback)
+// Effect for clipboard API (v0.2.8+: Full implementation with fallback)
 @Composable
 fun useClipboard(): ClipboardAPI
 
@@ -689,7 +689,7 @@ fun useSystemTray(
     tooltip: String
 ): SystemTrayControl
 
-// Effect for clipboard API (v0.2.7+: Full implementation with fallback)
+// Effect for clipboard API (v0.2.8+: Full implementation with fallback)
 @Composable
 fun useClipboard(): ClipboardAPI
 
@@ -732,7 +732,7 @@ fun LazyLoadComponent() {
             }
         }
         
-        // Clipboard API (v0.2.7+: Browser API with automatic fallback)
+        // Clipboard API (v0.2.8+: Browser API with automatic fallback)
         val clipboard = useClipboard()
         
         Button(
@@ -740,13 +740,13 @@ fun LazyLoadComponent() {
             onClick = {
                 imageUrl.value?.let { 
                     clipboard.writeText(it)
-                    // v0.2.7+: Automatically uses navigator.clipboard API if available,
+                    // v0.2.8+: Automatically uses navigator.clipboard API if available,
                     // falls back to document.execCommand for older browsers
                 }
             }
         )
         
-        // v0.2.7+: Read from clipboard (requires permissions)
+        // v0.2.8+: Read from clipboard (requires permissions)
         Button(
             text = "Paste",
             onClick = {
