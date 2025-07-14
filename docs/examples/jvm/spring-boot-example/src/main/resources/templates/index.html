@@ -1,300 +1,61 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:summon="http://summon.yousef.code">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${pageTitle ?: 'Home - Spring Boot Summon Example'}">Home - Spring Boot Summon Example</title>
     
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Custom CSS -->
+    <!-- Pure Summon - Minimal CSS Reset Only -->
     <style>
-        :root {
-            --primary-color: #3498db;
-            --secondary-color: #2ecc71;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
-            --info-color: #3498db;
-            --text-color: #333;
-            --background-color: #f8f9fa;
-            --panel-color: #fff;
-            --border-color: #dee2e6;
-        }
-
-        body {
-            background-color: var(--background-color);
-            color: var(--text-color);
-        }
-
-        .navbar-brand {
-            font-weight: bold;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 4rem 0;
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .card {
-            border: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: box-shadow 0.3s ease;
-        }
-
-        .card:hover {
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-        }
-
-        .footer {
-            background-color: #343a40;
-            color: white;
-            padding: 2rem 0;
-            margin-top: 3rem;
-        }
-
-        .live-update {
-            transition: background-color 0.3s ease;
-        }
-
-        .live-update.updated {
-            background-color: #d4edda;
-        }
-
-        .counter-value {
-            transition: transform 0.2s ease;
-        }
-
-        .counter-value.changed {
-            transform: scale(1.1);
-        }
+        /* Minimal reset only */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; }
+        
+        /* Flash message styling */
+        .alert { padding: 1rem; margin: 1rem 0; border-radius: 4px; }
+        .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .alert-info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/" th:href="@{/}">🚀 Summon + Spring Boot</a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/" th:href="@{/}">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/users" th:href="@{/users}">Users</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/dashboard" th:href="@{/dashboard}">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/contact" th:href="@{/contact}">Contact</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/chat" th:href="@{/chat}">Chat</a>
-                    </li>
-                </ul>
-                
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <span class="navbar-text">
-                            <i class="bi bi-clock"></i>
-                            <span id="header-time" class="live-update">--:--:--</span>
-                        </span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
     <!-- Flash Messages -->
-    <div th:if="${message}" class="container mt-3">
-        <div th:class="'alert alert-' + ${messageType == 'error' ? 'danger' : messageType} + ' alert-dismissible fade show'" role="alert">
+    <div th:if="${message}" style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
+        <div th:class="'alert alert-' + ${messageType == 'error' ? 'danger' : messageType}">
             <span th:text="${message}">Message</span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     </div>
 
-    <!-- Main Content -->
+    <!-- PURE SUMMON CONTENT ONLY -->
     <main>
-        <!-- Hero Section -->
-        <div class="hero-section">
-            <div class="container">
-                <h1 class="display-4 fw-bold mb-3" th:text="'Welcome to Spring Boot + Summon, ' + ${username ?: 'User'} + '!'">
-                    Welcome to Spring Boot + Summon, User!
-                </h1>
-                <p class="lead mb-4">
-                    Build reactive web applications with Kotlin, Spring Boot, and the Summon UI library
-                </p>
-                <button class="btn btn-light btn-lg" onclick="scrollToFeatures()">
-                    Get Started
-                </button>
-            </div>
-        </div>
+        <!-- Hero Section - Pure Summon -->
+        <div th:utext="${heroHtml}"><!-- Summon Hero Component --></div>
 
-        <div class="container">
-            <!-- Current Time Component -->
-            <div class="card text-center mb-4" style="background-color: var(--panel-color);">
-                <div class="card-body py-4">
-                    <h5 class="card-title text-primary mb-3">Current Server Time</h5>
-                    <div id="current-time" class="display-4 fw-bold mb-2 live-update">--:--:--</div>
-                    <p class="card-text text-muted" id="current-date">Loading...</p>
-                </div>
-            </div>
+        <!-- Main Content Container -->
+        <div style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
+            <!-- Current Time Component - Pure Summon -->
+            <div th:utext="${currentTimeHtml}"><!-- Summon Current Time Component --></div>
 
-            <!-- Features Section -->
-            <div id="features-section" class="mb-5">
-                <h2 class="text-center mb-4 display-6 fw-bold">Key Features</h2>
-                <div class="row">
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100 text-center">
-                            <div class="card-body p-4">
-                                <div class="display-1 mb-3">🔄</div>
-                                <h5 class="card-title fw-bold">Reactive UI</h5>
-                                <p class="card-text">Build reactive user interfaces with Compose-like state management.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100 text-center">
-                            <div class="card-body p-4">
-                                <div class="display-1 mb-3">🌱</div>
-                                <h5 class="card-title fw-bold">Spring Integration</h5>
-                                <p class="card-text">Seamless integration with Spring Boot and Thymeleaf templates.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100 text-center">
-                            <div class="card-body p-4">
-                                <div class="display-1 mb-3">🛡️</div>
-                                <h5 class="card-title fw-bold">Type-Safe</h5>
-                                <p class="card-text">Kotlin's type safety with declarative UI components.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Features Section - Pure Summon -->
+            <div th:utext="${featuresHtml}"><!-- Summon Features Component --></div>
 
-            <!-- Interactive Counter -->
-            <div class="row justify-content-center mb-5">
-                <div class="col-md-6">
-                    <div class="card text-center">
-                        <div class="card-body p-4">
-                            <h5 class="card-title fw-bold mb-3">Interactive Counter</h5>
-                            <div id="counter-value" class="display-3 fw-bold text-primary mb-4 counter-value">0</div>
-                            <div class="d-flex gap-3 justify-content-center">
-                                <button class="btn btn-secondary" onclick="updateCounter('decrement')">
-                                    Decrement
-                                </button>
-                                <button class="btn btn-primary" onclick="updateCounter('increment')">
-                                    Increment
-                                </button>
-                                <button class="btn btn-outline-secondary" onclick="updateCounter('reset')">
-                                    Reset
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Interactive Counter - Pure Summon -->
+            <div th:utext="${counterHtml}"><!-- Summon Counter Component --></div>
 
-            <!-- Quick Links -->
-            <div class="row mb-5">
-                <div class="col-md-6 mb-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">👥 User Management</h5>
-                            <p class="card-text">Manage users with full CRUD operations and interactive tables.</p>
-                            <a href="/users" th:href="@{/users}" class="btn btn-primary">View Users</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">📊 Dashboard</h5>
-                            <p class="card-text">View statistics, metrics, and activity feeds.</p>
-                            <a href="/dashboard" th:href="@{/dashboard}" class="btn btn-info">View Dashboard</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Quick Links - Pure Summon -->
+            <div th:utext="${quickLinksHtml}"><!-- Summon Quick Links Component --></div>
         </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <p class="mb-0">© 2025 Summon Spring Boot Example. All rights reserved.</p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <p class="mb-0">
-                        Built with 
-                        <a href="https://spring.io/projects/spring-boot" class="text-success text-decoration-none">Spring Boot</a> 
-                        and 
-                        <a href="https://github.com/codeyousef/summon" class="text-info text-decoration-none">Summon</a>
-                    </p>
-                </div>
-            </div>
-        </div>
-    </footer>
+    <!-- Navigation - Pure Summon -->
+    <nav th:utext="${navigationHtml}"><!-- Summon Navigation Component --></nav>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Custom JavaScript -->
+    <!-- Footer - Pure Summon -->
+    <footer th:utext="${footerHtml}"><!-- Summon Footer Component --></footer>
+
+    <!-- Pure Summon JavaScript (minimal for component interactions) -->
     <script>
-        // Live time update
-        function updateTime() {
-            fetch('/api/time')
-                .then(response => response.text())
-                .then(time => {
-                    const timeElement = document.getElementById('current-time');
-                    const headerTime = document.getElementById('header-time');
-                    
-                    if (timeElement) {
-                        timeElement.textContent = time;
-                        timeElement.classList.add('updated');
-                        setTimeout(() => timeElement.classList.remove('updated'), 300);
-                    }
-                    
-                    if (headerTime) {
-                        headerTime.textContent = time;
-                        headerTime.classList.add('updated');
-                        setTimeout(() => headerTime.classList.remove('updated'), 300);
-                    }
-                })
-                .catch(error => console.log('Error updating time:', error));
-        }
-
-        // Update date
-        function updateDate() {
-            fetch('/api/date')
-                .then(response => response.text())
-                .then(date => {
-                    const dateElement = document.getElementById('current-date');
-                    if (dateElement) {
-                        dateElement.textContent = date;
-                    }
-                })
-                .catch(error => console.log('Error updating date:', error));
-        }
-
-        // Counter functions
+        // Counter functions for Summon components
         function updateCounter(action) {
             const endpoint = action === 'reset' ? '/api/counter/reset' : `/api/counter/${action}`;
             
@@ -304,85 +65,25 @@
                     const counterElement = document.getElementById('counter-value');
                     if (counterElement) {
                         counterElement.textContent = data.value;
-                        animateCounterChange(counterElement);
                     }
                 })
-                .catch(error => {
-                    console.error('Error updating counter:', error);
-                    window.handleApiError(error, 'Failed to update counter');
-                });
+                .catch(error => console.error('Error updating counter:', error));
         }
 
-        function animateCounterChange(element) {
-            element.classList.add('changed');
-            setTimeout(() => element.classList.remove('changed'), 200);
-        }
-
-        // Load initial counter value
-        function loadCounterValue() {
-            fetch('/api/counter')
-                .then(response => response.json())
-                .then(data => {
-                    const counterElement = document.getElementById('counter-value');
-                    if (counterElement) {
-                        counterElement.textContent = data.value;
-                    }
-                })
-                .catch(error => console.log('Error loading counter value:', error));
-        }
-
-        // Smooth scroll to features
+        // Scroll to features function for Summon hero component
         function scrollToFeatures() {
-            document.getElementById('features-section').scrollIntoView({
-                behavior: 'smooth'
-            });
+            const featuresElement = document.querySelector('.feature-cards');
+            if (featuresElement) {
+                featuresElement.scrollIntoView({ behavior: 'smooth' });
+            }
         }
 
         // Auto-dismiss alerts
         document.addEventListener('DOMContentLoaded', function() {
             const alerts = document.querySelectorAll('.alert');
             alerts.forEach(alert => {
-                setTimeout(() => {
-                    if (alert.classList.contains('show')) {
-                        alert.classList.remove('show');
-                        setTimeout(() => alert.remove(), 150);
-                    }
-                }, 5000);
+                setTimeout(() => alert.remove(), 5000);
             });
-        });
-
-        // Global error handler
-        window.handleApiError = function(error, fallbackMessage = 'An error occurred') {
-            console.error('API Error:', error);
-            const message = error.message || fallbackMessage;
-            
-            const alert = document.createElement('div');
-            alert.className = 'alert alert-danger alert-dismissible fade show position-fixed top-0 end-0 m-3';
-            alert.style.zIndex = '9999';
-            alert.innerHTML = `
-                <strong>Error:</strong> ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            document.body.appendChild(alert);
-            
-            setTimeout(() => {
-                if (alert.classList.contains('show')) {
-                    alert.classList.remove('show');
-                    setTimeout(() => alert.remove(), 150);
-                }
-            }, 5000);
-        };
-
-        // Initialize page
-        document.addEventListener('DOMContentLoaded', function() {
-            updateTime();
-            updateDate();
-            loadCounterValue();
-            
-            // Update time every second
-            setInterval(updateTime, 1000);
-            // Update date every minute
-            setInterval(updateDate, 60000);
         });
     </script>
 </body>

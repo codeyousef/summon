@@ -15,6 +15,7 @@ java {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
@@ -30,7 +31,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     
-    // HTML generation
+    // HTML generation for fallback
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.12.0")
     
     // Development dependencies

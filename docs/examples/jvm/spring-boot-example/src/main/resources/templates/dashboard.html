@@ -4,111 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${pageTitle ?: 'Dashboard - Spring Boot Summon Example'}">Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Pure Summon - Minimal CSS Reset Only -->
     <style>
-        body { background-color: #f8f9fa; }
-        .navbar-brand { font-weight: bold; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .card { border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .stat-card { border-left: 4px solid; }
-        .footer { background-color: #343a40; color: white; padding: 2rem 0; margin-top: 3rem; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; 
+            background-color: #f8f9fa;
+        }
+        
+        /* Flash message styling */
+        .alert { padding: 1rem; margin: 1rem 0; border-radius: 4px; }
+        .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .alert-info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/" th:href="@{/}">🚀 Summon + Spring Boot</a>
-            <div class="navbar-nav me-auto">
-                <a class="nav-link" href="/" th:href="@{/}">Home</a>
-                <a class="nav-link" href="/users" th:href="@{/users}">Users</a>
-                <a class="nav-link active" href="/dashboard" th:href="@{/dashboard}">Dashboard</a>
-                <a class="nav-link" href="/contact" th:href="@{/contact}">Contact</a>
-                <a class="nav-link" href="/chat" th:href="@{/chat}">Chat</a>
-            </div>
+    <!-- Navigation - Pure Summon -->
+    <nav th:utext="${navigationHtml}"><!-- Summon Navigation Component --></nav>
+
+    <!-- Flash Messages -->
+    <div th:if="${message}" style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
+        <div th:class="'alert alert-' + ${messageType == 'error' ? 'danger' : messageType}">
+            <span th:text="${message}">Message</span>
         </div>
-    </nav>
+    </div>
 
+    <!-- PURE SUMMON CONTENT ONLY -->
     <main>
-        <div class="container mt-4">
-            <h1 class="mb-4">📊 Dashboard</h1>
-            
-            <!-- Statistics Cards -->
-            <div class="row mb-4">
-                <div class="col-md-3">
-                    <div class="card stat-card text-center" style="border-left-color: #3498db;">
-                        <div class="card-body">
-                            <div class="h2 text-primary">👥</div>
-                            <h5>Users</h5>
-                            <div class="h3 text-primary">1,234</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card stat-card text-center" style="border-left-color: #2ecc71;">
-                        <div class="card-body">
-                            <div class="h2 text-success">💰</div>
-                            <h5>Revenue</h5>
-                            <div class="h3 text-success">$8,345</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card stat-card text-center" style="border-left-color: #f39c12;">
-                        <div class="card-body">
-                            <div class="h2 text-warning">📦</div>
-                            <h5>Products</h5>
-                            <div class="h3 text-warning">567</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card stat-card text-center" style="border-left-color: #e74c3c;">
-                        <div class="card-body">
-                            <div class="h2 text-danger">🛒</div>
-                            <h5>Orders</h5>
-                            <div class="h3 text-danger">890</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Activity -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Recent Activity</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex mb-3">
-                        <div class="me-3"><span class="badge bg-success rounded-pill">✅</span></div>
-                        <div>
-                            <strong>John Doe</strong> completed order #12345<br>
-                            <small class="text-muted">2 hours ago</small>
-                        </div>
-                    </div>
-                    <div class="d-flex mb-3">
-                        <div class="me-3"><span class="badge bg-info rounded-pill">🔄</span></div>
-                        <div>
-                            <strong>Jane Smith</strong> updated product inventory<br>
-                            <small class="text-muted">4 hours ago</small>
-                        </div>
-                    </div>
-                    <div class="d-flex">
-                        <div class="me-3"><span class="badge bg-primary rounded-pill">➕</span></div>
-                        <div>
-                            <strong>Mike Johnson</strong> added new product<br>
-                            <small class="text-muted">Yesterday</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div style="max-width: 1200px; margin: 0 auto; padding: 2rem 1rem;">
+            <!-- Dashboard - Pure Summon -->
+            <div th:utext="${dashboardHtml}"><!-- Summon Dashboard Component --></div>
         </div>
     </main>
 
-    <footer class="footer">
-        <div class="container text-center">
-            <p class="mb-0">© 2025 Summon Spring Boot Example. Built with Spring Boot and Summon.</p>
-        </div>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Footer - Pure Summon -->
+    <footer th:utext="${footerHtml}"><!-- Summon Footer Component --></footer>
 </body>
 </html>

@@ -30,11 +30,14 @@ class WebController @Autowired constructor(
         logger.info("Rendering home page")
         
         try {
-            // Render components as HTML strings
-            model.addAttribute("heroHtml", renderHeroComponent("Spring Boot User"))
-            model.addAttribute("featuresHtml", renderFeatureCardsComponent())
-            model.addAttribute("counterHtml", renderCounterComponent(0))
-            model.addAttribute("currentTimeHtml", renderCurrentTimeComponent())
+            // Render pure Summon components as HTML strings
+            model.addAttribute("heroHtml", HeroComponent("Spring Boot User"))
+            model.addAttribute("featuresHtml", FeatureCardsComponent())
+            model.addAttribute("counterHtml", CounterComponent(0))
+            model.addAttribute("currentTimeHtml", CurrentTimeComponent())
+            model.addAttribute("quickLinksHtml", QuickLinksComponent())
+            model.addAttribute("navigationHtml", NavigationComponent())
+            model.addAttribute("footerHtml", FooterComponent())
             model.addAttribute("pageTitle", "Home - Spring Boot Summon Example")
             model.addAttribute("username", "Spring Boot User")
             
@@ -56,8 +59,13 @@ class WebController @Autowired constructor(
         try {
             val users = userService.getAllUsers()
             
-            // Render user table component
-            model.addAttribute("userTableHtml", renderUserTableComponent(users))
+            // Render pure Summon components
+            model.addAttribute("userHeaderHtml", UserPageHeaderComponent())
+            model.addAttribute("addUserFormHtml", AddUserFormComponent())
+            model.addAttribute("userTableHtml", UserTableComponent(users))
+            model.addAttribute("userStatisticsHtml", UserStatisticsComponent(users))
+            model.addAttribute("navigationHtml", NavigationComponent())
+            model.addAttribute("footerHtml", FooterComponent())
             model.addAttribute("pageTitle", "User Management - Spring Boot Summon Example")
             model.addAttribute("users", users)
             
@@ -77,8 +85,10 @@ class WebController @Autowired constructor(
         logger.info("Rendering dashboard page")
         
         try {
-            // Render dashboard component
-            model.addAttribute("dashboardHtml", renderDashboardComponent())
+            // Render pure Summon components
+            model.addAttribute("dashboardHtml", DashboardComponent())
+            model.addAttribute("navigationHtml", NavigationComponent())
+            model.addAttribute("footerHtml", FooterComponent())
             model.addAttribute("pageTitle", "Dashboard - Spring Boot Summon Example")
             
             return "dashboard"
@@ -97,8 +107,10 @@ class WebController @Autowired constructor(
         logger.info("Rendering contact page")
         
         try {
-            // Render contact form component
-            model.addAttribute("contactFormHtml", renderContactFormComponent())
+            // Render pure Summon components
+            model.addAttribute("contactFormHtml", ContactFormComponent())
+            model.addAttribute("navigationHtml", NavigationComponent())
+            model.addAttribute("footerHtml", FooterComponent())
             model.addAttribute("pageTitle", "Contact Us - Spring Boot Summon Example")
             
             return "contact"

@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.8.6]
+
+### Added
+- **Complete Spring Boot Example:** Added comprehensive Spring Boot integration example with Thymeleaf templates
+  - Pure Summon implementation with standalone Modifier system
+  - Full CRUD user management with server-side rendering
+  - Dashboard with statistics and activity feeds
+  - Contact form with validation
+  - Interactive counter component
+  - Navigation and footer components
+  - All styling done through Modifier system, no Bootstrap or manual CSS
+  - Complete test suite with 8 passing tests
+  - Integration with Thymeleaf using `th:utext` for Summon-rendered HTML
+
+### Fixed
+- **Example Templates:** Converted all Spring Boot templates to use pure Summon components
+  - Removed Bootstrap CSS dependencies
+  - Eliminated manual HTML structure in favor of Summon components
+  - Removed JavaScript libraries, keeping only minimal component interaction scripts
+  - Templates now use only Summon-rendered content via server-side component rendering
+
+### Enhanced
+- **Testing Infrastructure:** Added comprehensive test coverage for Summon components
+  - Component rendering tests
+  - State management tests
+  - Modifier system tests
+  - Form validation tests
+
 ## [0.2.8.5]
 
 ### Fixed

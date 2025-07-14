@@ -200,7 +200,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     
     // Summon UI Library
-    implementation("io.github.codeyousef:summon:0.2.8.5")
+    implementation("io.github.codeyousef:summon:0.2.8.6")
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.12.0")
     
     // Kotlin

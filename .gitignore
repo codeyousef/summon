@@ -112,3 +112,4 @@ npm-debug.log
 /docs/examples/js/js-example/stylesheet-analysis.md
 # Commented out to allow yarn.lock in examples
 # /docs/examples/js/js-example/kotlin-js-store/yarn.lock
+/docs/examples/jvm/spring-boot-example/logs/
