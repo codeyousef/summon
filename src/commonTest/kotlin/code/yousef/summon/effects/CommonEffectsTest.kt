@@ -2,7 +2,7 @@ package code.yousef.summon.effects
 
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.components.input.SelectOption
+import code.yousef.summon.runtime.SelectOption
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.html.FlowContent

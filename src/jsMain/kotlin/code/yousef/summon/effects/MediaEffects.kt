@@ -5,6 +5,7 @@ import code.yousef.summon.effects.onMountWithCleanup
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.state.SummonMutableState
 import code.yousef.summon.state.mutableStateOf
+import code.yousef.summon.theme.MediaQuery
 import kotlinx.browser.window
 import org.w3c.dom.MediaQueryList
 import org.w3c.dom.events.Event
@@ -46,21 +47,52 @@ fun CompositionScope.useMediaQuery(query: String): SummonMutableState<Boolean> {
 
 /**
  * Common breakpoints for responsive design
+ * Uses MediaQuery.Breakpoints values for consistency
  */
 object Breakpoints {
-    const val MOBILE = "(max-width: 767px)"
-    const val TABLET = "(min-width: 768px) and (max-width: 1023px)"
-    const val DESKTOP = "(min-width: 1024px)"
-    const val LARGE_DESKTOP = "(min-width: 1440px)"
+    // Media query strings using standard breakpoint values
+    val MOBILE = "(max-width: ${MediaQuery.Breakpoints.sm - 1}px)"
+    val TABLET = "(min-width: ${MediaQuery.Breakpoints.sm}px) and (max-width: ${MediaQuery.Breakpoints.md - 1}px)"
+    val DESKTOP = "(min-width: ${MediaQuery.Breakpoints.md}px)"
+    val LARGE_DESKTOP = "(min-width: ${MediaQuery.Breakpoints.lg}px)"
     
+    // Orientation queries
     const val PORTRAIT = "(orientation: portrait)"
     const val LANDSCAPE = "(orientation: landscape)"
     
+    // Color scheme queries
     const val DARK_MODE = "(prefers-color-scheme: dark)"
     const val LIGHT_MODE = "(prefers-color-scheme: light)"
     
+    // Motion preference queries
     const val REDUCED_MOTION = "(prefers-reduced-motion: reduce)"
     const val ALLOWS_MOTION = "(prefers-reduced-motion: no-preference)"
+    
+    /**
+     * Helper function to create a media query string from breakpoint values
+     */
+    fun fromBreakpoint(minWidth: Int? = null, maxWidth: Int? = null): String {
+        return when {
+            minWidth != null && maxWidth != null -> "(min-width: ${minWidth}px) and (max-width: ${maxWidth}px)"
+            minWidth != null -> "(min-width: ${minWidth}px)"
+            maxWidth != null -> "(max-width: ${maxWidth}px)"
+            else -> ""
+        }
+    }
+    
+    /**
+     * Create media query from MediaQuery.Breakpoints constants
+     */
+    fun fromBreakpointName(breakpoint: String): String {
+        return when (breakpoint) {
+            "xs" -> "(max-width: ${MediaQuery.Breakpoints.sm - 1}px)"
+            "sm" -> fromBreakpoint(MediaQuery.Breakpoints.sm, MediaQuery.Breakpoints.md - 1)
+            "md" -> fromBreakpoint(MediaQuery.Breakpoints.md, MediaQuery.Breakpoints.lg - 1)
+            "lg" -> fromBreakpoint(MediaQuery.Breakpoints.lg, MediaQuery.Breakpoints.xl - 1)
+            "xl" -> "(min-width: ${MediaQuery.Breakpoints.xl}px)"
+            else -> ""
+        }
+    }
 }
 
 /**

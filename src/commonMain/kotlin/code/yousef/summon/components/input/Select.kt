@@ -6,7 +6,7 @@ import code.yousef.summon.runtime.getPlatformRenderer
 import code.yousef.summon.state.SummonMutableState
 import code.yousef.summon.state.mutableStateOf
 import code.yousef.summon.validation.Validator
-import code.yousef.summon.runtime.SelectOption as RendererSelectOption
+import code.yousef.summon.runtime.SelectOption
 
 /**
  * Class that manages select state and validation.
@@ -42,16 +42,6 @@ class SelectState<T>(
      */
     fun isValid(): Boolean = validationErrors.value.isEmpty()
 }
-
-/**
- * Data class representing a select option (Component's internal version).
- */
-data class SelectOption<T>(
-    val value: T,
-    val label: String,
-    val disabled: Boolean = false,
-    val selected: Boolean = false
-)
 
 /**
  * A composable that displays a dropdown select field.
@@ -111,13 +101,13 @@ fun <T> Select(
         finalModifier = finalModifier.id(selectId)
     }
 
-    // Map the component's SelectOption list to the renderer's SelectOption list
-    val rendererOptions = mutableListOf<RendererSelectOption<T?>>()
+    // Build the complete options list
+    val rendererOptions = mutableListOf<SelectOption<T?>>()
 
     // Add placeholder option if provided
     if (placeholder != null) {
         rendererOptions.add(
-            RendererSelectOption<T?>(
+            SelectOption<T?>(
                 value = null,
                 label = placeholder,
                 disabled = true
@@ -126,12 +116,11 @@ fun <T> Select(
     }
 
     // Add all the regular options
-    rendererOptions.addAll(options.map { componentOption ->
-        RendererSelectOption(
-            value = componentOption.value,
-            label = componentOption.label,
-            disabled = componentOption.disabled
-            // Note: componentOption.selected is not used here as RendererSelectOption lacks it
+    rendererOptions.addAll(options.map { option ->
+        SelectOption(
+            value = option.value,
+            label = option.label,
+            disabled = option.disabled
         )
     })
 

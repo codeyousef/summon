@@ -300,66 +300,21 @@ class DynamicRenderer(
      * Serialize the initial state to JSON
      */
     private fun serializeInitialState(state: Map<String, Any?>): String {
-        if (state.isEmpty()) return "{}"
-
-        return buildString {
-            append("{")
-            state.entries.forEachIndexed { index, (key, value) ->
-                if (index > 0) append(",")
-                append("\"$key\":")
-                append(serializeValue(value))
-            }
-            append("}")
-        }
+        return SerializationUtils.serializeInitialState(state)
     }
 
     /**
      * Serialize a value to JSON
      */
     private fun serializeValue(value: Any?): String {
-        return when (value) {
-            null -> "null"
-            is String -> "\"${escapeJsonString(value)}\""
-            is Number, is Boolean -> value.toString()
-            is Map<*, *> -> {
-                val map = value.entries.associate { 
-                    (it.key as? String ?: it.key.toString()) to it.value 
-                }
-                buildString {
-                    append("{")
-                    map.entries.forEachIndexed { index, (key, mapValue) ->
-                        if (index > 0) append(",")
-                        append("\"$key\":")
-                        append(serializeValue(mapValue))
-                    }
-                    append("}")
-                }
-            }
-            is List<*> -> {
-                buildString {
-                    append("[")
-                    value.forEachIndexed { index, item ->
-                        if (index > 0) append(",")
-                        append(serializeValue(item))
-                    }
-                    append("]")
-                }
-            }
-            is Array<*> -> serializeValue(value.toList())
-            else -> "\"${escapeJsonString(value.toString())}\""
-        }
+        return SerializationUtils.serializeValue(value)
     }
 
     /**
      * Escape special characters in JSON strings
      */
     private fun escapeJsonString(str: String): String {
-        return str.replace("\\", "\\\\")
-            .replace("\"", "\\\"")
-            .replace("\b", "\\b")
-            .replace("\n", "\\n")
-            .replace("\r", "\\r")
-            .replace("\t", "\\t")
+        return SerializationUtils.escapeJsonString(str)
     }
 
     /**
