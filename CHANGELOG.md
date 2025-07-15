@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.9.0]
+
+### Added
+- **Core Library Enhancements:**
+  - Added `toCssString()` method to Color class for CSS string conversion
+  - Added missing `Rotate3d` to TransformFunction enum for 3D rotation transformations
+  - Added backdrop filter modifiers (backdropFilter, backdropBlur, backdropBrightness, backdropContrast, backdropGrayscale, backdropHueRotate, backdropInvert, backdropOpacity, backdropSaturate, backdropSepia)
+  - Enhanced shadowConfig function to convert string colors to Color objects automatically
+  - Added support for multiple backdrop filters with chaining
+
+### Fixed
+- **Cross-Platform Compatibility:**
+  - Fixed `DOT_MATCHES_ALL` regex issue in RichText component by using `[\s\S]*?` pattern for multiplatform compatibility
+  - Fixed `Math.toRadians()` reference in LayoutModifiers by using manual calculation: `angle.degrees.toDouble() * kotlin.math.PI / 180.0`
+  - Fixed floating-point precision test failure in ShadowConfigTest by making assertions more flexible across platforms
+
+- **CompositionLocal Runtime Error:**
+  - Fixed "CompositionLocal not provided" error in JvmPlatformRenderer
+  - Updated renderContent() method to properly provide LocalPlatformRenderer without accessing private renderer variable
+
+- **Build System:**
+  - Fixed yarn lock file synchronization issues
+  - Resolved missing JS dependencies for webpack and karma-runner
+  - Fixed JS test compilation issues by cleaning and reinstalling dependencies
+
 ## [0.2.8.7]
 
 ### Changed

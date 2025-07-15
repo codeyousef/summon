@@ -16,7 +16,7 @@ import code.yousef.summon.test.Text
 internal inline fun assert(value: Boolean, lazyMessage: () -> Any = { "" }) {
     if (!value) {
         val message = lazyMessage()
-        throw AssertionError(message.toString())
+        throw  AssertionError(message.toString())
     }
 }
 

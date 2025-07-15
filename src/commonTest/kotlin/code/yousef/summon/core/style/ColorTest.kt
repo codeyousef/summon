@@ -97,6 +97,19 @@ class ColorTest {
     }
 
     @Test
+    fun testToCssString() {
+        val red = Color(0xFF0000FFu) // RGBA: 255, 0, 0, 255
+        assertEquals("rgba(255, 0, 0, 1.0)", red.toCssString(), "toCssString should return RGBA string")
+
+        val semiTransparentBlue = Color(0x0000FF80u) // RGBA: 0, 0, 255, 128
+        assertEquals("rgba(0, 0, 255, 0.5019608)", semiTransparentBlue.toCssString(), "toCssString with alpha should match expected format")
+        
+        // Verify toCssString and toRgbaString produce the same result
+        assertEquals(red.toRgbaString(), red.toCssString(), "toCssString should equal toRgbaString")
+        assertEquals(semiTransparentBlue.toRgbaString(), semiTransparentBlue.toCssString(), "toCssString should equal toRgbaString for semi-transparent color")
+    }
+
+    @Test
     fun testRgbCreation() {
         // Test using companion object method
         val red1 = Color.rgb(255, 0, 0)

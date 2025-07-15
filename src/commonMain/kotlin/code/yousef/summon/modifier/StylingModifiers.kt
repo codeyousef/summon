@@ -1,6 +1,9 @@
 package code.yousef.summon.modifier
 
 import kotlin.jvm.JvmName
+import code.yousef.summon.extensions.px
+import code.yousef.summon.extensions.rem
+import code.yousef.summon.extensions.percent
 
 /**
  * Extension functions for Styling Modifiers
@@ -1204,3 +1207,728 @@ fun Modifier.linearGradient(
         colorStops = listOf(startColor to startPosition, endColor to endPosition)
     )
 }
+
+// === Backdrop Filter Modifiers ===
+
+/**
+ * Sets the backdrop-filter CSS property.
+ * Used for creating glass morphism effects.
+ * 
+ * @param value The backdrop filter value (e.g., "blur(10px)", "blur(5px) brightness(1.1)")
+ * @return A new Modifier with the backdrop filter applied
+ */
+fun Modifier.backdropFilter(value: String): Modifier =
+    style("backdrop-filter", value)
+
+/**
+ * Applies a backdrop blur effect.
+ * Creates a glass-like blur behind the element.
+ * 
+ * @param value The blur radius (e.g., "10px", "5px")
+ * @return A new Modifier with backdrop blur applied
+ */
+fun Modifier.backdropBlur(value: String): Modifier =
+    backdropFilter("blur($value)")
+
+/**
+ * Applies a backdrop blur effect with a numeric value in pixels.
+ * 
+ * @param value The blur radius in pixels
+ * @return A new Modifier with backdrop blur applied
+ */
+fun Modifier.backdropBlur(value: Number): Modifier =
+    backdropBlur("${value}px")
+
+/**
+ * Applies backdrop brightness adjustment.
+ * Values > 1.0 brighten, values < 1.0 darken.
+ * 
+ * @param value The brightness multiplier (e.g., 1.1 for 10% brighter)
+ * @return A new Modifier with backdrop brightness applied
+ */
+fun Modifier.backdropBrightness(value: Double): Modifier =
+    backdropFilter("brightness($value)")
+
+/**
+ * Applies backdrop contrast adjustment.
+ * Values > 1.0 increase contrast, values < 1.0 decrease contrast.
+ * 
+ * @param value The contrast multiplier (e.g., 1.2 for 20% more contrast)
+ * @return A new Modifier with backdrop contrast applied
+ */
+fun Modifier.backdropContrast(value: Double): Modifier =
+    backdropFilter("contrast($value)")
+
+/**
+ * Applies backdrop saturation adjustment.
+ * Values > 1.0 increase saturation, values < 1.0 decrease saturation.
+ * 
+ * @param value The saturation multiplier (e.g., 1.3 for 30% more saturation)
+ * @return A new Modifier with backdrop saturation applied
+ */
+fun Modifier.backdropSaturate(value: Double): Modifier =
+    backdropFilter("saturate($value)")
+
+/**
+ * Applies backdrop grayscale effect.
+ * 
+ * @param value The grayscale amount (0.0 to 1.0, where 1.0 is completely grayscale)
+ * @return A new Modifier with backdrop grayscale applied
+ */
+fun Modifier.backdropGrayscale(value: Double): Modifier =
+    backdropFilter("grayscale($value)")
+
+/**
+ * Applies backdrop hue rotation.
+ * 
+ * @param degrees The rotation in degrees (e.g., 90, 180, 270)
+ * @return A new Modifier with backdrop hue rotation applied
+ */
+fun Modifier.backdropHueRotate(degrees: Number): Modifier =
+    backdropFilter("hue-rotate(${degrees}deg)")
+
+/**
+ * Applies backdrop invert effect.
+ * 
+ * @param value The invert amount (0.0 to 1.0, where 1.0 is completely inverted)
+ * @return A new Modifier with backdrop invert applied
+ */
+fun Modifier.backdropInvert(value: Double): Modifier =
+    backdropFilter("invert($value)")
+
+/**
+ * Applies backdrop sepia effect.
+ * 
+ * @param value The sepia amount (0.0 to 1.0, where 1.0 is completely sepia)
+ * @return A new Modifier with backdrop sepia applied
+ */
+fun Modifier.backdropSepia(value: Double): Modifier =
+    backdropFilter("sepia($value)")
+
+/**
+ * Combines multiple backdrop filters.
+ * 
+ * @param filters List of filter functions (e.g., "blur(10px)", "brightness(1.1)")
+ * @return A new Modifier with combined backdrop filters
+ */
+fun Modifier.combineBackdropFilters(vararg filters: String): Modifier =
+    backdropFilter(filters.joinToString(" "))
+
+/**
+ * Creates a glass morphism effect with common settings.
+ * Applies blur and slight brightness increase for a glass-like appearance.
+ * 
+ * @param blurAmount The blur radius (default: "10px")
+ * @param brightness The brightness multiplier (default: 1.05)
+ * @return A new Modifier with glass morphism effect
+ */
+fun Modifier.glassMorphism(
+    blurAmount: String = "10px",
+    brightness: Double = 1.05
+): Modifier =
+    combineBackdropFilters("blur($blurAmount)", "brightness($brightness)")
+
+/**
+ * Creates a glass morphism effect with numeric blur value.
+ * 
+ * @param blurPx The blur radius in pixels (default: 10)
+ * @param brightness The brightness multiplier (default: 1.05)
+ * @return A new Modifier with glass morphism effect
+ */
+fun Modifier.glassMorphism(
+    blurPx: Number = 10,
+    brightness: Double = 1.05
+): Modifier =
+    glassMorphism("${blurPx}px", brightness)
+
+// === Multiple Shadow System ===
+
+/**
+ * Data class representing a single shadow configuration.
+ */
+data class ShadowConfig(
+    val horizontalOffset: String,
+    val verticalOffset: String, 
+    val blurRadius: String,
+    val spreadRadius: String? = null,
+    val color: code.yousef.summon.core.style.Color,
+    val inset: Boolean = false
+) {
+    /**
+     * Converts this shadow configuration to a CSS shadow string.
+     */
+    fun toCssString(): String {
+        val insetStr = if (inset) "inset " else ""
+        val colorStr = color.toCssString()
+        return if (spreadRadius != null) {
+            "$insetStr$horizontalOffset $verticalOffset $blurRadius $spreadRadius $colorStr"
+        } else {
+            "$insetStr$horizontalOffset $verticalOffset $blurRadius $colorStr"
+        }
+    }
+    
+    companion object {
+        /**
+         * Type-safe factory function using unit extensions.
+         * 
+         * @param horizontalOffset Horizontal offset with unit extension (e.g., 0.px)
+         * @param verticalOffset Vertical offset with unit extension (e.g., 8.px)  
+         * @param blurRadius Blur radius with unit extension (e.g., 32.px)
+         * @param spreadRadius Optional spread radius with unit extension
+         * @param color Type-safe Color object
+         * @param inset Whether this is an inset (inner) shadow
+         * @return ShadowConfig with proper type safety
+         */
+        fun create(
+            horizontalOffset: Number,
+            verticalOffset: Number,
+            blurRadius: Number,
+            spreadRadius: Number? = null,
+            color: code.yousef.summon.core.style.Color,
+            inset: Boolean = false
+        ) = ShadowConfig(
+            horizontalOffset.px,
+            verticalOffset.px,
+            blurRadius.px,
+            spreadRadius?.px,
+            color,
+            inset
+        )
+        
+        /**
+         * Creates a glow effect shadow (centered with no spread).
+         * 
+         * @param blurRadius Blur radius with unit extension (e.g., 20.px)
+         * @param color Type-safe Color object  
+         * @param intensity Optional spread intensity with unit extension
+         * @return ShadowConfig configured as a glow effect
+         */
+        fun glow(
+            blurRadius: Number,
+            color: code.yousef.summon.core.style.Color,
+            intensity: Number = 0
+        ) = ShadowConfig(
+            0.px,
+            0.px, 
+            blurRadius.px,
+            if (intensity.toDouble() != 0.0) intensity.px else null,
+            color,
+            false
+        )
+        
+        /**
+         * Creates an inner glow effect shadow.
+         * 
+         * @param blurRadius Blur radius with unit extension (e.g., 10.px)
+         * @param color Type-safe Color object
+         * @return ShadowConfig configured as an inner glow effect
+         */
+        fun innerGlow(
+            blurRadius: Number,
+            color: code.yousef.summon.core.style.Color
+        ) = ShadowConfig(
+            0.px,
+            0.px, 
+            blurRadius.px,
+            null,
+            color,
+            true
+        )
+    }
+}
+
+/**
+ * Creates a ShadowConfig with numeric offsets (converted to pixels).
+ */
+fun shadowConfig(
+    horizontalOffset: Number,
+    verticalOffset: Number,
+    blurRadius: Number,
+    spreadRadius: Number? = null,
+    color: String,
+    inset: Boolean = false
+): ShadowConfig = ShadowConfig(
+    horizontalOffset = "${horizontalOffset}px",
+    verticalOffset = "${verticalOffset}px",
+    blurRadius = "${blurRadius}px",
+    spreadRadius = spreadRadius?.let { "${it}px" },
+    color = code.yousef.summon.core.style.Color.fromHex(color),
+    inset = inset
+)
+
+/**
+ * Creates a ShadowConfig using Color object.
+ */
+fun shadowConfig(
+    horizontalOffset: Number,
+    verticalOffset: Number,
+    blurRadius: Number,
+    spreadRadius: Number? = null,
+    color: code.yousef.summon.core.style.Color,
+    inset: Boolean = false
+): ShadowConfig = shadowConfig(
+    horizontalOffset, verticalOffset, blurRadius, spreadRadius, color.toString(), inset
+)
+
+/**
+ * Applies multiple box shadows.
+ * Allows creating complex shadow effects by combining multiple shadows.
+ * 
+ * @param shadows List of shadow configurations
+ * @return A new Modifier with multiple shadows applied
+ */
+fun Modifier.multipleShadows(shadows: List<ShadowConfig>): Modifier {
+    val shadowStrings = shadows.map { it.toCssString() }
+    return boxShadow(shadowStrings.joinToString(", "))
+}
+
+/**
+ * Applies multiple box shadows using vararg.
+ * 
+ * @param shadows Variable number of shadow configurations
+ * @return A new Modifier with multiple shadows applied
+ */
+fun Modifier.multipleShadows(vararg shadows: ShadowConfig): Modifier =
+    multipleShadows(shadows.toList())
+
+/**
+ * Adds a shadow to existing shadows on this modifier.
+ * This allows chaining shadow effects.
+ * 
+ * @param shadow The shadow configuration to add
+ * @return A new Modifier with the additional shadow
+ */
+fun Modifier.addShadow(shadow: ShadowConfig): Modifier {
+    val currentShadow = this.styles["box-shadow"]
+    return if (currentShadow != null) {
+        boxShadow("$currentShadow, ${shadow.toCssString()}")
+    } else {
+        boxShadow(shadow.toCssString())
+    }
+}
+
+/**
+ * Adds a shadow with numeric parameters.
+ * 
+ * @param horizontalOffset The horizontal offset in pixels
+ * @param verticalOffset The vertical offset in pixels
+ * @param blurRadius The blur radius in pixels
+ * @param spreadRadius The spread radius in pixels (optional)
+ * @param color The shadow color
+ * @param inset Whether the shadow is inset (default: false)
+ * @return A new Modifier with the additional shadow
+ */
+fun Modifier.addShadow(
+    horizontalOffset: Number,
+    verticalOffset: Number,
+    blurRadius: Number,
+    spreadRadius: Number? = null,
+    color: String,
+    inset: Boolean = false
+): Modifier = addShadow(
+    shadowConfig(horizontalOffset, verticalOffset, blurRadius, spreadRadius, color, inset)
+)
+
+/**
+ * Adds a shadow with Color object.
+ */
+fun Modifier.addShadow(
+    horizontalOffset: Number,
+    verticalOffset: Number,
+    blurRadius: Number,
+    spreadRadius: Number? = null,
+    color: code.yousef.summon.core.style.Color,
+    inset: Boolean = false
+): Modifier = addShadow(
+    shadowConfig(horizontalOffset, verticalOffset, blurRadius, spreadRadius, color, inset)
+)
+
+/**
+ * Creates a glow effect using multiple shadows.
+ * Useful for creating aurora-like glowing effects.
+ * 
+ * @param color The glow color
+ * @param intensity The glow intensity (1 = subtle, 3 = intense)
+ * @param size The size of the glow effect in pixels
+ * @return A new Modifier with glow effect
+ */
+fun Modifier.glow(
+    color: String,
+    intensity: Int = 2,
+    size: Number = 20
+): Modifier {
+    val shadows = mutableListOf<ShadowConfig>()
+    
+    // Create multiple shadows with increasing blur for glow effect
+    for (i in 1..intensity) {
+        val blur = size.toDouble() * i
+        shadows.add(shadowConfig(0, 0, blur.toInt(), color = color))
+    }
+    
+    return multipleShadows(shadows)
+}
+
+/**
+ * Creates a glow effect using Color object.
+ */
+fun Modifier.glow(
+    color: code.yousef.summon.core.style.Color,
+    intensity: Int = 2,
+    size: Number = 20
+): Modifier = glow(color.toString(), intensity, size)
+
+/**
+ * Creates an inner glow effect using inset shadows.
+ * 
+ * @param color The glow color
+ * @param intensity The glow intensity (1 = subtle, 3 = intense)
+ * @param size The size of the glow effect in pixels
+ * @return A new Modifier with inner glow effect
+ */
+fun Modifier.innerGlow(
+    color: String,
+    intensity: Int = 2,
+    size: Number = 10
+): Modifier {
+    val shadows = mutableListOf<ShadowConfig>()
+    
+    // Create multiple inset shadows for inner glow
+    for (i in 1..intensity) {
+        val blur = size.toDouble() * i
+        shadows.add(shadowConfig(0, 0, blur.toInt(), color = color, inset = true))
+    }
+    
+    return multipleShadows(shadows)
+}
+
+/**
+ * Creates an inner glow effect using Color object.
+ */
+fun Modifier.innerGlow(
+    color: code.yousef.summon.core.style.Color,
+    intensity: Int = 2,
+    size: Number = 10
+): Modifier = innerGlow(color.toString(), intensity, size)
+
+/**
+ * Creates an aurora-style multi-colored glow effect.
+ * Perfect for the Aurora Portal and similar effects.
+ * 
+ * @param colors List of colors to use in the aurora effect
+ * @param baseSize Base size for the glow effects
+ * @return A new Modifier with aurora glow effect
+ */
+fun Modifier.auroraGlow(
+    colors: List<String>,
+    baseSize: Number = 20
+): Modifier {
+    val shadows = mutableListOf<ShadowConfig>()
+    
+    colors.forEachIndexed { index, color ->
+        val size = baseSize.toDouble() * (index + 1)
+        val blur = size * 1.5
+        shadows.add(shadowConfig(0, 0, blur.toInt(), color = color))
+    }
+    
+    return multipleShadows(shadows)
+}
+
+/**
+ * Creates an aurora-style glow with predefined aurora colors.
+ * Uses the classic aurora color palette: teal, blue, purple, pink.
+ * 
+ * @param baseSize Base size for the glow effects (default: 20)
+ * @return A new Modifier with aurora glow effect
+ */
+fun Modifier.auroraGlow(baseSize: Number = 20): Modifier =
+    auroraGlow(
+        colors = listOf(
+            "rgba(240, 249, 255, 0.8)",  // Light blue
+            "rgba(56, 178, 172, 0.6)",   // Teal
+            "rgba(44, 82, 130, 0.7)",    // Navy blue
+            "rgba(155, 44, 44, 0.5)"     // Dark red/purple
+        ),
+        baseSize = baseSize
+    )
+
+// ========================
+// Clip Path Modifiers
+// ========================
+
+/**
+ * Sets the clip-path CSS property with a custom value.
+ * 
+ * @param value The clip-path value (e.g., "circle(50%)", "polygon(0% 0%, 100% 0%, 50% 100%)")
+ * @return A new Modifier with the clip-path style applied
+ */
+fun Modifier.clipPath(value: String): Modifier =
+    style("clip-path", value)
+
+/**
+ * Clips the element to a circle shape.
+ * 
+ * @param radius The radius of the circle (e.g., "50%", "100px", "50px at 25% 25%")
+ * @return A new Modifier with circle clip-path applied
+ */
+fun Modifier.clipCircle(radius: String = "50%"): Modifier =
+    clipPath("circle($radius)")
+
+/**
+ * Clips the element to a circle shape with center position.
+ * 
+ * @param radius The radius of the circle (e.g., "50%", "100px")
+ * @param centerX The X position of the circle center (e.g., "25%", "100px")
+ * @param centerY The Y position of the circle center (e.g., "25%", "100px")
+ * @return A new Modifier with circle clip-path applied
+ */
+fun Modifier.clipCircle(radius: String, centerX: String, centerY: String): Modifier =
+    clipPath("circle($radius at $centerX $centerY)")
+
+/**
+ * Clips the element to an ellipse shape.
+ * 
+ * @param radiusX The horizontal radius (e.g., "50%", "100px")
+ * @param radiusY The vertical radius (e.g., "50%", "100px")
+ * @return A new Modifier with ellipse clip-path applied
+ */
+fun Modifier.clipEllipse(radiusX: String = "50%", radiusY: String = "50%"): Modifier =
+    clipPath("ellipse($radiusX $radiusY)")
+
+/**
+ * Clips the element to an ellipse shape with center position.
+ * 
+ * @param radiusX The horizontal radius (e.g., "50%", "100px")
+ * @param radiusY The vertical radius (e.g., "50%", "100px")
+ * @param centerX The X position of the ellipse center (e.g., "25%", "100px")
+ * @param centerY The Y position of the ellipse center (e.g., "25%", "100px")
+ * @return A new Modifier with ellipse clip-path applied
+ */
+fun Modifier.clipEllipse(radiusX: String, radiusY: String, centerX: String, centerY: String): Modifier =
+    clipPath("ellipse($radiusX $radiusY at $centerX $centerY)")
+
+/**
+ * Clips the element to a polygon shape defined by a list of points.
+ * 
+ * @param points List of coordinate pairs (e.g., listOf("0% 0%", "100% 0%", "50% 100%"))
+ * @return A new Modifier with polygon clip-path applied
+ */
+fun Modifier.clipPolygon(points: List<String>): Modifier =
+    clipPath("polygon(${points.joinToString(", ")})")
+
+/**
+ * Clips the element to a polygon shape defined by coordinate pairs.
+ * 
+ * @param points Vararg of coordinate pairs (e.g., "0% 0%", "100% 0%", "50% 100%")
+ * @return A new Modifier with polygon clip-path applied
+ */
+fun Modifier.clipPolygon(vararg points: String): Modifier =
+    clipPolygon(points.toList())
+
+/**
+ * Clips the element to a rectangle shape using inset values.
+ * 
+ * @param top Inset from top (e.g., "10px", "5%")
+ * @param right Inset from right (e.g., "10px", "5%") 
+ * @param bottom Inset from bottom (e.g., "10px", "5%")
+ * @param left Inset from left (e.g., "10px", "5%")
+ * @param round Optional border radius for rounded corners (e.g., "10px")
+ * @return A new Modifier with inset clip-path applied
+ */
+fun Modifier.clipInset(
+    top: String,
+    right: String = top,
+    bottom: String = top,
+    left: String = right,
+    round: String? = null
+): Modifier {
+    val roundPart = if (round != null) " round $round" else ""
+    return clipPath("inset($top $right $bottom $left$roundPart)")
+}
+
+/**
+ * Clips the element to a triangle pointing up.
+ * 
+ * @return A new Modifier with triangle clip-path applied
+ */
+fun Modifier.clipTriangleUp(): Modifier =
+    clipPolygon("50% 0%", "0% 100%", "100% 100%")
+
+/**
+ * Clips the element to a triangle pointing down.
+ * 
+ * @return A new Modifier with triangle clip-path applied
+ */
+fun Modifier.clipTriangleDown(): Modifier =
+    clipPolygon("50% 100%", "0% 0%", "100% 0%")
+
+/**
+ * Clips the element to a triangle pointing left.
+ * 
+ * @return A new Modifier with triangle clip-path applied
+ */
+fun Modifier.clipTriangleLeft(): Modifier =
+    clipPolygon("0% 50%", "100% 0%", "100% 100%")
+
+/**
+ * Clips the element to a triangle pointing right.
+ * 
+ * @return A new Modifier with triangle clip-path applied
+ */
+fun Modifier.clipTriangleRight(): Modifier =
+    clipPolygon("100% 50%", "0% 0%", "0% 100%")
+
+/**
+ * Clips the element to a diamond shape.
+ * 
+ * @return A new Modifier with diamond clip-path applied
+ */
+fun Modifier.clipDiamond(): Modifier =
+    clipPolygon("50% 0%", "100% 50%", "50% 100%", "0% 50%")
+
+/**
+ * Clips the element to a hexagon shape.
+ * 
+ * @return A new Modifier with hexagon clip-path applied
+ */
+fun Modifier.clipHexagon(): Modifier =
+    clipPolygon("30% 0%", "70% 0%", "100% 50%", "70% 100%", "30% 100%", "0% 50%")
+
+/**
+ * Clips the element to a star shape.
+ * 
+ * @return A new Modifier with star clip-path applied
+ */
+fun Modifier.clipStar(): Modifier =
+    clipPolygon(
+        "50% 0%", "61% 35%", "98% 35%", "68% 57%", "79% 91%",
+        "50% 70%", "21% 91%", "32% 57%", "2% 35%", "39% 35%"
+    )
+
+/**
+ * Clips the element to an arrow pointing right.
+ * 
+ * @return A new Modifier with arrow clip-path applied
+ */
+fun Modifier.clipArrowRight(): Modifier =
+    clipPolygon("0% 20%", "60% 20%", "60% 0%", "100% 50%", "60% 100%", "60% 80%", "0% 80%")
+
+/**
+ * Clips the element to an arrow pointing left.
+ * 
+ * @return A new Modifier with arrow clip-path applied
+ */
+fun Modifier.clipArrowLeft(): Modifier =
+    clipPolygon("40% 0%", "40% 20%", "100% 20%", "100% 80%", "40% 80%", "40% 100%", "0% 50%")
+
+/**
+ * Clips the element to a chevron pointing right.
+ * 
+ * @return A new Modifier with chevron clip-path applied
+ */
+fun Modifier.clipChevronRight(): Modifier =
+    clipPolygon("75% 0%", "100% 50%", "75% 100%", "25% 100%", "50% 50%", "25% 0%")
+
+/**
+ * Clips the element to a chevron pointing left.
+ * 
+ * @return A new Modifier with chevron clip-path applied
+ */
+fun Modifier.clipChevronLeft(): Modifier =
+    clipPolygon("25% 0%", "0% 50%", "25% 100%", "75% 100%", "50% 50%", "75% 0%")
+
+/**
+ * Clips the element to a message bubble shape with tail on the left.
+ * 
+ * @return A new Modifier with message bubble clip-path applied
+ */
+fun Modifier.clipMessageBubble(): Modifier =
+    clipPolygon("0% 0%", "100% 0%", "100% 75%", "75% 75%", "75% 100%", "50% 75%", "0% 75%")
+
+// ========================
+// Type-Safe Transform & Filter APIs  
+// ========================
+
+/**
+ * Applies multiple CSS transform functions in a type-safe manner.
+ * 
+ * @param transforms Variable number of transform function pairs
+ * @return A new Modifier with combined transforms applied
+ */
+fun Modifier.transform(vararg transforms: Pair<TransformFunction, String>): Modifier =
+    style("transform", transforms.joinToString(" ") { "${it.first}(${it.second})" })
+
+/**
+ * Applies multiple CSS filter functions in a type-safe manner.
+ * 
+ * @param filters Variable number of filter function pairs
+ * @return A new Modifier with combined filters applied
+ */
+fun Modifier.filter(vararg filters: Pair<FilterFunction, String>): Modifier =
+    style("filter", filters.joinToString(" ") { "${it.first}(${it.second})" })
+
+/**
+ * Applies a 3D rotation with type-safe parameters.
+ * 
+ * @param x X-axis component  
+ * @param y Y-axis component
+ * @param z Z-axis component
+ * @param angle Rotation angle with unit extension (e.g., 45.deg)
+ * @return A new Modifier with 3D rotation applied
+ */
+fun Modifier.rotate3d(x: Number, y: Number, z: Number, angle: Number): Modifier =
+    transform(TransformFunction.Rotate3d to "$x $y $z ${angle}deg")
+
+/**
+ * Applies CSS perspective with type-safe units.
+ * 
+ * @param distance Perspective distance with unit extension (e.g., 1000.px)
+ * @return A new Modifier with perspective applied
+ */
+fun Modifier.perspective(distance: Number): Modifier =
+    transform(TransformFunction.Perspective to distance.px)
+
+/**
+ * Applies multiple filters with type-safe parameters.
+ * 
+ * @param blur Blur radius with unit extension (e.g., 4.px)
+ * @param brightness Brightness multiplier (e.g., 1.1)  
+ * @param contrast Contrast multiplier (e.g., 1.05)
+ * @param saturate Saturation multiplier (e.g., 1.2)
+ * @return A new Modifier with combined filters applied
+ */
+fun Modifier.multiFilter(
+    blur: Number? = null,
+    brightness: Number? = null,
+    contrast: Number? = null,
+    saturate: Number? = null
+): Modifier {
+    val filters = mutableListOf<Pair<FilterFunction, String>>()
+    blur?.let { filters.add(FilterFunction.Blur to it.px) }
+    brightness?.let { filters.add(FilterFunction.Brightness to it.toString()) }
+    contrast?.let { filters.add(FilterFunction.Contrast to it.toString()) }
+    saturate?.let { filters.add(FilterFunction.Saturate to it.toString()) }
+    return filter(*filters.toTypedArray())
+}
+
+/**
+ * Applies type-safe CSS animation with enum parameters.
+ * 
+ * @param name Animation name
+ * @param duration Animation duration enum
+ * @param easing Easing function
+ * @param delay Animation delay enum  
+ * @param iterationCount Number of iterations or "infinite"
+ * @param direction Animation direction enum
+ * @param fillMode Animation fill mode enum
+ * @return A new Modifier with animation applied
+ */
+fun Modifier.animation(
+    name: String,
+    duration: AnimationDuration = AnimationDuration.Medium,
+    easing: String = "ease",
+    delay: AnimationDuration = AnimationDuration.Instant,
+    iterationCount: String = "1",
+    direction: AnimationDirection = AnimationDirection.Normal,
+    fillMode: AnimationFillMode = AnimationFillMode.None
+): Modifier =
+    style("animation", "$name $duration $easing $delay $iterationCount $direction $fillMode")

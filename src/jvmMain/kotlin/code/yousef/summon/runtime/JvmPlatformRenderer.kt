@@ -67,6 +67,10 @@ actual open class PlatformRenderer {
     // Helper to render composable content without FlowContent receiver
     private fun renderContent(content: @Composable () -> Unit) {
         requireBuilder() // Ensure context exists before calling content
+        
+        // Provide this renderer through the LocalPlatformRenderer
+        LocalPlatformRenderer.provides(this)
+        
         content() // Execute lambda, assumes it uses implicit kotlinx.html context
     }
 
@@ -1259,5 +1263,39 @@ actual open class PlatformRenderer {
             applyModifier(modifier)
             renderContent(content)
         }
+    }
+
+    actual open fun renderHtml(htmlContent: String, modifier: Modifier, sanitize: Boolean) {
+        val safeContent = if (sanitize) sanitizeHtml(htmlContent) else htmlContent
+        requireBuilder().div {
+            applyModifier(modifier)
+            unsafe {
+                +safeContent
+            }
+        }
+    }
+
+    actual open fun renderGlobalStyle(css: String) {
+        addHeadElement("<style>$css</style>")
+    }
+
+    private fun sanitizeHtml(htmlContent: String): String {
+        // Basic HTML sanitization - remove dangerous elements and attributes
+        var sanitized = htmlContent
+        
+        // Remove script tags
+        sanitized = sanitized.replace(Regex("<script[^>]*>.*?</script>", setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)), "")
+        
+        // Remove dangerous attributes
+        sanitized = sanitized.replace(Regex("\\s(on\\w+)=[\"'][^\"']*[\"']", RegexOption.IGNORE_CASE), "")
+        sanitized = sanitized.replace(Regex("\\shref=[\"']javascript:[^\"']*[\"']", RegexOption.IGNORE_CASE), "")
+        
+        // Remove dangerous tags but keep content
+        val dangerousTags = listOf("object", "embed", "applet", "iframe", "form", "input", "button")
+        for (tag in dangerousTags) {
+            sanitized = sanitized.replace(Regex("</?$tag[^>]*>", RegexOption.IGNORE_CASE), "")
+        }
+        
+        return sanitized
     }
 }

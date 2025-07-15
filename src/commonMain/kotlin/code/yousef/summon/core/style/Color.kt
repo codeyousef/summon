@@ -70,6 +70,13 @@ class Color(val value: UInt) {
         return "#${value.toString(16).padStart(8, '0')}"
     }
 
+    /**
+     * Returns this color as a CSS string - uses RGBA format for transparency support
+     */
+    fun toCssString(): String {
+        return toRgbaString()
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Color) return false

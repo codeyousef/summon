@@ -113,3 +113,5 @@ npm-debug.log
 # Commented out to allow yarn.lock in examples
 # /docs/examples/js/js-example/kotlin-js-store/yarn.lock
 /docs/examples/jvm/spring-boot-example/logs/
+/docs/examples/jvm/portfolio-example/
+/portfolio/

@@ -160,4 +160,228 @@ class StylingModifiersTest {
     }
 
     // Deprecated text functions are skipped for now.
+
+    // --- Clip Path Tests ---
+
+    @Test
+    fun testClipPathModifier() {
+        val value = "circle(50%)"
+        val modifier = Modifier().clipPath(value)
+        assertEquals(value, modifier.styles["clip-path"], "clipPath failed.")
+    }
+
+    @Test
+    fun testClipCircleModifier() {
+        val radius = "50%"
+        val modifier = Modifier().clipCircle(radius)
+        assertEquals("circle($radius)", modifier.styles["clip-path"], "clipCircle failed.")
+    }
+
+    @Test
+    fun testClipCircleDefaultModifier() {
+        val modifier = Modifier().clipCircle()
+        assertEquals("circle(50%)", modifier.styles["clip-path"], "clipCircle with default radius failed.")
+    }
+
+    @Test
+    fun testClipCircleWithCenterModifier() {
+        val radius = "100px"
+        val centerX = "25%"
+        val centerY = "30%"
+        val modifier = Modifier().clipCircle(radius, centerX, centerY)
+        assertEquals("circle($radius at $centerX $centerY)", modifier.styles["clip-path"], "clipCircle with center failed.")
+    }
+
+    @Test
+    fun testClipEllipseModifier() {
+        val radiusX = "60%"
+        val radiusY = "40%"
+        val modifier = Modifier().clipEllipse(radiusX, radiusY)
+        assertEquals("ellipse($radiusX $radiusY)", modifier.styles["clip-path"], "clipEllipse failed.")
+    }
+
+    @Test
+    fun testClipEllipseDefaultModifier() {
+        val modifier = Modifier().clipEllipse()
+        assertEquals("ellipse(50% 50%)", modifier.styles["clip-path"], "clipEllipse with default radii failed.")
+    }
+
+    @Test
+    fun testClipEllipseWithCenterModifier() {
+        val radiusX = "80px"
+        val radiusY = "60px"
+        val centerX = "20%"
+        val centerY = "30%"
+        val modifier = Modifier().clipEllipse(radiusX, radiusY, centerX, centerY)
+        assertEquals("ellipse($radiusX $radiusY at $centerX $centerY)", modifier.styles["clip-path"], "clipEllipse with center failed.")
+    }
+
+    @Test
+    fun testClipPolygonListModifier() {
+        val points = listOf("0% 0%", "100% 0%", "50% 100%")
+        val modifier = Modifier().clipPolygon(points)
+        assertEquals("polygon(${points.joinToString(", ")})", modifier.styles["clip-path"], "clipPolygon with list failed.")
+    }
+
+    @Test
+    fun testClipPolygonVarargModifier() {
+        val modifier = Modifier().clipPolygon("0% 0%", "100% 0%", "50% 100%")
+        assertEquals("polygon(0% 0%, 100% 0%, 50% 100%)", modifier.styles["clip-path"], "clipPolygon with vararg failed.")
+    }
+
+    @Test
+    fun testClipInsetModifier() {
+        val top = "10px"
+        val right = "20px"
+        val bottom = "30px"
+        val left = "40px"
+        val modifier = Modifier().clipInset(top, right, bottom, left)
+        assertEquals("inset($top $right $bottom $left)", modifier.styles["clip-path"], "clipInset failed.")
+    }
+
+    @Test
+    fun testClipInsetWithDefaultsModifier() {
+        val value = "10px"
+        val modifier = Modifier().clipInset(value)
+        assertEquals("inset($value $value $value $value)", modifier.styles["clip-path"], "clipInset with defaults failed.")
+    }
+
+    @Test
+    fun testClipInsetWithRoundModifier() {
+        val top = "5px"
+        val round = "10px"
+        val modifier = Modifier().clipInset(top, round = round)
+        assertEquals("inset($top $top $top $top round $round)", modifier.styles["clip-path"], "clipInset with round failed.")
+    }
+
+    @Test
+    fun testClipTriangleShapes() {
+        val upModifier = Modifier().clipTriangleUp()
+        assertEquals("polygon(50% 0%, 0% 100%, 100% 100%)", upModifier.styles["clip-path"], "clipTriangleUp failed.")
+
+        val downModifier = Modifier().clipTriangleDown()
+        assertEquals("polygon(50% 100%, 0% 0%, 100% 0%)", downModifier.styles["clip-path"], "clipTriangleDown failed.")
+
+        val leftModifier = Modifier().clipTriangleLeft()
+        assertEquals("polygon(0% 50%, 100% 0%, 100% 100%)", leftModifier.styles["clip-path"], "clipTriangleLeft failed.")
+
+        val rightModifier = Modifier().clipTriangleRight()
+        assertEquals("polygon(100% 50%, 0% 0%, 0% 100%)", rightModifier.styles["clip-path"], "clipTriangleRight failed.")
+    }
+
+    @Test
+    fun testClipComplexShapes() {
+        val diamondModifier = Modifier().clipDiamond()
+        assertEquals("polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)", diamondModifier.styles["clip-path"], "clipDiamond failed.")
+
+        val hexagonModifier = Modifier().clipHexagon()
+        assertEquals("polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%)", hexagonModifier.styles["clip-path"], "clipHexagon failed.")
+
+        val starModifier = Modifier().clipStar()
+        assertEquals("polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)", starModifier.styles["clip-path"], "clipStar failed.")
+    }
+
+    @Test
+    fun testClipArrowShapes() {
+        val rightArrowModifier = Modifier().clipArrowRight()
+        assertEquals("polygon(0% 20%, 60% 20%, 60% 0%, 100% 50%, 60% 100%, 60% 80%, 0% 80%)", rightArrowModifier.styles["clip-path"], "clipArrowRight failed.")
+
+        val leftArrowModifier = Modifier().clipArrowLeft()
+        assertEquals("polygon(40% 0%, 40% 20%, 100% 20%, 100% 80%, 40% 80%, 40% 100%, 0% 50%)", leftArrowModifier.styles["clip-path"], "clipArrowLeft failed.")
+    }
+
+    @Test
+    fun testClipChevronShapes() {
+        val rightChevronModifier = Modifier().clipChevronRight()
+        assertEquals("polygon(75% 0%, 100% 50%, 75% 100%, 25% 100%, 50% 50%, 25% 0%)", rightChevronModifier.styles["clip-path"], "clipChevronRight failed.")
+
+        val leftChevronModifier = Modifier().clipChevronLeft()
+        assertEquals("polygon(25% 0%, 0% 50%, 25% 100%, 75% 100%, 50% 50%, 75% 0%)", leftChevronModifier.styles["clip-path"], "clipChevronLeft failed.")
+    }
+
+    @Test
+    fun testClipMessageBubbleModifier() {
+        val modifier = Modifier().clipMessageBubble()
+        assertEquals("polygon(0% 0%, 100% 0%, 100% 75%, 75% 75%, 75% 100%, 50% 75%, 0% 75%)", modifier.styles["clip-path"], "clipMessageBubble failed.")
+    }
+
+    // --- Backdrop Filter Tests ---
+
+    @Test
+    fun testBackdropFilterModifier() {
+        val value = "blur(10px) brightness(0.8)"
+        val modifier = Modifier().backdropFilter(value)
+        assertEquals(value, modifier.styles["backdrop-filter"], "backdropFilter failed.")
+    }
+
+    @Test
+    fun testBackdropBlurModifier() {
+        val blur = "10px"
+        val modifier = Modifier().backdropBlur(blur)
+        assertEquals("blur($blur)", modifier.styles["backdrop-filter"], "backdropBlur failed.")
+    }
+
+    @Test
+    fun testBackdropBrightnessModifier() {
+        val brightness = 0.8
+        val modifier = Modifier().backdropBrightness(brightness)
+        assertEquals("brightness($brightness)", modifier.styles["backdrop-filter"], "backdropBrightness failed.")
+    }
+
+    @Test
+    fun testBackdropContrastModifier() {
+        val contrast = 1.2
+        val modifier = Modifier().backdropContrast(contrast)
+        assertEquals("contrast($contrast)", modifier.styles["backdrop-filter"], "backdropContrast failed.")
+    }
+
+    @Test
+    fun testBackdropGrayscaleModifier() {
+        val grayscale = 0.5
+        val modifier = Modifier().backdropGrayscale(grayscale)
+        assertEquals("grayscale($grayscale)", modifier.styles["backdrop-filter"], "backdropGrayscale failed.")
+    }
+
+    @Test
+    fun testBackdropHueRotateModifier() {
+        val hueRotate = 90
+        val modifier = Modifier().backdropHueRotate(hueRotate)
+        assertEquals("hue-rotate(${hueRotate}deg)", modifier.styles["backdrop-filter"], "backdropHueRotate failed.")
+    }
+
+    @Test
+    fun testBackdropInvertModifier() {
+        val invert = 0.3
+        val modifier = Modifier().backdropInvert(invert)
+        assertEquals("invert($invert)", modifier.styles["backdrop-filter"], "backdropInvert failed.")
+    }
+
+    @Test
+    fun testBackdropSaturateModifier() {
+        val saturate = 1.5
+        val modifier = Modifier().backdropSaturate(saturate)
+        assertEquals("saturate($saturate)", modifier.styles["backdrop-filter"], "backdropSaturate failed.")
+    }
+
+    @Test
+    fun testBackdropSepiaModifier() {
+        val sepia = 0.4
+        val modifier = Modifier().backdropSepia(sepia)
+        assertEquals("sepia($sepia)", modifier.styles["backdrop-filter"], "backdropSepia failed.")
+    }
+
+    // --- Shadow Tests ---
+
+    @Test
+    fun testBoxShadowModifier() {
+        val shadow = "0 4px 8px rgba(0,0,0,0.3)"
+        val modifier = Modifier().boxShadow(shadow)
+        assertEquals(shadow, modifier.styles["box-shadow"], "boxShadow failed.")
+    }
+
+    @Test
+    fun testCombineBackdropFiltersModifier() {
+        val modifier = Modifier().combineBackdropFilters("blur(10px)", "brightness(0.8)")
+        assertEquals("blur(10px) brightness(0.8)", modifier.styles["backdrop-filter"], "combineBackdropFilters failed.")
+    }
 } 

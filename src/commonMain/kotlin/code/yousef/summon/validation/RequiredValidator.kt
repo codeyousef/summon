@@ -6,7 +6,7 @@ package code.yousef.summon.validation
  */
 class RequiredValidator(private val errorMessage: String) : Validator {
     override fun validate(value: String): ValidationResult {
-        return if (value.isNotBlank()) {
+        return if (value.trim().isNotEmpty()) {
             ValidationResult(true)
         } else {
             ValidationResult(false, errorMessage)

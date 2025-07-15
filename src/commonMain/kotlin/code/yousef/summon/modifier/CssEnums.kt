@@ -1,5 +1,7 @@
 package code.yousef.summon.modifier
 
+import code.yousef.summon.extensions.px
+
 /**
  * CSS position values.
  */
@@ -358,4 +360,171 @@ enum class AlignSelf(val value: String) {
     Stretch("stretch");
 
     override fun toString(): String = value
+}
+
+/**
+ * CSS transform function values.
+ */
+enum class TransformFunction(val value: String) {
+    Translate("translate"),
+    TranslateX("translateX"),
+    TranslateY("translateY"),
+    TranslateZ("translateZ"),
+    Translate3d("translate3d"),
+    Scale("scale"),
+    ScaleX("scaleX"), 
+    ScaleY("scaleY"),
+    Rotate("rotate"),
+    RotateX("rotateX"),
+    RotateY("rotateY"),
+    RotateZ("rotateZ"),
+    Rotate3d("rotate3d"),
+    Skew("skew"),
+    SkewX("skewX"),
+    SkewY("skewY"),
+    Perspective("perspective");
+    
+    override fun toString(): String = value
+}
+
+/**
+ * CSS filter function values.
+ */
+enum class FilterFunction(val value: String) {
+    Blur("blur"),
+    Brightness("brightness"),
+    Contrast("contrast"),
+    Grayscale("grayscale"),
+    HueRotate("hue-rotate"),
+    Invert("invert"),
+    Saturate("saturate"),
+    Sepia("sepia"),
+    DropShadow("drop-shadow");
+    
+    override fun toString(): String = value
+}
+
+/**
+ * CSS mix-blend-mode values.
+ */
+enum class BlendMode(val value: String) {
+    Normal("normal"),
+    Multiply("multiply"),
+    Screen("screen"),
+    Overlay("overlay"),
+    Darken("darken"),
+    Lighten("lighten"),
+    ColorDodge("color-dodge"),
+    ColorBurn("color-burn"),
+    HardLight("hard-light"),
+    SoftLight("soft-light"),
+    Difference("difference"),
+    Exclusion("exclusion");
+    
+    override fun toString(): String = value
+}
+
+/**
+ * CSS animation duration presets with proper units.
+ */
+enum class AnimationDuration(val value: Number, val unit: String) {
+    Instant(0, "s"),
+    Fast(200, "ms"),
+    Medium(500, "ms"),
+    Slow(1, "s"),
+    VerySlow(2, "s");
+    
+    val css: String get() = "$value$unit"
+    override fun toString(): String = css
+}
+
+/**
+ * CSS animation direction values.
+ */
+enum class AnimationDirection(val value: String) {
+    Normal("normal"),
+    Reverse("reverse"),
+    Alternate("alternate"),
+    AlternateReverse("alternate-reverse");
+    
+    override fun toString(): String = value
+}
+
+/**
+ * CSS animation fill mode values.
+ */
+enum class AnimationFillMode(val value: String) {
+    None("none"),
+    Forwards("forwards"),
+    Backwards("backwards"),
+    Both("both");
+    
+    override fun toString(): String = value
+}
+
+/**
+ * Radial positioning radius presets with unit extensions.
+ */
+enum class RadialRadius(val value: Number) {
+    Small(100),
+    Medium(200), 
+    Large(300),
+    ExtraLarge(450);
+    
+    val px: String get() = value.px
+    override fun toString(): String = px
+}
+
+/**
+ * Radial positioning angles with proper degree units.
+ */
+enum class RadialAngle(val degrees: Number) {
+    Deg0(0),
+    Deg45(45),
+    Deg90(90),
+    Deg135(135),
+    Deg180(180),
+    Deg225(225),
+    Deg270(270),
+    Deg315(315);
+    
+    val deg: String get() = "${degrees}deg"
+    override fun toString(): String = deg
+    
+    companion object {
+        /**
+         * Creates a RadialAngle from a degree value.
+         * @param degrees The angle in degrees
+         * @return RadialAngle if found, null otherwise
+         */
+        fun fromDegrees(degrees: Number): RadialAngle? =
+            values().find { it.degrees == degrees }
+    }
+}
+
+/**
+ * Animation floating intensity presets.
+ */
+enum class FloatIntensity(val value: Number) {
+    Subtle(5),
+    Gentle(10),
+    Moderate(20),
+    Strong(30);
+    
+    val px: String get() = value.px
+    override fun toString(): String = px
+}
+
+/**
+ * Animation rotation speed presets.
+ */
+enum class RotationSpeed(val value: Number, val unit: String) {
+    VerySlow(30, "s"),
+    Slow(20, "s"),
+    Medium(10, "s"),
+    Fast(5, "s"),
+    VeryFast(2, "s");
+    
+    val css: String get() = "$value$unit"
+    override fun toString(): String = css
 }

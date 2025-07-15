@@ -49,7 +49,7 @@ dependencies {
     // Existing dependencies...
 
     // Summon dependencies
-    implementation("io.github.codeyousef:summon:0.2.8.7")
+    implementation("io.github.codeyousef:summon:0.2.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.12.0")
 }
 
@@ -82,7 +82,7 @@ For Maven:
     <dependency>
         <groupId>io.github.codeyousef</groupId>
         <artifactId>summon</artifactId>
-        <version>0.2.8.7</version>
+        <version>0.2.9.0</version>
     </dependency>
     <dependency>
         <groupId>org.jetbrains.kotlinx</groupId>

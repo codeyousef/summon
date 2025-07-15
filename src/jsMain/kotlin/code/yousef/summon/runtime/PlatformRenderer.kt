@@ -1480,4 +1480,33 @@ actual open class PlatformRenderer {
             }
         }
     }
+
+    actual open fun renderHtml(htmlContent: String, modifier: Modifier, sanitize: Boolean) {
+        val safeContent = if (sanitize) sanitizeHtml(htmlContent) else htmlContent
+        val element = createElement("div", modifier)
+        element.innerHTML = safeContent
+    }
+
+    actual open fun renderGlobalStyle(css: String) {
+        val head = kotlinx.browser.document.head
+        val style = kotlinx.browser.document.createElement("style")
+        style.textContent = css
+        head?.appendChild(style)
+    }
+
+    private fun sanitizeHtml(htmlContent: String): String {
+        // Basic HTML sanitization for client-side
+        var sanitized = htmlContent
+        
+        // Remove script tags
+        sanitized = sanitized.replace(Regex("<script[^>]*>.*?</script>", RegexOption.IGNORE_CASE), "")
+        
+        // Remove dangerous event handlers
+        sanitized = sanitized.replace(Regex("\\s(on\\w+)=[\"'][^\"']*[\"']", RegexOption.IGNORE_CASE), "")
+        
+        // Remove javascript: URLs
+        sanitized = sanitized.replace(Regex("\\shref=[\"']javascript:[^\"']*[\"']", RegexOption.IGNORE_CASE), "")
+        
+        return sanitized
+    }
 }

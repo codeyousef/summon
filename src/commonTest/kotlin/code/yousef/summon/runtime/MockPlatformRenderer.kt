@@ -241,6 +241,17 @@ open class MockPlatformRenderer : PlatformRenderer() {
     var lastSpanModifierRendered: Modifier? = null
     var lastSpanContentRendered: (@Composable FlowContent.() -> Unit)? = null
 
+    // GlobalStyle tracking properties
+    var renderGlobalStyleCalled = false
+    var lastGlobalStyleCssRendered: String? = null
+    var globalStyleCallCount = 0
+
+    // RichText/HTML tracking properties
+    var renderHtmlCalled = false
+    var lastHtmlContentRendered: String? = null
+    var lastHtmlModifierRendered: Modifier? = null
+    var lastHtmlSanitizeEnabledRendered: Boolean? = null
+
     /**
      * Resets all tracking properties to their default state.
      * Call this before each test or assertion if needed.
@@ -467,6 +478,17 @@ open class MockPlatformRenderer : PlatformRenderer() {
         renderSpanCalled = false
         lastSpanModifierRendered = null
         lastSpanContentRendered = null
+
+        // Reset GlobalStyle tracking properties
+        renderGlobalStyleCalled = false
+        lastGlobalStyleCssRendered = null
+        globalStyleCallCount = 0
+
+        // Reset RichText/HTML tracking properties
+        renderHtmlCalled = false
+        lastHtmlContentRendered = null
+        lastHtmlModifierRendered = null
+        lastHtmlSanitizeEnabledRendered = null
     }
 
     override fun renderText(text: String, modifier: Modifier) {
@@ -999,4 +1021,18 @@ open class MockPlatformRenderer : PlatformRenderer() {
     }
 
     override fun renderBoxContainer(modifier: Modifier, content: @Composable () -> Unit) {}
+
+    // Mock implementations for new render methods
+    override fun renderGlobalStyle(css: String) {
+        renderGlobalStyleCalled = true
+        lastGlobalStyleCssRendered = css
+        globalStyleCallCount++
+    }
+
+    override fun renderHtml(htmlContent: String, modifier: Modifier, sanitize: Boolean) {
+        renderHtmlCalled = true
+        lastHtmlContentRendered = htmlContent
+        lastHtmlModifierRendered = modifier
+        lastHtmlSanitizeEnabledRendered = sanitize
+    }
 }
