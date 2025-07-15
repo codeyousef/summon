@@ -114,6 +114,8 @@ fun FontWeight.toCssValue(): String = when (this) {
 }
 
 // Type-safe modifier extensions
+// Note: In a real application using the Summon framework, these would be imported.
+// They are defined here only for this standalone example to work without dependencies.
 fun Modifier.display(value: Display): Modifier = style("display", value.name.lowercase())
 fun Modifier.position(value: Position): Modifier = style("position", value.name.lowercase())
 fun Modifier.flexDirection(value: FlexDirection): Modifier = style("flex-direction", value.name.toKebabCase())

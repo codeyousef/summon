@@ -151,17 +151,6 @@ object StylingModifiers {
     fun Modifier.backgroundColor(value: code.yousef.summon.core.style.Color): Modifier =
         style("background-color", value.toString())
 
-    /**
-     * Sets the border property.
-     */
-    fun Modifier.border(width: String, style: String, color: String): Modifier =
-        style("border", "$width $style $color")
-
-    /**
-     * Sets the border property using the BorderStyle enum.
-     */
-    fun Modifier.border(width: String, style: BorderStyle, color: String): Modifier =
-        style("border", "$width ${style.toString()} $color")
 
     /**
      * Sets the border-radius property.
@@ -193,30 +182,12 @@ object StylingModifiers {
      */
     fun Modifier.lineHeight(value: Number): Modifier = style("line-height", value.toString())
 
-    /**
-     * Sets the text-align property.
-     */
-    fun Modifier.textAlign(value: String): Modifier = style("text-align", value)
-
-    /**
-     * Sets the text-align property using a TextAlign enum.
-     */
-    fun Modifier.textAlign(value: TextAlign): Modifier = style("text-align", value.toString())
 
     /**
      * Sets the text-decoration property.
      */
     fun Modifier.textDecoration(value: String): Modifier = style("text-decoration", value)
 
-    /**
-     * Sets the box-shadow property.
-     */
-    fun Modifier.boxShadow(value: String): Modifier = style("box-shadow", value)
-
-    /**
-     * Sets the transition property.
-     */
-    fun Modifier.transition(value: String): Modifier = style("transition", value)
 
     /**
      * Sets the transform property.

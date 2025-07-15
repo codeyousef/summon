@@ -7,7 +7,13 @@ import code.yousef.summon.runtime.LocalPlatformRenderer
  * The DeepLinking class provides utilities for generating metadata for deep links
  * and improving SEO for your application routes. It helps with social media sharing
  * and search engine indexing of specific pages.
+ * 
+ * @deprecated Use code.yousef.summon.routing.DeepLinking instead
  */
+@Deprecated(
+    message = "Use code.yousef.summon.routing.DeepLinking instead",
+    replaceWith = ReplaceWith("code.yousef.summon.routing.DeepLinking", "code.yousef.summon.routing.DeepLinking")
+)
 class DeepLinking private constructor() {
     
     /**

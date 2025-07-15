@@ -109,11 +109,10 @@ fun Modifier.height(value: String): Modifier = style("height", value)
 fun Modifier.maxWidth(value: String): Modifier = style("max-width", value)
 fun Modifier.minHeight(value: String): Modifier = style("min-height", value)
 
-// Margin and padding helpers
-fun Modifier.margin(value: String): Modifier = style("margin", value)
-fun Modifier.margin(vertical: String, horizontal: String): Modifier = style("margin", "$vertical $horizontal")
-fun Modifier.margin(top: String, right: String, bottom: String, left: String): Modifier = 
-    style("margin", "$top $right $bottom $left")
+// Margin helpers are available from the framework:
+// - margin(vertical: String, horizontal: String)
+// - margin(top: String, right: String, bottom: String, left: String)
+// Additional margin overloads available in ModifierExtensions for Number parameters
 
 // Usage examples
 @Composable

@@ -202,13 +202,13 @@ fun Modifier.position(value: Position): Modifier = style("position", value.name.
 fun Modifier.flexDirection(value: FlexDirection): Modifier = style("flex-direction", value.name.toKebabCase())
 fun Modifier.justifyContent(value: JustifyContent): Modifier = style("justify-content", value.name.toKebabCase())
 fun Modifier.alignItems(value: AlignItems): Modifier = style("align-items", value.name.toKebabCase())
-fun Modifier.textAlign(value: TextAlign): Modifier = style("text-align", value.name.lowercase())
-fun Modifier.fontWeight(value: FontWeight): Modifier = style("font-weight", value.toCssValue())
-fun Modifier.cursor(value: Cursor): Modifier = style("cursor", value.name.toKebabCase())
-fun Modifier.overflow(value: Overflow): Modifier = style("overflow", value.name.lowercase())
-fun Modifier.textTransform(value: TextTransform): Modifier = style("text-transform", value.name.toKebabCase())
-fun Modifier.border(width: String, style: BorderStyle, color: String): Modifier = 
-    style("border", "$width ${style.name.lowercase()} $color")
+// These modifier functions are available from the framework:
+// - textAlign(value: TextAlign)
+// - fontWeight(value: FontWeight)
+// - cursor(value: Cursor)
+// - overflow(value: Overflow)
+// - textTransform(value: TextTransform)
+// - border(width: String, style: BorderStyle, color: String)
 
 // CSS unit extensions
 val Number.px: String get() = "${this}px"

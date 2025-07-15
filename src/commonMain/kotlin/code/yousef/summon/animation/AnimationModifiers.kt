@@ -1,6 +1,7 @@
 package code.yousef.summon.animation
 
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.transition
 
 
 /**
@@ -378,7 +379,8 @@ fun Modifier.flipY(
 }
 
 /**
- * Adds a CSS transition to an element.
+ * Adds a CSS transition to an element with customizable parameters.
+ * Named animTransition to avoid conflicts with the simpler transition() function.
  *
  * @param property CSS property to transition (or "all" for all properties)
  * @param duration Duration of the transition in milliseconds
@@ -386,7 +388,7 @@ fun Modifier.flipY(
  * @param delay Delay before the transition starts, in milliseconds
  * @return A new Modifier with the transition styles added
  */
-fun Modifier.transition(
+fun Modifier.animTransition(
     property: String = "all",
     duration: Int = 300,
     timingFunction: String = "ease",

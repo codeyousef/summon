@@ -1,8 +1,14 @@
-package core
+package code.yousef.summon.core
 
 /**
  * Interface for validating input fields.
+ * 
+ * @deprecated Use code.yousef.summon.validation.Validator instead
  */
+@Deprecated(
+    message = "Use code.yousef.summon.validation.Validator instead",
+    replaceWith = ReplaceWith("code.yousef.summon.validation.Validator", "code.yousef.summon.validation.Validator")
+)
 interface Validator {
     /**
      * Validates the input value.

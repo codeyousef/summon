@@ -126,15 +126,6 @@ object LayoutModifierExtras {
     fun Modifier.overflow(value: String): Modifier =
         style("overflow", value)
         
-    /**
-     * Sets the border property of the element.
-     * @param width The border width
-     * @param style The border style
-     * @param color The border color
-     * @return A new Modifier with the added style
-     */
-    fun Modifier.border(width: String, style: String, color: String): Modifier =
-        this.style("border", "$width $style $color")
         
     /**
      * Sets the border-radius property of the element.
