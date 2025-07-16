@@ -9,10 +9,8 @@ private val timers = ConcurrentHashMap<Int, Timer>()
 private val idGenerator = AtomicInteger(0)
 
 /**
- * JVM implementation of getCurrentTimeMillis using System.currentTimeMillis().
+ * JVM implementation of currentTimeMillis using System.currentTimeMillis().
  */
-actual fun getCurrentTimeMillis(): Long = System.currentTimeMillis()
-
 actual fun currentTimeMillis(): Long = System.currentTimeMillis()
 
 actual fun setTimeout(delayMs: Int, callback: () -> Unit): Int {

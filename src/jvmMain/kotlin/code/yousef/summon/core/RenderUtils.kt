@@ -1,6 +1,6 @@
 package code.yousef.summon.core
 
-import code.yousef.summon.runtime.Composable
+import code.yousef.summon.annotation.Composable
 import java.io.File
 
 /**

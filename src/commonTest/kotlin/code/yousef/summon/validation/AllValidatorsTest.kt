@@ -1,11 +1,11 @@
-package code.yousef.summon.core
+package code.yousef.summon.validation
 
-import code.yousef.summon.validation.*
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.test.assertFalse
+import kotlin.test.assertEquals
 
-class ValidatorTest {
+class AllValidatorsTest {
     
     @Test
     fun testRequiredValidator() {
@@ -115,6 +115,6 @@ class ValidatorTest {
         val validator = RequiredValidator(customMessage)
         
         // Check error message
-        kotlin.test.assertEquals(customMessage, validator.errorMessage, "Error message should match custom message")
+        assertEquals(customMessage, validator.errorMessage, "Error message should match custom message")
     }
 }

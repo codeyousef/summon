@@ -1,5 +1,8 @@
 package code.yousef.summon.runtime
 
+import code.yousef.summon.core.error.ComponentNotFoundException
+import code.yousef.summon.core.error.ErrorHandler
+
 // Removed import for core.PlatformRenderer
 // import code.yousef.summon.core.PlatformRenderer
 
@@ -7,14 +10,14 @@ package code.yousef.summon.runtime
  * Utility function for accessing the current platform renderer.
  * This simplifies access to the PlatformRenderer by centralizing the access pattern.
  *
- * @throws IllegalStateException if no renderer is set
+ * @throws ComponentNotFoundException if no renderer is set
  */
 private var renderer: PlatformRenderer? = null
 
 /**
  * Get the current platform renderer.
  * First tries to get it from CompositionLocal, then falls back to static renderer.
- * @throws IllegalStateException if no renderer has been set.
+ * @throws ComponentNotFoundException if no renderer has been set.
  */
 fun getPlatformRenderer(): PlatformRenderer {
     // Try to get renderer from CompositionLocal first if we're in a composition
@@ -25,20 +28,20 @@ fun getPlatformRenderer(): PlatformRenderer {
                 LocalPlatformRenderer.current
             } catch (e: IllegalStateException) {
                 // If LocalPlatformRenderer hasn't been provided, fall back to static renderer
-                renderer ?: throw IllegalStateException(
-                    "PlatformRenderer not set. Call setPlatformRenderer first."
+                renderer ?: throw ComponentNotFoundException(
+                    "PlatformRenderer"
                 )
             }
         } else {
             // Fall back to static renderer when outside composition
-            renderer ?: throw IllegalStateException(
-                "PlatformRenderer not set. Call setPlatformRenderer first."
+            renderer ?: throw ComponentNotFoundException(
+                "PlatformRenderer"
             )
         }
     } catch (e: IllegalStateException) {
         // If CompositionLocal access fails, fall back to static renderer
-        renderer ?: throw IllegalStateException(
-            "PlatformRenderer not set. Call setPlatformRenderer first."
+        renderer ?: throw ComponentNotFoundException(
+            "PlatformRenderer"
         )
     }
 }

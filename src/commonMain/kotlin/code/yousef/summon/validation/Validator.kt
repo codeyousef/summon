@@ -1,6 +1,7 @@
 package code.yousef.summon.validation
 
 import code.yousef.summon.validation.ValidationResult
+import code.yousef.summon.validation.ValidationMessages
 
 /**
  * Base interface for form field validators.
@@ -18,14 +19,14 @@ interface Validator {
      * This is a convenience property for validators that have a fixed error message.
      */
     val errorMessage: String
-        get() = "Validation failed"
+        get() = ValidationMessages.VALIDATION_FAILED
 }
 
 /**
  * Required field validator that ensures a value is not empty.
  */
 class RequiredValidator(
-    override val errorMessage: String = "This field is required"
+    override val errorMessage: String = ValidationMessages.REQUIRED_FIELD
 ) : Validator {
     override fun validate(value: String): ValidationResult {
         val isValid = value.isNotBlank()
@@ -37,7 +38,7 @@ class RequiredValidator(
  * Email validator that ensures a value matches an email pattern.
  */
 class EmailValidator(
-    override val errorMessage: String = "Please enter a valid email address"
+    override val errorMessage: String = ValidationMessages.INVALID_EMAIL
 ) : Validator {
     private val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
 
@@ -52,7 +53,7 @@ class EmailValidator(
  */
 class MinLengthValidator(
     private val minLength: Int,
-    override val errorMessage: String = "Must be at least $minLength characters"
+    override val errorMessage: String = ValidationMessages.minLength(minLength)
 ) : Validator {
     override fun validate(value: String): ValidationResult {
         val isValid = value.length >= minLength
@@ -65,7 +66,7 @@ class MinLengthValidator(
  */
 class MaxLengthValidator(
     private val maxLength: Int,
-    override val errorMessage: String = "Must be no more than $maxLength characters"
+    override val errorMessage: String = ValidationMessages.maxLength(maxLength)
 ) : Validator {
     override fun validate(value: String): ValidationResult {
         val isValid = value.length <= maxLength
@@ -78,7 +79,7 @@ class MaxLengthValidator(
  */
 class PatternValidator(
     private val pattern: Regex,
-    override val errorMessage: String = "Input format is incorrect"
+    override val errorMessage: String = ValidationMessages.INVALID_FORMAT
 ) : Validator {
     override fun validate(value: String): ValidationResult {
         val isValid = value.isEmpty() || value.matches(pattern)

@@ -12,7 +12,7 @@ import code.yousef.summon.modifier.FontWeight
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.StylingModifiers.backgroundColor
 import code.yousef.summon.modifier.StylingModifiers.color
-import code.yousef.summon.modifier.StylingModifiers.textAlign
+import code.yousef.summon.modifier.textAlign
 import code.yousef.summon.modifier.TextAlign
 
 /**

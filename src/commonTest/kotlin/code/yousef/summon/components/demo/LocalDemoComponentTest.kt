@@ -3,7 +3,7 @@ package code.yousef.summon.components.demo
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.BorderStyle
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.StylingModifiers.border
+import code.yousef.summon.modifier.border
 import code.yousef.summon.runtime.Composer
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.MockPlatformRenderer
@@ -150,7 +150,7 @@ class LocalDemoComponentTest {
         val mockRenderer = MockPlatformRenderer()
 
         // Create a custom modifier
-        val customModifier = Modifier().border("1px", BorderStyle.Solid, "black")
+        val customModifier = Modifier().border("1px", BorderStyle.Solid.value, "black")
 
         // Content called flag
         var contentCalled = false

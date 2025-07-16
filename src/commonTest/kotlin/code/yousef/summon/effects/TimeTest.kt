@@ -7,17 +7,6 @@ import kotlin.test.fail
 class TimeTest {
 
     @Test
-    fun testGetCurrentTimeMillis() {
-        // Test that getCurrentTimeMillis returns a non-negative value
-        val time = getCurrentTimeMillis()
-        assertTrue(time >= 0, "Current time should be non-negative")
-
-        // Test that getCurrentTimeMillis is monotonically increasing
-        val time2 = getCurrentTimeMillis()
-        assertTrue(time2 >= time, "Current time should be monotonically increasing")
-    }
-
-    @Test
     fun testCurrentTimeMillis() {
         // Test that currentTimeMillis returns a non-negative value
         val time = currentTimeMillis()

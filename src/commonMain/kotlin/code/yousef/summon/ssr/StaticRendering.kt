@@ -136,38 +136,13 @@ class StaticRenderer(
     private fun generateInitialStateScript(context: RenderContext): String {
         if (context.initialState.isEmpty()) return ""
 
-        // Simple JSON serialization
-        val stateJson = context.initialState.entries.joinToString(",\n    ", "{\n    ", "\n}") { (key, value) ->
-            "\"${key}\": ${serializeValue(value)}"
-        }
+        val stateJson = SerializationUtils.serializeInitialState(context.initialState)
 
         return """
             <script>
                 window.__INITIAL_STATE__ = $stateJson;
             </script>
         """.trimIndent()
-    }
-
-    /**
-     * Serialize a value to JSON
-     */
-    private fun serializeValue(value: Any?): String {
-        return when (value) {
-            null -> "null"
-            is String -> "\"${value.replace("\"", "\\\"")}\""
-            is Number, is Boolean -> value.toString()
-            is Map<*, *> -> {
-                value.entries.joinToString(",", "{", "}") { (k, v) ->
-                    "\"${k}\": ${serializeValue(v)}"
-                }
-            }
-
-            is List<*> -> {
-                value.joinToString(",", "[", "]") { serializeValue(it) }
-            }
-
-            else -> "\"${value.toString().replace("\"", "\\\"")}\""
-        }
     }
 }
 

@@ -2,7 +2,7 @@ package code.yousef.summon.components.layout
 
 import code.yousef.summon.modifier.BorderStyle
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.StylingModifiers.border
+import code.yousef.summon.modifier.border
 import code.yousef.summon.runtime.MockPlatformRenderer 
 import code.yousef.summon.util.runTestComposable 
 import kotlinx.html.FlowContent
@@ -70,7 +70,7 @@ class GridTest {
         val customModifier = Modifier()
             .background("blue")
             .padding("10px")
-            .border("1px", BorderStyle.Solid, "black")
+            .border("1px", BorderStyle.Solid.value, "black")
 
         runTestComposable(mockRenderer) {
             Grid(

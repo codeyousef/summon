@@ -35,7 +35,7 @@ class PlatformRendererCompositionLocalTest {
         val mockRenderer = MockPlatformRenderer()
 
         // Test that calling getCurrentRenderer without providing a value throws an exception
-        assertFailsWith<IllegalStateException> {
+        assertFailsWith<code.yousef.summon.core.error.ComponentNotFoundException> {
             getCurrentRenderer()
         }
 

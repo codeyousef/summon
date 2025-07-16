@@ -2,6 +2,7 @@ package code.yousef.summon.animation
 
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.transition
+import code.yousef.summon.modifier.TransitionTimingFunction
 
 
 /**
@@ -437,8 +438,8 @@ fun Modifier.slideIn(
     }
 
     return this
-        .transition(property, duration, "ease-out", delay)
-        .transition("opacity", duration, "ease-out", delay)
+        .transition(property, duration, TransitionTimingFunction.EaseOut, delay)
+        .transition("opacity", duration, TransitionTimingFunction.EaseOut, delay)
         .animOpacity(1f)
 }
 
@@ -465,8 +466,8 @@ fun Modifier.slideOut(
     }
 
     return this
-        .transition(property, duration, "ease-in", delay)
-        .transition("opacity", duration, "ease-in", delay)
+        .transition(property, duration, TransitionTimingFunction.EaseIn, delay)
+        .transition("opacity", duration, TransitionTimingFunction.EaseIn, delay)
         .animOpacity(0f)
         .animStyle(property, value)
 }
@@ -488,7 +489,7 @@ fun Modifier.scale(
 ): Modifier {
     val transform = "scale(${scaleX}, ${scaleY})"
     return this
-        .transition("transform", duration, "ease", delay)
+        .transition("transform", duration, TransitionTimingFunction.Ease, delay)
         .animStyle("transform", transform)
 }
 

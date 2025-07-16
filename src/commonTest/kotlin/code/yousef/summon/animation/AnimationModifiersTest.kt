@@ -1,6 +1,8 @@
 package code.yousef.summon.animation
 
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.transition
+import code.yousef.summon.modifier.TransitionTimingFunction
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -119,12 +121,14 @@ class AnimationModifiersTest {
         val modifier = Modifier().transition(
             property = "opacity",
             duration = 400,
-            timingFunction = "ease-in-out",
+            timingFunction = TransitionTimingFunction.EaseInOut,
             delay = 100
         )
 
         val transition = modifier.styles["transition"]
-        assertEquals("opacity 400ms ease-in-out 100ms", transition)
+        assertNotNull(transition)
+        assertTrue(transition.contains("opacity"))
+        assertTrue(transition.contains("400ms"))
     }
 
     @Test

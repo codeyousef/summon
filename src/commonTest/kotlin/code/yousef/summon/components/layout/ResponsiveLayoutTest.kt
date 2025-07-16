@@ -2,6 +2,7 @@ package code.yousef.summon.components.layout
 
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.MockPlatformRenderer
+import code.yousef.summon.theme.MediaQuery
 import code.yousef.summon.util.runTestComposable
 import kotlinx.html.FlowContent
 import kotlin.test.Test
@@ -103,9 +104,17 @@ class ResponsiveLayoutTest {
 
     @Test
     fun testResponsiveBreakpoints() {
-        // Test that the ResponsiveBreakpoints object has the expected values
+        // Test that MediaQuery.Breakpoints has the expected values
+        assertEquals(600, MediaQuery.Breakpoints.sm)
+        assertEquals(960, MediaQuery.Breakpoints.md)
+        assertEquals(1280, MediaQuery.Breakpoints.lg)
+        
+        // Test deprecated ResponsiveBreakpoints still works for backward compatibility
+        @Suppress("DEPRECATION")
         assertEquals(600, ResponsiveBreakpoints.SMALL_BREAKPOINT)
+        @Suppress("DEPRECATION")
         assertEquals(960, ResponsiveBreakpoints.MEDIUM_BREAKPOINT)
+        @Suppress("DEPRECATION")
         assertEquals(1280, ResponsiveBreakpoints.LARGE_BREAKPOINT)
     }
 }

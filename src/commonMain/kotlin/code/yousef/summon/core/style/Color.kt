@@ -1,5 +1,7 @@
 package code.yousef.summon.core.style
 
+import code.yousef.summon.core.error.ValidationException
+
 /**
  * Represents an RGBA color
  */
@@ -146,25 +148,29 @@ class Color(val value: UInt) {
             val hexVal = if (hex.startsWith("#")) hex.substring(1) else hex
 
             // Parse based on length
-            return when (hexVal.length) {
-                3 -> { // #RGB
-                    val r = hexVal[0].toString().repeat(2).toInt(16)
-                    val g = hexVal[1].toString().repeat(2).toInt(16)
-                    val b = hexVal[2].toString().repeat(2).toInt(16)
-                    rgb(r, g, b)
-                }
+            return try {
+                when (hexVal.length) {
+                    3 -> { // #RGB
+                        val r = hexVal[0].toString().repeat(2).toInt(16)
+                        val g = hexVal[1].toString().repeat(2).toInt(16)
+                        val b = hexVal[2].toString().repeat(2).toInt(16)
+                        rgb(r, g, b)
+                    }
 
-                6 -> { // #RRGGBB
-                    val value = hexVal.toUInt(16) shl 8 or 0xFFu
-                    Color(value)
-                }
+                    6 -> { // #RRGGBB
+                        val value = hexVal.toUInt(16) shl 8 or 0xFFu
+                        Color(value)
+                    }
 
-                8 -> { // #RRGGBBAA
-                    val value = hexVal.toUInt(16)
-                    Color(value)
-                }
+                    8 -> { // #RRGGBBAA
+                        val value = hexVal.toUInt(16)
+                        Color(value)
+                    }
 
-                else -> throw IllegalArgumentException("Invalid hex color format: $hex")
+                    else -> throw ValidationException("Invalid hex color format: $hex")
+                }
+            } catch (e: NumberFormatException) {
+                throw ValidationException("Invalid hex color format: $hex", cause = e)
             }
         }
 

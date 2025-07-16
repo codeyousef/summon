@@ -4,101 +4,54 @@ import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.PlatformRenderer
 import kotlinx.browser.document
 import org.w3c.dom.HTMLElement
+import kotlin.collections.ArrayDeque
 
 /**
- * JavaScript-specific implementation of RenderUtils methods.
- * This file provides the actual implementations for the platform-specific methods
- * declared in the common code.
+ * JavaScript implementation of RenderUtils
  */
+actual object RenderUtils {
 
-// Initialize early
-private val initializeRenderUtils = run {
-    js("""
-    // Make sure parent tracking is set up
-    if (typeof window.currentParent === 'undefined') {
-        window.currentParent = document.body;
-        window._parentStack = [];
-    }
-    """)
-    true
-}
+    private val renderer = PlatformRenderer()
+    private val parentStack = ArrayDeque<HTMLElement>()
+    internal var currentParent: HTMLElement = document.body ?: error("document.body is null")
 
-/**
- * Renders a composable to a DOM element.
- * 
- * @param container The container element
- * @param composable The composable to render
- * @return A renderer instance
- */
-fun RenderUtils.renderComposable(container: Any, composable: @Composable () -> Unit): Renderer<Any> {
-    return if (container is HTMLElement) {
-        // Clear the container
-        container.innerHTML = ""
-        
-        // Track parent container
-        val previousParent = js("window.currentParent")
-        js("window.currentParent = container")
-        
+    actual fun renderComposable(container: Any, composable: @Composable () -> Unit): Renderer<Any> {
+        val htmlContainer = container as? HTMLElement
+            ?: throw IllegalArgumentException("Container must be an HTMLElement for JS target")
+
+        // Clear container and manage parent context
+        htmlContainer.innerHTML = ""
+        parentStack.addLast(currentParent)
+        currentParent = htmlContainer
+
         try {
-            // Call the composable
             composable()
         } finally {
-            // Restore parent
-            js("window.currentParent = previousParent")
+            currentParent = parentStack.removeLastOrNull() ?: (document.body ?: error("document.body is null"))
         }
-        
-        // Return an appropriate renderer
-        object : Renderer<Any> {
+
+        return object : Renderer<Any> {
             override fun render(composable: @Composable () -> Unit): Any {
-                renderComposable(container, composable)
+                renderComposable(htmlContainer, composable)
                 return js("{}")
             }
-            
+
             override fun dispose() {
-                // Nothing to do
+                // No-op for now
             }
         }
-    } else {
-        throw IllegalArgumentException("Container must be an HTMLElement")
     }
-}
 
-/**
- * Hydrates a server-rendered DOM tree with a composable.
- * 
- * @param container The container element
- * @param composable The composable to hydrate with
- * @return A renderer instance
- */
-fun RenderUtils.hydrate(container: Any, composable: @Composable () -> Unit): Renderer<Any> {
-    // For now, hydrate is the same as renderComposable
-    return renderComposable(container, composable)
-}
+    actual fun renderToString(composable: @Composable () -> Unit): String {
+        return renderer.renderComposableRoot(composable)
+    }
 
-/**
- * Renders a composable to a string.
- * 
- * @param composable The composable to render
- * @return The rendered HTML string
- */
-fun RenderUtils.renderToString(composable: @Composable () -> Unit): String {
-    // Create a PlatformRenderer
-    val renderer = PlatformRenderer()
+    actual fun hydrate(container: Any, composable: @Composable () -> Unit): Renderer<Any> {
+        // For now, hydrate falls back to renderComposable
+        return renderComposable(container, composable)
+    }
 
-    // Use renderComposableRoot to render the composable to a string
-    return renderer.renderComposableRoot(composable)
-}
-
-/**
- * Renders a composable to a file.
- * 
- * @param composable The composable to render
- * @param file The file to write to
- */
-fun RenderUtils.renderToFile(composable: @Composable () -> Unit, file: Any) {
-    // In JavaScript, we can't directly write to a file
-    // So we'll just render to a string and log it
-    val html = renderToString(composable)
-    console.log("Rendered to string: $html")
-    console.log("Would write to file: $file")
+    actual fun renderToFile(composable: @Composable () -> Unit, file: Any) {
+        console.warn("renderToFile is not supported in JavaScript target")
+    }
 }

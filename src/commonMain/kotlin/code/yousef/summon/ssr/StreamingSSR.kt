@@ -300,7 +300,7 @@ class StreamingRenderer(
         }
 
         // Serialize the initial state to JSON
-        val serializedState = serializeInitialState(context.initialState)
+        val serializedState = SerializationUtils.serializeInitialState(context.initialState)
 
         // Create a script tag with the serialized state and event dispatch
         return """
@@ -310,72 +310,6 @@ class StreamingRenderer(
                 console.log('Summon initial state loaded');
             </script>
         """.trimIndent()
-    }
-
-    /**
-     * Serialize the initial state to JSON
-     */
-    private fun serializeInitialState(state: Map<String, Any?>): String {
-        if (state.isEmpty()) return "{}"
-
-        return buildString {
-            append("{")
-            state.entries.forEachIndexed { index, (key, value) ->
-                if (index > 0) append(",")
-                append("\n    \"$key\": ")
-                append(serializeValue(value))
-            }
-            append("\n}")
-        }
-    }
-
-    /**
-     * Serialize a value to JSON
-     */
-    private fun serializeValue(value: Any?): String {
-        return when (value) {
-            null -> "null"
-            is String -> "\"${escapeJsonString(value)}\""
-            is Number, is Boolean -> value.toString()
-            is Map<*, *> -> {
-                val map = value.entries.associate { 
-                    (it.key as? String ?: it.key.toString()) to it.value 
-                }
-                buildString {
-                    append("{")
-                    map.entries.forEachIndexed { index, (key, mapValue) ->
-                        if (index > 0) append(", ")
-                        append("\"$key\": ")
-                        append(serializeValue(mapValue))
-                    }
-                    append("}")
-                }
-            }
-            is List<*> -> {
-                buildString {
-                    append("[")
-                    value.forEachIndexed { index, item ->
-                        if (index > 0) append(", ")
-                        append(serializeValue(item))
-                    }
-                    append("]")
-                }
-            }
-            is Array<*> -> serializeValue(value.toList())
-            else -> "\"${escapeJsonString(value.toString())}\""
-        }
-    }
-
-    /**
-     * Escape special characters in JSON strings
-     */
-    private fun escapeJsonString(str: String): String {
-        return str.replace("\\", "\\\\")
-            .replace("\"", "\\\"")
-            .replace("\b", "\\b")
-            .replace("\n", "\\n")
-            .replace("\r", "\\r")
-            .replace("\t", "\\t")
     }
 }
 

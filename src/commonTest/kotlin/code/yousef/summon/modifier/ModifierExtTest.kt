@@ -16,7 +16,7 @@ import code.yousef.summon.modifier.LayoutModifiers.gridTemplateColumns
 import code.yousef.summon.modifier.LayoutModifiers.gridColumnGap
 import code.yousef.summon.modifier.LayoutModifiers.gridRowGap
 import code.yousef.summon.modifier.StylingModifiers.opacity
-import code.yousef.summon.modifier.StylingModifiers.border
+import code.yousef.summon.modifier.border
 import code.yousef.summon.modifier.StylingModifiers.borderRadius
 import code.yousef.summon.modifier.StylingModifiers.fontWeight
 import code.yousef.summon.modifier.StylingModifiers.color

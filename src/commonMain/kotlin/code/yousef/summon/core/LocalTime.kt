@@ -1,5 +1,8 @@
 package code.yousef.summon.core
 
+import code.yousef.summon.core.error.ErrorHandler
+import code.yousef.summon.core.error.requireInRange
+
 // Commented out to avoid name conflict with the custom LocalTime class
 // import kotlinx.datetime.LocalTime
 
@@ -10,9 +13,9 @@ package code.yousef.summon.core
  */
 data class LocalTime(val hour: Int, val minute: Int, val second: Int = 0) {
     init {
-        require(hour in 0..23) { "Hour must be between 0 and 23" }
-        require(minute in 0..59) { "Minute must be between 0 and 59" }
-        require(second in 0..59) { "Second must be between 0 and 59" }
+        hour.requireInRange(0..23) { ErrorHandler.Messages.outOfRange("Hour", hour, 0, 23) }
+        minute.requireInRange(0..59) { ErrorHandler.Messages.outOfRange("Minute", minute, 0, 59) }
+        second.requireInRange(0..59) { ErrorHandler.Messages.outOfRange("Second", second, 0, 59) }
     }
 
     override fun toString(): String {
@@ -28,7 +31,7 @@ data class LocalTime(val hour: Int, val minute: Int, val second: Int = 0) {
          */
         fun parse(value: String): LocalTime {
             val parts = value.split(":")
-            require(parts.size in 2..3) { "Invalid time format, expected HH:mm[:ss]" }
+            parts.size.requireInRange(2..3) { "Invalid time format, expected HH:mm[:ss]" }
             return LocalTime(
                 hour = parts[0].toInt(),
                 minute = parts[1].toInt(),

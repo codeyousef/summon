@@ -3,12 +3,8 @@ package code.yousef.summon.effects
 import kotlin.js.Date
 
 /**
- * JavaScript implementation of getCurrentTimeMillis using Date.now()
+ * JavaScript implementation of currentTimeMillis using Date.now()
  */
-actual fun getCurrentTimeMillis(): Long {
-    return Date().getTime().toLong()
-}
-
 actual fun currentTimeMillis(): Long {
     return Date().getTime().toLong()
 }

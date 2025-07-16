@@ -5,6 +5,7 @@ import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.components.display.Icon
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.modifier.*
+import code.yousef.summon.modifier.ModifierExtras.withAttribute
 
 /**
  * A button component that triggers an action when clicked.

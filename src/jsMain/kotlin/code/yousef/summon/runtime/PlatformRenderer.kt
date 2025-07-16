@@ -8,8 +8,8 @@ import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.input.FileInfo
 import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.withAttribute
-import code.yousef.summon.modifier.withAttributes
+import code.yousef.summon.modifier.ModifierExtras.withAttribute
+import code.yousef.summon.modifier.ModifierExtras.withAttributes
 import kotlinx.browser.document
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime

@@ -56,7 +56,7 @@ class CheckboxTest {
     /**
      * A mock validator for testing
      */
-    private class MockValidator(private val isValid: Boolean, private val errorMessage: String) : Validator {
+    private class MockValidator(private val isValid: Boolean, override val errorMessage: String) : Validator {
         override fun validate(value: String): ValidationResult {
             return ValidationResult(isValid, errorMessage)
         }

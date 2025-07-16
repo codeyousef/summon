@@ -319,25 +319,12 @@ object ServerSideRenderUtils {
 
     private fun generateHydrationScript(initialData: Map<String, Any?>): String {
         if (initialData.isEmpty()) return ""
-        // Basic JSON-like representation (needs proper serialization)
-        val stateJson = initialData.entries.joinToString(",\n") { 
-            "\"${it.key}\": ${serializeValue(it.value)}"
-        }
+        val stateJson = SerializationUtils.serializeInitialState(initialData)
         return """
         <script>
-            window.__SUMMON_INITIAL_STATE__ = {\n$stateJson\n};
+            window.__SUMMON_INITIAL_STATE__ = $stateJson;
         </script>
         """.trimIndent()
-    }
-
-    // Basic serialization placeholder
-    private fun serializeValue(value: Any?): String {
-        return when (value) {
-            is String -> "\"${value.replace("\"", "\\\"")}\""
-            is Number, is Boolean -> value.toString()
-            null -> "null"
-            else -> "\"[unsupported object]$\"" // Placeholder
-        }
     }
 
     // Remove the old internal renderToString as it's superseded by the global one

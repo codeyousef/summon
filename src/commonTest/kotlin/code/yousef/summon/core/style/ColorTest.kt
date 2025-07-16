@@ -182,11 +182,11 @@ class ColorTest {
         assertEquals(0, green.blue, "Blue component should be 0")
 
         // Test invalid format
-        assertFailsWith<IllegalArgumentException>("Invalid hex format should throw exception") {
+        assertFailsWith<code.yousef.summon.core.error.ValidationException>("Invalid hex format should throw exception") {
             Color.fromHex("#XYZ")
         }
 
-        assertFailsWith<IllegalArgumentException>("Invalid hex length should throw exception") {
+        assertFailsWith<code.yousef.summon.core.error.ValidationException>("Invalid hex length should throw exception") {
             Color.fromHex("#12345")
         }
     }

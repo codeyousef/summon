@@ -6,6 +6,7 @@ import code.yousef.summon.runtime.Composer
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.MockPlatformRenderer
+import code.yousef.summon.util.MockComposer
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -27,43 +28,6 @@ private fun Modifier.hasColor(color: String): Boolean =
  */
 class ButtonTest {
 
-    // Mock implementation of Composer for testing
-    private class MockComposer : Composer {
-        override val inserting: Boolean = false
-
-        override fun startNode() {}
-        override fun startGroup(key: Any?) {}
-        override fun endNode() {}
-        override fun endGroup() {}
-        override fun changed(value: Any?): Boolean = true
-        override fun updateValue(value: Any?) {}
-        override fun nextSlot() {}
-        override fun getSlot(): Any? = null
-        override fun setSlot(value: Any?) {}
-        override fun recordRead(state: Any) {}
-        override fun recordWrite(state: Any) {}
-        override fun reportChanged() {}
-        override fun registerDisposable(disposable: () -> Unit) {}
-        override fun dispose() {}
-        override fun startCompose() {}
-        override fun endCompose() {}
-        override fun <T> compose(composable: @Composable () -> T): T {
-            @Suppress("UNCHECKED_CAST")
-            return null as T
-        }
-
-        override fun recompose() {
-            // Mock implementation
-        }
-
-        override fun rememberedValue(key: Any): Any? {
-            return null
-        }
-
-        override fun updateRememberedValue(key: Any, value: Any?) {
-            // Mock implementation
-        }
-    }
 
     // Mock FlowContent for invoking content lambdas
     // Note: This is a simplified mock that doesn't implement all FlowContent methods

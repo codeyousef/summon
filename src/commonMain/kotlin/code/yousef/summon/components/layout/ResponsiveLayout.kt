@@ -4,11 +4,13 @@ import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.ModifierExtras.attribute
 import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.theme.MediaQuery
 import kotlinx.html.FlowContent
 import kotlinx.html.div
 
 /**
  * Screen size breakpoints for responsive layouts.
+ * Uses MediaQuery.Breakpoints for consistency across the framework.
  */
 enum class ScreenSize {
     SMALL,  // Mobile phones (< 600px)
@@ -17,10 +19,16 @@ enum class ScreenSize {
     XLARGE  // Large desktop (>= 1280px)
 }
 
-// Breakpoint values in pixels
+/**
+ * @deprecated Use MediaQuery.Breakpoints instead for consistency
+ */
+@Deprecated("Use MediaQuery.Breakpoints instead", ReplaceWith("MediaQuery.Breakpoints"))
 object ResponsiveBreakpoints {
+    @Deprecated("Use MediaQuery.Breakpoints.sm instead", ReplaceWith("MediaQuery.Breakpoints.sm"))
     const val SMALL_BREAKPOINT = 600
+    @Deprecated("Use MediaQuery.Breakpoints.md instead", ReplaceWith("MediaQuery.Breakpoints.md"))
     const val MEDIUM_BREAKPOINT = 960
+    @Deprecated("Use MediaQuery.Breakpoints.lg instead", ReplaceWith("MediaQuery.Breakpoints.lg"))
     const val LARGE_BREAKPOINT = 1280
 }
 
@@ -48,9 +56,9 @@ fun ResponsiveLayout(
         .style("position", "relative") // Ensure proper positioning
         .style("display", "block") // Default display
         .attribute("data-responsive", "true")
-        .attribute("data-small-breakpoint", ResponsiveBreakpoints.SMALL_BREAKPOINT.toString())
-        .attribute("data-medium-breakpoint", ResponsiveBreakpoints.MEDIUM_BREAKPOINT.toString())
-        .attribute("data-large-breakpoint", ResponsiveBreakpoints.LARGE_BREAKPOINT.toString())
+        .attribute("data-small-breakpoint", MediaQuery.Breakpoints.sm.toString())
+        .attribute("data-medium-breakpoint", MediaQuery.Breakpoints.md.toString())
+        .attribute("data-large-breakpoint", MediaQuery.Breakpoints.lg.toString())
         .attribute("data-server-size", serverSideScreenSize.name)
         .attribute("data-client-detection", detectScreenSizeClient.toString())
 
