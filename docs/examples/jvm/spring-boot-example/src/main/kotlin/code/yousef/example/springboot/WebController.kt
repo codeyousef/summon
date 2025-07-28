@@ -17,7 +17,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes
  */
 @Controller
 class WebController @Autowired constructor(
-    private val userService: UserService
+    private val userService: UserService,
+    private val summonRenderer: SummonRenderer
 ) {
     
     private val logger = LoggerFactory.getLogger(WebController::class.java)
@@ -30,14 +31,24 @@ class WebController @Autowired constructor(
         logger.info("Rendering home page")
         
         try {
-            // Render pure Summon components as HTML strings
-            model.addAttribute("heroHtml", HeroComponent("Spring Boot User"))
-            model.addAttribute("featuresHtml", FeatureCardsComponent())
-            model.addAttribute("counterHtml", CounterComponent(0))
-            model.addAttribute("currentTimeHtml", CurrentTimeComponent())
-            model.addAttribute("quickLinksHtml", QuickLinksComponent())
-            model.addAttribute("navigationHtml", NavigationComponent())
-            model.addAttribute("footerHtml", FooterComponent())
+            // Render Summon components using the framework's renderer
+            model.addAttribute("heroHtml", summonRenderer.renderComponent { HeroComponent("Spring Boot User") })
+            model.addAttribute("featuresHtml", summonRenderer.renderComponent { FeatureCardsComponent() })
+            model.addAttribute("counterHtml", summonRenderer.renderInteractiveComponent(
+                componentId = "counter-main",
+                componentType = "counter",
+                initialState = mapOf("value" to 0)
+            ) { HydratedCounterComponent(0, "counter-main") })
+            model.addAttribute("currentTimeHtml", summonRenderer.renderComponent { CurrentTimeComponent() })
+            model.addAttribute("quickLinksHtml", summonRenderer.renderComponent { QuickLinksComponent() })
+            model.addAttribute("navigationHtml", summonRenderer.renderComponent { NavigationComponent() })
+            model.addAttribute("footerHtml", summonRenderer.renderComponent { FooterComponent() })
+            // Generate hydration script with the counter component's state
+            val counterState = mapOf("value" to 0)
+            model.addAttribute("hydrationScript", summonRenderer.generateHydrationScript(
+                rootComposable = { HydratedCounterComponent(0, "counter-main") },
+                initialState = counterState
+            ))
             model.addAttribute("pageTitle", "Home - Spring Boot Summon Example")
             model.addAttribute("username", "Spring Boot User")
             
@@ -59,13 +70,13 @@ class WebController @Autowired constructor(
         try {
             val users = userService.getAllUsers()
             
-            // Render pure Summon components
-            model.addAttribute("userHeaderHtml", UserPageHeaderComponent())
-            model.addAttribute("addUserFormHtml", AddUserFormComponent())
-            model.addAttribute("userTableHtml", UserTableComponent(users))
-            model.addAttribute("userStatisticsHtml", UserStatisticsComponent(users))
-            model.addAttribute("navigationHtml", NavigationComponent())
-            model.addAttribute("footerHtml", FooterComponent())
+            // Render Summon components using the framework's renderer
+            model.addAttribute("userHeaderHtml", summonRenderer.renderComponent { UserPageHeaderComponent() })
+            model.addAttribute("addUserFormHtml", summonRenderer.renderComponent { AddUserFormComponent() })
+            model.addAttribute("userTableHtml", summonRenderer.renderComponent { UserTableComponent(users) })
+            model.addAttribute("userStatisticsHtml", summonRenderer.renderComponent { UserStatisticsComponent(users) })
+            model.addAttribute("navigationHtml", summonRenderer.renderComponent { NavigationComponent() })
+            model.addAttribute("footerHtml", summonRenderer.renderComponent { FooterComponent() })
             model.addAttribute("pageTitle", "User Management - Spring Boot Summon Example")
             model.addAttribute("users", users)
             
@@ -85,10 +96,10 @@ class WebController @Autowired constructor(
         logger.info("Rendering dashboard page")
         
         try {
-            // Render pure Summon components
-            model.addAttribute("dashboardHtml", DashboardComponent())
-            model.addAttribute("navigationHtml", NavigationComponent())
-            model.addAttribute("footerHtml", FooterComponent())
+            // Render Summon components using the framework's renderer
+            model.addAttribute("dashboardHtml", summonRenderer.renderComponent { DashboardComponent() })
+            model.addAttribute("navigationHtml", summonRenderer.renderComponent { NavigationComponent() })
+            model.addAttribute("footerHtml", summonRenderer.renderComponent { FooterComponent() })
             model.addAttribute("pageTitle", "Dashboard - Spring Boot Summon Example")
             
             return "dashboard"
@@ -107,10 +118,10 @@ class WebController @Autowired constructor(
         logger.info("Rendering contact page")
         
         try {
-            // Render pure Summon components
-            model.addAttribute("contactFormHtml", ContactFormComponent())
-            model.addAttribute("navigationHtml", NavigationComponent())
-            model.addAttribute("footerHtml", FooterComponent())
+            // Render Summon components using the framework's renderer
+            model.addAttribute("contactFormHtml", summonRenderer.renderComponent { ContactFormComponent() })
+            model.addAttribute("navigationHtml", summonRenderer.renderComponent { NavigationComponent() })
+            model.addAttribute("footerHtml", summonRenderer.renderComponent { FooterComponent() })
             model.addAttribute("pageTitle", "Contact Us - Spring Boot Summon Example")
             
             return "contact"
@@ -221,6 +232,64 @@ class WebController @Autowired constructor(
         } catch (e: Exception) {
             logger.error("Error deleting user", e)
             redirectAttributes.addFlashAttribute("message", "Error deleting user: ${e.message}")
+            redirectAttributes.addFlashAttribute("messageType", "error")
+        }
+        
+        return "redirect:/users"
+    }
+
+    /**
+     * Show edit user form.
+     */
+    @GetMapping("/users/{id}/edit")
+    fun editUser(@PathVariable id: Long, model: Model): String {
+        logger.info("Editing user: $id")
+        
+        try {
+            val user = userService.getUserById(id)
+            if (user != null) {
+                model.addAttribute("user", user)
+                model.addAttribute("navigationHtml", summonRenderer.renderComponent { NavigationComponent() })
+                model.addAttribute("footerHtml", summonRenderer.renderComponent { FooterComponent() })
+                model.addAttribute("pageTitle", "Edit User - Spring Boot Summon Example")
+                return "edit-user"
+            } else {
+                model.addAttribute("error", "User not found")
+                return "error"
+            }
+        } catch (e: Exception) {
+            logger.error("Error loading user for edit", e)
+            model.addAttribute("error", "Error loading user: ${e.message}")
+            return "error"
+        }
+    }
+
+    /**
+     * Handle user status toggle.
+     */
+    @PostMapping("/users/{id}/toggle-status")
+    fun toggleUserStatus(
+        @PathVariable id: Long,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        logger.info("Toggling status for user: $id")
+        
+        try {
+            val user = userService.getUserById(id)
+            if (user != null) {
+                val updatedUser = user.copy(active = !user.active)
+                userService.updateUser(id, updatedUser)
+                
+                val status = if (updatedUser.active) "activated" else "deactivated"
+                redirectAttributes.addFlashAttribute("message", "User ${user.name} has been $status!")
+                redirectAttributes.addFlashAttribute("messageType", "success")
+            } else {
+                redirectAttributes.addFlashAttribute("message", "User not found!")
+                redirectAttributes.addFlashAttribute("messageType", "error")
+            }
+        } catch (e: Exception) {
+            logger.error("Error toggling user status", e)
+            redirectAttributes.addFlashAttribute("message", "Error updating user status: ${e.message}")
             redirectAttributes.addFlashAttribute("messageType", "error")
         }
         

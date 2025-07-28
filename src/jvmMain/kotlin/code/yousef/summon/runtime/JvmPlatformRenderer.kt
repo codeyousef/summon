@@ -118,8 +118,22 @@ actual open class PlatformRenderer {
         requireBuilder().input(type = InputType.text) {
             applyModifier(modifier)
             this.value = value
-            id = "input-${UUID.randomUUID()}"
-            name = id // Use generated ID as name too
+            
+            // Check if name attribute was provided in modifier
+            val customName = modifier.attributes?.get("name")
+            if (customName != null) {
+                // Use the provided name
+                name = customName
+                // If no id was provided, use the name as id
+                if (modifier.attributes?.get("id") == null) {
+                    id = customName
+                }
+            } else {
+                // Fall back to generated UUID for both id and name
+                id = "input-${UUID.randomUUID()}"
+                name = id
+            }
+            
             attributes["data-onchange-action"] = "true"
             comment(" onValueChange handler needed (JS) ")
         }
@@ -133,8 +147,22 @@ actual open class PlatformRenderer {
     ) {
         requireBuilder().select {
             applyModifier(modifier)
-            id = "select-${UUID.randomUUID()}"
-            name = id
+            
+            // Check if name attribute was provided in modifier
+            val customName = modifier.attributes?.get("name")
+            if (customName != null) {
+                // Use the provided name
+                name = customName
+                // If no id was provided, use the name as id
+                if (modifier.attributes?.get("id") == null) {
+                    id = customName
+                }
+            } else {
+                // Fall back to generated UUID for both id and name
+                id = "select-${UUID.randomUUID()}"
+                name = id
+            }
+            
             attributes["data-onchange-action"] = "true"
             comment(" onSelectedChange handler needed (JS) ")
 
@@ -187,8 +215,22 @@ actual open class PlatformRenderer {
             if (placeholder != null) this.placeholder = placeholder
             this.disabled = !enabled
             this.readonly = readOnly
-            id = "textarea-${UUID.randomUUID()}"
-            name = id
+            
+            // Check if name attribute was provided in modifier
+            val customName = modifier.attributes?.get("name")
+            if (customName != null) {
+                // Use the provided name
+                name = customName
+                // If no id was provided, use the name as id
+                if (modifier.attributes?.get("id") == null) {
+                    id = customName
+                }
+            } else {
+                // Fall back to generated UUID for both id and name
+                id = "textarea-${UUID.randomUUID()}"
+                name = id
+            }
+            
             attributes["data-onchange-action"] = "true"
             comment(" onValueChange handler needed (JS) ")
             +value
@@ -245,6 +287,22 @@ actual open class PlatformRenderer {
             // currentBuilder = previousBuilder
         }
         return result.toString()
+    }
+
+    actual open fun renderComposableRootWithHydration(composable: @Composable () -> Unit): String {
+        // For JVM/server-side rendering, hydration typically means adding JavaScript
+        // to make the server-rendered HTML interactive on the client
+        // For now, we'll render the same as renderComposableRoot
+        // In a full implementation, this would include hydration scripts
+        return renderComposableRoot(composable)
+    }
+
+    actual open fun hydrateComposableRoot(rootElementId: String, composable: @Composable () -> Unit) {
+        // Hydration on JVM/server-side doesn't make sense in the same way as client-side
+        // This is typically a no-op for server-side rendering
+        // In a full implementation, this might generate hydration instructions for the client
+        // For now, we'll just log a warning
+        System.err.println("Warning: hydrateComposableRoot called on JVM platform. This is typically a client-side operation.")
     }
 
     actual open fun renderRow(

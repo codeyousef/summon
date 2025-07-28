@@ -52,6 +52,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(kotlin("stdlib"))
                 implementation(libs.kotlin.stdlib.common)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)

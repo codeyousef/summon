@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Summon Example</title>
+</head>
+<body>
+    <h1>Summon Example Application</h1>
+    <p>This is a placeholder page. Your application is starting up...</p>
+
+    <script>
+        // Simple check to see if the application is ready
+        function checkStatus() {
+            fetch('/api/health')
+                .then(response => {
+                    if (response.ok) {
+                        document.getElementById('status').textContent = 'Application is ready!';
+                        document.getElementById('status').style.color = 'green';
+                    }
+                })
+                .catch(error => {
+                    // Silently fail and try again
+                    setTimeout(checkStatus, 2000);
+                });
+        }
+
+        // Check status every 2 seconds
+        setTimeout(checkStatus, 2000);
+    </script>
+
+    <p id="status">Checking application status...</p>
+</body>
+</html>

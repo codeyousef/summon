@@ -51,32 +51,21 @@
     <!-- Footer - Pure Summon -->
     <footer th:utext="${footerHtml}"><!-- Summon Footer Component --></footer>
 
-    <!-- Pure Summon JavaScript (minimal for component interactions) -->
+    <!-- Pure Summon - Minimal JavaScript for confirmation and alerts -->
     <script>
-        // Edit user function (for Summon user table)
-        function editUser(userId) {
-            alert('Edit user functionality would open a modal/page for user ' + userId);
-            // In real implementation, this would open a Summon-based edit form
-        }
-
-        // Delete user function (for Summon user table)
-        function deleteUser(userId, userName) {
-            if (confirm(`Are you sure you want to delete user "${userName}"?`)) {
-                fetch(`/users/${userId}/delete`, { method: 'POST' })
-                    .then(() => location.reload())
-                    .catch(error => console.error('Error deleting user:', error));
-            }
-        }
-
-        // Toggle user status (for Summon user table)
-        function toggleUserStatus(userId, isActive) {
-            const action = isActive ? 'deactivate' : 'activate';
-            console.log(`${action} user ${userId}`);
-            // In real implementation, this would call an API endpoint
-        }
-
-        // Auto-dismiss alerts
         document.addEventListener('DOMContentLoaded', function() {
+            // Handle confirmation for buttons with data-confirm attribute
+            document.addEventListener('click', function(e) {
+                if (e.target.hasAttribute('data-confirm')) {
+                    const message = e.target.getAttribute('data-confirm');
+                    if (!confirm(message)) {
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+            });
+
+            // Auto-dismiss alerts
             const alerts = document.querySelectorAll('.alert');
             alerts.forEach(alert => {
                 setTimeout(() => alert.remove(), 5000);

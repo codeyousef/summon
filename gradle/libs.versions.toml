@@ -34,10 +34,10 @@ reactorKotlinJvm = "1.2.2"
 
 [libraries]
 # Kotlin
-kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8" }
-kotlin-stdlib-js = { module = "org.jetbrains.kotlin:kotlin-stdlib-js" }
-kotlin-stdlib-common = { module = "org.jetbrains.kotlin:kotlin-stdlib-common" }
-kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test" }
+kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
+kotlin-stdlib-js = { module = "org.jetbrains.kotlin:kotlin-stdlib-js", version.ref = "kotlin" }
+kotlin-stdlib-common = { module = "org.jetbrains.kotlin:kotlin-stdlib-common", version.ref = "kotlin" }
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 
 # Kotlinx
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }

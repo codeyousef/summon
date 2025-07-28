@@ -29,7 +29,7 @@ class RequiredValidator(
     override val errorMessage: String = ValidationMessages.REQUIRED_FIELD
 ) : Validator {
     override fun validate(value: String): ValidationResult {
-        val isValid = value.isNotBlank()
+        val isValid = value.trim().isNotEmpty()
         return ValidationResult(isValid, if (!isValid) errorMessage else null)
     }
 }
@@ -40,10 +40,10 @@ class RequiredValidator(
 class EmailValidator(
     override val errorMessage: String = ValidationMessages.INVALID_EMAIL
 ) : Validator {
-    private val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+    private val emailRegex = kotlin.text.Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
 
     override fun validate(value: String): ValidationResult {
-        val isValid = value.isEmpty() || value.matches(emailRegex)
+        val isValid = value.isEmpty() || emailRegex.matches(value)
         return ValidationResult(isValid, if (!isValid) errorMessage else null)
     }
 }
@@ -78,11 +78,11 @@ class MaxLengthValidator(
  * Pattern validator that ensures a value matches a regex pattern.
  */
 class PatternValidator(
-    private val pattern: Regex,
+    private val pattern: kotlin.text.Regex,
     override val errorMessage: String = ValidationMessages.INVALID_FORMAT
 ) : Validator {
     override fun validate(value: String): ValidationResult {
-        val isValid = value.isEmpty() || value.matches(pattern)
+        val isValid = value.isEmpty() || pattern.matches(value)
         return ValidationResult(isValid, if (!isValid) errorMessage else null)
     }
 }

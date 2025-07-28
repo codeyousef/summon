@@ -43,6 +43,9 @@ window.SummonApp = {
             }
         }, 1000);
     },
+    
+    // Note: Button event handling is now done by Summon's onClick handlers
+    // No need for data-attribute binding as Summon handles events natively
 
     // Update time from server
     updateTime: function() {
@@ -58,30 +61,8 @@ window.SummonApp = {
             .catch(error => console.log('Error updating time:', error));
     },
 
-    // Counter functions
-    updateCounter: function(action) {
-        const endpoint = action === 'reset' ? '/api/counter/reset' : `/api/counter/${action}`;
-        
-        fetch(endpoint, { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-                const counterElement = document.getElementById('counter-value');
-                if (counterElement) {
-                    counterElement.textContent = data.value;
-                    this.animateCounterChange(counterElement);
-                }
-            })
-            .catch(error => {
-                console.error('Error updating counter:', error);
-                window.handleApiError(error, 'Failed to update counter');
-            });
-    },
-
-    // Animate counter changes
-    animateCounterChange: function(element) {
-        element.classList.add('changed');
-        setTimeout(() => element.classList.remove('changed'), 200);
-    },
+    // Note: Counter functionality is now handled by Summon's state management
+    // No server-side counter functions needed as we use client-side state
 
     // User management functions
     editUser: function(userId) {
@@ -249,10 +230,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 5000);
     });
+    
+    // Note: Form field names are now properly set via Summon modifiers
+    // No JavaScript workaround needed
+    
+    // Note: No longer needed - Summon handles button events natively
 });
 
-// Expose functions globally for onclick handlers
-window.updateCounter = SummonApp.updateCounter.bind(SummonApp);
+// Expose functions globally for onclick handlers (user management only - counter is handled by Summon)
 window.editUser = SummonApp.editUser.bind(SummonApp);
 window.deleteUser = SummonApp.deleteUser.bind(SummonApp);
 window.toggleUserStatus = SummonApp.toggleUserStatus.bind(SummonApp);
+
+// Scroll functionality handled by CSS scroll-behavior: smooth and proper anchor links

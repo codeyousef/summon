@@ -54,16 +54,15 @@ object AccessibilityUtils {
      * Adds an ARIA role to a Modifier.
      */
     private fun Modifier.role(role: String): Modifier {
-        return Modifier(this.styles, this.attributes + ("role" to role))
+        return Modifier(this.styles, this.attributes + kotlin.collections.mapOf("role" to role))
     }
 
     /**
      * Creates a Modifier with an accessible label.
      */
     fun createLabelModifier(label: String): Modifier {
-        return Modifier().let {
-            Modifier(it.styles, it.attributes + ("aria-label" to label))
-        }
+        val modifier = Modifier()
+        return Modifier(modifier.styles, modifier.attributes + kotlin.collections.mapOf("aria-label" to label))
     }
 
     /**
@@ -74,9 +73,8 @@ object AccessibilityUtils {
         relation: String,
         targetId: String
     ): Modifier {
-        return Modifier().let {
-            Modifier(it.styles, it.attributes + ("aria-$relation" to targetId))
-        }
+        val modifier = Modifier()
+        return Modifier(modifier.styles, modifier.attributes + kotlin.collections.mapOf("aria-$relation" to targetId))
     }
 
     /**
@@ -87,12 +85,13 @@ object AccessibilityUtils {
      */
     fun inspectAccessibility(modifier: Modifier): Map<String, String> {
         return modifier.attributes.entries
-            .filter { (key, _) ->
+            .filter { entry ->
+                val key = entry.key
                 key.contains("aria-") || key == "role" ||
                 key == "tabindex" || key == "disabled"
             }
-            .associate { (key, value) ->
-                key to value
+            .associate { entry ->
+                entry.key to entry.value
             }
     }
 }
@@ -106,9 +105,9 @@ data class AccessibilityNode(
     val role: Role,
     val label: String?, // aria-label
     val description: String?, // aria-describedby (reference to ID)
-    val state: Map<State, Boolean> = emptyMap(),
-    val properties: Map<String, String> = emptyMap(), // Other aria-* attributes
-    val children: List<AccessibilityNode> = emptyList(),
+    val state: Map<State, Boolean> = mapOf(),
+    val properties: Map<String, String> = mapOf(), // Other aria-* attributes
+    val children: List<AccessibilityNode> = listOf(),
     val modifier: Modifier = Modifier() // Modifier applied to the element itself
 )
 
@@ -175,7 +174,7 @@ fun ApplyAccessibilityNode(
  * WARNING: This approach is likely flawed for the new composition system.
  */
 fun buildAccessibilityNode(composable: @Composable () -> Unit): AccessibilityNode {
-    println("Warning: buildAccessibilityNode is likely incorrect in the new composition system.")
+    // Warning: buildAccessibilityNode is likely incorrect in the new composition system.
     return AccessibilityNode(
         role = Role.PRESENTATION, // Default/unknown
         label = null,
@@ -223,40 +222,40 @@ private fun Modifier.applyAccessibilityAttributes(node: AccessibilityNode): Modi
     var result = this
 
     // Apply role attribute
-    result = Modifier(result.styles, result.attributes + ("role" to node.role.name.lowercase()))
+    result = Modifier(result.styles, result.attributes + mapOf("role" to node.role.name.lowercase()))
 
     // Apply label as aria-label if available
-    node.label?.let {
-        result = Modifier(result.styles, result.attributes + ("aria-label" to it))
+    if (node.label != null) {
+        result = Modifier(result.styles, result.attributes + mapOf("aria-label" to node.label))
     }
 
     // Apply description as aria-describedby if available
-    node.description?.let {
-        result = Modifier(result.styles, result.attributes + ("aria-describedby" to it))
+    if (node.description != null) {
+        result = Modifier(result.styles, result.attributes + mapOf("aria-describedby" to node.description))
     }
 
     // Apply state attributes
     for ((state, isActive) in node.state) {
         when (state) {
-            State.BUSY -> if (isActive) result = Modifier(result.styles, result.attributes + ("aria-busy" to "true"))
-            State.CHECKED -> if (isActive) result = Modifier(result.styles, result.attributes + ("aria-checked" to "true"))
+            State.BUSY -> if (isActive) result = Modifier(result.styles, result.attributes + mapOf("aria-busy" to "true"))
+            State.CHECKED -> if (isActive) result = Modifier(result.styles, result.attributes + mapOf("aria-checked" to "true"))
             State.DISABLED -> if (isActive) {
-                result = Modifier(result.styles, result.attributes + ("aria-disabled" to "true"))
-                result = Modifier(result.styles, result.attributes + ("disabled" to ""))
+                result = Modifier(result.styles, result.attributes + mapOf("aria-disabled" to "true"))
+                result = Modifier(result.styles, result.attributes + mapOf("disabled" to ""))
             }
 
-            State.EXPANDED -> if (isActive) result = Modifier(result.styles, result.attributes + ("aria-expanded" to "true"))
-            State.GRABBED -> if (isActive) result = Modifier(result.styles, result.attributes + ("aria-grabbed" to "true"))
-            State.HIDDEN -> if (isActive) result = Modifier(result.styles, result.attributes + ("aria-hidden" to "true"))
-            State.INVALID -> if (isActive) result = Modifier(result.styles, result.attributes + ("aria-invalid" to "true"))
-            State.PRESSED -> if (isActive) result = Modifier(result.styles, result.attributes + ("aria-pressed" to "true"))
-            State.SELECTED -> if (isActive) result = Modifier(result.styles, result.attributes + ("aria-selected" to "true"))
+            State.EXPANDED -> if (isActive) result = Modifier(result.styles, result.attributes + mapOf("aria-expanded" to "true"))
+            State.GRABBED -> if (isActive) result = Modifier(result.styles, result.attributes + mapOf("aria-grabbed" to "true"))
+            State.HIDDEN -> if (isActive) result = Modifier(result.styles, result.attributes + mapOf("aria-hidden" to "true"))
+            State.INVALID -> if (isActive) result = Modifier(result.styles, result.attributes + mapOf("aria-invalid" to "true"))
+            State.PRESSED -> if (isActive) result = Modifier(result.styles, result.attributes + mapOf("aria-pressed" to "true"))
+            State.SELECTED -> if (isActive) result = Modifier(result.styles, result.attributes + mapOf("aria-selected" to "true"))
         }
     }
 
     // Apply all custom properties
-    for ((name, value) in node.properties) {
-        result = Modifier(result.styles, result.attributes + (name to value))
+    for (entry in node.properties.entries) {
+        result = Modifier(result.styles, result.attributes + mapOf(entry.key to entry.value))
     }
 
     return result

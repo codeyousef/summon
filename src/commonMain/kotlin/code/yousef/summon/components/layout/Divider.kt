@@ -2,7 +2,7 @@ package code.yousef.summon.components.layout
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.getPlatformRenderer
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import kotlinx.html.TagConsumer
 
 /**
@@ -22,5 +22,6 @@ fun Divider(
     length: String = "100%",
     modifier: Modifier = Modifier()
 ) {
-    getPlatformRenderer().renderDivider(modifier)
+    val renderer = LocalPlatformRenderer.current
+    renderer.renderDivider(modifier)
 }

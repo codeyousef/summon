@@ -379,6 +379,31 @@ actual open class PlatformRenderer {
         return rootElement.outerHTML
     }
 
+    actual open fun renderComposableRootWithHydration(composable: @Composable () -> Unit): String {
+        // On the client side, this is the same as regular rendering since we can hydrate immediately
+        return renderComposableRoot(composable)
+    }
+
+    actual open fun hydrateComposableRoot(rootElementId: String, composable: @Composable () -> Unit) {
+        val rootElement = document.getElementById(rootElementId)
+        if (rootElement != null) {
+            // Clear existing content and re-render with client-side interactivity
+            elementStack.withElement(rootElement) {
+                // Clear the element first
+                rootElement.innerHTML = ""
+                
+                // Set up recomposer for this root
+                val recomposer = RecomposerHolder.current()
+                recomposer.setCompositionRoot(composable)
+                
+                // Render the composable
+                composable()
+            }
+        } else {
+            console.error("Could not find element with ID: $rootElementId for hydration")
+        }
+    }
+
     // Helper to create FlowContent
     private fun createFlowContent(tagName: String): FlowContent {
         val consumer = createTagConsumer()

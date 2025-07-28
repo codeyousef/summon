@@ -26,6 +26,9 @@
         </div>
     </div>
 
+    <!-- Navigation - Pure Summon -->
+    <nav th:utext="${navigationHtml}"><!-- Summon Navigation Component --></nav>
+
     <!-- PURE SUMMON CONTENT ONLY -->
     <main>
         <!-- Hero Section - Pure Summon -->
@@ -47,37 +50,21 @@
         </div>
     </main>
 
-    <!-- Navigation - Pure Summon -->
-    <nav th:utext="${navigationHtml}"><!-- Summon Navigation Component --></nav>
-
     <!-- Footer - Pure Summon -->
     <footer th:utext="${footerHtml}"><!-- Summon Footer Component --></footer>
 
+    <!-- Summon Hydration Script -->
+    <div th:utext="${hydrationScript}"><!-- Summon Hydration Script --></div>
+
+    <!-- Pure Summon - CSS for smooth scrolling behavior -->
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+    
     <!-- Pure Summon JavaScript (minimal for component interactions) -->
     <script>
-        // Counter functions for Summon components
-        function updateCounter(action) {
-            const endpoint = action === 'reset' ? '/api/counter/reset' : `/api/counter/${action}`;
-            
-            fetch(endpoint, { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    const counterElement = document.getElementById('counter-value');
-                    if (counterElement) {
-                        counterElement.textContent = data.value;
-                    }
-                })
-                .catch(error => console.error('Error updating counter:', error));
-        }
-
-        // Scroll to features function for Summon hero component
-        function scrollToFeatures() {
-            const featuresElement = document.querySelector('.feature-cards');
-            if (featuresElement) {
-                featuresElement.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-
         // Auto-dismiss alerts
         document.addEventListener('DOMContentLoaded', function() {
             const alerts = document.querySelectorAll('.alert');

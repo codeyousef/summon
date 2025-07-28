@@ -1,0 +1,15 @@
+# GitHub Packages Authentication Template
+# Copy this file to gradle.properties and fill in your credentials
+
+# Your GitHub username
+gpr.user=YOUR_GITHUB_USERNAME
+
+# Your GitHub Personal Access Token with read:packages permission
+# Create one at: https://github.com/settings/tokens
+gpr.key=YOUR_GITHUB_TOKEN
+
+# Gradle Configuration
+org.gradle.jvmargs=-Xmx2048m -XX:MaxPermSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+org.gradle.parallel=true
+org.gradle.caching=true
+kotlin.code.style=official

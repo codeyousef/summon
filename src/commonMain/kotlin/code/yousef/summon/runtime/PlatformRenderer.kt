@@ -85,6 +85,10 @@ expect open class PlatformRenderer() {
 
     // --- Composition Root ---
     open fun renderComposableRoot(composable: @Composable () -> Unit): String
+    
+    // --- Hydration Support ---
+    open fun renderComposableRootWithHydration(composable: @Composable () -> Unit): String
+    open fun hydrateComposableRoot(rootElementId: String, composable: @Composable () -> Unit)
 
     /**
      * Renders a composable component into the current context
