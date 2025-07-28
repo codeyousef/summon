@@ -1,5 +1,7 @@
 # Summon
 
+> ⚠️ **Alpha Status**: Summon is currently in alpha development and actively seeking testers and feedback. While core functionality is stable, APIs may change between releases. We welcome early adopters and contributors! Please report issues and share your experience.
+
 **Summon** is a powerful, type-safe frontend framework for Kotlin Multiplatform that brings the elegance of Jetpack Compose to both browser and JVM environments. Build beautiful, responsive applications with a declarative syntax that feels natural to Kotlin developers.
 
 > 🎨 **Type-safe styling** with an intuitive modifier API inspired by Compose.
@@ -126,7 +128,39 @@ For detailed documentation, please check the [docs](docs/README.md) directory:
 - [Internationalization](docs/i18n.md) - Add multi-language support with RTL layouts
 
 ### API Reference
+# Project Setup
 
+## Database Setup
+
+This project uses PostgreSQL as the database. You can run it using Docker Compose:
+
+```shell
+docker-compose up -d
+```
+
+This will start a PostgreSQL database on port 5432.
+
+## Running in Development Mode
+
+After starting the database, you can run the application in dev mode:
+
+```shell
+./mvnw compile quarkus:dev
+```
+
+## Troubleshooting
+
+### ClosedChannelException with Docker
+
+If you encounter `java.io.IOException: java.nio.channels.ClosedChannelException` errors when Quarkus tries to start a PostgreSQL container using TestContainers, it could be related to Docker connectivity issues.
+
+Possible solutions:
+
+1. Make sure Docker is running correctly
+2. If using Docker Desktop, try restarting it
+3. If the issue persists, use an external database instead of DevServices by configuring the datasource in application.properties
+
+For test environments, DevServices is still enabled to provide an isolated test database.
 Comprehensive API reference documentation is available in the [docs/api-reference](docs/api-reference) directory:
 
 - [Core API](docs/api-reference/core.md) - Core interfaces and classes

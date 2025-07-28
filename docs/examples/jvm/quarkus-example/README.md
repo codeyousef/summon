@@ -49,7 +49,7 @@ dependencies {
     // Existing Quarkus dependencies...
 
     // Summon dependencies
-    implementation("io.github.codeyousef:summon:0.2.9.0")
+    implementation("io.github.codeyousef:summon:0.2.9.1")
 
     // For HTML generation
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.12.0")
