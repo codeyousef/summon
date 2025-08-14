@@ -1,12 +1,12 @@
 package security.guards
 
+import code.yousef.summon.routing.GuardResult
+import code.yousef.summon.routing.Route
+import code.yousef.summon.routing.RouteGuard
+import code.yousef.summon.routing.RouteParams
 import code.yousef.summon.security.Permission
 import code.yousef.summon.security.Role
 import code.yousef.summon.security.SecurityContext
-import code.yousef.summon.routing.RouteGuard
-import code.yousef.summon.routing.Route
-import code.yousef.summon.routing.RouteParams
-import code.yousef.summon.routing.GuardResult
 import code.yousef.summon.security.annotations.RequiresAccess
 import code.yousef.summon.security.annotations.RequiresAuthentication
 import code.yousef.summon.security.annotations.RequiresPermissions
@@ -48,7 +48,7 @@ class RolesGuard(private val roles: Set<Role>, private val requireAll: Boolean =
         } else {
             roles.any { SecurityContext.hasRole(it) }
         }
-        
+
         return if (hasRoles) {
             GuardResult.Allow
         } else {
@@ -80,7 +80,7 @@ class PermissionsGuard(private val permissions: Set<Permission>, private val req
         } else {
             permissions.any { SecurityContext.hasPermission(it) }
         }
-        
+
         return if (hasPermissions) {
             GuardResult.Allow
         } else {
@@ -136,13 +136,13 @@ class CompositeGuard(private val guards: List<RouteGuard>) : RouteGuard {
         }
         return GuardResult.Allow
     }
-    
+
     companion object {
         /**
          * Create a guard that requires all child guards to pass.
          */
         fun all(vararg guards: RouteGuard): CompositeGuard = CompositeGuard(guards.toList())
-        
+
         /**
          * Create a guard that requires any child guard to pass.
          */
@@ -170,19 +170,19 @@ object SecurityGuardFactory {
      */
     fun createGuard(annotation: RequiresAccess): RouteGuard {
         // Convert string role names to Role objects
-        val roles = annotation.roles.map { roleName -> 
+        val roles = annotation.roles.map { roleName ->
             // This is a simplified implementation that assumes a Role constructor with String param
             // In a real implementation, you might have an enum or repository lookup
-            Role(roleName) 
+            Role(roleName)
         }.toSet()
-        
+
         // Convert string permission names to Permission objects
-        val permissions = annotation.permissions.map { permName -> 
+        val permissions = annotation.permissions.map { permName ->
             // This is a simplified implementation that assumes a Permission constructor with String param
             // In a real implementation, you might have an enum or repository lookup
-            Permission(permName) 
+            Permission(permName)
         }.toSet()
-        
+
         return AnnotationBasedGuard(
             requiresAuthentication = annotation.requiresAuthentication,
             requiredRoles = roles,

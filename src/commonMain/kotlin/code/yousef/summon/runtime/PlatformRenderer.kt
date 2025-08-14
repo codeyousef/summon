@@ -85,7 +85,7 @@ expect open class PlatformRenderer() {
 
     // --- Composition Root ---
     open fun renderComposableRoot(composable: @Composable () -> Unit): String
-    
+
     // --- Hydration Support ---
     open fun renderComposableRootWithHydration(composable: @Composable () -> Unit): String
     open fun hydrateComposableRoot(rootElementId: String, composable: @Composable () -> Unit)
@@ -318,13 +318,13 @@ expect open class PlatformRenderer() {
 
     open fun renderScreen(modifier: Modifier, content: @Composable (FlowContent.() -> Unit))
     open fun renderHtml(htmlContent: String, modifier: Modifier)
-    
+
     /** Renders HTML content with optional sanitization */
     open fun renderHtml(htmlContent: String, modifier: Modifier, sanitize: Boolean)
-    
+
     /** Injects global CSS styles into the document head */
     open fun renderGlobalStyle(css: String)
-    
+
     open fun renderSurface(modifier: Modifier, elevation: Int, content: @Composable (() -> Unit))
     open fun renderSwipeToDismiss(
         state: Any,

@@ -20,7 +20,7 @@ fun UserProfilePage() {
         Text("User Profile")
         Text("This is the user profile page.")
         // Placeholder: User details would be displayed here
-        
+
         // Example Navigation
         NavLink(to = "/") {
             Text("Go Home")

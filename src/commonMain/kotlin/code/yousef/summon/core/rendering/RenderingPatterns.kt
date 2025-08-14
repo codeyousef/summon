@@ -23,14 +23,14 @@ data class ComponentRenderData(
     fun getCombinedStyles(): Map<String, String> {
         return modifier.styles + additionalStyles
     }
-    
+
     /**
      * Gets all attributes including accessibility and custom attributes.
      */
     fun getAllAttributes(): Map<String, String> {
         return accessibilityAttributes + customAttributes
     }
-    
+
     /**
      * Creates a CSS style string from combined styles.
      */
@@ -55,7 +55,7 @@ object RenderingUtils {
     fun toKebabCase(camelCase: String): String {
         return camelCase.replace(Regex("([a-z])([A-Z])"), "$1-$2").lowercase()
     }
-    
+
     /**
      * Converts a CSS property name to camelCase (for JavaScript DOM style properties).
      * Examples: background-color -> backgroundColor, font-size -> fontSize
@@ -65,7 +65,7 @@ object RenderingUtils {
             if (index == 0) part else part.replaceFirstChar { it.uppercase() }
         }.joinToString("")
     }
-    
+
     /**
      * Normalizes CSS property names to ensure consistent formatting.
      * If the property already contains hyphens, returns as-is.
@@ -78,17 +78,20 @@ object RenderingUtils {
             toKebabCase(property)
         }
     }
-    
+
     /**
      * Creates a CSS style string from a map of properties.
      * Automatically normalizes property names.
      */
     fun createStyleString(styles: Map<String, String>): String {
-        return styles.entries.joinToString(separator = "; ", postfix = if (styles.isNotEmpty()) ";" else "") { (key, value) ->
+        return styles.entries.joinToString(
+            separator = "; ",
+            postfix = if (styles.isNotEmpty()) ";" else ""
+        ) { (key, value) ->
             "${normalizeCssProperty(key)}: $value"
         }
     }
-    
+
     /**
      * Merges multiple style maps with later maps taking precedence.
      */
@@ -97,7 +100,7 @@ object RenderingUtils {
             acc + styles
         }
     }
-    
+
     /**
      * Creates a component render data instance with sensible defaults.
      */

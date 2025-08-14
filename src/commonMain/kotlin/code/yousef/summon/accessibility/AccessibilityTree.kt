@@ -88,7 +88,7 @@ object AccessibilityUtils {
             .filter { entry ->
                 val key = entry.key
                 key.contains("aria-") || key == "role" ||
-                key == "tabindex" || key == "disabled"
+                        key == "tabindex" || key == "disabled"
             }
             .associate { entry ->
                 entry.key to entry.value
@@ -237,19 +237,34 @@ private fun Modifier.applyAccessibilityAttributes(node: AccessibilityNode): Modi
     // Apply state attributes
     for ((state, isActive) in node.state) {
         when (state) {
-            State.BUSY -> if (isActive) result = Modifier(result.styles, result.attributes + mapOf("aria-busy" to "true"))
-            State.CHECKED -> if (isActive) result = Modifier(result.styles, result.attributes + mapOf("aria-checked" to "true"))
+            State.BUSY -> if (isActive) result =
+                Modifier(result.styles, result.attributes + mapOf("aria-busy" to "true"))
+
+            State.CHECKED -> if (isActive) result =
+                Modifier(result.styles, result.attributes + mapOf("aria-checked" to "true"))
+
             State.DISABLED -> if (isActive) {
                 result = Modifier(result.styles, result.attributes + mapOf("aria-disabled" to "true"))
                 result = Modifier(result.styles, result.attributes + mapOf("disabled" to ""))
             }
 
-            State.EXPANDED -> if (isActive) result = Modifier(result.styles, result.attributes + mapOf("aria-expanded" to "true"))
-            State.GRABBED -> if (isActive) result = Modifier(result.styles, result.attributes + mapOf("aria-grabbed" to "true"))
-            State.HIDDEN -> if (isActive) result = Modifier(result.styles, result.attributes + mapOf("aria-hidden" to "true"))
-            State.INVALID -> if (isActive) result = Modifier(result.styles, result.attributes + mapOf("aria-invalid" to "true"))
-            State.PRESSED -> if (isActive) result = Modifier(result.styles, result.attributes + mapOf("aria-pressed" to "true"))
-            State.SELECTED -> if (isActive) result = Modifier(result.styles, result.attributes + mapOf("aria-selected" to "true"))
+            State.EXPANDED -> if (isActive) result =
+                Modifier(result.styles, result.attributes + mapOf("aria-expanded" to "true"))
+
+            State.GRABBED -> if (isActive) result =
+                Modifier(result.styles, result.attributes + mapOf("aria-grabbed" to "true"))
+
+            State.HIDDEN -> if (isActive) result =
+                Modifier(result.styles, result.attributes + mapOf("aria-hidden" to "true"))
+
+            State.INVALID -> if (isActive) result =
+                Modifier(result.styles, result.attributes + mapOf("aria-invalid" to "true"))
+
+            State.PRESSED -> if (isActive) result =
+                Modifier(result.styles, result.attributes + mapOf("aria-pressed" to "true"))
+
+            State.SELECTED -> if (isActive) result =
+                Modifier(result.styles, result.attributes + mapOf("aria-selected" to "true"))
         }
     }
 

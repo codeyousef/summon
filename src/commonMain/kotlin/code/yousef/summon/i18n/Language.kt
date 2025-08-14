@@ -14,4 +14,4 @@ data class Language(
  */
 enum class LayoutDirection {
     LTR, RTL
-} 
+}

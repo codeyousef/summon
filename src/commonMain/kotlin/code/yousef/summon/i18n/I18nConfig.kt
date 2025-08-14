@@ -1,7 +1,6 @@
 package code.yousef.summon.i18n
 
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.CompositionLocalProvider
 
 /**
  * Configuration object for internationalization settings
@@ -26,7 +25,7 @@ object I18nConfig {
 
     /**
      * Change the application language
-     * 
+     *
      * @param languageCode The language code to switch to
      * @return True if the language was changed, false if not found
      */
@@ -44,7 +43,7 @@ class I18nConfigBuilder {
 
     /**
      * Add a supported language to the configuration
-     * 
+     *
      * @param code ISO language code (e.g., "en", "fr", "ar")
      * @param name Display name of the language
      * @param direction Text direction (defaults to LTR)
@@ -61,7 +60,7 @@ class I18nConfigBuilder {
 
     /**
      * Set the default language by language code
-     * 
+     *
      * @param code Language code of the default language
      */
     fun setDefault(code: String) {
@@ -72,8 +71,8 @@ class I18nConfigBuilder {
 /**
  * CompositionLocal to provide the current language throughout the app
  */
-val LocalLanguage = CompositionLocal.compositionLocalOf { 
-    Language("en", "English", LayoutDirection.LTR) 
+val LocalLanguage = CompositionLocal.compositionLocalOf {
+    Language("en", "English", LayoutDirection.LTR)
 }
 
 /**

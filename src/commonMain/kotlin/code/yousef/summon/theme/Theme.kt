@@ -1,13 +1,8 @@
 package code.yousef.summon.theme
 
 import code.yousef.summon.core.style.Color
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.boxShadow
-import code.yousef.summon.modifier.FontWeight
+import code.yousef.summon.modifier.*
 import code.yousef.summon.modifier.StylingModifierExtras.textDecoration
-import code.yousef.summon.modifier.fontFamily
-import code.yousef.summon.modifier.letterSpacing
-import code.yousef.summon.modifier.lineHeight
 
 
 /**
@@ -61,7 +56,8 @@ object Theme {
                 val fontWeightStr = fontWeight?.value
                 val colorStr = color?.toHexString()
                 val lineHeightStr = if (lineHeight != null) "$lineHeight" else null
-                val letterSpacingStr = if (letterSpacing != null && letterSpacingUnit != null) "$letterSpacing$letterSpacingUnit" else null
+                val letterSpacingStr =
+                    if (letterSpacing != null && letterSpacingUnit != null) "$letterSpacing$letterSpacingUnit" else null
 
                 return TextStyle(
                     fontFamily = fontFamily,
@@ -235,7 +231,12 @@ object Theme {
             letterSpacing = 0.05,
             textDecoration = "uppercase"
         ),
-        "link" to TextStyle.create(fontSize = 1.0, fontWeight = FontWeight.Normal, color = Color.hex("#0d6efd"), textDecoration = "underline"),
+        "link" to TextStyle.create(
+            fontSize = 1.0,
+            fontWeight = FontWeight.Normal,
+            color = Color.hex("#0d6efd"),
+            textDecoration = "underline"
+        ),
         "code" to TextStyle.create(fontSize = 0.9, fontFamily = "monospace")
     )
 

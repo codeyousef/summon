@@ -6,7 +6,7 @@ import code.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * A layout component that creates empty space with the given dimensions.
- * 
+ *
  * @param modifier The modifier to be applied to this component
  */
 @Composable

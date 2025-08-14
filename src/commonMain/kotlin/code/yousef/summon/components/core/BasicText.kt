@@ -1,12 +1,7 @@
 package code.yousef.summon.components.core
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.StylingModifiers.lineHeight
-import code.yousef.summon.modifier.fontFamily
-import code.yousef.summon.modifier.letterSpacing
-import code.yousef.summon.modifier.lineHeight
-import code.yousef.summon.modifier.textDecoration
+import code.yousef.summon.modifier.*
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.theme.TextStyle
 

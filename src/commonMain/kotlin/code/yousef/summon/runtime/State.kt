@@ -7,7 +7,7 @@ import code.yousef.summon.state.mutableStateOf as statePackageMutableStateOf
 /**
  * Type alias for backward compatibility with existing code.
  * Use SummonMutableState from the state package for new code.
- * 
+ *
  * @see code.yousef.summon.state.SummonMutableState
  */
 typealias RuntimeMutableState<T> = SummonMutableState<T>
@@ -15,10 +15,10 @@ typealias RuntimeMutableState<T> = SummonMutableState<T>
 /**
  * Creates a new mutable state with the specified initial value.
  * This delegates to the implementation in the state package.
- * 
+ *
  * NOTE: This function exists for backward compatibility.
  * For new code, use [code.yousef.summon.state.mutableStateOf] instead.
- * 
+ *
  * @param initialValue The initial value of the state
  * @return A RuntimeMutableState (alias for SummonMutableState) holding the initial value
  * @see code.yousef.summon.state.mutableStateOf

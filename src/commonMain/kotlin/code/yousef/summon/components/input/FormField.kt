@@ -1,11 +1,11 @@
 package code.yousef.summon.components.input
 
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.components.layout.Column
+import code.yousef.summon.components.layout.Row
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.components.layout.Row
-import code.yousef.summon.components.display.Text
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.theme.ColorHelpers
 import code.yousef.summon.theme.Spacer
@@ -35,7 +35,7 @@ fun FormField(
 ) {
     val composer = CompositionLocal.currentComposer
     val renderer = LocalPlatformRenderer.current
-    
+
     // Use the new renderFormField method from MigratedPlatformRenderer
     composer?.startNode() // Start FormField node
     if (composer?.inserting == true) {
@@ -48,12 +48,12 @@ fun FormField(
             content = {
                 // Internal structure
                 // Use Column for vertical layout
-                Column { 
+                Column {
                     // Compose Label if provided
                     if (label != null) {
                         Row {
                             label() // Display the label first
-                            
+
                             // Add required indicator (red asterisk) if field is required
                             if (isRequired) {
                                 // Add a small space between label and asterisk
@@ -66,7 +66,7 @@ fun FormField(
                             }
                         }
                         // Add small space between label and field
-                        Spacer(modifier = Modifier().height("4px")) 
+                        Spacer(modifier = Modifier().height("4px"))
                     }
 
                     // Compose the actual input field
@@ -76,8 +76,8 @@ fun FormField(
                     val bottomText = if (isError && errorText != null) errorText else helperText
                     if (bottomText != null) {
                         // Add small space between field and helper/error text
-                        Spacer(modifier = Modifier().height("4px")) 
-                        
+                        Spacer(modifier = Modifier().height("4px"))
+
                         // Add styling for error text if in error state
                         if (isError && errorText != null) {
                             Column(modifier = Modifier().style("color", ColorHelpers.error)) {

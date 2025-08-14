@@ -4,7 +4,7 @@ import code.yousef.summon.validation.ValidationMessages
 
 /**
  * Interface for validating input fields.
- * 
+ *
  * @deprecated Use code.yousef.summon.validation.Validator instead
  */
 @Deprecated(

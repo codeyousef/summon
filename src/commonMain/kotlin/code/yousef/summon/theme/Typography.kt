@@ -1,7 +1,5 @@
 package code.yousef.summon.theme
 
-import code.yousef.summon.theme.TextStyle
-
 /**
  * Typography class that defines all text styles for the application.
  */
@@ -14,7 +12,7 @@ class Typography {
         letterSpacing = "-1.5px",
         lineHeight = "112px"
     )
-    
+
     val h2: TextStyle = TextStyle(
         fontFamily = "sans-serif",
         fontWeight = "Light",
@@ -22,7 +20,7 @@ class Typography {
         letterSpacing = "-0.5px",
         lineHeight = "72px"
     )
-    
+
     val h3: TextStyle = TextStyle(
         fontFamily = "sans-serif",
         fontWeight = "Normal",
@@ -30,7 +28,7 @@ class Typography {
         letterSpacing = "0px",
         lineHeight = "56px"
     )
-    
+
     val h4: TextStyle = TextStyle(
         fontFamily = "sans-serif",
         fontWeight = "Normal",
@@ -38,7 +36,7 @@ class Typography {
         letterSpacing = "0.25px",
         lineHeight = "40px"
     )
-    
+
     val h5: TextStyle = TextStyle(
         fontFamily = "sans-serif",
         fontWeight = "Normal",
@@ -46,7 +44,7 @@ class Typography {
         letterSpacing = "0px",
         lineHeight = "32px"
     )
-    
+
     val h6: TextStyle = TextStyle(
         fontFamily = "sans-serif",
         fontWeight = "Medium",
@@ -54,7 +52,7 @@ class Typography {
         letterSpacing = "0.15px",
         lineHeight = "28px"
     )
-    
+
     // Subtitles
     val subtitle1: TextStyle = TextStyle(
         fontFamily = "sans-serif",
@@ -63,7 +61,7 @@ class Typography {
         letterSpacing = "0.15px",
         lineHeight = "24px"
     )
-    
+
     val subtitle2: TextStyle = TextStyle(
         fontFamily = "sans-serif",
         fontWeight = "Medium",
@@ -71,7 +69,7 @@ class Typography {
         letterSpacing = "0.1px",
         lineHeight = "20px"
     )
-    
+
     // Body text
     val body1: TextStyle = TextStyle(
         fontFamily = "sans-serif",
@@ -80,7 +78,7 @@ class Typography {
         letterSpacing = "0.5px",
         lineHeight = "24px"
     )
-    
+
     val body2: TextStyle = TextStyle(
         fontFamily = "sans-serif",
         fontWeight = "Normal",
@@ -88,7 +86,7 @@ class Typography {
         letterSpacing = "0.25px",
         lineHeight = "20px"
     )
-    
+
     // Button text
     val button: TextStyle = TextStyle(
         fontFamily = "sans-serif",
@@ -97,7 +95,7 @@ class Typography {
         letterSpacing = "1.25px",
         lineHeight = "16px"
     )
-    
+
     // Caption
     val caption: TextStyle = TextStyle(
         fontFamily = "sans-serif",
@@ -106,7 +104,7 @@ class Typography {
         letterSpacing = "0.4px",
         lineHeight = "16px"
     )
-    
+
     // Overline
     val overline: TextStyle = TextStyle(
         fontFamily = "sans-serif",

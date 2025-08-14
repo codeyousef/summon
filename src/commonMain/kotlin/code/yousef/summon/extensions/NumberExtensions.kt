@@ -1,7 +1,5 @@
 package code.yousef.summon.extensions
 
-import code.yousef.summon.runtime.getPlatformRenderer
-
 /**
  * Extensions for Number to provide CSS unit helpers
  */
@@ -69,7 +67,7 @@ val Number.ch: String
     get() = "${this}ch"
 
 /**
- * Converts a number to a CSS ex unit value (e.g., 3.ex -> "3ex") 
+ * Converts a number to a CSS ex unit value (e.g., 3.ex -> "3ex")
  * Represents the x-height of the current font (height of the letter 'x')
  */
 val Number.ex: String
@@ -87,7 +85,7 @@ val Number.pt: String
  * Traditional print measurement, 1pc = 12pt
  */
 val Number.pc: String
-    get() = "${this}pc" 
+    get() = "${this}pc"
 
 /**
  * Converts a number to a CSS seconds value (e.g., 0.3.s -> "0.3s")

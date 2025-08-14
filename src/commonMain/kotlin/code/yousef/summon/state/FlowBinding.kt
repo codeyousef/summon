@@ -1,21 +1,12 @@
 package code.yousef.summon.state
 
-import code.yousef.summon.state.SummonMutableState
-import code.yousef.summon.state.MutableStateImpl
-import code.yousef.summon.state.mutableStateOf
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 /**
  * A registry for managing Flow collection scopes.
- * 
+ *
  * Thread Safety Note: This registry is thread-safe. All operations on the registry
  * are protected by a mutex to ensure thread safety.
  */
@@ -31,10 +22,10 @@ object FlowCollectionRegistry {
 
     /**
      * Gets or creates a CoroutineScope for the given key.
-     * 
+     *
      * Thread Safety Note: This method is thread-safe. It uses a mutex to ensure
      * atomic operations on the scopes map.
-     * 
+     *
      * @param key A unique identifier for the scope
      * @return A CoroutineScope for collecting flows
      */
@@ -73,10 +64,10 @@ object FlowCollectionRegistry {
 
     /**
      * Cancels and removes the CoroutineScope for the given key.
-     * 
+     *
      * Thread Safety Note: This method is thread-safe. It uses a mutex to ensure
      * atomic operations on the scopes map.
-     * 
+     *
      * @param key The key of the scope to cancel
      */
     fun cancelScope(key: String) {
@@ -106,7 +97,7 @@ object FlowCollectionRegistry {
 
     /**
      * Cancels and removes all CoroutineScopes.
-     * 
+     *
      * Thread Safety Note: This method is thread-safe. It uses a mutex to ensure
      * atomic operations on the scopes map.
      */
@@ -121,8 +112,8 @@ object FlowCollectionRegistry {
                 scopes.clear()
 
                 // Then cancel all scopes (outside the lock to avoid blocking)
-                scopesToCancel.forEach { scope -> 
-                    scope.cancel(CancellationException("All scopes cancelled")) 
+                scopesToCancel.forEach { scope ->
+                    scope.cancel(CancellationException("All scopes cancelled"))
                 }
             } finally {
                 scopesMutex.unlock()
@@ -140,10 +131,10 @@ object FlowCollectionRegistry {
 /**
  * Converts a Flow to a SummonMutableState.
  * This allows reactively connecting to flows from Kotlin coroutines.
- * 
+ *
  * Thread Safety Note: State updates happen on a single thread (Dispatchers.Default)
  * to ensure thread safety. The returned SummonMutableState is safe to access from multiple threads.
- * 
+ *
  * @param flow The flow to connect to
  * @param initialValue The initial value before the flow emits
  * @return A SummonMutableState that updates when the flow emits new values
@@ -171,10 +162,10 @@ fun <T> flowToState(
 
 /**
  * Converts a Flow to a SummonMutableState and associates it with a component.
- * 
+ *
  * Thread Safety Note: State updates happen on a single thread (Dispatchers.Default)
  * to ensure thread safety. The returned SummonMutableState is safe to access from multiple threads.
- * 
+ *
  * @param flow The flow to connect to
  * @param initialValue The initial value before the flow emits
  * @param componentId Component ID for scope management. If not provided, a new independent scope will be created.
@@ -212,10 +203,10 @@ fun <T> componentFlowToState(
 
 /**
  * Converts a StateFlow to a SummonMutableState.
- * 
- * Thread Safety Note: StateFlow is already thread-safe, and state updates happen 
+ *
+ * Thread Safety Note: StateFlow is already thread-safe, and state updates happen
  * on a single thread to ensure thread safety of the SummonMutableState.
- * 
+ *
  * @param stateFlow The StateFlow to connect to
  * @return A SummonMutableState that updates when the StateFlow emits new values
  */
@@ -225,10 +216,10 @@ fun <T> stateFlowToState(stateFlow: StateFlow<T>): SummonMutableState<T> {
 
 /**
  * Cancels all Flow collections associated with a component.
- * 
+ *
  * Thread Safety Note: This method is thread-safe as it delegates to FlowCollectionRegistry.cancelScope,
  * which handles thread safety internally.
- * 
+ *
  * @param componentId The unique identifier for the component
  */
 fun cancelComponentFlows(componentId: String) {

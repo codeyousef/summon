@@ -66,10 +66,14 @@ class StaticRenderer(
 
         // Collect all custom meta tags from context
         val customMetaTags = context.seoMetadata.customMetaTags.entries
-            .filter { it.key !in listOf("title", "description", "canonical", "author", "keywords", 
-                                        "robots", "og:title", "og:description", "og:image", "og:url", 
-                                        "og:type", "twitter:card", "twitter:site", "twitter:creator", 
-                                        "lang", "dir", "favicon") }
+            .filter {
+                it.key !in listOf(
+                    "title", "description", "canonical", "author", "keywords",
+                    "robots", "og:title", "og:description", "og:image", "og:url",
+                    "og:type", "twitter:card", "twitter:site", "twitter:creator",
+                    "lang", "dir", "favicon"
+                )
+            }
             .joinToString("\n                ") { (key, value) ->
                 if (key.startsWith("og:") || key.startsWith("twitter:")) {
                     "<meta property=\"$key\" content=\"$value\">"

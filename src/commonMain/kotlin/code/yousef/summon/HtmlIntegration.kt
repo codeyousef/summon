@@ -13,7 +13,7 @@ expect fun <T> isHtmlReceiver(receiver: T): Boolean
 
 /**
  * Expect declaration to add a client-side script placeholder to the output.
- * Actual implementations will insert the appropriate script tag or placeholder 
+ * Actual implementations will insert the appropriate script tag or placeholder
  * based on the target platform (HTML, etc.).
  *
  * @param receiver The target receiver (e.g., a TagConsumer).

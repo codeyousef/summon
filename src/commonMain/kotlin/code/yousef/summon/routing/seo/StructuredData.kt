@@ -2,7 +2,6 @@ package code.yousef.summon.routing.seo
 
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.SideEffect
 import kotlinx.serialization.json.*
@@ -108,22 +107,22 @@ fun OrganizationStructuredData(
 ) {
     val data = JsonObject(
         mapOf(
-        "@context" to JsonPrimitive("https://schema.org"),
-        "@type" to JsonPrimitive("Organization"),
-        "name" to JsonPrimitive(name),
-        "url" to JsonPrimitive(url),
-        "logo" to (logo?.let { JsonPrimitive(it) } ?: JsonNull),
-        "contactPoint" to (contactPoint?.let {
-            JsonObject(
-                mapOf(
-                    "@type" to JsonPrimitive("ContactPoint"),
-                    "contactType" to JsonPrimitive(it["contactType"] ?: "customer service"),
-                    "telephone" to JsonPrimitive(it["telephone"] ?: ""),
-                    "email" to JsonPrimitive(it["email"] ?: "")
+            "@context" to JsonPrimitive("https://schema.org"),
+            "@type" to JsonPrimitive("Organization"),
+            "name" to JsonPrimitive(name),
+            "url" to JsonPrimitive(url),
+            "logo" to (logo?.let { JsonPrimitive(it) } ?: JsonNull),
+            "contactPoint" to (contactPoint?.let {
+                JsonObject(
+                    mapOf(
+                        "@type" to JsonPrimitive("ContactPoint"),
+                        "contactType" to JsonPrimitive(it["contactType"] ?: "customer service"),
+                        "telephone" to JsonPrimitive(it["telephone"] ?: ""),
+                        "email" to JsonPrimitive(it["email"] ?: "")
+                    )
                 )
-            )
-        } ?: JsonNull)
-    ))
+            } ?: JsonNull)
+        ))
 
     StructuredData(data)
 }

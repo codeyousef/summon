@@ -1,7 +1,6 @@
 package code.yousef.summon.runtime
 
 import code.yousef.summon.core.error.ComponentNotFoundException
-import code.yousef.summon.core.error.ErrorHandler
 
 /**
  * CompositionLocal for accessing the current platform renderer.
@@ -11,7 +10,7 @@ val LocalPlatformRenderer = CompositionLocal.staticCompositionLocalOf<PlatformRe
 
 /**
  * Helper function to get the current platform renderer from the CompositionLocal.
- * 
+ *
  * This will eventually replace the static getPlatformRenderer() function to provide
  * properly scoped access to the renderer within composition.
  */

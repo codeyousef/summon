@@ -2,7 +2,7 @@ package code.yousef.summon.modifier
 
 /**
  * Provides extension functions for the Modifier class,
- * organized in a way that allows for explicit imports 
+ * organized in a way that allows for explicit imports
  * to resolve ambiguity issues.
  */
 object ModifierExtras {
@@ -30,7 +30,7 @@ object ModifierExtras {
     fun Modifier.withAttributes(attrs: Map<String, String>): Modifier {
         return this.copy(attributes = this.attributes + attrs) // Create a new map by combining and then copy
     }
-        
+
     /**
      * Sets the pointer-events property of the element.
      * @param value The CSS pointer-events value (e.g., "none", "auto", etc.)
@@ -38,18 +38,18 @@ object ModifierExtras {
      */
     fun Modifier.pointerEvents(value: String): Modifier =
         style("pointer-events", value)
-        
+
     /**
      * Gets an attribute value or null if not present
      * @param name The attribute name
      * @return The attribute value or null if not found
      */
-    fun Modifier.getAttribute(name: String): String? = 
+    fun Modifier.getAttribute(name: String): String? =
         attributes[name]
-        
+
     /**
      * Creates a copy of the Modifier with an added HTML attribute.
-     * 
+     *
      * @param name The attribute name
      * @param value The attribute value
      * @return A new Modifier with the added attribute

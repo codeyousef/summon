@@ -1,8 +1,8 @@
 package code.yousef.summon.animation
 
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.transition
 import code.yousef.summon.modifier.TransitionTimingFunction
+import code.yousef.summon.modifier.transition
 
 
 /**

@@ -1,6 +1,5 @@
 package code.yousef.summon.runtime
 
-import code.yousef.summon.annotation.Composable
 import kotlinx.html.FlowContent
 
 /**
@@ -25,7 +24,7 @@ object CompositionLocal {
      */
     internal fun setCurrentComposer(composer: Composer?) {
         _currentComposer = composer
-        
+
         // Also update the recomposer
         if (composer != null && Recomposer.isComposerImpl(composer)) {
             RecomposerHolder.recomposer.setActiveComposer(Recomposer.asComposerImpl(composer))
@@ -33,11 +32,11 @@ object CompositionLocal {
             RecomposerHolder.recomposer.setActiveComposer(null)
         }
     }
-    
+
     /**
      * Temporarily sets the current composer to the provided composer and executes the block.
      * After the block is executed, restores the previous composer.
-     * 
+     *
      * @param composer The composer to set as current during the execution of the block.
      * @param block The block to execute with the temporary composer.
      * @return The result of the block.
@@ -51,19 +50,19 @@ object CompositionLocal {
             setCurrentComposer(previous)
         }
     }
-    
+
     /**
      * Creates a CompositionLocal with a default value.
-     * 
+     *
      * @param defaultValue The default value to return when no provider exists.
      * @return A new CompositionLocalProvider.
      */
     fun <T> compositionLocalOf(defaultValue: T): CompositionLocalProvider<T> =
         CompositionLocalProviderImpl(defaultValue)
-    
+
     /**
      * Creates a static CompositionLocal that requires a provider.
-     * 
+     *
      * @return A new CompositionLocal that throws if no provider exists.
      */
     fun <T> staticCompositionLocalOf(): CompositionLocalProvider<T> =
@@ -78,10 +77,10 @@ interface CompositionLocalProvider<T> {
      * The current value of this composition local.
      */
     val current: T
-    
+
     /**
      * Creates a new provider with the specified value.
-     * 
+     *
      * @param value The value to provide.
      * @return A new provider providing the value.
      */
@@ -93,10 +92,10 @@ interface CompositionLocalProvider<T> {
  */
 private class CompositionLocalProviderImpl<T>(private val defaultValue: T) : CompositionLocalProvider<T> {
     private var value: T = defaultValue
-    
+
     override val current: T
         get() = value
-    
+
     override fun provides(value: T): CompositionLocalProvider<T> {
         this.value = value
         return this
@@ -108,10 +107,10 @@ private class CompositionLocalProviderImpl<T>(private val defaultValue: T) : Com
  */
 private class StaticCompositionLocalProviderImpl<T> : CompositionLocalProvider<T> {
     private var value: T? = null
-    
+
     override val current: T
         get() = value ?: throw IllegalStateException("CompositionLocal not provided")
-    
+
     override fun provides(value: T): CompositionLocalProvider<T> {
         this.value = value
         return this

@@ -1,7 +1,5 @@
 package code.yousef.summon.theme
 
-import code.yousef.summon.theme.Typography
-
 /**
  * Manages theme resources for the application.
  */

@@ -16,7 +16,7 @@ class RouteState<T>(
 ) {
     // Store states by route path
     private val states = mutableMapOf<String, T>()
-    
+
     /**
      * Gets the state for the current route instance, or creates new if not exists.
      * @param factory Function to create a new state value if needed
@@ -26,7 +26,7 @@ class RouteState<T>(
     fun getOrCreate(factory: () -> T): T {
         val router = LocalRouter
         val currentPath = router?.currentPath ?: ""
-        
+
         // If the current path matches our route path pattern
         return if (matchesRoutePath(currentPath)) {
             // Get or create state for this path
@@ -36,7 +36,7 @@ class RouteState<T>(
             initialValue
         }
     }
-    
+
     /**
      * Gets the state for the current route instance, or null if not exists.
      * @return The current state value or null
@@ -45,7 +45,7 @@ class RouteState<T>(
     fun get(): T? {
         val router = LocalRouter
         val currentPath = router?.currentPath ?: ""
-        
+
         // If the current path matches our route path pattern
         return if (matchesRoutePath(currentPath)) {
             // Get state for this path
@@ -55,7 +55,7 @@ class RouteState<T>(
             null
         }
     }
-    
+
     /**
      * Updates the state for the current route instance.
      * @param value The new state value
@@ -64,21 +64,21 @@ class RouteState<T>(
     fun update(value: T) {
         val router = LocalRouter
         val currentPath = router?.currentPath ?: ""
-        
+
         // If the current path matches our route path pattern
         if (matchesRoutePath(currentPath)) {
             // Update state for this path
             states[currentPath] = value
         }
     }
-    
+
     /**
      * Clears the state for all instances of this route.
      */
     fun clear() {
         states.clear()
     }
-    
+
     /**
      * Checks if the current path matches the route path pattern.
      */

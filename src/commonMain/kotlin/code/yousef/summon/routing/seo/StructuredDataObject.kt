@@ -9,7 +9,7 @@ import code.yousef.summon.annotation.Composable
 object StructuredData {
     /**
      * Creates a WebPage structured data for better SEO.
-     * 
+     *
      * @param name The name of the web page
      * @param description The description of the web page
      * @param url The URL of the web page
@@ -23,10 +23,10 @@ object StructuredData {
     ) {
         WebPageStructuredData(name, description, url)
     }
-    
+
     /**
      * Creates an Organization structured data for better organization representation in search.
-     * 
+     *
      * @param name The name of the organization
      * @param url The URL of the organization's website
      * @param logo The URL of the organization's logo
@@ -40,10 +40,10 @@ object StructuredData {
     ) {
         OrganizationStructuredData(name, url, logo)
     }
-    
+
     /**
      * Creates a Product structured data for better product representation in search.
-     * 
+     *
      * @param name The name of the product
      * @param description The description of the product
      * @param image The URL of the product's image
@@ -61,10 +61,10 @@ object StructuredData {
     ) {
         ProductStructuredData(name, description, image, price, currency)
     }
-    
+
     /**
      * Creates a BreadcrumbList structured data for better navigation understanding.
-     * 
+     *
      * @param items A list of name-URL pairs representing the breadcrumb trail
      * @return A Composable that adds the structured data to the document
      */
@@ -72,10 +72,10 @@ object StructuredData {
     fun breadcrumbs(items: List<Pair<String, String>>) {
         BreadcrumbsStructuredData(items)
     }
-    
+
     /**
      * Creates an Article structured data for better article representation in search.
-     * 
+     *
      * @param headline The headline of the article
      * @param author The name of the author
      * @param datePublished The date the article was published (ISO 8601 format)
@@ -125,10 +125,10 @@ object StructuredData {
         """
         JsonLdStructuredData(jsonLd)
     }
-    
+
     /**
      * Creates a LocalBusiness structured data for better business representation in search.
-     * 
+     *
      * @param name The name of the business
      * @param url The URL of the business's website
      * @param description The description of the business
@@ -157,7 +157,7 @@ object StructuredData {
         val addressRegion = address["addressRegion"] ?: ""
         val postalCode = address["postalCode"] ?: ""
         val addressCountry = address["addressCountry"] ?: ""
-        
+
         val hoursSpecification = if (openingHours.isNotEmpty()) {
             openingHours.entries.joinToString(",") { (day, hours) ->
                 """
@@ -172,7 +172,7 @@ object StructuredData {
         } else {
             ""
         }
-        
+
         val jsonLd = """
         {
             "@context": "https://schema.org",

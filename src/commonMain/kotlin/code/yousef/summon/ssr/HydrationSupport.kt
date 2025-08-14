@@ -89,7 +89,7 @@ class HydrationContext {
 
     /**
      * Track a composition for hydration
-     * 
+     *
      * @param content The composition content to track
      */
     fun trackComposition(content: () -> Unit) {
@@ -295,7 +295,7 @@ class HydrationContext {
 
     /**
      * Add a component to the tracked components list
-     * 
+     *
      * @param id The component ID
      * @param type The component type
      * @param state Optional component state
@@ -397,7 +397,7 @@ class HydrationContext {
 
     /**
      * Generate hydration data as JSON
-     * 
+     *
      * @param strategy The hydration strategy to use
      * @return A JSON string with hydration data
      */

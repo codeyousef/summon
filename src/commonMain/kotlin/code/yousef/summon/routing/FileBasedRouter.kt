@@ -17,12 +17,12 @@ expect class FileBasedRouter() : Router {
      */
     @Composable
     override fun create(initialPath: String)
-    
+
     /**
      * The current path of the router.
      */
     override val currentPath: String
-    
+
     /**
      * Loads pages from the pages directory structure.
      * This is automatically called during initialization.

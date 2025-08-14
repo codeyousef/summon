@@ -1,9 +1,7 @@
 package code.yousef.summon.modifier
 
-import kotlin.jvm.JvmName
 import code.yousef.summon.extensions.px
-import code.yousef.summon.extensions.rem
-import code.yousef.summon.extensions.percent
+import kotlin.jvm.JvmName
 
 /**
  * Extension functions for Styling Modifiers
@@ -154,7 +152,7 @@ fun Modifier.borderWidth(value: String): Modifier =
 
 /**
  * Sets the border width with a numeric value in pixels.
- * 
+ *
  * @param value The width in pixels
  * @return A new Modifier with the border width style added
  */
@@ -163,7 +161,7 @@ fun Modifier.borderWidth(value: Number): Modifier =
 
 /**
  * Sets the border width for a specific side with a numeric value in pixels.
- * 
+ *
  * @param value The width in pixels
  * @param side The side to apply the border width to (default is BorderSide.All)
  * @return A new Modifier with the border width style added
@@ -179,7 +177,7 @@ fun Modifier.borderWidth(value: Number, side: BorderSide = BorderSide.All): Modi
 
 /**
  * Sets the top border width with a numeric value in pixels.
- * 
+ *
  * @param value The width in pixels
  * @return A new Modifier with the top border width style added
  */
@@ -188,7 +186,7 @@ fun Modifier.borderTopWidth(value: Number): Modifier =
 
 /**
  * Sets the right border width with a numeric value in pixels.
- * 
+ *
  * @param value The width in pixels
  * @return A new Modifier with the right border width style added
  */
@@ -197,7 +195,7 @@ fun Modifier.borderRightWidth(value: Number): Modifier =
 
 /**
  * Sets the bottom border width with a numeric value in pixels.
- * 
+ *
  * @param value The width in pixels
  * @return A new Modifier with the bottom border width style added
  */
@@ -206,7 +204,7 @@ fun Modifier.borderBottomWidth(value: Number): Modifier =
 
 /**
  * Sets the left border width with a numeric value in pixels.
- * 
+ *
  * @param value The width in pixels
  * @return A new Modifier with the left border width style added
  */
@@ -234,7 +232,7 @@ fun Modifier.borderColor(value: String): Modifier =
 
 /**
  * Sets the border with all properties in one function.
- * 
+ *
  * @param width The border width (can be a Number or a String)
  * @param style The border style (can be a String or BorderStyle)
  * @param color The border color
@@ -265,7 +263,7 @@ fun Modifier.border(
 
 /**
  * Sets the border with all properties in one function.
- * 
+ *
  * @param width The border width (can be a Number or a String)
  * @param style The border style as a BorderStyle enum
  * @param color The border color
@@ -296,7 +294,7 @@ fun Modifier.border(
 
 /**
  * Sets the border with all properties in one function.
- * 
+ *
  * @param width The border width as a String
  * @param style The border style (can be a String or BorderStyle)
  * @param color The border color
@@ -327,7 +325,7 @@ fun Modifier.border(
 
 /**
  * Sets the border with all properties in one function.
- * 
+ *
  * @param width The border width as a String
  * @param style The border style as a BorderStyle enum
  * @param color The border color
@@ -775,7 +773,7 @@ fun Modifier.pointerEvents(value: String): Modifier =
 
 /**
  * Creates a radial gradient background.
- * 
+ *
  * @param shape The shape of the gradient (e.g., "circle", "ellipse")
  * @param colors List of color stops in the format "color position" (e.g., "rgba(0, 247, 255, 0.15) 0%")
  * @param position Optional position of the gradient center (e.g., "center", "top left")
@@ -792,7 +790,7 @@ fun Modifier.radialGradient(
 
 /**
  * Creates a radial gradient background using enum values for shape and position.
- * 
+ *
  * @param shape The shape of the gradient as a RadialGradientShape enum
  * @param colors List of color stops in the format "color position" (e.g., "rgba(0, 247, 255, 0.15) 0%")
  * @param position Optional position of the gradient center as a RadialGradientPosition enum
@@ -809,7 +807,7 @@ fun Modifier.radialGradient(
 
 /**
  * Creates a radial gradient background with a simplified API.
- * 
+ *
  * @param innerColor The color at the center of the gradient
  * @param outerColor The color at the edge of the gradient
  * @param innerPosition The position of the inner color (e.g., "0%")
@@ -835,7 +833,7 @@ fun Modifier.radialGradient(
 
 /**
  * Creates a radial gradient background with a simplified API using enum values for shape and position.
- * 
+ *
  * @param innerColor The color at the center of the gradient
  * @param outerColor The color at the edge of the gradient
  * @param innerPosition The position of the inner color (e.g., "0%")
@@ -862,7 +860,7 @@ fun Modifier.radialGradient(
 
 /**
  * Creates a radial gradient background with a simplified API using Number extensions for positions.
- * 
+ *
  * @param innerColor The color at the center of the gradient
  * @param outerColor The color at the edge of the gradient
  * @param innerPosition The position of the inner color as a Number (will be converted to a percentage)
@@ -892,7 +890,7 @@ fun Modifier.radialGradient(
 
 /**
  * Creates a radial gradient background with a simplified API using enum values and Number extensions.
- * 
+ *
  * @param innerColor The color at the center of the gradient
  * @param outerColor The color at the edge of the gradient
  * @param innerPosition The position of the inner color as a Number (will be converted to a percentage)
@@ -922,7 +920,7 @@ fun Modifier.radialGradient(
 
 /**
  * Creates a radial gradient background using Color objects.
- * 
+ *
  * @param shape The shape of the gradient (e.g., "circle", "ellipse")
  * @param colorStops List of Pairs containing Color objects and their positions
  * @param position Optional position of the gradient center (e.g., "center", "top left")
@@ -940,7 +938,7 @@ fun Modifier.radialGradient(
 
 /**
  * Creates a radial gradient background using Color objects and enum values for shape and position.
- * 
+ *
  * @param shape The shape of the gradient as a RadialGradientShape enum
  * @param colorStops List of Pairs containing Color objects and their positions
  * @param position Optional position of the gradient center as a RadialGradientPosition enum
@@ -958,7 +956,7 @@ fun Modifier.radialGradient(
 
 /**
  * Creates a radial gradient background using Color objects with Number positions.
- * 
+ *
  * @param shape The shape of the gradient (e.g., "circle", "ellipse")
  * @param colorStops List of Pairs containing Color objects and their positions as Numbers (will be converted to percentages)
  * @param position Optional position of the gradient center (e.g., "center", "top left")
@@ -976,7 +974,7 @@ fun Modifier.radialGradient(
 
 /**
  * Creates a radial gradient background using Color objects, enum values, and Number positions.
- * 
+ *
  * @param shape The shape of the gradient as a RadialGradientShape enum
  * @param colorStops List of Pairs containing Color objects and their positions as Numbers (will be converted to percentages)
  * @param position Optional position of the gradient center as a RadialGradientPosition enum
@@ -994,7 +992,7 @@ fun Modifier.radialGradient(
 
 /**
  * Creates a radial gradient background with a simplified API using Color objects.
- * 
+ *
  * @param innerColor The Color object at the center of the gradient
  * @param outerColor The Color object at the edge of the gradient
  * @param innerPosition The position of the inner color (e.g., "0%")
@@ -1021,7 +1019,7 @@ fun Modifier.radialGradient(
 
 /**
  * Creates a radial gradient background with a simplified API using Color objects and enum values.
- * 
+ *
  * @param innerColor The Color object at the center of the gradient
  * @param outerColor The Color object at the edge of the gradient
  * @param innerPosition The position of the inner color (e.g., "0%")
@@ -1048,7 +1046,7 @@ fun Modifier.radialGradient(
 
 /**
  * Creates a radial gradient background with a simplified API using Color objects and Number positions.
- * 
+ *
  * @param innerColor The Color object at the center of the gradient
  * @param outerColor The Color object at the edge of the gradient
  * @param innerPosition The position of the inner color as a Number (will be converted to a percentage)
@@ -1078,7 +1076,7 @@ fun Modifier.radialGradient(
 
 /**
  * Creates a radial gradient background with a simplified API using Color objects, enum values, and Number positions.
- * 
+ *
  * @param innerColor The Color object at the center of the gradient
  * @param outerColor The Color object at the edge of the gradient
  * @param innerPosition The position of the inner color as a Number (will be converted to a percentage)
@@ -1108,7 +1106,7 @@ fun Modifier.radialGradient(
 
 /**
  * Creates a linear gradient background.
- * 
+ *
  * @param direction The direction of the gradient (e.g., "to right", "to bottom", "45deg")
  * @param colors List of color stops in the format "color position" (e.g., "rgba(0, 247, 255, 0.15) 0%")
  * @return A new Modifier with the linear gradient background
@@ -1123,7 +1121,7 @@ fun Modifier.linearGradient(
 
 /**
  * Creates a linear gradient background with a simplified API.
- * 
+ *
  * @param startColor The color at the start of the gradient
  * @param endColor The color at the end of the gradient
  * @param startPosition The position of the start color (e.g., "0%")
@@ -1146,7 +1144,7 @@ fun Modifier.linearGradient(
 
 /**
  * Creates a linear gradient background using Color objects.
- * 
+ *
  * @param direction The direction of the gradient (e.g., "to right", "to bottom", "45deg")
  * @param colorStops List of Pairs containing Color objects and their positions
  * @return A new Modifier with the linear gradient background
@@ -1162,7 +1160,7 @@ fun Modifier.linearGradient(
 
 /**
  * Creates a linear gradient background with a simplified API using Color objects.
- * 
+ *
  * @param startColor The Color object at the start of the gradient
  * @param endColor The Color object at the end of the gradient
  * @param startPosition The position of the start color (e.g., "0%")
@@ -1186,7 +1184,7 @@ fun Modifier.linearGradient(
 
 /**
  * Creates a linear gradient background with direction first and Color objects.
- * 
+ *
  * @param gradientDirection The direction of the gradient (e.g., "to right", "to bottom", "45deg", "90deg")
  * @param startColor The Color object at the start of the gradient
  * @param endColor The Color object at the end of the gradient
@@ -1213,7 +1211,7 @@ fun Modifier.linearGradient(
 /**
  * Sets the backdrop-filter CSS property.
  * Used for creating glass morphism effects.
- * 
+ *
  * @param value The backdrop filter value (e.g., "blur(10px)", "blur(5px) brightness(1.1)")
  * @return A new Modifier with the backdrop filter applied
  */
@@ -1223,7 +1221,7 @@ fun Modifier.backdropFilter(value: String): Modifier =
 /**
  * Applies a backdrop blur effect.
  * Creates a glass-like blur behind the element.
- * 
+ *
  * @param value The blur radius (e.g., "10px", "5px")
  * @return A new Modifier with backdrop blur applied
  */
@@ -1232,7 +1230,7 @@ fun Modifier.backdropBlur(value: String): Modifier =
 
 /**
  * Applies a backdrop blur effect with a numeric value in pixels.
- * 
+ *
  * @param value The blur radius in pixels
  * @return A new Modifier with backdrop blur applied
  */
@@ -1242,7 +1240,7 @@ fun Modifier.backdropBlur(value: Number): Modifier =
 /**
  * Applies backdrop brightness adjustment.
  * Values > 1.0 brighten, values < 1.0 darken.
- * 
+ *
  * @param value The brightness multiplier (e.g., 1.1 for 10% brighter)
  * @return A new Modifier with backdrop brightness applied
  */
@@ -1252,7 +1250,7 @@ fun Modifier.backdropBrightness(value: Double): Modifier =
 /**
  * Applies backdrop contrast adjustment.
  * Values > 1.0 increase contrast, values < 1.0 decrease contrast.
- * 
+ *
  * @param value The contrast multiplier (e.g., 1.2 for 20% more contrast)
  * @return A new Modifier with backdrop contrast applied
  */
@@ -1262,7 +1260,7 @@ fun Modifier.backdropContrast(value: Double): Modifier =
 /**
  * Applies backdrop saturation adjustment.
  * Values > 1.0 increase saturation, values < 1.0 decrease saturation.
- * 
+ *
  * @param value The saturation multiplier (e.g., 1.3 for 30% more saturation)
  * @return A new Modifier with backdrop saturation applied
  */
@@ -1271,7 +1269,7 @@ fun Modifier.backdropSaturate(value: Double): Modifier =
 
 /**
  * Applies backdrop grayscale effect.
- * 
+ *
  * @param value The grayscale amount (0.0 to 1.0, where 1.0 is completely grayscale)
  * @return A new Modifier with backdrop grayscale applied
  */
@@ -1280,7 +1278,7 @@ fun Modifier.backdropGrayscale(value: Double): Modifier =
 
 /**
  * Applies backdrop hue rotation.
- * 
+ *
  * @param degrees The rotation in degrees (e.g., 90, 180, 270)
  * @return A new Modifier with backdrop hue rotation applied
  */
@@ -1289,7 +1287,7 @@ fun Modifier.backdropHueRotate(degrees: Number): Modifier =
 
 /**
  * Applies backdrop invert effect.
- * 
+ *
  * @param value The invert amount (0.0 to 1.0, where 1.0 is completely inverted)
  * @return A new Modifier with backdrop invert applied
  */
@@ -1298,7 +1296,7 @@ fun Modifier.backdropInvert(value: Double): Modifier =
 
 /**
  * Applies backdrop sepia effect.
- * 
+ *
  * @param value The sepia amount (0.0 to 1.0, where 1.0 is completely sepia)
  * @return A new Modifier with backdrop sepia applied
  */
@@ -1307,7 +1305,7 @@ fun Modifier.backdropSepia(value: Double): Modifier =
 
 /**
  * Combines multiple backdrop filters.
- * 
+ *
  * @param filters List of filter functions (e.g., "blur(10px)", "brightness(1.1)")
  * @return A new Modifier with combined backdrop filters
  */
@@ -1317,7 +1315,7 @@ fun Modifier.combineBackdropFilters(vararg filters: String): Modifier =
 /**
  * Creates a glass morphism effect with common settings.
  * Applies blur and slight brightness increase for a glass-like appearance.
- * 
+ *
  * @param blurAmount The blur radius (default: "10px")
  * @param brightness The brightness multiplier (default: 1.05)
  * @return A new Modifier with glass morphism effect
@@ -1330,7 +1328,7 @@ fun Modifier.glassMorphism(
 
 /**
  * Creates a glass morphism effect with numeric blur value.
- * 
+ *
  * @param blurPx The blur radius in pixels (default: 10)
  * @param brightness The brightness multiplier (default: 1.05)
  * @return A new Modifier with glass morphism effect
@@ -1348,7 +1346,7 @@ fun Modifier.glassMorphism(
  */
 data class ShadowConfig(
     val horizontalOffset: String,
-    val verticalOffset: String, 
+    val verticalOffset: String,
     val blurRadius: String,
     val spreadRadius: String? = null,
     val color: code.yousef.summon.core.style.Color,
@@ -1366,13 +1364,13 @@ data class ShadowConfig(
             "$insetStr$horizontalOffset $verticalOffset $blurRadius $colorStr"
         }
     }
-    
+
     companion object {
         /**
          * Type-safe factory function using unit extensions.
-         * 
+         *
          * @param horizontalOffset Horizontal offset with unit extension (e.g., 0.px)
-         * @param verticalOffset Vertical offset with unit extension (e.g., 8.px)  
+         * @param verticalOffset Vertical offset with unit extension (e.g., 8.px)
          * @param blurRadius Blur radius with unit extension (e.g., 32.px)
          * @param spreadRadius Optional spread radius with unit extension
          * @param color Type-safe Color object
@@ -1394,12 +1392,12 @@ data class ShadowConfig(
             color,
             inset
         )
-        
+
         /**
          * Creates a glow effect shadow (centered with no spread).
-         * 
+         *
          * @param blurRadius Blur radius with unit extension (e.g., 20.px)
-         * @param color Type-safe Color object  
+         * @param color Type-safe Color object
          * @param intensity Optional spread intensity with unit extension
          * @return ShadowConfig configured as a glow effect
          */
@@ -1409,16 +1407,16 @@ data class ShadowConfig(
             intensity: Number = 0
         ) = ShadowConfig(
             0.px,
-            0.px, 
+            0.px,
             blurRadius.px,
             if (intensity.toDouble() != 0.0) intensity.px else null,
             color,
             false
         )
-        
+
         /**
          * Creates an inner glow effect shadow.
-         * 
+         *
          * @param blurRadius Blur radius with unit extension (e.g., 10.px)
          * @param color Type-safe Color object
          * @return ShadowConfig configured as an inner glow effect
@@ -1428,7 +1426,7 @@ data class ShadowConfig(
             color: code.yousef.summon.core.style.Color
         ) = ShadowConfig(
             0.px,
-            0.px, 
+            0.px,
             blurRadius.px,
             null,
             color,
@@ -1473,7 +1471,7 @@ fun shadowConfig(
 /**
  * Applies multiple box shadows.
  * Allows creating complex shadow effects by combining multiple shadows.
- * 
+ *
  * @param shadows List of shadow configurations
  * @return A new Modifier with multiple shadows applied
  */
@@ -1484,7 +1482,7 @@ fun Modifier.multipleShadows(shadows: List<ShadowConfig>): Modifier {
 
 /**
  * Applies multiple box shadows using vararg.
- * 
+ *
  * @param shadows Variable number of shadow configurations
  * @return A new Modifier with multiple shadows applied
  */
@@ -1494,7 +1492,7 @@ fun Modifier.multipleShadows(vararg shadows: ShadowConfig): Modifier =
 /**
  * Adds a shadow to existing shadows on this modifier.
  * This allows chaining shadow effects.
- * 
+ *
  * @param shadow The shadow configuration to add
  * @return A new Modifier with the additional shadow
  */
@@ -1509,7 +1507,7 @@ fun Modifier.addShadow(shadow: ShadowConfig): Modifier {
 
 /**
  * Adds a shadow with numeric parameters.
- * 
+ *
  * @param horizontalOffset The horizontal offset in pixels
  * @param verticalOffset The vertical offset in pixels
  * @param blurRadius The blur radius in pixels
@@ -1546,7 +1544,7 @@ fun Modifier.addShadow(
 /**
  * Creates a glow effect using multiple shadows.
  * Useful for creating aurora-like glowing effects.
- * 
+ *
  * @param color The glow color
  * @param intensity The glow intensity (1 = subtle, 3 = intense)
  * @param size The size of the glow effect in pixels
@@ -1558,13 +1556,13 @@ fun Modifier.glow(
     size: Number = 20
 ): Modifier {
     val shadows = mutableListOf<ShadowConfig>()
-    
+
     // Create multiple shadows with increasing blur for glow effect
     for (i in 1..intensity) {
         val blur = size.toDouble() * i
         shadows.add(shadowConfig(0, 0, blur.toInt(), color = color))
     }
-    
+
     return multipleShadows(shadows)
 }
 
@@ -1579,7 +1577,7 @@ fun Modifier.glow(
 
 /**
  * Creates an inner glow effect using inset shadows.
- * 
+ *
  * @param color The glow color
  * @param intensity The glow intensity (1 = subtle, 3 = intense)
  * @param size The size of the glow effect in pixels
@@ -1591,13 +1589,13 @@ fun Modifier.innerGlow(
     size: Number = 10
 ): Modifier {
     val shadows = mutableListOf<ShadowConfig>()
-    
+
     // Create multiple inset shadows for inner glow
     for (i in 1..intensity) {
         val blur = size.toDouble() * i
         shadows.add(shadowConfig(0, 0, blur.toInt(), color = color, inset = true))
     }
-    
+
     return multipleShadows(shadows)
 }
 
@@ -1613,7 +1611,7 @@ fun Modifier.innerGlow(
 /**
  * Creates an aurora-style multi-colored glow effect.
  * Perfect for the Aurora Portal and similar effects.
- * 
+ *
  * @param colors List of colors to use in the aurora effect
  * @param baseSize Base size for the glow effects
  * @return A new Modifier with aurora glow effect
@@ -1623,20 +1621,20 @@ fun Modifier.auroraGlow(
     baseSize: Number = 20
 ): Modifier {
     val shadows = mutableListOf<ShadowConfig>()
-    
+
     colors.forEachIndexed { index, color ->
         val size = baseSize.toDouble() * (index + 1)
         val blur = size * 1.5
         shadows.add(shadowConfig(0, 0, blur.toInt(), color = color))
     }
-    
+
     return multipleShadows(shadows)
 }
 
 /**
  * Creates an aurora-style glow with predefined aurora colors.
  * Uses the classic aurora color palette: teal, blue, purple, pink.
- * 
+ *
  * @param baseSize Base size for the glow effects (default: 20)
  * @return A new Modifier with aurora glow effect
  */
@@ -1657,7 +1655,7 @@ fun Modifier.auroraGlow(baseSize: Number = 20): Modifier =
 
 /**
  * Sets the clip-path CSS property with a custom value.
- * 
+ *
  * @param value The clip-path value (e.g., "circle(50%)", "polygon(0% 0%, 100% 0%, 50% 100%)")
  * @return A new Modifier with the clip-path style applied
  */
@@ -1666,7 +1664,7 @@ fun Modifier.clipPath(value: String): Modifier =
 
 /**
  * Clips the element to a circle shape.
- * 
+ *
  * @param radius The radius of the circle (e.g., "50%", "100px", "50px at 25% 25%")
  * @return A new Modifier with circle clip-path applied
  */
@@ -1675,7 +1673,7 @@ fun Modifier.clipCircle(radius: String = "50%"): Modifier =
 
 /**
  * Clips the element to a circle shape with center position.
- * 
+ *
  * @param radius The radius of the circle (e.g., "50%", "100px")
  * @param centerX The X position of the circle center (e.g., "25%", "100px")
  * @param centerY The Y position of the circle center (e.g., "25%", "100px")
@@ -1686,7 +1684,7 @@ fun Modifier.clipCircle(radius: String, centerX: String, centerY: String): Modif
 
 /**
  * Clips the element to an ellipse shape.
- * 
+ *
  * @param radiusX The horizontal radius (e.g., "50%", "100px")
  * @param radiusY The vertical radius (e.g., "50%", "100px")
  * @return A new Modifier with ellipse clip-path applied
@@ -1696,7 +1694,7 @@ fun Modifier.clipEllipse(radiusX: String = "50%", radiusY: String = "50%"): Modi
 
 /**
  * Clips the element to an ellipse shape with center position.
- * 
+ *
  * @param radiusX The horizontal radius (e.g., "50%", "100px")
  * @param radiusY The vertical radius (e.g., "50%", "100px")
  * @param centerX The X position of the ellipse center (e.g., "25%", "100px")
@@ -1708,7 +1706,7 @@ fun Modifier.clipEllipse(radiusX: String, radiusY: String, centerX: String, cent
 
 /**
  * Clips the element to a polygon shape defined by a list of points.
- * 
+ *
  * @param points List of coordinate pairs (e.g., listOf("0% 0%", "100% 0%", "50% 100%"))
  * @return A new Modifier with polygon clip-path applied
  */
@@ -1717,7 +1715,7 @@ fun Modifier.clipPolygon(points: List<String>): Modifier =
 
 /**
  * Clips the element to a polygon shape defined by coordinate pairs.
- * 
+ *
  * @param points Vararg of coordinate pairs (e.g., "0% 0%", "100% 0%", "50% 100%")
  * @return A new Modifier with polygon clip-path applied
  */
@@ -1726,9 +1724,9 @@ fun Modifier.clipPolygon(vararg points: String): Modifier =
 
 /**
  * Clips the element to a rectangle shape using inset values.
- * 
+ *
  * @param top Inset from top (e.g., "10px", "5%")
- * @param right Inset from right (e.g., "10px", "5%") 
+ * @param right Inset from right (e.g., "10px", "5%")
  * @param bottom Inset from bottom (e.g., "10px", "5%")
  * @param left Inset from left (e.g., "10px", "5%")
  * @param round Optional border radius for rounded corners (e.g., "10px")
@@ -1747,7 +1745,7 @@ fun Modifier.clipInset(
 
 /**
  * Clips the element to a triangle pointing up.
- * 
+ *
  * @return A new Modifier with triangle clip-path applied
  */
 fun Modifier.clipTriangleUp(): Modifier =
@@ -1755,7 +1753,7 @@ fun Modifier.clipTriangleUp(): Modifier =
 
 /**
  * Clips the element to a triangle pointing down.
- * 
+ *
  * @return A new Modifier with triangle clip-path applied
  */
 fun Modifier.clipTriangleDown(): Modifier =
@@ -1763,7 +1761,7 @@ fun Modifier.clipTriangleDown(): Modifier =
 
 /**
  * Clips the element to a triangle pointing left.
- * 
+ *
  * @return A new Modifier with triangle clip-path applied
  */
 fun Modifier.clipTriangleLeft(): Modifier =
@@ -1771,7 +1769,7 @@ fun Modifier.clipTriangleLeft(): Modifier =
 
 /**
  * Clips the element to a triangle pointing right.
- * 
+ *
  * @return A new Modifier with triangle clip-path applied
  */
 fun Modifier.clipTriangleRight(): Modifier =
@@ -1779,7 +1777,7 @@ fun Modifier.clipTriangleRight(): Modifier =
 
 /**
  * Clips the element to a diamond shape.
- * 
+ *
  * @return A new Modifier with diamond clip-path applied
  */
 fun Modifier.clipDiamond(): Modifier =
@@ -1787,7 +1785,7 @@ fun Modifier.clipDiamond(): Modifier =
 
 /**
  * Clips the element to a hexagon shape.
- * 
+ *
  * @return A new Modifier with hexagon clip-path applied
  */
 fun Modifier.clipHexagon(): Modifier =
@@ -1795,7 +1793,7 @@ fun Modifier.clipHexagon(): Modifier =
 
 /**
  * Clips the element to a star shape.
- * 
+ *
  * @return A new Modifier with star clip-path applied
  */
 fun Modifier.clipStar(): Modifier =
@@ -1806,7 +1804,7 @@ fun Modifier.clipStar(): Modifier =
 
 /**
  * Clips the element to an arrow pointing right.
- * 
+ *
  * @return A new Modifier with arrow clip-path applied
  */
 fun Modifier.clipArrowRight(): Modifier =
@@ -1814,7 +1812,7 @@ fun Modifier.clipArrowRight(): Modifier =
 
 /**
  * Clips the element to an arrow pointing left.
- * 
+ *
  * @return A new Modifier with arrow clip-path applied
  */
 fun Modifier.clipArrowLeft(): Modifier =
@@ -1822,7 +1820,7 @@ fun Modifier.clipArrowLeft(): Modifier =
 
 /**
  * Clips the element to a chevron pointing right.
- * 
+ *
  * @return A new Modifier with chevron clip-path applied
  */
 fun Modifier.clipChevronRight(): Modifier =
@@ -1830,7 +1828,7 @@ fun Modifier.clipChevronRight(): Modifier =
 
 /**
  * Clips the element to a chevron pointing left.
- * 
+ *
  * @return A new Modifier with chevron clip-path applied
  */
 fun Modifier.clipChevronLeft(): Modifier =
@@ -1838,7 +1836,7 @@ fun Modifier.clipChevronLeft(): Modifier =
 
 /**
  * Clips the element to a message bubble shape with tail on the left.
- * 
+ *
  * @return A new Modifier with message bubble clip-path applied
  */
 fun Modifier.clipMessageBubble(): Modifier =
@@ -1850,7 +1848,7 @@ fun Modifier.clipMessageBubble(): Modifier =
 
 /**
  * Applies multiple CSS transform functions in a type-safe manner.
- * 
+ *
  * @param transforms Variable number of transform function pairs
  * @return A new Modifier with combined transforms applied
  */
@@ -1859,7 +1857,7 @@ fun Modifier.transform(vararg transforms: Pair<TransformFunction, String>): Modi
 
 /**
  * Applies multiple CSS filter functions in a type-safe manner.
- * 
+ *
  * @param filters Variable number of filter function pairs
  * @return A new Modifier with combined filters applied
  */
@@ -1868,8 +1866,8 @@ fun Modifier.filter(vararg filters: Pair<FilterFunction, String>): Modifier =
 
 /**
  * Applies a 3D rotation with type-safe parameters.
- * 
- * @param x X-axis component  
+ *
+ * @param x X-axis component
  * @param y Y-axis component
  * @param z Z-axis component
  * @param angle Rotation angle with unit extension (e.g., 45.deg)
@@ -1880,7 +1878,7 @@ fun Modifier.rotate3d(x: Number, y: Number, z: Number, angle: Number): Modifier 
 
 /**
  * Applies CSS perspective with type-safe units.
- * 
+ *
  * @param distance Perspective distance with unit extension (e.g., 1000.px)
  * @return A new Modifier with perspective applied
  */
@@ -1889,9 +1887,9 @@ fun Modifier.perspective(distance: Number): Modifier =
 
 /**
  * Applies multiple filters with type-safe parameters.
- * 
+ *
  * @param blur Blur radius with unit extension (e.g., 4.px)
- * @param brightness Brightness multiplier (e.g., 1.1)  
+ * @param brightness Brightness multiplier (e.g., 1.1)
  * @param contrast Contrast multiplier (e.g., 1.05)
  * @param saturate Saturation multiplier (e.g., 1.2)
  * @return A new Modifier with combined filters applied
@@ -1912,11 +1910,11 @@ fun Modifier.multiFilter(
 
 /**
  * Applies type-safe CSS animation with enum parameters.
- * 
+ *
  * @param name Animation name
  * @param duration Animation duration enum
  * @param easing Easing function
- * @param delay Animation delay enum  
+ * @param delay Animation delay enum
  * @param iterationCount Number of iterations or "infinite"
  * @param direction Animation direction enum
  * @param fillMode Animation fill mode enum

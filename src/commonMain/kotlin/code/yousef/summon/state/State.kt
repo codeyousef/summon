@@ -32,10 +32,10 @@ interface SummonMutableState<T> : State<T> {
 interface MutableState<T> : SummonMutableState<T> {
     operator fun component1(): T
     operator fun component2(): (T) -> Unit
-    
+
     fun addListener(listener: (T) -> Unit)
     fun removeListener(listener: (T) -> Unit)
-    
+
     operator fun getValue(thisRef: Any?, property: KProperty<*>): T
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T)
 }
@@ -97,17 +97,17 @@ class MutableStateImpl<T>(initialValue: T) : MutableState<T> {
 
 /**
  * Creates a new MutableState instance with the given initial value.
- * 
+ *
  * NOTE: This is the primary implementation of mutableStateOf that should be used for new code.
  * The runtime package also contains a mutableStateOf function, but it delegates to this one
  * and exists only for backward compatibility.
- * 
+ *
  * @param initialValue The initial value of the state
  * @return A MutableState holding the initial value
  * @see code.yousef.summon.runtime.mutableStateOf
  */
-fun <T> mutableStateOf(initialValue: T): MutableState<T> = 
-    MutableStateImpl(initialValue) 
+fun <T> mutableStateOf(initialValue: T): MutableState<T> =
+    MutableStateImpl(initialValue)
 
 /**
  * Enables read access for property delegation with State objects.

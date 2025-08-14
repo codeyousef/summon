@@ -1,10 +1,9 @@
 package code.yousef.summon.components.core
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.theme.Theme
 import code.yousef.summon.components.style.GlobalStyle
+import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.theme.Theme
 
 /**
  * Enhanced theme configuration that extends the base theme with additional design tokens.
@@ -28,7 +27,7 @@ val LocalTheme = CompositionLocal.compositionLocalOf(EnhancedThemeConfig())
 
 /**
  * Provides theme configuration to child components and optionally injects CSS variables.
- * 
+ *
  * @param theme The theme configuration to provide
  * @param content The content to render with the theme
  */
@@ -42,11 +41,11 @@ fun ThemeProvider(
         val cssVariables = ":root { ${tokens.map { (key, value) -> "$key: $value;" }.joinToString(" ")} }"
         GlobalStyle(cssVariables)
     }
-    
+
     // Set the theme in the existing Theme system for backward compatibility
     val legacyTheme = Theme.ThemeConfig()
     Theme.setTheme(legacyTheme)
-    
+
     // Provide the enhanced theme through CompositionLocal
     val provider = LocalTheme.provides(theme)
     provider.current // Access current to set the value
@@ -55,7 +54,7 @@ fun ThemeProvider(
 
 /**
  * Hook to access the current theme configuration.
- * 
+ *
  * @return The current theme configuration
  */
 @Composable

@@ -1,7 +1,7 @@
 package code.yousef.summon.animation
 
-import code.yousef.summon.runtime.Composable
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.state.State
 
@@ -60,6 +60,7 @@ fun <T> AnimatedContent(
                 }
                 "$property ${duration}ms ${easing.toCssString()}"
             }
+
             ContentTransitionType.SCALE -> "transform ${duration}ms ${easing.toCssString()}"
             ContentTransitionType.CROSSFADE -> "opacity ${duration}ms ${easing.toCssString()}"
         }
@@ -79,6 +80,7 @@ fun <T> AnimatedContent(
                 }
                 this.style("transform", transform)
             }
+
             ContentTransitionType.SCALE -> this.style("transform", "scale(1)")
             ContentTransitionType.CROSSFADE -> this.style("opacity", "1")
         }

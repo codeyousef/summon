@@ -1,11 +1,9 @@
 package code.yousef.summon.core
 
-import kotlinx.html.TagConsumer
-
 /**
  * Base interface for all UI components in the Summon library.
  * Similar to Jetpack Compose's @Composable functions.
- * 
+ *
  * @deprecated Use the @Composable annotation from code.yousef.summon.annotation instead.
  * This interface is being phased out in favor of the annotation-based approach.
  */

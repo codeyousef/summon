@@ -1,14 +1,12 @@
 package code.yousef.summon.components.demo
 
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.layout.Box
 import code.yousef.summon.components.layout.Column
-import code.yousef.summon.components.display.Text
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.remember
 import code.yousef.summon.runtime.mutableStateOf
+import code.yousef.summon.runtime.remember
 
 /**
  * A demo component that manages its own state using MutableState.
@@ -24,7 +22,7 @@ fun LocalDemoComponent(
 ) {
     // Create a local state that will be remembered between recompositions
     val text = remember { mutableStateOf(initialValue) }
-    
+
     // Render the component with the current state
     LocalDemoComponentImpl(
         text = text.value,

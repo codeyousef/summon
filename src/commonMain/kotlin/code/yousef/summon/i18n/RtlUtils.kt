@@ -7,10 +7,10 @@ import code.yousef.summon.runtime.Composable
  * Utility class for RTL layout support
  */
 object RtlUtils {
-    
+
     /**
      * Check if the current layout direction is RTL
-     * 
+     *
      * @return True if the current layout direction is RTL
      */
     @Composable
@@ -19,10 +19,10 @@ object RtlUtils {
         val actualDirection = (direction as Function0<LayoutDirection>).invoke()
         return actualDirection == LayoutDirection.RTL
     }
-    
+
     /**
      * Mirror a set of values based on the current layout direction
-     * 
+     *
      * @param ltrValue The value to use in LTR mode
      * @param rtlValue The value to use in RTL mode
      * @return The appropriate value based on the current direction
@@ -41,7 +41,7 @@ object RtlUtils {
 
 /**
  * Extension function to apply directional padding to all sides
- * 
+ *
  * @param start Start padding
  * @param top Top padding
  * @param end End padding
@@ -66,7 +66,7 @@ fun Modifier.directionalPadding(
 
 /**
  * Extension function to apply directional margin to all sides
- * 
+ *
  * @param start Start margin
  * @param top Top margin
  * @param end End margin
@@ -91,7 +91,7 @@ fun Modifier.directionalMargin(
 
 /**
  * Extension function to apply CSS for mirroring an element in RTL mode
- * 
+ *
  * @return Modifier with appropriate transform for RTL mirroring
  */
 @Composable
@@ -107,7 +107,7 @@ fun Modifier.mirrorInRtl(): Modifier {
 
 /**
  * Extension function to create a direction-aware flexbox row
- * 
+ *
  * @return Modifier with appropriate flex direction
  */
 @Composable

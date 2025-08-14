@@ -53,25 +53,25 @@ class RenderException(
 sealed class SummonResult<T, E> {
     data class Success<T, E>(val value: T) : SummonResult<T, E>()
     data class Failure<T, E>(val error: E) : SummonResult<T, E>()
-    
+
     fun isSuccess(): Boolean = this is Success
     fun isFailure(): Boolean = this is Failure
-    
+
     fun getOrNull(): T? = when (this) {
         is Success -> value
         is Failure -> null
     }
-    
+
     fun getErrorOrNull(): E? = when (this) {
         is Success -> null
         is Failure -> error
     }
-    
+
     inline fun getOrElse(default: () -> T): T = when (this) {
         is Success -> value
         is Failure -> default()
     }
-    
+
     fun getOrThrow(): T = when (this) {
         is Success -> value
         is Failure -> throw SummonException("Operation failed: $error")
@@ -92,7 +92,7 @@ object ErrorHandler {
             SummonResult.Failure(e)
         }
     }
-    
+
     /**
      * Validates a condition and returns a SummonResult.
      */
@@ -106,7 +106,7 @@ object ErrorHandler {
             SummonResult.Failure(ValidationException(lazyMessage()))
         }
     }
-    
+
     /**
      * Validates multiple conditions and returns a SummonResult with all errors.
      */
@@ -118,7 +118,7 @@ object ErrorHandler {
             SummonResult.Failure(ValidationException("Validation failed", errors))
         }
     }
-    
+
     /**
      * Requires a non-null value or returns a failure.
      */
@@ -132,7 +132,7 @@ object ErrorHandler {
             SummonResult.Failure(ConfigurationException(lazyMessage()))
         }
     }
-    
+
     /**
      * Standard error messages
      */
@@ -142,10 +142,10 @@ object ErrorHandler {
         const val COMPONENT_NOT_INITIALIZED = "Component has not been initialized"
         const val OPERATION_NOT_SUPPORTED = "Operation not supported on this platform"
         const val VALIDATION_FAILED = "Validation failed"
-        
+
         fun componentNotFound(name: String) = "Component not found: $name"
         fun invalidValue(name: String, value: Any?) = "Invalid value for $name: $value"
-        fun outOfRange(name: String, value: Number, min: Number, max: Number) = 
+        fun outOfRange(name: String, value: Number, min: Number, max: Number) =
             "$name must be between $min and $max, but was $value"
     }
 }

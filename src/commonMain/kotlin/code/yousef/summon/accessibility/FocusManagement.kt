@@ -1,12 +1,8 @@
 package code.yousef.summon.accessibility
 
-import code.yousef.summon.runtime.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.ModifierExtras.attribute
-import code.yousef.summon.runtime.LocalPlatformRenderer
+import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.DisposableEffect
-import code.yousef.summon.runtime.LaunchedEffect
-import code.yousef.summon.accessibility.applyFocusPlatform
 
 /**
  * Utilities for managing focus in web applications.
@@ -105,7 +101,7 @@ object FocusManagement {
 
 /**
  * Focus Manager for handling focus management in UI components.
- * This singleton provides functions to register focusable elements, 
+ * This singleton provides functions to register focusable elements,
  * get and set focus, and manage focus traversal.
  */
 object FocusManager {
@@ -117,7 +113,7 @@ object FocusManager {
 
     /**
      * Register a focusable element with the focus manager.
-     * 
+     *
      * @param id Unique identifier for the focusable element
      * @param focusAction Action to execute when focus is requested
      */
@@ -127,7 +123,7 @@ object FocusManager {
 
     /**
      * Unregister a focusable element from the focus manager.
-     * 
+     *
      * @param id Unique identifier for the focusable element
      */
     fun unregisterFocusable(id: String) {
@@ -139,7 +135,7 @@ object FocusManager {
 
     /**
      * Request focus for a specific element by ID.
-     * 
+     *
      * @param id Unique identifier for the focusable element
      * @return true if focus was successfully set, false otherwise
      */
@@ -152,7 +148,7 @@ object FocusManager {
 
     /**
      * Get the ID of the currently focused element.
-     * 
+     *
      * @return ID of the currently focused element, or null if no element is focused
      */
     fun getCurrentFocus(): String? {
@@ -168,7 +164,7 @@ object FocusManager {
 
     /**
      * Get a list of all registered focusable elements.
-     * 
+     *
      * @return List of IDs for all registered focusable elements
      */
     fun getFocusableElements(): List<String> {
@@ -184,9 +180,9 @@ private fun onDispose(cleanup: () -> Unit): () -> Unit {
 }
 
 /**
- * Creates a focusable component that can receive focus via keyboard navigation 
+ * Creates a focusable component that can receive focus via keyboard navigation
  * or programmatic focus requests.
- * 
+ *
  * @param modifier The base modifier for the component
  * @param focusId Optional custom focus ID, generated if not provided
  * @param onFocusChange Optional callback for focus state changes
@@ -213,7 +209,7 @@ fun makeFocusable(
     DisposableEffect(focusId) {
         // Register when the effect is first applied
         FocusManager.registerFocusable(focusId, focusAction)
-        
+
         // Return cleanup function that will be called when the component is removed
         onDispose {
             FocusManager.unregisterFocusable(focusId)

@@ -1,14 +1,13 @@
 package code.yousef.summon.animation
 
-import code.yousef.summon.state.MutableStateImpl
-import code.yousef.summon.state.State
-import code.yousef.summon.state.SummonMutableState
-import code.yousef.summon.state.mutableStateOf
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.core.style.Color
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.remember
 import code.yousef.summon.runtime.LocalPlatformRenderer
+import code.yousef.summon.runtime.remember
+import code.yousef.summon.state.MutableStateImpl
+import code.yousef.summon.state.State
+import code.yousef.summon.state.mutableStateOf
 
 /**
  * Creates and remembers an InfiniteTransition instance that can be used for infinite animations.

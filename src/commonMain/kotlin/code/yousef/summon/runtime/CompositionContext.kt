@@ -10,23 +10,23 @@ import code.yousef.summon.annotation.Composable
  */
 class CompositionContextImpl private constructor() {
     private val composer: Composer = RecomposerHolder.recomposer.createComposer()
-    
+
     /**
      * Composes the content with the current composer.
-     * 
+     *
      * @param content The composable content to compose.
      */
     fun compose(content: @Composable () -> Unit) {
         try {
             // Set the current composer
             CompositionLocal.setCurrentComposer(composer)
-            
+
             // Start composition
             composer.startNode()
-            
+
             // Execute the content
             content()
-            
+
             // End composition
             composer.endNode()
         } finally {
@@ -34,7 +34,7 @@ class CompositionContextImpl private constructor() {
             CompositionLocal.setCurrentComposer(null)
         }
     }
-    
+
     /**
      * Disposes this composition context, releasing any resources.
      */
@@ -42,7 +42,7 @@ class CompositionContextImpl private constructor() {
         composer.dispose()
         CompositionLocal.setCurrentComposer(null)
     }
-    
+
     companion object {
         /**
          * Creates a new composition and composes the content.

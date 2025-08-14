@@ -27,8 +27,8 @@ fun MetaTags(
     val renderer = getPlatformRenderer()
 
     // Add title if provided
-    title?.let { 
-        renderer.addHeadElement("<title>$it</title>") 
+    title?.let {
+        renderer.addHeadElement("<title>$it</title>")
     }
 
     // Add charset meta tag
@@ -38,18 +38,18 @@ fun MetaTags(
     renderer.addHeadElement("<meta name=\"viewport\" content=\"$viewport\">")
 
     // Add description meta tag if provided
-    description?.let { 
-        renderer.addHeadElement("<meta name=\"description\" content=\"$it\">") 
+    description?.let {
+        renderer.addHeadElement("<meta name=\"description\" content=\"$it\">")
     }
 
     // Add keywords meta tag if provided
-    keywords?.let { 
-        renderer.addHeadElement("<meta name=\"keywords\" content=\"$it\">") 
+    keywords?.let {
+        renderer.addHeadElement("<meta name=\"keywords\" content=\"$it\">")
     }
 
     // Add author meta tag if provided
-    author?.let { 
-        renderer.addHeadElement("<meta name=\"author\" content=\"$it\">") 
+    author?.let {
+        renderer.addHeadElement("<meta name=\"author\" content=\"$it\">")
     }
 
     // Add any additional meta tags

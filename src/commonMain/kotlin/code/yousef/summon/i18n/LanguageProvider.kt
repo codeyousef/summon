@@ -5,7 +5,7 @@ import code.yousef.summon.state.mutableStateOf
 
 /**
  * Provides language context to the application
- * 
+ *
  * @param initialLanguage The initial language to use
  * @param content The content to be provided with language context
  */
@@ -43,7 +43,7 @@ fun LanguageProvider(
 
 /**
  * Utility function to get a localized string
- * 
+ *
  * @param key The translation key
  * @return The translated string for the current language
  */
@@ -61,7 +61,7 @@ fun stringResource(key: String): String {
 
 /**
  * Change the application language
- * 
+ *
  * @param languageCode The language code to switch to
  * @return True if the language was changed, false if not found
  */
@@ -82,12 +82,12 @@ fun changeLanguage(languageCode: String): Boolean {
 }
 
 // Global variable to store the current language
-private var currentLanguage: Language = I18nConfig.defaultLanguage 
+private var currentLanguage: Language = I18nConfig.defaultLanguage
     ?: Language("en", "English", LayoutDirection.LTR)
 
 /**
  * Get the current language
- * 
+ *
  * @return The current language
  */
 fun getCurrentLanguage(): Language = currentLanguage

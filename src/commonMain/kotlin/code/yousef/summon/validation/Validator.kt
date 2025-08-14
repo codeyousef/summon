@@ -1,8 +1,5 @@
 package code.yousef.summon.validation
 
-import code.yousef.summon.validation.ValidationResult
-import code.yousef.summon.validation.ValidationMessages
-
 /**
  * Base interface for form field validators.
  */
@@ -13,7 +10,7 @@ interface Validator {
      * @return ValidationResult containing whether the validation passed and any error message
      */
     fun validate(value: String): ValidationResult
-    
+
     /**
      * Error message to show when validation fails.
      * This is a convenience property for validators that have a fixed error message.

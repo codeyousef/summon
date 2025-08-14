@@ -270,3 +270,8 @@ For local development:
    ```
 
 This approach ensures that sensitive credentials are never committed to version control while maintaining a clear example of what credentials are needed in the version-controlled `gradle.properties` file.
+
+
+
+
+For maintainers: Publishing instructions are available at docs/private/publishing.md.

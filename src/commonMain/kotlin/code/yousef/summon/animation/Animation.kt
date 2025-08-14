@@ -1,7 +1,5 @@
 package code.yousef.summon.animation
 
-import kotlin.math.pow
-
 /**
  * Represents the status of an animation.
  */
@@ -42,12 +40,12 @@ expect object AnimationController { // Using object for simplicity, could be int
 interface Animation {
     /**
      * Get the current animation value.
-     * 
+     *
      * @param fraction The animation progress between 0.0 and 1.0
      * @return The animated value at the given progress
      */
     fun getValue(fraction: Float): Float
-    
+
     /**
      * The total duration of the animation in milliseconds.
      */
@@ -149,7 +147,7 @@ enum class Easing {
     EASE_IN,     // Start slow, end fast
     EASE_OUT,    // Start fast, end slow
     EASE_IN_OUT, // Start slow, middle fast, end slow
-    
+
     // Advanced Easing Types
     SINE_IN,
     SINE_OUT,
@@ -161,7 +159,7 @@ enum class Easing {
     CUBIC_OUT,
     CUBIC_IN_OUT,
     QUART_IN,
-    QUART_OUT, 
+    QUART_OUT,
     QUART_IN_OUT,
     QUINT_IN,
     QUINT_OUT,

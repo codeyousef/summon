@@ -40,7 +40,7 @@ class CompositionContext private constructor(
 
         /**
          * Executes a block with a specific composition context.
-         * 
+         *
          * @param context The context to use
          * @param block The block to execute
          * @return The result of the block
@@ -57,7 +57,7 @@ class CompositionContext private constructor(
 
         /**
          * Creates a root composition context.
-         * 
+         *
          * @param renderer The renderer to use
          * @return A new root composition context
          */
@@ -68,7 +68,7 @@ class CompositionContext private constructor(
 
     /**
      * Creates a child context with this context as the parent.
-     * 
+     *
      * @return A new child composition context
      */
     fun createChildContext(): CompositionContext {
@@ -82,7 +82,7 @@ class CompositionContext private constructor(
 
     /**
      * Adds a composable to this context.
-     * 
+     *
      * @param composable The composable to add
      */
     internal fun addComposable(composable: Any) {
@@ -91,7 +91,7 @@ class CompositionContext private constructor(
 
     /**
      * Gets all composables in this context.
-     * 
+     *
      * @return A list of all composables
      */
     internal fun getComposables(): List<Any> {
@@ -105,7 +105,7 @@ class CompositionContext private constructor(
 interface Renderer<T> {
     /**
      * Renders a composable to the target type.
-     * 
+     *
      * @param composable The composable to render
      * @return The rendered result
      */
@@ -123,7 +123,7 @@ interface Renderer<T> {
 expect object RenderUtils {
     /**
      * Renders a composable to a DOM element (JavaScript platform).
-     * 
+     *
      * @param container The container element
      * @param composable The composable to render
      * @return A renderer instance
@@ -132,7 +132,7 @@ expect object RenderUtils {
 
     /**
      * Hydrates a server-rendered DOM tree with a composable (JavaScript platform).
-     * 
+     *
      * @param container The container element
      * @param composable The composable to hydrate with
      * @return A renderer instance
@@ -141,7 +141,7 @@ expect object RenderUtils {
 
     /**
      * Renders a composable to a string (JVM platform).
-     * 
+     *
      * @param composable The composable to render
      * @return The rendered HTML string
      */
@@ -149,7 +149,7 @@ expect object RenderUtils {
 
     /**
      * Renders a composable to a file (JVM platform).
-     * 
+     *
      * @param composable The composable to render
      * @param file The file to write to
      */

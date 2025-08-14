@@ -2,13 +2,12 @@ package code.yousef.summon.animation
 
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.LaunchedEffect
+import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.remember
 import code.yousef.summon.state.State
 import code.yousef.summon.state.mutableStateOf
 import kotlinx.html.FlowContent
-import code.yousef.summon.modifier.ModifierExtras.attribute
 
 /**
  * Animation entry mode for AnimatedVisibility
@@ -121,7 +120,7 @@ fun AnimatedVisibility(
 // Overload for State<Boolean>
 @Composable
 fun AnimatedVisibility(
-    visible: State<Boolean>, 
+    visible: State<Boolean>,
     modifier: Modifier = Modifier(),
     enter: EnterTransition = EnterTransition.FADE_IN,
     exit: ExitTransition = ExitTransition.FADE_OUT,

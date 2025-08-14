@@ -17,20 +17,20 @@ fun CanonicalLinks(
     ampUrl: String? = null
 ) {
     val composer = CompositionLocal.currentComposer
-    
+
     // This is a head-only component, so we need to use a SideEffect to manipulate the head
     SideEffect {
         // Get the platform renderer to add head elements
         val renderer = LocalPlatformRenderer.current
-        
+
         // Add canonical URL link
         renderer.addHeadElement("<link rel=\"canonical\" href=\"$url\">")
-        
+
         // Add alternate language links
         alternateLanguages.forEach { (lang, href) ->
             renderer.addHeadElement("<link rel=\"alternate\" hreflang=\"$lang\" href=\"$href\">")
         }
-        
+
         // Add AMP link if available
         ampUrl?.let {
             renderer.addHeadElement("<link rel=\"amphtml\" href=\"$it\">")
@@ -88,7 +88,7 @@ fun CanonicalLinksWithAmp(
 @Composable
 fun CanonicalLink(href: String) {
     val renderer = LocalPlatformRenderer.current
-    
+
     SideEffect {
         renderer.addHeadElement("<link rel=\"canonical\" href=\"$href\">")
     }

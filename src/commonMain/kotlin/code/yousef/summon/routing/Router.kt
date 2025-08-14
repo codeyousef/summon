@@ -25,7 +25,7 @@ expect interface Router {
      */
     @Composable
     fun create(initialPath: String)
-    
+
     /**
      * The current path of the router.
      * This helps components like NavLink determine their active state.
@@ -55,32 +55,32 @@ data class RouteParams(val params: Map<String, String>) {
             @Composable
             get() = LocalRouteParams.current ?: RouteParams(emptyMap())
     }
-    
+
     /**
      * Gets a parameter value or null if not found.
      */
     operator fun get(key: String): String? = params[key]
-    
+
     /**
      * Gets a parameter value or a default value if not found.
      */
     fun getOrDefault(key: String, defaultValue: String): String = params[key] ?: defaultValue
-    
+
     /**
      * Returns the entire params map.
      */
     fun asMap(): Map<String, String> = params
-    
+
     /**
      * Converts a parameter to Int or returns null if not found or not a valid Int.
      */
     fun getInt(key: String): Int? = params[key]?.toIntOrNull()
-    
+
     /**
      * Converts a parameter to Long or returns null if not found or not a valid Long.
      */
     fun getLong(key: String): Long? = params[key]?.toLongOrNull()
-    
+
     /**
      * Converts a parameter to Boolean or returns null if not found or not a valid Boolean.
      */
@@ -91,12 +91,12 @@ data class RouteParams(val params: Map<String, String>) {
             else -> null // Return null for other strings
         }
     }
-    
+
     /**
      * Converts a parameter to Float or returns null if not found or not a valid Float.
      */
     fun getFloat(key: String): Float? = params[key]?.toFloatOrNull()
-    
+
     /**
      * Converts a parameter to Double or returns null if not found or not a valid Double.
      */
@@ -129,11 +129,11 @@ val LocalRouter: Router?
 /**
  * Root composable that provides the Router instance via CompositionLocal
  * and delegates rendering to the platform-specific `router.create()`.
- * 
+ *
  * This component uses the modern @Composable function pattern instead of
  * the class-based Composable interface approach, allowing for better integration
  * with the reactive composition system and proper handling of side effects.
- * 
+ *
  * @param router The Router instance to use for navigation and rendering
  * @param initialPath The initial path to render
  * @param modifier Optional modifier for styling the container
@@ -152,11 +152,11 @@ fun RouterComponent(
         // This makes the router accessible to all child composables
         // through the LocalRouter property
         localRouter.provides(router)
-        
+
         // Delegate the actual content rendering to the 
         // platform-specific Router implementation
         router.create(initialPath)
-        
+
         // Note: Platform-specific implementations may use LaunchedEffect
         // to handle browser history changes (for JS) or server-side
         // state changes (for JVM).

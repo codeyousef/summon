@@ -1,7 +1,6 @@
 package code.yousef.summon.routing.seo
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.SideEffect
 
@@ -132,13 +131,18 @@ fun TwitterCardTag(name: String, content: String) {
 // Convenience functions for common Twitter Card tags
 @Composable
 fun TwitterCard(cardType: String) = TwitterCardTag("twitter:card", cardType) // e.g., "summary", "summary_large_image"
+
 @Composable
 fun TwitterSite(siteHandle: String) = TwitterCardTag("twitter:site", siteHandle)
+
 @Composable
 fun TwitterCreator(creatorHandle: String) = TwitterCardTag("twitter:creator", creatorHandle)
+
 @Composable
 fun TwitterTitle(title: String) = TwitterCardTag("twitter:title", title)
+
 @Composable
 fun TwitterDescription(description: String) = TwitterCardTag("twitter:description", description)
+
 @Composable
 fun TwitterImage(imageUrl: String) = TwitterCardTag("twitter:image", imageUrl)

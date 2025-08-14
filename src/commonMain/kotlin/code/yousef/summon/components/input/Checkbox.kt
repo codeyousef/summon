@@ -1,16 +1,10 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.remember
-import code.yousef.summon.runtime.mutableStateOf
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.applyIf
 import code.yousef.summon.modifier.ModifierExtras.pointerEvents
+import code.yousef.summon.modifier.applyIf
+import code.yousef.summon.runtime.*
 import code.yousef.summon.validation.Validator
-import code.yousef.summon.validation.ValidationResult
-import code.yousef.summon.modifier.cursor
 
 /**
  * A composable that displays a checkbox input field.
@@ -34,10 +28,10 @@ fun Checkbox(
 ) {
     // Track validation errors internally
     val validationErrors = remember { mutableStateOf<List<String>>(emptyList()) }
-    
+
     // Set up the composer for composition
     val composer = CompositionLocal.currentComposer
-    
+
     // Apply additional styling for disabled state
     val finalModifier = modifier
         .apply {
@@ -45,17 +39,17 @@ fun Checkbox(
         }
         .cursor(if (enabled) "pointer" else "default")
         .applyIf(!enabled) { pointerEvents("none") }
-    
+
     // Start composition node
     composer?.startNode()
     if (composer?.inserting == true) {
         val renderer = LocalPlatformRenderer.current
-        
+
         // Cast to proper renderer function and call with parameters in the correct order
         val renderCheckboxFunction: (Boolean, (Boolean) -> Unit, Boolean, Modifier) -> Unit = renderer::renderCheckbox
         renderCheckboxFunction(
             checked,
-            { newValue: Boolean -> 
+            { newValue: Boolean ->
                 if (enabled) {
                     // Validate the new value
                     val errors = validators.mapNotNull { validator ->
@@ -63,7 +57,7 @@ fun Checkbox(
                         if (!result.isValid) result.errorMessage else null
                     }
                     validationErrors.value = errors
-                    
+
                     // Call the callback with the new value
                     onCheckedChange(newValue)
                 }
@@ -72,7 +66,7 @@ fun Checkbox(
             finalModifier
         )
     }
-    
+
     // End composition node
     composer?.endNode()
 }
@@ -91,10 +85,10 @@ fun StatefulCheckbox(
     validators: List<Validator> = emptyList()
 ) {
     val checkedState = remember { mutableStateOf(initialChecked) }
-    
+
     Checkbox(
         checked = checkedState.value,
-        onCheckedChange = { 
+        onCheckedChange = {
             checkedState.value = it
             onCheckedChange(it)
         },

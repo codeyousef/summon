@@ -1,7 +1,6 @@
 package code.yousef.summon.runtime
 
 import code.yousef.summon.core.error.ComponentNotFoundException
-import code.yousef.summon.core.error.ErrorHandler
 
 // Removed import for core.PlatformRenderer
 // import code.yousef.summon.core.PlatformRenderer
@@ -49,12 +48,12 @@ fun getPlatformRenderer(): PlatformRenderer {
 /**
  * Set the platform renderer.
  * This should be called once during app initialization.
- * 
+ *
  * @param newRenderer The platform renderer to use (New PlatformRenderer type)
  */
 fun setPlatformRenderer(newRenderer: PlatformRenderer) {
     renderer = newRenderer
-    
+
     // Update the CompositionLocal when possible
     try {
         // Provide the renderer to the CompositionLocal

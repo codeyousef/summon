@@ -279,7 +279,9 @@ object ColorSystem {
         val rgb = hslToRgb(hsl[0], hsl[1], adjustedLightness)
 
         // Convert to hex
-        return "#${rgb[0].toString(16).padStart(2, '0')}${rgb[1].toString(16).padStart(2, '0')}${rgb[2].toString(16).padStart(2, '0')}"
+        return "#${rgb[0].toString(16).padStart(2, '0')}${rgb[1].toString(16).padStart(2, '0')}${
+            rgb[2].toString(16).padStart(2, '0')
+        }"
     }
 
     /**
@@ -304,7 +306,9 @@ object ColorSystem {
         val rgb = hslToRgb(hsl[0], hsl[1], adjustedLightness)
 
         // Convert to hex
-        return "#${rgb[0].toString(16).padStart(2, '0')}${rgb[1].toString(16).padStart(2, '0')}${rgb[2].toString(16).padStart(2, '0')}"
+        return "#${rgb[0].toString(16).padStart(2, '0')}${rgb[1].toString(16).padStart(2, '0')}${
+            rgb[2].toString(16).padStart(2, '0')
+        }"
     }
 
     /**
@@ -360,9 +364,9 @@ object ColorSystem {
         val q = if (l < 0.5f) l * (1f + s) else l + s - l * s
         val p = 2f * l - q
 
-        val r = hueToRgb(p, q, hue + 1f/3f)
+        val r = hueToRgb(p, q, hue + 1f / 3f)
         val g = hueToRgb(p, q, hue)
-        val b = hueToRgb(p, q, hue - 1f/3f)
+        val b = hueToRgb(p, q, hue - 1f / 3f)
 
         return arrayOf((r * 255f).toInt(), (g * 255f).toInt(), (b * 255f).toInt())
     }
@@ -376,9 +380,9 @@ object ColorSystem {
         if (temp > 1f) temp -= 1f
 
         return when {
-            temp < 1f/6f -> p + (q - p) * 6f * temp
-            temp < 1f/2f -> q
-            temp < 2f/3f -> p + (q - p) * (2f/3f - temp) * 6f
+            temp < 1f / 6f -> p + (q - p) * 6f * temp
+            temp < 1f / 2f -> q
+            temp < 2f / 3f -> p + (q - p) * (2f / 3f - temp) * 6f
             else -> p
         }
     }
@@ -461,7 +465,9 @@ object ColorSystem {
         val newB = (0f * r + 0.242f * g + 0.758f * b).toInt().coerceIn(0, 255)
 
         // Convert back to hex
-        return "#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}"
+        return "#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${
+            newB.toString(16).padStart(2, '0')
+        }"
     }
 
     /**
@@ -481,7 +487,9 @@ object ColorSystem {
         val newB = (0f * r + 0.3f * g + 0.7f * b).toInt().coerceIn(0, 255)
 
         // Convert back to hex
-        return "#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}"
+        return "#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${
+            newB.toString(16).padStart(2, '0')
+        }"
     }
 
     /**
@@ -501,7 +509,9 @@ object ColorSystem {
         val newB = (0f * r + 0.475f * g + 0.525f * b).toInt().coerceIn(0, 255)
 
         // Convert back to hex
-        return "#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}"
+        return "#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${
+            newB.toString(16).padStart(2, '0')
+        }"
     }
 
     /**
@@ -537,7 +547,9 @@ object ColorSystem {
             if (lightness <= 0f || lightness >= 1f) break
 
             val rgb = hslToRgb(hsl[0], hsl[1], lightness)
-            val newColor = "#${rgb[0].toString(16).padStart(2, '0')}${rgb[1].toString(16).padStart(2, '0')}${rgb[2].toString(16).padStart(2, '0')}"
+            val newColor = "#${rgb[0].toString(16).padStart(2, '0')}${rgb[1].toString(16).padStart(2, '0')}${
+                rgb[2].toString(16).padStart(2, '0')
+            }"
 
             if (getContrastRatio(backgroundColor, newColor) >= targetRatio) {
                 return newColor

@@ -153,7 +153,7 @@ class SecurityConfigBuilder {
 
     fun build(): SecurityConfig {
         requireNotNull(authenticationProvider) { "Authentication provider is required for security configuration" }
-        
+
         return SecurityConfig(
             authenticationProvider = authenticationProvider!!,
             loginUrl = loginUrl,

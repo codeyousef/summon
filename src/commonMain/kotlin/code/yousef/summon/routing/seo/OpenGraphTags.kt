@@ -26,7 +26,7 @@ fun OpenGraphTags(
     // This is a head-only component, so we need to use a SideEffect to manipulate the head
     SideEffect {
         val renderer = LocalPlatformRenderer.current
-        
+
         // Add required Open Graph meta tags
         renderer.addHeadElement("<meta property=\"og:title\" content=\"$title\">")
         renderer.addHeadElement("<meta property=\"og:type\" content=\"$type\">")

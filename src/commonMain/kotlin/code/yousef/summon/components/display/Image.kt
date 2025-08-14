@@ -31,23 +31,23 @@ fun Image(
 ) {
     // Get the platform renderer
     val renderer = LocalPlatformRenderer.current
-    
+
     // Create additional attributes for the image
     val attributes = mutableMapOf<String, String>()
-    
+
     // Add loading attribute if specified
     attributes["loading"] = loading.value
-    
+
     // Add width and height if specified
     width?.let { attributes["width"] = it }
     height?.let { attributes["height"] = it }
-    
+
     // Add aria-label for accessibility if contentDescription is provided
     contentDescription?.let { attributes["aria-label"] = it }
-    
+
     // Render the image
     renderer.renderImage(src, alt, modifier)
-    
+
     // Note: The actual implementation would need to handle onLoad and onError callbacks
     // when the platform renderer supports them
 }

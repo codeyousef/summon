@@ -3,7 +3,6 @@ package code.yousef.summon.components.layout
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.LocalPlatformRenderer
-import kotlinx.html.TagConsumer
 
 /**
  * A composable that displays a horizontal or vertical divider line for visual separation.

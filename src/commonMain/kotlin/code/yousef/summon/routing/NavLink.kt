@@ -1,12 +1,10 @@
 package code.yousef.summon.routing
 
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.onClick
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.components.navigation.Link
 import code.yousef.summon.modifier.EventModifiers.onClick
-import code.yousef.summon.routing.LocalRouter
+import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CompositionLocal
 
 
 // Removed placeholder Router object
@@ -35,7 +33,7 @@ fun NavLink(
     val composer = CompositionLocal.currentComposer
     // Access router via CompositionLocal
     val router = LocalRouter
-    
+
     // Determine if this link is active
     val currentPath = router?.currentPath ?: "" // Get the current path from the router
     val isActive = if (router != null) {
@@ -52,7 +50,7 @@ fun NavLink(
     val finalModifier = if (isActive) modifier.then(activeModifier) else modifier
 
     Link(
-        href = to, 
+        href = to,
         modifier = finalModifier
             .onClick {
                 // Implement client-side navigation
@@ -65,7 +63,7 @@ fun NavLink(
                 // If router is null, let the default link behavior handle it
             }
     ) {
-        content() 
+        content()
     }
 }
 

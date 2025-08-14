@@ -2,7 +2,6 @@ package code.yousef.summon.components.feedback
 
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.components.feedback.AlertVariant
 
 /**
  * Builder class for creating Alert components with a fluent API.

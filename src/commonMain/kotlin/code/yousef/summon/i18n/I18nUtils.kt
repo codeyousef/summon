@@ -9,7 +9,7 @@ import kotlin.math.abs
 object I18nUtils {
     /**
      * Format a message with placeholders
-     * 
+     *
      * @param message The message template with {placeholder} syntax
      * @param params Map of placeholder names to values
      * @return The formatted message
@@ -27,7 +27,7 @@ object I18nUtils {
 
     /**
      * Get a plural-aware translation
-     * 
+     *
      * @param count The count to determine plural form
      * @param zero Translation for zero items (optional)
      * @param one Translation for one item
@@ -55,7 +55,7 @@ object I18nUtils {
 
     /**
      * Get a gender-aware translation
-     * 
+     *
      * @param gender The gender ("male", "female", or other)
      * @param male Translation for male gender
      * @param female Translation for female gender
@@ -77,7 +77,7 @@ object I18nUtils {
 
     /**
      * Format a number based on the current locale
-     * 
+     *
      * @param number The number to format
      * @param minimumFractionDigits Minimum number of fraction digits
      * @param maximumFractionDigits Maximum number of fraction digits
@@ -101,7 +101,7 @@ object I18nUtils {
 
     /**
      * Format a date based on the current locale
-     * 
+     *
      * @param timestamp The timestamp to format (milliseconds since epoch)
      * @param format The date format (short, medium, long, full)
      * @return The formatted date as a string
@@ -222,7 +222,9 @@ object I18nUtils {
 
         // Format date and time parts
         val datePart = "$year-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}"
-        val timePart = "${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}"
+        val timePart = "${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${
+            seconds.toString().padStart(2, '0')
+        }"
 
         return when (format) {
             DateFormat.SHORT -> datePart
@@ -242,7 +244,7 @@ enum class DateFormat {
 
 /**
  * Utility function to format a message with placeholders
- * 
+ *
  * @param key The translation key
  * @param params Map of placeholder names to values
  * @return The formatted message
@@ -255,7 +257,7 @@ fun stringResourceWithParams(key: String, params: Map<String, Any>): String {
 
 /**
  * Utility function to get a plural-aware translation
- * 
+ *
  * @param keyZero Translation key for zero items (optional)
  * @param keyOne Translation key for one item
  * @param keyFew Translation key for few items (optional)
@@ -284,7 +286,7 @@ fun pluralStringResource(
 
 /**
  * Utility function to get a gender-aware translation
- * 
+ *
  * @param keyMale Translation key for male gender
  * @param keyFemale Translation key for female gender
  * @param keyOther Translation key for other genders
@@ -307,7 +309,7 @@ fun genderStringResource(
 
 /**
  * Utility function to format a number based on the current locale
- * 
+ *
  * @param number The number to format
  * @param minimumFractionDigits Minimum number of fraction digits
  * @param maximumFractionDigits Maximum number of fraction digits
@@ -324,7 +326,7 @@ fun formatNumberResource(
 
 /**
  * Utility function to format a date based on the current locale
- * 
+ *
  * @param timestamp The timestamp to format (milliseconds since epoch)
  * @param format The date format (short, medium, long, full)
  * @return The formatted date as a string

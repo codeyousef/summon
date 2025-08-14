@@ -1,11 +1,11 @@
 package code.yousef.summon.i18n
 
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.Composable
 import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.layout.Div
 import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.input.ButtonVariant
+import code.yousef.summon.components.layout.Div
+import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.Composable
 
 /**
  * Demonstration component showing i18n capabilities with full integration with Summon components
@@ -68,6 +68,7 @@ fun I18nDemo() {
         LanguageSelector()
     }
 }
+
 /**
  * Language selector component that displays buttons for each supported language
  */
@@ -96,7 +97,7 @@ private fun LanguageSelector() {
 
                 // Create a button with appropriate styling
                 Button(
-                    onClick = { 
+                    onClick = {
                         // Change the language when clicked
                         I18nConfig.changeLanguage(language.code)
                     },

@@ -32,7 +32,8 @@ class StreamingRenderer(
         emit(generateHtmlHeader(context))
 
         // Then, emit the body opening tag and root div with streaming attributes
-        emit("""<body>
+        emit(
+            """<body>
                |<div id="root" data-summon-hydration="root" data-summon-streaming="true">
                |<script>
                |    // Initialize streaming state
@@ -49,7 +50,8 @@ class StreamingRenderer(
                |        }));
                |    };
                |</script>
-               |""".trimMargin())
+               |""".trimMargin()
+        )
 
         // Render the component in chunks
         val fullHtml = renderToString(composable)
@@ -84,14 +86,17 @@ class StreamingRenderer(
             val hydrationData = hydrationSupport.generateHydrationData(composable, HydrationStrategy.PROGRESSIVE)
 
             // Add the hydration data script
-            emit("""
+            emit(
+                """
                 |<script type="application/json" id="summon-hydration-data" style="display:none">
                 |    $hydrationData
                 |</script>
-                |""".trimMargin())
+                |""".trimMargin()
+            )
 
             // Add the streaming completion script
-            emit("""
+            emit(
+                """
                 |<script>
                 |    // Mark streaming as complete
                 |    window.__SUMMON_STREAMING.complete = true;
@@ -109,7 +114,8 @@ class StreamingRenderer(
                 |    
                 |    console.log('Summon streaming complete:', window.__SUMMON_STREAMING);
                 |</script>
-                |""".trimMargin())
+                |""".trimMargin()
+            )
 
             // Add the hydration script
             emit("<script src=\"/summon-hydration.js\"></script>")
@@ -121,7 +127,7 @@ class StreamingRenderer(
 
     /**
      * Intelligently chunk HTML content at logical boundaries
-     * 
+     *
      * @param html The HTML content to chunk
      * @param targetChunkSize The target size for each chunk
      * @return A list of HTML chunks
@@ -141,9 +147,11 @@ class StreamingRenderer(
             // If we're not at the end of the string, try to find a good breaking point
             if (endPos < html.length) {
                 // Look for closing tags as good breaking points
-                val closingTags = listOf("</div>", "</p>", "</section>", "</article>", 
-                                         "</li>", "</ul>", "</ol>", "</table>", 
-                                         "</tr>", "</td>", "</h1>", "</h2>", "</h3>")
+                val closingTags = listOf(
+                    "</div>", "</p>", "</section>", "</article>",
+                    "</li>", "</ul>", "</ol>", "</table>",
+                    "</tr>", "</td>", "</h1>", "</h2>", "</h3>"
+                )
 
                 // Find the last occurrence of any closing tag within our range
                 var bestBreakPoint = -1
@@ -242,7 +250,7 @@ class StreamingRenderer(
                 meta(name = name, content = content)
             }
             additionalMetadata.forEach { (name, content) ->
-                 meta(name = name, content = content)
+                meta(name = name, content = content)
             }
         }
         return sb.toString()
@@ -254,14 +262,14 @@ class StreamingRenderer(
     private fun buildOpenGraphTags(og: OpenGraphMetadata): String {
         val sb = StringBuilder()
         sb.appendHTML(prettyPrint = false).apply {
-             if (og.title.isNotEmpty()) meta(name = "og:title", content = og.title)
-             if (og.description.isNotEmpty()) meta(name = "og:description", content = og.description)
-             if (og.type.isNotEmpty()) meta(name = "og:type", content = og.type)
-             if (og.url.isNotEmpty()) meta(name = "og:url", content = og.url)
-             if (og.image.isNotEmpty()) meta(name = "og:image", content = og.image)
-             if (og.siteName.isNotEmpty()) meta(name = "og:site_name", content = og.siteName)
-         }
-         return sb.toString()
+            if (og.title.isNotEmpty()) meta(name = "og:title", content = og.title)
+            if (og.description.isNotEmpty()) meta(name = "og:description", content = og.description)
+            if (og.type.isNotEmpty()) meta(name = "og:type", content = og.type)
+            if (og.url.isNotEmpty()) meta(name = "og:url", content = og.url)
+            if (og.image.isNotEmpty()) meta(name = "og:image", content = og.image)
+            if (og.siteName.isNotEmpty()) meta(name = "og:site_name", content = og.siteName)
+        }
+        return sb.toString()
     }
 
     /**
@@ -285,10 +293,10 @@ class StreamingRenderer(
      */
     private fun generateCanonicalLink(canonical: String): String {
         return if (canonical.isNotEmpty()) {
-             val sb = StringBuilder()
-             sb.appendHTML(prettyPrint = false).link(rel = "canonical", href = canonical)
-             sb.toString()
-         } else ""
+            val sb = StringBuilder()
+            sb.appendHTML(prettyPrint = false).link(rel = "canonical", href = canonical)
+            sb.toString()
+        } else ""
     }
 
     /**
@@ -321,7 +329,7 @@ object StreamingSSR {
 
     /**
      * Intelligently chunk HTML content at logical boundaries
-     * 
+     *
      * @param html The HTML content to chunk
      * @param targetChunkSize The target size for each chunk
      * @return A list of HTML chunks
@@ -341,7 +349,18 @@ object StreamingSSR {
             // If we're not at the end of the string, try to find a good breaking point
             if (endPos < html.length) {
                 // Look for closing tags as good breaking points
-                val closingTags = listOf("</div>", "</p>", "</section>", "</article>", "</li>", "</ul>", "</ol>", "</table>", "</tr>", "</td>")
+                val closingTags = listOf(
+                    "</div>",
+                    "</p>",
+                    "</section>",
+                    "</article>",
+                    "</li>",
+                    "</ul>",
+                    "</ol>",
+                    "</table>",
+                    "</tr>",
+                    "</td>"
+                )
 
                 // Find the last occurrence of any closing tag within our range
                 var bestBreakPoint = -1
@@ -425,7 +444,8 @@ object StreamingSSR {
         emit("<title>Summon Streaming SSR</title>\n")
 
         // Emit streaming-specific script that helps with progressive rendering
-        emit("""
+        emit(
+            """
             <script>
                 // Progressive rendering support
                 window.__SUMMON_CHUNKS_LOADED = 0;
@@ -435,7 +455,8 @@ object StreamingSSR {
                     document.dispatchEvent(new CustomEvent('summon:chunk-loaded'));
                 };
             </script>
-        """.trimIndent())
+        """.trimIndent()
+        )
         emit("</head>\n<body>")
 
         // 3. Begin content container with streaming attributes
@@ -467,7 +488,8 @@ object StreamingSSR {
 
         // 7. Add hydration script for client-side reactivation
         val hydrationData = StreamingHydrationSupport.generateHydrationData(content)
-        emit("""
+        emit(
+            """
             <script id="summon-hydration-data" type="application/json">
                 $hydrationData
             </script>
@@ -479,7 +501,8 @@ object StreamingSSR {
                 }));
             </script>
             <script src="/summon-hydration.js"></script>
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // 8. Close document
         emit("</body>\n</html>")

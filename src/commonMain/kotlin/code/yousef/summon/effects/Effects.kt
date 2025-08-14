@@ -1,7 +1,6 @@
 package code.yousef.summon.effects
 
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.DisposableEffect
 import code.yousef.summon.runtime.LaunchedEffect
 import code.yousef.summon.runtime.SideEffect
@@ -19,7 +18,7 @@ interface CompositionScope {
 
 /**
  * Execute an effect after each successful composition.
- * 
+ *
  * @param effect The effect to execute.
  */
 @Composable
@@ -31,7 +30,7 @@ fun CompositionScope.effect(effect: () -> Unit) {
 
 /**
  * Execute an effect when composition is first created.
- * 
+ *
  * @param effect The effect to execute.
  */
 @Composable
@@ -47,7 +46,7 @@ fun CompositionScope.onMount(effect: () -> Unit) {
 
 /**
  * Execute an effect when composition is disposed.
- * 
+ *
  * @param effect The effect to execute.
  */
 @Composable
@@ -62,7 +61,7 @@ fun CompositionScope.onDispose(effect: () -> Unit) {
 
 /**
  * Execute an effect after composition when dependencies change.
- * 
+ *
  * @param dependencies Objects that will trigger the effect when they change.
  * @param effect The effect to execute.
  */
@@ -77,7 +76,7 @@ fun CompositionScope.effectWithDeps(vararg dependencies: Any?, effect: () -> Uni
 
 /**
  * Execute an effect once after composition with a cleanup function.
- * 
+ *
  * @param effect The effect to execute, returning a cleanup function.
  */
 @Composable
@@ -91,7 +90,7 @@ fun CompositionScope.onMountWithCleanup(effect: () -> (() -> Unit)?) {
 
 /**
  * Execute an effect with dependencies and cleanup.
- * 
+ *
  * @param dependencies Objects that will trigger the effect when they change.
  * @param effect The effect to execute, returning a cleanup function.
  */

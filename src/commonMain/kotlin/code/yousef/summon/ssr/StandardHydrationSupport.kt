@@ -49,14 +49,17 @@ class StandardHydrationSupport : HydrationSupport {
         markedHtml.append(html)
 
         // Add the hydration data script
-        markedHtml.append("""
+        markedHtml.append(
+            """
             <script id="summon-hydration-data" type="application/json" style="display:none">
                 $hydrationJson
             </script>
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // Add the hydration initialization script
-        markedHtml.append("""
+        markedHtml.append(
+            """
             <script>
                 // Initialize hydration when the DOM is ready
                 document.addEventListener('DOMContentLoaded', function() {
@@ -68,7 +71,8 @@ class StandardHydrationSupport : HydrationSupport {
                     }
                 });
             </script>
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // Close the container
         markedHtml.append("\n</div>")

@@ -2,7 +2,6 @@ package code.yousef.summon.routing
 
 import code.yousef.summon.modifier.EventModifiers.onClick
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.onClick
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.components.navigation.Link as InternalLink
 
@@ -25,14 +24,14 @@ fun Link(
     onClick: (() -> Unit)? = null
 ) {
     val router = LocalRouter
-    
+
     InternalLink(
         href = href,
         target = target,
         modifier = modifier.onClick {
             // Call user's click handler if provided
             onClick?.invoke()
-            
+
             // If we have a router and target is current window, use router navigation
             if (router != null && target == "_self") {
                 router.navigate(href)

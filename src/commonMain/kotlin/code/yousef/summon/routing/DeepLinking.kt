@@ -2,15 +2,10 @@
 
 package code.yousef.summon.routing
 
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import kotlinx.html.TagConsumer
-import kotlinx.html.head
-import kotlinx.html.link
-import kotlinx.html.meta
-import code.yousef.summon.routing.RouterContext
 // Removed androidx import
 
 import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * Provides support for deep linking, allowing direct navigation to specific application states.
@@ -233,7 +228,7 @@ class DeepLinking private constructor() {
         /**
          * Generates meta tags for a specific route to improve SEO and sharing.
          * Convenience method that delegates to the instance.
-         * 
+         *
          * @deprecated Use the @Composable MetaTags function instead for proper integration with Compose
          */
         @Deprecated("Use the @Composable MetaTags function instead for proper integration with Compose")
@@ -308,7 +303,7 @@ object DeepLinkManager {
 
     /**
      * Extract path parameters from a URL path
-     * 
+     *
      * @param path The URL path
      * @return Map of parameter names to values
      */

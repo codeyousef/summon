@@ -40,32 +40,46 @@ object TextComponents {
     // Specific Themed Text Composables
     @Composable
     fun H1(text: String, modifier: Modifier = Modifier()) = ThemedText(text, "h1", modifier)
+
     @Composable
     fun H2(text: String, modifier: Modifier = Modifier()) = ThemedText(text, "h2", modifier)
+
     @Composable
     fun H3(text: String, modifier: Modifier = Modifier()) = ThemedText(text, "h3", modifier)
+
     @Composable
     fun H4(text: String, modifier: Modifier = Modifier()) = ThemedText(text, "h4", modifier)
+
     @Composable
     fun H5(text: String, modifier: Modifier = Modifier()) = ThemedText(text, "h5", modifier)
+
     @Composable
     fun H6(text: String, modifier: Modifier = Modifier()) = ThemedText(text, "h6", modifier)
+
     @Composable
     fun Subtitle(text: String, modifier: Modifier = Modifier()) = ThemedText(text, "subtitle", modifier)
+
     @Composable
     fun Body(text: String, modifier: Modifier = Modifier()) = ThemedText(text, "body", modifier)
+
     @Composable
     fun BodyLarge(text: String, modifier: Modifier = Modifier()) = ThemedText(text, "bodyLarge", modifier)
+
     @Composable
     fun BodySmall(text: String, modifier: Modifier = Modifier()) = ThemedText(text, "bodySmall", modifier)
+
     @Composable
     fun Caption(text: String, modifier: Modifier = Modifier()) = ThemedText(text, "caption", modifier)
+
     @Composable
     fun Button(text: String, modifier: Modifier = Modifier()) = ThemedText(text, "button", modifier)
+
     @Composable
     fun Overline(text: String, modifier: Modifier = Modifier()) = ThemedText(text, "overline", modifier)
+
     @Composable
     fun Link(text: String, modifier: Modifier = Modifier()) = ThemedText(text, "link", modifier)
+
     @Composable
     fun Code(text: String, modifier: Modifier = Modifier()) = ThemedText(text, "code", modifier)
 } 

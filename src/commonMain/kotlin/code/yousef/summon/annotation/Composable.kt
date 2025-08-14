@@ -2,7 +2,7 @@ package code.yousef.summon.annotation
 
 /**
  * Marks a function as composable, which means it can participate in the Summon composition system.
- * 
+ *
  * Composable functions can only be called from within other @Composable functions.
  * They form the building blocks of the Summon UI hierarchy.
  */

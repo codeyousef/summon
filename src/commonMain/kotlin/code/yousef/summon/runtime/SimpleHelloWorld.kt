@@ -1,9 +1,5 @@
 package code.yousef.summon.runtime
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CommonComposer
-import code.yousef.summon.runtime.ComposerContext
-
 /**
  * A simple "Hello, World!" example.
  */
@@ -14,13 +10,13 @@ object SimpleHelloWorld {
     fun render() {
         // Create a composer
         val composer = CommonComposer()
-        
+
         // Use composition context to render
         ComposerContext.withComposer(composer) {
             hello()
         }
     }
-    
+
     /**
      * A simple composable that prints "Hello, World!".
      */

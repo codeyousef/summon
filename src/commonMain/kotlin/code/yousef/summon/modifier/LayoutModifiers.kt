@@ -1,9 +1,7 @@
 package code.yousef.summon.modifier
 
-import code.yousef.summon.extensions.px
 import code.yousef.summon.extensions.percent
-import kotlin.math.cos
-import kotlin.math.sin
+import code.yousef.summon.extensions.px
 
 /**
  * Extension functions for Layout Modifiers
@@ -271,7 +269,7 @@ fun Modifier.cursor(value: Cursor): Modifier =
 /**
  * Positions an element at a specific angle and radius from the center using radial coordinates.
  * This is useful for orbital layouts and circular positioning.
- * 
+ *
  * @param angle The angle position using RadialAngle enum
  * @param radius The distance from center using RadialRadius enum
  * @return A new Modifier with radial positioning applied
@@ -281,7 +279,7 @@ fun Modifier.radialPosition(angle: RadialAngle, radius: RadialRadius): Modifier 
     val radiusValue = radius.value.toDouble()
     val x = radiusValue * kotlin.math.cos(radians)
     val y = radiusValue * kotlin.math.sin(radians)
-    
+
     return position(Position.Absolute)
         .style("left", "calc(50% + ${x.px})")
         .style("top", "calc(50% + ${y.px})")
@@ -291,7 +289,7 @@ fun Modifier.radialPosition(angle: RadialAngle, radius: RadialRadius): Modifier 
 /**
  * Positions an element in a circular layout arrangement.
  * Automatically calculates the angle based on the item's position in the circle.
- * 
+ *
  * @param radius The circle radius using RadialRadius enum
  * @param totalItems Total number of items in the circle
  * @param currentIndex Zero-based index of this item (0 to totalItems-1)
@@ -306,7 +304,7 @@ fun Modifier.circularLayout(radius: RadialRadius, totalItems: Int, currentIndex:
 
 /**
  * Centers an element absolutely within its container.
- * 
+ *
  * @return A new Modifier with absolute center positioning
  */
 fun Modifier.centerAbsolute(): Modifier =
@@ -317,7 +315,7 @@ fun Modifier.centerAbsolute(): Modifier =
 
 /**
  * Centers an element with fixed positioning (relative to viewport).
- * 
+ *
  * @return A new Modifier with fixed center positioning
  */
 fun Modifier.fixedCenter(): Modifier =
@@ -328,7 +326,7 @@ fun Modifier.fixedCenter(): Modifier =
 
 /**
  * Applies a relative offset from the element's normal position.
- * 
+ *
  * @param x Horizontal offset with unit extension (e.g., 10.px)
  * @param y Vertical offset with unit extension (e.g., 20.px)
  * @return A new Modifier with relative offset applied
@@ -340,7 +338,7 @@ fun Modifier.relativeOffset(x: Number, y: Number): Modifier =
 
 /**
  * Applies a floating animation effect with type-safe parameters.
- * 
+ *
  * @param duration Animation duration using AnimationDuration enum
  * @param intensity Float distance using FloatIntensity enum
  * @return A new Modifier with floating animation applied
@@ -359,7 +357,7 @@ fun Modifier.floatingAnimation(
 
 /**
  * Applies a continuous rotation animation with type-safe parameters.
- * 
+ *
  * @param speed Rotation speed using RotationSpeed enum
  * @param clockwise Direction of rotation (true = clockwise, false = counter-clockwise)
  * @return A new Modifier with rotation animation applied
@@ -385,7 +383,7 @@ fun Modifier.rotatingAnimation(
 private fun fromSpeed(speed: RotationSpeed): AnimationDuration =
     when (speed.value.toInt()) {
         30 -> AnimationDuration.VerySlow
-        20 -> AnimationDuration.VerySlow  
+        20 -> AnimationDuration.VerySlow
         10 -> AnimationDuration.Slow
         5 -> AnimationDuration.Medium
         2 -> AnimationDuration.Fast

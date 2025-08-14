@@ -3,7 +3,6 @@ package code.yousef.summon.components.layout
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.EventModifiers.onClick
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.onClick
 import code.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
@@ -27,13 +26,13 @@ fun Card(
     var finalModifier = modifier
         .shadow("0", elevation, "8px", "rgba(0,0,0,0.1)") // Assuming shadow exists with this signature
         .borderRadius(borderRadius)
-    
+
     // Apply onClick via modifier if provided
     onClick?.let { finalModifier = finalModifier.onClick(it) }
-    
+
     // Get the correct PlatformRenderer
     val renderer = LocalPlatformRenderer.current // No cast needed
-    
+
     // Call renderCard, wrapping content lambda
     renderer.renderCard(
         modifier = finalModifier,

@@ -2,11 +2,11 @@ package code.yousef.summon.components.input
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.SelectOption
 import code.yousef.summon.runtime.getPlatformRenderer
 import code.yousef.summon.state.SummonMutableState
 import code.yousef.summon.state.mutableStateOf
 import code.yousef.summon.validation.Validator
-import code.yousef.summon.runtime.SelectOption
 
 /**
  * Class that manages select state and validation.

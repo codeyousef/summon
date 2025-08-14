@@ -4,7 +4,7 @@ import code.yousef.summon.components.layout.Alignment
 
 /**
  * Sets the vertical alignment of items in a Row.
- * 
+ *
  * @param alignment The vertical alignment value as an Alignment.Vertical enum
  * @return A new Modifier with the vertical alignment style added
  */
@@ -17,7 +17,7 @@ fun Modifier.verticalAlignment(alignment: Alignment.Vertical): Modifier =
 
 /**
  * Sets the horizontal alignment of items in a Column.
- * 
+ *
  * @param alignment The horizontal alignment value as an Alignment.Horizontal enum
  * @return A new Modifier with the horizontal alignment style added
  */

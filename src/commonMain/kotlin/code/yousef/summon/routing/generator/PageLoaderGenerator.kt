@@ -1,7 +1,5 @@
 package code.yousef.summon.routing.generator
 
-import code.yousef.summon.routing.PageRegistry
-import code.yousef.summon.routing.DefaultPageRegistry
 // Implementation of page loader code generation
 /**
  * Generator for page loader code.
@@ -193,6 +191,7 @@ object PageLoaderGenerator {
                                 else -> "Detail"
                             }
                         }
+
                         "slug" -> "Detail"
                         else -> "Dynamic"
                     }

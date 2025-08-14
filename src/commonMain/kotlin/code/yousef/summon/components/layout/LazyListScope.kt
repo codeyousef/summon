@@ -25,7 +25,7 @@ interface LazyListScope {
      * @param itemContent The content for each item
      */
     fun <T> items(
-        items: List<T>, 
+        items: List<T>,
         key: ((item: T) -> Any)? = null,
         itemContent: @Composable (item: T) -> Unit
     )
@@ -38,7 +38,7 @@ interface LazyListScope {
      * @param itemContent The content for each item with its index
      */
     fun <T> itemsIndexed(
-        items: List<T>, 
+        items: List<T>,
         key: ((index: Int, item: T) -> Any)? = null,
         itemContent: @Composable (index: Int, item: T) -> Unit
     )
@@ -89,8 +89,8 @@ internal class LazyListScopeImpl : LazyListScope {
     }
 
     override fun <T> items(
-        items: List<T>, 
-        key: ((item: T) -> Any)?, 
+        items: List<T>,
+        key: ((item: T) -> Any)?,
         itemContent: @Composable (item: T) -> Unit
     ) {
         for (item in items) {
@@ -103,8 +103,8 @@ internal class LazyListScopeImpl : LazyListScope {
     }
 
     override fun <T> itemsIndexed(
-        items: List<T>, 
-        key: ((index: Int, item: T) -> Any)?, 
+        items: List<T>,
+        key: ((index: Int, item: T) -> Any)?,
         itemContent: @Composable (index: Int, item: T) -> Unit
     ) {
         for (i in items.indices) {

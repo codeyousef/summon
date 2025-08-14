@@ -45,32 +45,32 @@ fun Alert(
             .border("1px", "solid", "#2196f3")
             .color("#0d47a1")
             .padding("16px")
-        
+
         AlertVariant.SUCCESS -> Modifier()
             .background("#e8f5e9") // Light green
             .border("1px", "solid", "#4caf50")
             .color("#1b5e20")
             .padding("16px")
-        
+
         AlertVariant.WARNING -> Modifier()
             .background("#fff8e1") // Light amber
             .border("1px", "solid", "#ffc107")
             .color("#ff6f00")
             .padding("16px")
-        
+
         AlertVariant.ERROR -> Modifier()
             .background("#ffebee") // Light red
             .border("1px", "solid", "#f44336")
             .color("#b71c1c")
             .padding("16px")
-        
+
         AlertVariant.NEUTRAL -> Modifier()
             .background("#f5f5f5") // Light gray
             .border("1px", "solid", "#9e9e9e")
             .color("#212121")
             .padding("16px")
     }
-    
+
     val finalModifier = variantModifier.then(modifier)
 
     // Determine default icon based on variant if none provided

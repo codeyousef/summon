@@ -1,14 +1,13 @@
 package code.yousef.summon.components.demo
 
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.components.input.Button
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.onClick
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.rememberMutableStateOf
 import code.yousef.summon.state.SummonMutableState
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.input.Button
 
 /**
  * A demo component that demonstrates state management within a class.
@@ -111,12 +110,12 @@ fun ToggleDemo() {
         // val onClickJs = "javascript:void(0)" 
         val backgroundColor = if (isToggled.value) "#4CAF50" else "#F44336"
         val text = if (isToggled.value) "ON" else "OFF"
-        
+
         // Apply modifier for background color and potentially click handler
         val textModifier = Modifier()
-             // Example: .background(backgroundColor) // Assuming background modifier exists
-             // Example: .onClick(onClickJs)
-        
+        // Example: .background(backgroundColor) // Assuming background modifier exists
+        // Example: .onClick(onClickJs)
+
         // Call the Text composable
         Text(
             text = text,

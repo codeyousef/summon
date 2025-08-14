@@ -42,10 +42,10 @@ fun Modifier.maxWidth(value: Number): Modifier = style("max-width", "${value}px"
 
 fun Modifier.maxHeight(value: Number): Modifier = style("max-height", "${value}px")
 
-fun Modifier.size(width: Number, height: Number): Modifier = 
+fun Modifier.size(width: Number, height: Number): Modifier =
     this.width(width).height(height)
 
-fun Modifier.size(value: Number): Modifier = 
+fun Modifier.size(value: Number): Modifier =
     this.width(value).height(value)
 
 // Other styling extensions - only Number overloads to avoid shadowing String members

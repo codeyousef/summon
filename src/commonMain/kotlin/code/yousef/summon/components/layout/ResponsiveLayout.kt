@@ -2,10 +2,8 @@ package code.yousef.summon.components.layout
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.ModifierExtras.attribute
 import code.yousef.summon.runtime.getPlatformRenderer
 import code.yousef.summon.theme.MediaQuery
-import kotlinx.html.FlowContent
 import kotlinx.html.div
 
 /**
@@ -26,8 +24,10 @@ enum class ScreenSize {
 object ResponsiveBreakpoints {
     @Deprecated("Use MediaQuery.Breakpoints.sm instead", ReplaceWith("MediaQuery.Breakpoints.sm"))
     const val SMALL_BREAKPOINT = 600
+
     @Deprecated("Use MediaQuery.Breakpoints.md instead", ReplaceWith("MediaQuery.Breakpoints.md"))
     const val MEDIUM_BREAKPOINT = 960
+
     @Deprecated("Use MediaQuery.Breakpoints.lg instead", ReplaceWith("MediaQuery.Breakpoints.lg"))
     const val LARGE_BREAKPOINT = 1280
 }

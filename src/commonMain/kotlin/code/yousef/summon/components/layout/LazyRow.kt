@@ -5,7 +5,6 @@ import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.remember
-import code.yousef.summon.state.mutableStateOf
 
 /**
  * A horizontally scrolling list that only composes and lays out the currently visible items.

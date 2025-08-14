@@ -1,10 +1,10 @@
 package code.yousef.summon.components.display
 
-import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.LocalPlatformRenderer
+import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.ariaLabel
 import code.yousef.summon.modifier.fontFamily
+import code.yousef.summon.runtime.LocalPlatformRenderer
 
 
 /**
@@ -48,14 +48,14 @@ fun Icon(
     size?.let { finalModifier = finalModifier.size(it) }
     color?.let { finalModifier = finalModifier.color(it) }
     fontFamily?.let { finalModifier = finalModifier.fontFamily(it, null) }
-    
+
     // Apply accessibility attributes if provided
     if (ariaLabel != null) {
         finalModifier = finalModifier.ariaLabel(ariaLabel)
         // Also set the role for better accessibility
         finalModifier = finalModifier.role("img")
     }
-    
+
     // For clickable icons, set appropriate cursor and role
     if (onClick != null) {
         finalModifier = finalModifier.cursor("pointer")
@@ -64,9 +64,9 @@ fun Icon(
             finalModifier = finalModifier.role("button")
         }
     }
-    
+
     val renderer = LocalPlatformRenderer.current
-    
+
     // Render the icon - platform renderer will handle the different types
     renderer.renderIcon(name, finalModifier, onClick, svgContent, type)
 }
@@ -85,24 +85,32 @@ object IconDefaults {
     // Common icons - Now call the @Composable function
     @Composable
     fun Add(modifier: Modifier = Modifier()) = Icon("add", modifier)
+
     @Composable
     fun Delete(modifier: Modifier = Modifier()) = Icon("delete", modifier)
+
     @Composable
     fun Edit(modifier: Modifier = Modifier()) = Icon("edit", modifier)
+
     @Composable
     fun Download(modifier: Modifier = Modifier()) = Icon("download", modifier)
+
     @Composable
     fun Upload(modifier: Modifier = Modifier()) = Icon("upload", modifier)
 
     // Add common status icons (using Material Icon names as examples)
     @Composable
     fun Info(modifier: Modifier = Modifier()) = MaterialIcon("info", modifier)
+
     @Composable
     fun CheckCircle(modifier: Modifier = Modifier()) = MaterialIcon("check_circle", modifier)
+
     @Composable
     fun Warning(modifier: Modifier = Modifier()) = MaterialIcon("warning", modifier)
+
     @Composable
     fun Error(modifier: Modifier = Modifier()) = MaterialIcon("error", modifier)
+
     @Composable
     fun Close(modifier: Modifier = Modifier()) = MaterialIcon("close", modifier) // Useful for dismiss
 }

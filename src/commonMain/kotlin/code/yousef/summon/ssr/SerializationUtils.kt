@@ -5,13 +5,13 @@ package code.yousef.summon.ssr
  * Consolidates common serialization logic used across SSR implementations.
  */
 object SerializationUtils {
-    
+
     /**
      * Serialize the initial state to JSON
      */
     fun serializeInitialState(state: Map<String, Any?>): String {
         if (state.isEmpty()) return "{}"
-        
+
         return buildString {
             append("{")
             state.entries.forEachIndexed { index, (key, value) ->
@@ -22,7 +22,7 @@ object SerializationUtils {
             append("}")
         }
     }
-    
+
     /**
      * Serialize a value to JSON
      */
@@ -42,6 +42,7 @@ object SerializationUtils {
                     append("}")
                 }
             }
+
             is List<*> -> {
                 buildString {
                     append("[")
@@ -52,10 +53,11 @@ object SerializationUtils {
                     append("]")
                 }
             }
+
             else -> "\"${escapeJsonString(value.toString())}\""
         }
     }
-    
+
     /**
      * Escape a string for JSON
      */

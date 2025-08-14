@@ -14,7 +14,7 @@ object TextStyles {
         fontWeight = "300", // Light
         letterSpacing = "-1.5px"
     )
-    
+
     /**
      * Heading 2 style
      */
@@ -24,7 +24,7 @@ object TextStyles {
         fontWeight = "300", // Light
         letterSpacing = "-0.5px"
     )
-    
+
     /**
      * Heading 3 style
      */
@@ -34,7 +34,7 @@ object TextStyles {
         fontWeight = "400", // Regular
         letterSpacing = "0px"
     )
-    
+
     /**
      * Heading 4 style
      */
@@ -44,7 +44,7 @@ object TextStyles {
         fontWeight = "400", // Regular
         letterSpacing = "0.25px"
     )
-    
+
     /**
      * Heading 5 style
      */
@@ -54,7 +54,7 @@ object TextStyles {
         fontWeight = "400", // Regular
         letterSpacing = "0px"
     )
-    
+
     /**
      * Heading 6 style
      */
@@ -64,7 +64,7 @@ object TextStyles {
         fontWeight = "500", // Medium
         letterSpacing = "0.15px"
     )
-    
+
     /**
      * Subtitle 1 style
      */
@@ -74,7 +74,7 @@ object TextStyles {
         fontWeight = "400", // Regular
         letterSpacing = "0.15px"
     )
-    
+
     /**
      * Subtitle 2 style
      */
@@ -84,7 +84,7 @@ object TextStyles {
         fontWeight = "500", // Medium
         letterSpacing = "0.1px"
     )
-    
+
     /**
      * Body 1 style
      */
@@ -94,7 +94,7 @@ object TextStyles {
         fontWeight = "400", // Regular
         letterSpacing = "0.5px"
     )
-    
+
     /**
      * Body 2 style
      */
@@ -104,7 +104,7 @@ object TextStyles {
         fontWeight = "400", // Regular
         letterSpacing = "0.25px"
     )
-    
+
     /**
      * Button text style
      */
@@ -114,7 +114,7 @@ object TextStyles {
         fontWeight = "500", // Medium
         letterSpacing = "1.25px"
     )
-    
+
     /**
      * Caption style
      */
@@ -124,7 +124,7 @@ object TextStyles {
         fontWeight = "400", // Regular
         letterSpacing = "0.4px"
     )
-    
+
     /**
      * Overline style
      */

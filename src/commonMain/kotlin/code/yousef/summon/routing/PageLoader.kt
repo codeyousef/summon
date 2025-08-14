@@ -1,11 +1,5 @@
 package code.yousef.summon.routing
 
-import code.yousef.summon.routing.pages.AboutPage
-import code.yousef.summon.routing.pages.HomePage
-import code.yousef.summon.routing.pages.NotFoundPage
-import code.yousef.summon.routing.pages.blog.BlogPostPage
-import code.yousef.summon.routing.pages.users.UserProfilePage
-
 /**
  * Loads pages from the file system and registers them with the PageRegistry.
  *

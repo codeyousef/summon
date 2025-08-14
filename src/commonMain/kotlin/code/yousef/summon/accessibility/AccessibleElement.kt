@@ -2,7 +2,6 @@ package code.yousef.summon.accessibility
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.ModifierExtras.attribute
 import code.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
@@ -26,26 +25,26 @@ fun AccessibleElement(
     modifier: Modifier = Modifier()
 ) {
     val renderer = LocalPlatformRenderer.current
-    
+
     // Start with the provided modifier
     var finalModifier = modifier
-    
+
     // Apply role from either predefined role or custom role
     when {
         role != null -> finalModifier = finalModifier.attribute("role", role.name.lowercase())
         customRole != null -> finalModifier = finalModifier.attribute("role", customRole)
     }
-    
+
     // Apply label if provided
     if (label != null) {
         finalModifier = finalModifier.attribute("aria-label", label)
     }
-    
+
     // Apply relationships
     relations.forEach { (relation, targetId) ->
         finalModifier = finalModifier.attribute("aria-$relation", targetId)
     }
-    
+
     // Render the element with the accessibility attributes
     renderer.renderBox(modifier = finalModifier) {
         content()

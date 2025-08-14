@@ -22,7 +22,7 @@ fun GlobalStyle(
 
 /**
  * Injects CSS keyframe animations into the document head.
- * 
+ *
  * @param name The name of the keyframe animation
  * @param keyframes The keyframe definition (without @keyframes wrapper)
  * @param modifier The modifier to apply to this component
@@ -39,7 +39,7 @@ fun GlobalKeyframes(
 
 /**
  * Injects CSS custom properties (variables) into the document root.
- * 
+ *
  * @param variables A map of CSS variable names to their values
  * @param modifier The modifier to apply to this component
  */
@@ -54,7 +54,7 @@ fun CssVariables(
 
 /**
  * Injects CSS media queries into the document head.
- * 
+ *
  * @param query The media query (e.g., "@media (max-width: 768px)")
  * @param css The CSS content to apply within the media query
  * @param modifier The modifier to apply to this component

@@ -1,11 +1,11 @@
 package code.yousef.summon.focus
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.remember
-import code.yousef.summon.runtime.mutableStateOf
 import code.yousef.summon.accessibility.KeyboardNavigation
+import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.LocalPlatformRenderer
+import code.yousef.summon.runtime.mutableStateOf
+import code.yousef.summon.runtime.remember
 import kotlinx.html.FlowContent
 
 /**
@@ -35,7 +35,7 @@ fun KeyboardNavigable(
     content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
-    
+
     // Apply keyboard navigation modifier
     val navigationModifier = with(KeyboardNavigation) {
         modifier.focusable(navigationState.currentFocusIndex.value)
@@ -46,7 +46,7 @@ fun KeyboardNavigable(
                 )
             )
     }
-    
+
     // Render the content with keyboard navigation
     renderer.renderBox(
         modifier = navigationModifier,

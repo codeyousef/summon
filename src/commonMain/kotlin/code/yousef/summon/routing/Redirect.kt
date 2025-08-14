@@ -2,8 +2,8 @@ package code.yousef.summon.routing
 
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.LaunchedEffect
-import code.yousef.summon.runtime.remember
 import code.yousef.summon.runtime.LocalPlatformRenderer
+import code.yousef.summon.runtime.remember
 
 /**
  * A composable that performs a client-side redirect when it enters the composition.

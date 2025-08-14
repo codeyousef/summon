@@ -397,7 +397,7 @@ object DynamicRendering {
 
     /**
      * Fetches server-side data needed for dynamic rendering.
-     * 
+     *
      * @param routeId The route ID to fetch data for
      * @return A map of data for the route
      */
@@ -484,7 +484,7 @@ object DynamicRendering {
                         mapOf(
                             "type" to "line",
                             "title" to "Traffic Trend",
-                            "data" to (1..7).map { day -> 
+                            "data" to (1..7).map { day ->
                                 mapOf("day" to day, "value" to (100 + (dashboardId.hashCode() + day) % 900))
                             }
                         ),

@@ -1,9 +1,9 @@
 package code.yousef.summon.animation
 
 import kotlin.math.cos
+import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
-import kotlin.math.pow
 
 /**
  * Advanced easing functions collection that provides a comprehensive set of
@@ -55,9 +55,9 @@ object EasingFunctions {
     // Circular easing functions
     fun easeInCirc(t: Float): Float = 1 - sqrt(1 - t.pow(2))
     fun easeOutCirc(t: Float): Float = sqrt(1 - (t - 1).pow(2))
-    fun easeInOutCirc(t: Float): Float = if (t < 0.5f) 
-        (1 - sqrt(1 - (2 * t).pow(2))) / 2 
-    else 
+    fun easeInOutCirc(t: Float): Float = if (t < 0.5f)
+        (1 - sqrt(1 - (2 * t).pow(2))) / 2
+    else
         (sqrt(1 - (-2 * t + 2).pow(2)) + 1) / 2
 
     // Back easing functions with overshoot
@@ -149,7 +149,7 @@ object EasingFunctions {
         // Sample points to approximate cubic bezier
         val p1x = 0.25f
         val p1y = easingFunction(p1x)
-        val p2x = 0.75f 
+        val p2x = 0.75f
         val p2y = easingFunction(p2x)
 
         return "cubic-bezier($p1x, $p1y, $p2x, $p2y)"

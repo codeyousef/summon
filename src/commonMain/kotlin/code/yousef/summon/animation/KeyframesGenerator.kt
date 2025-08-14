@@ -178,7 +178,7 @@ object KeyframesGenerator {
     fun shake(name: String = "shake", intensity: Int = 10): String = """
         @keyframes $name {
             0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-${intensity/2}px); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-${intensity / 2}px); }
             20%, 40%, 60%, 80% { transform: translateX(${intensity}px); }
         }
     """.trimIndent()
@@ -278,7 +278,11 @@ object KeyframesGenerator {
      * @param endColor The ending color
      * @return A CSS keyframes string
      */
-    fun colorChange(name: String = "color-change", startColor: String = "#ff0000", endColor: String = "#0000ff"): String = """
+    fun colorChange(
+        name: String = "color-change",
+        startColor: String = "#ff0000",
+        endColor: String = "#0000ff"
+    ): String = """
         @keyframes $name {
             0% { color: $startColor; }
             100% { color: $endColor; }
@@ -293,7 +297,11 @@ object KeyframesGenerator {
      * @param endColor The ending background color
      * @return A CSS keyframes string
      */
-    fun backgroundColorChange(name: String = "bg-color-change", startColor: String = "#ff0000", endColor: String = "#0000ff"): String = """
+    fun backgroundColorChange(
+        name: String = "bg-color-change",
+        startColor: String = "#ff0000",
+        endColor: String = "#0000ff"
+    ): String = """
         @keyframes $name {
             0% { background-color: $startColor; }
             100% { background-color: $endColor; }
@@ -309,7 +317,7 @@ object KeyframesGenerator {
      */
     fun custom(name: String, keyframes: Map<String, Map<String, String>>): String {
         val sb = StringBuilder("@keyframes $name {\n")
-        
+
         keyframes.forEach { (percentage, properties) ->
             sb.append("    $percentage { ")
             properties.forEach { (property, value) ->
@@ -317,7 +325,7 @@ object KeyframesGenerator {
             }
             sb.append("}\n")
         }
-        
+
         sb.append("}")
         return sb.toString()
     }
@@ -344,15 +352,15 @@ object KeyframesGenerator {
     ): String {
         val sb = StringBuilder("@keyframes $name {\n")
         val delta = toValue - fromValue
-        
+
         for (i in 0..steps) {
             val progress = i.toFloat() / steps
-            val easedProgress = easing(progress) 
+            val easedProgress = easing(progress)
             val value = fromValue + (delta * easedProgress)
-            
+
             sb.append("    ${(progress * 100).toInt()}% { $property: $value; }\n")
         }
-        
+
         sb.append("}")
         return sb.toString()
     }

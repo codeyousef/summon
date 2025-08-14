@@ -372,7 +372,7 @@ enum class TransformFunction(val value: String) {
     TranslateZ("translateZ"),
     Translate3d("translate3d"),
     Scale("scale"),
-    ScaleX("scaleX"), 
+    ScaleX("scaleX"),
     ScaleY("scaleY"),
     Rotate("rotate"),
     RotateX("rotateX"),
@@ -383,7 +383,7 @@ enum class TransformFunction(val value: String) {
     SkewX("skewX"),
     SkewY("skewY"),
     Perspective("perspective");
-    
+
     override fun toString(): String = value
 }
 
@@ -400,7 +400,7 @@ enum class FilterFunction(val value: String) {
     Saturate("saturate"),
     Sepia("sepia"),
     DropShadow("drop-shadow");
-    
+
     override fun toString(): String = value
 }
 
@@ -420,7 +420,7 @@ enum class BlendMode(val value: String) {
     SoftLight("soft-light"),
     Difference("difference"),
     Exclusion("exclusion");
-    
+
     override fun toString(): String = value
 }
 
@@ -433,7 +433,7 @@ enum class AnimationDuration(val value: Number, val unit: String) {
     Medium(500, "ms"),
     Slow(1, "s"),
     VerySlow(2, "s");
-    
+
     val css: String get() = "$value$unit"
     override fun toString(): String = css
 }
@@ -446,7 +446,7 @@ enum class AnimationDirection(val value: String) {
     Reverse("reverse"),
     Alternate("alternate"),
     AlternateReverse("alternate-reverse");
-    
+
     override fun toString(): String = value
 }
 
@@ -458,7 +458,7 @@ enum class AnimationFillMode(val value: String) {
     Forwards("forwards"),
     Backwards("backwards"),
     Both("both");
-    
+
     override fun toString(): String = value
 }
 
@@ -467,10 +467,10 @@ enum class AnimationFillMode(val value: String) {
  */
 enum class RadialRadius(val value: Number) {
     Small(100),
-    Medium(200), 
+    Medium(200),
     Large(300),
     ExtraLarge(450);
-    
+
     val px: String get() = value.px
     override fun toString(): String = px
 }
@@ -487,10 +487,10 @@ enum class RadialAngle(val degrees: Number) {
     Deg225(225),
     Deg270(270),
     Deg315(315);
-    
+
     val deg: String get() = "${degrees}deg"
     override fun toString(): String = deg
-    
+
     companion object {
         /**
          * Creates a RadialAngle from a degree value.
@@ -510,7 +510,7 @@ enum class FloatIntensity(val value: Number) {
     Gentle(10),
     Moderate(20),
     Strong(30);
-    
+
     val px: String get() = value.px
     override fun toString(): String = px
 }
@@ -524,7 +524,7 @@ enum class RotationSpeed(val value: Number, val unit: String) {
     Medium(10, "s"),
     Fast(5, "s"),
     VeryFast(2, "s");
-    
+
     val css: String get() = "$value$unit"
     override fun toString(): String = css
 }

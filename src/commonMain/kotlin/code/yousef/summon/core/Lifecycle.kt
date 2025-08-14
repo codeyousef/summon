@@ -1,11 +1,11 @@
 package code.yousef.summon
 
+import code.yousef.summon.lifecycle.LifecycleObserver
 import code.yousef.summon.lifecycle.LifecycleOwner
 import code.yousef.summon.lifecycle.LifecycleState
 import code.yousef.summon.lifecycle.currentLifecycleOwner
-import code.yousef.summon.lifecycle.LifecycleObserver
-import code.yousef.summon.runtime.DisposableEffect
 import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.DisposableEffect
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -48,7 +48,8 @@ class LifecycleAwareComponent(
             LifecycleState.PAUSED -> onPause?.invoke()
             LifecycleState.STOPPED -> onStop?.invoke()
             LifecycleState.DESTROYED -> onDestroy?.invoke()
-            else -> { /* Handle INITIALIZED if necessary */ }
+            else -> { /* Handle INITIALIZED if necessary */
+            }
         }
     }
 
@@ -87,7 +88,7 @@ fun lifecycleAware(
     builder: LifecycleAwareComponentBuilder.() -> Unit
 ): LifecycleAwareComponent? {
     val lifecycleOwner = lifecycleOwnerInput ?: return null
-    
+
     val componentBuilder = LifecycleAwareComponentBuilder()
     builder(componentBuilder)
 
@@ -100,7 +101,7 @@ fun lifecycleAware(
         onStop = componentBuilder.onStopCallback,
         onDestroy = componentBuilder.onDestroyCallback
     )
-    
+
     return component
 }
 
@@ -176,7 +177,7 @@ fun whenActive(
     block: suspend CoroutineScope.() -> Unit
 ): LifecycleAwareComponent? {
     val lifecycleOwner = lifecycleOwnerInput ?: return null
-    
+
     var currentKey: Any = key
     var activeJob: Job? = null
     val coroutineScope = CoroutineScope(Dispatchers.Main)
@@ -241,7 +242,7 @@ fun LifecycleOwner.launchWhenResumed(block: suspend CoroutineScope.() -> Unit): 
     // Needs review
     return coroutineScope.launch { /* ... */ }
 }
-*/ 
+*/
 
 /**
  * A composable function that observes lifecycle events and invokes callbacks accordingly.
@@ -269,7 +270,7 @@ fun LifecycleEffect(
 ) {
     // If no lifecycle owner is available, do nothing
     lifecycleOwner ?: return
-    
+
     // Use DisposableEffect to register and unregister the observer
     DisposableEffect(key) {
         // Create a lifecycle observer
@@ -277,51 +278,55 @@ fun LifecycleEffect(
             override fun onCreate() {
                 onCreate?.invoke()
             }
-            
+
             override fun onStart() {
                 onStart?.invoke()
             }
-            
+
             override fun onResume() {
                 onResume?.invoke()
             }
-            
+
             override fun onPause() {
                 onPause?.invoke()
             }
-            
+
             override fun onStop() {
                 onStop?.invoke()
             }
-            
+
             override fun onDestroy() {
                 onDestroy?.invoke()
             }
         }
-        
+
         // Register the observer
         lifecycleOwner.addObserver(observer)
-        
+
         // Immediately trigger callbacks based on current state
         when (lifecycleOwner.currentState) {
             LifecycleState.CREATED -> {
                 onCreate?.invoke()
             }
+
             LifecycleState.STARTED -> {
                 onCreate?.invoke()
                 onStart?.invoke()
             }
+
             LifecycleState.RESUMED -> {
                 onCreate?.invoke()
                 onStart?.invoke()
                 onResume?.invoke()
             }
+
             LifecycleState.PAUSED -> {
                 onCreate?.invoke()
                 onStart?.invoke()
                 onResume?.invoke()
                 onPause?.invoke()
             }
+
             LifecycleState.STOPPED -> {
                 onCreate?.invoke()
                 onStart?.invoke()
@@ -329,6 +334,7 @@ fun LifecycleEffect(
                 onPause?.invoke()
                 onStop?.invoke()
             }
+
             LifecycleState.DESTROYED -> {
                 onCreate?.invoke()
                 onStart?.invoke()
@@ -337,9 +343,10 @@ fun LifecycleEffect(
                 onStop?.invoke()
                 onDestroy?.invoke()
             }
+
             else -> {} // INITIALIZED state doesn't trigger any callbacks
         }
-        
+
         // Return a dispose function to clean up
         {
             lifecycleOwner.removeObserver(observer)

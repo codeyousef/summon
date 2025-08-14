@@ -42,7 +42,7 @@ object PageDiscoveryPlugin {
 
     /**
      * Scan the source directories for page files
-     * 
+     *
      * @return List of page file paths relative to the pages directory
      */
     private fun scanForPageFiles(): List<String> {
@@ -79,7 +79,7 @@ object PageDiscoveryPlugin {
 
     /**
      * Generate the page loader code
-     * 
+     *
      * @param pageFiles List of page file paths
      * @return Generated Kotlin code as a string
      */
@@ -131,7 +131,7 @@ object PageDiscoveryPlugin {
 
     /**
      * Write the generated code to a file
-     * 
+     *
      * @param code The generated code
      */
     private fun writeGeneratedCode(code: String) {
@@ -187,7 +187,7 @@ object PageDiscoveryPlugin {
 
     /**
      * Get the package name for a page file
-     * 
+     *
      * @param filePath The path to the page file
      * @return The package name for the page
      */
@@ -203,7 +203,7 @@ object PageDiscoveryPlugin {
 
     /**
      * Get the class name for a page file
-     * 
+     *
      * @param filePath The path to the page file
      * @return The class name for the page
      */
@@ -229,6 +229,7 @@ object PageDiscoveryPlugin {
                                 else -> "Detail"
                             }
                         }
+
                         "slug" -> "Detail"
                         else -> "Dynamic"
                     }
@@ -243,7 +244,7 @@ object PageDiscoveryPlugin {
 
     /**
      * Get the page handler for a page file
-     * 
+     *
      * @param filePath The path to the page file
      * @param className The class name for the page
      * @return The page handler code
@@ -261,7 +262,7 @@ object PageDiscoveryPlugin {
 
     /**
      * Get the dynamic parameter name from a file path
-     * 
+     *
      * @param filePath The path to the page file
      * @return The dynamic parameter name
      */
@@ -275,7 +276,7 @@ object PageDiscoveryPlugin {
 
     /**
      * Normalize a file path to a route path
-     * 
+     *
      * @param filePath The path to the page file
      * @return The normalized route path
      */
