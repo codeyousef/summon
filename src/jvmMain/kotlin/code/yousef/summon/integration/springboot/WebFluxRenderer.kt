@@ -1,11 +1,10 @@
 package code.yousef.summon.integration.springboot
 
-import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
-import org.springframework.http.MediaType
 import reactor.core.publisher.Mono
 
 /**

@@ -1,9 +1,5 @@
-import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.tasks.bundling.Jar
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
-import java.util.Properties
-import java.util.Base64
 import java.security.MessageDigest
+import java.util.*
 
 // Apply version management
 apply(from = "version.gradle.kts")
@@ -247,16 +243,22 @@ fun decodeIfBase64OrReturn(input: String): String {
             decoded.size >= 2 && decoded[0] == 0xFF.toByte() && decoded[1] == 0xFE.toByte() -> {
                 String(decoded, Charsets.UTF_16LE)
             }
+
             decoded.size >= 2 && decoded[0] == 0xFE.toByte() && decoded[1] == 0xFF.toByte() -> {
                 String(decoded, Charsets.UTF_16BE)
             }
+
             decoded.size >= 3 && decoded[0] == 0xEF.toByte() && decoded[1] == 0xBB.toByte() && decoded[2] == 0xBF.toByte() -> {
                 String(decoded, Charsets.UTF_8)
             }
+
             else -> {
                 // Heuristic: if many NUL bytes, assume UTF-16LE
                 val zeroCount = decoded.count { it == 0.toByte() }
-                if (zeroCount > decoded.size / 3) String(decoded, Charsets.UTF_16LE) else String(decoded, Charsets.UTF_8)
+                if (zeroCount > decoded.size / 3) String(decoded, Charsets.UTF_16LE) else String(
+                    decoded,
+                    Charsets.UTF_8
+                )
             }
         }
         // Sanitize: remove any BOM char and normalize newlines
@@ -284,7 +286,8 @@ fun loadSigningKey(): String? {
 val signingKey = loadSigningKey()
 val signingPassword = rawSigningPassword?.takeIf { it.isNotBlank() }
 // Basic validation: ensure we have an ASCII-armored private key block markers
-val isValidPgpKey = signingKey?.contains("BEGIN PGP PRIVATE KEY BLOCK") == true && signingKey.contains("END PGP PRIVATE KEY BLOCK")
+val isValidPgpKey =
+    signingKey?.contains("BEGIN PGP PRIVATE KEY BLOCK") == true && signingKey.contains("END PGP PRIVATE KEY BLOCK")
 
 // Central Portal credentials (optionally via local.properties). The Vanniktech plugin reads Gradle properties
 // mavenCentralUsername & mavenCentralPassword. We bridge local.properties and environment variables into
@@ -300,9 +303,10 @@ fun sanitizeCred(input: String?): String? {
         .trim()
     if (cleaned.isEmpty()) return null
     val unquoted = if (cleaned.length >= 2 && (
-            (cleaned.startsWith('"') && cleaned.endsWith('"')) ||
-            (cleaned.startsWith('\'') && cleaned.endsWith('\''))
-        )) cleaned.substring(1, cleaned.length - 1).trim() else cleaned
+                (cleaned.startsWith('"') && cleaned.endsWith('"')) ||
+                        (cleaned.startsWith('\'') && cleaned.endsWith('\''))
+                )
+    ) cleaned.substring(1, cleaned.length - 1).trim() else cleaned
     return if (unquoted.isEmpty()) null else unquoted
 }
 
@@ -311,21 +315,33 @@ var mavenCentralPasswordSource = ""
 
 val mavenCentralUsername = run {
     val vLocal = sanitizeCred(localProperties.getProperty("mavenCentralUsername"))
-    if (vLocal != null) { mavenCentralUsernameSource = "local.properties"; vLocal } else {
+    if (vLocal != null) {
+        mavenCentralUsernameSource = "local.properties"; vLocal
+    } else {
         val vProp = sanitizeCred(project.findProperty("mavenCentralUsername") as String?)
-        if (vProp != null) { mavenCentralUsernameSource = "-P/gradle.properties"; vProp } else {
+        if (vProp != null) {
+            mavenCentralUsernameSource = "-P/gradle.properties"; vProp
+        } else {
             val vEnv = sanitizeCred(System.getenv("MAVEN_CENTRAL_USERNAME"))
-            if (vEnv != null) { mavenCentralUsernameSource = "env"; vEnv } else null
+            if (vEnv != null) {
+                mavenCentralUsernameSource = "env"; vEnv
+            } else null
         }
     }
 }
 val mavenCentralPassword = run {
     val vLocal = sanitizeCred(localProperties.getProperty("mavenCentralPassword"))
-    if (vLocal != null) { mavenCentralPasswordSource = "local.properties"; vLocal } else {
+    if (vLocal != null) {
+        mavenCentralPasswordSource = "local.properties"; vLocal
+    } else {
         val vProp = sanitizeCred(project.findProperty("mavenCentralPassword") as String?)
-        if (vProp != null) { mavenCentralPasswordSource = "-P/gradle.properties"; vProp } else {
+        if (vProp != null) {
+            mavenCentralPasswordSource = "-P/gradle.properties"; vProp
+        } else {
             val vEnv = sanitizeCred(System.getenv("MAVEN_CENTRAL_PASSWORD"))
-            if (vEnv != null) { mavenCentralPasswordSource = "env"; vEnv } else null
+            if (vEnv != null) {
+                mavenCentralPasswordSource = "env"; vEnv
+            } else null
         }
     }
 }
@@ -362,7 +378,6 @@ if (isSnapshotVersionFlag) {
 }
 
 
-
 // Javadoc JAR task for Maven Central
 val javadocJar by tasks.registering(Jar::class) {
     archiveClassifier.set("javadoc")
@@ -373,7 +388,7 @@ val javadocJar by tasks.registering(Jar::class) {
     }
 }
 
-// Configure publishing for GitHub Packages only
+// Configure publishing for Maven Central only
 publishing {
     publications {
         withType<MavenPublication> {
@@ -404,20 +419,8 @@ publishing {
     }
 
     repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/codeyousef/summon")
-            credentials {
-                username = githubUser
-                password = githubToken
-            }
-            isAllowInsecureProtocol = false
-            metadataSources {
-                mavenPom()
-                artifact()
-            }
-        }
-        // OSSRH repository will be handled via the Nexus Publish Plugin tasks
+        // Maven Central publishing is handled via the publishToCentralPortalManually task
+        // No repositories needed here as we use direct Central Portal API
     }
 }
 
@@ -447,6 +450,21 @@ tasks.register("publishLocal") {
     group = "publishing"
     description = "Publish all publications to the local Maven repository"
     dependsOn("publishToMavenLocal")
+    dependsOn(":cli-tool:publishToMavenLocal")
+}
+
+// Task to build CLI tool native executables
+tasks.register("buildCliExecutables") {
+    group = "build"
+    description = "Build CLI tool native executables and Shadow JAR"
+    dependsOn(":cli-tool:buildNativeExecutable", ":cli-tool:shadowJar")
+
+    doLast {
+        println("✅ CLI tool executables built successfully!")
+        println("📁 Shadow JAR: cli-tool/build/libs/")
+        println("🔧 Native executable: cli-tool/build/native/nativeCompile/")
+        println("💡 Use these artifacts for GitHub Releases")
+    }
 }
 
 // Signing configuration (only when keys are available)
@@ -464,8 +482,6 @@ if (isValidPgpKey && signingPassword != null) {
 // tasks.withType<PublishToMavenRepository> {
 //     dependsOn("testAll")
 // } 
-
-
 
 
 // Global Kotlin compiler flags to reduce warnings
@@ -487,11 +503,18 @@ tasks.register("printCentralCredentials") {
     description = "Prints the Maven Central credentials source and signing status (masked)."
     doLast {
         val u = mavenCentralUsername ?: ""
-        val masked = if (u.isBlank()) "<not set>" else if (u.length <= 2) "*".repeat(u.length) else u.take(2) + "*".repeat(u.length - 2)
-        val userSrc = if (mavenCentralUsernameSource.isBlank()) "local.properties/-P/env" else mavenCentralUsernameSource
-        val passSrc = if (mavenCentralPasswordSource.isBlank()) "local.properties/-P/env" else mavenCentralPasswordSource
+        val masked =
+            if (u.isBlank()) "<not set>" else if (u.length <= 2) "*".repeat(u.length) else u.take(2) + "*".repeat(u.length - 2)
+        val userSrc =
+            if (mavenCentralUsernameSource.isBlank()) "local.properties/-P/env" else mavenCentralUsernameSource
+        val passSrc =
+            if (mavenCentralPasswordSource.isBlank()) "local.properties/-P/env" else mavenCentralPasswordSource
         println("[Central Publish] mavenCentralUsername = ${masked} (source: ${userSrc})")
-        println("[Central Publish] mavenCentralPassword = " + (if ((mavenCentralPassword ?: "").isBlank()) "<not set>" else "<provided>") + " (source: ${passSrc})")
+        println(
+            "[Central Publish] mavenCentralPassword = " + (if ((mavenCentralPassword
+                    ?: "").isBlank()
+            ) "<not set>" else "<provided>") + " (source: ${passSrc})"
+        )
         println("[Central Publish] Central publish tasks will " + if (hasMavenCentralCreds) "RUN" else "BE SKIPPED")
         val signingState = if (isValidPgpKey && signingPassword != null) "enabled" else "disabled"
         println("[Central Publish] Signing is ${signingState}")
@@ -524,19 +547,19 @@ tasks.register("publishToCentralPortalManually") {
     group = "publishing"
     description = "Build artifacts and publish to Central Portal using their API"
     dependsOn("publishWorkingToMavenLocal")
-    
+
     doLast {
         val username = mavenCentralUsername ?: throw GradleException("mavenCentralUsername not configured")
         val password = mavenCentralPassword ?: throw GradleException("mavenCentralPassword not configured")
-        
+
         // Create base64 encoded auth header
         val credentials = "$username:$password"
         val encodedCredentials = Base64.getEncoder().encodeToString(credentials.toByteArray())
         val authHeader = "Bearer $encodedCredentials"
-        
+
         println("[Central Portal] Using username: ${username.take(2)}****")
         println("[Central Portal] Creating deployment bundle...")
-        
+
         // Helper function to generate checksum
         fun generateChecksum(file: File, algorithm: String): String {
             val digest = MessageDigest.getInstance(algorithm)
@@ -544,7 +567,7 @@ tasks.register("publishToCentralPortalManually") {
             val hash = digest.digest(bytes)
             return hash.joinToString("") { byte -> "%02x".format(byte) }
         }
-        
+
         // Helper function to create checksum file
         fun createChecksumFile(originalFile: File, targetDir: File, algorithm: String) {
             val checksumValue = generateChecksum(originalFile, algorithm)
@@ -556,79 +579,81 @@ tasks.register("publishToCentralPortalManually") {
             val checksumFile = File(targetDir, originalFile.name + extension)
             checksumFile.writeText(checksumValue)
         }
-        
+
         // Helper function to sign file with GPG (if signing is configured)
         fun signFile(originalFile: File, targetDir: File) {
             if (isValidPgpKey && signingPassword != null) {
                 try {
                     println("[Central Portal] Signing ${originalFile.name}")
                     val signatureFile = File(targetDir, originalFile.name + ".asc")
-                    
+
                     // Use Gradle's signing task to sign the file
                     project.exec {
-                        commandLine("gpg", "--batch", "--yes", "--armor", "--detach-sign", 
-                                   "--pinentry-mode", "loopback", 
-                                   "--passphrase", signingPassword,
-                                   "--output", signatureFile.absolutePath,
-                                   originalFile.absolutePath)
+                        commandLine(
+                            "gpg", "--batch", "--yes", "--armor", "--detach-sign",
+                            "--pinentry-mode", "loopback",
+                            "--passphrase", signingPassword,
+                            "--output", signatureFile.absolutePath,
+                            originalFile.absolutePath
+                        )
                     }
                 } catch (e: Exception) {
                     println("[Central Portal] Warning: Failed to sign ${originalFile.name}: ${e.message}")
                 }
             }
         }
-        
+
         // Look for existing artifacts in local repo
         val userHome = System.getProperty("user.home")
         val localRepoPath = "$userHome/.m2/repository"
         val groupPath = project.group.toString().replace(".", "/")
         val artifactPath = "$localRepoPath/$groupPath/${project.name}/$effectiveVersion"
-        
+
         println("[Central Portal] Looking for artifacts in: $artifactPath")
-        
+
         val bundleFile = layout.buildDirectory.file("central-bundle.zip").get().asFile
         bundleFile.parentFile.mkdirs()
-        
+
         // Create temporary directory for bundle staging
         val stagingDir = File(layout.buildDirectory.get().asFile, "central-bundle-staging")
         if (stagingDir.exists()) {
             stagingDir.deleteRecursively()
         }
         stagingDir.mkdirs()
-        
+
         // Create proper Maven directory structure for unified artifacts
         val unifiedTargetDir = File(stagingDir, "$groupPath/${project.name}/$effectiveVersion")
         unifiedTargetDir.mkdirs()
-        
+
         // Create separate directories for platform-specific artifacts
         val jsTargetDir = File(stagingDir, "$groupPath/${project.name}-js/$effectiveVersion")
         val jvmTargetDir = File(stagingDir, "$groupPath/${project.name}-jvm/$effectiveVersion")
         jsTargetDir.mkdirs()
         jvmTargetDir.mkdirs()
-        
+
         val artifactDir = file(artifactPath)
         if (!artifactDir.exists()) {
             println("[Central Portal] Artifacts not found at $artifactPath")
             println("[Central Portal] This might be a WSL compilation issue. Creating unified artifacts from platform-specific ones...")
-            
+
             // Check for platform-specific artifacts
             val jsPath = "$localRepoPath/$groupPath/${project.name}-js/$effectiveVersion"
             val jvmPath = "$localRepoPath/$groupPath/${project.name}-jvm/$effectiveVersion"
-            
+
             if (!file(jsPath).exists() || !file(jvmPath).exists()) {
                 throw GradleException("Platform-specific artifacts not found. Please run the build successfully first.")
             }
-            
+
             println("[Central Portal] Found JS artifacts at: $jsPath")
             println("[Central Portal] Found JVM artifacts at: $jvmPath")
-            
+
             // Copy JS artifacts to JS directory
             val jsSourceDir = File(jsPath)
             jsSourceDir.listFiles()?.forEach { sourceFile ->
                 if (sourceFile.isFile && !sourceFile.name.endsWith(".md5") && !sourceFile.name.endsWith(".sha1")) {
                     val targetFile = File(jsTargetDir, sourceFile.name)
                     sourceFile.copyTo(targetFile, overwrite = true)
-                    
+
                     // Generate checksums and signatures for JS artifacts
                     if (!sourceFile.name.endsWith(".asc")) {
                         createChecksumFile(targetFile, jsTargetDir, "MD5")
@@ -637,14 +662,14 @@ tasks.register("publishToCentralPortalManually") {
                     }
                 }
             }
-            
+
             // Copy JVM artifacts to JVM directory
             val jvmSourceDir = File(jvmPath)
             jvmSourceDir.listFiles()?.forEach { sourceFile ->
                 if (sourceFile.isFile && !sourceFile.name.endsWith(".md5") && !sourceFile.name.endsWith(".sha1")) {
                     val targetFile = File(jvmTargetDir, sourceFile.name)
                     sourceFile.copyTo(targetFile, overwrite = true)
-                    
+
                     // Generate checksums and signatures for JVM artifacts
                     if (!sourceFile.name.endsWith(".asc")) {
                         createChecksumFile(targetFile, jvmTargetDir, "MD5")
@@ -653,10 +678,10 @@ tasks.register("publishToCentralPortalManually") {
                     }
                 }
             }
-            
+
             // Create synthetic unified artifacts
             println("[Central Portal] Creating synthetic unified artifacts...")
-            
+
             // 1. Create unified POM
             val unifiedPomContent = """<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -698,7 +723,7 @@ tasks.register("publishToCentralPortalManually") {
             createChecksumFile(unifiedPomFile, unifiedTargetDir, "MD5")
             createChecksumFile(unifiedPomFile, unifiedTargetDir, "SHA-1")
             signFile(unifiedPomFile, unifiedTargetDir)
-            
+
             // 2. Create unified Gradle module metadata
             val unifiedModuleContent = """{
   "formatVersion": "1.1",
@@ -764,12 +789,12 @@ tasks.register("publishToCentralPortalManually") {
             createChecksumFile(unifiedModuleFile, unifiedTargetDir, "MD5")
             createChecksumFile(unifiedModuleFile, unifiedTargetDir, "SHA-1")
             signFile(unifiedModuleFile, unifiedTargetDir)
-            
+
             // 3. Create placeholder JAR files
             listOf("", "-sources", "-javadoc").forEach { classifier ->
                 val jarName = "${project.name}-$effectiveVersion$classifier.jar"
                 val jarFile = File(unifiedTargetDir, jarName)
-                
+
                 // Create empty JAR with just a manifest
                 ant.withGroovyBuilder {
                     "jar"("destfile" to jarFile.absolutePath) {
@@ -784,7 +809,7 @@ tasks.register("publishToCentralPortalManually") {
                 createChecksumFile(jarFile, unifiedTargetDir, "SHA-1")
                 signFile(jarFile, unifiedTargetDir)
             }
-            
+
             // 4. Create kotlin-tooling-metadata.json
             val kotlinToolingMetadata = """{
   "schemaVersion": "1.0.0",
@@ -804,12 +829,13 @@ tasks.register("publishToCentralPortalManually") {
   ]
 }
 """
-            val toolingMetadataFile = File(unifiedTargetDir, "${project.name}-$effectiveVersion-kotlin-tooling-metadata.json")
+            val toolingMetadataFile =
+                File(unifiedTargetDir, "${project.name}-$effectiveVersion-kotlin-tooling-metadata.json")
             toolingMetadataFile.writeText(kotlinToolingMetadata)
             createChecksumFile(toolingMetadataFile, unifiedTargetDir, "MD5")
             createChecksumFile(toolingMetadataFile, unifiedTargetDir, "SHA-1")
             signFile(toolingMetadataFile, unifiedTargetDir)
-            
+
         } else {
             // Normal path: create bundle from unified multiplatform artifacts
             println("[Central Portal] Using unified multiplatform artifacts")
@@ -818,7 +844,7 @@ tasks.register("publishToCentralPortalManually") {
                     // Copy the file to target directory
                     val targetFile = File(unifiedTargetDir, sourceFile.name)
                     sourceFile.copyTo(targetFile, overwrite = true)
-                    
+
                     // Generate checksums for all files (except signatures)
                     if (!sourceFile.name.endsWith(".asc")) {
                         createChecksumFile(targetFile, unifiedTargetDir, "MD5")
@@ -828,9 +854,9 @@ tasks.register("publishToCentralPortalManually") {
                 }
             }
         }
-        
+
         println("[Central Portal] Staged ${unifiedTargetDir.listFiles()?.size ?: 0} unified files, ${jsTargetDir.listFiles()?.size ?: 0} JS files, ${jvmTargetDir.listFiles()?.size ?: 0} JVM files")
-        
+
         // Create the bundle ZIP with proper directory structure
         ant.withGroovyBuilder {
             "zip"("destfile" to bundleFile.absolutePath) {
@@ -839,19 +865,19 @@ tasks.register("publishToCentralPortalManually") {
                 }
             }
         }
-        
+
         // Clean up staging directory
         stagingDir.deleteRecursively()
-        
+
         if (!bundleFile.exists() || bundleFile.length() == 0L) {
             throw GradleException("Failed to create bundle or bundle is empty. Check that artifacts exist.")
         }
-        
+
         println("[Central Portal] Bundle created: ${bundleFile.absolutePath} (${bundleFile.length()} bytes)")
-        
+
         // Upload bundle
         val uploadUrl = "https://central.sonatype.com/api/v1/publisher/upload"
-        
+
         try {
             val process = ProcessBuilder(
                 "curl", "-X", "POST", "-v",
@@ -860,14 +886,14 @@ tasks.register("publishToCentralPortalManually") {
                 "--form", "publishingType=AUTOMATIC",
                 uploadUrl
             ).start()
-            
+
             val response = process.inputStream.bufferedReader().readText()
             val errorOutput = process.errorStream.bufferedReader().readText()
             val exitCode = process.waitFor()
-            
+
             println("[Central Portal] Curl output: $errorOutput")
             println("[Central Portal] Upload response: $response")
-            
+
             if (exitCode == 0) {
                 // Parse deployment ID from response if needed
                 if (response.contains("deploymentId") || response.contains("\"error\"") == false) {
@@ -878,7 +904,7 @@ tasks.register("publishToCentralPortalManually") {
             } else {
                 throw GradleException("Upload failed with exit code $exitCode: $errorOutput")
             }
-            
+
         } catch (e: Exception) {
             throw GradleException("Failed to upload to Central Portal: ${e.message}", e)
         }

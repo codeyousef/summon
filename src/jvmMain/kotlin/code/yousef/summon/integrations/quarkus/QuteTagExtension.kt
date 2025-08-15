@@ -4,7 +4,6 @@ import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.PlatformRenderer
 import io.quarkus.qute.RawString
 import io.quarkus.qute.TemplateExtension
-import java.io.StringWriter
 
 /**
  * Extension that provides custom tags for Qute templates to work with Summon components.
@@ -42,7 +41,7 @@ object QuteTagExtension {
     @JvmStatic
     fun isSummonComponent(obj: Any?): Boolean {
         // Check if the class is annotated with @Composable
-        return obj != null && obj::class.java.annotations.any { 
+        return obj != null && obj::class.java.annotations.any {
             it.annotationClass == Composable::class
         }
     }
@@ -71,7 +70,7 @@ object QuteTagExtension {
     @JvmStatic
     fun withContainer(component: Any, id: String? = null): RawString {
         val html = render(component).toString()
-        
+
         val idAttr = if (id != null) " id=\"$id\"" else ""
         val wrapped = "<div class=\"summon-container\"$idAttr>$html</div>"
 

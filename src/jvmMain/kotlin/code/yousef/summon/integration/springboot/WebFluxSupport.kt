@@ -1,28 +1,25 @@
 package code.yousef.summon.integration.springboot
 
-import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
-import kotlinx.html.*
+import kotlinx.html.div
 import kotlinx.html.stream.appendHTML
 import org.reactivestreams.Publisher
 import reactor.core.publisher.Flux
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * Support for integrating Summon with Spring WebFlux for reactive rendering.
- * 
+ *
  * IMPORTANT: To use these extensions, you must add the following dependencies to your project:
  * - org.springframework.boot:spring-boot-starter-webflux
  * - io.projectreactor.kotlin:reactor-kotlin-extensions
  */
 object WebFluxSupport {
     private val renderer = PlatformRenderer()
-    
+
     /**
      * Renders a Summon composable function to a Flux of HTML chunks.
      * This is useful for streaming HTML to clients in a reactive manner.
@@ -50,7 +47,7 @@ object WebFluxSupport {
             }
         }
     }
-    
+
     /**
      * Renders a Summon composable function to a reactive Publisher of HTML chunks.
      *
@@ -67,7 +64,7 @@ object WebFluxSupport {
         // Use the Flux implementation which implements Publisher
         return renderToFlux(title, chunkSize, content)
     }
-    
+
     /**
      * Renders a Summon composable function to a Flow of HTML chunks.
      *
@@ -83,7 +80,7 @@ object WebFluxSupport {
     ): Flow<String> = flow {
         // Set up the renderer
         setPlatformRenderer(renderer)
-        
+
         // Start with the HTML header
         val header = buildString {
             append("<!DOCTYPE html>\n<html>\n<head>\n")
@@ -92,24 +89,24 @@ object WebFluxSupport {
             append("  <title>$title</title>\n")
             append("</head>\n<body>\n")
         }
-        
+
         emit(header)
-        
+
         // Create the HTML content
         val htmlContent = buildString {
             appendHTML().div {
                 content()
             }
         }
-        
+
         // Split the content into chunks
         val chunks = htmlContent.chunked(chunkSize)
-        
+
         // Emit each chunk
         for (chunk in chunks) {
             emit(chunk)
         }
-        
+
         // End with HTML footer
         emit("\n</body>\n</html>")
     }

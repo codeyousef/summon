@@ -17,14 +17,14 @@ fun main() {
 
 fun Application.configureKtorIntegrationTest() {
     val renderer = KtorRenderer()
-    
+
     routing {
         get("/") {
             renderer.renderHtml(call) {
                 KtorTestComponent()
             }
         }
-        
+
         get("/stream") {
             renderer.renderStream(call) {
                 KtorTestComponent()

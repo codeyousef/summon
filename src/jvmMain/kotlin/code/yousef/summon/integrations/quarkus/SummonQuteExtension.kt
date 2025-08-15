@@ -54,17 +54,17 @@ class SummonQuteExtension : Consumer<EngineBuilder> {
     override fun accept(builder: EngineBuilder) {
         // First, register the 'summon' namespace
         builder.addNamespaceResolver(NamespaceResolver.builder("summon").build())
-        
+
         // Now register a resolver for our specific functions within the summon namespace
         builder.addValueResolver(object : ValueResolver {
             override fun getPriority(): Int = 10
 
             override fun appliesTo(context: EvalContext): Boolean {
                 // This resolver applies to operations on the 'summon' namespace
-                return context.base != null && 
-                      context.base.toString() == "summon" &&
-                      (context.name == "component" || context.name == "isComponent" || 
-                       context.name == "withContainer")
+                return context.base != null &&
+                        context.base.toString() == "summon" &&
+                        (context.name == "component" || context.name == "isComponent" ||
+                                context.name == "withContainer")
             }
 
             override fun resolve(context: EvalContext): CompletionStage<Any?> {
@@ -75,57 +75,58 @@ class SummonQuteExtension : Consumer<EngineBuilder> {
                         if (args.isEmpty()) {
                             return CompletableFuture.completedFuture(null)
                         }
-                        
+
                         if (args[0] !is Any) {
                             return CompletableFuture.completedFuture(null)
                         }
-                        
+
                         val component = args[0]
                         val html = renderToString(component)
-                        
+
                         // Apply configuration options
                         val processedHtml = if (config.includeComments) {
                             "<!-- BEGIN SUMMON COMPONENT -->\n$html\n<!-- END SUMMON COMPONENT -->"
                         } else {
                             html
                         }
-                        
+
                         return CompletableFuture.completedFuture(processedHtml)
                     }
-                    
+
                     // Handle the isComponent check method
                     if (context.name == "isComponent") {
                         val args = context.params
                         if (args.isEmpty()) {
                             return CompletableFuture.completedFuture(false)
                         }
-                        
+
                         // Check if the class is annotated with @Composable
-                        val isComponent = args[0] != null && args[0]::class.java.annotations.any { 
-                            it.annotationClass == Composable::class 
+                        val isComponent = args[0] != null && args[0]::class.java.annotations.any {
+                            it.annotationClass == Composable::class
                         }
-                        
+
                         return CompletableFuture.completedFuture(isComponent)
                     }
-                    
+
                     // Handle the withContainer helper method
                     if (context.name == "withContainer") {
                         val args = context.params
                         if (args.isEmpty()) {
                             return CompletableFuture.completedFuture(null)
                         }
-                        
+
                         val component = args[0]
                         val html = renderToString(component)
-                        
+
                         // Get optional ID from args
                         val id = if (args.size > 1 && true) " id=\"${args[1]}\"" else ""
-                        val className = if (args.size > 2 && true) " class=\"${args[2]}\"" else " class=\"summon-component\""
-                        
+                        val className =
+                            if (args.size > 2 && true) " class=\"${args[2]}\"" else " class=\"summon-component\""
+
                         val wrapped = "<div$id$className>$html</div>"
                         return CompletableFuture.completedFuture(wrapped)
                     }
-                    
+
                     // Unknown function in the summon namespace
                     return CompletableFuture.completedFuture(null)
                 } catch (e: Exception) {

@@ -9,7 +9,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  * This class provides a basic lifecycle management for JVM environments,
  * simulating state transitions and notifying observers.
  */
-actual class LifecycleOwner  {
+actual class LifecycleOwner {
     private val observers = CopyOnWriteArrayList<LifecycleObserver>() // Thread-safe list
     actual var currentState: LifecycleState = LifecycleState.INITIALIZED
 

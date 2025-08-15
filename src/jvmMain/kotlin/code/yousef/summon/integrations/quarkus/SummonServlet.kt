@@ -18,48 +18,55 @@ class SummonServlet : HttpServlet() {
     override fun doGet(req: HttpServletRequest, resp: HttpServletResponse) {
         System.out.println("**************** SUMMON SERVLET CALLED: ${req.requestURI} ****************")
         resp.contentType = "text/html;charset=UTF-8"
-        
+
         val requestPath = req.requestURI.removePrefix(req.contextPath)
         System.out.println("**************** REQUEST PATH: $requestPath ****************")
-        
+
         when {
             requestPath == "/" || requestPath == "/index.html" -> {
                 System.out.println("**************** RENDERING HOME PAGE FROM SERVLET ****************")
                 renderHomePage(resp)
             }
+
             requestPath == "/hello" -> {
                 System.out.println("**************** RENDERING HELLO PAGE FROM SERVLET ****************")
                 renderHelloPage(resp)
             }
+
             requestPath == "/component" -> {
                 System.out.println("**************** RENDERING COMPONENT PAGE FROM SERVLET ****************")
                 renderComponentPage(resp)
             }
+
             requestPath == "/dashboard" -> {
                 System.out.println("**************** RENDERING DASHBOARD PAGE FROM SERVLET ****************")
                 renderDashboardPage(resp)
             }
+
             requestPath == "/theme" -> {
                 System.out.println("**************** RENDERING THEME PAGE FROM SERVLET ****************")
                 renderThemePage(resp)
             }
+
             requestPath == "/chat" -> {
                 System.out.println("**************** RENDERING CHAT PAGE FROM SERVLET ****************")
                 renderChatPage(resp)
             }
+
             else -> {
                 System.out.println("**************** DEFAULT: RENDERING HOME PAGE FROM SERVLET ****************")
                 renderHomePage(resp)
             }
         }
     }
-    
+
     /**
      * Render the home page with Summon demo content
      */
     private fun renderHomePage(resp: HttpServletResponse) {
         val writer = resp.writer
-        writer.println("""
+        writer.println(
+            """
         <!DOCTYPE html>
         <html>
             <head>
@@ -152,15 +159,17 @@ class SummonServlet : HttpServlet() {
                 <script src="https://unpkg.com/htmx.org@1.9.12"></script>
             </body>
         </html>
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
-    
+
     /**
      * Render the hello example page
      */
     private fun renderHelloPage(resp: HttpServletResponse) {
         val writer = resp.writer
-        writer.println("""
+        writer.println(
+            """
         <!DOCTYPE html>
         <html>
             <head>
@@ -217,15 +226,17 @@ class SummonServlet : HttpServlet() {
                 <script src="https://unpkg.com/htmx.org@1.9.12"></script>
             </body>
         </html>
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
-    
+
     /**
      * Render the component example page
      */
     private fun renderComponentPage(resp: HttpServletResponse) {
         val writer = resp.writer
-        writer.println("""
+        writer.println(
+            """
         <!DOCTYPE html>
         <html>
             <head>
@@ -275,15 +286,17 @@ class SummonServlet : HttpServlet() {
                 <script src="https://unpkg.com/htmx.org@1.9.12"></script>
             </body>
         </html>
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
-    
+
     /**
      * Render the dashboard page
      */
     private fun renderDashboardPage(resp: HttpServletResponse) {
         val writer = resp.writer
-        writer.println("""
+        writer.println(
+            """
         <!DOCTYPE html>
         <html>
             <head>
@@ -367,15 +380,17 @@ class SummonServlet : HttpServlet() {
                 <script src="https://unpkg.com/htmx.org@1.9.12"></script>
             </body>
         </html>
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
-    
+
     /**
      * Render the theme page
      */
     private fun renderThemePage(resp: HttpServletResponse) {
         val writer = resp.writer
-        writer.println("""
+        writer.println(
+            """
         <!DOCTYPE html>
         <html>
             <head>
@@ -459,15 +474,17 @@ class SummonServlet : HttpServlet() {
                 <script src="https://unpkg.com/htmx.org@1.9.12"></script>
             </body>
         </html>
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
-    
+
     /**
      * Render the chat page
      */
     private fun renderChatPage(resp: HttpServletResponse) {
         val writer = resp.writer
-        writer.println("""
+        writer.println(
+            """
         <!DOCTYPE html>
         <html>
             <head>
@@ -551,6 +568,7 @@ class SummonServlet : HttpServlet() {
                 <script src="https://unpkg.com/htmx.org@1.9.12"></script>
             </body>
         </html>
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
 } 

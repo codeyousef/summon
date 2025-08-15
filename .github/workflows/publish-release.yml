@@ -1,4 +1,4 @@
-name: Publish Release to GitHub Packages and Maven Central
+name: Publish Release to Maven Central and GitHub Releases
 
 on:
   push:
@@ -7,11 +7,12 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 jobs:
-  publish-release:
+  publish-maven-central:
+    name: Publish Summon Library to Maven Central
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,16 +34,145 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build
+      - name: Build Library
         run: ./gradlew build -x jsTest -x jsBrowserTest
 
-      - name: Publish to GitHub Packages
-        run: ./gradlew publishAllPublicationsToGitHubPackagesRepository
+      - name: Publish to Maven Central (Central Portal)
+        run: ./gradlew publishToCentralPortalManually
+        env:
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+
+  build-cli-executables:
+    name: Build CLI Native Executables
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact-name: summon-cli-linux-x64
+            executable: summon
+          - os: windows-latest
+            artifact-name: summon-cli-windows-x64.exe
+            executable: summon.exe
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '17'
+          distribution: 'graalvm'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Native Image (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: gu install native-image
+
+      - name: Install Native Image (Windows)
+        if: runner.os == 'Windows'
+        run: gu.cmd install native-image
+
+      - name: Setup build tools (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install build-essential zlib1g-dev
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ matrix.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
+          restore-keys: |
+            ${{ matrix.os }}-gradle-
+
+      - name: Grant execute permission for gradlew (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: chmod +x gradlew
+
+      - name: Build CLI Shadow JAR
+        run: ./gradlew :cli-tool:shadowJar
+
+      - name: Build Native Executable
+        run: ./gradlew :cli-tool:nativeCompile
+        continue-on-error: false
+
+      - name: Verify Native Executable
+        run: |
+          if [[ -f "cli-tool/build/native/nativeCompile/${{ matrix.executable }}" ]]; then
+            echo "✅ Native executable found"
+            ls -la cli-tool/build/native/nativeCompile/${{ matrix.executable }}
+            # Test basic functionality
+            ./cli-tool/build/native/nativeCompile/${{ matrix.executable }} --version
+          else
+            echo "❌ Native executable not found"
+            exit 1
+          fi
+
+      - name: Upload CLI Executable Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: cli-tool/build/native/nativeCompile/${{ matrix.executable }}
+
+      - name: Upload Shadow JAR as Fallback
+        uses: actions/upload-artifact@v4
+        with:
+          name: summon-cli-jar
+          path: cli-tool/build/libs/summon-cli-*.jar
+
+  create-release:
+    name: Create GitHub Release
+    needs: [publish-maven-central, build-cli-executables]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
 
-      - name: Publish to Maven Central (Central Portal)
-        run: ./gradlew publishAndReleaseToMavenCentral -PsigningKey="${{ secrets.SIGNING_KEY }}" -PsigningPassword="${{ secrets.SIGNING_PASSWORD }}"
+      - name: Upload Linux CLI Binary
+        uses: actions/upload-release-asset@v1
         env:
-          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/summon-cli-linux-x64/summon
+          asset_name: summon-cli-linux-x64
+          asset_content_type: application/octet-stream
+
+      - name: Upload Windows CLI Executable
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/summon-cli-windows-x64.exe/summon.exe
+          asset_name: summon-cli-windows-x64.exe
+          asset_content_type: application/octet-stream
+
+      - name: Upload JAR Fallback
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/summon-cli-jar/summon-cli-*.jar
+          asset_name: summon-cli.jar
+          asset_content_type: application/java-archive

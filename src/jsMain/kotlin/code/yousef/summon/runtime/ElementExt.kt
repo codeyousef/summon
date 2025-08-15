@@ -1,7 +1,6 @@
 package code.yousef.summon.runtime
 
 import org.w3c.dom.Element
-import org.w3c.dom.HTMLElement
 import org.w3c.dom.events.Event
 
 /**
@@ -13,7 +12,9 @@ import org.w3c.dom.events.Event
  */
 var Element.textContent: String
     get() = js("this.textContent || ''") as String
-    set(value) { js("this.textContent = value") }
+    set(value) {
+        js("this.textContent = value")
+    }
 
 /**
  * Sets an attribute on an element.
@@ -41,21 +42,27 @@ fun Element.appendChild(child: Element) {
  */
 var Element.value: String
     get() = js("this.value || ''") as String
-    set(value) { js("this.value = value") }
+    set(value) {
+        js("this.value = value")
+    }
 
 /**
  * Gets or sets the disabled state of an input element.
  */
 var Element.disabled: Boolean
     get() = js("this.disabled || false") as Boolean
-    set(value) { js("this.disabled = value") }
+    set(value) {
+        js("this.disabled = value")
+    }
 
 /**
  * Gets or sets the selected state of an option element.
  */
 var Element.selected: Boolean
     get() = js("this.selected || false") as Boolean
-    set(value) { js("this.selected = value") }
+    set(value) {
+        js("this.selected = value")
+    }
 
 /**
  * Gets the target of an event.

@@ -4,8 +4,6 @@ import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.layout.Box
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.components.layout.Row
 import code.yousef.summon.modifier.Modifier
 
 /**
@@ -15,7 +13,7 @@ import code.yousef.summon.modifier.Modifier
 
 /**
  * A button that triggers an HTMX request.
- * 
+ *
  * @param label The button label
  * @param endpoint The endpoint to request
  * @param method The HTTP method to use (get, post, put, delete)
@@ -45,13 +43,13 @@ fun HtmxButton(
         "delete" -> modifier.htmx("delete", endpoint)
         else -> modifier.htmxGet(endpoint, target, swap, trigger)
     }
-    
+
     // Apply additional HTMX attributes if provided
     val finalModifier = htmxModifier.apply {
         if (indicator != null) htmx("indicator", indicator)
         if (confirm != null) htmx("confirm", confirm)
     }
-    
+
     // Render the button with HTMX attributes
     Button(
         label = label,
@@ -62,7 +60,7 @@ fun HtmxButton(
 
 /**
  * A container that loads content from an HTMX endpoint.
- * 
+ *
  * @param id The ID of the container element
  * @param endpoint The endpoint to load content from
  * @param trigger The HTMX trigger event (default: "load")
@@ -88,7 +86,7 @@ fun HtmxContainer(
         .htmlAttribute("id", id)
         .htmxGet(endpoint, target, swap, trigger)
         .style("min-height", minHeight)
-    
+
     // Render a Box with the HTMX attributes
     Box(htmxModifier) {
         Text(loadingText)
@@ -97,7 +95,7 @@ fun HtmxContainer(
 
 /**
  * A form that submits via HTMX.
- * 
+ *
  * @param action The form action (endpoint)
  * @param method The HTTP method to use (default: "post")
  * @param target The target element to update (optional)
@@ -123,7 +121,7 @@ fun HtmxForm(
         "delete" -> modifier.htmx("delete", action)
         else -> modifier.htmxPost(action, target, swap, trigger)
     }
-    
+
     // Render a Box with the HTMX attributes
     Box(htmxModifier) {
         content()
@@ -132,7 +130,7 @@ fun HtmxForm(
 
 /**
  * A component that shows a loading indicator during HTMX requests.
- * 
+ *
  * @param id The ID of the indicator element
  * @param text The text to display (default: "Loading...")
  * @param modifier Additional modifiers to apply
@@ -155,7 +153,7 @@ fun HtmxIndicator(
 
 /**
  * A component that triggers an HTMX request on a specific event.
- * 
+ *
  * @param event The event to trigger on (e.g., "click", "load", "revealed")
  * @param endpoint The endpoint to request
  * @param method The HTTP method to use (get, post, put, delete)
@@ -181,7 +179,7 @@ fun HtmxTrigger(
         "delete" -> modifier.htmx("delete", endpoint).htmx("trigger", event)
         else -> modifier.htmxGet(endpoint, target, swap, event)
     }
-    
+
     // Render a Box with the HTMX attributes
     Box(htmxModifier) {
         content()
@@ -190,7 +188,7 @@ fun HtmxTrigger(
 
 /**
  * A component that updates its content from an HTMX endpoint at regular intervals.
- * 
+ *
  * @param endpoint The endpoint to request
  * @param interval The interval in milliseconds (default: 2000)
  * @param target The target element to update (optional)
@@ -209,10 +207,10 @@ fun HtmxPolling(
 ) {
     // Create a trigger string for polling
     val trigger = "every ${interval}ms"
-    
+
     // Apply HTMX attributes for polling
     val htmxModifier = modifier.htmxGet(endpoint, target, swap, trigger)
-    
+
     // Render a Box with the HTMX attributes
     Box(htmxModifier) {
         content()

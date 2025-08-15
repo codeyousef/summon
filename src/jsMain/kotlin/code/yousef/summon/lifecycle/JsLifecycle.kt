@@ -18,7 +18,7 @@ private val Document.visibilityState: String
  * JS-specific implementation of LifecycleOwner.
  * This implementation is browser-agnostic and works with any JS environment.
  */
-actual class LifecycleOwner  {
+actual class LifecycleOwner {
     private val observers = mutableListOf<LifecycleObserver>() // Ensure this is uncommented
     actual var currentState: LifecycleState = LifecycleState.INITIALIZED // Ensure this is uncommented
     // Consider if `private set` is appropriate given direct assignments in setState/notifyObservers.
@@ -114,7 +114,7 @@ actual class LifecycleOwner  {
         }
     }
 
-    actual  fun removeObserver(observer: LifecycleObserver) {
+    actual fun removeObserver(observer: LifecycleObserver) {
         observers.remove(observer)
     }
 }

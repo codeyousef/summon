@@ -1,7 +1,6 @@
 package code.yousef.summon.core
 
 import code.yousef.summon.annotation.Composable
-import java.io.File
 
 /**
  * JVM implementation of RenderUtils
@@ -9,7 +8,7 @@ import java.io.File
 actual object RenderUtils {
     /**
      * Renders a composable to a DOM element (not supported in JVM).
-     * 
+     *
      * @param container The container element
      * @param composable The composable to render
      * @return A renderer instance
@@ -20,7 +19,7 @@ actual object RenderUtils {
 
     /**
      * Hydrates a server-rendered DOM tree with a composable (not supported in JVM).
-     * 
+     *
      * @param container The container element
      * @param composable The composable to hydrate with
      * @return A renderer instance
@@ -31,7 +30,7 @@ actual object RenderUtils {
 
     /**
      * Renders a composable to a string.
-     * 
+     *
      * @param composable The composable to render
      * @return The rendered HTML string
      */
@@ -41,7 +40,7 @@ actual object RenderUtils {
 
     /**
      * Renders a composable to a file.
-     * 
+     *
      * @param composable The composable to render
      * @param file The file to write to
      */

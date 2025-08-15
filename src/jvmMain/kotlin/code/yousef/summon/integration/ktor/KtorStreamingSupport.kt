@@ -1,15 +1,15 @@
 package code.yousef.summon.integration.ktor
 
-import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
-import io.ktor.server.application.*
 import io.ktor.http.*
+import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.html.*
+import kotlinx.html.div
 import kotlinx.html.stream.createHTML
 
 /**
@@ -39,7 +39,7 @@ object KtorStreamingSupport {
     ): Flow<String> = flow {
         // Set up the renderer
         setPlatformRenderer(renderer)
-        
+
         // Start with the HTML header
         val header = buildString {
             append("<!DOCTYPE html>\n<html>\n<head>\n")
@@ -48,20 +48,20 @@ object KtorStreamingSupport {
             append("  <title>$title</title>\n")
             append("</head>\n<body>\n")
         }
-        
+
         emit(header)
-        
+
         // Create the HTML for the content
         val htmlContent = createHTML().div {
             content()
         }
-        
+
         // Split the content into chunks and emit them
         val chunks = htmlContent.chunked(chunkSize)
         for (chunk in chunks) {
             emit(chunk)
         }
-        
+
         // End with HTML footer
         emit("\n</body>\n</html>")
     }

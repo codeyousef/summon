@@ -1,9 +1,5 @@
 package code.yousef.summon.integrations.quarkus
 
-import jakarta.enterprise.context.ApplicationScoped
-import jakarta.enterprise.inject.Produces
-import jakarta.inject.Singleton
-import jakarta.servlet.annotation.WebServlet
 import jakarta.servlet.http.HttpServlet
 import org.jboss.logging.Logger
 

@@ -9,11 +9,11 @@ import kotlinx.browser.window
 class JsRecompositionScheduler : RecompositionScheduler {
     private var scheduledWork: (() -> Unit)? = null
     private var animationFrameId: Int? = null
-    
+
     override fun scheduleRecomposition(work: () -> Unit) {
         // Cancel any previously scheduled work
         animationFrameId?.let { window.cancelAnimationFrame(it) }
-        
+
         // Schedule new work
         scheduledWork = work
         animationFrameId = window.requestAnimationFrame {
@@ -30,12 +30,13 @@ class JsRecompositionScheduler : RecompositionScheduler {
  */
 class MicrotaskScheduler : RecompositionScheduler {
     private var scheduledWork: (() -> Unit)? = null
-    
+
     override fun scheduleRecomposition(work: () -> Unit) {
         if (scheduledWork == null) {
             scheduledWork = work
             // Use Promise.resolve().then() to schedule a microtask
-            js("""
+            js(
+                """
                 var that = this;
                 Promise.resolve().then(function() { 
                     var work = that.scheduledWork;
@@ -44,7 +45,8 @@ class MicrotaskScheduler : RecompositionScheduler {
                         that.scheduledWork = null;
                     }
                 })
-            """)
+            """
+            )
         }
     }
 }

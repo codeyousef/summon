@@ -1,15 +1,13 @@
 package code.yousef.summon.integration.springboot
 
-import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
+import jakarta.servlet.http.HttpServletResponse
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.context.request.RequestContextHolder
-import org.springframework.web.context.request.ServletRequestAttributes
-import jakarta.servlet.http.HttpServletResponse
 
 /**
  * Integration class for rendering Summon components in a Spring Boot application.
@@ -31,7 +29,7 @@ class SpringBootRenderer {
      * @return ResponseEntity containing the rendered HTML
      */
     fun render(
-        title: String = "Summon App", 
+        title: String = "Summon App",
         status: HttpStatus = HttpStatus.OK,
         content: @Composable () -> Unit
     ): ResponseEntity<String> {
@@ -97,7 +95,7 @@ class SpringBootRenderer {
         response.writer.write(html)
         response.writer.flush()
     }
-    
+
     /**
      * Renders a Summon composable function to HttpServletResponse.
      * Simplified version of renderToResponse.
@@ -111,7 +109,7 @@ class SpringBootRenderer {
     ) {
         renderToResponse(response, "Summon App", content)
     }
-    
+
     /**
      * Renders a Summon composable function as a streaming response.
      * This is useful for large pages or server-sent events.
@@ -125,10 +123,10 @@ class SpringBootRenderer {
     ) {
         // Set up the renderer
         setPlatformRenderer(renderer)
-        
+
         // Set response headers
         response.contentType = "text/html; charset=UTF-8"
-        
+
         // Write the HTML header
         val writer = response.writer
         writer.write("<!DOCTYPE html><html><head>")
@@ -136,14 +134,14 @@ class SpringBootRenderer {
         writer.write("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">")
         writer.write("<title>Summon Streaming App</title></head><body>")
         writer.flush()
-        
+
         // Create HTML content
         val html = buildString {
             appendHTML().apply {
                 content()
             }
         }
-        
+
         // Stream the content
         writer.write(html)
         writer.write("</body></html>")

@@ -2,7 +2,6 @@ package code.yousef.summon.platform
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.PlatformRenderer
-import kotlinx.html.*
 
 /**
  * Metadata for HTML pages

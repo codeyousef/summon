@@ -448,7 +448,7 @@ object ImageExample {
             return receiver
         }
     }
-    
+
     fun multipleImages(): Composable = object : Composable {
         override fun <T> compose(receiver: T): T {
             Column(

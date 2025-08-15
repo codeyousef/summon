@@ -11,7 +11,7 @@ import code.yousef.summon.modifier.Modifier
  * This class provides utilities for handling navigation in Summon applications with Quarkus.
  */
 object NavigationSupport {
-    
+
     /**
      * JavaScript code for handling navigation in Summon applications with Quarkus.
      * This code is injected into the HTML template to ensure components are properly initialized after navigation.
@@ -102,7 +102,7 @@ object NavigationSupport {
 /**
  * A composable function that creates a navigation link using HTMX.
  * This function creates a link that navigates to the specified URL using HTMX.
- * 
+ *
  * @param href The URL to navigate to
  * @param label The link text
  * @param target The target element to update (default: "body")
@@ -125,12 +125,12 @@ fun NavigationLink(
         target = target,
         swap = swap
     )
-    
+
     // Add push-url attribute if needed
     if (pushUrl) {
         linkModifier = linkModifier.htmx("push-url", "true")
     }
-    
+
     // Use the standard Link component with the HTMX attributes
     Box(linkModifier.style("href", "#")) {
         code.yousef.summon.components.display.Text(label)
@@ -140,7 +140,7 @@ fun NavigationLink(
 /**
  * A composable function that creates a navigation button using HTMX.
  * This function creates a button that navigates to the specified URL using HTMX.
- * 
+ *
  * @param href The URL to navigate to
  * @param label The button text
  * @param target The target element to update (default: "body")
@@ -163,12 +163,12 @@ fun NavigationButton(
         target = target,
         swap = swap
     )
-    
+
     // Add push-url attribute if needed
     if (pushUrl) {
         buttonModifier = buttonModifier.htmx("push-url", "true")
     }
-    
+
     // Use the standard Button component with the HTMX attributes
     code.yousef.summon.components.input.Button(
         label = label,

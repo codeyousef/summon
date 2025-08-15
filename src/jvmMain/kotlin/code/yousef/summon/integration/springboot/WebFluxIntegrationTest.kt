@@ -21,14 +21,14 @@ fun main(args: Array<String>) {
 @RestController
 class WebFluxTestController {
     private val renderer = WebFluxRenderer()
-    
+
     @GetMapping("/", produces = [MediaType.TEXT_HTML_VALUE])
     fun home(): Mono<String> {
         return renderer.renderHtml {
             WebFluxTestComponent()
         }
     }
-    
+
     @GetMapping("/stream", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
     fun stream(): Mono<String> {
         return renderer.renderStream {

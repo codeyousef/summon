@@ -1,14 +1,14 @@
 package code.yousef.summon.integrations.quarkus
 
+import jakarta.annotation.PostConstruct
 import jakarta.inject.Inject
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import java.net.URI
 import org.jboss.logging.Logger
-import jakarta.annotation.PostConstruct
+import java.net.URI
 
 /**
  * Example Quarkus REST resource that demonstrates Summon server-side rendering
@@ -20,14 +20,14 @@ class SummonResource {
 
     @Inject
     lateinit var renderer: QuarkusExtension.SummonRenderer
-    
+
     @PostConstruct
     fun init() {
         val port = System.getProperty("quarkus.http.port") ?: "unknown"
         System.out.println("************************************************************")
         System.out.println("** SUMMON RESOURCE INITIALIZED - PORT CONFIGURED AS: $port **")
         System.out.println("************************************************************")
-        
+
         try {
             // Try to create a test log file directly
             val logFile = java.io.File("D:/Projects/KMP/summon/direct-init.log")
@@ -39,7 +39,7 @@ class SummonResource {
             e.printStackTrace()
         }
     }
-    
+
     /**
      * Simple ping test endpoint
      */
@@ -50,7 +50,7 @@ class SummonResource {
         System.out.println("PING ENDPOINT CALLED")
         return "Ping successful! The JAX-RS endpoint is working."
     }
-    
+
     /**
      * Dashboard fallback test endpoint that returns plain text
      */
@@ -61,7 +61,7 @@ class SummonResource {
         System.out.println("DASHBOARD-TEST ENDPOINT CALLED")
         return "Dashboard test successful! This endpoint works."
     }
-    
+
     /**
      * Theme fallback test endpoint that returns plain text
      */
@@ -72,18 +72,18 @@ class SummonResource {
         System.out.println("THEME-TEST ENDPOINT CALLED")
         return "Theme test successful! This endpoint works."
     }
-    
+
     /**
      * Chat fallback test endpoint that returns plain text
      */
     @GET
     @Path("/chat-test")
-    @Produces(MediaType.TEXT_PLAIN) 
+    @Produces(MediaType.TEXT_PLAIN)
     fun chatTest(): String {
         System.out.println("CHAT-TEST ENDPOINT CALLED")
         return "Chat test successful! This endpoint works."
     }
-    
+
     /**
      * Endpoint that returns a fully rendered HTML page
      */
@@ -96,11 +96,11 @@ class SummonResource {
         val heading = renderer.renderHeading(1, "Hello from Summon!")
         val paragraph = renderer.renderParagraph("This is a simple example of Summon rendering in Quarkus")
         val button = renderer.renderButton("Click Me", "alert('Button clicked!')")
-        
+
         val content = "$heading\n$paragraph\n$button"
         return renderer.renderTemplate("Hello from Summon", content)
     }
-    
+
     /**
      * Endpoint that returns just a component fragment
      */
@@ -113,10 +113,10 @@ class SummonResource {
         val heading = renderer.renderHeading(1, "Hello from Summon!")
         val paragraph = renderer.renderParagraph("This is a simple example of Summon rendering in Quarkus")
         val button = renderer.renderButton("Click Me", "alert('Button clicked!')")
-        
+
         return "$heading\n$paragraph\n$button"
     }
-    
+
     /**
      * Home page endpoint at root path with custom mapping
      */
@@ -178,7 +178,7 @@ class SummonResource {
                 </div>
             </div>
         """
-        
+
         return renderer.renderTemplate("Summon Demo - Home", htmlContent)
     }
 
@@ -236,7 +236,7 @@ class SummonResource {
         logger.info("Calling /dashboard endpoint")
         logger.warn("If you see this log message, logging is working correctly for the dashboard page")
         logger.info("Starting HTML rendering...")
-        
+
         val html = """
             <!DOCTYPE html>
             <html>
@@ -493,7 +493,7 @@ class SummonResource {
                 </body>
             </html>
         """.trimIndent()
-        
+
         logger.info("Finished building HTML, returning content with length: ${html.length}")
         return html
     }
@@ -1370,7 +1370,7 @@ class ApiResource {
         System.out.println("**************** API HELLO ENDPOINT CALLED ****************")
         return "Hello from Summon Quarkus integration"
     }
-    
+
     @GET
     @Path("/dashboard")
     @Produces(MediaType.TEXT_HTML)
@@ -1378,7 +1378,7 @@ class ApiResource {
         System.out.println("**************** API DASHBOARD REDIRECT CALLED ****************")
         return Response.seeOther(URI.create("/dashboard")).build()
     }
-    
+
     @GET
     @Path("/chat")
     @Produces(MediaType.TEXT_HTML)
@@ -1386,7 +1386,7 @@ class ApiResource {
         System.out.println("**************** API CHAT REDIRECT CALLED ****************")
         return Response.seeOther(URI.create("/chat")).build()
     }
-    
+
     @GET
     @Path("/theme")
     @Produces(MediaType.TEXT_HTML)

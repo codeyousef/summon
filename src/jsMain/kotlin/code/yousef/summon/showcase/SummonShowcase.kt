@@ -12,8 +12,8 @@ import code.yousef.summon.modifier.FontWeight
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.StylingModifiers.backgroundColor
 import code.yousef.summon.modifier.StylingModifiers.color
-import code.yousef.summon.modifier.textAlign
 import code.yousef.summon.modifier.TextAlign
+import code.yousef.summon.modifier.textAlign
 
 /**
  * Showcase component that demonstrates various Summon UI components.

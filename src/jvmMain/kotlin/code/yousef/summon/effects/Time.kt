@@ -1,7 +1,6 @@
 package code.yousef.summon.effects
 
-import java.util.Timer
-import java.util.TimerTask
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -22,7 +21,7 @@ actual fun setTimeout(delayMs: Int, callback: () -> Unit): Int {
             timers.remove(id)
         }
     }, delayMs.toLong())
-    
+
     timers[id] = timer
     return id
 }

@@ -1,7 +1,5 @@
 package code.yousef.summon.runtime
 
-import code.yousef.summon.annotation.Composable
-
 /**
  * JVM-specific extension methods for Recomposer to provide thread safety.
  */

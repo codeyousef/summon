@@ -1,18 +1,14 @@
 package code.yousef.summon.i18n
 
+import code.yousef.summon.js.console
+import code.yousef.summon.state.mutableStateOf
 import kotlinx.browser.document
 import kotlinx.browser.window
-import org.w3c.dom.HTMLElement
-import org.w3c.dom.HTMLScriptElement
-import org.w3c.dom.get
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.await
-import org.w3c.fetch.RequestInit
-import code.yousef.summon.state.mutableStateOf
 import kotlinx.coroutines.DelicateCoroutinesApi
-import code.yousef.summon.js.Console
-import code.yousef.summon.js.console
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.await
+import kotlinx.coroutines.launch
+import org.w3c.dom.HTMLElement
 
 /**
  * Global state for the current language in JS platform
@@ -44,7 +40,8 @@ object JsI18nImplementation {
      * Exposes i18n functions to JavaScript for direct access
      */
     private fun exposeI18nFunctionsToJs() {
-        js("""
+        js(
+            """
         try {
             // Make sure the code.yousef.summon.i18n namespace exists
             window.code = window.code || {};
@@ -87,12 +84,13 @@ object JsI18nImplementation {
         } catch (e) {
             console.error("[DEBUG] Error exposing i18n functions to JavaScript: " + e);
         }
-        """)
+        """
+        )
     }
 
     /**
      * Load language resources from the specified base path
-     * 
+     *
      * @param basePath The base path for language JSON files (e.g., "/i18n/")
      * @param onComplete Callback to be executed when all resources are loaded
      */

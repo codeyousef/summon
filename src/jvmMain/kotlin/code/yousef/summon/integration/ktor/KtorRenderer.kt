@@ -1,13 +1,13 @@
 package code.yousef.summon.integration.ktor
 
-import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
-import io.ktor.server.application.*
-import io.ktor.server.response.*
 import io.ktor.http.*
-import io.ktor.server.routing.*
+import io.ktor.server.application.*
 import io.ktor.server.html.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 
@@ -45,7 +45,7 @@ class KtorRenderer {
             }
         }
     }
-    
+
     /**
      * Renders a Summon composable function to an HTTP response.
      *
@@ -54,7 +54,7 @@ class KtorRenderer {
      */
     suspend fun renderHtml(call: ApplicationCall, content: @Composable () -> Unit) {
         setPlatformRenderer(renderer)
-        
+
         call.respondHtml {
             head {
                 meta(charset = "UTF-8")
@@ -66,7 +66,7 @@ class KtorRenderer {
             }
         }
     }
-    
+
     /**
      * Renders a Summon composable function as a streaming response.
      * This is useful for large pages or server-sent events.
@@ -76,19 +76,19 @@ class KtorRenderer {
      */
     suspend fun renderStream(call: ApplicationCall, content: @Composable () -> Unit) {
         setPlatformRenderer(renderer)
-        
+
         call.respondTextWriter(contentType = ContentType.Text.Html) {
             append("<!DOCTYPE html><html><head>")
             append("<meta charset=\"UTF-8\">")
             append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">")
             append("<title>Summon Streaming App</title></head><body>")
-            
+
             // Stream the content
             val html = createHTML().apply {
                 content()
             }.toString()
             append(html)
-            
+
             append("</body></html>")
             flush()
         }
@@ -106,7 +106,7 @@ class KtorRenderer {
          * @param content The composable content to render
          */
         fun Route.summon(
-            path: String, 
+            path: String,
             method: HttpMethod = HttpMethod.Get,
             title: String = "Summon App",
             status: HttpStatusCode = HttpStatusCode.OK,
@@ -116,7 +116,7 @@ class KtorRenderer {
                 handle {
                     val renderer = KtorRenderer()
                     setPlatformRenderer(renderer.renderer)
-                    
+
                     call.respondHtml(status) {
                         head {
                             meta(charset = "UTF-8")
@@ -130,7 +130,7 @@ class KtorRenderer {
                 }
             }
         }
-        
+
         /**
          * Extension function to respond with a Summon component.
          * This function integrates with Ktor's ApplicationCall.
@@ -146,7 +146,7 @@ class KtorRenderer {
         ) {
             val renderer = KtorRenderer()
             setPlatformRenderer(renderer.renderer)
-            
+
             respondHtml(status) {
                 head {
                     meta(charset = "UTF-8")

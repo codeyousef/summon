@@ -20,10 +20,10 @@ import org.w3c.dom.events.Event
 fun CompositionScope.useMediaQuery(query: String): SummonMutableState<Boolean> {
     // Create a media query list
     val mediaQuery = window.matchMedia(query)
-    
+
     // Initialize with the current match state
     val matches = mutableStateOf(mediaQuery.matches)
-    
+
     onMountWithCleanup {
         // Create the change handler
         val handleChange = { event: Event ->
@@ -31,17 +31,17 @@ fun CompositionScope.useMediaQuery(query: String): SummonMutableState<Boolean> {
             val mediaQueryEvent = event.target as MediaQueryList
             matches.value = mediaQueryEvent.matches
         }
-        
+
         // Add event listener
         mediaQuery.addListener(handleChange)
-        
+
         // Return cleanup function
         return@onMountWithCleanup {
             // Remove event listener
             mediaQuery.removeListener(handleChange)
         }
     }
-    
+
     return matches
 }
 
@@ -55,19 +55,19 @@ object Breakpoints {
     val TABLET = "(min-width: ${MediaQuery.Breakpoints.sm}px) and (max-width: ${MediaQuery.Breakpoints.md - 1}px)"
     val DESKTOP = "(min-width: ${MediaQuery.Breakpoints.md}px)"
     val LARGE_DESKTOP = "(min-width: ${MediaQuery.Breakpoints.lg}px)"
-    
+
     // Orientation queries
     const val PORTRAIT = "(orientation: portrait)"
     const val LANDSCAPE = "(orientation: landscape)"
-    
+
     // Color scheme queries
     const val DARK_MODE = "(prefers-color-scheme: dark)"
     const val LIGHT_MODE = "(prefers-color-scheme: light)"
-    
+
     // Motion preference queries
     const val REDUCED_MOTION = "(prefers-reduced-motion: reduce)"
     const val ALLOWS_MOTION = "(prefers-reduced-motion: no-preference)"
-    
+
     /**
      * Helper function to create a media query string from breakpoint values
      */
@@ -79,7 +79,7 @@ object Breakpoints {
             else -> ""
         }
     }
-    
+
     /**
      * Create media query from MediaQuery.Breakpoints constants
      */
@@ -128,7 +128,7 @@ fun CompositionScope.useResponsive(): ResponsiveBreakpoints {
     val isLargeDesktop = useMediaQuery(Breakpoints.LARGE_DESKTOP)
     val isPortrait = useMediaQuery(Breakpoints.PORTRAIT)
     val isLandscape = useMediaQuery(Breakpoints.LANDSCAPE)
-    
+
     return ResponsiveBreakpoints(
         isMobile = isMobile,
         isTablet = isTablet,

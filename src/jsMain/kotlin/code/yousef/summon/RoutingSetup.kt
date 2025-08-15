@@ -1,13 +1,12 @@
 package code.yousef.summon
 
+import code.yousef.summon.js.console
 import code.yousef.summon.routing.Router
 import code.yousef.summon.routing.createRouter
 import code.yousef.summon.runtime.Composable
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.HTMLElement
-import code.yousef.summon.js.Console
-import code.yousef.summon.js.console
 
 /**
  * Sets up the routing system for the application.
@@ -17,7 +16,7 @@ fun setupRouting() {
     // Create the router using the DSL
     val router = createRouter {
         // Define routes with their composable content
-        route("/") { params -> 
+        route("/") { params ->
             // Home page content
             renderHomePage()
         }

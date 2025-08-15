@@ -21,22 +21,22 @@ data class TextFieldJsExtension(
  */
 fun setupJsInputHandler(fieldId: String, textFieldExt: TextFieldJsExtension) {
     val inputElement = document.getElementById(fieldId) as? HTMLInputElement ?: return
-    
+
     // Set up the input event listener
     inputElement.oninput = { event: Event ->
         val newValue = inputElement.value
-        
+
         // Update the state
         textFieldExt.state.value = newValue
-        
+
         // Call the onValueChange callback
         textFieldExt.onValueChange(newValue)
-        
+
         // Validate if there are validators
         if (textFieldExt.validators.isNotEmpty()) {
             textFieldExt.validate()
         }
-        
+
         // Prevent default to avoid form submission
         event.preventDefault()
     }

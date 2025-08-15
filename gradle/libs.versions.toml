@@ -32,6 +32,11 @@ springBootJvm = "3.2.3"
 reactorKotlin = "1.2.3"
 reactorKotlinJvm = "1.2.2"
 
+# CLI
+clikt = "5.0.1"
+shadowJar = "8.1.1"
+graalvm = "0.10.2"
+
 [libraries]
 # Kotlin
 kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
@@ -106,6 +111,11 @@ spring-boot-starter-thymeleaf = { module = "org.springframework.boot:spring-boot
 spring-boot-starter-webflux = { module = "org.springframework.boot:spring-boot-starter-webflux", version.ref = "springBoot" }
 reactor-kotlin-extensions = { module = "io.projectreactor.kotlin:reactor-kotlin-extensions", version.ref = "reactorKotlin" }
 
+# CLI
+clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
+
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+shadow-jar = { id = "com.github.johnrengelman.shadow", version.ref = "shadowJar" }
+graalvm-native-image = { id = "org.graalvm.buildtools.native", version.ref = "graalvm" }

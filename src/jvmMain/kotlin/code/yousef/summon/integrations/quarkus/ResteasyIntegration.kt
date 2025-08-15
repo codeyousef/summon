@@ -44,8 +44,8 @@ class SummonMessageBodyWriter : MessageBodyWriter<Any> {
         annotations: Array<Annotation>?,
         mediaType: MediaType?
     ): Boolean {
-        return type != null && type.annotations.any { 
-            it.annotationClass.java.simpleName == "Composable" 
+        return type != null && type.annotations.any {
+            it.annotationClass.java.simpleName == "Composable"
         }
     }
 

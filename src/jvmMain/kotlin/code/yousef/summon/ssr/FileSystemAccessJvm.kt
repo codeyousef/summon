@@ -1,9 +1,6 @@
 package code.yousef.summon.ssr
 
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
 
 /**
  * JVM implementation of platform-specific file system access
@@ -18,7 +15,7 @@ actual object FileSystemAccess {
             dir.mkdirs()
         }
     }
-    
+
     /**
      * Writes text content to a file
      */
@@ -26,11 +23,11 @@ actual object FileSystemAccess {
         // Create parent directories if they don't exist
         val file = File(path)
         file.parentFile?.mkdirs()
-        
+
         // Write the content to the file
         file.writeText(content)
     }
-    
+
     /**
      * Reads text content from a file
      */

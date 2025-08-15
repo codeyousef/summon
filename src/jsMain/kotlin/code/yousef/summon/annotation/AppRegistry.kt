@@ -8,12 +8,12 @@ import code.yousef.summon.core.SummonApp
  */
 object AppRegistry {
     private var appEntry: (@Composable ((@Composable () -> Unit) -> Unit))? = null
-    
+
     /**
      * Registers an app entry point.
      * Only one app entry point can be registered at a time.
      * If multiple entries are registered, a warning will be logged and the last one will be used.
-     * 
+     *
      * @param entry The app entry composable function
      */
     fun registerApp(entry: @Composable ((@Composable () -> Unit) -> Unit)) {
@@ -22,16 +22,16 @@ object AppRegistry {
         }
         appEntry = entry
     }
-    
+
     /**
      * Gets the registered app entry point, or the default SummonApp if none is registered.
-     * 
+     *
      * @return The app entry composable function
      */
     fun getAppEntry(): @Composable ((@Composable () -> Unit) -> Unit) {
         return appEntry ?: { content -> SummonApp(content) }
     }
-    
+
     /**
      * Clears the registered app entry.
      * This is mainly useful for testing.

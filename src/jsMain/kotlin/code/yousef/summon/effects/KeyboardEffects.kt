@@ -17,23 +17,23 @@ private fun DomKeyboardEvent.matches(key: String, modifiers: Set<KeyModifier>): 
     if (this.key.lowercase() != key.lowercase()) {
         return false
     }
-    
+
     // Check modifiers
     val hasCtrl = this.ctrlKey
-    val hasAlt = this.altKey 
+    val hasAlt = this.altKey
     val hasShift = this.shiftKey
     val hasMeta = this.metaKey
-    
+
     // Verify all required modifiers are pressed
     val requiredCtrl = KeyModifier.CTRL in modifiers
     val requiredAlt = KeyModifier.ALT in modifiers
     val requiredShift = KeyModifier.SHIFT in modifiers
     val requiredMeta = KeyModifier.META in modifiers
-    
+
     return requiredCtrl == hasCtrl &&
-           requiredAlt == hasAlt &&
-           requiredShift == hasShift &&
-           requiredMeta == hasMeta
+            requiredAlt == hasAlt &&
+            requiredShift == hasShift &&
+            requiredMeta == hasMeta
 }
 
 /**
@@ -53,7 +53,7 @@ fun CompositionScope.useKeyboardShortcut(
         // Event handler function for key events
         val keydownHandler = { event: Event ->
             val keyEvent = event as DomKeyboardEvent
-            
+
             // Check if this event matches our shortcut
             if (keyEvent.matches(key, modifiers)) {
                 // Convert to our KeyboardEvent type
@@ -66,18 +66,18 @@ fun CompositionScope.useKeyboardShortcut(
                         if (keyEvent.metaKey) add(KeyModifier.META)
                     }
                 )
-                
+
                 // Prevent default browser action for this key
                 keyEvent.preventDefault()
-                
+
                 // Call the handler
                 handler(ourEvent)
             }
         }
-        
+
         // Add the event listener to the document
         document.addEventListener("keydown", keydownHandler)
-        
+
         // Return cleanup function to remove the event listener
         return@onMountWithCleanup {
             document.removeEventListener("keydown", keydownHandler)
@@ -99,21 +99,21 @@ fun CompositionScope.useKeyPress(
     onMountWithCleanup {
         // Convert keys to lowercase for case-insensitive comparison
         val keysList = keys.map { it.lowercase() }
-        
+
         // Event handler for keydown events
         val keydownHandler = { event: Event ->
             val keyEvent = event as DomKeyboardEvent
             val pressedKey = keyEvent.key.lowercase()
-            
+
             // Check if this key is in our list
             if (pressedKey in keysList) {
                 handler(keyEvent.key)
             }
         }
-        
+
         // Add the event listener
         document.addEventListener("keydown", keydownHandler)
-        
+
         // Return cleanup function
         return@onMountWithCleanup {
             document.removeEventListener("keydown", keydownHandler)
@@ -137,15 +137,15 @@ fun CompositionScope.useFocusTracking(
     onMountWithCleanup {
         // Get the element by ID
         val element = document.getElementById(elementId)
-        
+
         // Create event handlers
         val focusInHandler = { _: Event -> onFocusIn() }
         val focusOutHandler = { _: Event -> onFocusOut() }
-        
+
         // Add event listeners if the element exists
         element?.addEventListener("focusin", focusInHandler)
         element?.addEventListener("focusout", focusOutHandler)
-        
+
         // Return cleanup function
         return@onMountWithCleanup {
             element?.removeEventListener("focusin", focusInHandler)

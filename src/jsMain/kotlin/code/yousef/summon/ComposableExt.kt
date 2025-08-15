@@ -7,7 +7,7 @@ import kotlinx.html.TagConsumer
 /**
  * Helper function to simplify composing with TagConsumer.
  * This is used for fluent code in JS platform.
- * 
+ *
  * NOTE: This function is a temporary bridge between the old interface-based composition
  * and the new annotation-based composition model. It will be replaced in the future.
  */

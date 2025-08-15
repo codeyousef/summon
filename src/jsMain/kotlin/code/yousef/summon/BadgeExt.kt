@@ -1,7 +1,7 @@
 package code.yousef.summon
 
-import code.yousef.summon.components.feedback.BadgeType
 import code.yousef.summon.components.feedback.BadgeShape
+import code.yousef.summon.components.feedback.BadgeType
 import kotlinx.browser.document
 import org.w3c.dom.HTMLElement
 

@@ -163,7 +163,8 @@ actual interface Router {
 }
 
 // Basic JVM Router implementation (needs more logic for actual use)
-class JvmRouter(private val routes: List<RouteDefinition>, private val notFound: @Composable (RouteParams) -> Unit) : Router {
+class JvmRouter(private val routes: List<RouteDefinition>, private val notFound: @Composable (RouteParams) -> Unit) :
+    Router {
 
     // Store the current path and params
     private var _currentPath: String = ""

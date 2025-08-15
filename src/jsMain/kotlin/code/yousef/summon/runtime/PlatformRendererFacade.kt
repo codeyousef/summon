@@ -2,10 +2,6 @@ package code.yousef.summon.runtime
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import kotlinx.browser.document
-import org.w3c.dom.Element
-import org.w3c.dom.HTMLElement
-import kotlin.js.JsName
 
 /**
  * JavaScript-friendly facade for PlatformRenderer.
@@ -39,7 +35,12 @@ class PlatformRendererFacade() {
     /**
      * Renders a text field with the given value, change handler, style string, and type.
      */
-    fun renderTextField(value: String, onValueChange: (String) -> Unit, styleString: String = "", type: String = "text") {
+    fun renderTextField(
+        value: String,
+        onValueChange: (String) -> Unit,
+        styleString: String = "",
+        type: String = "text"
+    ) {
         val modifier = createModifierFromStyleString(styleString)
         impl.renderTextField(value, onValueChange, modifier, type)
     }
@@ -135,7 +136,12 @@ class PlatformRendererFacade() {
      * JavaScript-friendly version of renderTextField with mangled method name.
      */
     @JsName("renderTextField_w72mnb")
-    fun renderTextFieldMangled(value: String, onValueChange: (String) -> Unit, styleString: String = "", type: String = "text") {
+    fun renderTextFieldMangled(
+        value: String,
+        onValueChange: (String) -> Unit,
+        styleString: String = "",
+        type: String = "text"
+    ) {
         renderTextField(value, onValueChange, styleString, type)
     }
 

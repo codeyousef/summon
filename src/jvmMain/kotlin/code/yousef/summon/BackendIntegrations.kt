@@ -126,6 +126,7 @@ object BackendIntegrations {
                         println("Quarkus application started")
                         setupQuarkusExtensions()
                     }
+
                     LifecycleEvent.SHUTDOWN -> println("Quarkus application shutting down")
                     else -> {} // Ignore other events
                 }

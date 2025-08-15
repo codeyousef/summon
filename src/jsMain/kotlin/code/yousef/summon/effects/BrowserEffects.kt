@@ -5,7 +5,6 @@ import code.yousef.summon.state.SummonMutableState
 import code.yousef.summon.state.mutableStateOf
 import kotlinx.browser.window
 import org.w3c.dom.events.Event
-import kotlin.collections.iterator
 
 /**
  * External interface for browser history

@@ -3,8 +3,6 @@
  */
 package code.yousef.summon.animation
 
-import kotlin.js.Promise
-import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 /**

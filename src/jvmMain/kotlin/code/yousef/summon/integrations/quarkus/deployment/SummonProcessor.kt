@@ -1,22 +1,21 @@
 package code.yousef.summon.integrations.quarkus.deployment
 
+import code.yousef.summon.integrations.quarkus.QuarkusExtension
+import io.quarkus.arc.deployment.AdditionalBeanBuildItem
 import io.quarkus.deployment.annotations.BuildStep
 import io.quarkus.deployment.builditem.FeatureBuildItem
-import io.quarkus.arc.deployment.AdditionalBeanBuildItem
-import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem
-import code.yousef.summon.integrations.quarkus.QuarkusExtension
 
 /**
  * Deployment processor for the Summon Quarkus extension.
- * This class handles the build-time processing required to integrate 
+ * This class handles the build-time processing required to integrate
  * Summon with Quarkus applications.
  */
 class SummonProcessor {
-    
+
     companion object {
         private const val FEATURE = "summon"
     }
-    
+
     /**
      * Register the Summon feature with Quarkus.
      */
@@ -24,7 +23,7 @@ class SummonProcessor {
     fun feature(): FeatureBuildItem {
         return FeatureBuildItem(FEATURE)
     }
-    
+
     /**
      * Register beans for Summon services.
      */
@@ -32,7 +31,7 @@ class SummonProcessor {
     fun registerBeans(): AdditionalBeanBuildItem {
         return AdditionalBeanBuildItem.unremovableOf(QuarkusExtension.SummonRenderer::class.java)
     }
-    
+
     /**
      * Register classes for reflection in native image.
      * Since we can't directly use the ReflectiveClassBuildItem constructors (they're package-private),

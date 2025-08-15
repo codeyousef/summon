@@ -10,7 +10,7 @@ import java.net.URI
  */
 @Path("/")
 class RootResource {
-    
+
     /**
      * Redirect root requests to the Summon endpoint
      */

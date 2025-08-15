@@ -4,9 +4,8 @@ package code.yousef.summon.integrations.quarkus
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
-import io.quarkus.qute.TemplateExtension
-import io.quarkus.qute.TemplateInstance
 import io.quarkus.qute.RawString
+import io.quarkus.qute.TemplateExtension
 import kotlinx.html.div
 import kotlinx.html.stream.appendHTML
 
@@ -35,10 +34,10 @@ object QuteComponentRegistry {
      */
     fun renderComponent(name: String): String {
         val component = components[name] ?: return ""
-        
+
         // Set up the renderer
         setPlatformRenderer(renderer)
-        
+
         // Create HTML output
         return buildString {
             appendHTML().div {

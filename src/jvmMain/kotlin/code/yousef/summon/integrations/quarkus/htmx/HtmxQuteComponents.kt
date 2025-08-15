@@ -14,7 +14,7 @@ import io.quarkus.qute.Template
 /**
  * A composable function that renders a Qute template with HTMX attributes.
  * This function is useful for creating components that update via HTMX.
- * 
+ *
  * @param template The Qute template to render
  * @param data Map of data to pass to the template
  * @param hxGet The HTMX GET endpoint (optional)
@@ -37,7 +37,7 @@ fun HtmxQuteTemplate(
 ) {
     // Render the template
     val html = QuteTemplateRenderer.renderTemplate(template, data)
-    
+
     // Apply HTMX attributes
     var htmxModifier = modifier
     if (hxGet != null) htmxModifier = htmxModifier.htmlAttribute("hx-get", hxGet)
@@ -45,7 +45,7 @@ fun HtmxQuteTemplate(
     if (hxTrigger != null) htmxModifier = htmxModifier.htmlAttribute("hx-trigger", hxTrigger)
     if (hxTarget != null) htmxModifier = htmxModifier.htmlAttribute("hx-target", hxTarget)
     if (hxSwap != null) htmxModifier = htmxModifier.htmlAttribute("hx-swap", hxSwap)
-    
+
     // Use the htmlAttribute extension function to add the raw HTML content
     Box(htmxModifier.htmlAttribute("__raw_html", html)) {
         // Empty content as the HTML is provided via the __raw_html attribute
@@ -55,7 +55,7 @@ fun HtmxQuteTemplate(
 /**
  * A composable function that renders a Qute template with HTMX attributes.
  * This overload allows for a more concise syntax with varargs.
- * 
+ *
  * @param template The Qute template to render
  * @param hxGet The HTMX GET endpoint (optional)
  * @param hxPost The HTMX POST endpoint (optional)
@@ -90,7 +90,7 @@ fun HtmxQuteTemplate(
 
 /**
  * A composable function that renders a Qute template that loads content from an HTMX endpoint.
- * 
+ *
  * @param id The ID of the container element
  * @param template The Qute template to render
  * @param data Map of data to pass to the template
@@ -113,12 +113,12 @@ fun HtmxQuteContainer(
 ) {
     // Render the template
     val html = QuteTemplateRenderer.renderTemplate(template, data)
-    
+
     // Create a modifier with HTMX attributes
     val htmxModifier = modifier
         .htmlAttribute("id", id)
         .htmxGet(endpoint, target, swap, trigger)
-    
+
     // Use the htmlAttribute extension function to add the raw HTML content
     Box(htmxModifier.htmlAttribute("__raw_html", html)) {
         // Empty content as the HTML is provided via the __raw_html attribute
@@ -128,7 +128,7 @@ fun HtmxQuteContainer(
 /**
  * A composable function that renders a Qute template that loads content from an HTMX endpoint.
  * This overload allows for a more concise syntax with varargs.
- * 
+ *
  * @param id The ID of the container element
  * @param template The Qute template to render
  * @param endpoint The endpoint to load content from

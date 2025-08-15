@@ -1,7 +1,7 @@
 package code.yousef.summon.integration.quarkus
 
-import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import io.vertx.core.http.HttpServerResponse
 import io.vertx.ext.web.RoutingContext

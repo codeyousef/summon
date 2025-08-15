@@ -11,7 +11,7 @@ import org.w3c.dom.events.Event
 object FormJs {
     /**
      * Sets up JavaScript event handlers for a form element.
-     * 
+     *
      * @param formId The ID of the form element in the DOM
      * @param formState The FormState instance to use for validation and submission
      * @param onSubmit The callback to invoke when the form is submitted

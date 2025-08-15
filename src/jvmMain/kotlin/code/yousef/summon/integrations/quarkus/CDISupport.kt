@@ -147,16 +147,16 @@ class CDISupport {
 
 /**
  * Provides CDI support for Summon components in Quarkus applications.
- * 
+ *
  * This class contains utilities for working with Summon components in a CDI environment,
  * including producer methods and qualifiers.
  */
 @ApplicationScoped
 class SummonCDISupport {
-    
+
     /**
      * Produces a renderer for Summon components.
-     * 
+     *
      * The renderer can be injected into CDI beans using:
      * ```
      * @Inject
@@ -167,10 +167,10 @@ class SummonCDISupport {
     fun produceRenderer(): PlatformRenderer {
         return PlatformRenderer()
     }
-    
+
     /**
      * Qualifier annotation for injecting components by their class.
-     * 
+     *
      * Usage:
      * ```
      * @Inject
@@ -181,10 +181,10 @@ class SummonCDISupport {
     @Qualifier
     @Retention(RetentionPolicy.RUNTIME)
     annotation class ComponentClass(val value: kotlin.reflect.KClass<*>)
-    
+
     /**
      * Produces a component instance based on the injection point.
-     * 
+     *
      * This method looks for the [ComponentClass] qualifier and creates an instance
      * of the specified component class.
      */
@@ -195,20 +195,20 @@ class SummonCDISupport {
             .filterIsInstance<ComponentClass>()
             .firstOrNull()
             ?: throw IllegalArgumentException("Component injection requires @ComponentClass qualifier")
-        
+
         // Create an instance of the component
         val componentClass = qualifier.value.java
         return componentClass.getDeclaredConstructor().newInstance()
     }
-    
+
     /**
      * Renders a Summon component to HTML.
-     * 
+     *
      * Usage:
      * ```
      * @Inject
      * lateinit var summonSupport: SummonCDISupport
-     * 
+     *
      * fun handleRequest() {
      *     val html = summonSupport.renderComponent(MyComponent())
      *     // Use the HTML...
@@ -219,15 +219,15 @@ class SummonCDISupport {
         // Create a simple HTML representation
         return "<div class=\"summon-component\">Component: ${component::class.simpleName}</div>"
     }
-    
+
     /**
      * Factory method to create a component instance by its class.
-     * 
+     *
      * Usage:
      * ```
      * @Inject
      * lateinit var summonSupport: SummonCDISupport
-     * 
+     *
      * fun handleRequest() {
      *     val component = summonSupport.createComponent(MyComponent::class.java)
      *     // Use the component...

@@ -7,12 +7,12 @@ import code.yousef.summon.integration.ktor.KtorRenderer.Companion.respondSummon
 import code.yousef.summon.integration.ktor.KtorRenderer.Companion.summon
 import code.yousef.summon.integration.ktor.KtorStreamingSupport.respondStreamingSummon
 import code.yousef.summon.runtime.Composable
-import io.ktor.server.application.*
 import io.ktor.http.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 
 /**
  * Demo of Summon integration with Ktor.
@@ -44,14 +44,14 @@ object KtorDemo {
             summon("/hello", title = "Summon Hello") {
                 GreetingComponent("Ktor User")
             }
-            
+
             // Method 2: Using the respondSummon extension function
             get("/greeting") {
                 call.respondSummon("Greeting Page") {
                     GreetingComponent("Greeting User")
                 }
             }
-            
+
             // Method 3: Using the streaming support for large pages
             get("/stream") {
                 call.respondStreamingSummon("Streaming Demo") {
@@ -63,22 +63,22 @@ object KtorDemo {
                     }
                 }
             }
-            
+
             // Method 4: Using traditional Ktor HTML DSL with Summon components
             get("/hybrid") {
                 val renderer = KtorRenderer()
-                
+
                 // Render a component to a string
                 val summonContent = renderer.renderToString {
                     GreetingComponent("Hybrid User")
                 }
-                
+
                 // Use it in a regular Ktor HTML response
                 call.respondText(summonContent, ContentType.Text.Html)
             }
         }
     }
-    
+
     /**
      * Example main function to start the Ktor server
      */

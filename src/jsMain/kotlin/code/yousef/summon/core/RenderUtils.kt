@@ -4,7 +4,6 @@ import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.PlatformRenderer
 import kotlinx.browser.document
 import org.w3c.dom.HTMLElement
-import kotlin.collections.ArrayDeque
 
 /**
  * JavaScript implementation of RenderUtils

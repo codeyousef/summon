@@ -2,11 +2,9 @@ package code.yousef.summon.integrations.quarkus.qute
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.layout.Box
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.integrations.quarkus.htmx.htmlAttribute
+import code.yousef.summon.modifier.Modifier
 import io.quarkus.qute.Template
-import kotlinx.html.FlowContent
 
 /**
  * Renderer for Qute templates in Summon components.
@@ -16,7 +14,7 @@ class QuteTemplateRenderer {
     companion object {
         /**
          * Renders a Qute template with the given data and returns the HTML as a string.
-         * 
+         *
          * @param template The Qute template to render
          * @param data Map of data to pass to the template
          * @return The rendered HTML as a string
@@ -37,7 +35,7 @@ class QuteTemplateRenderer {
         /**
          * Renders a Qute template with the given data and returns the HTML as a string.
          * This overload allows for a more concise syntax with varargs.
-         * 
+         *
          * @param template The Qute template to render
          * @param pairs Pairs of data to pass to the template
          * @return The rendered HTML as a string
@@ -51,7 +49,7 @@ class QuteTemplateRenderer {
 /**
  * A composable function that renders a Qute template.
  * This function uses the QuteTemplateRenderer to render the template and integrates it with Summon components.
- * 
+ *
  * @param template The Qute template to render
  * @param data Map of data to pass to the template
  * @param modifier Additional modifiers to apply to the container
@@ -75,7 +73,7 @@ fun QuteTemplate(
 /**
  * A composable function that renders a Qute template.
  * This overload allows for a more concise syntax with varargs.
- * 
+ *
  * @param template The Qute template to render
  * @param modifier Additional modifiers to apply to the container
  * @param pairs Pairs of data to pass to the template
@@ -92,7 +90,7 @@ fun QuteTemplate(
 /**
  * A composable function that renders a Qute template with a specific ID.
  * This function is useful when you need to reference the rendered template by ID.
- * 
+ *
  * @param id The ID to assign to the container element
  * @param template The Qute template to render
  * @param data Map of data to pass to the template
@@ -117,7 +115,7 @@ fun QuteTemplateWithId(
 /**
  * A composable function that renders a Qute template with a specific ID.
  * This overload allows for a more concise syntax with varargs.
- * 
+ *
  * @param id The ID to assign to the container element
  * @param template The Qute template to render
  * @param modifier Additional modifiers to apply to the container

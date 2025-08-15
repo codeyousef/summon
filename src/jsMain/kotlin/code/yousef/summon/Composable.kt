@@ -20,7 +20,8 @@ fun renderComposable(renderer: PlatformRenderer, composable: @Composable () -> U
 
     // Set up the container as the current parent for rendering
     // Initialize currentParent if it doesn't exist
-    js("""
+    js(
+        """
         // Initialize currentParent if it doesn't exist
         if (typeof currentParent === 'undefined') {
             window.currentParent = document.body;
@@ -28,7 +29,8 @@ fun renderComposable(renderer: PlatformRenderer, composable: @Composable () -> U
         }
         var previousParent = currentParent;
         currentParent = container;
-    """)
+    """
+    )
 
     try {
         // Directly call the composable function instead of using renderer.renderComposable

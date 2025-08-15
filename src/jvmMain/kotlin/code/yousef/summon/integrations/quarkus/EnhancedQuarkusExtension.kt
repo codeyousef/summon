@@ -1,20 +1,15 @@
 package code.yousef.summon.integrations.quarkus
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.layout.Box
-import code.yousef.summon.integrations.quarkus.htmx.HtmxAttributeHandler
 import code.yousef.summon.integrations.quarkus.htmx.htmlAttribute
 import code.yousef.summon.integrations.quarkus.qute.QuteTemplateRenderer
 import code.yousef.summon.integrations.quarkus.renderer.HtmxAwareRenderer
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.PlatformRenderer
 import io.quarkus.qute.Template
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Produces
 import jakarta.inject.Singleton
-import kotlinx.html.FlowContent
-import kotlinx.html.stream.createHTML
 import org.jboss.logging.Logger
 
 /**
@@ -39,7 +34,7 @@ object EnhancedQuarkusExtension {
 
         /**
          * Renders a composable component to a string.
-         * 
+         *
          * @param content The composable content to render
          * @return The rendered HTML as a string
          */
@@ -50,7 +45,7 @@ object EnhancedQuarkusExtension {
 
         /**
          * Renders a template with the given title and content.
-         * 
+         *
          * @param title The page title
          * @param content The HTML content to include in the template
          * @return The rendered HTML as a string
@@ -76,7 +71,7 @@ object EnhancedQuarkusExtension {
 
         /**
          * Produces an EnhancedSummonRenderer instance for injection.
-         * 
+         *
          * @return A singleton instance of EnhancedSummonRenderer
          */
         @Produces
@@ -90,7 +85,7 @@ object EnhancedQuarkusExtension {
 /**
  * A composable function that renders a Qute template using the EnhancedSummonRenderer.
  * This function is a convenience wrapper around the QuteTemplate function.
- * 
+ *
  * @param template The Qute template to render
  * @param data Map of data to pass to the template
  * @param modifier Additional modifiers to apply to the container

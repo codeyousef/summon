@@ -10,13 +10,13 @@ import kotlin.random.Random
 actual class ElementRef {
     private var element: Element? = null
     private val id: String = "element-${Random.nextInt(100000)}"
-    
+
     /**
      * Gets the DOM element associated with this reference.
      * @return The DOM element or null if not yet attached
      */
     fun getElement(): Element? = element
-    
+
     /**
      * Sets the DOM element for this reference.
      * @param el The DOM element to associate with this reference
@@ -28,20 +28,20 @@ actual class ElementRef {
             el.id = id
         }
     }
-    
+
     /**
      * Gets the ID of the element.
      * @return The element ID
      */
     fun getId(): String = element?.id ?: id
-    
+
     /**
      * Clears the element reference.
      */
     fun clear() {
         element = null
     }
-    
+
     /**
      * Checks if the element is currently attached to the DOM.
      * @return true if the element is attached, false otherwise

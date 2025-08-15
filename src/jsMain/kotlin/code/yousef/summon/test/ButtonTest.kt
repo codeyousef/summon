@@ -6,19 +6,13 @@ import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.input.ButtonVariant
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.components.layout.Row
-import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.js.console
 import code.yousef.summon.modifier.LayoutModifiers.gap
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.PlatformRenderer
-import code.yousef.summon.runtime.RecomposerHolder
-import code.yousef.summon.runtime.setPlatformRenderer
-import code.yousef.summon.runtime.Composer
-import code.yousef.summon.runtime.CompositionLocal
+import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.*
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.html.org.w3c.dom.events.Event
-import code.yousef.summon.js.console
-import kotlin.js.js
 
 /**
  * A test component that displays primary and secondary buttons
@@ -71,7 +65,8 @@ fun runButtonTest() {
     console.log("Starting button styling test...")
 
     // Ensure that the window object is properly initialized
-    js("""
+    js(
+        """
     if (typeof window.currentParent === 'undefined') {
         console.log("Initializing window.currentParent in ButtonTest");
         window.currentParent = document.body;
@@ -92,7 +87,8 @@ fun runButtonTest() {
     } else {
         console.log("window.currentParent already initialized in ButtonTest");
     }
-    """)
+    """
+    )
 
     document.addEventListener("DOMContentLoaded", { _: Event ->
         console.log("DOM loaded, setting up button test...")

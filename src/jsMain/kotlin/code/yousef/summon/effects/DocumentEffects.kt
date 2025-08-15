@@ -4,9 +4,8 @@ import code.yousef.summon.effects.CompositionScope
 import code.yousef.summon.effects.effectWithDeps
 import code.yousef.summon.runtime.Composable
 import kotlinx.browser.document
-import org.w3c.dom.HTMLMetaElement
 import org.w3c.dom.HTMLLinkElement
-import org.w3c.dom.Element
+import org.w3c.dom.HTMLMetaElement
 
 /**
  * Effect for updating document title
@@ -18,10 +17,10 @@ fun CompositionScope.useDocumentTitle(title: String) {
     effectWithDeps(title) {
         // Store the original title for restoration if needed
         val originalTitle = document.title
-        
+
         // Update the document title
         document.title = title
-        
+
         // Optional: Return a cleanup function to restore the original title
         // if this component unmounts (uncomment if needed)
         // {
@@ -41,17 +40,17 @@ fun CompositionScope.useMetaTag(name: String, content: String) {
     effectWithDeps(name, content) {
         // Check if the meta tag already exists
         var metaTag = document.querySelector("meta[name='$name']") as? HTMLMetaElement
-        
+
         if (metaTag == null) {
             // Create a new meta tag if it doesn't exist
             metaTag = document.createElement("meta") as HTMLMetaElement
             metaTag.name = name
             document.head?.appendChild(metaTag)
         }
-        
+
         // Set/update the content
         metaTag.content = content
-        
+
         // Return cleanup function to remove the meta tag when component unmounts
         {
             // Only remove the tag if we created it
@@ -73,10 +72,10 @@ fun CompositionScope.useOpenGraphTag(property: String, content: String) {
     effectWithDeps(property, content) {
         // The full property name with the "og:" prefix
         val fullProperty = "og:$property"
-        
+
         // Check if the meta tag already exists
         var metaTag = document.querySelector("meta[property='$fullProperty']") as? HTMLMetaElement
-        
+
         if (metaTag == null) {
             // Create a new meta tag if it doesn't exist
             metaTag = document.createElement("meta") as HTMLMetaElement
@@ -84,10 +83,10 @@ fun CompositionScope.useOpenGraphTag(property: String, content: String) {
             metaTag.asDynamic().property = fullProperty
             document.head?.appendChild(metaTag)
         }
-        
+
         // Set/update the content
         metaTag.content = content
-        
+
         // Return cleanup function
         {
             // Only remove the tag if we created it
@@ -109,18 +108,18 @@ fun CompositionScope.useFavicon(href: String, type: String = "image/x-icon") {
     effectWithDeps(href, type) {
         // Check if a favicon link already exists
         var linkElement = document.querySelector("link[rel='icon']") as? HTMLLinkElement
-        
+
         if (linkElement == null) {
             // Create a new link element if it doesn't exist
             linkElement = document.createElement("link") as HTMLLinkElement
             linkElement.rel = "icon"
             document.head?.appendChild(linkElement)
         }
-        
+
         // Set/update the href and type
         linkElement.href = href
         linkElement.type = type
-        
+
         // Return cleanup function
         {
             // Only remove if we created it

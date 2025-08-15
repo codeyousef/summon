@@ -1,7 +1,5 @@
 package code.yousef.summon.runtime
 
-import code.yousef.summon.annotation.Composable
-
 /**
  * JS-specific extension methods for Recomposer to provide thread safety.
  * JS is single-threaded, so we don't need actual synchronization.

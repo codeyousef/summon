@@ -1,6 +1,6 @@
 package code.yousef.summon.i18n
 
-import java.util.Locale
+import java.util.*
 
 /**
  * JVM implementation of triggerLanguageChange
@@ -21,13 +21,13 @@ actual fun triggerLanguageChange(language: Language) {
         "ru" -> Locale("ru")
         else -> Locale(language.code)
     }
-    
+
     // Set the default locale
     Locale.setDefault(locale)
-    
+
     // Log the language change
     println("Language changed to ${language.name} (${language.code}), locale: $locale")
-    
+
     // Note: In a real application, we would also need to trigger recomposition
     // of any components that depend on the language. This would typically be
     // done through a state management system or event bus.

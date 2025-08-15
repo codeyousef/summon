@@ -4,6 +4,7 @@ import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.runtime.Composable
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ResponseBody
-import jakarta.servlet.http.HttpServletResponse
 
 /**
  * Demo of Summon integration with Spring Boot.
@@ -59,10 +59,10 @@ object SpringBootDemo {
      */
     @Controller
     class SummonDemoController {
-        
+
         @Autowired
         private lateinit var thymeleafDialect: SummonThymeleafDialect
-        
+
         /**
          * Example using direct rendering with ResponseEntity
          */
@@ -74,7 +74,7 @@ object SpringBootDemo {
                 GreetingComponent("Spring User")
             }
         }
-        
+
         /**
          * Example using HttpServletResponse
          */
@@ -85,7 +85,7 @@ object SpringBootDemo {
                 GreetingComponent("Response User")
             }
         }
-        
+
         /**
          * Example using Thymeleaf template with Summon components
          */
@@ -94,7 +94,7 @@ object SpringBootDemo {
             // Add data to the model that will be available in the template
             model.addAttribute("pageTitle", "Summon with Thymeleaf")
             model.addAttribute("username", "Thymeleaf User")
-            
+
             // Return the template name
             return "summon-example"
         }

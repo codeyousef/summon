@@ -16,7 +16,7 @@ actual enum class AnimationStatus {
 /**
  * Controller for managing animations started by the platform renderer.
  * Allows pausing, resuming, stopping, and querying the state of an animation.
- * 
+ *
  * For JVM platform, this implementation uses a simple thread-based approach
  * to simulate animation progress. In a real-world scenario, this would likely
  * be integrated with a UI framework's animation system.

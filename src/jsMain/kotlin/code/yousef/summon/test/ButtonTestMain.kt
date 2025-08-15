@@ -7,7 +7,7 @@ import code.yousef.summon.js.console
  */
 fun main() {
     console.log("Button test main function called")
-    
+
     // Run the button test
     runButtonTest()
 }

@@ -6,7 +6,7 @@ package code.yousef.summon
 object DividerJs {
     /**
      * Sets up JavaScript event handlers for a divider element.
-     * 
+     *
      * @param dividerId The ID of the divider element in the DOM
      */
     fun setupEventHandlers(dividerId: String) {

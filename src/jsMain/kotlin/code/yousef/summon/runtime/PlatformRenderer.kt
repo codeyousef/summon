@@ -9,7 +9,6 @@ import code.yousef.summon.components.input.FileInfo
 import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.ModifierExtras.withAttribute
-import code.yousef.summon.modifier.ModifierExtras.withAttributes
 import kotlinx.browser.document
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
@@ -190,11 +189,11 @@ actual open class PlatformRenderer {
         val variant = modifier.attributes["data-variant"]
 
         // Create a new modifier without certain style properties that would conflict with our CSS classes
-        val filteredStyles = modifier.styles.filterKeys { key -> 
+        val filteredStyles = modifier.styles.filterKeys { key ->
             when (variant) {
                 "primary", "secondary" -> !listOf(
                     // Colors and borders
-                    "background-color", "color", "border", "border-color", 
+                    "background-color", "color", "border", "border-color",
                     "border-width", "border-style", "border-radius",
                     // Typography
                     "font-weight", "text-transform", "letter-spacing", "font-size",
@@ -206,6 +205,7 @@ actual open class PlatformRenderer {
                     // Hover effects will be handled by CSS
                     "hover"
                 ).contains(key)
+
                 else -> true
             }
         }
@@ -231,6 +231,7 @@ actual open class PlatformRenderer {
                     val currentClasses = element.getAttribute("class") ?: ""
                     element.setAttribute("class", "$currentClasses summon-btn-primary")
                 }
+
                 "secondary" -> {
                     val currentClasses = element.getAttribute("class") ?: ""
                     element.setAttribute("class", "$currentClasses summon-btn-secondary")
@@ -391,11 +392,11 @@ actual open class PlatformRenderer {
             elementStack.withElement(rootElement) {
                 // Clear the element first
                 rootElement.innerHTML = ""
-                
+
                 // Set up recomposer for this root
                 val recomposer = RecomposerHolder.current()
                 recomposer.setCompositionRoot(composable)
-                
+
                 // Render the composable
                 composable()
             }
@@ -1522,16 +1523,16 @@ actual open class PlatformRenderer {
     private fun sanitizeHtml(htmlContent: String): String {
         // Basic HTML sanitization for client-side
         var sanitized = htmlContent
-        
+
         // Remove script tags
         sanitized = sanitized.replace(Regex("<script[^>]*>.*?</script>", RegexOption.IGNORE_CASE), "")
-        
+
         // Remove dangerous event handlers
         sanitized = sanitized.replace(Regex("\\s(on\\w+)=[\"'][^\"']*[\"']", RegexOption.IGNORE_CASE), "")
-        
+
         // Remove javascript: URLs
         sanitized = sanitized.replace(Regex("\\shref=[\"']javascript:[^\"']*[\"']", RegexOption.IGNORE_CASE), "")
-        
+
         return sanitized
     }
 }

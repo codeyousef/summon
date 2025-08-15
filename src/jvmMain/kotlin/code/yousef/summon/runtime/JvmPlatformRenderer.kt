@@ -9,8 +9,6 @@ import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.overflowX
 import code.yousef.summon.modifier.overflowY
-import code.yousef.summon.modifier.LayoutModifiers.width
-import code.yousef.summon.modifier.LayoutModifiers.height
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.html.*
@@ -36,7 +34,7 @@ actual open class PlatformRenderer {
         // Apply CSS styles
         if (modifier.styles.isNotEmpty()) {
             val styleString = modifier.styles
-                .map { (key, value) -> 
+                .map { (key, value) ->
                     val cssPropertyName = if (key.contains('-')) {
                         key
                     } else {
@@ -45,12 +43,12 @@ actual open class PlatformRenderer {
                     "$cssPropertyName: $value"
                 }
                 .joinToString(separator = "; ", postfix = ";")
-            
+
             if (styleString.isNotBlank()) {
                 (this as? CommonAttributeGroupFacade)?.style = styleString
             }
         }
-        
+
         // Apply HTML attributes
         if (modifier.attributes.isNotEmpty() && this is CommonAttributeGroupFacade) {
             modifier.attributes.forEach { (name, value) ->
@@ -67,10 +65,10 @@ actual open class PlatformRenderer {
     // Helper to render composable content without FlowContent receiver
     private fun renderContent(content: @Composable () -> Unit) {
         requireBuilder() // Ensure context exists before calling content
-        
+
         // Provide this renderer through the LocalPlatformRenderer
         LocalPlatformRenderer.provides(this)
-        
+
         content() // Execute lambda, assumes it uses implicit kotlinx.html context
     }
 
@@ -118,7 +116,7 @@ actual open class PlatformRenderer {
         requireBuilder().input(type = InputType.text) {
             applyModifier(modifier)
             this.value = value
-            
+
             // Check if name attribute was provided in modifier
             val customName = modifier.attributes?.get("name")
             if (customName != null) {
@@ -133,7 +131,7 @@ actual open class PlatformRenderer {
                 id = "input-${UUID.randomUUID()}"
                 name = id
             }
-            
+
             attributes["data-onchange-action"] = "true"
             comment(" onValueChange handler needed (JS) ")
         }
@@ -147,7 +145,7 @@ actual open class PlatformRenderer {
     ) {
         requireBuilder().select {
             applyModifier(modifier)
-            
+
             // Check if name attribute was provided in modifier
             val customName = modifier.attributes?.get("name")
             if (customName != null) {
@@ -162,7 +160,7 @@ actual open class PlatformRenderer {
                 id = "select-${UUID.randomUUID()}"
                 name = id
             }
-            
+
             attributes["data-onchange-action"] = "true"
             comment(" onSelectedChange handler needed (JS) ")
 
@@ -215,7 +213,7 @@ actual open class PlatformRenderer {
             if (placeholder != null) this.placeholder = placeholder
             this.disabled = !enabled
             this.readonly = readOnly
-            
+
             // Check if name attribute was provided in modifier
             val customName = modifier.attributes?.get("name")
             if (customName != null) {
@@ -230,7 +228,7 @@ actual open class PlatformRenderer {
                 id = "textarea-${UUID.randomUUID()}"
                 name = id
             }
-            
+
             attributes["data-onchange-action"] = "true"
             comment(" onValueChange handler needed (JS) ")
             +value
@@ -798,7 +796,8 @@ actual open class PlatformRenderer {
             requireBuilder().div {
                 applyModifier(
                     modifier.then(
-                        Modifier().style("position", "absolute").style("border", "1px solid #ccc").style("background-color", "white").style("z-index", "100")
+                        Modifier().style("position", "absolute").style("border", "1px solid #ccc")
+                            .style("background-color", "white").style("z-index", "100")
                     )
                 )
                 comment(" DropdownMenu: JS for positioning and dismissal (onDismissRequest) needed ")
@@ -897,7 +896,12 @@ actual open class PlatformRenderer {
         }
     }
 
-    actual open fun renderVerticalPager(count: Int, state: Any, modifier: Modifier, content: @Composable ((Int) -> Unit)) {
+    actual open fun renderVerticalPager(
+        count: Int,
+        state: Any,
+        modifier: Modifier,
+        content: @Composable ((Int) -> Unit)
+    ) {
         requireBuilder().div {
             applyModifier(modifier)
             comment(" VerticalPager: JS for pagination logic needed. Displaying first page. ")
@@ -907,7 +911,12 @@ actual open class PlatformRenderer {
         }
     }
 
-    actual open fun renderHorizontalPager(count: Int, state: Any, modifier: Modifier, content: @Composable ((Int) -> Unit)) {
+    actual open fun renderHorizontalPager(
+        count: Int,
+        state: Any,
+        modifier: Modifier,
+        content: @Composable ((Int) -> Unit)
+    ) {
         requireBuilder().div {
             applyModifier(modifier)
             comment(" HorizontalPager: JS for pagination logic needed. Displaying first page. ")
@@ -1104,10 +1113,10 @@ actual open class PlatformRenderer {
                 comment(" onCheckedChange JS hook needed ")
             }
             if (label != null) {
-                label { 
+                label {
                     htmlFor = radioId
                     +label
-                    style = "margin-left: 8px;" 
+                    style = "margin-left: 8px;"
                 }
             }
         }
@@ -1131,10 +1140,10 @@ actual open class PlatformRenderer {
                 comment(" onCheckedChange JS hook needed ")
             }
             if (label != null) {
-                label { 
+                label {
                     htmlFor = checkboxId
                     +label
-                    style = "margin-left: 8px;" 
+                    style = "margin-left: 8px;"
                 }
             }
         }
@@ -1191,13 +1200,13 @@ actual open class PlatformRenderer {
         modifier: Modifier,
         content: @Composable FlowContent.() -> Unit
     ) {
-        renderAspectRatioContainer(ratio, modifier) { 
+        renderAspectRatioContainer(ratio, modifier) {
             requireBuilder().renderContent(content)
         }
     }
 
     actual open fun renderCard(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
-        renderCard(modifier, 1) { 
+        renderCard(modifier, 1) {
             requireBuilder().renderContent(content)
         }
     }
@@ -1340,20 +1349,25 @@ actual open class PlatformRenderer {
     private fun sanitizeHtml(htmlContent: String): String {
         // Basic HTML sanitization - remove dangerous elements and attributes
         var sanitized = htmlContent
-        
+
         // Remove script tags
-        sanitized = sanitized.replace(Regex("<script[^>]*>.*?</script>", setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)), "")
-        
+        sanitized = sanitized.replace(
+            Regex(
+                "<script[^>]*>.*?</script>",
+                setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)
+            ), ""
+        )
+
         // Remove dangerous attributes
         sanitized = sanitized.replace(Regex("\\s(on\\w+)=[\"'][^\"']*[\"']", RegexOption.IGNORE_CASE), "")
         sanitized = sanitized.replace(Regex("\\shref=[\"']javascript:[^\"']*[\"']", RegexOption.IGNORE_CASE), "")
-        
+
         // Remove dangerous tags but keep content
         val dangerousTags = listOf("object", "embed", "applet", "iframe", "form", "input", "button")
         for (tag in dangerousTags) {
             sanitized = sanitized.replace(Regex("</?$tag[^>]*>", RegexOption.IGNORE_CASE), "")
         }
-        
+
         return sanitized
     }
 }
