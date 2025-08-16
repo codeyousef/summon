@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' - Spring Boot Todo App'">Auth - Spring Boot Todo App</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .error { color: #d32f2f; margin: 10px 0; }
+        .success { color: #2e7d32; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div id="root" th:utext="${content}">
+        <!-- Summon AuthPage component will be rendered here -->
+    </div>
+    
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        let isLogin = /*[[${isLogin}]]*/ true;
+        let language = /*[[${language}]]*/ 'en';
+        let theme = /*[[${theme}]]*/ 'light';
+        
+        // Store token in localStorage
+        function setAuthToken(token) {
+            localStorage.setItem('authToken', token);
+        }
+        
+        function getAuthToken() {
+            return localStorage.getItem('authToken');
+        }
+        
+        function removeAuthToken() {
+            localStorage.removeItem('authToken');
+        }
+        
+        // Auth submission
+        function submitAuth() {
+            const form = new FormData();
+            
+            if (!isLogin) {
+                const email = document.querySelector('input[name="email"]').value;
+                if (!email) {
+                    alert('Email is required');
+                    return;
+                }
+                form.append('email', email);
+            }
+            
+            const username = document.querySelector('input[name="username"]').value;
+            const password = document.querySelector('input[name="password"]').value;
+            
+            if (!username || !password) {
+                alert('Username and password are required');
+                return;
+            }
+            
+            const requestData = {
+                username: username,
+                password: password
+            };
+            
+            if (!isLogin) {
+                requestData.email = document.querySelector('input[name="email"]').value;
+            }
+            
+            const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+            
+            fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.token) {
+                        setAuthToken(data.token);
+                    }
+                    window.location.href = '/todos?username=' + encodeURIComponent(data.user.username) + '&lang=' + language + '&theme=' + theme;
+                } else {
+                    alert(data.message || 'Authentication failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Network error. Please try again.');
+            });
+        }
+        
+        function toggleAuthMode() {
+            const newMode = isLogin ? 'register' : 'login';
+            window.location.href = '/auth?login=' + (!isLogin) + '&lang=' + language + '&theme=' + theme;
+        }
+        
+        // Check if user is already logged in
+        window.addEventListener('DOMContentLoaded', function() {
+            const token = getAuthToken();
+            if (token) {
+                // Verify token is still valid
+                fetch('/api/auth/me', {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '/todos?username=' + encodeURIComponent(data.data.username) + '&lang=' + language + '&theme=' + theme;
+                    }
+                })
+                .catch(() => {
+                    // Token invalid, remove it
+                    removeAuthToken();
+                });
+            }
+        });
+        /*]]>*/
+    </script>
+</body>
+</html>

@@ -1,60 +1,70 @@
 package code.yousef.example.springboot
 
+import code.yousef.example.springboot.security.JwtAuthenticationFilter
+import code.yousef.example.springboot.service.CustomUserDetailsService
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.core.userdetails.User
-import org.springframework.security.core.userdetails.UserDetailsService
-import org.springframework.security.provisioning.InMemoryUserDetailsManager
+import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
-/**
- * Security configuration for the Spring Boot example application.
- * This configuration secures only the /admin path and allows all other paths to be accessed without authentication.
- */
 @Configuration
 @EnableWebSecurity
 class SecurityConfig {
 
-    /**
-     * Configure security filter chain to secure only the /admin path.
-     */
-    @Bean
-    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-        http
-            .csrf { csrf -> csrf.disable() }
-            .authorizeHttpRequests { authorize ->
-                authorize
-                    .requestMatchers("/admin/**").authenticated()
-                    .requestMatchers("/", "/api/**", "/css/**", "/js/**", "/images/**", "/webjars/**", "/error").permitAll()
-                    .anyRequest().permitAll()
-            }
-            .formLogin { form ->
-                form
-                    .defaultSuccessUrl("/admin", true)
-                    .permitAll()
-            }
-            .logout { logout ->
-                logout
-                    .logoutSuccessUrl("/")
-                    .permitAll()
-            }
+    @Autowired
+    private lateinit var jwtAuthenticationFilter: JwtAuthenticationFilter
+    
+    @Autowired
+    private lateinit var customUserDetailsService: CustomUserDetailsService
 
-        return http.build()
+    @Bean
+    fun passwordEncoder(): PasswordEncoder {
+        return BCryptPasswordEncoder()
+    }
+    
+    @Bean
+    fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager {
+        return config.authenticationManager
+    }
+    
+    @Bean
+    fun corsConfigurationSource(): CorsConfigurationSource {
+        val configuration = CorsConfiguration()
+        configuration.allowedOriginPatterns = listOf("*")
+        configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+        configuration.allowedHeaders = listOf("*")
+        configuration.allowCredentials = true
+        
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", configuration)
+        return source
     }
 
-    /**
-     * Configure in-memory user details service with a default admin user.
-     */
     @Bean
-    fun userDetailsService(): UserDetailsService {
-        val userDetails = User.withDefaultPasswordEncoder()
-            .username("admin")
-            .password("password")
-            .roles("ADMIN")
-            .build()
+    fun filterChain(http: HttpSecurity): SecurityFilterChain {
+        http
+            .cors { it.configurationSource(corsConfigurationSource()) }
+            .csrf { it.disable() }
+            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .authorizeHttpRequests { requests ->
+                requests
+                    .requestMatchers("/", "/auth", "/api/auth/**", "/h2-console/**", "/health", "/static/**", "/css/**", "/js/**").permitAll()
+                    .anyRequest().authenticated()
+            }
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
+            .headers { headers -> headers.frameOptions().disable() } // For H2 console
 
-        return InMemoryUserDetailsManager(userDetails)
+        return http.build()
     }
 }

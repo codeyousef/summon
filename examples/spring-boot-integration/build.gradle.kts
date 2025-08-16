@@ -31,11 +31,26 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    
+    // JWT dependencies
+    implementation("io.jsonwebtoken:jjwt-api:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-impl:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
+    
+    // H2 Database
+    implementation("com.h2database:h2")
+    
+    // BCrypt for password hashing
+    implementation("org.springframework.security:spring-security-crypto")
     
     // Kotlin dependencies
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    
+    // DateTime handling
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
     
     // Summon JVM library using version from version-helper.gradle.kts
     // NOTE: If using this example standalone, replace with: implementation("io.github.codeyousef:summon-jvm:$summonVersion")
@@ -49,6 +64,7 @@ dependencies {
     
     // Test dependencies
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.security:spring-security-test")
 }
 
 tasks.withType<KotlinCompile> {

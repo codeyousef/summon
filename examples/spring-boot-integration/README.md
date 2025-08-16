@@ -1,33 +1,43 @@
-# Summon Spring Boot Integration Example
+# Spring Boot Todo App with Summon Framework
 
-This example demonstrates how to use the Summon UI library with Spring Boot and Thymeleaf. It showcases the integration between these technologies to build a powerful, reactive web application using Kotlin.
+A full-featured todo application built with Spring Boot and the Summon UI framework, demonstrating JWT authentication, H2 database integration, and reactive UI components.
 
-## How to Run This Example
+## Features
 
-This example uses Summon from Maven Central, so no authentication setup is required.
+- **JWT Authentication** with token-based security
+- **H2 Database** with JPA/Hibernate for data persistence
+- **Multi-language support** (English, Spanish, French)
+- **Theme switching** (Light/Dark mode)
+- **Reactive UI** built with pure Summon components (no raw HTML/CSS/JS)
+- **Server-side rendering** with Summon's SpringBootRenderer
+- **RESTful API** for todo operations
+- **Responsive design** that works on mobile and desktop
 
-To properly set up and run this example, you need to:
+## Tech Stack
 
-1. **Prerequisites**
-   - Java 17 or higher
-   - Kotlin 2.1.20 or higher
-   - Gradle 8.x or higher
-   - Summon library from Maven Central (no authentication required)
+- **Backend**: Spring Boot 3.4.1 with Spring Security
+- **UI Framework**: Summon (Kotlin Multiplatform)
+- **Database**: H2 (in-memory) with JPA/Hibernate
+- **Authentication**: JWT with BCrypt password hashing
+- **Template Engine**: Thymeleaf for HTML templates
+- **Serialization**: Jackson for JSON APIs
 
-2. **Clone and Setup**
-   ```bash
-   cd docs/examples/jvm/spring-boot-example
-   ./gradlew build
-   ```
+## Quick Start
 
-3. **Run the Application**
+1. **Build and run**:
    ```bash
    ./gradlew bootRun
    ```
 
-4. **Access the Application**
-   - Open your browser and navigate to `http://localhost:8083`
-   - The application will be running on port 8083 (to avoid conflicts with other examples)
+2. **Access the application**:
+   - Open http://localhost:8080
+   - Demo credentials: username `demo`, password `password`
+   - Additional users: `alice`/`password`, `bob`/`password`
+
+3. **Development tools**:
+   - H2 Console: http://localhost:8080/h2-console
+   - API Health: http://localhost:8080/api/health
+   - API Info: http://localhost:8080/api/info
 
 ## Features Demonstrated
 

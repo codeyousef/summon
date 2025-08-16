@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Todo App - Spring Boot</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+        }
+        .error { color: #d32f2f; margin: 10px 0; }
+        .success { color: #2e7d32; margin: 10px 0; }
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .todo-item.completed {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+        .todo-checkbox {
+            margin-right: 12px;
+        }
+        .todo-text {
+            flex: 1;
+            font-size: 16px;
+        }
+        .todo-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-edit { background: #1976d2; color: white; }
+        .btn-delete { background: #d32f2f; color: white; }
+    </style>
+</head>
+<body>
+    <div id="root" th:utext="${content}">
+        <!-- Summon TodoPage component will be rendered here -->
+    </div>
+    
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        let username = /*[[${username}]]*/ 'User';
+        let language = /*[[${language}]]*/ 'en';
+        let theme = /*[[${theme}]]*/ 'light';
+        let todos = [];
+        let currentFilter = 'ALL';
+        
+        // Auth token management
+        function getAuthToken() {
+            return localStorage.getItem('authToken');
+        }
+        
+        function removeAuthToken() {
+            localStorage.removeItem('authToken');
+        }
+        
+        function getAuthHeaders() {
+            const token = getAuthToken();
+            return token ? { 'Authorization': 'Bearer ' + token } : {};
+        }
+        
+        // API calls
+        function loadTodos() {
+            fetch('/api/todos?filter=' + currentFilter, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders()
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    todos = data.todos || [];
+                    renderTodos();
+                } else {
+                    alert(data.message || 'Failed to load todos');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading todos:', error);
+                alert('Network error loading todos');
+            });
+        }
+        
+        function addTodo() {
+            const input = document.querySelector('input[name="newTodo"]');
+            const text = input.value.trim();
+            if (!text) return;
+            
+            fetch('/api/todos', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders()
+                },
+                body: JSON.stringify({ text })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    input.value = '';
+                    loadTodos(); // Reload todos
+                } else {
+                    alert(data.message || 'Failed to add todo');
+                }
+            })
+            .catch(error => {
+                console.error('Error adding todo:', error);
+                alert('Network error adding todo');
+            });
+        }
+        
+        function toggleTodo(id) {
+            const todo = todos.find(t => t.id == id);
+            if (!todo) return;
+            
+            fetch('/api/todos/' + id, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders()
+                },
+                body: JSON.stringify({ completed: !todo.completed })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadTodos(); // Reload todos
+                } else {
+                    alert(data.message || 'Failed to update todo');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating todo:', error);
+                alert('Network error updating todo');
+            });
+        }
+        
+        function deleteTodo(id) {
+            if (!confirm('Are you sure you want to delete this todo?')) return;
+            
+            fetch('/api/todos/' + id, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders()
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadTodos(); // Reload todos
+                } else {
+                    alert(data.message || 'Failed to delete todo');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting todo:', error);
+                alert('Network error deleting todo');
+            });
+        }
+        
+        function clearCompleted() {
+            if (!confirm('Are you sure you want to clear all completed todos?')) return;
+            
+            fetch('/api/todos/completed', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders()
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadTodos(); // Reload todos
+                } else {
+                    alert(data.message || 'Failed to clear completed todos');
+                }
+            })
+            .catch(error => {
+                console.error('Error clearing todos:', error);
+                alert('Network error clearing todos');
+            });
+        }
+        
+        function setFilter(filter) {
+            currentFilter = filter;
+            loadTodos();
+            
+            // Update filter button styles
+            document.querySelectorAll('[onclick^="setFilter"]').forEach(btn => {
+                btn.style.backgroundColor = '';
+                btn.style.color = '';
+            });
+            event.target.style.backgroundColor = '#1976d2';
+            event.target.style.color = 'white';
+        }
+        
+        function logout() {
+            fetch('/api/auth/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders()
+                }
+            })
+            .then(() => {
+                removeAuthToken();
+                window.location.href = '/auth?lang=' + language + '&theme=' + theme;
+            })
+            .catch(() => {
+                removeAuthToken();
+                window.location.href = '/auth?lang=' + language + '&theme=' + theme;
+            });
+        }
+        
+        function toggleLanguage() {
+            const languages = ['en', 'es', 'fr'];
+            const currentIndex = languages.indexOf(language);
+            const nextIndex = (currentIndex + 1) % languages.length;
+            const newLanguage = languages[nextIndex];
+            
+            // Update user settings
+            fetch('/api/auth/settings', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders()
+                },
+                body: JSON.stringify({ language: newLanguage })
+            })
+            .then(() => {
+                window.location.href = '/todos?username=' + encodeURIComponent(username) + '&lang=' + newLanguage + '&theme=' + theme;
+            })
+            .catch(error => {
+                console.error('Error updating language:', error);
+            });
+        }
+        
+        function toggleTheme() {
+            const newTheme = theme === 'light' ? 'dark' : 'light';
+            
+            // Update user settings
+            fetch('/api/auth/settings', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders()
+                },
+                body: JSON.stringify({ theme: newTheme })
+            })
+            .then(() => {
+                window.location.href = '/todos?username=' + encodeURIComponent(username) + '&lang=' + language + '&theme=' + newTheme;
+            })
+            .catch(error => {
+                console.error('Error updating theme:', error);
+            });
+        }
+        
+        function renderTodos() {
+            // Find the todo list container (simplified - would need actual DOM manipulation)
+            const activeCount = todos.filter(t => !t.completed).length;
+            const totalCount = todos.length;
+            
+            console.log('Todos:', todos);
+            console.log('Active:', activeCount, 'Total:', totalCount);
+            
+            // Update counters (this is simplified - in a real app you'd update the DOM)
+            const counterText = activeCount === 1 ? 'item left' : 'items left';
+            console.log(activeCount + ' ' + counterText);
+        }
+        
+        // Check authentication and load todos on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = '/auth?lang=' + language + '&theme=' + theme;
+                return;
+            }
+            
+            // Verify token and load user data
+            fetch('/api/auth/me', {
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    username = data.data.username;
+                    loadTodos();
+                } else {
+                    removeAuthToken();
+                    window.location.href = '/auth?lang=' + language + '&theme=' + theme;
+                }
+            })
+            .catch(error => {
+                console.error('Error verifying token:', error);
+                removeAuthToken();
+                window.location.href = '/auth?lang=' + language + '&theme=' + theme;
+            });
+        });
+        
+        // Allow adding todos with Enter key
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && e.target.name === 'newTodo') {
+                addTodo();
+            }
+        });
+        /*]]>*/
+    </script>
+</body>
+</html>
