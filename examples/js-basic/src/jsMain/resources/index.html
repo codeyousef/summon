@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summon JS Example (Standalone)</title>
+    <!-- Minimal base styles - all styling now handled by Summon components -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8fafc;
+            min-height: 100vh;
+        }
+        
+        #root {
+            min-height: 100vh;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Root element for Summon application -->
+    <div id="root">
+        <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-size: 18px; color: #666;">
+            Loading Summon JS Example...
+        </div>
+    </div>
+    
+    <!-- Load the compiled Kotlin/JS application -->
+    <script src="js.js"></script>
+    
+    <!-- Minimal fallback error handling -->
+    <script>
+        // Show error if Summon fails to initialize after 10 seconds
+        setTimeout(function() {
+            const root = document.getElementById('root');
+            if (root && root.innerHTML.includes('Loading')) {
+                root.innerHTML = '<div style="padding: 20px; color: #dc2626; font-family: monospace;"><h2>Summon Failed to Load</h2><p>Check console for errors and ensure Kotlin/JS compilation succeeded.</p></div>';
+            }
+        }, 10000);
+    </script>
+</body>
+</html>

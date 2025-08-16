@@ -2,6 +2,186 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Major Framework Restructuring and Feature Additions
+
+This release represents a significant milestone with major architectural changes, new tooling, and complete onClick functionality implementation. The framework has been restructured for better maintainability and includes new publishing capabilities and development tools.
+
+### Added
+
+#### 🏗️ **Project Restructuring**
+- **Modular Architecture**: Restructured project into separate modules for better organization
+  - `summon-core/` - Core framework functionality
+  - `examples/` - Integration examples and demos
+  - `docs/` - Comprehensive documentation and API reference
+- **Centralized Version Management**: Unified version configuration across all modules
+- **Enhanced Build System**: Improved Gradle configuration with better dependency management
+
+#### 📦 **Maven Central Publishing**
+- **Official Maven Central Distribution**: Summon is now available on Maven Central
+  - `io.github.codeyousef:summon:0.2.9.1` - Multiplatform artifact
+  - `io.github.codeyousef:summon-jvm:0.2.9.1` - JVM-specific artifact  
+  - `io.github.codeyousef:summon-js:0.2.9.1` - JavaScript-specific artifact
+- **Automated Publishing Pipeline**: GitHub Actions workflow for seamless releases
+- **Comprehensive POM Metadata**: Proper Maven metadata with licensing, SCM, and developer information
+- **Artifact Signing**: GPG-signed artifacts for security and authenticity
+
+#### 🛠️ **CLI Development Tool** 
+- **Summon CLI**: New command-line interface for project scaffolding and development
+  - `summon init` - Initialize new Summon projects with templates
+  - `summon create` - Generate components, pages, and other project artifacts
+  - `summon generate` - Code generation utilities for common patterns
+- **Project Templates**: Pre-configured templates for different frameworks
+  - Quarkus integration template
+  - Spring Boot integration template  
+  - Standalone JavaScript template
+- **Interactive Setup**: Guided project initialization with framework-specific configurations
+- **Native Binary Distribution**: Compiled native executables for major platforms
+
+#### 🖱️ **Complete onClick Functionality** 
+- **Cross-Platform Event Handling**: Seamless onClick functionality across JVM and JS platforms
+  - **CommonMain**: `CallbackRegistry` for managing event handlers with unique IDs
+  - **JvmMain**: Server-side callback registration and hydration data generation
+  - **JsMain**: Client-side hydration system using compiled Kotlin/JS (no raw JavaScript)
+- **Automatic Hydration**: Server-rendered components become interactive without manual JavaScript
+- **Type-Safe Event Handling**: Full Kotlin type safety for event handlers across platforms
+- **HTTP Callback Bridge**: Client-side events can trigger server-side callbacks via HTTP requests
+
+#### 🎭 **Advanced UI Components**
+- **Modal/Dialog System**: Complete modal component framework
+  - **Modal Variants**: DEFAULT, ALERT, CONFIRMATION, FULLSCREEN modes
+  - **Modal Sizes**: SMALL, MEDIUM, LARGE, EXTRA_LARGE options
+  - **Backdrop Handling**: Click-to-dismiss and keyboard navigation (ESC)
+  - **Accessibility**: ARIA attributes and focus management
+  - **Convenience Functions**: `AlertModal()` and `ConfirmationModal()` helpers
+- **Loading Components**: Comprehensive loading indicators
+  - **Loading Variants**: SPINNER, DOTS, LINEAR, CIRCULAR animations
+  - **Loading Sizes**: SMALL, MEDIUM, LARGE options
+  - **LoadingOverlay**: Full-screen loading states with backdrop
+  - **Customizable**: Text, colors, and animation speeds
+- **Toast Notification System**: Complete notification management
+  - **Toast Variants**: INFO, SUCCESS, WARNING, ERROR types
+  - **Toast Positioning**: TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
+  - **ToastManager**: Programmatic toast creation and management
+  - **ToastProvider**: Context-based toast management with auto-dismiss
+  - **Action Support**: Interactive toasts with custom action buttons
+
+#### 🌐 **Network and Communication**
+- **WebSocket Support**: Full-featured WebSocket implementation
+  - **Cross-Platform**: expect/actual pattern for JVM and JS platforms
+  - **Auto-Reconnection**: Configurable reconnection with exponential backoff
+  - **Connection Management**: Automatic connection lifecycle handling
+  - **Event Handling**: onOpen, onMessage, onClose, onError callbacks
+  - **Protocol Support**: Multiple WebSocket sub-protocols
+  - **Keepalive**: Ping/pong mechanism for connection health (JVM)
+- **HTTP Client**: Comprehensive HTTP client with coroutines
+  - **Cross-Platform**: Unified API across JVM and JS platforms
+  - **HTTP Methods**: GET, POST, PUT, DELETE, PATCH support
+  - **Request/Response**: Full HTTP request and response handling
+  - **JSON Integration**: Built-in JSON serialization/deserialization
+  - **Form Data**: Support for form-encoded data submission
+  - **Headers**: Complete HTTP header management
+  - **Error Handling**: Structured error responses and exception handling
+
+#### 💾 **Storage and Persistence**
+- **Storage API**: Cross-platform storage abstraction
+  - **Storage Types**: LOCAL, SESSION, MEMORY storage options
+  - **Unified Interface**: Consistent API across all platforms
+  - **TypedStorage**: Type-safe storage wrapper for structured data
+  - **Automatic Serialization**: JSON serialization for complex objects
+  - **Error Handling**: Graceful fallbacks for storage unavailability
+
+#### 📚 **Enhanced Documentation**
+- **API Reference**: Comprehensive API documentation with examples
+  - Component API reference with usage patterns
+  - Modifier system documentation with type-safe examples
+  - Platform-specific implementation guides
+- **Integration Guides**: Step-by-step guides for framework integration
+- **Migration Documentation**: Guidance for upgrading from previous versions
+
+#### 🧹 **Example Project Cleanup**
+- **Pure Summon Implementation**: All example projects now use only Summon components
+  - **Spring Boot Example**: Removed all raw JavaScript (`app.js`) and replaced with `SummonPureComponents.kt`
+  - **JS Basic Example**: Complete transformation to use Summon runtime with proper component composition
+  - **Quarkus Example**: Removed raw CSS (`style.css`) and JavaScript (`script.js`) files
+- **No Raw HTML/CSS/JS**: Zero instances of raw web technologies in any example
+  - All styling through type-safe Summon modifiers
+  - All interactions through Summon event handling
+  - All layouts through Summon component composition
+- **Error Handling**: Even error displays use pure Summon components (e.g., `SummonErrorDisplay`)
+- **Template Cleanup**: Removed legacy HTMX/Qute templates with embedded styling
+
+### Changed
+
+#### ⚡ **Performance Improvements**
+- **Optimized Build Process**: Faster compilation and reduced build times
+- **Efficient Asset Bundling**: Automatic Kotlin/JS bundle generation and optimization
+- **Resource Management**: Improved static resource handling and caching
+
+#### 🔧 **Developer Experience**
+- **Type-Safe Modifiers**: Enhanced modifier system with proper type safety
+  - `.fontSize(12.px)` instead of `.fontSize("12px")`
+  - `.cursor(Cursor.Pointer)` instead of `.cursor("pointer")`
+  - `.gap(theme.spacing.md)` with proper spacing tokens
+- **Improved Error Messages**: Better compilation and runtime error reporting
+- **Enhanced IDE Support**: Better code completion and error detection
+
+#### 🏛️ **Architecture Improvements**
+- **Platform Abstraction**: Cleaner separation between platform-specific implementations
+- **Rendering Pipeline**: Improved rendering performance and consistency
+- **State Management**: Enhanced state handling patterns and lifecycle management
+
+### Technical Details
+
+#### **onClick Implementation Architecture**
+```kotlin
+// Developer writes this:
+Button(
+    onClick = { handleAction() },
+    label = "Click Me"
+)
+
+// Framework generates:
+// 1. JVM: Registers callback, outputs HTML with data-onclick-id
+// 2. JS: Hydration client attaches event listeners  
+// 3. Execution: Client events trigger server callbacks via HTTP
+```
+
+#### **Build System Enhancements**
+- **Multi-Module Support**: Independent building and testing of modules
+- **Dependency Management**: Centralized version catalogs and dependency resolution
+- **Cross-Platform Testing**: Automated testing across JVM, JS, and native platforms
+
+#### **Publishing Infrastructure**
+- **Staging Repository**: Automated staging and verification before release
+- **Version Validation**: Automatic version conflict detection and resolution
+- **Documentation Publishing**: API docs automatically published with releases
+
+### Migration Guide
+
+#### **For Existing Projects**
+1. **Update Dependencies**: Replace local Summon references with Maven Central artifacts
+2. **Modifier Updates**: Replace string-based modifiers with type-safe equivalents
+3. **onClick Handlers**: No changes needed - existing onClick handlers now work automatically
+4. **Build Configuration**: Update Gradle files to use new module structure
+
+#### **For New Projects**
+- Use `summon init` CLI command for guided project setup
+- Choose appropriate artifact based on target platform
+- Follow integration guides for framework-specific setup
+
+### Breaking Changes
+- **Module Structure**: Project layout has changed (examples moved to separate directory)
+- **Build Configuration**: Some Gradle configuration paths have changed
+- **Internal APIs**: Some internal APIs have been reorganized (public APIs unchanged)
+
+### Deprecations
+- Raw CSS string modifiers (still supported but deprecated in favor of type-safe alternatives)
+- Direct platform renderer access (use framework abstractions instead)
+
+---
+
 ## [0.2.9.1]
 
 ### Major Code Refactoring and Cleanup
