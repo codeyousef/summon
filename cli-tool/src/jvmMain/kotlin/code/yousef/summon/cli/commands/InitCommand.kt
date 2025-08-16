@@ -3,6 +3,7 @@ package code.yousef.summon.cli.commands
 import code.yousef.summon.cli.generators.ProjectGenerator
 import code.yousef.summon.cli.templates.ProjectTemplate
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.default
 import com.github.ajalt.clikt.parameters.options.default
@@ -58,6 +59,11 @@ class InitCommand : CliktCommand(
         help = "Generate minimal/blank project without examples"
     ).flag()
 
+    private val examples by option(
+        "--examples", "-e",
+        help = "Include example components"
+    ).flag()
+
     override fun run() {
         val targetDir = determineTargetDirectory()
 
@@ -66,9 +72,17 @@ class InitCommand : CliktCommand(
         echo("📦 Template: $template")
         echo("🏷️  Package: $packageName")
 
+        var finalProjectName = projectName
+        var finalPackageName = packageName
+        var finalMinimal = minimal
+        var finalExamples = examples
+
         if (interactive) {
-            runInteractiveMode()
-            return
+            val interactiveResult = runInteractiveMode()
+            finalProjectName = interactiveResult.projectName
+            finalPackageName = interactiveResult.packageName
+            finalMinimal = interactiveResult.minimal
+            finalExamples = interactiveResult.examples
         }
 
         // Validate target directory
@@ -83,11 +97,11 @@ class InitCommand : CliktCommand(
             val generator = ProjectGenerator(projectTemplate)
 
             val config = ProjectGenerator.Config(
-                projectName = projectName,
-                packageName = packageName,
+                projectName = finalProjectName,
+                packageName = finalPackageName,
                 targetDirectory = targetDir,
                 templateType = template,
-                minimal = minimal,
+                minimal = finalMinimal,
                 overwrite = force
             )
 
@@ -142,16 +156,61 @@ class InitCommand : CliktCommand(
         }
     }
 
-    private fun runInteractiveMode() {
+    private data class InteractiveResult(
+        val projectName: String,
+        val packageName: String,
+        val minimal: Boolean,
+        val examples: Boolean
+    )
+
+    private fun runInteractiveMode(): InteractiveResult {
         echo("🔧 Interactive project setup")
         echo("Press Enter to use default values shown in [brackets]")
         echo("")
 
-        // TODO: Implement interactive prompts using Clikt's prompt functionality
-        echo("⚠️  Interactive mode not yet implemented. Using provided options.")
+        // Implement interactive prompts using basic input
+        val finalProjectName = projectName ?: run {
+            echo("Project name [my-summon-app]: ", trailingNewline = false)
+            val input = readLine()?.trim()
+            if (input.isNullOrBlank()) "my-summon-app" else input
+        }
 
-        // For now, fall back to non-interactive mode
-        // In the future, this would use clikt's prompt() function to ask for user input
+        val finalPackageName = packageName ?: run {
+            echo("Package name [com.example.app]: ", trailingNewline = false)
+            val input = readLine()?.trim()
+            if (input.isNullOrBlank()) "com.example.app" else input
+        }
+
+        val isMinimal = minimal || run {
+            echo("Create minimal project? [y/N]: ", trailingNewline = false)
+            readLine()?.trim()?.lowercase() == "y"
+        }
+
+        val includeExamples = !isMinimal && (examples || run {
+            echo("Include example components? [Y/n]: ", trailingNewline = false)
+            readLine()?.trim()?.lowercase() != "n"
+        })
+
+        echo("📝 Project configuration:")
+        echo("   Name: $finalProjectName")
+        echo("   Package: $finalPackageName")
+        echo("   Type: ${if (isMinimal) "Minimal" else "Full"}")
+        if (!isMinimal) echo("   Examples: ${if (includeExamples) "Yes" else "No"}")
+        echo("")
+
+        echo("Continue with this configuration? [Y/n]: ", trailingNewline = false)
+        val confirm = readLine()?.trim()?.lowercase()
+        if (confirm == "n") {
+            echo("❌ Project creation cancelled")
+            throw ProgramResult(1)
+        }
+
+        return InteractiveResult(
+            projectName = finalProjectName,
+            packageName = finalPackageName,
+            minimal = isMinimal,
+            examples = includeExamples
+        )
     }
 
     private fun determineTargetDirectory(): File {

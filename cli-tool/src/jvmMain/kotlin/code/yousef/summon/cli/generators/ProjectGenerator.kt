@@ -618,7 +618,7 @@ import kotlinx.browser.window
 
 @Composable
 fun App() {
-    val count = remember { mutableStateOf(0) }
+    val counter = remember { mutableStateOf(0) }
     
     Column(
         modifier = Modifier.padding(16)
@@ -629,13 +629,13 @@ fun App() {
         )
         
         BasicText(
-            text = "Count: ${'$'}{count.value}",
+            text = "Count: ${'$'}{counter.value}",
             modifier = Modifier.padding(bottom = 16)
         )
         
         Button(
             text = "Click me!",
-            onClick = { count.value++ }
+            onClick = { counter.value++ }
         )
     }
 }
@@ -770,8 +770,129 @@ Add your components in this directory.
 
 ## Usage
 
+### Basic Components
+
 ```kotlin
-// TODO: Add usage examples
+@Composable
+fun MyApp() {
+    ThemeProvider(theme = MaterialTheme) {
+        Column(
+            modifier = Modifier.padding(16)
+        ) {
+            Text(
+                text = "Welcome to Summon!",
+                style = MaterialTheme.typography.h1
+            )
+            
+            Button(
+                onClick = { /* Handle click */ },
+                modifier = Modifier.padding(top = 8)
+            ) {
+                Text("Get Started")
+            }
+        }
+    }
+}
+```
+
+### Creating Components
+
+```kotlin
+@Composable
+fun UserCard(user: User, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(8),
+        elevation = 4
+    ) {
+        Row(
+            modifier = Modifier.padding(16),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                src = user.avatarUrl,
+                alt = "Profile picture",
+                modifier = Modifier
+                    .size(48)
+                    .clip(CircleShape)
+            )
+            
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 12)
+            ) {
+                Text(
+                    text = user.name,
+                    style = MaterialTheme.typography.h6
+                )
+                Text(
+                    text = user.email,
+                    style = MaterialTheme.typography.body2,
+                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f)
+                )
+            }
+        }
+    }
+}
+```
+
+### State Management
+
+```kotlin
+@Composable
+fun Counter() {
+    var counter by remember { mutableStateOf(0) }
+    
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Count: ${'$'}counter")
+        
+        Row {
+            Button(onClick = { ${'$'}counter-- }) {
+                Text("-")
+            }
+            
+            Button(
+                onClick = { ${'$'}counter++ },
+                modifier = Modifier.padding(start = 8)
+            ) {
+                Text("+")
+            }
+        }
+    }
+}
+```
+
+### Routing (File-based)
+
+Create pages in `src/commonMain/kotlin/routing/pages/`:
+
+```kotlin
+// src/commonMain/kotlin/routing/pages/Index.kt
+@Composable
+fun Index() {
+    Column {
+        Text("Home Page")
+        Link(href = "/about") {
+            Text("Go to About")
+        }
+    }
+}
+
+// src/commonMain/kotlin/routing/pages/About.kt
+@Composable
+fun About() {
+    Column {
+        Text("About Page")
+        Link(href = "/") {
+            Text("Go Home")
+        }
+    }
+}
 ```
             """.trimIndent()
             )
@@ -787,11 +908,97 @@ Add your components in this directory.
                 """
 package ${variables["PACKAGE_NAME"]}
 
+import code.yousef.summon.annotation.Composable
+import code.yousef.summon.components.core.BasicText as Text
+import code.yousef.summon.components.input.Button
+import code.yousef.summon.components.layout.Column
+import code.yousef.summon.state.mutableStateOf
+import code.yousef.summon.state.remember
+import code.yousef.summon.runtime.MockPlatformRenderer
+import code.yousef.summon.test.TestComposer
+import kotlin.test.Test
+import kotlin.test.assertTrue
+import kotlin.getValue
+import kotlin.setValue
+
 class ExampleComponentTest {
     
-    fun testExampleComponent() {
-        // TODO: Add component tests
-        // Test implementation needed
+    @Test
+    fun testBasicComponentRendering() {
+        // Test that components render without errors
+        val renderer = MockPlatformRenderer()
+        val composer = TestComposer(renderer)
+        
+        composer.compose {
+            ExampleComponent(text = "Test Text")
+        }
+        
+        // Verify component was rendered
+        assertTrue(renderer.hasRenderedElements())
+    }
+    
+    @Test
+    fun testComponentProps() {
+        // Test component with different props
+        val renderer = MockPlatformRenderer()
+        val composer = TestComposer(renderer)
+        
+        val testText = "Hello, World!"
+        composer.compose {
+            ExampleComponent(text = testText)
+        }
+        
+        // Verify text was passed correctly
+        assertTrue(renderer.getRenderedText().contains(testText))
+    }
+    
+    @Test
+    fun testComponentState() {
+        // Test stateful component behavior
+        val renderer = MockPlatformRenderer()
+        val composer = TestComposer(renderer)
+        
+        composer.compose {
+            var counter by remember { mutableStateOf(0) }
+            
+            Column {
+                Text("Count: ${'$'}counter")
+                Button(onClick = { ${'$'}counter++ }) {
+                    Text("Increment")
+                }
+            }
+        }
+        
+        // Verify initial state
+        assertTrue(renderer.getRenderedText().contains("Count: 0"))
+        
+        // Simulate button click and recompose
+        renderer.simulateClick("button")
+        composer.recompose()
+        
+        // Verify state update
+        assertTrue(renderer.getRenderedText().contains("Count: 1"))
+    }
+    
+    @Test
+    fun testComponentRecomposition() {
+        // Test that component updates on state changes
+        val renderer = MockPlatformRenderer()
+        val composer = TestComposer(renderer)
+        
+        var externalState by mutableStateOf("Initial")
+        
+        composer.compose {
+            Text(externalState)
+        }
+        
+        assertTrue(renderer.getRenderedText().contains("Initial"))
+        
+        // Change external state and recompose
+        externalState = "Updated"
+        composer.recompose()
+        
+        assertTrue(renderer.getRenderedText().contains("Updated"))
     }
 }
             """.trimIndent()

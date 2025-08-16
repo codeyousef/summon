@@ -414,25 +414,64 @@ private fun processInput(input: String): String {
         return """
 package components${variables["PACKAGE_SUFFIX"]}
 
+import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.MockPlatformRenderer
+import code.yousef.summon.test.TestComposer
+import kotlin.test.Test
+import kotlin.test.assertTrue
 
 /**
  * Tests for ${variables["COMPONENT_NAME"]} component
  */
 class ${variables["COMPONENT_NAME"]}Test {
     
+    @Test
     fun test${variables["COMPONENT_NAME"]}Creation() {
-        // TODO: Add component creation tests
-        // Test implementation needed
+        // Test that component renders without errors
+        val renderer = MockPlatformRenderer()
+        val composer = TestComposer(renderer)
+        
+        composer.compose {
+            ${variables["COMPONENT_NAME"]}()
+        }
+        
+        assertTrue(renderer.hasRenderedElements())
     }
     
+    @Test
     fun test${variables["COMPONENT_NAME"]}Behavior() {
-        // TODO: Add component behavior tests  
-        // Test implementation needed
+        // Test component interaction and state management
+        val renderer = MockPlatformRenderer()
+        val composer = TestComposer(renderer)
+        
+        composer.compose {
+            ${variables["COMPONENT_NAME"]}()
+        }
+        
+        // Test initial render
+        assertTrue(renderer.getRenderedText().isNotEmpty())
+        
+        // Test interactions if component has clickable elements
+        // renderer.simulateClick("button")
+        // composer.recompose()
+        // Add assertions for expected behavior changes
     }
     
+    @Test
     fun test${variables["COMPONENT_NAME"]}Props() {
-        // TODO: Add prop validation tests
-        // Test implementation needed
+        // Test component with different props
+        val renderer = MockPlatformRenderer()
+        val composer = TestComposer(renderer)
+        
+        // Test with various prop combinations
+        composer.compose {
+            ${variables["COMPONENT_NAME"]}(
+                // Add prop tests here based on component parameters
+            )
+        }
+        
+        // Verify props are correctly applied
+        assertTrue(renderer.hasRenderedElements())
     }
 }
         """.trimIndent()
