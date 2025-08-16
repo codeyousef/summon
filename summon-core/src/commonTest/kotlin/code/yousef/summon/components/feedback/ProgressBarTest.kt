@@ -5,7 +5,6 @@ import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.feedback.ProgressBar // Import the component
 import code.yousef.summon.components.feedback.ProgressType // Import ProgressType
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.util.runTestComposable
 import code.yousef.summon.util.TestFileInfo // Import for consistency in mock renderer boilerplate
 
 // Import other types used in PlatformRenderer methods for the mock
@@ -26,6 +25,7 @@ import kotlin.test.assertSame
 
 // Import the shared MockPlatformRenderer
 import code.yousef.summon.runtime.MockPlatformRenderer
+import code.yousef.summon.util.runTestComposable
 
 class ProgressBarTest {
 

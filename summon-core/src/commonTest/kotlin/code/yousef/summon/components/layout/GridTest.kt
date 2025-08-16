@@ -4,7 +4,7 @@ import code.yousef.summon.modifier.BorderStyle
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.border
 import code.yousef.summon.runtime.MockPlatformRenderer 
-import code.yousef.summon.util.runTestComposable 
+import code.yousef.summon.util.runTestComposable
 import kotlinx.html.FlowContent
 import kotlin.test.Test
 import kotlin.test.assertEquals

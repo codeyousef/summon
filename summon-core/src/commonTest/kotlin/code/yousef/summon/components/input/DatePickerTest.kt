@@ -7,7 +7,6 @@ import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.cursor
 import code.yousef.summon.state.mutableStateOf
 import code.yousef.summon.util.TestComposer
-import code.yousef.summon.util.runTestComposable
 import kotlinx.datetime.LocalDate
 
 // Import other types used in PlatformRenderer methods for the mock
@@ -30,6 +29,7 @@ import kotlin.test.assertTrue
 import kotlin.test.assertNull
 
 import code.yousef.summon.runtime.MockPlatformRenderer
+import code.yousef.summon.util.runTestComposable
 
 class DatePickerTest {
 

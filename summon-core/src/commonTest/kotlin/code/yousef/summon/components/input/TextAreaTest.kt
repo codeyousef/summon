@@ -1,5 +1,6 @@
 package code.yousef.summon.components.input
 
+import code.yousef.summon.util.runTestComposable
 // Import other types used in PlatformRenderer methods for the mock
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.IconType
@@ -8,7 +9,6 @@ import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.*
-import code.yousef.summon.util.runTestComposable
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.html.FlowContent

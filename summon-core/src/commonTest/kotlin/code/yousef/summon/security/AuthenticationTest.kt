@@ -105,11 +105,7 @@ class AuthenticationTest {
         val result = AuthenticationResult.Success(authentication)
 
         // Verify the result
-        // Using when expression to access the authentication property safely
-        when (result) {
-            is AuthenticationResult.Success -> assertEquals(authentication, result.authentication)
-            else -> fail("Expected Success result")
-        }
+        assertEquals(authentication, result.authentication)
     }
 
     @Test
@@ -121,10 +117,6 @@ class AuthenticationTest {
         val result = AuthenticationResult.Failure(error)
 
         // Verify the result
-        // Using when expression to access the error property safely
-        when (result) {
-            is AuthenticationResult.Failure -> assertEquals(error, result.error)
-            else -> fail("Expected Failure result")
-        }
+        assertEquals(error, result.error)
     }
 }

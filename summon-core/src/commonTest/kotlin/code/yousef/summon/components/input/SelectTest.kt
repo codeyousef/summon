@@ -5,9 +5,9 @@ package code.yousef.summon.components.input
 // Import other types used in PlatformRenderer methods for the mock
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.MockPlatformRenderer
+import code.yousef.summon.util.runTestComposable
 import code.yousef.summon.state.SummonMutableState
 import code.yousef.summon.state.mutableStateOf
-import code.yousef.summon.util.runTestComposable
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

@@ -7,7 +7,6 @@ import code.yousef.summon.components.input.FileUpload // Import the component
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.state.State // Import the correct State interface
 import code.yousef.summon.util.TestComposer
-import code.yousef.summon.util.runTestComposable
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.LocalDate
 
@@ -28,6 +27,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertSame
 import code.yousef.summon.util.TestFileInfo // Import the test fixture
 import code.yousef.summon.runtime.MockPlatformRenderer
+import code.yousef.summon.util.runTestComposable
 import code.yousef.summon.components.input.FileInfo
 
 // REMOVED Test-specific implementation for FileInfo - Moved to TestFixtures.kt

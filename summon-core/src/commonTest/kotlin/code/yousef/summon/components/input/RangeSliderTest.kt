@@ -6,7 +6,6 @@ import code.yousef.summon.components.input.RangeSlider // Import the component
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.state.mutableStateOf
 import code.yousef.summon.util.TestComposer
-import code.yousef.summon.util.runTestComposable
 
 // Import other types used in PlatformRenderer methods for the mock
 import code.yousef.summon.runtime.SelectOption as RendererSelectOption
@@ -27,6 +26,7 @@ import kotlin.test.assertSame
 
 // Import MockPlatformRenderer
 import code.yousef.summon.runtime.MockPlatformRenderer
+import code.yousef.summon.util.runTestComposable
 
 class RangeSliderTest {
 

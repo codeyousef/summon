@@ -18,13 +18,13 @@ class StylingModifierExtrasTest {
     fun testTextAlign() {
         val stringValue = "justify"
         val modifierString = with(StylingModifierExtras) {
-            Modifier().textAlign(stringValue)
+            Modifier().textAlign(stringValue, component = null)
         }
         assertEquals(stringValue, modifierString.styles["text-align"], "StylingModifierExtras.textAlign(String) failed.")
 
         val enumValue = TextAlign.End
         val modifierEnum = with(StylingModifierExtras) {
-            Modifier().textAlign(enumValue)
+            Modifier().textAlign(enumValue, component = null)
         }
         assertEquals(enumValue.toString(), modifierEnum.styles["text-align"], "StylingModifierExtras.textAlign(Enum) failed.")
     }

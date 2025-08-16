@@ -9,7 +9,7 @@ import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.* // Covers PlatformRenderer, LocalPlatformRenderer
 import code.yousef.summon.runtime.MockPlatformRenderer // Explicit import for shared mock
-import code.yousef.summon.util.runTestComposable // Import shared utility
+import code.yousef.summon.util.runTestComposable
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.html.FlowContent

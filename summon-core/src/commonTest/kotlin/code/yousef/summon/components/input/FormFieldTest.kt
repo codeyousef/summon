@@ -5,7 +5,6 @@ import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.input.FormField // Import the component
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.util.TestComposer
-import code.yousef.summon.util.runTestComposable
 import code.yousef.summon.util.TestFileInfo // Needed for mock renderer boilerplate
 import code.yousef.summon.components.display.Text // Import Text
 import kotlinx.datetime.LocalTime
@@ -35,6 +34,7 @@ import kotlin.test.assertNull // Add assertNull import
 
 // Add import for shared MockPlatformRenderer
 import code.yousef.summon.runtime.MockPlatformRenderer
+import code.yousef.summon.util.runTestComposable
 
 class FormFieldTest {
 

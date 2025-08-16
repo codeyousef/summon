@@ -72,8 +72,8 @@ internal class TestComposer : Composer {
 // Helper to run composable in test environment (moved from component tests)
 // Note: This is kept for backward compatibility. New tests should use TestSetupUtils.
 @Deprecated(
-    "Use runBasicComposableTest from TestSetupUtils instead",
-    ReplaceWith("runBasicComposableTest(renderer, block = block)", "code.yousef.summon.util.runBasicComposableTest")
+    "Use runComposableTest from TestSetupUtils instead",
+    ReplaceWith("runComposableTest(renderer, block = block)", "code.yousef.summon.util.runComposableTest")
 )
 internal fun runTestComposable(renderer: PlatformRenderer, block: @Composable () -> Unit) {
     CompositionLocal.provideComposer(TestComposer()) {

@@ -3,7 +3,7 @@ package code.yousef.summon.components.core
 import code.yousef.summon.runtime.MockPlatformRenderer
 import code.yousef.summon.util.runTestComposable
 import code.yousef.summon.theme.Theme
-import code.yousef.summon.util.runBasicComposableTest
+import code.yousef.summon.util.runTestComposable
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -15,7 +15,7 @@ class ThemeProviderTest {
     fun testThemeProviderWithDefaultTheme() {
         val mockRenderer = MockPlatformRenderer()
 
-        runBasicComposableTest(mockRenderer) {
+        runTestComposable(mockRenderer) {
             ThemeProvider {
                 val theme = useTheme()
                 assertNotNull(theme)

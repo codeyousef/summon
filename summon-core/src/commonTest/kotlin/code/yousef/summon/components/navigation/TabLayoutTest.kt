@@ -1,5 +1,6 @@
 package code.yousef.summon.components.navigation
 
+import code.yousef.summon.util.runTestComposable
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.IconType
 import code.yousef.summon.components.feedback.AlertVariant

@@ -21,7 +21,7 @@ import code.yousef.summon.modifier.Modifier
  * @param block The composable code to test.
  * @return The renderer used, for further assertions.
  */
-fun runBasicComposableTest(
+fun runComposableTest(
     renderer: MockPlatformRenderer = MockPlatformRenderer(),
     composer: Composer = MockComposer(),
     block: @Composable () -> Unit
@@ -91,7 +91,7 @@ fun runMultipleTestScenarios(
 ) {
     scenarios.forEach { scenario ->
         val renderer = MockPlatformRenderer()
-        runBasicComposableTest(renderer) {
+        runComposableTest(renderer) {
             scenario.test()
         }
         scenario.verify(renderer)
