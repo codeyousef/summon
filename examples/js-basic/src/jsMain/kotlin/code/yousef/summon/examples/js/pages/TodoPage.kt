@@ -148,8 +148,8 @@ private fun Header() {
                     }
                     
                     Button(
-                        text = Translations.get("auth.logout", language),
                         onClick = { appState.logout() },
+                        label = Translations.get("auth.logout", language),
                         variant = ButtonVariant.SECONDARY,
                         modifier = Modifier()
                             .style("padding", "8px 16px")

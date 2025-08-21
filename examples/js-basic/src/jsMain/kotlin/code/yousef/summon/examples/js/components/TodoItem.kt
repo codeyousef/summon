@@ -26,7 +26,7 @@ fun TodoItem(todo: Todo) {
     ) {
         // Checkbox
         Checkbox(
-            checked = mutableStateOf(todo.completed),
+            checked = todo.completed,
             onCheckedChange = { appState.toggleTodo(todo.id) },
             modifier = Modifier()
                 .style("margin-right", "12px")
@@ -36,7 +36,7 @@ fun TodoItem(todo: Todo) {
         if (isEditing) {
             // Edit mode
             TextField(
-                value = appState.editingText,
+                value = appState.editingText.value,
                 onValueChange = { appState.editingText.value = it },
                 placeholder = todo.text,
                 modifier = Modifier()
@@ -51,8 +51,8 @@ fun TodoItem(todo: Todo) {
             
             // Save button
             Button(
-                text = Translations.get("todo.save", language),
                 onClick = { appState.saveEditingTodo() },
+                label = Translations.get("todo.save", language),
                 variant = ButtonVariant.PRIMARY,
                 modifier = Modifier()
                     .style("margin-right", "8px")
@@ -62,8 +62,8 @@ fun TodoItem(todo: Todo) {
             
             // Cancel button
             Button(
-                text = Translations.get("todo.cancel", language),
                 onClick = { appState.cancelEditingTodo() },
+                label = Translations.get("todo.cancel", language),
                 variant = ButtonVariant.SECONDARY,
                 modifier = Modifier()
                     .style("padding", "6px 12px")
@@ -85,8 +85,8 @@ fun TodoItem(todo: Todo) {
             
             // Edit button
             Button(
-                text = "✏️",
                 onClick = { appState.startEditingTodo(todo.id) },
+                label = "✏️",
                 variant = ButtonVariant.SECONDARY,
                 modifier = Modifier()
                     .style("margin-right", "8px")
@@ -102,8 +102,8 @@ fun TodoItem(todo: Todo) {
             
             // Delete button
             Button(
-                text = "🗑️",
                 onClick = { appState.deleteTodo(todo.id) },
+                label = "🗑️",
                 variant = ButtonVariant.DANGER,
                 modifier = Modifier()
                     .style("padding", "6px 8px")

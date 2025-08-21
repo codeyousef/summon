@@ -32,12 +32,10 @@ fun LanguageProvider(
     } finally {
         // Restore the previous language and direction when this composable leaves the composition
         // We need to preserve the original function references
-        if (prevLanguage is Function0<*>) {
-            LocalLanguage.provides(prevLanguage as Function0<Language>)
-        }
-        if (prevDirection is Function0<*>) {
-            LocalLayoutDirection.provides(prevDirection as Function0<LayoutDirection>)
-        }
+        @Suppress("UNCHECKED_CAST")
+        LocalLanguage.provides(prevLanguage as Function0<Language>)
+        @Suppress("UNCHECKED_CAST")
+        LocalLayoutDirection.provides(prevDirection as Function0<LayoutDirection>)
     }
 }
 

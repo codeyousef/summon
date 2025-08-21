@@ -45,9 +45,8 @@ fun Checkbox(
     if (composer?.inserting == true) {
         val renderer = LocalPlatformRenderer.current
 
-        // Cast to proper renderer function and call with parameters in the correct order
-        val renderCheckboxFunction: (Boolean, (Boolean) -> Unit, Boolean, Modifier) -> Unit = renderer::renderCheckbox
-        renderCheckboxFunction(
+        // Call renderCheckbox with the correct parameters including label
+        renderer.renderCheckbox(
             checked,
             { newValue: Boolean ->
                 if (enabled) {
@@ -63,6 +62,7 @@ fun Checkbox(
                 }
             },
             enabled,
+            label,  // Pass the label parameter
             finalModifier
         )
     }

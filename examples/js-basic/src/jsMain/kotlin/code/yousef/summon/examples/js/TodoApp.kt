@@ -2,12 +2,12 @@ package code.yousef.summon.examples.js
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.core.ThemeProvider
+import code.yousef.summon.components.core.EnhancedThemeConfig
 import code.yousef.summon.components.style.GlobalStyle
 import code.yousef.summon.examples.js.models.Theme
 import code.yousef.summon.examples.js.pages.AuthPage
 import code.yousef.summon.examples.js.pages.TodoPage
 import code.yousef.summon.examples.js.state.appState
-import code.yousef.summon.theme.EnhancedThemeConfig
 
 @Composable
 fun TodoApp() {

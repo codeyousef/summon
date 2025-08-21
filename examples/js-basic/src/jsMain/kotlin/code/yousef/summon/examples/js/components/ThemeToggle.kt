@@ -14,9 +14,9 @@ fun ThemeToggle() {
     val language = appState.currentLanguage.value
     
     Button(
-        text = if (theme == Theme.LIGHT) "🌙 ${Translations.get("theme.dark", language)}" 
-               else "☀️ ${Translations.get("theme.light", language)}",
         onClick = { appState.toggleTheme() },
+        label = if (theme == Theme.LIGHT) "🌙 ${Translations.get("theme.dark", language)}" 
+               else "☀️ ${Translations.get("theme.light", language)}",
         variant = ButtonVariant.SECONDARY,
         modifier = Modifier()
             .style("padding", "8px 16px")

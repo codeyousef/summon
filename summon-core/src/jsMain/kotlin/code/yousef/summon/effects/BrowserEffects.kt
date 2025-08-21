@@ -22,6 +22,7 @@ external interface BrowserHistory {
  * Browser history wrapper
  */
 class History {
+    @Suppress("UNCHECKED_CAST")
     private val browserHistory = window.asDynamic().history as BrowserHistory
 
     fun back() {
@@ -70,6 +71,7 @@ external interface BrowserNavigator {
  * Browser navigator information
  */
 class Navigator {
+    @Suppress("UNCHECKED_CAST")
     private val browserNavigator = window.asDynamic().navigator as BrowserNavigator
 
     val language: String = browserNavigator.language ?: "en-US"

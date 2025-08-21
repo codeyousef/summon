@@ -7,72 +7,75 @@ import org.w3c.dom.events.Event
  * Extension properties and functions for Element to provide access to common DOM properties and methods.
  */
 
-/**
- * Gets or sets the text content of an element.
- */
-var Element.textContent: String
-    get() = js("this.textContent || ''") as String
-    set(value) {
-        js("this.textContent = value")
-    }
+// textContent is already defined in Node, no need to redefine it
 
 /**
  * Sets an attribute on an element.
  */
 fun Element.setAttribute(name: String, value: String) {
-    js("this.setAttribute(name, value)")
+    this.asDynamic().setAttribute(name, value)
 }
 
 /**
  * Adds an event listener to an element.
  */
 fun Element.addEventListener(type: String, listener: (Event) -> Unit) {
-    js("this.addEventListener(type, listener)")
+    // Use direct property assignment with proper lambda conversion for Kotlin/JS
+    val jsHandler: (Event) -> dynamic = { event: Event ->
+        listener(event)
+        Unit
+    }
+    
+    when (type) {
+        "click" -> this.asDynamic().onclick = jsHandler
+        "change" -> this.asDynamic().onchange = jsHandler
+        "input" -> this.asDynamic().oninput = jsHandler
+        "submit" -> this.asDynamic().onsubmit = jsHandler
+        "keydown" -> this.asDynamic().onkeydown = jsHandler
+        "keyup" -> this.asDynamic().onkeyup = jsHandler
+        "focus" -> this.asDynamic().onfocus = jsHandler
+        "blur" -> this.asDynamic().onblur = jsHandler
+        "mouseenter" -> this.asDynamic().onmouseenter = jsHandler
+        "mouseleave" -> this.asDynamic().onmouseleave = jsHandler
+        else -> {
+            // Fallback to addEventListener for other event types
+            this.asDynamic().addEventListener(type, jsHandler)
+        }
+    }
 }
 
 /**
  * Appends a child element to this element.
  */
 fun Element.appendChild(child: Element) {
-    js("this.appendChild(child)")
+    this.asDynamic().appendChild(child)
 }
 
 /**
  * Gets or sets the value of an input element.
  */
 var Element.value: String
-    get() = js("this.value || ''") as String
-    set(value) {
-        js("this.value = value")
+    get() = this.asDynamic().value as? String ?: ""
+    set(newValue) {
+        this.asDynamic().value = newValue
     }
 
 /**
  * Gets or sets the disabled state of an input element.
  */
 var Element.disabled: Boolean
-    get() = js("this.disabled || false") as Boolean
-    set(value) {
-        js("this.disabled = value")
+    get() = this.asDynamic().disabled as? Boolean ?: false
+    set(newValue) {
+        this.asDynamic().disabled = newValue
     }
 
 /**
  * Gets or sets the selected state of an option element.
  */
 var Element.selected: Boolean
-    get() = js("this.selected || false") as Boolean
-    set(value) {
-        js("this.selected = value")
+    get() = this.asDynamic().selected as? Boolean ?: false
+    set(newValue) {
+        this.asDynamic().selected = newValue
     }
 
-/**
- * Gets the target of an event.
- */
-val Event.target: Element?
-    get() = js("this.target") as? Element
-
-/**
- * Logs an error message to the console.
- */
-fun console.error(message: String) {
-    js("console.error(message)")
-}
+// target is already defined in Event, no need to redefine it

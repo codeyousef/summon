@@ -413,7 +413,7 @@ fun infiniteTransition(
  * @param targetValue The target value to animate to
  * @param animation The animation to use
  */
-fun InfiniteTransition.animateFloat(
+fun InfiniteTransition.animateFloatExt(
     initialValue: Float,
     targetValue: Float,
     animation: Animation = TweenAnimation(durationMs = 1000, repeating = true)
@@ -428,7 +428,7 @@ fun InfiniteTransition.animateFloat(
  * @param targetValue The target value to animate to
  * @param animation The animation to use
  */
-fun InfiniteTransition.animateInt(
+fun InfiniteTransition.animateIntExt(
     initialValue: Int,
     targetValue: Int,
     animation: Animation = TweenAnimation(durationMs = 1000, repeating = true)

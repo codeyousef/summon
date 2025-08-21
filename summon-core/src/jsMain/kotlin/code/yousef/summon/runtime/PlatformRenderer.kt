@@ -7,6 +7,7 @@ import code.yousef.summon.components.feedback.AlertVariant
 import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.input.FileInfo
 import code.yousef.summon.components.navigation.Tab
+import code.yousef.summon.js.console
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.ModifierExtras.withAttribute
 import kotlinx.browser.document
@@ -16,6 +17,8 @@ import kotlinx.html.*
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLButtonElement
+import org.w3c.dom.HTMLSelectElement
+import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.HTMLStyleElement
 import org.w3c.dom.events.Event as DomEvent
 
@@ -30,6 +33,16 @@ actual open class PlatformRenderer {
 
     // For head elements management
     private val headElements = mutableListOf<String>()
+    
+    // Element caching for smart recomposition
+    private val elementCache = mutableMapOf<String, Element>()
+    private val usedElements = mutableSetOf<String>()
+    private var elementCounter = 0
+    private var isRecomposing = false
+    private var currentParentKey = "root"
+    private val parentKeyStack = mutableListOf<String>()
+    private val parentChildrenMap = mutableMapOf<Element, MutableList<String>>()
+    private val keyToParentMap = mutableMapOf<String, Element>()
 
     private class ElementStack {
         private val stack = mutableListOf<Element>()
@@ -53,6 +66,91 @@ actual open class PlatformRenderer {
             }
         }
     }
+    
+    /**
+     * Starts a recomposition cycle. Call this before recomposing to track which elements are used.
+     */
+    fun startRecomposition() {
+        isRecomposing = true
+        usedElements.clear()
+        elementCounter = 0  // Reset counter to ensure consistent keys across recompositions
+        currentParentKey = "root"  // Reset parent key
+        parentKeyStack.clear()
+        // Don't clear parentChildrenMap or keyToParentMap - we need them to track existing elements
+    }
+    
+    /**
+     * Ends a recomposition cycle. Removes elements that weren't used in this composition.
+     */
+    fun endRecomposition() {
+        if (isRecomposing) {
+            // Remove unused elements from their parents and cache
+            val unusedKeys = elementCache.keys - usedElements
+            unusedKeys.forEach { key ->
+                val element = elementCache[key]
+                if (element != null) {
+                    element.parentNode?.removeChild(element)
+                    elementCache.remove(key)
+                }
+            }
+            isRecomposing = false
+        }
+    }
+    
+    /**
+     * Generates a stable key for an element based on its type and position
+     */
+    private fun generateElementKey(tagName: String): String {
+        val key = "$currentParentKey:$tagName:${elementCounter++}"
+        return key
+    }
+    
+    /**
+     * Renders content into a specific container element.
+     * This sets up the element stack to use the container as the root.
+     */
+    fun renderInto(container: HTMLElement, content: @Composable () -> Unit) {
+        elementStack.push(container)
+        parentKeyStack.add(currentParentKey)
+        currentParentKey = "container"
+        
+        // Track this parent's children for proper cleanup
+        if (isRecomposing && !parentChildrenMap.containsKey(container)) {
+            parentChildrenMap[container] = mutableListOf()
+        }
+        
+        try {
+            content()
+            
+            // After rendering, clean up any children that weren't part of this composition
+            if (isRecomposing) {
+                cleanupUnusedChildren(container)
+            }
+        } finally {
+            elementStack.pop()
+            currentParentKey = parentKeyStack.removeAt(parentKeyStack.lastIndex)
+        }
+    }
+    
+    /**
+     * Removes children that weren't used in the current composition
+     */
+    private fun cleanupUnusedChildren(parent: Element) {
+        val childKeys = parentChildrenMap[parent] ?: return
+        val unusedChildKeys = childKeys.filter { !usedElements.contains(it) }
+        
+        unusedChildKeys.forEach { key ->
+            val element = elementCache[key]
+            if (element != null && element.parentNode == parent) {
+                parent.removeChild(element)
+                elementCache.remove(key)
+                keyToParentMap.remove(key)
+            }
+        }
+        
+        // Update the children list to only include used elements
+        parentChildrenMap[parent] = childKeys.filter { usedElements.contains(it) }.toMutableList()
+    }
 
     private fun createElement(
         tagName: String,
@@ -60,24 +158,91 @@ actual open class PlatformRenderer {
         setup: ((Element) -> Unit)? = null,
         content: (@Composable () -> Unit)? = null
     ): Element {
-        val element = document.createElement(tagName)
-
-        // Apply modifiers
-        applyModifier(element, modifier)
+        // Generate a key for this element
+        val elementKey = generateElementKey(tagName)
+        
+        val parent = elementStack.current
+        
+        // Try to reuse existing element if we're recomposing
+        val element = if (isRecomposing && elementCache.containsKey(elementKey)) {
+            val cached = elementCache[elementKey]!!
+            console.log("Reusing element: $tagName with key: $elementKey")
+            
+            // Check if element needs to be moved to a different parent
+            val oldParent = keyToParentMap[elementKey]
+            if (oldParent != parent) {
+                // Element is being moved to a new parent
+                if (cached.parentNode != null) {
+                    cached.parentNode?.removeChild(cached)
+                }
+                parent.appendChild(cached)
+                keyToParentMap[elementKey] = parent
+            } else if (cached.parentNode != parent) {
+                // Element should be in this parent but isn't (shouldn't happen but handle it)
+                parent.appendChild(cached)
+            }
+            
+            // Preserve focus state for input elements
+            val wasFocused = cached == document.activeElement
+            val selectionStart = if (cached is HTMLInputElement) cached.selectionStart else null
+            val selectionEnd = if (cached is HTMLInputElement) cached.selectionEnd else null
+            
+            // Apply new modifiers (this will update styles and attributes)
+            applyModifier(cached, modifier)
+            
+            // Restore focus and selection if this element had focus
+            if (wasFocused) {
+                (cached as? HTMLElement)?.focus()
+                if (cached is HTMLInputElement && selectionStart != null && selectionEnd != null) {
+                    cached.setSelectionRange(selectionStart, selectionEnd)
+                }
+            }
+            
+            cached
+        } else {
+            // Create new element
+            val newElement = document.createElement(tagName)
+            console.log("Creating new element: $tagName with key: $elementKey")
+            
+            // Apply modifiers
+            applyModifier(newElement, modifier)
+            
+            // Add to cache and track parent relationship
+            elementCache[elementKey] = newElement
+            keyToParentMap[elementKey] = parent
+            
+            // Add to current parent
+            console.log("Appending $tagName to parent: ${parent.asDynamic().tagName}")
+            parent.appendChild(newElement)
+            
+            newElement
+        }
+        
+        // Track this element as a child of its parent
+        if (isRecomposing) {
+            val parentChildren = parentChildrenMap.getOrPut(parent) { mutableListOf() }
+            if (!parentChildren.contains(elementKey)) {
+                parentChildren.add(elementKey)
+            }
+        }
+        
+        // Mark element as used in this composition
+        usedElements.add(elementKey)
 
         // Apply custom setup
         setup?.invoke(element)
 
-        // Add to current parent
-        elementStack.current.appendChild(element)
-
         // Render content if provided
         if (content != null) {
+            console.log("Rendering content for $tagName")
             elementStack.push(element)
+            parentKeyStack.add(currentParentKey)
+            currentParentKey = elementKey
             try {
                 content()
             } finally {
                 elementStack.pop()
+                currentParentKey = parentKeyStack.removeAt(parentKeyStack.lastIndex)
             }
         }
 
@@ -225,7 +390,15 @@ actual open class PlatformRenderer {
         )
 
         createElement("button", filteredModifier, { element ->
-            element.addEventListener("click", { onClick() })
+            console.log("Setting up button with click handler")
+            // Use the extension function properly
+            element.addEventListener("click") { event ->
+                console.log("Button clicked!")
+                event.preventDefault()
+                event.stopPropagation()
+                onClick()
+                console.log("onClick callback executed")
+            }
 
             // Add variant-specific class based on data-variant attribute
             when (variant) {
@@ -240,6 +413,8 @@ actual open class PlatformRenderer {
                 }
             }
         }) {
+            // Call the content directly without FlowContent
+            // The content lambda will call Text(label) which will render into the button
             content(createFlowContent("button"))
         }
     }
@@ -252,11 +427,33 @@ actual open class PlatformRenderer {
     ) {
         createElement("input", modifier, { element ->
             element.setAttribute("type", type)
-            element.setAttribute("value", value)
-            element.addEventListener("input", { event ->
-                val inputValue = js("event.target.value")
-                onValueChange(inputValue as String)
-            })
+            
+            // Only update value if it's different from current value
+            // This prevents cursor jumping and focus issues
+            val inputElement = element as? HTMLInputElement
+            if (inputElement != null && inputElement.value != value) {
+                // Save cursor position before updating value
+                val selectionStart = inputElement.selectionStart
+                val selectionEnd = inputElement.selectionEnd
+                
+                inputElement.value = value
+                
+                // Restore cursor position if element has focus
+                if (element == document.activeElement && selectionStart != null && selectionEnd != null) {
+                    inputElement.setSelectionRange(selectionStart, selectionEnd)
+                }
+            } else if (inputElement == null) {
+                element.setAttribute("value", value)
+            }
+            
+            // Only add event listener if this is a new element
+            if (!isRecomposing || !element.asDynamic().hasInputListener) {
+                element.addEventListener("input") { event ->
+                    val target = event.target.asDynamic()
+                    onValueChange(target.value as String)
+                }
+                element.asDynamic().hasInputListener = true
+            }
         })
     }
 
@@ -267,31 +464,42 @@ actual open class PlatformRenderer {
         modifier: Modifier
     ) {
         createElement("select", modifier, { element ->
+            // Clear existing options before adding new ones
+            // This prevents duplication when the element is reused
+            while (element.firstChild != null) {
+                element.removeChild(element.firstChild!!)
+            }
+            
             // Create option elements
             options.forEachIndexed { index, option ->
                 val optionElement = document.createElement("option")
                 optionElement.textContent = option.label
-                optionElement.value = index.toString()
-                optionElement.disabled = option.disabled
+                optionElement.asDynamic().value = index.toString()
+                optionElement.asDynamic().disabled = option.disabled
 
                 // Set selected state
                 if (option.value == selectedValue) {
-                    optionElement.selected = true
+                    optionElement.asDynamic().selected = true
                 }
 
                 element.appendChild(optionElement)
             }
 
-            // Add change event listener
-            element.addEventListener("change", { event ->
-                val selectElement = event.target as HTMLElement
-                val selectedIndex = js("selectElement.selectedIndex")
-                if (selectedIndex >= 0 && selectedIndex < options.size) {
-                    onSelectedChange(options[selectedIndex as Int].value)
-                } else {
-                    onSelectedChange(null)
+            // Only add change event listener if this is a new element or doesn't have one
+            if (!element.asDynamic().hasChangeListener) {
+                element.addEventListener("change") { event ->
+                    console.log("Select changed!")
+                    val selectElement = event.target.asDynamic()
+                    val selectedIndex = selectElement.selectedIndex as Int
+                    console.log("Selected index: $selectedIndex")
+                    if (selectedIndex >= 0 && selectedIndex < options.size) {
+                        onSelectedChange(options[selectedIndex].value)
+                    } else {
+                        onSelectedChange(null)
+                    }
                 }
-            })
+                element.asDynamic().hasChangeListener = true
+            }
         })
     }
 
@@ -310,9 +518,9 @@ actual open class PlatformRenderer {
             max?.let { element.setAttribute("max", it.toString()) }
             if (!enabled) element.setAttribute("disabled", "disabled")
 
-            element.addEventListener("change", { event ->
-                val dateValue = js("event.target.value") as String?
-                if (dateValue != null && js("dateValue.length > 0") as Boolean) {
+            element.addEventListener("change") { event ->
+                val dateValue = event.target.asDynamic().value as? String
+                if (dateValue != null && dateValue.isNotEmpty()) {
                     try {
                         val parts = dateValue.split('-')
                         val year = parts[0].toInt()
@@ -327,7 +535,7 @@ actual open class PlatformRenderer {
                 } else {
                     onValueChange(null)
                 }
-            })
+            }
         })
     }
 
@@ -349,10 +557,10 @@ actual open class PlatformRenderer {
             maxLength?.let { element.setAttribute("maxlength", it.toString()) }
             placeholder?.let { element.setAttribute("placeholder", it) }
 
-            element.addEventListener("input", { event ->
-                val textareaValue = js("event.target.value")
-                onValueChange(textareaValue as String)
-            })
+            element.addEventListener("input") { event ->
+                val textareaElement = event.target.asDynamic()
+                onValueChange(textareaElement.value as String)
+            }
         })
     }
 
@@ -608,14 +816,24 @@ actual open class PlatformRenderer {
         label: String?,
         modifier: Modifier
     ) {
-        // Checkboxes are often complex with labels. Simplistic version:
-        createElement("input", modifier, { element ->
+        console.log("Rendering checkbox: checked=$checked, enabled=$enabled, label=$label")
+        
+        // Ensure checkbox is visible with explicit styles
+        val checkboxModifier = modifier
+            .style("width", "18px")
+            .style("height", "18px")
+            .style("cursor", if (enabled) "pointer" else "not-allowed")
+            .style("margin-right", "8px")
+        
+        createElement("input", checkboxModifier, { element ->
             element.setAttribute("type", "checkbox")
             element.asDynamic().checked = checked
             if (!enabled) element.setAttribute("disabled", "disabled")
-            element.addEventListener("change", { event ->
-                onCheckedChange(js("event.target.checked") as Boolean)
-            })
+            element.addEventListener("change") { event ->
+                console.log("Checkbox changed!")
+                val inputElement = event.target.asDynamic()
+                onCheckedChange(inputElement.checked as Boolean)
+            }
         })
         label?.let { renderText(it, Modifier()) }
     }
@@ -631,9 +849,10 @@ actual open class PlatformRenderer {
             element.setAttribute("type", "radio")
             element.asDynamic().checked = checked
             if (!enabled) element.setAttribute("disabled", "disabled")
-            element.addEventListener("change", { event ->
-                onCheckedChange(js("event.target.checked") as Boolean)
-            })
+            element.addEventListener("change") { event ->
+                val radioElement = event.target.asDynamic()
+                onCheckedChange(radioElement.checked as Boolean)
+            }
         })
         label?.let { renderText(it, Modifier()) }
     }
@@ -668,9 +887,9 @@ actual open class PlatformRenderer {
             }
             if (!enabled) element.setAttribute("disabled", "disabled")
 
-            element.addEventListener("input", { event ->
-                onValueChange((js("event.target.value") as String).toFloat())
-            })
+            element.addEventListener("input") { event ->
+                onValueChange((event.target.asDynamic().value as String).toFloat())
+            }
         })
     }
 
@@ -822,12 +1041,12 @@ actual open class PlatformRenderer {
             accept?.let { element.setAttribute("accept", it) }
             if (!enabled) element.setAttribute("disabled", "disabled")
 
-            element.addEventListener("change", { event ->
-                val files = js("event.target.files")
+            element.addEventListener("change") { event ->
+                val files = event.target.asDynamic().files
                 val fileList = mutableListOf<FileInfo>()
-                val length = js("files.length") as Int
+                val length = files.length as Int
                 for (i in 0 until length) {
-                    val file = js("files[i]")
+                    val file = files[i]
                     fileList.add(
                         FileInfo(
                             name = js("file.name") as String,
@@ -838,7 +1057,7 @@ actual open class PlatformRenderer {
                     )
                 }
                 onFilesSelected(fileList)
-            })
+            }
         })
     }
 
@@ -859,9 +1078,9 @@ actual open class PlatformRenderer {
             } // Format as HH:mm or HH:mm:ss
             if (!enabled) element.setAttribute("disabled", "disabled")
 
-            element.addEventListener("change", { event ->
-                val timeValue = js("event.target.value") as String?
-                if (timeValue != null && js("timeValue.length > 0") as Boolean) {
+            element.addEventListener("change") { event ->
+                val timeValue = event.target.asDynamic().value as? String
+                if (timeValue != null && timeValue.isNotEmpty()) {
                     try {
                         val parts = timeValue.split(':')
                         val hour = parts[0].toInt()
@@ -875,7 +1094,7 @@ actual open class PlatformRenderer {
                 } else {
                     onValueChange(null)
                 }
-            })
+            }
         })
     }
 
@@ -1397,12 +1616,12 @@ actual open class PlatformRenderer {
             capture?.let { element.setAttribute("capture", it) }
             if (!enabled) element.setAttribute("disabled", "disabled")
 
-            element.addEventListener("change", { event ->
-                val files = js("event.target.files")
+            element.addEventListener("change") { event ->
+                val files = event.target.asDynamic().files
                 val fileList = mutableListOf<FileInfo>()
-                val length = js("files.length") as Int
+                val length = files.length as Int
                 for (i in 0 until length) {
-                    val file = js("files[i]")
+                    val file = files[i]
                     fileList.add(
                         FileInfo(
                             name = js("file.name") as String,
@@ -1413,7 +1632,7 @@ actual open class PlatformRenderer {
                     )
                 }
                 onFilesSelected(fileList)
-            })
+            }
         })
 
         // Return a trigger function that programmatically clicks the input
@@ -1475,11 +1694,11 @@ actual open class PlatformRenderer {
                 }
                 if (!enabled) element.setAttribute("disabled", "disabled")
 
-                element.addEventListener("input", { event ->
-                    val newStart = (js("event.target.value") as String).toFloat()
+                element.addEventListener("input") { event ->
+                    val newStart = (event.target.asDynamic().value as String).toFloat()
                     val newEnd = maxOf(newStart, value.endInclusive)
                     onValueChange(newStart..newEnd)
-                })
+                }
             })
 
             // End value slider
@@ -1493,11 +1712,11 @@ actual open class PlatformRenderer {
                 }
                 if (!enabled) element.setAttribute("disabled", "disabled")
 
-                element.addEventListener("input", { event ->
-                    val newEnd = (js("event.target.value") as String).toFloat()
+                element.addEventListener("input") { event ->
+                    val newEnd = (event.target.asDynamic().value as String).toFloat()
                     val newStart = minOf(value.start, newEnd)
                     onValueChange(newStart..newEnd)
-                })
+                }
             })
         }
     }

@@ -203,7 +203,7 @@ class AppState {
     }
     
     private fun generateId(): String {
-        return "${System.currentTimeMillis()}-${kotlin.random.Random.nextInt(1000, 9999)}"
+        return "${kotlin.js.Date.now().toLong()}-${kotlin.random.Random.nextInt(1000, 9999)}"
     }
 }
 

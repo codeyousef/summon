@@ -239,6 +239,9 @@ class DeepLinking private constructor() {
             imageUrl: String? = null,
             type: String = "website"
         ) {
+            // Use MetaTags composable instead of deprecated generateMetaTags
+            // This is a static function so we'll suppress the deprecation warning
+            @Suppress("DEPRECATION")
             getInstance().generateMetaTags(path, title, description, imageUrl, type)
         }
 

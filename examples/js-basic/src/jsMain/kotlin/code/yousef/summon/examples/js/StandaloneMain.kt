@@ -10,10 +10,13 @@ import code.yousef.summon.modifier.*
 import code.yousef.summon.runtime.*
 import code.yousef.summon.state.*
 import code.yousef.summon.renderComposable
+import code.yousef.summon.runtime.PlatformRenderer
 import kotlinx.browser.document
-import kotlinx.browser.console
 import code.yousef.summon.state.SummonMutableState
 import org.w3c.dom.HTMLElement
+
+// Access console through js
+private val console: dynamic = js("console")
 
 /**
  * Error component using pure Summon - no raw DOM manipulation
@@ -269,7 +272,9 @@ fun SummonJSApp() {
     }
 }
 
-fun main() {
+// Rename to avoid clash with Main.kt
+// Uncomment and rename back to 'main' if you want to use this standalone example instead
+fun standaloneMain() {
     console.log("Summon JS Example starting...")
     
     // Wait for DOM to be ready

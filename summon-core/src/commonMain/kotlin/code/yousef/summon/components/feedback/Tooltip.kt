@@ -71,8 +71,6 @@ internal fun getPlacementStyles(placement: TooltipPlacement): Map<String, String
             "top" to "50%",
             "transform" to "translateY(-50%)"
         )
-
-        else -> emptyMap()
     }
 }
 

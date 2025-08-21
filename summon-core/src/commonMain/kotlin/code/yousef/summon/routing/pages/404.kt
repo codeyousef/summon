@@ -16,7 +16,7 @@ fun NotFoundPage() {
     Column(
         modifier = Modifier()
             .padding("16px")
-            .textAlign("center")
+            .style("text-align", "center")
     ) {
         Text("404 - Page Not Found")
         Text("Sorry, the page you are looking for does not exist.")

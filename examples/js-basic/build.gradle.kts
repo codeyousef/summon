@@ -55,9 +55,8 @@ kotlin {
     sourceSets {
         val jsMain by getting {
             dependencies {
-                // Summon JS library using version from version-helper.gradle.kts
-                // NOTE: If using this example standalone, replace with: implementation("io.github.codeyousef:summon-js:$summonVersion")
-                implementation(project.extra["summonJsDependency"] as String)
+                // Use local project via composite build substitution
+                implementation("io.github.codeyousef:summon-js:0.2.9.1")
 
                 // Standard JS dependencies
                 implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.12.0")

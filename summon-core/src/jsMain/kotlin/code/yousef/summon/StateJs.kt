@@ -1,5 +1,6 @@
 package code.yousef.summon
 
+import code.yousef.summon.js.console
 import code.yousef.summon.state.MutableStateImpl
 import code.yousef.summon.state.SummonMutableState
 import kotlinx.browser.localStorage

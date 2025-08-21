@@ -63,7 +63,7 @@ private fun AddTodoSection() {
             .style("gap", "12px")
     ) {
         TextField(
-            value = appState.newTodoText,
+            value = appState.newTodoText.value,
             onValueChange = { appState.newTodoText.value = it },
             placeholder = Translations.get("todo.add_placeholder", language),
             modifier = Modifier()
@@ -79,8 +79,8 @@ private fun AddTodoSection() {
         )
         
         Button(
-            text = Translations.get("todo.add_button", language),
             onClick = { appState.addTodo() },
+            label = Translations.get("todo.add_button", language),
             variant = ButtonVariant.PRIMARY,
             disabled = appState.newTodoText.value.isBlank(),
             modifier = Modifier()
@@ -114,8 +114,8 @@ private fun FilterSection() {
             }
             
             Button(
-                text = filterText,
                 onClick = { appState.setFilter(filter) },
+                label = filterText,
                 variant = if (isActive) ButtonVariant.PRIMARY else ButtonVariant.SECONDARY,
                 modifier = Modifier()
                     .style("padding", "6px 16px")
@@ -194,8 +194,8 @@ private fun TodoFooter() {
         // Clear completed button
         if (completedTodoCount > 0) {
             Button(
-                text = Translations.get("todo.clear_completed", language),
                 onClick = { appState.clearCompleted() },
+                label = Translations.get("todo.clear_completed", language),
                 variant = ButtonVariant.SECONDARY,
                 modifier = Modifier()
                     .style("padding", "6px 12px")

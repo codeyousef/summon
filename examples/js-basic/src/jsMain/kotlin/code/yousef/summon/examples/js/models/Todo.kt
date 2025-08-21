@@ -1,13 +1,14 @@
 package code.yousef.summon.examples.js.models
 
 import kotlinx.serialization.Serializable
+import kotlin.js.Date
 
 @Serializable
 data class Todo(
     val id: String,
     val text: String,
     val completed: Boolean = false,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = Date.now().toLong()
 )
 
 @Serializable
@@ -23,7 +24,7 @@ enum class TodoFilter {
     COMPLETED
 }
 
-enum class Language(val code: String, val name: String) {
+enum class Language(val code: String, val displayName: String) {
     ENGLISH("en", "English"),
     SPANISH("es", "Español"),
     FRENCH("fr", "Français")

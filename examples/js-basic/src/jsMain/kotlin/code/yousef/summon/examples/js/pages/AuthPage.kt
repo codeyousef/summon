@@ -13,10 +13,11 @@ import code.yousef.summon.state.mutableStateOf
 fun AuthPage() {
     val language = appState.currentLanguage.value
     val isLogin = mutableStateOf(true)
-    val username = mutableStateOf("")
+    val username = mutableStateOf("demo")  // Demo username
     val email = mutableStateOf("")
-    val password = mutableStateOf("")
+    val password = mutableStateOf("demo123")  // Demo password
     val rememberMe = mutableStateOf(false)
+    val isLoading = mutableStateOf(false)
     
     Column(
         modifier = Modifier()
@@ -72,7 +73,7 @@ fun AuthPage() {
                 )
                 
                 TextField(
-                    value = username,
+                    value = username.value,
                     onValueChange = { username.value = it },
                     placeholder = Translations.get("auth.username", language),
                     modifier = Modifier()
@@ -103,7 +104,7 @@ fun AuthPage() {
                     )
                     
                     TextField(
-                        value = email,
+                        value = email.value,
                         onValueChange = { email.value = it },
                         placeholder = Translations.get("auth.email", language),
                         modifier = Modifier()
@@ -134,7 +135,7 @@ fun AuthPage() {
                 )
                 
                 TextField(
-                    value = password,
+                    value = password.value,
                     onValueChange = { password.value = it },
                     placeholder = Translations.get("auth.password", language),
                     modifier = Modifier()
@@ -160,7 +161,7 @@ fun AuthPage() {
                         .style("gap", "8px")
                 ) {
                     Checkbox(
-                        checked = rememberMe,
+                        checked = rememberMe.value,
                         onCheckedChange = { rememberMe.value = it }
                     )
                     
@@ -175,20 +176,26 @@ fun AuthPage() {
             
             // Submit button
             Button(
-                text = if (isLogin.value) Translations.get("auth.login", language) 
-                       else Translations.get("auth.register", language),
                 onClick = {
-                    if (username.value.isNotBlank() && password.value.isNotBlank()) {
+                    if (!isLoading.value && username.value.isNotBlank() && password.value.isNotBlank()) {
+                        isLoading.value = true
                         val emailValue = if (!isLogin.value && email.value.isNotBlank()) {
                             email.value
                         } else {
                             "${username.value}@example.com" // Demo email
                         }
-                        appState.login(username.value, emailValue)
+                        // Simulate network delay then login
+                        kotlinx.browser.window.setTimeout({
+                            appState.login(username.value, emailValue)
+                            isLoading.value = false
+                        }, 500)
                     }
                 },
+                label = if (isLoading.value) "Loading..." 
+                       else if (isLogin.value) Translations.get("auth.login", language) 
+                       else Translations.get("auth.register", language),
                 variant = ButtonVariant.PRIMARY,
-                disabled = username.value.isBlank() || password.value.isBlank() || 
+                disabled = isLoading.value || username.value.isBlank() || password.value.isBlank() || 
                           (!isLogin.value && email.value.isBlank()),
                 modifier = Modifier()
                     .style("width", "100%")
@@ -214,8 +221,6 @@ fun AuthPage() {
                 )
                 
                 Button(
-                    text = if (isLogin.value) Translations.get("auth.register", language) 
-                           else Translations.get("auth.login", language),
                     onClick = { 
                         isLogin.value = !isLogin.value
                         // Clear form
@@ -224,6 +229,8 @@ fun AuthPage() {
                         password.value = ""
                         rememberMe.value = false
                     },
+                    label = if (isLogin.value) Translations.get("auth.register", language) 
+                           else Translations.get("auth.login", language),
                     variant = ButtonVariant.LINK,
                     modifier = Modifier()
                         .style("background", "transparent")

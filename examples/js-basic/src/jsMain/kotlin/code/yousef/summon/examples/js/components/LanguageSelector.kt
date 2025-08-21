@@ -2,35 +2,36 @@ package code.yousef.summon.examples.js.components
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.input.Select
-import code.yousef.summon.components.input.SelectOption
+import code.yousef.summon.runtime.SelectOption
 import code.yousef.summon.examples.js.i18n.Translations
 import code.yousef.summon.examples.js.models.Language
 import code.yousef.summon.examples.js.state.appState
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.state.mutableStateOf
+import code.yousef.summon.state.SummonMutableState
 
 @Composable
 fun LanguageSelector() {
-    val selectedLanguage = mutableStateOf(appState.currentLanguage.value)
+    val selectedLanguageCode: SummonMutableState<String?> = mutableStateOf(appState.currentLanguage.value.code)
     val currentLanguage = appState.currentLanguage.value
     
     val options = Language.values().map { lang ->
         SelectOption(
             value = lang.code,
-            label = "${getLanguageFlag(lang)} ${lang.name}"
+            label = "${getLanguageFlag(lang)} ${lang.displayName}"
         )
     }
     
     Select(
-        selectedValue = selectedLanguage,
-        options = options,
+        selectedValue = selectedLanguageCode,
         onSelectedChange = { newValue ->
             val language = Language.values().find { it.code == newValue }
             if (language != null) {
                 appState.setLanguage(language)
-                selectedLanguage.value = language
+                selectedLanguageCode.value = language.code
             }
         },
+        options = options,
         modifier = Modifier()
             .style("min-width", "140px")
             .style("border-radius", "8px")

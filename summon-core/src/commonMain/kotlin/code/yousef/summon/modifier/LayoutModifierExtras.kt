@@ -11,24 +11,27 @@ object LayoutModifierExtras {
      * @param value The CSS max-width value (e.g., "100%", "300px", etc.)
      * @return A new Modifier with the added style
      */
-    fun Modifier.maxWidth(value: String): Modifier =
-        style("max-width", value)
+    // Shadowed by member function - use the member function instead
+    // fun Modifier.maxWidth(value: String): Modifier =
+    //     style("max-width", value)
 
     /**
      * Sets the width property of the element.
      * @param value The CSS width value (e.g., "100%", "300px", etc.)
      * @return A new Modifier with the added style
      */
-    fun Modifier.width(value: String): Modifier =
-        style("width", value)
+    // Shadowed by member function - use the member function instead
+    // fun Modifier.width(value: String): Modifier =
+    //     style("width", value)
 
     /**
      * Sets the height property of the element.
      * @param value The CSS height value (e.g., "100%", "300px", etc.)
      * @return A new Modifier with the added style
      */
-    fun Modifier.height(value: String): Modifier =
-        style("height", value)
+    // Shadowed by member function - use the member function instead
+    // fun Modifier.height(value: String): Modifier =
+    //     style("height", value)
 
     /**
      * Sets the position property of the element.
@@ -132,8 +135,9 @@ object LayoutModifierExtras {
      * @param value The CSS border-radius value (e.g., "4px", "50%", etc.)
      * @return A new Modifier with the added style
      */
-    fun Modifier.borderRadius(value: String): Modifier =
-        style("border-radius", value)
+    // Shadowed by member function - use the member function instead
+    // fun Modifier.borderRadius(value: String): Modifier =
+    //     style("border-radius", value)
 
     /**
      * Sets the font-weight property of the element.
@@ -148,6 +152,7 @@ object LayoutModifierExtras {
      * @param value The CSS color value (e.g., "red", "#ff0000", etc.)
      * @return A new Modifier with the added style
      */
-    fun Modifier.color(value: String): Modifier =
-        style("color", value)
+    // Shadowed by member function - use the member function instead
+    // fun Modifier.color(value: String): Modifier =
+    //     style("color", value)
 } 
