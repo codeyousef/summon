@@ -176,7 +176,7 @@ enum class TodoFilter {
     COMPLETED
 }
 
-enum class Language(val code: String, val name: String) {
+enum class Language(val code: String, val displayName: String) {
     ENGLISH("en", "English"),
     SPANISH("es", "Español"),
     FRENCH("fr", "Français")

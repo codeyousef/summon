@@ -16,11 +16,15 @@ import org.springframework.stereotype.Component
 class SummonRenderer {
     
     /**
+     * The platform renderer instance used for all rendering operations.
+     */
+    val renderer = PlatformRenderer()
+    
+    /**
      * Renders a Summon composable function to HTML string.
      * This enables server-side rendering of Summon components in Spring Boot.
      */
     fun renderComponent(content: @Composable () -> Unit): String {
-        val renderer = PlatformRenderer()
         // For now, use the standard renderer and strip the HTML wrapper
         val fullHtml = renderer.renderComposableRoot(content)
         
@@ -47,7 +51,6 @@ class SummonRenderer {
     ): String {
         // For now, just render the component normally
         // The hydration system will be enhanced in future iterations
-        val renderer = PlatformRenderer()
         val fullHtml = renderer.renderComposableRoot(content)
         
         // Extract just the body content without the complete HTML document

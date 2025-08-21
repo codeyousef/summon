@@ -46,21 +46,21 @@ class JwtTokenProvider {
     }
     
     fun getUsernameFromToken(token: String): String {
-        val claims = Jwts.parserBuilder()
-            .setSigningKey(getSigningKey())
+        val claims = Jwts.parser()
+            .verifyWith(Keys.hmacShaKeyFor(jwtSecret.toByteArray()))
             .build()
-            .parseClaimsJws(token)
-            .body
+            .parseSignedClaims(token)
+            .payload
         
         return claims.subject
     }
     
     fun validateToken(token: String): Boolean {
         try {
-            Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
+            Jwts.parser()
+                .verifyWith(Keys.hmacShaKeyFor(jwtSecret.toByteArray()))
                 .build()
-                .parseClaimsJws(token)
+                .parseSignedClaims(token)
             return true
         } catch (ex: JwtException) {
             println("JWT validation error: ${ex.message}")

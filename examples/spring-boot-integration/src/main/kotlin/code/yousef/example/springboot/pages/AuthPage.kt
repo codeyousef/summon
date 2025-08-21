@@ -1,196 +1,236 @@
 package code.yousef.example.springboot.pages
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.core.ThemeProvider
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.input.TextField
-import code.yousef.summon.components.layout.Box
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.components.layout.Row
-import code.yousef.example.springboot.i18n.Translations
-import code.yousef.example.springboot.models.Language
-import code.yousef.example.springboot.models.Theme
+import code.yousef.summon.components.input.Checkbox
+import code.yousef.summon.components.layout.*
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.background
-import code.yousef.summon.modifier.border
-import code.yousef.summon.modifier.borderRadius
-import code.yousef.summon.modifier.color
-import code.yousef.summon.modifier.fontSize
-import code.yousef.summon.modifier.fontWeight
-import code.yousef.summon.modifier.margin
-import code.yousef.summon.modifier.maxWidth
-import code.yousef.summon.modifier.padding
-import code.yousef.summon.modifier.textAlign
-import code.yousef.summon.modifier.width
-import code.yousef.summon.theme.LocalColors
-import code.yousef.summon.theme.MaterialColors
+import code.yousef.summon.modifier.FontWeight
+import code.yousef.summon.extensions.*
+import code.yousef.summon.state.mutableStateOf
+import code.yousef.summon.runtime.remember
+import code.yousef.example.springboot.*
 
 @Composable
 fun AuthPage(
-    language: Language = Language.ENGLISH,
-    theme: Theme = Theme.LIGHT,
     isLogin: Boolean = true
 ) {
-    val colors = if (theme == Theme.DARK) MaterialColors.darkColors() else MaterialColors.lightColors()
+    val username = remember { mutableStateOf("") }
+    val password = remember { mutableStateOf("") }
+    val email = remember { mutableStateOf("") }
+    val rememberMe = remember { mutableStateOf(false) }
     
-    ThemeProvider(colors = colors) {
-        Box(
-            modifier = Modifier
-                .background(LocalColors.current.background)
-                .padding("20px")
-                .textAlign("center")
+    Box(
+        modifier = Modifier()
+            .fillMaxWidth()
+            .minHeight(100.vh)
+            .backgroundColor("#f5f5f5")
+            .display("flex")
+            .alignItems("center")
+            .justifyContent("center")
+            .padding(20.px)
+    ) {
+        Column(
+            modifier = Modifier()
+                .maxWidth(400.px)
+                .fillMaxWidth()
+                .padding(40.px)
+                .backgroundColor("white")
+                .borderRadius(12.px)
+                .boxShadow("0 4px 6px rgba(0,0,0,0.1)")
         ) {
-            Column(
-                modifier = Modifier
-                    .maxWidth("400px")
-                    .margin("0 auto")
-                    .padding("40px")
-                    .background(LocalColors.current.surface)
-                    .borderRadius("12px")
-                    .border("1px solid ${LocalColors.current.outline}")
-            ) {
-                // App Title
-                Text(
-                    text = Translations.get("app.title", language),
-                    modifier = Modifier
-                        .fontSize("28px")
-                        .fontWeight("bold")
-                        .color(LocalColors.current.onSurface)
-                        .margin("0 0 8px 0")
-                )
-                
-                Text(
-                    text = Translations.get("app.subtitle", language),
-                    modifier = Modifier
-                        .fontSize("16px")
-                        .color(LocalColors.current.onSurfaceVariant)
-                        .margin("0 0 32px 0")
-                )
-                
-                // Auth Form Title
-                Text(
-                    text = if (isLogin) 
-                        Translations.get("auth.login", language) 
-                    else 
-                        Translations.get("auth.register", language),
-                    modifier = Modifier
-                        .fontSize("24px")
-                        .fontWeight("600")
-                        .color(LocalColors.current.onSurface)
-                        .margin("0 0 24px 0")
-                )
-                
-                // Form Fields
-                if (!isLogin) {
-                    TextField(
-                        placeholder = Translations.get("auth.email", language),
-                        name = "email",
-                        type = "email",
-                        modifier = Modifier
-                            .width("100%")
-                            .margin("0 0 16px 0")
-                            .padding("12px")
-                            .borderRadius("8px")
-                            .border("1px solid ${LocalColors.current.outline}")
-                            .background(LocalColors.current.background)
-                            .color(LocalColors.current.onBackground)
-                    )
-                }
-                
-                TextField(
-                    placeholder = Translations.get("auth.username", language),
-                    name = "username",
-                    modifier = Modifier
-                        .width("100%")
-                        .margin("0 0 16px 0")
-                        .padding("12px")
-                        .borderRadius("8px")
-                        .border("1px solid ${LocalColors.current.outline}")
-                        .background(LocalColors.current.background)
-                        .color(LocalColors.current.onBackground)
-                )
-                
-                TextField(
-                    placeholder = Translations.get("auth.password", language),
-                    name = "password",
-                    type = "password",
-                    modifier = Modifier
-                        .width("100%")
-                        .margin("0 0 24px 0")
-                        .padding("12px")
-                        .borderRadius("8px")
-                        .border("1px solid ${LocalColors.current.outline}")
-                        .background(LocalColors.current.background)
-                        .color(LocalColors.current.onBackground)
-                )
-                
-                // Submit Button
-                Button(
-                    text = if (isLogin) 
-                        Translations.get("auth.login", language) 
-                    else 
-                        Translations.get("auth.register", language),
-                    modifier = Modifier
-                        .width("100%")
-                        .padding("12px 24px")
-                        .borderRadius("8px")
-                        .background(LocalColors.current.primary)
-                        .color(LocalColors.current.onPrimary)
-                        .fontWeight("600")
-                        .margin("0 0 16px 0"),
-                    onClick = "submitAuth()"
-                )
-                
-                // Toggle between login/register
-                Row(
-                    modifier = Modifier
-                        .margin("16px 0 0 0")
-                        .textAlign("center")
-                ) {
+            // App Title
+            Text(
+                "Todo App",
+                modifier = Modifier()
+                    .fontSize(28.px)
+                    .fontWeight(FontWeight.Bold)
+                    .color("#333")
+                    .marginBottom(8.px)
+                    .textAlign("center")
+            )
+            
+            Text(
+                "Spring Boot + Summon Example",
+                modifier = Modifier()
+                    .fontSize(16.px)
+                    .color("#666")
+                    .marginBottom(32.px)
+                    .textAlign("center")
+            )
+            
+            // Auth Form Title
+            Text(
+                if (isLogin) "Login" else "Register",
+                modifier = Modifier()
+                    .fontSize(24.px)
+                    .fontWeight(FontWeight.Bold)
+                    .color("#333")
+                    .marginBottom(24.px)
+                    .textAlign("center")
+            )
+            
+            // Form Fields
+            if (!isLogin) {
+                Column(modifier = Modifier().gap(4.px).marginBottom(16.px)) {
                     Text(
-                        text = if (isLogin) "Don't have an account? " else "Already have an account? ",
-                        modifier = Modifier
-                            .color(LocalColors.current.onSurfaceVariant)
-                            .fontSize("14px")
+                        "Email",
+                        modifier = Modifier()
+                            .fontSize(14.px)
+                            .fontWeight(FontWeight.Medium)
+                            .color("#555")
                     )
-                    
-                    Button(
-                        text = if (isLogin) 
-                            Translations.get("auth.register", language) 
-                        else 
-                            Translations.get("auth.login", language),
-                        modifier = Modifier
-                            .color(LocalColors.current.primary)
-                            .fontSize("14px")
-                            .fontWeight("600")
-                            .background("transparent")
-                            .border("none")
-                            .padding("0"),
-                        onClick = "toggleAuthMode()"
+                    TextField(
+                        value = email.value,
+                        onValueChange = { email.value = it },
+                        placeholder = "Enter your email",
+                        modifier = Modifier()
+                            .fillMaxWidth()
+                            .padding(12.px)
+                            .borderRadius(8.px)
+                            .border("1px", "solid", "#ddd")
+                            .backgroundColor("white")
                     )
                 }
-                
-                // JWT info
+            }
+            
+            Column(modifier = Modifier().gap(4.px).marginBottom(16.px)) {
                 Text(
-                    text = Translations.get("todo.jwt_auth", language),
-                    modifier = Modifier
-                        .fontSize("12px")
-                        .color(LocalColors.current.primary)
-                        .margin("24px 0 0 0")
-                        .textAlign("center")
+                    "Username",
+                    modifier = Modifier()
+                        .fontSize(14.px)
+                        .fontWeight(FontWeight.Medium)
+                        .color("#555")
                 )
-                
-                // Powered by
-                Text(
-                    text = Translations.get("app.powered_by", language),
-                    modifier = Modifier
-                        .fontSize("12px")
-                        .color(LocalColors.current.onSurfaceVariant)
-                        .margin("16px 0 0 0")
-                        .textAlign("center")
+                TextField(
+                    value = username.value,
+                    onValueChange = { username.value = it },
+                    placeholder = "Enter your username",
+                    modifier = Modifier()
+                        .fillMaxWidth()
+                        .padding(12.px)
+                        .borderRadius(8.px)
+                        .border("1px", "solid", "#ddd")
+                        .backgroundColor("white")
                 )
             }
+            
+            Column(modifier = Modifier().gap(4.px).marginBottom(16.px)) {
+                Text(
+                    "Password",
+                    modifier = Modifier()
+                        .fontSize(14.px)
+                        .fontWeight(FontWeight.Medium)
+                        .color("#555")
+                )
+                TextField(
+                    value = password.value,
+                    onValueChange = { password.value = it },
+                    placeholder = "Enter your password",
+                    modifier = Modifier()
+                        .fillMaxWidth()
+                        .padding(12.px)
+                        .borderRadius(8.px)
+                        .border("1px", "solid", "#ddd")
+                        .backgroundColor("white")
+                        .attribute("type", "password")
+                )
+            }
+            
+            // Remember me checkbox
+            if (isLogin) {
+                Row(
+                    modifier = Modifier()
+                        .marginBottom(24.px)
+                        .alignItems("center")
+                        .gap(8.px)
+                ) {
+                    Checkbox(
+                        checked = rememberMe.value,
+                        onCheckedChange = { rememberMe.value = it }
+                    )
+                    Text(
+                        "Remember me",
+                        modifier = Modifier()
+                            .fontSize(14.px)
+                            .color("#666")
+                    )
+                }
+            } else {
+                Spacer(modifier = Modifier().height(24.px))
+            }
+            
+            // Submit Button
+            Button(
+                onClick = {
+                    // Form submission will be handled by the server
+                },
+                label = if (isLogin) "Login" else "Register",
+                modifier = Modifier()
+                    .fillMaxWidth()
+                    .padding("12px 24px")
+                    .borderRadius(8.px)
+                    .backgroundColor("#1976d2")
+                    .color("white")
+                    .fontWeight(FontWeight.Bold)
+                    .marginBottom(16.px)
+                    .cursor("pointer")
+                    .hover { backgroundColor("#1565c0") }
+            )
+            
+            // Toggle between login/register
+            Row(
+                modifier = Modifier()
+                    .marginTop(16.px)
+                    .justifyContent("center")
+                    .alignItems("center")
+                    .gap(4.px)
+            ) {
+                Text(
+                    if (isLogin) "Don't have an account?" else "Already have an account?",
+                    modifier = Modifier()
+                        .color("#666")
+                        .fontSize(14.px)
+                )
+                
+                Button(
+                    onClick = {
+                        // Toggle will be handled by server-side routing
+                    },
+                    label = if (isLogin) "Register" else "Login",
+                    modifier = Modifier()
+                        .color("#1976d2")
+                        .fontSize(14.px)
+                        .fontWeight(FontWeight.Bold)
+                        .backgroundColor("transparent")
+                        .border("0", "none", "transparent")
+                        .padding(0.px)
+                        .cursor("pointer")
+                        .hover { textDecoration("underline") }
+                )
+            }
+            
+            // JWT info
+            Text(
+                "Using JWT Authentication",
+                modifier = Modifier()
+                    .fontSize(12.px)
+                    .color("#1976d2")
+                    .marginTop(24.px)
+                    .textAlign("center")
+            )
+            
+            // Powered by
+            Text(
+                "Powered by Spring Boot & Summon",
+                modifier = Modifier()
+                    .fontSize(12.px)
+                    .color("#999")
+                    .marginTop(16.px)
+                    .textAlign("center")
+            )
         }
     }
 }

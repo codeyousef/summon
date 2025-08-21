@@ -52,9 +52,9 @@ dependencies {
     // DateTime handling
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
     
-    // Summon JVM library using version from version-helper.gradle.kts
-    // NOTE: If using this example standalone, replace with: implementation("io.github.codeyousef:summon-jvm:$summonVersion")
-    implementation(project.extra["summonJvmDependency"] as String)
+    // Summon JVM library - using local Maven repository
+    // IMPORTANT: Run './gradlew :summon-core:publishToMavenLocal' from the root project first
+    implementation("io.github.codeyousef:summon-jvm:0.2.9.1")
     
     // kotlinx-html for SimpleComponents.kt (fallback HTML generation)
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.12.0")
