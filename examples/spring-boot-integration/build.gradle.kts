@@ -77,3 +77,8 @@ tasks.withType<KotlinCompile> {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+// Configure main class for Spring Boot
+springBoot {
+    mainClass.set("code.yousef.example.springboot.SpringBootTodoApplicationKt")
+}

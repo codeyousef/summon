@@ -56,8 +56,16 @@ class AuthController {
     @PutMapping("/settings")
     fun updateSettings(
         @Valid @RequestBody request: UpdateUserSettingsRequest,
-        authentication: Authentication
+        authentication: Authentication?
     ): ResponseEntity<ApiResponse> {
+        // If not authenticated, return error
+        if (authentication == null) {
+            return ResponseEntity.status(401).body(ApiResponse(
+                success = false,
+                message = "Authentication required to update settings"
+            ))
+        }
+        
         val user = authService.updateUserSettings(authentication.name, request)
         return if (user != null) {
             ResponseEntity.ok(ApiResponse(

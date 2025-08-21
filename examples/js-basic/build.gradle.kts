@@ -31,8 +31,10 @@ kotlin {
                 cssSupport {
                     enabled.set(true)
                 }
+                // Fix module bundling - ensure all dependencies are bundled together
+                mode = org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig.Mode.DEVELOPMENT
             }
-            // Configure webpack dev server
+            // Configure webpack for proper bundling
             webpackTask {
                 mainOutputFileName = "js.js"
             }
@@ -40,7 +42,8 @@ kotlin {
                 mainOutputFileName = "js.js"
                 devServerProperty = KotlinWebpackConfig.DevServer(
                     port = 8080,
-                    static = mutableListOf("${layout.buildDirectory.get().asFile}/processedResources/js/main")
+                    static = mutableListOf("${layout.buildDirectory.get().asFile}/processedResources/js/main"),
+                    open = true
                 )
             }
             // Include i18n resources
@@ -50,6 +53,8 @@ kotlin {
             }
         }
         binaries.executable()
+        // Configure to generate a proper standalone bundle
+        useCommonJs()
     }
 
     sourceSets {

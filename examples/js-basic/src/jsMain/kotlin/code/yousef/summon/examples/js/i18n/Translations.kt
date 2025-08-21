@@ -1,161 +1,241 @@
 package code.yousef.summon.examples.js.i18n
 
-import code.yousef.summon.examples.js.models.Language
+import code.yousef.summon.i18n.Language
+import code.yousef.summon.i18n.LayoutDirection
 
+/**
+ * Translations for the Todo application supporting multiple languages.
+ * This demonstrates Summon's i18n capabilities.
+ */
 object Translations {
-    private val translations = mapOf(
-        Language.ENGLISH to mapOf(
+    
+    // Available languages
+    val ENGLISH = Language("en", "English", LayoutDirection.LTR)
+    val SPANISH = Language("es", "Español", LayoutDirection.LTR)
+    val FRENCH = Language("fr", "Français", LayoutDirection.LTR)
+    val ARABIC = Language("ar", "العربية", LayoutDirection.RTL)
+    
+    val availableLanguages = listOf(ENGLISH, SPANISH, FRENCH, ARABIC)
+    
+    // Translation strings
+    val strings = mapOf(
+        "en" to mapOf(
             // App
-            "app.title" to "Todo App",
-            "app.subtitle" to "Manage your tasks efficiently",
+            "app.title" to "Summon Todo App",
+            "app.subtitle" to "A powerful todo app built with pure Summon components",
             
-            // Auth
+            // Authentication
             "auth.login" to "Login",
-            "auth.register" to "Register",
-            "auth.username" to "Username",
-            "auth.email" to "Email",
-            "auth.password" to "Password",
             "auth.logout" to "Logout",
-            "auth.welcome" to "Welcome",
-            "auth.remember_me" to "Remember me",
+            "auth.username" to "Username",
+            "auth.password" to "Password",
+            "auth.username.placeholder" to "Enter your username",
+            "auth.password.placeholder" to "Enter your password",
+            "auth.login.button" to "Sign In",
+            "auth.welcome.back" to "Welcome back",
+            "auth.demo.hint" to "Demo: Use any username with password of 3+ characters",
             
-            // Todo
-            "todo.add_placeholder" to "What needs to be done?",
-            "todo.add_button" to "Add Todo",
-            "todo.edit" to "Edit",
+            // Todos
+            "todo.add" to "Add Todo",
+            "todo.new.placeholder" to "What needs to be done?",
+            "todo.filter.all" to "All",
+            "todo.filter.active" to "Active",
+            "todo.filter.completed" to "Completed",
+            "todo.clear.completed" to "Clear Completed",
+            "todo.toggle.all" to "Toggle All",
+            "todo.priority.high" to "High Priority",
+            "todo.priority.normal" to "Normal Priority",
+            "todo.priority.low" to "Low Priority",
             "todo.delete" to "Delete",
+            "todo.edit" to "Edit",
             "todo.save" to "Save",
             "todo.cancel" to "Cancel",
-            "todo.mark_complete" to "Mark as complete",
-            "todo.mark_incomplete" to "Mark as incomplete",
-            "todo.clear_completed" to "Clear completed",
-            "todo.items_left" to "items left",
-            "todo.item_left" to "item left",
             
-            // Filters
-            "filter.all" to "All",
-            "filter.active" to "Active",
-            "filter.completed" to "Completed",
+            // Stats
+            "stats.total" to "Total",
+            "stats.active" to "Active",
+            "stats.completed" to "Completed",
+            "stats.items.left" to "{count} items left",
+            "stats.items.completed" to "{count} items completed",
             
             // Theme
-            "theme.light" to "Light",
-            "theme.dark" to "Dark",
-            "theme.toggle" to "Toggle theme",
+            "theme.light" to "Light Mode",
+            "theme.dark" to "Dark Mode",
+            "theme.toggle" to "Toggle Theme",
             
             // Language
             "language.select" to "Language",
-            
-            // Messages
-            "message.no_todos" to "No todos yet. Add one above!",
-            "message.no_active" to "No active todos",
-            "message.no_completed" to "No completed todos",
-            "message.login_required" to "Please login to continue",
-            "message.login_success" to "Welcome back!",
-            "message.logout_success" to "Goodbye!"
+            "language.current" to "Current Language"
         ),
         
-        Language.SPANISH to mapOf(
+        "es" to mapOf(
             // App
-            "app.title" to "Lista de Tareas",
-            "app.subtitle" to "Gestiona tus tareas eficientemente",
+            "app.title" to "Aplicación de Tareas Summon",
+            "app.subtitle" to "Una potente aplicación de tareas construida con componentes Summon puros",
             
-            // Auth
+            // Authentication
             "auth.login" to "Iniciar Sesión",
-            "auth.register" to "Registrarse",
-            "auth.username" to "Usuario",
-            "auth.email" to "Correo",
-            "auth.password" to "Contraseña",
             "auth.logout" to "Cerrar Sesión",
-            "auth.welcome" to "Bienvenido",
-            "auth.remember_me" to "Recordarme",
+            "auth.username" to "Usuario",
+            "auth.password" to "Contraseña",
+            "auth.username.placeholder" to "Ingresa tu usuario",
+            "auth.password.placeholder" to "Ingresa tu contraseña",
+            "auth.login.button" to "Entrar",
+            "auth.welcome.back" to "Bienvenido de vuelta",
+            "auth.demo.hint" to "Demo: Usa cualquier usuario con contraseña de 3+ caracteres",
             
-            // Todo
-            "todo.add_placeholder" to "¿Qué necesitas hacer?",
-            "todo.add_button" to "Agregar Tarea",
-            "todo.edit" to "Editar",
+            // Todos
+            "todo.add" to "Agregar Tarea",
+            "todo.new.placeholder" to "¿Qué necesitas hacer?",
+            "todo.filter.all" to "Todas",
+            "todo.filter.active" to "Activas",
+            "todo.filter.completed" to "Completadas",
+            "todo.clear.completed" to "Limpiar Completadas",
+            "todo.toggle.all" to "Alternar Todas",
+            "todo.priority.high" to "Prioridad Alta",
+            "todo.priority.normal" to "Prioridad Normal",
+            "todo.priority.low" to "Prioridad Baja",
             "todo.delete" to "Eliminar",
+            "todo.edit" to "Editar",
             "todo.save" to "Guardar",
             "todo.cancel" to "Cancelar",
-            "todo.mark_complete" to "Marcar como completada",
-            "todo.mark_incomplete" to "Marcar como pendiente",
-            "todo.clear_completed" to "Limpiar completadas",
-            "todo.items_left" to "elementos restantes",
-            "todo.item_left" to "elemento restante",
             
-            // Filters
-            "filter.all" to "Todas",
-            "filter.active" to "Activas",
-            "filter.completed" to "Completadas",
+            // Stats
+            "stats.total" to "Total",
+            "stats.active" to "Activas",
+            "stats.completed" to "Completadas",
+            "stats.items.left" to "{count} tareas pendientes",
+            "stats.items.completed" to "{count} tareas completadas",
             
             // Theme
-            "theme.light" to "Claro",
-            "theme.dark" to "Oscuro",
-            "theme.toggle" to "Cambiar tema",
+            "theme.light" to "Modo Claro",
+            "theme.dark" to "Modo Oscuro",
+            "theme.toggle" to "Cambiar Tema",
             
             // Language
             "language.select" to "Idioma",
-            
-            // Messages
-            "message.no_todos" to "No hay tareas aún. ¡Agrega una arriba!",
-            "message.no_active" to "No hay tareas activas",
-            "message.no_completed" to "No hay tareas completadas",
-            "message.login_required" to "Por favor inicia sesión para continuar",
-            "message.login_success" to "¡Bienvenido de vuelta!",
-            "message.logout_success" to "¡Hasta luego!"
+            "language.current" to "Idioma Actual"
         ),
         
-        Language.FRENCH to mapOf(
+        "fr" to mapOf(
             // App
-            "app.title" to "Liste de Tâches",
-            "app.subtitle" to "Gérez vos tâches efficacement",
+            "app.title" to "Application Todo Summon",
+            "app.subtitle" to "Une application todo puissante construite avec des composants Summon purs",
             
-            // Auth
-            "auth.login" to "Se connecter",
-            "auth.register" to "S'inscrire",
+            // Authentication
+            "auth.login" to "Se Connecter",
+            "auth.logout" to "Se Déconnecter",
             "auth.username" to "Nom d'utilisateur",
-            "auth.email" to "Email",
             "auth.password" to "Mot de passe",
-            "auth.logout" to "Se déconnecter",
-            "auth.welcome" to "Bienvenue",
-            "auth.remember_me" to "Se souvenir de moi",
+            "auth.username.placeholder" to "Entrez votre nom d'utilisateur",
+            "auth.password.placeholder" to "Entrez votre mot de passe",
+            "auth.login.button" to "Se Connecter",
+            "auth.welcome.back" to "Bienvenue de retour",
+            "auth.demo.hint" to "Démo: Utilisez n'importe quel nom d'utilisateur avec un mot de passe de 3+ caractères",
             
-            // Todo
-            "todo.add_placeholder" to "Que faut-il faire ?",
-            "todo.add_button" to "Ajouter Tâche",
-            "todo.edit" to "Modifier",
+            // Todos
+            "todo.add" to "Ajouter Tâche",
+            "todo.new.placeholder" to "Que faut-il faire?",
+            "todo.filter.all" to "Toutes",
+            "todo.filter.active" to "Actives",
+            "todo.filter.completed" to "Terminées",
+            "todo.clear.completed" to "Effacer Terminées",
+            "todo.toggle.all" to "Basculer Toutes",
+            "todo.priority.high" to "Priorité Élevée",
+            "todo.priority.normal" to "Priorité Normale",
+            "todo.priority.low" to "Priorité Faible",
             "todo.delete" to "Supprimer",
+            "todo.edit" to "Modifier",
             "todo.save" to "Sauvegarder",
             "todo.cancel" to "Annuler",
-            "todo.mark_complete" to "Marquer comme terminée",
-            "todo.mark_incomplete" to "Marquer comme en cours",
-            "todo.clear_completed" to "Effacer terminées",
-            "todo.items_left" to "éléments restants",
-            "todo.item_left" to "élément restant",
             
-            // Filters
-            "filter.all" to "Toutes",
-            "filter.active" to "Actives",
-            "filter.completed" to "Terminées",
+            // Stats
+            "stats.total" to "Total",
+            "stats.active" to "Actives",
+            "stats.completed" to "Terminées",
+            "stats.items.left" to "{count} tâches restantes",
+            "stats.items.completed" to "{count} tâches terminées",
             
             // Theme
-            "theme.light" to "Clair",
-            "theme.dark" to "Sombre",
-            "theme.toggle" to "Changer thème",
+            "theme.light" to "Mode Clair",
+            "theme.dark" to "Mode Sombre",
+            "theme.toggle" to "Changer le Thème",
             
             // Language
             "language.select" to "Langue",
+            "language.current" to "Langue Actuelle"
+        ),
+        
+        "ar" to mapOf(
+            // App
+            "app.title" to "تطبيق المهام سومون",
+            "app.subtitle" to "تطبيق مهام قوي مبني بمكونات سومون النقية",
             
-            // Messages
-            "message.no_todos" to "Aucune tâche pour le moment. Ajoutez-en une ci-dessus !",
-            "message.no_active" to "Aucune tâche active",
-            "message.no_completed" to "Aucune tâche terminée",
-            "message.login_required" to "Veuillez vous connecter pour continuer",
-            "message.login_success" to "Bon retour !",
-            "message.logout_success" to "Au revoir !"
+            // Authentication
+            "auth.login" to "تسجيل الدخول",
+            "auth.logout" to "تسجيل الخروج",
+            "auth.username" to "اسم المستخدم",
+            "auth.password" to "كلمة المرور",
+            "auth.username.placeholder" to "أدخل اسم المستخدم",
+            "auth.password.placeholder" to "أدخل كلمة المرور",
+            "auth.login.button" to "دخول",
+            "auth.welcome.back" to "مرحباً بعودتك",
+            "auth.demo.hint" to "تجريبي: استخدم أي اسم مستخدم مع كلمة مرور من 3+ أحرف",
+            
+            // Todos
+            "todo.add" to "إضافة مهمة",
+            "todo.new.placeholder" to "ما الذي يجب فعله؟",
+            "todo.filter.all" to "الكل",
+            "todo.filter.active" to "نشطة",
+            "todo.filter.completed" to "مكتملة",
+            "todo.clear.completed" to "مسح المكتملة",
+            "todo.toggle.all" to "تبديل الكل",
+            "todo.priority.high" to "أولوية عالية",
+            "todo.priority.normal" to "أولوية عادية",
+            "todo.priority.low" to "أولوية منخفضة",
+            "todo.delete" to "حذف",
+            "todo.edit" to "تعديل",
+            "todo.save" to "حفظ",
+            "todo.cancel" to "إلغاء",
+            
+            // Stats
+            "stats.total" to "المجموع",
+            "stats.active" to "نشطة",
+            "stats.completed" to "مكتملة",
+            "stats.items.left" to "{count} مهام متبقية",
+            "stats.items.completed" to "{count} مهام مكتملة",
+            
+            // Theme
+            "theme.light" to "الوضع الفاتح",
+            "theme.dark" to "الوضع الداكن",
+            "theme.toggle" to "تبديل المظهر",
+            
+            // Language
+            "language.select" to "اللغة",
+            "language.current" to "اللغة الحالية"
         )
     )
     
-    fun get(key: String, language: Language): String {
-        return translations[language]?.get(key) ?: key
+    /**
+     * Get a translated string for the given key and language.
+     * Supports simple placeholder replacement with {key} syntax.
+     */
+    fun getString(key: String, languageCode: String, placeholders: Map<String, String> = emptyMap()): String {
+        val languageStrings = strings[languageCode] ?: strings["en"] ?: emptyMap()
+        var text = languageStrings[key] ?: key
+        
+        // Replace placeholders
+        placeholders.forEach { (placeholder, value) ->
+            text = text.replace("{$placeholder}", value)
+        }
+        
+        return text
+    }
+    
+    /**
+     * Get a translated string using a Language object
+     */
+    fun getString(key: String, language: Language, placeholders: Map<String, String> = emptyMap()): String {
+        return getString(key, language.code, placeholders)
     }
 }

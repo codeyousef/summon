@@ -102,6 +102,9 @@ actual open class PlatformRenderer {
         requireBuilder().button {
             applyModifier(modifier)
             
+            // Add proper button type to prevent form submission issues
+            attributes["type"] = "button"
+            
             // Register the onClick callback and get an ID
             val callbackId = CallbackRegistry.registerCallback(onClick)
             attributes["data-onclick-id"] = callbackId

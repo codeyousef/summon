@@ -36,15 +36,23 @@
     <!-- Load the compiled Kotlin/JS application -->
     <script src="js.js"></script>
     
-    <!-- Minimal fallback error handling -->
+    <!-- Debug and fallback error handling -->
     <script>
-        // Show error if Summon fails to initialize after 10 seconds
+        console.log("HTML loaded, waiting for Kotlin/JS to initialize...");
+        
+        // Add better error handling and debugging
+        window.addEventListener('error', function(e) {
+            console.error('JavaScript error:', e.error, e.message, e.filename, e.lineno);
+        });
+        
+        // Show error if Summon fails to initialize after 15 seconds (increased timeout)
         setTimeout(function() {
             const root = document.getElementById('root');
             if (root && root.innerHTML.includes('Loading')) {
-                root.innerHTML = '<div style="padding: 20px; color: #dc2626; font-family: monospace;"><h2>Summon Failed to Load</h2><p>Check console for errors and ensure Kotlin/JS compilation succeeded.</p></div>';
+                console.error("Summon failed to initialize within 15 seconds");
+                root.innerHTML = '<div style="padding: 20px; color: #dc2626; font-family: monospace;"><h2>Summon Failed to Load</h2><p>Check console for errors. Kotlin/JS may not be executing properly.</p><p>Expected to see "MAIN FUNCTION CALLED" in console.</p></div>';
             }
-        }, 10000);
+        }, 15000);
     </script>
 </body>
 </html>

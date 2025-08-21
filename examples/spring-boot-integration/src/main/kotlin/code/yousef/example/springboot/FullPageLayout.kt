@@ -169,10 +169,34 @@ fun renderFullPage(
     title: String,
     message: String? = null,
     messageType: String = "info",
+    includeJavaScript: Boolean = false,
     content: @Composable () -> Unit
 ): String {
     // Generate the complete HTML document
-    return renderer.renderComposableRoot {
+    val htmlContent = renderer.renderComposableRoot {
         SummonPage(title, message, messageType, content)
     }
+    
+    // Inject CSS and JavaScript if needed
+    var finalContent = htmlContent
+    
+    // Always include the CSS
+    if (finalContent.contains("</head>")) {
+        finalContent = finalContent.replace(
+            "</head>",
+            """<link rel="stylesheet" type="text/css" href="/styles.css">
+            </head>"""
+        )
+    }
+    
+    // Include JavaScript if requested
+    if (includeJavaScript) {
+        finalContent = finalContent.replace(
+            "</body>",
+            """<script src="/app.js"></script>
+            </body>"""
+        )
+    }
+    
+    return finalContent
 }

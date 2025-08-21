@@ -13,6 +13,7 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
@@ -39,6 +40,14 @@ class SecurityConfig {
     }
     
     @Bean
+    fun authenticationProvider(): DaoAuthenticationProvider {
+        val authProvider = DaoAuthenticationProvider()
+        authProvider.setUserDetailsService(customUserDetailsService)
+        authProvider.setPasswordEncoder(passwordEncoder())
+        return authProvider
+    }
+    
+    @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
         val configuration = CorsConfiguration()
         configuration.allowedOriginPatterns = listOf("*")
@@ -57,9 +66,11 @@ class SecurityConfig {
             .cors { it.configurationSource(corsConfigurationSource()) }
             .csrf { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests { requests ->
                 requests
-                    .requestMatchers("/", "/auth", "/api/auth/**", "/h2-console/**", "/health", "/static/**", "/css/**", "/js/**").permitAll()
+                    .requestMatchers("/", "/auth", "/todos", "/api/auth/**", "/api/health", "/h2-console/**", "/health", "/static/**", "/css/**", "/js/**", "/app.js", "/styles.css").permitAll()
+                    .requestMatchers("/api/todos/**").authenticated() // Require auth for todos API endpoints
                     .anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)

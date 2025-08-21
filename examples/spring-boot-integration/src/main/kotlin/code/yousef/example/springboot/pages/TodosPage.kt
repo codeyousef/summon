@@ -4,11 +4,15 @@ import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.input.*
 import code.yousef.summon.components.layout.*
+import code.yousef.summon.components.style.*
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.FontWeight
+// import code.yousef.summon.modifier.GradientPresets.modernPrimary  // Temporarily disabled
+// import code.yousef.summon.modifier.glassMorphism  // Temporarily disabled
 import code.yousef.summon.extensions.*
 import code.yousef.summon.state.*
 import code.yousef.summon.runtime.remember
+// import code.yousef.summon.i18n.rememberI18n  // Temporarily disabled
 import code.yousef.example.springboot.*
 
 data class Todo(
@@ -28,11 +32,14 @@ enum class TodoFilter {
 @Composable
 fun TodosPage(
     username: String = "User",
-    initialTodos: List<Todo> = emptyList()
+    initialTodos: List<Todo> = emptyList(),
+    language: String = "en",
+    theme: String = "light"
 ) {
-    // Hardcoded values for now - can be passed as parameters
-    val language = "en"
-    val isDarkTheme = false
+    val isDarkTheme = theme == "dark"
+    // val i18n = rememberI18n()  // Temporarily disabled
+    
+    // Temporarily disabled theming features
     
     // State management
     val todos = remember { mutableStateOf(initialTodos.toMutableList()) }
@@ -58,7 +65,7 @@ fun TodosPage(
         modifier = Modifier()
             .fillMaxWidth()
             .minHeight(100.vh)
-            .backgroundColor(if (isDarkTheme) "#1a1a1a" else "#f5f5f5")
+            .backgroundColor("#f0f2f5") // Simple background instead of gradient
     ) {
         // Header
         TodoHeader(username, language, isDarkTheme)
@@ -88,14 +95,16 @@ fun TodosPage(
                 }
             }
             
-            // Todo card
-            // Card-like div
+            // Todo card with glass morphism
             Div(
                 modifier = Modifier()
                     .fillMaxWidth()
-                    .backgroundColor(if (isDarkTheme) "#2d2d2d" else "white")
-                    .boxShadow("0 4px 6px rgba(0,0,0,0.1)")
-                    .borderRadius(8.px)
+                    .backgroundColor("white")
+                    .boxShadow("0 4px 6px rgba(0, 0, 0, 0.1)") // Simple shadow instead of glassmorphism
+                    .borderRadius(16.px)
+                    .style("overflow", "hidden")
+                    .style("max-width", "800px")
+                    .style("width", "100%")
             ) {
                 Column(modifier = Modifier().padding(1.5.rem)) {
                     // Title
@@ -109,47 +118,48 @@ fun TodosPage(
                     )
                     
                     // Add todo form
-                    Row(
+                    Div(
                         modifier = Modifier()
+                            .attribute("id", "addTodoForm")
                             .fillMaxWidth()
                             .marginBottom(1.rem)
-                            .gap(0.5.rem)
                     ) {
-                        TextField(
-                            value = newTodoText.value,
-                            onValueChange = { newTodoText.value = it },
-                            placeholder = "What needs to be done?",
+                        Row(
                             modifier = Modifier()
-                                .flex(1)
-                                .padding(0.75.rem)
-                                .fontSize(1.rem)
-                                .borderRadius(4.px)
-                                .border("1px", "solid", if (isDarkTheme) "#444" else "#ddd")
-                                .backgroundColor(if (isDarkTheme) "#1a1a1a" else "white")
-                                .color(if (isDarkTheme) "white" else "#333")
-                        )
-                        
-                        Button(
-                            onClick = {
-                                if (newTodoText.value.isNotBlank()) {
-                                    val newTodo = Todo(
-                                        id = System.currentTimeMillis(),
-                                        text = newTodoText.value,
-                                        completed = false
-                                    )
-                                    todos.value = todos.value.toMutableList().apply { add(newTodo) }
-                                    newTodoText.value = ""
-                                }
-                            },
-                            label = if (isLoading.value) "Loading..." else "Add",
-                            modifier = Modifier()
-                                .padding("0.75rem 1.5rem")
-                                .backgroundColor("#1976d2")
-                                .color("white")
-                                .borderRadius(4.px)
-                                .cursor("pointer")
-                                .hover { backgroundColor("#1565c0") }
-                        )
+                                .fillMaxWidth()
+                                .gap(0.5.rem)
+                        ) {
+                            TextField(
+                                value = newTodoText.value,
+                                onValueChange = { newTodoText.value = it },
+                                placeholder = "What needs to be done?",
+                                modifier = Modifier()
+                                    .flex(1)
+                                    .padding(0.75.rem)
+                                    .fontSize(1.rem)
+                                    .borderRadius(4.px)
+                                    .border("1px", "solid", if (isDarkTheme) "#444" else "#ddd")
+                                    .backgroundColor(if (isDarkTheme) "#1a1a1a" else "white")
+                                    .color(if (isDarkTheme) "white" else "#333")
+                                    .attribute("id", "newTodoInput")
+                                    .attribute("name", "todoText")
+                            )
+                            
+                            Button(
+                                onClick = {
+                                    // This will be handled by JavaScript
+                                },
+                                label = if (isLoading.value) "Loading..." else "Add",
+                                modifier = Modifier()
+                                    .padding("0.75rem 1.5rem")
+                                    .backgroundColor("#1976d2")
+                                    .color("white")
+                                    .borderRadius(4.px)
+                                    .cursor("pointer")
+                                    .hover { backgroundColor("#1565c0") }
+                                    .attribute("type", "submit")
+                            )
+                        }
                     }
                     
                     // Filter buttons
@@ -245,7 +255,7 @@ fun TodosPage(
                         if (todos.value.any { it.completed }) {
                             Button(
                                 onClick = {
-                                    todos.value = todos.value.filterNot { it.completed }.toMutableList()
+                                    // This will be handled by JavaScript
                                 },
                                 label = "Clear completed",
                                 modifier = Modifier()
@@ -256,6 +266,7 @@ fun TodosPage(
                                     .borderRadius(4.px)
                                     .cursor("pointer")
                                     .hover { backgroundColor("#ffebee") }
+                                    .attribute("id", "clearCompletedBtn")
                             )
                         }
                     }
@@ -291,6 +302,7 @@ fun TodoHeader(
                     .fontSize(1.25.rem)
                     .fontWeight(FontWeight.Medium)
                     .color(if (isDarkTheme) "white" else "#333")
+                    .attribute("id", "username")
             )
             
             Row(
@@ -299,9 +311,8 @@ fun TodoHeader(
                     .alignItems("center")
             ) {
                 // Language selector
-                // Language selector button placeholder
                 Button(
-                    onClick = { /* TODO: Language selection */ },
+                    onClick = { /* This will be handled by JavaScript */ },
                     label = language.uppercase(),
                     modifier = Modifier()
                         .padding("0.5rem 1rem")
@@ -309,11 +320,13 @@ fun TodoHeader(
                         .color("#666")
                         .borderRadius(4.px)
                         .cursor("pointer")
+                        .attribute("id", "languageBtn")
+                        .attribute("type", "button") // Explicitly set button type
                 )
                 
-                // Theme toggle button placeholder
+                // Theme toggle button
                 Button(
-                    onClick = { /* TODO: Theme toggle */ },
+                    onClick = { /* This will be handled by JavaScript */ },
                     label = if (isDarkTheme) "🌙" else "☀️",
                     modifier = Modifier()
                         .padding("0.5rem 1rem")
@@ -321,13 +334,14 @@ fun TodoHeader(
                         .color("#666")
                         .borderRadius(4.px)
                         .cursor("pointer")
+                        .attribute("id", "themeBtn")
+                        .attribute("type", "button") // Explicitly set button type
                 )
                 
                 // Logout button
                 Button(
                     onClick = {
-                        // In a real app, this would call the logout API
-                        // TODO: Implement logout
+                        // This will be handled by JavaScript
                     },
                     label = "Logout",
                     modifier = Modifier()
@@ -337,6 +351,8 @@ fun TodoHeader(
                         .borderRadius(4.px)
                         .cursor("pointer")
                         .hover { backgroundColor("#c62828") }
+                        .attribute("id", "logoutBtn")
+                        .attribute("type", "button") // Explicitly set button type
                 )
             }
         }
@@ -361,7 +377,10 @@ fun TodoItem(
         Checkbox(
             checked = todo.completed,
             onCheckedChange = { onToggle() },
-            modifier = Modifier().marginRight(1.rem)
+            modifier = Modifier()
+                .marginRight(1.rem)
+                .attribute("class", "todo-toggle")
+                .attribute("data-todo-id", todo.id.toString())
         )
         
         Text(
@@ -383,6 +402,8 @@ fun TodoItem(
                 .fontSize(0.875.rem)
                 .cursor("pointer")
                 .hover { backgroundColor("#c62828") }
+                .attribute("class", "todo-delete")
+                .attribute("data-todo-id", todo.id.toString())
         )
     }
 }
