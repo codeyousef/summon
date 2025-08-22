@@ -172,12 +172,12 @@ fun renderFullPage(
     includeJavaScript: Boolean = false,
     content: @Composable () -> Unit
 ): String {
-    // Generate the complete HTML document
-    val htmlContent = renderer.renderComposableRoot {
+    // Generate the complete HTML document with hydration support
+    val htmlContent = renderer.renderComposableRootWithHydration {
         SummonPage(title, message, messageType, content)
     }
     
-    // Inject CSS and JavaScript if needed
+    // Inject CSS - hydration JS is automatically included by renderComposableRootWithHydration
     var finalContent = htmlContent
     
     // Always include the CSS
@@ -186,15 +186,6 @@ fun renderFullPage(
             "</head>",
             """<link rel="stylesheet" type="text/css" href="/styles.css">
             </head>"""
-        )
-    }
-    
-    // Include JavaScript if requested
-    if (includeJavaScript) {
-        finalContent = finalContent.replace(
-            "</body>",
-            """<script src="/app.js"></script>
-            </body>"""
         )
     }
     

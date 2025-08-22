@@ -133,8 +133,33 @@ object SummonHydrationClient {
         window.fetch("/summon/callback", requestInit)
             .then { response ->
                 if (response.ok) {
-                    SummonLogger.log("Callback executed successfully: $callbackId")
-                    window.location.reload()
+                    // Parse response to check for actions
+                    response.json().then { data ->
+                        SummonLogger.log("Callback executed successfully: $callbackId")
+                        
+                        val action = js("data.action") as? String
+                        val redirectUrl = js("data.redirectUrl") as? String
+                        
+                        when (action) {
+                            "redirect" -> {
+                                if (redirectUrl != null) {
+                                    SummonLogger.log("Redirecting to: $redirectUrl")
+                                    window.location.href = redirectUrl
+                                } else {
+                                    SummonLogger.warn("Redirect action but no redirectUrl provided")
+                                    window.location.reload()
+                                }
+                            }
+                            "reload" -> {
+                                SummonLogger.log("Reloading page")
+                                window.location.reload()
+                            }
+                            else -> {
+                                // Default action: reload page
+                                window.location.reload()
+                            }
+                        }
+                    }
                 } else {
                     SummonLogger.error("Failed to execute callback: $callbackId (${response.status})")
                 }

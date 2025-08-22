@@ -14,6 +14,8 @@ import code.yousef.summon.state.*
 import code.yousef.summon.runtime.remember
 // import code.yousef.summon.i18n.rememberI18n  // Temporarily disabled
 import code.yousef.example.springboot.*
+// import code.yousef.summon.runtime.CallbackRegistry // Not available in JVM-only project
+// import code.yousef.summon.runtime.SummonLogger // Not available in JVM-only project
 
 data class Todo(
     val id: Long = 0,
@@ -36,6 +38,9 @@ fun TodosPage(
     language: String = "en",
     theme: String = "light"
 ) {
+    // Clear and initialize registries for this page render
+    ActionRegistry.clear()
+    
     val isDarkTheme = theme == "dark"
     // val i18n = rememberI18n()  // Temporarily disabled
     
@@ -145,20 +150,27 @@ fun TodosPage(
                                     .attribute("name", "todoText")
                             )
                             
-                            Button(
-                                onClick = {
-                                    // This will be handled by JavaScript
-                                },
-                                label = if (isLoading.value) "Loading..." else "Add",
-                                modifier = Modifier()
-                                    .padding("0.75rem 1.5rem")
-                                    .backgroundColor("#1976d2")
-                                    .color("white")
-                                    .borderRadius(4.px)
-                                    .cursor("pointer")
-                                    .hover { backgroundColor("#1565c0") }
-                                    .attribute("type", "submit")
-                            )
+                            run {
+                                // Register the action and get the callback ID
+                                val callbackId = "add-todo-${System.currentTimeMillis()}"
+                                // CallbackRegistry.registerCallback {
+                                //     SummonLogger.log("Add todo callback executed")
+                                // }
+                                ActionRegistry.registerAction(callbackId, ActionType.AddTodo(""))
+                                
+                                Button(
+                                    onClick = { /* This callback ID will be used by hydration */ },
+                                    label = if (isLoading.value) "Loading..." else "Add",
+                                    modifier = Modifier()
+                                        .padding("0.75rem 1.5rem")
+                                        .backgroundColor("#1976d2")
+                                        .color("white")
+                                        .borderRadius(4.px)
+                                        .cursor("pointer")
+                                        .hover { backgroundColor("#1565c0") }
+                                        .attribute("data-onclick-id", callbackId)
+                                )
+                            }
                         }
                     }
                     
@@ -311,49 +323,71 @@ fun TodoHeader(
                     .alignItems("center")
             ) {
                 // Language selector
-                Button(
-                    onClick = { /* This will be handled by JavaScript */ },
-                    label = language.uppercase(),
-                    modifier = Modifier()
-                        .padding("0.5rem 1rem")
-                        .backgroundColor("#e0e0e0")
-                        .color("#666")
-                        .borderRadius(4.px)
-                        .cursor("pointer")
-                        .attribute("id", "languageBtn")
-                        .attribute("type", "button") // Explicitly set button type
-                )
+                run {
+                    // Register the action and get the callback ID
+                    val callbackId = "language-toggle-${System.currentTimeMillis()}"
+                    // CallbackRegistry.registerCallback {
+                    //     SummonLogger.log("Language toggle callback executed")
+                    // }
+                    ActionRegistry.registerAction(callbackId, ActionType.ToggleLanguage)
+                    
+                    Button(
+                        onClick = { /* This callback ID will be used by hydration */ },
+                        label = language.uppercase(),
+                        modifier = Modifier()
+                            .padding("0.5rem 1rem")
+                            .backgroundColor("#e0e0e0")
+                            .color("#666")
+                            .borderRadius(4.px)
+                            .cursor("pointer")
+                            .attribute("data-onclick-id", callbackId)
+                    )
+                }
                 
                 // Theme toggle button
-                Button(
-                    onClick = { /* This will be handled by JavaScript */ },
-                    label = if (isDarkTheme) "🌙" else "☀️",
-                    modifier = Modifier()
-                        .padding("0.5rem 1rem")
-                        .backgroundColor("#e0e0e0")
-                        .color("#666")
-                        .borderRadius(4.px)
-                        .cursor("pointer")
-                        .attribute("id", "themeBtn")
-                        .attribute("type", "button") // Explicitly set button type
-                )
+                run {
+                    // Register the action and get the callback ID
+                    val callbackId = "theme-toggle-${System.currentTimeMillis()}"
+                    // CallbackRegistry.registerCallback {
+                    //     SummonLogger.log("Theme toggle callback executed")
+                    // }
+                    ActionRegistry.registerAction(callbackId, ActionType.ToggleTheme)
+                    
+                    Button(
+                        onClick = { /* This callback ID will be used by hydration */ },
+                        label = if (isDarkTheme) "🌙" else "☀️",
+                        modifier = Modifier()
+                            .padding("0.5rem 1rem")
+                            .backgroundColor("#e0e0e0")
+                            .color("#666")
+                            .borderRadius(4.px)
+                            .cursor("pointer")
+                            .attribute("data-onclick-id", callbackId)
+                    )
+                }
                 
                 // Logout button
-                Button(
-                    onClick = {
-                        // This will be handled by JavaScript
-                    },
-                    label = "Logout",
-                    modifier = Modifier()
-                        .padding("0.5rem 1rem")
-                        .backgroundColor("#d32f2f")
-                        .color("white")
-                        .borderRadius(4.px)
-                        .cursor("pointer")
-                        .hover { backgroundColor("#c62828") }
-                        .attribute("id", "logoutBtn")
-                        .attribute("type", "button") // Explicitly set button type
-                )
+                run {
+                    // Register the action and get the callback ID
+                    val callbackId = "logout-${System.currentTimeMillis()}"
+                    // CallbackRegistry.registerCallback {
+                    //     SummonLogger.log("Logout callback executed")
+                    // }
+                    ActionRegistry.registerAction(callbackId, ActionType.Logout)
+                    
+                    Button(
+                        onClick = { /* This callback ID will be used by hydration */ },
+                        label = "Logout",
+                        modifier = Modifier()
+                            .padding("0.5rem 1rem")
+                            .backgroundColor("#d32f2f")
+                            .color("white")
+                            .borderRadius(4.px)
+                            .cursor("pointer")
+                            .hover { backgroundColor("#c62828") }
+                            .attribute("data-onclick-id", callbackId)
+                    )
+                }
             }
         }
     }

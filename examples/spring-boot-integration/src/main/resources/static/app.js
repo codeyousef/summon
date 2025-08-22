@@ -1,4 +1,6 @@
+// DISABLED: Custom JavaScript replaced by Summon framework hydration
 // JWT Todo App Client-Side JavaScript
+/*
 class TodoApp {
     constructor() {
         this.apiBase = '/api';
@@ -7,6 +9,14 @@ class TodoApp {
         this.todos = [];
         this.currentTheme = localStorage.getItem('theme') || 'light';
         this.currentLanguage = localStorage.getItem('language') || 'en';
+        
+        // Track which buttons have been bound to prevent duplicates
+        this.buttonsBound = {
+            addTodoBtn: false,
+            languageBtn: false,
+            themeBtn: false,
+            logoutBtn: false
+        };
         
         this.init();
     }
@@ -297,53 +307,23 @@ class TodoApp {
     }
     
     setupTodoEvents() {
-        // Add todo form
-        const addForm = document.getElementById('addTodoForm');
-        if (addForm) {
-            addForm.addEventListener('click', async (e) => {
-                if (e.target.type === 'submit' || e.target.tagName === 'BUTTON') {
+        // All button clicks are now handled by document-level event delegation
+        // Just set up Enter key handler for todo input
+        const todoInput = document.getElementById('newTodoInput');
+        if (todoInput) {
+            console.log('Setting up Enter key handler for todo input');
+            todoInput.addEventListener('keypress', async (e) => {
+                if (e.key === 'Enter') {
                     e.preventDefault();
-                    const input = document.getElementById('newTodoInput');
-                    if (input && input.value.trim()) {
-                        await this.addTodo(input.value.trim());
-                        input.value = '';
+                    if (todoInput.value.trim()) {
+                        await this.addTodo(todoInput.value.trim());
+                        todoInput.value = '';
                     }
                 }
             });
-            
-            // Also listen for Enter key in the todo input
-            const todoInput = document.getElementById('newTodoInput');
-            if (todoInput) {
-                todoInput.addEventListener('keypress', async (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        if (todoInput.value.trim()) {
-                            await this.addTodo(todoInput.value.trim());
-                            todoInput.value = '';
-                        }
-                    }
-                });
-            }
         }
         
-        // Logout button
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.logout();
-            });
-        }
-        
-        
-        // Clear completed
-        const clearBtn = document.getElementById('clearCompletedBtn');
-        if (clearBtn) {
-            clearBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.clearCompleted();
-            });
-        }
+        console.log('Todo events setup complete - using document-level delegation for buttons');
     }
     
     renderTodos() {
@@ -377,14 +357,10 @@ class TodoApp {
             
             if (!result || !result.success) {
                 console.warn('Failed to update theme setting on server');
-                // Don't reload if the API call failed
                 return;
             }
             
-            // Only reload if API call was successful
-            setTimeout(() => {
-                window.location.reload();
-            }, 100);
+            console.log('Theme setting updated successfully on server');
         } else {
             console.log('Theme applied locally (user not authenticated)');
         }
@@ -448,34 +424,71 @@ class TodoApp {
     }
     
     setupGlobalEvents() {
-        // Handle todo item events using event delegation
+        // Document-level click handler for all framework buttons and todo actions
         document.addEventListener('click', (e) => {
+            // Handle todo item events using event delegation
             if (e.target.classList.contains('todo-toggle')) {
                 const id = parseInt(e.target.dataset.todoId);
                 this.toggleTodo(id);
+                return;
             } else if (e.target.classList.contains('todo-delete')) {
                 const id = parseInt(e.target.dataset.todoId);
                 this.deleteTodo(id);
+                return;
+            }
+            
+            // Handle framework buttons with data-onclick-action attribute
+            if (e.target.hasAttribute('data-onclick-action') || e.target.hasAttribute('data-onclick-id')) {
+                e.preventDefault();
+                this.handleFrameworkButtonClick(e.target);
+                return;
             }
         });
 
-        // Theme toggle (global - works on all pages)
-        const themeBtn = document.getElementById('themeBtn');
-        if (themeBtn) {
-            themeBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.toggleTheme();
-            });
-        }
+        console.log('Global event handlers set up');
+    }
+    
+    handleFrameworkButtonClick(element) {
+        const elementId = element.id;
+        console.log('Framework button clicked:', elementId, element);
         
-        // Language toggle (global - works on all pages)
-        const languageBtn = document.getElementById('languageBtn');
-        if (languageBtn) {
-            languageBtn.addEventListener('click', (e) => {
-                e.preventDefault();
+        // Map button IDs to their handlers
+        switch (elementId) {
+            case 'addTodoBtn':
+                this.handleAddTodoClick();
+                break;
+            case 'languageBtn':
+                console.log('Language toggle clicked');
                 this.toggleLanguage();
-            });
+                break;
+            case 'themeBtn':
+                console.log('Theme toggle clicked');
+                this.toggleTheme();
+                break;
+            case 'logoutBtn':
+                console.log('Logout clicked');
+                this.logout();
+                break;
+            default:
+                console.warn('Unknown button clicked:', elementId, element);
+                break;
         }
+    }
+    
+    async handleAddTodoClick() {
+        const input = document.getElementById('newTodoInput');
+        if (input && input.value.trim()) {
+            console.log('Adding todo:', input.value.trim());
+            await this.addTodo(input.value.trim());
+            input.value = '';
+        } else {
+            console.log('Add todo: input is empty or not found');
+        }
+    }
+    
+    // Legacy method - no longer needed with document-level event delegation
+    bindGlobalButtons(retryCount = 0) {
+        console.log('Using document-level event delegation - no individual button binding needed');
     }
     
     showError(message) {
@@ -498,3 +511,6 @@ class TodoApp {
 document.addEventListener('DOMContentLoaded', () => {
     new TodoApp();
 });
+*/
+
+console.log('Custom JavaScript disabled - using Summon framework hydration instead');

@@ -805,6 +805,7 @@ fun NavigationComponent() {
                     modifier = Modifier()
                         .color(Color.WHITE.toCssString())
                         .textDecoration("none", null)
+                        .marginRight(1.rem)
                 ) {
                     Text("Home")
                 }
@@ -813,6 +814,7 @@ fun NavigationComponent() {
                     modifier = Modifier()
                         .color(Color.WHITE.toCssString())
                         .textDecoration("none", null)
+                        .marginRight(1.rem)
                 ) {
                     Text("Users")
                 }
@@ -821,6 +823,7 @@ fun NavigationComponent() {
                     modifier = Modifier()
                         .color(Color.WHITE.toCssString())
                         .textDecoration("none", null)
+                        .marginRight(1.rem)
                 ) {
                     Text("Dashboard")
                 }
@@ -829,6 +832,7 @@ fun NavigationComponent() {
                     modifier = Modifier()
                         .color(Color.WHITE.toCssString())
                         .textDecoration("none", null)
+                        .marginRight(0.px) // No margin for the last item
                 ) {
                     Text("Contact")
                 }
