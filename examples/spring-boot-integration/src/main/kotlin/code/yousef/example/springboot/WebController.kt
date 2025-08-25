@@ -17,6 +17,9 @@ import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.extensions.*
 // import code.yousef.summon.i18n.I18nProvider  // Temporarily disabled
 import code.yousef.example.springboot.pages.*
+import code.yousef.example.springboot.service.TodoService
+import code.yousef.example.springboot.models.Todo as ModelTodo
+import code.yousef.example.springboot.models.TodoFilter as ModelTodoFilter
 import code.yousef.example.springboot.components.EditUserFormComponent
 import code.yousef.example.springboot.*
 import code.yousef.example.springboot.i18n.Translations
@@ -28,6 +31,7 @@ import code.yousef.example.springboot.i18n.Translations
 @Controller
 class WebController @Autowired constructor(
     private val userService: UserService,
+    private val todoService: TodoService,
     private val summonRenderer: SummonRenderer
 ) {
     
@@ -450,9 +454,24 @@ class WebController @Autowired constructor(
         logger.info("Rendering todos page with pure Summon")
         
         return try {
-            // In a real app, you'd fetch todos from the database via API
-            // For now, pass empty list since JavaScript will load them
-            val initialTodos = emptyList<Todo>()
+            // Load actual todos from the database
+            // For demo purposes, use a default user since we don't have authentication context
+            val defaultUsername = "testuser" // This should come from authentication
+            val initialTodos = try {
+                val modelTodos = todoService.getTodosByUser(defaultUsername, ModelTodoFilter.ALL)
+                // Convert from model Todo to page Todo
+                modelTodos.map { modelTodo ->
+                    Todo(
+                        id = modelTodo.id,
+                        text = modelTodo.text,
+                        completed = modelTodo.completed,
+                        userId = 1L // Default user ID for demo purposes
+                    )
+                }
+            } catch (e: Exception) {
+                logger.warn("Could not load todos for user $defaultUsername: ${e.message}")
+                emptyList<Todo>()
+            }
             
             // Render complete HTML page using pure Summon components
             renderFullPage(
@@ -660,7 +679,8 @@ class WebController @Autowired constructor(
                 logger.warn("No script tags found! Manually adding hydration scripts")
                 
                 // Add the missing script tags before closing body tag
-                val hydrationData = """{"version":1,"callbacks":[],"timestamp":${System.currentTimeMillis()}}"""
+                val callbackInfo = extractCallbackInfo(result)
+                val hydrationData = generateHydrationData(callbackInfo)
                 val fixedResult = result.replace("</body>", """
                     
                     <!-- Hydration data for Summon components -->
@@ -681,5 +701,48 @@ class WebController @Autowired constructor(
             logger.error("Error in debug hydration", e)
             "<html><body><h1>Error: ${e.message}</h1><pre>${e.stackTraceToString()}</pre></body></html>"
         }
+    }
+    
+    /**
+     * Extract callback information from rendered HTML and ActionRegistry
+     */
+    private fun extractCallbackInfo(html: String): Map<String, ActionType> {
+        val callbackInfo = mutableMapOf<String, ActionType>()
+        val regex = """data-onclick-id="([^"]+)"""".toRegex()
+        
+        regex.findAll(html).forEach { match ->
+            val callbackId = match.groupValues[1]
+            if (callbackId.isNotEmpty()) {
+                val action = ActionRegistry.getAction(callbackId)
+                if (action != null) {
+                    callbackInfo[callbackId] = action
+                }
+            }
+        }
+        
+        return callbackInfo
+    }
+
+    /**
+     * Generate hydration data with callback information
+     */
+    private fun generateHydrationData(callbackInfo: Map<String, ActionType>): String {
+        val callbacksJson = callbackInfo.map { (id, action) ->
+            val actionJson = when (action) {
+                is ActionType.Login -> """{"type":"login","username":"${action.username}","password":"${action.password}","rememberMe":${action.rememberMe}}"""
+                is ActionType.Register -> """{"type":"register","email":"${action.email}","username":"${action.username}","password":"${action.password}"}"""
+                is ActionType.ToggleAuthMode -> """{"type":"toggleAuth","currentMode":"${action.currentMode}"}"""
+                is ActionType.ToggleTheme -> """{"type":"toggleTheme"}"""
+                is ActionType.ToggleLanguage -> """{"type":"toggleLanguage"}"""
+                is ActionType.Logout -> """{"type":"logout"}"""
+                is ActionType.AddTodo -> """{"type":"addTodo","text":"${action.text}"}"""
+                is ActionType.DeleteTodo -> """{"type":"deleteTodo","todoId":${action.todoId}}"""
+                is ActionType.ClearCompleted -> """{"type":"clearCompleted"}"""
+                is ActionType.SetFilter -> """{"type":"setFilter","filter":"${action.filter}"}"""
+            }
+            """"$id":$actionJson"""
+        }.joinToString(",")
+        
+        return """{"version":1,"callbacks":{$callbacksJson},"timestamp":${System.currentTimeMillis()}}"""
     }
 }

@@ -12,8 +12,8 @@ import code.yousef.summon.modifier.FontWeight
 import code.yousef.summon.extensions.*
 import code.yousef.summon.state.*
 import code.yousef.summon.runtime.remember
-// import code.yousef.summon.i18n.rememberI18n  // Temporarily disabled
 import code.yousef.example.springboot.*
+import code.yousef.example.springboot.i18n.Translations
 // import code.yousef.summon.runtime.CallbackRegistry // Not available in JVM-only project
 // import code.yousef.summon.runtime.SummonLogger // Not available in JVM-only project
 
@@ -41,10 +41,10 @@ fun TodosPage(
     // Clear and initialize registries for this page render
     ActionRegistry.clear()
     
-    val isDarkTheme = theme == "dark"
-    // val i18n = rememberI18n()  // Temporarily disabled
+    // Generate a consistent session ID for this render
+    val renderSession = System.currentTimeMillis()
     
-    // Temporarily disabled theming features
+    val isDarkTheme = theme == "dark"
     
     // State management
     val todos = remember { mutableStateOf(initialTodos.toMutableList()) }
@@ -70,10 +70,10 @@ fun TodosPage(
         modifier = Modifier()
             .fillMaxWidth()
             .minHeight(100.vh)
-            .backgroundColor("#f0f2f5") // Simple background instead of gradient
+            .backgroundColor(if (isDarkTheme) "#121212" else "#f5f5f5")
     ) {
         // Header
-        TodoHeader(username, language, isDarkTheme)
+        TodoHeader(username, language, isDarkTheme, renderSession)
         
         // Main content
         Div(
@@ -104,8 +104,8 @@ fun TodosPage(
             Div(
                 modifier = Modifier()
                     .fillMaxWidth()
-                    .backgroundColor("white")
-                    .boxShadow("0 4px 6px rgba(0, 0, 0, 0.1)") // Simple shadow instead of glassmorphism
+                    .backgroundColor(if (isDarkTheme) "#2d2d2d" else "white")
+                    .boxShadow(if (isDarkTheme) "0 4px 6px rgba(0, 0, 0, 0.3)" else "0 4px 6px rgba(0, 0, 0, 0.1)")
                     .borderRadius(16.px)
                     .style("overflow", "hidden")
                     .style("max-width", "800px")
@@ -114,7 +114,7 @@ fun TodosPage(
                 Column(modifier = Modifier().padding(1.5.rem)) {
                     // Title
                     Text(
-                        "Todo List",
+                        Translations.get("app.title", language),
                         modifier = Modifier()
                             .fontSize(2.rem)
                             .fontWeight(FontWeight.Bold)
@@ -137,7 +137,7 @@ fun TodosPage(
                             TextField(
                                 value = newTodoText.value,
                                 onValueChange = { newTodoText.value = it },
-                                placeholder = "What needs to be done?",
+                                placeholder = Translations.get("todo.add_placeholder", language),
                                 modifier = Modifier()
                                     .flex(1)
                                     .padding(0.75.rem)
@@ -152,7 +152,7 @@ fun TodosPage(
                             
                             run {
                                 // Register the action and get the callback ID
-                                val callbackId = "add-todo-${System.currentTimeMillis()}"
+                                val callbackId = "add-todo-${renderSession}"
                                 // CallbackRegistry.registerCallback {
                                 //     SummonLogger.log("Add todo callback executed")
                                 // }
@@ -160,7 +160,7 @@ fun TodosPage(
                                 
                                 Button(
                                     onClick = { /* This callback ID will be used by hydration */ },
-                                    label = if (isLoading.value) "Loading..." else "Add",
+                                    label = if (isLoading.value) "Loading..." else Translations.get("todo.add_button", language),
                                     modifier = Modifier()
                                         .padding("0.75rem 1.5rem")
                                         .backgroundColor("#1976d2")
@@ -169,6 +169,7 @@ fun TodosPage(
                                         .cursor("pointer")
                                         .hover { backgroundColor("#1565c0") }
                                         .attribute("data-onclick-id", callbackId)
+                                        .attribute("data-onclick-action", "true")
                                 )
                             }
                         }
@@ -182,26 +183,34 @@ fun TodosPage(
                             .gap(0.5.rem)
                     ) {
                         TodoFilter.values().forEach { filterType ->
-                            Button(
-                                onClick = { filter.value = filterType },
-                                label = when (filterType) {
-                                    TodoFilter.ALL -> "All"
-                                    TodoFilter.ACTIVE -> "Active"
-                                    TodoFilter.COMPLETED -> "Completed"
-                                },
-                                modifier = Modifier()
-                                    .padding("0.5rem 1rem")
-                                    .backgroundColor(
-                                        if (filter.value == filterType) "#1976d2" else 
-                                        if (isDarkTheme) "#444" else "#e0e0e0"
-                                    )
-                                    .color(
-                                        if (filter.value == filterType) "white" else
-                                        if (isDarkTheme) "#ccc" else "#666"
-                                    )
-                                    .borderRadius(4.px)
-                                    .cursor("pointer")
-                            )
+                            run {
+                                // Register the action and get the callback ID
+                                val callbackId = "filter-${filterType.name.lowercase()}-${renderSession}"
+                                ActionRegistry.registerAction(callbackId, ActionType.SetFilter(filterType))
+                                
+                                Button(
+                                    onClick = { filter.value = filterType },
+                                    label = when (filterType) {
+                                        TodoFilter.ALL -> Translations.get("filter.all", language)
+                                        TodoFilter.ACTIVE -> Translations.get("filter.active", language)
+                                        TodoFilter.COMPLETED -> Translations.get("filter.completed", language)
+                                    },
+                                    modifier = Modifier()
+                                        .padding("0.5rem 1rem")
+                                        .backgroundColor(
+                                            if (filter.value == filterType) "#1976d2" else 
+                                            if (isDarkTheme) "#444" else "#e0e0e0"
+                                        )
+                                        .color(
+                                            if (filter.value == filterType) "white" else
+                                            if (isDarkTheme) "#ccc" else "#666"
+                                        )
+                                        .borderRadius(4.px)
+                                        .cursor("pointer")
+                                        .attribute("data-onclick-id", callbackId)
+                                        .attribute("data-onclick-action", "true")
+                                )
+                            }
                         }
                     }
                     
@@ -221,9 +230,9 @@ fun TodosPage(
                             ) {
                                 Text(
                                     when (filter.value) {
-                                        TodoFilter.ACTIVE -> "No active todos"
-                                        TodoFilter.COMPLETED -> "No completed todos"
-                                        else -> "No todos yet"
+                                        TodoFilter.ACTIVE -> Translations.get("message.no_active", language)
+                                        TodoFilter.COMPLETED -> Translations.get("message.no_completed", language)
+                                        else -> Translations.get("message.no_todos", language)
                                     }
                                 )
                             }
@@ -232,6 +241,8 @@ fun TodosPage(
                                 TodoItem(
                                     todo = todo,
                                     isDarkTheme = isDarkTheme,
+                                    language = language,
+                                    renderSession = renderSession,
                                     onToggle = {
                                         val index = todos.value.indexOf(todo)
                                         if (index != -1) {
@@ -259,27 +270,35 @@ fun TodosPage(
                             .alignItems("center")
                     ) {
                         Text(
-                            "$activeCount ${if (activeCount == 1) "item left" else "items left"}",
+                            "$activeCount ${if (activeCount == 1) Translations.get("todo.item_left", language) else Translations.get("todo.items_left", language)}",
                             modifier = Modifier()
                                 .color(if (isDarkTheme) "#999" else "#666")
                         )
                         
                         if (todos.value.any { it.completed }) {
-                            Button(
-                                onClick = {
-                                    // This will be handled by JavaScript
-                                },
-                                label = "Clear completed",
-                                modifier = Modifier()
-                                    .padding("0.5rem 1rem")
-                                    .backgroundColor("transparent")
-                                    .color("#d32f2f")
-                                    .border("1px", "solid", "#d32f2f")
-                                    .borderRadius(4.px)
-                                    .cursor("pointer")
-                                    .hover { backgroundColor("#ffebee") }
-                                    .attribute("id", "clearCompletedBtn")
-                            )
+                            run {
+                                // Register the action and get the callback ID
+                                val callbackId = "clear-completed-${renderSession}"
+                                ActionRegistry.registerAction(callbackId, ActionType.ClearCompleted)
+                                
+                                Button(
+                                    onClick = {
+                                        // This will be handled by JavaScript
+                                    },
+                                    label = Translations.get("todo.clear_completed", language),
+                                    modifier = Modifier()
+                                        .padding("0.5rem 1rem")
+                                        .backgroundColor("transparent")
+                                        .color("#d32f2f")
+                                        .border("1px", "solid", "#d32f2f")
+                                        .borderRadius(4.px)
+                                        .cursor("pointer")
+                                        .hover { backgroundColor("#ffebee") }
+                                        .attribute("id", "clearCompletedBtn")
+                                        .attribute("data-onclick-id", callbackId)
+                                        .attribute("data-onclick-action", "true")
+                                )
+                            }
                         }
                     }
                 }
@@ -292,13 +311,14 @@ fun TodosPage(
 fun TodoHeader(
     username: String,
     language: String,
-    isDarkTheme: Boolean
+    isDarkTheme: Boolean,
+    renderSession: Long
 ) {
     Div(
         modifier = Modifier()
             .fillMaxWidth()
             .backgroundColor(if (isDarkTheme) "#2d2d2d" else "white")
-            .boxShadow("0 2px 4px rgba(0,0,0,0.1)")
+            .boxShadow(if (isDarkTheme) "0 2px 4px rgba(0,0,0,0.3)" else "0 2px 4px rgba(0,0,0,0.1)")
             .padding(1.rem)
     ) {
         Row(
@@ -309,7 +329,7 @@ fun TodoHeader(
                 .alignItems("center")
         ) {
             Text(
-                "Welcome, $username!",
+                "${Translations.get("auth.welcome", language)}, $username!",
                 modifier = Modifier()
                     .fontSize(1.25.rem)
                     .fontWeight(FontWeight.Medium)
@@ -325,7 +345,7 @@ fun TodoHeader(
                 // Language selector
                 run {
                     // Register the action and get the callback ID
-                    val callbackId = "language-toggle-${System.currentTimeMillis()}"
+                    val callbackId = "language-toggle-${renderSession}"
                     // CallbackRegistry.registerCallback {
                     //     SummonLogger.log("Language toggle callback executed")
                     // }
@@ -333,21 +353,26 @@ fun TodoHeader(
                     
                     Button(
                         onClick = { /* This callback ID will be used by hydration */ },
-                        label = language.uppercase(),
+                        label = when (language) {
+                            "es" -> "ES"
+                            "fr" -> "FR"
+                            else -> "EN"
+                        },
                         modifier = Modifier()
                             .padding("0.5rem 1rem")
-                            .backgroundColor("#e0e0e0")
-                            .color("#666")
+                            .backgroundColor(if (isDarkTheme) "#404040" else "#e0e0e0")
+                            .color(if (isDarkTheme) "#ccc" else "#666")
                             .borderRadius(4.px)
                             .cursor("pointer")
                             .attribute("data-onclick-id", callbackId)
+                            .attribute("data-onclick-action", "true")
                     )
                 }
                 
                 // Theme toggle button
                 run {
                     // Register the action and get the callback ID
-                    val callbackId = "theme-toggle-${System.currentTimeMillis()}"
+                    val callbackId = "theme-toggle-${renderSession}"
                     // CallbackRegistry.registerCallback {
                     //     SummonLogger.log("Theme toggle callback executed")
                     // }
@@ -358,18 +383,19 @@ fun TodoHeader(
                         label = if (isDarkTheme) "🌙" else "☀️",
                         modifier = Modifier()
                             .padding("0.5rem 1rem")
-                            .backgroundColor("#e0e0e0")
-                            .color("#666")
+                            .backgroundColor(if (isDarkTheme) "#404040" else "#e0e0e0")
+                            .color(if (isDarkTheme) "#ccc" else "#666")
                             .borderRadius(4.px)
                             .cursor("pointer")
                             .attribute("data-onclick-id", callbackId)
+                            .attribute("data-onclick-action", "true")
                     )
                 }
                 
                 // Logout button
                 run {
                     // Register the action and get the callback ID
-                    val callbackId = "logout-${System.currentTimeMillis()}"
+                    val callbackId = "logout-${renderSession}"
                     // CallbackRegistry.registerCallback {
                     //     SummonLogger.log("Logout callback executed")
                     // }
@@ -377,7 +403,7 @@ fun TodoHeader(
                     
                     Button(
                         onClick = { /* This callback ID will be used by hydration */ },
-                        label = "Logout",
+                        label = Translations.get("auth.logout", language),
                         modifier = Modifier()
                             .padding("0.5rem 1rem")
                             .backgroundColor("#d32f2f")
@@ -386,6 +412,7 @@ fun TodoHeader(
                             .cursor("pointer")
                             .hover { backgroundColor("#c62828") }
                             .attribute("data-onclick-id", callbackId)
+                            .attribute("data-onclick-action", "true")
                     )
                 }
             }
@@ -397,6 +424,8 @@ fun TodoHeader(
 fun TodoItem(
     todo: Todo,
     isDarkTheme: Boolean,
+    language: String,
+    renderSession: Long,
     onToggle: () -> Unit,
     onDelete: () -> Unit
 ) {
@@ -425,19 +454,27 @@ fun TodoItem(
                 .textDecoration(if (todo.completed) "line-through" else "none")
         )
         
-        Button(
-            onClick = onDelete,
-            label = "Delete",
-            modifier = Modifier()
-                .padding("0.25rem 0.5rem")
-                .backgroundColor("#d32f2f")
-                .color("white")
-                .borderRadius(4.px)
-                .fontSize(0.875.rem)
-                .cursor("pointer")
-                .hover { backgroundColor("#c62828") }
-                .attribute("class", "todo-delete")
-                .attribute("data-todo-id", todo.id.toString())
-        )
+        run {
+            // Register the delete action and get the callback ID
+            val callbackId = "delete-todo-${todo.id}-${renderSession}"
+            ActionRegistry.registerAction(callbackId, ActionType.DeleteTodo(todo.id))
+            
+            Button(
+                onClick = onDelete,
+                label = Translations.get("todo.delete", language),
+                modifier = Modifier()
+                    .padding("0.25rem 0.5rem")
+                    .backgroundColor("#d32f2f")
+                    .color("white")
+                    .borderRadius(4.px)
+                    .fontSize(0.875.rem)
+                    .cursor("pointer")
+                    .hover { backgroundColor("#c62828") }
+                    .attribute("class", "todo-delete")
+                    .attribute("data-todo-id", todo.id.toString())
+                    .attribute("data-onclick-id", callbackId)
+                    .attribute("data-onclick-action", "true")
+            )
+        }
     }
 }
