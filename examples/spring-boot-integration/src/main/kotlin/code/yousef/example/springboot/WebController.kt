@@ -12,6 +12,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import org.springframework.web.bind.annotation.ResponseBody
 import code.yousef.summon.components.layout.Div
 import code.yousef.summon.components.display.Text
+import code.yousef.summon.components.input.Button
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.extensions.*
 // import code.yousef.summon.i18n.I18nProvider  // Temporarily disabled
@@ -543,6 +544,142 @@ class WebController @Autowired constructor(
                     Text("An error occurred while loading the auth page.")
                 }
             }
+        }
+    }
+    
+    /**
+     * Test endpoint to verify button functionality with hydration.
+     * This endpoint demonstrates interactive buttons using the HydratedCounterComponent.
+     */
+    @GetMapping("/test-buttons", produces = ["text/html"])
+    @ResponseBody
+    fun testButtons(): String {
+        logger.info("Rendering button test page with hydration")
+        
+        return try {
+            renderFullPage(
+                renderer = summonRenderer.renderer,
+                title = "Button Test - Summon Hydration",
+                includeJavaScript = true
+            ) {
+                Div(
+                    modifier = Modifier()
+                        .maxWidth(800.px)
+                        .margin("2rem auto")
+                        .padding("1rem")
+                ) {
+                    Text(
+                        text = "Button Hydration Test",
+                        modifier = Modifier()
+                            .fontSize("2rem")
+                            .fontWeight("bold")
+                            .textAlign("center")
+                            .margin("0 0 2rem 0")
+                    )
+                    
+                    Text(
+                        text = "This page demonstrates interactive buttons with Summon's hydration system.",
+                        modifier = Modifier()
+                            .textAlign("center")
+                            .margin("0 0 2rem 0")
+                            .color("#666")
+                    )
+                    
+                    // Test counter component with interactive buttons
+                    HydratedCounterComponent(initialValue = 5, componentId = "test-counter")
+                    
+                    Text(
+                        text = "If hydration is working correctly, the buttons above should be clickable and trigger server callbacks.",
+                        modifier = Modifier()
+                            .textAlign("center")
+                            .margin("2rem 0 0 0")
+                            .padding("1rem")
+                            .backgroundColor("#f8f9fa")
+                            .borderRadius("4px")
+                            .color("#495057")
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            logger.error("Error rendering button test page", e)
+            renderFullPage(
+                renderer = summonRenderer.renderer,
+                title = "Error",
+                message = "Error loading test page: ${e.message}",
+                messageType = "error"
+            ) {
+                Div(
+                    modifier = Modifier()
+                        .padding(2.rem)
+                        .textAlign("center")
+                ) {
+                    Text("An error occurred while loading the test page.")
+                }
+            }
+        }
+    }
+    
+    /**
+     * Debug endpoint to test hydration rendering step by step
+     */
+    @GetMapping("/debug-hydration", produces = ["text/html"])
+    @ResponseBody
+    fun debugHydration(): String {
+        logger.info("Debug hydration rendering")
+        
+        return try {
+            // Create a simple test component with a button
+            val result = summonRenderer.renderer.renderComposableRootWithHydration {
+                Div(
+                    modifier = Modifier()
+                        .padding("2rem")
+                        .textAlign("center")
+                ) {
+                    Text("Debug Hydration Test")
+                    
+                    Button(
+                        onClick = { 
+                            println("Debug button clicked!")
+                        },
+                        label = "Debug Button",
+                        modifier = Modifier()
+                            .backgroundColor("#007bff")
+                            .color("white")
+                            .padding("0.5rem 1rem")
+                            .borderRadius("4px")
+                            .cursor("pointer")
+                    )
+                }
+            }
+            
+            logger.info("Rendered HTML length: ${result.length} characters")
+            logger.info("Contains script tags: ${result.contains("<script")}")
+            
+            // TEMPORARY FIX: Manually add hydration scripts since renderComposableRootWithHydration isn't working
+            if (!result.contains("<script")) {
+                logger.warn("No script tags found! Manually adding hydration scripts")
+                
+                // Add the missing script tags before closing body tag
+                val hydrationData = """{"version":1,"callbacks":[],"timestamp":${System.currentTimeMillis()}}"""
+                val fixedResult = result.replace("</body>", """
+                    
+                    <!-- Hydration data for Summon components -->
+                    <script type="application/json" id="summon-hydration-data">
+                        $hydrationData
+                    </script>
+                    
+                    <!-- Summon hydration client (Kotlin/JS compiled) -->
+                    <script src="/summon-hydration.js"></script>
+                </body>""")
+                
+                logger.info("Fixed HTML length: ${fixedResult.length} characters")
+                fixedResult
+            } else {
+                result
+            }
+        } catch (e: Exception) {
+            logger.error("Error in debug hydration", e)
+            "<html><body><h1>Error: ${e.message}</h1><pre>${e.stackTraceToString()}</pre></body></html>"
         }
     }
 }

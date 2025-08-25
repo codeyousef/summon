@@ -7,10 +7,8 @@ plugins {
     kotlin("plugin.spring") version "2.2.0"
 }
 
-// Apply version helper to get Summon version from parent project
-// NOTE: If using this example standalone (downloaded separately), you can replace this with:
-// val summonVersion = "0.2.9.1" // Use latest version
-apply(from = "../../version-helper.gradle.kts")
+// Use fixed version instead of version-helper to avoid parent project conflicts
+val summonVersion = "0.2.9.1"
 
 group = "code.yousef.example"
 version = "0.0.1-SNAPSHOT"
@@ -54,7 +52,7 @@ dependencies {
     
     // Summon JVM library - using local Maven repository
     // IMPORTANT: Run './gradlew :summon-core:publishToMavenLocal' from the root project first
-    implementation("io.github.codeyousef:summon-jvm:0.2.9.1")
+    implementation("io.github.codeyousef:summon-jvm:$summonVersion")
     
     // kotlinx-html for SimpleComponents.kt (fallback HTML generation)
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.12.0")

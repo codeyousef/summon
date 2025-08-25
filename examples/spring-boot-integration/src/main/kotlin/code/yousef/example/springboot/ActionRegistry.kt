@@ -37,4 +37,9 @@ sealed class ActionType {
     object ToggleLanguage : ActionType()
     object Logout : ActionType()
     data class AddTodo(val text: String) : ActionType()
+    
+    // Authentication actions
+    data class Login(val username: String, val password: String, val rememberMe: Boolean) : ActionType()
+    data class Register(val email: String, val username: String, val password: String) : ActionType()
+    data class ToggleAuthMode(val currentMode: String) : ActionType()
 }

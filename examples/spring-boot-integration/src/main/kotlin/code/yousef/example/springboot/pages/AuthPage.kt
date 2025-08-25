@@ -29,6 +29,11 @@ fun AuthPage(
     val isLoginMode = mode == "login"
     // val i18n = rememberI18n()  // Temporarily disabled
     
+    // Generate unique callback IDs for each action
+    val loginCallbackId = remember { "login-${System.currentTimeMillis()}-${(Math.random() * 1000).toInt()}" }
+    val registerCallbackId = remember { "register-${System.currentTimeMillis()}-${(Math.random() * 1000).toInt()}" }
+    val toggleCallbackId = remember { "toggle-auth-${System.currentTimeMillis()}-${(Math.random() * 1000).toInt()}" }
+    
     // Temporarily disabled theming features
     
     Column(
@@ -173,7 +178,15 @@ fun AuthPage(
                             // Submit Button
                             Button(
                                 onClick = {
-                                    // This will be handled by JavaScript
+                                    // Register the login action with the current form data
+                                    ActionRegistry.registerAction(
+                                        loginCallbackId,
+                                        ActionType.Login(
+                                            username = username.value,
+                                            password = password.value,
+                                            rememberMe = rememberMe.value
+                                        )
+                                    )
                                 },
                                 label = "Login",
                                 modifier = Modifier()
@@ -186,6 +199,8 @@ fun AuthPage(
                                     .cursor("pointer")
                                     .hover { backgroundColor("#1565c0") }
                                     .attribute("type", "submit")
+                                    .attribute("data-onclick-id", loginCallbackId)
+                                    .attribute("data-onclick-action", "true")
                             )
                         }
                     }
@@ -303,7 +318,15 @@ fun AuthPage(
                             // Submit Button
                             Button(
                                 onClick = {
-                                    // This will be handled by JavaScript
+                                    // Register the registration action with the current form data
+                                    ActionRegistry.registerAction(
+                                        registerCallbackId,
+                                        ActionType.Register(
+                                            email = email.value,
+                                            username = username.value,
+                                            password = password.value
+                                        )
+                                    )
                                 },
                                 label = "Register",
                                 modifier = Modifier()
@@ -316,6 +339,8 @@ fun AuthPage(
                                     .cursor("pointer")
                                     .hover { backgroundColor("#1565c0") }
                                     .attribute("type", "submit")
+                                    .attribute("data-onclick-id", registerCallbackId)
+                                    .attribute("data-onclick-action", "true")
                             )
                         }
                     }
@@ -339,7 +364,11 @@ fun AuthPage(
                 
                 Button(
                     onClick = {
-                        // Toggle will be handled by server-side routing
+                        // Register the toggle auth mode action
+                        ActionRegistry.registerAction(
+                            toggleCallbackId,
+                            ActionType.ToggleAuthMode(currentMode = mode)
+                        )
                     },
                     label = if (isLoginMode) "Register" else "Login",
                     modifier = Modifier()
@@ -352,6 +381,8 @@ fun AuthPage(
                         .cursor("pointer")
                         .hover { textDecoration("underline") }
                         .attribute("id", "toggleAuth")
+                        .attribute("data-onclick-id", toggleCallbackId)
+                        .attribute("data-onclick-action", "true")
                 )
             }
             

@@ -25,19 +25,15 @@ class SummonRenderer {
      * This enables server-side rendering of Summon components in Spring Boot.
      */
     fun renderComponent(content: @Composable () -> Unit): String {
-        // For now, use the standard renderer and strip the HTML wrapper
-        val fullHtml = renderer.renderComposableRoot(content)
+        // Use the hydration-enabled renderer to support interactive components
+        val fullHtml = renderer.renderComposableRootWithHydration(content)
         
-        // Extract just the body content without the complete HTML document
+        // Return the complete HTML document with hydration support
         return fullHtml
-            .substringAfter("<body>")
-            .substringBefore("</body>")
-            .trim()
     }
     
     /**
      * Renders an interactive component that will be prepared for client-side hydration.
-     * For now, this just renders the component with hydration markers.
      * @param componentId Unique identifier for the component (used for hydration)
      * @param componentType Type of component (e.g., "counter", "form")
      * @param initialState Initial state data for the component
@@ -49,15 +45,11 @@ class SummonRenderer {
         initialState: Map<String, Any?> = emptyMap(),
         content: @Composable () -> Unit
     ): String {
-        // For now, just render the component normally
-        // The hydration system will be enhanced in future iterations
-        val fullHtml = renderer.renderComposableRoot(content)
+        // Use hydration-enabled rendering for interactive components
+        val fullHtml = renderer.renderComposableRootWithHydration(content)
         
-        // Extract just the body content without the complete HTML document
+        // Return the complete HTML document with hydration support
         return fullHtml
-            .substringAfter("<body>")
-            .substringBefore("</body>")
-            .trim()
     }
     
     /**

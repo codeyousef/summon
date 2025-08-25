@@ -295,17 +295,27 @@ actual open class PlatformRenderer {
     }
 
     actual open fun renderComposableRootWithHydration(composable: @Composable () -> Unit): String {
+        System.err.println("🚨 CRITICAL DEBUG: renderComposableRootWithHydration called at ${System.currentTimeMillis()}")
+        
         // Clear any previous callbacks to start fresh
         CallbackRegistry.clear()
+        System.err.println("🚨 CRITICAL DEBUG: Callbacks cleared")
         
         // Render the composable content first (this will register callbacks)
         val bodyContent = renderComposableContent(composable)
+        System.err.println("🚨 CRITICAL DEBUG: Body content rendered, length: ${bodyContent.length}")
+        System.err.println("🚨 CRITICAL DEBUG: Body content starts with: ${bodyContent.take(100)}")
         
         // Generate hydration data (no raw JS)
         val hydrationData = generateHydrationData()
+        System.err.println("🚨 CRITICAL DEBUG: Hydration data generated: $hydrationData")
         
         // Create the complete HTML document with hydration support
-        return createHydratedDocument(bodyContent, hydrationData)
+        val result = createHydratedDocument(bodyContent, hydrationData)
+        System.err.println("🚨 CRITICAL DEBUG: Hydrated document created, length: ${result.length}")
+        System.err.println("🚨 CRITICAL DEBUG: Result contains script: ${result.contains("<script")}")
+        
+        return result
     }
     
     private fun renderComposableContent(composable: @Composable () -> Unit): String {

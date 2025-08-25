@@ -69,7 +69,7 @@ class SecurityConfig {
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests { requests ->
                 requests
-                    .requestMatchers("/", "/auth", "/todos", "/api/auth/**", "/api/health", "/h2-console/**", "/health", "/static/**", "/css/**", "/js/**", "/app.js", "/styles.css").permitAll()
+                    .requestMatchers("/", "/auth", "/todos", "/test-buttons", "/debug-hydration", "/api/auth/**", "/api/health", "/h2-console/**", "/health", "/static/**", "/css/**", "/js/**", "/app.js", "/styles.css", "/summon-hydration.js", "/summon/**").permitAll()
                     .requestMatchers("/api/todos/**").authenticated() // Require auth for todos API endpoints
                     .anyRequest().authenticated()
             }

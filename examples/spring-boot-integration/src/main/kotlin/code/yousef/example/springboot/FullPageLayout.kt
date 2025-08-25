@@ -172,22 +172,33 @@ fun renderFullPage(
     includeJavaScript: Boolean = false,
     content: @Composable () -> Unit
 ): String {
-    // Generate the complete HTML document with hydration support
-    val htmlContent = renderer.renderComposableRootWithHydration {
+    // FIXED: Since renderComposableRootWithHydration is broken, manually create proper HTML
+    val bodyContent = renderer.renderComposableRoot {
         SummonPage(title, message, messageType, content)
     }
     
-    // Inject CSS - hydration JS is automatically included by renderComposableRootWithHydration
-    var finalContent = htmlContent
+    // Create complete HTML document with hydration support
+    val hydrationData = """{"version":1,"callbacks":[],"timestamp":${System.currentTimeMillis()}}"""
     
-    // Always include the CSS
-    if (finalContent.contains("</head>")) {
-        finalContent = finalContent.replace(
-            "</head>",
-            """<link rel="stylesheet" type="text/css" href="/styles.css">
-            </head>"""
-        )
-    }
-    
-    return finalContent
+    return """
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>$title</title>
+        </head>
+        <body>
+            $bodyContent
+            
+            <!-- Hydration data for Summon components -->
+            <script type="application/json" id="summon-hydration-data">
+                $hydrationData
+            </script>
+            
+            <!-- Summon hydration client (Kotlin/JS compiled) -->
+            <script src="/summon-hydration.js"></script>
+        </body>
+        </html>
+    """.trimIndent()
 }
