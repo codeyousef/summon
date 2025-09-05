@@ -8,6 +8,8 @@ plugins {
 }
 
 // Use fixed version instead of version-helper to avoid parent project conflicts
+// NOTE: Using JVM-specific artifact as the multiplatform core artifact (0.3.0.0) only contains
+// Kotlin Native metadata (.knm files) and lacks JVM bytecode needed for Spring Boot
 val summonVersion = "0.2.9.1"
 
 group = "code.yousef.example"
@@ -50,8 +52,10 @@ dependencies {
     // DateTime handling
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
     
-    // Summon JVM library - using local Maven repository
-    // IMPORTANT: Run './gradlew :summon-core:publishToMavenLocal' from the root project first
+    // Summon JVM library - using local Maven repository  
+    // NOTE: Using summon-jvm artifact instead of summon-core because the multiplatform
+    // summon-core:0.3.0.0 only contains .knm files, not JVM .class files
+    // IMPORTANT: Run './gradlew :summon-jvm:publishToMavenLocal' from the root project first
     implementation("io.github.codeyousef:summon-jvm:$summonVersion")
     
     // kotlinx-html for SimpleComponents.kt (fallback HTML generation)
