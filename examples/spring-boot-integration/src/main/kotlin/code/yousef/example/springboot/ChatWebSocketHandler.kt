@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap
 class WebSocketConfig : WebSocketConfigurer {
     
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
-        registry.addHandler(ChatWebSocketHandler(), "/chat")
+        registry.addHandler(ChatWebSocketHandler(), "/ws/chat", "/ws/chat/*")
             .setAllowedOrigins("*") // In production, specify actual origins
     }
 }

@@ -329,15 +329,34 @@ fun SummonUserManagementComponent(initialUsers: List<User>) {
                                     .gap(8.px)
                             ) {
                                 Button(
-                                    onClick = {},
-                                    label = "Edit"
+                                    onClick = {
+                                        // Navigate to edit page
+                                        // Using window.location for navigation since we're in a browser context
+                                    },
+                                    label = "Edit",
+                                    modifier = Modifier()
+                                        .padding("0.5rem 1rem")
+                                        .backgroundColor("#007bff")
+                                        .color("white")
+                                        .borderRadius(4.px)
+                                        .cursor("pointer")
+                                        .attribute("onclick", "window.location.href='/users/${user.id}/edit'")
+                                        .hover { backgroundColor("#0056b3") }
                                 )
                                 
-                                Button(
-                                    onClick = {},
-                                    label = "Delete",
-                                    modifier = Modifier().backgroundColor("#dc3545")
-                                )
+                                Div(
+                                    modifier = Modifier()
+                                        .padding("0.5rem 1rem")
+                                        .backgroundColor("#dc3545")
+                                        .color("white")
+                                        .borderRadius(4.px)
+                                        .cursor("pointer")
+                                        .textAlign("center")
+                                        .attribute("onclick", "if(confirm('Are you sure you want to delete user ${user.name}?')) { var form = document.createElement('form'); form.method='POST'; form.action='/users/${user.id}/delete'; document.body.appendChild(form); form.submit(); }")
+                                        .hover { backgroundColor("#c82333") }
+                                ) {
+                                    Text("Delete")
+                                }
                             }
                         }
                     }

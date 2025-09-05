@@ -4,6 +4,10 @@ import java.util.*
 // Apply version management
 apply(from = "../version.gradle.kts")
 
+// Manual version override for now
+version = "0.3.0.0"
+group = "io.github.codeyousef"
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)

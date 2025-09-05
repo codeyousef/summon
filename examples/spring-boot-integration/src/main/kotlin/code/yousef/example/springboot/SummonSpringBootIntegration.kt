@@ -2,11 +2,13 @@ package code.yousef.example.springboot
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.runtime.setPlatformRenderer
 import code.yousef.summon.ssr.HydrationUtils
 import code.yousef.summon.ssr.HydrationStrategy
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 import org.springframework.stereotype.Component
+import jakarta.annotation.PostConstruct
 
 /**
  * Integration layer between Summon UI framework and Spring Boot.
@@ -19,6 +21,15 @@ class SummonRenderer {
      * The platform renderer instance used for all rendering operations.
      */
     val renderer = PlatformRenderer()
+    
+    /**
+     * Initialize the global PlatformRenderer for use by components
+     */
+    @PostConstruct
+    fun initializeRenderer() {
+        // Set the global renderer so that components can access it
+        setPlatformRenderer(renderer)
+    }
     
     /**
      * Renders a Summon composable function to HTML string.

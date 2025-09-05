@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Auth Page</title>
+</head>
+<body>
+    <h1>Testing Auth Page from localhost:8080</h1>
+    <p>The user can now:</p>
+    <ol>
+        <li>Open browser developer tools (F12)</li>
+        <li>Go to Console tab</li>
+        <li>Navigate to <a href="http://localhost:8080/auth" target="_blank">http://localhost:8080/auth</a></li>
+        <li>Watch console logs showing detailed hydration process</li>
+        <li>Click buttons and see exactly what happens</li>
+    </ol>
+    
+    <h2>Expected Console Output:</h2>
+    <pre>
+=== SUMMON HYDRATION CLIENT INITIALIZING ===
+Browser user agent: [browser info]
+Current URL: http://localhost:8080/auth
+Document ready state: complete
+
+Starting Summon component hydration...
+Document ready state: complete
+Document body exists: true
+Hydration data loaded: true
+Hydration data version: 1
+Callbacks available: 2
+Available callback: login-1756138999879-428
+Available callback: toggle-auth-1756138999879-957
+Total buttons found on page: 2
+Buttons with data-onclick-action='true': 2
+Button 0: callbackId='login-1756138999879-428', hasAction='true'
+Button 0 HTML: [full button HTML]
+Button 1: callbackId='toggle-auth-1756138999879-957', hasAction='true'
+Button 1 HTML: [full button HTML]
+Starting to hydrate click handlers...
+Found 2 elements with data-onclick-action='true'
+Processing element 0: <button> with callbackId='login-1756138999879-428'
+Callback login-1756138999879-428 found in hydration data, adding event listener...
+Event listener added successfully for: login-1756138999879-428
+Processing element 1: <button> with callbackId='toggle-auth-1756138999879-957'
+Callback toggle-auth-1756138999879-957 found in hydration data, adding event listener...
+Event listener added successfully for: toggle-auth-1756138999879-957
+Click handler hydration complete:
+  - Successfully hydrated: 2 elements
+  - Errors: 0 elements
+  - Total processed: 2 elements
+Post-hydration: buttons with click handlers: 2
+Summon hydration completed successfully
+
+When you click a button:
+
+=== BUTTON CLICK DETECTED ===
+Executing callback: [callback-id]
+Current URL: http://localhost:8080/auth
+About to make server request...
+=== MAKING SERVER REQUEST ===
+Request payload: {"callbackId":"[callback-id]"}
+Request URL: /summon/callback
+Request method: POST
+About to send fetch request...
+Fetch request sent for callback: [callback-id]
+Server response received - Status: 200
+Response headers: [headers]
+Response OK, parsing JSON...
+Callback executed successfully: [callback-id]
+Response data: [response data]
+Response action: [action type]
+Response redirectUrl: [url]
+[Action executed - redirect/reload]
+    </pre>
+    
+    <h2>Debugging the Issue:</h2>
+    <p>With this comprehensive logging, you can now identify exactly where the click handling breaks down:</p>
+    <ul>
+        <li><strong>If no hydration logs appear</strong>: The JavaScript file isn't loading</li>
+        <li><strong>If hydration completes but no click logs</strong>: Event listeners aren't working</li>
+        <li><strong>If click detected but no server request</strong>: Network issue</li>
+        <li><strong>If server request fails</strong>: Backend callback handling issue</li>
+    </ul>
+    
+    <p><strong>Open the auth page and check the console to see exactly what's happening!</strong></p>
+</body>
+</html>

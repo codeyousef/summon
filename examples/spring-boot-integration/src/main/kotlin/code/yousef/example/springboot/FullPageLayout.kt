@@ -1,6 +1,7 @@
 package code.yousef.example.springboot
 
 import code.yousef.example.springboot.pages.TodoFilter
+import code.yousef.example.springboot.theme.AppTheme
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.layout.Div
@@ -10,9 +11,11 @@ import code.yousef.summon.modifier.LayoutModifierExtras.display
 import code.yousef.summon.modifier.LayoutModifierExtras.flexDirection
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.minHeight
-import code.yousef.summon.runtime.LocalPlatformRenderer
+import code.yousef.summon.runtime.getPlatformRenderer
 import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.state.mutableStateOf
+import code.yousef.example.springboot.components.ThemedNavigationComponent
+import code.yousef.example.springboot.components.ThemedFooterComponent
 
 /**
  * Full page layout component that generates a complete HTML document
@@ -21,15 +24,16 @@ import code.yousef.summon.state.mutableStateOf
 @Composable
 fun FullPageLayout(
     title: String = "Spring Boot + Summon",
+    currentPage: String = "",
     content: @Composable () -> Unit
 ) {
-    val renderer = LocalPlatformRenderer.current
+    // Remove direct renderer access - not needed in layout components
 
     // Global styles using Summon's GlobalStyle component
     GlobalStyles()
 
-    // Navigation
-    NavigationComponent()
+    // Themed Navigation
+    ThemedNavigationComponent(currentPage = currentPage)
 
     // Main content
     Div(
@@ -41,8 +45,8 @@ fun FullPageLayout(
         content()
     }
 
-    // Footer
-    FooterComponent()
+    // Themed Footer
+    ThemedFooterComponent()
 }
 
 /**
@@ -147,6 +151,7 @@ fun SummonPage(
     title: String,
     message: String? = null,
     messageType: String = "info",
+    currentPage: String = "",
     content: @Composable () -> Unit
 ) {
     // This would be the root of our HTML document
@@ -156,7 +161,7 @@ fun SummonPage(
     FlashMessage(message, messageType)
 
     // Page content
-    FullPageLayout(title) {
+    FullPageLayout(title, currentPage) {
         content()
     }
 }
@@ -280,6 +285,18 @@ fun generateHydrationData(callbackInfo: Map<String, ActionType>): String {
 }
 
 /**
+ * Generate CSS variables string from theme configuration
+ */
+fun generateThemeCssVariables(theme: String): String {
+    val themeConfig = AppTheme.getTheme(theme == "dark")
+    val cssVariables = themeConfig.designTokens?.map { (key, value) ->
+        "$key: $value;"
+    }?.joinToString("\n    ") ?: ""
+    
+    return ":root {\n    $cssVariables\n}"
+}
+
+/**
  * Renders a complete HTML document with proper structure
  * This is what the Spring Boot controller will use
  */
@@ -289,17 +306,23 @@ fun renderFullPage(
     message: String? = null,
     messageType: String = "info",
     includeJavaScript: Boolean = false,
+    theme: String = "light",
+    currentPage: String = "",
+    additionalScripts: List<String> = emptyList(),
     content: @Composable () -> Unit
 ): String {
     // FIXED: Since renderComposableRootWithHydration is broken, manually create proper HTML
     val bodyContent = renderer.renderComposableRoot {
-        SummonPage(title, message, messageType, content)
+        SummonPage(title, message, messageType, currentPage, content)
     }
     
     // Create complete HTML document with hydration support
     // Use a simpler approach - create actions based on callback patterns in HTML
     val callbackInfo = extractCallbackInfoFromPatterns(bodyContent)
     val hydrationData = generateHydrationData(callbackInfo)
+    
+    // Generate theme CSS variables
+    val themeCssVariables = generateThemeCssVariables(theme)
     
     return """
         <!DOCTYPE html>
@@ -308,8 +331,16 @@ fun renderFullPage(
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>$title</title>
+            
+            <!-- Theme CSS variables -->
+            <style>
+                $themeCssVariables
+            </style>
+            
+            <!-- Application styles -->
+            <link rel="stylesheet" href="/styles.css">
         </head>
-        <body>
+        <body class="${if (theme == "dark") "dark-theme" else "light-theme"}">
             $bodyContent
             
             <!-- Hydration data for Summon components -->
@@ -319,6 +350,11 @@ fun renderFullPage(
             
             <!-- Summon hydration client (Kotlin/JS compiled) -->
             <script src="/summon-hydration.js?v=${System.currentTimeMillis()}"></script>
+            
+            <!-- Additional JavaScript files -->
+            ${additionalScripts.joinToString("\n            ") { script ->
+                "<script src=\"$script?v=${System.currentTimeMillis()}\"></script>"
+            }}
         </body>
         </html>
     """.trimIndent()

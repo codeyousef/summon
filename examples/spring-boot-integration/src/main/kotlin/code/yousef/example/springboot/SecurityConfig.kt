@@ -69,8 +69,29 @@ class SecurityConfig {
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests { requests ->
                 requests
-                    .requestMatchers("/", "/auth", "/todos", "/test-buttons", "/debug-hydration", "/api/auth/**", "/api/health", "/h2-console/**", "/health", "/static/**", "/css/**", "/js/**", "/app.js", "/styles.css", "/summon-hydration.js", "/summon/**").permitAll()
-                    .requestMatchers("/api/todos/**").authenticated() // Require auth for todos API endpoints
+                    // Public pages and assets
+                    .requestMatchers("/", "/auth", "/dashboard", "/contact", "/chat", "/todos", "/test-buttons", "/debug-hydration").permitAll()
+                    .requestMatchers("/api/health", "/api/info", "/health").permitAll()
+                    .requestMatchers("/static/**", "/css/**", "/js/**", "/app.js", "/styles.css", "/summon-hydration.js", "/*.js").permitAll()
+                    .requestMatchers("/h2-console/**").permitAll() // For development only
+                    
+                    // Authentication endpoints - public for login/register, but secure user-specific ones
+                    .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/logout").permitAll()
+                    .requestMatchers("/api/auth/me", "/api/auth/settings").authenticated()
+                    
+                    // User management pages - READ access public, but WRITE operations should be authenticated
+                    .requestMatchers("GET", "/users", "/users/**").permitAll() // Allow all GET requests to user endpoints
+                    .requestMatchers("POST", "/users/**").authenticated() // Create, update, delete users
+                    
+                    // Todo endpoints require authentication
+                    .requestMatchers("/api/todos/**").authenticated()
+                    
+                    // Summon hydration callback - public but should have rate limiting in production
+                    .requestMatchers("/summon/callback").permitAll()
+                    
+                    // Static resource handler
+                    .requestMatchers("/summon-hydration.js", "/*.js").permitAll()
+                    
                     .anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)

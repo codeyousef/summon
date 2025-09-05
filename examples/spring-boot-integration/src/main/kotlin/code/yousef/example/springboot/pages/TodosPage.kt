@@ -14,6 +14,7 @@ import code.yousef.summon.state.*
 import code.yousef.summon.runtime.remember
 import code.yousef.example.springboot.*
 import code.yousef.example.springboot.i18n.Translations
+import code.yousef.example.springboot.theme.AppTheme
 // import code.yousef.summon.runtime.CallbackRegistry // Not available in JVM-only project
 // import code.yousef.summon.runtime.SummonLogger // Not available in JVM-only project
 
@@ -36,7 +37,8 @@ fun TodosPage(
     username: String = "User",
     initialTodos: List<Todo> = emptyList(),
     language: String = "en",
-    theme: String = "light"
+    theme: String = "light",
+    themeConfig: code.yousef.summon.components.core.EnhancedThemeConfig? = null
 ) {
     // Clear and initialize registries for this page render
     ActionRegistry.clear()
@@ -66,14 +68,16 @@ fun TodosPage(
         todos.value.count { !it.completed }
     }
     
-    Column(
-        modifier = Modifier()
-            .fillMaxWidth()
-            .minHeight(100.vh)
-            .backgroundColor(if (isDarkTheme) "#121212" else "#f5f5f5")
-    ) {
-        // Header
-        TodoHeader(username, language, isDarkTheme, renderSession)
+    // Use ThemeProvider to provide theme context
+    code.yousef.example.springboot.theme.AppThemeProvider(isDarkMode = isDarkTheme) {
+        Column(
+            modifier = Modifier()
+                .fillMaxWidth()
+                .minHeight(100.vh)
+                .style("background-color", if (isDarkTheme) "#0f172a" else "#f5f5f5")
+        ) {
+            // Header
+            TodoHeader(username, language, renderSession)
         
         // Main content
         Div(
@@ -85,42 +89,14 @@ fun TodosPage(
         ) {
             // Error message
             errorMessage.value?.let { error ->
-                // Custom alert div
-                Div(
-                    modifier = Modifier()
-                        .fillMaxWidth()
-                        .padding(1.rem)
-                        .backgroundColor("#f8d7da")
-                        .color("#721c24")
-                        .borderRadius(4.px)
-                        .border("1px", "solid", "#f5c6cb")
-                        .onClick { errorMessage.value = null }
-                ) {
-                    Text(error)
-                }
+                ErrorAlert(error) { errorMessage.value = null }
             }
             
             // Todo card with glass morphism
-            Div(
-                modifier = Modifier()
-                    .fillMaxWidth()
-                    .backgroundColor(if (isDarkTheme) "#2d2d2d" else "white")
-                    .boxShadow(if (isDarkTheme) "0 4px 6px rgba(0, 0, 0, 0.3)" else "0 4px 6px rgba(0, 0, 0, 0.1)")
-                    .borderRadius(16.px)
-                    .style("overflow", "hidden")
-                    .style("max-width", "800px")
-                    .style("width", "100%")
-            ) {
+            TodoCard {
                 Column(modifier = Modifier().padding(1.5.rem)) {
                     // Title
-                    Text(
-                        Translations.get("app.title", language),
-                        modifier = Modifier()
-                            .fontSize(2.rem)
-                            .fontWeight(FontWeight.Bold)
-                            .color(if (isDarkTheme) "white" else "#333")
-                            .marginBottom(1.rem)
-                    )
+                    TodoTitle(language)
                     
                     // Add todo form
                     Div(
@@ -134,20 +110,10 @@ fun TodosPage(
                                 .fillMaxWidth()
                                 .gap(0.5.rem)
                         ) {
-                            TextField(
+                            ThemedTextField(
                                 value = newTodoText.value,
                                 onValueChange = { newTodoText.value = it },
-                                placeholder = Translations.get("todo.add_placeholder", language),
-                                modifier = Modifier()
-                                    .flex(1)
-                                    .padding(0.75.rem)
-                                    .fontSize(1.rem)
-                                    .borderRadius(4.px)
-                                    .border("1px", "solid", if (isDarkTheme) "#444" else "#ddd")
-                                    .backgroundColor(if (isDarkTheme) "#1a1a1a" else "white")
-                                    .color(if (isDarkTheme) "white" else "#333")
-                                    .attribute("id", "newTodoInput")
-                                    .attribute("name", "todoText")
+                                placeholder = Translations.get("todo.add_placeholder", language)
                             )
                             
                             run {
@@ -158,18 +124,10 @@ fun TodosPage(
                                 // }
                                 ActionRegistry.registerAction(callbackId, ActionType.AddTodo(""))
                                 
-                                Button(
+                                PrimaryButton(
                                     onClick = { /* This callback ID will be used by hydration */ },
                                     label = if (isLoading.value) "Loading..." else Translations.get("todo.add_button", language),
-                                    modifier = Modifier()
-                                        .padding("0.75rem 1.5rem")
-                                        .backgroundColor("#1976d2")
-                                        .color("white")
-                                        .borderRadius(4.px)
-                                        .cursor("pointer")
-                                        .hover { backgroundColor("#1565c0") }
-                                        .attribute("data-onclick-id", callbackId)
-                                        .attribute("data-onclick-action", "true")
+                                    callbackId = callbackId
                                 )
                             }
                         }
@@ -188,27 +146,15 @@ fun TodosPage(
                                 val callbackId = "filter-${filterType.name.lowercase()}-${renderSession}"
                                 ActionRegistry.registerAction(callbackId, ActionType.SetFilter(filterType))
                                 
-                                Button(
+                                FilterButton(
                                     onClick = { filter.value = filterType },
                                     label = when (filterType) {
                                         TodoFilter.ALL -> Translations.get("filter.all", language)
                                         TodoFilter.ACTIVE -> Translations.get("filter.active", language)
                                         TodoFilter.COMPLETED -> Translations.get("filter.completed", language)
                                     },
-                                    modifier = Modifier()
-                                        .padding("0.5rem 1rem")
-                                        .backgroundColor(
-                                            if (filter.value == filterType) "#1976d2" else 
-                                            if (isDarkTheme) "#444" else "#e0e0e0"
-                                        )
-                                        .color(
-                                            if (filter.value == filterType) "white" else
-                                            if (isDarkTheme) "#ccc" else "#666"
-                                        )
-                                        .borderRadius(4.px)
-                                        .cursor("pointer")
-                                        .attribute("data-onclick-id", callbackId)
-                                        .attribute("data-onclick-action", "true")
+                                    isSelected = filter.value == filterType,
+                                    callbackId = callbackId
                                 )
                             }
                         }
@@ -222,25 +168,17 @@ fun TodosPage(
                             .overflowY("auto")
                     ) {
                         if (filteredTodos.isEmpty()) {
-                            Div(
-                                modifier = Modifier()
-                                    .padding(2.rem)
-                                    .textAlign("center")
-                                    .color(if (isDarkTheme) "#999" else "#666")
-                            ) {
-                                Text(
-                                    when (filter.value) {
-                                        TodoFilter.ACTIVE -> Translations.get("message.no_active", language)
-                                        TodoFilter.COMPLETED -> Translations.get("message.no_completed", language)
-                                        else -> Translations.get("message.no_todos", language)
-                                    }
-                                )
-                            }
+                            EmptyState(
+                                message = when (filter.value) {
+                                    TodoFilter.ACTIVE -> Translations.get("message.no_active", language)
+                                    TodoFilter.COMPLETED -> Translations.get("message.no_completed", language)
+                                    else -> Translations.get("message.no_todos", language)
+                                }
+                            )
                         } else {
                             filteredTodos.forEach { todo ->
                                 TodoItem(
                                     todo = todo,
-                                    isDarkTheme = isDarkTheme,
                                     language = language,
                                     renderSession = renderSession,
                                     onToggle = {
@@ -260,49 +198,15 @@ fun TodosPage(
                     }
                     
                     // Footer
-                    Row(
-                        modifier = Modifier()
-                            .fillMaxWidth()
-                            .marginTop(1.rem)
-                            .padding(1.rem)
-                            .borderTop("1px", "solid", if (isDarkTheme) "#444" else "#e0e0e0")
-                            .justifyContent("space-between")
-                            .alignItems("center")
-                    ) {
-                        Text(
-                            "$activeCount ${if (activeCount == 1) Translations.get("todo.item_left", language) else Translations.get("todo.items_left", language)}",
-                            modifier = Modifier()
-                                .color(if (isDarkTheme) "#999" else "#666")
-                        )
-                        
-                        if (todos.value.any { it.completed }) {
-                            run {
-                                // Register the action and get the callback ID
-                                val callbackId = "clear-completed-${renderSession}"
-                                ActionRegistry.registerAction(callbackId, ActionType.ClearCompleted)
-                                
-                                Button(
-                                    onClick = {
-                                        // This will be handled by JavaScript
-                                    },
-                                    label = Translations.get("todo.clear_completed", language),
-                                    modifier = Modifier()
-                                        .padding("0.5rem 1rem")
-                                        .backgroundColor("transparent")
-                                        .color("#d32f2f")
-                                        .border("1px", "solid", "#d32f2f")
-                                        .borderRadius(4.px)
-                                        .cursor("pointer")
-                                        .hover { backgroundColor("#ffebee") }
-                                        .attribute("id", "clearCompletedBtn")
-                                        .attribute("data-onclick-id", callbackId)
-                                        .attribute("data-onclick-action", "true")
-                                )
-                            }
-                        }
-                    }
+                    TodoFooter(
+                        activeCount = activeCount,
+                        language = language,
+                        hasCompletedTodos = todos.value.any { it.completed },
+                        renderSession = renderSession
+                    )
                 }
             }
+        }
         }
     }
 }
@@ -311,14 +215,15 @@ fun TodosPage(
 fun TodoHeader(
     username: String,
     language: String,
-    isDarkTheme: Boolean,
     renderSession: Long
 ) {
+    val theme = code.yousef.example.springboot.theme.useAppTheme()
+    
     Div(
         modifier = Modifier()
             .fillMaxWidth()
-            .backgroundColor(if (isDarkTheme) "#2d2d2d" else "white")
-            .boxShadow(if (isDarkTheme) "0 2px 4px rgba(0,0,0,0.3)" else "0 2px 4px rgba(0,0,0,0.1)")
+            .style("background-color", theme.backgroundColor)
+            .style("box-shadow", if (theme.isDarkMode == true) "0 2px 4px rgba(0,0,0,0.3)" else "0 2px 4px rgba(0,0,0,0.1)")
             .padding(1.rem)
     ) {
         Row(
@@ -333,7 +238,7 @@ fun TodoHeader(
                 modifier = Modifier()
                     .fontSize(1.25.rem)
                     .fontWeight(FontWeight.Medium)
-                    .color(if (isDarkTheme) "white" else "#333")
+                    .style("color", theme.textColor)
                     .attribute("id", "username")
             )
             
@@ -343,78 +248,13 @@ fun TodoHeader(
                     .alignItems("center")
             ) {
                 // Language selector
-                run {
-                    // Register the action and get the callback ID
-                    val callbackId = "language-toggle-${renderSession}"
-                    // CallbackRegistry.registerCallback {
-                    //     SummonLogger.log("Language toggle callback executed")
-                    // }
-                    ActionRegistry.registerAction(callbackId, ActionType.ToggleLanguage)
-                    
-                    Button(
-                        onClick = { /* This callback ID will be used by hydration */ },
-                        label = when (language) {
-                            "es" -> "ES"
-                            "fr" -> "FR"
-                            else -> "EN"
-                        },
-                        modifier = Modifier()
-                            .padding("0.5rem 1rem")
-                            .backgroundColor(if (isDarkTheme) "#404040" else "#e0e0e0")
-                            .color(if (isDarkTheme) "#ccc" else "#666")
-                            .borderRadius(4.px)
-                            .cursor("pointer")
-                            .attribute("data-onclick-id", callbackId)
-                            .attribute("data-onclick-action", "true")
-                    )
-                }
+                LanguageButton(language, renderSession)
                 
                 // Theme toggle button
-                run {
-                    // Register the action and get the callback ID
-                    val callbackId = "theme-toggle-${renderSession}"
-                    // CallbackRegistry.registerCallback {
-                    //     SummonLogger.log("Theme toggle callback executed")
-                    // }
-                    ActionRegistry.registerAction(callbackId, ActionType.ToggleTheme)
-                    
-                    Button(
-                        onClick = { /* This callback ID will be used by hydration */ },
-                        label = if (isDarkTheme) "🌙" else "☀️",
-                        modifier = Modifier()
-                            .padding("0.5rem 1rem")
-                            .backgroundColor(if (isDarkTheme) "#404040" else "#e0e0e0")
-                            .color(if (isDarkTheme) "#ccc" else "#666")
-                            .borderRadius(4.px)
-                            .cursor("pointer")
-                            .attribute("data-onclick-id", callbackId)
-                            .attribute("data-onclick-action", "true")
-                    )
-                }
+                ThemeToggleButton(theme.isDarkMode == true, renderSession)
                 
                 // Logout button
-                run {
-                    // Register the action and get the callback ID
-                    val callbackId = "logout-${renderSession}"
-                    // CallbackRegistry.registerCallback {
-                    //     SummonLogger.log("Logout callback executed")
-                    // }
-                    ActionRegistry.registerAction(callbackId, ActionType.Logout)
-                    
-                    Button(
-                        onClick = { /* This callback ID will be used by hydration */ },
-                        label = Translations.get("auth.logout", language),
-                        modifier = Modifier()
-                            .padding("0.5rem 1rem")
-                            .backgroundColor("#d32f2f")
-                            .color("white")
-                            .borderRadius(4.px)
-                            .cursor("pointer")
-                            .hover { backgroundColor("#c62828") }
-                            .attribute("data-onclick-id", callbackId)
-                            .attribute("data-onclick-action", "true")
-                    )
-                }
+                LogoutButton(language, renderSession)
             }
         }
     }
@@ -423,17 +263,18 @@ fun TodoHeader(
 @Composable
 fun TodoItem(
     todo: Todo,
-    isDarkTheme: Boolean,
     language: String,
     renderSession: Long,
     onToggle: () -> Unit,
     onDelete: () -> Unit
 ) {
+    val theme = code.yousef.example.springboot.theme.useAppTheme()
+    
     Row(
         modifier = Modifier()
             .fillMaxWidth()
             .padding(0.75.rem)
-            .borderBottom("1px", "solid", if (isDarkTheme) "#444" else "#e0e0e0")
+            .style("border-bottom", "1px solid ${theme.borderColor}")
             .alignItems("center")
             .opacity(if (todo.completed) 0.6 else 1.0)
     ) {
@@ -450,31 +291,304 @@ fun TodoItem(
             todo.text,
             modifier = Modifier()
                 .flex(1)
-                .color(if (isDarkTheme) "white" else "#333")
+                .style("color", theme.textColor)
                 .textDecoration(if (todo.completed) "line-through" else "none")
         )
         
-        run {
-            // Register the delete action and get the callback ID
-            val callbackId = "delete-todo-${todo.id}-${renderSession}"
-            ActionRegistry.registerAction(callbackId, ActionType.DeleteTodo(todo.id))
-            
-            Button(
-                onClick = onDelete,
-                label = Translations.get("todo.delete", language),
-                modifier = Modifier()
-                    .padding("0.25rem 0.5rem")
-                    .backgroundColor("#d32f2f")
-                    .color("white")
-                    .borderRadius(4.px)
-                    .fontSize(0.875.rem)
-                    .cursor("pointer")
-                    .hover { backgroundColor("#c62828") }
-                    .attribute("class", "todo-delete")
-                    .attribute("data-todo-id", todo.id.toString())
-                    .attribute("data-onclick-id", callbackId)
-                    .attribute("data-onclick-action", "true")
+        DeleteTodoButton(
+            todoId = todo.id,
+            language = language,
+            renderSession = renderSession,
+            onDelete = onDelete
+        )
+    }
+}
+
+// Themed Components using Summon's useTheme hook
+
+@Composable
+fun TodoCard(content: @Composable () -> Unit) {
+    val theme = code.yousef.example.springboot.theme.useAppTheme()
+    
+    Div(
+        modifier = Modifier()
+            .fillMaxWidth()
+            .style("background-color", if (theme.isDarkMode == true) "rgba(30, 41, 59, 0.9)" else "rgba(255, 255, 255, 0.9)")
+            .style("box-shadow", if (theme.isDarkMode == true) "0 4px 6px rgba(0, 0, 0, 0.3)" else "0 4px 6px rgba(0, 0, 0, 0.1)")
+            .borderRadius(16.px)
+            .style("overflow", "hidden")
+            .style("max-width", "800px")
+            .style("width", "100%")
+    ) {
+        content()
+    }
+}
+
+@Composable
+fun TodoTitle(language: String) {
+    val theme = code.yousef.example.springboot.theme.useAppTheme()
+    
+    Text(
+        Translations.get("app.title", language),
+        modifier = Modifier()
+            .fontSize(2.rem)
+            .fontWeight(FontWeight.Bold)
+            .style("color", theme.textColor)
+            .marginBottom(1.rem)
+    )
+}
+
+@Composable
+fun ThemedTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String
+) {
+    val theme = code.yousef.example.springboot.theme.useAppTheme()
+    
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        placeholder = placeholder,
+        modifier = Modifier()
+            .flex(1)
+            .padding(0.75.rem)
+            .fontSize(1.rem)
+            .borderRadius(4.px)
+            .style("border", "1px solid ${theme.borderColor}")
+            .style("background-color", theme.backgroundColor)
+            .style("color", theme.textColor)
+            .attribute("id", "newTodoInput")
+            .attribute("name", "todoText")
+    )
+}
+
+@Composable
+fun PrimaryButton(
+    onClick: () -> Unit,
+    label: String,
+    callbackId: String
+) {
+    val theme = code.yousef.example.springboot.theme.useAppTheme()
+    
+    Button(
+        onClick = onClick,
+        label = label,
+        modifier = Modifier()
+            .padding("0.75rem 1.5rem")
+            .style("background-color", theme.primaryColor)
+            .color("white")
+            .borderRadius(4.px)
+            .cursor("pointer")
+            .hover { 
+                style("background-color", if (theme.isDarkMode == true) "#3b82f6" else "#1565c0")
+            }
+            .attribute("data-onclick-id", callbackId)
+            .attribute("data-onclick-action", "true")
+    )
+}
+
+@Composable
+fun FilterButton(
+    onClick: () -> Unit,
+    label: String,
+    isSelected: Boolean,
+    callbackId: String
+) {
+    val theme = code.yousef.example.springboot.theme.useAppTheme()
+    
+    Button(
+        onClick = onClick,
+        label = label,
+        modifier = Modifier()
+            .padding("0.5rem 1rem")
+            .style(
+                "background-color",
+                if (isSelected) theme.primaryColor else theme.backgroundColor
             )
+            .style(
+                "color",
+                if (isSelected) "white" else theme.secondaryColor
+            )
+            .borderRadius(4.px)
+            .cursor("pointer")
+            .attribute("data-onclick-id", callbackId)
+            .attribute("data-onclick-action", "true")
+    )
+}
+
+@Composable
+fun EmptyState(message: String) {
+    val theme = code.yousef.example.springboot.theme.useAppTheme()
+    
+    Div(
+        modifier = Modifier()
+            .padding(2.rem)
+            .textAlign("center")
+            .style("color", theme.secondaryColor)
+    ) {
+        Text(message)
+    }
+}
+
+@Composable
+fun TodoFooter(
+    activeCount: Int,
+    language: String,
+    hasCompletedTodos: Boolean,
+    renderSession: Long
+) {
+    val theme = code.yousef.example.springboot.theme.useAppTheme()
+    
+    Row(
+        modifier = Modifier()
+            .fillMaxWidth()
+            .marginTop(1.rem)
+            .padding(1.rem)
+            .style("border-top", "1px solid ${theme.borderColor}")
+            .justifyContent("space-between")
+            .alignItems("center")
+    ) {
+        Text(
+            "$activeCount ${if (activeCount == 1) Translations.get("todo.item_left", language) else Translations.get("todo.items_left", language)}",
+            modifier = Modifier()
+                .style("color", theme.secondaryColor)
+        )
+        
+        if (hasCompletedTodos) {
+            ClearCompletedButton(language, renderSession)
         }
+    }
+}
+
+@Composable
+fun ClearCompletedButton(language: String, renderSession: Long) {
+    val theme = code.yousef.example.springboot.theme.useAppTheme()
+    val callbackId = "clear-completed-${renderSession}"
+    ActionRegistry.registerAction(callbackId, ActionType.ClearCompleted)
+    
+    Button(
+        onClick = { /* Handled by JavaScript */ },
+        label = Translations.get("todo.clear_completed", language),
+        modifier = Modifier()
+            .padding("0.5rem 1rem")
+            .backgroundColor("transparent")
+            .color("#d32f2f")
+            .border("1px", "solid", "#d32f2f")
+            .borderRadius(4.px)
+            .cursor("pointer")
+            .hover { backgroundColor("#ffebee") }
+            .attribute("id", "clearCompletedBtn")
+            .attribute("data-onclick-id", callbackId)
+            .attribute("data-onclick-action", "true")
+    )
+}
+
+@Composable
+fun LanguageButton(language: String, renderSession: Long) {
+    val theme = code.yousef.example.springboot.theme.useAppTheme()
+    val callbackId = "language-toggle-${renderSession}"
+    ActionRegistry.registerAction(callbackId, ActionType.ToggleLanguage)
+    
+    Button(
+        onClick = { /* Handled by hydration */ },
+        label = when (language) {
+            "es" -> "ES"
+            "fr" -> "FR"
+            else -> "EN"
+        },
+        modifier = Modifier()
+            .padding("0.5rem 1rem")
+            .style("background-color", theme.backgroundColor)
+            .style("color", theme.secondaryColor)
+            .borderRadius(4.px)
+            .cursor("pointer")
+            .attribute("data-onclick-id", callbackId)
+            .attribute("data-onclick-action", "true")
+    )
+}
+
+@Composable
+fun ThemeToggleButton(isDarkTheme: Boolean, renderSession: Long) {
+    val theme = code.yousef.example.springboot.theme.useAppTheme()
+    val callbackId = "theme-toggle-${renderSession}"
+    ActionRegistry.registerAction(callbackId, ActionType.ToggleTheme)
+    
+    Button(
+        onClick = { /* Handled by hydration */ },
+        label = if (isDarkTheme) "🌙" else "☀️",
+        modifier = Modifier()
+            .padding("0.5rem 1rem")
+            .style("background-color", theme.backgroundColor)
+            .style("color", theme.secondaryColor)
+            .borderRadius(4.px)
+            .cursor("pointer")
+            .attribute("data-onclick-id", callbackId)
+            .attribute("data-onclick-action", "true")
+    )
+}
+
+@Composable
+fun LogoutButton(language: String, renderSession: Long) {
+    val callbackId = "logout-${renderSession}"
+    ActionRegistry.registerAction(callbackId, ActionType.Logout)
+    
+    Button(
+        onClick = { /* Handled by hydration */ },
+        label = Translations.get("auth.logout", language),
+        modifier = Modifier()
+            .padding("0.5rem 1rem")
+            .backgroundColor("#d32f2f")
+            .color("white")
+            .borderRadius(4.px)
+            .cursor("pointer")
+            .hover { backgroundColor("#c62828") }
+            .attribute("data-onclick-id", callbackId)
+            .attribute("data-onclick-action", "true")
+    )
+}
+
+@Composable
+fun DeleteTodoButton(
+    todoId: Long,
+    language: String,
+    renderSession: Long,
+    onDelete: () -> Unit
+) {
+    val callbackId = "delete-todo-${todoId}-${renderSession}"
+    ActionRegistry.registerAction(callbackId, ActionType.DeleteTodo(todoId))
+    
+    Button(
+        onClick = onDelete,
+        label = Translations.get("todo.delete", language),
+        modifier = Modifier()
+            .padding("0.25rem 0.5rem")
+            .backgroundColor("#d32f2f")
+            .color("white")
+            .borderRadius(4.px)
+            .fontSize(0.875.rem)
+            .cursor("pointer")
+            .hover { backgroundColor("#c62828") }
+            .attribute("class", "todo-delete")
+            .attribute("data-todo-id", todoId.toString())
+            .attribute("data-onclick-id", callbackId)
+            .attribute("data-onclick-action", "true")
+    )
+}
+
+@Composable
+fun ErrorAlert(message: String, onDismiss: () -> Unit) {
+    Div(
+        modifier = Modifier()
+            .fillMaxWidth()
+            .padding(1.rem)
+            .backgroundColor("#f8d7da")
+            .color("#721c24")
+            .borderRadius(4.px)
+            .border("1px", "solid", "#f5c6cb")
+            .cursor("pointer")
+            .onClick { onDismiss() }
+    ) {
+        Text(message)
     }
 }

@@ -77,27 +77,30 @@ class CallbackController {
     private fun performAction(action: ActionType, callbackRequest: CallbackRequest, httpRequest: HttpServletRequest): CallbackResponse {
         return when (action) {
             is ActionType.ToggleTheme -> {
-                // Parse current theme from referer URL or default to light
-                val referer = httpRequest.getHeader("Referer") ?: "/todos"
-                val currentTheme = extractThemeFromUrl(referer)
+                // Get current theme from session or cookie, default to light
+                val session = httpRequest.session
+                val currentTheme = session.getAttribute("theme") as? String ?: "light"
                 val newTheme = if (currentTheme == "dark") "light" else "dark"
                 
-                val redirectUrl = updateUrlParameter(referer, "theme", newTheme)
-                logger.info("=== THEME TOGGLE DEBUG ===")
-                logger.info("Original referer: $referer")
-                logger.info("Current theme extracted: $currentTheme")
-                logger.info("New theme: $newTheme")
-                logger.info("Generated redirect URL: $redirectUrl")
-                logger.info("About to send CallbackResponse with redirect action")
+                // Store theme in session for persistence
+                session.setAttribute("theme", newTheme)
                 
-                val response = CallbackResponse(
+                // Force session to be saved immediately
+                session.maxInactiveInterval = session.maxInactiveInterval
+                
+                logger.info("=== THEME TOGGLE USING SESSION STORAGE ===")
+                logger.info("Session ID: ${session.id}")
+                logger.info("Session isNew: ${session.isNew}")
+                logger.info("Current theme in session: $currentTheme")
+                logger.info("New theme set in session: $newTheme")
+                logger.info("Verification - theme after setting: ${session.getAttribute("theme")}")
+                logger.info("Theme successfully stored in server session")
+                
+                CallbackResponse(
                     success = true,
-                    message = "Theme toggled",
-                    action = "redirect",
-                    redirectUrl = redirectUrl
+                    message = "Theme toggled to $newTheme mode",
+                    action = "reload" // Simple reload to reflect theme change
                 )
-                logger.info("CallbackResponse object: $response")
-                response
             }
             
             is ActionType.ToggleLanguage -> {
