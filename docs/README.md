@@ -42,10 +42,6 @@ Welcome to the Summon documentation! Summon is a Kotlin Multiplatform library fo
 ### Integration Guides
 - [Integration Guides](integration-guides.md) - Integrate with existing frameworks and platforms
 
-### Examples
-- [JS Example](examples/js/js-example/README.md) - JavaScript platform example
-- [Quarkus Example](examples/jvm/quarkus-example/README.md) - Quarkus integration example
-- [I18n Example](examples/i18n-example.md) - Internationalization example
 
 
 ## Key Features

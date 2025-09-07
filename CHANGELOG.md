@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [0.3.0.0]
 
 ### Major Framework Restructuring and Feature Additions
 
@@ -13,16 +13,15 @@ This release represents a significant milestone with major architectural changes
 #### 🏗️ **Project Restructuring**
 - **Modular Architecture**: Restructured project into separate modules for better organization
   - `summon-core/` - Core framework functionality
-  - `examples/` - Integration examples and demos
   - `docs/` - Comprehensive documentation and API reference
 - **Centralized Version Management**: Unified version configuration across all modules
 - **Enhanced Build System**: Improved Gradle configuration with better dependency management
 
 #### 📦 **Maven Central Publishing**
 - **Official Maven Central Distribution**: Summon is now available on Maven Central
-  - `io.github.codeyousef:summon:0.2.9.1` - Multiplatform artifact
-  - `io.github.codeyousef:summon-jvm:0.2.9.1` - JVM-specific artifact  
-  - `io.github.codeyousef:summon-js:0.2.9.1` - JavaScript-specific artifact
+  - `io.github.codeyousef:summon:0.3.0.0` - Multiplatform artifact
+  - `io.github.codeyousef:summon-jvm:0.3.0.0` - JVM-specific artifact  
+  - `io.github.codeyousef:summon-js:0.3.0.0` - JavaScript-specific artifact
 - **Automated Publishing Pipeline**: GitHub Actions workflow for seamless releases
 - **Comprehensive POM Metadata**: Proper Maven metadata with licensing, SCM, and developer information
 - **Artifact Signing**: GPG-signed artifacts for security and authenticity
@@ -32,10 +31,6 @@ This release represents a significant milestone with major architectural changes
   - `summon init` - Initialize new Summon projects with templates
   - `summon create` - Generate components, pages, and other project artifacts
   - `summon generate` - Code generation utilities for common patterns
-- **Project Templates**: Pre-configured templates for different frameworks
-  - Quarkus integration template
-  - Spring Boot integration template  
-  - Standalone JavaScript template
 - **Interactive Setup**: Guided project initialization with framework-specific configurations
 - **Native Binary Distribution**: Compiled native executables for major platforms
 
@@ -100,17 +95,6 @@ This release represents a significant milestone with major architectural changes
 - **Integration Guides**: Step-by-step guides for framework integration
 - **Migration Documentation**: Guidance for upgrading from previous versions
 
-#### 🧹 **Example Project Cleanup**
-- **Pure Summon Implementation**: All example projects now use only Summon components
-  - **Spring Boot Example**: Removed all raw JavaScript (`app.js`) and replaced with `SummonPureComponents.kt`
-  - **JS Basic Example**: Complete transformation to use Summon runtime with proper component composition
-  - **Quarkus Example**: Removed raw CSS (`style.css`) and JavaScript (`script.js`) files
-- **No Raw HTML/CSS/JS**: Zero instances of raw web technologies in any example
-  - All styling through type-safe Summon modifiers
-  - All interactions through Summon event handling
-  - All layouts through Summon component composition
-- **Error Handling**: Even error displays use pure Summon components (e.g., `SummonErrorDisplay`)
-- **Template Cleanup**: Removed legacy HTMX/Qute templates with embedded styling
 
 ### Changed
 
@@ -169,10 +153,10 @@ Button(
 #### **For New Projects**
 - Use `summon init` CLI command for guided project setup
 - Choose appropriate artifact based on target platform
-- Follow integration guides for framework-specific setup
+- Visit our separate repository for integration guides and framework setup
 
 ### Breaking Changes
-- **Module Structure**: Project layout has changed (examples moved to separate directory)
+- **Module Structure**: Project layout has changed (focus on core library)
 - **Build Configuration**: Some Gradle configuration paths have changed
 - **Internal APIs**: Some internal APIs have been reorganized (public APIs unchanged)
 
