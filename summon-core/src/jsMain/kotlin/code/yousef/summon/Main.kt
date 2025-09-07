@@ -54,23 +54,11 @@ private fun findAppEntry(): @Composable ((@Composable () -> Unit) -> Unit) {
 private fun renderApp(renderer: PlatformRenderer) {
     // Create router with routes
     val router = createRouter {
-        // Register root route - showcase component was removed during cleanup
-        // TODO: Replace with appropriate component or app content
-        /*
-        route("/") { params ->
-            SummonShowcase()
-        }
-
-        // Register other routes as needed
-        route("/example") { params ->
-            SummonShowcase()
-        }
-
-        // Set not found handler
-        setNotFound { params ->
-            SummonShowcase()
-        }
-        */
+        // Register routes as needed for your application
+        // Example:
+        // route("/") { params ->
+        //     MyHomeComponent()
+        // }
     }
 
     // Get the root element or create one if it doesn't exist

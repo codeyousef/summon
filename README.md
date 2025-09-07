@@ -10,8 +10,9 @@ This monorepo contains:
 
 - **`summon-core/`** - The main Summon library
 - **`summon-cli/`** - Command-line tool for project generation 
-- **`examples/`** - Example projects showing various integrations
 - **`docs/`** - Documentation and guides
+
+> 📝 **Examples**: Example projects showing various integrations have been moved to a separate repository for cleaner core library maintenance.
 
 > 🎨 **Type-safe styling** with an intuitive modifier API inspired by Compose.
 > 

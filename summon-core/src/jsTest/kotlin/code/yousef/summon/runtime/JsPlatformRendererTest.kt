@@ -22,7 +22,7 @@ class JsPlatformRendererTest {
      */
     @Test
     fun testRenderComposableDoesNotThrowNotImplementedError() {
-        console.log("[DEBUG_LOG] Starting renderComposable NotImplementedError test")
+        // Starting renderComposable NotImplementedError test
 
         // Set up a global variable to capture any errors
         js("window._errorCaptured = false;")
@@ -36,7 +36,7 @@ class JsPlatformRendererTest {
                 } else if (typeof message === 'string') {
                     window._errorMessage = message;
                 }
-                console.log("[DEBUG_LOG] Console error captured: " + window._errorMessage);
+                // Error captured: " + window._errorMessage;
                 window._originalConsoleError(message, error);
             };
         """)
@@ -54,7 +54,7 @@ class JsPlatformRendererTest {
                 }
 
                 // If we get here, the test passes because no exception was thrown
-                console.log("[DEBUG_LOG] PlatformRenderer.renderComposable did not throw an exception")
+                // PlatformRenderer.renderComposable did not throw an exception
             } catch (e: Throwable) {
                 // If an exception was thrown, the test fails
                 fail("PlatformRenderer.renderComposable should not throw an exception, but it threw: ${e.message}")
@@ -69,7 +69,7 @@ class JsPlatformRendererTest {
                 "PlatformRenderer.renderComposable should not produce a NotImplementedError")
 
             // Log success
-            console.log("[DEBUG_LOG] renderComposable NotImplementedError test completed successfully")
+            // renderComposable NotImplementedError test completed successfully
         } finally {
             // Restore original console.error
             js("console.error = window._originalConsoleError;")

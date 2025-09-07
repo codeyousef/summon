@@ -7,54 +7,45 @@ import jakarta.servlet.http.HttpServletResponse
 
 /**
  * A simple servlet that directly renders HTML pages for Summon.
- * TEMPORARILY DISABLED FOR DEBUGGING
+ * Currently disabled - can be enabled by uncommenting the @WebServlet annotation.
  */
-// @WebServlet(name = "SummonServlet", urlPatterns = ["/servlet/*"]) // Temporarily disabled
+// @WebServlet(name = "SummonServlet", urlPatterns = ["/servlet/*"])
 class SummonServlet : HttpServlet() {
 
     /**
      * Handle GET requests for all Summon pages
      */
     override fun doGet(req: HttpServletRequest, resp: HttpServletResponse) {
-        System.out.println("**************** SUMMON SERVLET CALLED: ${req.requestURI} ****************")
         resp.contentType = "text/html;charset=UTF-8"
 
         val requestPath = req.requestURI.removePrefix(req.contextPath)
-        System.out.println("**************** REQUEST PATH: $requestPath ****************")
 
         when {
             requestPath == "/" || requestPath == "/index.html" -> {
-                System.out.println("**************** RENDERING HOME PAGE FROM SERVLET ****************")
                 renderHomePage(resp)
             }
 
             requestPath == "/hello" -> {
-                System.out.println("**************** RENDERING HELLO PAGE FROM SERVLET ****************")
                 renderHelloPage(resp)
             }
 
             requestPath == "/component" -> {
-                System.out.println("**************** RENDERING COMPONENT PAGE FROM SERVLET ****************")
                 renderComponentPage(resp)
             }
 
             requestPath == "/dashboard" -> {
-                System.out.println("**************** RENDERING DASHBOARD PAGE FROM SERVLET ****************")
                 renderDashboardPage(resp)
             }
 
             requestPath == "/theme" -> {
-                System.out.println("**************** RENDERING THEME PAGE FROM SERVLET ****************")
                 renderThemePage(resp)
             }
 
             requestPath == "/chat" -> {
-                System.out.println("**************** RENDERING CHAT PAGE FROM SERVLET ****************")
                 renderChatPage(resp)
             }
 
             else -> {
-                System.out.println("**************** DEFAULT: RENDERING HOME PAGE FROM SERVLET ****************")
                 renderHomePage(resp)
             }
         }

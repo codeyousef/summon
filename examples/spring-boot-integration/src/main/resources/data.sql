@@ -1,3 +1,0 @@
--- Demo users removed due to invalid BCrypt hashes
--- Users can register through the /api/auth/register endpoint
--- Example working credentials: testuser/password, demotwo/password
