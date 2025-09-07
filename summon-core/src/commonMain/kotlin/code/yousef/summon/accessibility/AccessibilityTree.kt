@@ -54,7 +54,7 @@ object AccessibilityUtils {
      * Adds an ARIA role to a Modifier.
      */
     private fun Modifier.role(role: String): Modifier {
-        return this.copy(attributes = this.attributes + ("role" to role))
+        return this.copy(attributes = this.attributes + mapOf("role" to role))
     }
 
     /**
@@ -62,7 +62,7 @@ object AccessibilityUtils {
      */
     fun createLabelModifier(label: String): Modifier {
         val modifier = Modifier()
-        return modifier.copy(attributes = modifier.attributes + ("aria-label" to label))
+        return modifier.copy(attributes = modifier.attributes + mapOf("aria-label" to label))
     }
 
     /**
@@ -74,7 +74,7 @@ object AccessibilityUtils {
         targetId: String
     ): Modifier {
         val modifier = Modifier()
-        return modifier.copy(attributes = modifier.attributes + ("aria-$relation" to targetId))
+        return modifier.copy(attributes = modifier.attributes + mapOf("aria-$relation" to targetId))
     }
 
     /**
@@ -214,16 +214,16 @@ private fun Modifier.applyAccessibilityAttributes(node: AccessibilityNode): Modi
     var result = this
 
     // Apply role attribute
-    result = result.copy(attributes = result.attributes + ("role" to node.role.name.lowercase()))
+    result = result.copy(attributes = result.attributes + mapOf("role" to node.role.name.lowercase()))
 
     // Apply label as aria-label if available
     if (node.label != null) {
-        result = result.copy(attributes = result.attributes + ("aria-label" to node.label))
+        result = result.copy(attributes = result.attributes + mapOf("aria-label" to node.label))
     }
 
     // Apply description as aria-describedby if available
     if (node.description != null) {
-        result = result.copy(attributes = result.attributes + ("aria-describedby" to node.description))
+        result = result.copy(attributes = result.attributes + mapOf("aria-describedby" to node.description))
     }
 
     // Apply state attributes
@@ -239,12 +239,12 @@ private fun Modifier.applyAccessibilityAttributes(node: AccessibilityNode): Modi
             State.REQUIRED -> "aria-required"
             State.SELECTED -> "aria-selected"
         }
-        result = result.copy(attributes = result.attributes + (stateName to entry.value.toString()))
+        result = result.copy(attributes = result.attributes + mapOf(stateName to entry.value.toString()))
     }
 
     // Apply other properties
     for (entry in node.properties.entries) {
-        result = result.copy(attributes = result.attributes + (entry.key to entry.value))
+        result = result.copy(attributes = result.attributes + mapOf(entry.key to entry.value))
     }
 
     return result
