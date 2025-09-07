@@ -100,8 +100,8 @@ jobs:
         CHROME_BIN: /usr/bin/google-chrome
         DISPLAY: :99.0
         
-    - name: Run common tests
-      run: ./gradlew commonTest --no-daemon --stacktrace || true
+    - name: Run all tests
+      run: ./gradlew test --no-daemon --stacktrace || true
       
     - name: Upload test reports
       uses: actions/upload-artifact@v4
@@ -175,7 +175,7 @@ jobs:
         DISPLAY: :99.0
       
     - name: Generate documentation
-      run: ./gradlew dokkaHtml --no-daemon || true  # Allow failure for now
+      run: ./gradlew :summon-core:dokkaHtml --no-daemon || true  # Allow failure for now
       
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
@@ -224,17 +224,17 @@ jobs:
       run: chmod +x gradlew
       
     - name: Build CLI Shadow JAR
-      run: ./gradlew :cli-tool:shadowJar --no-daemon --stacktrace
+      run: ./gradlew :summon-cli:shadowJar --no-daemon --stacktrace
       
     - name: Test Native Compilation
-      run: ./gradlew :cli-tool:nativeCompile --no-daemon --stacktrace
+      run: ./gradlew :summon-cli:buildNativeExecutable --no-daemon --stacktrace
       
     - name: Test CLI Executable
       run: |
-        if [ -f "cli-tool/build/native/nativeCompile/summon" ]; then
+        if [ -f "summon-cli/build/native/summon" ]; then
           echo "✅ Native executable built successfully"
-          ls -la cli-tool/build/native/nativeCompile/summon
-          ./cli-tool/build/native/nativeCompile/summon --help
+          ls -la summon-cli/build/native/summon
+          ./summon-cli/build/native/summon --help
         else
           echo "❌ Native executable not found"
           exit 1
