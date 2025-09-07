@@ -41,6 +41,7 @@ Desktop.ini
 
 # Local configuration file
 local.properties
+properties.local
 
 # Development tool directories
 .claude/
@@ -115,3 +116,6 @@ npm-debug.log
 /docs/examples/jvm/spring-boot-example/logs/
 /docs/examples/jvm/portfolio-example/
 /portfolio/
+/private-key.asc
+/public-key.asc
+/WARP.md

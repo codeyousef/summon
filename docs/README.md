@@ -42,16 +42,19 @@ Welcome to the Summon documentation! Summon is a Kotlin Multiplatform library fo
 ### Integration Guides
 - [Integration Guides](integration-guides.md) - Integrate with existing frameworks and platforms
 
-### Examples
-- [JS Example](examples/js/js-example/README.md) - JavaScript platform example
-- [Quarkus Example](examples/jvm/quarkus-example/README.md) - Quarkus integration example
-- [I18n Example](examples/i18n-example.md) - Internationalization example
 
 
 ## Key Features
 
 - **Cross-Platform**: Write once, run anywhere - browser, server, and native platforms
-- **Component-Based**: Build UIs using composable components
+- **Component-Based**: Build UIs using composable components with rich feedback components
+  - **Modal System**: Dialog components with variants (Alert, Confirmation, Fullscreen)
+  - **Loading Indicators**: Multiple animation types (Spinner, Dots, Linear, Circular)
+  - **Toast Notifications**: Positioned notifications with action support
+- **Network & Communication**: Built-in networking capabilities
+  - **WebSocket**: Cross-platform WebSocket with auto-reconnection
+  - **HTTP Client**: Full-featured HTTP client with JSON and form support
+  - **Storage**: Local, session, and memory storage abstraction
 - **State Management**: Built-in state management with reactivity
 - **Next.js-Style Routing**: Automatic file-based routing with code generation
 - **Security**: Built-in authentication and authorization with JWT support

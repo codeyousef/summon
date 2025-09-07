@@ -127,7 +127,6 @@ For more detailed documentation, please refer to these resources:
 
 - [Internationalization Guide](i18n.md) - Complete guide to internationalization
 - [API Reference](api/i18n-api.md) - Detailed API documentation
-- [Implementation Example](examples/i18n-example.md) - Full example of implementation
 
 ## Best Practices
 

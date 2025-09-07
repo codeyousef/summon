@@ -186,9 +186,9 @@ jobs:
           build/dist/
         retention-days: 7
 
-  publish-snapshot:
-    name: Publish Snapshot
-    needs: [build]  # Remove test dependency to allow publishing even if some tests fail
+  validate-cli-build:
+    name: Validate CLI Native Build
+    needs: [build]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, 'chore(release)')
     
@@ -196,11 +196,19 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
+    - uses: graalvm/setup-graalvm@v1
       with:
         java-version: '17'
-        distribution: 'temurin'
+        distribution: 'graalvm'
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Install Native Image
+      run: gu install native-image
+      
+    - name: Setup build tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install build-essential zlib1g-dev
         
     - name: Cache Gradle packages
       uses: actions/cache@v4
@@ -215,37 +223,22 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
-    - name: Import GPG key
-      continue-on-error: true
-      env:
-        GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-        GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-      run: |
-        echo "$GPG_PRIVATE_KEY" | base64 --decode | gpg --batch --import
-        gpg --list-secret-keys --keyid-format LONG
+    - name: Build CLI Shadow JAR
+      run: ./gradlew :cli-tool:shadowJar --no-daemon --stacktrace
       
-    - name: Set snapshot version
+    - name: Test Native Compilation
+      run: ./gradlew :cli-tool:nativeCompile --no-daemon --stacktrace
+      
+    - name: Test CLI Executable
       run: |
-        CURRENT_VERSION=$(grep '^VERSION=' version.properties | cut -d'=' -f2)
-        SNAPSHOT_VERSION="${CURRENT_VERSION}-SNAPSHOT"
-        sed -i "s/VERSION=.*/VERSION=$SNAPSHOT_VERSION/" version.properties
-        echo "Changed version to $SNAPSHOT_VERSION"
-        
-    - name: Publish to GitHub Packages
-      run: ./gradlew publishAllPublicationsToGitHubPackagesRepository --no-daemon --stacktrace
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GITHUB_ACTOR: ${{ github.actor }}
-        
-    - name: Publish to Maven Central Portal
-      continue-on-error: true
-      run: ./publish-to-central-portal.sh
-      env:
-        CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
-        CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
-        SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
-        SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-        SIGNING_SECRET_KEY: ${{ secrets.SIGNING_SECRET_KEY }}
+        if [ -f "cli-tool/build/native/nativeCompile/summon" ]; then
+          echo "✅ Native executable built successfully"
+          ls -la cli-tool/build/native/nativeCompile/summon
+          ./cli-tool/build/native/nativeCompile/summon --help
+        else
+          echo "❌ Native executable not found"
+          exit 1
+        fi
 
   # Disabled to prevent conflicts with standalone publish.yml workflow
   # publish-release:

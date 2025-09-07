@@ -848,4 +848,240 @@ fun DesktopComponent() {
 
 ---
 
+---
+
+## Network and Communication Effects
+
+### WebSocket
+
+Cross-platform WebSocket implementation with auto-reconnection and lifecycle management.
+
+```kotlin
+// WebSocket configuration
+data class WebSocketConfig(
+    val url: String,
+    val protocols: List<String> = emptyList(),
+    val autoReconnect: Boolean = false,
+    val reconnectDelay: Long = 5000,
+    val maxReconnectAttempts: Int = -1, // -1 for unlimited
+    val onOpen: ((WebSocketClient) -> Unit)? = null,
+    val onMessage: ((String) -> Unit)? = null,
+    val onClose: ((code: Short, reason: String) -> Unit)? = null,
+    val onError: ((Throwable) -> Unit)? = null
+)
+
+// Create WebSocket client
+expect class WebSocketClient {
+    fun connect(config: WebSocketConfig)
+    fun send(message: String)
+    fun close(code: Short = 1000, reason: String = "")
+    fun isConnected(): Boolean
+}
+
+// Factory function
+expect fun createWebSocketClient(): WebSocketClient
+```
+
+**Usage:**
+
+```kotlin
+@Composable
+fun ChatComponent() {
+    val webSocketClient = remember { mutableStateOf<WebSocketClient?>(null) }
+    val messages = remember { mutableStateOf(listOf<String>()) }
+    
+    LaunchedEffect(Unit) {
+        val client = createWebSocketClient()
+        client.connect(WebSocketConfig(
+            url = "ws://localhost:8080/chat",
+            autoReconnect = true,
+            onMessage = { message ->
+                messages.value = messages.value + message
+            },
+            onError = { error ->
+                console.error("WebSocket error: ${error.message}")
+            }
+        ))
+        webSocketClient.value = client
+    }
+    
+    DisposableEffect(Unit) {
+        onDispose {
+            webSocketClient.value?.close()
+        }
+    }
+}
+```
+
+### HTTP Client
+
+Cross-platform HTTP client with comprehensive request/response handling.
+
+```kotlin
+// HTTP Request and Response
+data class HttpRequest(
+    val url: String,
+    val method: HttpMethod = HttpMethod.GET,
+    val headers: Map<String, String> = emptyMap(),
+    val body: String? = null
+)
+
+data class HttpResponse(
+    val status: Int,
+    val statusText: String,
+    val headers: Map<String, String>,
+    val body: String
+)
+
+enum class HttpMethod {
+    GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS
+}
+
+// HTTP Client interface
+expect class HttpClient {
+    suspend fun execute(request: HttpRequest): HttpResponse
+    suspend fun get(url: String, headers: Map<String, String> = emptyMap()): HttpResponse
+    suspend fun post(url: String, body: String, headers: Map<String, String> = emptyMap()): HttpResponse
+    suspend fun put(url: String, body: String, headers: Map<String, String> = emptyMap()): HttpResponse
+    suspend fun delete(url: String, headers: Map<String, String> = emptyMap()): HttpResponse
+}
+
+// Factory function
+expect fun createHttpClient(): HttpClient
+```
+
+**Extension functions for JSON and forms:**
+
+```kotlin
+// JSON extensions
+suspend fun HttpClient.getJson(url: String): HttpResponse =
+    get(url, mapOf("Accept" to "application/json"))
+
+suspend fun HttpClient.postJson(url: String, json: String): HttpResponse =
+    post(url, json, mapOf("Content-Type" to "application/json"))
+
+// Form data extensions
+suspend fun HttpClient.postForm(url: String, formData: Map<String, String>): HttpResponse {
+    val body = formData.entries.joinToString("&") { "${it.key}=${it.value}" }
+    return post(url, body, mapOf("Content-Type" to "application/x-www-form-urlencoded"))
+}
+```
+
+**Usage:**
+
+```kotlin
+@Composable
+fun DataComponent() {
+    val data = remember { mutableStateOf<String?>(null) }
+    val isLoading = remember { mutableStateOf(false) }
+    val httpClient = remember { createHttpClient() }
+    
+    LaunchedEffect(Unit) {
+        isLoading.value = true
+        try {
+            val response = httpClient.getJson("/api/data")
+            if (response.status == 200) {
+                data.value = response.body
+            }
+        } catch (e: Exception) {
+            console.error("HTTP request failed: ${e.message}")
+        } finally {
+            isLoading.value = false
+        }
+    }
+}
+```
+
+### Storage
+
+Cross-platform storage abstraction for local, session, and memory storage.
+
+```kotlin
+enum class StorageType {
+    LOCAL, SESSION, MEMORY
+}
+
+// Storage interface
+expect class Storage {
+    fun setItem(key: String, value: String)
+    fun getItem(key: String): String?
+    fun removeItem(key: String)
+    fun clear()
+    fun getKeys(): Set<String>
+    fun size(): Int
+}
+
+// Factory functions
+expect fun createLocalStorage(): Storage
+expect fun createSessionStorage(): Storage
+expect fun createMemoryStorage(): Storage
+
+// Typed storage wrapper
+class TypedStorage<T>(
+    private val storage: Storage,
+    private val serializer: (T) -> String,
+    private val deserializer: (String) -> T?
+) {
+    fun set(key: String, value: T) {
+        storage.setItem(key, serializer(value))
+    }
+    
+    fun get(key: String): T? {
+        val stringValue = storage.getItem(key) ?: return null
+        return deserializer(stringValue)
+    }
+    
+    fun remove(key: String) = storage.removeItem(key)
+    fun clear() = storage.clear()
+}
+```
+
+**Usage:**
+
+```kotlin
+@Composable
+fun UserPreferencesComponent() {
+    val localStorage = remember { createLocalStorage() }
+    val theme = remember { mutableStateOf("light") }
+    
+    // Load theme preference on startup
+    LaunchedEffect(Unit) {
+        val savedTheme = localStorage.getItem("theme") ?: "light"
+        theme.value = savedTheme
+    }
+    
+    // Save theme when it changes
+    LaunchedEffect(theme.value) {
+        localStorage.setItem("theme", theme.value)
+    }
+    
+    Button(
+        onClick = {
+            theme.value = if (theme.value == "light") "dark" else "light"
+        },
+        label = "Toggle Theme (Current: ${theme.value})"
+    )
+}
+
+// Typed storage example
+@Composable
+fun TypedStorageExample() {
+    val userStorage = remember {
+        TypedStorage(
+            storage = createLocalStorage(),
+            serializer = { user: User -> Json.encodeToString(user) },
+            deserializer = { json -> try { Json.decodeFromString<User>(json) } catch (e: Exception) { null } }
+        )
+    }
+    
+    val currentUser = remember { mutableStateOf<User?>(null) }
+    
+    LaunchedEffect(Unit) {
+        currentUser.value = userStorage.get("currentUser")
+    }
+}
+```
+
+---
+
 The Summon effects system allows you to manage side effects in a platform-independent way, while still providing access to platform-specific capabilities when needed. Effects make it easy to integrate with external systems, manage component lifecycle, and keep your UI code clean and focused on presentation. 

@@ -754,3 +754,265 @@ This standalone implementation provides:
 ✅ **Framework Agnostic**: Can be used with any web framework or as standalone  
 
 The component API is designed to be familiar to developers coming from other UI frameworks while maintaining the simplicity and transparency of the standalone approach.
+
+---
+
+## Advanced Feedback Components
+
+### Modal
+
+A comprehensive modal dialog system with multiple variants and sizes.
+
+#### Definition
+
+```kotlin
+@Composable
+fun Modal(
+    isOpen: Boolean,
+    onDismiss: () -> Unit,
+    variant: ModalVariant = ModalVariant.DEFAULT,
+    size: ModalSize = ModalSize.MEDIUM,
+    header: (@Composable () -> Unit)? = null,
+    footer: (@Composable () -> Unit)? = null,
+    modifier: Modifier = Modifier(),
+    content: @Composable () -> Unit
+)
+
+enum class ModalVariant {
+    DEFAULT, ALERT, CONFIRMATION, FULLSCREEN
+}
+
+enum class ModalSize {
+    SMALL, MEDIUM, LARGE, EXTRA_LARGE
+}
+```
+
+#### Usage
+
+```kotlin
+@Composable
+fun MyComponent() {
+    val showModal = remember { mutableStateOf(false) }
+    
+    Button(
+        onClick = { showModal.value = true },
+        label = "Open Modal"
+    )
+    
+    if (showModal.value) {
+        Modal(
+            isOpen = showModal.value,
+            onDismiss = { showModal.value = false },
+            variant = ModalVariant.DEFAULT,
+            size = ModalSize.MEDIUM,
+            header = {
+                Text("Modal Title", modifier = Modifier().fontSize("20px").fontWeight("600"))
+            },
+            footer = {
+                Row(modifier = Modifier().gap("12px")) {
+                    Button(onClick = { showModal.value = false }, label = "Cancel")
+                    Button(onClick = { showModal.value = false }, label = "Confirm", variant = ButtonVariant.PRIMARY)
+                }
+            }
+        ) {
+            Text("This is the modal content area.")
+        }
+    }
+}
+```
+
+#### Convenience Functions
+
+```kotlin
+// Alert Modal
+@Composable
+fun AlertModal(
+    isOpen: Boolean,
+    onDismiss: () -> Unit,
+    title: String,
+    message: String,
+    confirmText: String = "OK"
+)
+
+// Confirmation Modal
+@Composable
+fun ConfirmationModal(
+    isOpen: Boolean,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+    title: String,
+    message: String,
+    confirmText: String = "Confirm",
+    cancelText: String = "Cancel"
+)
+```
+
+### Loading
+
+Loading indicators with multiple animation types and overlay support.
+
+#### Definition
+
+```kotlin
+@Composable
+fun Loading(
+    isVisible: Boolean = true,
+    variant: LoadingVariant = LoadingVariant.SPINNER,
+    size: LoadingSize = LoadingSize.MEDIUM,
+    text: String? = null,
+    modifier: Modifier = Modifier()
+)
+
+@Composable
+fun LoadingOverlay(
+    isVisible: Boolean,
+    text: String? = null,
+    variant: LoadingVariant = LoadingVariant.SPINNER,
+    size: LoadingSize = LoadingSize.LARGE
+)
+
+enum class LoadingVariant {
+    SPINNER, DOTS, LINEAR, CIRCULAR
+}
+
+enum class LoadingSize {
+    SMALL, MEDIUM, LARGE
+}
+```
+
+#### Usage
+
+```kotlin
+@Composable
+fun MyComponent() {
+    val isLoading = remember { mutableStateOf(false) }
+    
+    Button(
+        onClick = {
+            isLoading.value = true
+            // Simulate async operation
+            CoroutineScope(Dispatchers.Main).launch {
+                delay(2000)
+                isLoading.value = false
+            }
+        },
+        label = "Start Loading"
+    )
+    
+    // Inline loading indicator
+    Loading(
+        isVisible = isLoading.value,
+        variant = LoadingVariant.SPINNER,
+        size = LoadingSize.MEDIUM,
+        text = "Loading..."
+    )
+    
+    // Full-screen overlay
+    if (isLoading.value) {
+        LoadingOverlay(
+            isVisible = true,
+            text = "Processing request...",
+            variant = LoadingVariant.CIRCULAR,
+            size = LoadingSize.LARGE
+        )
+    }
+}
+```
+
+### Toast
+
+A comprehensive toast notification system with positioning and management.
+
+#### Definition
+
+```kotlin
+@Composable
+fun Toast(
+    message: String,
+    variant: ToastVariant = ToastVariant.INFO,
+    duration: Long = 4000,
+    position: ToastPosition = ToastPosition.TOP_RIGHT,
+    onDismiss: (() -> Unit)? = null,
+    action: ToastAction? = null
+)
+
+class ToastManager {
+    fun showToast(message: String, variant: ToastVariant = ToastVariant.INFO, duration: Long = 4000, action: ToastAction? = null)
+    fun showSuccess(message: String, duration: Long = 4000)
+    fun showError(message: String, duration: Long = 8000)
+    fun showWarning(message: String, duration: Long = 6000)
+    fun showInfo(message: String, duration: Long = 4000)
+    fun dismissAll()
+}
+
+@Composable
+fun ToastProvider(
+    position: ToastPosition = ToastPosition.TOP_RIGHT,
+    content: @Composable (ToastManager) -> Unit
+)
+
+enum class ToastVariant {
+    INFO, SUCCESS, WARNING, ERROR
+}
+
+enum class ToastPosition {
+    TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
+}
+
+data class ToastAction(
+    val label: String,
+    val onClick: () -> Unit
+)
+```
+
+#### Usage
+
+```kotlin
+@Composable
+fun MyComponent() {
+    ToastProvider(position = ToastPosition.TOP_RIGHT) { toastManager ->
+        Column(modifier = Modifier().gap("12px")) {
+            Button(
+                onClick = { toastManager.showSuccess("Operation completed successfully!") },
+                label = "Show Success Toast"
+            )
+            
+            Button(
+                onClick = { toastManager.showError("An error occurred while processing.") },
+                label = "Show Error Toast"
+            )
+            
+            Button(
+                onClick = { 
+                    toastManager.showToast(
+                        message = "This is a custom toast with action",
+                        variant = ToastVariant.INFO,
+                        action = ToastAction("Undo") {
+                            toastManager.showInfo("Action undone!")
+                        }
+                    )
+                },
+                label = "Show Toast with Action"
+            )
+        }
+    }
+}
+```
+
+#### ToastManager Helper
+
+```kotlin
+@Composable
+fun rememberToastManager(): ToastManager {
+    return remember { ToastManager() }
+}
+```
+
+These advanced components provide:
+
+✅ **Rich Interactions**: Modal dialogs with customizable headers, footers, and variants  
+✅ **Loading States**: Multiple loading indicators for different use cases  
+✅ **User Feedback**: Toast notifications with positioning and action support  
+✅ **Accessibility**: Proper ARIA attributes and keyboard navigation  
+✅ **Type Safety**: Enum-based variants and sizes for compile-time checking  
+✅ **Flexibility**: Highly customizable with modifier support and content composition

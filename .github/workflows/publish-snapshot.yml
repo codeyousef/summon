@@ -34,9 +34,9 @@ jobs:
       
       - name: Set snapshot version
         run: |
-          CURRENT_VERSION=$(grep "^version" build.gradle.kts | cut -d'"' -f2)
+          CURRENT_VERSION=$(grep "^VERSION=" version.properties | cut -d'=' -f2)
           SNAPSHOT_VERSION="${CURRENT_VERSION}-SNAPSHOT"
-          sed -i "s/version = \"$CURRENT_VERSION\"/version = \"$SNAPSHOT_VERSION\"/" build.gradle.kts
+          sed -i "s/^VERSION=.*/VERSION=${SNAPSHOT_VERSION}/" version.properties
           echo "Publishing snapshot version: $SNAPSHOT_VERSION"
       
       - name: Build
@@ -46,3 +46,4 @@ jobs:
         run: ./gradlew publishAllPublicationsToGitHubPackagesRepository
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      

@@ -4,6 +4,16 @@
 
 **Summon** is a powerful, type-safe frontend framework for Kotlin Multiplatform that brings the elegance of Jetpack Compose to both browser and JVM environments. Build beautiful, responsive applications with a declarative syntax that feels natural to Kotlin developers.
 
+## Project Structure
+
+This monorepo contains:
+
+- **`summon-core/`** - The main Summon library
+- **`summon-cli/`** - Command-line tool for project generation 
+- **`docs/`** - Documentation and guides
+
+> 📝 **Examples**: Example projects showing various integrations have been moved to a separate repository for cleaner core library maintenance.
+
 > 🎨 **Type-safe styling** with an intuitive modifier API inspired by Compose.
 > 
 > 🧩 **Component-based architecture** for maximum reusability and maintainability.
@@ -97,6 +107,9 @@ Summon provides a comprehensive set of UI components organized into logical cate
 
 ### Feedback Components
 - **Alert** - Dismissible alert messages
+- **Modal** - Dialog system with variants (DEFAULT, ALERT, CONFIRMATION, FULLSCREEN) and sizes
+- **Loading** & **LoadingOverlay** - Loading indicators with multiple animation types (SPINNER, DOTS, LINEAR, CIRCULAR)
+- **Toast** & **ToastManager** - Notification system with positioning and action support
 - **Snackbar** & **SnackbarHost** - Temporary notifications
 - **Progress** & **ProgressBar** - Progress indicators
 - **Tooltip** - Hover tooltips
@@ -108,6 +121,11 @@ Summon provides a comprehensive set of UI components organized into logical cate
 ### Utility Components
 - **Div** - Basic container element
 - **AccessibleElement** - Accessibility wrapper
+
+### Network and Communication
+- **WebSocket** - Cross-platform WebSocket with auto-reconnection and lifecycle management
+- **HttpClient** - Comprehensive HTTP client with JSON and form data support
+- **Storage** - Local, session, and memory storage abstraction with TypedStorage wrapper
 
 ## Inspiration
 
@@ -128,39 +146,7 @@ For detailed documentation, please check the [docs](docs/README.md) directory:
 - [Internationalization](docs/i18n.md) - Add multi-language support with RTL layouts
 
 ### API Reference
-# Project Setup
 
-## Database Setup
-
-This project uses PostgreSQL as the database. You can run it using Docker Compose:
-
-```shell
-docker-compose up -d
-```
-
-This will start a PostgreSQL database on port 5432.
-
-## Running in Development Mode
-
-After starting the database, you can run the application in dev mode:
-
-```shell
-./mvnw compile quarkus:dev
-```
-
-## Troubleshooting
-
-### ClosedChannelException with Docker
-
-If you encounter `java.io.IOException: java.nio.channels.ClosedChannelException` errors when Quarkus tries to start a PostgreSQL container using TestContainers, it could be related to Docker connectivity issues.
-
-Possible solutions:
-
-1. Make sure Docker is running correctly
-2. If using Docker Desktop, try restarting it
-3. If the issue persists, use an external database instead of DevServices by configuring the datasource in application.properties
-
-For test environments, DevServices is still enabled to provide an isolated test database.
 Comprehensive API reference documentation is available in the [docs/api-reference](docs/api-reference) directory:
 
 - [Core API](docs/api-reference/core.md) - Core interfaces and classes
@@ -183,30 +169,26 @@ Comprehensive API reference documentation is available in the [docs/api-referenc
 
 ## Installation
 
-Add Summon to your project dependencies from GitHub Packages:
+Add Summon to your project dependencies from Maven Central:
 
 ```kotlin
 repositories {
-    maven {
-        url = uri("https://maven.pkg.github.com/codeyousef/summon")
-        credentials {
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
-        }
-    }
+    mavenCentral()
 }
 
-// Dependencies same as above
+dependencies {
+    // For JVM projects (Ktor, Spring Boot, Quarkus)
+    implementation("io.github.codeyousef:summon-jvm:0.2.9.1")
+    
+    // For JavaScript/Browser projects
+    implementation("io.github.codeyousef:summon-js:0.2.9.1")
+    
+    // For Kotlin Multiplatform projects
+    implementation("io.github.codeyousef:summon:0.2.9.1")
+}
 ```
 
-**Note**: GitHub Packages requires authentication. Add your credentials to `~/.gradle/gradle.properties`:
-
-```properties
-gpr.user=YOUR_GITHUB_USERNAME
-gpr.key=YOUR_GITHUB_TOKEN
-```
-
-Generate a GitHub token with `read:packages` permission at https://github.com/settings/tokens
+**Note**: No authentication required - Summon is available directly from Maven Central!
 
 ## Version Management
 
@@ -241,14 +223,12 @@ For local development:
 
 1. Keep placeholder values in `gradle.properties` (which is version controlled):
    ```properties
-   gpr.user=your_github_username
-   gpr.key=your_github_token
+   # No authentication needed - using Maven Central
    ```
 
 2. Store your actual credentials in `local.properties` (which is ignored by Git):
    ```properties
-   gpr.user=YOUR_ACTUAL_USERNAME
-   gpr.key=YOUR_ACTUAL_TOKEN
+   # No authentication needed - using Maven Central
    ```
 
 3. In your build script, prioritize values from `local.properties` over `gradle.properties`:
@@ -260,13 +240,13 @@ For local development:
        }
    }
 
-   val githubUser = localProperties.getProperty("gpr.user") 
-       ?: project.findProperty("gpr.user") as String? 
-       ?: System.getenv("GITHUB_ACTOR")
-
-   val githubToken = localProperties.getProperty("gpr.key") 
-       ?: project.findProperty("gpr.key") as String? 
-       ?: System.getenv("GITHUB_TOKEN")
+   // No authentication needed when using Maven Central
+   // repositories { mavenCentral() }
    ```
 
 This approach ensures that sensitive credentials are never committed to version control while maintaining a clear example of what credentials are needed in the version-controlled `gradle.properties` file.
+
+
+
+
+For maintainers: Publishing instructions are available at docs/private/publishing.md.

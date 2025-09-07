@@ -565,7 +565,6 @@ Ensure you have:
 ### Need help?
 
 - Check the [documentation](README.md)
-- Browse [examples](examples/)
 - Report issues on [GitHub](https://github.com/codeyousef/summon/issues)
 
 ## What's Next?

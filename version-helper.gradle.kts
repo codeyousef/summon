@@ -30,6 +30,8 @@ if (rootDir != null) {
     project.extra["summonGroup"] = group
     project.extra["summonArtifactId"] = artifactId
     project.extra["summonDependency"] = "$group:$artifactId:$version"
+    project.extra["summonJvmDependency"] = "$group:$artifactId-jvm:$version"
+    project.extra["summonJsDependency"] = "$group:$artifactId-js:$version"
     
     logger.lifecycle("Using Summon version $version from ${versionPropsFile.absolutePath}")
 } else {
@@ -38,4 +40,6 @@ if (rootDir != null) {
     project.extra["summonGroup"] = "io.github.codeyousef"
     project.extra["summonArtifactId"] = "summon"
     project.extra["summonDependency"] = "io.github.codeyousef:summon:0.0.0"
+    project.extra["summonJvmDependency"] = "io.github.codeyousef:summon-jvm:0.0.0"
+    project.extra["summonJsDependency"] = "io.github.codeyousef:summon-js:0.0.0"
 }
