@@ -94,19 +94,19 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build CLI Shadow JAR
-        run: ./gradlew :cli-tool:shadowJar
+        run: ./gradlew :summon-cli:shadowJar
 
       - name: Build Native Executable
-        run: ./gradlew :cli-tool:nativeCompile
+        run: ./gradlew :summon-cli:buildNativeExecutable
         continue-on-error: false
 
       - name: Verify Native Executable
         run: |
-          if [[ -f "cli-tool/build/native/nativeCompile/${{ matrix.executable }}" ]]; then
+          if [[ -f "summon-cli/build/native/${{ matrix.executable }}" ]]; then
             echo "✅ Native executable found"
-            ls -la cli-tool/build/native/nativeCompile/${{ matrix.executable }}
+            ls -la summon-cli/build/native/${{ matrix.executable }}
             # Test basic functionality
-            ./cli-tool/build/native/nativeCompile/${{ matrix.executable }} --version
+            ./summon-cli/build/native/${{ matrix.executable }} --version
           else
             echo "❌ Native executable not found"
             exit 1
@@ -116,13 +116,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact-name }}
-          path: cli-tool/build/native/nativeCompile/${{ matrix.executable }}
+          path: summon-cli/build/native/${{ matrix.executable }}
 
       - name: Upload Shadow JAR as Fallback
         uses: actions/upload-artifact@v4
         with:
           name: summon-cli-jar
-          path: cli-tool/build/libs/summon-cli-*.jar
+          path: summon-cli/build/libs/summon-cli-*.jar
 
   create-release:
     name: Create GitHub Release
