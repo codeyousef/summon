@@ -255,12 +255,18 @@ tasks.register("buildNativeExecutable") {
             println("🔍 OS detected: $osName")
             println("🔍 JAVA_HOME: $javaHome")
             
-            // Force Windows behavior - multiple detection methods
+            // Windows detection - be more specific about WSL vs Linux
+            val gradleUserHome = System.getenv("GRADLE_USER_HOME")
+            val userDir = System.getProperty("user.dir")
+            println("🔍 GRADLE_USER_HOME: $gradleUserHome")
+            println("🔍 user.dir: $userDir")
+            
             val isWindowsEnvironment = osName.contains("windows") || 
-                                     javaHome?.contains("graalvm") == true ||
-                                     System.getenv("GRADLE_USER_HOME")?.contains("\\") == true ||
-                                     System.getProperty("user.dir")?.contains("/mnt/") == true || // WSL detection
+                                     gradleUserHome?.contains("\\") == true ||
+                                     (userDir?.contains("/mnt/c/") == true) || // WSL detection - must be /mnt/c/ specifically
                                      File("C:\\graalvm-community-openjdk-17.0.8\\bin\\native-image.cmd").exists() // Direct path check
+            
+            println("🔍 Windows environment check result: $isWindowsEnvironment")
             
             val nativeImageCmd = if (isWindowsEnvironment) {
                 println("🪟 Windows environment detected - using Windows paths")
