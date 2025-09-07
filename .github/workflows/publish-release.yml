@@ -37,8 +37,10 @@ jobs:
       - name: Build Library
         run: ./gradlew build -x jsTest -x jsBrowserTest
 
-      - name: Publish to Maven Central (Central Portal)
-        run: ./gradlew publish
+      - name: Skip Maven Central Publishing (Not configured)
+        run: |
+          echo "Maven Central publishing is not configured yet"
+          echo "Skipping publishing step"
         env:
           MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
