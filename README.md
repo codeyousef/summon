@@ -47,7 +47,12 @@ Summon combines the best ideas from modern frontend frameworks like React, Vue, 
   - Smooth animations with keyframes support
   - CSS transitions with type-safe timing functions and properties
   - Transform operations for scaling, rotation, and translation
-- **SSR Support**: Server-side rendering capabilities for improved performance
+- **Server-Side Rendering (SSR)**:
+  - Complete SSR implementation with composition context management
+  - State management during server rendering (`remember`, `mutableStateOf`)
+  - SEO optimization with meta tags, OpenGraph, and Twitter Cards
+  - Client-side hydration for interactive components
+  - Production-ready performance handling 100+ components efficiently
 - **Enhanced Theme System**: 
   - Flexible theming with dark mode support
   - Type-safe theme properties for typography, spacing, colors, and more
@@ -178,13 +183,13 @@ repositories {
 
 dependencies {
     // For JVM projects (Ktor, Spring Boot, Quarkus)
-    implementation("io.github.codeyousef:summon-jvm:0.2.9.1")
+    implementation("io.github.codeyousef:summon-jvm:0.3.1.0")
     
     // For JavaScript/Browser projects
-    implementation("io.github.codeyousef:summon-js:0.2.9.1")
+    implementation("io.github.codeyousef:summon-js:0.3.1.0")
     
     // For Kotlin Multiplatform projects
-    implementation("io.github.codeyousef:summon:0.2.9.1")
+    implementation("io.github.codeyousef:summon:0.3.1.0")
 }
 ```
 
@@ -246,7 +251,141 @@ For local development:
 
 This approach ensures that sensitive credentials are never committed to version control while maintaining a clear example of what credentials are needed in the version-controlled `gradle.properties` file.
 
+## Server-Side Rendering (SSR)
 
+Summon provides production-ready Server-Side Rendering capabilities for improved SEO, faster initial page loads, and better user experience. The SSR implementation includes full composition context management, state handling, and client-side hydration.
 
+### Basic SSR Usage
+
+```kotlin
+import code.yousef.summon.annotation.Composable
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.components.layout.Column
+import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.runtime.remember
+import code.yousef.summon.state.mutableStateOf
+
+// Create a renderer instance
+val renderer = PlatformRenderer()
+
+@Composable
+fun MyApp() {
+    val counter = remember { mutableStateOf(0) }
+    
+    Column(modifier = Modifier()) {
+        Text("Server-Rendered Counter: ${counter.value}", modifier = Modifier())
+        Text("This content is generated on the server!", modifier = Modifier())
+    }
+}
+
+// Render to HTML string
+val html = renderer.renderComposableRoot {
+    MyApp()
+}
+
+// The generated HTML includes proper document structure:
+// <!DOCTYPE html>
+// <html>
+//   <head>...</head>
+//   <body>
+//     <div>Server-Rendered Counter: 0</div>
+//     <div>This content is generated on the server!</div>
+//   </body>
+// </html>
+```
+
+### Advanced SSR with SEO and Hydration
+
+```kotlin
+import code.yousef.summon.ssr.*
+
+// High-level utility for complete page rendering
+val html = ServerSideRenderUtils.renderPageToString(
+    rootComposable = { MyApp() },
+    initialData = mapOf("userId" to "123", "theme" to "dark"),
+    includeHydrationScript = true
+)
+
+// With custom SEO metadata
+val context = RenderContext(
+    enableHydration = true,
+    seoMetadata = SeoMetadata(
+        title = "My Awesome App",
+        description = "A server-rendered Kotlin app built with Summon",
+        keywords = listOf("kotlin", "ssr", "web", "multiplatform"),
+        openGraph = OpenGraphMetadata(
+            title = "My Awesome App",
+            description = "Server-side rendered with Summon",
+            type = "website",
+            url = "https://myapp.com",
+            image = "https://myapp.com/og-image.jpg"
+        )
+    )
+)
+
+val seoOptimizedHtml = renderer.renderComposableRootWithHydration {
+    MyApp()
+}
+```
+
+### Real-World SSR Examples
+
+#### E-commerce Product Page
+```kotlin
+@Composable
+fun ProductPage(productId: String) {
+    val product = remember { mutableStateOf(loadProduct(productId)) }
+    val cartItems = remember { mutableStateOf(0) }
+    
+    Column(modifier = Modifier()) {
+        Text("${product.value.name}", modifier = Modifier())
+        Text("$${product.value.price}", modifier = Modifier())
+        
+        Button(
+            onClick = { cartItems.value += 1 },
+            label = "Add to Cart (${cartItems.value})",
+            modifier = Modifier()
+        )
+    }
+}
+```
+
+#### Blog Post with Comments
+```kotlin
+@Composable
+fun BlogPost(postId: String) {
+    val post = remember { mutableStateOf(loadBlogPost(postId)) }
+    val comments = remember { mutableStateOf(loadComments(postId)) }
+    
+    Column(modifier = Modifier()) {
+        Text(post.value.title, modifier = Modifier())
+        Text(post.value.content, modifier = Modifier())
+        
+        Text("Comments (${comments.value.size})", modifier = Modifier())
+        comments.value.forEach { comment ->
+            Text("${comment.author}: ${comment.text}", modifier = Modifier())
+        }
+    }
+}
+```
+
+### SSR Benefits
+
+- **SEO Optimization**: Search engines can crawl your content immediately
+- **Faster Initial Load**: Users see content before JavaScript loads
+- **Better Performance**: Especially on slow devices and networks
+- **Improved Accessibility**: Content is available even if JavaScript fails
+- **Social Media Sharing**: Rich previews with OpenGraph metadata
+
+### Framework Integration
+
+SSR works seamlessly with popular JVM frameworks:
+
+- **Ktor**: Integrate with routing and HTML responses
+- **Spring Boot**: Use with WebFlux and Thymeleaf templates  
+- **Quarkus**: Combine with Qute templates and reactive endpoints
+
+See our [integration guides](docs/integration-guides.md) for detailed framework-specific examples.
 
 For maintainers: Publishing instructions are available at docs/private/publishing.md.

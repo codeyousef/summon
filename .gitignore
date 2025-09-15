@@ -119,3 +119,6 @@ npm-debug.log
 /private-key.asc
 /public-key.asc
 /WARP.md
+/private-key-ascii.asc
+/private-key-clean.asc
+/private-key-fixed.asc

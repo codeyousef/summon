@@ -4,4 +4,5 @@ rootProject.name = "summon"
 include(":summon-core")
 include(":summon-cli")
 
-// Examples have been moved to a separate repository
+// Examples
+include(":examples:ssr-todo-app")

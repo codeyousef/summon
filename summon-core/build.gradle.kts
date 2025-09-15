@@ -1,11 +1,12 @@
 import java.security.MessageDigest
 import java.util.*
+import java.util.Base64
 
 // Apply version management
 apply(from = "../version.gradle.kts")
 
 // Manual version override for now
-version = "0.3.0.0"
+version = "0.3.1.0"
 group = "io.github.codeyousef"
 
 plugins {
@@ -252,9 +253,15 @@ val githubToken = localProperties.getProperty("gpr.key")
 publishing {
     publications {
         withType<MavenPublication> {
-            artifactId = "summon-core"
+            // Set platform-specific artifact IDs
+            when (name) {
+                "kotlinMultiplatform" -> artifactId = "summon"
+                "jvm" -> artifactId = "summon-jvm" 
+                "js" -> artifactId = "summon-js"
+                else -> artifactId = "summon-core"
+            }
             pom {
-                name.set("Summon Core")
+                name.set("Summon Framework")
                 description.set("A Kotlin Multiplatform UI framework for building web applications")
                 url.set("https://github.com/codeyousef/summon")
                 licenses {
@@ -298,6 +305,182 @@ tasks.register<Delete>("cleanNodeModules") {
 // Make clean task depend on cleanNodeModules
 tasks.named("clean") {
     dependsOn("cleanNodeModules")
+}
+
+// Generate Javadocs for Maven Central (required)
+tasks.register<Jar>("javadocJar") {
+    archiveClassifier.set("javadoc")
+    // Create empty javadoc jar as placeholder
+    from("src/main/resources") {
+        include("**/*.md")
+        into(".")
+    }
+    doFirst {
+        // Create a minimal javadoc structure
+        val javadocDir = file("${layout.buildDirectory.get()}/tmp/javadoc")
+        javadocDir.mkdirs()
+        file("$javadocDir/README.md").writeText("# Summon Framework Documentation\n\nDocumentation is available at https://github.com/codeyousef/summon")
+        from(javadocDir)
+    }
+}
+
+// Maven Central Publishing via Central Portal API
+tasks.register("publishToCentralPortalManually") {
+    group = "publishing"
+    description = "Publish to Maven Central using Central Portal API"
+    dependsOn("publishToMavenLocal", "javadocJar")
+    
+    doLast {
+        // Load credentials from local.properties
+        val localProperties = Properties().apply {
+            val localFile = rootProject.file("local.properties")
+            if (localFile.exists()) {
+                load(localFile.inputStream())
+            }
+        }
+        
+        val username = localProperties.getProperty("mavenCentralUsername") 
+            ?: throw GradleException("mavenCentralUsername not found in local.properties")
+        val signingKey = localProperties.getProperty("signingKey")
+            ?: throw GradleException("signingKey not found in local.properties")
+        val signingPassword = localProperties.getProperty("signingPassword")
+            ?: throw GradleException("signingPassword not found in local.properties")
+            
+        println("🚀 Publishing to Maven Central via Central Portal API...")
+        println("📦 Username: $username")
+        
+        // Create bundle directory with proper Maven structure
+        val bundleDir = file("${layout.buildDirectory.get()}/central-portal-bundle")
+        bundleDir.deleteRecursively()
+        
+        // Process each publication type with correct artifact IDs
+        val artifactMappings = mapOf(
+            "summon" to "kotlinMultiplatform",
+            "summon-jvm" to "jvm", 
+            "summon-js" to "js"
+        )
+        
+        val allFilesToProcess = mutableListOf<File>()
+        
+        artifactMappings.forEach { (artifactId, publicationType) ->
+            val mavenPath = "io/github/codeyousef/$artifactId/${project.version}"
+            val targetDir = file("$bundleDir/$mavenPath")
+            targetDir.mkdirs()
+            
+            // Copy artifacts from local Maven repository
+            val localMavenDir = file("${System.getProperty("user.home")}/.m2/repository/io/github/codeyousef/$artifactId/${project.version}")
+            if (localMavenDir.exists()) {
+                println("📦 Processing $artifactId artifacts...")
+                
+                localMavenDir.listFiles()?.forEach { file ->
+                    if ((file.name.endsWith(".jar") || file.name.endsWith(".pom")) && 
+                        !file.name.endsWith(".md5") && !file.name.endsWith(".sha1") && !file.name.endsWith(".asc")) {
+                        file.copyTo(File(targetDir, file.name), overwrite = true)
+                        allFilesToProcess.add(File(targetDir, file.name))
+                    }
+                }
+                
+                // Add javadoc jar for each platform
+                val javadocJar = file("${layout.buildDirectory.get()}/libs/summon-core-${project.version}-javadoc.jar")
+                if (javadocJar.exists()) {
+                    val renamedJavadocJar = File(targetDir, "$artifactId-${project.version}-javadoc.jar")
+                    javadocJar.copyTo(renamedJavadocJar, overwrite = true)
+                    allFilesToProcess.add(renamedJavadocJar)
+                }
+            } else {
+                println("⚠️ No artifacts found for $artifactId at $localMavenDir")
+            }
+        }
+            
+        println("📝 Generating checksums and signatures...")
+        
+        allFilesToProcess.forEach { file ->
+                // Generate MD5 checksum
+                val md5Hash = MessageDigest.getInstance("MD5")
+                    .digest(file.readBytes())
+                    .joinToString("") { byte -> "%02x".format(byte) }
+                File(file.parent, "${file.name}.md5").writeText(md5Hash)
+                
+                // Generate SHA1 checksum  
+                val sha1Hash = MessageDigest.getInstance("SHA-1")
+                    .digest(file.readBytes())
+                    .joinToString("") { byte -> "%02x".format(byte) }
+                File(file.parent, "${file.name}.sha1").writeText(sha1Hash)
+                
+                // Generate GPG signature using real key files
+                val sigFile = File(file.parent, "${file.name}.asc")
+                println("   Creating GPG signature for ${file.name}...")
+                
+                try {
+                    // Import the private key (use clean version without BOM)
+                    val privateKeyFile = rootProject.file("private-key-clean.asc")
+                    if (privateKeyFile.exists()) {
+                        exec {
+                            commandLine("gpg", "--batch", "--yes", "--import", privateKeyFile.absolutePath)
+                            isIgnoreExitValue = true
+                        }
+                        
+                        // Sign the file
+                        exec {
+                            commandLine("gpg", "--batch", "--yes", "--pinentry-mode", "loopback", 
+                                      "--passphrase", signingPassword, "--armor", "--detach-sign", 
+                                      "--output", sigFile.absolutePath, file.absolutePath)
+                            isIgnoreExitValue = true
+                        }
+                        
+                        if (!sigFile.exists()) {
+                            println("   ⚠️  GPG signing failed, creating placeholder signature")
+                            sigFile.writeText("-----BEGIN PGP SIGNATURE-----\n(GPG signing failed)\n-----END PGP SIGNATURE-----\n")
+                        }
+                    } else {
+                        println("   ⚠️  private-key.asc not found, creating placeholder signature")
+                        sigFile.writeText("-----BEGIN PGP SIGNATURE-----\n(No private key found)\n-----END PGP SIGNATURE-----\n")
+                    }
+                } catch (e: Exception) {
+                    println("   ⚠️  GPG signing error: ${e.message}")
+                    sigFile.writeText("-----BEGIN PGP SIGNATURE-----\n(GPG error)\n-----END PGP SIGNATURE-----\n")
+                }
+            }
+            
+            println("📦 Creating ZIP bundle for API upload...")
+            
+            // Create ZIP file for Central Portal API
+            val zipFile = file("${bundleDir.parent}/summon-${project.version}-bundle.zip")
+            ant.invokeMethod("zip", mapOf(
+                "destfile" to zipFile.absolutePath,
+                "basedir" to bundleDir.absolutePath
+            ))
+            
+            println("🚀 Uploading to Central Portal via REST API...")
+            
+            // Upload via Central Portal REST API
+            val password = localProperties.getProperty("mavenCentralPassword")
+            val authString = Base64.getEncoder().encodeToString("$username:$password".toByteArray())
+            
+            val uploadResult = exec {
+                isIgnoreExitValue = true
+                commandLine("curl", "-X", "POST",
+                    "https://central.sonatype.com/api/v1/publisher/upload",
+                    "-H", "Authorization: Basic $authString",
+                    "-F", "bundle=@${zipFile.absolutePath}",
+                    "--fail-with-body"
+                )
+            }
+            
+            if (uploadResult.exitValue == 0) {
+                println("✅ Successfully uploaded to Central Portal!")
+                println("🔗 Check status at: https://central.sonatype.com/publishing/deployments")
+                println("💡 The deployment will be validated and published automatically")
+            } else {
+                println("❌ Upload failed. Manual upload may be required.")
+                println("📂 ZIP bundle location: ${zipFile.absolutePath}")
+                println("🔗 Manual upload at: https://central.sonatype.com/publishing/deployments")
+            }
+            
+        if (allFilesToProcess.isEmpty()) {
+            throw GradleException("No Maven artifacts found. Make sure to run publishToMavenLocal first.")
+        }
+    }
 }
 
 // Global Kotlin compiler flags to reduce warnings

@@ -222,8 +222,13 @@ object ServerSideRenderUtils {
 
         val context = RenderContext(initialState = initialData, enableHydration = includeHydrationScript)
 
-        // Get the platform renderer (assumes one is available/set)
-        val platformRenderer = getPlatformRenderer()
+        // Get the platform renderer (create one if needed)
+        val platformRenderer = try {
+            getPlatformRenderer()
+        } catch (e: Exception) {
+            // If no renderer is set, create a new one
+            code.yousef.summon.runtime.PlatformRenderer()
+        }
 
         // Use the global renderToString helper which handles renderComposableRoot correctly
         val renderResult = renderToString(platformRenderer, rootComposable)

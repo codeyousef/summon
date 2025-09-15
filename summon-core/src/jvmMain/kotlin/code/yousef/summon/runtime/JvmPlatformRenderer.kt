@@ -28,6 +28,11 @@ actual open class PlatformRenderer {
     // Fix 1: Remove ThreadLocal, use instance variable.
     private var currentBuilder: FlowContent? = null
 
+    // Initialize renderer - register this instance globally
+    init {
+        setPlatformRenderer(this)
+    }
+
     // Apply Modifier - handles both styles and attributes
     // This extension function applies to any FlowOrMetaDataContent
     private fun FlowOrMetaDataContent.applyModifier(modifier: Modifier) {
@@ -66,10 +71,23 @@ actual open class PlatformRenderer {
     private fun renderContent(content: @Composable () -> Unit) {
         requireBuilder() // Ensure context exists before calling content
 
-        // Provide this renderer through the LocalPlatformRenderer
-        LocalPlatformRenderer.provides(this)
-
-        content() // Execute lambda, assumes it uses implicit kotlinx.html context
+        // Create and use proper composition context
+        val composer = RecomposerHolder.createComposer()
+        val previousComposer = CompositionLocal.currentComposer
+        
+        try {
+            // Set up composition context
+            CompositionLocal.setCurrentComposer(composer)
+            LocalPlatformRenderer.provides(this)
+            
+            // Execute composable with composition context
+            composer.compose {
+                content()
+            }
+        } finally {
+            // Restore previous composer
+            CompositionLocal.setCurrentComposer(previousComposer)
+        }
     }
 
     // Get the current builder context
@@ -254,11 +272,23 @@ actual open class PlatformRenderer {
 // This is a convenience method for rendering a composable without directly accessing FlowContent
     actual open fun renderComposable(composable: @Composable () -> Unit) {
         currentBuilder?.let { builder ->
-            // If there's a current builder, execute content within its context
-            // This assumes composable() will use the implicit receiver (builder)
-            // Or, if composable() itself manages FlowContent, it might work differently.
-            // For kotlinx.html, direct execution like this should be fine if composable uses html {} blocks.
-            composable()
+            // Create composition context for this composable
+            val composer = RecomposerHolder.createComposer()
+            val previousComposer = CompositionLocal.currentComposer
+            
+            try {
+                // Set up composition context
+                CompositionLocal.setCurrentComposer(composer)
+                LocalPlatformRenderer.provides(this)
+                
+                // Execute composable with composition context
+                composer.compose {
+                    composable()
+                }
+            } finally {
+                // Restore previous composer
+                CompositionLocal.setCurrentComposer(previousComposer)
+            }
         }
             ?: error("renderComposable called without an active FlowContent builder. Ensure it's within renderComposableRoot or a parent Composable.")
     }
