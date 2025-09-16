@@ -122,3 +122,5 @@ npm-debug.log
 /private-key-ascii.asc
 /private-key-clean.asc
 /private-key-fixed.asc
+/.specify/
+/specs/

@@ -119,9 +119,12 @@ actual open class PlatformRenderer {
     ) {
         requireBuilder().button {
             applyModifier(modifier)
-            
+
             // Add proper button type to prevent form submission issues
-            attributes["type"] = "button"
+            // Only set type="button" if not already specified in modifier
+            if (!attributes.containsKey("type")) {
+                attributes["type"] = "button"
+            }
             
             // Register the onClick callback and get an ID
             val callbackId = CallbackRegistry.registerCallback(onClick)

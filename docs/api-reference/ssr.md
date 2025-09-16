@@ -395,7 +395,7 @@ fun testSSRComponent() {
 
 ### Version Compatibility
 
-- SSR support available from version 0.3.1.0+
+- SSR support available from version 0.3.2.0+
 - Backward compatible with existing client-only code
 - Progressive enhancement approach - add SSR without breaking existing functionality
 

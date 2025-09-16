@@ -2,7 +2,60 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.3.1.0] - 2024-09-08
+## [0.3.2.0]
+
+### 🎨 **Design System & SSR Todo Application Enhancements**
+
+This release introduces a comprehensive type-safe design system and modernizes the SSR Todo application with Material
+Design 3 inspired components.
+
+#### Added
+
+##### 🎯 **Type-Safe Design System**
+
+- **Design Token Enums**: Comprehensive set of type-safe design tokens
+    - `Spacing`: XS through XXL with pixel values (8px to 64px)
+    - `Typography`: TextSize (12px to 48px) and FontWeight enums
+    - `SemanticColor`: Complete color system with light/dark mode support
+    - `ButtonSize`: SMALL, MEDIUM, LARGE with padding and sizing
+    - `BorderRadius`: Consistent radius values from SM to FULL
+    - `Shadow`: Elevation system from NONE to XXL
+    - `MaxWidth`: Container width constraints
+    - `Breakpoint`: Responsive design breakpoints
+
+##### 🚀 **SSR Todo App Improvements**
+
+- **Modern UI Implementation**: Complete redesign with Material Design 3 principles
+- **Centered Container Layout**: Responsive centered layout with proper spacing
+- **Consistent Button Sizing**: All buttons use ButtonSize enum for uniformity
+- **Enhanced Form Components**: Improved form styling with proper error states
+- **Better Visual Hierarchy**: Typography system for improved readability
+
+##### 🔧 **Modifier System Extensions**
+
+- **Design-Aware Modifiers**: Custom modifiers using design tokens
+    - `spacing()`, `paddingHorizontal()`, `paddingVertical()`
+    - `containerWidth()`, `shadow()`, `radius()`
+    - `typography()`, `buttonSize()`
+- **Optimized Imports**: Proper use of core library modifiers
+    - Leverages existing `gap()`, `alignItems()`, `justifyContent()`
+    - Uses core `opacity()`, `fontFamily()` modifiers
+
+#### Fixed
+
+- **Import Resolution**: Fixed `.px` extension imports from correct package
+- **Modifier Conflicts**: Resolved conflicts between custom and core modifiers
+- **Type Safety**: Replaced string literals with type-safe enum values
+- **Session Management**: Improved SSR session handling for todo persistence
+
+#### Technical Improvements
+
+- **Better Code Organization**: Design system properly structured in dedicated package
+- **Reduced Redundancy**: Eliminated duplicate modifier implementations
+- **Improved Type Safety**: No magic strings in styling code
+- **Enhanced Maintainability**: Centralized design tokens for consistency
+
+## [0.3.1.0]
 
 ### 🌟 **Complete Server-Side Rendering (SSR) Implementation**
 
