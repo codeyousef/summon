@@ -1,12 +1,11 @@
 import java.security.MessageDigest
 import java.util.*
-import java.util.Base64
 
 // Apply version management
 apply(from = "../version.gradle.kts")
 
 // Manual version override for now
-version = "0.3.1.0"
+version = "0.3.2.0"
 group = "io.github.codeyousef"
 
 plugins {

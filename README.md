@@ -183,13 +183,13 @@ repositories {
 
 dependencies {
     // For JVM projects (Ktor, Spring Boot, Quarkus)
-    implementation("io.github.codeyousef:summon-jvm:0.3.1.0")
-    
+    implementation("io.github.codeyousef:summon-jvm:0.3.2.0")
+
     // For JavaScript/Browser projects
-    implementation("io.github.codeyousef:summon-js:0.3.1.0")
-    
+    implementation("io.github.codeyousef:summon-js:0.3.2.0")
+
     // For Kotlin Multiplatform projects
-    implementation("io.github.codeyousef:summon:0.3.1.0")
+    implementation("io.github.codeyousef:summon:0.3.2.0")
 }
 ```
 
