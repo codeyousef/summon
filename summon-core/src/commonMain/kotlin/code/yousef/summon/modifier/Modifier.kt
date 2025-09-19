@@ -1,4 +1,54 @@
-@file:OptIn(ExperimentalJsExport::class) // Required for using @JsExport
+/**
+ * # Summon Modifier Package
+ *
+ * This package provides the type-safe styling system for Summon UI components.
+ *
+ * ## Overview
+ *
+ * The modifier package implements a Jetpack Compose-inspired styling system that enables:
+ *
+ * - **Type-Safe Styling**: Chainable modifier functions with compile-time safety
+ * - **CSS Integration**: Direct mapping to CSS properties and HTML attributes
+ * - **Cross-Platform Support**: Works consistently across Browser and JVM platforms
+ * - **JavaScript Interop**: Full export support for JavaScript environments
+ * - **Performance**: Efficient style application and minimal runtime overhead
+ *
+ * ## Key Components
+ *
+ * - [Modifier] - Core modifier class for styling and attributes
+ * - **Styling Functions** - Type-safe functions for CSS properties
+ * - **Layout Modifiers** - Padding, margin, sizing, and positioning
+ * - **Accessibility Modifiers** - ARIA attributes and semantic markup
+ * - **Interaction Modifiers** - Hover states, focus, and event handling
+ *
+ * ## Usage Patterns
+ *
+ * ```kotlin
+ * // Basic styling
+ * val buttonModifier = Modifier()
+ *     .padding("16px")
+ *     .backgroundColor("#007bff")
+ *     .color("white")
+ *     .borderRadius("8px")
+ *
+ * // Chaining and composition
+ * val complexModifier = Modifier()
+ *     .fillMaxWidth()
+ *     .height("200px")
+ *     .margin("16px")
+ *     .shadow("0px", "2px", "4px", "rgba(0,0,0,0.1)")
+ *     .hover(mapOf("transform" to "translateY(-2px)"))
+ *
+ * // Accessibility
+ * val accessibleModifier = Modifier()
+ *     .role("button")
+ *     .ariaAttribute("label", "Close dialog")
+ *     .tabIndex(0)
+ * ```
+ *
+ * @since 1.0.0
+ */
+@file:OptIn(ExperimentalJsExport::class)
 
 package code.yousef.summon.modifier
 
@@ -6,24 +56,154 @@ import kotlin.js.ExperimentalJsExport
 import kotlin.js.JsExport
 import kotlin.js.JsName
 
-// Assuming BorderStyle and Cursor enums are defined elsewhere or are simple enough to infer
-// If they are complex or specific to a platform, they might need their own @JsExport handling
-// or be simplified/stringified for JS interop.
-
-// For example, if BorderStyle is an enum:
-// enum class BorderStyle { SOLID, DASHED, DOTTED /* ... */ }
-// enum class Cursor { POINTER, DEFAULT, TEXT /* ... */ }
-
-
 /**
- * A Modifier is used to add styling information and attributes to a composable.
- * It holds a map of CSS property names to their values and a map of HTML attributes.
- * This class and its core functionalities are exported for JavaScript usage.
+ * Type-safe styling system for Summon UI components.
+ *
+ * Modifier provides a declarative, chainable API for applying styles and attributes to UI components.
+ * Inspired by Jetpack Compose, it enables type-safe styling with excellent IDE support and compile-time
+ * checking while maintaining direct compatibility with CSS and HTML.
+ *
+ * ## Architecture
+ *
+ * The Modifier system is built around immutable data classes that chain together styling operations:
+ * - Each modifier function returns a new instance with additional styling
+ * - Styles are stored as CSS property-value pairs
+ * - HTML attributes are maintained separately for semantic markup
+ * - Cross-platform rendering converts modifiers to platform-specific output
+ *
+ * ## Core Features
+ *
+ * ### CSS Property Support
+ * - **Layout**: [padding], [margin], [width], [height], [fillMaxWidth], [fillMaxHeight]
+ * - **Appearance**: [backgroundColor], [color], [borderRadius], [shadow], [opacity]
+ * - **Typography**: [fontSize], [fontWeight]
+ * - **Positioning**: [absolutePosition], [zIndex]
+ * - **Interaction**: [cursor], [hover] effects
+ *
+ * ### HTML Attributes
+ * - **Identity**: [id], [className], [addClass]
+ * - **Accessibility**: [role], [ariaAttribute], [tabIndex]
+ * - **Data**: [dataAttribute] for custom data attributes
+ *
+ * ### JavaScript Interoperability
+ * The entire Modifier API is exported for JavaScript use with appropriate name mappings:
+ * - Constructor and methods are directly callable from JS
+ * - Property names are mapped to avoid conflicts (e.g., `htmlAttributes`)
+ * - Factory functions provide convenient creation patterns
+ *
+ * ## Usage Examples
+ *
+ * ### Basic Styling
+ * ```kotlin
+ * Button(
+ *     onClick = { /* action */ },
+ *     label = "Save",
+ *     modifier = Modifier()
+ *         .padding("12px 24px")
+ *         .backgroundColor("#007bff")
+ *         .color("white")
+ *         .borderRadius("6px")
+ * )
+ * ```
+ *
+ * ### Layout and Sizing
+ * ```kotlin
+ * Column(
+ *     modifier = Modifier()
+ *         .fillMaxWidth()
+ *         .height("400px")
+ *         .margin("16px")
+ *         .padding("20px")
+ * ) {
+ *     // Content
+ * }
+ * ```
+ *
+ * ### Accessibility
+ * ```kotlin
+ * Icon(
+ *     name = "close",
+ *     modifier = Modifier()
+ *         .role("button")
+ *         .ariaAttribute("label", "Close dialog")
+ *         .tabIndex(0)
+ *         .cursor("pointer")
+ * )
+ * ```
+ *
+ * ### Complex Compositions
+ * ```kotlin
+ * val cardModifier = Modifier()
+ *     .fillMaxWidth()
+ *     .backgroundColor("white")
+ *     .borderRadius("12px")
+ *     .shadow("0px", "4px", "6px", "rgba(0, 0, 0, 0.1)")
+ *     .padding("24px")
+ *     .hover(mapOf(
+ *         "transform" to "translateY(-2px)",
+ *         "box-shadow" to "0px 8px 12px rgba(0, 0, 0, 0.15)"
+ *     ))
+ * ```
+ *
+ * ### JavaScript Usage
+ * ```javascript
+ * // Create modifier from JavaScript
+ * const modifier = new summon.modifier.Modifier(
+ *     { "color": "blue", "padding": "10px" },
+ *     { "id": "my-element" }
+ * );
+ *
+ * // Use factory functions
+ * const styled = summon.modifier.createModifierWithStyles({
+ *     "background-color": "red",
+ *     "border-radius": "5px"
+ * });
+ * ```
+ *
+ * ## Platform Integration
+ *
+ * ### Browser/JavaScript Platform
+ * - Styles are applied directly to DOM elements via the `style` attribute
+ * - Attributes become HTML element attributes
+ * - Hover effects generate CSS classes or use JavaScript event handlers
+ *
+ * ### JVM/Server Platform
+ * - Styles are serialized to CSS inline styles in generated HTML
+ * - Attributes are included in HTML element markup
+ * - Server-side rendering maintains full styling information
+ *
+ * ## Performance Considerations
+ *
+ * - Modifiers are immutable, enabling safe sharing and caching
+ * - Style maps use efficient Kotlin collections
+ * - CSS generation is lazy and cached where possible
+ * - Platform renderers optimize style application
+ *
+ * ## Extension and Customization
+ *
+ * Modifiers can be extended with domain-specific styling functions:
+ *
+ * ```kotlin
+ * fun Modifier.brandPrimary() = this
+ *     .backgroundColor("#007bff")
+ *     .color("white")
+ *     .fontWeight("600")
+ *
+ * fun Modifier.cardShadow() = this
+ *     .shadow("0px", "2px", "8px", "rgba(0, 0, 0, 0.12)")
+ * ```
+ *
+ * @property styles Map of CSS property names to values
+ * @property attributes Map of HTML attribute names to values (renamed to `htmlAttributes` in JS)
+ * @constructor Creates a new Modifier with the specified styles and attributes
+ * @see code.yousef.summon.runtime.PlatformRenderer
+ * @see code.yousef.summon.components
+ * @since 1.0.0
  */
-@JsExport // Export the Modifier class to JavaScript
+@JsExport
 data class Modifier(
     val styles: Map<String, String> = emptyMap(),
-    @JsName("htmlAttributes") // Renamed for JS to avoid clash with attributes() function
+    @JsName("htmlAttributes")
     val attributes: Map<String, String> = emptyMap()
 ) {
 

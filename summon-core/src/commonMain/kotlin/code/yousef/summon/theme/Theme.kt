@@ -6,9 +6,239 @@ import code.yousef.summon.modifier.StylingModifierExtras.textDecoration
 
 
 /**
- * Theme provides a centralized global styling configuration for the application.
- * It combines ColorSystem, Typography, and Spacing to create a consistent design system.
- * Theme allows applications to define and switch between different visual themes.
+ * # Summon Theme System
+ *
+ * The Theme system provides a comprehensive, type-safe theming solution for Summon applications.
+ * It combines colors, typography, spacing, borders, and elevation into a cohesive design system
+ * that supports multiple themes, dark/light modes, and dynamic theme switching.
+ *
+ * ## Overview
+ *
+ * The Theme system is built around several key concepts:
+ * - **Design Tokens**: Semantic design values (colors, spacing, typography)
+ * - **Theme Configurations**: Complete theme definitions with all design tokens
+ * - **Type Safety**: Strongly typed access to theme values
+ * - **Extensibility**: Easy customization and theme creation
+ * - **Runtime Switching**: Dynamic theme changes without restart
+ *
+ * ## Core Components
+ *
+ * ### Color System
+ * Integrated with [ColorSystem] for semantic color management:
+ * - Light and dark mode support
+ * - Semantic color naming (primary, secondary, surface, etc.)
+ * - Automatic contrast handling
+ * - Custom color palette support
+ *
+ * ### Typography System
+ * Complete typography scale with semantic styles:
+ * - Heading hierarchy (h1-h6)
+ * - Body text variants (body, bodyLarge, bodySmall)
+ * - Specialized styles (caption, button, code, link)
+ * - Font weight, size, and spacing control
+ *
+ * ### Spacing System
+ * Consistent spacing scale for layout and positioning:
+ * - Predefined spacing tokens (xs, sm, md, lg, xl, xxl)
+ * - Semantic spacing application
+ * - Responsive spacing support
+ *
+ * ### Design Tokens
+ * Additional design system tokens:
+ * - **Border Radius**: Consistent corner radius values
+ * - **Elevation**: Box shadow system for depth
+ * - **Custom Values**: Extensible custom design tokens
+ *
+ * ## Usage Examples
+ *
+ * ### Basic Theme Usage
+ * ```kotlin
+ * @Composable
+ * fun ThemedComponent() {
+ *     Column(
+ *         modifier = Modifier()
+ *             .themeBackgroundColor("surface")
+ *             .themePadding("md")
+ *             .themeBorderRadius("lg")
+ *             .themeElevation("sm")
+ *     ) {
+ *         Text(
+ *             text = "Themed Heading",
+ *             modifier = Modifier.themeTextStyle("h2")
+ *         )
+ *         Text(
+ *             text = "Themed body text with semantic colors",
+ *             modifier = Modifier.themeTextStyle("body")
+ *                 .themeColor("onSurface")
+ *         )
+ *     }
+ * }
+ * ```
+ *
+ * ### Theme Switching
+ * ```kotlin
+ * @Composable
+ * fun App() {
+ *     var isDarkMode by remember { mutableStateOf(false) }
+ *
+ *     LaunchedEffect(isDarkMode) {
+ *         Theme.setTheme(
+ *             if (isDarkMode) Theme.Themes.dark else Theme.Themes.light
+ *         )
+ *     }
+ *
+ *     Column {
+ *         ThemeToggle(isDarkMode) { isDarkMode = it }
+ *         ThemedContent()
+ *     }
+ * }
+ * ```
+ *
+ * ### Custom Theme Creation
+ * ```kotlin
+ * val customTheme = Theme.createTheme(Theme.Themes.light) {
+ *     copy(
+ *         colorPalette = ColorSystem.purple,
+ *         typographyTheme = typographyTheme.copy(
+ *             h1 = TextStyle.create(
+ *                 fontSize = 3.0,
+ *                 fontWeight = FontWeight.ExtraBold
+ *             )
+ *         ),
+ *         customValues = mapOf(
+ *             "heroSpacing" to "5rem",
+ *             "brandFont" to "Inter, sans-serif"
+ *         )
+ *     )
+ * }
+ *
+ * Theme.setTheme(customTheme)
+ * ```
+ *
+ * ### Advanced Typography
+ * ```kotlin
+ * @Composable
+ * fun AdvancedText() {
+ *     val customStyle = TextStyle.create(
+ *         fontSize = 1.5,
+ *         fontWeight = FontWeight.SemiBold,
+ *         color = Color.hex("#2563eb"),
+ *         letterSpacing = 0.02,
+ *         lineHeight = 1.6
+ *     )
+ *
+ *     Text(
+ *         text = "Custom styled text",
+ *         modifier = Modifier.applyTextStyle(customStyle)
+ *     )
+ * }
+ * ```
+ *
+ * ## Predefined Themes
+ *
+ * The Theme system includes several predefined themes:
+ * - **Light**: Default light theme with modern colors
+ * - **Dark**: Dark mode theme with appropriate contrast
+ * - **Blue**: Blue-tinted theme for professional applications
+ * - **Green**: Nature-inspired green theme
+ * - **Purple**: Creative purple theme for artistic applications
+ *
+ * ## Theme Architecture
+ *
+ * ### ThemeConfig Structure
+ * ```kotlin
+ * data class ThemeConfig(
+ *     val colorPalette: ColorSystem.ColorPalette,    // Color system
+ *     val typography: Map<String, TextStyle>,        // Text styles
+ *     val spacing: Map<String, String>,              // Spacing values
+ *     val borderRadius: Map<String, String>,         // Border radius values
+ *     val elevation: Map<String, String>,            // Elevation/shadow values
+ *     val customValues: Map<String, String>,         // Custom design tokens
+ *     // Typed theme access
+ *     val typographyTheme: TypographyTheme,
+ *     val spacingTheme: SpacingTheme,
+ *     val borderRadiusTheme: BorderRadiusTheme,
+ *     val elevationTheme: ElevationTheme
+ * )
+ * ```
+ *
+ * ### Type-Safe Access
+ * The theme system provides both string-based and type-safe access:
+ * ```kotlin
+ * // String-based access (flexible)
+ * val color = Theme.getColor("primary")
+ * val spacing = Theme.getSpacing("lg")
+ *
+ * // Type-safe access (preferred)
+ * val typography = Theme.getTypographyTheme()
+ * val headingStyle = typography.h1
+ * val borderRadius = Theme.getBorderRadiusTheme().lg
+ * ```
+ *
+ * ## Integration with Components
+ *
+ * ### Modifier Extensions
+ * Theme values are applied through convenient modifier extensions:
+ * ```kotlin
+ * Modifier
+ *     .themeColor("primary")              // Apply theme color
+ *     .themeBackgroundColor("surface")    // Apply background color
+ *     .themeTextStyle("h2")               // Apply text style
+ *     .themePadding("md")                 // Apply spacing
+ *     .themeBorderRadius("lg")            // Apply border radius
+ *     .themeElevation("sm")               // Apply elevation
+ * ```
+ *
+ * ### Component Integration
+ * Components automatically inherit theme values:
+ * ```kotlin
+ * @Composable
+ * fun ThemeAwareButton(
+ *     text: String,
+ *     onClick: () -> Unit,
+ *     variant: ButtonVariant = ButtonVariant.Primary
+ * ) {
+ *     val colors = Theme.getColorSystem()
+ *     val typography = Theme.getTypographyTheme()
+ *
+ *     Button(
+ *         onClick = onClick,
+ *         modifier = Modifier()
+ *             .themeBackgroundColor(
+ *                 when (variant) {
+ *                     ButtonVariant.Primary -> "primary"
+ *                     ButtonVariant.Secondary -> "secondary"
+ *                 }
+ *             )
+ *             .themePadding("sm", "md")
+ *             .themeBorderRadius("md")
+ *             .themeTextStyle("button")
+ *     ) {
+ *         Text(text)
+ *     }
+ * }
+ * ```
+ *
+ * ## Performance Considerations
+ *
+ * - **Theme Caching**: Theme values are cached for optimal performance
+ * - **Lazy Evaluation**: Complex theme calculations are performed lazily
+ * - **Minimal Recomposition**: Theme changes trigger minimal recomposition
+ * - **Memory Efficiency**: Shared theme instances reduce memory usage
+ *
+ * ## Best Practices
+ *
+ * 1. **Use Semantic Names**: Prefer semantic color names over specific colors
+ * 2. **Consistent Spacing**: Use theme spacing tokens consistently
+ * 3. **Typography Hierarchy**: Follow the established typography scale
+ * 4. **Theme Testing**: Test components in both light and dark themes
+ * 5. **Custom Tokens**: Use custom values for application-specific needs
+ *
+ * @see ColorSystem for color management
+ * @see Typography for typography utilities
+ * @see Spacing for spacing constants
+ * @see TextStyle for text styling
+ * @since 1.0.0
  */
 object Theme {
     /**

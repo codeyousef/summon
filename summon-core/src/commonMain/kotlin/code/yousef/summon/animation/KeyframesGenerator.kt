@@ -1,8 +1,148 @@
+/**
+ * # Keyframes Generator
+ *
+ * Comprehensive CSS keyframes generation utility for the Summon framework.
+ * This module provides a complete toolkit for creating sophisticated CSS
+ * animations through programmatic keyframe definition.
+ *
+ * ## Core Features
+ *
+ * - **Predefined Animations**: Ready-to-use keyframes for common effects
+ * - **Custom Keyframes**: Build complex animations from scratch
+ * - **Easing Integration**: Generate keyframes from mathematical easing functions
+ * - **Performance Optimized**: Hardware-accelerated properties when possible
+ * - **Cross-Browser Compatible**: CSS that works across all modern browsers
+ *
+ * ## Animation Categories
+ *
+ * ### Entrance/Exit Effects
+ * - Fade in/out animations
+ * - Slide animations from all directions
+ * - Zoom in/out effects
+ * - 3D flip transformations
+ *
+ * ### Attention Seekers
+ * - Pulse effects with configurable intensity
+ * - Shake animations for error states
+ * - Bounce effects for playful interactions
+ * - Floating animations for ambient movement
+ *
+ * ### Utility Animations
+ * - Typing effects for dynamic text
+ * - Blinking cursor for text inputs
+ * - Color transitions for state changes
+ * - Background color animations
+ *
+ * ## Usage Examples
+ *
+ * ```kotlin
+ * // Generate a fade-in animation
+ * val fadeInCSS = KeyframesGenerator.fadeIn("my-fade-in")
+ *
+ * // Create a custom slide effect
+ * val slideCSS = KeyframesGenerator.slideInFromLeft(
+ *     name = "slide-left",
+ *     distance = 50
+ * )
+ *
+ * // Build a complex pulse animation
+ * val pulseCSS = KeyframesGenerator.pulse(
+ *     name = "attention-pulse",
+ *     minScale = 0.9f,
+ *     maxScale = 1.1f
+ * )
+ *
+ * // Generate from custom easing function
+ * val customCSS = KeyframesGenerator.fromEasing(
+ *     name = "elastic-scale",
+ *     easing = { t -> elasticOut(t) },
+ *     property = "transform",
+ *     fromValue = 0.5f,
+ *     toValue = 1.0f,
+ *     steps = 20
+ * )
+ * ```
+ *
+ * ## Advanced Features
+ *
+ * ### Custom Keyframes Builder
+ * ```kotlin
+ * val customAnimation = KeyframesGenerator.custom(
+ *     name = "complex-animation",
+ *     keyframes = mapOf(
+ *         "0%" to mapOf(
+ *             "transform" to "scale(1) rotate(0deg)",
+ *             "opacity" to "1"
+ *         ),
+ *         "50%" to mapOf(
+ *             "transform" to "scale(1.2) rotate(180deg)",
+ *             "opacity" to "0.7"
+ *         ),
+ *         "100%" to mapOf(
+ *             "transform" to "scale(1) rotate(360deg)",
+ *             "opacity" to "1"
+ *         )
+ *     )
+ * )
+ * ```
+ *
+ * ### Easing-Based Generation
+ * ```kotlin
+ * // Generate smooth keyframes from mathematical functions
+ * val smoothAnimation = KeyframesGenerator.fromEasing(
+ *     name = "smooth-scale",
+ *     easing = Easing.CUBIC_BEZIER(0.25f, 0.1f, 0.25f, 1.0f),
+ *     property = "transform",
+ *     fromValue = 0.8f,
+ *     toValue = 1.0f,
+ *     steps = 15
+ * )
+ * ```
+ *
+ * ## Performance Considerations
+ *
+ * - **Transform Properties**: Uses transform for hardware acceleration
+ * - **Opacity Animations**: Leverages compositor for smooth rendering
+ * - **Minimal Reflow**: Avoids properties that trigger layout recalculation
+ * - **Step Optimization**: Configurable keyframe density for performance tuning
+ *
+ * ## Integration with Components
+ *
+ * Generated keyframes work seamlessly with animation modifiers:
+ *
+ * ```kotlin
+ * // Generate keyframes
+ * val slideKeyframes = KeyframesGenerator.slideInFromTop()
+ *
+ * // Apply to component
+ * Box(
+ *     modifier = Modifier()
+ *         .animate(
+ *             name = "slide-in-top",
+ *             duration = 500,
+ *             timingFunction = "ease-out"
+ *         )
+ * )
+ * ```
+ *
+ * @see AnimationModifiers for applying generated keyframes
+ * @see Easing for mathematical easing functions
+ * @see Animation for core animation system
+ * @since 1.0.0
+ */
 package code.yousef.summon.animation
 
 /**
- * Utility class to generate CSS keyframes definitions for various animation types.
- * This provides a standard way to create keyframes that can be used with animations.
+ * Comprehensive utility for generating CSS keyframes definitions.
+ *
+ * This object provides a complete toolkit for creating CSS animations
+ * programmatically, from simple fade effects to complex multi-property
+ * animations with custom easing curves.
+ *
+ * All generated keyframes are optimized for performance and cross-browser
+ * compatibility, using hardware-accelerated properties where possible.
+ *
+ * @since 1.0.0
  */
 object KeyframesGenerator {
 

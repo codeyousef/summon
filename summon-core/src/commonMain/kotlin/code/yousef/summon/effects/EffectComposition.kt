@@ -1,3 +1,179 @@
+/**
+ * # Effect Composition
+ *
+ * Advanced effect composition and management utilities for the Summon framework.
+ * This module provides sophisticated tools for creating, combining, and managing
+ * complex effect patterns in composable applications.
+ *
+ * ## Core Features
+ *
+ * - **Effect Priority System**: Ordered effect execution with priority levels
+ * - **Effect Composition**: Combine multiple effects into complex patterns
+ * - **Conditional Effects**: Effects that execute based on runtime conditions
+ * - **Timing Controls**: Debouncing, throttling, intervals, and timeouts
+ * - **Resource Management**: Automatic cleanup and lifecycle management
+ * - **Error Handling**: Robust error recovery and isolation
+ *
+ * ## Effect Management
+ *
+ * ### Priority System
+ * - `HIGH` - Critical effects that must run first
+ * - `NORMAL` - Standard effects for most use cases
+ * - `LOW` - Background effects that can run last
+ *
+ * ### Composition Patterns
+ * - `createEffect()` - Custom effect creation with cleanup
+ * - `combineEffects()` - Merge multiple effects with priority control
+ * - `conditionalEffect()` - Effects that run based on conditions
+ *
+ * ### Timing Controls
+ * - `debouncedEffect()` - Delay execution until input stabilizes
+ * - `throttledEffect()` - Limit execution frequency
+ * - `intervalEffect()` - Repeating execution with control
+ * - `timeoutEffect()` - Single delayed execution
+ *
+ * ## Usage Examples
+ *
+ * ```kotlin
+ * // Priority-based effect composition
+ * @Composable
+ * fun MyComponent() {
+ *     combineEffects(
+ *         logEffect to EffectPriority.HIGH,
+ *         analyticsEffect to EffectPriority.NORMAL,
+ *         backgroundEffect to EffectPriority.LOW
+ *     )()
+ * }
+ *
+ * // Debounced search effect
+ * @Composable
+ * fun SearchComponent(query: String) {
+ *     debouncedEffect(
+ *         delayMs = 300,
+ *         producer = { query },
+ *         effect = { searchQuery ->
+ *             performSearch(searchQuery)
+ *         }
+ *     )()
+ * }
+ *
+ * // Conditional effect based on state
+ * @Composable
+ * fun ConditionalComponent(isOnline: Boolean) {
+ *     conditionalEffect(
+ *         condition = { isOnline },
+ *         effect = {
+ *             LaunchedEffect(Unit) {
+ *                 syncWithServer()
+ *             }
+ *         },
+ *         priority = EffectPriority.HIGH
+ *     )()
+ * }
+ *
+ * // Interval effect with control
+ * @Composable
+ * fun PollingComponent() {
+ *     val intervalControl = intervalEffect(
+ *         delayMs = 5000,
+ *         function = { fetchUpdates() }
+ *     )()
+ *
+ *     // Control the interval
+ *     Button(
+ *         onClick = { intervalControl.pause() }
+ *     ) { Text("Pause Updates") }
+ * }
+ * ```
+ *
+ * ## Advanced Patterns
+ *
+ * ### Custom Effect Creation
+ * ```kotlin
+ * val customDatabaseEffect = createEffect<DatabaseConnection>(
+ *     setup = { connectToDatabase() },
+ *     callback = { connection ->
+ *         // Use the connection
+ *         performDatabaseOperations(connection)
+ *
+ *         // Return cleanup function
+ *         { connection.close() }
+ *     }
+ * )
+ * ```
+ *
+ * ### Complex Effect Orchestration
+ * ```kotlin
+ * @Composable
+ * fun ComplexComponent() {
+ *     // Combine multiple effect types
+ *     combineEffects(
+ *         // High priority: Setup logging
+ *         setupLoggingEffect to EffectPriority.HIGH,
+ *
+ *         // Normal priority: User analytics
+ *         userAnalyticsEffect to EffectPriority.NORMAL,
+ *
+ *         // Low priority: Background sync
+ *         backgroundSyncEffect to EffectPriority.LOW
+ *     )()
+ *
+ *     // Conditional effects based on user state
+ *     conditionalEffect(
+ *         condition = { user.isAuthenticated },
+ *         effect = {
+ *             debouncedEffect(
+ *                 delayMs = 1000,
+ *                 producer = { user.preferences },
+ *                 effect = { preferences ->
+ *                     saveUserPreferences(preferences)
+ *                 }
+ *             )()
+ *         }
+ *     )()
+ * }
+ * ```
+ *
+ * ## Performance Features
+ *
+ * - **Lazy Execution**: Effects only run when needed
+ * - **Priority Optimization**: Critical effects run first
+ * - **Memory Management**: Automatic cleanup of effect resources
+ * - **Coroutine Integration**: Efficient async operation handling
+ * - **Error Isolation**: Failed effects don't break the composition
+ *
+ * ## Error Handling
+ *
+ * ```kotlin
+ * val safeEffect = createEffect(
+ *     setup = { riskyOperation() },
+ *     callback = { result ->
+ *         try {
+ *             processResult(result)
+ *         } catch (e: Exception) {
+ *             handleEffectError(e)
+ *         }
+ *         // Cleanup
+ *         { cleanupResources() }
+ *     }
+ * )
+ * ```
+ *
+ * ## Integration with Framework
+ *
+ * Effect composition integrates seamlessly with Summon's core systems:
+ *
+ * - **State Management**: Effects can observe and update state
+ * - **Lifecycle**: Automatic effect cleanup on component disposal
+ * - **Recomposition**: Effects react to composition changes
+ * - **Error Boundaries**: Effect errors can be caught and handled
+ *
+ * @see Effects for basic effect primitives
+ * @see LaunchedEffect for async effects
+ * @see DisposableEffect for cleanup effects
+ * @see CommonEffects for utility effects
+ * @since 1.0.0
+ */
 package code.yousef.summon.effects
 
 import code.yousef.summon.runtime.Composable
@@ -7,14 +183,28 @@ import kotlinx.coroutines.*
 import kotlinx.datetime.Clock
 import kotlin.time.Duration.Companion.milliseconds
 
-// Using IntervalControl and TimeoutControl interfaces from CommonEffects.kt
-
 /**
- * Effect priority levels for ordering effects
+ * Defines priority levels for effect execution ordering.
+ *
+ * Effects with higher priority execute before those with lower priority,
+ * ensuring critical operations complete before less important ones.
+ *
+ * ## Priority Guidelines
+ *
+ * - **HIGH**: Critical system effects (logging, error handling, security)
+ * - **NORMAL**: Standard business logic effects (data fetching, user interactions)
+ * - **LOW**: Background operations (analytics, caching, cleanup)
+ *
+ * @since 1.0.0
  */
 enum class EffectPriority {
+    /** High priority - critical effects that must execute first */
     HIGH,
+
+    /** Normal priority - standard effects for most use cases */
     NORMAL,
+
+    /** Low priority - background effects that can execute last */
     LOW
 }
 

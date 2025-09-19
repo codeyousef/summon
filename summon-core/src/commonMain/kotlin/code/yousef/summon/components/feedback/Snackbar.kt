@@ -15,23 +15,36 @@ import kotlin.time.Duration.Companion.milliseconds
 
 
 /**
- * Variants for Snackbar components.
- * These correspond to common message types in UI design.
+ * Semantic variants for Snackbar components that define styling and context.
+ *
+ * These variants correspond to common message types in UI design and provide
+ * appropriate visual styling to convey meaning to users. Each variant includes
+ * specific colors, icons, and styling that follow design system conventions.
+ *
+ * ## Usage Guidelines
+ * - **DEFAULT**: Use for general notifications without specific sentiment
+ * - **INFO**: Use for informational messages that provide helpful context
+ * - **SUCCESS**: Use to confirm successful operations or positive outcomes
+ * - **WARNING**: Use for cautionary messages that need user attention
+ * - **ERROR**: Use for error conditions that require user action
+ *
+ * @see Snackbar for implementation details
+ * @since 1.0.0
  */
 enum class SnackbarVariant {
-    /** Default/neutral message, usually gray */
+    /** Default/neutral message with gray styling. Use for general notifications. */
     DEFAULT,
 
-    /** Information message, usually blue */
+    /** Information message with blue styling. Use for helpful contextual information. */
     INFO,
 
-    /** Success message, usually green */
+    /** Success message with green styling. Use for positive confirmations and completions. */
     SUCCESS,
 
-    /** Warning message, usually yellow or orange */
+    /** Warning message with orange styling. Use for cautions and important notices. */
     WARNING,
 
-    /** Error message, usually red */
+    /** Error message with red styling. Use for errors and critical issues. */
     ERROR;
 
     /**
@@ -62,35 +75,207 @@ enum class SnackbarVariant {
 }
 
 /**
- * Horizontal position for the Snackbar
+ * Horizontal positioning options for Snackbar placement on screen.
+ *
+ * These positions determine where the snackbar appears horizontally within the viewport.
+ * Choose based on your app's layout and user experience requirements.
+ *
+ * @see Snackbar for positioning usage
+ * @since 1.0.0
  */
 enum class SnackbarHorizontalPosition {
-    START, CENTER, END
+    /** Position at the start (left in LTR, right in RTL) of the screen. */
+    START,
+
+    /** Position at the center of the screen horizontally. */
+    CENTER,
+
+    /** Position at the end (right in LTR, left in RTL) of the screen. */
+    END
 }
 
 /**
- * Vertical position for the Snackbar
+ * Vertical positioning options for Snackbar placement on screen.
+ *
+ * These positions determine where the snackbar appears vertically within the viewport.
+ * Bottom positioning is recommended for better accessibility and user experience.
+ *
+ * @see Snackbar for positioning usage
+ * @since 1.0.0
  */
 enum class SnackbarVerticalPosition {
-    TOP, BOTTOM
+    /** Position at the top of the screen. Use sparingly as it may interfere with navigation. */
+    TOP,
+
+    /** Position at the bottom of the screen. Recommended for better accessibility. */
+    BOTTOM
 }
 
 /**
- * A composable that displays a brief message at the bottom of the screen.
+ * A Snackbar that displays brief messages and feedback to users with optional actions.
  *
- * Snackbars provide brief feedback about an operation through a message at the
- * bottom of the screen. They can include an optional action.
+ * Snackbars provide lightweight feedback about an operation through a message that appears
+ * temporarily at the edge of the screen. They're ideal for confirmations, undo actions, and
+ * brief notifications that don't require immediate user attention. Snackbars automatically
+ * dismiss after a timeout and can include optional action buttons.
  *
- * @param message The message to display in the snackbar
- * @param modifier Modifier applied to the snackbar container
- * @param variant The semantic variant of the snackbar, influences styling
- * @param action Optional action button text
- * @param onAction Optional callback invoked when the action button is clicked
- * @param onDismiss Optional callback invoked when the snackbar is dismissed
- * @param icon Optional composable slot for an icon, placed at the start
- * @param duration Duration to display the snackbar before automatically dismissing
- * @param horizontalPosition Horizontal positioning of the snackbar
- * @param verticalPosition Vertical positioning of the snackbar
+ * ## Features
+ * - **Automatic dismissal**: Configurable timeout with auto-dismiss functionality
+ * - **Semantic variants**: Built-in styling for different message types (success, error, etc.)
+ * - **Optional actions**: Support for action buttons with callbacks
+ * - **Flexible positioning**: Customizable horizontal and vertical positioning
+ * - **Accessibility support**: Proper ARIA attributes and keyboard navigation
+ * - **Icon integration**: Automatic icons based on variant or custom icons
+ * - **Dismissible**: Optional close button for manual dismissal
+ *
+ * ## Basic Usage
+ * ```kotlin
+ * // Simple success message
+ * Snackbar(
+ *     message = "File saved successfully!",
+ *     variant = SnackbarVariant.SUCCESS
+ * )
+ *
+ * // Error message with action
+ * Snackbar(
+ *     message = "Failed to save file",
+ *     variant = SnackbarVariant.ERROR,
+ *     action = "Retry",
+ *     onAction = { retryOperation() }
+ * )
+ * ```
+ *
+ * ## Advanced Usage
+ * ```kotlin
+ * // Custom styled snackbar with positioning
+ * Snackbar(
+ *     message = "Your changes have been saved",
+ *     variant = SnackbarVariant.SUCCESS,
+ *     action = "Undo",
+ *     onAction = { undoChanges() },
+ *     onDismiss = { hideSnackbar() },
+ *     duration = 6000.milliseconds,
+ *     horizontalPosition = SnackbarHorizontalPosition.END,
+ *     verticalPosition = SnackbarVerticalPosition.TOP,
+ *     modifier = Modifier()
+ *         .style("border-radius", "12px")
+ *         .style("box-shadow", "0 4px 20px rgba(0, 0, 0, 0.25)")
+ * )
+ * ```
+ *
+ * ## State Management Pattern
+ * ```kotlin
+ * @Composable
+ * fun FileManager() {
+ *     var snackbarState by remember { mutableStateOf<SnackbarState?>(null) }
+ *
+ *     // File operation with feedback
+ *     fun saveFile() {
+ *         try {
+ *             fileService.save()
+ *             snackbarState = SnackbarState.success("File saved successfully!")
+ *         } catch (e: Exception) {
+ *             snackbarState = SnackbarState.error("Failed to save file", onRetry = { saveFile() })
+ *         }
+ *     }
+ *
+ *     // Main UI
+ *     Column {
+ *         FileEditor()
+ *         Button(onClick = { saveFile() }) {
+ *             Text("Save")
+ *         }
+ *     }
+ *
+ *     // Snackbar display
+ *     snackbarState?.let { state ->
+ *         Snackbar(
+ *             message = state.message,
+ *             variant = state.variant,
+ *             action = state.actionText,
+ *             onAction = state.onAction,
+ *             onDismiss = { snackbarState = null }
+ *         )
+ *     }
+ * }
+ * ```
+ *
+ * ## Undo Pattern
+ * ```kotlin
+ * @Composable
+ * fun ItemList() {
+ *     var items by remember { mutableStateOf(listOf<Item>()) }
+ *     var recentlyDeleted by remember { mutableStateOf<Item?>(null) }
+ *
+ *     fun deleteItem(item: Item) {
+ *         recentlyDeleted = item
+ *         items = items - item
+ *     }
+ *
+ *     fun undoDelete() {
+ *         recentlyDeleted?.let { item ->
+ *             items = items + item
+ *             recentlyDeleted = null
+ *         }
+ *     }
+ *
+ *     // Show items
+ *     LazyColumn {
+ *         items(items) { item ->
+ *             ItemCard(
+ *                 item = item,
+ *                 onDelete = { deleteItem(item) }
+ *             )
+ *         }
+ *     }
+ *
+ *     // Undo snackbar
+ *     recentlyDeleted?.let { item ->
+ *         Snackbar(
+ *             message = "${item.name} deleted",
+ *             variant = SnackbarVariant.DEFAULT,
+ *             action = "Undo",
+ *             onAction = { undoDelete() },
+ *             onDismiss = { recentlyDeleted = null },
+ *             duration = 5000.milliseconds
+ *         )
+ *     }
+ * }
+ * ```
+ *
+ * ## Accessibility Features
+ * - **Screen reader support**: Announces messages with appropriate urgency
+ * - **Keyboard navigation**: Focusable action buttons with keyboard support
+ * - **High contrast**: Adapts to system high contrast settings
+ * - **Motion preferences**: Respects reduced motion preferences
+ * - **ARIA attributes**: Proper role and live region attributes
+ *
+ * ## Design Guidelines
+ * - Keep messages brief and actionable
+ * - Use appropriate variants for message context
+ * - Limit to one snackbar at a time
+ * - Place action buttons at the end
+ * - Provide undo functionality for destructive actions
+ * - Consider timeout duration based on message importance
+ *
+ * @param message The message to display in the snackbar. Keep concise and actionable.
+ * @param modifier Modifier applied to the snackbar container for custom styling.
+ * @param variant The semantic variant that determines styling and default icon.
+ * @param action Optional action button text. Should be a clear, actionable verb.
+ * @param onAction Optional callback invoked when the action button is clicked.
+ * @param onDismiss Optional callback invoked when the snackbar is dismissed (by timeout or user action).
+ * @param icon Optional custom icon composable. If null, uses variant-appropriate default icon.
+ * @param duration Duration to display the snackbar before automatically dismissing (default: 4 seconds).
+ * @param horizontalPosition Horizontal positioning of the snackbar on screen.
+ * @param verticalPosition Vertical positioning of the snackbar on screen.
+ *
+ * @see SnackbarVariant for available message types and styling
+ * @see SnackbarHost for managing multiple snackbars
+ * @see SnackbarHorizontalPosition for positioning options
+ * @see SnackbarVerticalPosition for positioning options
+ * @sample code.yousef.summon.samples.feedback.SnackbarSamples.basicUsage
+ * @sample code.yousef.summon.samples.feedback.SnackbarSamples.undoPattern
+ * @since 1.0.0
  */
 @Composable
 fun Snackbar(

@@ -1,3 +1,75 @@
+/**
+ * # Custom Animations
+ *
+ * Specialized animation components and effects for the Summon framework.
+ * This module provides pre-built animated components with sophisticated
+ * visual effects, perfect for creating engaging user interfaces.
+ *
+ * ## Featured Components
+ *
+ * ### Interactive Elements
+ * - `PulsatingButton` - Button with configurable pulsing effects
+ * - `TypingText` - Character-by-character text reveal animation
+ * - `PulseAnimation` - Generic pulse effect wrapper component
+ * - `StaggeredAnimation` - Sequential animation for multiple children
+ *
+ * ### Animation Effects
+ * - **Scale Pulse**: Rhythmic size changes for attention-grabbing elements
+ * - **Opacity Pulse**: Gentle fade in/out breathing effects
+ * - **Color Pulse**: Dynamic color transitions for visual emphasis
+ * - **Typing Effect**: Realistic text typing simulation with timing control
+ *
+ * ## Usage Examples
+ *
+ * ```kotlin
+ * // Pulsating call-to-action button
+ * PulsatingButton(
+ *     label = "Get Started",
+ *     onClick = { startOnboarding() },
+ *     pulseEffect = PulseEffect.SCALE,
+ *     variant = ButtonVariant.PRIMARY
+ * )
+ *
+ * // Typing text effect for dynamic content
+ * TypingText(
+ *     text = "Welcome to the future of UI development!",
+ *     typingSpeed = 80.milliseconds
+ * )
+ *
+ * // Pulse wrapper for any content
+ * PulseAnimation(duration = 1500.milliseconds) {
+ *     Icon(icon = "notification", size = 24)
+ * }
+ *
+ * // Staggered list entrance
+ * StaggeredAnimation(staggerDelay = 100.milliseconds) {
+ *     items.forEach { item ->
+ *         ListItem(item = item)
+ *     }
+ * }
+ * ```
+ *
+ * ## Performance Features
+ *
+ * - **Hardware Acceleration**: Uses transform and opacity for optimal performance
+ * - **Lifecycle Awareness**: Animations pause/resume with component lifecycle
+ * - **Memory Efficient**: Minimal overhead with automatic cleanup
+ * - **Cancellation Support**: Respects component unmounting and state changes
+ *
+ * ## Customization Options
+ *
+ * All components support extensive customization:
+ *
+ * - **Timing Control**: Adjustable durations, delays, and speeds
+ * - **Visual Effects**: Multiple pulse types and transition styles
+ * - **Styling Integration**: Full modifier support for styling and layout
+ * - **State Integration**: Reactive to state changes and user interactions
+ *
+ * @see AnimationModifiers for modifier-based animations
+ * @see AnimationUtils for animation helper functions
+ * @see LaunchedEffect for custom animation orchestration
+ * @since 1.0.0
+ */
 package code.yousef.summon.animation
 
 import code.yousef.summon.annotation.Composable
@@ -12,12 +84,40 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * Types of pulse effects that can be applied to components.
+ * Defines the types of pulse effects that can be applied to components.
+ *
+ * Each effect creates a different visual rhythm and serves different UI purposes:
+ *
+ * - **SCALE**: Most noticeable, perfect for call-to-action elements
+ * - **OPACITY**: Subtle and elegant, ideal for ambient notifications
+ * - **COLOR**: Dynamic and engaging, great for status indicators
+ *
+ * ## Usage Context
+ *
+ * ```kotlin
+ * // For urgent actions
+ * PulseEffect.SCALE -> Bold, attention-grabbing
+ *
+ * // For ambient notifications
+ * PulseEffect.OPACITY -> Gentle, non-intrusive
+ *
+ * // For status changes
+ * PulseEffect.COLOR -> Informative, dynamic
+ * ```
+ *
+ * @see PulsatingButton for usage with interactive elements
+ * @see PulseAnimation for generic pulse applications
+ * @since 1.0.0
  */
 enum class PulseEffect {
-    SCALE,  // Pulsing by scaling up and down
-    OPACITY, // Pulsing by changing opacity
-    COLOR    // Pulsing by changing color
+    /** Pulsing by scaling up and down - most visually prominent. */
+    SCALE,
+
+    /** Pulsing by changing opacity - subtle and elegant. */
+    OPACITY,
+
+    /** Pulsing by changing color - informative and dynamic. */
+    COLOR
 }
 
 /**

@@ -1,10 +1,184 @@
+/**
+ * # Pointer Event Modifiers
+ *
+ * Comprehensive pointer interaction modifiers for the Summon framework.
+ * This module provides type-safe event handling for mouse, touch, and
+ * drag interactions across all supported platforms.
+ *
+ * ## Core Features
+ *
+ * - **Multi-Touch Support**: Complete touch gesture handling
+ * - **Mouse Interactions**: Click, hover, and movement events
+ * - **Drag and Drop**: Full drag-and-drop functionality
+ * - **Pointer Control**: Enable/disable pointer event processing
+ * - **Cross-Platform**: Consistent behavior across desktop and mobile
+ * - **Performance Optimized**: Efficient event delegation and handling
+ *
+ * ## Event Categories
+ *
+ * ### Click Events
+ * - `onClick()` - Primary click/tap interactions
+ * - Event bubbling and capture support
+ * - Automatic touch-to-click translation
+ *
+ * ### Mouse Events
+ * - `onMouseEnter()` - Mouse enter detection
+ * - `onMouseLeave()` - Mouse leave detection
+ * - Hover state management
+ *
+ * ### Touch Events
+ * - `onTouchStart()` - Touch initiation
+ * - `onTouchEnd()` - Touch completion
+ * - `onTouchMove()` - Touch movement tracking
+ * - Multi-touch gesture support
+ *
+ * ### Drag Events
+ * - `onDragStart()` - Drag initiation
+ * - `onDragEnd()` - Drag completion
+ * - `onDragOver()` - Drag hover detection
+ * - `onDrop()` - Drop target handling
+ * - `draggable()` - Make elements draggable
+ *
+ * ### Pointer Control
+ * - `enablePointerEvents()` - Enable event processing
+ * - `disablePointerEvents()` - Disable event processing
+ *
+ * ## Usage Examples
+ *
+ * ```kotlin
+ * // Basic click handling
+ * Button(
+ *     modifier = Modifier()
+ *         .onClick("handleButtonClick()")
+ * )
+ *
+ * // Hover effects
+ * Card(
+ *     modifier = Modifier()
+ *         .onMouseEnter("showTooltip()")
+ *         .onMouseLeave("hideTooltip()")
+ * )
+ *
+ * // Touch interactions
+ * Box(
+ *     modifier = Modifier()
+ *         .onTouchStart("startGesture(event)")
+ *         .onTouchMove("updateGesture(event)")
+ *         .onTouchEnd("endGesture(event)")
+ * )
+ *
+ * // Drag and drop
+ * Box(
+ *     modifier = Modifier()
+ *         .draggable(true)
+ *         .onDragStart("initiateDrag(event)")
+ *         .onDragEnd("completeDrag(event)")
+ * )
+ *
+ * // Drop target
+ * Column(
+ *     modifier = Modifier()
+ *         .onDragOver("allowDrop(event)")
+ *         .onDrop("handleDrop(event)")
+ * )
+ * ```
+ *
+ * ## Advanced Interaction Patterns
+ *
+ * ### Custom Gesture Recognition
+ * ```kotlin
+ * Box(
+ *     modifier = Modifier()
+ *         .onTouchStart("gestureRecognizer.start(event)")
+ *         .onTouchMove("gestureRecognizer.update(event)")
+ *         .onTouchEnd("gestureRecognizer.end(event)")
+ * )
+ * ```
+ *
+ * ### Interactive Lists
+ * ```kotlin
+ * LazyColumn {
+ *     items(listItems) { item ->
+ *         ListItem(
+ *             modifier = Modifier()
+ *                 .onClick("selectItem('${item.id}')")
+ *                 .onMouseEnter("highlightItem('${item.id}')")
+ *                 .onMouseLeave("unhighlightItem('${item.id}')")
+ *         )
+ *     }
+ * }
+ * ```
+ *
+ * ### Conditional Event Handling
+ * ```kotlin
+ * Box(
+ *     modifier = if (isInteractive) {
+ *         Modifier()
+ *             .enablePointerEvents()
+ *             .onClick("handleClick()")
+ *     } else {
+ *         Modifier().disablePointerEvents()
+ *     }
+ * )
+ * ```
+ *
+ * ## Event Handler Format
+ *
+ * Event handlers use JavaScript expressions that have access to:
+ *
+ * - `event` - The DOM event object
+ * - Global functions and variables
+ * - Component-specific event handlers
+ *
+ * ```kotlin
+ * // Simple function call
+ * .onClick("handleClick()")
+ *
+ * // Event object access
+ * .onClick("handleClick(event)")
+ *
+ * // Inline logic
+ * .onClick("if (event.ctrlKey) { handleCtrlClick(); } else { handleClick(); }")
+ *
+ * // Complex expressions
+ * .onDragStart("event.dataTransfer.setData('text/plain', '${item.id}')")
+ * ```
+ *
+ * ## Performance Features
+ *
+ * - **Event Delegation**: Efficient event handling through delegation
+ * - **Passive Listeners**: Non-blocking event listeners where appropriate
+ * - **Touch Optimization**: Optimized touch event handling for mobile
+ * - **Memory Management**: Automatic cleanup of event listeners
+ *
+ * ## Accessibility Integration
+ *
+ * Pointer events work seamlessly with accessibility features:
+ *
+ * ```kotlin
+ * Button(
+ *     modifier = Modifier()
+ *         .onClick("submit()")
+ *         .ariaLabel("Submit form")
+ *         .role("button")
+ * )
+ * ```
+ *
+ * ## Cross-Platform Considerations
+ *
+ * - **Touch Devices**: Automatic touch-to-click mapping
+ * - **Desktop**: Full mouse event support
+ * - **Hybrid Devices**: Seamless touch and mouse coexistence
+ * - **Browser Compatibility**: Works across all modern browsers
+ *
+ * @see Modifier for the core modifier system
+ * @see AccessibilityModifiers for accessible interactions
+ * @see AnimationModifiers for animated interactions
+ * @since 1.0.0
+ */
 package code.yousef.summon.modifier
 
 import code.yousef.summon.modifier.ModifierExtras.pointerEvents
-
-/**
- * Modifiers for handling pointer events.
- */
 
 /**
  * Makes the element ignore all pointer events (clicks, touches, hovers).

@@ -13,9 +13,88 @@ expect fun Recomposer.addToPendingRecompositions(composer: Composer)
 expect fun Recomposer.getAndClearPendingRecompositions(): List<Composer>
 
 /**
- * Manages the recomposition of UI elements.
- * The Recomposer is responsible for tracking which parts of the UI need to be updated
- * when state changes.
+ * Central coordinator for the Summon composition system that manages recomposition scheduling and execution.
+ *
+ * The Recomposer is the core orchestrator of Summon's reactive UI system. It tracks state dependencies,
+ * schedules recomposition when state changes, and ensures efficient updates to the UI tree. The Recomposer
+ * works in concert with [Composer] instances to provide a declarative, reactive user interface.
+ *
+ * ## Core Responsibilities
+ *
+ * ### State Dependency Tracking
+ * - Maintains mapping between state objects and dependent [Composer] instances
+ * - Records when composable functions read from state objects
+ * - Automatically invalidates affected composables when state changes
+ *
+ * ### Recomposition Scheduling
+ * - Batches recomposition requests for optimal performance
+ * - Uses platform-specific schedulers for appropriate timing
+ * - Prevents duplicate recomposition of the same composer
+ * - Integrates with platform UI update cycles
+ *
+ * ### Composer Lifecycle Management
+ * - Creates and manages [Composer] instances
+ * - Tracks active composer during composition
+ * - Handles cleanup when composers are disposed
+ *
+ * ## Recomposition Process
+ *
+ * The recomposition workflow follows these steps:
+ *
+ * 1. **Dependency Tracking**: During initial composition, the Recomposer records which
+ *    state objects are read by each composable function
+ * 2. **Change Detection**: When state objects are modified, [recordStateWrite] is called
+ * 3. **Scheduling**: Affected composers are added to the pending recomposition queue
+ * 4. **Batch Processing**: [processRecompositions] executes all pending recompositions
+ * 5. **Efficient Updates**: Only composables that depend on changed state are re-executed
+ *
+ * ## Thread Safety
+ *
+ * The Recomposer provides thread-safe operations through platform-specific implementations:
+ * - State change notifications can come from any thread
+ * - Recomposition scheduling is thread-safe
+ * - Actual composition execution happens on the appropriate UI thread
+ *
+ * ## Example Usage
+ *
+ * ```kotlin
+ * // Create and configure a recomposer
+ * val recomposer = Recomposer()
+ * recomposer.setCompositionRoot {
+ *     MyApplication()
+ * }
+ *
+ * // State changes automatically trigger recomposition
+ * var counter by mutableStateOf(0)
+ *
+ * @Composable
+ * fun MyApplication() {
+ *     Button(
+ *         onClick = { counter++ },  // This triggers recomposition
+ *         label = "Count: $counter"
+ *     )
+ * }
+ * ```
+ *
+ * ## Integration with Framework Components
+ *
+ * - **Composer**: Creates and manages composer instances for composition tracking
+ * - **State Objects**: Automatically tracks reads/writes through [mutableStateOf] and similar APIs
+ * - **Platform Renderer**: Coordinates with rendering system for UI updates
+ * - **Effect System**: Manages effect lifecycle during recomposition
+ * - **Scheduler**: Uses platform-specific scheduling for optimal performance
+ *
+ * ## Performance Characteristics
+ *
+ * - **Batched Updates**: Multiple state changes are batched into single recomposition passes
+ * - **Minimal Recomposition**: Only affected composables are re-executed
+ * - **Dependency Pruning**: Unused dependencies are automatically cleaned up
+ * - **Memory Efficient**: Uses weak references and cleanup strategies to prevent memory leaks
+ *
+ * @see Composer for composition state management
+ * @see RecompositionScheduler for platform-specific scheduling
+ * @see code.yousef.summon.state.mutableStateOf for reactive state creation
+ * @since 1.0.0
  */
 class Recomposer {
     private var activeComposer: Composer? = null
@@ -27,15 +106,58 @@ class Recomposer {
     private var compositionRoot: (@Composable () -> Unit)? = null
 
     /**
-     * Sets the scheduler for this recomposer.
-     * Mainly used for testing.
+     * Sets the recomposition scheduler for this recomposer instance.
+     *
+     * The scheduler determines when and how recomposition is executed. Different platforms
+     * may use different scheduling strategies:
+     * - **Browser**: Uses `requestAnimationFrame` for smooth animations
+     * - **Server**: Uses immediate or coroutine-based scheduling
+     * - **Testing**: Uses synchronous scheduling for predictable testing
+     *
+     * ## Threading Considerations
+     *
+     * The scheduler must ensure that recomposition happens on the appropriate thread:
+     * - UI updates should happen on the main/UI thread
+     * - Background state changes can trigger scheduling from any thread
+     * - The scheduler handles thread coordination as needed
+     *
+     * @param scheduler The scheduling strategy to use for recomposition
+     * @see RecompositionScheduler
+     * @since 1.0.0
      */
     internal fun setScheduler(scheduler: RecompositionScheduler) {
         this.scheduler = scheduler
     }
 
     /**
-     * Sets the composition root for automatic recomposition.
+     * Sets the root composable function that defines the entire UI hierarchy.
+     *
+     * The composition root is the top-level composable function that gets executed
+     * during recomposition. This function typically represents the entire application
+     * UI and serves as the entry point for the composition tree.
+     *
+     * ## Automatic Recomposition
+     *
+     * When set, the recomposer will automatically call this root function whenever
+     * recomposition is triggered by state changes. This ensures the entire UI tree
+     * stays in sync with application state.
+     *
+     * ## Example
+     *
+     * ```kotlin
+     * recomposer.setCompositionRoot {
+     *     MyApplication {
+     *         // Entire app UI hierarchy
+     *         NavigationHost {
+     *             HomePage()
+     *             SettingsPage()
+     *         }
+     *     }
+     * }
+     * ```
+     *
+     * @param root The root composable function for the entire UI
+     * @since 1.0.0
      */
     fun setCompositionRoot(root: @Composable () -> Unit) {
         this.compositionRoot = root

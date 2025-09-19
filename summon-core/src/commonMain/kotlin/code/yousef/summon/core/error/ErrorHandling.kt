@@ -1,9 +1,212 @@
-package code.yousef.summon.core.error
-
 /**
- * Standard error handling utilities for the Summon framework.
- * Provides consistent error handling patterns across the codebase.
+ * # Error Handling
+ *
+ * Comprehensive error handling system for the Summon framework.
+ * This module provides type-safe error management, validation utilities,
+ * and consistent error patterns across the entire framework.
+ *
+ * ## Core Features
+ *
+ * - **Type-Safe Results**: Non-throwing error handling with `SummonResult<T, E>`
+ * - **Hierarchical Exceptions**: Well-structured exception hierarchy
+ * - **Validation Framework**: Comprehensive validation utilities
+ * - **Error Recovery**: Built-in error recovery and fallback mechanisms
+ * - **Performance Optimized**: Zero-allocation error paths where possible
+ * - **Cross-Platform**: Consistent error handling across all platforms
+ *
+ * ## Exception Hierarchy
+ *
+ * ### Core Exceptions
+ * - `SummonException` - Base framework exception
+ * - `ConfigurationException` - Configuration and setup errors
+ * - `ComponentNotFoundException` - Missing component errors
+ * - `ValidationException` - Input validation failures
+ * - `RenderException` - Rendering operation failures
+ *
+ * ## Result-Based Error Handling
+ *
+ * ### SummonResult Type
+ * ```kotlin
+ * sealed class SummonResult<T, E> {
+ *     data class Success<T, E>(val value: T)
+ *     data class Failure<T, E>(val error: E)
+ * }
+ * ```
+ *
+ * ## Usage Examples
+ *
+ * ### Basic Error Handling
+ * ```kotlin
+ * fun validateUser(user: User): SummonResult<User, ValidationException> {
+ *     return ErrorHandler.validateAll(
+ *         user.email.isNotBlank() to "Email is required",
+ *         user.name.isNotBlank() to "Name is required",
+ *         user.age >= 0 to "Age must be non-negative"
+ *     ).map { user }
+ * }
+ *
+ * // Usage
+ * when (val result = validateUser(user)) {
+ *     is SummonResult.Success -> processUser(result.value)
+ *     is SummonResult.Failure -> handleError(result.error)
+ * }
+ * ```
+ *
+ * ### Safe Operation Execution
+ * ```kotlin
+ * val result = ErrorHandler.runCatching {
+ *     riskyOperation()
+ * }
+ *
+ * val safeValue = result.getOrElse { defaultValue }
+ * ```
+ *
+ * ### Validation Patterns
+ * ```kotlin
+ * // Single validation
+ * val validationResult = ErrorHandler.validate(
+ *     condition = port in 1..65535,
+ *     lazyMessage = { "Port must be between 1 and 65535" }
+ * )
+ *
+ * // Multiple validations
+ * val allValid = ErrorHandler.validateAll(
+ *     url.isNotBlank() to "URL is required",
+ *     timeout > 0 to "Timeout must be positive",
+ *     retries in 0..10 to "Retries must be between 0 and 10"
+ * )
+ * ```
+ *
+ * ### Null Safety
+ * ```kotlin
+ * val requiredValue = ErrorHandler.requireNotNull(
+ *     value = configuration.apiKey,
+ *     lazyMessage = { "API key is required for authentication" }
+ * )
+ * ```
+ *
+ * ## Error Recovery Patterns
+ *
+ * ### Fallback Values
+ * ```kotlin
+ * fun loadConfiguration(): Config {
+ *     return ErrorHandler.runCatching {
+ *         loadFromFile("config.json")
+ *     }.getOrElse {
+ *         loadDefaultConfiguration()
+ *     }
+ * }
+ * ```
+ *
+ * ### Retry Mechanisms
+ * ```kotlin
+ * suspend fun retryableOperation(): SummonResult<Data, Exception> {
+ *     repeat(3) { attempt ->
+ *         val result = ErrorHandler.runCatching {
+ *             performNetworkCall()
+ *         }
+ *
+ *         if (result.isSuccess()) return result
+ *         if (attempt < 2) delay(1000) // Wait before retry
+ *     }
+ *
+ *     return SummonResult.Failure(Exception("Operation failed after retries"))
+ * }
+ * ```
+ *
+ * ### Error Aggregation
+ * ```kotlin
+ * fun validateForm(form: Form): SummonResult<Form, List<String>> {
+ *     val errors = mutableListOf<String>()
+ *
+ *     if (form.email.isBlank()) errors.add("Email is required")
+ *     if (form.password.length < 8) errors.add("Password too short")
+ *     if (!form.termsAccepted) errors.add("Terms must be accepted")
+ *
+ *     return if (errors.isEmpty()) {
+ *         SummonResult.Success(form)
+ *     } else {
+ *         SummonResult.Failure(errors)
+ *     }
+ * }
+ * ```
+ *
+ * ## Extension Functions
+ *
+ * ### Value Validation
+ * ```kotlin
+ * // Range validation
+ * val validPort = port.requireInRange(1..65535) {
+ *     "Port must be between 1 and 65535"
+ * }
+ *
+ * // Positive number validation
+ * val validSize = size.requirePositive { "Size must be positive" }
+ *
+ * // String validation
+ * val validName = name.requireNotBlank { "Name cannot be blank" }
+ *
+ * // Null to Result conversion
+ * val userResult = user?.toSummonResult("User not found")
+ * ```
+ *
+ * ## Performance Features
+ *
+ * - **Zero Allocation**: Success paths avoid object allocation
+ * - **Lazy Messages**: Error messages computed only when needed
+ * - **Early Returns**: Fail-fast validation patterns
+ * - **Memory Efficient**: Minimal memory overhead for error handling
+ *
+ * ## Integration Patterns
+ *
+ * ### With Composables
+ * ```kotlin
+ * @Composable
+ * fun ErrorBoundary(
+ *     content: @Composable () -> Unit
+ * ) {
+ *     try {
+ *         content()
+ *     } catch (e: SummonException) {
+ *         ErrorDisplay(error = e)
+ *     }
+ * }
+ * ```
+ *
+ * ### With State Management
+ * ```kotlin
+ * val state by remember {
+ *     mutableStateOf<SummonResult<Data, Exception>>(
+ *         SummonResult.Success(initialData)
+ *     )
+ * }
+ *
+ * when (state) {
+ *     is SummonResult.Success -> DataView(state.value)
+ *     is SummonResult.Failure -> ErrorView(state.error)
+ * }
+ * ```
+ *
+ * ## Best Practices
+ *
+ * ### Error Message Guidelines
+ * - Be specific and actionable
+ * - Include context when possible
+ * - Avoid technical jargon for user-facing errors
+ * - Provide suggestions for resolution
+ *
+ * ### Exception vs Result
+ * - Use `SummonResult` for expected failures
+ * - Use exceptions for unexpected errors
+ * - Prefer results for validation and business logic
+ * - Use exceptions for system-level failures
+ *
+ * @see SummonResult for type-safe error handling
+ * @see ValidationException for validation errors
+ * @see ErrorHandler for utility functions
+ * @since 1.0.0
  */
+package code.yousef.summon.core.error
 
 /**
  * Base class for Summon framework errors.

@@ -1,10 +1,6 @@
 package code.yousef.summon.components.feedback
 
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.input.Button
-import code.yousef.summon.components.input.ButtonVariant
 import code.yousef.summon.components.layout.Box
-import code.yousef.summon.components.layout.Row
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.LocalPlatformRenderer
@@ -12,39 +8,89 @@ import code.yousef.summon.runtime.mutableStateOf
 import code.yousef.summon.runtime.remember
 
 /**
- * Toast notification variants that determine appearance and behavior
+ * Toast notification variants that determine appearance, behavior, and semantic meaning.
+ *
+ * These variants provide consistent styling and appropriate visual cues for different
+ * types of notifications. Each variant includes specific colors, icons, and default
+ * duration settings that align with the urgency and importance of the message.
+ *
+ * ## Design Guidelines
+ * - **INFO**: Use for neutral information that helps users understand context
+ * - **SUCCESS**: Use to confirm completed actions and positive outcomes
+ * - **WARNING**: Use for important notices that need attention but aren't critical
+ * - **ERROR**: Use for failures and critical issues that require immediate action
+ *
+ * @see Toast for implementation details
+ * @see ToastManager for programmatic toast management
+ * @since 1.0.0
  */
 enum class ToastVariant {
-    /** Default informational toast */
+    /** Informational toast with blue styling. Use for helpful, neutral information. */
     INFO,
-    /** Success toast with green styling */
+
+    /** Success toast with green styling. Use for confirmations and positive outcomes. */
     SUCCESS,
-    /** Warning toast with orange styling */
+
+    /** Warning toast with orange styling. Use for important notices requiring attention. */
     WARNING,
-    /** Error toast with red styling */
+
+    /** Error toast with red styling. Use for failures and critical issues. */
     ERROR
 }
 
 /**
- * Toast positioning options
+ * Toast positioning options that determine where notifications appear on screen.
+ *
+ * Choose positioning based on your application layout and user experience needs:
+ * - **Top positions**: Good for notifications that shouldn't interfere with main content
+ * - **Bottom positions**: Better accessibility, less likely to cover important UI
+ * - **Corner positions**: Unobtrusive, good for multiple toasts
+ * - **Center positions**: More prominent, use for important notifications
+ *
+ * ## Accessibility Considerations
+ * - Bottom positions are generally more accessible
+ * - Consider screen reader announcement order with positioning
+ * - Ensure toasts don't cover critical interactive elements
+ *
+ * @see ToastContainer for positioning implementation
+ * @since 1.0.0
  */
 enum class ToastPosition {
-    /** Top-left corner */
+    /** Top-left corner. Unobtrusive positioning for secondary notifications. */
     TOP_LEFT,
-    /** Top-center */
+
+    /** Top-center. Prominent positioning for important notifications. */
     TOP_CENTER,
-    /** Top-right corner */
+
+    /** Top-right corner. Common position that doesn't interfere with navigation. */
     TOP_RIGHT,
-    /** Bottom-left corner */
+
+    /** Bottom-left corner. Accessible positioning with good visibility. */
     BOTTOM_LEFT,
-    /** Bottom-center */
+
+    /** Bottom-center. Central positioning with good accessibility. */
     BOTTOM_CENTER,
-    /** Bottom-right corner */
+
+    /** Bottom-right corner. Popular choice for unobtrusive notifications. */
     BOTTOM_RIGHT
 }
 
 /**
- * Data class representing a toast notification
+ * Data class representing a toast notification with all its properties and behavior.
+ *
+ * ToastData encapsulates all the information needed to display and manage a toast
+ * notification, including its content, appearance, timing, and interaction capabilities.
+ *
+ * @property id Unique identifier for the toast, used for tracking and dismissal.
+ * @property message The text content to display in the toast notification.
+ * @property variant The semantic variant that determines styling and icon (default: INFO).
+ * @property duration Duration in milliseconds before auto-dismissal. Use 0 for no auto-dismiss.
+ * @property dismissible Whether the toast can be manually dismissed by the user.
+ * @property action Optional action button configuration for user interaction.
+ *
+ * @see ToastVariant for available styling options
+ * @see ToastAction for action button configuration
+ * @since 1.0.0
  */
 data class ToastData(
     val id: String,
@@ -56,7 +102,22 @@ data class ToastData(
 )
 
 /**
- * Data class for toast action buttons
+ * Configuration for toast action buttons that provide user interaction capabilities.
+ *
+ * Toast actions allow users to perform related operations directly from the notification,
+ * such as undoing an action, retrying a failed operation, or navigating to related content.
+ *
+ * ## Design Guidelines
+ * - Keep action labels short and action-oriented (e.g., "Undo", "Retry", "View")
+ * - Limit to one action per toast for clarity
+ * - Use actions for immediate, related operations
+ * - Ensure actions are accessible via keyboard navigation
+ *
+ * @property label The text to display on the action button. Should be concise and action-oriented.
+ * @property onClick Callback invoked when the action button is clicked.
+ *
+ * @see ToastData for toast configuration
+ * @since 1.0.0
  */
 data class ToastAction(
     val label: String,
@@ -64,19 +125,104 @@ data class ToastAction(
 )
 
 /**
- * A toast notification component that displays temporary messages.
- * 
- * Features:
- * - Multiple variants (info, success, warning, error)
- * - Configurable positioning
- * - Auto-dismiss with configurable duration
- * - Optional action buttons
- * - Manual dismiss capability
- * - Accessible with proper ARIA attributes
+ * A toast notification component that displays temporary messages with rich functionality.
  *
- * @param toast The toast data to display
- * @param onDismiss Callback invoked when the toast is dismissed
- * @param modifier Modifier applied to the toast container
+ * Toast notifications provide unobtrusive feedback to users about operations, events, and
+ * state changes. They appear temporarily and can include actions for user interaction.
+ * Unlike snackbars, toasts can stack and appear in various screen positions.
+ *
+ * ## Features
+ * - **Multiple variants**: Info, success, warning, and error with appropriate styling
+ * - **Flexible positioning**: Appears at configurable screen locations
+ * - **Auto-dismissal**: Configurable timeout with automatic removal
+ * - **Manual dismissal**: User can close toasts manually when dismissible
+ * - **Action buttons**: Optional interactive buttons for related actions
+ * - **Accessibility**: Full screen reader support and keyboard navigation
+ * - **Stacking support**: Multiple toasts can be displayed simultaneously
+ *
+ * ## Basic Usage
+ * ```kotlin
+ * // Simple toast notification
+ * val toastData = ToastData(
+ *     id = "success-1",
+ *     message = "File saved successfully!",
+ *     variant = ToastVariant.SUCCESS
+ * )
+ *
+ * Toast(
+ *     toast = toastData,
+ *     onDismiss = { /* handle dismissal */ }
+ * )
+ * ```
+ *
+ * ## Toast with Action
+ * ```kotlin
+ * val toastWithAction = ToastData(
+ *     id = "undo-1",
+ *     message = "Item deleted",
+ *     variant = ToastVariant.INFO,
+ *     duration = 5000,
+ *     action = ToastAction(
+ *         label = "Undo",
+ *         onClick = { restoreItem() }
+ *     )
+ * )
+ *
+ * Toast(
+ *     toast = toastWithAction,
+ *     onDismiss = { /* handle dismissal */ }
+ * )
+ * ```
+ *
+ * ## Integration with ToastManager
+ * ```kotlin
+ * @Composable
+ * fun FileOperations() {
+ *     val toastManager = rememberToastManager()
+ *
+ *     fun saveFile() {
+ *         try {
+ *             fileService.save()
+ *             toastManager.showSuccess("File saved successfully!")
+ *         } catch (e: Exception) {
+ *             toastManager.showError(
+ *                 message = "Failed to save file: ${e.message}",
+ *                 duration = 8000
+ *             )
+ *         }
+ *     }
+ *
+ *     Button(onClick = { saveFile() }) {
+ *         Text("Save File")
+ *     }
+ * }
+ * ```
+ *
+ * ## Accessibility Features
+ * - **Screen reader announcements**: Toast content is announced with appropriate urgency
+ * - **Keyboard navigation**: Action buttons are keyboard accessible
+ * - **Focus management**: Proper focus handling for interactive elements
+ * - **High contrast support**: Adapts to system contrast preferences
+ * - **Motion sensitivity**: Respects reduced motion preferences
+ *
+ * ## Design Guidelines
+ * - Keep messages concise and actionable
+ * - Use appropriate variants for message context
+ * - Position toasts to avoid covering critical UI elements
+ * - Limit concurrent toasts to prevent overwhelming users
+ * - Provide actions for recoverable operations
+ *
+ * @param toast The toast data containing message, variant, duration, and other properties.
+ * @param onDismiss Callback invoked when the toast is dismissed (manually or automatically).
+ * @param modifier Modifier applied to the toast container for custom styling.
+ *
+ * @see ToastData for toast configuration options
+ * @see ToastManager for programmatic toast management
+ * @see ToastContainer for managing multiple toasts
+ * @see ToastProvider for app-wide toast functionality
+ * @sample code.yousef.summon.samples.feedback.ToastSamples.basicUsage
+ * @sample code.yousef.summon.samples.feedback.ToastSamples.toastWithAction
+ * @since 1.0.0
  */
 @Composable
 fun Toast(

@@ -82,11 +82,161 @@ class LazyListState {
 }
 
 /**
- * A vertically scrolling list that only composes and lays out the currently visible items.
+ * # LazyColumn
+ *
+ * A virtualized vertical scrolling list that only composes and renders visible items,
+ * providing optimal performance for large datasets by recycling components as needed.
+ *
+ * ## Overview
+ *
+ * LazyColumn provides efficient scrolling for large lists by:
+ * - **Virtualization** - Only rendering visible items plus a small buffer
+ * - **Memory efficiency** - Recycling components to minimize memory usage
+ * - **Smooth scrolling** - Hardware-accelerated scrolling with momentum
+ * - **Dynamic sizing** - Automatic or manual item size calculation
+ * - **Flexible content** - Mix different item types, headers, and dividers
+ *
+ * ## Key Features
+ *
+ * ### Performance Optimization
+ * - **Virtual scrolling** - Renders only visible items
+ * - **Item recycling** - Reuses components for better memory management
+ * - **Progressive loading** - Load data as needed during scroll
+ * - **Smooth animations** - Hardware-accelerated scroll performance
+ *
+ * ### Content Management
+ * - **Mixed content** - Combine different item types in one list
+ * - **Sticky headers** - Headers that remain visible during scroll
+ * - **Section dividers** - Visual separation between content groups
+ * - **Dynamic spacing** - Configurable gaps between items
+ *
+ * ## Basic Usage
+ *
+ * ### Simple List
+ * ```kotlin
+ * @Composable
+ * fun SimpleList(items: List<String>) {
+ *     LazyColumn(
+ *         modifier = Modifier()
+ *             .fillMaxWidth()
+ *             .height("400px")
+ *             .padding(Spacing.MD)
+ *     ) {
+ *         items(items) { item ->
+ *             Card(
+ *                 modifier = Modifier()
+ *                     .fillMaxWidth()
+ *                     .padding(vertical = Spacing.XS)
+ *             ) {
+ *                 Text(
+ *                     text = item,
+ *                     modifier = Modifier().padding(Spacing.MD)
+ *                 )
+ *             }
+ *         }
+ *     }
+ * }
+ * ```
+ *
+ * ### Complex List with Headers
+ * ```kotlin
+ * @Composable
+ * fun GroupedList(groups: List<ItemGroup>) {
+ *     LazyColumn(
+ *         modifier = Modifier()
+ *             .fillMaxWidth()
+ *             .height("600px")
+ *     ) {
+ *         groups.forEach { group ->
+ *             stickyHeader(key = group.id) {
+ *                 Box(
+ *                     modifier = Modifier()
+ *                         .fillMaxWidth()
+ *                         .backgroundColor(Color.GRAY_100)
+ *                         .padding(Spacing.MD)
+ *                 ) {
+ *                     Text(
+ *                         text = group.title,
+ *                         style = TextStyle.HEADING_4,
+ *                         color = Color.GRAY_800
+ *                     )
+ *                 }
+ *             }
+ *
+ *             items(group.items, key = { it.id }) { item ->
+ *                 ItemComponent(item)
+ *             }
+ *
+ *             if (group != groups.last()) {
+ *                 sectionDivider {
+ *                     Divider(
+ *                         modifier = Modifier()
+ *                             .fillMaxWidth()
+ *                             .padding(vertical = Spacing.SM)
+ *                     )
+ *                 }
+ *             }
+ *         }
+ *     }
+ * }
+ * ```
+ *
+ * ### Infinite Scrolling List
+ * ```kotlin
+ * @Composable
+ * fun InfiniteList() {
+ *     val items by remember { mutableStateOf(loadInitialItems()) }
+ *     val isLoading by remember { mutableStateOf(false) }
+ *
+ *     LazyColumn(
+ *         modifier = Modifier()
+ *             .fillMaxWidth()
+ *             .fillMaxHeight()
+ *     ) {
+ *         items(items, key = { it.id }) { item ->
+ *             ItemCard(item)
+ *         }
+ *
+ *         if (isLoading) {
+ *             item {
+ *                 Box(
+ *                     modifier = Modifier()
+ *                         .fillMaxWidth()
+ *                         .padding(Spacing.LG)
+ *                         .displayFlex()
+ *                         .justifyContent(JustifyContent.CENTER)
+ *                 ) {
+ *                     CircularProgress()
+ *                 }
+ *             }
+ *         }
+ *
+ *         // Load more trigger
+ *         item {
+ *             LaunchedEffect(items.size) {
+ *                 if (!isLoading) {
+ *                     loadMoreItems()
+ *                 }
+ *             }
+ *         }
+ *     }
+ * }
+ * ```
  *
  * @param modifier The modifier to be applied to the LazyColumn
  * @param state Optional state object that controls and observes scrolling
  * @param content The content lambda defining the children, scoped to `LazyListScope`.
+ *
+ * @see LazyRow for horizontal virtualized lists
+ * @see Column for non-virtualized vertical layouts
+ * @see LazyListScope for content building DSL
+ * @see LazyListState for scroll state management
+ *
+ * @sample LazyColumnSamples.simpleList
+ * @sample LazyColumnSamples.groupedList
+ * @sample LazyColumnSamples.infiniteScroll
+ *
+ * @since 1.0.0
  */
 @Composable
 fun LazyColumn(
