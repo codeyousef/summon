@@ -25,7 +25,7 @@ class SummonCli : CliktCommand(
         .default("false")
 
     init {
-        versionOption("0.3.2.1")
+        versionOption("0.3.2.2")
     }
 
     override fun run() {

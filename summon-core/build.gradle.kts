@@ -5,7 +5,7 @@ import java.util.*
 apply(from = "../version.gradle.kts")
 
 // Manual version override for now
-version = "0.3.2.1"
+version = "0.3.2.2"
 group = "io.github.codeyousef"
 
 plugins {
@@ -372,7 +372,9 @@ tasks.register("publishToCentralPortalManually") {
                 println("📦 Processing $artifactId artifacts...")
                 
                 localMavenDir.listFiles()?.forEach { file ->
-                    if ((file.name.endsWith(".jar") || file.name.endsWith(".pom")) && 
+                    if ((file.name.endsWith(".jar") || file.name.endsWith(".pom") || file.name.endsWith(".klib") || file.name.endsWith(
+                            ".module"
+                        )) &&
                         !file.name.endsWith(".md5") && !file.name.endsWith(".sha1") && !file.name.endsWith(".asc")) {
                         file.copyTo(File(targetDir, file.name), overwrite = true)
                         allFilesToProcess.add(File(targetDir, file.name))

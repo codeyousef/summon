@@ -5,14 +5,14 @@ plugins {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
+    // mavenLocal() // Comment out for production, only use if testing local builds
 }
 
 val ktorVersion = "2.3.12"
 
 dependencies {
-    implementation("io.github.codeyousef:summon-jvm:0.3.2.1")
+    implementation("io.github.codeyousef:summon-jvm:0.3.2.2")
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-server-html-builder:$ktorVersion")

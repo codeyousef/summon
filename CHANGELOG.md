@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.2.2]
+
+### 🔧 **Publishing Fix**
+
+#### Fixed
+
+- **JavaScript Package Publishing**: Fixed Maven Central publishing to include `.klib` files for `summon-js` artifact
+- **Gradle Module Metadata**: Added `.module` files to publishing pipeline for proper dependency resolution
+- **Publishing Script**: Updated artifact filter to include all necessary Kotlin/JS artifacts (`.klib`, `.module`)
+
+#### Technical Details
+
+- The publishing script was previously only including `.jar` and `.pom` files
+- Kotlin/JS targets produce `.klib` files instead of `.jar` files, which were being excluded
+- This fix ensures `summon-js` artifact is properly consumable from Maven Central
+
 ## [0.3.2.1]
 
 ### 📚 **Comprehensive Documentation Release**
