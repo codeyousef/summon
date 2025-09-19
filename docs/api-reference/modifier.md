@@ -1,920 +1,779 @@
 # Modifier API Reference
 
-This document provides detailed information about the Modifier API in the Summon library.
+This document provides detailed information about the Modifier system in the Summon library. Modifiers are used to apply
+styling, layout, and behavior to components in a type-safe, composable way.
 
 ## Table of Contents
 
-- [Modifier](#modifier)
+- [Core Modifier Class](#core-modifier-class)
 - [CSS Units Extensions](#css-units-extensions)
 - [Layout Modifiers](#layout-modifiers)
-- [Appearance Modifiers](#appearance-modifiers)
-- [Typography Modifiers](#typography-modifiers)
-- [Border Modifiers](#border-modifiers)
-- [Transform Modifiers](#transform-modifiers)
-- [Gradient Modifiers](#gradient-modifiers)
-- [Interactive Modifiers](#interactive-modifiers)
-- [Animation Modifiers](#animation-modifiers)
-- [Accessibility Modifiers](#accessibility-modifiers)
-- [Row/Column Specific Modifiers](#rowcolumn-specific-modifiers)
-- [Advanced Modifiers](#advanced-modifiers)
-- [Utility Functions](#utility-functions)
+- [Styling Modifiers](#styling-modifiers)
 - [CSS Enums](#css-enums)
+- [Accessibility Modifiers](#accessibility-modifiers)
+- [Interactive Modifiers](#interactive-modifiers)
+- [Advanced Modifiers](#advanced-modifiers)
+- [Theme Integration](#theme-integration)
+- [Best Practices](#best-practices)
 
 ---
 
-## Modifier
+## Core Modifier Class
 
-The `Modifier` class is the foundation of the styling system in Summon.
+The `Modifier` is a data class that holds CSS styles and HTML attributes.
 
 ### Class Definition
 
 ```kotlin
-package code.yousef.summon.modifier
+@JsExport
+data class Modifier(
+    val styles: Map<String, String> = emptyMap(),
+    val attributes: Map<String, String> = emptyMap()
+) {
+    // Generic style method
+    fun style(propertyName: String, value: String): Modifier
 
-class Modifier {
-    // Factory method
-    companion object {
-        operator fun invoke(): Modifier = Modifier()
-    }
+    // Batch style application
+    fun withStyles(properties: Map<String, String>): Modifier
 
-    // Methods to apply CSS properties
-    fun property(name: String, value: String): Modifier
-    fun rawCss(css: String): Modifier
+    // Core styling methods
+    fun background(color: String): Modifier
+    fun backgroundColor(color: String): Modifier
+    fun padding(value: String): Modifier
+    fun padding(top: String, right: String, bottom: String, left: String): Modifier
+    fun width(value: String): Modifier
+    fun height(value: String): Modifier
+    fun margin(value: String): Modifier
+    fun color(value: String): Modifier
+    fun fontSize(value: String): Modifier
+    fun fontWeight(value: String): Modifier
+    fun textAlign(value: String): Modifier
+    fun border(width: String, style: String, color: String): Modifier
+    fun borderRadius(value: String): Modifier
+    fun display(value: String): Modifier
 
-    // Create a combined modifier
-    operator fun plus(other: Modifier): Modifier
+    // Layout utilities
+    fun fillMaxWidth(): Modifier
+    fun fillMaxHeight(): Modifier
 }
 ```
 
-### Description
+### Factory Function
 
-`Modifier` is the main class for applying styles and layout to components. It follows a builder pattern where each method returns a new `Modifier` instance with the added property.
+```kotlin
+// Create a new modifier
+fun Modifier(): Modifier = Modifier(emptyMap(), emptyMap())
+```
 
-### Example
+### Basic Usage
 
 ```kotlin
 val modifier = Modifier()
-    .width(200.px)
-    .height(100.px)
-    .backgroundColor("#0077cc")
+    .width("200px")
+    .height("100px")
+    .backgroundColor("#007bff")
     .color("#ffffff")
-    .padding(16.px)
-    .borderRadius(4.px)
+    .padding("16px")
+    .borderRadius("4px")
 ```
 
 ---
 
 ## CSS Units Extensions
 
-Summon provides convenient extension properties for numeric values to create CSS dimension values.
+Summon provides convenient extension properties for creating CSS values with proper units.
 
 ### Number Extensions
 
 ```kotlin
-// In code.yousef.summon.extensions package
-
-// General CSS units
-val Number.px: String  // Pixels (e.g., 16.px -> "16px")
-val Number.rem: String // Root em units (e.g., 1.5.rem -> "1.5rem")
-val Number.em: String  // Em units (e.g., 1.2.em -> "1.2em")
-val Number.percent: String // Percentage values (e.g., 50.percent -> "50%")
-val Number.vw: String  // Viewport width (e.g., 100.vw -> "100vw")
-val Number.vh: String  // Viewport height (e.g., 100.vh -> "100vh")
-val Number.vmin: String // Viewport minimum (e.g., 50.vmin -> "50vmin")
-val Number.vmax: String // Viewport maximum (e.g., 50.vmax -> "50vmax")
-
-// Font-specific CSS units
-val Number.sp: String  // Scale-independent pixels (e.g., 14.sp -> "14sp")
-val Number.ch: String  // Character units - width of "0" (e.g., 2.ch -> "2ch")
-val Number.ex: String  // X-height units - height of "x" (e.g., 3.ex -> "3ex")
-val Number.pt: String  // Points - traditional print unit (e.g., 12.pt -> "12pt")
-val Number.pc: String  // Picas - traditional print unit (e.g., 6.pc -> "6pc")
+// Extension properties in code.yousef.summon.extensions
+val Number.px: String      // Pixels: 16.px -> "16px"
+val Number.rem: String     // Root em: 1.5.rem -> "1.5rem"
+val Number.em: String      // Em units: 1.2.em -> "1.2em"
+val Number.percent: String // Percentage: 50.percent -> "50%"
+val Number.vw: String      // Viewport width: 100.vw -> "100vw"
+val Number.vh: String      // Viewport height: 100.vh -> "100vh"
+val Number.vmin: String    // Viewport minimum: 50.vmin -> "50vmin"
+val Number.vmax: String    // Viewport maximum: 50.vmax -> "50vmax"
+val Number.sp: String      // Scale-independent pixels: 14.sp -> "14sp"
+val Number.ch: String      // Character width: 2.ch -> "2ch"
+val Number.ex: String      // X-height: 3.ex -> "3ex"
+val Number.pt: String      // Points: 12.pt -> "12pt"
+val Number.pc: String      // Picas: 6.pc -> "6pc"
 ```
 
-### Example
+### Usage Examples
 
 ```kotlin
 import code.yousef.summon.extensions.*
 
 Modifier()
-    .width(100.percent)  // Sets width to "100%"
-    .fontSize(1.25.rem)  // Sets font size to "1.25rem"
-    .padding(16.px)      // Sets padding to "16px"
-    .marginTop(20.px)    // Sets top margin to "20px"
-    .letterSpacing(0.5.ex) // Sets letter spacing based on x-height
-    .lineHeight(2.ch)    // Sets line height based on character width
+    .width(100.percent)
+    .height(50.vh)
+    .padding(16.px)
+    .fontSize(1.2.rem)
+    .margin(8.px, 16.px, 8.px, 16.px)
 ```
 
 ---
 
 ## Layout Modifiers
 
-Layout modifiers control the size, position, and arrangement of components.
+Layout modifiers control size, spacing, and positioning.
 
 ### Size Modifiers
 
 ```kotlin
-// Basic size modifiers
+// Basic dimensions
 fun Modifier.width(value: String): Modifier
-fun Modifier.width(value: Number): Modifier  // Auto-converts to px
 fun Modifier.height(value: String): Modifier
-fun Modifier.height(value: Number): Modifier  // Auto-converts to px
-fun Modifier.size(width: String, height: String): Modifier
-fun Modifier.size(size: String): Modifier  // Square size
-
-// Size constraints
-fun Modifier.maxWidth(value: String): Modifier
-fun Modifier.maxHeight(value: String): Modifier
 fun Modifier.minWidth(value: String): Modifier
 fun Modifier.minHeight(value: String): Modifier
+fun Modifier.maxWidth(value: String): Modifier
+fun Modifier.maxHeight(value: String): Modifier
 
-// Fill modifiers
-fun Modifier.fillMaxWidth(): Modifier
-fun Modifier.fillMaxHeight(): Modifier
-fun Modifier.fillMaxSize(): Modifier
-fun Modifier.wrapContent(): Modifier
+// Fill utilities
+fun Modifier.fillMaxWidth(): Modifier = width("100%")
+fun Modifier.fillMaxHeight(): Modifier = height("100%")
+fun Modifier.fillMaxSize(): Modifier = fillMaxWidth().fillMaxHeight()
 ```
 
-### Margin and Padding
+### Padding Modifiers
 
 ```kotlin
-// Basic margin functions
-fun Modifier.margin(all: String): Modifier
-fun Modifier.margin(all: Number): Modifier  // Auto-converts to px
-fun Modifier.margin(vertical: String, horizontal: String): Modifier
-fun Modifier.margin(vertical: Number, horizontal: Number): Modifier
-fun Modifier.margin(top: String, right: String, bottom: String, left: String): Modifier
-fun Modifier.marginTop(value: String): Modifier
-fun Modifier.marginTop(value: Number): Modifier
-fun Modifier.marginRight(value: String): Modifier
-fun Modifier.marginBottom(value: String): Modifier
-fun Modifier.marginLeft(value: String): Modifier
+// Uniform padding
+fun Modifier.padding(value: String): Modifier
 
-// Auto margin modifiers for centering
-fun Modifier.marginAuto(): Modifier
-fun Modifier.marginHorizontalAuto(vertical: String = "0px"): Modifier
-fun Modifier.marginVerticalAuto(horizontal: String = "0px"): Modifier
-fun Modifier.marginHorizontalAutoZero(): Modifier
-fun Modifier.marginVerticalAutoZero(): Modifier
-
-// Padding functions (similar overloads)
-fun Modifier.padding(all: String): Modifier
-fun Modifier.padding(all: Number): Modifier
-fun Modifier.padding(vertical: String, horizontal: String): Modifier
+// Directional padding
 fun Modifier.padding(top: String, right: String, bottom: String, left: String): Modifier
+fun Modifier.padding(vertical: String, horizontal: String): Modifier
 fun Modifier.paddingTop(value: String): Modifier
 fun Modifier.paddingRight(value: String): Modifier
 fun Modifier.paddingBottom(value: String): Modifier
 fun Modifier.paddingLeft(value: String): Modifier
+
+// Named parameters
+fun Modifier.paddingOf(
+    top: String? = null,
+    right: String? = null,
+    bottom: String? = null,
+    left: String? = null
+): Modifier
+```
+
+### Margin Modifiers
+
+```kotlin
+// Uniform margin
+fun Modifier.margin(value: String): Modifier
+
+// Directional margin
+fun Modifier.margin(top: String, right: String, bottom: String, left: String): Modifier
+fun Modifier.margin(vertical: String, horizontal: String): Modifier
+fun Modifier.marginTop(value: String): Modifier
+fun Modifier.marginRight(value: String): Modifier
+fun Modifier.marginBottom(value: String): Modifier
+fun Modifier.marginLeft(value: String): Modifier
+
+// Named parameters
+fun Modifier.marginOf(
+    top: String? = null,
+    right: String? = null,
+    bottom: String? = null,
+    left: String? = null
+): Modifier
+
+// Auto margins for centering
+fun Modifier.marginAuto(): Modifier = margin("auto")
+fun Modifier.centerHorizontally(): Modifier = style("margin-left", "auto").style("margin-right", "auto")
 ```
 
 ### Position Modifiers
 
 ```kotlin
+// Position type
 fun Modifier.position(value: Position): Modifier
+fun Modifier.position(value: String): Modifier
+
+// Position values
 fun Modifier.top(value: String): Modifier
 fun Modifier.right(value: String): Modifier
 fun Modifier.bottom(value: String): Modifier
 fun Modifier.left(value: String): Modifier
+
+// Z-index
+fun Modifier.zIndex(value: String): Modifier
 fun Modifier.zIndex(value: Int): Modifier
 ```
 
-### Flexbox Layout
+### Usage Examples
 
 ```kotlin
+// Size and spacing
+Modifier()
+    .width(300.px)
+    .minHeight(200.px)
+    .padding(16.px)
+    .margin(vertical = 8.px, horizontal = 16.px)
+
+// Positioning
+Modifier()
+    .position(Position.Absolute)
+    .top(10.px)
+    .right(10.px)
+    .zIndex(100)
+
+// Centering
+Modifier()
+    .width(200.px)
+    .centerHorizontally()
+```
+
+---
+
+## Styling Modifiers
+
+Visual styling modifiers for appearance and typography.
+
+### Background and Colors
+
+```kotlin
+// Background
+fun Modifier.background(color: String): Modifier
+fun Modifier.backgroundColor(color: String): Modifier
+fun Modifier.backgroundImage(url: String): Modifier
+fun Modifier.backgroundSize(value: String): Modifier
+fun Modifier.backgroundRepeat(value: String): Modifier
+fun Modifier.backgroundPosition(value: String): Modifier
+
+// Text color
+fun Modifier.color(value: String): Modifier
+```
+
+### Typography Modifiers
+
+```kotlin
+// Font properties
+fun Modifier.fontSize(value: String): Modifier
+fun Modifier.fontWeight(value: String): Modifier
+fun Modifier.fontWeight(value: FontWeight): Modifier
+fun Modifier.fontFamily(value: String): Modifier
+fun Modifier.fontStyle(value: String): Modifier
+
+// Text styling
+fun Modifier.textAlign(value: String): Modifier
+fun Modifier.textAlign(value: TextAlign): Modifier
+fun Modifier.textDecoration(value: String): Modifier
+fun Modifier.textTransform(value: String): Modifier
+fun Modifier.lineHeight(value: String): Modifier
+fun Modifier.letterSpacing(value: String): Modifier
+```
+
+### Border Modifiers
+
+```kotlin
+// Complete border
+fun Modifier.border(width: String, style: String, color: String): Modifier
+fun Modifier.border(value: String): Modifier
+
+// Border sides
+fun Modifier.borderTop(value: String): Modifier
+fun Modifier.borderRight(value: String): Modifier
+fun Modifier.borderBottom(value: String): Modifier
+fun Modifier.borderLeft(value: String): Modifier
+
+// Border properties
+fun Modifier.borderWidth(value: String): Modifier
+fun Modifier.borderStyle(value: String): Modifier
+fun Modifier.borderColor(value: String): Modifier
+fun Modifier.borderRadius(value: String): Modifier
+
+// Rounded corners
+fun Modifier.rounded(radius: String = "4px"): Modifier
+fun Modifier.roundedTop(radius: String): Modifier
+fun Modifier.roundedBottom(radius: String): Modifier
+```
+
+### Display and Layout
+
+```kotlin
+// Display type
+fun Modifier.display(value: String): Modifier
 fun Modifier.display(value: Display): Modifier
-fun Modifier.flexDirection(value: FlexDirection): Modifier
-fun Modifier.justifyContent(value: JustifyContent): Modifier
-fun Modifier.alignItems(value: AlignItems): Modifier
-fun Modifier.alignSelf(value: AlignSelf): Modifier
-fun Modifier.alignContent(value: AlignContent): Modifier
-fun Modifier.flexWrap(value: FlexWrap): Modifier
-fun Modifier.flex(value: Number): Modifier
-fun Modifier.flexGrow(value: Number): Modifier
-fun Modifier.flexShrink(value: Number): Modifier
-fun Modifier.flexBasis(value: String): Modifier
-fun Modifier.gap(value: String): Modifier
-fun Modifier.gap(value: Number): Modifier  // Auto-converts to px
-fun Modifier.rowGap(value: String): Modifier
-fun Modifier.columnGap(value: String): Modifier
-```
 
-### Grid Layout
+// Visibility
+fun Modifier.visibility(value: String): Modifier
+fun Modifier.opacity(value: String): Modifier
+fun Modifier.opacity(value: Double): Modifier
 
-```kotlin
-fun Modifier.gridTemplateColumns(value: String): Modifier
-fun Modifier.gridTemplateRows(value: String): Modifier
-fun Modifier.gridColumn(value: String): Modifier
-fun Modifier.gridRow(value: String): Modifier
-fun Modifier.gridArea(value: String): Modifier
-fun Modifier.gridGap(value: String): Modifier
-fun Modifier.gridAutoFlow(value: String): Modifier
-fun Modifier.gridAutoColumns(value: String): Modifier
-fun Modifier.gridAutoRows(value: String): Modifier
-```
-
-### Overflow
-
-```kotlin
+// Overflow
+fun Modifier.overflow(value: String): Modifier
 fun Modifier.overflow(value: Overflow): Modifier
 fun Modifier.overflowX(value: String): Modifier
 fun Modifier.overflowY(value: String): Modifier
-fun Modifier.scrollBehavior(value: String): Modifier
-fun Modifier.scrollbarWidth(value: String): Modifier
 ```
 
----
-
-## Appearance Modifiers
-
-### Background
+### Flexbox Modifiers
 
 ```kotlin
-fun Modifier.backgroundColor(value: String): Modifier
-fun Modifier.backgroundColor(value: Color): Modifier
-fun Modifier.backgroundImage(value: String): Modifier
-fun Modifier.backgroundSize(value: String): Modifier
-fun Modifier.backgroundPosition(value: String): Modifier
-fun Modifier.backgroundRepeat(value: String): Modifier
-fun Modifier.backgroundClip(value: BackgroundClip): Modifier
-fun Modifier.background(value: String): Modifier  // Shorthand
+// Flex container
+fun Modifier.flexDirection(value: String): Modifier
+fun Modifier.flexDirection(value: FlexDirection): Modifier
+fun Modifier.justifyContent(value: String): Modifier
+fun Modifier.justifyContent(value: JustifyContent): Modifier
+fun Modifier.alignItems(value: String): Modifier
+fun Modifier.alignItems(value: AlignItems): Modifier
+fun Modifier.alignContent(value: String): Modifier
+fun Modifier.flexWrap(value: String): Modifier
+fun Modifier.gap(value: String): Modifier
+
+// Flex items
+fun Modifier.flexGrow(value: String): Modifier
+fun Modifier.flexGrow(value: Number): Modifier
+fun Modifier.flexShrink(value: String): Modifier
+fun Modifier.flexBasis(value: String): Modifier
+fun Modifier.alignSelf(value: String): Modifier
+fun Modifier.order(value: Int): Modifier
 ```
 
-### Colors
+### Usage Examples
 
 ```kotlin
-fun Modifier.color(value: String): Modifier
-fun Modifier.color(value: Color): Modifier
-fun Modifier.opacity(value: Double): Modifier
-fun Modifier.opacity(value: Float): Modifier
-```
-
-### Box Shadow
-
-```kotlin
-// Multiple overloads for flexibility
-fun Modifier.boxShadow(value: String): Modifier
-fun Modifier.boxShadow(
-    offsetX: String,
-    offsetY: String,
-    blurRadius: String,
-    color: String
-): Modifier
-fun Modifier.boxShadow(
-    offsetX: String,
-    offsetY: String,
-    blurRadius: String,
-    spreadRadius: String,
-    color: String
-): Modifier
-fun Modifier.boxShadow(
-    offsetX: String,
-    offsetY: String,
-    blurRadius: String,
-    spreadRadius: String,
-    color: Color
-): Modifier
-fun Modifier.boxShadow(
-    inset: Boolean,
-    offsetX: String,
-    offsetY: String,
-    blurRadius: String,
-    spreadRadius: String,
-    color: String
-): Modifier
-```
-
-### Filters & Effects
-
-```kotlin
-fun Modifier.filter(value: String): Modifier
-fun Modifier.blur(value: String): Modifier
-fun Modifier.brightness(value: Double): Modifier
-fun Modifier.contrast(value: Double): Modifier
-fun Modifier.grayscale(value: Double): Modifier
-fun Modifier.saturate(value: Double): Modifier
-fun Modifier.sepia(value: Double): Modifier
-fun Modifier.hueRotate(value: String): Modifier
-fun Modifier.invert(value: Double): Modifier
-```
-
----
-
-## Typography Modifiers
-
-```kotlin
-fun Modifier.fontSize(value: String): Modifier
-fun Modifier.fontSize(value: Number): Modifier  // Auto-converts to px
-fun Modifier.fontWeight(value: FontWeight): Modifier
-fun Modifier.fontWeight(value: Int): Modifier
-fun Modifier.fontFamily(value: String): Modifier
-fun Modifier.fontStyle(value: String): Modifier
-fun Modifier.textAlign(value: TextAlign): Modifier
-fun Modifier.textDecoration(value: String): Modifier
-fun Modifier.textTransform(value: TextTransform): Modifier
-fun Modifier.lineHeight(value: String): Modifier
-fun Modifier.lineHeight(value: Number): Modifier
-fun Modifier.letterSpacing(value: String): Modifier
-fun Modifier.letterSpacing(value: Number): Modifier
-fun Modifier.wordSpacing(value: String): Modifier
-fun Modifier.textIndent(value: String): Modifier
-fun Modifier.whiteSpace(value: String): Modifier
-fun Modifier.textOverflow(value: String): Modifier
-fun Modifier.wordBreak(value: String): Modifier
-fun Modifier.textShadow(value: String): Modifier
-fun Modifier.verticalAlign(value: String): Modifier
-```
-
----
-
-## Border Modifiers
-
-### Basic Border
-
-```kotlin
-// Shorthand border
-fun Modifier.border(width: String, style: String, color: String): Modifier
-fun Modifier.border(width: Number, style: String, color: String): Modifier
-fun Modifier.border(width: String, style: BorderStyle, color: String): Modifier
-fun Modifier.border(width: Number, style: BorderStyle, color: Color): Modifier
-
-// Border radius
-fun Modifier.borderRadius(value: String): Modifier
-fun Modifier.borderRadius(value: Number): Modifier  // Auto-converts to px
-fun Modifier.borderRadius(
-    topLeft: String,
-    topRight: String,
-    bottomRight: String,
-    bottomLeft: String
-): Modifier
-```
-
-### Individual Border Sides
-
-```kotlin
-// Border width for individual sides
-fun Modifier.borderTopWidth(value: Number): Modifier
-fun Modifier.borderRightWidth(value: Number): Modifier
-fun Modifier.borderBottomWidth(value: Number): Modifier
-fun Modifier.borderLeftWidth(value: Number): Modifier
-fun Modifier.borderWidth(value: Number, side: BorderSide): Modifier
-
-// Border style
-fun Modifier.borderStyle(value: BorderStyle): Modifier
-fun Modifier.borderTopStyle(value: BorderStyle): Modifier
-fun Modifier.borderRightStyle(value: BorderStyle): Modifier
-fun Modifier.borderBottomStyle(value: BorderStyle): Modifier
-fun Modifier.borderLeftStyle(value: BorderStyle): Modifier
-
-// Border color
-fun Modifier.borderColor(value: String): Modifier
-fun Modifier.borderColor(value: Color): Modifier
-fun Modifier.borderTopColor(value: String): Modifier
-fun Modifier.borderRightColor(value: String): Modifier
-fun Modifier.borderBottomColor(value: String): Modifier
-fun Modifier.borderLeftColor(value: String): Modifier
-
-// Individual side shortcuts
-fun Modifier.borderTop(width: String, style: String, color: String): Modifier
-fun Modifier.borderRight(width: String, style: String, color: String): Modifier
-fun Modifier.borderBottom(width: String, style: String, color: String): Modifier
-fun Modifier.borderLeft(width: String, style: String, color: String): Modifier
-```
-
----
-
-## Transform Modifiers
-
-```kotlin
-fun Modifier.transform(value: String): Modifier
-fun Modifier.translateX(value: String): Modifier
-fun Modifier.translateY(value: String): Modifier
-fun Modifier.translate(x: String, y: String): Modifier
-fun Modifier.scale(value: Double): Modifier
-fun Modifier.scale(x: Double, y: Double): Modifier
-fun Modifier.scaleX(value: Double): Modifier
-fun Modifier.scaleY(value: Double): Modifier
-fun Modifier.rotate(value: String): Modifier
-fun Modifier.rotateX(value: String): Modifier
-fun Modifier.rotateY(value: String): Modifier
-fun Modifier.rotateZ(value: String): Modifier
-fun Modifier.skewX(value: String): Modifier
-fun Modifier.skewY(value: String): Modifier
-fun Modifier.skew(x: String, y: String): Modifier
-fun Modifier.transformOrigin(value: String): Modifier
-fun Modifier.perspective(value: String): Modifier
-```
-
----
-
-## Gradient Modifiers
-
-### Linear Gradients
-
-```kotlin
-// Basic linear gradient
-fun Modifier.linearGradient(
-    direction: String,
-    vararg colors: String
-): Modifier
-
-// Linear gradient with positions
-fun Modifier.linearGradient(
-    startColor: String,
-    endColor: String,
-    startPosition: String = "0%",
-    endPosition: String = "100%",
-    direction: String = "to bottom"
-): Modifier
-
-// Linear gradient with Color objects
-fun Modifier.linearGradient(
-    direction: String,
-    vararg colors: Color
-): Modifier
-
-// Linear gradient with Color objects and positions
-fun Modifier.linearGradient(
-    startColor: Color,
-    endColor: Color,
-    startPosition: Number = 0,
-    endPosition: Number = 100,
-    direction: String = "to bottom"
-): Modifier
-```
-
-### Radial Gradients
-
-```kotlin
-// Basic radial gradient
-fun Modifier.radialGradient(
-    shape: RadialGradientShape = RadialGradientShape.Ellipse,
-    position: RadialGradientPosition = RadialGradientPosition.Center,
-    vararg colors: String
-): Modifier
-
-// Radial gradient with inner/outer colors
-fun Modifier.radialGradient(
-    innerColor: String,
-    outerColor: String,
-    shape: RadialGradientShape = RadialGradientShape.Ellipse,
-    position: RadialGradientPosition = RadialGradientPosition.Center
-): Modifier
-
-// Radial gradient with Color objects
-fun Modifier.radialGradient(
-    shape: RadialGradientShape = RadialGradientShape.Ellipse,
-    position: RadialGradientPosition = RadialGradientPosition.Center,
-    vararg colors: Color
-): Modifier
-
-// Radial gradient with positions
-fun Modifier.radialGradient(
-    innerColor: Color,
-    outerColor: Color,
-    innerPosition: Number = 0,
-    outerPosition: Number = 100,
-    shape: RadialGradientShape = RadialGradientShape.Ellipse,
-    position: RadialGradientPosition = RadialGradientPosition.Center
-): Modifier
-```
-
----
-
-## Interactive Modifiers
-
-### Pointer Events
-
-```kotlin
-fun Modifier.onClick(handler: String): Modifier
-fun Modifier.onMouseEnter(handler: String): Modifier
-fun Modifier.onMouseLeave(handler: String): Modifier
-fun Modifier.onMouseMove(handler: String): Modifier
-fun Modifier.onMouseDown(handler: String): Modifier
-fun Modifier.onMouseUp(handler: String): Modifier
-fun Modifier.onTouchStart(handler: String): Modifier
-fun Modifier.onTouchEnd(handler: String): Modifier
-fun Modifier.onTouchMove(handler: String): Modifier
-fun Modifier.onDragStart(handler: String): Modifier
-fun Modifier.onDragEnd(handler: String): Modifier
-fun Modifier.onDragOver(handler: String): Modifier
-fun Modifier.onDrop(handler: String): Modifier
-fun Modifier.draggable(value: Boolean = true): Modifier
-fun Modifier.disablePointerEvents(): Modifier
-fun Modifier.enablePointerEvents(): Modifier
-```
-
-### Cursor
-
-```kotlin
-fun Modifier.cursor(value: Cursor): Modifier
-fun Modifier.cursor(value: String): Modifier
-```
-
----
-
-## Animation Modifiers
-
-### Transitions
-
-```kotlin
-// Basic transition
-fun Modifier.transition(
-    property: String,
-    duration: String,
-    timingFunction: String = "ease",
-    delay: String = "0s"
-): Modifier
-
-// Transition with multiple properties
-fun Modifier.transition(
-    properties: List<String>,
-    duration: String,
-    timingFunction: String = "ease",
-    delay: String = "0s"
-): Modifier
-
-// Individual transition properties
-fun Modifier.transitionProperty(value: TransitionProperty): Modifier
-fun Modifier.transitionDuration(value: String): Modifier
-fun Modifier.transitionDuration(value: Number): Modifier  // In milliseconds
-fun Modifier.transitionTimingFunction(value: TransitionTimingFunction): Modifier
-fun Modifier.transitionDelay(value: String): Modifier
-fun Modifier.transitionDelay(value: Number): Modifier  // In milliseconds
-```
-
-### Animations
-
-```kotlin
-fun Modifier.animation(value: String): Modifier
-fun Modifier.animationName(value: String): Modifier
-fun Modifier.animationDuration(value: String): Modifier
-fun Modifier.animationTimingFunction(value: String): Modifier
-fun Modifier.animationDelay(value: String): Modifier
-fun Modifier.animationIterationCount(value: String): Modifier
-fun Modifier.animationDirection(value: String): Modifier
-fun Modifier.animationFillMode(value: String): Modifier
-fun Modifier.animationPlayState(value: String): Modifier
-```
-
----
-
-## Accessibility Modifiers
-
-### ARIA Attributes
-
-```kotlin
-fun Modifier.ariaLabel(value: String): Modifier
-fun Modifier.ariaDescribedBy(value: String): Modifier
-fun Modifier.ariaLabelledBy(value: String): Modifier
-fun Modifier.ariaRole(value: String): Modifier
-fun Modifier.ariaHidden(value: Boolean): Modifier
-fun Modifier.ariaLive(value: String): Modifier
-fun Modifier.ariaExpanded(value: Boolean): Modifier
-fun Modifier.ariaPressed(value: Boolean): Modifier
-fun Modifier.ariaChecked(value: Boolean): Modifier
-fun Modifier.ariaSelected(value: Boolean): Modifier
-fun Modifier.ariaDisabled(value: Boolean): Modifier
-fun Modifier.ariaValueNow(value: Int): Modifier
-fun Modifier.ariaValueMin(value: Int): Modifier
-fun Modifier.ariaValueMax(value: Int): Modifier
-fun Modifier.ariaValueText(value: String): Modifier
-fun Modifier.ariaControls(value: String): Modifier
-fun Modifier.ariaHasPopup(value: Boolean): Modifier
-fun Modifier.ariaBusy(value: Boolean): Modifier
-```
-
-### Accessibility Helpers
-
-```kotlin
-fun Modifier.tabIndex(value: Int): Modifier
-fun Modifier.focusable(): Modifier
-fun Modifier.tabbable(): Modifier
-fun Modifier.disabled(): Modifier
-fun Modifier.autoFocus(): Modifier
-fun Modifier.removeAttribute(name: String): Modifier
-```
-
----
-
-## Row/Column Specific Modifiers
-
-### Row Alignment
-
-```kotlin
-// For Row components - vertical alignment
-fun Modifier.verticalAlignment(alignment: Alignment.Vertical): Modifier
-
-// Alignment.Vertical values:
-// - Top
-// - CenterVertically
-// - Bottom
-```
-
-### Column Alignment
-
-```kotlin
-// For Column components - horizontal alignment
-fun Modifier.horizontalAlignment(alignment: Alignment.Horizontal): Modifier
-
-// Alignment.Horizontal values:
-// - Start
-// - CenterHorizontally  
-// - End
-```
-
-### Example
-
-```kotlin
-Row(
-    modifier = Modifier
-        .fillMaxWidth()
-        .verticalAlignment(Alignment.CenterVertically)
-) {
-    // Children will be vertically centered
-}
-
-Column(
-    modifier = Modifier
-        .fillMaxHeight()
-        .horizontalAlignment(Alignment.CenterHorizontally)
-) {
-    // Children will be horizontally centered
-}
-```
-
----
-
-## Advanced Modifiers
-
-### Miscellaneous
-
-```kotlin
-fun Modifier.visibility(value: String): Modifier
-fun Modifier.userSelect(value: String): Modifier
-fun Modifier.outline(value: String): Modifier
-fun Modifier.outlineColor(value: String): Modifier
-fun Modifier.outlineStyle(value: String): Modifier
-fun Modifier.outlineWidth(value: String): Modifier
-fun Modifier.outlineOffset(value: String): Modifier
-fun Modifier.resize(value: String): Modifier
-fun Modifier.objectFit(value: String): Modifier  // For images/videos
-fun Modifier.objectPosition(value: String): Modifier
-fun Modifier.aspectRatio(value: String): Modifier
-fun Modifier.willChange(value: String): Modifier
-fun Modifier.isolation(value: String): Modifier
-fun Modifier.mixBlendMode(value: String): Modifier
-```
-
----
-
-## Utility Functions
-
-### Conditional Modifiers
-
-```kotlin
-// Apply modifier conditionally
-fun Modifier.applyIf(
-    condition: Boolean,
-    block: Modifier.() -> Modifier
-): Modifier
-
-// Example
-Modifier
-    .padding(16.px)
-    .applyIf(isHighlighted) {
-        backgroundColor("#ffff00")
-        border(2.px, BorderStyle.Solid, "#ff0000")
-    }
-```
-
-### Modifier Operations
-
-```kotlin
-// Clone a modifier
-fun Modifier.clone(): Modifier
-
-// Combine modifiers
-fun Modifier.combine(other: Modifier): Modifier
-operator fun Modifier.plus(other: Modifier): Modifier
-
-// Generic event handler
-fun Modifier.event(eventName: String, handler: String): Modifier
+// Styling
+Modifier()
+    .backgroundColor("#f8f9fa")
+    .color("#212529")
+    .fontSize(16.px)
+    .fontWeight(FontWeight.Medium)
+    .border("1px", "solid", "#dee2e6")
+    .borderRadius(8.px)
+    .opacity(0.9)
+
+// Flexbox layout
+Modifier()
+    .display(Display.Flex)
+    .flexDirection(FlexDirection.Column)
+    .justifyContent(JustifyContent.Center)
+    .alignItems(AlignItems.Center)
+    .gap(16.px)
 ```
 
 ---
 
 ## CSS Enums
 
-Summon provides type-safe enums for CSS values:
+Type-safe enums for common CSS values.
 
-### Display
+### Layout Enums
 
 ```kotlin
-enum class Display {
-    None, Block, Inline, InlineBlock, Flex, Grid, 
-    InlineFlex, InlineGrid, Table, InlineTable, 
-    TableRow, TableCell, TableColumn, None
+enum class Display(val value: String) {
+    None("none"), Block("block"), Inline("inline"),
+    InlineBlock("inline-block"), Flex("flex"), Grid("grid"),
+    InlineFlex("inline-flex"), InlineGrid("inline-grid")
+}
+
+enum class Position(val value: String) {
+    Static("static"), Relative("relative"), Absolute("absolute"),
+    Fixed("fixed"), Sticky("sticky")
+}
+
+enum class Overflow(val value: String) {
+    Visible("visible"), Hidden("hidden"),
+    Scroll("scroll"), Auto("auto")
 }
 ```
 
-### Position
+### Flexbox Enums
 
 ```kotlin
-enum class Position {
-    Static, Relative, Absolute, Fixed, Sticky
+enum class FlexDirection(val value: String) {
+    Row("row"), RowReverse("row-reverse"),
+    Column("column"), ColumnReverse("column-reverse")
+}
+
+enum class JustifyContent(val value: String) {
+    FlexStart("flex-start"), FlexEnd("flex-end"), Center("center"),
+    SpaceBetween("space-between"), SpaceAround("space-around"),
+    SpaceEvenly("space-evenly")
+}
+
+enum class AlignItems(val value: String) {
+    FlexStart("flex-start"), FlexEnd("flex-end"), Center("center"),
+    Baseline("baseline"), Stretch("stretch")
 }
 ```
 
-### FlexDirection
+### Typography Enums
 
 ```kotlin
-enum class FlexDirection {
-    Row, Column, RowReverse, ColumnReverse
+enum class FontWeight(val value: String) {
+    Thin("100"), ExtraLight("200"), Light("300"), Normal("400"),
+    Medium("500"), SemiBold("600"), Bold("700"),
+    ExtraBold("800"), Black("900")
+}
+
+enum class TextAlign(val value: String) {
+    Left("left"), Right("right"), Center("center"),
+    Justify("justify"), Start("start"), End("end")
 }
 ```
 
-### JustifyContent
+### Usage Examples
 
 ```kotlin
-enum class JustifyContent {
-    FlexStart, FlexEnd, Center, SpaceBetween,
-    SpaceAround, SpaceEvenly, Start, End
-}
-```
-
-### AlignItems
-
-```kotlin
-enum class AlignItems {
-    FlexStart, FlexEnd, Center, Baseline, Stretch
-}
-```
-
-### TextAlign
-
-```kotlin
-enum class TextAlign {
-    Left, Right, Center, Justify, Start, End
-}
-```
-
-### FontWeight
-
-```kotlin
-enum class FontWeight {
-    Thin, ExtraLight, Light, Normal, Medium,
-    SemiBold, Bold, ExtraBold, Black
-}
-```
-
-### BorderStyle
-
-```kotlin
-enum class BorderStyle {
-    None, Solid, Dashed, Dotted, Double, Groove,
-    Ridge, Inset, Outset, Hidden
-}
-```
-
-### Cursor
-
-```kotlin
-enum class Cursor {
-    Auto, Default, Pointer, Wait, Text, Move,
-    NotAllowed, Crosshair, ZoomIn, ZoomOut,
-    Grab, Grabbing, Help, Progress, ContextMenu
-}
-```
-
-### Overflow
-
-```kotlin
-enum class Overflow {
-    Visible, Hidden, Scroll, Auto, Clip
-}
-```
-
-### TextTransform
-
-```kotlin
-enum class TextTransform {
-    None, Uppercase, Lowercase, Capitalize, FullWidth
-}
-```
-
-### TransitionProperty
-
-```kotlin
-enum class TransitionProperty {
-    All, None, Background, Border, Color, Height,
-    Margin, Opacity, Padding, Transform, Width
-}
-```
-
-### TransitionTimingFunction
-
-```kotlin
-enum class TransitionTimingFunction {
-    Linear, Ease, EaseIn, EaseOut, EaseInOut,
-    StepStart, StepEnd
-}
-```
-
-### FlexWrap
-
-```kotlin
-enum class FlexWrap {
-    NoWrap, Wrap, WrapReverse
-}
-```
-
-### RadialGradientShape
-
-```kotlin
-enum class RadialGradientShape {
-    Circle, Ellipse
-}
-```
-
-### RadialGradientPosition
-
-```kotlin
-enum class RadialGradientPosition {
-    Center, Top, Bottom, Left, Right,
-    TopLeft, TopRight, BottomLeft, BottomRight
-}
-```
-
-### BackgroundClip
-
-```kotlin
-enum class BackgroundClip {
-    BorderBox, PaddingBox, ContentBox, Text
-}
-```
-
-### BorderSide
-
-```kotlin
-enum class BorderSide {
-    Top, Right, Bottom, Left
-}
+Modifier()
+    .display(Display.Flex)
+    .position(Position.Relative)
+    .flexDirection(FlexDirection.Column)
+    .justifyContent(JustifyContent.Center)
+    .alignItems(AlignItems.Center)
+    .fontWeight(FontWeight.Bold)
+    .textAlign(TextAlign.Center)
+    .overflow(Overflow.Hidden)
 ```
 
 ---
 
-## Complete Example
+## Accessibility Modifiers
 
-Here's a comprehensive example showing various modifiers in action:
+Modifiers for accessibility attributes and ARIA support.
+
+### ARIA Attributes
 
 ```kotlin
-import code.yousef.summon.modifier.*
-import code.yousef.summon.extensions.*
+// ARIA properties
+fun Modifier.ariaLabel(value: String): Modifier
+fun Modifier.ariaDescribedBy(value: String): Modifier
+fun Modifier.ariaLabelledBy(value: String): Modifier
+fun Modifier.ariaHidden(value: Boolean): Modifier
+fun Modifier.ariaExpanded(value: Boolean): Modifier
+fun Modifier.ariaPressed(value: Boolean): Modifier
+fun Modifier.ariaChecked(value: Boolean): Modifier
+fun Modifier.ariaSelected(value: Boolean): Modifier
+fun Modifier.ariaDisabled(value: Boolean): Modifier
 
-Card(
-    modifier = Modifier()
-        // Layout
-        .width(300.px)
-        .maxWidth(100.percent)
-        .marginHorizontalAutoZero()  // Center horizontally
-        .padding(24.px)
-        
-        // Appearance
-        .backgroundColor("#ffffff")
-        .borderRadius(12.px)
-        .boxShadow("0px", "4px", "12px", "0px", "rgba(0,0,0,0.1)")
-        
-        // Gradient background
-        .linearGradient(
-            direction = "to bottom right",
-            colors = arrayOf("#667eea", "#764ba2")
-        )
-        
-        // Typography (for text content)
-        .fontSize(16.px)
-        .fontWeight(FontWeight.Normal)
-        .lineHeight(1.6)
-        .color("#333333")
-        
-        // Transitions
-        .transition(
-            properties = listOf("transform", "box-shadow"),
-            duration = "300ms",
-            timingFunction = "ease-out"
-        )
-        
-        // Interactive
-        .cursor(Cursor.Pointer)
-        .applyIf(isHovered) {
-            transform("translateY(-4px)")
-            boxShadow("0px", "8px", "24px", "0px", "rgba(0,0,0,0.15)")
-        }
-        
-        // Accessibility
-        .ariaLabel("Interactive card")
-        .tabIndex(0)
-) {
+// Role attribute
+fun Modifier.role(value: String): Modifier
+```
+
+### Focus Modifiers
+
+```kotlin
+// Focus styling
+fun Modifier.focus(modifier: Modifier): Modifier
+fun Modifier.focusVisible(modifier: Modifier): Modifier
+fun Modifier.tabIndex(value: Int): Modifier
+```
+
+### Usage Examples
+
+```kotlin
+Modifier()
+    .ariaLabel("Close dialog")
+    .role("button")
+    .tabIndex(0)
+    .focus(
+        Modifier()
+            .borderColor("#007bff")
+            .outline("2px solid #007bff")
+    )
+```
+
+---
+
+## Interactive Modifiers
+
+Modifiers for user interactions and state changes.
+
+### Hover and Active States
+
+```kotlin
+// Pseudo-class modifiers
+fun Modifier.hover(modifier: Modifier): Modifier
+fun Modifier.active(modifier: Modifier): Modifier
+fun Modifier.focus(modifier: Modifier): Modifier
+fun Modifier.visited(modifier: Modifier): Modifier
+fun Modifier.disabled(modifier: Modifier): Modifier
+```
+
+### Cursor Modifiers
+
+```kotlin
+// Cursor styles
+fun Modifier.cursor(value: String): Modifier
+fun Modifier.cursor(value: Cursor): Modifier
+
+enum class Cursor(val value: String) {
+    Auto("auto"), Default("default"), Pointer("pointer"),
+    Text("text"), Wait("wait"), Help("help"), NotAllowed("not-allowed")
+}
+```
+
+### Pointer Events
+
+```kotlin
+// Pointer event handling
+fun Modifier.pointerEvents(value: String): Modifier
+fun Modifier.userSelect(value: String): Modifier
+```
+
+### Usage Examples
+
+```kotlin
+// Interactive button
+Modifier()
+    .cursor(Cursor.Pointer)
+    .hover(
+        Modifier()
+            .backgroundColor("#0056b3")
+            .transform("translateY(-2px)")
+    )
+    .active(
+        Modifier().backgroundColor("#004085")
+    )
+    .focus(
+        Modifier().outline("2px solid #80bdff")
+    )
+```
+
+---
+
+## Advanced Modifiers
+
+Advanced styling capabilities for complex designs.
+
+### Transform Modifiers
+
+```kotlin
+// Transform functions
+fun Modifier.transform(value: String): Modifier
+fun Modifier.rotate(degrees: String): Modifier
+fun Modifier.scale(value: String): Modifier
+fun Modifier.translate(x: String, y: String): Modifier
+fun Modifier.skew(x: String, y: String): Modifier
+```
+
+### Animation and Transition
+
+```kotlin
+// Transitions
+fun Modifier.transition(value: String): Modifier
+fun Modifier.transitionProperty(value: String): Modifier
+fun Modifier.transitionDuration(value: String): Modifier
+fun Modifier.transitionDelay(value: String): Modifier
+fun Modifier.transitionTimingFunction(value: String): Modifier
+
+// Animations
+fun Modifier.animation(value: String): Modifier
+fun Modifier.animationName(value: String): Modifier
+fun Modifier.animationDuration(value: String): Modifier
+fun Modifier.animationDelay(value: String): Modifier
+fun Modifier.animationIterationCount(value: String): Modifier
+```
+
+### Shadow and Effects
+
+```kotlin
+// Shadows
+fun Modifier.boxShadow(value: String): Modifier
+fun Modifier.textShadow(value: String): Modifier
+fun Modifier.dropShadow(value: String): Modifier
+
+// Filters
+fun Modifier.filter(value: String): Modifier
+fun Modifier.backdropFilter(value: String): Modifier
+```
+
+### Grid Layout
+
+```kotlin
+// Grid container
+fun Modifier.gridTemplateColumns(value: String): Modifier
+fun Modifier.gridTemplateRows(value: String): Modifier
+fun Modifier.gridTemplateAreas(value: String): Modifier
+fun Modifier.gridGap(value: String): Modifier
+fun Modifier.gridAutoColumns(value: String): Modifier
+fun Modifier.gridAutoRows(value: String): Modifier
+
+// Grid items
+fun Modifier.gridColumn(value: String): Modifier
+fun Modifier.gridRow(value: String): Modifier
+fun Modifier.gridArea(value: String): Modifier
+fun Modifier.justifySelf(value: String): Modifier
+fun Modifier.alignSelf(value: String): Modifier
+```
+
+### Usage Examples
+
+```kotlin
+// Card with advanced styling
+Modifier()
+    .backgroundColor("#ffffff")
+    .borderRadius(12.px)
+    .boxShadow("0 4px 6px rgba(0, 0, 0, 0.1)")
+    .transition("all 0.3s ease")
+    .hover(
+        Modifier()
+            .transform("translateY(-4px)")
+            .boxShadow("0 8px 25px rgba(0, 0, 0, 0.15)")
+    )
+
+// Grid layout
+Modifier()
+    .display(Display.Grid)
+    .gridTemplateColumns("repeat(auto-fit, minmax(200px, 1fr))")
+    .gridGap(20.px)
+    .padding(20.px)
+```
+
+---
+
+## Theme Integration
+
+Modifiers integrate seamlessly with the Summon theme system.
+
+### Theme Modifier Extensions
+
+```kotlin
+// Theme-aware modifiers from theme system
+fun Modifier.themeColor(colorName: String): Modifier
+fun Modifier.themeBackgroundColor(colorName: String): Modifier
+fun Modifier.themeTextStyle(styleName: String): Modifier
+fun Modifier.themePadding(spacingName: String): Modifier
+fun Modifier.themeMargin(spacingName: String): Modifier
+fun Modifier.themeBorderRadius(radiusName: String): Modifier
+fun Modifier.themeElevation(elevationName: String): Modifier
+```
+
+### Usage with Themes
+
+```kotlin
+// Using theme values
+Modifier()
+    .themeBackgroundColor("primary")
+    .themeColor("onPrimary")
+    .themeTextStyle("button")
+    .themePadding("md")
+    .themeBorderRadius("sm")
+    .themeElevation("md")
+
+// Mixed with direct styling
+Modifier()
+    .themeBackgroundColor("surface")
+    .width(100.percent)
+    .hover(
+        Modifier().themeBackgroundColor("surfaceVariant")
+    )
+```
+
+---
+
+## Best Practices
+
+### 1. Use Type-Safe Enums
+
+```kotlin
+// ✅ Preferred
+Modifier()
+    .display(Display.Flex)
+    .justifyContent(JustifyContent.Center)
+    .alignItems(AlignItems.Center)
+
+// ❌ Avoid
+Modifier()
+    .display("flex")
+    .justifyContent("center")
+    .alignItems("center")
+```
+
+### 2. Use CSS Unit Extensions
+
+```kotlin
+// ✅ Preferred
+Modifier()
+    .width(200.px)
+    .height(100.percent)
+    .padding(16.px)
+    .fontSize(1.2.rem)
+
+// ❌ Avoid
+Modifier()
+    .width("200px")
+    .height("100%")
+    .padding("16px")
+    .fontSize("1.2rem")
+```
+
+### 3. Chain Modifiers Logically
+
+```kotlin
+// ✅ Group related properties
+Modifier()
+    // Layout
+    .width(300.px)
+    .height(200.px)
+    .padding(20.px)
+    // Appearance
+    .backgroundColor("#f8f9fa")
+    .borderRadius(8.px)
+    .boxShadow("0 2px 4px rgba(0,0,0,0.1)")
+    // Interaction
+    .cursor(Cursor.Pointer)
+    .hover(Modifier().backgroundColor("#e9ecef"))
+```
+
+### 4. Use Theme Integration
+
+```kotlin
+// ✅ Theme-aware
+Modifier()
+    .themeBackgroundColor("primary")
+    .themeColor("onPrimary")
+    .themePadding("md")
+    .themeBorderRadius("md")
+
+// ❌ Hardcoded values
+Modifier()
+    .backgroundColor("#007bff")
+    .color("#ffffff")
+    .padding("16px")
+    .borderRadius("8px")
+```
+
+### 5. Organize Complex Modifiers
+
+```kotlin
+// ✅ Extract complex modifiers
+fun cardModifier() = Modifier()
+    .backgroundColor("#ffffff")
+    .borderRadius(12.px)
+    .boxShadow("0 2px 8px rgba(0, 0, 0, 0.1)")
+    .transition("all 0.2s ease")
+    .hover(
+        Modifier()
+            .transform("translateY(-2px)")
+            .boxShadow("0 4px 12px rgba(0, 0, 0, 0.15)")
+    )
+
+// Usage
+Card(modifier = cardModifier()) {
     // Card content
 }
 ```
+
+## Migration Notes
+
+When updating from older versions:
+
+- Replace string-based CSS values with type-safe enums
+- Use CSS unit extensions instead of string literals
+- Update to use new theme integration functions
+- Test interactive states (hover, focus, active)
+
+## See Also
+
+- [Theme API](theme.md) - Theme integration with modifiers
+- [Components API](components.md) - Using modifiers with components
+- [Animation API](animation.md) - Animation-specific modifiers
+- [Accessibility API](accessibility.md) - Accessibility best practices

@@ -4,50 +4,89 @@ This document provides detailed information about the state management APIs in t
 
 ## Table of Contents
 
+- [Core State Interfaces](#core-state-interfaces)
 - [MutableState](#mutablestate)
-- [Remember](#remember)
-- [DerivedState](#derivedstate)
-- [SimpleDerivedState](#simplederivedstate) (v0.2.8+)
-- [ProduceState](#producestate) (v0.2.8+)
-- [CollectAsState](#collectasstate) (v0.2.8+)
-- [MutableStateList](#mutablestatelist) (v0.2.8+)
-- [StateFlow Integration](#stateflow-integration)
-- [StateContainer](#statecontainer)
-- [Persistent State](#persistent-state)
-- [Platform-Specific State](#platform-specific-state)
+- [Remember Functions](#remember-functions)
+- [Derived State](#derived-state)
+- [Flow Integration](#flow-integration)
+- [Saveable State](#saveable-state)
+- [Usage Examples](#usage-examples)
+
+---
+
+## Core State Interfaces
+
+Summon provides a hierarchy of state interfaces for different use cases.
+
+### State<T>
+
+The base interface for read-only state holders.
+
+```kotlin
+interface State<T> {
+    val value: T
+}
+```
+
+### SummonMutableState<T>
+
+Interface for mutable state holders.
+
+```kotlin
+interface SummonMutableState<T> : State<T> {
+    override var value: T
+}
+```
+
+### MutableState<T>
+
+Extended mutable state interface with component functions and listeners.
+
+```kotlin
+interface MutableState<T> : SummonMutableState<T> {
+    operator fun component1(): T
+    operator fun component2(): (T) -> Unit
+
+    fun addListener(listener: (T) -> Unit)
+    fun removeListener(listener: (T) -> Unit)
+
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): T
+    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T)
+}
+```
+
+### Property Delegation Extensions
+
+Enable convenient property delegation syntax with state objects.
+
+```kotlin
+// For read-only state
+operator fun <T> State<T>.getValue(thisRef: Any?, property: KProperty<*>): T
+
+// For mutable state
+operator fun <T> SummonMutableState<T>.setValue(thisRef: Any?, property: KProperty<*>, value: T)
+```
 
 ---
 
 ## MutableState
 
-The `MutableState` class is the fundamental building block for state management in Summon.
+The primary implementation for mutable state management in Summon.
 
-### Class Definition
+### Factory Function
 
 ```kotlin
-package code.yousef.summon.state
-
-class MutableState<T>(initialValue: T) {
-    var value: T
-    
-    fun component1(): T
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): T
-    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T)
-}
-
 fun <T> mutableStateOf(initialValue: T): MutableState<T>
 ```
 
-### Description
+Creates a new MutableState instance with the given initial value.
 
-`MutableState` is a container for a value that can change over time. When the value changes, any components that use this state will be automatically recomposed.
-
-### Example
+### Usage Examples
 
 ```kotlin
 @Composable
 fun CounterExample() {
-    // Direct usage
+    // Direct value access
     val state = mutableStateOf(0)
     Text("Count: ${state.value}")
     Button(
@@ -55,7 +94,7 @@ fun CounterExample() {
         onClick = { state.value++ }
     )
 
-    // Using property delegate
+    // Property delegation
     var count by mutableStateOf(0)
     Text("Count: $count")
     Button(
@@ -73,32 +112,58 @@ fun CounterExample() {
 }
 ```
 
----
+### State Listeners
 
-## Remember
-
-The `remember` function is used to preserve state across recompositions.
-
-### Function Definition
+MutableState supports adding listeners for value changes:
 
 ```kotlin
-package code.yousef.summon.state
+val state = mutableStateOf("initial")
 
-@Composable
-fun <T> remember(calculation: () -> T): T
-@Composable
-fun <T, A> remember(a: A, calculation: (A) -> T): T
-@Composable
-fun <T, A, B> remember(a: A, b: B, calculation: (A, B) -> T): T
-@Composable
-fun <T, A, B, C> remember(a: A, b: B, c: C, calculation: (A, B, C) -> T): T
+// Add listener
+state.addListener { newValue ->
+    println("State changed to: $newValue")
+}
+
+// Remove listener
+val listener: (String) -> Unit = { println("Listener: $it") }
+state.addListener(listener)
+state.removeListener(listener)
 ```
 
-### Description
+---
 
-`remember` memoizes the result of a calculation and returns the same value across recompositions, unless one of the keys (parameters) changes.
+## Remember Functions
 
-### Example
+The `remember` functions preserve state and values across recompositions.
+
+### Basic Remember
+
+```kotlin
+@Composable
+fun <T> remember(calculation: () -> T): T
+```
+
+Remembers a value across recompositions. The calculation is only executed once.
+
+### Remember with Keys
+
+```kotlin
+@Composable
+fun <T> remember(vararg keys: Any?, calculation: () -> T): T
+```
+
+Remembers a value and recalculates when any of the keys change.
+
+### Remember Mutable State
+
+```kotlin
+@Composable
+fun <T> rememberMutableStateOf(initial: T): SummonMutableState<T>
+```
+
+Creates and remembers a mutable state with the given initial value.
+
+### Usage Examples
 
 ```kotlin
 @Composable
@@ -106,27 +171,26 @@ fun RememberExample(items: List<String>, searchQuery: String) {
     // Simple remember
     val count = remember { mutableStateOf(0) }
 
-    // With keys
+    // With keys - recalculates when items or searchQuery change
     val filteredItems = remember(items, searchQuery) {
         items.filter { it.contains(searchQuery, ignoreCase = true) }
     }
 
-    // Combining with property delegate
-    var count2 by remember { mutableStateOf(0) }
-    
+    // Remember mutable state
+    var localState by rememberMutableStateOf("initial")
+
     Column {
         Text("Count: ${count.value}")
         Button(
             text = "Increment",
             onClick = { count.value++ }
         )
-        
+
         Text("Filtered Items: ${filteredItems.size}")
-        
-        Text("Count 2: $count2")
-        Button(
-            text = "Increment",
-            onClick = { count2++ }
+
+        TextField(
+            value = localState,
+            onValueChange = { localState = it }
         )
     }
 }
@@ -134,29 +198,31 @@ fun RememberExample(items: List<String>, searchQuery: String) {
 
 ---
 
-## DerivedState
+## Derived State
 
-`DerivedState` represents a state that is computed from other state values.
+Create state that is computed from other state values.
 
-### Class Definition
+### Simple Derived State
 
 ```kotlin
-package code.yousef.summon.state
-
-class DerivedState<T>(private val calculation: () -> T) {
-    val value: T
-    
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): T
-}
-
-fun <T> derivedStateOf(calculation: () -> T): DerivedState<T>
+fun <T> simpleDerivedStateOf(calculation: () -> T): State<T>
 ```
 
-### Description
+Creates a simple derived state that recomputes when accessed.
 
-`DerivedState` calculates a value based on other state values. The value is recomputed when any of the state values it depends on changes.
+### Composable Derived State
 
-### Example
+```kotlin
+@Composable
+fun <T> derivedStateOf(calculation: () -> T): SummonMutableState<T>
+
+@Composable
+fun <T> derivedStateOf(vararg dependencies: Any?, calculation: () -> T): SummonMutableState<T>
+```
+
+Creates derived state that automatically updates when dependencies change.
+
+### Usage Examples
 
 ```kotlin
 @Composable
@@ -164,17 +230,32 @@ fun DerivedStateExample() {
     val firstName = remember { mutableStateOf("John") }
     val lastName = remember { mutableStateOf("Doe") }
 
-    val fullName by derivedStateOf { "${firstName.value} ${lastName.value}" }
+    // Simple derived state - recalculates on every access
+    val simpleFullName = simpleDerivedStateOf {
+        "${firstName.value} ${lastName.value}"
+    }
+
+    // Composable derived state - updates when dependencies change
+    val fullName by derivedStateOf {
+        "${firstName.value} ${lastName.value}"
+    }
+
+    // Derived state with explicit dependencies
+    val greeting by derivedStateOf(firstName, lastName) {
+        "Hello, ${firstName.value} ${lastName.value}!"
+    }
 
     Column {
+        Text("Simple: ${simpleFullName.value}")
         Text("Full Name: $fullName")
-        
+        Text(greeting)
+
         TextField(
             value = firstName.value,
             onValueChange = { firstName.value = it },
             label = "First Name"
         )
-        
+
         TextField(
             value = lastName.value,
             onValueChange = { lastName.value = it },
@@ -186,66 +267,25 @@ fun DerivedStateExample() {
 
 ---
 
-## SimpleDerivedState
+## Flow Integration
 
-*Available in v0.2.8+*
+Summon provides integration with Kotlin Flows for reactive state management.
 
-A simplified implementation of derived state that automatically recomputes when dependencies change.
-
-### Function Definition
-
-```kotlin
-package code.yousef.summon.state
-
-fun <T> simpleDerivedStateOf(
-    calculation: () -> T
-): State<T>
-```
-
-### Description
-
-`simpleDerivedStateOf` creates a state that is computed from other state values without explicit dependency tracking. It automatically detects which states are read during calculation and updates when they change.
-
-### Example
+### Collect Flow as State
 
 ```kotlin
 @Composable
-fun CartSummary() {
-    val items = remember { mutableStateListOf<CartItem>() }
-    
-    val subtotal = simpleDerivedStateOf {
-        items.sumOf { it.price * it.quantity }
-    }
-    
-    val tax = simpleDerivedStateOf {
-        subtotal.value * 0.08
-    }
-    
-    val total = simpleDerivedStateOf {
-        subtotal.value + tax.value
-    }
-    
-    Column {
-        Text("Subtotal: $${subtotal.value}")
-        Text("Tax: $${tax.value}")
-        Text("Total: $${total.value}")
-    }
-}
+fun <T> Flow<T>.collectAsState(initial: T): State<T>
+
+@Composable
+fun <T> StateFlow<T>.collectAsState(): State<T>
 ```
 
----
+Converts a Flow or StateFlow into a State that updates when the Flow emits new values.
 
-## ProduceState
-
-*Available in v0.2.8+*
-
-Creates state from a suspend function, perfect for async operations.
-
-### Function Definition
+### Produce State
 
 ```kotlin
-package code.yousef.summon.state
-
 @Composable
 fun <T> produceState(
     initialValue: T,
@@ -253,472 +293,229 @@ fun <T> produceState(
     producer: suspend ProduceStateScope<T>.() -> Unit
 ): State<T>
 
-interface ProduceStateScope<T> : CoroutineScope {
+interface ProduceStateScope<T> {
     var value: T
 }
 ```
 
-### Description
+Creates state from a suspend function, perfect for async operations.
 
-`produceState` launches a coroutine that can update the state value asynchronously. The coroutine is cancelled and restarted when any of the keys change.
-
-### Example
+### Usage Examples
 
 ```kotlin
 @Composable
-fun WeatherWidget(city: String) {
+fun FlowIntegrationExample(userId: String) {
+    // Collect from StateFlow
+    val user = userRepository.getUserFlow(userId).collectAsState()
+
+    // Collect from Flow with initial value
+    val notifications = notificationService
+        .getNotificationsFlow()
+        .collectAsState(initial = emptyList())
+
+    // Produce state from async operation
     val weather = produceState<Weather?>(
         initialValue = null,
-        key1 = city
+        key1 = userId
     ) {
-        value = WeatherApi.getWeather(city)
-        
+        value = weatherService.getWeather(userId)
+
         // Update every 5 minutes
         while (true) {
             delay(5.minutes)
-            value = WeatherApi.getWeather(city)
-        }
-    }
-    
-    weather.value?.let { w ->
-        Text("${w.temperature}°C in $city")
-    } ?: Text("Loading weather...")
-}
-```
-
----
-
-## CollectAsState
-
-*Available in v0.2.8+*
-
-Converts a Kotlin Flow to Summon State.
-
-### Function Definition
-
-```kotlin
-package code.yousef.summon.state
-
-@Composable
-fun <T> Flow<T>.collectAsState(): State<T>
-```
-
-### Description
-
-`collectAsState` collects values from a Flow and exposes them as State. The collection is lifecycle-aware and automatically cancelled when the composable leaves the composition.
-
-### Example
-
-```kotlin
-@Composable
-fun StockTicker(symbol: String) {
-    val stockPrice = StockApi
-        .getPriceFlow(symbol)
-        .collectAsState()
-    
-    Text("$symbol: $${stockPrice.value}")
-}
-```
-
----
-
-## MutableStateList
-
-*Available in v0.2.8+*
-
-An observable list implementation that triggers recomposition on modifications.
-
-### Function Definition
-
-```kotlin
-package code.yousef.summon.runtime
-
-fun <T> mutableStateListOf(vararg elements: T): MutableList<T>
-```
-
-### Description
-
-`mutableStateListOf` creates a MutableList that notifies observers when its contents are modified. Any composable reading from this list will recompose when items are added, removed, or modified.
-
-### Example
-
-```kotlin
-@Composable
-fun TaskList() {
-    val tasks = remember { mutableStateListOf<Task>() }
-    
-    Column {
-        tasks.forEachIndexed { index, task ->
-            Row {
-                Checkbox(
-                    checked = task.completed,
-                    onCheckedChange = { 
-                        tasks[index] = task.copy(completed = it)
-                    }
-                )
-                Text(task.title)
-                Button(
-                    text = "Delete",
-                    onClick = { tasks.removeAt(index) }
-                )
-            }
-        }
-        
-        Button(
-            text = "Add Task",
-            onClick = { 
-                tasks.add(Task("New Task", false))
-            }
-        )
-    }
-}
-```
-
----
-
-## StateFlow Integration
-
-Summon provides integration with Kotlin's `StateFlow` for more complex state management.
-
-### Functions
-
-```kotlin
-package code.yousef.summon.state
-
-@Composable
-fun <T> StateFlow<T>.collectAsState(): State<T>
-```
-
-### Description
-
-The `collectAsState` extension function converts a `StateFlow` into a state object that can be used in Summon components.
-
-### Example
-
-```kotlin
-// Create a StateFlow in a ViewModel or service
-class CounterViewModel {
-    private val _count = MutableStateFlow(0)
-    val count = _count.asStateFlow()
-    
-    fun increment() {
-        _count.value++
-    }
-    
-    fun decrement() {
-        _count.value--
-    }
-}
-
-@Composable
-fun StateFlowExample() {
-    // Use the StateFlow in a component
-    val viewModel = remember { CounterViewModel() }
-    val count by viewModel.count.collectAsState()
-
-    Column {
-        Text("Count: $count")
-        Button(
-            text = "Increment",
-            onClick = { viewModel.increment() }
-        )
-        Button(
-            text = "Decrement",
-            onClick = { viewModel.decrement() }
-        )
-    }
-}
-```
-
----
-
-## StateContainer
-
-The `StateContainer` class provides a structured approach to state management, similar to Redux.
-
-### Class Definition
-
-```kotlin
-package code.yousef.summon.state
-
-abstract class StateContainer<S, A>(initialState: S) {
-    val state: StateFlow<S>
-    
-    fun dispatch(action: A)
-    
-    protected abstract fun reduce(state: S, action: A): S
-}
-```
-
-### Description
-
-`StateContainer` implements a unidirectional data flow pattern where state can only be modified by dispatching actions, which are processed by a reducer function to produce a new state.
-
-### Example
-
-```kotlin
-// Define state
-data class TodoState(
-    val items: List<String> = emptyList(),
-    val newItemText: String = ""
-)
-
-// Define actions
-sealed class TodoAction {
-    data class SetNewItemText(val text: String) : TodoAction()
-    object AddItem : TodoAction()
-    data class RemoveItem(val index: Int) : TodoAction()
-}
-
-// Create state container
-class TodoContainer : StateContainer<TodoState, TodoAction>(TodoState()) {
-    override fun reduce(state: TodoState, action: TodoAction): TodoState {
-        return when (action) {
-            is TodoAction.SetNewItemText -> state.copy(
-                newItemText = action.text
-            )
-            is TodoAction.AddItem -> {
-                if (state.newItemText.isBlank()) return state
-                state.copy(
-                    items = state.items + state.newItemText,
-                    newItemText = ""
-                )
-            }
-            is TodoAction.RemoveItem -> state.copy(
-                items = state.items.filterIndexed { index, _ -> index != action.index }
-            )
-        }
-    }
-}
-
-@Composable
-fun TodoApp() {
-    // Use in components
-    val todoContainer = remember { TodoContainer() }
-    val state by todoContainer.state.collectAsState()
-
-    Column {
-        // Input for new items
-        TextField(
-            value = state.newItemText,
-            onValueChange = { 
-                todoContainer.dispatch(TodoAction.SetNewItemText(it))
-            },
-            placeholder = "Add new todo"
-        )
-        
-        Button(
-            text = "Add",
-            onClick = { 
-                todoContainer.dispatch(TodoAction.AddItem)
-            }
-        )
-        
-        // List of items
-        for ((index, item) in state.items.withIndex()) {
-            Row {
-                Text(item)
-                Button(
-                    text = "Remove",
-                    onClick = { 
-                        todoContainer.dispatch(TodoAction.RemoveItem(index))
-                    }
-                )
+            try {
+                value = weatherService.getWeather(userId)
+            } catch (e: Exception) {
+                // Handle error
             }
         }
     }
+
+    Column {
+        user.value?.let { u ->
+            Text("User: ${u.name}")
+        }
+
+        Text("Notifications: ${notifications.value.size}")
+
+        weather.value?.let { w ->
+            Text("Temperature: ${w.temperature}°C")
+        } ?: Text("Loading weather...")
+    }
 }
 ```
 
 ---
 
-## Persistent State
+## Saveable State
 
-Summon provides cross-platform APIs for persistent state that survives application restarts.
+Persist state values across recompositions and app restarts.
 
-### Functions
+### Saveable State Registry
 
 ```kotlin
-package code.yousef.summon.state
-
-@Composable
-fun <T> persistentStateOf(
-    key: String,
-    defaultValue: T,
-    serializer: KSerializer<T>
-): MutableState<T>
-
-@Composable
-fun <T> persistentStateOf(
-    key: String,
-    defaultValue: T,
-    type: KClass<T>
-): MutableState<T>
+object SaveableStateRegistry {
+    fun <T> get(key: String): T?
+    fun set(key: String, value: Any?)
+    fun clear()
+}
 ```
 
-### Description
-
-`persistentStateOf` creates a state that is automatically saved to local storage on the JS platform and preferences/properties on the JVM platform.
-
-### Example
+### Remember Saveable
 
 ```kotlin
-@Serializable
-data class UserPreferences(
-    val theme: String = "light",
-    val fontSize: Int = 16
-)
+fun <T> rememberSaveable(key: String, initialValue: T): SummonMutableState<T>
 
+fun <T> rememberWithIdentifier(identifier: String, initialValue: T): SummonMutableState<T>
+```
+
+Creates state that persists across recompositions.
+
+### Utility Functions
+
+```kotlin
+fun clearSaveableStates()
+fun hasSaveableState(key: String): Boolean
+```
+
+### Usage Examples
+
+```kotlin
 @Composable
-fun PreferencesSettings() {
-    // Create a persistent state
-    val preferences = persistentStateOf(
-        "user_preferences",
-        UserPreferences(),
-        UserPreferences::class
-    )
+fun SaveableStateExample() {
+    // State persisted with unique key
+    val settings = rememberSaveable("user_settings", UserSettings())
 
-    // Use in components
-    var userPrefs by preferences
+    // State persisted with identifier
+    var theme by rememberWithIdentifier("app_theme", "light")
+
+    // Check if state exists
+    val hasPersistedData = hasSaveableState("user_data")
 
     Column {
-        // Theme selector
-        Text("Theme:")
+        Text("Theme: $theme")
+
+        Button(
+            text = if (theme == "light") "Dark Mode" else "Light Mode",
+            onClick = {
+                theme = if (theme == "light") "dark" else "light"
+            }
+        )
+
+        Text("Has persisted data: $hasPersistedData")
+
+        Button(
+            text = "Clear All Saved States",
+            onClick = { clearSaveableStates() }
+        )
+    }
+}
+```
+
+---
+
+## Usage Examples
+
+### Complete Counter with Persistence
+
+```kotlin
+@Composable
+fun PersistentCounter() {
+    var count by rememberSaveable("counter_value", 0)
+
+    // Derived state for display
+    val countDisplay by derivedStateOf {
+        "Count: $count"
+    }
+
+    // Track if count is even/odd
+    val isEven by derivedStateOf(count) {
+        count % 2 == 0
+    }
+
+    Column {
+        Text(countDisplay)
+        Text("Is even: $isEven")
+
         Row {
             Button(
-                text = "Light",
-                onClick = { 
-                    userPrefs = userPrefs.copy(theme = "light")
-                },
-                modifier = Modifier.opacity(
-                    if (userPrefs.theme == "light") 1.0 else 0.5
-                )
+                text = "Increment",
+                onClick = { count++ }
             )
-            
+
             Button(
-                text = "Dark",
-                onClick = { 
-                    userPrefs = userPrefs.copy(theme = "dark")
-                },
-                modifier = Modifier.opacity(
-                    if (userPrefs.theme == "dark") 1.0 else 0.5
-                )
+                text = "Decrement",
+                onClick = { count-- }
             )
-        }
-        
-        // Font size selector
-        Text("Font Size: ${userPrefs.fontSize}px")
-        Row {
+
             Button(
-                text = "-",
-                onClick = { 
-                    userPrefs = userPrefs.copy(
-                        fontSize = (userPrefs.fontSize - 1).coerceAtLeast(12)
-                    )
-                }
-            )
-            
-            Button(
-                text = "+",
-                onClick = { 
-                    userPrefs = userPrefs.copy(
-                        fontSize = (userPrefs.fontSize + 1).coerceAtMost(24)
-                    )
-                }
+                text = "Reset",
+                onClick = { count = 0 }
             )
         }
     }
 }
 ```
 
----
-
-## Platform-Specific State
-
-Summon provides platform-specific state utilities.
-
-### JS Platform
-
-```kotlin
-package code.yousef.summon.state.js
-
-data class WindowSize(val width: Int, val height: Int)
-
-@Composable
-fun windowSizeState(): State<WindowSize>
-@Composable
-fun mediaQueryState(query: String): State<Boolean>
-@Composable
-fun localStorageState(key: String, defaultValue: String): MutableState<String>
-@Composable
-fun sessionStorageState(key: String, defaultValue: String): MutableState<String>
-```
-
-### JVM Platform
-
-```kotlin
-package code.yousef.summon.state.jvm
-
-@Composable
-fun systemPropertiesState(): State<Map<String, String>>
-@Composable
-fun preferencesState(path: String): MutableState<Map<String, String>>
-@Composable
-fun fileBasedState(file: File, serializer: KSerializer<T>): MutableState<T>
-```
-
-### Example
+### Async Data Loading with State
 
 ```kotlin
 @Composable
-fun JsPlatformStateExample() {
-    // JS Platform
-    val windowSize by windowSizeState()
-    val isDarkMode by mediaQueryState("(prefers-color-scheme: dark)")
-    var token by localStorageState("auth_token", "")
+fun AsyncDataExample(query: String) {
+    // Loading state
+    var isLoading by rememberMutableStateOf(false)
+
+    // Error state
+    var error by rememberMutableStateOf<String?>(null)
+
+    // Data state from async operation
+    val searchResults = produceState<List<SearchResult>>(
+        initialValue = emptyList(),
+        key1 = query
+    ) {
+        if (query.isNotBlank()) {
+            isLoading = true
+            error = null
+
+            try {
+                value = searchService.search(query)
+            } catch (e: Exception) {
+                error = e.message
+                value = emptyList()
+            } finally {
+                isLoading = false
+            }
+        }
+    }
 
     Column {
-        Text("Window width: ${windowSize.width}px")
-        Text("Window height: ${windowSize.height}px")
-        Text("Dark mode: $isDarkMode")
-        
-        if (token.isNotEmpty()) {
-            Text("Logged in with token: $token")
-            Button(
-                text = "Logout",
-                onClick = { token = "" }
-            )
-        } else {
-            Button(
-                text = "Login",
-                onClick = { token = "example-token" }
-            )
+        when {
+            isLoading -> Text("Loading...")
+            error != null -> Text("Error: $error")
+            searchResults.value.isEmpty() && query.isNotBlank() -> Text("No results")
+            else -> {
+                searchResults.value.forEach { result ->
+                    Text(result.title)
+                }
+            }
         }
     }
 }
+```
 
-@Composable
-fun JvmPlatformStateExample() {
-    // JVM Platform
-    val systemProps by systemPropertiesState()
-    var appPrefs by preferencesState("app_preferences")
+## Best Practices
 
-    Column {
-        Text("Java version: ${systemProps["java.version"]}")
-        Text("OS name: ${systemProps["os.name"]}")
-        
-        TextField(
-            value = appPrefs["username"] ?: "",
-            onValueChange = { 
-                appPrefs = appPrefs + ("username" to it)
-            },
-            placeholder = "Username"
-        )
-        
-        Button(
-            text = "Save Preferences",
-            onClick = { /* Automatically saved */ }
-        )
-    }
-}
-``` 
+1. **Use appropriate state type**: Choose between `State<T>`, `SummonMutableState<T>`, or `MutableState<T>` based on
+   your needs
+2. **Minimize state**: Keep state as minimal and normalized as possible
+3. **Use derived state**: Compute derived values rather than storing them separately
+4. **Handle errors**: Properly handle errors in async state operations
+5. **Clean up resources**: Use appropriate cleanup in `produceState` coroutines
+6. **Key dependencies**: Use explicit keys in `remember` and `derivedStateOf` for better control
+7. **Persist wisely**: Only persist state that truly needs to survive app restarts
+
+## See Also
+
+- [Core API](core.md) - Core composition APIs
+- [Effects API](effects.md) - Side effects and lifecycle management
+- [Components API](components.md) - UI components that work with state

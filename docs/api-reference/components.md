@@ -1,1018 +1,714 @@
 # Components API Reference
 
-This document provides detailed information about the core components available in the standalone Summon implementation. These components generate HTML strings and can be used across all platforms.
+This document provides detailed information about the UI components available in the Summon library. All components are
+built with type-safe styling, accessibility features, and cross-platform compatibility.
 
 ## Table of Contents
 
-- [Core Implementation](#core-implementation)
+- [Core Components](#core-components)
 - [Layout Components](#layout-components)
-  - [Column](#column)
-  - [Row](#row)
-  - [Div](#div)
 - [Display Components](#display-components)
-  - [Text](#text)
-  - [Button](#button)
-  - [TextField](#textfield)
-- [Component Patterns](#component-patterns)
-  - [Creating Custom Components](#creating-custom-components)
-  - [Styling Patterns](#styling-patterns)
-  - [State Management](#state-management)
+- [Input Components](#input-components)
+- [Feedback Components](#feedback-components)
+- [Navigation Components](#navigation-components)
+- [Style Components](#style-components)
+- [Component Architecture](#component-architecture)
 
 ---
 
-## Core Implementation
+## Core Components
 
-All components in the standalone implementation follow these patterns and use this core infrastructure:
+Core components provide foundational functionality and theming.
+
+### ThemeProvider
+
+Provides theme context to child components.
 
 ```kotlin
-// Core annotation for marking composable functions
-@Target(AnnotationTarget.FUNCTION)
-annotation class Composable
+@Composable
+fun ThemeProvider(
+    theme: Theme,
+    content: @Composable () -> Unit
+)
+```
 
-// Core modifier system for styling and attributes
-data class Modifier(
-    val styles: Map<String, String> = emptyMap(),
-    val attributes: Map<String, String> = emptyMap()
-) {
-    fun style(propertyName: String, value: String): Modifier =
-        copy(styles = this.styles + (propertyName to value))
-        
-    fun attribute(name: String, value: String): Modifier =
-        copy(attributes = this.attributes + (name to value))
-        
-    // Common style methods
-    fun padding(value: String): Modifier = style("padding", value)
-    fun margin(value: String): Modifier = style("margin", value)
-    fun backgroundColor(color: String): Modifier = style("background-color", color)
-    fun color(value: String): Modifier = style("color", value)
-    fun fontSize(value: String): Modifier = style("font-size", value)
-    fun fontWeight(value: String): Modifier = style("font-weight", value)
-    fun borderRadius(value: String): Modifier = style("border-radius", value)
-    fun width(value: String): Modifier = style("width", value)
-    fun height(value: String): Modifier = style("height", value)
-    fun cursor(value: String): Modifier = style("cursor", value)
-    fun gap(value: String): Modifier = style("gap", value)
-    
-    // Common attribute methods
-    fun onClick(handler: String): Modifier = attribute("onclick", handler)
-    fun id(value: String): Modifier = attribute("id", value)
-    fun className(value: String): Modifier = attribute("class", value)
-    
-    // Helper methods for HTML generation
-    fun toStyleString(): String =
-        if (styles.isEmpty()) "" else styles.entries.joinToString("; ") { "${it.key}: ${it.value}" }
-        
-    fun toAttributesString(): String =
-        attributes.entries.joinToString(" ") { """${it.key}="${it.value}"""" }
-}
+### BasicText
 
-// Factory function
-fun Modifier(): Modifier = Modifier(emptyMap(), emptyMap())
+Low-level text rendering component used internally by other text components.
 
-// Basic state management
-class State<T>(var value: T)
-fun <T> mutableStateOf(initial: T) = State(initial)
-fun <T> remember(calculation: () -> State<T>) = calculation()
+```kotlin
+@Composable
+fun BasicText(
+    text: String,
+    modifier: Modifier = Modifier()
+)
 ```
 
 ---
 
 ## Layout Components
 
-Layout components help you structure your UI by organizing other components in a specific layout pattern.
+Layout components help organize and structure your UI.
 
 ### Column
 
-A layout component that arranges its children vertically using CSS flexbox.
-
-#### Definition
+Arranges children vertically using CSS flexbox.
 
 ```kotlin
 @Composable
 fun Column(
     modifier: Modifier = Modifier(),
-    content: () -> String
-): String {
-    val columnModifier = modifier
-        .display(Display.Flex)
-        .flexDirection(FlexDirection.Column)
-    
-    val styleStr = if (columnModifier.styles.isNotEmpty()) 
-        """ style="${columnModifier.toStyleString()}"""" else ""
-    val attrsStr = if (columnModifier.attributes.isNotEmpty()) 
-        " ${columnModifier.toAttributesString()}" else ""
-    
-    return """<div$attrsStr$styleStr>${content()}</div>"""
-}
+    content: @Composable () -> Unit
+)
 ```
 
-#### Parameters
-
-| Name | Type | Description |
-|------|------|-------------|
-| modifier | Modifier | Optional styling and layout modifiers |
-| content | () -> String | Function that returns the content to be arranged vertically |
-
-#### Example
-
+**Example:**
 ```kotlin
-@Composable
-fun VerticalLayout(): String {
-    return Column(
-        modifier = Modifier()
-            .padding("16px")
-            .gap("8px")
-            .backgroundColor("#f8f9fa")
-    ) {
-        Text("First item") +
-        Text("Second item") +
-        Text("Third item")
-    }
+Column {
+    Text("First item")
+    Text("Second item")
+    Button(onClick = { }, label = "Action")
 }
 ```
 
 ### Row
 
-A layout component that arranges its children horizontally using CSS flexbox.
-
-#### Definition
+Arranges children horizontally using CSS flexbox.
 
 ```kotlin
 @Composable
 fun Row(
     modifier: Modifier = Modifier(),
-    content: () -> String
-): String {
-    val rowModifier = modifier
-        .display(Display.Flex)
-        .flexDirection(FlexDirection.Row)
-        .alignItems(AlignItems.Center)
-    
-    val styleStr = if (rowModifier.styles.isNotEmpty()) 
-        """ style="${rowModifier.toStyleString()}"""" else ""
-    val attrsStr = if (rowModifier.attributes.isNotEmpty()) 
-        " ${rowModifier.toAttributesString()}" else ""
-    
-    return """<div$attrsStr$styleStr>${content()}</div>"""
-}
+    content: @Composable () -> Unit
+)
 ```
 
-#### Parameters
+### Box
 
-| Name | Type | Description |
-|------|------|-------------|
-| modifier | Modifier | Optional styling and layout modifiers |
-| content | () -> String | Function that returns the content to be arranged horizontally |
-
-#### Example
+A container that positions children relative to each other.
 
 ```kotlin
 @Composable
-fun HorizontalLayout(): String {
-    return Row(
-        modifier = Modifier()
-            .padding("16px")
-            .gap("12px")
-            .style("justify-content", "space-between")
-    ) {
-        Text("✓") +
-        Text("Task completed") +
-        Button(
-            text = "Details",
-            modifier = Modifier()
-                .backgroundColor("#0077cc")
-                .color("white")
-                .padding("4px 8px")
-                .borderRadius("4px")
-                .onClick("showDetails()")
-        )
-    }
-}
-```
-
-### Div
-
-A basic container element for grouping content.
-
-#### Definition
-
-```kotlin
-@Composable
-fun Div(
+fun Box(
     modifier: Modifier = Modifier(),
-    content: () -> String
-): String {
-    val styleStr = if (modifier.styles.isNotEmpty()) 
-        """ style="${modifier.toStyleString()}"""" else ""
-    val attrsStr = if (modifier.attributes.isNotEmpty()) 
-        " ${modifier.toAttributesString()}" else ""
-    
-    return """<div$attrsStr$styleStr>${content()}</div>"""
-}
+    content: @Composable () -> Unit
+)
 ```
 
-#### Parameters
+### Grid
 
-| Name | Type | Description |
-|------|------|-------------|
-| modifier | Modifier | Optional styling and layout modifiers |
-| content | () -> String | Function that returns the content to be rendered |
-
-#### Example
+CSS Grid layout for complex arrangements.
 
 ```kotlin
 @Composable
-fun ContainerExample(): String {
-    return Div(
-        modifier = Modifier()
-            .backgroundColor("white")
-            .padding("20px")
-            .borderRadius("8px")
-            .style("box-shadow", "0 2px 4px rgba(0,0,0,0.1)")
-    ) {
-        Text("This content is inside a styled container")
-    }
-}
+fun Grid(
+    modifier: Modifier = Modifier(),
+    columns: String = "1fr",
+    rows: String = "auto",
+    gap: String = "8px",
+    content: @Composable () -> Unit
+)
+```
+
+### Spacer
+
+Adds space between components.
+
+```kotlin
+@Composable
+fun Spacer(
+    modifier: Modifier = Modifier(),
+    width: String? = null,
+    height: String? = null
+)
 ```
 
 ---
 
 ## Display Components
 
-Display components are used to show content to users such as text, buttons, and form inputs.
+Components for displaying content to users.
 
 ### Text
 
-A component for displaying text content.
-
-#### Definition
+Primary component for displaying text with extensive styling options.
 
 ```kotlin
 @Composable
 fun Text(
     text: String,
-    modifier: Modifier = Modifier()
-): String {
-    val styleStr = if (modifier.styles.isNotEmpty()) 
-        """ style="${modifier.toStyleString()}"""" else ""
-    val attrsStr = if (modifier.attributes.isNotEmpty()) 
-        " ${modifier.toAttributesString()}" else ""
-    
-    return """<span$attrsStr$styleStr>$text</span>"""
-}
+    modifier: Modifier = Modifier(),
+    overflow: String? = null,
+    lineHeight: String? = null,
+    textAlign: String? = null,
+    fontFamily: String? = null,
+    textDecoration: String? = null,
+    textTransform: String? = null,
+    letterSpacing: String? = null,
+    whiteSpace: String? = null,
+    wordBreak: String? = null,
+    wordSpacing: String? = null,
+    textShadow: String? = null,
+    maxLines: Int? = null,
+    role: String? = null,
+    ariaLabel: String? = null,
+    ariaDescribedBy: String? = null,
+    semantic: String? = null
+)
 ```
 
-#### Parameters
+**Example:**
+```kotlin
+Text(
+    text = "Hello World",
+    modifier = Modifier().color("#333").fontSize("18px"),
+    textAlign = "center",
+    maxLines = 2
+)
+```
 
-| Name | Type | Description |
-|------|------|-------------|
-| text | String | The text to display |
-| modifier | Modifier | Optional styling and layout modifiers |
+### Label
 
-#### Example
+Semantic label component for form controls.
 
 ```kotlin
 @Composable
-fun TextExamples(): String {
-    return Column(modifier = Modifier().gap("16px")) {
-        Text("Default text") +
-        Text(
-            text = "Large bold text", 
-            modifier = Modifier()
-                .fontSize("24px")
-                .fontWeight("bold")
-                .color("#333")
-        ) +
-        Text(
-            text = "Colored text",
-            modifier = Modifier()
-                .color("#0077cc")
-                .fontSize("16px")
-        )
-    }
-}
+fun Label(
+    text: String,
+    modifier: Modifier = Modifier(),
+    forElement: String? = null
+)
 ```
+
+### Icon
+
+Display icons from various icon sets.
+
+```kotlin
+@Composable
+fun Icon(
+    name: String,
+    modifier: Modifier = Modifier(),
+    size: String = "24px",
+    color: String? = null
+)
+```
+
+### Image
+
+Display images with loading states and accessibility features.
+
+```kotlin
+@Composable
+fun Image(
+    src: String,
+    alt: String,
+    modifier: Modifier = Modifier(),
+    loading: String = "lazy",
+    width: String? = null,
+    height: String? = null
+)
+```
+
+### RichText
+
+Display rich formatted text content.
+
+```kotlin
+@Composable
+fun RichText(
+    content: String,
+    modifier: Modifier = Modifier(),
+    sanitize: Boolean = true
+)
+```
+
+---
+
+## Input Components
+
+Interactive components for user input.
 
 ### Button
 
-A clickable button component.
-
-#### Definition
+Versatile button component with multiple variants.
 
 ```kotlin
 @Composable
 fun Button(
-    text: String,
-    modifier: Modifier = Modifier()
-): String {
-    val buttonModifier = modifier
-        .border("0", BorderStyle.None, "transparent")
-        .style("cursor", "pointer")
-        .display(Display.InlineBlock)
-        .style("text-align", "center")
-    
-    val styleStr = if (buttonModifier.styles.isNotEmpty()) 
-        """ style="${buttonModifier.toStyleString()}"""" else ""
-    val attrsStr = if (buttonModifier.attributes.isNotEmpty()) 
-        " ${buttonModifier.toAttributesString()}" else ""
-    
-    return """<button$attrsStr$styleStr>$text</button>"""
+    onClick: () -> Unit,
+    label: String,
+    modifier: Modifier = Modifier(),
+    variant: ButtonVariant = ButtonVariant.PRIMARY,
+    disabled: Boolean = false,
+    iconName: String? = null,
+    iconPosition: IconPosition = IconPosition.START
+)
+
+enum class ButtonVariant {
+    PRIMARY, SECONDARY, TERTIARY, DANGER, SUCCESS, WARNING, INFO, LINK, GHOST
 }
+
+enum class IconPosition { START, END }
 ```
 
-#### Parameters
-
-| Name | Type | Description |
-|------|------|-------------|
-| text | String | The text to display on the button |
-| modifier | Modifier | Optional styling and layout modifiers |
-
-#### Example
-
+**Example:**
 ```kotlin
-@Composable
-fun ButtonExamples(): String {
-    return Row(modifier = Modifier().gap("12px")) {
-        Button(
-            text = "Primary Button",
-            modifier = Modifier()
-                .backgroundColor("#0077cc")
-                .color("white")
-                .padding("10px 20px")
-                .borderRadius("4px")
-                .onClick("handlePrimaryAction()")
-        ) + Button(
-            text = "Secondary Button",
-            modifier = Modifier()
-                .backgroundColor("#6c757d")
-                .color("white")
-                .padding("10px 20px")
-                .borderRadius("4px")
-                .onClick("handleSecondaryAction()")
-        ) + Button(
-            text = "Danger Button",
-            modifier = Modifier()
-                .backgroundColor("#dc3545")
-                .color("white")
-                .padding("10px 20px")
-                .borderRadius("4px")
-                .onClick("handleDangerAction()")
-        )
-    }
-}
+Button(
+    onClick = { println("Clicked!") },
+    label = "Download",
+    variant = ButtonVariant.SUCCESS,
+    iconName = "download",
+    iconPosition = IconPosition.START
+)
 ```
 
 ### TextField
 
-A single-line text input component.
-
-#### Definition
+Text input field with validation support.
 
 ```kotlin
 @Composable
 fun TextField(
-    value: String = "",
-    placeholder: String = "",
-    modifier: Modifier = Modifier()
-): String {
-    val inputModifier = modifier
-        .border(1.px, BorderStyle.Solid, "#ddd")
-        .style("border-radius", "4px")
-        .style("font-family", "inherit")
-    
-    val styleStr = if (inputModifier.styles.isNotEmpty()) 
-        """ style="${inputModifier.toStyleString()}"""" else ""
-    val attrsStr = if (inputModifier.attributes.isNotEmpty()) 
-        " ${inputModifier.toAttributesString()}" else ""
-    
-    val placeholderAttr = if (placeholder.isNotEmpty()) """ placeholder="$placeholder"""" else ""
-    val valueAttr = if (value.isNotEmpty()) """ value="$value"""" else ""
-    
-    return """<input type="text"$attrsStr$styleStr$placeholderAttr$valueAttr />"""
-}
-```
-
-#### Parameters
-
-| Name | Type | Description |
-|------|------|-------------|
-| value | String | Current value of the input field |
-| placeholder | String | Placeholder text when field is empty |
-| modifier | Modifier | Optional styling and layout modifiers |
-
-#### Example
-
-```kotlin
-@Composable
-fun FormExample(): String {
-    return Column(modifier = Modifier().gap("12px").padding("20px")) {
-        Text("Contact Form", modifier = Modifier().fontSize("20px").fontWeight("bold")) +
-        
-        TextField(
-            placeholder = "Enter your name",
-            modifier = Modifier()
-                .width("100%")
-                .padding("12px")
-                .style("box-sizing", "border-box")
-                .attribute("id", "name")
-        ) +
-        
-        TextField(
-            placeholder = "Enter your email",
-            modifier = Modifier()
-                .width("100%")
-                .padding("12px")
-                .style("box-sizing", "border-box")
-                .attribute("type", "email")
-                .attribute("id", "email")
-        ) +
-        
-        Button(
-            text = "Submit",
-            modifier = Modifier()
-                .backgroundColor("#28a745")
-                .color("white")
-                .padding("12px 24px")
-                .borderRadius("4px")
-                .onClick("submitForm()")
-        )
-    }
-}
-```
-
----
-
-## Component Patterns
-
-This section demonstrates practical patterns for building more complex components using the standalone Summon implementation.
-
-### Creating Custom Components
-
-Here's how to create reusable custom components:
-
-```kotlin
-// A reusable card component
-@Composable
-fun Card(
+    value: String,
+    onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier(),
-    content: () -> String
-): String {
-    val cardModifier = modifier
-        .backgroundColor("white")
-        .borderRadius("8px")
-        .style("border", "1px solid #e0e0e0")
-        .style("box-shadow", "0 2px 4px rgba(0,0,0,0.1)")
-    
-    return Div(cardModifier) { content() }
-}
-
-// A product card using the Card component
-@Composable
-fun ProductCard(
-    name: String,
-    price: String,
-    image: String
-): String {
-    return Card(
-        modifier = Modifier()
-            .width("300px")
-            .padding("16px")
-    ) {
-        Column(modifier = Modifier().gap("12px")) {
-            // Simple image implementation
-            """<img src="$image" alt="$name" style="width: 100%; height: 200px; object-fit: cover; border-radius: 4px;" />""" +
-            
-            Text(name, modifier = Modifier().fontSize("18px").fontWeight("bold")) +
-            Text(price, modifier = Modifier().color("#28a745").fontSize("16px").fontWeight("bold")) +
-            
-            Button(
-                text = "Add to Cart",
-                modifier = Modifier()
-                    .backgroundColor("#0077cc")
-                    .color("white")
-                    .padding("10px 20px")
-                    .borderRadius("4px")
-                    .width("100%")
-                    .onClick("addToCart('$name')")
-            )
-        }
-    }
-}
+    placeholder: String? = null,
+    label: String? = null,
+    type: String = "text",
+    disabled: Boolean = false,
+    required: Boolean = false,
+    maxLength: Int? = null,
+    pattern: String? = null,
+    errorMessage: String? = null,
+    helpText: String? = null
+)
 ```
 
-### Styling Patterns
+### Checkbox
 
-Common styling patterns and utilities:
-
-```kotlin
-// Style utility functions
-fun Modifier.primaryButton(): Modifier = this
-    .backgroundColor("#0077cc")
-    .color("white")
-    .padding("10px 20px")
-    .borderRadius("4px")
-    .cursor("pointer")
-    .style("border", "none")
-
-fun Modifier.secondaryButton(): Modifier = this
-    .backgroundColor("transparent")
-    .color("#0077cc")
-    .padding("10px 20px")
-    .borderRadius("4px")
-    .cursor("pointer")
-    .style("border", "1px solid #0077cc")
-
-fun Modifier.dangerButton(): Modifier = this
-    .backgroundColor("#dc3545")
-    .color("white")
-    .padding("10px 20px")
-    .borderRadius("4px")
-    .cursor("pointer")
-    .style("border", "none")
-
-// Usage
-@Composable
-fun ActionButtons(): String {
-    return Row(modifier = Modifier().gap("12px")) {
-        Button(
-            text = "Save",
-            modifier = Modifier().primaryButton().onClick("save()")
-        ) + Button(
-            text = "Cancel", 
-            modifier = Modifier().secondaryButton().onClick("cancel()")
-        ) + Button(
-            text = "Delete",
-            modifier = Modifier().dangerButton().onClick("delete()")
-        )
-    }
-}
-```
-
-### State Management
-
-State management patterns in the standalone implementation:
-
-```kotlin
-// Simple counter component with state
-@Composable
-fun Counter(): String {
-    // In a real application, state would be managed externally
-    // This is just for demonstration
-    return Column(modifier = Modifier().gap("8px").padding("20px")) {
-        Text("Count: {currentCount}", modifier = Modifier().fontSize("18px")) +
-        
-        Row(modifier = Modifier().gap("8px")) {
-            Button(
-                text = "-",
-                modifier = Modifier()
-                    .backgroundColor("#dc3545")
-                    .color("white")
-                    .padding("8px 12px")
-                    .borderRadius("4px")
-                    .onClick("decrement()")
-            ) + Button(
-                text = "+",
-                modifier = Modifier()
-                    .backgroundColor("#28a745")
-                    .color("white")
-                    .padding("8px 12px")
-                    .borderRadius("4px")
-                    .onClick("increment()")
-            )
-        }
-    }
-}
-
-// Todo list component
-@Composable
-fun TodoList(todos: List<String>): String {
-    return Column(modifier = Modifier().gap("8px")) {
-        Text("Todo List", modifier = Modifier().fontSize("20px").fontWeight("bold")) +
-        
-        todos.joinToString("") { todo ->
-            Row(
-                modifier = Modifier()
-                    .backgroundColor("#f8f9fa")
-                    .padding("12px")
-                    .borderRadius("4px")
-                    .alignItems(AlignItems.Center)
-                    .style("justify-content", "space-between")
-            ) {
-                Text(todo) +
-                Button(
-                    text = "✓",
-                    modifier = Modifier()
-                        .backgroundColor("#28a745")
-                        .color("white")
-                        .padding("4px 8px")
-                        .borderRadius("4px")
-                        .onClick("completeTodo('$todo')")
-                )
-            }
-        } +
-        
-        Row(modifier = Modifier().gap("8px").style("margin-top", "16px")) {
-            TextField(
-                placeholder = "Add new todo...",
-                modifier = Modifier()
-                    .style("flex", "1")
-                    .padding("8px")
-                    .attribute("id", "newTodo")
-            ) + Button(
-                text = "Add",
-                modifier = Modifier()
-                    .backgroundColor("#0077cc")
-                    .color("white")
-                    .padding("8px 16px")
-                    .borderRadius("4px")
-                    .onClick("addTodo()")
-            )
-        }
-    }
-}
-```
-
-### Advanced Component Composition
-
-Building complex UIs through composition:
-
-```kotlin
-// Navigation bar component
-@Composable
-fun NavigationBar(currentPage: String): String {
-    return Row(
-        modifier = Modifier()
-            .backgroundColor("white")
-            .padding("16px")
-            .style("box-shadow", "0 2px 4px rgba(0,0,0,0.1)")
-            .style("justify-content", "space-between")
-            .alignItems(AlignItems.Center)
-    ) {
-        Text("My App", modifier = Modifier().fontSize("20px").fontWeight("bold")) +
-        
-        Row(modifier = Modifier().gap("16px")) {
-            listOf("Home", "About", "Contact").joinToString("") { page ->
-                val isActive = page.lowercase() == currentPage.lowercase()
-                Text(
-                    text = page,
-                    modifier = Modifier()
-                        .color(if (isActive) "#0077cc" else "#333")
-                        .fontWeight(if (isActive) "bold" else "normal")
-                        .cursor(Cursor.Pointer)
-                        .onClick("navigateTo('${page.lowercase()}')")
-                )
-            }
-        }
-    }
-}
-
-// Complete page layout
-@Composable
-fun PageLayout(
-    title: String,
-    currentPage: String,
-    content: () -> String
-): String {
-    return Column(modifier = Modifier().style("min-height", "100vh")) {
-        NavigationBar(currentPage) +
-        
-        Column(
-            modifier = Modifier()
-                .style("flex", "1")
-                .padding("20px")
-                .gap("20px")
-        ) {
-            Text(title, modifier = Modifier().fontSize("28px").fontWeight("bold")) +
-            content()
-        } +
-        
-        // Footer
-        Div(
-            modifier = Modifier()
-                .backgroundColor("#f8f9fa")
-                .padding("20px")
-                .style("text-align", "center")
-        ) {
-            Text("© 2024 My App. All rights reserved.", modifier = Modifier().color("#666"))
-        }
-    }
-}
-
-// Usage
-@Composable
-fun HomePage(): String {
-    return PageLayout(
-        title = "Welcome Home",
-        currentPage = "home"
-    ) {
-        Text("Welcome to our application!") +
-        
-        Row(modifier = Modifier().gap("20px").style("margin-top", "20px")) {
-            ProductCard(
-                name = "Sample Product",
-                price = "$29.99",
-                image = "/product1.jpg"
-            ) + ProductCard(
-                name = "Another Product", 
-                price = "$39.99",
-                image = "/product2.jpg"
-            )
-        }
-    }
-}
-```
-
-## Best Practices
-
-### 1. Component Naming
-- Use descriptive names that indicate the component's purpose
-- Follow PascalCase for component functions
-- Group related components in the same file
-
-### 2. Modifier Usage
-- Always provide a default `Modifier()` parameter
-- Apply component-specific default styles before user modifiers
-- Use modifier extension functions for common styling patterns
-
-### 3. HTML Generation
-- Escape user input to prevent XSS attacks
-- Use semantic HTML elements when possible
-- Include proper accessibility attributes
-
-### 4. Performance
-- Keep components pure and stateless when possible
-- Avoid complex calculations inside component functions
-- Use string concatenation efficiently
-
-This standalone implementation provides:
-
-✅ **Simple Components**: Easy to understand and extend  
-✅ **Type Safety**: Full Kotlin compile-time checking  
-✅ **Cross-Platform**: Works on both JavaScript and JVM  
-✅ **No Dependencies**: Uses only standard libraries  
-✅ **Debugging Friendly**: Generated HTML is readable and debuggable  
-✅ **Framework Agnostic**: Can be used with any web framework or as standalone  
-
-The component API is designed to be familiar to developers coming from other UI frameworks while maintaining the simplicity and transparency of the standalone approach.
-
----
-
-## Advanced Feedback Components
-
-### Modal
-
-A comprehensive modal dialog system with multiple variants and sizes.
-
-#### Definition
+Checkbox input with tri-state support.
 
 ```kotlin
 @Composable
-fun Modal(
-    isOpen: Boolean,
-    onDismiss: () -> Unit,
-    variant: ModalVariant = ModalVariant.DEFAULT,
-    size: ModalSize = ModalSize.MEDIUM,
-    header: (@Composable () -> Unit)? = null,
-    footer: (@Composable () -> Unit)? = null,
+fun Checkbox(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier(),
+    label: String? = null,
+    disabled: Boolean = false,
+    indeterminate: Boolean = false
+)
+```
+
+### RadioButton
+
+Radio button for exclusive selections.
+
+```kotlin
+@Composable
+fun RadioButton(
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier(),
+    label: String? = null,
+    disabled: Boolean = false,
+    name: String? = null
+)
+```
+
+### Select
+
+Dropdown selection component.
+
+```kotlin
+@Composable
+fun Select(
+    value: String,
+    onValueChange: (String) -> Unit,
+    options: List<SelectOption>,
+    modifier: Modifier = Modifier(),
+    placeholder: String = "Select an option",
+    disabled: Boolean = false,
+    searchable: Boolean = false
+)
+
+data class SelectOption(
+    val value: String,
+    val label: String,
+    val disabled: Boolean = false
+)
+```
+
+### RangeSlider
+
+Slider for numeric range selection.
+
+```kotlin
+@Composable
+fun RangeSlider(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    modifier: Modifier = Modifier(),
+    min: Float = 0f,
+    max: Float = 100f,
+    step: Float = 1f,
+    disabled: Boolean = false
+)
+```
+
+### Form & FormField
+
+Form containers with validation support.
+
+```kotlin
+@Composable
+fun Form(
+    modifier: Modifier = Modifier(),
+    onSubmit: () -> Unit,
     content: @Composable () -> Unit
 )
 
-enum class ModalVariant {
-    DEFAULT, ALERT, CONFIRMATION, FULLSCREEN
-}
-
-enum class ModalSize {
-    SMALL, MEDIUM, LARGE, EXTRA_LARGE
-}
+@Composable
+fun FormField(
+    modifier: Modifier = Modifier(),
+    label: String? = null,
+    error: String? = null,
+    required: Boolean = false,
+    content: @Composable () -> Unit
+)
 ```
 
-#### Usage
+### FileUpload
+
+File upload component with drag-and-drop support.
 
 ```kotlin
 @Composable
-fun MyComponent() {
-    val showModal = remember { mutableStateOf(false) }
-    
-    Button(
-        onClick = { showModal.value = true },
-        label = "Open Modal"
-    )
-    
-    if (showModal.value) {
-        Modal(
-            isOpen = showModal.value,
-            onDismiss = { showModal.value = false },
-            variant = ModalVariant.DEFAULT,
-            size = ModalSize.MEDIUM,
-            header = {
-                Text("Modal Title", modifier = Modifier().fontSize("20px").fontWeight("600"))
-            },
-            footer = {
-                Row(modifier = Modifier().gap("12px")) {
-                    Button(onClick = { showModal.value = false }, label = "Cancel")
-                    Button(onClick = { showModal.value = false }, label = "Confirm", variant = ButtonVariant.PRIMARY)
-                }
-            }
-        ) {
-            Text("This is the modal content area.")
-        }
-    }
-}
-```
-
-#### Convenience Functions
-
-```kotlin
-// Alert Modal
-@Composable
-fun AlertModal(
-    isOpen: Boolean,
-    onDismiss: () -> Unit,
-    title: String,
-    message: String,
-    confirmText: String = "OK"
+fun FileUpload(
+    onFilesSelected: (List<FileInfo>) -> Unit,
+    modifier: Modifier = Modifier(),
+    acceptedTypes: List<String> = emptyList(),
+    maxFiles: Int = 1,
+    maxSizeBytes: Long? = null,
+    disabled: Boolean = false
 )
 
-// Confirmation Modal
+data class FileInfo(
+    val name: String,
+    val size: Long,
+    val type: String,
+    val lastModified: Long
+)
+```
+
+### DatePicker
+
+Date selection component.
+
+```kotlin
 @Composable
-fun ConfirmationModal(
-    isOpen: Boolean,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-    title: String,
+fun DatePicker(
+    value: String?,
+    onValueChange: (String?) -> Unit,
+    modifier: Modifier = Modifier(),
+    format: String = "yyyy-MM-dd",
+    min: String? = null,
+    max: String? = null,
+    disabled: Boolean = false
+)
+```
+
+---
+
+## Feedback Components
+
+Components that provide user feedback and status information.
+
+### Alert
+
+Display important messages to users.
+
+```kotlin
+@Composable
+fun Alert(
     message: String,
-    confirmText: String = "Confirm",
-    cancelText: String = "Cancel"
+    modifier: Modifier = Modifier(),
+    variant: AlertVariant = AlertVariant.INFO,
+    dismissible: Boolean = false,
+    onDismiss: (() -> Unit)? = null,
+    title: String? = null,
+    icon: String? = null
+)
+
+enum class AlertVariant { SUCCESS, INFO, WARNING, ERROR }
+```
+
+### Badge
+
+Small status indicators.
+
+```kotlin
+@Composable
+fun Badge(
+    text: String,
+    modifier: Modifier = Modifier(),
+    variant: BadgeVariant = BadgeVariant.DEFAULT,
+    size: BadgeSize = BadgeSize.MEDIUM
 )
 ```
 
 ### Loading
 
-Loading indicators with multiple animation types and overlay support.
-
-#### Definition
+Loading indicators and spinners.
 
 ```kotlin
 @Composable
 fun Loading(
-    isVisible: Boolean = true,
-    variant: LoadingVariant = LoadingVariant.SPINNER,
-    size: LoadingSize = LoadingSize.MEDIUM,
-    text: String? = null,
-    modifier: Modifier = Modifier()
+    modifier: Modifier = Modifier(),
+    size: String = "24px",
+    color: String = "currentColor",
+    type: LoadingType = LoadingType.SPINNER
 )
-
-@Composable
-fun LoadingOverlay(
-    isVisible: Boolean,
-    text: String? = null,
-    variant: LoadingVariant = LoadingVariant.SPINNER,
-    size: LoadingSize = LoadingSize.LARGE
-)
-
-enum class LoadingVariant {
-    SPINNER, DOTS, LINEAR, CIRCULAR
-}
-
-enum class LoadingSize {
-    SMALL, MEDIUM, LARGE
-}
 ```
 
-#### Usage
+### Modal
+
+Modal dialogs and overlays.
 
 ```kotlin
 @Composable
-fun MyComponent() {
-    val isLoading = remember { mutableStateOf(false) }
-    
-    Button(
-        onClick = {
-            isLoading.value = true
-            // Simulate async operation
-            CoroutineScope(Dispatchers.Main).launch {
-                delay(2000)
-                isLoading.value = false
-            }
-        },
-        label = "Start Loading"
-    )
-    
-    // Inline loading indicator
-    Loading(
-        isVisible = isLoading.value,
-        variant = LoadingVariant.SPINNER,
-        size = LoadingSize.MEDIUM,
-        text = "Loading..."
-    )
-    
-    // Full-screen overlay
-    if (isLoading.value) {
-        LoadingOverlay(
-            isVisible = true,
-            text = "Processing request...",
-            variant = LoadingVariant.CIRCULAR,
-            size = LoadingSize.LARGE
-        )
-    }
-}
+fun Modal(
+    isVisible: Boolean,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier(),
+    title: String? = null,
+    content: @Composable () -> Unit
+)
+```
+
+### Progress
+
+Progress bars and indicators.
+
+```kotlin
+@Composable
+fun Progress(
+    value: Float,
+    modifier: Modifier = Modifier(),
+    max: Float = 100f,
+    showLabel: Boolean = false,
+    variant: ProgressVariant = ProgressVariant.DETERMINATE
+)
+```
+
+### ProgressBar
+
+Linear progress indicator.
+
+```kotlin
+@Composable
+fun ProgressBar(
+    progress: Float,
+    modifier: Modifier = Modifier(),
+    backgroundColor: String = "#e0e0e0",
+    progressColor: String = "#2196f3",
+    height: String = "8px"
+)
+```
+
+### Snackbar & SnackbarHost
+
+Temporary messages and notifications.
+
+```kotlin
+@Composable
+fun Snackbar(
+    message: String,
+    modifier: Modifier = Modifier(),
+    action: String? = null,
+    onActionClick: (() -> Unit)? = null,
+    onDismiss: (() -> Unit)? = null,
+    duration: SnackbarDuration = SnackbarDuration.SHORT
+)
+
+@Composable
+fun SnackbarHost(
+    modifier: Modifier = Modifier()
+)
 ```
 
 ### Toast
 
-A comprehensive toast notification system with positioning and management.
-
-#### Definition
+Toast notifications.
 
 ```kotlin
 @Composable
 fun Toast(
     message: String,
-    variant: ToastVariant = ToastVariant.INFO,
-    duration: Long = 4000,
-    position: ToastPosition = ToastPosition.TOP_RIGHT,
-    onDismiss: (() -> Unit)? = null,
-    action: ToastAction? = null
-)
-
-class ToastManager {
-    fun showToast(message: String, variant: ToastVariant = ToastVariant.INFO, duration: Long = 4000, action: ToastAction? = null)
-    fun showSuccess(message: String, duration: Long = 4000)
-    fun showError(message: String, duration: Long = 8000)
-    fun showWarning(message: String, duration: Long = 6000)
-    fun showInfo(message: String, duration: Long = 4000)
-    fun dismissAll()
-}
-
-@Composable
-fun ToastProvider(
-    position: ToastPosition = ToastPosition.TOP_RIGHT,
-    content: @Composable (ToastManager) -> Unit
-)
-
-enum class ToastVariant {
-    INFO, SUCCESS, WARNING, ERROR
-}
-
-enum class ToastPosition {
-    TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
-}
-
-data class ToastAction(
-    val label: String,
-    val onClick: () -> Unit
+    modifier: Modifier = Modifier(),
+    type: ToastType = ToastType.INFO,
+    duration: Long = 3000L,
+    position: ToastPosition = ToastPosition.BOTTOM_CENTER
 )
 ```
 
-#### Usage
+### Tooltip
+
+Contextual help information.
+
+```kotlin
+@Composable
+fun Tooltip(
+    text: String,
+    modifier: Modifier = Modifier(),
+    position: TooltipPosition = TooltipPosition.TOP,
+    content: @Composable () -> Unit
+)
+```
+
+---
+
+## Navigation Components
+
+Components for navigation and routing.
+
+### Link
+
+Navigation links with routing support.
+
+```kotlin
+@Composable
+fun Link(
+    href: String,
+    modifier: Modifier = Modifier(),
+    external: Boolean = false,
+    target: String? = null,
+    content: @Composable () -> Unit
+)
+```
+
+### TabLayout
+
+Tab-based navigation.
+
+```kotlin
+@Composable
+fun TabLayout(
+    selectedIndex: Int,
+    onTabSelected: (Int) -> Unit,
+    modifier: Modifier = Modifier(),
+    tabs: List<TabItem>
+)
+
+data class TabItem(
+    val label: String,
+    val content: @Composable () -> Unit,
+    val disabled: Boolean = false,
+    val icon: String? = null
+)
+```
+
+---
+
+## Style Components
+
+Components that affect styling and layout globally.
+
+### GlobalStyle
+
+Apply global CSS styles to the document.
+
+```kotlin
+@Composable
+fun GlobalStyle(
+    css: String
+)
+```
+
+---
+
+## Component Architecture
+
+### Modifier System
+
+All components use the Modifier system for styling and behavior:
+
+```kotlin
+// Type-safe styling
+Button(
+    onClick = { },
+    label = "Click Me",
+    modifier = Modifier()
+        .padding("16px")
+        .backgroundColor("#007bff")
+        .borderRadius("4px")
+        .hover(
+            Modifier().backgroundColor("#0056b3")
+        )
+)
+```
+
+### Accessibility Support
+
+Components include built-in accessibility features:
+
+- ARIA attributes and roles
+- Keyboard navigation support
+- Screen reader compatibility
+- Focus management
+- Semantic HTML elements
+
+### Platform Renderer Integration
+
+All components work through the platform renderer system:
 
 ```kotlin
 @Composable
 fun MyComponent() {
-    ToastProvider(position = ToastPosition.TOP_RIGHT) { toastManager ->
-        Column(modifier = Modifier().gap("12px")) {
-            Button(
-                onClick = { toastManager.showSuccess("Operation completed successfully!") },
-                label = "Show Success Toast"
-            )
-            
-            Button(
-                onClick = { toastManager.showError("An error occurred while processing.") },
-                label = "Show Error Toast"
-            )
-            
-            Button(
-                onClick = { 
-                    toastManager.showToast(
-                        message = "This is a custom toast with action",
-                        variant = ToastVariant.INFO,
-                        action = ToastAction("Undo") {
-                            toastManager.showInfo("Action undone!")
-                        }
-                    )
-                },
-                label = "Show Toast with Action"
-            )
-        }
-    }
+    val renderer = LocalPlatformRenderer.current
+    // Component uses renderer for platform-specific output
 }
 ```
 
-#### ToastManager Helper
+### Event Handling
+
+Components support event handling through lambda callbacks:
 
 ```kotlin
-@Composable
-fun rememberToastManager(): ToastManager {
-    return remember { ToastManager() }
-}
+Button(
+    onClick = { println("Clicked!") },
+    label = "Click Me"
+)
+
+TextField(
+    value = state.value,
+    onValueChange = { state.value = it }
+)
 ```
 
-These advanced components provide:
+## Best Practices
 
-✅ **Rich Interactions**: Modal dialogs with customizable headers, footers, and variants  
-✅ **Loading States**: Multiple loading indicators for different use cases  
-✅ **User Feedback**: Toast notifications with positioning and action support  
-✅ **Accessibility**: Proper ARIA attributes and keyboard navigation  
-✅ **Type Safety**: Enum-based variants and sizes for compile-time checking  
-✅ **Flexibility**: Highly customizable with modifier support and content composition
+1. **Use semantic components**: Choose the right component for the content (e.g., `Label` for form labels, `Text` for
+   general text)
+2. **Apply accessibility**: Use ARIA attributes and semantic HTML when needed
+3. **Style with Modifier**: Use the type-safe Modifier system instead of inline styles
+4. **Handle errors gracefully**: Provide error states and validation feedback
+5. **Keep components focused**: Each component should have a single, clear purpose
+6. **Use composition**: Combine simple components to build complex UIs
+7. **Test across platforms**: Ensure components work on both JVM and JS targets
+
+## Migration Notes
+
+When upgrading from older versions:
+
+- Replace deprecated `TextComponent` class usage with `Text` composable function
+- Update modifier chains to use type-safe enums where available
+- Check component signatures for new required or optional parameters
+
+## See Also
+
+- [Modifier API](modifier.md) - Type-safe styling system
+- [State API](state.md) - State management for components
+- [Theme API](theme.md) - Theming and design system
+- [Accessibility API](accessibility.md) - Accessibility features and guidelines

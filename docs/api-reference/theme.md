@@ -1,815 +1,541 @@
 # Theme API Reference
 
-This document provides detailed information about the theming APIs in the Summon library.
+This document provides detailed information about the theming system in the Summon library. The theme system provides
+consistent colors, typography, spacing, and visual design elements across your application.
 
 ## Table of Contents
 
-- [Theme](#theme)
-- [ThemeManager](#thememanager)
-- [Colors](#colors)
+- [Theme System Overview](#theme-system-overview)
+- [Color System](#color-system)
 - [Typography](#typography)
-- [Spacing](#spacing)
-- [MediaQuery](#mediaquery)
-- [StyleSheet](#stylesheet)
+- [Spacing System](#spacing-system)
+- [Theme Configuration](#theme-configuration)
+- [Predefined Themes](#predefined-themes)
+- [Theme Extensions](#theme-extensions)
+- [Usage Examples](#usage-examples)
 
 ---
 
-## Theme
+## Theme System Overview
 
-The `Theme` object is the central container for styling information in a Summon application.
+The Summon theme system consists of several interconnected components:
 
-### Class Definition
+- **ColorSystem**: Manages color palettes with light/dark mode support
+- **Typography**: Defines text styles and type scales
+- **Spacing**: Provides consistent spacing values
+- **Theme**: Orchestrates all theme elements together
+
+### Core Theme Object
 
 ```kotlin
 object Theme {
-    /**
-     * Represents a text style with common properties.
-     * Uses String? for nullable CSS values.
-     */
-    data class TextStyle(
-        val fontFamily: String? = null,
-        val fontSize: String? = null,
-        val fontWeight: String? = null,
-        val fontStyle: String? = null, // e.g., "italic"
-        val color: String? = null,
-        val textDecoration: String? = null, // e.g., "underline"
-        val lineHeight: String? = null,
-        val letterSpacing: String? = null
-        // Add other relevant CSS text properties as needed
-    )
-
-    /**
-     * Typed theme typography configuration
-     */
-    data class TypographyTheme(
-        val h1: TextStyle = TextStyle(fontSize = "2.5rem", fontWeight = "bold"),
-        val h2: TextStyle = TextStyle(fontSize = "2rem", fontWeight = "bold"),
-        val h3: TextStyle = TextStyle(fontSize = "1.75rem", fontWeight = "bold"),
-        // ... other text styles
-    )
-
-    /**
-     * Typed theme spacing configuration
-     */
-    data class SpacingTheme(
-        val xs: String = Spacing.xs,
-        val sm: String = Spacing.sm,
-        val md: String = Spacing.md,
-        val lg: String = Spacing.lg,
-        val xl: String = Spacing.xl,
-        val xxl: String = Spacing.xxl
-    )
-
-    /**
-     * Typed theme border radius configuration
-     */
-    data class BorderRadiusTheme(
-        val none: String = "0",
-        val sm: String = "4px",
-        val md: String = "8px",
-        val lg: String = "16px",
-        val xl: String = "24px",
-        val pill: String = "9999px",
-        val circle: String = "50%"
-    )
-
-    /**
-     * Typed theme elevation configuration
-     */
-    data class ElevationTheme(
-        val none: String = "none",
-        val xs: String = "0 1px 2px rgba(0, 0, 0, 0.05)",
-        val sm: String = "0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)",
-        val md: String = "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-        val lg: String = "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-        val xl: String = "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-        val xxl: String = "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
-    )
-
-    /**
-     * Represents a complete theme configuration
-     */
     data class ThemeConfig(
         val colorPalette: ColorSystem.ColorPalette = ColorSystem.default,
-        val typography: Map<String, TextStyle> = defaultTypography,
-        val spacing: Map<String, String> = defaultSpacing,
-        val borderRadius: Map<String, String> = defaultBorderRadius,
-        val elevation: Map<String, String> = defaultElevation,
+        val typography: Map<String, TextStyle> = emptyMap(),
+        val spacing: Map<String, String> = emptyMap(),
+        val borderRadius: Map<String, String> = emptyMap(),
+        val elevation: Map<String, String> = emptyMap(),
         val customValues: Map<String, String> = emptyMap(),
-        // Typed theme properties for direct access
         val typographyTheme: TypographyTheme = TypographyTheme(),
         val spacingTheme: SpacingTheme = SpacingTheme(),
         val borderRadiusTheme: BorderRadiusTheme = BorderRadiusTheme(),
         val elevationTheme: ElevationTheme = ElevationTheme()
     )
-
-    // Predefined themes
-    object Themes {
-        val light: ThemeConfig
-        val dark: ThemeConfig
-        val blue: ThemeConfig
-        val green: ThemeConfig
-        val purple: ThemeConfig
-    }
-
-    // Theme management methods
-    fun setTheme(theme: ThemeConfig)
-    fun getTheme(): ThemeConfig
-
-    // Theme value getters (string-based for backward compatibility)
-    fun getColor(name: String, themeMode: ColorSystem.ThemeMode = ColorSystem.getThemeMode()): String
-    fun getTextStyle(name: String): TextStyle
-    fun getSpacing(name: String): String
-    fun getBorderRadius(name: String): String
-    fun getElevation(name: String): String
-    fun getCustomValue(name: String, defaultValue: String): String
-
-    // Typed theme getters (for type-safe access)
-    fun getTypographyTheme(): TypographyTheme
-    fun getSpacingTheme(): SpacingTheme
-    fun getBorderRadiusTheme(): BorderRadiusTheme
-    fun getElevationTheme(): ElevationTheme
-
-    // Theme creation
-    fun createTheme(baseTheme: ThemeConfig = Themes.light, modifications: ThemeConfig.() -> ThemeConfig): ThemeConfig
-}
-```
-
-### Description
-
-The `Theme` object provides a centralized way to define consistent styles across an application. It uses a `ThemeConfig` data class to store theme values and provides methods to access and modify these values.
-
-### Example
-
-```kotlin
-// Use a predefined theme
-Theme.setTheme(Theme.Themes.light)
-
-// Create a custom theme using string-based maps (backward compatibility)
-val customTheme1 = Theme.createTheme(Theme.Themes.light) {
-    copy(
-        colorPalette = ColorSystem.blue,
-        customValues = mapOf(
-            "customColor" to "#ff5722",
-            "customSpacing" to "24px"
-        )
-    )
-}
-
-// Create a custom theme using typed properties (more type-safe)
-val customTheme2 = Theme.createTheme(Theme.Themes.light) {
-    copy(
-        colorPalette = ColorSystem.blue,
-        typographyTheme = TypographyTheme(
-            h1 = TextStyle.create(
-                fontSize = 3.0,
-                fontSizeUnit = "rem",
-                fontWeight = FontWeight.Bold
-            ),
-            body = TextStyle.create(
-                fontSize = 1.1,
-                fontSizeUnit = "rem",
-                lineHeight = 1.5
-            )
-        ),
-        spacingTheme = SpacingTheme(
-            md = "20px",
-            lg = "32px"
-        ),
-        borderRadiusTheme = BorderRadiusTheme(
-            md = "10px"
-        ),
-        customValues = mapOf(
-            "customColor" to "#ff5722",
-            "customSpacing" to "24px"
-        )
-    )
-}
-
-// Set the custom theme
-Theme.setTheme(customTheme2)
-
-// Access theme values using string-based getters (backward compatibility)
-val primaryColor = Theme.getColor("primary")
-val headingStyle = Theme.getTextStyle("h1")
-val mediumSpacing = Theme.getSpacing("md")
-val roundedCorners = Theme.getBorderRadius("lg")
-val shadowEffect = Theme.getElevation("md")
-val customValue = Theme.getCustomValue("customColor", "#000000")
-
-// Access theme values using typed getters (more type-safe)
-val typographyTheme = Theme.getTypographyTheme()
-val h1Style = typographyTheme.h1
-val bodyStyle = typographyTheme.body
-
-val spacingTheme = Theme.getSpacingTheme()
-val mdSpacing = spacingTheme.md
-val lgSpacing = spacingTheme.lg
-
-val borderRadiusTheme = Theme.getBorderRadiusTheme()
-val mdRadius = borderRadiusTheme.md
-val lgRadius = borderRadiusTheme.lg
-
-val elevationTheme = Theme.getElevationTheme()
-val mdElevation = elevationTheme.md
-val lgElevation = elevationTheme.lg
-```
-
----
-
-## ThemeManager
-
-The `ThemeManager` object manages typography settings for the application.
-
-### Class Definition
-
-```kotlin
-object ThemeManager {
-    private var currentTypography: Typography = Typography()
-
-    fun getTypography(): Typography
-    fun setTypography(typography: Typography)
-
-    // Whether dark mode is enabled
-    var isDarkMode: Boolean
-
-    // Initialize the theme manager with the given dark mode setting
-    fun initialize(isDarkMode: Boolean)
-
-    // Toggle between light and dark mode
-    fun toggleTheme()
-}
-
-interface ThemeConfiguration {
-    val typography: Typography
-    // Other theme components like colors, shapes, etc. can be added here
-}
-
-class DefaultThemeConfiguration : ThemeConfiguration {
-    override val typography: Typography = Typography()
-}
-```
-
-### Description
-
-The `ThemeManager` provides a way to manage typography settings and theme mode for the application. It's a simpler alternative to the full `Theme` object when you only need to manage typography and dark/light mode. It includes functionality to initialize the theme system, check if dark mode is enabled, and toggle between light and dark modes.
-
-### Example
-
-```kotlin
-// Get the current typography
-val typography = ThemeManager.getTypography()
-
-// Set a custom typography
-val customTypography = Typography()
-ThemeManager.setTypography(customTypography)
-
-// Initialize theme system with default theme (e.g., based on system preference)
-ThemeManager.initialize(isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches)
-
-// Check if dark mode is enabled
-val isDarkMode = ThemeManager.isDarkMode
-
-// Toggle between light and dark mode
-ThemeManager.toggleTheme()
-
-// Create a custom theme configuration
-class MyThemeConfiguration : ThemeConfiguration {
-    override val typography: Typography = Typography(
-        // Custom typography settings
-    )
 }
 ```
 
 ---
 
-## ColorSystem
+## Color System
 
-The `ColorSystem` object provides a comprehensive color management system for the application.
+The ColorSystem provides semantic color names with automatic light/dark mode support.
 
-### Class Definition
+### Color Palette Structure
 
 ```kotlin
 object ColorSystem {
-    // Theme modes
-    enum class ThemeMode {
-        LIGHT, DARK, SYSTEM
-    }
+    enum class ThemeMode { LIGHT, DARK, SYSTEM }
 
-    // Color palette data class
     data class ColorPalette(
         val light: Map<String, String>,
         val dark: Map<String, String>
     ) {
-        fun forMode(mode: ThemeMode): Map<String, String>
+        fun forMode(themeMode: ThemeMode): Map<String, String>
     }
-
-    // Predefined color palettes
-    val default: ColorPalette
-    val blue: ColorPalette
-    val green: ColorPalette
-    val purple: ColorPalette
-
-    // Theme mode management
-    private var themeMode: ThemeMode = ThemeMode.SYSTEM
-    fun getThemeMode(): ThemeMode
-    fun setThemeMode(mode: ThemeMode)
-
-    // Color utility functions
-    fun darken(color: String, amount: Float): String
-    fun lighten(color: String, amount: Float): String
-    fun alpha(color: String, amount: Float): String
-    fun complementary(color: String): String
-    fun contrast(color: String): String
-    fun hexToRgb(hex: String): Triple<Int, Int, Int>
-    fun rgbToHex(r: Int, g: Int, b: Int): String
 }
-
-// Legacy Colors class for backward compatibility
-data class Colors(
-    val primary: String,
-    val secondary: String,
-    val background: String,
-    val surface: String,
-    val error: String,
-    val onPrimary: String,
-    val onSecondary: String,
-    val onBackground: String,
-    val onSurface: String,
-    val onError: String
-)
 ```
 
-### Description
+### Semantic Color Names
 
-The `ColorSystem` object provides a structured way to organize colors in a theme and ensure consistent usage throughout an application. It supports light and dark modes, and provides utility functions for color manipulation.
+The default color palette includes these semantic colors:
 
-### Example
+**Backgrounds:**
+
+- `background` - Primary background color
+- `surface` - Surface/card backgrounds
+- `surfaceVariant` - Alternative surface color
+
+**Text:**
+
+- `onBackground` - Text on background
+- `onSurface` - Text on surface
+- `onSurfaceVariant` - Secondary text on surface
+- `disabled` - Disabled text color
+
+**Brand Colors:**
+
+- `primary` - Primary brand color
+- `primaryVariant` - Primary color variant
+- `onPrimary` - Text on primary color
+- `secondary` - Secondary brand color
+- `onSecondary` - Text on secondary color
+
+**Status Colors:**
+
+- `error` - Error states
+- `warning` - Warning states
+- `success` - Success states
+- `info` - Information states
+
+### Usage Examples
 
 ```kotlin
-// Access predefined color palettes
-val defaultPalette = ColorSystem.default
-val bluePalette = ColorSystem.blue
+// Get colors
+val primaryColor = Theme.getColor("primary")
+val backgroundColor = Theme.getColor("background", ColorSystem.ThemeMode.DARK)
+
+// Apply to modifiers
+modifier.themeColor("primary")
+modifier.themeBackgroundColor("surface")
+modifier.themeStyleBorder("1px", "solid", "primary")
 
 // Set theme mode
 ColorSystem.setThemeMode(ColorSystem.ThemeMode.DARK)
+```
 
-// Get current theme mode
-val currentMode = ColorSystem.getThemeMode()
+### Predefined Color Palettes
 
-// Get colors for current theme mode
-val colors = ColorSystem.default.forMode(currentMode)
-val primaryColor = colors["primary"]
-val backgroundColor = colors["background"]
-
-// Use color utilities
-val darkerPrimary = ColorSystem.darken(primaryColor!!, 0.2f)
-val lighterSecondary = ColorSystem.lighten(colors["secondary"]!!, 0.1f)
-val primaryWithOpacity = ColorSystem.alpha(primaryColor!!, 0.7f)
-val contrastColor = ColorSystem.contrast(primaryColor!!)
-
-// Convert between hex and RGB
-val (r, g, b) = ColorSystem.hexToRgb("#3f51b5")
-val hexColor = ColorSystem.rgbToHex(63, 81, 181)
+```kotlin
+object ColorSystem {
+    val default: ColorPalette  // Default blue-based palette
+    val blue: ColorPalette     // Blue theme
+    val green: ColorPalette    // Green theme
+    val purple: ColorPalette   // Purple theme
+}
 ```
 
 ---
 
 ## Typography
 
-The `Typography` class defines text styles for a theme.
+The typography system provides consistent text styles with both string-based and type-safe properties.
 
-### Class Definition
+### TextStyle Definition
 
 ```kotlin
-class Typography {
-    // Headings
-    val h1: TextStyle
-    val h2: TextStyle
-    val h3: TextStyle
-    val h4: TextStyle
-    val h5: TextStyle
-    val h6: TextStyle
+data class TextStyle(
+    // String-based properties (backward compatibility)
+    val fontFamily: String? = null,
+    val fontSize: String? = null,
+    val fontWeight: String? = null,
+    val fontStyle: String? = null,
+    val color: String? = null,
+    val textDecoration: String? = null,
+    val lineHeight: String? = null,
+    val letterSpacing: String? = null,
 
-    // Subtitles
-    val subtitle1: TextStyle
-    val subtitle2: TextStyle
-
-    // Body text
-    val body1: TextStyle
-    val body2: TextStyle
-
-    // Button text
-    val button: TextStyle
-
-    // Caption
-    val caption: TextStyle
-
-    // Overline
-    val overline: TextStyle
+    // Type-safe properties
+    val fontWeightEnum: FontWeight? = null,
+    val fontSizeNumber: Number? = null,
+    val fontSizeUnit: String? = null,
+    val lineHeightNumber: Number? = null,
+    val letterSpacingNumber: Number? = null,
+    val letterSpacingUnit: String? = null,
+    val colorValue: Color? = null
+) {
+    companion object {
+        fun create(
+            fontFamily: String? = null,
+            fontSize: Number? = null,
+            fontSizeUnit: String? = "rem",
+            fontWeight: FontWeight? = null,
+            fontStyle: String? = null,
+            color: Color? = null,
+            textDecoration: String? = null,
+            lineHeight: Number? = null,
+            letterSpacing: Number? = null,
+            letterSpacingUnit: String? = "em"
+        ): TextStyle
+    }
 }
-
-// TextStyle is defined in Theme object
-// See Theme.TextStyle for the full definition
 ```
 
-### Description
-
-The `Typography` class provides consistent text styling across an application with predefined styles for different text elements. Each style is defined as a `TextStyle` object with properties like font size, weight, and line height.
-
-### Example
+### Typography Theme
 
 ```kotlin
-// Get the default typography
-val typography = Typography()
-
-// Access typography styles
-val headingStyle = typography.h1
-val bodyStyle = typography.body1
-val buttonStyle = typography.button
-
-// Using typography in components
-Text(
-    text = "Heading",
-    modifier = Modifier.themeTextStyle("h1")
+data class TypographyTheme(
+    val h1: TextStyle = TextStyle.create(fontSize = 2.5, fontWeight = FontWeight.Bold),
+    val h2: TextStyle = TextStyle.create(fontSize = 2.0, fontWeight = FontWeight.Bold),
+    val h3: TextStyle = TextStyle.create(fontSize = 1.75, fontWeight = FontWeight.Bold),
+    val h4: TextStyle = TextStyle.create(fontSize = 1.5, fontWeight = FontWeight.Bold),
+    val h5: TextStyle = TextStyle.create(fontSize = 1.25, fontWeight = FontWeight.Bold),
+    val h6: TextStyle = TextStyle.create(fontSize = 1.0, fontWeight = FontWeight.Bold),
+    val subtitle: TextStyle = TextStyle.create(fontSize = 1.1, fontWeight = FontWeight.Medium),
+    val body: TextStyle = TextStyle.create(fontSize = 1.0, fontWeight = FontWeight.Normal),
+    val bodyLarge: TextStyle = TextStyle.create(fontSize = 1.1, fontWeight = FontWeight.Normal),
+    val bodySmall: TextStyle = TextStyle.create(fontSize = 0.9, fontWeight = FontWeight.Normal),
+    val caption: TextStyle = TextStyle.create(fontSize = 0.8, fontWeight = FontWeight.Normal),
+    val button: TextStyle = TextStyle.create(fontSize = 1.0, fontWeight = FontWeight.Medium),
+    val overline: TextStyle = TextStyle.create(fontSize = 0.75, fontWeight = FontWeight.SemiBold, letterSpacing = 0.05),
+    val link: TextStyle = TextStyle.create(fontSize = 1.0, fontWeight = FontWeight.Normal, textDecoration = "underline"),
+    val code: TextStyle = TextStyle.create(fontSize = 0.9, fontFamily = "monospace")
 )
+```
 
-Text(
-    text = "Body text",
-    modifier = Modifier.themeTextStyle("body1")
-)
+### Usage Examples
 
-// Using typography with ThemeManager
-val managerTypography = ThemeManager.getTypography()
-ThemeManager.setTypography(Typography())
+```kotlin
+// Get text styles
+val headingStyle = Theme.getTextStyle("h1")
+val bodyStyle = Theme.getTextStyle("body")
 
-// Using typography with Theme
-val themeTextStyle = Theme.getTextStyle("h1")
+// Apply to modifiers
+modifier.themeTextStyle("h2")
+
+// Access typed typography theme
+val typography = Theme.getTypographyTheme()
+val h1Style = typography.h1
 ```
 
 ---
 
-## Spacing
+## Spacing System
 
-The `Spacing` object defines consistent spacing values for a theme.
+The Spacing system provides consistent spacing values based on a 4px base unit.
 
-### Class Definition
+### Spacing Object
 
 ```kotlin
 object Spacing {
-    // Base spacing unit (in pixels)
     private const val BASE_UNIT = 4
 
-    // Standard spacing values
-    const val xs = "${BASE_UNIT}px"           // 4px
-    const val sm = "${BASE_UNIT * 2}px"       // 8px
-    const val md = "${BASE_UNIT * 4}px"       // 16px
-    const val lg = "${BASE_UNIT * 6}px"       // 24px
-    const val xl = "${BASE_UNIT * 8}px"       // 32px
-    const val xxl = "${BASE_UNIT * 12}px"     // 48px
+    const val xs = "4px"    // BASE_UNIT
+    const val sm = "8px"    // BASE_UNIT * 2
+    const val md = "16px"   // BASE_UNIT * 4 (default)
+    const val lg = "24px"   // BASE_UNIT * 6
+    const val xl = "32px"   // BASE_UNIT * 8
+    const val xxl = "48px"  // BASE_UNIT * 12
 
-    // Helper methods
-    fun custom(multiplier: Int): String
+    fun custom(multiplier: Int): String = "${BASE_UNIT * multiplier}px"
 
-    // Directional spacing helpers
-    fun padding(
-        top: String = "0",
-        right: String = "0",
-        bottom: String = "0",
-        left: String = "0"
-    ): String
-
+    fun padding(top: String = "0", right: String = "0", bottom: String = "0", left: String = "0"): String
     fun padding(vertical: String = "0", horizontal: String = "0"): String
-
-    fun margin(
-        top: String = "0",
-        right: String = "0",
-        bottom: String = "0",
-        left: String = "0"
-    ): String
-
+    fun margin(top: String = "0", right: String = "0", bottom: String = "0", left: String = "0"): String
     fun margin(vertical: String = "0", horizontal: String = "0"): String
-
-    // Composable spacer components
-    @Composable
-    fun VerticalSpacer(size: String)
-
-    @Composable
-    fun HorizontalSpacer(size: String)
 }
 ```
 
-### Description
-
-The `Spacing` object provides a systematic approach to spacing elements in an application, ensuring consistency. It defines standard spacing values and helper methods for creating custom spacing.
-
-### Example
+### Spacing Theme
 
 ```kotlin
-// Using standard spacing values
-Box(
-    modifier = Modifier
-        .padding(Spacing.md)
-        .margin(Spacing.sm)
+data class SpacingTheme(
+    val xs: String = Spacing.xs,    // 4px
+    val sm: String = Spacing.sm,    // 8px
+    val md: String = Spacing.md,    // 16px
+    val lg: String = Spacing.lg,    // 24px
+    val xl: String = Spacing.xl,    // 32px
+    val xxl: String = Spacing.xxl   // 48px
 )
+```
 
-// Custom spacing
+### Spacing Components
+
+```kotlin
+// Spacer components
+@Composable
+fun Spacer(modifier: Modifier)
+
+// Convenience spacers
+@Composable
+fun HorizontalSpacerXS()
+@Composable
+fun HorizontalSpacerS()
+@Composable
+fun HorizontalSpacerM()
+@Composable
+fun VerticalSpacerXS()
+@Composable
+fun VerticalSpacerS()
+@Composable
+fun VerticalSpacerM()
+
+// Spacing utilities
+@Composable
+fun Spacing.verticalSpace(size: String = md)
+@Composable
+fun Spacing.horizontalSpace(size: String = md)
+```
+
+### Usage Examples
+
+```kotlin
+// Direct spacing values
+val smallPadding = Spacing.sm
 val customSpacing = Spacing.custom(3) // 12px
-Box(
-    modifier = Modifier.padding(customSpacing)
-)
 
-// Directional spacing
-val paddingValue = Spacing.padding(
-    top = Spacing.md,
-    right = Spacing.lg,
-    bottom = Spacing.md,
-    left = Spacing.lg
-)
-Box(
-    modifier = Modifier.padding(paddingValue)
-)
+// Spacing utilities
+val padding = Spacing.padding("8px", "16px")
+val margin = Spacing.margin(vertical = "12px", horizontal = "24px")
 
-// Simplified directional spacing
-val simplePadding = Spacing.padding(
-    vertical = Spacing.sm,
-    horizontal = Spacing.md
-)
-Box(
-    modifier = Modifier.padding(simplePadding)
-)
+// Apply to modifiers
+modifier.themePadding("md")
+modifier.themeMargin("lg")
+modifier.spacingPadding(Spacing.xl)
 
-// Using theme spacing
-Box(
-    modifier = Modifier.themePadding("md")
-)
-
-// Using spacer components
-Column {
-    Text("First item")
-    Spacing.VerticalSpacer(Spacing.md)
-    Text("Second item")
-}
-
-Row {
-    Text("Left")
-    Spacing.HorizontalSpacer(Spacing.lg)
-    Text("Right")
-}
+// Spacer components
+Spacer(Modifier().height(Spacing.md))
+VerticalSpacerM()
 ```
 
 ---
 
-## MediaQuery
+## Theme Configuration
 
-The `MediaQuery` object provides utilities for responsive design.
-
-### Class Definition
+### Border Radius & Elevation
 
 ```kotlin
-object MediaQuery {
-    // Media query methods for different screen sizes
-    fun minWidth(breakpoint: Int, styleModifier: Modifier): MediaQueryModifier
-    fun maxWidth(breakpoint: Int, styleModifier: Modifier): MediaQueryModifier
-    fun minHeight(breakpoint: Int, styleModifier: Modifier): MediaQueryModifier
-    fun maxHeight(breakpoint: Int, styleModifier: Modifier): MediaQueryModifier
-    fun betweenWidth(minWidth: Int, maxWidth: Int, styleModifier: Modifier): MediaQueryModifier
-
-    // Predefined device type queries
-    fun mobile(styleModifier: Modifier): MediaQueryModifier
-    fun tablet(styleModifier: Modifier): MediaQueryModifier
-    fun desktop(styleModifier: Modifier): MediaQueryModifier
-
-    // Other media features
-    fun orientation(isPortrait: Boolean, styleModifier: Modifier): MediaQueryModifier
-    fun darkMode(styleModifier: Modifier): MediaQueryModifier
-    fun lightMode(styleModifier: Modifier): MediaQueryModifier
-    fun reducedMotion(styleModifier: Modifier): MediaQueryModifier
-}
-
-// MediaQueryModifier class for applying responsive styles
-class MediaQueryModifier(private val query: String, private val styleModifier: Modifier) {
-    fun applyTo(baseModifier: Modifier): Modifier
-    fun and(vararg others: MediaQueryModifier): MediaQueryModifier
-}
-
-// Extension functions for Modifier
-fun Modifier.responsive(mediaQueryModifier: MediaQueryModifier): Modifier
-fun Modifier.responsive(vararg mediaQueryModifiers: MediaQueryModifier): Modifier
-```
-
-### Description
-
-The `MediaQuery` object provides tools for creating responsive layouts that adapt to different screen sizes and device characteristics. It uses CSS media queries to conditionally apply styles based on screen dimensions, orientation, color scheme, and other features.
-
-### Example
-
-```kotlin
-// Basic responsive styling
-Box(
-    modifier = Modifier.responsive(
-        MediaQuery.minWidth(768, Modifier.width("50%")),
-        MediaQuery.maxWidth(767, Modifier.width("100%"))
-    )
+data class BorderRadiusTheme(
+    val none: String = "0",
+    val sm: String = "4px",
+    val md: String = "8px",
+    val lg: String = "16px",
+    val xl: String = "24px",
+    val pill: String = "9999px",
+    val circle: String = "50%"
 )
 
-// Device-specific styling
-Text(
-    text = "Responsive Text",
-    modifier = Modifier.responsive(
-        MediaQuery.mobile(Modifier.fontSize("14px")),
-        MediaQuery.tablet(Modifier.fontSize("16px")),
-        MediaQuery.desktop(Modifier.fontSize("18px"))
-    )
-)
-
-// Combining media queries
-val responsiveStyles = MediaQuery.minWidth(600, Modifier.padding("20px"))
-    .and(MediaQuery.darkMode(Modifier.backgroundColor("#333")))
-
-Box(
-    modifier = Modifier.responsive(responsiveStyles)
-)
-
-// Orientation-specific styling
-Image(
-    src = "logo.png",
-    modifier = Modifier.responsive(
-        MediaQuery.orientation(isPortrait = true, Modifier.width("80%")),
-        MediaQuery.orientation(isPortrait = false, Modifier.width("40%"))
-    )
-)
-
-// Dark mode styling
-Card(
-    modifier = Modifier.responsive(
-        MediaQuery.darkMode(
-            Modifier
-                .backgroundColor("#222")
-                .color("#fff")
-        ),
-        MediaQuery.lightMode(
-            Modifier
-                .backgroundColor("#fff")
-                .color("#222")
-        )
-    )
-)
-
-// Accessibility - reduced motion
-Button(
-    text = "Click Me",
-    modifier = Modifier.responsive(
-        MediaQuery.reducedMotion(
-            Modifier.transition("none")
-        )
-    )
+data class ElevationTheme(
+    val none: String = "none",
+    val xs: String = "0 1px 2px rgba(0, 0, 0, 0.05)",
+    val sm: String = "0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)",
+    val md: String = "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+    val lg: String = "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+    val xl: String = "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+    val xxl: String = "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
 )
 ```
 
-### Using with Composable Effects
+### Theme Management
 
-For reactive media query state in composable functions, use the `useMediaQuery` effect:
+```kotlin
+// Set active theme
+Theme.setTheme(Theme.Themes.dark)
+
+// Get current theme
+val currentTheme = Theme.getTheme()
+
+// Access theme values
+val primaryColor = Theme.getColor("primary")
+val headingStyle = Theme.getTextStyle("h1")
+val mediumSpacing = Theme.getSpacing("md")
+val roundedCorners = Theme.getBorderRadius("md")
+val cardElevation = Theme.getElevation("sm")
+val customValue = Theme.getCustomValue("myCustomProperty", "defaultValue")
+```
+
+---
+
+## Predefined Themes
+
+```kotlin
+object Theme.Themes {
+    val light: ThemeConfig      // Default light theme
+    val dark: ThemeConfig       // Default dark theme
+    val blue: ThemeConfig       // Blue color theme
+    val green: ThemeConfig      // Green color theme
+    val purple: ThemeConfig     // Purple color theme
+}
+```
+
+### Usage Examples
+
+```kotlin
+// Switch to dark theme
+Theme.setTheme(Theme.Themes.dark)
+
+// Switch to colored theme
+Theme.setTheme(Theme.Themes.green)
+
+// Use system preference
+ColorSystem.setThemeMode(ColorSystem.ThemeMode.SYSTEM)
+```
+
+---
+
+## Theme Extensions
+
+### Modifier Extensions
+
+The theme system provides convenient modifier extensions:
+
+```kotlin
+// Color extensions
+fun Modifier.themeColor(colorName: String, themeMode: ColorSystem.ThemeMode = ColorSystem.getThemeMode()): Modifier
+fun Modifier.themeBackgroundColor(colorName: String, themeMode: ColorSystem.ThemeMode = ColorSystem.getThemeMode()): Modifier
+fun Modifier.themeStyleBorder(width: String, style: String, colorName: String, themeMode: ColorSystem.ThemeMode = ColorSystem.getThemeMode()): Modifier
+
+// Typography extensions
+fun Modifier.themeTextStyle(styleName: String): Modifier
+
+// Spacing extensions
+fun Modifier.themePadding(spacingName: String): Modifier
+fun Modifier.themeMargin(spacingName: String): Modifier
+fun Modifier.themePadding(top: String? = null, right: String? = null, bottom: String? = null, left: String? = null): Modifier
+fun Modifier.themeMargin(top: String? = null, right: String? = null, bottom: String? = null, left: String? = null): Modifier
+
+// Other extensions
+fun Modifier.themeBorderRadius(radiusName: String): Modifier
+fun Modifier.themeElevation(elevationName: String): Modifier
+
+// Spacing modifier extensions
+fun Modifier.spacingPadding(value: String): Modifier
+fun Modifier.spacingPadding(top: String, right: String, bottom: String, left: String): Modifier
+fun Modifier.spacingPaddingHorizontal(value: String): Modifier
+fun Modifier.spacingPaddingVertical(value: String): Modifier
+fun Modifier.spacingMargin(value: String): Modifier
+fun Modifier.spacingMarginHorizontal(value: String): Modifier
+fun Modifier.spacingMarginVertical(value: String): Modifier
+```
+
+### Custom Theme Creation
+
+```kotlin
+// Create custom theme extending existing theme
+val customTheme = Theme.createTheme(Theme.Themes.light) {
+    copy(
+        customValues = customValues + ("brandColor" to "#FF6B35"),
+        typography = typography + ("brandHeading" to TextStyle.create(
+            fontSize = 2.2,
+            fontWeight = FontWeight.Bold,
+            color = Color.hex("#FF6B35")
+        ))
+    )
+}
+
+// Apply custom theme
+Theme.setTheme(customTheme)
+```
+
+---
+
+## Usage Examples
+
+### Complete Theme Setup
 
 ```kotlin
 @Composable
-fun ResponsiveLayout() {
-    val isMobile = useMediaQuery("(max-width: 600px)")
-    val isDarkMode = useMediaQuery("(prefers-color-scheme: dark)")
+fun ThemedApp() {
+    // Set up theme
+    Theme.setTheme(Theme.Themes.dark)
+    ColorSystem.setThemeMode(ColorSystem.ThemeMode.SYSTEM)
 
+    // Use themed components
     Column(
-        modifier = Modifier.padding(
-            if (isMobile) "8px" else "16px"
-        ).backgroundColor(
-            if (isDarkMode) "#222" else "#fff"
-        )
+        modifier = Modifier()
+            .themeBackgroundColor("background")
+            .themePadding("lg")
     ) {
-        if (isMobile) {
-            MobileLayout()
-        } else {
-            DesktopLayout()
-        }
+        Text(
+            text = "Welcome",
+            modifier = Modifier()
+                .themeTextStyle("h1")
+                .themeColor("onBackground")
+        )
+
+        VerticalSpacerM()
+
+        Button(
+            onClick = { },
+            label = "Get Started",
+            modifier = Modifier()
+                .themeBackgroundColor("primary")
+                .themeColor("onPrimary")
+                .themeBorderRadius("md")
+                .themeElevation("sm")
+        )
     }
 }
 ```
 
----
-
-## StyleSheet
-
-The `StyleSheet` object provides a way to define reusable styles.
-
-### Class Definition
+### Responsive Theming
 
 ```kotlin
-object StyleSheet {
-    // Define and register styles
-    fun defineStyle(name: String, modifier: Modifier)
-    fun getStyle(name: String): Modifier
-    fun hasStyle(name: String): Boolean
-    fun removeStyle(name: String)
-    fun clearStyles()
+@Composable
+fun ResponsiveThemedComponent() {
+    val typography = Theme.getTypographyTheme()
+    val spacing = Theme.getSpacingTheme()
 
-    // Create and register styles in a single call
-    fun createStyle(name: String, builder: Modifier.() -> Modifier): Modifier
-    fun extendStyle(baseName: String, newName: String, extension: Modifier.() -> Modifier)
+    Column {
+        Text(
+            text = "Heading",
+            modifier = Modifier().themeTextStyle("h2")
+        )
+
+        Spacer(Modifier().height(spacing.md))
+
+        Text(
+            text = "Body text with theme-aware styling",
+            modifier = Modifier()
+                .themeTextStyle("body")
+                .spacingPaddingHorizontal(spacing.sm)
+        )
+    }
 }
-
-// StyleBuilder for declarative style definition
-class StyleBuilder {
-    fun style(name: String, builder: Modifier.() -> Modifier)
-    fun extendStyle(name: String, baseName: String, builder: Modifier.() -> Modifier)
-    fun registerAll()
-}
-
-// Helper function to create a stylesheet
-fun createStyleSheet(builder: StyleBuilder.() -> Unit)
-
-// Apply styles using modifier extensions
-fun Modifier.applyStyle(styleName: String): Modifier
-fun Modifier.applyStyles(vararg styleNames: String): Modifier
 ```
 
-### Description
-
-The `StyleSheet` object provides a way to define reusable styles that can be applied to components. It helps maintain consistent styling throughout the application and reduces duplication.
-
-### Example
+### Dynamic Theme Switching
 
 ```kotlin
-// Define individual styles
-StyleSheet.defineStyle(
-    "primaryButton", 
-    Modifier
-        .backgroundColor("#0077cc")
-        .color("#ffffff")
-        .padding("8px 16px")
-        .borderRadius("4px")
-)
+@Composable
+fun ThemeSwitcher() {
+    var isDark by remember { mutableStateOf(false) }
 
-// Create a style with a builder
-StyleSheet.createStyle("card") {
-    backgroundColor("#ffffff")
-        .padding("16px")
-        .borderRadius("8px")
-        .boxShadow("0 2px 4px rgba(0,0,0,0.1)")
-}
-
-// Extend an existing style
-StyleSheet.extendStyle("primaryButton", "largeButton") {
-    fontSize("18px")
-        .padding("12px 24px")
-}
-
-// Check if a style exists
-if (StyleSheet.hasStyle("primaryButton")) {
-    // Use the style
-}
-
-// Create multiple styles with StyleBuilder
-createStyleSheet {
-    style("heading") {
-        fontSize("24px")
-            .fontWeight("bold")
-            .marginBottom("16px")
-    }
-
-    style("paragraph") {
-        fontSize("16px")
-            .lineHeight("1.5")
-            .marginBottom("8px")
-    }
-
-    extendStyle("heading", "sectionHeading") {
-        color("#333333")
-            .borderBottom("1px solid #eeeeee")
-            .paddingBottom("8px")
-    }
-}
-
-// Using the styles in components
-Button(
-    text = "Click Me",
-    modifier = Modifier.applyStyle("primaryButton")
-)
-
-Card(
-    modifier = Modifier.applyStyle("card")
-) {
-    Text(
-        text = "Section Title",
-        modifier = Modifier.applyStyle("sectionHeading")
-    )
-
-    Text(
-        text = "This is a paragraph of text.",
-        modifier = Modifier.applyStyle("paragraph")
+    Button(
+        onClick = {
+            isDark = !isDark
+            val newTheme = if (isDark) Theme.Themes.dark else Theme.Themes.light
+            Theme.setTheme(newTheme)
+        },
+        label = if (isDark) "Light Mode" else "Dark Mode",
+        modifier = Modifier()
+            .themeBackgroundColor("primary")
+            .themeColor("onPrimary")
     )
 }
-
-// Apply multiple styles to a component
-Text(
-    text = "Styled Text",
-    modifier = Modifier.applyStyles("heading", "textCenter", "textPrimary")
-)
 ```
+
+## Best Practices
+
+1. **Use semantic color names**: Prefer `"primary"` over hex colors for consistency
+2. **Leverage spacing system**: Use predefined spacing values for visual harmony
+3. **Apply theme extensions**: Use modifier extensions for clean, readable code
+4. **Support theme modes**: Design for both light and dark modes
+5. **Create custom themes sparingly**: Extend existing themes rather than creating from scratch
+6. **Test theme switching**: Ensure your UI works with all theme modes
+7. **Use typed properties**: Prefer type-safe TextStyle.create() over string-based styles
+
+## Migration Notes
+
+When upgrading theme usage:
+
+- Replace hardcoded colors with semantic theme colors
+- Update spacing to use the consistent spacing system
+- Use theme modifier extensions for cleaner code
+- Test with different theme modes (light/dark/system)
+
+## See Also
+
+- [Components API](components.md) - Using themes with UI components
+- [Modifier API](modifier.md) - Styling system that integrates with themes
+- [Color API](color.md) - Color system and utilities
+- [State API](state.md) - Managing theme state in your application

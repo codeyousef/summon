@@ -4,24 +4,32 @@ This directory contains comprehensive API documentation for the Summon library. 
 
 ## Core APIs
 
-- [Core API](core.md) - Documentation for the core module, including `Composable`, `CompositionContext`, and other foundational interfaces
-- [Components API](components.md) - Documentation for built-in components like Text, Button, Image, etc.
-- [Modifier API](modifier.md) - Documentation for the modifier system used to style and configure components
-- [State API](state.md) - Documentation for state management utilities
+- [State API](state.md) - Comprehensive state management with MutableState, remember functions, derived state, and Flow
+  integration
+- [Components API](components.md) - Complete UI components library organized by category (layout, input, display,
+  feedback, navigation)
+- [Theme API](theme.md) - Theming system with colors, typography, spacing, and design tokens
+- [Modifier API](modifier.md) - Type-safe styling and layout modifier system
+- [SSR API](ssr.md) - Server-side rendering APIs for JVM platforms
+
+## Platform-Specific APIs
+
+- [Routing API](routing.md) - File-based routing and navigation system
+- [Effects API](effects.md) - Side effects and lifecycle management (`LaunchedEffect`, `DisposableEffect`)
+
+## Specialized APIs
+
+- [Animation API](animation.md) - Animation system with keyframes, transitions, and effects
+- [Accessibility API](accessibility.md) - ARIA support, keyboard navigation, and accessibility features
+- [Security API](security.md) - Authentication, authorization, and security utilities
+- [I18n API](i18n.md) - Internationalization with RTL support and language management
+- [Validation API](validation.md) - Form and input validation system
 
 ## Additional APIs
 
-- [Routing API](routing.md) - Documentation for navigation and routing
-- [Effects API](effects.md) - Documentation for side effects and lifecycle management
-- [Events API](events.md) - Documentation for event handling and listeners
-- [Animation API](animation.md) - Documentation for animations, transitions, and animation modifiers
-- [Focus Management API](focus.md) - Documentation for focus management and keyboard navigation
-- [Theme API](theme.md) - Documentation for theming, styling, and design systems
-- [Validation API](validation.md) - Documentation for form validation and input validation
-- [Accessibility API](accessibility.md) - Documentation for accessibility features and ARIA support
-- [SEO API](seo.md) - Documentation for SEO features and meta tags
-- [Security API](security.md) - Documentation for authentication, authorization, and security features
-- [Authentication API](auth.md) - Documentation for authentication providers, JWT integration, and auth utilities
+- [Focus Management API](focus.md) - Focus management and keyboard navigation
+- [Events API](events.md) - Event handling and listeners
+- [Color API](color.md) - Color utilities and color system
 
 ## Usage
 
