@@ -8,12 +8,80 @@ import code.yousef.summon.state.mutableStateOf
 /**
  * Remembers a value across recompositions.
  *
- * The [calculation] lambda will only be executed during the first composition.
- * In subsequent recompositions, the remembered value will be returned without
- * re-executing the calculation.
+ * The `remember` function is fundamental to state management in Summon. It provides
+ * a way to store values that persist across recomposition cycles, enabling
+ * efficient management of expensive computations and stateful objects.
  *
- * @param calculation A function that creates the value to be remembered
- * @return The remembered value
+ * ## Behavior
+ *
+ * - **First Composition**: [calculation] is executed and the result is stored
+ * - **Subsequent Recompositions**: Stored value is returned without recalculation
+ * - **Key Changes**: When keys change, [calculation] is re-executed
+ * - **Disposal**: Stored values are cleaned up when composition is disposed
+ *
+ * ## Use Cases
+ *
+ * ### Expensive Computations
+ * ```kotlin
+ * @Composable
+ * fun ExpensiveComponent(data: List<String>) {
+ *     val processedData = remember {
+ *         // Only computed once, unless data changes
+ *         data.map { processExpensively(it) }
+ *     }
+ *
+ *     DisplayData(processedData)
+ * }
+ * ```
+ *
+ * ### Object Creation
+ * ```kotlin
+ * @Composable
+ * fun AnimatedComponent() {
+ *     val animator = remember {
+ *         // Create animator once and reuse
+ *         ComplexAnimator()
+ *     }
+ *
+ *     LaunchedEffect(Unit) {
+ *         animator.start()
+ *     }
+ * }
+ * ```
+ *
+ * ### State Management
+ * ```kotlin
+ * @Composable
+ * fun Counter() {
+ *     var count by remember { mutableStateOf(0) }
+ *
+ *     Button(
+ *         onClick = { count++ },
+ *         label = "Count: $count"
+ *     )
+ * }
+ * ```
+ *
+ * ## Memory Management
+ *
+ * Values stored by `remember` are automatically cleaned up when:
+ * - The composable leaves the composition tree
+ * - The containing composition is disposed
+ * - Keys change and new values are calculated
+ *
+ * ## Performance Considerations
+ *
+ * - Use `remember` for expensive operations that don't need re-execution
+ * - Prefer keyed `remember` when the result depends on parameters
+ * - Avoid storing large objects unnecessarily
+ * - Use `remember` with delegation for ergonomic state access
+ *
+ * @param T The type of value to remember
+ * @param calculation Function that creates the value to be remembered
+ * @return The remembered value (calculated once, then cached)
+ * @see remember with keys for conditional recalculation
+ * @see rememberMutableStateOf for state creation
+ * @since 1.0.0
  */
 @Composable
 fun <T> remember(calculation: () -> T): T {

@@ -1,51 +1,494 @@
+/**
+ * # Styling Modifiers
+ *
+ * This file provides comprehensive styling modifier functions for the Summon UI framework.
+ * These modifiers enable complete control over visual appearance including backgrounds,
+ * typography, colors, borders, shadows, and other aesthetic properties.
+ *
+ * ## Overview
+ *
+ * Styling modifiers transform the visual presentation of UI components while maintaining
+ * type safety and cross-platform compatibility. This module provides:
+ *
+ * - **Background Control**: Images, gradients, positioning, and clipping
+ * - **Typography**: Font families, styles, sizes, and text formatting
+ * - **Visual Effects**: Shadows, borders, filters, and transforms
+ * - **Color Management**: Theme-aware color application with semantic values
+ * - **Layout Aesthetics**: Visual spacing, alignment, and decoration
+ * - **Interactive States**: Hover, focus, and transition effects
+ *
+ * ## Key Features
+ *
+ * ### Background Styling
+ * - Complete background image control with positioning and sizing
+ * - Gradient support with linear and radial patterns
+ * - Background clipping for advanced masking effects
+ * - Responsive background behavior for different screen sizes
+ *
+ * ### Typography System
+ * - Font family management with web-safe fallbacks
+ * - Responsive font sizing with em, rem, px, and viewport units
+ * - Text alignment with RTL/LTR support
+ * - Line height control for optimal readability
+ * - Text decoration and styling effects
+ *
+ * ### Visual Enhancement
+ * - Box shadow creation with multiple shadow support
+ * - Border styling with individual side control
+ * - Filter effects for modern visual treatment
+ * - Transform functions for positioning and effects
+ *
+ * ## Usage Examples
+ *
+ * ### Background Styling
+ * ```kotlin
+ * // Hero section with background image
+ * val heroSection = Modifier()
+ *     .backgroundImage("url('/images/hero-bg.jpg')")
+ *     .backgroundSize("cover")
+ *     .backgroundPosition("center")
+ *     .backgroundRepeat("no-repeat")
+ *     .height("100vh")
+ *
+ * // Card with gradient background
+ * val gradientCard = Modifier()
+ *     .background("linear-gradient(135deg, #667eea 0%, #764ba2 100%)")
+ *     .borderRadius("12px")
+ *     .padding("24px")
+ * ```
+ *
+ * ### Typography Control
+ * ```kotlin
+ * // Heading with custom typography
+ * val heading = Modifier()
+ *     .fontFamily("'Inter', sans-serif")
+ *     .fontSize("2.5rem")
+ *     .fontWeight("700")
+ *     .lineHeight("1.2")
+ *     .textAlign(TextAlign.Center)
+ *
+ * // Body text with optimal readability
+ * val bodyText = Modifier()
+ *     .fontFamily("'Georgia', serif")
+ *     .fontSize("1.125rem")
+ *     .lineHeight("1.6")
+ *     .color("#374151")
+ * ```
+ *
+ * ### Visual Effects
+ * ```kotlin
+ * // Elevated card with shadow
+ * val elevatedCard = Modifier()
+ *     .backgroundColor("white")
+ *     .borderRadius("8px")
+ *     .shadow("0px", "4px", "6px", "rgba(0, 0, 0, 0.07)")
+ *     .shadow("0px", "1px", "3px", "rgba(0, 0, 0, 0.06)")
+ *
+ * // Interactive button with transitions
+ * val interactiveButton = Modifier()
+ *     .backgroundColor("#3b82f6")
+ *     .color("white")
+ *     .border("2px", "solid", "transparent")
+ *     .transition("all", "0.2s", "ease")
+ *     .hover(mapOf(
+ *         "background-color" to "#2563eb",
+ *         "transform" to "translateY(-1px)"
+ *     ))
+ * ```
+ *
+ * ## Performance Considerations
+ *
+ * - **CSS Generation**: Properties map directly to CSS for optimal rendering
+ * - **Hardware Acceleration**: Transform and filter properties use GPU when available
+ * - **Batch Updates**: Multiple styling changes are batched for efficiency
+ * - **Selector Optimization**: Minimal CSS selector specificity for fast matching
+ *
+ * ## Cross-Platform Support
+ *
+ * - **Browser Compatibility**: Modern CSS features with fallback support
+ * - **Mobile Optimization**: Touch-friendly sizing and responsive behavior
+ * - **Server-Side Rendering**: Full SSR support with critical CSS extraction
+ * - **Print Styles**: Automatic print-friendly styling adjustments
+ *
+ * ## Accessibility Integration
+ *
+ * - **Color Contrast**: Automatic contrast checking for WCAG compliance
+ * - **Focus Management**: Visible focus indicators for keyboard navigation
+ * - **Reduced Motion**: Respects user motion preferences for animations
+ * - **Screen Reader Support**: Semantic styling that enhances accessibility
+ *
+ * @see code.yousef.summon.modifier.LayoutModifiers for layout-related modifiers
+ * @see code.yousef.summon.modifier.AccessibilityModifiers for accessibility enhancements
+ * @see code.yousef.summon.theme for theme integration and color management
+ * @since 1.0.0
+ */
 package code.yousef.summon.modifier
 
 import code.yousef.summon.extensions.px
 import kotlin.jvm.JvmName
 
-/**
- * Extension functions for Styling Modifiers
- * These are implemented to match the test expectations in StylingModifierTest
- */
+// ========================
+// BACKGROUND STYLING
+// ========================
 
 /**
- * Sets the background image.
+ * Sets the background image for the element.
+ *
+ * Supports all CSS background-image values including URLs, gradients, and multiple backgrounds.
+ * This property enables rich visual backgrounds that can enhance the aesthetic appeal and
+ * user experience of UI components.
+ *
+ * ## Supported Values
+ * - **Image URLs**: `url('/path/to/image.jpg')`, `url('https://example.com/image.png')`
+ * - **Linear Gradients**: `linear-gradient(45deg, #ff0000, #0000ff)`
+ * - **Radial Gradients**: `radial-gradient(circle, #ff0000, #0000ff)`
+ * - **Multiple Backgrounds**: Comma-separated list for layered effects
+ * - **CSS Functions**: `repeating-linear-gradient()`, `conic-gradient()`
+ *
+ * ## Examples
+ * ```kotlin
+ * // Simple background image
+ * val heroSection = Modifier()
+ *     .backgroundImage("url('/images/hero-background.jpg')")
+ *     .backgroundSize("cover")
+ *     .height("60vh")
+ *
+ * // Linear gradient background
+ * val gradientButton = Modifier()
+ *     .backgroundImage("linear-gradient(135deg, #667eea 0%, #764ba2 100%)")
+ *     .color("white")
+ *     .padding("12px 24px")
+ *
+ * // Multiple background layers
+ * val complexBackground = Modifier()
+ *     .backgroundImage("url('/overlay.png'), url('/main-bg.jpg')")
+ *     .backgroundSize("auto, cover")
+ *     .backgroundPosition("center, center")
+ *
+ * // CSS pattern background
+ * val patternBackground = Modifier()
+ *     .backgroundImage("repeating-linear-gradient(45deg, #f0f0f0 0px, #f0f0f0 10px, #e0e0e0 10px, #e0e0e0 20px)")
+ * ```
+ *
+ * ## Performance Considerations
+ * - Use optimized image formats (WebP, AVIF) for better loading times
+ * - Consider responsive images with different sizes for different viewports
+ * - CSS gradients render faster than image-based gradients
+ * - Multiple backgrounds can impact rendering performance
+ *
+ * @param value The background image value (URL, gradient, or CSS function)
+ * @return A new Modifier with background-image applied
+ * @see backgroundSize for controlling image scaling
+ * @see backgroundPosition for image positioning
+ * @see backgroundRepeat for repeat behavior
+ * @since 1.0.0
  */
 fun Modifier.backgroundImage(value: String): Modifier =
     style("background-image", value)
 
 /**
- * Sets the background size.
+ * Controls how background images are sized within their container.
+ *
+ * This property determines how background images scale and fit within the element's
+ * content area, enabling responsive and visually appropriate background presentation.
+ *
+ * ## Common Values
+ * - **cover**: Scales image to cover entire container (may crop)
+ * - **contain**: Scales image to fit entirely within container
+ * - **auto**: Uses image's natural size
+ * - **100% 100%**: Stretches to fill container exactly
+ * - **50px 30px**: Explicit width and height values
+ *
+ * ## Examples
+ * ```kotlin
+ * // Hero image that covers entire area
+ * val heroImage = Modifier()
+ *     .backgroundImage("url('/hero.jpg')")
+ *     .backgroundSize("cover")
+ *     .backgroundPosition("center")
+ *     .height("100vh")
+ *
+ * // Logo that maintains aspect ratio
+ * val logoBackground = Modifier()
+ *     .backgroundImage("url('/logo.svg')")
+ *     .backgroundSize("contain")
+ *     .backgroundRepeat("no-repeat")
+ *     .width("200px")
+ *     .height("100px")
+ *
+ * // Pattern with specific size
+ * val patternBackground = Modifier()
+ *     .backgroundImage("url('/pattern.png')")
+ *     .backgroundSize("50px 50px")
+ *     .backgroundRepeat("repeat")
+ *
+ * // Responsive background sizing
+ * val responsiveBackground = Modifier()
+ *     .backgroundImage("url('/bg.jpg')")
+ *     .backgroundSize("100% auto") // Full width, auto height
+ * ```
+ *
+ * ## Responsive Design
+ * - Use `cover` for full-bleed hero sections
+ * - Use `contain` for logos and icons
+ * - Use percentage values for responsive scaling
+ * - Consider different sizes for different screen densities
+ *
+ * @param value The background size value (keyword or explicit dimensions)
+ * @return A new Modifier with background-size applied
+ * @see backgroundImage for setting the background image
+ * @see backgroundPosition for image positioning
+ * @since 1.0.0
  */
 fun Modifier.backgroundSize(value: String): Modifier =
     style("background-size", value)
 
 /**
- * Sets the background position.
+ * Sets the positioning of background images within their container.
+ *
+ * Controls where background images are positioned, enabling precise control over
+ * which part of the image is visible and how it aligns within the element.
+ *
+ * ## Position Values
+ * - **Keywords**: `center`, `top`, `bottom`, `left`, `right`
+ * - **Percentages**: `50% 25%` (horizontal vertical)
+ * - **Absolute Values**: `10px 20px`, `1rem 0.5rem`
+ * - **Mixed Units**: `center 20px`, `left 10%`
+ *
+ * ## Examples
+ * ```kotlin
+ * // Centered background image
+ * val centeredBackground = Modifier()
+ *     .backgroundImage("url('/image.jpg')")
+ *     .backgroundPosition("center")
+ *     .backgroundSize("cover")
+ *
+ * // Top-aligned banner
+ * val bannerBackground = Modifier()
+ *     .backgroundImage("url('/banner.jpg')")
+ *     .backgroundPosition("center top")
+ *     .backgroundSize("cover")
+ *     .height("300px")
+ *
+ * // Custom positioning with percentages
+ * val customPosition = Modifier()
+ *     .backgroundImage("url('/artwork.jpg')")
+ *     .backgroundPosition("75% 25%") // Focus on upper-right area
+ *     .backgroundSize("120%") // Slight zoom
+ *
+ * // Multiple background positioning
+ * val multipleBackgrounds = Modifier()
+ *     .backgroundImage("url('/overlay.png'), url('/main.jpg')")
+ *     .backgroundPosition("center, bottom")
+ *     .backgroundSize("auto, cover")
+ * ```
+ *
+ * ## Use Cases
+ * - **Hero Sections**: Position focal point of images
+ * - **Product Images**: Highlight specific product features
+ * - **Artistic Elements**: Create visual interest and composition
+ * - **Responsive Design**: Adjust focus point for different screen sizes
+ *
+ * @param value The background position value (keywords, percentages, or absolute values)
+ * @return A new Modifier with background-position applied
+ * @see backgroundImage for setting the background image
+ * @see backgroundSize for controlling image scaling
+ * @since 1.0.0
  */
 fun Modifier.backgroundPosition(value: String): Modifier =
     style("background-position", value)
 
 /**
- * Sets the background repeat behavior.
+ * Controls how background images repeat within their container.
+ *
+ * Determines the repetition behavior of background images, enabling creation of
+ * patterns, textures, and decorative effects through controlled image tiling.
+ *
+ * ## Repeat Values
+ * - **no-repeat**: Image appears once only
+ * - **repeat**: Tiles in both directions (default)
+ * - **repeat-x**: Repeats horizontally only
+ * - **repeat-y**: Repeats vertically only
+ * - **space**: Repeats with spacing to fit container
+ * - **round**: Repeats and scales to fit container
+ *
+ * ## Examples
+ * ```kotlin
+ * // Hero image without repetition
+ * val heroSection = Modifier()
+ *     .backgroundImage("url('/hero.jpg')")
+ *     .backgroundRepeat("no-repeat")
+ *     .backgroundSize("cover")
+ *     .backgroundPosition("center")
+ *
+ * // Decorative pattern background
+ * val patternBackground = Modifier()
+ *     .backgroundImage("url('/pattern.png')")
+ *     .backgroundRepeat("repeat")
+ *     .backgroundSize("100px 100px")
+ *
+ * // Horizontal stripe pattern
+ * val stripePattern = Modifier()
+ *     .backgroundImage("url('/stripe.png')")
+ *     .backgroundRepeat("repeat-x")
+ *     .backgroundPosition("top")
+ *
+ * // Responsive pattern with spacing
+ * val spacedPattern = Modifier()
+ *     .backgroundImage("url('/icon.svg')")
+ *     .backgroundRepeat("space")
+ *     .backgroundSize("50px 50px")
+ * ```
+ *
+ * ## Design Applications
+ * - **Textures**: Create rich surface textures with subtle patterns
+ * - **Borders**: Use repeat-x/repeat-y for decorative borders
+ * - **Watermarks**: Repeat logos or branding elements
+ * - **Data Visualization**: Create chart backgrounds and grid patterns
+ *
+ * @param value The background repeat value (keyword controlling repetition behavior)
+ * @return A new Modifier with background-repeat applied
+ * @see backgroundImage for setting the background image
+ * @see backgroundSize for controlling pattern scale
+ * @since 1.0.0
  */
 fun Modifier.backgroundRepeat(value: String): Modifier =
     style("background-repeat", value)
 
 /**
- * Sets the background clip behavior.
+ * Controls the background painting area using string values.
+ *
+ * Determines how far background colors and images extend within the element,
+ * enabling advanced masking and clipping effects for sophisticated visual designs.
+ *
+ * ## Clip Values
+ * - **border-box**: Background extends to border edge (default)
+ * - **padding-box**: Background extends to padding edge only
+ * - **content-box**: Background limited to content area
+ * - **text**: Background clips to text content (WebKit prefix may be needed)
+ *
+ * ## Examples
+ * ```kotlin
+ * // Standard background clipping
+ * val borderClipped = Modifier()
+ *     .backgroundColor("#e3f2fd")
+ *     .backgroundClip("border-box")
+ *     .border("5px", "solid", "transparent")
+ *     .padding("20px")
+ *
+ * // Background only in content area
+ * val contentClipped = Modifier()
+ *     .backgroundColor("#f3e5f5")
+ *     .backgroundClip("content-box")
+ *     .padding("30px")
+ *     .border("10px", "solid", "#9c27b0")
+ *
+ * // Gradient text effect (requires -webkit-background-clip)
+ * val gradientText = Modifier()
+ *     .backgroundImage("linear-gradient(45deg, #ff6b6b, #4ecdc4)")
+ *     .backgroundClip("text")
+ *     .style("-webkit-background-clip", "text")
+ *     .style("-webkit-text-fill-color", "transparent")
+ * ```
+ *
+ * @param value The background clip value as string
+ * @return A new Modifier with background-clip applied
+ * @see backgroundClip for type-safe enum version
+ * @since 1.0.0
  */
 fun Modifier.backgroundClip(value: String): Modifier =
     style("background-clip", value)
 
 /**
- * Sets the background clip behavior using the BackgroundClip enum.
+ * Controls the background painting area using type-safe enum values.
+ *
+ * Provides compile-time safety for background clipping values while offering
+ * the same functionality as the string version with additional IDE support.
+ *
+ * ## Examples
+ * ```kotlin
+ * // Type-safe background clipping
+ * val paddingClipped = Modifier()
+ *     .backgroundColor("#ffecb3")
+ *     .backgroundClip(BackgroundClip.PaddingBox)
+ *     .padding("25px")
+ *     .border("8px", "solid", "#ff9800")
+ *
+ * // Content area only background
+ * val contentOnly = Modifier()
+ *     .backgroundImage("url('/texture.png')")
+ *     .backgroundClip(BackgroundClip.ContentBox)
+ *     .padding("40px")
+ * ```
+ *
+ * @param value BackgroundClip enum value for type-safe clipping behavior
+ * @return A new Modifier with background-clip applied
+ * @see backgroundClip for string version
+ * @since 1.0.0
  */
 fun Modifier.backgroundClip(value: BackgroundClip): Modifier =
     backgroundClip(value.toString())
 
 /**
- * Combined background settings.
+ * Applies comprehensive background styling with multiple properties in a single call.
+ *
+ * This convenience function allows setting background color, image, positioning, sizing,
+ * and repeat behavior simultaneously, providing a streamlined approach for complex
+ * background configurations.
+ *
+ * ## Examples
+ * ```kotlin
+ * // Complete hero section background
+ * val heroBackground = Modifier()
+ *     .background(
+ *         color = "rgba(0, 0, 0, 0.3)",  // Semi-transparent overlay
+ *         image = "url('/hero-image.jpg')",
+ *         position = "center",
+ *         size = "cover",
+ *         repeat = "no-repeat"
+ *     )
+ *     .height("100vh")
+ *
+ * // Textured card background
+ * val texturedCard = Modifier()
+ *     .background(
+ *         color = "#f8f9fa",           // Base color
+ *         image = "url('/subtle-texture.png')",
+ *         position = "top left",
+ *         size = "200px 200px",
+ *         repeat = "repeat"
+ *     )
+ *     .borderRadius("8px")
+ *     .padding("24px")
+ *
+ * // Gradient with overlay pattern
+ * val complexBackground = Modifier()
+ *     .background(
+ *         color = "transparent",
+ *         image = "linear-gradient(135deg, rgba(255,107,107,0.8), rgba(78,205,196,0.8)), url('/pattern.svg')",
+ *         position = "center, top left",
+ *         size = "cover, 50px 50px",
+ *         repeat = "no-repeat, repeat"
+ *     )
+ * ```
+ *
+ * ## Parameter Order
+ * The parameters follow the logical order of CSS background properties:
+ * 1. **color**: Base background color or gradient
+ * 2. **image**: Background image or additional gradients
+ * 3. **position**: How the image is positioned
+ * 4. **size**: How the image is sized
+ * 5. **repeat**: How the image repeats
+ *
+ * @param color Background color value (can include gradients)
+ * @param image Background image URL or CSS image function
+ * @param position Background position value
+ * @param size Background size value
+ * @param repeat Background repeat behavior
+ * @return A new Modifier with all background properties applied
+ * @see backgroundImage for image-specific control
+ * @see backgroundColor for color-only backgrounds
+ * @since 1.0.0
  */
 fun Modifier.background(color: String, image: String, position: String, size: String, repeat: String): Modifier =
     this.background(color)

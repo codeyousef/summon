@@ -1,3 +1,38 @@
+/**
+ * # Summon Runtime Package
+ *
+ * This package contains the core runtime components that power the Summon UI framework's
+ * composition system and cross-platform rendering capabilities.
+ *
+ * ## Overview
+ *
+ * The runtime package provides the foundational infrastructure for:
+ *
+ * - **Composition Management**: [Composer] and [Recomposer] for tracking and updating UI state
+ * - **Platform Abstraction**: [PlatformRenderer] for cross-platform rendering
+ * - **State Management**: Reactive state primitives and memory management
+ * - **Effects System**: Side effect management through [LaunchedEffect] and [DisposableEffect]
+ * - **Composition Locals**: Context propagation through the composition tree
+ *
+ * ## Key Components
+ *
+ * ### Core Runtime
+ * - [PlatformRenderer] - Abstract renderer for platform-specific output
+ * - [Composer] - Manages composition state and recomposition tracking
+ * - [Recomposer] - Schedules and executes recomposition when state changes
+ *
+ * ### State and Memory
+ * - [remember] - Remembers values across recompositions
+ * - [CompositionLocal] - Provides implicit context down the composition tree
+ * - [mutableStateOf] - Creates reactive state holders
+ *
+ * ### Effects
+ * - [LaunchedEffect] - Launches coroutines tied to composition lifecycle
+ * - [DisposableEffect] - Manages resources with cleanup
+ * - [SideEffect] - Executes side effects after composition
+ *
+ * @since 1.0.0
+ */
 package code.yousef.summon.runtime
 
 import code.yousef.summon.annotation.Composable
@@ -11,42 +46,219 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.html.FlowContent
 
-/** Data class for Select options */
+/**
+ * Represents an option in a select dropdown component.
+ *
+ * @param T The type of the option value
+ * @property value The underlying value of the option
+ * @property label The display text shown to users
+ * @property disabled Whether this option can be selected
+ * @since 1.0.0
+ */
 data class SelectOption<T>(
-    val value: T, // The value attribute of the <option>
-    val label: String, // The text content of the <option>
+    val value: T,
+    val label: String,
     val disabled: Boolean = false
 )
 
-// Ensure MigratedPlatformRenderer interface definition is completely removed from this file.
 /**
- * EXPECTED Interface responsible for rendering Summon composables into a target format (e.g., HTML).
- * Implementations bridge the gap between the abstract component model and the platform's rendering mechanism.
- * Functions typically operate within a target context (e.g., a kotlinx.html.FlowContent receiver).
+ * Abstract platform renderer that bridges Summon's declarative UI components to platform-specific output.
+ *
+ * The PlatformRenderer is the core abstraction that enables Summon to work across different platforms
+ * (Browser/JavaScript, JVM/Server-side) by providing a unified interface for rendering UI components.
+ * Each platform provides its own implementation that generates appropriate output:
+ *
+ * - **JavaScript/Browser**: Generates DOM elements and manipulates the browser DOM
+ * - **JVM/Server**: Generates HTML strings for server-side rendering
+ *
+ * ## Architecture
+ *
+ * The renderer operates on a component-by-component basis, receiving:
+ * - Component-specific parameters (text, click handlers, etc.)
+ * - [Modifier] for styling and attributes
+ * - Content lambdas for composable children
+ *
+ * ## Rendering Context
+ *
+ * Most rendering functions operate within a platform-specific context:
+ * - **JS Platform**: Direct DOM manipulation context
+ * - **JVM Platform**: HTML generation context (typically kotlinx.html.FlowContent)
+ *
+ * ## State Management Integration
+ *
+ * The renderer integrates with Summon's reactive state system:
+ * - Event handlers (onClick, onValueChange) trigger state updates
+ * - State changes trigger recomposition through the [Recomposer]
+ * - Only changed components are re-rendered during recomposition
+ *
+ * ## Platform-Specific Features
+ *
+ * ### Hydration Support
+ * Server-rendered HTML can be "hydrated" on the client:
+ * - [renderComposableRootWithHydration] generates hydration-ready HTML
+ * - [hydrateComposableRoot] attaches event handlers to existing DOM
+ *
+ * ### Head Management
+ * Control document head elements:
+ * - [addHeadElement] adds `<meta>`, `<title>`, `<link>` tags
+ * - [getHeadElements] retrieves all added head elements
+ *
+ * ## Usage Example
+ *
+ * ```kotlin
+ * // Platform-specific renderer instance
+ * val renderer = PlatformRenderer()
+ * setPlatformRenderer(renderer)
+ *
+ * // Render a complete page
+ * val html = renderer.renderComposableRoot {
+ *     ThemeProvider {
+ *         Column(modifier = Modifier().padding("16px")) {
+ *             Text("Welcome to Summon!")
+ *             Button(
+ *                 onClick = { println("Clicked!") },
+ *                 label = "Click Me"
+ *             )
+ *         }
+ *     }
+ * }
+ * ```
+ *
+ * ## Implementation Guidelines
+ *
+ * When implementing platform-specific renderers:
+ *
+ * 1. **Respect Modifiers**: Apply all styles and attributes from the modifier
+ * 2. **Handle Events**: Wire up event handlers to update reactive state
+ * 3. **Manage Context**: Maintain proper rendering context throughout the tree
+ * 4. **Performance**: Optimize for minimal re-rendering during recomposition
+ * 5. **Accessibility**: Ensure rendered output is accessible
+ *
+ * @see code.yousef.summon.modifier.Modifier
+ * @see code.yousef.summon.runtime.Composer
+ * @see code.yousef.summon.runtime.Recomposer
+ * @see code.yousef.summon.annotation.Composable
+ * @since 1.0.0
  */
 expect open class PlatformRenderer() {
 
     // --- Core Rendering Primitives ---
-    /** Renders text content */
+
+    /**
+     * Renders text content with the specified styling.
+     *
+     * This is the fundamental text rendering method used by [Text] components
+     * and other text-based UI elements. The implementation varies by platform:
+     *
+     * - **Browser**: Creates a text node or span element
+     * - **Server**: Generates appropriate HTML text content
+     *
+     * @param text The text content to render
+     * @param modifier Styling and attributes to apply to the text element
+     * @see code.yousef.summon.components.display.Text
+     * @since 1.0.0
+     */
     open fun renderText(text: String, modifier: Modifier)
 
-    /** Renders a label element with semantic meaning */
+    /**
+     * Renders a semantic label element.
+     *
+     * Labels provide accessibility context and are typically associated
+     * with form inputs. When [forElement] is specified, the label is
+     * programmatically associated with that form control.
+     *
+     * @param text The label text to display
+     * @param modifier Styling and attributes for the label
+     * @param forElement Optional ID of the form element this label describes
+     * @see code.yousef.summon.components.input.FormField
+     * @since 1.0.0
+     */
     open fun renderLabel(text: String, modifier: Modifier, forElement: String? = null)
 
-    // --- Specific Component Renderers ---
-    /** Renders a button */
+    // --- Interactive Component Renderers ---
+
+    /**
+     * Renders an interactive button element.
+     *
+     * Buttons are fundamental interactive elements that respond to user clicks.
+     * The [onClick] handler integrates with Summon's reactive state system,
+     * allowing button clicks to trigger state updates and recomposition.
+     *
+     * ## Platform Behavior
+     *
+     * - **Browser**: Creates `<button>` element with click event listener
+     * - **Server**: Generates `<button>` HTML with form submission handling
+     *
+     * ## Example
+     *
+     * ```kotlin
+     * renderer.renderButton(
+     *     onClick = { count++ },
+     *     modifier = Modifier().padding("8px").backgroundColor("blue")
+     * ) {
+     *     Text("Click me!")
+     * }
+     * ```
+     *
+     * @param onClick Callback invoked when the button is clicked
+     * @param modifier Styling and attributes for the button element
+     * @param content Composable content to render inside the button
+     * @see code.yousef.summon.components.input.Button
+     * @since 1.0.0
+     */
     open fun renderButton(
-        onClick: () -> Unit, // JS hook needed for JVM/JS
+        onClick: () -> Unit,
         modifier: Modifier,
         content: @Composable FlowContent.() -> Unit
     )
 
-    /** Renders a text input field */
+    /**
+     * Renders a text input field with reactive value binding.
+     *
+     * Text fields provide user text input with real-time value synchronization.
+     * The [onValueChange] callback enables two-way data binding with Summon's
+     * state management system.
+     *
+     * ## Platform Behavior
+     *
+     * - **Browser**: Creates `<input>` with input event listeners
+     * - **Server**: Generates `<input>` with form submission handling
+     *
+     * ## Input Types
+     *
+     * The [type] parameter supports all HTML input types:
+     * - `"text"` - Standard text input
+     * - `"password"` - Password input with masked characters
+     * - `"email"` - Email input with validation
+     * - `"number"` - Numeric input
+     * - `"color"` - Color picker
+     * - `"date"` - Date picker
+     *
+     * ## Example
+     *
+     * ```kotlin
+     * var text by remember { mutableStateOf("") }
+     *
+     * renderer.renderTextField(
+     *     value = text,
+     *     onValueChange = { text = it },
+     *     modifier = Modifier().padding("8px"),
+     *     type = "text"
+     * )
+     * ```
+     *
+     * @param value Current text value displayed in the field
+     * @param onValueChange Callback invoked when the user changes the text
+     * @param modifier Styling and attributes for the input element
+     * @param type HTML input type (e.g., "text", "password", "email")
+     * @see code.yousef.summon.components.input.TextField
+     * @since 1.0.0
+     */
     open fun renderTextField(
         value: String,
-        onValueChange: (String) -> Unit, // JS hook needed for JVM/JS
+        onValueChange: (String) -> Unit,
         modifier: Modifier,
-        type: String // HTML input type attribute value (e.g., "text", "password", "color")
+        type: String
     )
 
     /** Renders a select dropdown */

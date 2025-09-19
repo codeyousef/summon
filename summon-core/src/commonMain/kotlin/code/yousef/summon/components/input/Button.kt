@@ -1,3 +1,81 @@
+/**
+ * # Summon Input Components Package
+ *
+ * This package provides interactive input components for user interaction and data entry.
+ *
+ * ## Overview
+ *
+ * The input components package includes form controls and interactive elements that enable:
+ *
+ * - **User Input**: Text fields, checkboxes, radio buttons, sliders
+ * - **Actions**: Buttons for triggering operations and navigation
+ * - **Selection**: Dropdowns, date pickers, file uploads
+ * - **Forms**: Form containers and field management
+ * - **Validation**: Input validation and error handling
+ *
+ * ## Key Components
+ *
+ * ### Action Components
+ * - [Button] - Primary action trigger with multiple variants
+ * - **Submit Buttons** - Form submission handling
+ * - **Icon Buttons** - Compact action triggers
+ *
+ * ### Text Input
+ * - [TextField] - Single-line text input with validation
+ * - [TextArea] - Multi-line text input
+ * - **Password Fields** - Secure text input
+ *
+ * ### Selection Components
+ * - [Checkbox] - Boolean selection with tri-state support
+ * - [RadioButton] - Single choice from multiple options
+ * - [Select] - Dropdown selection with filtering
+ * - [DatePicker] - Date selection with calendar
+ * - [TimePicker] - Time selection interface
+ *
+ * ### Advanced Inputs
+ * - [Slider] - Numeric range selection
+ * - [RangeSlider] - Dual-handle range selection
+ * - [FileUpload] - File selection and upload
+ * - [Switch] - Toggle switch for boolean values
+ *
+ * ## Usage Patterns
+ *
+ * ### Form Composition
+ * ```kotlin
+ * @Composable
+ * fun ContactForm() {
+ *     var name by remember { mutableStateOf("") }
+ *     var email by remember { mutableStateOf("") }
+ *     var message by remember { mutableStateOf("") }
+ *
+ *     Form(onSubmit = { submitContact(name, email, message) }) {
+ *         TextField(
+ *             value = name,
+ *             onValueChange = { name = it },
+ *             label = "Name"
+ *         )
+ *         TextField(
+ *             value = email,
+ *             onValueChange = { email = it },
+ *             label = "Email",
+ *             type = "email"
+ *         )
+ *         TextArea(
+ *             value = message,
+ *             onValueChange = { message = it },
+ *             label = "Message"
+ *         )
+ *         Button(
+ *             onClick = { /* submit */ },
+ *             label = "Send Message",
+ *             variant = ButtonVariant.PRIMARY
+ *         )
+ *     }
+ * }
+ * ```
+ *
+ * @since 1.0.0
+ */
 package code.yousef.summon.components.input
 
 import code.yousef.summon.annotation.Composable
@@ -10,22 +88,123 @@ import code.yousef.summon.modifier.transition
 import code.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
- * A button component that triggers an action when clicked.
+ * Interactive button component for triggering actions.
  *
- * Buttons are used to trigger actions or events, such as submitting a form,
- * opening a dialog, canceling an action, or performing a delete operation.
+ * Button is a fundamental UI component that provides users with a way to trigger actions,
+ * submit forms, navigate between views, or perform any interactive operation. It supports
+ * multiple visual variants, accessibility features, and flexible content composition.
  *
- * @param onClick The callback to invoke when the button is clicked
- * @param label The text to display on the button
- * @param modifier The modifier to apply to this composable
- * @param variant The visual style variant of the button (primary, secondary, etc.)
- * @param disabled Whether the button is disabled and cannot be clicked
- * @param iconName Optional icon to display alongside the button text
- * @param iconPosition Position of the icon relative to the label (start or end)
+ * ## Visual Variants
  *
- * @sample code.yousef.summon.components.input.ButtonSamples.BasicButton
- * @sample code.yousef.summon.components.input.ButtonSamples.ButtonWithIcon
- * @sample code.yousef.summon.components.input.ButtonSamples.DisabledButton
+ * The button supports several predefined visual styles through [ButtonVariant]:
+ *
+ * - **PRIMARY**: Main action button with prominent styling
+ * - **SECONDARY**: Secondary actions with subdued styling
+ * - **TERTIARY**: Minimal styling for less important actions
+ * - **DANGER**: Critical or destructive actions (delete, remove)
+ * - **SUCCESS**: Positive actions (save, confirm, submit)
+ * - **WARNING**: Cautionary actions requiring attention
+ * - **INFO**: Informational actions
+ * - **LINK**: Text-only styling that looks like a hyperlink
+ * - **GHOST**: Transparent background with subtle hover effects
+ *
+ * ## Icon Support
+ *
+ * Buttons can include icons alongside text for improved visual communication:
+ * - Icons can be positioned at the start or end of the label
+ * - Icon-only buttons are supported by omitting the label
+ * - Icons inherit the button's color and sizing
+ *
+ * ## Accessibility
+ *
+ * The button component implements accessibility best practices:
+ * - Proper semantic markup with `<button>` elements
+ * - Keyboard navigation support with focus management
+ * - Screen reader compatibility with proper labeling
+ * - Disabled state handling with appropriate ARIA attributes
+ * - Color contrast compliance across all variants
+ *
+ * ## State Management
+ *
+ * Button integrates seamlessly with Summon's reactive state system:
+ * - Click handlers can update state and trigger recomposition
+ * - Disabled state can be dynamically controlled
+ * - Visual feedback reflects current application state
+ *
+ * ## Usage Examples
+ *
+ * ### Basic Button
+ * ```kotlin
+ * Button(
+ *     onClick = { performAction() },
+ *     label = "Click Me"
+ * )
+ * ```
+ *
+ * ### Styled Button with Icon
+ * ```kotlin
+ * Button(
+ *     onClick = { saveDocument() },
+ *     label = "Save",
+ *     variant = ButtonVariant.PRIMARY,
+ *     iconName = "save",
+ *     iconPosition = IconPosition.START,
+ *     modifier = Modifier().padding("16px")
+ * )
+ * ```
+ *
+ * ### Form Submit Button
+ * ```kotlin
+ * Button(
+ *     onClick = { submitForm() },
+ *     label = "Submit",
+ *     variant = ButtonVariant.SUCCESS,
+ *     disabled = !isFormValid,
+ *     modifier = Modifier().fillMaxWidth()
+ * )
+ * ```
+ *
+ * ### Destructive Action
+ * ```kotlin
+ * Button(
+ *     onClick = { deleteItem() },
+ *     label = "Delete",
+ *     variant = ButtonVariant.DANGER,
+ *     iconName = "trash",
+ *     modifier = Modifier().margin("8px")
+ * )
+ * ```
+ *
+ * ## Platform Rendering
+ *
+ * The button renders appropriately across platforms:
+ * - **Browser**: Native `<button>` element with CSS styling and event handlers
+ * - **Server**: HTML `<button>` with proper form integration
+ * - **Desktop**: Platform-native button controls (when supported)
+ *
+ * ## Customization
+ *
+ * Beyond the built-in variants, buttons can be extensively customized:
+ * - Custom colors through modifier styling
+ * - Size variations using padding and typography modifiers
+ * - Custom hover and focus effects
+ * - Border and shadow styling
+ * - Animation and transition effects
+ *
+ * @param onClick Callback function invoked when the button is clicked
+ * @param label Text content displayed on the button
+ * @param modifier Styling and layout modifiers to apply
+ * @param variant Visual style variant determining appearance
+ * @param disabled Whether the button is disabled and cannot be interacted with
+ * @param iconName Optional icon name to display alongside the label
+ * @param iconPosition Position of the icon relative to the label text
+ * @sample ButtonSamples.BasicButton
+ * @sample ButtonSamples.ButtonWithIcon
+ * @sample ButtonSamples.DisabledButton
+ * @see ButtonVariant
+ * @see IconPosition
+ * @see code.yousef.summon.components.display.Icon
+ * @since 1.0.0
  */
 @Composable
 fun Button(

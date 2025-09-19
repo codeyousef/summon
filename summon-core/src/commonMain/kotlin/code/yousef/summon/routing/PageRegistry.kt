@@ -40,10 +40,10 @@ interface PageRegistry {
      * @return The not found page factory or null if not registered
      */
     fun getNotFoundPage(): PageFactory?
-    
+
     /**
      * Normalize a file path to a route path.
-     * 
+     *
      * @param path The file path to normalize
      * @return The normalized route path
      */
@@ -123,12 +123,12 @@ object Pages {
      * Get all registered pages.
      */
     fun getRegisteredPages(): Map<String, PageFactory> = registry.getPages()
-    
+
     /**
      * Get the not found page handler.
      */
     fun getNotFoundHandler(): PageFactory? = registry.getNotFoundPage()
-    
+
     /**
      * Normalize a path.
      */

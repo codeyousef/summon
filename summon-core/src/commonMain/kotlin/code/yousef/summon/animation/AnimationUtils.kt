@@ -1,3 +1,113 @@
+/**
+ * # Animation Utilities
+ *
+ * High-level animation utilities and helper functions for creating complex
+ * animated experiences in the Summon framework. This module provides composable
+ * animation patterns, utility functions, and ready-to-use animated components.
+ *
+ * ## Core Features
+ *
+ * - **Composable Animations**: Ready-to-use animated components
+ * - **Animation Builders**: Higher-order functions for complex animation sequences
+ * - **Utility Functions**: Helper functions for common animation patterns
+ * - **State-Driven Animations**: Integration with Summon's state management
+ * - **Performance Optimization**: Efficient animation implementations
+ *
+ * ## Animation Components
+ *
+ * ### Text Animations
+ * - `animatedText()` - Text with entrance animations
+ * - `typingText()` - Character-by-character typing effect
+ * - `animateInText()` - Text entrance with various transitions
+ *
+ * ### Interactive Components
+ * - `pulsatingButton()` - Button with pulsing animation
+ * - `pulseAnimation()` - Generic pulse effect wrapper
+ * - `staggeredAnimation()` - Delayed animation for multiple children
+ *
+ * ### Layout Animations
+ * - `animateIn()` - Generic entrance animation wrapper
+ * - `staggeredAnimation()` - Sequential child animations
+ *
+ * ## Usage Patterns
+ *
+ * ```kotlin
+ * // Animated text entrance
+ * animatedText(
+ *     text = "Welcome to Summon!",
+ *     enterTransition = EnterTransition.SLIDE_IN,
+ *     duration = 800
+ * )
+ *
+ * // Typing animation effect
+ * typingText(
+ *     text = "This text appears character by character",
+ *     typingSpeed = 100.milliseconds
+ * )
+ *
+ * // Pulsating interactive element
+ * pulsatingButton(
+ *     label = "Click Me",
+ *     onClick = { /* action */ },
+ *     pulseEffect = PulseEffect.SCALE
+ * )
+ *
+ * // Staggered list animations
+ * staggeredAnimation(
+ *     items = listItems,
+ *     staggerDelay = 150,
+ *     enterTransition = EnterTransition.FADE_IN
+ * ) { item ->
+ *     ItemCard(item = item)
+ * }
+ * ```
+ *
+ * ## Animation Interfaces
+ *
+ * The module defines several interfaces for creating custom animations:
+ *
+ * - `InfiniteAnimation` - For repeating animation effects
+ * - `Offset` - Simple position representation for transforms
+ *
+ * ## Performance Features
+ *
+ * - **Lazy Evaluation**: Animations only run when components are visible
+ * - **State Optimization**: Minimal recomposition during animations
+ * - **Memory Management**: Automatic cleanup of animation resources
+ * - **Cancellation Support**: All animations respect component lifecycle
+ *
+ * ## Integration with Effects
+ *
+ * Animation utilities integrate seamlessly with Summon's effect system:
+ *
+ * ```kotlin
+ * @Composable
+ * fun AnimatedSequence() {
+ *     var animationStage by remember { mutableStateOf(0) }
+ *
+ *     LaunchedEffect(Unit) {
+ *         // Orchestrate complex animation sequences
+ *         repeat(3) { stage ->
+ *             delay(500)
+ *             animationStage = stage
+ *         }
+ *     }
+ *
+ *     // Render based on animation stage
+ *     when (animationStage) {
+ *         0 -> FadeInText("Stage 1")
+ *         1 -> SlideInText("Stage 2")
+ *         2 -> ZoomInText("Stage 3")
+ *     }
+ * }
+ * ```
+ *
+ * @see Animation for core animation primitives
+ * @see AnimationModifiers for modifier-based animations
+ * @see CustomAnimations for specialized animation effects
+ * @see LaunchedEffect for animation orchestration
+ * @since 1.0.0
+ */
 package code.yousef.summon.animation
 
 import code.yousef.summon.annotation.Composable
@@ -12,14 +122,45 @@ import code.yousef.summon.state.mutableStateOf
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
-// Import existing declarations
-// PulseEffect comes from CustomAnimations.kt
-// EnterTransition, TweenAnimation and Easing
-
 /**
- * Simple data class to represent an offset position with x and y coordinates.
+ * Represents a 2D offset position with x and y coordinates.
+ *
+ * Used throughout the animation system to specify starting and ending
+ * positions for transform-based animations like slides and movements.
+ *
+ * ## Usage Examples
+ *
+ * ```kotlin
+ * // Starting position for slide animation
+ * val startOffset = Offset(x = -100.0, y = 0.0)
+ * val endOffset = Offset(x = 0.0, y = 0.0)
+ *
+ * // Diagonal movement
+ * val diagonalOffset = Offset(x = 50.0, y = -30.0)
+ * ```
+ *
+ * @property x The horizontal offset in pixels. Positive values move right, negative left.
+ * @property y The vertical offset in pixels. Positive values move down, negative up.
+ * @since 1.0.0
  */
-data class Offset(val x: Double, val y: Double)
+data class Offset(val x: Double, val y: Double) {
+    companion object {
+        /** An offset representing no displacement (0, 0). */
+        val ZERO = Offset(0.0, 0.0)
+
+        /** Predefined offset for sliding in from the left (-100, 0). */
+        val SLIDE_LEFT = Offset(-100.0, 0.0)
+
+        /** Predefined offset for sliding in from the right (100, 0). */
+        val SLIDE_RIGHT = Offset(100.0, 0.0)
+
+        /** Predefined offset for sliding in from the top (0, -100). */
+        val SLIDE_UP = Offset(0.0, -100.0)
+
+        /** Predefined offset for sliding in from the bottom (0, 100). */
+        val SLIDE_DOWN = Offset(0.0, 100.0)
+    }
+}
 
 /**
  * Extension function for Modifier to animate a component into view.

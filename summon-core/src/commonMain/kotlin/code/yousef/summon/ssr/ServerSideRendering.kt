@@ -5,16 +5,52 @@ import code.yousef.summon.runtime.getPlatformRenderer
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Simple HTML builder for platform-independent HTML generation
+ * Platform-independent HTML builder for server-side rendering.
+ *
+ * HtmlBuilder provides a simple interface for constructing HTML strings
+ * during server-side rendering operations. It abstracts HTML generation
+ * to enable platform-specific optimizations while maintaining a consistent API.
+ *
+ * ## Usage
+ *
+ * ```kotlin
+ * val builder = createHTML()
+ * builder.append("<div>")
+ * builder.append("Hello, World!")
+ * builder.append("</div>")
+ * val html = builder.finalize()
+ * ```
+ *
+ * ## Implementation Notes
+ *
+ * Implementations should be optimized for:
+ * - **Memory Efficiency**: Minimal memory allocations during building
+ * - **Performance**: Fast string concatenation and building
+ * - **Safety**: Proper escaping and encoding of content
+ *
+ * @see SimpleHtmlBuilder for default implementation
+ * @see createHTML for builder factory
+ * @since 1.0.0
  */
 interface HtmlBuilder {
     /**
-     * Add content to the HTML
+     * Appends content to the HTML being built.
+     *
+     * Content is added in the order of append calls. The implementation
+     * should handle HTML encoding and escaping as appropriate.
+     *
+     * @param content HTML content to append (should be properly escaped)
      */
     fun append(content: String)
 
     /**
-     * Finalize and return the HTML string
+     * Finalizes the HTML building process and returns the complete HTML string.
+     *
+     * After calling finalize(), the builder should not be used for further
+     * append operations. The returned HTML should be well-formed and ready
+     * for client delivery.
+     *
+     * @return Complete HTML string ready for rendering
      */
     fun finalize(): String
 }
@@ -42,15 +78,160 @@ fun createHTML(): HtmlBuilder {
 }
 
 /**
- * Base interface for all server-side rendering strategies in Summon
+ * Core interface for server-side rendering of Summon composables to HTML.
+ *
+ * ServerSideRenderer provides the fundamental contract for converting Summon
+ * composable functions into HTML strings that can be served to clients. It
+ * supports various rendering strategies including static generation, dynamic
+ * server-side rendering, and hybrid approaches.
+ *
+ * ## Rendering Strategies
+ *
+ * Different implementations support various rendering approaches:
+ * - **Static Rendering**: Pre-generate HTML at build time
+ * - **Dynamic Rendering**: Generate HTML per request with server state
+ * - **Streaming Rendering**: Stream HTML chunks for faster perceived performance
+ * - **Hydration-Ready**: Include client-side activation markers
+ *
+ * ## Context-Aware Rendering
+ *
+ * Rendering can be customized through RenderContext:
+ * - **SEO Metadata**: Title, description, Open Graph, Twitter Cards
+ * - **Hydration**: Client-side activation configuration
+ * - **State Management**: Initial state for client hydration
+ * - **Head Elements**: Custom head content injection
+ *
+ * ## Usage Examples
+ *
+ * ### Basic Page Rendering
+ * ```kotlin
+ * val renderer = createServerSideRenderer()
+ * val html = renderer.render(
+ *     composable = { HomePage() },
+ *     context = RenderContext(
+ *         seoMetadata = SeoMetadata(
+ *             title = "Home - My App",
+ *             description = "Welcome to my application"
+ *         )
+ *     )
+ * )
+ * ```
+ *
+ * ### Dynamic Content with State
+ * ```kotlin
+ * val renderer = createServerSideRenderer()
+ * val userState = mapOf("userId" to "123", "userName" to "John")
+ *
+ * val html = renderer.render(
+ *     composable = { UserProfile() },
+ *     context = RenderContext(
+ *         enableHydration = true,
+ *         initialState = userState,
+ *         seoMetadata = SeoMetadata(
+ *             title = "Profile - ${userState["userName"]}",
+ *             description = "User profile page"
+ *         )
+ *     )
+ * )
+ * ```
+ *
+ * ### Framework Integration
+ * ```kotlin
+ * // Ktor integration
+ * fun Routing.pages() {
+ *     get("/") {
+ *         val html = renderer.render({ HomePage() })
+ *         call.respondText(html, ContentType.Text.Html)
+ *     }
+ * }
+ *
+ * // Spring Boot integration
+ * @GetMapping("/")
+ * fun home(): ResponseEntity<String> {
+ *     val html = renderer.render({ HomePage() })
+ *     return ResponseEntity.ok()
+ *         .contentType(MediaType.TEXT_HTML)
+ *         .body(html)
+ * }
+ * ```
+ *
+ * ## Performance Considerations
+ *
+ * - **Caching**: Implement caching strategies for static content
+ * - **Streaming**: Use streaming rendering for large pages
+ * - **Preloading**: Preload critical resources in rendered HTML
+ * - **Compression**: Apply gzip/brotli compression to output
+ *
+ * @see RenderContext for rendering configuration
+ * @see StreamingServerSideRenderer for streaming implementation
+ * @see HydrationSupport for client activation
+ * @since 1.0.0
  */
 interface ServerSideRenderer {
     /**
-     * Render a composable to HTML
+     * Renders a Summon composable function to a complete HTML string.
      *
-     * @param composable The composable to render
-     * @param context Optional rendering context with additional metadata
-     * @return The generated HTML as a string
+     * This method performs the core server-side rendering operation, converting
+     * a composable function tree into HTML that can be served to clients. The
+     * rendering process includes layout calculation, content generation, and
+     * optional metadata injection.
+     *
+     * ## Rendering Process
+     *
+     * 1. **Composition**: Execute the composable function tree
+     * 2. **Layout**: Calculate positioning and sizing of elements
+     * 3. **Content Generation**: Convert elements to HTML markup
+     * 4. **Metadata Injection**: Add SEO, hydration, and head elements
+     * 5. **Document Assembly**: Combine into complete HTML document
+     *
+     * ## Context Configuration
+     *
+     * The RenderContext parameter controls various aspects of rendering:
+     *
+     * ```kotlin
+     * val context = RenderContext(
+     *     enableHydration = true,               // Enable client-side activation
+     *     seoMetadata = SeoMetadata(
+     *         title = "Page Title",
+     *         description = "Page description",
+     *         openGraph = OpenGraphMetadata(...)
+     *     ),
+     *     initialState = mapOf("key" to "value"), // State for hydration
+     *     debug = true                          // Include debug information
+     * )
+     * ```
+     *
+     * ## Output Format
+     *
+     * The returned HTML includes:
+     * - Complete HTML document with DOCTYPE
+     * - Head section with metadata and stylesheets
+     * - Body section with rendered content
+     * - Optional hydration scripts and data
+     * - SEO optimization tags
+     *
+     * ## Error Handling
+     *
+     * Rendering errors are handled gracefully:
+     * - Component errors result in fallback content
+     * - Missing resources are logged but don't break rendering
+     * - Invalid context parameters use sensible defaults
+     *
+     * ## Performance
+     *
+     * For optimal performance:
+     * - Cache rendered output when possible
+     * - Use streaming rendering for large pages
+     * - Minimize expensive operations in composables
+     * - Consider partial hydration for interactive elements only
+     *
+     * @param composable Root composable function to render
+     * @param context Rendering configuration and metadata
+     * @return Complete HTML document ready for client delivery
+     * @throws RenderingException if critical rendering errors occur
+     * @see RenderContext for configuration options
+     * @see StreamingServerSideRenderer for streaming alternative
+     * @since 1.0.0
      */
     fun render(composable: @Composable () -> Unit, context: RenderContext = RenderContext()): String
 }

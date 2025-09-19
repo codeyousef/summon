@@ -10,7 +10,127 @@ import code.yousef.summon.runtime.LocalPlatformRenderer
 
 
 /**
- * A composable that displays a hyperlink.
+ * # Link
+ *
+ * A navigation component that creates accessible hyperlinks with comprehensive routing,
+ * SEO optimization, and security features for both internal and external navigation.
+ *
+ * ## Overview
+ *
+ * Link provides comprehensive navigation with:
+ * - **Routing integration** - Seamless integration with Summon's file-based routing
+ * - **Security features** - Automatic security attributes for external links
+ * - **SEO optimization** - Proper link attributes for search engine optimization
+ * - **Accessibility** - Full ARIA support and keyboard navigation
+ * - **Visual states** - Hover, focus, and active state styling
+ *
+ * ## Key Features
+ *
+ * ### Navigation Types
+ * - **Internal routing** - Navigate within the application
+ * - **External links** - Navigate to external websites with security
+ * - **Download links** - Links for file downloads
+ * - **Email/Phone links** - Mailto and tel protocol support
+ *
+ * ### Security & SEO
+ * - **Automatic security** - noopener, noreferrer for external links
+ * - **SEO attributes** - Proper rel attributes for search engines
+ * - **Link validation** - URL format validation and sanitization
+ * - **Performance** - Prefetch support for internal routes
+ *
+ * ## Basic Usage
+ *
+ * ### Internal Navigation
+ * ```kotlin
+ * @Composable
+ * fun NavigationMenu() {
+ *     Row(modifier = Modifier().gap(Spacing.MD)) {
+ *         Link(href = "/") {
+ *             Text("Home")
+ *         }
+ *         Link(href = "/products") {
+ *             Text("Products")
+ *         }
+ *         Link(href = "/about") {
+ *             Text("About")
+ *         }
+ *     }
+ * }
+ * ```
+ *
+ * ### External Links
+ * ```kotlin
+ * @Composable
+ * fun ExternalLinks() {
+ *     Column(modifier = Modifier().gap(Spacing.SM)) {
+ *         ExternalLink(
+ *             text = "Visit GitHub",
+ *             href = "https://github.com/company/repo",
+ *             modifier = Modifier()
+ *                 .color(Color.BLUE_600)
+ *                 .textDecoration("underline")
+ *                 .hover {
+ *                     color(Color.BLUE_800)
+ *                 }
+ *         )
+ *
+ *         ExternalLink(
+ *             text = "External Documentation",
+ *             href = "https://docs.example.com",
+ *             noFollow = true
+ *         )
+ *     }
+ * }
+ * ```
+ *
+ * ### Button-Style Links
+ * ```kotlin
+ * @Composable
+ * fun CallToAction() {
+ *     ButtonLink(
+ *         text = "Get Started",
+ *         href = "/signup",
+ *         modifier = Modifier()
+ *             .backgroundColor(Color.BLUE_600)
+ *             .color(Color.WHITE)
+ *             .padding("12px 24px")
+ *             .borderRadius("8px")
+ *             .textDecoration("none")
+ *             .hover {
+ *                 backgroundColor(Color.BLUE_700)
+ *                 transform("translateY(-2px)")
+ *             }
+ *     )
+ * }
+ * ```
+ *
+ * ### Accessible Links
+ * ```kotlin
+ * @Composable
+ * fun AccessibleNavigation() {
+ *     Link(
+ *         href = "/profile",
+ *         ariaLabel = "Go to user profile page",
+ *         title = "View and edit your profile information",
+ *         modifier = Modifier()
+ *             .padding(Spacing.SM)
+ *             .borderRadius("4px")
+ *             .focus {
+ *                 outline("2px solid #4285f4")
+ *                 outlineOffset("2px")
+ *             }
+ *     ) {
+ *         Row(
+ *             modifier = Modifier()
+ *                 .alignItems(AlignItems.CENTER)
+ *                 .gap(Spacing.XS)
+ *         ) {
+ *             Icon(Icons.USER)
+ *             Text("Profile")
+ *         }
+ *     }
+ * }
+ * ```
  *
  * @param href The URL this link points to.
  * @param modifier The modifier to apply to this composable.
@@ -22,6 +142,18 @@ import code.yousef.summon.runtime.LocalPlatformRenderer
  * @param ariaLabel Optional accessible name for screen readers.
  * @param ariaDescribedBy Optional ID of element that describes this link.
  * @param content The composable content to display inside the link (e.g., Text, Icon).
+ *
+ * @see Text for link text content
+ * @see Button for button-style navigation
+ * @see Icon for link icons
+ * @see Row for link layouts
+ *
+ * @sample LinkSamples.internalNavigation
+ * @sample LinkSamples.externalLink
+ * @sample LinkSamples.buttonLink
+ * @sample LinkSamples.accessibleLink
+ *
+ * @since 1.0.0
  */
 @Composable
 fun Link(

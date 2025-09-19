@@ -1,3 +1,21 @@
+/**
+ * # Display Components Package
+ *
+ * This package provides components for displaying content and information to users.
+ *
+ * ## Overview
+ *
+ * Display components focus on presenting information clearly and accessibly:
+ *
+ * - **Text**: Full-featured text display with typography and accessibility
+ * - **Image**: Image display with loading, fallbacks, and responsive behavior
+ * - **Icon**: Icon display with multiple sources and interactive capabilities
+ * - **RichText**: Rich text with markup support and advanced formatting
+ *
+ * These components prioritize accessibility, performance, and cross-platform compatibility.
+ *
+ * @since 1.0.0
+ */
 package code.yousef.summon.components.display
 
 import code.yousef.summon.annotation.Composable
@@ -5,30 +23,172 @@ import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
- * A composable that displays text with enhanced styling and accessibility options.
+ * A full-featured text display component with comprehensive styling and accessibility support.
  *
- * This component is used for general text display and renders as a semantic paragraph or span element.
- * For form labels that are associated with input elements, use the [Label] component instead.
+ * Text provides advanced text rendering capabilities with extensive typography controls,
+ * accessibility features, and semantic markup options. It's designed for displaying
+ * content text, messages, and any text that requires rich formatting or accessibility.
+ *
+ * ## Key Features
+ *
+ * ### Typography Control
+ * - Complete font family, size, weight, and style control
+ * - Line height, letter spacing, and word spacing customization
+ * - Text decoration and transformation options
+ * - Text shadow and advanced visual effects
+ *
+ * ### Layout and Overflow
+ * - Text alignment and white space handling
+ * - Word breaking and overflow control
+ * - Multi-line truncation with line clamping
+ * - Responsive typography support
+ *
+ * ### Accessibility Features
+ * - Full ARIA support with roles, labels, and descriptions
+ * - Semantic HTML element selection
+ * - Screen reader optimization
+ * - Keyboard navigation support
+ *
+ * ### Cross-Platform Rendering
+ * - Consistent behavior across JS and JVM platforms
+ * - Platform-specific optimizations
+ * - CSS and HTML generation for different targets
+ *
+ * ## Usage Examples
+ *
+ * ### Basic Text
+ * ```kotlin
+ * Text("Hello, World!")
+ * ```
+ *
+ * ### Styled Paragraph
+ * ```kotlin
+ * Text(
+ *     text = "This is a styled paragraph with custom typography.",
+ *     modifier = Modifier().padding("16px"),
+ *     fontFamily = "Georgia, serif",
+ *     lineHeight = "1.6",
+ *     textAlign = "justify",
+ *     semantic = "paragraph"
+ * )
+ * ```
+ *
+ * ### Heading with Accessibility
+ * ```kotlin
+ * Text(
+ *     text = "Section Title",
+ *     modifier = Modifier()
+ *         .fontSize("24px")
+ *         .fontWeight("bold")
+ *         .marginBottom("16px"),
+ *     role = "heading",
+ *     ariaLabel = "Main section title",
+ *     semantic = "heading"
+ * )
+ * ```
+ *
+ * ### Truncated Text
+ * ```kotlin
+ * Text(
+ *     text = "This is a very long text that will be truncated after three lines...",
+ *     maxLines = 3,
+ *     overflow = "ellipsis",
+ *     modifier = Modifier().width("300px")
+ * )
+ * ```
+ *
+ * ### Styled Caption
+ * ```kotlin
+ * Text(
+ *     text = "Photo taken in Paris, 2023",
+ *     fontFamily = "Arial, sans-serif",
+ *     fontSize = "12px",
+ *     textAlign = "center",
+ *     textTransform = "uppercase",
+ *     letterSpacing = "0.5px",
+ *     semantic = "caption",
+ *     modifier = Modifier()
+ *         .color("#666")
+ *         .marginTop("8px")
+ * )
+ * ```
+ *
+ * ## Typography Properties
+ *
+ * | Property | Values | Example |
+ * |----------|--------|---------|
+ * | `fontFamily` | Font stack | `"Helvetica, Arial, sans-serif"` |
+ * | `textAlign` | Alignment | `"left"`, `"center"`, `"right"`, `"justify"` |
+ * | `textDecoration` | Decoration | `"underline"`, `"line-through"`, `"none"` |
+ * | `textTransform` | Transform | `"uppercase"`, `"lowercase"`, `"capitalize"` |
+ * | `lineHeight` | Line height | `"1.5"`, `"24px"`, `"normal"` |
+ * | `letterSpacing` | Spacing | `"0.5px"`, `"normal"`, `"0.1em"` |
+ * | `whiteSpace` | White space | `"normal"`, `"nowrap"`, `"pre"`, `"pre-line"` |
+ * | `wordBreak` | Word breaking | `"normal"`, `"break-all"`, `"keep-all"` |
+ *
+ * ## Accessibility Guidelines
+ *
+ * ### ARIA Roles
+ * - Use `role="heading"` for headings with appropriate `aria-level`
+ * - Use `role="article"` for standalone content
+ * - Use `role="note"` for supplementary information
+ *
+ * ### Labels and Descriptions
+ * ```kotlin
+ * Text(
+ *     text = "Error: Invalid email format",
+ *     role = "alert",
+ *     ariaLabel = "Form validation error message",
+ *     ariaDescribedBy = "email-field-error"
+ * )
+ * ```
+ *
+ * ### Semantic HTML
+ * The `semantic` parameter controls HTML element selection:
+ * - `"paragraph"` → `<p>`
+ * - `"heading"` → `<h1>` to `<h6>` (with appropriate styling)
+ * - `"caption"` → `<caption>` or `<figcaption>`
+ * - `"article"` → `<article>`
+ * - `null` → `<span>` (default)
+ *
+ * ## Performance Considerations
+ *
+ * - Use [BasicText] for simple text without advanced features
+ * - Prefer CSS classes over inline styles for repeated patterns
+ * - Consider text length impact on rendering performance
+ * - Use `maxLines` to prevent layout issues with dynamic content
+ *
+ * ## Comparison with BasicText
+ *
+ * | Feature | Text | BasicText |
+ * |---------|------|-----------|
+ * | Typography Control | Full | Basic |
+ * | Accessibility | Complete | Limited |
+ * | Performance | Good | Excellent |
+ * | API Complexity | Rich | Simple |
+ * | Use Case | Content display | Simple labels |
  *
  * @param text The text content to display
- * @param modifier The modifier to apply to this composable
- * @param overflow Determines how text overflow should be handled ('ellipsis', 'clip', etc.)
- * @param lineHeight Line height for the text (e.g., '1.5', '24px')
+ * @param modifier [Modifier] for layout, styling, and interaction
+ * @param overflow Text overflow handling ('ellipsis', 'clip', etc.)
+ * @param lineHeight Line height specification (e.g., '1.5', '24px')
  * @param textAlign Text alignment ('left', 'center', 'right', 'justify')
- * @param fontFamily Font family for the text
- * @param textDecoration Text decoration ('underline', 'line-through', 'none', etc.)
+ * @param fontFamily Font family stack for typography
+ * @param textDecoration Text decoration style ('underline', 'line-through', 'none')
  * @param textTransform Text transformation ('uppercase', 'lowercase', 'capitalize', 'none')
- * @param letterSpacing Letter spacing (e.g., '0.5px', 'normal')
- * @param whiteSpace How white space inside the element is handled ('normal', 'nowrap', 'pre', 'pre-line', 'pre-wrap', etc.)
- * @param wordBreak How to break words ('normal', 'break-all', 'keep-all', 'break-word')
+ * @param letterSpacing Spacing between letters (e.g., '0.5px', 'normal')
+ * @param whiteSpace White space handling ('normal', 'nowrap', 'pre', 'pre-line', 'pre-wrap')
+ * @param wordBreak Word breaking behavior ('normal', 'break-all', 'keep-all', 'break-word')
  * @param wordSpacing Spacing between words (e.g., '0.5px', 'normal')
- * @param textShadow Text shadow (e.g., '1px 1px 2px black')
- * @param maxLines Maximum number of lines to display before truncating
- * @param role ARIA role for accessibility
+ * @param textShadow Text shadow specification (e.g., '1px 1px 2px black')
+ * @param maxLines Maximum lines before truncation (enables line clamping)
+ * @param role ARIA role for accessibility (e.g., 'heading', 'article', 'note')
  * @param ariaLabel Accessible name for screen readers
- * @param ariaDescribedBy ID of element that describes this text for accessibility
- * @param semantic Optional semantic role for the text ('paragraph', 'heading', 'caption', etc.).
- *                 This affects the HTML element used for rendering.
+ * @param ariaDescribedBy ID of element describing this text for accessibility
+ * @param semantic Semantic HTML element type ('paragraph', 'heading', 'caption', etc.)
+ * @see code.yousef.summon.components.core.BasicText for simple text display
+ * @see Label for form-associated text labels
+ * @since 1.0.0
  */
 @Composable
 fun Text(

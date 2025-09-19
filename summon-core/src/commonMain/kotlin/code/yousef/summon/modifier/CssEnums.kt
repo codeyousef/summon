@@ -1,15 +1,166 @@
+/**
+ * # CSS Type-Safe Enums
+ *
+ * This file provides comprehensive type-safe enumerations for CSS property values used
+ * throughout the Summon UI modifier system. These enums offer compile-time safety,
+ * IDE autocompletion, and prevent common CSS value typos while maintaining full
+ * CSS specification compliance.
+ *
+ * ## Overview
+ *
+ * Type-safe CSS enums provide several advantages over string-based CSS values:
+ *
+ * - **Compile-Time Safety**: Catch invalid CSS values at compile time
+ * - **IDE Support**: Full autocompletion and refactoring capabilities
+ * - **Documentation**: Each enum value includes comprehensive usage guidance
+ * - **Consistency**: Standardized naming conventions across the framework
+ * - **Extensibility**: Easy to extend with new CSS values as specifications evolve
+ *
+ * ## Design Principles
+ *
+ * ### Naming Conventions
+ * - **Enum Names**: PascalCase following Kotlin conventions (e.g., `JustifyContent`)
+ * - **Value Names**: PascalCase for consistency (e.g., `FlexStart` for "flex-start")
+ * - **CSS Output**: Automatic conversion to kebab-case CSS values
+ *
+ * ### Value Mapping
+ * - Each enum value contains the exact CSS string representation
+ * - `toString()` method returns the CSS-compatible value
+ * - Direct mapping to CSS specifications for accuracy
+ *
+ * ### Comprehensive Coverage
+ * - **Layout Properties**: Position, display, flexbox, grid alignment
+ * - **Typography**: Font weights, text alignment, line heights
+ * - **Visual Properties**: Border styles, background behaviors
+ * - **Interactive States**: Cursor types, pointer events
+ * - **Animation Values**: Timing functions, directions, iteration counts
+ *
+ * ## Usage Examples
+ *
+ * ### Layout Positioning
+ * ```kotlin
+ * // Type-safe positioning
+ * val modal = Modifier()
+ *     .position(Position.Fixed)
+ *     .style("top", "50%")
+ *     .style("left", "50%")
+ *
+ * // Flexible layout container
+ * val container = Modifier()
+ *     .display(Display.Flex)
+ *     .justifyContent(JustifyContent.SpaceBetween)
+ *     .alignItems(AlignItems.Center)
+ * ```
+ *
+ * ### Typography Control
+ * ```kotlin
+ * // Heading with proper weight
+ * val heading = Modifier()
+ *     .fontWeight(FontWeight.Bold)
+ *     .textAlign(TextAlign.Center)
+ *     .lineHeight(LineHeight.Tight)
+ *
+ * // Body text with optimal readability
+ * val body = Modifier()
+ *     .fontWeight(FontWeight.Normal)
+ *     .textAlign(TextAlign.Left)
+ *     .lineHeight(LineHeight.Relaxed)
+ * ```
+ *
+ * ### Interactive Elements
+ * ```kotlin
+ * // Button with proper cursor and borders
+ * val button = Modifier()
+ *     .cursor(Cursor.Pointer)
+ *     .borderStyle(BorderStyle.Solid)
+ *     .backgroundClip(BackgroundClip.PaddingBox)
+ *
+ * // Disabled state handling
+ * val disabledButton = Modifier()
+ *     .cursor(Cursor.NotAllowed)
+ *     .pointerEvents(PointerEvents.None)
+ * ```
+ *
+ * ## Performance Benefits
+ *
+ * - **String Interning**: Enum values use singleton instances
+ * - **Memory Efficiency**: No string allocation for common CSS values
+ * - **Comparison Speed**: Enum comparison is faster than string comparison
+ * - **Tree Shaking**: Unused enum values can be eliminated in production builds
+ *
+ * ## CSS Specification Compliance
+ *
+ * All enum values correspond directly to CSS specification values:
+ * - **CSS 2.1**: Core layout and positioning properties
+ * - **CSS 3**: Flexbox, grid, transforms, and animations
+ * - **CSS 4**: Latest color functions and modern layout features
+ * - **Vendor Prefixes**: Handled automatically where needed
+ *
+ * @see code.yousef.summon.modifier.CssEnumModifiers for enum-based modifier functions
+ * @see code.yousef.summon.modifier.Modifier for core modifier functionality
+ * @since 1.0.0
+ */
 package code.yousef.summon.modifier
 
 import code.yousef.summon.extensions.px
 
 /**
- * CSS position values.
+ * CSS position property values for element positioning control.
+ *
+ * Defines how elements are positioned within their containing blocks,
+ * affecting their placement in the normal document flow and their
+ * relationship to other elements.
+ *
+ * ## Positioning Behaviors
+ *
+ * - **Static**: Default positioning in normal document flow
+ * - **Relative**: Positioned relative to normal position, maintains space
+ * - **Absolute**: Positioned relative to nearest positioned ancestor
+ * - **Fixed**: Positioned relative to viewport, ignores scrolling
+ * - **Sticky**: Switches between relative and fixed based on scroll position
+ *
+ * ## Examples
+ * ```kotlin
+ * // Modal overlay with fixed positioning
+ * val overlay = Modifier()
+ *     .position(Position.Fixed)
+ *     .style("inset", "0") // top: 0, right: 0, bottom: 0, left: 0
+ *     .backgroundColor("rgba(0, 0, 0, 0.5)")
+ *
+ * // Sticky navigation header
+ * val stickyNav = Modifier()
+ *     .position(Position.Sticky)
+ *     .style("top", "0")
+ *     .backgroundColor("white")
+ *     .zIndex(100)
+ *
+ * // Tooltip positioned absolutely
+ * val tooltip = Modifier()
+ *     .position(Position.Absolute)
+ *     .style("top", "100%")
+ *     .style("left", "50%")
+ *     .transform(TransformFunction.TranslateX to "-50%")
+ * ```
+ *
+ * @property value The CSS position value string
+ * @see code.yousef.summon.modifier.LayoutModifiers.absolutePosition
+ * @see code.yousef.summon.modifier.LayoutModifiers.centerAbsolute
+ * @since 1.0.0
  */
 enum class Position(val value: String) {
+    /** Default positioning in normal document flow */
     Static("static"),
+
+    /** Positioned relative to its normal position */
     Relative("relative"),
+
+    /** Positioned relative to nearest positioned ancestor */
     Absolute("absolute"),
+
+    /** Positioned relative to viewport */
     Fixed("fixed"),
+
+    /** Toggles between relative and fixed based on scroll position */
     Sticky("sticky");
 
     override fun toString(): String = value

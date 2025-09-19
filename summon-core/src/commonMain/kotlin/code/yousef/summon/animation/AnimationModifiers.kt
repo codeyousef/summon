@@ -1,13 +1,107 @@
+/**
+ * # Animation Modifiers
+ *
+ * Comprehensive animation modifier extensions for the Summon framework.
+ * This module provides type-safe, declarative animation capabilities through
+ * the [Modifier] system, enabling rich interactive experiences across platforms.
+ *
+ * ## Key Features
+ *
+ * - **CSS Animation Integration**: Direct CSS animation property control
+ * - **Predefined Animation Effects**: Common animations like fade, slide, zoom
+ * - **Spring Physics**: Natural spring-based animations with customizable physics
+ * - **Easing Functions**: Rich set of timing functions for smooth motion
+ * - **Transition Control**: Fine-grained transition property management
+ * - **Performance Optimized**: Hardware-accelerated animations where possible
+ *
+ * ## Animation Categories
+ *
+ * ### Basic Animations
+ * - `animate()` - Core CSS animation configuration
+ * - `animTransition()` - CSS transition properties
+ * - `animOpacity()` - Opacity control with transitions
+ *
+ * ### Motion Effects
+ * - `fadeIn()` / `fadeOut()` - Opacity-based entrance/exit
+ * - `slideIn()` / `slideOut()` - Directional slide animations
+ * - `zoomIn()` / `zoomOut()` - Scale-based entrance/exit
+ * - `scale()` - Custom scaling with timing control
+ *
+ * ### Interactive Animations
+ * - `bounce()` - Bouncing effect with elastic easing
+ * - `elastic()` - Elastic overshoot animations
+ * - `shake()` - Attention-grabbing shake effect
+ * - `pulse()` - Rhythmic pulsing animation
+ * - `float()` - Gentle floating motion
+ *
+ * ### Advanced Effects
+ * - `spring()` - Physics-based spring animations
+ * - `flipX()` / `flipY()` - 3D flip transformations
+ * - `typingCursor()` - Text cursor blinking effect
+ *
+ * ## Usage Examples
+ *
+ * ```kotlin
+ * // Basic fade-in animation
+ * Box(
+ *     modifier = Modifier()
+ *         .fadeIn(duration = 300, easing = Easing.EASE_OUT)
+ * )
+ *
+ * // Spring animation with custom physics
+ * Button(
+ *     modifier = Modifier()
+ *         .spring(
+ *             name = "button-press",
+ *             stiffness = 200f,
+ *             damping = 15f,
+ *             duration = 400
+ *         )
+ * )
+ *
+ * // Slide animation with direction
+ * Column(
+ *     modifier = Modifier()
+ *         .slideIn(
+ *             direction = SlideDirection.LEFT,
+ *             distance = "100%",
+ *             duration = 500
+ *         )
+ * )
+ *
+ * // Complex animation chaining
+ * Card(
+ *     modifier = Modifier()
+ *         .scale(scaleX = 1.05f, scaleY = 1.05f, duration = 200)
+ *         .fadeIn(duration = 300, delay = 100)
+ *         .animTransition("all", 200, "ease-out")
+ * )
+ * ```
+ *
+ * ## Performance Considerations
+ *
+ * - **Hardware Acceleration**: Transform and opacity animations are optimized
+ * - **CSS Layer Promotion**: Complex animations automatically promote elements
+ * - **Memory Efficiency**: Animations clean up automatically after completion
+ * - **Cancellation Support**: All animations can be interrupted and restarted
+ *
+ * ## Cross-Platform Behavior
+ *
+ * - **JavaScript**: Uses CSS animations and transitions directly
+ * - **JVM**: Generates CSS that works with HTML rendering engines
+ * - **Consistent API**: Same modifier functions work identically across platforms
+ *
+ * @see Modifier for the core modifier system
+ * @see Easing for available timing functions
+ * @see TransitionTimingFunction for transition control
+ * @see Animation for core animation primitives
+ * @since 1.0.0
+ */
 package code.yousef.summon.animation
 
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.TransitionTimingFunction
 import code.yousef.summon.modifier.transition
-
-
-/**
- * Animation extensions for the Modifier class
- */
 
 /**
  * Adds a CSS animation to an element.
