@@ -1496,7 +1496,7 @@ fun Modifier.fixedCenter(): Modifier =
  * val hoverableCard = Modifier()
  *     .relativeOffset(0, 0)
  *     .transition("all", "0.2s", "ease")
- *     .hover(mapOf(
+ *     .hover(mapOfCompat(
  *         "transform" to "translate(0px, -2px)",
  *         "box-shadow" to "0px 6px 12px rgba(0,0,0,0.15)"
  *     ))

@@ -1,5 +1,7 @@
 package code.yousef.summon.routing
 
+import code.yousef.summon.core.splitCompat
+
 /**
  * Represents a location in the application's navigation history.
  * Contains information about the current URL path and state.
@@ -66,17 +68,17 @@ data class Location(
          * Parse a URL string into a Location object.
          */
         fun fromUrl(url: String): Location {
-            val hashSplit = url.split("#", limit = 2)
+            val hashSplit = url.splitCompat("#", limit = 2)
             val hash = if (hashSplit.size > 1) hashSplit[1] else ""
 
-            val queryParamsSplit = hashSplit[0].split("?", limit = 2)
+            val queryParamsSplit = hashSplit[0].splitCompat("?", limit = 2)
             val path = queryParamsSplit[0]
 
             val queryParams = if (queryParamsSplit.size > 1) {
-                queryParamsSplit[1].split("&")
+                queryParamsSplit[1].splitCompat("&")
                     .filter { it.isNotEmpty() }
                     .map {
-                        val paramSplit = it.split("=", limit = 2)
+                        val paramSplit = it.splitCompat("=", limit = 2)
                         val key = paramSplit[0]
                         val value = if (paramSplit.size > 1) paramSplit[1] else ""
                         key to value

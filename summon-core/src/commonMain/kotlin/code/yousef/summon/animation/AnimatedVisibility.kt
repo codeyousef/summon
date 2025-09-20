@@ -1,5 +1,6 @@
 package code.yousef.summon.animation
 
+import code.yousef.summon.core.FlowContent
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.LaunchedEffect
@@ -7,7 +8,6 @@ import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.remember
 import code.yousef.summon.state.State
 import code.yousef.summon.state.mutableStateOf
-import kotlinx.html.FlowContent
 
 /**
  * Animation entry mode for AnimatedVisibility

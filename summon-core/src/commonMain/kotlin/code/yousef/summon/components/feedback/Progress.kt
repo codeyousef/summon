@@ -1,6 +1,7 @@
 package code.yousef.summon.components.feedback
 
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.core.mapOfCompat
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer
@@ -258,30 +259,30 @@ data class Progress(
      * Gets type-specific styles for the progress indicator.
      */
     internal fun getTypeStyles(): Map<String, String> {
-        val base = mapOf(
+        val base = mapOfCompat(
             "background-color" to trackColor
         )
 
         return when (type) {
-            ProgressType.LINEAR -> base + mapOf(
+            ProgressType.LINEAR -> base + mapOfCompat(
                 "height" to getSizeValue(),
                 "width" to "100%"
             )
 
-            ProgressType.CIRCULAR -> base + mapOf(
+            ProgressType.CIRCULAR -> base + mapOfCompat(
                 "width" to getCircularSize(),
                 "height" to getCircularSize(),
                 "border-radius" to "50%"
             )
 
             ProgressType.INDETERMINATE -> when {
-                type == ProgressType.CIRCULAR -> base + mapOf(
+                type == ProgressType.CIRCULAR -> base + mapOfCompat(
                     "width" to getCircularSize(),
                     "height" to getCircularSize(),
                     "border-radius" to "50%"
                 )
 
-                else -> base + mapOf(
+                else -> base + mapOfCompat(
                     "height" to getSizeValue(),
                     "width" to "100%"
                 )
@@ -320,15 +321,15 @@ data class Progress(
         }
 
         return when (animation) {
-            ProgressAnimation.SMOOTH -> mapOf(
+            ProgressAnimation.SMOOTH -> mapOfCompat(
                 "transition" to "width 0.3s ease-in-out, transform 0.3s ease-in-out"
             )
 
-            ProgressAnimation.PULSE -> mapOf(
+            ProgressAnimation.PULSE -> mapOfCompat(
                 "animation" to "pulse 1.5s infinite"
             )
 
-            ProgressAnimation.BOUNCE -> mapOf(
+            ProgressAnimation.BOUNCE -> mapOfCompat(
                 "animation" to "bounce 1s infinite"
             )
 

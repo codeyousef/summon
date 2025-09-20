@@ -1,40 +1,13 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.runtime.*
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.input.FormField // Import the component
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.util.TestComposer
-import code.yousef.summon.util.TestFileInfo // Needed for mock renderer boilerplate
-import code.yousef.summon.components.display.Text // Import Text
-import kotlinx.datetime.LocalTime
-import kotlinx.datetime.LocalDate
-import kotlinx.html.FlowContent
-import kotlinx.html.id // Import for id attribute
-import kotlinx.html.Tag // Import Tag
-import kotlinx.html.Entities // Import Entities
-import kotlinx.html.Unsafe // Import Unsafe
-
 // Import other types used in PlatformRenderer methods for the mock
-import code.yousef.summon.runtime.SelectOption as RendererSelectOption
-import code.yousef.summon.components.display.IconType
-import code.yousef.summon.components.feedback.AlertVariant
-import code.yousef.summon.components.feedback.ProgressType
-import code.yousef.summon.components.navigation.Tab
-import kotlinx.html.TagConsumer
-import kotlinx.html.org.w3c.dom.events.Event
-
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
-import kotlin.test.assertSame
-import kotlin.test.assertNull // Add assertNull import
 
 // Add import for shared MockPlatformRenderer
+import code.yousef.summon.components.display.Text
+import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.MockPlatformRenderer
 import code.yousef.summon.util.runTestComposable
+import kotlin.test.*
 
 class FormFieldTest {
 

@@ -2,6 +2,8 @@ package code.yousef.summon.components.navigation
 
 
 import code.yousef.summon.components.display.Text
+import code.yousef.summon.core.mapOfCompat
+import code.yousef.summon.core.splitCompat
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.StylingModifierExtras.textDecoration
 import code.yousef.summon.runtime.Composable
@@ -171,7 +173,7 @@ fun Link(
     val composer = CompositionLocal.currentComposer
     // --- Calculate Final Rel Attribute --- 
     val finalRelValues = mutableListOf<String>()
-    rel?.let { finalRelValues.addAll(it.split(" ").filter { it.isNotBlank() }) }
+    rel?.let { finalRelValues.addAll(it.splitCompat(" ").filter { it.isNotBlank() }) }
     if (target == "_blank" || isExternal) {
         if (!finalRelValues.contains("noopener")) finalRelValues.add("noopener")
         if (!finalRelValues.contains("noreferrer")) finalRelValues.add("noreferrer")
@@ -254,7 +256,7 @@ fun ButtonLink(
         .borderRadius("4px")
         .textDecoration("none")
         .hover(
-            mapOf(
+            mapOfCompat(
                 "background-color" to "#45a049",
                 "box-shadow" to "0 2px 4px rgba(0,0,0,0.2)"
             )

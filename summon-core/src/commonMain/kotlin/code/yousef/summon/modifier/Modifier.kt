@@ -37,7 +37,7 @@
  *     .height("200px")
  *     .margin("16px")
  *     .shadow("0px", "2px", "4px", "rgba(0,0,0,0.1)")
- *     .hover(mapOf("transform" to "translateY(-2px)"))
+ *     .hover(mapOfCompat("transform" to "translateY(-2px)"))
  *
  * // Accessibility
  * val accessibleModifier = Modifier()
@@ -52,6 +52,7 @@
 
 package code.yousef.summon.modifier
 
+import code.yousef.summon.core.splitCompat
 import kotlin.js.ExperimentalJsExport
 import kotlin.js.JsExport
 import kotlin.js.JsName
@@ -139,7 +140,7 @@ import kotlin.js.JsName
  *     .borderRadius("12px")
  *     .shadow("0px", "4px", "6px", "rgba(0, 0, 0, 0.1)")
  *     .padding("24px")
- *     .hover(mapOf(
+ *     .hover(mapOfCompat(
  *         "transform" to "translateY(-2px)",
  *         "box-shadow" to "0px 8px 12px rgba(0, 0, 0, 0.15)"
  *     ))
@@ -493,8 +494,8 @@ data class Modifier(
         val currentHover =
             attributes["data-hover-styles"]?.let { prev -> // Uses the JS renamed `htmlAttributes` in Kotlin via `attributes`
                 // Crude merge, could be improved
-                prev.split(';').associate {
-                    val parts = it.split(':')
+                prev.splitCompat(';').associate {
+                    val parts = it.splitCompat(':')
                     parts[0].trim() to parts[1].trim()
                 } + hoverStyles
             } ?: hoverStyles
@@ -599,7 +600,7 @@ data class Modifier(
      */
     fun addClass(value: String): Modifier {
         val existingClasses =
-            attributes["class"]?.split(' ')?.toSet() ?: emptySet() // Accesses the Kotlin property `attributes`
+            attributes["class"]?.splitCompat(' ')?.toSet() ?: emptySet() // Accesses the Kotlin property `attributes`
         val newClasses = (existingClasses + value.trim()).filter { it.isNotEmpty() }.joinToString(" ")
         return attribute("class", newClasses)
     }

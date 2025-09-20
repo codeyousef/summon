@@ -4,13 +4,13 @@ import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.IconType
 import code.yousef.summon.components.feedback.AlertVariant
 import code.yousef.summon.components.input.FileInfo
+import code.yousef.summon.core.FlowContentCompat
 import code.yousef.summon.integrations.quarkus.htmx.HtmxAttributeHandler
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.FormContent
 import code.yousef.summon.runtime.PlatformRenderer
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
-import kotlinx.html.FlowContent
 
 /**
  * A wrapper around PlatformRenderer that adds support for HTMX attributes and raw HTML content.
@@ -93,7 +93,11 @@ class EnhancedJvmPlatformRenderer : PlatformRenderer() {
         super.renderLabel(text, processModifier(modifier), forElement)
     }
 
-    override fun renderButton(onClick: () -> Unit, modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    override fun renderButton(
+        onClick: () -> Unit,
+        modifier: Modifier,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
         super.renderButton(onClick, processModifier(modifier), content)
     }
 
@@ -143,15 +147,15 @@ class EnhancedJvmPlatformRenderer : PlatformRenderer() {
         )
     }
 
-    override fun renderRow(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    override fun renderRow(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         super.renderRow(processModifier(modifier), content)
     }
 
-    override fun renderColumn(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    override fun renderColumn(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         super.renderColumn(processModifier(modifier), content)
     }
 
-    override fun renderBox(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    override fun renderBox(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         super.renderBox(processModifier(modifier), content)
     }
 
@@ -172,12 +176,12 @@ class EnhancedJvmPlatformRenderer : PlatformRenderer() {
     override fun renderAlertContainer(
         variant: AlertVariant?,
         modifier: Modifier,
-        content: @Composable FlowContent.() -> Unit
+        content: @Composable FlowContentCompat.() -> Unit
     ) {
         super.renderAlertContainer(variant, processModifier(modifier), content)
     }
 
-    override fun renderBadge(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    override fun renderBadge(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         super.renderBadge(processModifier(modifier), content)
     }
 
@@ -276,11 +280,11 @@ class EnhancedJvmPlatformRenderer : PlatformRenderer() {
         super.renderDivider(processModifier(modifier))
     }
 
-    override fun renderResponsiveLayout(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    override fun renderResponsiveLayout(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         super.renderResponsiveLayout(processModifier(modifier), content)
     }
 
-    override fun renderHtmlTag(tagName: String, modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    override fun renderHtmlTag(tagName: String, modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         super.renderHtmlTag(tagName, processModifier(modifier), content)
     }
 

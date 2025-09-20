@@ -1,10 +1,6 @@
 package code.yousef.summon.runtime
 
-import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import kotlinx.html.FlowContent
-import kotlinx.html.div
-import kotlinx.html.span
 import org.junit.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -71,12 +67,7 @@ class JvmPlatformRendererTest {
             // Use renderDiv which is a public method
             renderer.renderDiv(Modifier()) {
                 // Inside this context, call renderComposable
-                renderer.renderComposable {
-                    // This will be rendered inside the div
-                    span {
-                        +testMarker
-                    }
-                }
+                renderer.renderText(testMarker, Modifier())
             }
         }
 

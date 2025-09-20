@@ -1,6 +1,7 @@
 package code.yousef.summon.components.feedback
 
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.core.mapOfCompat
 import code.yousef.summon.modifier.Modifier
 
 /**
@@ -229,28 +230,28 @@ fun Tooltip(
  */
 internal fun getPlacementStyles(placement: TooltipPlacement): Map<String, String> {
     return when (placement) {
-        TooltipPlacement.TOP -> mapOf(
+        TooltipPlacement.TOP -> mapOfCompat(
             "bottom" to "100%",
             "margin-bottom" to "10px",
             "left" to "50%",
             "transform" to "translateX(-50%)"
         )
 
-        TooltipPlacement.RIGHT -> mapOf(
+        TooltipPlacement.RIGHT -> mapOfCompat(
             "left" to "100%",
             "margin-left" to "10px",
             "top" to "50%",
             "transform" to "translateY(-50%)"
         )
 
-        TooltipPlacement.BOTTOM -> mapOf(
+        TooltipPlacement.BOTTOM -> mapOfCompat(
             "top" to "100%",
             "margin-top" to "10px",
             "left" to "50%",
             "transform" to "translateX(-50%)"
         )
 
-        TooltipPlacement.LEFT -> mapOf(
+        TooltipPlacement.LEFT -> mapOfCompat(
             "right" to "100%",
             "margin-right" to "10px",
             "top" to "50%",
@@ -263,7 +264,7 @@ internal fun getPlacementStyles(placement: TooltipPlacement): Map<String, String
  * Gets arrow-specific styles for the tooltip arrow.
  */
 internal fun getArrowStyles(placement: TooltipPlacement): Map<String, String> {
-    val base = mapOf(
+    val base = mapOfCompat(
         "position" to "absolute",
         "width" to "0",
         "height" to "0",
@@ -271,7 +272,7 @@ internal fun getArrowStyles(placement: TooltipPlacement): Map<String, String> {
     )
 
     return when (placement) {
-        TooltipPlacement.TOP -> base + mapOf(
+        TooltipPlacement.TOP -> base + mapOfCompat(
             "bottom" to "-6px",
             "left" to "50%",
             "transform" to "translateX(-50%)",
@@ -279,7 +280,7 @@ internal fun getArrowStyles(placement: TooltipPlacement): Map<String, String> {
             "border-color" to "#333 transparent transparent transparent"
         )
 
-        TooltipPlacement.RIGHT -> base + mapOf(
+        TooltipPlacement.RIGHT -> base + mapOfCompat(
             "left" to "-6px",
             "top" to "50%",
             "transform" to "translateY(-50%)",
@@ -287,7 +288,7 @@ internal fun getArrowStyles(placement: TooltipPlacement): Map<String, String> {
             "border-color" to "transparent #333 transparent transparent"
         )
 
-        TooltipPlacement.BOTTOM -> base + mapOf(
+        TooltipPlacement.BOTTOM -> base + mapOfCompat(
             "top" to "-6px",
             "left" to "50%",
             "transform" to "translateX(-50%)",
@@ -295,7 +296,7 @@ internal fun getArrowStyles(placement: TooltipPlacement): Map<String, String> {
             "border-color" to "transparent transparent #333 transparent"
         )
 
-        TooltipPlacement.LEFT -> base + mapOf(
+        TooltipPlacement.LEFT -> base + mapOfCompat(
             "right" to "-6px",
             "top" to "50%",
             "transform" to "translateY(-50%)",
@@ -309,7 +310,7 @@ internal fun getArrowStyles(placement: TooltipPlacement): Map<String, String> {
  * Gets accessibility attributes for the tooltip.
  */
 internal fun getAccessibilityAttributes(): Map<String, String> {
-    return mapOf(
+    return mapOfCompat(
         "role" to "tooltip",
         "aria-hidden" to "true"  // Initially hidden until shown
     )

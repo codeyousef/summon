@@ -41,10 +41,10 @@ import code.yousef.summon.components.feedback.AlertVariant
 import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.input.FileInfo
 import code.yousef.summon.components.navigation.Tab
+import code.yousef.summon.core.FlowContentCompat
 import code.yousef.summon.modifier.Modifier
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
-import kotlinx.html.FlowContent
 
 /**
  * Represents an option in a select dropdown component.
@@ -209,7 +209,7 @@ expect open class PlatformRenderer() {
     open fun renderButton(
         onClick: () -> Unit,
         modifier: Modifier,
-        content: @Composable FlowContent.() -> Unit
+        content: @Composable FlowContentCompat.() -> Unit
     )
 
     /**
@@ -309,9 +309,9 @@ expect open class PlatformRenderer() {
     open fun renderComposable(composable: @Composable () -> Unit)
 
     // --- Layout Components ---
-    open fun renderRow(modifier: Modifier, content: @Composable FlowContent.() -> Unit)
-    open fun renderColumn(modifier: Modifier, content: @Composable FlowContent.() -> Unit)
-    open fun renderBox(modifier: Modifier, content: @Composable FlowContent.() -> Unit)
+    open fun renderRow(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
+    open fun renderColumn(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
+    open fun renderBox(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
 
     /** Renders an image */
     open fun renderImage(src: String, alt: String?, modifier: Modifier)
@@ -329,13 +329,13 @@ expect open class PlatformRenderer() {
     open fun renderAlertContainer(
         variant: AlertVariant? = null,
         modifier: Modifier,
-        content: @Composable FlowContent.() -> Unit
+        content: @Composable FlowContentCompat.() -> Unit
     )
 
     /** Renders a badge */
     open fun renderBadge(
         modifier: Modifier,
-        content: @Composable FlowContent.() -> Unit
+        content: @Composable FlowContentCompat.() -> Unit
     )
 
     /** Renders a checkbox */
@@ -377,7 +377,7 @@ expect open class PlatformRenderer() {
         isRequired: Boolean = false,
         isError: Boolean = false,
         errorMessageId: String? = null,
-        content: @Composable FlowContent.() -> Unit
+        content: @Composable FlowContentCompat.() -> Unit
     )
 
     /** Renders a radio button input */
@@ -429,12 +429,12 @@ expect open class PlatformRenderer() {
     )
 
     /** Renders a container that maintains a specific aspect ratio */
-    open fun renderAspectRatio(ratio: Float, modifier: Modifier, content: @Composable FlowContent.() -> Unit)
+    open fun renderAspectRatio(ratio: Float, modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
 
     /** Renders a card container */
     open fun renderCard(
         modifier: Modifier,
-        content: @Composable FlowContent.() -> Unit
+        content: @Composable FlowContentCompat.() -> Unit
     )
 
     /** Renders a hyperlink */
@@ -486,31 +486,31 @@ expect open class PlatformRenderer() {
     open fun renderAnimatedContent(modifier: Modifier, content: @Composable () -> Unit)
 
     // --- Basic HTML Element Renderers ---
-    open fun renderBlock(modifier: Modifier, content: @Composable FlowContent.() -> Unit)
-    open fun renderInline(modifier: Modifier, content: @Composable FlowContent.() -> Unit)
-    open fun renderDiv(modifier: Modifier, content: @Composable FlowContent.() -> Unit)
-    open fun renderSpan(modifier: Modifier, content: @Composable FlowContent.() -> Unit)
+    open fun renderBlock(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
+    open fun renderInline(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
+    open fun renderDiv(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
+    open fun renderSpan(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
 
     /** Renders a divider element (e.g., <hr>) */
     open fun renderDivider(modifier: Modifier)
 
     /** Renders an expansion panel container */
-    open fun renderExpansionPanel(modifier: Modifier, content: @Composable FlowContent.() -> Unit)
+    open fun renderExpansionPanel(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
 
     /** Renders a grid layout container */
-    open fun renderGrid(modifier: Modifier, content: @Composable FlowContent.() -> Unit)
+    open fun renderGrid(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
 
     /** Renders a lazy column container (e.g., a div for scrolling) */
-    open fun renderLazyColumn(modifier: Modifier, content: @Composable FlowContent.() -> Unit)
+    open fun renderLazyColumn(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
 
     /** Renders a lazy row container (e.g., a div for horizontal scrolling) */
-    open fun renderLazyRow(modifier: Modifier, content: @Composable FlowContent.() -> Unit)
+    open fun renderLazyRow(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
 
     /** Renders a responsive layout container (typically a div) */
-    open fun renderResponsiveLayout(modifier: Modifier, content: @Composable FlowContent.() -> Unit)
+    open fun renderResponsiveLayout(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
 
     /** Renders an arbitrary HTML tag with the given name, modifier, and content */
-    open fun renderHtmlTag(tagName: String, modifier: Modifier, content: @Composable FlowContent.() -> Unit)
+    open fun renderHtmlTag(tagName: String, modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
     open fun renderSnackbar(message: String, actionLabel: String?, onAction: (() -> Unit)?)
     open fun renderDropdownMenu(
         expanded: Boolean,
@@ -528,7 +528,7 @@ expect open class PlatformRenderer() {
         actions: @Composable (() -> Unit)?
     )
 
-    open fun renderScreen(modifier: Modifier, content: @Composable (FlowContent.() -> Unit))
+    open fun renderScreen(modifier: Modifier, content: @Composable (FlowContentCompat.() -> Unit))
     open fun renderHtml(htmlContent: String, modifier: Modifier)
 
     /** Renders HTML content with optional sanitization */

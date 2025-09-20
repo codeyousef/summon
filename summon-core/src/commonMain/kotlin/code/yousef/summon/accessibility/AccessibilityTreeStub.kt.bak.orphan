@@ -1,0 +1,25 @@
+package code.yousef.summon.accessibility
+
+import code.yousef.summon.modifier.Modifier
+
+/**
+ * Temporary stub for AccessibilityTree functionality
+ * This replaces the problematic file until compilation issues are resolved
+ */
+object AccessibilityUtils {
+    fun createRoleModifier(role: NodeRole): Modifier {
+        return Modifier()
+    }
+
+    fun createRelationshipModifier(relation: String, targetId: String): Modifier {
+        return Modifier()
+    }
+}
+
+enum class NodeRole {
+    BUTTON, TEXT, IMAGE, INPUT, LINK, HEADING, LIST, DIALOG, NAVIGATION, MAIN, ARTICLE, SECTION
+}
+
+private fun Modifier.role(role: String): Modifier {
+    return this
+}

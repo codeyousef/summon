@@ -1,6 +1,7 @@
 package code.yousef.summon.components.input
 
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.core.splitCompat
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.mutableStateOf
@@ -80,7 +81,7 @@ fun StatefulTimePicker(
 private fun parseTimeString(value: String): LocalTime? {
     if (value.isBlank()) return null
 
-    val parts = value.split(":")
+    val parts = value.splitCompat(":")
     return try {
         when (parts.size) {
             2 -> LocalTime(parts[0].toInt(), parts[1].toInt(), 0)

@@ -197,7 +197,7 @@
  *     ThemeProvider(
  *         theme = EnhancedThemeConfig(
  *             primaryColor = "#007bff",
- *             designTokens = mapOf(
+ *             designTokens = mapOfCompat(
  *                 "--spacing-sm" to "8px",
  *                 "--spacing-md" to "16px",
  *                 "--border-radius" to "6px"
@@ -284,3 +284,4 @@
  * @since 1.0.0
  */
 package code.yousef.summon
+

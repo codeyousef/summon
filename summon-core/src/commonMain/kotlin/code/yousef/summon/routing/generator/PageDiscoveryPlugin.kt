@@ -1,5 +1,7 @@
 package code.yousef.summon.routing.generator
 
+import code.yousef.summon.core.mapOfCompat
+
 /**
  * Implementation of a build plugin for page discovery.
  * This plugin scans the source directories for page files and generates
@@ -50,7 +52,7 @@ object PageDiscoveryPlugin {
         // In a real build plugin, this would use the build system's file APIs
 
         // Define the structure of our pages directory
-        val pageStructure = mapOf(
+        val pageStructure = mapOfCompat(
             "/pages" to listOf("Index.kt", "About.kt", "404.kt", "Settings.kt", "Login.kt"),
             "/pages/users" to listOf("[id].kt", "Profile.kt", "Register.kt", "Settings.kt"),
             "/pages/blog" to listOf("[id].kt", "List.kt", "Categories.kt", "Tags.kt"),

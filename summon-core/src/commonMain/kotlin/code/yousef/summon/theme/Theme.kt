@@ -1,5 +1,7 @@
 package code.yousef.summon.theme
 
+import code.yousef.summon.core.mapOfCompat
+
 import code.yousef.summon.core.style.Color
 import code.yousef.summon.modifier.*
 import code.yousef.summon.modifier.StylingModifierExtras.textDecoration
@@ -105,7 +107,7 @@ import code.yousef.summon.modifier.StylingModifierExtras.textDecoration
  *                 fontWeight = FontWeight.ExtraBold
  *             )
  *         ),
- *         customValues = mapOf(
+ *         customValues = mapOfCompat(
  *             "heroSpacing" to "5rem",
  *             "brandFont" to "Inter, sans-serif"
  *         )
@@ -442,7 +444,7 @@ object Theme {
     /**
      * Default typography values from Typography object
      */
-    private val defaultTypography: Map<String, TextStyle> = mapOf(
+    private val defaultTypography: Map<String, TextStyle> = mapOfCompat(
         "h1" to TextStyle.create(fontSize = 2.5, fontWeight = FontWeight.Bold),
         "h2" to TextStyle.create(fontSize = 2.0, fontWeight = FontWeight.Bold),
         "h3" to TextStyle.create(fontSize = 1.75, fontWeight = FontWeight.Bold),
@@ -473,7 +475,7 @@ object Theme {
     /**
      * Default spacing values from Spacing object
      */
-    private val defaultSpacing = mapOf(
+    private val defaultSpacing = mapOfCompat(
         "xs" to Spacing.xs,
         "sm" to Spacing.sm,
         "md" to Spacing.md,
@@ -485,7 +487,7 @@ object Theme {
     /**
      * Default border radius values
      */
-    private val defaultBorderRadius = mapOf(
+    private val defaultBorderRadius = mapOfCompat(
         "none" to "0",
         "sm" to "4px",
         "md" to "8px",
@@ -498,7 +500,7 @@ object Theme {
     /**
      * Default elevation (box-shadow) values
      */
-    private val defaultElevation = mapOf(
+    private val defaultElevation = mapOfCompat(
         "none" to "none",
         "xs" to "0 1px 2px rgba(0, 0, 0, 0.05)",
         "sm" to "0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)",

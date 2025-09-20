@@ -1,16 +1,10 @@
 package code.yousef.summon.effects
 
 import code.yousef.summon.runtime.Composable
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.SelectOption
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
-import kotlinx.html.FlowContent
-import code.yousef.summon.runtime.FormContent
-import kotlin.test.*
-import code.yousef.summon.effects.CompositionScope
-import code.yousef.summon.effects.useInterval
-import code.yousef.summon.effects.useTimeout
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.fail
 
 // Simplified dummy scope
 private class DummyCompositionScope : CompositionScope {

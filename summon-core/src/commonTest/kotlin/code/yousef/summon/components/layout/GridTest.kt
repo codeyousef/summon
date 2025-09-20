@@ -2,14 +2,12 @@ package code.yousef.summon.components.layout
 
 import code.yousef.summon.modifier.BorderStyle
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.border
-import code.yousef.summon.runtime.MockPlatformRenderer 
+import code.yousef.summon.runtime.MockPlatformRenderer
 import code.yousef.summon.util.runTestComposable
-import kotlinx.html.FlowContent
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * Tests for the Grid component

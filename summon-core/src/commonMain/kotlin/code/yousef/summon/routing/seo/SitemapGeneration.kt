@@ -50,7 +50,7 @@ class SitemapGeneration {
             tagName = "pre",
             modifier = Modifier()
         ) {
-            +xml
+            renderer.renderText(xml, Modifier())
         }
     }
 

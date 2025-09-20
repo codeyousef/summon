@@ -120,7 +120,7 @@ fun createHTML(): HtmlBuilder {
  * ### Dynamic Content with State
  * ```kotlin
  * val renderer = createServerSideRenderer()
- * val userState = mapOf("userId" to "123", "userName" to "John")
+ * val userState = mapOfCompat("userId" to "123", "userName" to "John")
  *
  * val html = renderer.render(
  *     composable = { UserProfile() },
@@ -196,7 +196,7 @@ interface ServerSideRenderer {
      *         description = "Page description",
      *         openGraph = OpenGraphMetadata(...)
      *     ),
-     *     initialState = mapOf("key" to "value"), // State for hydration
+     *     initialState = mapOfCompat("key" to "value"), // State for hydration
      *     debug = true                          // Include debug information
      * )
      * ```

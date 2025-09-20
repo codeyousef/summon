@@ -1,5 +1,7 @@
 package code.yousef.summon.core.rendering
 
+import code.yousef.summon.core.splitCompat
+
 import code.yousef.summon.modifier.Modifier
 
 /**
@@ -61,7 +63,7 @@ object RenderingUtils {
      * Examples: background-color -> backgroundColor, font-size -> fontSize
      */
     fun toCamelCase(kebabCase: String): String {
-        return kebabCase.split("-").mapIndexed { index, part ->
+        return kebabCase.splitCompat("-").mapIndexed { index, part ->
             if (index == 0) part else part.replaceFirstChar { it.uppercase() }
         }.joinToString("")
     }

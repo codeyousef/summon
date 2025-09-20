@@ -6,6 +6,8 @@ import code.yousef.summon.components.feedback.AlertVariant
 import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.input.FileInfo
 import code.yousef.summon.components.navigation.Tab
+import code.yousef.summon.core.FlowContentCompat
+import code.yousef.summon.core.asFlowContentCompat
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.overflowX
 import code.yousef.summon.modifier.overflowY
@@ -63,8 +65,10 @@ actual open class PlatformRenderer {
     }
 
     // Helper to render composable content with FlowContent receiver
-    private fun <T : FlowContent> T.renderContent(content: @Composable FlowContent.() -> Unit) {
-        this.content() // Invoke as extension function
+    private fun <T : FlowContent> T.renderContent(content: @Composable FlowContentCompat.() -> Unit) {
+        // Create a bridge from kotlinx.html.FlowContent to FlowContentCompat
+        val flowContentCompat = this.asFlowContentCompat()
+        flowContentCompat.content()
     }
 
     // Helper to render composable content without FlowContent receiver
@@ -115,7 +119,7 @@ actual open class PlatformRenderer {
     actual open fun renderButton(
         onClick: () -> Unit,
         modifier: Modifier,
-        content: @Composable FlowContent.() -> Unit
+        content: @Composable FlowContentCompat.() -> Unit
     ) {
         requireBuilder().button {
             applyModifier(modifier)
@@ -544,7 +548,7 @@ actual open class PlatformRenderer {
 
     actual open fun renderRow(
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         requireBuilder().div {
             applyModifier(modifier)
@@ -555,7 +559,7 @@ actual open class PlatformRenderer {
 
     actual open fun renderColumn(
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         requireBuilder().div {
             applyModifier(modifier)
@@ -566,7 +570,7 @@ actual open class PlatformRenderer {
 
     actual open fun renderBox(
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         requireBuilder().div {
             applyModifier(modifier)
@@ -615,7 +619,7 @@ actual open class PlatformRenderer {
     actual open fun renderAlertContainer(
         variant: AlertVariant?,
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         requireBuilder().div {
             attributes["role"] = "alert"
@@ -627,7 +631,7 @@ actual open class PlatformRenderer {
 
     actual open fun renderBadge(
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         requireBuilder().span {
             applyModifier(modifier)
@@ -786,9 +790,9 @@ actual open class PlatformRenderer {
                 attributes["data-onsubmit-action"] = "true"
                 comment(" onSubmit handler needed (JS). Form action/method? ")
             }
-            // Fix duplicate supertype: FormContent extends FlowContent
-            val formContentImpl = object : FormContent by this {}
-            content(formContentImpl)
+            // Create FormContent and wrap it in FlowContentCompat
+            val formContentImpl = this
+            content(formContentImpl.asFlowContentCompat())
         }
     }
 
@@ -862,7 +866,7 @@ actual open class PlatformRenderer {
         selected: Boolean,
         onClick: () -> Unit,
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         requireBuilder().div {
             applyModifier(modifier)
@@ -896,7 +900,7 @@ actual open class PlatformRenderer {
     actual open fun renderHtmlTag(
         tagName: String,
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         val builder = requireBuilder()
 
@@ -919,7 +923,7 @@ actual open class PlatformRenderer {
         builder.comment(" Note: Direct custom tag rendering requires JS DOM manipulation ")
     }
 
-    actual open fun renderSpan(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    actual open fun renderSpan(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         requireBuilder().span {
             applyModifier(modifier)
             renderContent(content)
@@ -932,7 +936,7 @@ actual open class PlatformRenderer {
         }
     }
 
-    actual open fun renderExpansionPanel(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    actual open fun renderExpansionPanel(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         // Basic div implementation for JVM, actual expansion behavior might need JS
         requireBuilder().div {
             applyModifier(modifier.then(Modifier().style("border", "1px solid grey")))
@@ -941,14 +945,14 @@ actual open class PlatformRenderer {
         }
     }
 
-    actual open fun renderGrid(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    actual open fun renderGrid(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         requireBuilder().div {
             applyModifier(modifier.then(Modifier().style("display", "grid")))
             renderContent(content)
         }
     }
 
-    actual open fun renderLazyColumn(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    actual open fun renderLazyColumn(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         // JVM equivalent: scrollable div
         requireBuilder().div {
             applyModifier(modifier.then(Modifier().overflowY("auto")))
@@ -956,7 +960,7 @@ actual open class PlatformRenderer {
         }
     }
 
-    actual open fun renderLazyRow(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    actual open fun renderLazyRow(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         // JVM equivalent: scrollable div
         requireBuilder().div {
             applyModifier(modifier.then(Modifier().overflowX("auto")))
@@ -964,7 +968,7 @@ actual open class PlatformRenderer {
         }
     }
 
-    actual open fun renderResponsiveLayout(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    actual open fun renderResponsiveLayout(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         // Basic div, actual responsiveness will depend on CSS within modifier and content
         requireBuilder().div {
             applyModifier(modifier)
@@ -1084,7 +1088,7 @@ actual open class PlatformRenderer {
         }
     }
 
-    actual open fun renderScreen(modifier: Modifier, content: @Composable (FlowContent.() -> Unit)) {
+    actual open fun renderScreen(modifier: Modifier, content: @Composable (FlowContentCompat.() -> Unit)) {
         requireBuilder().div {
             applyModifier(modifier.then(Modifier().style("width", "100%").style("height", "100vh")))
             renderContent(content)
@@ -1399,7 +1403,7 @@ actual open class PlatformRenderer {
         isRequired: Boolean,
         isError: Boolean,
         errorMessageId: String?,
-        content: @Composable FlowContent.() -> Unit
+        content: @Composable FlowContentCompat.() -> Unit
     ) {
         requireBuilder().div {
             applyModifier(modifier)
@@ -1437,14 +1441,14 @@ actual open class PlatformRenderer {
     actual open fun renderAspectRatio(
         ratio: Float,
         modifier: Modifier,
-        content: @Composable FlowContent.() -> Unit
+        content: @Composable FlowContentCompat.() -> Unit
     ) {
         renderAspectRatioContainer(ratio, modifier) {
             requireBuilder().renderContent(content)
         }
     }
 
-    actual open fun renderCard(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    actual open fun renderCard(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         renderCard(modifier, 1) {
             requireBuilder().renderContent(content)
         }
@@ -1550,21 +1554,21 @@ actual open class PlatformRenderer {
         }
     }
 
-    actual open fun renderBlock(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    actual open fun renderBlock(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         requireBuilder().div {
             applyModifier(modifier.then(Modifier().style("display", "block")))
             renderContent(content)
         }
     }
 
-    actual open fun renderInline(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    actual open fun renderInline(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         requireBuilder().span {
             applyModifier(modifier.then(Modifier().style("display", "inline")))
             renderContent(content)
         }
     }
 
-    actual open fun renderDiv(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    actual open fun renderDiv(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         requireBuilder().div {
             applyModifier(modifier)
             renderContent(content)

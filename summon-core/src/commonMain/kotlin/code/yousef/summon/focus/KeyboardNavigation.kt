@@ -1,12 +1,13 @@
 package code.yousef.summon.focus
 
 import code.yousef.summon.accessibility.KeyboardNavigation
+import code.yousef.summon.core.FlowContentCompat
+import code.yousef.summon.core.mapOfCompat
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.mutableStateOf
 import code.yousef.summon.runtime.remember
-import kotlinx.html.FlowContent
 
 /**
  * State holder for keyboard navigation
@@ -32,7 +33,7 @@ fun rememberNavigationState(initialFocusIndex: Int = 0): NavigationState {
 fun KeyboardNavigable(
     modifier: Modifier = Modifier(),
     navigationState: NavigationState = rememberNavigationState(),
-    content: @Composable FlowContent.() -> Unit
+    content: @Composable FlowContentCompat.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
 
@@ -40,7 +41,7 @@ fun KeyboardNavigable(
     val navigationModifier = with(KeyboardNavigation) {
         modifier.focusable(navigationState.currentFocusIndex.value)
             .keyboardHandlers(
-                mapOf(
+                mapOfCompat(
                     "ArrowUp" to { navigationState.currentFocusIndex.value-- },
                     "ArrowDown" to { navigationState.currentFocusIndex.value++ }
                 )

@@ -7,6 +7,8 @@ import code.yousef.summon.components.feedback.AlertVariant
 import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.input.FileInfo
 import code.yousef.summon.components.navigation.Tab
+import code.yousef.summon.core.FlowContentCompat
+import code.yousef.summon.core.asFlowContentCompat
 import code.yousef.summon.js.console
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.ModifierExtras.withAttribute
@@ -16,8 +18,6 @@ import kotlinx.datetime.LocalTime
 import kotlinx.html.*
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
-import org.w3c.dom.HTMLButtonElement
-import org.w3c.dom.HTMLSelectElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.HTMLStyleElement
 import org.w3c.dom.events.Event as DomEvent
@@ -301,7 +301,7 @@ actual open class PlatformRenderer {
     actual open fun renderButton(
         onClick: () -> Unit,
         modifier: Modifier,
-        content: @Composable FlowContent.() -> Unit
+        content: @Composable FlowContentCompat.() -> Unit
     ) {
         // Create a style element for button variants if it doesn't exist yet
         if (document.getElementById("summon-button-styles") == null) {
@@ -615,12 +615,12 @@ actual open class PlatformRenderer {
         }
     }
 
-    // Helper to create FlowContent
-    private fun createFlowContent(tagName: String): FlowContent {
+    // Helper to create FlowContentCompat
+    private fun createFlowContent(tagName: String): FlowContentCompat {
         val consumer = createTagConsumer()
         val attrs = mutableMapOf<String, String>()
 
-        return object : FlowContent {
+        val flowContent = object : FlowContent {
             override val tagName: String = tagName
             override val consumer: TagConsumer<*> = consumer
             override val namespace: String? = null
@@ -661,6 +661,8 @@ actual open class PlatformRenderer {
                 "wbr"
             )
         }
+
+        return flowContent.asFlowContentCompat()
     }
 
     // Helper to create FormContent
@@ -742,7 +744,7 @@ actual open class PlatformRenderer {
 
     actual open fun renderColumn(
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         val columnModifier = modifier
             .style("display", "flex")
@@ -755,7 +757,7 @@ actual open class PlatformRenderer {
 
     actual open fun renderRow(
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         val rowModifier = Modifier(
             modifier.styles + mapOf(
@@ -774,7 +776,7 @@ actual open class PlatformRenderer {
         }
     }
 
-    actual open fun renderBox(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    actual open fun renderBox(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         createElement("div", modifier) {
             content(createFlowContent("div"))
         }
@@ -992,7 +994,7 @@ actual open class PlatformRenderer {
         }
     }
 
-    actual open fun renderCard(modifier: Modifier, content: @Composable (FlowContent.() -> Unit)) {
+    actual open fun renderCard(modifier: Modifier, content: @Composable (FlowContentCompat.() -> Unit)) {
         // Cards are styled containers with default card styling
         val cardModifier = modifier
             .style("border", "1px solid #e0e0e0")
@@ -1168,7 +1170,7 @@ actual open class PlatformRenderer {
 
     actual open fun renderScreen(
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         // Screen is typically a full-height container
         val screenModifier = modifier
@@ -1316,7 +1318,7 @@ actual open class PlatformRenderer {
 
     actual open fun renderBlock(
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         // Create a block element (div with display: block)
         val blockModifier = Modifier(
@@ -1332,7 +1334,7 @@ actual open class PlatformRenderer {
 
     actual open fun renderInline(
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         // Create an inline element (span with display: inline)
         val inlineModifier = Modifier(
@@ -1348,7 +1350,7 @@ actual open class PlatformRenderer {
 
     actual open fun renderDiv(
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         createElement("div", modifier) {
             content(createFlowContent("div"))
@@ -1357,7 +1359,7 @@ actual open class PlatformRenderer {
 
     actual open fun renderSpan(
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         createElement("span", modifier) {
             content(createFlowContent("span"))
@@ -1370,7 +1372,7 @@ actual open class PlatformRenderer {
 
     actual open fun renderExpansionPanel(
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         // Expansion panels typically have a header and expandable content
         // Using details/summary HTML elements for native expand/collapse behavior
@@ -1381,7 +1383,7 @@ actual open class PlatformRenderer {
 
     actual open fun renderGrid(
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         // Grid layout using CSS Grid
         val gridModifier = modifier
@@ -1394,7 +1396,7 @@ actual open class PlatformRenderer {
 
     actual open fun renderLazyColumn(
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         // Lazy column is a scrollable vertical list
         val lazyColumnModifier = modifier
@@ -1409,7 +1411,7 @@ actual open class PlatformRenderer {
 
     actual open fun renderLazyRow(
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         // Lazy row is a scrollable horizontal list
         val lazyRowModifier = modifier
@@ -1425,7 +1427,7 @@ actual open class PlatformRenderer {
 
     actual open fun renderResponsiveLayout(
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         // Responsive layout container with flexbox for adaptability
         val responsiveModifier = modifier
@@ -1441,7 +1443,7 @@ actual open class PlatformRenderer {
     actual open fun renderHtmlTag(
         tagName: String,
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         createElement(tagName, modifier) {
             content(createFlowContent(tagName))
@@ -1580,11 +1582,11 @@ actual open class PlatformRenderer {
     actual open fun renderAlertContainer(
         variant: AlertVariant?,
         modifier: Modifier,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable (FlowContentCompat.() -> Unit)
     ) {
     }
 
-    actual open fun renderBadge(modifier: Modifier, content: @Composable (FlowContent.() -> Unit)) {
+    actual open fun renderBadge(modifier: Modifier, content: @Composable (FlowContentCompat.() -> Unit)) {
     }
 
     actual open fun renderCheckbox(
@@ -1664,7 +1666,7 @@ actual open class PlatformRenderer {
         isRequired: Boolean,
         isError: Boolean,
         errorMessageId: String?,
-        content: @Composable (FlowContent.() -> Unit)
+        content: @Composable (FlowContentCompat.() -> Unit)
     ) {
     }
 
@@ -1721,7 +1723,11 @@ actual open class PlatformRenderer {
         }
     }
 
-    actual open fun renderAspectRatio(ratio: Float, modifier: Modifier, content: @Composable (FlowContent.() -> Unit)) {
+    actual open fun renderAspectRatio(
+        ratio: Float,
+        modifier: Modifier,
+        content: @Composable (FlowContentCompat.() -> Unit)
+    ) {
         // Use padding-bottom trick to maintain aspect ratio
         val aspectRatioModifier = modifier
             .style("position", "relative")

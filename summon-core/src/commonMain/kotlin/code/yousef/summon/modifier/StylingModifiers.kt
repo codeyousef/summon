@@ -90,7 +90,7 @@
  *     .color("white")
  *     .border("2px", "solid", "transparent")
  *     .transition("all", "0.2s", "ease")
- *     .hover(mapOf(
+ *     .hover(mapOfCompat(
  *         "background-color" to "#2563eb",
  *         "transform" to "translateY(-1px)"
  *     ))

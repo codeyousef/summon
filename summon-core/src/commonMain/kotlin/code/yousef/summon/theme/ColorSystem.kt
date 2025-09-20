@@ -1,5 +1,7 @@
 package code.yousef.summon.theme
 
+import code.yousef.summon.core.mapOfCompat
+
 import code.yousef.summon.modifier.Modifier
 import kotlin.math.pow
 
@@ -82,7 +84,7 @@ object ColorSystem {
      * Default color palette with semantic color names
      */
     val default = ColorPalette(
-        light = mapOf(
+        light = mapOfCompat(
             // Backgrounds
             "background" to "#ffffff",
             "surface" to "#f5f5f5",
@@ -116,7 +118,7 @@ object ColorSystem {
             "border" to "#e0e0e0",
             "divider" to "#e0e0e0"
         ),
-        dark = mapOf(
+        dark = mapOfCompat(
             // Backgrounds
             "background" to "#121212",
             "surface" to "#1e1e1e",
@@ -156,7 +158,7 @@ object ColorSystem {
      * Material blue theme
      */
     val blue = ColorPalette(
-        light = mapOf(
+        light = mapOfCompat(
             "primary" to "#2196f3",
             "primaryVariant" to "#1976d2",
             "onPrimary" to "#ffffff",
@@ -164,7 +166,7 @@ object ColorSystem {
             "secondaryVariant" to "#f57c00",
             "onSecondary" to "#ffffff"
         ),
-        dark = mapOf(
+        dark = mapOfCompat(
             "primary" to "#90caf9",
             "primaryVariant" to "#64b5f6",
             "onPrimary" to "#121212",
@@ -178,7 +180,7 @@ object ColorSystem {
      * Material green theme
      */
     val green = ColorPalette(
-        light = mapOf(
+        light = mapOfCompat(
             "primary" to "#4caf50",
             "primaryVariant" to "#388e3c",
             "onPrimary" to "#ffffff",
@@ -186,7 +188,7 @@ object ColorSystem {
             "secondaryVariant" to "#e64a19",
             "onSecondary" to "#ffffff"
         ),
-        dark = mapOf(
+        dark = mapOfCompat(
             "primary" to "#81c784",
             "primaryVariant" to "#66bb6a",
             "onPrimary" to "#121212",
@@ -200,7 +202,7 @@ object ColorSystem {
      * Material purple theme
      */
     val purple = ColorPalette(
-        light = mapOf(
+        light = mapOfCompat(
             "primary" to "#9c27b0",
             "primaryVariant" to "#7b1fa2",
             "onPrimary" to "#ffffff",
@@ -208,7 +210,7 @@ object ColorSystem {
             "secondaryVariant" to "#0097a7",
             "onSecondary" to "#ffffff"
         ),
-        dark = mapOf(
+        dark = mapOfCompat(
             "primary" to "#ce93d8",
             "primaryVariant" to "#ba68c8",
             "onPrimary" to "#121212",

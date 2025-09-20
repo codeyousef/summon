@@ -4,7 +4,6 @@ import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.getPlatformRenderer
 import code.yousef.summon.theme.MediaQuery
-import kotlinx.html.div
 
 /**
  * Screen size breakpoints for responsive layouts.
@@ -69,22 +68,24 @@ fun ResponsiveLayout(
                 // Client-side approach: render all content options with visibility controlled by CSS/JS
                 for ((screenSize, composable) in content) {
                     // Wrap each screen size's content in a div with appropriate data attributes
-                    div {
-                        attributes["data-screen-size"] = screenSize.name
-                        attributes["class"] = "responsive-content ${screenSize.name.lowercase()}-content"
-                        attributes["style"] = "display: none;" // Hidden by default, shown by JS
-
+                    getPlatformRenderer().renderDiv(
+                        modifier = Modifier()
+                            .attribute("data-screen-size", screenSize.name)
+                            .attribute("class", "responsive-content ${screenSize.name.lowercase()}-content")
+                            .attribute("style", "display: none;") // Hidden by default, shown by JS
+                    ) {
                         // Render the content for this screen size
                         composable()
                     }
                 }
 
                 // Render default content in its own container
-                div {
-                    attributes["data-screen-size"] = "DEFAULT"
-                    attributes["class"] = "responsive-content default-content"
-                    attributes["style"] = "display: none;" // Hidden by default, shown by JS if no match
-
+                getPlatformRenderer().renderDiv(
+                    modifier = Modifier()
+                        .attribute("data-screen-size", "DEFAULT")
+                        .attribute("class", "responsive-content default-content")
+                        .attribute("style", "display: none;") // Hidden by default, shown by JS if no match
+                ) {
                     // Render the default content
                     defaultContent()
                 }

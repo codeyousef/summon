@@ -2,6 +2,7 @@ package code.yousef.summon.ssr
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.Text
+import code.yousef.summon.core.mapOfCompat
 import code.yousef.summon.runtime.LaunchedEffect
 import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.mutableStateOf
@@ -410,7 +411,7 @@ object DynamicRendering {
             // Product data
             routeId.startsWith("product-") -> {
                 val productId = routeId.substringAfter("product-")
-                mapOf(
+                mapOfCompat(
                     "id" to productId,
                     "name" to "Product $productId",
                     "price" to (10 + productId.hashCode() % 90),
@@ -418,7 +419,7 @@ object DynamicRendering {
                     "rating" to (3.5 + (productId.hashCode() % 15) / 10.0),
                     "inStock" to (productId.hashCode() % 2 == 0),
                     "categories" to listOf("Electronics", "Gadgets", "New Arrivals"),
-                    "metadata" to mapOf(
+                    "metadata" to mapOfCompat(
                         "sku" to "SKU-$productId",
                         "weight" to "${1 + productId.hashCode() % 5} kg",
                         "dimensions" to "${10 + productId.hashCode() % 20} x ${5 + productId.hashCode() % 15} x ${2 + productId.hashCode() % 8} cm"
@@ -430,13 +431,13 @@ object DynamicRendering {
             // User data
             routeId.startsWith("user-") -> {
                 val userId = routeId.substringAfter("user-")
-                mapOf(
+                mapOfCompat(
                     "id" to userId,
                     "name" to "User $userId",
                     "email" to "user$userId@example.com",
                     "memberSince" to "2023-${1 + (userId.hashCode() % 12)}-${1 + (userId.hashCode() % 28)}",
                     "isActive" to (userId.hashCode() % 3 != 0),
-                    "preferences" to mapOf(
+                    "preferences" to mapOfCompat(
                         "theme" to if (userId.hashCode() % 2 == 0) "light" else "dark",
                         "notifications" to (userId.hashCode() % 3 != 1),
                         "language" to listOf("en", "fr", "de", "es", "ja")[(userId.hashCode() % 5)]
@@ -449,7 +450,7 @@ object DynamicRendering {
             // Blog post data
             routeId.startsWith("blog-") -> {
                 val blogId = routeId.substringAfter("blog-")
-                mapOf(
+                mapOfCompat(
                     "id" to blogId,
                     "title" to "Blog Post $blogId",
                     "author" to "Author ${1 + (blogId.hashCode() % 10)}",
@@ -457,7 +458,7 @@ object DynamicRendering {
                     "content" to "This is the content of blog post $blogId. It contains dynamic content generated for server-side rendering.",
                     "tags" to listOf("Technology", "Web Development", "SSR", "Kotlin"),
                     "comments" to (1..3).map { commentId ->
-                        mapOf(
+                        mapOfCompat(
                             "id" to "$blogId-comment-$commentId",
                             "author" to "Commenter $commentId",
                             "text" to "This is comment $commentId on blog post $blogId",
@@ -471,28 +472,31 @@ object DynamicRendering {
             // Dashboard data
             routeId.startsWith("dashboard-") -> {
                 val dashboardId = routeId.substringAfter("dashboard-")
-                mapOf(
+                mapOfCompat(
                     "id" to dashboardId,
                     "title" to "Dashboard $dashboardId",
-                    "metrics" to mapOf(
+                    "metrics" to mapOfCompat(
                         "visitors" to (1000 + dashboardId.hashCode() % 9000),
                         "pageViews" to (5000 + dashboardId.hashCode() % 45000),
                         "conversionRate" to (1.5 + (dashboardId.hashCode() % 40) / 10.0),
                         "revenue" to (10000 + dashboardId.hashCode() % 90000)
                     ),
                     "charts" to listOf(
-                        mapOf(
+                        mapOfCompat(
                             "type" to "line",
                             "title" to "Traffic Trend",
                             "data" to (1..7).map { day ->
-                                mapOf("day" to day, "value" to (100 + (dashboardId.hashCode() + day) % 900))
+                                mapOfCompat("day" to day, "value" to (100 + (dashboardId.hashCode() + day) % 900))
                             }
                         ),
-                        mapOf(
+                        mapOfCompat(
                             "type" to "bar",
                             "title" to "Revenue by Channel",
                             "data" to listOf("Organic", "Direct", "Social", "Email").mapIndexed { index, channel ->
-                                mapOf("channel" to channel, "value" to (2000 + (dashboardId.hashCode() + index) % 8000))
+                                mapOfCompat(
+                                    "channel" to channel,
+                                    "value" to (2000 + (dashboardId.hashCode() + index) % 8000)
+                                )
                             }
                         )
                     ),
@@ -502,12 +506,12 @@ object DynamicRendering {
 
             // Default data for any other route
             else -> {
-                mapOf(
+                mapOfCompat(
                     "id" to routeId,
                     "title" to "Content for $routeId",
                     "description" to "This is dynamic content for route ID: $routeId",
                     "lastUpdated" to "2023-${1 + (routeId.hashCode() % 12)}-${1 + (routeId.hashCode() % 28)}",
-                    "metadata" to mapOf(
+                    "metadata" to mapOfCompat(
                         "type" to "generic",
                         "version" to "1.0.${routeId.hashCode() % 100}"
                     ),
@@ -549,7 +553,7 @@ fun DynamicDataComponent(routeId: String) {
             val fetchedData = when {
                 routeId.startsWith("product-") -> {
                     val productId = routeId.substringAfter("product-")
-                    mapOf(
+                    mapOfCompat(
                         "id" to productId,
                         "name" to "Product $productId",
                         "price" to (10 + productId.hashCode() % 90),
@@ -560,7 +564,7 @@ fun DynamicDataComponent(routeId: String) {
 
                 routeId.startsWith("user-") -> {
                     val userId = routeId.substringAfter("user-")
-                    mapOf(
+                    mapOfCompat(
                         "id" to userId,
                         "name" to "User $userId",
                         "email" to "user$userId@example.com",
@@ -569,7 +573,7 @@ fun DynamicDataComponent(routeId: String) {
                 }
 
                 else -> {
-                    mapOf(
+                    mapOfCompat(
                         "id" to routeId,
                         "title" to "Content for $routeId",
                         "description" to "This is dynamic content for route ID: $routeId"

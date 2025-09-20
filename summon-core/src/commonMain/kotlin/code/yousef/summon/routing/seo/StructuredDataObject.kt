@@ -1,6 +1,7 @@
 package code.yousef.summon.routing.seo
 
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.core.splitCompat
 
 /**
  * The StructuredData object provides utilities for generating JSON-LD structured data
@@ -164,8 +165,8 @@ object StructuredData {
                 {
                     "@type": "OpeningHoursSpecification",
                     "dayOfWeek": "$day",
-                    "opens": "${hours.split("-")[0].trim()}",
-                    "closes": "${hours.split("-").getOrElse(1) { "17:00" }.trim()}"
+                    "opens": "${hours.splitCompat("-")[0].trim()}",
+                    "closes": "${hours.splitCompat("-").getOrElse(1) { "17:00" }.trim()}"
                 }
                 """
             }

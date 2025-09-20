@@ -25,7 +25,7 @@ import code.yousef.summon.runtime.CompositionLocal
  * ```kotlin
  * val i18n = I18nContext(
  *     language = "en",
- *     translations = mapOf(
+ *     translations = mapOfCompat(
  *         "hello" to "Hello",
  *         "goodbye" to "Goodbye"
  *     )
@@ -38,7 +38,7 @@ import code.yousef.summon.runtime.CompositionLocal
  * ```kotlin
  * val i18n = I18nContext(
  *     language = "en",
- *     translations = mapOf(
+ *     translations = mapOfCompat(
  *         "welcome_user" to "Welcome, {0}!",
  *         "items_count" to "You have {0} items in your cart"
  *     )
@@ -124,7 +124,7 @@ data class I18nContext(
      * ```kotlin
      * val i18n = I18nContext(
      *     language = "en",
-     *     translations = mapOf(
+     *     translations = mapOfCompat(
      *         "app.title" to "My Application",
      *         "menu.home" to "Home",
      *         "menu.about" to "About"
@@ -170,7 +170,7 @@ data class I18nContext(
      * ```kotlin
      * val i18n = I18nContext(
      *     language = "en",
-     *     translations = mapOf(
+     *     translations = mapOfCompat(
      *         "welcome" to "Welcome, {0}!",
      *         "item_count" to "You have {0} {1} in your {2}",
      *         "user_age" to "{0} is {1} years old"
@@ -256,7 +256,7 @@ val LocalI18n = CompositionLocal.compositionLocalOf(I18nContext())
  * fun App() {
  *     I18nProvider(
  *         language = "en",
- *         translations = mapOf(
+ *         translations = mapOfCompat(
  *             "welcome" to "Welcome",
  *             "goodbye" to "Goodbye"
  *         )

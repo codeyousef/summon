@@ -1,6 +1,7 @@
 package code.yousef.summon.components.display
 
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.core.splitCompat
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.LocalPlatformRenderer
 
@@ -82,7 +83,7 @@ private fun convertMarkdownToHtml(markdown: String): String {
     }
 
     // Paragraphs
-    val lines = html.split("\n")
+    val lines = html.splitCompat("\n")
     val paragraphs = mutableListOf<String>()
     var currentParagraph = ""
 

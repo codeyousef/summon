@@ -1,34 +1,17 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.runtime.*
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.input.FileInfo as ExpectFileInfo // Alias expect class
-import code.yousef.summon.components.input.FileUpload // Import the component
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.state.State // Import the correct State interface
-import code.yousef.summon.util.TestComposer
-import kotlinx.datetime.LocalTime
-import kotlinx.datetime.LocalDate
-
 // Import other types used in PlatformRenderer methods for the mock
-import code.yousef.summon.runtime.SelectOption as RendererSelectOption
-import code.yousef.summon.components.display.IconType
-import code.yousef.summon.components.feedback.AlertVariant
-import code.yousef.summon.components.feedback.ProgressType
-import code.yousef.summon.components.navigation.Tab
-import kotlinx.html.FlowContent
 
+import code.yousef.summon.components.input.FileInfo
+import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.MockPlatformRenderer
+import code.yousef.summon.state.State
+import code.yousef.summon.util.runTestComposable
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import kotlin.test.assertNull
-import kotlin.test.assertSame
-import code.yousef.summon.util.TestFileInfo // Import the test fixture
-import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
-import code.yousef.summon.components.input.FileInfo
+import code.yousef.summon.components.input.FileInfo as ExpectFileInfo
 
 // REMOVED Test-specific implementation for FileInfo - Moved to TestFixtures.kt
 

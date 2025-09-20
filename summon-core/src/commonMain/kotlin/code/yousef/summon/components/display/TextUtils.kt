@@ -1,5 +1,7 @@
 package code.yousef.summon.components.display
 
+import code.yousef.summon.core.mapOfCompat
+
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 
@@ -302,7 +304,7 @@ fun ScreenReaderText(text: String) {
     Text(
         text = text,
         modifier = Modifier(
-            mapOf(
+            mapOfCompat(
                 "position" to "absolute",
                 "width" to "1px",
                 "height" to "1px",

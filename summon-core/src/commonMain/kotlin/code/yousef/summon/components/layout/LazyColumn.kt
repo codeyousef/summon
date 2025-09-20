@@ -1,5 +1,7 @@
 package code.yousef.summon.components.layout
 
+import code.yousef.summon.core.mapOfCompat
+
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
@@ -72,7 +74,7 @@ class LazyListState {
             itemSize.toString()
         }
 
-        return mapOf(
+        return mapOfCompat(
             "data-total-items" to totalItems.toString(),
             "data-item-size" to formattedItemSize,
             "data-overscroll-items" to overscrollItems.toString(),

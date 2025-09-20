@@ -1,6 +1,7 @@
 package code.yousef.summon.ssr
 
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.core.mapOfCompat
 
 // The HydrationStrategy enum and HydrationSupport interface have been moved to ServerSideRendering.kt
 // to avoid duplication.
@@ -146,7 +147,7 @@ class HydrationContext {
             addComponent(
                 id = "container-main",
                 type = "Container",
-                props = mapOf(
+                props = mapOfCompat(
                     "width" to "100%",
                     "maxWidth" to "1200px",
                     "margin" to "0 auto"
@@ -161,7 +162,7 @@ class HydrationContext {
             addComponent(
                 id = "navigation-main",
                 type = "Navigation",
-                state = mapOf(
+                state = mapOfCompat(
                     "currentPath" to "/"
                 )
             )
@@ -219,7 +220,7 @@ class HydrationContext {
                     id = headerId,
                     type = "Header",
                     parent = null,
-                    props = mapOf(
+                    props = mapOfCompat(
                         "title" to "Summon Application",
                         "showNavigation" to true
                     )
@@ -233,9 +234,9 @@ class HydrationContext {
                     id = contentId,
                     type = "Content",
                     parent = null,
-                    state = mapOf(
+                    state = mapOfCompat(
                         "isLoading" to false,
-                        "data" to mapOf(
+                        "data" to mapOfCompat(
                             "items" to listOf("Item 1", "Item 2", "Item 3")
                         )
                     ),
@@ -250,7 +251,7 @@ class HydrationContext {
                         id = "item-$i",
                         type = "Item",
                         parent = contentId,
-                        props = mapOf(
+                        props = mapOfCompat(
                             "text" to "Item $i",
                             "index" to i
                         ),
@@ -265,7 +266,7 @@ class HydrationContext {
                     id = "footer-main",
                     type = "Footer",
                     parent = null,
-                    props = mapOf(
+                    props = mapOfCompat(
                         "copyright" to "© 2023 Summon",
                         "showSocialLinks" to true
                     )
@@ -331,7 +332,7 @@ class HydrationContext {
         addComponent(
             id = "container-1",
             type = "Container",
-            props = mapOf(
+            props = mapOfCompat(
                 "width" to "100%",
                 "maxWidth" to "1200px",
                 "margin" to "0 auto"
@@ -343,7 +344,7 @@ class HydrationContext {
         addComponent(
             id = "header-1",
             type = "Header",
-            props = mapOf(
+            props = mapOfCompat(
                 "title" to "Summon Application",
                 "showNavigation" to true
             )
@@ -355,9 +356,9 @@ class HydrationContext {
         addComponent(
             id = "content-1",
             type = "Content",
-            state = mapOf(
+            state = mapOfCompat(
                 "isLoading" to false,
-                "data" to mapOf(
+                "data" to mapOfCompat(
                     "items" to listOf("Item 1", "Item 2", "Item 3")
                 )
             ),
@@ -370,7 +371,7 @@ class HydrationContext {
             addComponent(
                 id = "item-$i",
                 type = "Item",
-                props = mapOf(
+                props = mapOfCompat(
                     "text" to "Item $i",
                     "index" to i
                 ),
@@ -385,7 +386,7 @@ class HydrationContext {
         addComponent(
             id = "footer-1",
             type = "Footer",
-            props = mapOf(
+            props = mapOfCompat(
                 "copyright" to "© 2023 Summon",
                 "showSocialLinks" to true
             )

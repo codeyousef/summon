@@ -69,16 +69,16 @@
  * ```kotlin
  * val customAnimation = KeyframesGenerator.custom(
  *     name = "complex-animation",
- *     keyframes = mapOf(
- *         "0%" to mapOf(
+ *     keyframes = mapOfCompat(
+ *         "0%" to mapOfCompat(
  *             "transform" to "scale(1) rotate(0deg)",
  *             "opacity" to "1"
  *         ),
- *         "50%" to mapOf(
+ *         "50%" to mapOfCompat(
  *             "transform" to "scale(1.2) rotate(180deg)",
  *             "opacity" to "0.7"
  *         ),
- *         "100%" to mapOf(
+ *         "100%" to mapOfCompat(
  *             "transform" to "scale(1) rotate(360deg)",
  *             "opacity" to "1"
  *         )

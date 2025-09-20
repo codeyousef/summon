@@ -1,35 +1,13 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.runtime.*
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.input.DatePicker // Import the component
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.cursor
-import code.yousef.summon.state.mutableStateOf
-import code.yousef.summon.util.TestComposer
-import kotlinx.datetime.LocalDate
-
 // Import other types used in PlatformRenderer methods for the mock
-import code.yousef.summon.runtime.SelectOption as RendererSelectOption
-import code.yousef.summon.components.display.IconType
-import code.yousef.summon.components.feedback.AlertVariant
-import code.yousef.summon.components.feedback.ProgressType
-import code.yousef.summon.components.navigation.Tab
-import code.yousef.summon.modifier.ModifierExtras.withAttribute
-import code.yousef.summon.modifier.ModifierExtras.withAttributes
+
+import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.pointerEvents
-import kotlinx.datetime.LocalTime
-import kotlinx.html.FlowContent
-
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
-import kotlin.test.assertNull
-
 import code.yousef.summon.runtime.MockPlatformRenderer
 import code.yousef.summon.util.runTestComposable
+import kotlinx.datetime.LocalDate
+import kotlin.test.*
 
 class DatePickerTest {
 

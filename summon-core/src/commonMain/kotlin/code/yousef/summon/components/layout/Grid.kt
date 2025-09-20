@@ -1,9 +1,9 @@
 package code.yousef.summon.components.layout
 
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.core.FlowContent
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.getPlatformRenderer
-import kotlinx.html.FlowContent
 
 /**
  * # Grid

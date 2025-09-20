@@ -1,5 +1,7 @@
 package security
 
+import code.yousef.summon.core.mapOfCompat
+
 import code.yousef.summon.security.Permission
 import code.yousef.summon.security.Principal
 import code.yousef.summon.security.Role
@@ -62,7 +64,7 @@ class JwtAuthenticationProvider(
                         credentials = jwtCredentials,
                         principal = createPrincipalFromToken(response.token),
                         isAuthenticated = true,
-                        details = mapOf(
+                        details = mapOfCompat(
                             "refreshToken" to (response.refreshToken ?: ""),
                             "expiresIn" to (response.expiresIn ?: tokenExpiration)
                         )
@@ -113,7 +115,7 @@ class JwtAuthenticationProvider(
                         credentials = newJwtCredentials,
                         principal = createPrincipalFromToken(response.token),
                         isAuthenticated = true,
-                        details = mapOf(
+                        details = mapOfCompat(
                             "refreshToken" to (response.refreshToken ?: refreshToken),
                             "expiresIn" to (response.expiresIn ?: tokenExpiration)
                         )

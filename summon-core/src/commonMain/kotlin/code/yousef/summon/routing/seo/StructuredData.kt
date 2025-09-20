@@ -2,6 +2,7 @@ package code.yousef.summon.routing.seo
 
 
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.core.mapOfCompat
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.SideEffect
 import kotlinx.serialization.json.*
@@ -56,7 +57,7 @@ fun WebPageStructuredData(
     url: String
 ) {
     val data = JsonObject(
-        mapOf(
+        mapOfCompat(
             "@context" to JsonPrimitive("https://schema.org"),
             "@type" to JsonPrimitive("WebPage"),
             "name" to JsonPrimitive(name),
@@ -75,7 +76,7 @@ fun WebPageStructuredData(
 fun BreadcrumbsStructuredData(items: List<Pair<String, String>>) {
     val itemListElements = items.mapIndexed { index, (name, url) ->
         JsonObject(
-            mapOf(
+            mapOfCompat(
                 "@type" to JsonPrimitive("ListItem"),
                 "position" to JsonPrimitive((index + 1).toString()),
                 "name" to JsonPrimitive(name),
@@ -85,7 +86,7 @@ fun BreadcrumbsStructuredData(items: List<Pair<String, String>>) {
     }
 
     val data = JsonObject(
-        mapOf(
+        mapOfCompat(
             "@context" to JsonPrimitive("https://schema.org"),
             "@type" to JsonPrimitive("BreadcrumbList"),
             "itemListElement" to JsonArray(itemListElements)
@@ -106,7 +107,7 @@ fun OrganizationStructuredData(
     contactPoint: Map<String, String>? = null
 ) {
     val data = JsonObject(
-        mapOf(
+        mapOfCompat(
             "@context" to JsonPrimitive("https://schema.org"),
             "@type" to JsonPrimitive("Organization"),
             "name" to JsonPrimitive(name),
@@ -114,7 +115,7 @@ fun OrganizationStructuredData(
             "logo" to (logo?.let { JsonPrimitive(it) } ?: JsonNull),
             "contactPoint" to (contactPoint?.let {
                 JsonObject(
-                    mapOf(
+                    mapOfCompat(
                         "@type" to JsonPrimitive("ContactPoint"),
                         "contactType" to JsonPrimitive(it["contactType"] ?: "customer service"),
                         "telephone" to JsonPrimitive(it["telephone"] ?: ""),
@@ -139,14 +140,14 @@ fun ProductStructuredData(
     currency: String = "USD"
 ) {
     val data = JsonObject(
-        mapOf(
+        mapOfCompat(
             "@context" to JsonPrimitive("https://schema.org"),
             "@type" to JsonPrimitive("Product"),
             "name" to JsonPrimitive(name),
             "description" to JsonPrimitive(description),
             "image" to JsonPrimitive(image),
             "offers" to JsonObject(
-                mapOf(
+                mapOfCompat(
                     "@type" to JsonPrimitive("Offer"),
                     "price" to JsonPrimitive(price),
                     "priceCurrency" to JsonPrimitive(currency),
