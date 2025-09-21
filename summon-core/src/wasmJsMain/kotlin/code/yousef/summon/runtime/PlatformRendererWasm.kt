@@ -1028,13 +1028,22 @@ actual open class PlatformRenderer actual constructor() {
             pendingEventListeners.add(EventListenerInfo(elementId, eventType, handler))
             wasmConsoleLog("Queued event listener for hydration: $eventType on $elementId")
         } else {
-            // Normal event listener attachment
-            element.addEventListener(eventType) {
+            // Register callback with the global callback registry and get the ID
+            val handlerId = CallbackRegistry.registerCallback {
                 try {
+                    wasmConsoleLog("=== EXECUTING CALLBACK ===")
                     handler()
                 } catch (e: Exception) {
                     wasmConsoleError("Event handler failed: ${e.message}")
                 }
+            }
+
+            // Register the event handler with the WASM bridge
+            val success = wasmAddEventHandler(elementId, eventType, handlerId)
+            if (success) {
+                wasmConsoleLog("Successfully registered $eventType handler for $elementId with ID: $handlerId")
+            } else {
+                wasmConsoleError("Failed to register $eventType handler for $elementId")
             }
         }
     }
