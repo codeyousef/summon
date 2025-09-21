@@ -2,11 +2,7 @@ package code.yousef.summon.runtime
 
 import code.yousef.summon.annotation.Composable
 
-// External declaration for JavaScript console access
-@JsName("console")
-external object console {
-    fun log(message: String)
-}
+// Console access provided by WebDOMUtils console object
 
 /**
  * JS implementation of the Composer interface.
@@ -85,7 +81,7 @@ class JsComposer : Composer {
         // using requestAnimationFrame and dispatch a custom event
 
         // For now, we'll simply log that a change occurred
-        console.log("State changed, recomposition needed")
+        js("console.log('State changed, recomposition needed')")
 
         // In a real implementation, we would do something like:
         // 1. Schedule recomposition for the next animation frame

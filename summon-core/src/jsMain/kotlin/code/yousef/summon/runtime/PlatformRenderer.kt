@@ -574,6 +574,15 @@ actual open class PlatformRenderer {
 
     actual open fun getHeadElements(): List<String> = headElements.toList()
 
+    actual open fun renderHeadElements(builder: code.yousef.summon.seo.HeadScope.() -> Unit) {
+        val headScope = code.yousef.summon.seo.DefaultHeadScope { element ->
+            // Add the raw HTML element to head elements collection
+            // In browser environment, we'd typically parse and add to DOM
+            addHeadElement(element)
+        }
+        headScope.builder()
+    }
+
     actual open fun renderComposable(composable: @Composable () -> Unit) {
         // This function usually relies on an existing parent from the elementStack
         // It's primarily for rendering nested composables within an existing structure

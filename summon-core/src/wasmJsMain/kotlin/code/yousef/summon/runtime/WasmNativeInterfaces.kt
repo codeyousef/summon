@@ -136,3 +136,34 @@ external fun wasmGetDocumentHead(): String?
 external fun wasmInsertAdjacentHTML(elementId: String, position: String, html: String): Boolean
 external fun wasmGetOuterHTML(elementId: String): String?
 external fun wasmSetInnerHTML(elementId: String, html: String): Boolean
+
+// Additional external functions for WASM DOM manipulation
+external fun wasmApplyStyleProperty(elementId: String, property: String, value: String): Boolean
+external fun wasmGetElementStyle(elementId: String, property: String): String?
+external fun wasmSetElementStyle(elementId: String, cssText: String): Boolean
+external fun wasmAddEventHandler(elementId: String, eventType: String, handlerId: String): Boolean
+external fun wasmRemoveEventHandler(elementId: String, eventType: String, handlerId: String): Boolean
+
+// Element creation with specific options
+external fun wasmCreateElementWithOptions(tagName: String, options: String): String // Returns element ID
+external fun wasmCloneElement(sourceElementId: String, deep: Boolean): String? // Returns cloned element ID
+
+// Advanced DOM queries
+external fun wasmFindElementsBySelector(selector: String): String // Returns comma-separated IDs
+external fun wasmGetElementsByTagName(tagName: String): String // Returns comma-separated IDs
+external fun wasmGetElementsByClassName(className: String): String // Returns comma-separated IDs
+
+// Element visibility and positioning
+external fun wasmIsElementVisible(elementId: String): Boolean
+external fun wasmGetElementPosition(elementId: String): String // Returns "x,y,width,height"
+external fun wasmSetElementPosition(elementId: String, x: Double, y: Double, width: Double, height: Double): Boolean
+
+// Advanced element operations
+external fun wasmReplaceElement(oldElementId: String, newElementId: String): Boolean
+external fun wasmMoveElement(elementId: String, newParentId: String, beforeElementId: String?): Boolean
+
+// WASM-specific performance and debugging
+external fun wasmStartPerformanceMeasure(measureName: String): Boolean
+external fun wasmEndPerformanceMeasure(measureName: String): Double
+external fun wasmLogElementTree(rootElementId: String): Boolean
+external fun wasmValidateElementId(elementId: String): Boolean

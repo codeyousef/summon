@@ -62,6 +62,13 @@ actual open class PlatformRenderer {
                 this.attributes[name] = value
             }
         }
+
+        // Add hydration marker for SSR compatibility
+        if (this is CommonAttributeGroupFacade) {
+            // Generate unique hydration ID for each element
+            val hydrationId = "summon-${UUID.randomUUID().toString().take(8)}"
+            this.attributes["data-summon-id"] = hydrationId
+        }
     }
 
     // Helper to render composable content with FlowContent receiver
@@ -275,6 +282,13 @@ actual open class PlatformRenderer {
         return headElements.toList()
     }
 
+    actual open fun renderHeadElements(builder: code.yousef.summon.seo.HeadScope.() -> Unit) {
+        val headScope = code.yousef.summon.seo.DefaultHeadScope { element ->
+            addHeadElement(element)
+        }
+        headScope.builder()
+    }
+
     // Renders a composable component in the current context
 // This is a convenience method for rendering a composable without directly accessing FlowContent
     actual open fun renderComposable(composable: @Composable () -> Unit) {
@@ -370,12 +384,17 @@ actual open class PlatformRenderer {
     
     private fun generateHydrationData(): String {
         val callbackIds = CallbackRegistry.getAllCallbackIds()
+
+        // Enhanced hydration data for WASM compatibility
         val hydrationData = mapOf(
             "version" to 1,
             "callbacks" to callbackIds.toList(),
-            "timestamp" to System.currentTimeMillis()
+            "timestamp" to System.currentTimeMillis(),
+            "renderer" to "jvm",
+            "hydrationMarkers" to true,
+            "seoCompatible" to true
         )
-        
+
         // Serialize to JSON for the client
         val jsonData = buildString {
             append("{")
@@ -387,10 +406,13 @@ actual open class PlatformRenderer {
                 if (index < callbacks.size - 1) append(",")
             }
             append("],")
-            append("\"timestamp\":${hydrationData["timestamp"]}")
+            append("\"timestamp\":${hydrationData["timestamp"]},")
+            append("\"renderer\":\"${hydrationData["renderer"]}\",")
+            append("\"hydrationMarkers\":${hydrationData["hydrationMarkers"]},")
+            append("\"seoCompatible\":${hydrationData["seoCompatible"]}")
             append("}")
         }
-        
+
         return jsonData
     }
     
@@ -402,18 +424,556 @@ actual open class PlatformRenderer {
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Summon App</title>
+
+                <!-- SEO-critical metadata is preserved for search engines -->
+                <meta name="description" content="Summon Framework Application">
+                <meta name="robots" content="index, follow">
+                <meta property="og:type" content="website">
+                <meta property="og:title" content="Summon App">
+
                 ${headElements.joinToString("\n                ")}
+
+                <!-- Preload hydration resources for better performance -->
+                <link rel="preload" href="/summon-hydration.js" as="script">
+                <link rel="preload" href="/summon-hydration.wasm" as="fetch" type="application/wasm" crossorigin>
             </head>
             <body>
-                $bodyContent
-                
+                <!-- Server-rendered content with hydration markers -->
+                <div id="summon-app" data-ssr="true" data-hydration-ready="false">
+                    $bodyContent
+                </div>
+
                 <!-- Hydration data for Summon components -->
                 <script type="application/json" id="summon-hydration-data">
                     $hydrationData
                 </script>
-                
-                <!-- Summon hydration client (Kotlin/JS compiled) -->
-                <script src="/summon-hydration.js"></script>
+
+                <!-- Progressive enhancement: Forms work without JS -->
+                <noscript>
+                    <style>
+                        [data-onclick-action], [data-onchange-action] {
+                            /* Ensure form elements are visible and functional without JS */
+                            opacity: 1 !important;
+                            pointer-events: auto !important;
+                        }
+                    </style>
+                </noscript>
+
+                <!-- Phase 5: Performance optimization meta tags and resource hints -->
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+                <!-- Preconnect to optimize external resources -->
+                <link rel="preconnect" href="https://fonts.gstatic.com">
+                <link rel="dns-prefetch" href="//fonts.googleapis.com">
+
+                <!-- Phase 5: Resource hints for optimal loading -->
+                <script>
+                    // Preload critical resources based on browser capabilities
+                    (function() {
+                        const userAgent = navigator.userAgent;
+                        const isModernBrowser = 'noModule' in HTMLScriptElement.prototype;
+
+                        // Preload appropriate bundle based on browser support
+                        if (typeof WebAssembly === 'object' && WebAssembly.instantiate && isModernBrowser) {
+                            // Modern browser with WASM support - preload WASM bundle
+                            const wasmPreload = document.createElement('link');
+                            wasmPreload.rel = 'modulepreload';
+                            wasmPreload.href = '/summon-hydration.wasm.js';
+                            wasmPreload.as = 'script';
+                            document.head.appendChild(wasmPreload);
+
+                            // Preload the WASM file itself
+                            const wasmFilePreload = document.createElement('link');
+                            wasmFilePreload.rel = 'preload';
+                            wasmFilePreload.href = '/summon-hydration.wasm';
+                            wasmFilePreload.as = 'fetch';
+                            wasmFilePreload.type = 'application/wasm';
+                            wasmFilePreload.crossOrigin = 'anonymous';
+                            document.head.appendChild(wasmFilePreload);
+                        } else {
+                            // Legacy browser - preload JS fallback
+                            const jsPreload = document.createElement('link');
+                            jsPreload.rel = 'preload';
+                            jsPreload.href = '/summon-hydration.js';
+                            jsPreload.as = 'script';
+                            document.head.appendChild(jsPreload);
+                        }
+
+                        // Prefetch non-critical resources for future navigation
+                        setTimeout(() => {
+                            const prefetchResources = [
+                                '/static/summon-core.js',
+                                '/static/vendors.js'
+                            ];
+
+                            prefetchResources.forEach(resource => {
+                                const link = document.createElement('link');
+                                link.rel = 'prefetch';
+                                link.href = resource;
+                                link.as = 'script';
+                                document.head.appendChild(link);
+                            });
+                        }, 100);
+                    })();
+                </script>
+
+                <!-- Advanced WASM detection and browser compatibility layer with Phase 5 optimizations -->
+                <script>
+                    (function() {
+                        // Phase 5: Performance monitoring for optimization
+                        const PerformanceTracker = {
+                            marks: new Map(),
+                            measures: new Map(),
+
+                            mark: function(name) {
+                                if (window.performance && performance.mark) {
+                                    performance.mark(name);
+                                    this.marks.set(name, performance.now());
+                                }
+                            },
+
+                            measure: function(name, startMark, endMark) {
+                                if (window.performance && performance.measure) {
+                                    try {
+                                        performance.measure(name, startMark, endMark);
+                                        const startTime = this.marks.get(startMark) || 0;
+                                        const endTime = endMark ? this.marks.get(endMark) : performance.now();
+                                        this.measures.set(name, endTime - startTime);
+                                        return endTime - startTime;
+                                    } catch (e) {
+                                        console.debug('Performance measurement failed:', e);
+                                        return 0;
+                                    }
+                                }
+                                return 0;
+                            },
+
+                            getMetrics: function() {
+                                return {
+                                    marks: Object.fromEntries(this.marks),
+                                    measures: Object.fromEntries(this.measures),
+                                    navigation: window.performance?.timing ? {
+                                        domContentLoaded: performance.timing.domContentLoadedEventEnd - performance.timing.navigationStart,
+                                        loadComplete: performance.timing.loadEventEnd - performance.timing.navigationStart
+                                    } : null
+                                };
+                            }
+                        };
+
+                        // Enhanced browser capability detection with Phase 5 optimizations
+                        const BrowserSupport = {
+                            wasm: false,
+                            wasmVersion: null,
+                            jsModules: false,
+                            serviceWorker: false,
+                            webgl: false,
+                            browserName: 'unknown',
+                            browserVersion: null,
+
+                            detect: function() {
+                                this.detectBrowser();
+                                this.detectWasm();
+                                this.detectFeatures();
+                                this.logSupport();
+                            },
+
+                            detectBrowser: function() {
+                                const ua = navigator.userAgent;
+                                if (ua.includes('Chrome')) {
+                                    this.browserName = 'chrome';
+                                    const match = ua.match(/Chrome\/(\d+)/);
+                                    this.browserVersion = match ? parseInt(match[1]) : null;
+                                } else if (ua.includes('Safari') && !ua.includes('Chrome')) {
+                                    this.browserName = 'safari';
+                                    const match = ua.match(/Safari\/(\d+)/);
+                                    this.browserVersion = match ? parseInt(match[1]) : null;
+                                } else if (ua.includes('Firefox')) {
+                                    this.browserName = 'firefox';
+                                    const match = ua.match(/Firefox\/(\d+)/);
+                                    this.browserVersion = match ? parseInt(match[1]) : null;
+                                } else if (ua.includes('Edge')) {
+                                    this.browserName = 'edge';
+                                    const match = ua.match(/Edge\/(\d+)/);
+                                    this.browserVersion = match ? parseInt(match[1]) : null;
+                                }
+                            },
+
+                            detectWasm: function() {
+                                try {
+                                    if (typeof WebAssembly === "object" && typeof WebAssembly.instantiate === "function") {
+                                        // Test basic WASM support
+                                        const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+                                        if (module instanceof WebAssembly.Module) {
+                                            const instance = new WebAssembly.Instance(module);
+                                            if (instance instanceof WebAssembly.Instance) {
+                                                this.wasm = true;
+                                                this.wasmVersion = 'mvp'; // Minimum Viable Product
+
+                                                // Check for advanced WASM features
+                                                if (typeof WebAssembly.Memory !== 'undefined') {
+                                                    this.wasmVersion = 'advanced';
+                                                }
+
+                                                // Browser-specific WASM version checks
+                                                if (this.browserName === 'chrome' && this.browserVersion >= 119) {
+                                                    this.wasmVersion = 'optimized';
+                                                } else if (this.browserName === 'safari' && this.browserVersion < 15) {
+                                                    this.wasm = false; // Safari < 15 has WASM issues
+                                                }
+                                            }
+                                        }
+                                    }
+                                } catch (e) {
+                                    this.wasm = false;
+                                    console.debug('WASM detection failed:', e.message);
+                                }
+                            },
+
+                            detectFeatures: function() {
+                                this.jsModules = 'noModule' in HTMLScriptElement.prototype;
+                                this.serviceWorker = 'serviceWorker' in navigator;
+
+                                // WebGL detection for performance context
+                                try {
+                                    const canvas = document.createElement('canvas');
+                                    this.webgl = !!(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
+                                } catch (e) {
+                                    this.webgl = false;
+                                }
+                            },
+
+                            logSupport: function() {
+                                console.info('Browser compatibility detected:', {
+                                    browser: this.browserName + ' ' + (this.browserVersion || 'unknown'),
+                                    wasm: this.wasm,
+                                    wasmVersion: this.wasmVersion,
+                                    jsModules: this.jsModules,
+                                    serviceWorker: this.serviceWorker,
+                                    webgl: this.webgl
+                                });
+                            },
+
+                            shouldUseWasm: function() {
+                                return this.wasm && this.wasmVersion !== null;
+                            }
+                        };
+
+                        // Phase 5: Enhanced script loading with lazy loading and optimization
+                        const ScriptLoader = {
+                            attempts: 0,
+                            maxRetries: 3,
+                            fallbackUsed: false,
+                            lazyLoadingEnabled: true,
+                            preloadedResources: new Set(),
+
+                            loadScript: function(src, options = {}) {
+                                return new Promise((resolve, reject) => {
+                                    const script = document.createElement('script');
+                                    script.src = src;
+
+                                    if (options.type) script.type = options.type;
+                                    if (options.async !== undefined) script.async = options.async;
+                                    if (options.defer !== undefined) script.defer = options.defer;
+
+                                    script.onload = () => resolve(script);
+                                    script.onerror = () => reject(new Error('Failed to load script: ' + src));
+
+                                    document.head.appendChild(script);
+                                });
+                            },
+
+                            async loadWithRetry(src, options = {}) {
+                                for (let attempt = 0; attempt < this.maxRetries; attempt++) {
+                                    try {
+                                        const script = await this.loadScript(src, options);
+                                        console.log('Successfully loaded:', src, 'on attempt', attempt + 1);
+                                        return script;
+                                    } catch (error) {
+                                        console.warn('Script load attempt', attempt + 1, 'failed for:', src, error.message);
+                                        if (attempt < this.maxRetries - 1) {
+                                            // Wait before retry (exponential backoff)
+                                            await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+                                        }
+                                    }
+                                }
+                                throw new Error('All attempts failed for: ' + src);
+                            },
+
+                            // Phase 5: Lazy loading with intersection observer
+                            setupLazyLoading: function() {
+                                if (!this.lazyLoadingEnabled || !('IntersectionObserver' in window)) {
+                                    return this.loadHydrationScriptImmediate();
+                                }
+
+                                const app = document.getElementById('summon-app');
+                                if (!app) return;
+
+                                // Start performance tracking
+                                PerformanceTracker.mark('lazy-loading-start');
+
+                                const observer = new IntersectionObserver((entries) => {
+                                    entries.forEach(entry => {
+                                        if (entry.isIntersecting) {
+                                            PerformanceTracker.mark('viewport-intersection');
+                                            observer.unobserve(entry.target);
+                                            this.loadHydrationScriptImmediate();
+                                        }
+                                    });
+                                }, {
+                                    rootMargin: '50px', // Start loading 50px before element comes into view
+                                    threshold: 0.1
+                                });
+
+                                observer.observe(app);
+
+                                // Fallback: Load after 3 seconds regardless
+                                setTimeout(() => {
+                                    if (!app.hasAttribute('data-hydration-loading')) {
+                                        console.log('Lazy loading timeout reached, loading hydration script');
+                                        this.loadHydrationScriptImmediate();
+                                    }
+                                }, 3000);
+                            },
+
+                            // Phase 5: Dynamic bundle selection with optimization
+                            getBundleStrategy: function() {
+                                const strategy = {
+                                    useWasm: BrowserSupport.shouldUseWasm(),
+                                    bundlePath: '',
+                                    options: {},
+                                    fallbacks: []
+                                };
+
+                                if (strategy.useWasm) {
+                                    // Modern WASM bundle with ES modules
+                                    strategy.bundlePath = '/summon-hydration.wasm.js';
+                                    strategy.options = {
+                                        type: 'module',
+                                        async: true
+                                    };
+                                    strategy.fallbacks = [
+                                        { path: '/summon-hydration.js', options: { async: true } }
+                                    ];
+                                } else {
+                                    // Legacy JavaScript bundle
+                                    strategy.bundlePath = '/summon-hydration.js';
+                                    strategy.options = { async: true };
+                                    strategy.fallbacks = [];
+                                }
+
+                                return strategy;
+                            },
+
+                            async loadHydrationScriptImmediate() {
+                                const app = document.getElementById('summon-app');
+                                if (!app) {
+                                    console.error('Summon app container not found');
+                                    return;
+                                }
+
+                                PerformanceTracker.mark('hydration-loading-start');
+                                app.setAttribute('data-hydration-loading', 'true');
+
+                                try {
+                                    const strategy = this.getBundleStrategy();
+                                    let script;
+
+                                    console.log(`Loading ${strategy.useWasm ? 'WASM' : 'JS'} hydration client for ${BrowserSupport.browserName}`);
+
+                                    try {
+                                        script = await this.loadWithRetry(strategy.bundlePath, strategy.options);
+                                        PerformanceTracker.mark('primary-script-loaded');
+                                    } catch (error) {
+                                        console.warn(`Primary script failed, trying fallbacks:`, error.message);
+
+                                        // Try fallback strategies
+                                        for (const fallback of strategy.fallbacks) {
+                                            try {
+                                                script = await this.loadWithRetry(fallback.path, fallback.options);
+                                                this.fallbackUsed = true;
+                                                PerformanceTracker.mark('fallback-script-loaded');
+                                                break;
+                                            } catch (fallbackError) {
+                                                console.warn(`Fallback ${fallback.path} failed:`, fallbackError.message);
+                                            }
+                                        }
+
+                                        if (!script) {
+                                            throw new Error('All script loading strategies failed');
+                                        }
+                                    }
+
+                                    // Mark hydration as ready
+                                    const hydrationMode = this.fallbackUsed ? 'js-fallback' : (strategy.useWasm ? 'wasm' : 'js');
+                                    app.setAttribute('data-hydration-ready', 'true');
+                                    app.setAttribute('data-hydration-mode', hydrationMode);
+                                    app.removeAttribute('data-hydration-loading');
+
+                                    PerformanceTracker.mark('hydration-ready');
+                                    const loadTime = PerformanceTracker.measure('total-hydration-time', 'hydration-loading-start', 'hydration-ready');
+
+                                    // Dispatch hydration ready event with performance metrics
+                                    const event = new CustomEvent('summon:hydration-ready', {
+                                        detail: {
+                                            mode: hydrationMode,
+                                            fallbackUsed: this.fallbackUsed,
+                                            browserSupport: BrowserSupport,
+                                            performance: {
+                                                loadTime: loadTime,
+                                                metrics: PerformanceTracker.getMetrics()
+                                            }
+                                        }
+                                    });
+                                    document.dispatchEvent(event);
+
+                                    // Log performance metrics
+                                    console.info('Hydration performance:', {
+                                        mode: hydrationMode,
+                                        loadTime: `${loadTime.toFixed(2)}ms`,
+                                        bundleSize: script ? (script.src.length || 'unknown') : 'unknown'
+                                    });
+
+                                } catch (finalError) {
+                                    console.error('All hydration attempts failed:', finalError.message);
+                                    app.setAttribute('data-hydration-failed', 'true');
+                                    app.removeAttribute('data-hydration-loading');
+
+                                    PerformanceTracker.mark('hydration-failed');
+
+                                    // Dispatch hydration failed event
+                                    const event = new CustomEvent('summon:hydration-failed', {
+                                        detail: { error: finalError.message }
+                                    });
+                                    document.dispatchEvent(event);
+
+                                    // Graceful degradation - ensure forms still work
+                                    this.enableStaticFormFallbacks();
+                                }
+                            },
+
+                            enableStaticFormFallbacks: function() {
+                                console.log('Enabling static form fallbacks');
+
+                                // Make sure all interactive elements are accessible
+                                const interactiveElements = document.querySelectorAll('[data-onclick-action], [data-onchange-action]');
+                                interactiveElements.forEach(element => {
+                                    element.style.opacity = '1';
+                                    element.style.pointerEvents = 'auto';
+                                    element.removeAttribute('disabled');
+                                });
+
+                                // Add basic form validation
+                                const forms = document.querySelectorAll('form');
+                                forms.forEach(form => {
+                                    form.addEventListener('submit', function(e) {
+                                        const requiredFields = form.querySelectorAll('[required]');
+                                        for (const field of requiredFields) {
+                                            if (!field.value.trim()) {
+                                                e.preventDefault();
+                                                field.focus();
+                                                alert('Please fill in all required fields');
+                                                return;
+                                            }
+                                        }
+                                    });
+                                });
+                            }
+                        };
+
+                        // Phase 5: Initialize with performance tracking and lazy loading
+                        PerformanceTracker.mark('summon-init-start');
+
+                        function initializeOptimized() {
+                            BrowserSupport.detect();
+                            PerformanceTracker.mark('browser-detection-complete');
+
+                            // Check if immediate loading is needed (critical above-the-fold content)
+                            const app = document.getElementById('summon-app');
+                            const isAboveTheFold = app && (app.getBoundingClientRect().top < window.innerHeight);
+
+                            if (isAboveTheFold || !ScriptLoader.lazyLoadingEnabled) {
+                                console.log('Loading hydration immediately (above-the-fold or lazy loading disabled)');
+                                ScriptLoader.loadHydrationScriptImmediate();
+                            } else {
+                                console.log('Setting up lazy loading for hydration script');
+                                ScriptLoader.setupLazyLoading();
+                            }
+
+                            PerformanceTracker.mark('init-complete');
+                            const initTime = PerformanceTracker.measure('total-init-time', 'summon-init-start', 'init-complete');
+                            console.debug(`Summon initialization completed in ${initTime.toFixed(2)}ms`);
+                        }
+
+                        if (document.readyState === 'loading') {
+                            document.addEventListener('DOMContentLoaded', initializeOptimized);
+                        } else {
+                            initializeOptimized();
+                        }
+
+                        // Global error handling for hydration
+                        window.addEventListener('error', function(event) {
+                            if (event.filename && (event.filename.includes('summon-hydration') || event.filename.includes('wasm'))) {
+                                console.error('Hydration script error:', event.error);
+                                const app = document.getElementById('summon-app');
+                                if (app && !app.hasAttribute('data-hydration-ready')) {
+                                    app.setAttribute('data-hydration-failed', 'true');
+                                    ScriptLoader.enableStaticFormFallbacks();
+                                }
+                            }
+                        });
+
+                        // Phase 5: Service Worker registration for caching (if supported)
+                        if ('serviceWorker' in navigator && BrowserSupport.serviceWorker) {
+                            window.addEventListener('load', function() {
+                                navigator.serviceWorker.register('/sw.js')
+                                    .then(function(registration) {
+                                        console.log('Service Worker registered:', registration.scope);
+                                    })
+                                    .catch(function(error) {
+                                        console.debug('Service Worker registration failed:', error);
+                                    });
+                            });
+                        }
+
+                        // Phase 5: Performance monitoring and analytics
+                        window.addEventListener('load', function() {
+                            setTimeout(function() {
+                                const metrics = PerformanceTracker.getMetrics();
+
+                                // Log comprehensive performance metrics
+                                console.group('🚀 Summon Performance Metrics');
+                                console.log('Initialization time:', metrics.measures['total-init-time'] || 'N/A');
+                                console.log('Hydration time:', metrics.measures['total-hydration-time'] || 'N/A');
+                                console.log('Browser detection:', BrowserSupport.browserName, BrowserSupport.browserVersion);
+                                console.log('WASM support:', BrowserSupport.wasm, BrowserSupport.wasmVersion);
+                                console.log('Module support:', BrowserSupport.jsModules);
+                                console.log('Navigation timing:', metrics.navigation);
+                                console.groupEnd();
+
+                                // Dispatch metrics event for external monitoring
+                                const metricsEvent = new CustomEvent('summon:performance-metrics', {
+                                    detail: {
+                                        ...metrics,
+                                        browserSupport: BrowserSupport,
+                                        timestamp: Date.now()
+                                    }
+                                });
+                                document.dispatchEvent(metricsEvent);
+
+                                // Check Phase 5 verification criteria
+                                const timeToInteractive = metrics.navigation?.domContentLoaded || 0;
+                                if (timeToInteractive > 0) {
+                                    console.log(`⏱️ Time to Interactive: ${timeToInteractive}ms ${timeToInteractive < 3000 ? '✅' : '❌'} (target: <3000ms)`);
+                                }
+                            }, 1000); // Wait 1 second for all metrics to settle
+                        });
+
+                        // Export for debugging and external monitoring
+                        window.SummonBrowserSupport = BrowserSupport;
+                        window.SummonScriptLoader = ScriptLoader;
+                        window.SummonPerformanceTracker = PerformanceTracker;
+                    })();
+                </script>
             </body>
             </html>
         """.trimIndent()

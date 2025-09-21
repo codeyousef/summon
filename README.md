@@ -389,3 +389,93 @@ SSR works seamlessly with popular JVM frameworks:
 See our [integration guides](docs/integration-guides.md) for detailed framework-specific examples.
 
 For maintainers: Publishing instructions are available at docs/private/publishing.md.
+
+## WASM Implementation Inspiration
+
+Summon's WebAssembly implementation was inspired by and built upon the excellent work of several pioneering projects in
+the Kotlin/WASM ecosystem:
+
+### 🌟 **Spring Petclinic** - [sdeleuze/spring-petclinic](https://github.com/sdeleuze/spring-petclinic)
+
+*Trailblazing Kotlin/WASM with Server-Side Rendering*
+
+The Spring Petclinic project by Sébastien Deleuze was groundbreaking in demonstrating that Kotlin/WASM could work
+seamlessly with server-side rendering, maintaining SEO compatibility while delivering native-like performance. This
+project proved that WASM doesn't break SEO - a critical insight that shaped Summon's architecture.
+
+**Key inspirations:**
+
+- SSR + WASM hydration patterns
+- Browser compatibility strategies
+- Performance optimization techniques
+- SEO preservation methods
+
+### 🚀 **Kilua Framework** - [rjaros/kilua](https://github.com/rjaros/kilua)
+
+*First Production-Ready Kotlin/WASM Framework with True SSR*
+
+Kilua by Robert Jaros stands as the first comprehensive Kotlin/WASM framework to achieve true server-side rendering
+capabilities. Its innovative approach to component architecture and state management provided crucial insights for
+Summon's design.
+
+**Key inspirations:**
+
+- Component lifecycle management
+- State synchronization between server and client
+- Type-safe DOM manipulation
+- Progressive enhancement patterns
+
+### 🔧 **kotlinx-browser** - [Kotlin/kotlinx-browser](https://github.com/Kotlin/kotlinx-browser)
+
+*Foundation for Browser API Access*
+
+The official Kotlin browser API library provides the fundamental building blocks for WASM browser interaction. Summon
+builds upon this solid foundation to provide higher-level abstractions while maintaining full compatibility.
+
+**Key contributions:**
+
+- WASM-compatible DOM APIs
+- Event handling abstractions
+- Browser feature detection
+- Cross-platform browser compatibility
+
+### 🎯 **kotlinx.html** - [Kotlin/kotlinx.html](https://github.com/Kotlin/kotlinx.html)
+
+*Type-Safe HTML Generation*
+
+The kotlinx.html library's approach to type-safe HTML generation inspired Summon's component model and server-side
+rendering capabilities. Its elegant DSL design influenced Summon's declarative syntax.
+
+**Key inspirations:**
+
+- Type-safe HTML DSL patterns
+- Component composition models
+- Server-side HTML generation
+- Build-time safety guarantees
+
+### 🙏 **Acknowledgments**
+
+Summon stands on the shoulders of these giants. Without their pioneering work, research, and open-source contributions,
+Summon's WASM implementation would not have been possible. We are deeply grateful to:
+
+- **Sébastien Deleuze** for proving WASM + SSR viability
+- **Robert Jaros** for creating the first production-ready framework
+- **The Kotlin Team** for providing robust browser APIs and HTML DSL
+- **The broader Kotlin/WASM community** for pushing the boundaries of what's possible
+
+### 🔗 **Related Resources**
+
+- [Kotlin/WASM Documentation](https://kotlinlang.org/docs/wasm-overview.html)
+- [WebAssembly Specification](https://webassembly.github.io/spec/)
+- [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/)
+
+### 🎉 **Contributing to the Ecosystem**
+
+Summon aims to give back to the Kotlin/WASM community by:
+
+- Sharing implementation techniques and patterns
+- Contributing to upstream projects where appropriate
+- Documenting lessons learned and best practices
+- Supporting other developers building WASM applications
+
+Together, we're building the future of web development with Kotlin! 🚀

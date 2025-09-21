@@ -295,6 +295,19 @@ expect open class PlatformRenderer() {
     open fun addHeadElement(content: String)
     open fun getHeadElements(): List<String>
 
+    /**
+     * Renders head elements using a type-safe DSL.
+     *
+     * This method provides a Kotlin-idiomatic way to add SEO and metadata
+     * elements to the document head. The HeadScope provides methods for
+     * creating meta tags, links, scripts, and other head elements.
+     *
+     * @param builder Lambda with HeadScope receiver for defining head elements
+     * @see code.yousef.summon.seo.HeadScope
+     * @since 1.0.0
+     */
+    open fun renderHeadElements(builder: code.yousef.summon.seo.HeadScope.() -> Unit)
+
     // --- Composition Root ---
     open fun renderComposableRoot(composable: @Composable () -> Unit): String
 

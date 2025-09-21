@@ -48,13 +48,9 @@
  *
  * @since 1.0.0
  */
-@file:OptIn(ExperimentalJsExport::class)
-
 package code.yousef.summon.modifier
 
 import code.yousef.summon.core.splitCompat
-import kotlin.js.ExperimentalJsExport
-import kotlin.js.JsExport
 import kotlin.js.JsName
 
 /**
@@ -201,10 +197,8 @@ import kotlin.js.JsName
  * @see code.yousef.summon.components
  * @since 1.0.0
  */
-@JsExport
 data class Modifier(
     val styles: Map<String, String> = emptyMap(),
-    @JsName("htmlAttributes")
     val attributes: Map<String, String> = emptyMap()
 ) {
 
@@ -698,22 +692,14 @@ data class Modifier(
 
 /**
  * Factory function to create an empty Modifier.
- * Exported to JavaScript with the name "createModifier".
- * In JS: `yourModuleName.code.yousef.summon.modifier.createModifier()`
  */
-@JsExport
-@JsName("createModifier") // Explicit JS name
 fun createEmptyModifier(): Modifier = Modifier()
 
 /**
  * Factory function to create a Modifier with initial styles.
- * Exported to JavaScript with the name "createModifierWithStyles".
- * In JS: `yourModuleName.code.yousef.summon.modifier.createModifierWithStyles({ color: 'blue' })`
- * @param styles A map of style properties. Can be a JS object when called from JS.
+ * @param styles A map of style properties.
  * @return A new Modifier with the specified styles.
  */
-@JsExport
-@JsName("createModifierWithStyles")
 fun createModifierWithStyles(styles: Map<String, String>): Modifier {
     // In JS, to pass an empty map for attributes: new Modifier(styles, undefined) or new Modifier(styles, {})
     return Modifier(styles = styles)
@@ -726,8 +712,6 @@ fun createModifierWithStyles(styles: Map<String, String>): Modifier {
  * @param attributes A map of attributes. Can be a JS object when called from JS.
  * @return A new Modifier with the specified attributes.
  */
-@JsExport
-@JsName("createModifierWithAttributes")
 fun createModifierWithAttributes(attributes: Map<String, String>): Modifier {
     // In JS, to pass an empty map for styles: new Modifier(undefined, attributes) or new Modifier({}, attributes)
     return Modifier(attributes = attributes)

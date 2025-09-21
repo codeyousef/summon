@@ -4,27 +4,6 @@ import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.wasmConsoleLog
 
 /**
- * WASM actual implementation of the Router abstract class
- */
-actual abstract class Router {
-    /**
-     * Navigates to the specified path.
-     */
-    actual abstract fun navigate(path: String, pushState: Boolean)
-
-    /**
-     * Composes the UI for the router at the given initial path.
-     */
-    @Composable
-    actual abstract fun create(initialPath: String)
-
-    /**
-     * The current path of the router.
-     */
-    actual abstract val currentPath: String
-}
-
-/**
  * WASM implementation of the RouterContext object
  */
 actual object RouterContext {
@@ -60,9 +39,21 @@ actual object RouterContext {
 }
 
 /**
+ * WASM actual interface for Router.
+ */
+actual interface Router {
+    actual fun navigate(path: String, pushState: Boolean)
+
+    @Composable
+    actual fun create(initialPath: String)
+
+    actual val currentPath: String
+}
+
+/**
  * WASM implementation of the FileBasedRouter.
  */
-actual class FileBasedRouter actual constructor() : Router() {
+actual class FileBasedRouter actual constructor() : Router {
     private val registry = DefaultPageRegistry()
     private var _currentPath = "/"
     private var currentRouteParams = RouteParams(emptyMap())
@@ -204,16 +195,16 @@ actual fun createFileBasedServerRouter(path: String): Router {
 actual fun createRouter(builder: RouterBuilder.() -> Unit): Router {
     val routerBuilder = RouterBuilderImpl()
     routerBuilder.apply(builder)
-    return WasmRouter(routerBuilder.routes, routerBuilder.notFoundPage)
+    return WasmDSLRouter(routerBuilder.routes, routerBuilder.notFoundPage)
 }
 
 /**
- * Basic WASM Router implementation.
+ * Basic WASM Router implementation for DSL-based routing.
  */
-internal class WasmRouter(
+internal class WasmDSLRouter(
     private val routes: List<RouteDefinition>,
     private val notFoundPage: @Composable (RouteParams) -> Unit
-) : Router() {
+) : Router {
 
     private var _currentPath = "/"
     private var currentRouteParams = RouteParams(emptyMap())
@@ -222,7 +213,7 @@ internal class WasmRouter(
         get() = _currentPath
 
     override fun navigate(path: String, pushState: Boolean) {
-        wasmConsoleLog("WasmRouter navigate to: $path (pushState: $pushState) - WASM stub")
+        wasmConsoleLog("WasmDSLRouter navigate to: $path (pushState: $pushState) - WASM stub")
         _currentPath = path
 
         // Find matching route
@@ -232,7 +223,7 @@ internal class WasmRouter(
 
     @Composable
     override fun create(initialPath: String) {
-        wasmConsoleLog("WasmRouter create with initialPath: $initialPath - WASM stub")
+        wasmConsoleLog("WasmDSLRouter create with initialPath: $initialPath - WASM stub")
 
         // Initialize with the initial path
         if (initialPath != _currentPath) {
