@@ -1,8 +1,9 @@
 plugins {
-    kotlin("multiplatform") version "2.1.0"
+    kotlin("multiplatform")
 }
 
 kotlin {
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
     wasmJs {
         browser {
             commonWebpackConfig {
@@ -13,9 +14,9 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val wasmJsMain by getting {
             dependencies {
-                implementation("io.github.codeyousef:summon:0.3.2.1")
+                implementation(project(":summon-core"))
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
             }
         }
@@ -23,8 +24,8 @@ kotlin {
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs += listOf(
+    compilerOptions {
+        freeCompilerArgs.addAll(
             "-Xopt-in=kotlin.ExperimentalStdlibApi",
             "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
         )

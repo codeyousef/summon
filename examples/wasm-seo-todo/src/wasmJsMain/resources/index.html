@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summon WASM Todo App</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        #root {
+            width: 100%;
+            max-width: 600px;
+            min-height: 400px;
+        }
+
+        /* Loading state before WASM initializes */
+        .loading {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            color: #666;
+        }
+
+        /* Summon component styles */
+        .summon-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .summon-button:hover {
+            background: #5a67d8;
+        }
+
+        .summon-textfield {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            min-width: 250px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .summon-textfield:focus {
+            border-color: #667eea;
+        }
+
+        .summon-text {
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .summon-row {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .summon-column {
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        <div class="loading">
+            Loading Summon WASM Application...
+        </div>
+    </div>
+
+    <!-- Summon WASM bridge is automatically included -->
+    <script src="summon-wasm-init.js"></script>
+    <!-- Generated WASM bundle -->
+    <script src="todo-app.js" type="module"></script>
+</body>
+</html>
