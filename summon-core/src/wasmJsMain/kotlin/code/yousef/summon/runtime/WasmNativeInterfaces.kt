@@ -168,3 +168,9 @@ external fun wasmStartPerformanceMeasure(measureName: String): Boolean
 external fun wasmEndPerformanceMeasure(measureName: String): Double
 external fun wasmLogElementTree(rootElementId: String): Boolean
 external fun wasmValidateElementId(elementId: String): Boolean
+
+// Callback execution bridge - allows JavaScript to call back into WASM
+@JsExport
+fun wasmExecuteCallback(callbackId: String): Boolean {
+    return CallbackRegistry.executeCallback(callbackId)
+}

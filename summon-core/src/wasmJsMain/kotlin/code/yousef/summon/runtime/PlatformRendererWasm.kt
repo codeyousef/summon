@@ -1255,19 +1255,25 @@ actual open class PlatformRenderer actual constructor() {
                 return
             }
 
-            // Normal event listener attachment
-            wasmConsoleLog("Attaching event listener directly: $eventType on $elementId")
-            element.addEventListener(eventType) {
+            // Register callback with the global callback registry and get the ID
+            val handlerId = CallbackRegistry.registerCallback {
                 try {
-                    wasmConsoleLog("Event handler called: $eventType on $elementId")
+                    wasmConsoleLog("=== EXECUTING CALLBACK ===")
                     handler()
                 } catch (e: Exception) {
                     wasmConsoleError("Event handler failed: ${e.message}")
                 }
             }
-            // Track that this event listener has been attached
-            attachedEventListeners.add(listenerKey)
-            wasmConsoleLog("Event listener attached successfully: $eventType on $elementId")
+
+            // Register the event handler with the WASM bridge
+            val success = wasmAddEventHandler(elementId, eventType, handlerId)
+            if (success) {
+                wasmConsoleLog("Successfully registered $eventType handler for $elementId with ID: $handlerId")
+                // Track that this event listener has been attached
+                attachedEventListeners.add(listenerKey)
+            } else {
+                wasmConsoleError("Failed to register $eventType handler for $elementId")
+            }
         }
     }
 

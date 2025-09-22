@@ -1,3 +1,5 @@
+// import code.yousef.summon.seo.SEO
+// import code.yousef.summon.seo.OGType
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.input.Button
@@ -5,18 +7,12 @@ import code.yousef.summon.components.input.TextField
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.components.layout.Row
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.padding
-import code.yousef.summon.modifier.background
-import code.yousef.summon.modifier.borderRadius
-import code.yousef.summon.modifier.margin
+import code.yousef.summon.renderComposableRoot
 import code.yousef.summon.runtime.mutableStateOf
 import code.yousef.summon.runtime.remember
+import code.yousef.summon.runtime.wasmConsoleLog
 import code.yousef.summon.state.getValue
 import code.yousef.summon.state.setValue
-import code.yousef.summon.seo.SEO
-import code.yousef.summon.seo.OGType
-import code.yousef.summon.renderComposableRoot
-import code.yousef.summon.runtime.wasmConsoleLog
 
 /**
  * Todo App using pure Summon Framework components.
@@ -27,13 +23,13 @@ fun TodoApp() {
     var todos by remember { mutableStateOf(listOf<String>()) }
     var inputText by remember { mutableStateOf("") }
 
-    // SEO metadata for search engines
-    SEO(
-        title = "WASM Todo App - Kotlin WebAssembly with Summon",
-        description = "A todo list application built with Kotlin, compiled to WebAssembly, using the Summon framework.",
-        keywords = listOf("todo", "wasm", "webassembly", "kotlin", "summon"),
-        type = OGType.Website
-    )
+    // SEO metadata for search engines - disabled for WASM (SEO is for SSR)
+    // SEO(
+    //     title = "WASM Todo App - Kotlin WebAssembly with Summon",
+    //     description = "A todo list application built with Kotlin, compiled to WebAssembly, using the Summon framework.",
+    //     keywords = listOf("todo", "wasm", "webassembly", "kotlin", "summon"),
+    //     type = OGType.Website
+    // )
 
     Column(
         modifier = Modifier()
@@ -149,8 +145,17 @@ fun TodoApp() {
  * Uses Summon's renderComposableRoot to mount the app.
  */
 fun main() {
-    // Mount the Todo app to the root element
-    renderComposableRoot("root") {
-        TodoApp()
+    try {
+        wasmConsoleLog("Main function started")
+
+        // Mount the Todo app to the root element
+        renderComposableRoot("root") {
+            TodoApp()
+        }
+
+        wasmConsoleLog("Main function completed")
+    } catch (e: Exception) {
+        wasmConsoleLog("ERROR in main: ${e.message}")
+        wasmConsoleLog("Stack trace: ${e.stackTraceToString()}")
     }
 }

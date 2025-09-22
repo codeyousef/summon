@@ -337,13 +337,28 @@
                     console.log('[Summon WASM] Event triggered:', event.type, 'on element:', elementId, 'handler:', handlerId, 'callback found:', !!callback);
                     if (callback) {
                         try {
-                            console.log('[Summon WASM] Calling WASM callback for:', handlerId);
+                            console.log('[Summon WASM] Calling local WASM callback for:', handlerId);
                             callback();
                         } catch (e) {
                             console.error('[Summon WASM] Event callback failed:', e);
                         }
                     } else {
-                        console.warn('[Summon WASM] No callback registered for handler:', handlerId);
+                        // Try to call WASM callback registry
+                        try {
+                            console.log('[Summon WASM] Trying WASM callback registry for:', handlerId);
+                            if (window.wasmExports && window.wasmExports.wasmExecuteCallback) {
+                                const success = window.wasmExports.wasmExecuteCallback(handlerId);
+                                if (success) {
+                                    console.log('[Summon WASM] Successfully executed WASM callback for:', handlerId);
+                                } else {
+                                    console.warn('[Summon WASM] WASM callback not found for:', handlerId);
+                                }
+                            } else {
+                                console.warn('[Summon WASM] WASM callback bridge not available');
+                            }
+                        } catch (e) {
+                            console.error('[Summon WASM] Failed to call WASM callback:', e);
+                        }
                     }
                 };
 
