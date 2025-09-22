@@ -5,6 +5,7 @@ import code.yousef.summon.components.display.IconType
 import code.yousef.summon.components.feedback.*
 import code.yousef.summon.components.input.FileInfo
 import code.yousef.summon.components.navigation.Tab
+import code.yousef.summon.core.FlowContent
 import code.yousef.summon.core.FlowContentCompat
 import code.yousef.summon.modifier.Modifier
 import kotlinx.datetime.LocalDate
@@ -12,10 +13,28 @@ import kotlinx.datetime.LocalTime
 
 // Since PlatformRenderer has many methods, providing stub implementations for WASM
 actual open class PlatformRenderer actual constructor() {
+    // Store the composer and root element for recomposition
+    private var mainComposer: Composer? = null
+    private var mainRootElement: DOMElement? = null
+    private var isInitialMount = true
+
+    // DOM reconciliation tracking
+    private val currentCompositionElements = mutableSetOf<String>()
+    private val previousCompositionElements = mutableSetOf<String>()
+
+    // Element placement tracking to prevent duplicate appendChild calls
+    private val placedElements = mutableSetOf<String>()
 
     actual open fun renderText(text: String, modifier: Modifier) {
         try {
-            val textElement = DOMProvider.document.createElement("span")
+            // Check for hydration markers in modifier
+            val summonId = modifier.attributes?.get("data-summon-id")
+
+            // Create or reuse text element
+            val existingElement = createOrReuseElement("span", summonId)
+            val isNewElement = existingElement == null
+            val textElement = existingElement ?: DOMProvider.document.createElement("span")
+
             textElement.setAttribute("class", "summon-text")
             textElement.setAttribute("data-text", text)
 
@@ -26,8 +45,13 @@ actual open class PlatformRenderer actual constructor() {
             // Apply modifier styles and attributes
             applyModifierToElement(textElement, modifier)
 
-            // Append to current container context
-            appendToCurrentContainer(textElement)
+            // Only append if it's a NEW element - reused elements are already in the DOM
+            if (isNewElement) {
+                wasmConsoleLog("Appending NEW Text element $elementId to container")
+                appendToCurrentContainer(textElement)
+            } else {
+                wasmConsoleLog("Skipping append for REUSED Text element $elementId")
+            }
 
         } catch (e: Exception) {
             wasmConsoleError("Failed to render text: $text - ${e.message}")
@@ -46,18 +70,25 @@ actual open class PlatformRenderer actual constructor() {
         content: @Composable FlowContentCompat.() -> Unit
     ) {
         try {
+            wasmConsoleLog("renderButton called, onClick = $onClick")
             // Check for hydration markers in modifier
             val summonId = modifier.attributes?.get("data-summon-id")
 
             // Create or reuse button element
-            val buttonElement = createOrReuseElement("button", summonId)
-                ?: DOMProvider.document.createElement("button")
+            val existingElement = createOrReuseElement("button", summonId)
+            val isNewElement = existingElement == null
+            val buttonElement = existingElement ?: DOMProvider.document.createElement("button")
 
             buttonElement.setAttribute("class", "summon-button")
             buttonElement.setAttribute("type", "button")
 
             // Set up click event handler with hydration support
-            attachEventListenerWithHydration(buttonElement, "click", onClick)
+            val wrappedOnClick = {
+                wasmConsoleLog("Button onClick wrapper called")
+                onClick()
+                wasmConsoleLog("Button onClick completed")
+            }
+            attachEventListenerWithHydration(buttonElement, "click", wrappedOnClick)
 
             // Apply modifier styles and attributes
             applyModifierToElement(buttonElement, modifier)
@@ -68,8 +99,15 @@ actual open class PlatformRenderer actual constructor() {
                 content(contentScope)
             }
 
-            // Append to current container
-            appendToCurrentContainer(buttonElement)
+            // Only append if it's a NEW element - reused elements are already in the DOM
+            if (isNewElement) {
+                val elementId = DOMProvider.getNativeElementId(buttonElement)
+                wasmConsoleLog("Appending NEW Button element $elementId to container")
+                appendToCurrentContainer(buttonElement)
+            } else {
+                val elementId = DOMProvider.getNativeElementId(buttonElement)
+                wasmConsoleLog("Skipping append for REUSED Button element $elementId")
+            }
 
         } catch (e: Exception) {
             wasmConsoleError("Failed to render button - ${e.message}")
@@ -83,15 +121,19 @@ actual open class PlatformRenderer actual constructor() {
             val summonId = modifier.attributes?.get("data-summon-id")
 
             // Create or reuse input element
-            val inputElement = createOrReuseElement("input", summonId)
-                ?: DOMProvider.document.createElement("input")
+            val existingElement = createOrReuseElement("input", summonId)
+            val isNewElement = existingElement == null
+            val inputElement = existingElement ?: DOMProvider.document.createElement("input")
 
             inputElement.setAttribute("class", "summon-textfield")
             inputElement.setAttribute("type", type)
 
-            // Set initial value
+            // Set value only if different from current DOM value to preserve typing
             val elementId = DOMProvider.getNativeElementId(inputElement)
-            wasmSetElementValue(elementId, value)
+            val currentValue = wasmGetElementValue(elementId) ?: ""
+            if (currentValue != value) {
+                wasmSetElementValue(elementId, value)
+            }
 
             // Set up value change event handler with hydration support
             attachEventListenerWithHydration(inputElement, "input") {
@@ -106,8 +148,13 @@ actual open class PlatformRenderer actual constructor() {
             // Apply modifier styles and attributes
             applyModifierToElement(inputElement, modifier)
 
-            // Append to current container
-            appendToCurrentContainer(inputElement)
+            // Only append if it's a NEW element - reused elements are already in the DOM
+            if (isNewElement) {
+                wasmConsoleLog("Appending NEW TextField element $elementId to container")
+                appendToCurrentContainer(inputElement)
+            } else {
+                wasmConsoleLog("Skipping append for REUSED TextField element $elementId")
+            }
 
         } catch (e: Exception) {
             wasmConsoleError("Failed to render text field: $value - ${e.message}")
@@ -243,8 +290,9 @@ actual open class PlatformRenderer actual constructor() {
             val summonId = modifier.attributes?.get("data-summon-id")
 
             // Create or reuse row element
-            val rowElement = createOrReuseElement("div", summonId)
-                ?: DOMProvider.document.createElement("div")
+            val existingElement = createOrReuseElement("div", summonId)
+            val isNewElement = existingElement == null
+            val rowElement = existingElement ?: DOMProvider.document.createElement("div")
 
             rowElement.setAttribute("class", "summon-row")
 
@@ -261,8 +309,13 @@ actual open class PlatformRenderer actual constructor() {
                 content(contentScope)
             }
 
-            // Append to current container
-            appendToCurrentContainer(rowElement)
+            // Only append if it's a NEW element - reused elements are already in the DOM
+            if (isNewElement) {
+                wasmConsoleLog("Appending NEW Row element $elementId to container")
+                appendToCurrentContainer(rowElement)
+            } else {
+                wasmConsoleLog("Skipping append for REUSED Row element $elementId")
+            }
 
         } catch (e: Exception) {
             wasmConsoleError("Failed to render row - ${e.message}")
@@ -276,8 +329,9 @@ actual open class PlatformRenderer actual constructor() {
             val summonId = modifier.attributes?.get("data-summon-id")
 
             // Create or reuse column element
-            val columnElement = createOrReuseElement("div", summonId)
-                ?: DOMProvider.document.createElement("div")
+            val existingElement = createOrReuseElement("div", summonId)
+            val isNewElement = existingElement == null
+            val columnElement = existingElement ?: DOMProvider.document.createElement("div")
 
             columnElement.setAttribute("class", "summon-column")
 
@@ -294,8 +348,13 @@ actual open class PlatformRenderer actual constructor() {
                 content(contentScope)
             }
 
-            // Append to current container
-            appendToCurrentContainer(columnElement)
+            // Only append if it's a NEW element - reused elements are already in the DOM
+            if (isNewElement) {
+                wasmConsoleLog("Appending NEW Column element $elementId to container")
+                appendToCurrentContainer(columnElement)
+            } else {
+                wasmConsoleLog("Skipping append for REUSED Column element $elementId")
+            }
 
         } catch (e: Exception) {
             wasmConsoleError("Failed to render column - ${e.message}")
@@ -536,8 +595,9 @@ actual open class PlatformRenderer actual constructor() {
             val summonId = modifier.attributes?.get("data-summon-id")
 
             // Create or reuse div element
-            val divElement = createOrReuseElement("div", summonId)
-                ?: DOMProvider.document.createElement("div")
+            val existingElement = createOrReuseElement("div", summonId)
+            val isNewElement = existingElement == null
+            val divElement = existingElement ?: DOMProvider.document.createElement("div")
 
             divElement.setAttribute("class", "summon-div")
 
@@ -550,8 +610,15 @@ actual open class PlatformRenderer actual constructor() {
                 content(contentScope)
             }
 
-            // Append to current container
-            appendToCurrentContainer(divElement)
+            // Only append if it's a NEW element - reused elements are already in the DOM
+            if (isNewElement) {
+                val elementId = DOMProvider.getNativeElementId(divElement)
+                wasmConsoleLog("Appending NEW Div element $elementId to container")
+                appendToCurrentContainer(divElement)
+            } else {
+                val elementId = DOMProvider.getNativeElementId(divElement)
+                wasmConsoleLog("Skipping append for REUSED Div element $elementId")
+            }
 
         } catch (e: Exception) {
             wasmConsoleError("Failed to render div - ${e.message}")
@@ -765,6 +832,11 @@ actual open class PlatformRenderer actual constructor() {
     private var isHydrating = false
     private val existingElements = mutableMapOf<String, DOMElement>() // data-summon-id -> element
     private val pendingEventListeners = mutableListOf<EventListenerInfo>()
+
+    // Recomposition element cache for preserving DOM elements across recompositions
+    private val recompositionElements = mutableMapOf<String, DOMElement>() // data-summon-id -> element
+    // Event listener tracking to prevent duplicates during recomposition
+    private val attachedEventListeners = mutableSetOf<String>() // "${elementId}-${eventType}"
     private var serverState: Map<String, Any> = emptyMap()
 
     data class EventListenerInfo(
@@ -834,10 +906,35 @@ actual open class PlatformRenderer actual constructor() {
      */
     private fun appendToCurrentContainer(element: DOMElement) {
         try {
+            val elementId = DOMProvider.getNativeElementId(element)
             val currentContainer = containerStack.lastOrNull() ?: rootContainer
-            currentContainer?.appendChild(element) ?: run {
+
+            if (currentContainer != null) {
+                val containerId = DOMProvider.getNativeElementId(currentContainer)
+
+                // Check if element is already placed in this recomposition pass
+                if (placedElements.contains(elementId)) {
+                    wasmConsoleLog("Element $elementId already placed in this recomposition, skipping")
+                    return // Skip - already placed
+                }
+
+                // Check if element is already correctly positioned
+                val parent = wasmGetElementParent(elementId)
+                if (parent == containerId) {
+                    // Element is already in the right container - don't move it
+                    placedElements.add(elementId)
+                    wasmConsoleLog("Element $elementId already in correct container $containerId, marking as placed")
+                    return
+                }
+
+                // Element needs to be appended/moved
+                wasmConsoleLog("Appending element $elementId to container $containerId")
+                currentContainer.appendChild(element)
+                placedElements.add(elementId)
+            } else {
                 // If no container context, append to document body
                 DOMProvider.document.body?.appendChild(element)
+                placedElements.add(elementId)
             }
         } catch (e: Exception) {
             wasmConsoleError("Failed to append to container: ${e.message}")
@@ -877,6 +974,108 @@ actual open class PlatformRenderer actual constructor() {
 
         } catch (e: Exception) {
             wasmConsoleError("Failed to initialize WASM renderer: ${e.message}")
+        }
+    }
+
+    /**
+     * Mount a composable root to a specific DOM element.
+     * This is the main entry point for WASM applications.
+     */
+    fun mountComposableRoot(rootElementId: String, composable: @Composable () -> Unit) {
+        try {
+            wasmConsoleLog("Mounting composable root to element: $rootElementId")
+
+            // Find the root element by ID
+            val elementId = wasmGetElementById(rootElementId)
+                ?: throw WasmDOMException("Root element not found: $rootElementId")
+
+            // Create a DOM element wrapper
+            val rootElement = DOMProvider.createElementFromNative(elementId)
+
+            // Set as root container
+            setRootContainer(rootElement)
+
+            // Only clear content on initial mount, not on recomposition
+            if (isInitialMount) {
+                wasmSetElementInnerHTML(elementId, "")
+                isInitialMount = false
+            }
+
+            // Ensure we're NOT in hydration mode for fresh rendering
+            isHydrating = false
+            wasmConsoleLog("Hydration mode set to: $isHydrating")
+
+            // Make sure the platform renderer is set globally
+            setPlatformRenderer(this)
+
+            // Provide the LocalPlatformRenderer value for the composition
+            LocalPlatformRenderer.provides(this)
+
+            // Get the Recomposer and create a Composer for this composition
+            val recomposer = RecomposerHolder.current()
+            val composer = recomposer.createComposer()
+
+            // Store for recomposition
+            mainComposer = composer
+            mainRootElement = rootElement
+
+            // Create a wrapped composable that includes the container context
+            val wrappedComposable: @Composable () -> Unit = {
+                // Clear placement tracking for new recomposition pass
+                placedElements.clear()
+
+                // Swap element sets for proper tracking
+                previousCompositionElements.clear()
+                previousCompositionElements.addAll(currentCompositionElements)
+                currentCompositionElements.clear()
+
+                // Set the root container for recomposition
+                setRootContainer(mainRootElement!!)
+
+                // Render within the container context
+                withContainerContext(mainRootElement!!) {
+                    composable()
+                }
+
+                // Remove elements that are no longer in the composition
+                val elementsToRemove = previousCompositionElements - currentCompositionElements
+                for (elementId in elementsToRemove) {
+                    // Remove from cache
+                    recompositionElements.remove(elementId)
+                    // Remove event listeners
+                    val elementNativeId = recompositionElements[elementId]?.let {
+                        DOMProvider.getNativeElementId(it)
+                    }
+                    if (elementNativeId != null) {
+                        attachedEventListeners.removeAll { it.startsWith("$elementNativeId-") }
+                    }
+                    wasmConsoleLog("Removing unused element: $elementId")
+                }
+            }
+
+            // Store the wrapped composable as the composition root for recomposition
+            recomposer.setCompositionRoot(wrappedComposable)
+
+            // Set the active composer so state reads are tracked
+            recomposer.setActiveComposer(composer)
+
+            // Render the composable tree with proper composition context
+            withContainerContext(rootElement) {
+                try {
+                    // Start the composition
+                    composer.startGroup("root")
+                    composable()
+                    composer.endGroup()
+                } finally {
+                    // Clear the active composer after composition
+                    recomposer.setActiveComposer(null)
+                }
+            }
+
+            wasmConsoleLog("Composable root mounted successfully with proper composition context")
+        } catch (e: Exception) {
+            wasmConsoleError("Failed to mount composable root: ${e.message}")
+            throw e
         }
     }
 
@@ -990,6 +1189,7 @@ actual open class PlatformRenderer actual constructor() {
             // Clear hydration state
             existingElements.clear()
             pendingEventListeners.clear()
+            attachedEventListeners.clear()
 
             wasmConsoleLog("Hydration marked as complete for: $rootElementId")
         } catch (e: Exception) {
@@ -998,23 +1198,42 @@ actual open class PlatformRenderer actual constructor() {
     }
 
     /**
-     * Enhanced element creation that checks for existing elements during hydration.
+     * Enhanced element creation that checks for existing elements during hydration and recomposition.
      */
     private fun createOrReuseElement(tagName: String, summonId: String? = null): DOMElement? {
-        return if (isHydrating && summonId != null && existingElements.containsKey(summonId)) {
-            // Reuse existing server-rendered element
+        // Track element in current composition
+        if (summonId != null) {
+            currentCompositionElements.add(summonId)
+        }
+
+        // Priority 1: Check recomposition cache if summonId provided
+        if (summonId != null && recompositionElements.containsKey(summonId)) {
+            val reusedElement = recompositionElements[summonId]
+            if (reusedElement != null) {
+                wasmConsoleLog("Reusing recomposition element: $summonId")
+                return reusedElement
+            }
+        }
+
+        // Priority 2: Check hydration cache if hydrating
+        if (isHydrating && summonId != null && existingElements.containsKey(summonId)) {
             val existingElement = existingElements[summonId]
             if (existingElement != null) {
-                wasmConsoleLog("Reusing existing element: $summonId")
-                existingElement
-            } else {
-                // Create new element as fallback
-                DOMProvider.document.createElement(tagName)
+                wasmConsoleLog("Reusing hydration element: $summonId")
+                return existingElement
             }
-        } else {
-            // Normal element creation
-            DOMProvider.document.createElement(tagName)
         }
+
+        // Priority 3: Create new element
+        val newElement = DOMProvider.document.createElement(tagName)
+
+        // Cache the new element for future recompositions if summonId provided
+        if (summonId != null) {
+            recompositionElements[summonId] = newElement
+            wasmConsoleLog("Caching new element for recomposition: $summonId")
+        }
+
+        return newElement
     }
 
     /**
@@ -1022,20 +1241,33 @@ actual open class PlatformRenderer actual constructor() {
      */
     private fun attachEventListenerWithHydration(element: DOMElement, eventType: String, handler: () -> Unit) {
         val elementId = DOMProvider.getNativeElementId(element)
+        val listenerKey = "$elementId-$eventType"
+        wasmConsoleLog("attachEventListenerWithHydration called: eventType=$eventType, elementId=$elementId, isHydrating=$isHydrating")
 
         if (isHydrating) {
             // During hydration, queue event listeners for later reattachment
             pendingEventListeners.add(EventListenerInfo(elementId, eventType, handler))
             wasmConsoleLog("Queued event listener for hydration: $eventType on $elementId")
         } else {
+            // Check if event listener already exists to prevent duplicates during recomposition
+            if (attachedEventListeners.contains(listenerKey)) {
+                wasmConsoleLog("Event listener already exists, skipping: $eventType on $elementId")
+                return
+            }
+
             // Normal event listener attachment
+            wasmConsoleLog("Attaching event listener directly: $eventType on $elementId")
             element.addEventListener(eventType) {
                 try {
+                    wasmConsoleLog("Event handler called: $eventType on $elementId")
                     handler()
                 } catch (e: Exception) {
                     wasmConsoleError("Event handler failed: ${e.message}")
                 }
             }
+            // Track that this event listener has been attached
+            attachedEventListeners.add(listenerKey)
+            wasmConsoleLog("Event listener attached successfully: $eventType on $elementId")
         }
     }
 
