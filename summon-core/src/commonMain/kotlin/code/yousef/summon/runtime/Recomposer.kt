@@ -254,7 +254,7 @@ class Recomposer {
      * Sets the active composer.
      * This is called by CompositionLocal when setting the current composer.
      */
-    internal fun setActiveComposer(composer: Composer?) {
+    fun setActiveComposer(composer: Composer?) {
         activeComposer = composer
     }
 
@@ -310,6 +310,28 @@ class Recomposer {
 
             // Perform the actual recomposition
             compose(compositionRoot)
+        }
+
+        /**
+         * Performs the actual composition by invoking the composable root.
+         */
+        private fun compose(compositionRoot: @Composable () -> Unit) {
+            // Set this composer as the active composer for state tracking
+            recomposer.setActiveComposer(this)
+
+            try {
+                // Start a new composition group
+                startGroup("recomposition")
+
+                // Invoke the composable root
+                compositionRoot()
+
+                // End the composition group
+                endGroup()
+            } finally {
+                // Clear the active composer
+                recomposer.setActiveComposer(null)
+            }
         }
 
         override fun startNode() {

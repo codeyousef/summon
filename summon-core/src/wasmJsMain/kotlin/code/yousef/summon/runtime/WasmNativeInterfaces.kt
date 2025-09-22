@@ -60,6 +60,7 @@ external fun wasmGetElementChildren(elementId: String): String // Returns comma-
 // Event handling
 external fun wasmAddEventListenerById(elementId: String, eventType: String, handlerId: String): Boolean
 external fun wasmRemoveEventListenerById(elementId: String, eventType: String, handlerId: String): Boolean
+external fun registerWasmEventCallback(handlerId: String, callback: () -> Unit)
 
 // Event properties (when event occurs, these get the event data by handler ID)
 external fun wasmGetEventType(handlerId: String): String?

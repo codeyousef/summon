@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Button Event</title>
+</head>
+<body>
+    <button id="testBtn">Test Button</button>
+    <div id="output"></div>
+
+    <script>
+        // Test button click to see if basic DOM events work
+        document.getElementById('testBtn').addEventListener('click', function() {
+            document.getElementById('output').innerHTML = 'Button clicked at: ' + new Date().toLocaleTimeString();
+            console.log('Test button clicked');
+        });
+
+        // Open the WASM app in an iframe and test its button
+        const iframe = document.createElement('iframe');
+        iframe.src = 'http://localhost:8080';
+        iframe.style.width = '100%';
+        iframe.style.height = '600px';
+        iframe.style.border = '1px solid #ccc';
+        iframe.style.marginTop = '20px';
+
+        iframe.onload = function() {
+            console.log('WASM app loaded in iframe');
+            // Try to access iframe content after a delay to let WASM initialize
+            setTimeout(() => {
+                try {
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    const buttons = iframeDoc.querySelectorAll('button');
+                    console.log('Found buttons in WASM app:', buttons.length);
+                    buttons.forEach((btn, index) => {
+                        console.log(`Button ${index}:`, btn.textContent, btn.outerHTML);
+                    });
+                } catch (e) {
+                    console.log('Cannot access iframe content (CORS):', e.message);
+                }
+            }, 2000);
+        };
+
+        document.body.appendChild(iframe);
+    </script>
+</body>
+</html>

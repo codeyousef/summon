@@ -89,8 +89,19 @@ private class WasmDOMElementWrapper(val elementId: String) : DOMElement {
 
     override fun addEventListener(type: String, listener: (event: Any) -> Unit) {
         val handlerId = "$elementId:$type:${listener.hashCode()}"
+        wasmConsoleLog("Adding event listener: $type on element $elementId with handler $handlerId")
         eventListeners.getOrPut(type) { mutableListOf() }.add(listener)
         wasmAddEventListenerById(elementId, type, handlerId)
+        // Register the callback so JavaScript can call back to Kotlin
+        registerWasmEventCallback(handlerId) {
+            try {
+                wasmConsoleLog("Kotlin callback executed for handler: $handlerId")
+                listener(Unit) // Pass a dummy event object for now
+            } catch (e: Exception) {
+                wasmConsoleError("Event listener failed: ${e.message}")
+            }
+        }
+        wasmConsoleLog("Event listener registration complete for: $handlerId")
     }
 
     override fun removeEventListener(type: String, listener: (event: Any) -> Unit) {
@@ -370,6 +381,7 @@ external fun wasmCreateTextNode(text: String): String
 external fun wasmGetDocumentElementId(): String?
 external fun wasmAddDocumentEventListener(type: String, handlerId: String)
 external fun wasmRemoveDocumentEventListener(type: String, handlerId: String)
+external fun wasmGetElementParent(elementId: String): String?
 external fun wasmGetWindowInnerWidth(): Int
 external fun wasmGetWindowInnerHeight(): Int
 external fun wasmGetWindowOuterWidth(): Int

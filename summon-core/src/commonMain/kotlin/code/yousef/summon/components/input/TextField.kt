@@ -37,8 +37,21 @@ fun TextField(
     val renderer = LocalPlatformRenderer.current
     val validationErrors = remember { mutableStateOf(emptyList<String>()) }
 
+    // Generate stable unique ID based on TextField's stable properties (not random)
+    // Use properties that don't change across recompositions: placeholder, type, position
+    val stableProps = listOf(
+        placeholder ?: "no-placeholder",
+        type.name,
+        label ?: "no-label",
+        isError.toString(),
+        isEnabled.toString(),
+        isReadOnly.toString()
+    ).joinToString("-")
+    val uniqueId = "textfield-" + stableProps.hashCode().toString().replace("-", "")
+
     // Add attributes to the modifier based on parameters
     var finalModifier = modifier
+        .attribute("data-summon-id", uniqueId)
     placeholder?.let { finalModifier = finalModifier.attribute("placeholder", it) }
     if (isError || validationErrors.value.isNotEmpty()) {
         finalModifier = finalModifier.attribute("aria-invalid", "true")

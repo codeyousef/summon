@@ -7,10 +7,10 @@ import code.yousef.summon.runtime.wasmConsoleLog
  * Since WASM is single-threaded, no synchronization is needed.
  */
 actual fun Recomposer.addToPendingRecompositions(composer: Composer) {
-    wasmConsoleLog("Recomposer.addToPendingRecompositions - WASM stub")
-    // TODO: Implement proper pending recomposition tracking
-    // For now, using reflection/internal access is not available in WASM
-    // Will need to refactor Recomposer to expose necessary APIs
+    wasmConsoleLog("Recomposer.addToPendingRecompositions - Adding composer")
+    // Access the internal pending recompositions set directly
+    // Since WASM is single-threaded, we don't need synchronization
+    getPendingRecompositions().add(composer)
 }
 
 /**
@@ -18,8 +18,11 @@ actual fun Recomposer.addToPendingRecompositions(composer: Composer) {
  * Since WASM is single-threaded, no synchronization is needed.
  */
 actual fun Recomposer.getAndClearPendingRecompositions(): List<Composer> {
-    wasmConsoleLog("Recomposer.getAndClearPendingRecompositions - WASM stub")
-    // TODO: Implement proper pending recomposition retrieval
-    // For now, returning empty list as stub
-    return emptyList()
+    wasmConsoleLog("Recomposer.getAndClearPendingRecompositions - Getting pending composers")
+    // Get the pending recompositions and convert to list
+    val pending = getPendingRecompositions().toList()
+    wasmConsoleLog("Found ${pending.size} pending composers")
+    // Clear the set after getting the list
+    getPendingRecompositions().clear()
+    return pending
 }
