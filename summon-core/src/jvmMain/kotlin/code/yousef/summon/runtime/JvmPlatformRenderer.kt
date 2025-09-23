@@ -1,5 +1,6 @@
 package code.yousef.summon.runtime
 
+// Missing imports for runtime components
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.IconType
 import code.yousef.summon.components.feedback.AlertVariant
@@ -778,7 +779,7 @@ actual open class PlatformRenderer {
                                     const strategy = this.getBundleStrategy();
                                     let script;
 
-                                    console.log(`Loading ${strategy.useWasm ? 'WASM' : 'JS'} hydration client for ${BrowserSupport.browserName}`);
+                                    console.log('Loading ' + (strategy.useWasm ? 'WASM' : 'JS') + ' hydration client for ' + BrowserSupport.browserName);
 
                                     try {
                                         script = await this.loadWithRetry(strategy.bundlePath, strategy.options);
@@ -794,7 +795,7 @@ actual open class PlatformRenderer {
                                                 PerformanceTracker.mark('fallback-script-loaded');
                                                 break;
                                             } catch (fallbackError) {
-                                                console.warn(`Fallback ${fallback.path} failed:`, fallbackError.message);
+                                                console.warn('Fallback ' + fallback.path + ' failed:', fallbackError.message);
                                             }
                                         }
 
@@ -829,7 +830,7 @@ actual open class PlatformRenderer {
                                     // Log performance metrics
                                     console.info('Hydration performance:', {
                                         mode: hydrationMode,
-                                        loadTime: `${loadTime.toFixed(2)}ms`,
+                                        loadTime: loadTime.toFixed(2) + 'ms',
                                         bundleSize: script ? (script.src.length || 'unknown') : 'unknown'
                                     });
 
@@ -901,7 +902,7 @@ actual open class PlatformRenderer {
 
                             PerformanceTracker.mark('init-complete');
                             const initTime = PerformanceTracker.measure('total-init-time', 'summon-init-start', 'init-complete');
-                            console.debug(`Summon initialization completed in ${initTime.toFixed(2)}ms`);
+                            console.debug('Summon initialization completed in ' + initTime.toFixed(2) + 'ms');
                         }
 
                         if (document.readyState === 'loading') {
@@ -963,7 +964,7 @@ actual open class PlatformRenderer {
                                 // Check Phase 5 verification criteria
                                 const timeToInteractive = metrics.navigation?.domContentLoaded || 0;
                                 if (timeToInteractive > 0) {
-                                    console.log(`⏱️ Time to Interactive: ${timeToInteractive}ms ${timeToInteractive < 3000 ? '✅' : '❌'} (target: <3000ms)`);
+                                    console.log('⏱️ Time to Interactive: ' + timeToInteractive + 'ms ' + (timeToInteractive < 3000 ? '✅' : '❌') + ' (target: <3000ms)');
                                 }
                             }, 1000); // Wait 1 second for all metrics to settle
                         });

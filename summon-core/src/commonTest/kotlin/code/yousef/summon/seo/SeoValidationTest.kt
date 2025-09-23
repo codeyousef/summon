@@ -180,10 +180,10 @@ class SeoValidationTest {
     fun testPageLoadPerformanceForSEO() {
         // Core Web Vitals for SEO
         val coreWebVitals = mapOf(
-            "First Contentful Paint" to 1800, // milliseconds
-            "Largest Contentful Paint" to 2500,
+            "First Contentful Paint" to 1800.0, // milliseconds
+            "Largest Contentful Paint" to 2500.0,
             "Cumulative Layout Shift" to 0.1, // score
-            "First Input Delay" to 100
+            "First Input Delay" to 100.0
         )
 
         coreWebVitals.forEach { (metric, threshold) ->

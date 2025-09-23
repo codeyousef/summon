@@ -244,7 +244,7 @@ class WasmErrorReportingTest {
         // Test alert thresholds
         val alertThresholds = mapOf(
             "Error Rate" to 5.0,        // 5% error rate threshold
-            "Critical Errors" to 10,     // 10 critical errors per hour
+            "Critical Errors" to 10.0,   // 10 critical errors per hour
             "Fallback Rate" to 20.0      // 20% fallback rate threshold
         )
 
@@ -367,7 +367,7 @@ class WasmErrorReportingTest {
         message = error.description,
         stack = "Mock stack trace",
         browserInfo = "Chrome 119.0.0",
-        timestamp = System.currentTimeMillis(),
+        timestamp = 1234567890L, // Mock timestamp
         severity = ErrorSeverity.HIGH,
         fallbackTriggered = true,
         userImpact = "Minor performance impact"

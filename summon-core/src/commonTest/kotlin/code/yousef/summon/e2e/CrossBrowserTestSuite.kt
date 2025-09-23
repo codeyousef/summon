@@ -1,9 +1,8 @@
 package code.yousef.summon.e2e
 
 import kotlin.test.Test
-import kotlin.test.assertTrue
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * Comprehensive cross-browser compatibility test suite for WASM implementation.
@@ -162,9 +161,9 @@ class CrossBrowserTestSuite {
     fun testPerformanceConsistency() {
         // Both targets should meet performance criteria
         val performanceCriteria = mapOf(
-            "Time to Interactive" to 3000, // milliseconds
-            "First Contentful Paint" to 2000,
-            "Largest Contentful Paint" to 4000,
+            "Time to Interactive" to 3000.0, // milliseconds
+            "First Contentful Paint" to 2000.0,
+            "Largest Contentful Paint" to 4000.0,
             "Cumulative Layout Shift" to 0.1 // score
         )
 

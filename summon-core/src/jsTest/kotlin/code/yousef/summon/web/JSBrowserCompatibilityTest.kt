@@ -70,7 +70,7 @@ class JSBrowserCompatibilityTest {
         assertTrue(canRecover) // RuntimeException should be recoverable
 
         // Test non-recoverable error
-        val outOfMemoryError = OutOfMemoryError("No memory")
+        val outOfMemoryError = Exception("No memory")
         val canRecoverOOM = errorBoundary.canRecover(outOfMemoryError)
         assertFalse(canRecoverOOM) // OutOfMemoryError should not be recoverable
     }

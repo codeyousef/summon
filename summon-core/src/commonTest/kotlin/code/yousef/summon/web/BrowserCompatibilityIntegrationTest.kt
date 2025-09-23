@@ -195,8 +195,8 @@ class BrowserCompatibilityIntegrationTest {
 
         // Create different types of errors
         val networkError = RuntimeException("Network timeout")
-        val memoryError = OutOfMemoryError("Heap exhausted")
-        val securityError = SecurityException("Access denied")
+        val memoryError = Exception("Heap exhausted")
+        val securityError = Exception("Access denied")
 
         // Test error handling based on browser support level
         val modernSupport = BrowserSupport(

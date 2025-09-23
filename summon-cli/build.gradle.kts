@@ -54,12 +54,23 @@ kotlin {
 
 // Create a custom shadowJar task since we're using KMP
 val shadowJar = tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
+    dependsOn(copyGradleWrapper)
     archiveClassifier.set("")
     archiveBaseName.set("summon-cli")
     from(kotlin.jvm().compilations.getByName("main").output)
     configurations = listOf(
         project.configurations.getByName("jvmRuntimeClasspath")
     )
+
+    // Include gradle wrapper files from build resources
+    from("build/resources/jvmMain") {
+        include("gradle-wrapper/**")
+    }
+
+    // Explicitly include the JAR file as a resource
+    from(file("src/jvmMain/resources/gradle-wrapper/gradle-wrapper.jar")) {
+        into("gradle-wrapper")
+    }
 
     manifest {
         attributes(
@@ -76,10 +87,13 @@ val shadowJar = tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.
 
     mergeServiceFiles()
 
-    minimize {
-        exclude(dependency("com.github.ajalt.clikt:.*:.*"))
-        exclude(dependency("org.jetbrains.kotlinx:.*:.*"))
-    }
+    // Don't minimize - it removes necessary resources including gradle-wrapper.jar
+    // minimize {
+    //     exclude(dependency("com.github.ajalt.clikt:.*:.*"))
+    //     exclude(dependency("org.jetbrains.kotlinx:.*:.*"))
+    //     // Don't minimize resources including gradle-wrapper.jar
+    //     exclude("gradle-wrapper/**")
+    // }
 }
 
 tasks.named("build") {
@@ -125,6 +139,19 @@ java -jar "%SCRIPT_DIR%$relativeJarPath" %*
         println("Unix/Linux: ${unixScript.absolutePath}")
         println("Windows: ${windowsScript.absolutePath}")
     }
+}
+
+// Task to copy gradle-wrapper files to build resources
+val copyGradleWrapper by tasks.registering(Copy::class) {
+    from("src/jvmMain/resources/gradle-wrapper")
+    into("build/resources/jvmMain/gradle-wrapper")
+    include("**/*")
+}
+
+// Ensure gradle-wrapper.jar is included in resources
+tasks.withType<ProcessResources> {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    dependsOn(copyGradleWrapper)
 }
 
 // Publishing configuration for CLI tool

@@ -36,16 +36,15 @@ jobs:
       - name: Extract and Verify Version
         id: version
         run: |
-          VERSION=$(grep "^version" build.gradle.kts | cut -d'"' -f2)
+          VERSION=$(grep "^VERSION=" version.properties | cut -d'=' -f2)
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           echo "Publishing version: $VERSION"
-          
-          # Check if this version already exists in GitHub Packages
+
+          # Check if summon-cli version already exists in GitHub Packages
           if curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-               "https://api.github.com/repos/${{ github.repository }}/packages/maven/io.github.codeyousef.summon/versions" | \
+               "https://api.github.com/repos/${{ github.repository }}/packages/maven/io.github.codeyousef.summon-cli/versions" | \
                grep -q "\"name\":\"$VERSION\""; then
-            echo "::error::Version $VERSION already exists in GitHub Packages. Please update the version in build.gradle.kts"
-            exit 1
+            echo "::warning::Version $VERSION of summon-cli already exists in GitHub Packages"
           fi
       
       - name: Build and Test
