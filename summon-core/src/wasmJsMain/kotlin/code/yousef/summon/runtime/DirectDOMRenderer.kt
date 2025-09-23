@@ -17,46 +17,37 @@ object DirectDOMRenderer {
     fun initialize(todoListContainerId: String, todoCountElementId: String) {
         todoListContainer = todoListContainerId
         todoCountElement = todoCountElementId
-        wasmConsoleLog("DirectDOMRenderer initialized with container: $todoListContainerId")
     }
 
     /**
      * Discover actual element IDs by searching for elements with specific text content
      */
     fun discoverActualElementIds(): Boolean {
-        wasmConsoleLog("DirectDOMRenderer: Starting element discovery...")
-
         try {
             // Find all span elements and check their text content
             val spanElementIds = wasmQuerySelectorAllGetIds("span")
             if (spanElementIds.isBlank()) {
-                wasmConsoleLog("DirectDOMRenderer: No span elements found")
                 return false
             }
 
             val elementIds = spanElementIds.split(",").map { it.trim() }
-            wasmConsoleLog("DirectDOMRenderer: Found ${elementIds.size} span elements to check")
 
             var todoCountFound = false
             var todoListFound = false
 
             for (elementId in elementIds) {
                 val textContent = wasmGetElementTextContent(elementId) ?: continue
-                wasmConsoleLog("DirectDOMRenderer: Checking element $elementId with text: '$textContent'")
 
                 when {
                     textContent.contains("Loading todos...") -> {
-                        wasmConsoleLog("DirectDOMRenderer: Found todo count element: $elementId")
                         todoCountElement = elementId
                         todoCountFound = true
                     }
 
                     textContent.contains("Initializing...") -> {
-                        wasmConsoleLog("DirectDOMRenderer: Found todo list placeholder element: $elementId")
                         // Find the parent container (Column) that contains this element
                         val parentId = wasmGetElementParentId(elementId)
                         if (parentId != null) {
-                            wasmConsoleLog("DirectDOMRenderer: Found todo list container: $parentId")
                             todoListContainer = parentId
                             todoListFound = true
                         }
@@ -68,16 +59,9 @@ object DirectDOMRenderer {
                 }
             }
 
-            if (todoCountFound && todoListFound) {
-                wasmConsoleLog("DirectDOMRenderer: Successfully discovered elements - count: $todoCountElement, list: $todoListContainer")
-                return true
-            } else {
-                wasmConsoleLog("DirectDOMRenderer: Failed to discover elements - count found: $todoCountFound, list found: $todoListFound")
-                return false
-            }
+            return todoCountFound && todoListFound
 
         } catch (e: Exception) {
-            wasmConsoleLog("DirectDOMRenderer: Error during discovery: ${e.message}")
             return false
         }
     }
@@ -88,12 +72,10 @@ object DirectDOMRenderer {
     fun addTodo(todoText: String) {
         if (todoText.isBlank()) return
 
-        wasmConsoleLog("DirectDOMRenderer: Adding todo '$todoText'")
         currentTodos.add(todoText)
         updateTodoListDOM()
         updateTodoCountDOM()
         clearInputField()
-        wasmConsoleLog("DirectDOMRenderer: Todo added successfully, DOM updated")
     }
 
     /**
@@ -101,11 +83,9 @@ object DirectDOMRenderer {
      */
     fun removeTodo(index: Int) {
         if (index >= 0 && index < currentTodos.size) {
-            wasmConsoleLog("DirectDOMRenderer: Removing todo at index $index")
             currentTodos.removeAt(index)
             updateTodoListDOM()
             updateTodoCountDOM()
-            wasmConsoleLog("DirectDOMRenderer: Todo removed successfully, DOM updated")
         }
     }
 
@@ -113,11 +93,9 @@ object DirectDOMRenderer {
      * Clear all todos
      */
     fun clearAllTodos() {
-        wasmConsoleLog("DirectDOMRenderer: Clearing all todos")
         currentTodos.clear()
         updateTodoListDOM()
         updateTodoCountDOM()
-        wasmConsoleLog("DirectDOMRenderer: All todos cleared, DOM updated")
     }
 
     /**

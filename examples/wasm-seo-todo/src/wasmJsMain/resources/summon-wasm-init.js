@@ -46,7 +46,6 @@
             const element = document.createElement(tagName);
             return storeElement(element);
         } catch (e) {
-            console.error('[Summon WASM] createElement failed:', e);
             return '';
         }
     };
@@ -65,7 +64,6 @@
             }
             return false;
         } catch (e) {
-            console.error('[Summon WASM] setAttribute failed:', e);
             return false;
         }
     };
@@ -75,7 +73,6 @@
             const element = getElement(elementId);
             return element ? element.getAttribute(name) : null;
         } catch (e) {
-            console.error('[Summon WASM] getAttribute failed:', e);
             return null;
         }
     };
@@ -89,7 +86,6 @@
             }
             return false;
         } catch (e) {
-            console.error('[Summon WASM] removeAttribute failed:', e);
             return false;
         }
     };
@@ -104,7 +100,6 @@
             }
             return false;
         } catch (e) {
-            console.error('[Summon WASM] setTextContent failed:', e);
             return false;
         }
     };
@@ -114,7 +109,6 @@
             const element = getElement(elementId);
             return element ? element.textContent : null;
         } catch (e) {
-            console.error('[Summon WASM] getTextContent failed:', e);
             return null;
         }
     };
@@ -128,7 +122,6 @@
             }
             return false;
         } catch (e) {
-            console.error('[Summon WASM] setInnerHTML failed:', e);
             return false;
         }
     };
@@ -138,7 +131,6 @@
             const element = getElement(elementId);
             return element ? element.innerHTML : null;
         } catch (e) {
-            console.error('[Summon WASM] getInnerHTML failed:', e);
             return null;
         }
     };
@@ -154,7 +146,6 @@
             }
             return false;
         } catch (e) {
-            console.error('[Summon WASM] appendChild failed:', e);
             return false;
         }
     };
@@ -169,7 +160,6 @@
             }
             return false;
         } catch (e) {
-            console.error('[Summon WASM] removeChild failed:', e);
             return false;
         }
     };
@@ -184,7 +174,6 @@
             }
             return false;
         } catch (e) {
-            console.error('[Summon WASM] removeElement failed:', e);
             return false;
         }
     };
@@ -199,7 +188,6 @@
             }
             return false;
         } catch (e) {
-            console.error('[Summon WASM] addClass failed:', e);
             return false;
         }
     };
@@ -213,7 +201,6 @@
             }
             return false;
         } catch (e) {
-            console.error('[Summon WASM] removeClass failed:', e);
             return false;
         }
     };
@@ -223,7 +210,6 @@
             const element = getElement(elementId);
             return element ? element.classList.contains(className) : false;
         } catch (e) {
-            console.error('[Summon WASM] hasClass failed:', e);
             return false;
         }
     };
@@ -233,7 +219,6 @@
             const element = getElement(elementId);
             return element ? element.className : null;
         } catch (e) {
-            console.error('[Summon WASM] getClassName failed:', e);
             return null;
         }
     };
@@ -244,7 +229,6 @@
             const element = getElement(elementId);
             return element ? element.tagName.toLowerCase() : null;
         } catch (e) {
-            console.error('[Summon WASM] getTagName failed:', e);
             return null;
         }
     };
@@ -257,7 +241,6 @@
             }
             return null;
         } catch (e) {
-            console.error('[Summon WASM] getElementParent failed:', e);
             return null;
         }
     };
@@ -267,7 +250,6 @@
             const element = getElement(elementId);
             return element ? element.id : null;
         } catch (e) {
-            console.error('[Summon WASM] getId failed:', e);
             return null;
         }
     };
@@ -284,7 +266,6 @@
             }
             return false;
         } catch (e) {
-            console.error('[Summon WASM] setId failed:', e);
             return false;
         }
     };
@@ -298,7 +279,6 @@
             }
             return null;
         } catch (e) {
-            console.error('[Summon WASM] getParentId failed:', e);
             return null;
         }
     };
@@ -312,7 +292,6 @@
             }
             return '';
         } catch (e) {
-            console.error('[Summon WASM] getChildren failed:', e);
             return '';
         }
     };
@@ -334,18 +313,14 @@
 
                     // Call registered WASM callback if exists
                     const callback = eventCallbacks.get(handlerId);
-                    console.log('[Summon WASM] Event triggered:', event.type, 'on element:', elementId, 'handler:', handlerId, 'callback found:', !!callback);
                     if (callback) {
                         try {
-                            console.log('[Summon WASM] Calling local WASM callback for:', handlerId);
                             callback();
                         } catch (e) {
-                            console.error('[Summon WASM] Event callback failed:', e);
                         }
                     } else {
                         // Try to call WASM callback registry
                         try {
-                            console.log('[Summon WASM] Trying WASM callback registry for:', handlerId);
                             // Try multiple ways to find the exported function
                             let wasmExecuteCallback = null;
 
@@ -372,7 +347,6 @@
 
                                 // Check if it's a Promise
                                 if (wasmLibOrPromise && typeof wasmLibOrPromise.then === 'function') {
-                                    console.log('[Summon WASM] UMD library is a Promise, waiting for async resolution...');
                                     // Store a pending flag to prevent duplicate attempts
                                     if (!window._wasmCallbackPending) {
                                         window._wasmCallbackPending = true;
@@ -380,15 +354,12 @@
                                             if (wasmLib.executeCallback) {
                                                 window.executeCallback = wasmLib.executeCallback;
                                                 window.wasmExecuteCallback = wasmLib.executeCallback;
-                                                console.log('[Summon WASM] Async: Exposed executeCallback globally');
                                             } else if (wasmLib.wasmExecuteCallback) {
                                                 window.executeCallback = wasmLib.wasmExecuteCallback;
                                                 window.wasmExecuteCallback = wasmLib.wasmExecuteCallback;
-                                                console.log('[Summon WASM] Async: Exposed wasmExecuteCallback globally');
                                             }
                                             window._wasmCallbackPending = false;
                                         }).catch(err => {
-                                            console.error('[Summon WASM] Failed to resolve UMD library Promise:', err);
                                             window._wasmCallbackPending = false;
                                         });
                                     }
@@ -414,15 +385,11 @@
                             if (wasmExecuteCallback) {
                                 const success = wasmExecuteCallback(handlerId);
                                 if (success) {
-                                    console.log('[Summon WASM] Successfully executed WASM callback for:', handlerId);
                                 } else {
-                                    console.warn('[Summon WASM] WASM callback not found for:', handlerId);
                                 }
                             } else {
-                                console.warn('[Summon WASM] WASM callback bridge not available - wasmExecuteCallback function not found');
                             }
                         } catch (e) {
-                            console.error('[Summon WASM] Failed to call WASM callback:', e);
                         }
                     }
                 };
@@ -437,7 +404,6 @@
             }
             return false;
         } catch (e) {
-            console.error('[Summon WASM] addEventListener failed:', e);
             return false;
         }
     };
@@ -454,7 +420,6 @@
             }
             return false;
         } catch (e) {
-            console.error('[Summon WASM] removeEventListener failed:', e);
             return false;
         }
     };
@@ -503,7 +468,6 @@
             const element = document.querySelector(selector);
             return element ? storeElement(element) : null;
         } catch (e) {
-            console.error('[Summon WASM] querySelector failed:', e);
             return null;
         }
     };
@@ -514,7 +478,6 @@
             const ids = Array.from(elements).map(el => storeElement(el));
             return ids.join(',');
         } catch (e) {
-            console.error('[Summon WASM] querySelectorAll failed:', e);
             return '';
         }
     };
@@ -525,7 +488,6 @@
             const element = getElement(elementId);
             return element && 'value' in element ? element.value : null;
         } catch (e) {
-            console.error('[Summon WASM] getValue failed:', e);
             return null;
         }
     };
@@ -539,7 +501,6 @@
             }
             return false;
         } catch (e) {
-            console.error('[Summon WASM] setValue failed:', e);
             return false;
         }
     };
@@ -549,7 +510,6 @@
             const element = getElement(elementId);
             return element && 'checked' in element ? element.checked : false;
         } catch (e) {
-            console.error('[Summon WASM] getChecked failed:', e);
             return false;
         }
     };
@@ -563,7 +523,6 @@
             }
             return false;
         } catch (e) {
-            console.error('[Summon WASM] setChecked failed:', e);
             return false;
         }
     };
@@ -573,7 +532,6 @@
             const element = getElement(elementId);
             return element && 'disabled' in element ? element.disabled : false;
         } catch (e) {
-            console.error('[Summon WASM] getDisabled failed:', e);
             return false;
         }
     };
@@ -587,7 +545,6 @@
             }
             return false;
         } catch (e) {
-            console.error('[Summon WASM] setDisabled failed:', e);
             return false;
         }
     };
@@ -598,7 +555,6 @@
             const element = getElement(elementId);
             return element && element.tagName === 'SELECT' ? element.selectedIndex : -1;
         } catch (e) {
-            console.error('[Summon WASM] getSelectedIndex failed:', e);
             return -1;
         }
     };
@@ -612,7 +568,6 @@
             }
             return false;
         } catch (e) {
-            console.error('[Summon WASM] setSelectedIndex failed:', e);
             return false;
         }
     };
@@ -642,7 +597,6 @@
             }
             return false;
         } catch (e) {
-            console.error('[Summon WASM] insertHTMLIntoHead failed:', e);
             return false;
         }
     };
@@ -656,7 +610,6 @@
             }
             return false;
         } catch (e) {
-            console.error('[Summon WASM] insertAdjacentHTML failed:', e);
             return false;
         }
     };
@@ -666,7 +619,6 @@
             const element = getElement(elementId);
             return element ? element.outerHTML : null;
         } catch (e) {
-            console.error('[Summon WASM] getOuterHTML failed:', e);
             return null;
         }
     };
@@ -767,7 +719,6 @@
             }
             return false;
         } catch (e) {
-            console.error('[Summon WASM] scrollIntoView failed:', e);
             return false;
         }
     };
@@ -781,7 +732,6 @@
             }
             return null;
         } catch (e) {
-            console.error('[Summon WASM] getComputedStyle failed:', e);
             return null;
         }
     };
@@ -795,7 +745,6 @@
             }
             return false;
         } catch (e) {
-            console.error('[Summon WASM] applyStyleProperty failed:', e);
             return false;
         }
     };
@@ -805,7 +754,6 @@
             const element = getElement(elementId);
             return element ? element.style[property] : null;
         } catch (e) {
-            console.error('[Summon WASM] getElementStyle failed:', e);
             return null;
         }
     };
@@ -819,7 +767,6 @@
             }
             return false;
         } catch (e) {
-            console.error('[Summon WASM] setElementStyle failed:', e);
             return false;
         }
     };
@@ -851,19 +798,15 @@
 
     // Console logging
     window.wasmConsoleLog = function(message) {
-        console.log('[Summon WASM]', message);
     };
 
     window.wasmConsoleWarn = function(message) {
-        console.warn('[Summon WASM]', message);
     };
 
     window.wasmConsoleError = function(message) {
-        console.error('[Summon WASM]', message);
     };
 
     window.wasmConsoleDebug = function(message) {
-        console.debug('[Summon WASM]', message);
     };
 
     // Helper functions
@@ -893,7 +836,6 @@
             }
             return storeElement(element);
         } catch (e) {
-            console.error('[Summon WASM] createElementWithOptions failed:', e);
             return '';
         }
     };
@@ -907,14 +849,12 @@
             }
             return null;
         } catch (e) {
-            console.error('[Summon WASM] cloneElement failed:', e);
             return null;
         }
     };
 
     // Register WASM event callback handler
     window.registerWasmEventCallback = function(handlerId, callback) {
-        console.log('[Summon WASM] Registering event callback:', handlerId);
         eventCallbacks.set(handlerId, callback);
     };
 
@@ -922,7 +862,6 @@
 
     window.wasmRequestAnimationFrame = function() {
         const frameId = requestAnimationFrame(() => {
-            console.log('[Summon WASM] Animation frame executing for ID:', frameId);
 
             // Call back into WASM with the frame ID
             // The callback is stored in WASM and will be executed there
@@ -950,33 +889,25 @@
                 if (executeCallback) {
                     const success = executeCallback(frameId);
                     if (success) {
-                        console.log('[Summon WASM] Animation frame callback executed successfully for frame:', frameId);
                     } else {
-                        console.warn('[Summon WASM] Animation frame callback not found for frame:', frameId);
                     }
                 } else {
-                    console.error('[Summon WASM] executeAnimationFrameCallback function not found');
                 }
             } catch (e) {
-                console.error('[Summon WASM] Animation frame callback failed:', e);
             }
         });
-        console.log('[Summon WASM] Requested animation frame with ID:', frameId);
         return frameId;
     };
 
     window.wasmCancelAnimationFrame = function(frameId) {
-        console.log('[Summon WASM] Cancelling animation frame:', frameId);
         cancelAnimationFrame(frameId);
         return true;
     };
 
     // Initialize message
-    console.log('[Summon WASM] Bridge initialized successfully');
 
     // Check if WASM is supported
     if (typeof WebAssembly === 'undefined') {
-        console.error('[Summon WASM] WebAssembly is not supported in this browser');
         document.body.innerHTML = '<div style="padding: 20px; text-align: center;"><h1>WebAssembly Not Supported</h1><p>Please use a modern browser that supports WebAssembly.</p></div>';
     }
 
@@ -984,7 +915,6 @@
     // This will be called by the Kotlin/WASM module after it's loaded
     window.registerWasmExports = function (exports) {
         window.wasmExports = exports;
-        console.log('[Summon WASM] WASM exports registered:', Object.keys(exports));
     };
 
     // Also try to capture exports from webpack module loading
@@ -995,7 +925,6 @@
                 // Try to find and register WASM exports
                 if (typeof wasmExecuteCallback !== 'undefined') {
                     window.wasmExecuteCallback = wasmExecuteCallback;
-                    console.log('[Summon WASM] Found wasmExecuteCallback, made it globally available');
                 }
             }, 100);
         });
@@ -1004,7 +933,6 @@
         setTimeout(() => {
             if (typeof wasmExecuteCallback !== 'undefined') {
                 window.wasmExecuteCallback = wasmExecuteCallback;
-                console.log('[Summon WASM] Found wasmExecuteCallback, made it globally available');
             }
         }, 100);
     }

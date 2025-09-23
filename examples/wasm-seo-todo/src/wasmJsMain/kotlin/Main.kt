@@ -9,7 +9,6 @@ import code.yousef.summon.components.layout.Row
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.renderComposableRoot
 import code.yousef.summon.runtime.DirectDOMRenderer
-import code.yousef.summon.runtime.wasmConsoleLog
 import code.yousef.summon.runtime.wasmExecuteCallback
 
 /**
@@ -52,7 +51,6 @@ fun TodoApp() {
             TextField(
                 value = "",
                 onValueChange = { value ->
-                    wasmConsoleLog("TextField value changed: '$value'")
                     DirectDOMRenderer.updateInputValue(value)
                 },
                 placeholder = "Enter a new todo...",
@@ -62,16 +60,10 @@ fun TodoApp() {
 
             Button(
                 onClick = {
-                    wasmConsoleLog("=== BUTTON CLICKED! === (DirectDOMRenderer approach)")
                     val currentInput = DirectDOMRenderer.getCurrentInputValue()
-                    wasmConsoleLog("Current input from DirectDOMRenderer: '$currentInput'")
 
                     if (currentInput.isNotBlank()) {
-                        wasmConsoleLog("Adding todo via DirectDOMRenderer: '$currentInput'")
                         DirectDOMRenderer.addTodo(currentInput)
-                        wasmConsoleLog("Todo added successfully, DOM updated directly")
-                    } else {
-                        wasmConsoleLog("Input text is blank, not adding todo")
                     }
                 },
                 label = "Add Todo",
@@ -122,7 +114,6 @@ fun executeCallback(callbackId: String): Boolean {
 @OptIn(ExperimentalJsExport::class)
 @JsExport
 fun removeTodo(index: Int) {
-    wasmConsoleLog("Bridge function removeTodo called with index: $index")
     DirectDOMRenderer.removeTodo(index)
 }
 
@@ -133,7 +124,6 @@ fun removeTodo(index: Int) {
 @OptIn(ExperimentalJsExport::class)
 @JsExport
 fun clearAllTodos() {
-    wasmConsoleLog("Bridge function clearAllTodos called")
     DirectDOMRenderer.clearAllTodos()
 }
 
@@ -146,35 +136,18 @@ fun clearAllTodos() {
  */
 fun main() {
     try {
-        wasmConsoleLog("Main function started")
-
-        // Log that our callback bridge is available
-        wasmConsoleLog("Callback bridge function 'executeCallback' is exported")
-
         // Mount the Todo app to the root element
         renderComposableRoot("root") {
             TodoApp()
         }
 
-        wasmConsoleLog("Main function completed")
-
         // Initialize DirectDOMRenderer after initial composition
-        wasmConsoleLog("Initializing DirectDOMRenderer...")
-
         // First initialize with placeholder IDs
         DirectDOMRenderer.initialize("placeholder-list", "placeholder-count")
 
         // Then discover the actual element IDs from the rendered DOM
-        wasmConsoleLog("Discovering actual element IDs...")
-        val discoverySuccess = DirectDOMRenderer.discoverActualElementIds()
-
-        if (discoverySuccess) {
-            wasmConsoleLog("DirectDOMRenderer initialized successfully with discovered element IDs")
-        } else {
-            wasmConsoleLog("DirectDOMRenderer warning: Could not discover element IDs, using placeholders")
-        }
+        DirectDOMRenderer.discoverActualElementIds()
     } catch (e: Exception) {
-        wasmConsoleLog("ERROR in main: ${e.message}")
-        wasmConsoleLog("Stack trace: ${e.stackTraceToString()}")
+        // Silently handle errors
     }
 }
