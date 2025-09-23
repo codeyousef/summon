@@ -93,9 +93,82 @@
         </div>
     </div>
 
-    <!-- Summon WASM bridge is automatically included -->
+    <!-- Load webpack bundles -->
     <script src="summon-wasm-init.js"></script>
-    <!-- Generated WASM bundle -->
-    <script src="todo-app.js" type="module"></script>
+    <script src="todo-app-runtime.js"></script>
+    <script src="todo-app.js"></script>
+
+    <!-- Initialize WASM exports bridge -->
+    <script>
+        // Wait for the UMD library to be available
+        window.addEventListener('DOMContentLoaded', async function () {
+            console.log('[WASM Bridge] Initializing WASM exports...');
+
+            // The webpack UMD library should be available as window['wasm-seo-todo']
+            const wasmLibPromise = window['wasm-seo-todo'];
+            if (wasmLibPromise) {
+                console.log('[WASM Bridge] Found WASM library (Promise):', wasmLibPromise);
+
+                try {
+                    // The library is a Promise due to top-level await in the WASM module
+                    const wasmLib = await wasmLibPromise;
+                    console.log('[WASM Bridge] WASM library resolved:', wasmLib);
+
+                    // Try to find executeCallback in the resolved exports
+                    if (wasmLib.executeCallback) {
+                        window.executeCallback = wasmLib.executeCallback;
+                        window.wasmExecuteCallback = wasmLib.executeCallback;
+                        console.log('[WASM Bridge] Exposed executeCallback globally');
+                    } else if (wasmLib.wasmExecuteCallback) {
+                        window.executeCallback = wasmLib.wasmExecuteCallback;
+                        window.wasmExecuteCallback = wasmLib.wasmExecuteCallback;
+                        console.log('[WASM Bridge] Exposed wasmExecuteCallback globally');
+                    }
+
+                    // Also expose the animation frame callback
+                    if (wasmLib.executeAnimationFrameCallback) {
+                        window.executeAnimationFrameCallback = wasmLib.executeAnimationFrameCallback;
+                        console.log('[WASM Bridge] Exposed executeAnimationFrameCallback globally');
+                    }
+
+                    // Expose DirectDOMRenderer bridge functions
+                    if (wasmLib.removeTodo) {
+                        window.removeTodo = wasmLib.removeTodo;
+                        console.log('[WASM Bridge] Exposed removeTodo globally');
+                    }
+
+                    if (wasmLib.clearAllTodos) {
+                        window.clearAllTodos = wasmLib.clearAllTodos;
+                        console.log('[WASM Bridge] Exposed clearAllTodos globally');
+                    }
+
+                    // Create DirectDOMRenderer fallback for old cached HTML
+                    window.DirectDOMRenderer = {
+                        removeTodo: wasmLib.removeTodo || function (index) {
+                            console.warn('[WASM Bridge] DirectDOMRenderer.removeTodo fallback called, but removeTodo not available');
+                        },
+                        clearAllTodos: wasmLib.clearAllTodos || function () {
+                            console.warn('[WASM Bridge] DirectDOMRenderer.clearAllTodos fallback called, but clearAllTodos not available');
+                        }
+                    };
+                    console.log('[WASM Bridge] Created DirectDOMRenderer fallback object');
+
+                    if (!wasmLib.executeCallback && !wasmLib.wasmExecuteCallback) {
+                        console.warn('[WASM Bridge] Could not find executeCallback in library');
+                        console.log('[WASM Bridge] Library exports:', Object.keys(wasmLib));
+
+                        // The exports might be nested or named differently
+                        for (const key of Object.keys(wasmLib)) {
+                            console.log(`[WASM Bridge] Export '${key}':`, typeof wasmLib[key]);
+                        }
+                    }
+                } catch (error) {
+                    console.error('[WASM Bridge] Failed to resolve WASM library Promise:', error);
+                }
+            } else {
+                console.warn('[WASM Bridge] WASM library not found at window["wasm-seo-todo"]');
+            }
+        });
+    </script>
 </body>
 </html>

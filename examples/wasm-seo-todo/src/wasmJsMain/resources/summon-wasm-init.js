@@ -346,15 +346,80 @@
                         // Try to call WASM callback registry
                         try {
                             console.log('[Summon WASM] Trying WASM callback registry for:', handlerId);
-                            if (window.wasmExports && window.wasmExports.wasmExecuteCallback) {
-                                const success = window.wasmExports.wasmExecuteCallback(handlerId);
+                            // Try multiple ways to find the exported function
+                            let wasmExecuteCallback = null;
+
+                            // Method 1: Check for the executeCallback function we exported
+                            if (window.executeCallback) {
+                                wasmExecuteCallback = window.executeCallback;
+                            }
+                            // Method 2: Check window.wasmExports
+                            else if (window.wasmExports) {
+                                if (window.wasmExports.executeCallback) {
+                                    wasmExecuteCallback = window.wasmExports.executeCallback;
+                                } else if (window.wasmExports.wasmExecuteCallback) {
+                                    wasmExecuteCallback = window.wasmExports.wasmExecuteCallback;
+                                }
+                            }
+                            // Method 3: Check if it's directly on window
+                            else if (window.wasmExecuteCallback) {
+                                wasmExecuteCallback = window.wasmExecuteCallback;
+                            }
+                                // Method 4: Check for UMD library (webpack bundle)
+                            // Note: The UMD library might be a Promise if using top-level await
+                            else if (window['wasm-seo-todo']) {
+                                const wasmLibOrPromise = window['wasm-seo-todo'];
+
+                                // Check if it's a Promise
+                                if (wasmLibOrPromise && typeof wasmLibOrPromise.then === 'function') {
+                                    console.log('[Summon WASM] UMD library is a Promise, waiting for async resolution...');
+                                    // Store a pending flag to prevent duplicate attempts
+                                    if (!window._wasmCallbackPending) {
+                                        window._wasmCallbackPending = true;
+                                        wasmLibOrPromise.then(wasmLib => {
+                                            if (wasmLib.executeCallback) {
+                                                window.executeCallback = wasmLib.executeCallback;
+                                                window.wasmExecuteCallback = wasmLib.executeCallback;
+                                                console.log('[Summon WASM] Async: Exposed executeCallback globally');
+                                            } else if (wasmLib.wasmExecuteCallback) {
+                                                window.executeCallback = wasmLib.wasmExecuteCallback;
+                                                window.wasmExecuteCallback = wasmLib.wasmExecuteCallback;
+                                                console.log('[Summon WASM] Async: Exposed wasmExecuteCallback globally');
+                                            }
+                                            window._wasmCallbackPending = false;
+                                        }).catch(err => {
+                                            console.error('[Summon WASM] Failed to resolve UMD library Promise:', err);
+                                            window._wasmCallbackPending = false;
+                                        });
+                                    }
+                                } else {
+                                    // It's not a Promise, try to access directly
+                                    const wasmLib = wasmLibOrPromise;
+                                    if (wasmLib.executeCallback) {
+                                        wasmExecuteCallback = wasmLib.executeCallback;
+                                    } else if (wasmLib.wasmExecuteCallback) {
+                                        wasmExecuteCallback = wasmLib.wasmExecuteCallback;
+                                    }
+                                }
+                            }
+                            // Method 5: Check for __webpack_exports__
+                            else if (typeof __webpack_exports__ !== 'undefined') {
+                                if (__webpack_exports__.executeCallback) {
+                                    wasmExecuteCallback = __webpack_exports__.executeCallback;
+                                } else if (__webpack_exports__.wasmExecuteCallback) {
+                                    wasmExecuteCallback = __webpack_exports__.wasmExecuteCallback;
+                                }
+                            }
+
+                            if (wasmExecuteCallback) {
+                                const success = wasmExecuteCallback(handlerId);
                                 if (success) {
                                     console.log('[Summon WASM] Successfully executed WASM callback for:', handlerId);
                                 } else {
                                     console.warn('[Summon WASM] WASM callback not found for:', handlerId);
                                 }
                             } else {
-                                console.warn('[Summon WASM] WASM callback bridge not available');
+                                console.warn('[Summon WASM] WASM callback bridge not available - wasmExecuteCallback function not found');
                             }
                         } catch (e) {
                             console.error('[Summon WASM] Failed to call WASM callback:', e);
@@ -857,7 +922,44 @@
 
     window.wasmRequestAnimationFrame = function() {
         const frameId = requestAnimationFrame(() => {
-            // The callback will be executed via registerWasmAnimationFrameCallback
+            console.log('[Summon WASM] Animation frame executing for ID:', frameId);
+
+            // Call back into WASM with the frame ID
+            // The callback is stored in WASM and will be executed there
+            try {
+                // Try to find the executeAnimationFrameCallback function
+                let executeCallback = null;
+
+                // Check if it's directly available
+                if (window.executeAnimationFrameCallback) {
+                    executeCallback = window.executeAnimationFrameCallback;
+                }
+                // Check if it's in wasmExports
+                else if (window.wasmExports && window.wasmExports.executeAnimationFrameCallback) {
+                    executeCallback = window.wasmExports.executeAnimationFrameCallback;
+                }
+                // Check if it's in the UMD library
+                else if (window['wasm-seo-todo']) {
+                    const wasmLib = window['wasm-seo-todo'];
+                    // If it's a promise, it should already be resolved by now
+                    if (wasmLib && typeof wasmLib.then !== 'function' && wasmLib.executeAnimationFrameCallback) {
+                        executeCallback = wasmLib.executeAnimationFrameCallback;
+                    }
+                }
+
+                if (executeCallback) {
+                    const success = executeCallback(frameId);
+                    if (success) {
+                        console.log('[Summon WASM] Animation frame callback executed successfully for frame:', frameId);
+                    } else {
+                        console.warn('[Summon WASM] Animation frame callback not found for frame:', frameId);
+                    }
+                } else {
+                    console.error('[Summon WASM] executeAnimationFrameCallback function not found');
+                }
+            } catch (e) {
+                console.error('[Summon WASM] Animation frame callback failed:', e);
+            }
         });
         console.log('[Summon WASM] Requested animation frame with ID:', frameId);
         return frameId;
@@ -866,32 +968,7 @@
     window.wasmCancelAnimationFrame = function(frameId) {
         console.log('[Summon WASM] Cancelling animation frame:', frameId);
         cancelAnimationFrame(frameId);
-        animationFrameCallbacks.delete(frameId);
         return true;
-    };
-
-    window.registerWasmAnimationFrameCallback = function(frameId, callback) {
-        console.log('[Summon WASM] Registering animation frame callback for ID:', frameId);
-        animationFrameCallbacks.set(frameId, callback);
-
-        // Override the frame to execute our callback
-        cancelAnimationFrame(frameId);
-        const newFrameId = requestAnimationFrame(() => {
-            console.log('[Summon WASM] Executing animation frame callback for ID:', frameId);
-            try {
-                callback();
-            } catch (e) {
-                console.error('[Summon WASM] Animation frame callback failed:', e);
-            } finally {
-                animationFrameCallbacks.delete(frameId);
-            }
-        });
-
-        // Update the mapping if frameId changed
-        if (newFrameId !== frameId) {
-            animationFrameCallbacks.delete(frameId);
-            animationFrameCallbacks.set(newFrameId, callback);
-        }
     };
 
     // Initialize message
@@ -901,5 +978,34 @@
     if (typeof WebAssembly === 'undefined') {
         console.error('[Summon WASM] WebAssembly is not supported in this browser');
         document.body.innerHTML = '<div style="padding: 20px; text-align: center;"><h1>WebAssembly Not Supported</h1><p>Please use a modern browser that supports WebAssembly.</p></div>';
+    }
+
+    // Hook to capture WASM exports when they are available
+    // This will be called by the Kotlin/WASM module after it's loaded
+    window.registerWasmExports = function (exports) {
+        window.wasmExports = exports;
+        console.log('[Summon WASM] WASM exports registered:', Object.keys(exports));
+    };
+
+    // Also try to capture exports from webpack module loading
+    // This runs after DOMContentLoaded to ensure the module is loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(() => {
+                // Try to find and register WASM exports
+                if (typeof wasmExecuteCallback !== 'undefined') {
+                    window.wasmExecuteCallback = wasmExecuteCallback;
+                    console.log('[Summon WASM] Found wasmExecuteCallback, made it globally available');
+                }
+            }, 100);
+        });
+    } else {
+        // DOM already loaded
+        setTimeout(() => {
+            if (typeof wasmExecuteCallback !== 'undefined') {
+                window.wasmExecuteCallback = wasmExecuteCallback;
+                console.log('[Summon WASM] Found wasmExecuteCallback, made it globally available');
+            }
+        }, 100);
     }
 })();

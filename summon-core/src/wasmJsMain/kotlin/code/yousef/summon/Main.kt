@@ -11,36 +11,7 @@ import code.yousef.summon.runtime.wasmGetDocumentBodyId
  */
 private var globalRenderer: PlatformRenderer? = null
 
-/**
- * Renders a composable function as the root of the application in WASM.
- * This is the main entry point for WASM applications using Summon.
- *
- * @param rootElementId The ID of the DOM element to mount the app into (default: "root")
- * @param content The root composable function
- */
-fun renderComposableRoot(rootElementId: String = "root", content: @Composable () -> Unit) {
-    try {
-        wasmConsoleLog("Summon WASM: Initializing application...")
-
-        // Initialize the platform renderer if not already done
-        val renderer = globalRenderer ?: PlatformRenderer().also {
-            globalRenderer = it
-            setPlatformRenderer(it)
-        }
-
-        // Initialize the renderer with the root element
-        renderer.initialize(rootElementId)
-
-        // Mount the composable content
-        wasmConsoleLog("Summon WASM: Mounting composable to #$rootElementId")
-        renderer.mountComposableRoot(rootElementId, content)
-
-        wasmConsoleLog("Summon WASM: Application initialized successfully")
-    } catch (e: Exception) {
-        wasmConsoleLog("Summon WASM: Failed to initialize application - ${e.message}")
-        throw e
-    }
-}
+// The renderComposableRoot function is now in WasmApi.kt with proper CompositionLocal setup
 
 /**
  * Hydrates an existing server-rendered DOM with client-side interactivity.

@@ -11,7 +11,7 @@ fun renderComposableRoot(rootElementId: String, composable: @Composable () -> Un
     wasmConsoleLog("renderComposableRoot called for element: $rootElementId")
 
     try {
-        // Create renderer and composer
+        // Create renderer
         val renderer = PlatformRenderer()
         wasmConsoleLog("Created PlatformRenderer")
 
@@ -29,26 +29,67 @@ fun renderComposableRoot(rootElementId: String, composable: @Composable () -> Un
         // Set the root container for rendering
         renderer.setRootContainer(rootElement ?: throw Exception("Root element not found"))
 
-        // Create a composer for this composition
-        val composer = ComposerImpl()
-        wasmConsoleLog("Created Composer")
+        // Get the global Recomposer instance
+        val recomposer = RecomposerHolder.current()
+        wasmConsoleLog("Got global Recomposer")
+
+        // Create a composer from the recomposer
+        val composer = recomposer.createComposer()
+        wasmConsoleLog("Created Composer from Recomposer")
+
+        // Set the composition root so it can be called during recomposition
+        recomposer.setCompositionRoot {
+            try {
+                // Reset element counters to ensure stable IDs across recompositions
+                if (renderer is PlatformRenderer) {
+                    renderer.resetElementCounters()
+                }
+
+                wasmConsoleLog("Starting recomposition")
+
+                // Don't clear the root element - let the renderer handle updates
+                val root = DOMProvider.document.getElementById(rootElementId)
+                if (root == null) {
+                    wasmConsoleError("Root element not found during recomposition")
+                    return@setCompositionRoot
+                }
+
+                // Execute composition with LocalPlatformRenderer provided
+                CompositionLocal.setCurrentComposer(composer)
+                CompositionLocal.provideComposer(composer) {
+                    val provider = LocalPlatformRenderer.provides(renderer)
+                    if (composer is ComposerImpl) {
+                        composer.provideLocal(provider, renderer)
+                    }
+
+                    composable()
+                }
+
+                wasmConsoleLog("Recomposition completed successfully")
+            } catch (e: Exception) {
+                wasmConsoleError("Error during recomposition: ${e.message}")
+                wasmConsoleError("Stack trace: ${e.stackTraceToString()}")
+            }
+        }
 
         // Set up the composition context with the renderer provided
         CompositionLocal.setCurrentComposer(composer)
         wasmConsoleLog("Set current composer")
 
-        // Execute composition with LocalPlatformRenderer provided
+        // Execute initial composition with LocalPlatformRenderer provided
         CompositionLocal.provideComposer(composer) {
-            wasmConsoleLog("Starting composition")
+            wasmConsoleLog("Starting initial composition")
 
             // Provide the renderer manually to the composer
             val provider = LocalPlatformRenderer.provides(renderer)
-            composer.provideLocal(provider, renderer)
+            if (composer is ComposerImpl) {
+                composer.provideLocal(provider, renderer)
+            }
 
             // Execute the composable
             composable()
 
-            wasmConsoleLog("Composition completed")
+            wasmConsoleLog("Initial composition completed")
         }
 
     } catch (e: Exception) {

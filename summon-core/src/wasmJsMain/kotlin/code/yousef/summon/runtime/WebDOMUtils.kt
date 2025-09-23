@@ -34,8 +34,19 @@ actual object DOMProvider {
 
     actual fun getNativeElementId(element: DOMElement): String {
         return when (element) {
-            is WasmDOMElementWrapper -> element.elementId
-            else -> throw IllegalArgumentException("Unknown element type")
+            is WasmDOMElementWrapper -> {
+                wasmConsoleLog("getNativeElementId: WasmDOMElementWrapper with ID: ${element.elementId}")
+                element.elementId
+            }
+
+            else -> {
+                val elementType = element::class.simpleName ?: "Unknown"
+                val elementString = element.toString()
+                wasmConsoleError("getNativeElementId: Unsupported element type: $elementType")
+                wasmConsoleError("Element details: $elementString")
+                wasmConsoleError("Expected: WasmDOMElementWrapper, Got: $elementType")
+                throw IllegalArgumentException("Unknown element type: $elementType (Expected WasmDOMElementWrapper)")
+            }
         }
     }
 }
@@ -66,18 +77,18 @@ private class WasmDOMElementWrapper(val elementId: String) : DOMElement {
     }
 
     override fun appendChild(child: DOMElement) {
-        val childId = (child as WasmDOMElementWrapper).elementId
+        val childId = DOMProvider.getNativeElementId(child)
         wasmAppendChildById(elementId, childId)
     }
 
     override fun removeChild(child: DOMElement) {
-        val childId = (child as WasmDOMElementWrapper).elementId
+        val childId = DOMProvider.getNativeElementId(child)
         wasmRemoveChildById(elementId, childId)
     }
 
     override fun insertBefore(newChild: DOMElement, referenceChild: DOMElement?) {
-        val newChildId = (newChild as WasmDOMElementWrapper).elementId
-        val refChildId = (referenceChild as? WasmDOMElementWrapper)?.elementId
+        val newChildId = DOMProvider.getNativeElementId(newChild)
+        val refChildId = referenceChild?.let { DOMProvider.getNativeElementId(it) }
         if (refChildId != null) {
             wasmInsertBeforeById(elementId, newChildId, refChildId)
         } else {

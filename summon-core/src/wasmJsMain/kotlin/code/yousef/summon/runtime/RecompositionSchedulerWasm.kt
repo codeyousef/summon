@@ -5,7 +5,6 @@ package code.yousef.summon.runtime
  * Uses external functions to call JavaScript's requestAnimationFrame for optimal rendering performance.
  */
 class WasmRecompositionScheduler : RecompositionScheduler {
-    private var scheduledCallback: (() -> Unit)? = null
     private var animationFrameId: Int? = null
 
     override fun scheduleRecomposition(work: () -> Unit) {
@@ -14,26 +13,28 @@ class WasmRecompositionScheduler : RecompositionScheduler {
         // Cancel any previously scheduled work
         animationFrameId?.let {
             wasmCancelAnimationFrame(it)
+            AnimationFrameCallbackRegistry.clearCallback(it)
             wasmConsoleLog("Cancelled previous animation frame: $it")
         }
 
         // Schedule new work
-        scheduledCallback = work
         animationFrameId = wasmRequestAnimationFrame()
 
         wasmConsoleLog("Scheduled recomposition with animation frame ID: $animationFrameId")
 
-        // Register callback for when the animation frame executes
-        registerWasmAnimationFrameCallback(animationFrameId!!) {
-            wasmConsoleLog("Animation frame callback executed for ID: $animationFrameId")
-            try {
-                scheduledCallback?.invoke()
-                wasmConsoleLog("Recomposition work completed")
-            } catch (e: Exception) {
-                wasmConsoleError("Recomposition work failed: ${e.message}")
-            } finally {
-                scheduledCallback = null
-                animationFrameId = null
+        // Register the callback in our registry instead of passing the function directly
+        animationFrameId?.let { frameId ->
+            AnimationFrameCallbackRegistry.registerCallback(frameId) {
+                wasmConsoleLog("Animation frame callback executed for ID: $frameId")
+                try {
+                    work.invoke()
+                    wasmConsoleLog("Recomposition work completed")
+                } catch (e: Exception) {
+                    wasmConsoleError("Recomposition work failed: ${e.message}")
+                    wasmConsoleError("Stack trace: ${e.stackTraceToString()}")
+                } finally {
+                    animationFrameId = null
+                }
             }
         }
     }
@@ -43,6 +44,3 @@ actual fun createDefaultScheduler(): RecompositionScheduler {
     wasmConsoleLog("Creating WASM recomposition scheduler with requestAnimationFrame")
     return WasmRecompositionScheduler()
 }
-
-// External function for registering animation frame callbacks
-external fun registerWasmAnimationFrameCallback(frameId: Int, callback: () -> Unit)

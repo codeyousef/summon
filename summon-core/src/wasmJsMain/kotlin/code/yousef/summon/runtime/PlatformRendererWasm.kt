@@ -5,8 +5,8 @@ import code.yousef.summon.components.display.IconType
 import code.yousef.summon.components.feedback.*
 import code.yousef.summon.components.input.FileInfo
 import code.yousef.summon.components.navigation.Tab
-import code.yousef.summon.core.FlowContent
 import code.yousef.summon.core.FlowContentCompat
+import code.yousef.summon.core.createWasmFlowContentCompat
 import code.yousef.summon.modifier.Modifier
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
@@ -28,12 +28,18 @@ actual open class PlatformRenderer actual constructor() {
     actual open fun renderText(text: String, modifier: Modifier) {
         try {
             // Check for hydration markers in modifier
-            val summonId = modifier.attributes?.get("data-summon-id")
+            val summonId = modifier.attributes?.get("data-summon-id") ?: "text-${text.hashCode()}"
 
-            // Create or reuse text element
-            val existingElement = createOrReuseElement("span", summonId)
-            val isNewElement = existingElement == null
-            val textElement = existingElement ?: DOMProvider.document.createElement("span")
+            // Create or reuse text element (returns new element or null if reused)
+            val newElement = createOrReuseElement("span", summonId)
+            val isNewElement = newElement != null
+            val textElement = if (newElement != null) {
+                newElement
+            } else {
+                // Element is being reused - get it from the recomposition cache
+                recompositionElements[summonId]
+                    ?: throw WasmDOMException("Failed to retrieve reused element: $summonId")
+            }
 
             textElement.setAttribute("class", "summon-text")
             textElement.setAttribute("data-text", text)
@@ -72,12 +78,18 @@ actual open class PlatformRenderer actual constructor() {
         try {
             wasmConsoleLog("renderButton called, onClick = $onClick")
             // Check for hydration markers in modifier
-            val summonId = modifier.attributes?.get("data-summon-id")
+            val summonId = modifier.attributes?.get("data-summon-id") ?: "button-${onClick.hashCode()}"
 
-            // Create or reuse button element
-            val existingElement = createOrReuseElement("button", summonId)
-            val isNewElement = existingElement == null
-            val buttonElement = existingElement ?: DOMProvider.document.createElement("button")
+            // Create or reuse button element (returns new element or null if reused)
+            val newElement = createOrReuseElement("button", summonId)
+            val isNewElement = newElement != null
+            val buttonElement = if (newElement != null) {
+                newElement
+            } else {
+                // Element is being reused - get it from the recomposition cache
+                recompositionElements[summonId]
+                    ?: throw WasmDOMException("Failed to retrieve reused element: $summonId")
+            }
 
             buttonElement.setAttribute("class", "summon-button")
             buttonElement.setAttribute("type", "button")
@@ -118,12 +130,18 @@ actual open class PlatformRenderer actual constructor() {
     actual open fun renderTextField(value: String, onValueChange: (String) -> Unit, modifier: Modifier, type: String) {
         try {
             // Check for hydration markers in modifier
-            val summonId = modifier.attributes?.get("data-summon-id")
+            val summonId = modifier.attributes?.get("data-summon-id") ?: "textfield-${onValueChange.hashCode()}"
 
-            // Create or reuse input element
-            val existingElement = createOrReuseElement("input", summonId)
-            val isNewElement = existingElement == null
-            val inputElement = existingElement ?: DOMProvider.document.createElement("input")
+            // Create or reuse input element (returns new element or null if reused)
+            val newElement = createOrReuseElement("input", summonId)
+            val isNewElement = newElement != null
+            val inputElement = if (newElement != null) {
+                newElement
+            } else {
+                // Element is being reused - get it from the recomposition cache
+                recompositionElements[summonId]
+                    ?: throw WasmDOMException("Failed to retrieve reused element: $summonId")
+            }
 
             inputElement.setAttribute("class", "summon-textfield")
             inputElement.setAttribute("type", type)
@@ -285,36 +303,99 @@ actual open class PlatformRenderer actual constructor() {
     }
 
     actual open fun renderRow(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
+        // Bridge to WASM-safe version without extension receiver
+        renderRowWasmSafe(modifier) {
+            // Convert extension receiver lambda to regular lambda
+            val flowContent = createWasmFlowContentCompat()
+            flowContent.content()
+        }
+    }
+
+    private fun renderRowWasmSafe(modifier: Modifier, content: @Composable () -> Unit) {
         try {
-            // Check for hydration markers in modifier
-            val summonId = modifier.attributes?.get("data-summon-id")
+            // Check for hydration markers in modifier or use stable counter
+            val summonId = modifier.attributes?.get("data-summon-id") ?: "row-${++rowCounter}"
 
-            // Create or reuse row element
-            val existingElement = createOrReuseElement("div", summonId)
-            val isNewElement = existingElement == null
-            val rowElement = existingElement ?: DOMProvider.document.createElement("div")
-
-            rowElement.setAttribute("class", "summon-row")
-
-            // Apply CSS flexbox for horizontal layout
-            val elementId = DOMProvider.getNativeElementId(rowElement)
-            applyFlexboxLayout(elementId, "row")
-
-            // Apply modifier styles and attributes
-            applyModifierToElement(rowElement, modifier)
-
-            // Set up content rendering context
-            withContainerContext(rowElement) {
-                val contentScope = createFlowContentCompat()
-                content(contentScope)
+            // Create or reuse row element (returns new element or null if reused)
+            val newElement = createOrReuseElement("div", summonId)
+            val isNewElement = newElement != null
+            val rowElement = if (newElement != null) {
+                newElement
+            } else {
+                // Element is being reused - get it from the recomposition cache
+                recompositionElements[summonId]
+                    ?: throw WasmDOMException("Failed to retrieve reused element: $summonId")
             }
 
-            // Only append if it's a NEW element - reused elements are already in the DOM
+            // Step 1: Set class attribute
+            try {
+                wasmConsoleLog("Row Step 1: Setting class attribute for $summonId")
+                rowElement.setAttribute("class", "summon-row")
+                wasmConsoleLog("Row Step 1: SUCCESS - Class attribute set")
+            } catch (e: Exception) {
+                wasmConsoleError("Row Step 1: FAILED - setAttribute: ${e.message}")
+                throw e
+            }
+
+            // Step 2: Get native element ID
+            val elementId = try {
+                wasmConsoleLog("Row Step 2: Getting native element ID for $summonId")
+                val id = DOMProvider.getNativeElementId(rowElement)
+                wasmConsoleLog("Row Step 2: SUCCESS - Got element ID: $id")
+                id
+            } catch (e: Exception) {
+                wasmConsoleError("Row Step 2: FAILED - getNativeElementId: ${e.message}")
+                throw e
+            }
+
+            // Step 3: Apply flexbox layout
+            try {
+                wasmConsoleLog("Row Step 3: Applying flexbox layout for $elementId")
+                applyFlexboxLayout(elementId, "row")
+                wasmConsoleLog("Row Step 3: SUCCESS - Flexbox layout applied")
+            } catch (e: Exception) {
+                wasmConsoleError("Row Step 3: FAILED - applyFlexboxLayout: ${e.message}")
+                throw e
+            }
+
+            // Step 4: Apply modifier styles
+            try {
+                wasmConsoleLog("Row Step 4: Applying modifier to element $elementId")
+                applyModifierToElement(rowElement, modifier)
+                wasmConsoleLog("Row Step 4: SUCCESS - Modifier applied")
+            } catch (e: Exception) {
+                wasmConsoleError("Row Step 4: FAILED - applyModifierToElement: ${e.message}")
+                throw e
+            }
+
+            // Step 5: Set up content rendering context
+            try {
+                wasmConsoleLog("Row Step 5: Setting up container context for $elementId")
+                withContainerContext(rowElement) {
+                    wasmConsoleLog("Row Step 5a: Inside container context")
+                    wasmConsoleLog("Row Step 5b: Executing content block directly (no extension receiver)")
+                    // Direct invocation without extension receiver to avoid WASM cast issues
+                    content()
+                    wasmConsoleLog("Row Step 5c: Content block completed successfully")
+                }
+                wasmConsoleLog("Row Step 5: SUCCESS - Container context completed")
+            } catch (e: Exception) {
+                wasmConsoleError("Row Step 5: FAILED - withContainerContext: ${e.message}")
+                throw e
+            }
+
+            // Step 6: Append to container if new element
             if (isNewElement) {
-                wasmConsoleLog("Appending NEW Row element $elementId to container")
-                appendToCurrentContainer(rowElement)
+                try {
+                    wasmConsoleLog("Row Step 6: Appending NEW Row element $elementId to container")
+                    appendToCurrentContainer(rowElement)
+                    wasmConsoleLog("Row Step 6: SUCCESS - Element appended to container")
+                } catch (e: Exception) {
+                    wasmConsoleError("Row Step 6: FAILED - appendToCurrentContainer: ${e.message}")
+                    throw e
+                }
             } else {
-                wasmConsoleLog("Skipping append for REUSED Row element $elementId")
+                wasmConsoleLog("Row Step 6: Skipping append for REUSED Row element $elementId")
             }
 
         } catch (e: Exception) {
@@ -324,36 +405,99 @@ actual open class PlatformRenderer actual constructor() {
     }
 
     actual open fun renderColumn(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
+        // Bridge to WASM-safe version without extension receiver
+        renderColumnWasmSafe(modifier) {
+            // Convert extension receiver lambda to regular lambda
+            val flowContent = createWasmFlowContentCompat()
+            flowContent.content()
+        }
+    }
+
+    private fun renderColumnWasmSafe(modifier: Modifier, content: @Composable () -> Unit) {
         try {
-            // Check for hydration markers in modifier
-            val summonId = modifier.attributes?.get("data-summon-id")
+            // Check for hydration markers in modifier or use stable counter
+            val summonId = modifier.attributes?.get("data-summon-id") ?: "column-${++columnCounter}"
 
-            // Create or reuse column element
-            val existingElement = createOrReuseElement("div", summonId)
-            val isNewElement = existingElement == null
-            val columnElement = existingElement ?: DOMProvider.document.createElement("div")
-
-            columnElement.setAttribute("class", "summon-column")
-
-            // Apply CSS flexbox for vertical layout
-            val elementId = DOMProvider.getNativeElementId(columnElement)
-            applyFlexboxLayout(elementId, "column")
-
-            // Apply modifier styles and attributes
-            applyModifierToElement(columnElement, modifier)
-
-            // Set up content rendering context
-            withContainerContext(columnElement) {
-                val contentScope = createFlowContentCompat()
-                content(contentScope)
+            // Create or reuse column element (returns new element or null if reused)
+            val newElement = createOrReuseElement("div", summonId)
+            val isNewElement = newElement != null
+            val columnElement = if (newElement != null) {
+                newElement
+            } else {
+                // Element is being reused - get it from the recomposition cache
+                recompositionElements[summonId]
+                    ?: throw WasmDOMException("Failed to retrieve reused element: $summonId")
             }
 
-            // Only append if it's a NEW element - reused elements are already in the DOM
+            // Step 1: Set class attribute
+            try {
+                wasmConsoleLog("Column Step 1: Setting class attribute for $summonId")
+                columnElement.setAttribute("class", "summon-column")
+                wasmConsoleLog("Column Step 1: SUCCESS - Class attribute set")
+            } catch (e: Exception) {
+                wasmConsoleError("Column Step 1: FAILED - setAttribute: ${e.message}")
+                throw e
+            }
+
+            // Step 2: Get native element ID
+            val elementId = try {
+                wasmConsoleLog("Column Step 2: Getting native element ID for $summonId")
+                val id = DOMProvider.getNativeElementId(columnElement)
+                wasmConsoleLog("Column Step 2: SUCCESS - Got element ID: $id")
+                id
+            } catch (e: Exception) {
+                wasmConsoleError("Column Step 2: FAILED - getNativeElementId: ${e.message}")
+                throw e
+            }
+
+            // Step 3: Apply flexbox layout
+            try {
+                wasmConsoleLog("Column Step 3: Applying flexbox layout for $elementId")
+                applyFlexboxLayout(elementId, "column")
+                wasmConsoleLog("Column Step 3: SUCCESS - Flexbox layout applied")
+            } catch (e: Exception) {
+                wasmConsoleError("Column Step 3: FAILED - applyFlexboxLayout: ${e.message}")
+                throw e
+            }
+
+            // Step 4: Apply modifier styles
+            try {
+                wasmConsoleLog("Column Step 4: Applying modifier to element $elementId")
+                applyModifierToElement(columnElement, modifier)
+                wasmConsoleLog("Column Step 4: SUCCESS - Modifier applied")
+            } catch (e: Exception) {
+                wasmConsoleError("Column Step 4: FAILED - applyModifierToElement: ${e.message}")
+                throw e
+            }
+
+            // Step 5: Set up content rendering context
+            try {
+                wasmConsoleLog("Column Step 5: Setting up container context for $elementId")
+                withContainerContext(columnElement) {
+                    wasmConsoleLog("Column Step 5a: Inside container context")
+                    wasmConsoleLog("Column Step 5b: Executing content block directly (no extension receiver)")
+                    // Direct invocation without extension receiver to avoid WASM cast issues
+                    content()
+                    wasmConsoleLog("Column Step 5c: Content block completed successfully")
+                }
+                wasmConsoleLog("Column Step 5: SUCCESS - Container context completed")
+            } catch (e: Exception) {
+                wasmConsoleError("Column Step 5: FAILED - withContainerContext: ${e.message}")
+                throw e
+            }
+
+            // Step 6: Append to container if new element
             if (isNewElement) {
-                wasmConsoleLog("Appending NEW Column element $elementId to container")
-                appendToCurrentContainer(columnElement)
+                try {
+                    wasmConsoleLog("Column Step 6: Appending NEW Column element $elementId to container")
+                    appendToCurrentContainer(columnElement)
+                    wasmConsoleLog("Column Step 6: SUCCESS - Element appended to container")
+                } catch (e: Exception) {
+                    wasmConsoleError("Column Step 6: FAILED - appendToCurrentContainer: ${e.message}")
+                    throw e
+                }
             } else {
-                wasmConsoleLog("Skipping append for REUSED Column element $elementId")
+                wasmConsoleLog("Column Step 6: Skipping append for REUSED Column element $elementId")
             }
 
         } catch (e: Exception) {
@@ -597,7 +741,13 @@ actual open class PlatformRenderer actual constructor() {
             // Create or reuse div element
             val existingElement = createOrReuseElement("div", summonId)
             val isNewElement = existingElement == null
-            val divElement = existingElement ?: DOMProvider.document.createElement("div")
+            val divElement = if (existingElement != null) {
+                existingElement
+            } else {
+                // Element is being reused - get it from the recomposition cache
+                recompositionElements[summonId]
+                    ?: throw WasmDOMException("Failed to retrieve reused element: $summonId")
+            }
 
             divElement.setAttribute("class", "summon-div")
 
@@ -825,8 +975,23 @@ actual open class PlatformRenderer actual constructor() {
     // WASM DOM Helper Functions
     // These provide the infrastructure needed for actual DOM manipulation
 
-    private val containerStack = mutableListOf<DOMElement>()
-    private var rootContainer: DOMElement? = null
+    private val containerStack = mutableListOf<String?>()
+    private var rootContainer: String? = null
+
+    // Stable ID counters for Row and Column elements to ensure reuse during recomposition
+    private var rowCounter = 0
+    private var columnCounter = 0
+
+    /**
+     * Resets element counters to ensure stable IDs across recompositions.
+     * This should be called at the start of each recomposition to ensure
+     * elements get the same IDs and can be reused from cache.
+     */
+    fun resetElementCounters() {
+        rowCounter = 0
+        columnCounter = 0
+        wasmConsoleLog("Reset element counters for recomposition")
+    }
 
     // Hydration-specific state
     private var isHydrating = false
@@ -891,7 +1056,8 @@ actual open class PlatformRenderer actual constructor() {
      * Execute code within a container context for nested rendering.
      */
     private inline fun withContainerContext(container: DOMElement, block: () -> Unit) {
-        containerStack.add(container)
+        val containerId = DOMProvider.getNativeElementId(container)
+        containerStack.add(containerId)
         try {
             block()
         } finally {
@@ -907,10 +1073,9 @@ actual open class PlatformRenderer actual constructor() {
     private fun appendToCurrentContainer(element: DOMElement) {
         try {
             val elementId = DOMProvider.getNativeElementId(element)
-            val currentContainer = containerStack.lastOrNull() ?: rootContainer
+            val containerId = containerStack.lastOrNull() ?: rootContainer
 
-            if (currentContainer != null) {
-                val containerId = DOMProvider.getNativeElementId(currentContainer)
+            if (containerId != null) {
 
                 // Check if element is already placed in this recomposition pass
                 if (placedElements.contains(elementId)) {
@@ -929,11 +1094,13 @@ actual open class PlatformRenderer actual constructor() {
 
                 // Element needs to be appended/moved
                 wasmConsoleLog("Appending element $elementId to container $containerId")
-                currentContainer.appendChild(element)
+                // Use WASM external function directly to avoid type casting issues
+                wasmAppendChildById(containerId, elementId)
                 placedElements.add(elementId)
             } else {
                 // If no container context, append to document body
-                DOMProvider.document.body?.appendChild(element)
+                val bodyId = wasmGetElementById("body") ?: "body"
+                wasmAppendChildById(bodyId, elementId)
                 placedElements.add(elementId)
             }
         } catch (e: Exception) {
@@ -945,17 +1112,14 @@ actual open class PlatformRenderer actual constructor() {
      * Create a FlowContentCompat scope for content rendering.
      */
     private fun createFlowContentCompat(): FlowContentCompat {
-        return object : FlowContentCompat() {
-            // Minimal implementation for content rendering context
-            // This would be enhanced with full FlowContentCompat implementation
-        }
+        return createWasmFlowContentCompat()
     }
 
     /**
      * Set the root container for rendering.
      */
     fun setRootContainer(container: DOMElement) {
-        rootContainer = container
+        rootContainer = DOMProvider.getNativeElementId(container)
     }
 
     /**
@@ -1021,6 +1185,11 @@ actual open class PlatformRenderer actual constructor() {
 
             // Create a wrapped composable that includes the container context
             val wrappedComposable: @Composable () -> Unit = {
+                // Reset ID counters for stable ID generation across recompositions
+                // This ensures elements rendered in the same order get the same IDs
+                rowCounter = 0
+                columnCounter = 0
+
                 // Clear placement tracking for new recomposition pass
                 placedElements.clear()
 
@@ -1199,41 +1368,95 @@ actual open class PlatformRenderer actual constructor() {
 
     /**
      * Enhanced element creation that checks for existing elements during hydration and recomposition.
+     * Returns null if element is reused (already in DOM), or the new element if created
      */
     private fun createOrReuseElement(tagName: String, summonId: String? = null): DOMElement? {
+        // Generate a summonId if not provided
+        val effectiveSummonId = summonId ?: "$tagName-${wasmPerformanceNow().toLong()}"
+        wasmConsoleLog("createOrReuseElement: Starting for $tagName with ID $effectiveSummonId")
+
         // Track element in current composition
-        if (summonId != null) {
-            currentCompositionElements.add(summonId)
-        }
+        currentCompositionElements.add(effectiveSummonId)
 
-        // Priority 1: Check recomposition cache if summonId provided
-        if (summonId != null && recompositionElements.containsKey(summonId)) {
-            val reusedElement = recompositionElements[summonId]
+        // Priority 1: Check recomposition cache
+        if (recompositionElements.containsKey(effectiveSummonId)) {
+            val reusedElement = recompositionElements[effectiveSummonId]
             if (reusedElement != null) {
-                wasmConsoleLog("Reusing recomposition element: $summonId")
-                return reusedElement
+                try {
+                    // Validate the reused element type
+                    val elementType = reusedElement::class.simpleName ?: "Unknown"
+                    wasmConsoleLog("createOrReuseElement: Found cached element type: $elementType")
+
+                    // Validate the element by trying to get its native ID
+                    DOMProvider.getNativeElementId(reusedElement)
+                    wasmConsoleLog("createOrReuseElement: Reusing valid recomposition element: $effectiveSummonId")
+                    return null // Return null to indicate element is reused and already in DOM
+                } catch (e: Exception) {
+                    // CRITICAL FIX: When validation fails, immediately create new element
+                    wasmConsoleError("createOrReuseElement: Validation failed for cached element: ${e.message}")
+                    // Remove the invalid element from cache
+                    recompositionElements.remove(effectiveSummonId)
+                    wasmConsoleError("createOrReuseElement: Removed invalid element from cache, will create new one")
+                    // Don't continue with other cache checks - create fresh element immediately
+                    // Fall through to Priority 3: Create new element
+                }
             }
+        } else {
+            wasmConsoleLog("createOrReuseElement: No element found in recomposition cache for: $effectiveSummonId")
         }
 
-        // Priority 2: Check hydration cache if hydrating
-        if (isHydrating && summonId != null && existingElements.containsKey(summonId)) {
-            val existingElement = existingElements[summonId]
+        // Priority 2: Check hydration cache if hydrating (only if recomposition cache didn't fail validation)
+        if (isHydrating && existingElements.containsKey(effectiveSummonId)) {
+            val existingElement = existingElements[effectiveSummonId]
             if (existingElement != null) {
-                wasmConsoleLog("Reusing hydration element: $summonId")
-                return existingElement
+                try {
+                    val elementType = existingElement::class.simpleName ?: "Unknown"
+                    wasmConsoleLog("createOrReuseElement: Found hydration element type: $elementType")
+
+                    // Validate the element by trying to get its native ID
+                    DOMProvider.getNativeElementId(existingElement)
+                    wasmConsoleLog("createOrReuseElement: Reusing valid hydration element: $effectiveSummonId")
+                    // Move to recomposition cache for future use
+                    recompositionElements[effectiveSummonId] = existingElement
+                    return null // Return null to indicate element is reused and already in DOM
+                } catch (e: Exception) {
+                    // CRITICAL FIX: When validation fails, immediately create new element
+                    wasmConsoleError("createOrReuseElement: Validation failed for hydration element: ${e.message}")
+                    existingElements.remove(effectiveSummonId)
+                    // Don't continue - create fresh element immediately
+                    // Fall through to Priority 3: Create new element
+                }
             }
         }
 
         // Priority 3: Create new element
-        val newElement = DOMProvider.document.createElement(tagName)
+        try {
+            wasmConsoleLog("createOrReuseElement: Creating new $tagName element")
+            val newElement = DOMProvider.document.createElement(tagName)
 
-        // Cache the new element for future recompositions if summonId provided
-        if (summonId != null) {
-            recompositionElements[summonId] = newElement
-            wasmConsoleLog("Caching new element for recomposition: $summonId")
+            // Validate the newly created element
+            val newElementType = newElement::class.simpleName ?: "Unknown"
+            wasmConsoleLog("createOrReuseElement: Created element type: $newElementType")
+
+            // Validate the newly created element by trying to get its native ID
+            try {
+                DOMProvider.getNativeElementId(newElement)
+                wasmConsoleLog("createOrReuseElement: New element validation successful")
+            } catch (typeError: IllegalArgumentException) {
+                wasmConsoleError("createOrReuseElement: CRITICAL ERROR - DOMProvider.document.createElement returned wrong type: $newElementType")
+                wasmConsoleError("createOrReuseElement: Type validation failed: $typeError")
+                throw WasmDOMException("Element creation failed - wrong type returned: $newElementType")
+            }
+
+            // Cache the new element for future recompositions
+            recompositionElements[effectiveSummonId] = newElement
+            wasmConsoleLog("createOrReuseElement: Created and cached new element: $effectiveSummonId")
+
+            return newElement // Return the new element to be appended to DOM
+        } catch (e: Exception) {
+            wasmConsoleError("createOrReuseElement: FAILED to create element: ${e.message}")
+            throw e
         }
-
-        return newElement
     }
 
     /**
