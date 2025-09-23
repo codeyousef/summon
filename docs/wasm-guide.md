@@ -49,8 +49,9 @@ implementation provides:
 Create a new WASM project:
 
 ```bash
-# Install Summon CLI
-npm install -g @summon/cli
+# Download Summon CLI from GitHub Packages
+# Visit: https://github.com/codeyousef/summon/packages
+# Or use the native executable directly
 
 # Create WASM project
 summon init my-wasm-app --template=wasm
@@ -247,6 +248,7 @@ fun main() {
 
 ```bash
 # Start development server with hot reload
+# (Note: CLI commands depend on having Summon CLI from GitHub Packages)
 summon dev --target=wasm --hot-reload
 
 # Custom webpack dev server
