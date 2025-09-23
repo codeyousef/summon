@@ -39,11 +39,13 @@ maintaining perfect SEO compatibility through server-side rendering.
 
 ##### 📚 **Documentation & Tooling**
 
+- **Complete WASM Documentation**: New comprehensive WASM guide and API reference
 - **Migration Guide**: Zero-breaking-changes upgrade path for existing applications
 - **Troubleshooting Guide**: Comprehensive WASM debugging and optimization strategies
 - **Framework Integration**: Guides for Ktor, Spring Boot, and Quarkus
 - **Performance Profiling**: Tools for analyzing WASM vs JS performance
 - **Example Projects**: Updated SSR and WASM demo applications
+- **API Reference**: New WASM-specific API documentation covering all WASM features
 
 #### Technical Achievements
 
