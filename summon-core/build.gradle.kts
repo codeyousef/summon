@@ -12,6 +12,7 @@ group = "io.github.codeyousef"
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
+    // Removed atomicfu plugin - causes KLIB duplication with Kotlin 2.1.0
     `maven-publish`
     signing
 }
@@ -78,6 +79,15 @@ kotlin {
             }
         }
         binaries.executable()
+
+        // WASM production build compiler options (Kotlin 2.2.20+)
+        compilerOptions {
+            freeCompilerArgs.addAll(
+                "-Xwasm-debugger-custom-formatters", // Enable debugging support for production
+                "-Xir-dce=false",                     // Disable dead code elimination to prevent symbol issues
+                "-Xir-minimized-member-names=false"   // Keep member names for proper symbol resolution
+            )
+        }
     }
 
     sourceSets {
@@ -89,7 +99,7 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.html)
                 implementation(libs.kotlinx.datetime)
-                implementation(libs.atomicfu)
+                // Removed atomicfu - causing persistent IC cache issues
             }
         }
         val commonTest by getting {
@@ -140,7 +150,7 @@ kotlin {
         val webMain by creating {
             dependsOn(commonMain)
             dependencies {
-                implementation(libs.kotlinx.html)
+                // Removed kotlinx.html to prevent W3C DOM type leakage into WASM
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)
             }
@@ -150,6 +160,7 @@ kotlin {
             dependsOn(webMain)
             dependencies {
                 implementation(libs.kotlinx.html.js)
+                implementation(libs.kotlinx.html) // Add generic kotlinx.html for JS target
                 implementation(libs.kotlin.js)
                 implementation(libs.kotlin.extensions)
                 implementation(libs.kotlin.browser)
@@ -159,17 +170,18 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json.js)
                 implementation(libs.kotlin.stdlib.js)
                 implementation(libs.kotlin.stdlib.common)
+                // Removed atomicfu - causing persistent IC cache issues
             }
         }
 
         val wasmJsMain by getting {
             dependsOn(webMain)
             dependencies {
-                implementation(libs.kotlinx.html)
-                // Note: kotlin-browser doesn't have WASM support yet
-                // We'll use external declarations instead
+                // kotlinx-browser provides WASM-compatible DOM API types (replaces org.w3c.dom.events from stdlib)
+                implementation("org.jetbrains.kotlinx:kotlinx-browser:0.3")
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)
+                // Removed atomicfu - causing persistent IC cache issues
             }
         }
 

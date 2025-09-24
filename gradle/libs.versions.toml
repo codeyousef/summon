@@ -1,6 +1,6 @@
 [versions]
 # Kotlin
-kotlin = "2.2.0"
+kotlin = "2.1.0"
 
 # Kotlinx
 kotlinxCoroutines = "1.10.2"
@@ -9,7 +9,7 @@ kotlinxCoroutinesJdk8 = "1.10.1"
 kotlinxSerialization = "1.8.1"
 kotlinxHtml = "0.12.0"
 kotlinxDatetime = "0.6.2"
-atomicfu = "0.23.2"
+atomicfu = "0.25.0"
 
 # Kotlin Wrappers
 kotlinWrappersBase = "1.0.0-pre.682"
@@ -123,3 +123,4 @@ spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }
 spring-dependency-management = { id = "io.spring.dependency-management", version = "1.1.7" }
 shadow-jar = { id = "com.github.johnrengelman.shadow", version.ref = "shadowJar" }
 graalvm-native-image = { id = "org.graalvm.buildtools.native", version.ref = "graalvm" }
+atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "atomicfu" }
