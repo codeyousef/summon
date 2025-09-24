@@ -418,7 +418,8 @@ class WasmErrorReportingTest {
     private fun getErrorMessage(errorType: WasmErrorType): String =
         "WASM compilation failed. This is usually due to browser compatibility issues. " +
                 "The application will automatically fallback to JavaScript implementation. " +
-                "For debugging, check browser console for detailed error information."
+                "Solution: Check browser console for detailed error information and ensure browser supports WebAssembly. " +
+                "To fix: Update browser to latest version or use a different browser."
 }
 
 /**

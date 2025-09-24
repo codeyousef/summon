@@ -94,7 +94,8 @@ object CompatibilityUtils {
             }
 
             "safari" -> when {
-                version >= 15 -> setOf("modern-js")
+                version >= 15 -> setOf("wasm-basic", "modern-js")
+                version >= 14 -> setOf("modern-js")
                 else -> emptySet()
             }
 
@@ -107,6 +108,10 @@ object CompatibilityUtils {
         if (support.browserName == "safari" && !support.hasWasm) {
             workarounds.add("safari-wasm-fallback")
             workarounds.add("safari-module-fallback")
+        }
+        // Apply Firefox performance fix only for older versions with hasWasm
+        if (support.browserName == "firefox" && support.hasWasm && support.browserVersion < 110) {
+            workarounds.add("firefox-performance-fix")
         }
         return workarounds
     }
