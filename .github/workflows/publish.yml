@@ -1,4 +1,4 @@
-name: Publish to GitHub Packages
+name: Publish CLI to GitHub Packages
 on:
   release:
     types: [created]
@@ -8,7 +8,7 @@ permissions:
   packages: write
   
 jobs:
-  publish:
+  publish-cli:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -28,10 +28,6 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       
-      - name: Setup Chrome for JS tests
-        uses: browser-actions/setup-chrome@latest
-        with:
-          chrome-version: stable
       
       - name: Extract and Verify Version
         id: version
@@ -47,10 +43,10 @@ jobs:
             echo "::warning::Version $VERSION of summon-cli already exists in GitHub Packages"
           fi
       
-      - name: Build and Test
-        run: ./gradlew build
+      - name: Build CLI
+        run: ./gradlew summon-cli:build
       
-      - name: Publish to GitHub Packages
-        run: ./gradlew publishAllPublicationsToGitHubPackagesRepository
+      - name: Publish CLI to GitHub Packages
+        run: ./gradlew summon-cli:publishAllPublicationsToGitHubPackagesRepository
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
