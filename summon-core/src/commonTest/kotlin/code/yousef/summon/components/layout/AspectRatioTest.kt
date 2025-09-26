@@ -2,7 +2,7 @@ package code.yousef.summon.components.layout
 
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
+import code.yousef.summon.util.runComposableTest
 import kotlin.test.*
 
 /**
@@ -16,7 +16,7 @@ class AspectRatioTest {
         val mockRenderer = MockPlatformRenderer()
 
         // Set up the composition context using runTestComposable
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             // Call the AspectRatio component with default modifier
             AspectRatio(ratio = 16f / 9f) {
                 // Empty content
@@ -39,7 +39,7 @@ class AspectRatioTest {
         val customModifier = Modifier().background("blue")
 
         // Set up the composition context using runTestComposable
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             // Call the AspectRatio component with custom modifier
             AspectRatio(ratio = 16f / 9f, modifier = customModifier) {
                 // Empty content
@@ -59,7 +59,7 @@ class AspectRatioTest {
         val mockRenderer = MockPlatformRenderer()
 
         // Set up the composition context using runTestComposable
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             // Test with square aspect ratio (1:1)
             AspectRatio(ratio = 1f) {
                 // Empty content
@@ -70,7 +70,7 @@ class AspectRatioTest {
             assertEquals(1f, mockRenderer.lastAspectRatioRatioRendered, "Ratio should be 1.0")
         }
 
-        runTestComposable(mockRenderer) { 
+        runComposableTest(mockRenderer) { 
             // Test with portrait aspect ratio (9:16)
             AspectRatio(ratio = 9f / 16f) {
                 // Empty content

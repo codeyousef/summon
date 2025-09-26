@@ -1,12 +1,8 @@
 package code.yousef.summon.components.display
 
 import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
-import kotlin.test.Test
-import kotlin.test.assertTrue
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertFalse
+import code.yousef.summon.util.runComposableTest
+import kotlin.test.*
 
 class RichTextTest {
 
@@ -14,8 +10,8 @@ class RichTextTest {
     fun testRichTextWithSafeHTML() {
         val mockRenderer = MockPlatformRenderer()
         val safeHtml = "<p>This is <strong>bold</strong> text.</p>"
-        
-        runTestComposable(mockRenderer) {
+
+        runComposableTest(mockRenderer) {
             RichText(safeHtml)
         }
         
@@ -28,8 +24,8 @@ class RichTextTest {
     fun testRichTextWithSanitizationDisabled() {
         val mockRenderer = MockPlatformRenderer()
         val rawHtml = "<p>Raw HTML with <script>alert('xss')</script></p>"
-        
-        runTestComposable(mockRenderer) {
+
+        runComposableTest(mockRenderer) {
             RichText(rawHtml, sanitize = false)
         }
         
@@ -46,8 +42,8 @@ class RichTextTest {
             <img src="x" onerror="alert('xss')">
             <a href="javascript:alert('xss')">Click me</a>
         """.trimIndent()
-        
-        runTestComposable(mockRenderer) {
+
+        runComposableTest(mockRenderer) {
             RichText(maliciousHtml, sanitize = true)
         }
         
@@ -66,8 +62,8 @@ class RichTextTest {
     fun testHtmlComponentForTrustedContent() {
         val mockRenderer = MockPlatformRenderer()
         val trustedHtml = "<div class='trusted'><p>Trusted content</p></div>"
-        
-        runTestComposable(mockRenderer) {
+
+        runComposableTest(mockRenderer) {
             Html(trustedHtml)
         }
         
@@ -90,8 +86,8 @@ class RichTextTest {
             
             [Link](https://example.com)
         """.trimIndent()
-        
-        runTestComposable(mockRenderer) {
+
+        runComposableTest(mockRenderer) {
             Markdown(markdown)
         }
         
@@ -112,8 +108,8 @@ class RichTextTest {
     @Test
     fun testRichTextWithModifier() {
         val mockRenderer = MockPlatformRenderer()
-        
-        runTestComposable(mockRenderer) {
+
+        runComposableTest(mockRenderer) {
             RichText(
                 "<p>Styled content</p>",
                 modifier = code.yousef.summon.modifier.Modifier()
@@ -131,8 +127,8 @@ class RichTextTest {
     @Test
     fun testRichTextWithEmptyContent() {
         val mockRenderer = MockPlatformRenderer()
-        
-        runTestComposable(mockRenderer) {
+
+        runComposableTest(mockRenderer) {
             RichText("")
         }
         
@@ -154,8 +150,8 @@ class RichTextTest {
             <code>inline code</code>
             <pre>code block</pre>
         """.trimIndent()
-        
-        runTestComposable(mockRenderer) {
+
+        runComposableTest(mockRenderer) {
             RichText(allowedHtml, sanitize = true)
         }
         

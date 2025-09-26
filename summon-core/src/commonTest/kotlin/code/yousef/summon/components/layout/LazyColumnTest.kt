@@ -2,7 +2,7 @@ package code.yousef.summon.components.layout
 
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
+import code.yousef.summon.util.runComposableTest
 import kotlin.test.*
 
 /**
@@ -13,7 +13,7 @@ class LazyColumnTest {
     @Test
     fun testLazyColumnWithDefaultParameters() {
         val mockRenderer = MockPlatformRenderer()
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             LazyColumn {
                 // Empty content
             }
@@ -36,7 +36,7 @@ class LazyColumnTest {
         val mockRenderer = MockPlatformRenderer()
         val customModifier = Modifier().background("green")
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             LazyColumn(modifier = customModifier) {
                 // Empty content
             }
@@ -56,7 +56,7 @@ class LazyColumnTest {
     fun testLazyColumnWithItems() {
         val mockRenderer = MockPlatformRenderer()
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             LazyColumn {
                 item {
                     // Item content

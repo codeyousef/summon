@@ -4,9 +4,11 @@ import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.*
-import code.yousef.summon.runtime.remember
 import code.yousef.summon.state.mutableStateOf
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * Tests specifically for composition context during SSR.
@@ -25,7 +27,8 @@ class CompositionContextSSRTest {
             // This should work - accessing the current composer during composition
             val composer = CompositionLocal.currentComposer
             assertNotNull(composer, "Composer should be available during SSR composition")
-            
+
+            @Suppress("SENSELESS_COMPARISON")
             Text("Composer available: ${composer != null}", modifier = Modifier())
         }
         

@@ -74,6 +74,7 @@ class PlatformTargetTest {
     fun `server target should be identifiable`() {
         val serverTarget = PlatformTarget.JVM
 
+        @Suppress("SENSELESS_COMPARISON", "USELESS_IS_CHECK")
         val isServerTarget = when (serverTarget) {
             is PlatformTarget.JVM -> true
             is PlatformTarget.JavaScript -> false

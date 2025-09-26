@@ -139,10 +139,12 @@ class BrowserCompatibilityTest {
         assertNotNull(fatalAction)
 
         // Test fallback action properties
+        @Suppress("USELESS_IS_CHECK")
         assertTrue(fallbackAction is ErrorAction.Fallback)
         assertEquals(RenderingStrategy.JS_COMPATIBLE, fallbackAction.strategy)
 
         // Test graceful action properties
+        @Suppress("USELESS_IS_CHECK")
         assertTrue(gracefulAction is ErrorAction.Graceful)
         assertEquals("Test message", gracefulAction.message)
     }

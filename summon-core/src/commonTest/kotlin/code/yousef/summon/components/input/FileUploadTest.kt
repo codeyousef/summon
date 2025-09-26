@@ -6,7 +6,7 @@ import code.yousef.summon.components.input.FileInfo
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.MockPlatformRenderer
 import code.yousef.summon.state.State
-import code.yousef.summon.util.runTestComposable
+import code.yousef.summon.util.runComposableTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -30,7 +30,7 @@ class FileUploadTest {
             selectedTestFiles = files
         }
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             FileUpload(
                 onFilesSelected = onFilesSelectedLambda,
                 accept = acceptType,
@@ -80,7 +80,7 @@ class FileUploadTest {
         val mockRenderer = MockPlatformRenderer()
         val onFilesSelectedLambda: (List<ExpectFileInfo>) -> Unit = { /* No-op */ }
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             FileUpload(
                 onFilesSelected = onFilesSelectedLambda,
                 enabled = false // Explicitly disable
@@ -100,7 +100,7 @@ class FileUploadTest {
         val mockRenderer = MockPlatformRenderer()
         var stateResult: State<List<ExpectFileInfo>>? = null
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             // Call the stateful overload (returns State)
             stateResult = FileUpload(
                 // Pass other params if needed for verification

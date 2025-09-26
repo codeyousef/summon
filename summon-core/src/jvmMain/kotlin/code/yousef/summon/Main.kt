@@ -5,7 +5,6 @@ import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.components.layout.Row
 import code.yousef.summon.components.layout.Spacer
-import code.yousef.summon.core.Composable
 import code.yousef.summon.modifier.Modifier
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
@@ -51,7 +50,8 @@ fun main() {
  */
 private fun createContactForm(): String {
     // Create a form layout
-    val form = object : Composable {
+    @Suppress("DEPRECATION")
+    val form = object : code.yousef.summon.core.Composable {
         override fun <T> compose(receiver: T): T {
             Column(
                 modifier = Modifier()
@@ -127,7 +127,7 @@ private fun createContactForm(): String {
  */
 private fun createUIExample(): String {
     // Create a more advanced UI with enhanced styling
-    val example = object : Composable {
+    val example = @Suppress("DEPRECATION") object : code.yousef.summon.core.Composable {
         override fun <T> compose(receiver: T): T {
             Column(
                 modifier = Modifier()
@@ -244,7 +244,9 @@ private fun createUIExample(): String {
  * Class for creating text component examples.
  */
 class TextExample {
-    fun createTextDemo(): Composable = object : Composable {
+    @Suppress("DEPRECATION")
+    fun createTextDemo(): code.yousef.summon.core.Composable =
+        @Suppress("DEPRECATION") object : code.yousef.summon.core.Composable {
         override fun <T> compose(receiver: T): T {
             Column(
                 modifier = Modifier()
@@ -345,7 +347,9 @@ private fun createTextExample(): String {
  * Card example showcase class.
  */
 object CardExample {
-    fun cardLayout(): Composable = object : Composable {
+    @Suppress("DEPRECATION")
+    fun cardLayout(): code.yousef.summon.core.Composable =
+        @Suppress("DEPRECATION") object : code.yousef.summon.core.Composable {
         override fun <T> compose(receiver: T): T {
             Column(
                 modifier = Modifier()
@@ -426,7 +430,9 @@ private fun createCardExample(): String {
  * Image example showcase object.
  */
 object ImageExample {
-    fun basicImage(): Composable = object : Composable {
+    @Suppress("DEPRECATION")
+    fun basicImage(): code.yousef.summon.core.Composable =
+        @Suppress("DEPRECATION") object : code.yousef.summon.core.Composable {
         override fun <T> compose(receiver: T): T {
             Column(
                 modifier = Modifier()
@@ -449,7 +455,9 @@ object ImageExample {
         }
     }
 
-    fun multipleImages(): Composable = object : Composable {
+    @Suppress("DEPRECATION")
+    fun multipleImages(): code.yousef.summon.core.Composable =
+        @Suppress("DEPRECATION") object : code.yousef.summon.core.Composable {
         override fun <T> compose(receiver: T): T {
             Column(
                 modifier = Modifier()
@@ -482,7 +490,7 @@ private fun createImageExample(): String {
     val multipleImagesExample = ImageExample.multipleImages()
 
     // Combine both examples in a column
-    val example = object : Composable {
+    val example = @Suppress("DEPRECATION") object : code.yousef.summon.core.Composable {
         override fun <T> compose(receiver: T): T {
             Column(
                 modifier = Modifier()
@@ -560,7 +568,9 @@ private fun createImageExample(): String {
  * Divider example showcase object.
  */
 object DividerExample {
-    fun create(): Composable = object : Composable {
+    @Suppress("DEPRECATION")
+    fun create(): code.yousef.summon.core.Composable =
+        @Suppress("DEPRECATION") object : code.yousef.summon.core.Composable {
         override fun <T> compose(receiver: T): T {
             Column(
                 modifier = Modifier()

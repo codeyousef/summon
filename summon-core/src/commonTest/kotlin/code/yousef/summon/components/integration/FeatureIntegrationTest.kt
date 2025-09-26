@@ -1,20 +1,16 @@
 package code.yousef.summon.components.integration
 
-import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
-import code.yousef.summon.components.style.GlobalStyle
-import code.yousef.summon.components.style.GlobalKeyframes
-import code.yousef.summon.components.style.CssVariables
-import code.yousef.summon.components.display.RichText
-import code.yousef.summon.components.display.Html
-import code.yousef.summon.components.core.ThemeProvider
 import code.yousef.summon.components.core.EnhancedThemeConfig
+import code.yousef.summon.components.core.ThemeProvider
 import code.yousef.summon.components.core.useTheme
+import code.yousef.summon.components.display.RichText
+import code.yousef.summon.components.style.GlobalKeyframes
+import code.yousef.summon.components.style.GlobalStyle
+import code.yousef.summon.runtime.MockPlatformRenderer
+import code.yousef.summon.util.runComposableTest
 import kotlin.test.Test
-import kotlin.test.assertTrue
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class FeatureIntegrationTest {
 
@@ -28,8 +24,8 @@ class FeatureIntegrationTest {
                 "--spacing-md" to "1rem"
             )
         )
-        
-        runTestComposable(mockRenderer) {
+
+        runComposableTest(mockRenderer) {
             ThemeProvider(theme = customTheme) {
                 GlobalStyle("body { color: var(--primary-color); }")
                 
@@ -46,8 +42,8 @@ class FeatureIntegrationTest {
     @Test
     fun testRichTextWithGlobalStyling() {
         val mockRenderer = MockPlatformRenderer()
-        
-        runTestComposable(mockRenderer) {
+
+        runComposableTest(mockRenderer) {
             GlobalStyle("""
                 .rich-text { 
                     font-family: 'Arial', sans-serif; 
@@ -80,8 +76,8 @@ class FeatureIntegrationTest {
                 "--border-radius" to "8px"
             )
         )
-        
-        runTestComposable(mockRenderer) {
+
+        runComposableTest(mockRenderer) {
             ThemeProvider(theme = theme) {
                 // Global styles with theme variables
                 GlobalStyle("""
@@ -124,8 +120,8 @@ class FeatureIntegrationTest {
     @Test
     fun testHtmlSanitizationWithGlobalStyles() {
         val mockRenderer = MockPlatformRenderer()
-        
-        runTestComposable(mockRenderer) {
+
+        runComposableTest(mockRenderer) {
             GlobalStyle(".safe { color: green; }")
             
             // Test that dangerous content is sanitized
@@ -156,8 +152,8 @@ class FeatureIntegrationTest {
         val mockRenderer = MockPlatformRenderer()
         val outerTheme = EnhancedThemeConfig(primaryColor = "#red")
         val innerTheme = EnhancedThemeConfig(primaryColor = "#blue")
-        
-        runTestComposable(mockRenderer) {
+
+        runComposableTest(mockRenderer) {
             ThemeProvider(theme = outerTheme) {
                 val outer = useTheme()
                 assertEquals("#red", outer.primaryColor)

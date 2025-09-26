@@ -306,7 +306,7 @@ class TabLayoutTest {
     }
 
     // Helper to run composable in test environment
-    private fun runTestComposable(renderer: PlatformRenderer, content: @Composable () -> Unit) {
+    private fun runComposableTest(renderer: PlatformRenderer, content: @Composable () -> Unit) {
         CompositionLocal.provideComposer(TestComposer()) {
             val provider = LocalPlatformRenderer.provides(renderer)
             provider.current // Access current
@@ -322,7 +322,7 @@ class TabLayoutTest {
             Tab(Uuid.random(), "Tab 2", { /* Content 2 */ })
         )
 
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             TabLayout(tabs = testTabs)
         }
 
@@ -345,7 +345,7 @@ class TabLayoutTest {
         val onSelect: (Int) -> Unit = { selectedIndexCallback = it }
         val customModifier = Modifier().width("100%")
 
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             TabLayout(
                 tabs = testTabs,
                 selectedTabIndex = 1, // Select second tab
@@ -370,7 +370,7 @@ class TabLayoutTest {
         val renderer = MockTabLayoutRenderer()
         val testTabs = listOf(Tab(Uuid.random(), "Only Tab", { }))
 
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             TabLayout(tabs = testTabs, onTabSelected = null) // Explicitly pass null
         }
 

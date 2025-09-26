@@ -5,7 +5,7 @@ package code.yousef.summon.components.feedback
 // Import the shared MockPlatformRenderer
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
+import code.yousef.summon.util.runComposableTest
 import kotlin.test.*
 
 class ProgressBarTest {
@@ -16,7 +16,7 @@ class ProgressBarTest {
         val testProgress = 0.75f
         val testModifier = Modifier().margin("5px") // Example custom modifier
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             ProgressBar(
                 progress = testProgress,
                 modifier = testModifier
@@ -42,7 +42,7 @@ class ProgressBarTest {
     fun testProgressBarIndeterminate() {
         val mockRenderer = MockPlatformRenderer() // Changed to shared MockPlatformRenderer
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             ProgressBar(
                 progress = null // Indeterminate state
             )

@@ -11,7 +11,7 @@ import code.yousef.summon.core.FlowContentCompat
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.FormContent
 import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
+import code.yousef.summon.util.runComposableTest
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlin.test.*
@@ -148,7 +148,7 @@ class TimePickerTest {
         val testModifier = Modifier()
         val onValChange: (LocalTime?) -> Unit = { selectedTime = it }
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             TimePicker(
                 value = selectedTime,
                 onValueChange = onValChange,
@@ -182,7 +182,7 @@ class TimePickerTest {
         var selectedTime: LocalTime? = LocalTime(10, 0, 0)
         val onValChange: (LocalTime?) -> Unit = { selectedTime = it }
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             TimePicker(
                 value = selectedTime,
                 onValueChange = onValChange,
@@ -209,7 +209,7 @@ class TimePickerTest {
         var externalValue: LocalTime? = null // Initialize to null
         val onValChangeExternal: (LocalTime?) -> Unit = { externalValue = it }
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             StatefulTimePicker(
                 initialValue = initialValue,
                 onValueChange = onValChangeExternal,

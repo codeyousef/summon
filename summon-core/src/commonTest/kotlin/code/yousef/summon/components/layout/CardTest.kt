@@ -2,7 +2,7 @@ package code.yousef.summon.components.layout
 
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
+import code.yousef.summon.util.runComposableTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -16,7 +16,7 @@ class CardTest {
     @Test
     fun testCardWithDefaultModifier() {
         val mockRenderer = MockPlatformRenderer()
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Card {
                 // Empty content
             }
@@ -33,7 +33,7 @@ class CardTest {
     fun testCardWithCustomModifier() {
         val mockRenderer = MockPlatformRenderer()
         val customModifier = Modifier().background("yellow")
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Card(modifier = customModifier) {
                 // Empty content
             }
@@ -51,7 +51,7 @@ class CardTest {
     @Test
     fun testCardWithCustomElevationAndBorderRadius() {
         val mockRenderer = MockPlatformRenderer()
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Card(
                 elevation = "5px",
                 borderRadius = "10px"
@@ -72,7 +72,7 @@ class CardTest {
         val mockRenderer = MockPlatformRenderer()
         var onClickCalled = false
         val onClickLambda = { onClickCalled = true }
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Card(onClick = onClickLambda) {
                 // Empty content
             }

@@ -54,6 +54,8 @@ object ModifierExtras {
      * @param value The attribute value
      * @return A new Modifier with the added attribute
      */
+    @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+    @Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
     fun Modifier.attribute(name: String, value: String): Modifier =
         Modifier(styles, attributes + (name to value))
 } 

@@ -2,7 +2,6 @@ package code.yousef.summon.runtime
 
 import code.yousef.summon.annotation.Composable
 import java.util.concurrent.ConcurrentHashMap
-import code.yousef.summon.core.Composable as CoreComposable
 
 /**
  * JVM implementation of the Composer interface.
@@ -227,7 +226,8 @@ class JvmComposer : Composer {
     /**
      * Implementation of renderComposable for the JVM platform
      */
-    fun <T> renderComposable(composable: CoreComposable, consumer: T): T {
+    @Suppress("DEPRECATION")
+    fun <T> renderComposable(composable: code.yousef.summon.core.Composable, consumer: T): T {
         // Call compose on the composable with the provided consumer
         return composable.compose(consumer)
     }

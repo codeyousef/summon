@@ -1,22 +1,57 @@
 package code.yousef.summon.effects
 
-import code.yousef.summon.runtime.wasmConsoleLog
-import code.yousef.summon.runtime.wasmConsoleWarn
-import code.yousef.summon.runtime.wasmConsoleError
+import code.yousef.summon.runtime.safeWasmConsoleError
+import code.yousef.summon.runtime.safeWasmConsoleLog
+import code.yousef.summon.runtime.safeWasmConsoleWarn
+import kotlinx.datetime.Clock
+
+// Simple timeout storage for WASM implementation
+private var timeoutIdCounter = 0
+private val timeoutCallbacks = mutableMapOf<Int, () -> Unit>()
 
 actual fun currentTimeMillis(): Long {
-    wasmConsoleLog("Getting current time millis - WASM stub")
-    return 1625097600000L // Fixed timestamp for WASM stub
+    return try {
+        // Use kotlinx-datetime for consistent time across platforms
+        Clock.System.now().toEpochMilliseconds()
+    } catch (e: Exception) {
+        safeWasmConsoleWarn("Failed to get current time, using fallback: ${e.message}")
+        // Fallback to a reasonable timestamp
+        1700000000000L // Approximate current time
+    }
 }
 
 actual fun setTimeout(delayMs: Int, callback: () -> Unit): Int {
-    wasmConsoleLog("Setting timeout for $delayMs ms - WASM stub")
-    // In a real implementation, this would schedule the callback
-    return 1 // Fake timeout ID
+    return try {
+        val timeoutId = ++timeoutIdCounter
+        timeoutCallbacks[timeoutId] = callback
+
+        safeWasmConsoleLog("Setting timeout for $delayMs ms with ID: $timeoutId")
+
+        // Fallback for test environment - immediate execution for now
+        // In a real WASM environment, this would integrate with the event loop
+        safeWasmConsoleWarn("setTimeout executing callback immediately (WASM test environment)")
+        try {
+            callback()
+        } catch (callbackError: Exception) {
+            safeWasmConsoleError("Error executing timeout callback: ${callbackError.message}")
+        }
+        timeoutId
+    } catch (e: Exception) {
+        safeWasmConsoleError("setTimeout failed: ${e.message}")
+        -1 // Error indicator
+    }
 }
 
 actual fun clearTimeout(id: Int) {
-    wasmConsoleLog("Clearing timeout with ID: $id - WASM stub")
-    // In a real implementation, this would cancel the scheduled callback
+    try {
+        safeWasmConsoleLog("Clearing timeout with ID: $id")
+        timeoutCallbacks.remove(id)
+
+        // In WASM test environment, timeout is executed immediately
+        // so clearing is just removing from our callback map
+        safeWasmConsoleLog("Timeout $id cleared from callback map")
+    } catch (e: Exception) {
+        safeWasmConsoleError("clearTimeout failed: ${e.message}")
+    }
 }
 

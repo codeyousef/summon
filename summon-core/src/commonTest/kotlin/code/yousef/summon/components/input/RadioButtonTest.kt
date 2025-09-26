@@ -2,7 +2,7 @@ package code.yousef.summon.components.input
 
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
+import code.yousef.summon.util.runComposableTest
 import kotlin.test.*
 
 class RadioButtonTest {
@@ -15,7 +15,7 @@ class RadioButtonTest {
         val onClickLambda = { clicked = true }
         val expectedModifier = testModifier.cursor("pointer")
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             RadioButton(
                 selected = false,
                 onClick = onClickLambda,
@@ -39,7 +39,7 @@ class RadioButtonTest {
         val mockRenderer = MockPlatformRenderer()
         val onClickLambda = { /* No-op */ }
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             RadioButton(
                 selected = true, // Initial state is selected
                 onClick = onClickLambda,
@@ -59,7 +59,7 @@ class RadioButtonTest {
         var clicked = false
         val onClickLambda = { clicked = true }
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             RadioButton(
                 selected = false,
                 onClick = onClickLambda,

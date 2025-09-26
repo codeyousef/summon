@@ -308,7 +308,7 @@ class LinkTest {
     }
 
     // Helper to run composable in test environment
-    private fun runTestComposable(renderer: PlatformRenderer, content: @Composable () -> Unit) {
+    private fun runComposableTest(renderer: PlatformRenderer, content: @Composable () -> Unit) {
         CompositionLocal.provideComposer(TestComposer()) {
             val provider = LocalPlatformRenderer.provides(renderer)
             provider.current // Access current to potentially initialize?
@@ -319,7 +319,7 @@ class LinkTest {
     @Test
     fun testBasicLinkRendering() {
         val renderer = MockLinkRenderer()
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             Link(href = "https://example.com") { /* Content */ }
         }
 
@@ -336,7 +336,7 @@ class LinkTest {
     @Test
     fun testLinkWithTargetBlank() {
         val renderer = MockLinkRenderer()
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             Link(href = "/internal", target = "_blank") { /* Content */ }
         }
         assertEquals(true, renderer.renderEnhancedLinkCalled)
@@ -349,7 +349,7 @@ class LinkTest {
     @Test
     fun testExternalLinkFlag() {
         val renderer = MockLinkRenderer()
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             Link(href = "https://external.site", isExternal = true) { /* Content */ }
         }
         assertEquals(true, renderer.renderEnhancedLinkCalled)
@@ -362,7 +362,7 @@ class LinkTest {
     @Test
     fun testNoFollowLinkFlag() {
         val renderer = MockLinkRenderer()
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             Link(href = "/page", isNoFollow = true) { /* Content */ }
         }
         assertEquals(true, renderer.renderEnhancedLinkCalled)
@@ -373,7 +373,7 @@ class LinkTest {
     @Test
     fun testCombinedFlagsAndRel() {
         val renderer = MockLinkRenderer()
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             Link(
                 href = "https://example.com",
                 target = "_blank", // Adds noopener, noreferrer
@@ -392,7 +392,7 @@ class LinkTest {
     @Test
     fun testAriaAttributes() {
         val renderer = MockLinkRenderer()
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             Link(
                 href = "/test",
                 ariaLabel = "Test Page Link",
@@ -407,7 +407,7 @@ class LinkTest {
     @Test
     fun testLinkWithTitle() {
         val renderer = MockLinkRenderer()
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             Link(
                 href = "/about",
                 title = "Learn more about us"
@@ -421,7 +421,7 @@ class LinkTest {
     @Test
     fun testLinkWithCustomModifier() {
         val renderer = MockLinkRenderer()
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             Link(
                 href = "/contact",
                 modifier = Modifier().className("nav-link").id("contact-link")
@@ -437,7 +437,7 @@ class LinkTest {
     @Test
     fun testLinkWithAllAttributes() {
         val renderer = MockLinkRenderer()
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             Link(
                 href = "https://docs.example.com",
                 target = "_blank",
@@ -472,7 +472,7 @@ class LinkTest {
     @Test
     fun testInternalLinkWithNoAttributes() {
         val renderer = MockLinkRenderer()
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             Link(href = "/home") { /* Content */ }
         }
 
@@ -488,7 +488,7 @@ class LinkTest {
     @Test
     fun testRelativeLink() {
         val renderer = MockLinkRenderer()
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             Link(href = "../parent-page") { /* Content */ }
         }
 
@@ -500,7 +500,7 @@ class LinkTest {
     @Test
     fun testAnchorLink() {
         val renderer = MockLinkRenderer()
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             Link(href = "#section-header") { /* Content */ }
         }
 
@@ -512,7 +512,7 @@ class LinkTest {
     @Test
     fun testLinkWithMultipleRelValues() {
         val renderer = MockLinkRenderer()
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             Link(
                 href = "/resource",
                 rel = "author license"
@@ -527,7 +527,7 @@ class LinkTest {
     @Test
     fun testLinkWithEmptyHref() {
         val renderer = MockLinkRenderer()
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             Link(href = "") { /* Content */ }
         }
 
@@ -538,7 +538,7 @@ class LinkTest {
     @Test
     fun testMailtoLink() {
         val renderer = MockLinkRenderer()
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             Link(
                 href = "mailto:support@example.com",
                 title = "Send us an email"
@@ -553,7 +553,7 @@ class LinkTest {
     @Test
     fun testTelLink() {
         val renderer = MockLinkRenderer()
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             Link(
                 href = "tel:+1234567890",
                 ariaLabel = "Call us"
@@ -568,7 +568,7 @@ class LinkTest {
     @Test
     fun testLinkTargetSelf() {
         val renderer = MockLinkRenderer()
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             Link(
                 href = "/page",
                 target = "_self"
@@ -584,7 +584,7 @@ class LinkTest {
     @Test
     fun testLinkTargetParent() {
         val renderer = MockLinkRenderer()
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             Link(
                 href = "/page",
                 target = "_parent"
@@ -600,7 +600,7 @@ class LinkTest {
     @Test
     fun testLinkTargetTop() {
         val renderer = MockLinkRenderer()
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             Link(
                 href = "/page",
                 target = "_top"

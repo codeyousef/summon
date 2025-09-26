@@ -35,16 +35,24 @@ actual object DOMProvider {
     actual fun getNativeElementId(element: DOMElement): String {
         return when (element) {
             is WasmDOMElementWrapper -> {
-                wasmConsoleLog("getNativeElementId: WasmDOMElementWrapper with ID: ${element.elementId}")
+                try {
+                    wasmConsoleLog("getNativeElementId: WasmDOMElementWrapper with ID: ${element.elementId}")
+                } catch (e: Throwable) {
+                    // Ignore logging errors in test environment
+                }
                 element.elementId
             }
 
             else -> {
                 val elementType = element::class.simpleName ?: "Unknown"
                 val elementString = element.toString()
-                wasmConsoleError("getNativeElementId: Unsupported element type: $elementType")
-                wasmConsoleError("Element details: $elementString")
-                wasmConsoleError("Expected: WasmDOMElementWrapper, Got: $elementType")
+                try {
+                    wasmConsoleError("getNativeElementId: Unsupported element type: $elementType")
+                    wasmConsoleError("Element details: $elementString")
+                    wasmConsoleError("Expected: WasmDOMElementWrapper, Got: $elementType")
+                } catch (e: Throwable) {
+                    // Ignore logging errors in test environment
+                }
                 throw IllegalArgumentException("Unknown element type: $elementType (Expected WasmDOMElementWrapper)")
             }
         }

@@ -1,18 +1,18 @@
 package code.yousef.summon.components.style
 
 import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
+import code.yousef.summon.util.runComposableTest
 import kotlin.test.Test
-import kotlin.test.assertTrue
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class GlobalStyleTest {
 
     @Test
     fun testGlobalStyleWithBasicCSS() {
         val mockRenderer = MockPlatformRenderer()
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             GlobalStyle("body { margin: 0; padding: 0; }")
         }
         
@@ -23,7 +23,7 @@ class GlobalStyleTest {
     @Test
     fun testGlobalStyleWithKeyframes() {
         val mockRenderer = MockPlatformRenderer()
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             GlobalStyle("""
                 @keyframes fadeIn {
                     from { opacity: 0; }
@@ -42,7 +42,7 @@ class GlobalStyleTest {
     @Test
     fun testGlobalKeyframes() {
         val mockRenderer = MockPlatformRenderer()
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             GlobalKeyframes(
                 name = "slideUp",
                 keyframes = """
@@ -61,7 +61,7 @@ class GlobalStyleTest {
     @Test
     fun testCssVariables() {
         val mockRenderer = MockPlatformRenderer()
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             CssVariables(mapOf(
                 "--primary-color" to "#007bff",
                 "--border-radius" to "4px",
@@ -79,7 +79,7 @@ class GlobalStyleTest {
     @Test
     fun testMediaQuery() {
         val mockRenderer = MockPlatformRenderer()
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             MediaQuery(
                 query = "@media (max-width: 768px)",
                 css = """
@@ -100,7 +100,7 @@ class GlobalStyleTest {
     @Test
     fun testMultipleGlobalStyles() {
         val mockRenderer = MockPlatformRenderer()
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             GlobalStyle("body { margin: 0; }")
             GlobalStyle(".container { max-width: 1200px; }")
             GlobalKeyframes("spin", "from { transform: rotate(0deg); } to { transform: rotate(360deg); }")

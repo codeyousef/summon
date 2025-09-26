@@ -6,7 +6,7 @@ package code.yousef.summon.components.input
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
+import code.yousef.summon.util.runComposableTest
 import kotlin.test.*
 
 class FormFieldTest {
@@ -17,7 +17,7 @@ class FormFieldTest {
         var contentRendered = false
         val testModifier = Modifier().padding("10px")
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             FormField(
                 modifier = testModifier,
                 fieldContent = { contentRendered = true /* fieldContentCalled = true */ }
@@ -45,7 +45,7 @@ class FormFieldTest {
         val mockRenderer = MockPlatformRenderer() // Changed to shared MockPlatformRenderer
         val testLabelText = "Test Label"
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             FormField(
                 label = { Text(testLabelText) }, // Wrap in composable lambda
                 fieldContent = {}
@@ -61,7 +61,7 @@ class FormFieldTest {
     fun testFormFieldWithRequiredState() {
         val mockRenderer = MockPlatformRenderer() // Changed to shared MockPlatformRenderer
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             FormField(
                 isRequired = true,
                 fieldContent = {}
@@ -77,7 +77,7 @@ class FormFieldTest {
         val mockRenderer = MockPlatformRenderer() // Changed to shared MockPlatformRenderer
         val testErrorText = "Test Error"
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             FormField(
                 isError = true,
                 errorText = { Text(testErrorText) }, // Wrap in composable lambda
@@ -95,7 +95,7 @@ class FormFieldTest {
     fun testFormFieldWithErrorStateNoErrorText() {
         val mockRenderer = MockPlatformRenderer() // Changed to shared MockPlatformRenderer
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             FormField(
                 isError = true,
                 errorText = null, // No error text provided
@@ -113,7 +113,7 @@ class FormFieldTest {
         val mockRenderer = MockPlatformRenderer() // Changed to shared MockPlatformRenderer
         val testHelperText = "Test Helper"
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             FormField(
                 helperText = { Text(testHelperText) }, // Wrap in composable lambda
                 isError = false, // Explicitly not an error
@@ -132,7 +132,7 @@ class FormFieldTest {
         val testHelperText = "Helper Text"
         val testErrorText = "Error Text" // Provide both
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             FormField(
                 helperText = { Text(testHelperText) }, // Wrap in composable lambda
                 errorText = { Text(testErrorText) }, // Wrap in composable lambda
@@ -154,7 +154,7 @@ class FormFieldTest {
         val testHelperText = "Helper Text"
         val testErrorText = "Error Text" // Provide both
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             FormField(
                 helperText = { Text(testHelperText) }, // Wrap in composable lambda
                 errorText = { Text(testErrorText) }, // Wrap in composable lambda

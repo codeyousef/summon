@@ -13,16 +13,22 @@ object LayoutModifiers {
     /**
      * Sets the width of the element.
      */
+    @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+    @Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
     fun Modifier.width(value: String): Modifier = style("width", value)
 
     /**
      * Sets the height of the element.
      */
+    @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+    @Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
     fun Modifier.height(value: String): Modifier = style("height", value)
 
     /**
      * Sets the maximum width of the element.
      */
+    @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+    @Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
     fun Modifier.maxWidth(value: String): Modifier = style("max-width", value)
 
     /**
@@ -133,6 +139,8 @@ object StylingModifiers {
     /**
      * Sets the color property.
      */
+    @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+    @Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
     fun Modifier.color(value: String): Modifier = style("color", value)
 
     /**
@@ -155,6 +163,8 @@ object StylingModifiers {
     /**
      * Sets the border-radius property.
      */
+    @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+    @Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
     fun Modifier.borderRadius(value: String): Modifier = style("border-radius", value)
 
     /**
@@ -197,6 +207,8 @@ object StylingModifiers {
     /**
      * Sets the opacity property.
      */
+    @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+    @Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
     fun Modifier.opacity(value: Float): Modifier = style("opacity", value.toString())
 
     /**
@@ -227,6 +239,8 @@ object AttributeModifiers {
     /**
      * Adds a custom attribute to the element.
      */
+    @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+    @Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
     fun Modifier.attribute(name: String, value: String): Modifier {
         return Modifier(this.styles, this.attributes + (name to value))
     }

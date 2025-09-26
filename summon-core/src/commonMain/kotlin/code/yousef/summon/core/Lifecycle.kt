@@ -38,7 +38,7 @@ class LifecycleAwareComponent(
     private val onPause: (() -> Unit)? = null,
     private val onStop: (() -> Unit)? = null,
     private val onDestroy: (() -> Unit)? = null
-) : LifecycleAware, code.yousef.summon.core.Composable {
+) : LifecycleAware, @Suppress("DEPRECATION") code.yousef.summon.core.Composable {
 
     override fun onLifecycleStateChanged(state: LifecycleState) {
         when (state) {

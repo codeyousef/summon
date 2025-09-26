@@ -5,7 +5,7 @@ package code.yousef.summon.components.input
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.pointerEvents
 import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
+import code.yousef.summon.util.runComposableTest
 import kotlinx.datetime.LocalDate
 import kotlin.test.*
 
@@ -20,7 +20,7 @@ class DatePickerTest {
         val testModifier = Modifier()
         val onValChange: (LocalDate?) -> Unit = { selectedDate = it }
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             DatePicker(
                 value = selectedDate,
                 onValueChange = onValChange,
@@ -67,7 +67,7 @@ class DatePickerTest {
         var selectedDate: LocalDate? = LocalDate(2024, 1, 15)
         val onValChange: (LocalDate?) -> Unit = { selectedDate = it }
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             DatePicker(
                 value = selectedDate,
                 onValueChange = onValChange,
@@ -106,7 +106,7 @@ class DatePickerTest {
         val maxDate = LocalDate(2024, 4, 30)
         val onValChange: (LocalDate?) -> Unit = { selectedDate = it }
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             DatePicker(
                 value = selectedDate,
                 onValueChange = onValChange,

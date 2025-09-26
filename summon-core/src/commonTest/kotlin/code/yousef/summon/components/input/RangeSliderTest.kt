@@ -5,7 +5,7 @@ package code.yousef.summon.components.input
 // Import MockPlatformRenderer
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
+import code.yousef.summon.util.runComposableTest
 import kotlin.test.*
 
 class RangeSliderTest {
@@ -19,7 +19,7 @@ class RangeSliderTest {
         val testModifier = Modifier()
         val onValChange: (ClosedFloatingPointRange<Float>) -> Unit = { sliderRangeValue = it }
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             RangeSlider(
                 value = sliderRangeValue,
                 onValueChange = onValChange,
@@ -53,7 +53,7 @@ class RangeSliderTest {
         val steps = 5
         val onValChange: (ClosedFloatingPointRange<Float>) -> Unit = { sliderRangeValue = it }
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             RangeSlider(
                 value = sliderRangeValue,
                 onValueChange = onValChange,
@@ -86,7 +86,7 @@ class RangeSliderTest {
         val steps = 10
         val onValChangeExternal: (ClosedFloatingPointRange<Float>) -> Unit = { externalValue = it }
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             StatefulRangeSlider(
                 initialValue = initialValue,
                 onValueChange = onValChangeExternal,

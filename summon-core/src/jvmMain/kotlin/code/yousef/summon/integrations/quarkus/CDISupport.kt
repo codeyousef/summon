@@ -6,8 +6,6 @@ import jakarta.enterprise.inject.Produces
 import jakarta.enterprise.inject.spi.InjectionPoint
 import jakarta.inject.Inject
 import jakarta.inject.Qualifier
-import java.lang.annotation.Retention
-import java.lang.annotation.RetentionPolicy
 import kotlin.reflect.KClass
 
 /**
@@ -179,7 +177,7 @@ class SummonCDISupport {
      * ```
      */
     @Qualifier
-    @Retention(RetentionPolicy.RUNTIME)
+    @kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
     annotation class ComponentClass(val value: kotlin.reflect.KClass<*>)
 
     /**

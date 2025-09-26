@@ -1,9 +1,8 @@
 package code.yousef.summon.util
 
-import code.yousef.summon.runtime.Composer
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.routing.Router
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.routing.Router
+import code.yousef.summon.runtime.Composer
 
 /**
  * Shared test mock implementations to reduce code duplication across test files.
@@ -14,7 +13,7 @@ import code.yousef.summon.annotation.Composable
  * This provides the minimal implementation required by the Composer interface.
  */
 open class MockComposer : Composer {
-    override var inserting: Boolean = false
+    override var inserting: Boolean = true
     
     // Track method calls for verification
     var nodeStartedCount = 0

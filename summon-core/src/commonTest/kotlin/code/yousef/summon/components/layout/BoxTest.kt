@@ -2,7 +2,7 @@ package code.yousef.summon.components.layout
 
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
+import code.yousef.summon.util.runComposableTest
 import kotlin.test.*
 
 /**
@@ -16,7 +16,7 @@ class BoxTest {
         val mockRenderer = MockPlatformRenderer()
 
         // Set up the composition context using runTestComposable
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             // Call the Box component with default modifier
             Box {
                 // Empty content
@@ -42,7 +42,7 @@ class BoxTest {
         val customModifier = Modifier().background("red")
 
         // Set up the composition context using runTestComposable
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             // Call the Box component with custom modifier
             Box(modifier = customModifier) {
                 // Empty content

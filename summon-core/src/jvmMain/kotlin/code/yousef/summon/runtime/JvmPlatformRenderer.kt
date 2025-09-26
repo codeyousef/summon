@@ -401,6 +401,7 @@ actual open class PlatformRenderer {
             append("{")
             append("\"version\":${hydrationData["version"]},")
             append("\"callbacks\":[")
+            @Suppress("UNCHECKED_CAST")
             val callbacks = hydrationData["callbacks"] as List<String>
             callbacks.forEachIndexed { index, callback ->
                 append("\"$callback\"")

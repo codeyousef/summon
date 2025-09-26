@@ -7,6 +7,9 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
+// Platform-specific implementation of test HydrationManager
+expect fun createPlatformTestHydrationManager(): HydrationManager
+
 /**
  * Contract tests for HydrationManager interface.
  *
@@ -205,7 +208,7 @@ class HydrationManagerContractTest {
 
     private fun createTestHydrationManager(): HydrationManager {
         // Create a test implementation of HydrationManager
-        return TestHydrationManager()
+        return createPlatformTestHydrationManager()
     }
 
     private fun createTestComponentNode(type: String = "div"): ComponentNode {

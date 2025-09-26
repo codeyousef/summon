@@ -41,6 +41,7 @@ fun renderComposableRoot(rootElementId: String, composable: @Composable () -> Un
         recomposer.setCompositionRoot {
             try {
                 // Reset element counters to ensure stable IDs across recompositions
+                @Suppress("USELESS_IS_CHECK")
                 if (renderer is PlatformRenderer) {
                     renderer.resetElementCounters()
                 }
@@ -223,6 +224,7 @@ private class ComposerImpl : Composer {
         locals[local] = value
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun <T> consume(local: CompositionLocalProvider<T>): T {
         return locals[local] as? T ?: throw IllegalStateException("CompositionLocal not provided: $local")
     }

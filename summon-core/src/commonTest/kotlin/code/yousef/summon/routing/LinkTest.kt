@@ -316,7 +316,7 @@ class LinkTest {
     }
 
     // Helper to run composable in test environment
-    private fun runTestComposable(renderer: PlatformRenderer, router: Router? = null, content: @Composable () -> Unit) {
+    private fun runComposableTest(renderer: PlatformRenderer, router: Router? = null, content: @Composable () -> Unit) {
         CompositionLocal.provideComposer(TestComposer()) {
             val rendererProvider = LocalPlatformRenderer.provides(renderer)
 
@@ -335,7 +335,7 @@ class LinkTest {
         val renderer = MockLinkRenderer()
         val router = MockRouter()
 
-        runTestComposable(renderer, router) {
+        runComposableTest(renderer, router) {
             Link(text = "Home", href = "/home")
         }
 
@@ -354,7 +354,7 @@ class LinkTest {
         val renderer = MockLinkRenderer()
         val router = MockRouter()
 
-        runTestComposable(renderer, router) {
+        runComposableTest(renderer, router) {
             Link(
                 text = "Custom Click",
                 href = "/custom",
@@ -376,7 +376,7 @@ class LinkTest {
         val renderer = MockLinkRenderer()
         val router = MockRouter()
 
-        runTestComposable(renderer, router) {
+        runComposableTest(renderer, router) {
             Link(
                 text = "External",
                 href = "https://example.com",
@@ -398,7 +398,7 @@ class LinkTest {
     fun testLinkWithoutRouter() {
         val renderer = MockLinkRenderer()
 
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             Link(text = "No Router", href = "/no-router")
         }
 

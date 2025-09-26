@@ -3,7 +3,7 @@ package code.yousef.summon.components.input
 // Import other types used in PlatformRenderer methods for the mock
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
+import code.yousef.summon.util.runComposableTest
 import kotlin.test.*
 
 class TextAreaTest {
@@ -15,7 +15,7 @@ class TextAreaTest {
         val onValChange: (String) -> Unit = { textValue = it }
         val mod = Modifier()
 
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             TextArea(
                 value = textValue,
                 onValueChange = onValChange,
@@ -49,7 +49,7 @@ class TextAreaTest {
         var externalValue = "Initial"
         val onValChangeExternal: (String) -> Unit = { externalValue = it }
 
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             StatefulTextArea(
                 initialValue = "Start",
                 onValueChange = onValChangeExternal,

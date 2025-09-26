@@ -75,7 +75,7 @@ internal class TestComposer : Composer {
     "Use runComposableTest from TestSetupUtils instead",
     ReplaceWith("runComposableTest(renderer, block = block)", "code.yousef.summon.util.runComposableTest")
 )
-internal fun runTestComposable(renderer: PlatformRenderer, block: @Composable () -> Unit) {
+internal fun runComposableTest(renderer: PlatformRenderer, block: @Composable () -> Unit) {
     CompositionLocal.provideComposer(TestComposer()) {
         val provider = LocalPlatformRenderer.provides(renderer)
         provider.current // Access current

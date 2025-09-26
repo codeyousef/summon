@@ -54,7 +54,6 @@ actual class LifecycleOwner {
                 LifecycleState.STOPPED -> observer.onStop()
                 LifecycleState.DESTROYED -> observer.onDestroy()
                 LifecycleState.INITIALIZED -> {} // No callback for INITIALIZED
-                else -> {} // Compiler requires else for expect enum
             }
         }
     }
