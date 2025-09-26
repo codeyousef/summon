@@ -2,13 +2,8 @@ package code.yousef.summon.components.layout
 
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
-import kotlinx.html.FlowContent
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-import kotlin.test.assertSame
-import kotlin.test.assertNotNull
+import code.yousef.summon.util.runComposableTest
+import kotlin.test.*
 
 /**
  * Tests for the Div and Span components
@@ -18,7 +13,7 @@ class DivTest {
     @Test
     fun testDivWithDefaultModifier() {
         val mockRenderer = MockPlatformRenderer()
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Div {
                 // Empty content
             }
@@ -32,7 +27,7 @@ class DivTest {
     fun testDivWithCustomModifier() {
         val mockRenderer = MockPlatformRenderer()
         val customModifier = Modifier().background("red")
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Div(modifier = customModifier) {
                 // Empty content
             }
@@ -45,7 +40,7 @@ class DivTest {
     @Test
     fun testSpanWithDefaultModifier() {
         val mockRenderer = MockPlatformRenderer()
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Span {
                 // Empty content
             }
@@ -59,7 +54,7 @@ class DivTest {
     fun testSpanWithCustomModifier() {
         val mockRenderer = MockPlatformRenderer()
         val customModifier = Modifier().background("blue")
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Span(modifier = customModifier) {
                 // Empty content
             }

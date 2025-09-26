@@ -3,7 +3,7 @@ package code.yousef.summon.routing.seo
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.LocalPlatformRenderer
-import kotlinx.html.FlowContent
+import code.yousef.summon.core.FlowContent
 
 /**
  * SemanticHTML provides components for creating semantically meaningful HTML elements

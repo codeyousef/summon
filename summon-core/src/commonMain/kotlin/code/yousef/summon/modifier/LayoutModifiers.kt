@@ -429,29 +429,10 @@ fun Modifier.margin(vertical: String, horizontal: String): Modifier =
 
 /**
  * Sets margin for all four sides individually with explicit control.
- *
- * This overload provides complete control over each side's margin,
- * following the CSS shorthand order: top, right, bottom, left.
- *
- * ## Examples
- * ```kotlin
- * // Asymmetric spacing for special layouts
- * val specialCard = Modifier()
- *     .margin("20px", "16px", "24px", "16px") // Extra bottom margin
- *
- * // Custom spacing for visual alignment
- * val alignedItem = Modifier()
- *     .margin("0", "0", "12px", "8px") // Only bottom and left margins
- * ```
- *
- * @param top Margin for the top side
- * @param right Margin for the right side
- * @param bottom Margin for the bottom side
- * @param left Margin for the left side
- * @return A new Modifier with individual side margins applied
- * @see marginOf for named parameter version
- * @since 1.0.0
+ * @deprecated This extension is shadowed by member function. Use member function instead.
  */
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+@Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
 fun Modifier.margin(top: String, right: String, bottom: String, left: String): Modifier =
     style("margin", "$top $right $bottom $left")
 
@@ -1496,7 +1477,7 @@ fun Modifier.fixedCenter(): Modifier =
  * val hoverableCard = Modifier()
  *     .relativeOffset(0, 0)
  *     .transition("all", "0.2s", "ease")
- *     .hover(mapOf(
+ *     .hover(mapOfCompat(
  *         "transform" to "translate(0px, -2px)",
  *         "box-shadow" to "0px 6px 12px rgba(0,0,0,0.15)"
  *     ))

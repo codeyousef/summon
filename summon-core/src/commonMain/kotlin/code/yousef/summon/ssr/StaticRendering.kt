@@ -1,6 +1,7 @@
 package code.yousef.summon.ssr
 
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.core.mapOfCompat
 import code.yousef.summon.routing.RouteDefinition
 import code.yousef.summon.routing.RouteParams
 import code.yousef.summon.runtime.PlatformRenderer
@@ -302,25 +303,25 @@ object StaticSiteGenerator {
         // For demo purposes, generate some sample values for each parameter
         return when {
             routePath.contains("/products/{id}") -> {
-                (1..5).map { mapOf("id" to "product-$it") }
+                (1..5).map { mapOfCompat("id" to "product-$it") }
             }
 
             routePath.contains("/users/{userId}") -> {
-                (1..3).map { mapOf("userId" to "user-$it") }
+                (1..3).map { mapOfCompat("userId" to "user-$it") }
             }
 
             routePath.contains("/blog/{slug}") -> {
                 listOf(
-                    mapOf("slug" to "first-post"),
-                    mapOf("slug" to "getting-started"),
-                    mapOf("slug" to "advanced-techniques")
+                    mapOfCompat("slug" to "first-post"),
+                    mapOfCompat("slug" to "getting-started"),
+                    mapOfCompat("slug" to "advanced-techniques")
                 )
             }
 
             else -> {
                 // Fallback for other dynamic routes
                 parameters.map { param ->
-                    mapOf(param to "sample-$param-value")
+                    mapOfCompat(param to "sample-$param-value")
                 }
             }
         }
@@ -534,7 +535,7 @@ object StaticSiteGenerator {
 
                     componentData.events.forEach(function(eventName) {
                         // For demonstration purposes, we'll just log the events
-                        element.addEventListener(eventName.replace('on', '').toLowerCase(), function(e) {
+                        element.addEventListener(eventName.replace('on', '').toLowerCaseCompat(), function(e) {
                             console.log('Event ' + eventName + ' triggered on component ' + componentData.id);
                         });
                     });

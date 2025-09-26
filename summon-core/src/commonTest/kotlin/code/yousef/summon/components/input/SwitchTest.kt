@@ -1,21 +1,10 @@
 package code.yousef.summon.components.input
 
 // Import other types used in PlatformRenderer methods for the mock
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.IconType
-import code.yousef.summon.components.feedback.AlertVariant
-import code.yousef.summon.components.feedback.ProgressType
-import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.FormContent
-import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
-import kotlinx.html.FlowContent
+import code.yousef.summon.util.runComposableTest
 import kotlin.test.*
-import code.yousef.summon.runtime.SelectOption as RendererSelectOption
 
 class SwitchTest {
 
@@ -25,7 +14,7 @@ class SwitchTest {
         var checkedState = false
         val testModifier = Modifier()
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Switch(
                 checked = checkedState,
                 onCheckedChange = { checkedState = it },
@@ -45,7 +34,7 @@ class SwitchTest {
         assertEquals(true, checkedState, "Checked state did not update after callback")
 
         // Recompose with new state (simulate by running composable again)
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Switch(
                 checked = checkedState, // Now true
                 onCheckedChange = { checkedState = it },
@@ -62,7 +51,7 @@ class SwitchTest {
         val mockRenderer = MockPlatformRenderer()
         var lastCallbackValue: Boolean? = null
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             StatefulSwitch(
                 initialChecked = true,
                 onCheckedChange = { lastCallbackValue = it },
@@ -88,7 +77,7 @@ class SwitchTest {
     @Test
     fun testStatefulSwitchDefaultInitialState() {
         val mockRenderer = MockPlatformRenderer()
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             StatefulSwitch() // Uses default initialChecked = false
         }
         assertTrue(mockRenderer.renderSwitchCalled)
@@ -101,7 +90,7 @@ class SwitchTest {
         var callbackCalled = false
         val onValChange: (Boolean) -> Unit = { callbackCalled = true }
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Switch(
                 checked = false,
                 onCheckedChange = onValChange,

@@ -1,6 +1,7 @@
 package code.yousef.summon.accessibility
 
 import code.yousef.summon.accessibility.KeyboardNavigation.keyboardNavigation
+import code.yousef.summon.core.mapOfCompat
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.LocalPlatformRenderer
@@ -56,7 +57,7 @@ object KeyboardNavigation {
      * @return Modified Modifier with focus trap attributes.
      */
     fun Modifier.focusTrap(trapId: String): Modifier {
-        val trapAttributes = mapOf(
+        val trapAttributes = mapOfCompat(
             "data-focus-trap" to trapId,
             "data-focus-trap-active" to "true" // Assuming JS will look for this
         )
@@ -170,7 +171,7 @@ fun KeyboardNavigableContainer(
     val navModifier = modifier.keyboardNavigation(config)
 
     // Define base attributes for the container
-    val containerBaseAttributes = mapOf(
+    val containerBaseAttributes = mapOfCompat(
         "class" to "keyboard-navigable-container", // For styling or JS selection
         "data-keyboard-nav" to "true",             // Marker for JS
         "role" to "group"                          // ARIA role for a group of related elements

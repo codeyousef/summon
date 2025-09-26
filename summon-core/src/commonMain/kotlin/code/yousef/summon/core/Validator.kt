@@ -28,6 +28,7 @@ interface Validator {
 /**
  * Required field validator that ensures a value is not empty.
  */
+@Suppress("DEPRECATION")
 class RequiredValidator(
     override val errorMessage: String = ValidationMessages.REQUIRED_FIELD
 ) : Validator {
@@ -37,6 +38,7 @@ class RequiredValidator(
 /**
  * Email validator that ensures a value matches an email pattern.
  */
+@Suppress("DEPRECATION")
 class EmailValidator(
     override val errorMessage: String = ValidationMessages.INVALID_EMAIL
 ) : Validator {
@@ -50,6 +52,7 @@ class EmailValidator(
 /**
  * Minimum length validator.
  */
+@Suppress("DEPRECATION")
 class MinLengthValidator(
     private val minLength: Int,
     override val errorMessage: String = ValidationMessages.minLength(minLength)
@@ -60,6 +63,7 @@ class MinLengthValidator(
 /**
  * Maximum length validator.
  */
+@Suppress("DEPRECATION")
 class MaxLengthValidator(
     private val maxLength: Int,
     override val errorMessage: String = ValidationMessages.maxLength(maxLength)
@@ -70,6 +74,7 @@ class MaxLengthValidator(
 /**
  * Pattern validator that ensures a value matches a regex pattern.
  */
+@Suppress("DEPRECATION")
 class PatternValidator(
     private val pattern: Regex,
     override val errorMessage: String = ValidationMessages.INVALID_FORMAT
@@ -80,6 +85,7 @@ class PatternValidator(
 /**
  * Custom validator that uses a provided validation function.
  */
+@Suppress("DEPRECATION")
 class CustomValidator(
     private val validateFn: (String) -> Boolean,
     override val errorMessage: String
@@ -92,6 +98,7 @@ class CustomValidator(
  * @param value The boolean value to validate
  * @return True if validation passed, false otherwise
  */
+@Suppress("DEPRECATION")
 fun Validator.validateBoolean(value: Boolean): Boolean {
     return validate(value.toString())
 } 

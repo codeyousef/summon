@@ -1,12 +1,12 @@
 package code.yousef.summon.components.layout
 
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.MockPlatformRenderer // Explicit import for shared mock
-import code.yousef.summon.util.runTestComposable
+import code.yousef.summon.runtime.MockPlatformRenderer
+import code.yousef.summon.util.runComposableTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.test.assertSame
+import kotlin.test.assertTrue
 
 /**
  * Tests for the Divider component
@@ -16,7 +16,7 @@ class DividerTest {
     @Test
     fun testDividerWithDefaultModifier() {
         val mockRenderer = MockPlatformRenderer()
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Divider()
             assertTrue(mockRenderer.renderDividerCalled, "renderDivider should have been called")
             assertEquals(Modifier(), mockRenderer.lastDividerModifierRendered, "Modifier should be the default")
@@ -27,7 +27,7 @@ class DividerTest {
     fun testDividerWithCustomModifier() {
         val mockRenderer = MockPlatformRenderer()
         val customModifier = Modifier().background("red")
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Divider(modifier = customModifier)
             assertTrue(mockRenderer.renderDividerCalled, "renderDivider should have been called")
             assertSame(customModifier, mockRenderer.lastDividerModifierRendered, "Modifier should be the custom one")
@@ -38,7 +38,7 @@ class DividerTest {
     fun testDividerWithCustomParameters() {
         val mockRenderer = MockPlatformRenderer()
         val customModifier = Modifier().background("blue")
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Divider(
                 isVertical = true,
                 thickness = "2px",

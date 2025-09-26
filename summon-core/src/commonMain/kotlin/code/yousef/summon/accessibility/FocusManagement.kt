@@ -1,5 +1,7 @@
 package code.yousef.summon.accessibility
 
+import code.yousef.summon.core.mapOfCompat
+
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.DisposableEffect
@@ -31,14 +33,14 @@ object FocusManagement {
      */
     fun createFocusModifier(behavior: FocusBehavior): Modifier {
         val attributes = when (behavior) {
-            FocusBehavior.FOCUSABLE -> mapOf("tabindex" to "-1")
-            FocusBehavior.TABBABLE -> mapOf("tabindex" to "0")
-            FocusBehavior.DISABLED -> mapOf(
+            FocusBehavior.FOCUSABLE -> mapOfCompat("tabindex" to "-1")
+            FocusBehavior.TABBABLE -> mapOfCompat("tabindex" to "0")
+            FocusBehavior.DISABLED -> mapOfCompat(
                 "tabindex" to "-1",
                 "aria-disabled" to "true"
             )
 
-            FocusBehavior.AUTO_FOCUS -> mapOf(
+            FocusBehavior.AUTO_FOCUS -> mapOfCompat(
                 "tabindex" to "0",
                 "autofocus" to "true"
             )
@@ -78,7 +80,7 @@ object FocusManagement {
      */
     fun createFocusTrap(trapId: String): Modifier {
         return Modifier(
-            mapOf(
+            mapOfCompat(
                 "data-focus-trap" to trapId,
                 "data-focus-trap-active" to "true"
             )
@@ -91,7 +93,7 @@ object FocusManagement {
      */
     fun createFocusScope(scopeId: String): Modifier {
         return Modifier(
-            mapOf(
+            mapOfCompat(
                 "data-focus-scope" to scopeId,
                 "role" to "group"
             )

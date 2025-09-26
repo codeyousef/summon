@@ -42,8 +42,8 @@
  * val node = AccessibilityNode(
  *     role = Role.BUTTON,
  *     label = "Submit form",
- *     state = mapOf(State.DISABLED to false),
- *     properties = mapOf("aria-describedby" to "help-text")
+ *     state = mapOfCompat(State.DISABLED to false),
+ *     properties = mapOfCompat("aria-describedby" to "help-text")
  * )
  * ```
  *
@@ -55,6 +55,7 @@ import code.yousef.summon.accessibility.AccessibilityUtils.createRelationshipMod
 import code.yousef.summon.accessibility.AccessibilityUtils.createRoleModifier
 import code.yousef.summon.accessibility.Role.*
 import code.yousef.summon.accessibility.State.*
+import code.yousef.summon.core.mapOfCompat
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.LocalPlatformRenderer
@@ -216,7 +217,7 @@ object AccessibilityUtils {
      * Adds an ARIA role to a Modifier.
      */
     private fun Modifier.role(role: String): Modifier {
-        return this.copy(attributes = this.attributes + mapOf("role" to role))
+        return this.copy(attributes = this.attributes + mapOfCompat("role" to role))
     }
 
     /**
@@ -259,7 +260,7 @@ object AccessibilityUtils {
      */
     fun createLabelModifier(label: String): Modifier {
         val modifier = Modifier()
-        return modifier.copy(attributes = modifier.attributes + mapOf("aria-label" to label))
+        return modifier.copy(attributes = modifier.attributes + mapOfCompat("aria-label" to label))
     }
 
     /**
@@ -271,7 +272,7 @@ object AccessibilityUtils {
         targetId: String
     ): Modifier {
         val modifier = Modifier()
-        return modifier.copy(attributes = modifier.attributes + mapOf("aria-$relation" to targetId))
+        return modifier.copy(attributes = modifier.attributes + mapOfCompat("aria-$relation" to targetId))
     }
 
     /**
@@ -319,11 +320,11 @@ fun Modifier.inspectAccessibility(): Map<String, String> {
  *     role = Role.TEXTBOX,
  *     label = "Email address",
  *     description = "email-help-text",
- *     state = mapOf(
+ *     state = mapOfCompat(
  *         State.REQUIRED to true,
  *         State.INVALID to false
  *     ),
- *     properties = mapOf(
+ *     properties = mapOfCompat(
  *         "aria-describedby" to "email-help",
  *         "aria-autocomplete" to "email"
  *     )
@@ -622,7 +623,7 @@ enum class Role {
  * val checkboxNode = AccessibilityNode(
  *     role = Role.CHECKBOX,
  *     label = "Accept terms and conditions",
- *     state = mapOf(
+ *     state = mapOfCompat(
  *         State.CHECKED to isAccepted,
  *         State.REQUIRED to true,
  *         State.DISABLED to !canAccept
@@ -633,7 +634,7 @@ enum class Role {
  * val accordionNode = AccessibilityNode(
  *     role = Role.BUTTON,
  *     label = "Show advanced options",
- *     state = mapOf(
+ *     state = mapOfCompat(
  *         State.EXPANDED to isExpanded
  *     )
  * )
@@ -752,16 +753,16 @@ private fun Modifier.applyAccessibilityAttributes(node: AccessibilityNode): Modi
     var result = this
 
     // Apply role attribute
-    result = result.copy(attributes = result.attributes + mapOf("role" to node.role.name.lowercase()))
+    result = result.copy(attributes = result.attributes + mapOfCompat("role" to node.role.name.lowercase()))
 
     // Apply label as aria-label if available
     if (node.label != null) {
-        result = result.copy(attributes = result.attributes + mapOf("aria-label" to node.label))
+        result = result.copy(attributes = result.attributes + mapOfCompat("aria-label" to node.label))
     }
 
     // Apply description as aria-describedby if available
     if (node.description != null) {
-        result = result.copy(attributes = result.attributes + mapOf("aria-describedby" to node.description))
+        result = result.copy(attributes = result.attributes + mapOfCompat("aria-describedby" to node.description))
     }
 
     // Apply state attributes
@@ -777,12 +778,12 @@ private fun Modifier.applyAccessibilityAttributes(node: AccessibilityNode): Modi
             State.REQUIRED -> "aria-required"
             State.SELECTED -> "aria-selected"
         }
-        result = result.copy(attributes = result.attributes + mapOf(stateName to entry.value.toString()))
+        result = result.copy(attributes = result.attributes + mapOfCompat(stateName to entry.value.toString()))
     }
 
     // Apply other properties
     for (entry in node.properties.entries) {
-        result = result.copy(attributes = result.attributes + mapOf(entry.key to entry.value))
+        result = result.copy(attributes = result.attributes + mapOfCompat(entry.key to entry.value))
     }
 
     return result

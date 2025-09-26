@@ -1,13 +1,14 @@
 package code.yousef.summon.i18n
 
 import kotlinx.browser.document
-import org.w3c.dom.events.Event
 
 /**
  * External interface for CustomEvent
+ * Note: Not extending Event to avoid WASM compilation issues
  */
-external class CustomEvent(type: String, eventInitDict: dynamic = definedExternally) : Event {
+external class CustomEvent(type: String, eventInitDict: dynamic = definedExternally) {
     val detail: dynamic
+    val type: String
 }
 
 /**
@@ -30,7 +31,7 @@ actual fun triggerLanguageChange(language: Language) {
 
     // Dispatch a custom event that components can listen for
     val event = CustomEvent("languagechange", eventInit)
-    document.dispatchEvent(event)
+    document.dispatchEvent(event.asDynamic())
 
     // Log the language change
     js("console.log('Language changed to ' + language.name + ' (' + language.code + '), direction: ' + direction)")

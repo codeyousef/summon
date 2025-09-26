@@ -82,7 +82,7 @@
  * @Composable
  * fun EventListenerComponent() {
  *     onMountWithCleanup {
- *         val listener = { event: Event -> handleEvent(event) }
+ *         val listener = { event: DOMEvent -> handleEvent(event) }
  *         addEventListener("custom-event", listener)
  *
  *         // Return cleanup function

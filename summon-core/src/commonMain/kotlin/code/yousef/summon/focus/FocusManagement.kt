@@ -1,10 +1,10 @@
 package code.yousef.summon.focus
 
 import code.yousef.summon.accessibility.KeyboardNavigation
+import code.yousef.summon.core.FlowContent
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.LocalPlatformRenderer
-import kotlinx.html.FlowContent
 
 @Composable
 fun Focusable(

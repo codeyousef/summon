@@ -1,14 +1,9 @@
 package code.yousef.summon.components.layout
 
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.MockPlatformRenderer // Explicit import for shared mock
-import code.yousef.summon.util.runTestComposable
-import kotlinx.html.FlowContent
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-import kotlin.test.assertSame
-import kotlin.test.assertNotNull
+import code.yousef.summon.runtime.MockPlatformRenderer
+import code.yousef.summon.util.runComposableTest
+import kotlin.test.*
 
 /**
  * Tests for the ExpansionPanel component
@@ -18,7 +13,7 @@ class ExpansionPanelTest {
     @Test
     fun testExpansionPanelWithDefaultModifier() {
         val mockRenderer = MockPlatformRenderer()
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             ExpansionPanel(
                 title = "Test Panel",
                 content = {
@@ -35,7 +30,7 @@ class ExpansionPanelTest {
     fun testExpansionPanelWithCustomModifier() {
         val mockRenderer = MockPlatformRenderer()
         val customModifier = Modifier().background("red")
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             ExpansionPanel(
                 title = "Test Panel",
                 modifier = customModifier,
@@ -53,7 +48,7 @@ class ExpansionPanelTest {
     fun testExpansionPanelWithCustomParameters() {
         val mockRenderer = MockPlatformRenderer()
         val customModifier = Modifier().background("blue")
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             var toggleCalled = false
             val onToggle = { toggleCalled = true }
 

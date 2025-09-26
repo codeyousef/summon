@@ -2,12 +2,11 @@ package code.yousef.summon.components.layout
 
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
-import kotlinx.html.FlowContent
+import code.yousef.summon.util.runComposableTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * Tests for the Column component
@@ -17,7 +16,7 @@ class ColumnTest {
     @Test
     fun testColumnWithDefaultModifier() {
         val mockRenderer = MockPlatformRenderer()
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Column {
                 // Empty content
             }
@@ -36,7 +35,7 @@ class ColumnTest {
     fun testColumnWithCustomModifier() {
         val mockRenderer = MockPlatformRenderer()
         val customModifier = Modifier().background("blue")
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Column(modifier = customModifier) {
                 // Empty content
             }

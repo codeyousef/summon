@@ -2,14 +2,8 @@ package code.yousef.summon.components.layout
 
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
-import kotlinx.html.FlowContent
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertSame
-import kotlin.test.assertTrue
-import kotlin.test.assertNotNull
-import kotlin.test.assertContains
+import code.yousef.summon.util.runComposableTest
+import kotlin.test.*
 
 /**
  * Tests for the Row component
@@ -19,7 +13,7 @@ class RowTest {
     @Test
     fun testRowWithDefaultParameters() {
         val mockRenderer = MockPlatformRenderer()
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Row {
                 // Empty content
             }
@@ -40,7 +34,7 @@ class RowTest {
         val mockRenderer = MockPlatformRenderer()
         val customModifier = Modifier().background("green")
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Row(modifier = customModifier) {
                 // Empty content
             }

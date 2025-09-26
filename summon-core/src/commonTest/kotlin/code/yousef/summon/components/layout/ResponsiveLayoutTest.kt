@@ -2,14 +2,9 @@ package code.yousef.summon.components.layout
 
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
 import code.yousef.summon.theme.MediaQuery
-import kotlinx.html.FlowContent
-import kotlin.test.Test
-import kotlin.test.assertContains
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-import kotlin.test.assertNotNull
+import code.yousef.summon.util.runComposableTest
+import kotlin.test.*
 
 /**
  * Tests for the ResponsiveLayout component
@@ -19,7 +14,7 @@ class ResponsiveLayoutTest {
     @Test
     fun testResponsiveLayoutWithDefaultParameters() {
         val mockRenderer = MockPlatformRenderer()
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             ResponsiveLayout(
                 content = mapOf(
                     ScreenSize.SMALL to { /* Small screen content */ },
@@ -44,7 +39,7 @@ class ResponsiveLayoutTest {
         val mockRenderer = MockPlatformRenderer()
         val customModifier = Modifier().background("green")
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             ResponsiveLayout(
                 content = mapOf(
                     ScreenSize.SMALL to { /* Small screen content */ },
@@ -69,7 +64,7 @@ class ResponsiveLayoutTest {
     fun testResponsiveLayoutWithServerSideRendering() {
         val mockRenderer = MockPlatformRenderer()
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             ResponsiveLayout(
                 content = mapOf(
                     ScreenSize.SMALL to { /* Small screen content */ },

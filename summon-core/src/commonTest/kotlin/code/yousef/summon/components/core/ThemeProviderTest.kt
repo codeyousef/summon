@@ -1,9 +1,7 @@
 package code.yousef.summon.components.core
 
 import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
-import code.yousef.summon.theme.Theme
-import code.yousef.summon.util.runTestComposable
+import code.yousef.summon.util.runComposableTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -15,7 +13,7 @@ class ThemeProviderTest {
     fun testThemeProviderWithDefaultTheme() {
         val mockRenderer = MockPlatformRenderer()
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             ThemeProvider {
                 val theme = useTheme()
                 assertNotNull(theme)
@@ -34,8 +32,8 @@ class ThemeProviderTest {
             textColor = "#343a40",
             borderColor = "#dee2e6"
         )
-        
-        runTestComposable(mockRenderer) {
+
+        runComposableTest(mockRenderer) {
             ThemeProvider(theme = customTheme) {
                 val theme = useTheme()
                 assertEquals("#ff6b6b", theme.primaryColor)
@@ -52,8 +50,8 @@ class ThemeProviderTest {
         val mockRenderer = MockPlatformRenderer()
         val outerTheme = EnhancedThemeConfig(primaryColor = "#007bff")
         val innerTheme = EnhancedThemeConfig(primaryColor = "#dc3545")
-        
-        runTestComposable(mockRenderer) {
+
+        runComposableTest(mockRenderer) {
             ThemeProvider(theme = outerTheme) {
                 val outerThemeValue = useTheme()
                 assertEquals("#007bff", outerThemeValue.primaryColor)
@@ -88,8 +86,8 @@ class ThemeProviderTest {
                 "--border-radius" to "0.375rem"
             )
         )
-        
-        runTestComposable(mockRenderer) {
+
+        runComposableTest(mockRenderer) {
             ThemeProvider(theme = tokenTheme) {
                 val theme = useTheme()
                 assertEquals("var(--color-primary)", theme.primaryColor)
@@ -113,8 +111,8 @@ class ThemeProviderTest {
             primaryColor = "#007bff",
             secondaryColor = "#6c757d"
         )
-        
-        runTestComposable(mockRenderer) {
+
+        runComposableTest(mockRenderer) {
             ThemeProvider(theme = theme) {
                 // Test themed modifier functions
                 val modifier = code.yousef.summon.modifier.Modifier()
@@ -140,8 +138,8 @@ class ThemeProviderTest {
                 "xl" to "1200px"
             )
         )
-        
-        runTestComposable(mockRenderer) {
+
+        runComposableTest(mockRenderer) {
             ThemeProvider(theme = themeWithBreakpoints) {
                 val theme = useTheme()
                 assertNotNull(theme.breakpoints)
@@ -165,8 +163,8 @@ class ThemeProviderTest {
                 "h3" to "1.75rem"
             )
         )
-        
-        runTestComposable(mockRenderer) {
+
+        runComposableTest(mockRenderer) {
             ThemeProvider(theme = themeWithTypography) {
                 val theme = useTheme()
                 assertNotNull(theme.typography)
@@ -186,8 +184,8 @@ class ThemeProviderTest {
             textColor = "#ffffff",
             isDarkMode = true
         )
-        
-        runTestComposable(mockRenderer) {
+
+        runComposableTest(mockRenderer) {
             ThemeProvider(theme = darkTheme) {
                 val theme = useTheme()
                 assertTrue(theme.isDarkMode == true)

@@ -23,7 +23,7 @@ class FocusManagementTest {
         // - modifier: Modifier = Modifier()
         // - isFocused: Boolean = false
         // - onFocusChanged: (Boolean) -> Unit = {}
-        // - content: @Composable FlowContent.() -> Unit
+        // - content: @Composable FlowContentCompat.() -> Unit
         
         // If this test compiles, it means the function signature is as expected
         assertTrue(true, "Focusable function has the expected parameters")
@@ -38,7 +38,7 @@ class FocusManagementTest {
         // - modifier: Modifier = Modifier()
         // - isFocused: Boolean = false
         // - onFocusChanged: (Boolean) -> Unit = {}
-        // - content: @Composable FlowContent.() -> Unit
+        // - content: @Composable FlowContentCompat.() -> Unit
         
         // If this test compiles, it means the function signature is as expected
         assertTrue(true, "FocusableContainer function has the expected parameters")

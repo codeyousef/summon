@@ -5,11 +5,11 @@ import code.yousef.summon.components.feedback.AlertVariant
 import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.input.FileInfo
 import code.yousef.summon.components.navigation.Tab
+import code.yousef.summon.core.FlowContentCompat
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.*
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
-import kotlinx.html.FlowContent
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -47,7 +47,7 @@ class TextUtilsTest {
         override fun renderButton(
             onClick: () -> Unit,
             modifier: Modifier,
-            content: @Composable FlowContent.() -> Unit
+            content: @Composable FlowContentCompat.() -> Unit
         ) {
         }
 
@@ -85,9 +85,9 @@ class TextUtilsTest {
         override fun getHeadElements(): List<String> = emptyList()
         override fun renderComposableRoot(composable: @Composable () -> Unit): String = ""
         override fun renderComposable(composable: @Composable () -> Unit) {}
-        override fun renderRow(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderColumn(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderBox(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
+        override fun renderRow(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {}
+        override fun renderColumn(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {}
+        override fun renderBox(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {}
         override fun renderImage(src: String, alt: String?, modifier: Modifier) {}
         override fun renderIcon(
             name: String,
@@ -101,11 +101,11 @@ class TextUtilsTest {
         override fun renderAlertContainer(
             variant: AlertVariant?,
             modifier: Modifier,
-            content: @Composable FlowContent.() -> Unit
+            content: @Composable FlowContentCompat.() -> Unit
         ) {
         }
 
-        override fun renderBadge(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
+        override fun renderBadge(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {}
         override fun renderCheckbox(
             checked: Boolean,
             onCheckedChange: (Boolean) -> Unit,
@@ -137,7 +137,7 @@ class TextUtilsTest {
             isRequired: Boolean,
             isError: Boolean,
             errorMessageId: String?,
-            content: @Composable FlowContent.() -> Unit
+            content: @Composable FlowContentCompat.() -> Unit
         ) {
         }
 
@@ -180,8 +180,14 @@ class TextUtilsTest {
         ) {
         }
 
-        override fun renderAspectRatio(ratio: Float, modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderCard(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
+        override fun renderAspectRatio(
+            ratio: Float,
+            modifier: Modifier,
+            content: @Composable FlowContentCompat.() -> Unit
+        ) {
+        }
+
+        override fun renderCard(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {}
         override fun renderLink(href: String, modifier: Modifier) {}
         override fun renderLink(modifier: Modifier, href: String, content: @Composable () -> Unit) {}
         override fun renderEnhancedLink(
@@ -216,17 +222,22 @@ class TextUtilsTest {
         override fun renderAnimatedVisibility(modifier: Modifier, content: @Composable () -> Unit) {}
         override fun renderAnimatedContent(modifier: Modifier) {}
         override fun renderAnimatedContent(modifier: Modifier, content: @Composable () -> Unit) {}
-        override fun renderBlock(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderInline(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderDiv(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderSpan(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
+        override fun renderBlock(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {}
+        override fun renderInline(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {}
+        override fun renderDiv(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {}
+        override fun renderSpan(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {}
         override fun renderDivider(modifier: Modifier) {}
-        override fun renderExpansionPanel(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderGrid(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderLazyColumn(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderLazyRow(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderResponsiveLayout(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
-        override fun renderHtmlTag(tagName: String, modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
+        override fun renderExpansionPanel(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {}
+        override fun renderGrid(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {}
+        override fun renderLazyColumn(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {}
+        override fun renderLazyRow(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {}
+        override fun renderResponsiveLayout(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {}
+        override fun renderHtmlTag(
+            tagName: String,
+            modifier: Modifier,
+            content: @Composable FlowContentCompat.() -> Unit
+        ) {
+        }
     }
 
     // Mock implementation of Composer for testing

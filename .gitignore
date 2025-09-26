@@ -1,6 +1,7 @@
 # Gradle
 .gradle/
 build/
+**/build/
 
 # IntelliJ IDEA
 .idea/
@@ -30,6 +31,8 @@ out/
 
 # Kotlin
 .kotlin/
+kotlin-js-store/
+*.orphan
 
 # macOS
 .DS_Store
@@ -61,6 +64,8 @@ PUBLISHING.md
 # Node.js (if using JS target)
 node_modules/
 npm-debug.log
+yarn.lock
+package-lock.json
 /.cursor/
 /Design document.md
 /kotlin-js-store/yarn.lock
@@ -124,3 +129,12 @@ npm-debug.log
 /private-key-fixed.asc
 /.specify/
 /specs/
+
+# Example-specific generated files
+examples/wasm-seo-todo/gradle/
+examples/wasm-seo-todo/gradlew
+examples/wasm-seo-todo/gradlew.bat
+examples/wasm-seo-todo/.gradle/
+/public-key-working.asc
+/private-key-working.asc
+/sign-artifact.sh

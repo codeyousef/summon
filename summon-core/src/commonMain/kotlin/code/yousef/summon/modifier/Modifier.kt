@@ -37,7 +37,7 @@
  *     .height("200px")
  *     .margin("16px")
  *     .shadow("0px", "2px", "4px", "rgba(0,0,0,0.1)")
- *     .hover(mapOf("transform" to "translateY(-2px)"))
+ *     .hover(mapOfCompat("transform" to "translateY(-2px)"))
  *
  * // Accessibility
  * val accessibleModifier = Modifier()
@@ -48,12 +48,9 @@
  *
  * @since 1.0.0
  */
-@file:OptIn(ExperimentalJsExport::class)
-
 package code.yousef.summon.modifier
 
-import kotlin.js.ExperimentalJsExport
-import kotlin.js.JsExport
+import code.yousef.summon.core.splitCompat
 import kotlin.js.JsName
 
 /**
@@ -139,7 +136,7 @@ import kotlin.js.JsName
  *     .borderRadius("12px")
  *     .shadow("0px", "4px", "6px", "rgba(0, 0, 0, 0.1)")
  *     .padding("24px")
- *     .hover(mapOf(
+ *     .hover(mapOfCompat(
  *         "transform" to "translateY(-2px)",
  *         "box-shadow" to "0px 8px 12px rgba(0, 0, 0, 0.15)"
  *     ))
@@ -200,10 +197,8 @@ import kotlin.js.JsName
  * @see code.yousef.summon.components
  * @since 1.0.0
  */
-@JsExport
 data class Modifier(
     val styles: Map<String, String> = emptyMap(),
-    @JsName("htmlAttributes")
     val attributes: Map<String, String> = emptyMap()
 ) {
 
@@ -493,8 +488,8 @@ data class Modifier(
         val currentHover =
             attributes["data-hover-styles"]?.let { prev -> // Uses the JS renamed `htmlAttributes` in Kotlin via `attributes`
                 // Crude merge, could be improved
-                prev.split(';').associate {
-                    val parts = it.split(':')
+                prev.splitCompat(';').associate {
+                    val parts = it.splitCompat(':')
                     parts[0].trim() to parts[1].trim()
                 } + hoverStyles
             } ?: hoverStyles
@@ -599,7 +594,7 @@ data class Modifier(
      */
     fun addClass(value: String): Modifier {
         val existingClasses =
-            attributes["class"]?.split(' ')?.toSet() ?: emptySet() // Accesses the Kotlin property `attributes`
+            attributes["class"]?.splitCompat(' ')?.toSet() ?: emptySet() // Accesses the Kotlin property `attributes`
         val newClasses = (existingClasses + value.trim()).filter { it.isNotEmpty() }.joinToString(" ")
         return attribute("class", newClasses)
     }
@@ -697,22 +692,14 @@ data class Modifier(
 
 /**
  * Factory function to create an empty Modifier.
- * Exported to JavaScript with the name "createModifier".
- * In JS: `yourModuleName.code.yousef.summon.modifier.createModifier()`
  */
-@JsExport
-@JsName("createModifier") // Explicit JS name
 fun createEmptyModifier(): Modifier = Modifier()
 
 /**
  * Factory function to create a Modifier with initial styles.
- * Exported to JavaScript with the name "createModifierWithStyles".
- * In JS: `yourModuleName.code.yousef.summon.modifier.createModifierWithStyles({ color: 'blue' })`
- * @param styles A map of style properties. Can be a JS object when called from JS.
+ * @param styles A map of style properties.
  * @return A new Modifier with the specified styles.
  */
-@JsExport
-@JsName("createModifierWithStyles")
 fun createModifierWithStyles(styles: Map<String, String>): Modifier {
     // In JS, to pass an empty map for attributes: new Modifier(styles, undefined) or new Modifier(styles, {})
     return Modifier(styles = styles)
@@ -725,8 +712,6 @@ fun createModifierWithStyles(styles: Map<String, String>): Modifier {
  * @param attributes A map of attributes. Can be a JS object when called from JS.
  * @return A new Modifier with the specified attributes.
  */
-@JsExport
-@JsName("createModifierWithAttributes")
 fun createModifierWithAttributes(attributes: Map<String, String>): Modifier {
     // In JS, to pass an empty map for styles: new Modifier(undefined, attributes) or new Modifier({}, attributes)
     return Modifier(attributes = attributes)

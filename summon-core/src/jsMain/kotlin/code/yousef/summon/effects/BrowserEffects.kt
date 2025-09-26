@@ -22,7 +22,7 @@ external interface BrowserHistory {
  * Browser history wrapper
  */
 class History {
-    @Suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST", "UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
     private val browserHistory = window.asDynamic().history as BrowserHistory
 
     fun back() {
@@ -71,7 +71,7 @@ external interface BrowserNavigator {
  * Browser navigator information
  */
 class Navigator {
-    @Suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST", "UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
     private val browserNavigator = window.asDynamic().navigator as BrowserNavigator
 
     val language: String = browserNavigator.language ?: "en-US"
@@ -398,6 +398,7 @@ fun CompositionScope.useResizeObserver(
 @Composable
 fun CompositionScope.useOnlineStatus(): SummonMutableState<Boolean> {
     // Initialize with the current online status from the browser
+    @Suppress("UNCHECKED_CAST", "UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
     val browserNavigator = window.asDynamic().navigator as BrowserNavigator
     val online = mutableStateOf(browserNavigator.onLine)
 
@@ -572,10 +573,12 @@ fun CompositionScope.useGeolocation(
         var watchId: Int? = null
 
         // Get navigator
+        @Suppress("UNCHECKED_CAST", "UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
         val browserNavigator = window.asDynamic().navigator as BrowserNavigator
 
         // Check if geolocation is available
         if (browserNavigator.geolocation != null) {
+            @Suppress("UNCHECKED_CAST", "UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
             val geolocation = browserNavigator.geolocation as Geolocation
 
             // Create geolocation options
@@ -610,6 +613,7 @@ fun CompositionScope.useGeolocation(
         return@onMountWithCleanup {
             // Clear the geolocation watch if it was set
             if (watchId != null) {
+                @Suppress("UNCHECKED_CAST", "UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
                 val geolocation = browserNavigator.geolocation as? Geolocation
                 geolocation?.clearWatch(watchId)
             }
@@ -772,6 +776,7 @@ fun CompositionScope.useWebAnimation(
 
         // Create and start the animation
         if (element != null) {
+            @Suppress("UNCHECKED_CAST", "UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
             val animatableElement = element.asDynamic() as AnimatableElement
             val animation = animatableElement.animate(keyframesArray, animOptions)
             api.setAnimation(animation)

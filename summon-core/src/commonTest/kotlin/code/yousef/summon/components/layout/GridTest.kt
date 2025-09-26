@@ -2,14 +2,12 @@ package code.yousef.summon.components.layout
 
 import code.yousef.summon.modifier.BorderStyle
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.border
-import code.yousef.summon.runtime.MockPlatformRenderer 
-import code.yousef.summon.util.runTestComposable
-import kotlinx.html.FlowContent
+import code.yousef.summon.runtime.MockPlatformRenderer
+import code.yousef.summon.util.runComposableTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * Tests for the Grid component
@@ -19,7 +17,7 @@ class GridTest {
     @Test
     fun testGridWithDefaultParameters() {
         val mockRenderer = MockPlatformRenderer()
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Grid(columns = "1fr 1fr") {
                 // Empty content
             }
@@ -39,7 +37,7 @@ class GridTest {
     fun testGridWithAllParameters() {
         val mockRenderer = MockPlatformRenderer()
         val customModifier = Modifier().background("red")
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Grid(
                 columns = "repeat(3, 1fr)",
                 rows = "auto 1fr auto",
@@ -72,7 +70,7 @@ class GridTest {
             .padding("10px")
             .border("1px", BorderStyle.Solid.value, "black")
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Grid(
                 columns = "1fr 2fr",
                 modifier = customModifier,

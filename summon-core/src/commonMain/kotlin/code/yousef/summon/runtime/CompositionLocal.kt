@@ -1,10 +1,10 @@
 package code.yousef.summon.runtime
 
+import code.yousef.summon.core.FlowContent
 import code.yousef.summon.runtime.CompositionLocal.compositionLocalOf
 import code.yousef.summon.runtime.CompositionLocal.currentComposer
 import code.yousef.summon.runtime.CompositionLocal.setCurrentComposer
 import code.yousef.summon.runtime.CompositionLocal.staticCompositionLocalOf
-import kotlinx.html.FlowContent
 
 /**
  * Provides access to composition-local values and manages the current composition context.

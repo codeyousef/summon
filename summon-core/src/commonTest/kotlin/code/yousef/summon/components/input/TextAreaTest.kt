@@ -1,19 +1,10 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.util.runTestComposable
 // Import other types used in PlatformRenderer methods for the mock
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.IconType
-import code.yousef.summon.components.feedback.AlertVariant
-import code.yousef.summon.components.feedback.ProgressType
-import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.*
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
-import kotlinx.html.FlowContent
+import code.yousef.summon.runtime.MockPlatformRenderer
+import code.yousef.summon.util.runComposableTest
 import kotlin.test.*
-import code.yousef.summon.runtime.SelectOption as RendererSelectOption
 
 class TextAreaTest {
 
@@ -24,7 +15,7 @@ class TextAreaTest {
         val onValChange: (String) -> Unit = { textValue = it }
         val mod = Modifier()
 
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             TextArea(
                 value = textValue,
                 onValueChange = onValChange,
@@ -58,7 +49,7 @@ class TextAreaTest {
         var externalValue = "Initial"
         val onValChangeExternal: (String) -> Unit = { externalValue = it }
 
-        runTestComposable(renderer) {
+        runComposableTest(renderer) {
             StatefulTextArea(
                 initialValue = "Start",
                 onValueChange = onValChangeExternal,

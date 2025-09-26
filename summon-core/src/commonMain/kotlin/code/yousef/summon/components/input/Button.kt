@@ -218,8 +218,19 @@ fun Button(
 ) {
     val renderer = LocalPlatformRenderer.current
 
+    // Generate a stable unique ID based on Button's stable properties
+    val stableProps = listOf(
+        label,
+        variant.name,
+        disabled.toString(),
+        iconName ?: "no-icon",
+        iconPosition.name
+    ).joinToString("-")
+    val uniqueId = "button-" + stableProps.hashCode().toString().replace("-", "")
+
     // Apply base button styling
     val baseModifier = modifier
+        .attribute("data-summon-id", uniqueId)
         .style("display", "inline-flex")
         .style("align-items", "center")
         .style("justify-content", "center")

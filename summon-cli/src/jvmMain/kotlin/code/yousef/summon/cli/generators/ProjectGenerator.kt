@@ -59,7 +59,7 @@ class ProjectGenerator(private val template: ProjectTemplate) {
             "PACKAGE_PATH" to packagePath,
             "APP_TITLE" to TemplateHelpers.transformName(config.projectName, "pascalcase"),
             "APP_CLASS" to TemplateHelpers.transformName(config.projectName, "pascalcase") + "App",
-            "SUMMON_VERSION" to "0.2.9.1",
+            "SUMMON_VERSION" to "0.4.0.0",
             "KOTLIN_VERSION" to "2.2.0",
             "INCLUDE_EXAMPLES" to if (config.includeExamples && !config.minimal) "true" else "false",
             "INCLUDE_AUTH" to if (config.includeAuth) "true" else "false",
@@ -181,13 +181,6 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven {
-        url = uri("https://maven.pkg.github.com/codeyousef/summon")
-        credentials {
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
-        }
-    }
 }
 
 kotlin {
@@ -241,13 +234,6 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven {
-        url = uri("https://maven.pkg.github.com/codeyousef/summon")
-        credentials {
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
-        }
-    }
 }
 
 kotlin {
@@ -298,13 +284,6 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven {
-        url = uri("https://maven.pkg.github.com/codeyousef/summon")
-        credentials {
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
-        }
-    }
 }
 
 kotlin {
@@ -354,13 +333,6 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven {
-        url = uri("https://maven.pkg.github.com/codeyousef/summon")
-        credentials {
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
-        }
-    }
 }
 
 kotlin {
@@ -414,13 +386,6 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven {
-        url = uri("https://maven.pkg.github.com/codeyousef/summon")
-        credentials {
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
-        }
-    }
 }
 
 kotlin {
@@ -468,13 +433,6 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven {
-        url = uri("https://maven.pkg.github.com/codeyousef/summon")
-        credentials {
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
-        }
-    }
 }
 
 kotlin {
@@ -1070,26 +1028,56 @@ fun ButtonExamples() {
     }
 
     private fun generateGradleWrapper(targetDir: File) {
-        // Create gradle wrapper files - in a real implementation, 
-        // these would be copied from the Summon project or downloaded
+        // Create gradle wrapper directory
         val gradleDir = File(targetDir, "gradle/wrapper")
         gradleDir.mkdirs()
 
-        val gradlewFile = File(targetDir, "gradlew")
-        gradlewFile.writeText(
-            """#!/bin/bash
-# Gradle wrapper script
-exec gradle "$@"
-"""
-        )
-        gradlewFile.setExecutable(true)
+        // Copy gradle wrapper files from resources
+        val classLoader = this::class.java.classLoader
 
-        val gradlewBat = File(targetDir, "gradlew.bat")
-        gradlewBat.writeText(
-            """@echo off
-gradle %*
-"""
-        )
+        // Copy gradle-wrapper.jar
+        val wrapperJarResource = classLoader.getResourceAsStream("gradle-wrapper/gradle-wrapper.jar")
+        if (wrapperJarResource != null) {
+            File(gradleDir, "gradle-wrapper.jar").outputStream().use { output ->
+                wrapperJarResource.use { input ->
+                    input.copyTo(output)
+                }
+            }
+        } else {
+            println("⚠️  Warning: gradle-wrapper.jar not found in resources")
+        }
+
+        // Copy gradle-wrapper.properties
+        val wrapperPropsResource = classLoader.getResourceAsStream("gradle-wrapper/gradle-wrapper.properties")
+        if (wrapperPropsResource != null) {
+            File(gradleDir, "gradle-wrapper.properties").outputStream().use { output ->
+                wrapperPropsResource.use { input ->
+                    input.copyTo(output)
+                }
+            }
+        }
+
+        // Copy gradlew script
+        val gradlewResource = classLoader.getResourceAsStream("gradle-wrapper/gradlew")
+        if (gradlewResource != null) {
+            val gradlewFile = File(targetDir, "gradlew")
+            gradlewFile.outputStream().use { output ->
+                gradlewResource.use { input ->
+                    input.copyTo(output)
+                }
+            }
+            gradlewFile.setExecutable(true)
+        }
+
+        // Copy gradlew.bat script
+        val gradlewBatResource = classLoader.getResourceAsStream("gradle-wrapper/gradlew.bat")
+        if (gradlewBatResource != null) {
+            File(targetDir, "gradlew.bat").outputStream().use { output ->
+                gradlewBatResource.use { input ->
+                    input.copyTo(output)
+                }
+            }
+        }
     }
 
     private fun getBuiltinTemplate(type: String): File {

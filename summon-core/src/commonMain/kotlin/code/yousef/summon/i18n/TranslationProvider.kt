@@ -1,5 +1,7 @@
 package code.yousef.summon.i18n
 
+import code.yousef.summon.core.mapOfCompat
+
 /**
  * Interface for providing translations.
  */
@@ -37,5 +39,5 @@ class MapTranslationProvider(
 fun translationProvider(
     vararg languageMaps: Pair<String, Map<String, String>>
 ): TranslationProvider {
-    return MapTranslationProvider(mapOf(*languageMaps))
+    return MapTranslationProvider(mapOfCompat(*languageMaps))
 }

@@ -1,6 +1,7 @@
 package code.yousef.summon.components.style
 
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.core.mapOfCompat
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.LocalPlatformRenderer
 
@@ -70,7 +71,7 @@ import code.yousef.summon.runtime.LocalPlatformRenderer
  * @Composable
  * fun ThemedApp() {
  *     CssVariables(
- *         variables = mapOf(
+ *         variables = mapOfCompat(
  *             "--color-primary" to "#3b82f6",
  *             "--color-secondary" to "#6366f1",
  *             "--color-success" to "#10b981",
@@ -112,7 +113,7 @@ import code.yousef.summon.runtime.LocalPlatformRenderer
  * fun DarkThemeApp() {
  *     ThemeProvider(
  *         lightTheme = ThemeConfig(
- *             colors = mapOf(
+ *             colors = mapOfCompat(
  *                 "background" to "#ffffff",
  *                 "surface" to "#f8fafc",
  *                 "text" to "#1f2937",
@@ -120,7 +121,7 @@ import code.yousef.summon.runtime.LocalPlatformRenderer
  *             )
  *         ),
  *         darkTheme = ThemeConfig(
- *             colors = mapOf(
+ *             colors = mapOfCompat(
  *                 "background" to "#0f172a",
  *                 "surface" to "#1e293b",
  *                 "text" to "#f1f5f9",
@@ -350,15 +351,15 @@ fun GradientUtilities(
  * Predefined gradient themes for common use cases.
  */
 object GradientThemes {
-    val modernPrimary = mapOf(
+    val modernPrimary = mapOfCompat(
         "primary" to "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         "secondary" to "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
         "success" to "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
         "warning" to "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)",
         "danger" to "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)"
     )
-    
-    val glassMorphism = mapOf(
+
+    val glassMorphism = mapOfCompat(
         "glass-light" to "rgba(255, 255, 255, 0.25)",
         "glass-dark" to "rgba(30, 41, 59, 0.25)",
         "glass-backdrop" to "blur(10px)"

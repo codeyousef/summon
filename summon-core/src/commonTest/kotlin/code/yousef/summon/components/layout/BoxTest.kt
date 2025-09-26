@@ -1,23 +1,9 @@
 package code.yousef.summon.components.layout
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.IconType
-import code.yousef.summon.components.feedback.AlertVariant
-import code.yousef.summon.components.feedback.ProgressType
-import code.yousef.summon.components.input.FileInfo
-import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.* // Covers PlatformRenderer, LocalPlatformRenderer
-import code.yousef.summon.runtime.MockPlatformRenderer // Explicit import for shared mock
-import code.yousef.summon.util.runTestComposable
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
-import kotlinx.html.FlowContent
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-import kotlin.test.assertSame
-import kotlin.test.assertNotNull
+import code.yousef.summon.runtime.MockPlatformRenderer
+import code.yousef.summon.util.runComposableTest
+import kotlin.test.*
 
 /**
  * Tests for the Box component
@@ -30,7 +16,7 @@ class BoxTest {
         val mockRenderer = MockPlatformRenderer()
 
         // Set up the composition context using runTestComposable
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             // Call the Box component with default modifier
             Box {
                 // Empty content
@@ -56,7 +42,7 @@ class BoxTest {
         val customModifier = Modifier().background("red")
 
         // Set up the composition context using runTestComposable
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             // Call the Box component with custom modifier
             Box(modifier = customModifier) {
                 // Empty content

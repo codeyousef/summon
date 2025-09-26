@@ -1,6 +1,7 @@
 # Summon Documentation
 
-Welcome to the Summon documentation! Summon is a Kotlin Multiplatform library for building user interfaces that work seamlessly across JavaScript and JVM platforms.
+Welcome to the Summon documentation! Summon is a Kotlin Multiplatform library for building user interfaces that work
+seamlessly across JavaScript, WebAssembly (WASM), and JVM platforms.
 
 ## Table of Contents
 
@@ -14,6 +15,10 @@ Welcome to the Summon documentation! Summon is a Kotlin Multiplatform library fo
 - [Accessibility Guide](accessibility-guide.md) - Build accessible applications
 - [Accessibility and SEO](accessibility-and-seo.md) - Build accessible and SEO-friendly applications
 - [Internationalization](i18n.md) - Add multi-language support with RTL layouts
+
+### WebAssembly (WASM)
+
+- [WASM Guide](wasm-guide.md) - **NEW**: Complete guide to building high-performance WASM applications
 
 ### API Reference
 - [Core API](api-reference/core.md) - Core interfaces and classes

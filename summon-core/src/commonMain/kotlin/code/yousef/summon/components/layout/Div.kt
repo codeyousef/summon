@@ -1,9 +1,9 @@
 package code.yousef.summon.components.layout
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.modifier.Modifier // Correctly importing the @JsExported Modifier
+import code.yousef.summon.core.FlowContent
+import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.LocalPlatformRenderer
-import kotlinx.html.FlowContent // Assuming this is for HTML DSL context, which is fine
 
 /**
  * A basic container component that renders a div element.

@@ -1,24 +1,9 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.IconType
-import code.yousef.summon.components.feedback.AlertVariant
-import code.yousef.summon.components.feedback.ProgressType
-import code.yousef.summon.components.navigation.Tab
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.FormContent
 import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
-import code.yousef.summon.runtime.PlatformRenderer
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
-import kotlinx.html.FlowContent
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
-import kotlin.test.assertFalse
-import code.yousef.summon.runtime.SelectOption as RendererSelectOption
+import code.yousef.summon.util.runComposableTest
+import kotlin.test.*
 
 class RadioButtonTest {
 
@@ -30,7 +15,7 @@ class RadioButtonTest {
         val onClickLambda = { clicked = true }
         val expectedModifier = testModifier.cursor("pointer")
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             RadioButton(
                 selected = false,
                 onClick = onClickLambda,
@@ -54,7 +39,7 @@ class RadioButtonTest {
         val mockRenderer = MockPlatformRenderer()
         val onClickLambda = { /* No-op */ }
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             RadioButton(
                 selected = true, // Initial state is selected
                 onClick = onClickLambda,
@@ -74,7 +59,7 @@ class RadioButtonTest {
         var clicked = false
         val onClickLambda = { clicked = true }
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             RadioButton(
                 selected = false,
                 onClick = onClickLambda,

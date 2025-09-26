@@ -28,6 +28,8 @@ fun Modifier.fontStyle(value: String, component: TextComponent? = null): Modifie
  * Sets the font weight (normal, bold, etc).
  * Only applicable to text components.
  */
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+@Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
 fun Modifier.fontWeight(value: String, component: TextComponent? = null): Modifier =
     style("font-weight", value)
 
@@ -99,6 +101,8 @@ fun Modifier.textTransform(value: TextTransform, component: TextComponent? = nul
  * Sets the object-fit property for images and videos.
  * Only applicable to media components.
  */
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+@Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
 fun Modifier.objectFit(value: String, component: MediaComponent? = null): Modifier =
     style("object-fit", value)
 

@@ -1,29 +1,11 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.runtime.*
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.input.Slider // Import the component
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.state.mutableStateOf
-import code.yousef.summon.util.TestComposer
-import code.yousef.summon.util.runTestComposable
-
 // Import other types used in PlatformRenderer methods for the mock
-import code.yousef.summon.runtime.SelectOption as RendererSelectOption
-import code.yousef.summon.components.display.IconType
-import code.yousef.summon.components.feedback.AlertVariant
-import code.yousef.summon.components.feedback.ProgressType
-import code.yousef.summon.components.navigation.Tab
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
-import kotlinx.html.FlowContent
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
-import kotlin.test.assertSame
+import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.MockPlatformRenderer
+import code.yousef.summon.util.runComposableTest
+import kotlin.test.*
 
 class SliderTest {
 
@@ -36,7 +18,7 @@ class SliderTest {
         val testModifier = Modifier()
         val onValChange: (Float) -> Unit = { sliderValue = it }
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Slider(
                 value = sliderValue,
                 onValueChange = onValChange,
@@ -68,7 +50,7 @@ class SliderTest {
         val steps = 10
         val onValChange: (Float) -> Unit = { sliderValue = it }
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             Slider(
                 value = sliderValue,
                 onValueChange = onValChange,
@@ -100,7 +82,7 @@ class SliderTest {
         val steps = 5
         val onValChangeExternal: (Float) -> Unit = { externalValue = it }
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             StatefulSlider(
                 initialValue = initialValue,
                 onValueChange = onValChangeExternal,

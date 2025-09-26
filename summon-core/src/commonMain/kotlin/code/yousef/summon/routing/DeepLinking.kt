@@ -2,6 +2,8 @@
 
 package code.yousef.summon.routing
 
+import code.yousef.summon.core.splitCompat
+
 // Removed androidx import
 
 import code.yousef.summon.runtime.Composable
@@ -115,17 +117,17 @@ class DeepLinking private constructor() {
      */
     fun parseDeepLink(url: String): DeepLinkInfo {
         // Split the URL into path, query, and fragment
-        val fragmentSplit = url.split("#", limit = 2)
+        val fragmentSplit = url.splitCompat("#", limit = 2)
         val fragment = if (fragmentSplit.size > 1) fragmentSplit[1] else null
 
-        val queryStringSplit = fragmentSplit[0].split("?", limit = 2)
+        val queryStringSplit = fragmentSplit[0].splitCompat("?", limit = 2)
         val path = queryStringSplit[0]
 
         val queryParams = if (queryStringSplit.size > 1) {
-            queryStringSplit[1].split("&")
+            queryStringSplit[1].splitCompat("&")
                 .filter { it.isNotEmpty() }
                 .associate { param ->
-                    val keyValue = param.split("=", limit = 2)
+                    val keyValue = param.splitCompat("=", limit = 2)
                     val key = keyValue[0]
                     val value = if (keyValue.size > 1) decodeURIComponent(keyValue[1]) else ""
                     key to value
@@ -314,7 +316,7 @@ object DeepLinkManager {
         val params = mutableMapOf<String, String>()
 
         // Split the path into segments
-        val segments = path.trim('/').split('/')
+        val segments = path.trim('/').splitCompat('/')
 
         // Look for segments that might be parameters
         // In a real implementation, we would match against route patterns
@@ -381,8 +383,8 @@ fun extractQueryParams(url: String): Map<String, String> {
     val queryParams = mutableMapOf<String, String>()
     val queryPart = url.substringAfter('?', "")
     if (queryPart.isNotEmpty()) {
-        queryPart.split('&').forEach {
-            val parts = it.split('=', limit = 2)
+        queryPart.splitCompat('&').forEach {
+            val parts = it.splitCompat('=', limit = 2)
             if (parts.size == 2) {
                 val key = parts[0]
                 val value = DeepLinking.getInstance().decodeURIComponent(parts[1])

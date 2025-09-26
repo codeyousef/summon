@@ -1,5 +1,7 @@
 package code.yousef.summon.i18n
 
+import code.yousef.summon.core.mapOfCompat
+
 import code.yousef.summon.runtime.Composable
 import kotlin.math.abs
 
@@ -45,11 +47,11 @@ object I18nUtils {
         other: String
     ): String {
         return when {
-            count == 0 && zero != null -> formatMessage(zero, mapOf("count" to count))
-            count == 1 -> formatMessage(one, mapOf("count" to count))
-            count in 2..4 && few != null -> formatMessage(few, mapOf("count" to count))
-            count >= 5 && count <= 20 && many != null -> formatMessage(many, mapOf("count" to count))
-            else -> formatMessage(other, mapOf("count" to count))
+            count == 0 && zero != null -> formatMessage(zero, mapOfCompat("count" to count))
+            count == 1 -> formatMessage(one, mapOfCompat("count" to count))
+            count in 2..4 && few != null -> formatMessage(few, mapOfCompat("count" to count))
+            count >= 5 && count <= 20 && many != null -> formatMessage(many, mapOfCompat("count" to count))
+            else -> formatMessage(other, mapOfCompat("count" to count))
         }
     }
 

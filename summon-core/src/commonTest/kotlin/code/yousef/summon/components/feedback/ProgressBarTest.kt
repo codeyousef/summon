@@ -1,31 +1,12 @@
 package code.yousef.summon.components.feedback
 
-import code.yousef.summon.runtime.*
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.feedback.ProgressBar // Import the component
-import code.yousef.summon.components.feedback.ProgressType // Import ProgressType
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.util.TestFileInfo // Import for consistency in mock renderer boilerplate
-
 // Import other types used in PlatformRenderer methods for the mock
-import kotlinx.datetime.LocalTime
-import kotlinx.datetime.LocalDate
-import kotlinx.html.FlowContent
-import code.yousef.summon.runtime.SelectOption as RendererSelectOption
-import code.yousef.summon.components.display.IconType
-import code.yousef.summon.components.navigation.Tab
-import code.yousef.summon.components.input.FileInfo
-
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
-import kotlin.test.assertNull
-import kotlin.test.assertSame
 
 // Import the shared MockPlatformRenderer
+import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
+import code.yousef.summon.util.runComposableTest
+import kotlin.test.*
 
 class ProgressBarTest {
 
@@ -35,7 +16,7 @@ class ProgressBarTest {
         val testProgress = 0.75f
         val testModifier = Modifier().margin("5px") // Example custom modifier
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             ProgressBar(
                 progress = testProgress,
                 modifier = testModifier
@@ -61,7 +42,7 @@ class ProgressBarTest {
     fun testProgressBarIndeterminate() {
         val mockRenderer = MockPlatformRenderer() // Changed to shared MockPlatformRenderer
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             ProgressBar(
                 progress = null // Indeterminate state
             )

@@ -99,6 +99,8 @@
  */
 package code.yousef.summon.animation
 
+import code.yousef.summon.core.splitCompat
+
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.modifier.TransitionTimingFunction
 import code.yousef.summon.modifier.transition
@@ -149,7 +151,7 @@ fun Modifier.spring(
     return animate(
         name = name,
         duration = duration,
-        timingFunction = springAnimation.toCssAnimationString().split(" ")[1],
+        timingFunction = springAnimation.toCssAnimationString().splitCompat(" ")[1],
         iterationCount = iterationCount
     )
 }

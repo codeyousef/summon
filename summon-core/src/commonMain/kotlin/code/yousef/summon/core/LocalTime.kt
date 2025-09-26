@@ -30,7 +30,7 @@ data class LocalTime(val hour: Int, val minute: Int, val second: Int = 0) {
          * Parses a time from a string using ISO format (HH:mm:ss or HH:mm).
          */
         fun parse(value: String): LocalTime {
-            val parts = value.split(":")
+            val parts = value.splitCompat(":")
             parts.size.requireInRange(2..3) { "Invalid time format, expected HH:mm[:ss]" }
             return LocalTime(
                 hour = parts[0].toInt(),

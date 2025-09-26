@@ -6,10 +6,10 @@ import code.yousef.summon.components.feedback.AlertVariant
 import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.input.FileInfo
 import code.yousef.summon.components.navigation.Tab
+import code.yousef.summon.core.FlowContentCompat
 import code.yousef.summon.modifier.Modifier
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
-import kotlinx.html.FlowContent
 
 /**
  * A mock implementation of [PlatformRenderer] for testing purposes.
@@ -36,11 +36,11 @@ open class MockPlatformRenderer : PlatformRenderer() {
     var lastTextRendered: String? = null
     var lastModifierRendered: Modifier? = null
     var boxModifierUsed: Modifier? = null
-    var lastBlockContentRendered: (@Composable FlowContent.() -> Unit)? = null
+    var lastBlockContentRendered: (@Composable FlowContentCompat.() -> Unit)? = null
     var lastBlockModifierRendered: Modifier? = null
-    var lastColumnContentRendered: (@Composable FlowContent.() -> Unit)? = null
+    var lastColumnContentRendered: (@Composable FlowContentCompat.() -> Unit)? = null
     var lastColumnModifierRendered: Modifier? = null
-    var lastRowContentRendered: (@Composable FlowContent.() -> Unit)? = null
+    var lastRowContentRendered: (@Composable FlowContentCompat.() -> Unit)? = null
     var lastRowModifierRendered: Modifier? = null
     var lastIconNameRendered: String? = null
     var lastIconTypeRendered: IconType? = null
@@ -55,16 +55,16 @@ open class MockPlatformRenderer : PlatformRenderer() {
     var lastLabelModifierRendered: Modifier? = null
     var lastAlertVariantRendered: AlertVariant? = null
     var lastAlertModifierRendered: Modifier? = null
-    var lastAlertContentRendered: (@Composable FlowContent.() -> Unit)? = null
+    var lastAlertContentRendered: (@Composable FlowContentCompat.() -> Unit)? = null
     var lastBadgeModifierRendered: Modifier? = null
-    var lastBadgeContentRendered: (@Composable FlowContent.() -> Unit)? = null
+    var lastBadgeContentRendered: (@Composable FlowContentCompat.() -> Unit)? = null
     var lastProgressValueRendered: Float? = null
     var lastProgressTypeRendered: ProgressType? = null
     var lastProgressModifierRendered: Modifier? = null
     var lastBoxModifierRendered: Modifier? = null
     var lastButtonModifierRendered: Modifier? = null
     var lastButtonOnClickRendered: (() -> Unit)? = null
-    var lastButtonContentRendered: (@Composable FlowContent.() -> Unit)? = null
+    var lastButtonContentRendered: (@Composable FlowContentCompat.() -> Unit)? = null
 
     // Checkbox tracking properties
     var renderCheckboxCalled = false
@@ -98,7 +98,7 @@ open class MockPlatformRenderer : PlatformRenderer() {
     var lastFormFieldIsRequiredRendered: Boolean? = null
     var lastFormFieldIsErrorRendered: Boolean? = null
     var lastFormFieldErrorMessageIdRendered: String? = null
-    var lastFormFieldContentLambdaRendered: (@Composable FlowContent.() -> Unit)? = null
+    var lastFormFieldContentLambdaRendered: (@Composable FlowContentCompat.() -> Unit)? = null
 
     // RadioButton tracking properties
     var lastRadioButtonSelectedRendered: Boolean? = null
@@ -180,12 +180,12 @@ open class MockPlatformRenderer : PlatformRenderer() {
     // Grid tracking properties
     var renderGridCalled = false
     var lastGridModifierRendered: Modifier? = null
-    var lastGridContentRendered: (@Composable FlowContent.() -> Unit)? = null
+    var lastGridContentRendered: (@Composable FlowContentCompat.() -> Unit)? = null
 
     // Card tracking properties
     var renderCardCalled = false
     var lastCardModifierRendered: Modifier? = null
-    var lastCardContentRendered: (@Composable FlowContent.() -> Unit)? = null
+    var lastCardContentRendered: (@Composable FlowContentCompat.() -> Unit)? = null
 
     // TabLayout tracking properties
     open var renderTabLayoutCalled = false
@@ -198,27 +198,27 @@ open class MockPlatformRenderer : PlatformRenderer() {
     var renderAspectRatioCalled = false
     var lastAspectRatioRatioRendered: Float? = null
     var lastAspectRatioModifierRendered: Modifier? = null
-    var lastAspectRatioContentRendered: (@Composable FlowContent.() -> Unit)? = null
+    var lastAspectRatioContentRendered: (@Composable FlowContentCompat.() -> Unit)? = null
 
     // ExpansionPanel tracking properties
     var renderExpansionPanelCalled = false
     var lastExpansionPanelModifierRendered: Modifier? = null
-    var lastExpansionPanelContentRendered: (@Composable FlowContent.() -> Unit)? = null
+    var lastExpansionPanelContentRendered: (@Composable FlowContentCompat.() -> Unit)? = null
 
     // LazyColumn tracking properties
     var renderLazyColumnCalled = false
     var lastLazyColumnModifierRendered: Modifier? = null
-    var lastLazyColumnContentRendered: (@Composable FlowContent.() -> Unit)? = null
+    var lastLazyColumnContentRendered: (@Composable FlowContentCompat.() -> Unit)? = null
 
     // LazyRow tracking properties
     var renderLazyRowCalled = false
     var lastLazyRowModifierRendered: Modifier? = null
-    var lastLazyRowContentRendered: (@Composable FlowContent.() -> Unit)? = null
+    var lastLazyRowContentRendered: (@Composable FlowContentCompat.() -> Unit)? = null
 
     // ResponsiveLayout tracking properties
     var renderResponsiveLayoutCalled = false
     var lastResponsiveLayoutModifierRendered: Modifier? = null
-    var lastResponsiveLayoutContentRendered: (@Composable FlowContent.() -> Unit)? = null
+    var lastResponsiveLayoutContentRendered: (@Composable FlowContentCompat.() -> Unit)? = null
 
     // Snackbar tracking properties
     var renderSnackbarCalled = false
@@ -233,13 +233,13 @@ open class MockPlatformRenderer : PlatformRenderer() {
     var lastTooltipContentRendered: (@Composable () -> Unit)? = null
 
     // Additional tracking properties
-    var lastBoxContentRendered: (@Composable FlowContent.() -> Unit)? = null
+    var lastBoxContentRendered: (@Composable FlowContentCompat.() -> Unit)? = null
     var renderDivCalled = false
     var lastDivModifierRendered: Modifier? = null
-    var lastDivContentRendered: (@Composable FlowContent.() -> Unit)? = null
+    var lastDivContentRendered: (@Composable FlowContentCompat.() -> Unit)? = null
     var renderSpanCalled = false
     var lastSpanModifierRendered: Modifier? = null
-    var lastSpanContentRendered: (@Composable FlowContent.() -> Unit)? = null
+    var lastSpanContentRendered: (@Composable FlowContentCompat.() -> Unit)? = null
 
     // GlobalStyle tracking properties
     var renderGlobalStyleCalled = false
@@ -500,7 +500,7 @@ open class MockPlatformRenderer : PlatformRenderer() {
     override fun renderButton(
         onClick: () -> Unit,
         modifier: Modifier,
-        content: @Composable FlowContent.() -> Unit
+        content: @Composable FlowContentCompat.() -> Unit
     ) {
         renderButtonCalled = true
         lastButtonOnClickRendered = onClick
@@ -508,7 +508,7 @@ open class MockPlatformRenderer : PlatformRenderer() {
         lastButtonContentRendered = content
     }
 
-    override fun renderBox(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    override fun renderBox(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         renderBoxCalled = true
         boxModifierUsed = modifier
         lastBoxModifierRendered = modifier
@@ -595,13 +595,13 @@ open class MockPlatformRenderer : PlatformRenderer() {
 
     override fun renderComposable(composable: @Composable () -> Unit) {}
 
-    override fun renderRow(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    override fun renderRow(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         renderRowCalled = true
         lastRowModifierRendered = modifier
         lastRowContentRendered = content
     }
 
-    override fun renderColumn(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    override fun renderColumn(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         renderColumnCalled = true
         lastColumnModifierRendered = modifier
         lastColumnContentRendered = content
@@ -632,7 +632,7 @@ open class MockPlatformRenderer : PlatformRenderer() {
     override fun renderAlertContainer(
         variant: AlertVariant?,
         modifier: Modifier,
-        content: @Composable FlowContent.() -> Unit
+        content: @Composable FlowContentCompat.() -> Unit
     ) {
         renderAlertContainerCalled = true
         lastAlertVariantRendered = variant
@@ -642,7 +642,7 @@ open class MockPlatformRenderer : PlatformRenderer() {
 
     override fun renderBadge(
         modifier: Modifier,
-        content: @Composable FlowContent.() -> Unit
+        content: @Composable FlowContentCompat.() -> Unit
     ) {
         renderBadgeCalled = true
         lastBadgeModifierRendered = modifier
@@ -724,7 +724,7 @@ open class MockPlatformRenderer : PlatformRenderer() {
         isRequired: Boolean,
         isError: Boolean,
         errorMessageId: String?,
-        content: @Composable FlowContent.() -> Unit
+        content: @Composable FlowContentCompat.() -> Unit
     ) {
         renderFormFieldCalled = true
         lastFormFieldModifierRendered = modifier
@@ -803,27 +803,27 @@ open class MockPlatformRenderer : PlatformRenderer() {
         lastDividerModifierRendered = modifier
     }
 
-    override fun renderGrid(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    override fun renderGrid(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         renderGridCalled = true
         lastGridModifierRendered = modifier
         lastGridContentRendered = content
     }
 
-    override fun renderBlock(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    override fun renderBlock(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         renderBlockCalled = true
         lastBlockModifierRendered = modifier
         lastBlockContentRendered = content
     }
 
-    override fun renderInline(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
+    override fun renderInline(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {}
 
-    override fun renderDiv(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    override fun renderDiv(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         renderDivCalled = true
         lastDivModifierRendered = modifier
         lastDivContentRendered = content
     }
 
-    override fun renderSpan(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    override fun renderSpan(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         renderSpanCalled = true
         lastSpanModifierRendered = modifier
         lastSpanContentRendered = content
@@ -837,14 +837,18 @@ open class MockPlatformRenderer : PlatformRenderer() {
 
     override fun renderAnimatedContent(modifier: Modifier, content: @Composable () -> Unit) {}
 
-    override fun renderAspectRatio(ratio: Float, modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    override fun renderAspectRatio(
+        ratio: Float,
+        modifier: Modifier,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
         renderAspectRatioCalled = true
         lastAspectRatioRatioRendered = ratio
         lastAspectRatioModifierRendered = modifier
         lastAspectRatioContentRendered = content
     }
 
-    override fun renderCard(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    override fun renderCard(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         renderCardCalled = true
         lastCardModifierRendered = modifier
         lastCardContentRendered = content
@@ -889,31 +893,36 @@ open class MockPlatformRenderer : PlatformRenderer() {
         content: () -> Unit
     ) {}
 
-    override fun renderExpansionPanel(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    override fun renderExpansionPanel(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         renderExpansionPanelCalled = true
         lastExpansionPanelModifierRendered = modifier
         lastExpansionPanelContentRendered = content
     }
 
-    override fun renderLazyColumn(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    override fun renderLazyColumn(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         renderLazyColumnCalled = true
         lastLazyColumnModifierRendered = modifier
         lastLazyColumnContentRendered = content
     }
 
-    override fun renderLazyRow(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    override fun renderLazyRow(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         renderLazyRowCalled = true
         lastLazyRowModifierRendered = modifier
         lastLazyRowContentRendered = content
     }
 
-    override fun renderResponsiveLayout(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {
+    override fun renderResponsiveLayout(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         renderResponsiveLayoutCalled = true
         lastResponsiveLayoutModifierRendered = modifier
         lastResponsiveLayoutContentRendered = content
     }
 
-    override fun renderHtmlTag(tagName: String, modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
+    override fun renderHtmlTag(
+        tagName: String,
+        modifier: Modifier,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
+    }
 
     override fun renderSnackbar(message: String, actionLabel: String?, onAction: (() -> Unit)?) {
         renderSnackbarCalled = true
@@ -944,7 +953,7 @@ open class MockPlatformRenderer : PlatformRenderer() {
         actions: @Composable (() -> Unit)?
     ) {}
 
-    override fun renderScreen(modifier: Modifier, content: @Composable FlowContent.() -> Unit) {}
+    override fun renderScreen(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {}
 
     override fun renderHtml(htmlContent: String, modifier: Modifier) {}
 

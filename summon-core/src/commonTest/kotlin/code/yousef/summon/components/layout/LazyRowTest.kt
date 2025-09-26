@@ -2,13 +2,8 @@ package code.yousef.summon.components.layout
 
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runTestComposable
-import kotlinx.html.FlowContent
-import kotlin.test.Test
-import kotlin.test.assertContains
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-import kotlin.test.assertNotNull
+import code.yousef.summon.util.runComposableTest
+import kotlin.test.*
 
 /**
  * Tests for the LazyRow component
@@ -18,7 +13,7 @@ class LazyRowTest {
     @Test
     fun testLazyRowWithDefaultParameters() {
         val mockRenderer = MockPlatformRenderer()
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             LazyRow {
                 // Empty content
             }
@@ -41,7 +36,7 @@ class LazyRowTest {
         val mockRenderer = MockPlatformRenderer()
         val customModifier = Modifier().background("green")
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             LazyRow(modifier = customModifier) {
                 // Empty content
             }
@@ -61,7 +56,7 @@ class LazyRowTest {
     fun testLazyRowWithItems() {
         val mockRenderer = MockPlatformRenderer()
 
-        runTestComposable(mockRenderer) {
+        runComposableTest(mockRenderer) {
             LazyRow {
                 item {
                     // Item content

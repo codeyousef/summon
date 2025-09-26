@@ -1,5 +1,7 @@
 package code.yousef.summon.effects
 
+import code.yousef.summon.core.mapOfCompat
+
 /**
  * HTTP request methods
  */
@@ -133,7 +135,7 @@ object JsonHttpClient {
      * Execute a GET request and parse JSON response
      */
     suspend inline fun <reified T> HttpClient.getJson(url: String): T {
-        val response = get(url, mapOf("Accept" to "application/json"))
+        val response = get(url, mapOfCompat("Accept" to "application/json"))
         return parseJson(response.body)
     }
     
@@ -142,7 +144,8 @@ object JsonHttpClient {
      */
     suspend inline fun <reified T> HttpClient.postJson(url: String, body: Any): T {
         val jsonBody = toJson(body)
-        val response = post(url, jsonBody, mapOf(
+        val response = post(
+            url, jsonBody, mapOfCompat(
             "Content-Type" to "application/json",
             "Accept" to "application/json"
         ))
@@ -154,7 +157,8 @@ object JsonHttpClient {
      */
     suspend inline fun <reified T> HttpClient.putJson(url: String, body: Any): T {
         val jsonBody = toJson(body)
-        val response = put(url, jsonBody, mapOf(
+        val response = put(
+            url, jsonBody, mapOfCompat(
             "Content-Type" to "application/json",
             "Accept" to "application/json"
         ))
@@ -166,7 +170,8 @@ object JsonHttpClient {
      */
     suspend inline fun <reified T> HttpClient.patchJson(url: String, body: Any): T {
         val jsonBody = toJson(body)
-        val response = patch(url, jsonBody, mapOf(
+        val response = patch(
+            url, jsonBody, mapOfCompat(
             "Content-Type" to "application/json",
             "Accept" to "application/json"
         ))
@@ -189,7 +194,7 @@ object FormHttpClient {
         val body = formData.entries.joinToString("&") { (key, value) ->
             "$key=${encodeURIComponent(value)}"
         }
-        return post(url, body, mapOf("Content-Type" to "application/x-www-form-urlencoded"))
+        return post(url, body, mapOfCompat("Content-Type" to "application/x-www-form-urlencoded"))
     }
     
     /**
@@ -199,6 +204,6 @@ object FormHttpClient {
         val body = formData.entries.joinToString("&") { (key, value) ->
             "$key=${encodeURIComponent(value)}"
         }
-        return put(url, body, mapOf("Content-Type" to "application/x-www-form-urlencoded"))
+        return put(url, body, mapOfCompat("Content-Type" to "application/x-www-form-urlencoded"))
     }
 }
