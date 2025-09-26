@@ -251,7 +251,7 @@ tasks.getByName<org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack>("j
 // Copy the generated JS bundle to JVM resources for serving
 tasks.register<Copy>("copyJsHydrationBundle") {
     dependsOn("jsBrowserDistribution")
-    
+
     val jsOutputFile = layout.buildDirectory.file("dist/js/productionExecutable/summon-hydration.js")
     from(jsOutputFile)
     into(layout.buildDirectory.dir("resources/jvm/main/static"))
@@ -417,7 +417,6 @@ tasks.register("publishToCentralPortalManually") {
         val username = localProperties.getProperty("mavenCentralUsername") 
             ?: throw GradleException("mavenCentralUsername not found in local.properties")
 
-        @Suppress("UNUSED_VARIABLE")
         val signingKey = localProperties.getProperty("signingKey")
             ?: throw GradleException("signingKey not found in local.properties")
         val signingPassword = localProperties.getProperty("signingPassword")
@@ -491,20 +490,32 @@ tasks.register("publishToCentralPortalManually") {
                 println("   Creating GPG signature for ${file.name}...")
                 
                 try {
-                    // Import the private key (use clean version without BOM)
-                    val privateKeyFile = rootProject.file("private-key-clean.asc")
-                    if (privateKeyFile.exists()) {
-                        exec {
-                            commandLine("gpg", "--batch", "--yes", "--import", privateKeyFile.absolutePath)
-                            isIgnoreExitValue = true
-                        }
-                        
-                        // Sign the file
-                        exec {
-                            commandLine("gpg", "--batch", "--yes", "--pinentry-mode", "loopback", 
-                                      "--passphrase", signingPassword, "--armor", "--detach-sign", 
-                                      "--output", sigFile.absolutePath, file.absolutePath)
-                            isIgnoreExitValue = true
+                    // Import the private key (try clean version first, fallback to original)
+                    val privateKeyFile = when {
+                        rootProject.file("private-key-clean.asc").exists() -> rootProject.file("private-key-clean.asc")
+                        rootProject.file("private-key.asc").exists() -> rootProject.file("private-key.asc")
+                        else -> null
+                    }
+                    if (privateKeyFile != null && privateKeyFile.exists()) {
+                        // Use shell script wrapper for reliable GPG execution
+                        val signScript = rootProject.file("sign-artifact.sh")
+                        if (signScript.exists()) {
+                            // Convert Windows paths to WSL paths
+                            fun String.toWslPath(): String {
+                                return this.replace("\\", "/")
+                                    .replace(Regex("^([A-Z]):"), "/mnt/${this[0].lowercaseChar()}")
+                            }
+
+                            exec {
+                                commandLine(
+                                    "bash", signScript.absolutePath.toWslPath(),
+                                    signingPassword, privateKeyFile.absolutePath.toWslPath(),
+                                    sigFile.absolutePath.toWslPath(), file.absolutePath.toWslPath()
+                                )
+                                isIgnoreExitValue = true
+                            }
+                        } else {
+                            println("   ⚠️  sign-artifact.sh not found")
                         }
                         
                         if (!sigFile.exists()) {
