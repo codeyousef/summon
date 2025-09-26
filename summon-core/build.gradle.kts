@@ -12,7 +12,7 @@ group = "io.github.codeyousef"
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
-    // Removed atomicfu plugin - causes KLIB duplication with Kotlin 2.1.0
+    alias(libs.plugins.atomicfu)
     `maven-publish`
     signing
 }
@@ -27,6 +27,8 @@ configurations {
     create("quarkusDeployment")
     create("ktorIntegration")
     create("springBootIntegration")
+
+    // AtomicFU plugin handles dependencies automatically
 }
 
 kotlin {
@@ -54,11 +56,12 @@ kotlin {
             }
             testTask {
                 useKarma {
-                    useChromeHeadless()
+                    useFirefox()
                     webpackConfig.devtool = "source-map"
                 }
             }
         }
+        // nodejs() // Temporarily disabled due to WSL I/O issues with test execution
         binaries.executable()
     }
 
@@ -74,10 +77,11 @@ kotlin {
             }
             testTask {
                 useKarma {
-                    useChromeHeadless()
+                    useFirefox()
                 }
             }
         }
+        nodejs()
         binaries.executable()
 
         // WASM production build compiler options (Kotlin 2.2.20+)
@@ -99,7 +103,8 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.html)
                 implementation(libs.kotlinx.datetime)
-                // Removed atomicfu - causing persistent IC cache issues
+                // Add atomicfu as compileOnly to avoid conflicts
+                compileOnly("org.jetbrains.kotlinx:atomicfu:0.25.0")
             }
         }
         val commonTest by getting {
@@ -170,7 +175,7 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json.js)
                 implementation(libs.kotlin.stdlib.js)
                 implementation(libs.kotlin.stdlib.common)
-                // Removed atomicfu - causing persistent IC cache issues
+                // AtomicFU plugin handles atomicfu dependencies automatically
             }
         }
 
@@ -185,7 +190,11 @@ kotlin {
             }
         }
 
-        val jsTest by getting
+        val jsTest by getting {
+            dependencies {
+                // AtomicFU plugin handles atomicfu dependencies automatically
+            }
+        }
         val wasmJsTest by getting
     }
 }
@@ -228,6 +237,14 @@ kotlin.sourceSets.all {
         optIn("kotlin.js.ExperimentalJsExport")
     }
 }
+
+// Compiler workarounds no longer needed with Kotlin 2.2.20 and stable incremental compilation
+
+// WASM compilation workarounds no longer needed with Kotlin 2.2.20 Beta
+
+// JS tests are now enabled with Kotlin 2.2.20 and proper AtomicFU configuration
+
+// WASM production executables are now enabled with Kotlin 2.2.20 Beta stability
 
 tasks.getByName<org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack>("jsBrowserProductionWebpack") {
     mainOutputFileName = "summon-hydration.js"
