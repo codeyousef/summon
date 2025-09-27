@@ -27,8 +27,6 @@ kotlin {
                 }
             }
         }
-        // Disable default publications since we have custom CLI publication
-        withJava()
     }
 
     sourceSets {
@@ -159,11 +157,6 @@ tasks.withType<ProcessResources> {
 // Publishing configuration for CLI tool
 publishing {
     publications {
-        // Remove default Kotlin Multiplatform publication to avoid conflicts
-        matching { it.name == "kotlinMultiplatform" }.all {
-            setArtifacts(emptyList<Any>())
-        }
-
         create<MavenPublication>("cli") {
             groupId = project.extra["summonGroup"] as String
             artifactId = "summon-cli"
@@ -213,6 +206,15 @@ publishing {
 // Make the publication depend on the shadowJar task
 tasks.withType<PublishToMavenRepository> {
     dependsOn(shadowJar)
+}
+
+// Disable the automatic Kotlin Multiplatform publication to avoid conflicts
+afterEvaluate {
+    publishing {
+        publications {
+            removeIf { it.name == "kotlinMultiplatform" || it.name == "jvm" }
+        }
+    }
 }
 
 // GraalVM Native Image configuration
