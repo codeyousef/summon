@@ -47,6 +47,6 @@ jobs:
         run: ./gradlew summon-cli:build
       
       - name: Publish CLI to GitHub Packages
-        run: ./gradlew summon-cli:publishAllPublicationsToGitHubPackagesRepository
+        run: ./gradlew summon-cli:publishCliPublicationToGitHubPackagesRepository
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

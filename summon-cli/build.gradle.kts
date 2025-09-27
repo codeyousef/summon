@@ -27,6 +27,8 @@ kotlin {
                 }
             }
         }
+        // Disable default publications since we have custom CLI publication
+        withJava()
     }
 
     sourceSets {
@@ -157,6 +159,11 @@ tasks.withType<ProcessResources> {
 // Publishing configuration for CLI tool
 publishing {
     publications {
+        // Remove default Kotlin Multiplatform publication to avoid conflicts
+        matching { it.name == "kotlinMultiplatform" }.all {
+            setArtifacts(emptyList<Any>())
+        }
+
         create<MavenPublication>("cli") {
             groupId = project.extra["summonGroup"] as String
             artifactId = "summon-cli"
