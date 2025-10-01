@@ -1,5 +1,6 @@
 package code.yousef.summon.cli.templates
 
+import code.yousef.summon.cli.util.VersionReader
 import kotlinx.serialization.Serializable
 
 /**
@@ -142,7 +143,7 @@ data class ProjectTemplate(
             ),
             dependencies = TemplateDependencies(
                 kotlin = listOf("kotlin-stdlib-common", "kotlin-stdlib-jdk8", "kotlin-stdlib-js"),
-                summon = listOf("io.github.codeyousef:summon:0.2.9.1")
+                summon = listOf("io.github.codeyousef:summon:${VersionReader.readVersion()}")
             ),
             postSetupInstructions = listOf(
                 "Run './gradlew build' to build the library",
@@ -163,7 +164,7 @@ data class ProjectTemplate(
             ),
             dependencies = TemplateDependencies(
                 kotlin = listOf("kotlin-stdlib-js"),
-                summon = listOf("io.github.codeyousef:summon:0.2.9.1")
+                summon = listOf("io.github.codeyousef:summon:${VersionReader.readVersion()}")
             ),
             postSetupInstructions = listOf(
                 "Run './gradlew jsBrowserDevelopmentRun' to see examples",
@@ -183,7 +184,7 @@ data class ProjectTemplate(
             ),
             dependencies = TemplateDependencies(
                 kotlin = listOf("kotlin-stdlib-common", "kotlin-stdlib-jdk8", "kotlin-stdlib-js"),
-                summon = listOf("io.github.codeyousef:summon:0.2.9.1")
+                summon = listOf("io.github.codeyousef:summon:${VersionReader.readVersion()}")
             ),
             postSetupInstructions = listOf(
                 "Run './gradlew build' to build all targets",

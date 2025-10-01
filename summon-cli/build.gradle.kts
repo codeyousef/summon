@@ -1,3 +1,5 @@
+import java.util.zip.ZipFile
+
 // Apply version management
 apply(from = "../version-helper.gradle.kts")
 
@@ -62,15 +64,11 @@ val shadowJar = tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.
         project.configurations.getByName("jvmRuntimeClasspath")
     )
 
-    // Include gradle wrapper files from build resources
+    // Exclude gradle wrapper files - will inject manually to preserve gradle-wrapper.jar
     from("build/resources/jvmMain") {
-        include("gradle-wrapper/**")
+        exclude("gradle-wrapper/**")
     }
 
-    // Explicitly include the JAR file as a resource
-    from(file("src/jvmMain/resources/gradle-wrapper/gradle-wrapper.jar")) {
-        into("gradle-wrapper")
-    }
 
     manifest {
         attributes(
@@ -462,4 +460,80 @@ tasks.register("buildNativeExecutable") {
             throw GradleException(errorMsg)
         }
     }
+}
+// Task to validate wrapper files are in shadow JAR
+tasks.register("validateWrapperInJar") {
+    dependsOn(shadowJar)
+    group = "verification"
+    description = "Validate that gradle wrapper files are correctly embedded in shadow JAR"
+
+    doLast {
+        val shadowJarFile = shadowJar.get().archiveFile.get().asFile
+        require(shadowJarFile.exists()) { "Shadow JAR not found: ${shadowJarFile.absolutePath}" }
+
+        val jarFile = ZipFile(shadowJarFile)
+        val requiredFiles = listOf(
+            "gradle-wrapper/gradle-wrapper.jar",
+            "gradle-wrapper/gradle-wrapper.properties",
+            "gradle-wrapper/gradlew",
+            "gradle-wrapper/gradlew.bat"
+        )
+
+        val missingFiles = mutableListOf<String>()
+        requiredFiles.forEach { path ->
+            val entry = jarFile.getEntry(path)
+            if (entry == null) {
+                missingFiles.add(path)
+                println("❌ Missing: $path")
+            } else {
+                val size = entry.size
+                println("✅ Found: $path ($size bytes)")
+                if (path.endsWith(".jar") && size < 1000) {
+                    println("⚠️  Warning: $path seems too small ($size bytes)")
+                }
+            }
+        }
+        jarFile.close()
+
+        if (missingFiles.isNotEmpty()) {
+            throw GradleException("Shadow JAR missing wrapper files: ${missingFiles.joinToString(", ")}")
+        }
+
+        println("\n✅ All wrapper files validated in shadow JAR")
+    }
+}
+
+// Run validation as part of build
+tasks.named("build") {
+    finalizedBy("validateWrapperInJar")
+}
+
+// Task to inject all gradle-wrapper files into shadow JAR after it's built
+tasks.register("injectWrapperJar") {
+    dependsOn(shadowJar)
+    group = "build"
+    description = "Inject all gradle-wrapper files into shadow JAR (Shadow unpacks JARs otherwise)"
+
+    doLast {
+        val shadowJarFile = shadowJar.get().archiveFile.get().asFile
+        val wrapperDir = file("build/resources/jvmMain/gradle-wrapper")
+
+        require(shadowJarFile.exists()) { "Shadow JAR not found: ${shadowJarFile.absolutePath}" }
+        require(wrapperDir.exists()) { "gradle-wrapper directory not found: ${wrapperDir.absolutePath}" }
+
+        println("📦 Injecting all gradle-wrapper files into shadow JAR...")
+
+        // Inject all 4 wrapper files using jar command
+        exec {
+            workingDir(projectDir)
+            commandLine("jar", "uf", shadowJarFile.absolutePath, "-C", "build/resources/jvmMain", "gradle-wrapper")
+        }
+
+        println("✅ All gradle-wrapper files injected successfully")
+    }
+}
+
+// Run injection after shadowJar
+shadowJar.configure {
+    finalizedBy("injectWrapperJar")
 }

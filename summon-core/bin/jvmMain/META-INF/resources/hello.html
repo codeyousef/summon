@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A demonstration of Summon with Quarkus">
+    <title>Hello from Summon</title>
+    <style>
+        :root {
+            --primary-color: #4695EB;
+            --secondary-color: #FF4081;
+            --background-color: #FFFFFF;
+            --text-color: #333333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary-color);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background-color: #3a85d8;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Hello from Summon!</h1>
+    <p>This is a simple example of Summon rendering in Quarkus</p>
+    <button onclick="alert('Button clicked!')">Click Me</button>
+    <p><a href="/">Back to Home</a></p>
+</div>
+<script src="https://unpkg.com/htmx.org@1.9.12"></script>
+</body>
+</html> 
