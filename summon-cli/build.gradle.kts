@@ -1,4 +1,5 @@
 import java.util.zip.ZipFile
+import java.io.ByteArrayOutputStream
 
 // Apply version management
 apply(from = "../version-helper.gradle.kts")
@@ -533,17 +534,23 @@ tasks.register("injectWrapperJar") {
         }
 
         // Inject all 4 wrapper files using jar command
-        val result = exec {
-            workingDir(projectDir)
-            commandLine(jarCommand.absolutePath, "uf", shadowJarFile.absolutePath, "-C", "build/resources/jvmMain", "gradle-wrapper")
-            isIgnoreExitValue = false
-        }
+        val output = ByteArrayOutputStream()
+        val error = ByteArrayOutputStream()
 
-        if (result.exitValue != 0) {
-            throw GradleException("Failed to inject wrapper files into shadow JAR (exit code: ${result.exitValue})")
+        try {
+            exec {
+                workingDir(projectDir)
+                commandLine(jarCommand.absolutePath, "uf", shadowJarFile.absolutePath, "-C", "build/resources/jvmMain", "gradle-wrapper")
+                standardOutput = output
+                errorOutput = error
+                isIgnoreExitValue = false
+            }
+            println("✅ All gradle-wrapper files injected successfully")
+        } catch (e: Exception) {
+            val stdOut = output.toString("UTF-8")
+            val stdErr = error.toString("UTF-8")
+            throw GradleException("Failed to inject wrapper files: ${e.message}\nStdout: $stdOut\nStderr: $stdErr", e)
         }
-
-        println("✅ All gradle-wrapper files injected successfully")
     }
 }
 
