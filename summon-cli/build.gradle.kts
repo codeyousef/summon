@@ -98,6 +98,11 @@ tasks.named("build") {
     dependsOn(shadowJar)
 }
 
+// Ensure tests run after gradle wrapper is copied
+tasks.named("jvmTest") {
+    dependsOn("copyGradleWrapper")
+}
+
 // Task to create executable scripts for different platforms
 tasks.register("createExecutableScripts") {
     dependsOn(shadowJar)
