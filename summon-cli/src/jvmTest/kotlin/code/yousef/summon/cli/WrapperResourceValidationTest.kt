@@ -1,26 +1,27 @@
 package code.yousef.summon.cli
 
+import java.io.File
 import kotlin.test.Test
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 /**
- * Test that validates Gradle wrapper resources are available in the CLI JAR
- * This ensures that scaffolded projects can successfully run `./gradlew`
+ * Test that validates Gradle wrapper files exist in the build resources directory.
+ * The actual validation of the shadow JAR is done by the validateWrapperInJar task.
+ *
+ * These tests verify that the source wrapper files are present before they get injected.
  */
 class WrapperResourceValidationTest {
 
-    @Test
-    fun `gradle-wrapper jar is available as resource`() {
-        val resource = this::class.java.classLoader.getResourceAsStream("gradle-wrapper/gradle-wrapper.jar")
-        assertNotNull(resource, "gradle-wrapper.jar not found in resources")
+    private val wrapperDir = File("build/resources/jvmMain/gradle-wrapper")
 
-        // Verify it's a non-empty ZIP file (JAR files are ZIP archives)
-        val bytes = resource.use { it.readBytes() }
-        assertTrue(bytes.isNotEmpty(), "gradle-wrapper.jar is empty")
-        assertTrue(bytes.size > 1000, "gradle-wrapper.jar is too small (${bytes.size} bytes)")
+    @Test
+    fun `gradle-wrapper jar exists in build resources`() {
+        val jarFile = File(wrapperDir, "gradle-wrapper.jar")
+        assertTrue(jarFile.exists(), "gradle-wrapper.jar not found at ${jarFile.absolutePath}")
+        assertTrue(jarFile.length() > 1000, "gradle-wrapper.jar is too small (${jarFile.length()} bytes)")
 
         // Check ZIP magic number (PK\x03\x04)
+        val bytes = jarFile.readBytes()
         assertTrue(
             bytes[0] == 0x50.toByte() && bytes[1] == 0x4B.toByte(),
             "gradle-wrapper.jar does not have valid ZIP header"
@@ -28,11 +29,11 @@ class WrapperResourceValidationTest {
     }
 
     @Test
-    fun `gradle-wrapper properties is available as resource`() {
-        val resource = this::class.java.classLoader.getResourceAsStream("gradle-wrapper/gradle-wrapper.properties")
-        assertNotNull(resource, "gradle-wrapper.properties not found in resources")
+    fun `gradle-wrapper properties exists in build resources`() {
+        val propsFile = File(wrapperDir, "gradle-wrapper.properties")
+        assertTrue(propsFile.exists(), "gradle-wrapper.properties not found at ${propsFile.absolutePath}")
 
-        val content = resource.use { it.bufferedReader().readText() }
+        val content = propsFile.readText()
         assertTrue(content.isNotEmpty(), "gradle-wrapper.properties is empty")
         assertTrue(
             content.contains("distributionUrl"),
@@ -41,11 +42,11 @@ class WrapperResourceValidationTest {
     }
 
     @Test
-    fun `gradlew script is available as resource`() {
-        val resource = this::class.java.classLoader.getResourceAsStream("gradle-wrapper/gradlew")
-        assertNotNull(resource, "gradlew not found in resources")
+    fun `gradlew script exists in build resources`() {
+        val gradlewFile = File(wrapperDir, "gradlew")
+        assertTrue(gradlewFile.exists(), "gradlew not found at ${gradlewFile.absolutePath}")
 
-        val content = resource.use { it.bufferedReader().readText() }
+        val content = gradlewFile.readText()
         assertTrue(content.isNotEmpty(), "gradlew is empty")
         assertTrue(
             content.contains("#!/bin/sh") || content.contains("#!/usr/bin/env sh"),
@@ -54,11 +55,11 @@ class WrapperResourceValidationTest {
     }
 
     @Test
-    fun `gradlew bat script is available as resource`() {
-        val resource = this::class.java.classLoader.getResourceAsStream("gradle-wrapper/gradlew.bat")
-        assertNotNull(resource, "gradlew.bat not found in resources")
+    fun `gradlew bat script exists in build resources`() {
+        val gradlewBatFile = File(wrapperDir, "gradlew.bat")
+        assertTrue(gradlewBatFile.exists(), "gradlew.bat not found at ${gradlewBatFile.absolutePath}")
 
-        val content = resource.use { it.bufferedReader().readText() }
+        val content = gradlewBatFile.readText()
         assertTrue(content.isNotEmpty(), "gradlew.bat is empty")
         assertTrue(
             content.contains("@rem") || content.contains("@echo off"),
@@ -67,19 +68,18 @@ class WrapperResourceValidationTest {
     }
 
     @Test
-    fun `all four wrapper files are present`() {
-        val classLoader = this::class.java.classLoader
+    fun `all four wrapper files are present in build resources`() {
         val files = listOf(
-            "gradle-wrapper/gradle-wrapper.jar",
-            "gradle-wrapper/gradle-wrapper.properties",
-            "gradle-wrapper/gradlew",
-            "gradle-wrapper/gradlew.bat"
+            "gradle-wrapper.jar",
+            "gradle-wrapper.properties",
+            "gradlew",
+            "gradlew.bat"
         )
 
-        val missingFiles = files.filter { classLoader.getResourceAsStream(it) == null }
+        val missingFiles = files.filter { !File(wrapperDir, it).exists() }
         assertTrue(
             missingFiles.isEmpty(),
-            "Missing wrapper resources: ${missingFiles.joinToString(", ")}"
+            "Missing wrapper files in ${wrapperDir.absolutePath}: ${missingFiles.joinToString(", ")}"
         )
     }
 }
