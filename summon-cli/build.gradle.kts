@@ -525,12 +525,22 @@ tasks.register("injectWrapperJar") {
 
         // Use jar command from JAVA_HOME to ensure it's available
         val javaHome = System.getProperty("java.home")
-        val jarCommand = "$javaHome/bin/jar"
+        val isWindows = System.getProperty("os.name").lowercase().contains("win")
+        val jarCommand = File(javaHome, "bin/jar${if (isWindows) ".exe" else ""}")
+
+        if (!jarCommand.exists()) {
+            throw GradleException("jar command not found at ${jarCommand.absolutePath}")
+        }
 
         // Inject all 4 wrapper files using jar command
-        exec {
+        val result = exec {
             workingDir(projectDir)
-            commandLine(jarCommand, "uf", shadowJarFile.absolutePath, "-C", "build/resources/jvmMain", "gradle-wrapper")
+            commandLine(jarCommand.absolutePath, "uf", shadowJarFile.absolutePath, "-C", "build/resources/jvmMain", "gradle-wrapper")
+            isIgnoreExitValue = false
+        }
+
+        if (result.exitValue != 0) {
+            throw GradleException("Failed to inject wrapper files into shadow JAR (exit code: ${result.exitValue})")
         }
 
         println("✅ All gradle-wrapper files injected successfully")
