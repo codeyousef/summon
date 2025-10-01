@@ -2,6 +2,57 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0.2]
+
+### 🛠️ **CLI Tool Critical Fixes**
+
+This patch release fixes critical issues with the Summon CLI tool that prevented scaffolded projects from building
+correctly.
+
+#### Fixed
+
+- **Gradle Wrapper Not Found Error**: Fixed critical "gradle: not found" error in scaffolded projects
+    - gradle-wrapper.jar was being unpacked by Shadow JAR plugin, leaving projects without the essential JAR file
+    - Implemented `injectWrapperJar` task to manually inject all 4 wrapper files after Shadow builds
+    - Added `validateWrapperInJar` task to verify wrapper files are present in shadow JAR
+    - All wrapper files now properly embedded: gradlew (8.7KB), gradlew.bat (2.9KB), gradle-wrapper.jar (43KB),
+      gradle-wrapper.properties (250B)
+
+- **Version Mismatch**: Fixed projects using outdated version 0.2.9.1 instead of current 0.4.0.2
+    - Created `VersionReader` utility to dynamically read version from version.properties at runtime
+    - Updated `ProjectTemplate.kt` to use `VersionReader.readVersion()` instead of hardcoded strings
+    - Projects now automatically use the correct version matching the CLI release
+
+- **Dependency Resolution Failure**: Fixed "Could not find io.github.codeyousef:summon-core" errors
+    - Removed GitHub Packages repository from generated projects (no credentials needed)
+    - Projects now use only Maven Central for dependency resolution
+    - summon-core published to Maven Central for public access
+
+#### Added
+
+- **WrapperResourceValidationTest**: Comprehensive test suite validating wrapper files are available as resources
+    - Tests for all 4 wrapper files (JAR, properties, gradlew, gradlew.bat)
+    - Validates gradle-wrapper.jar has valid ZIP header and proper size
+    - Ensures gradlew has correct shebang and gradlew.bat has Windows batch header
+
+- **Build Validation**: Automated validation integrated into build process
+    - `validateWrapperInJar` task runs after shadowJar build
+    - Build fails if any wrapper file is missing from shadow JAR
+    - Prevents releasing CLI with broken Gradle wrapper
+
+#### Changed
+
+- **Repository Configuration**: Simplified dependency resolution for generated projects
+    - Removed GitHub Packages authentication requirement
+    - Projects now use standard Maven Central repository
+    - Better developer experience for new users
+
+#### Technical Details
+
+- **Shadow JAR Configuration**: Updated to exclude wrapper files from automatic processing
+- **Wrapper Injection**: Post-processing task injects wrapper directory as complete unit
+- **Validation**: Build-time and test-time validation ensures wrapper integrity
+
 ## [0.4.0.0]
 
 ### 🚀 **WebAssembly (WASM) Support**
@@ -60,6 +111,21 @@ maintaining perfect SEO compatibility through server-side rendering.
 - **Improved Test Infrastructure**: Fixed WASM test execution in Node.js environments
 - **Yarn Lock Management**: Resolved persistent yarn.lock synchronization issues
 
+##### 🛠️ **CLI Tool Fixes**
+
+- **Gradle Wrapper Fix**: Fixed critical "gradle: not found" error in scaffolded projects
+    - gradle-wrapper.jar now properly embedded in shadow JAR (43KB)
+    - Created validation tests and build tasks to prevent regression
+    - All 4 wrapper files verified in shadow JAR
+- **Version Synchronization**: Eliminated hardcoded version strings in templates
+    - Created VersionReader utility to read version from version.properties at runtime
+    - Projects now use correct version 0.4.0.0 instead of outdated 0.2.9.1
+- **Repository Configuration**: Added GitHub Packages repository to generated projects
+    - Projects can now resolve summon-core dependencies correctly
+    - Supports both gradle.properties and environment variable credentials
+- **Enhanced Testing**: Added comprehensive test suite for CLI functionality
+    - WrapperResourceValidationTest ensures wrapper files are accessible
+    - validateWrapperInJar task verifies shadow JAR contents
 ##### 🐛 **Bug Fixes & Stability**
 
 - **IC Internal Error Resolution**: Fixed "can not find library org.jetbrains.kotlin:kotlinx-atomicfu-runtime" error

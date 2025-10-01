@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A demonstration of Summon with Quarkus">
+    <title>Chat</title>
+    <style>
+        :root {
+            --primary-color: #4695EB;
+            --secondary-color: #FF4081;
+            --background-color: #FFFFFF;
+            --text-color: #333333;
+            --success-color: #4CAF50;
+            --error-color: #F44336;
+            --warning-color: #FF9800;
+            --info-color: #2196F3;
+            --light-gray: #f5f7f9;
+            --border-color: #ddd;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--light-gray);
+            margin: 0;
+            padding: 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .nav {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+        }
+
+        .nav-list {
+            display: flex;
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-item {
+            margin-right: 1.5rem;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 15px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .chat-header h2 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .chat-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: var(--success-color);
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .chat-messages {
+            padding: 20px;
+            overflow-y: auto;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            height: 400px;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            margin-bottom: 5px;
+            position: relative;
+            line-height: 1.4;
+        }
+
+        .message-user {
+            align-self: flex-end;
+            background-color: var(--primary-color);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-bot {
+            align-self: flex-start;
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-metadata {
+            font-size: 0.7rem;
+            color: rgba(0, 0, 0, 0.5);
+            margin-top: 5px;
+            display: block;
+        }
+
+        .message-user .message-metadata {
+            text-align: right;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .system-message {
+            align-self: center;
+            background-color: #f0f0f0;
+            color: #666;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin: 10px 0;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .message-input {
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.95rem;
+            outline: none;
+            resize: none;
+        }
+
+        .message-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(70, 149, 235, 0.25);
+        }
+
+        .send-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 0 20px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .send-button:hover {
+            background-color: #3a85d8;
+        }
+
+        .chat-options {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .option-button {
+            background: none;
+            border: 1px solid var(--border-color);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.2s;
+        }
+
+        .option-button:hover {
+            background-color: var(--light-gray);
+        }
+
+        .typing-indicator {
+            display: flex;
+            padding: 10px 15px;
+            background-color: var(--light-gray);
+            border-radius: 18px;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            margin-top: 5px;
+        }
+
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background-color: #888;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+            animation: typing 1.4s infinite both;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0% {
+                opacity: 0.4;
+                transform: translateY(0);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-5px);
+            }
+            100% {
+                opacity: 0.4;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <nav class="nav">
+        <ul class="nav-list">
+            <li class="nav-item"><a class="nav-link" href="/index.html">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="/api/dashboard">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="/api/theme">Theme</a></li>
+            <li class="nav-item"><a class="nav-link" href="/api/chat">Chat</a></li>
+        </ul>
+    </nav>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <span class="chat-status"></span>
+            <h2>Summon AI Assistant</h2>
+        </div>
+
+        <div class="chat-options">
+            <button class="option-button" onclick="alert('Would clear chat history in a real application')">Clear chat
+            </button>
+            <button class="option-button" onclick="alert('Would export chat in a real application')">Export chat
+            </button>
+            <button class="option-button" onclick="alert('Would open settings in a real application')">Settings</button>
+        </div>
+
+        <div class="chat-messages">
+            <div class="system-message">Chat started on <strong>July 8, 2023</strong> at <strong>10:15 AM</strong></div>
+
+            <div class="message message-bot">
+                Hello! I'm your Summon AI assistant. How can I help you today?
+                <span class="message-metadata">10:15 AM</span>
+            </div>
+
+            <div class="message message-user">
+                I'd like to know what Summon can do.
+                <span class="message-metadata">10:16 AM</span>
+            </div>
+
+            <div class="message message-bot">
+                Summon is a Kotlin Multiplatform framework that allows you to write UI code once and deploy it across
+                multiple platforms including web, desktop, and mobile. It's designed to be simple to use while providing
+                powerful features.
+                <span class="message-metadata">10:16 AM</span>
+            </div>
+
+            <div class="message message-bot">
+                With Summon, you can:
+                <br>• Create consistent UIs across platforms
+                <br>• Share business logic between frontend and backend
+                <br>• Integrate with various frameworks including Quarkus
+                <br>• Build responsive and accessible applications
+                <span class="message-metadata">10:17 AM</span>
+            </div>
+
+            <div class="message message-user">
+                That sounds interesting. Can you show me a simple example?
+                <span class="message-metadata">10:18 AM</span>
+            </div>
+
+            <div class="message message-bot">
+                Here's a simple example of creating a button with Summon:
+                <br><br><code>Button("Click me") {
+                <br> onClick { alert("Button clicked!") }
+                <br>}</code>
+                <br><br>This will create a button that shows an alert when clicked, and it will work across platforms.
+                <span class="message-metadata">10:19 AM</span>
+            </div>
+
+            <div class="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <div class="chat-input">
+            <textarea class="message-input" placeholder="Type your message here..." rows="1"></textarea>
+            <button class="send-button" onclick="alert('Would send message in a real application')">Send</button>
+        </div>
+    </div>
+
+    <p style="margin-top: 15px; text-align: center; font-size: 0.8rem; color: #666;">
+        Note: This is a static demonstration of the chat interface. In a real application, messages would be processed
+        by a backend service.
+    </p>
+</div>
+
+<script>
+    // This would be replaced with actual functionality in a real application
+    document.querySelector('.message-input').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            alert('Would send message in a real application');
+        }
+    });
+</script>
+</body>
+</html> 
