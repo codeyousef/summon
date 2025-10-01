@@ -523,10 +523,14 @@ tasks.register("injectWrapperJar") {
 
         println("📦 Injecting all gradle-wrapper files into shadow JAR...")
 
+        // Use jar command from JAVA_HOME to ensure it's available
+        val javaHome = System.getProperty("java.home")
+        val jarCommand = "$javaHome/bin/jar"
+
         // Inject all 4 wrapper files using jar command
         exec {
             workingDir(projectDir)
-            commandLine("jar", "uf", shadowJarFile.absolutePath, "-C", "build/resources/jvmMain", "gradle-wrapper")
+            commandLine(jarCommand, "uf", shadowJarFile.absolutePath, "-C", "build/resources/jvmMain", "gradle-wrapper")
         }
 
         println("✅ All gradle-wrapper files injected successfully")
