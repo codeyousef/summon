@@ -45,7 +45,53 @@ jobs:
       
       - name: Build CLI
         run: ./gradlew summon-cli:build
-      
+
+      - name: Validate gradle-wrapper files in JAR
+        run: |
+          echo "Validating gradle-wrapper files are included in shadowJar..."
+          JAR_FILE=$(find summon-cli/build/libs -name "summon-cli-*.jar" ! -name "*-sources.jar" ! -name "*-javadoc.jar" ! -name "*-jvm-*.jar" ! -name "*-metadata-*.jar" | head -1)
+          echo "Checking JAR: $JAR_FILE"
+
+          # Check for required gradle-wrapper files
+          REQUIRED_FILES=(
+            "gradle-wrapper/gradle-wrapper.jar"
+            "gradle-wrapper/gradle-wrapper.properties"
+            "gradle-wrapper/gradlew"
+            "gradle-wrapper/gradlew.bat"
+          )
+
+          MISSING_FILES=()
+          for file in "${REQUIRED_FILES[@]}"; do
+            if ! jar tf "$JAR_FILE" | grep -q "^$file$"; then
+              MISSING_FILES+=("$file")
+            fi
+          done
+
+          if [ ${#MISSING_FILES[@]} -ne 0 ]; then
+            echo "::error::Missing required files in JAR:"
+            for file in "${MISSING_FILES[@]}"; do
+              echo "::error::  - $file"
+            done
+            echo ""
+            echo "Contents of gradle-wrapper directory in JAR:"
+            jar tf "$JAR_FILE" | grep gradle-wrapper || echo "No gradle-wrapper files found!"
+            exit 1
+          fi
+
+          echo "✅ All required gradle-wrapper files are present in JAR"
+
+          # Verify gradle-wrapper.jar size is reasonable (should be ~43KB)
+          jar xf "$JAR_FILE" gradle-wrapper/gradle-wrapper.jar
+          WRAPPER_SIZE=$(stat -c%s gradle-wrapper/gradle-wrapper.jar 2>/dev/null || stat -f%z gradle-wrapper/gradle-wrapper.jar)
+          echo "gradle-wrapper.jar size: $WRAPPER_SIZE bytes"
+
+          if [ "$WRAPPER_SIZE" -lt 40000 ]; then
+            echo "::error::gradle-wrapper.jar is too small ($WRAPPER_SIZE bytes, expected ~43KB)"
+            exit 1
+          fi
+
+          echo "✅ gradle-wrapper.jar size is valid"
+
       - name: Publish CLI to GitHub Packages
         run: ./gradlew summon-cli:publishCliPublicationToGitHubPackagesRepository
         env:
