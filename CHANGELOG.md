@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0.4]
+
+### 🛠️ **CLI Template Fix**
+
+This patch release fixes an incorrect import in CLI-generated projects.
+
+#### Fixed
+
+- **Incorrect Import in Generated Projects**: Fixed compilation error in scaffolded projects
+    - Changed import from `code.yousef.summon.state.remember` to `code.yousef.summon.runtime.remember`
+    - The `remember` function is defined in the `runtime` package, not the `state` package
+    - Projects generated with previous CLI versions would fail to compile due to this incorrect import
+    - All new projects now have the correct import path
+
 ## [0.4.0.2]
 
 ### 🛠️ **CLI Tool Critical Fixes**

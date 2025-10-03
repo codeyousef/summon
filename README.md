@@ -217,16 +217,16 @@ repositories {
 
 dependencies {
     // For JVM projects (Ktor, Spring Boot, Quarkus)
-    implementation("io.github.codeyousef:summon-jvm:0.4.0.0")
+    implementation("io.github.codeyousef:summon-jvm:0.4.0.4")
 
     // For JavaScript/Browser projects
-    implementation("io.github.codeyousef:summon-js:0.4.0.0")
+    implementation("io.github.codeyousef:summon-js:0.4.0.4")
 
     // For WebAssembly projects
-    implementation("io.github.codeyousef:summon-wasm-js:0.4.0.0")
+    implementation("io.github.codeyousef:summon-wasm-js:0.4.0.4")
 
     // For Kotlin Multiplatform projects (includes all targets)
-    implementation("io.github.codeyousef:summon:0.4.0.0")
+    implementation("io.github.codeyousef:summon:0.4.0.4")
 }
 ```
 
@@ -382,7 +382,7 @@ kotlin {
 }
 
 dependencies {
-    implementation("io.github.codeyousef:summon-wasm-js:0.4.0.0")
+    implementation("io.github.codeyousef:summon-wasm-js:0.4.0.4")
 }
 ```
 
