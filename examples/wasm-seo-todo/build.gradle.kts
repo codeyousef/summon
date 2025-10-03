@@ -3,7 +3,6 @@ plugins {
 }
 
 repositories {
-    mavenLocal() // Temporary for testing 0.4.0.0 before Central sync
     mavenCentral()
 }
 
@@ -21,7 +20,7 @@ kotlin {
     sourceSets {
         val wasmJsMain by getting {
             dependencies {
-                implementation("io.github.codeyousef:summon-core:0.4.0.0")
+                implementation("io.github.codeyousef:summon-core:0.4.0.4")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
             }
         }
