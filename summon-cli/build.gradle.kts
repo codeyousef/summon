@@ -59,6 +59,8 @@ if (project.hasProperty("skipWrapperTests")) {
         filter {
             excludeTestsMatching("*WrapperResourceValidationTest*")
         }
+        // Don't fail if all tests are excluded
+        setFailOnNoMatchingTests(false)
     }
 }
 
