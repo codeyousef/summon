@@ -22,6 +22,8 @@ out/
 !gradle/wrapper/gradle-wrapper.jar
 # Keep gradle wrapper jars in examples
 !docs/examples/*/gradle/wrapper/gradle-wrapper.jar
+# Keep CLI's gradle wrapper jar (used for project generation)
+!summon-cli/src/jvmMain/resources/gradle-wrapper/gradle-wrapper.jar
 *.war
 *.nar
 *.ear
