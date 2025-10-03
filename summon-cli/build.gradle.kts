@@ -468,8 +468,9 @@ tasks.register("buildNativeExecutable") {
     }
 }
 // Task to validate wrapper files are in shadow JAR
+// MUST depend on injectWrapperJar (not just shadowJar) to ensure injection completes first
 tasks.register("validateWrapperInJar") {
-    dependsOn(shadowJar)
+    dependsOn("injectWrapperJar")
     group = "verification"
     description = "Validate that gradle wrapper files are correctly embedded in shadow JAR"
 
