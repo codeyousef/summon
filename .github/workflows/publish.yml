@@ -44,7 +44,7 @@ jobs:
           fi
       
       - name: Build CLI
-        run: ./gradlew summon-cli:build -x test -x jvmTest
+        run: ./gradlew summon-cli:build -PskipWrapperTests=true
 
       - name: Validate gradle-wrapper files in JAR
         run: |

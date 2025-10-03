@@ -53,6 +53,14 @@ kotlin {
     }
 }
 
+// Skip wrapper validation tests during CI build (they run before injection)
+if (project.hasProperty("skipWrapperTests")) {
+    tasks.withType<Test> {
+        filter {
+            excludeTestsMatching("*WrapperResourceValidationTest*")
+        }
+    }
+}
 
 // Create a custom shadowJar task since we're using KMP
 val shadowJar = tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
