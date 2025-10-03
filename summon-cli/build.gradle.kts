@@ -528,7 +528,8 @@ tasks.register("injectWrapperJar") {
 
     doLast {
         val shadowJarFile = shadowJar.get().archiveFile.get().asFile
-        val wrapperDir = file("build/resources/jvmMain/gradle-wrapper")
+        // Use source directory directly - build directory may not have .jar files copied
+        val wrapperDir = file("src/jvmMain/resources/gradle-wrapper")
 
         require(shadowJarFile.exists()) { "Shadow JAR not found: ${shadowJarFile.absolutePath}" }
         require(wrapperDir.exists()) { "gradle-wrapper directory not found: ${wrapperDir.absolutePath}" }
@@ -559,7 +560,7 @@ tasks.register("injectWrapperJar") {
         println("📝 Attempting injection using jar command...")
         val jarResult = exec {
             workingDir(projectDir)
-            commandLine("jar", "uf", shadowJarFile.absolutePath, "-C", "build/resources/jvmMain", "gradle-wrapper")
+            commandLine("jar", "uf", shadowJarFile.absolutePath, "-C", "src/jvmMain/resources", "gradle-wrapper")
             isIgnoreExitValue = true
         }
 
