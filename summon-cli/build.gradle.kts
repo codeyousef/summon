@@ -1,4 +1,9 @@
 import java.util.zip.ZipFile
+import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
+import java.util.zip.ZipEntry
+import java.io.FileInputStream
+import java.io.FileOutputStream
 
 // Apply version management
 apply(from = "../version-helper.gradle.kts")
@@ -529,14 +534,128 @@ tasks.register("injectWrapperJar") {
         require(wrapperDir.exists()) { "gradle-wrapper directory not found: ${wrapperDir.absolutePath}" }
 
         println("📦 Injecting all gradle-wrapper files into shadow JAR...")
+        println("   Shadow JAR: ${shadowJarFile.absolutePath}")
+        println("   Wrapper dir: ${wrapperDir.absolutePath}")
 
-        // Inject all 4 wrapper files using jar command
-        exec {
-            workingDir(projectDir)
-            commandLine("jar", "uf", shadowJarFile.absolutePath, "-C", "build/resources/jvmMain", "gradle-wrapper")
+        // Verify all files exist BEFORE injection
+        val requiredFiles = listOf(
+            "gradle-wrapper.jar",
+            "gradle-wrapper.properties",
+            "gradlew",
+            "gradlew.bat"
+        )
+
+        println("🔍 Pre-injection verification:")
+        requiredFiles.forEach { fileName ->
+            val file = File(wrapperDir, fileName)
+            if (file.exists()) {
+                println("   ✅ $fileName exists (${file.length()} bytes)")
+            } else {
+                throw GradleException("❌ Missing file before injection: $fileName at ${file.absolutePath}")
+            }
         }
 
-        println("✅ All gradle-wrapper files injected successfully")
+        // Try injection using jar command first
+        println("📝 Attempting injection using jar command...")
+        val jarResult = exec {
+            workingDir(projectDir)
+            commandLine("jar", "uf", shadowJarFile.absolutePath, "-C", "build/resources/jvmMain", "gradle-wrapper")
+            isIgnoreExitValue = true
+        }
+
+        // Quick verification after jar command
+        var needsManualInjection = false
+        if (jarResult.exitValue != 0) {
+            println("⚠️  jar command failed with exit code ${jarResult.exitValue}")
+            needsManualInjection = true
+        } else {
+            // Even if jar succeeded, verify it actually worked
+            println("🔍 Verifying jar command results...")
+            val testJarFile = ZipFile(shadowJarFile)
+            val missingAfterJar = requiredFiles.filter { fileName ->
+                val entry = testJarFile.getEntry("gradle-wrapper/$fileName")
+                val missing = entry == null || (fileName.endsWith(".jar") && entry.size < 1000)
+                if (missing) {
+                    println("   ⚠️  $fileName missing or corrupted after jar command")
+                }
+                missing
+            }
+            testJarFile.close()
+
+            if (missingAfterJar.isNotEmpty()) {
+                println("⚠️  jar command succeeded but files missing: ${missingAfterJar.joinToString(", ")}")
+                needsManualInjection = true
+            }
+        }
+
+        if (needsManualInjection) {
+            println("🔄 Using manual injection with ZipOutputStream...")
+
+            // Fallback: Manual injection using ZipOutputStream
+            val tempFile = File(shadowJarFile.parentFile, "${shadowJarFile.name}.tmp")
+
+            ZipOutputStream(FileOutputStream(tempFile)).use { zipOut ->
+                // Copy existing entries
+                ZipInputStream(FileInputStream(shadowJarFile)).use { zipIn ->
+                    var entry = zipIn.nextEntry
+                    while (entry != null) {
+                        // Skip existing gradle-wrapper entries if any
+                        if (!entry.name.startsWith("gradle-wrapper/")) {
+                            zipOut.putNextEntry(ZipEntry(entry.name))
+                            zipIn.copyTo(zipOut)
+                            zipOut.closeEntry()
+                        }
+                        entry = zipIn.nextEntry
+                    }
+                }
+
+                // Add wrapper directory entry
+                zipOut.putNextEntry(ZipEntry("gradle-wrapper/"))
+                zipOut.closeEntry()
+
+                // Add all wrapper files
+                wrapperDir.listFiles()?.forEach { file ->
+                    if (file.isFile) {
+                        zipOut.putNextEntry(ZipEntry("gradle-wrapper/${file.name}"))
+                        FileInputStream(file).use { it.copyTo(zipOut) }
+                        zipOut.closeEntry()
+                        println("   ✅ Added ${file.name} (${file.length()} bytes)")
+                    }
+                }
+            }
+
+            // Replace original with temp
+            shadowJarFile.delete()
+            tempFile.renameTo(shadowJarFile)
+            println("✅ Manual injection completed")
+        } else {
+            println("✅ jar command injection succeeded")
+        }
+
+        // Final verification
+        println("🔍 Final verification:")
+        val jarFile = ZipFile(shadowJarFile)
+        var allFound = true
+        requiredFiles.forEach { fileName ->
+            val entry = jarFile.getEntry("gradle-wrapper/$fileName")
+            if (entry != null) {
+                println("   ✅ $fileName in JAR (${entry.size} bytes)")
+                if (fileName.endsWith(".jar") && entry.size < 1000) {
+                    println("   ⚠️  WARNING: $fileName seems too small!")
+                    allFound = false
+                }
+            } else {
+                println("   ❌ MISSING: $fileName")
+                allFound = false
+            }
+        }
+        jarFile.close()
+
+        if (!allFound) {
+            throw GradleException("❌ Injection verification failed - some files missing or corrupted in JAR")
+        }
+
+        println("✅ All gradle-wrapper files injected and verified successfully")
     }
 }
 
