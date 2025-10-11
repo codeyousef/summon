@@ -1051,21 +1051,21 @@ fun ButtonExamples() {
             if (versionPropsFile.exists()) {
                 val props = java.util.Properties()
                 versionPropsFile.inputStream().use { props.load(it) }
-                props.getProperty("VERSION", "0.4.0.8")
+                props.getProperty("VERSION", "0.4.0.9")
             } else {
                 // Try relative to project root
                 val rootVersionFile = File("../version.properties")
                 if (rootVersionFile.exists()) {
                     val props = java.util.Properties()
                     rootVersionFile.inputStream().use { props.load(it) }
-                    props.getProperty("VERSION", "0.4.0.8")
+                    props.getProperty("VERSION", "0.4.0.9")
                 } else {
-                    "0.4.0.8" // Fallback to current version
+                    "0.4.0.9" // Fallback to current version
                 }
             }
         } catch (e: Exception) {
             println("⚠️  Could not read version from version.properties: ${e.message}")
-            "0.4.0.8" // Fallback
+            "0.4.0.9" // Fallback
         }
     }
 }

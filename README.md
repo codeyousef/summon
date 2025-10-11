@@ -65,7 +65,7 @@ Summon combines the best ideas from modern frontend frameworks like React, Vue, 
     - Cross-browser compatibility and progressive loading
     - Production-ready WASM with optimized bundle sizes
 
-## What's New in 0.4.0.8
+## What's New in 0.4.0.9
 
 🛠️ **CLI Usability Improvements**
 
@@ -78,7 +78,7 @@ This release makes the Summon CLI much easier to install and use:
 - **Updated Toolchain**: Generated projects default to Kotlin 2.2.20 and ship lightweight tests so `./gradlew build`
   succeeds immediately.
 
-Download: `java -jar summon-cli-0.4.0.8.jar install`
+Download: `java -jar summon-cli-0.4.0.9.jar install`
 
 ### Previous Releases
 
@@ -236,14 +236,14 @@ The Summon CLI helps you quickly scaffold new projects and generate components.
 Download the latest JAR from [GitHub Releases](https://github.com/codeyousef/summon/releases):
 
 ```bash
-# Download summon-cli-0.4.0.8.jar
+# Download summon-cli-0.4.0.9.jar
 
 # Run commands directly
-java -jar summon-cli-0.4.0.8.jar init my-app
-java -jar summon-cli-0.4.0.8.jar --help
+java -jar summon-cli-0.4.0.9.jar init my-app
+java -jar summon-cli-0.4.0.9.jar --help
 
 # OR install globally (adds 'summon' command)
-java -jar summon-cli-0.4.0.8.jar install
+java -jar summon-cli-0.4.0.9.jar install
 # Then restart terminal and use:
 summon init my-app
 ```
@@ -283,16 +283,16 @@ repositories {
 
 dependencies {
     // For JVM projects (Ktor, Spring Boot, Quarkus)
-    implementation("io.github.codeyousef:summon-jvm:0.4.0.8")
+    implementation("io.github.codeyousef:summon-jvm:0.4.0.9")
 
     // For JavaScript/Browser projects
-    implementation("io.github.codeyousef:summon-js:0.4.0.8")
+    implementation("io.github.codeyousef:summon-js:0.4.0.9")
 
     // For WebAssembly projects
-    implementation("io.github.codeyousef:summon-wasm-js:0.4.0.8")
+    implementation("io.github.codeyousef:summon-wasm-js:0.4.0.9")
 
     // For Kotlin Multiplatform projects (includes all targets)
-    implementation("io.github.codeyousef:summon:0.4.0.8")
+    implementation("io.github.codeyousef:summon:0.4.0.9")
 }
 ```
 
@@ -448,7 +448,7 @@ kotlin {
 }
 
 dependencies {
-    implementation("io.github.codeyousef:summon-wasm-js:0.4.0.8")
+    implementation("io.github.codeyousef:summon-wasm-js:0.4.0.9")
 }
 ```
 

@@ -1,6 +1,6 @@
 # WebAssembly (WASM) Guide
 
-Summon 0.4.0.8 introduces comprehensive WebAssembly support, bringing near-native performance to web applications while
+Summon 0.4.0.9 introduces comprehensive WebAssembly support, bringing near-native performance to web applications while
 maintaining full compatibility with server-side rendering and JavaScript fallbacks.
 
 ## Table of Contents
@@ -142,19 +142,19 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("io.github.codeyousef:summon:0.4.0.8")
+                implementation("io.github.codeyousef:summon:0.4.0.9")
             }
         }
 
         val wasmJsMain by getting {
             dependencies {
-                implementation("io.github.codeyousef:summon-wasm-js:0.4.0.8")
+                implementation("io.github.codeyousef:summon-wasm-js:0.4.0.9")
             }
         }
 
         val jvmMain by getting {
             dependencies {
-                implementation("io.github.codeyousef:summon-jvm:0.4.0.8")
+                implementation("io.github.codeyousef:summon-jvm:0.4.0.9")
             }
         }
     }

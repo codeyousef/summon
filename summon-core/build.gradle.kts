@@ -6,7 +6,7 @@ import java.util.*
 apply(from = "../version.gradle.kts")
 
 // Manual version override for now
-version = "0.4.0.8"
+version = "0.4.0.9"
 group = "io.github.codeyousef"
 
 plugins {
@@ -433,7 +433,8 @@ tasks.register("publishToCentralPortalManually") {
         val artifactMappings = mapOf(
             "summon" to "kotlinMultiplatform",
             "summon-jvm" to "jvm", 
-            "summon-js" to "js"
+            "summon-js" to "js",
+            "summon-core" to "wasmJs"
         )
         
         val allFilesToProcess = mutableListOf<File>()
