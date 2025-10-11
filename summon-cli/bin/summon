@@ -1,0 +1,13 @@
+#!/bin/bash
+# Summon CLI launcher script for Unix/Linux/macOS
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+JAR_FILE="$SCRIPT_DIR/../build/libs/summon-cli-0.4.0.5.jar"
+
+if [ -f "$JAR_FILE" ]; then
+    exec java -jar "$JAR_FILE" "$@"
+else
+    echo "Error: summon-cli JAR not found at $JAR_FILE"
+    echo "Run: ./gradlew :summon-cli:shadowJar"
+    exit 1
+fi

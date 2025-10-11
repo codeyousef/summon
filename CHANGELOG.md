@@ -36,11 +36,19 @@ This release fixes critical compilation errors in CLI-generated projects.
 - Added `GITHUB_ISSUE_14_FIX.md` with detailed fix documentation
 - Added `VERIFICATION_REPORT.md` with comprehensive test results
 
+#### CLI Improvements
+
+- **Installation Documentation**: Added clear instructions for running and installing the CLI
+- **Wrapper Scripts**: Added `bin/summon` and `bin/summon.bat` for easier local usage
+- **Help Messages**: Improved CLI help to show JAR usage examples
+- **CLI README**: Added dedicated README for CLI-specific documentation
+
 #### Notes
 
 - Users can now use `implementation("io.github.codeyousef:summon:0.4.0.5")` from Maven Central
 - Generated projects now compile without errors out of the box
 - This release resolves the template generation issues reported in GitHub #14
+- Fixed installation documentation (removed incorrect npm references)
 
 ## [0.4.0.4]
 

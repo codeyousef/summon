@@ -25,7 +25,7 @@ class SummonCli : CliktCommand(
         .default("false")
 
     init {
-        versionOption("0.4.0.0")
+        versionOption("0.4.0.5")
     }
 
     override fun run() {
@@ -40,6 +40,13 @@ class SummonCli : CliktCommand(
                 
                 Summon is a Kotlin Multiplatform UI framework that brings Jetpack Compose-style 
                 declarative UI to browser and JVM environments.
+                
+                📦 If you downloaded the JAR file:
+                   java -jar summon-cli-0.4.0.5.jar <command>
+                
+                💡 To install globally (adds 'summon' command):
+                   java -jar summon-cli-0.4.0.5.jar install
+                   (Then restart your terminal)
                 
                 Available commands:
                   init      Initialize a new Summon project with flexible directory options
@@ -57,6 +64,11 @@ class SummonCli : CliktCommand(
                 Use 'summon <command> --help' for help on specific commands.
                 
                 Examples:
+                  java -jar summon-cli-0.4.0.5.jar init my-app
+                  java -jar summon-cli-0.4.0.5.jar init my-app --here
+                  java -jar summon-cli-0.4.0.5.jar generate component Button
+                
+                After installation:
                   summon init my-app                    # Creates ./my-app/
                   summon init my-app --here             # Creates in current directory
                   summon create js-app --name my-app    # Creates ./my-app/ from template

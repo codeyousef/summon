@@ -208,6 +208,53 @@ Comprehensive API reference documentation is available in the [docs/api-referenc
 
 ## Installation
 
+### Summon CLI Tool
+
+The Summon CLI helps you quickly scaffold new projects and generate components.
+
+#### Option 1: Download JAR (Simplest)
+
+Download the latest JAR from [GitHub Releases](https://github.com/codeyousef/summon/releases):
+
+```bash
+# Download summon-cli-0.4.0.5.jar
+
+# Run commands directly
+java -jar summon-cli-0.4.0.5.jar init my-app
+java -jar summon-cli-0.4.0.5.jar --help
+
+# OR install globally (adds 'summon' command)
+java -jar summon-cli-0.4.0.5.jar install
+# Then restart terminal and use:
+summon init my-app
+```
+
+#### Option 2: Build from Source
+
+```bash
+git clone https://github.com/codeyousef/summon.git
+cd summon
+./gradlew :summon-cli:shadowJar
+java -jar summon-cli/build/libs/summon-cli-0.4.0.5.jar install
+```
+
+#### Quick Start
+
+After installation:
+
+```bash
+# Create a new project
+summon init my-app
+cd my-app
+
+# Build and run
+./gradlew jsBrowserDevelopmentRun
+
+# Open http://localhost:8080
+```
+
+### Summon Library
+
 Add Summon to your project dependencies from Maven Central:
 
 ```kotlin
@@ -298,8 +345,8 @@ maintaining full compatibility with server-side rendering and JavaScript fallbac
 Create a new WASM project using the Summon CLI:
 
 ```bash
-# Install Summon CLI
-npm install -g @summon/cli
+# Install Summon CLI (download JAR from releases first)
+java -jar summon-cli-0.4.0.5.jar install
 
 # Create a new WASM project
 summon init my-wasm-app --template=wasm
