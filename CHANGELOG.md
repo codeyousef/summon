@@ -42,6 +42,8 @@ This release fixes critical compilation errors in CLI-generated projects.
 - **Wrapper Scripts**: Added `bin/summon` and `bin/summon.bat` for easier local usage
 - **Help Messages**: Improved CLI help to show JAR usage examples
 - **CLI README**: Added dedicated README for CLI-specific documentation
+- **Install Command**: Fixed JAR file detection in `install` command to work from any directory
+- **Auto Wrapper Creation**: Install command now creates wrapper scripts automatically for JAR installations
 
 #### Notes
 

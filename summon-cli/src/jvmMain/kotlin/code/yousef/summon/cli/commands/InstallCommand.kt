@@ -38,7 +38,16 @@ class InstallCommand : CliktCommand(
             echo("📍 Current location: ${currentExecutable.absolutePath}")
             
             val installDir = getInstallationDirectory()
-            val targetExecutable = File(installDir, "summon.exe")
+            
+            // Determine target filename based on source file type
+            val targetFileName = if (currentExecutable.name.endsWith(".jar")) {
+                "summon-cli.jar"
+            } else if (isWindows()) {
+                "summon.exe"
+            } else {
+                "summon"
+            }
+            val targetExecutable = File(installDir, targetFileName)
             
             // Check if already installed
             if (targetExecutable.exists() && !force) {
@@ -61,10 +70,18 @@ class InstallCommand : CliktCommand(
                 StandardCopyOption.REPLACE_EXISTING
             )
             
+            // If we installed a JAR, create a wrapper script
+            if (targetFileName.endsWith(".jar")) {
+                createJarWrapper(installDir, targetExecutable)
+            }
+            
             // Add to PATH
             if (addToPath(installDir)) {
                 echo("✅ Successfully installed Summon CLI!")
                 echo("📍 Installation location: ${targetExecutable.absolutePath}")
+                if (targetFileName.endsWith(".jar")) {
+                    echo("📝 Wrapper script: ${File(installDir, if (isWindows()) "summon.bat" else "summon").absolutePath}")
+                }
                 echo("🔄 Please restart your terminal or run 'refreshenv' to use 'summon' commands")
                 echo("")
                 echo("🧪 Test your installation:")
@@ -86,14 +103,18 @@ class InstallCommand : CliktCommand(
             // Try to get the current JAR/executable location
             val jarFile = File(this::class.java.protectionDomain.codeSource.location.toURI())
             
-            // If running as native executable, this should point to the .exe
-            if (jarFile.name.endsWith(".exe") || jarFile.name == "summon") {
+            // If it's a JAR file, use it directly
+            if (jarFile.exists() && jarFile.name.endsWith(".jar")) {
+                jarFile
+            } else if (jarFile.name.endsWith(".exe") || jarFile.name == "summon") {
+                // Native executable
                 jarFile
             } else {
-                // Fallback: look for summon.exe in common locations
+                // Fallback: look for summon.exe or JAR in common locations
                 val currentDir = File(System.getProperty("user.dir"))
                 listOf(
                     File(currentDir, "summon.exe"),
+                    File(currentDir, "summon-cli.jar"),
                     File(currentDir, "cli-tool/build/native/summon.exe"),
                     File(currentDir, "build/native/summon.exe")
                 ).find { it.exists() }
@@ -193,6 +214,32 @@ class InstallCommand : CliktCommand(
         } catch (e: Exception) {
             echo("❌ Error updating PATH: ${e.message}", err = true)
             false
+        }
+    }
+    
+    private fun createJarWrapper(installDir: File, jarFile: File) {
+        try {
+            if (isWindows()) {
+                // Create Windows batch file
+                val batchFile = File(installDir, "summon.bat")
+                batchFile.writeText("""
+                    @echo off
+                    java -jar "%~dp0summon-cli.jar" %*
+                """.trimIndent())
+                echo("📝 Created wrapper script: ${batchFile.absolutePath}")
+            } else {
+                // Create Unix shell script
+                val shellFile = File(installDir, "summon")
+                shellFile.writeText("""
+                    #!/bin/bash
+                    SCRIPT_DIR="${'$'}( cd "${'$'}( dirname "${'$'}{BASH_SOURCE[0]}" )" && pwd )"
+                    exec java -jar "${'$'}SCRIPT_DIR/summon-cli.jar" "${'$'}@"
+                """.trimIndent())
+                shellFile.setExecutable(true)
+                echo("📝 Created wrapper script: ${shellFile.absolutePath}")
+            }
+        } catch (e: Exception) {
+            echo("⚠️ Warning: Failed to create wrapper script: ${e.message}", err = true)
         }
     }
     
