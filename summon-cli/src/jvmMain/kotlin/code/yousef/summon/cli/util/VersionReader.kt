@@ -14,7 +14,7 @@ object VersionReader {
      * Reads the VERSION property from version.properties in the repository root.
      * Returns cached version if already loaded.
      *
-     * @return The version string, or "0.4.0.7" as fallback
+     * @return The version string, or "0.4.0.8" as fallback
      */
     fun readVersion(): String {
         if (cachedVersion != null) {
@@ -34,8 +34,8 @@ object VersionReader {
             val versionFile = possiblePaths.firstOrNull { it.exists() && it.canRead() }
 
             if (versionFile == null) {
-                println("Warning: version.properties not found, using fallback version 0.4.0.7")
-                cachedVersion = "0.4.0.7"
+                println("Warning: version.properties not found, using fallback version 0.4.0.8")
+                cachedVersion = "0.4.0.8"
                 return cachedVersion!!
             }
 
@@ -47,7 +47,7 @@ object VersionReader {
             val version = properties.getProperty("VERSION")
             if (version.isNullOrBlank()) {
                 println("Warning: VERSION property not found in version.properties, using fallback")
-                cachedVersion = "0.4.0.7"
+                cachedVersion = "0.4.0.8"
             } else {
                 cachedVersion = version.trim()
             }
@@ -55,14 +55,14 @@ object VersionReader {
             cachedVersion!!
         } catch (e: Exception) {
             println("Error reading version.properties: ${e.message}")
-            cachedVersion = "0.4.0.7"
+            cachedVersion = "0.4.0.8"
             cachedVersion!!
         }
     }
 
     /**
      * Validates if a version string follows semantic versioning format.
-     * Accepts formats like: 1.0.0, 1.0.0.0, 0.4.0.7
+     * Accepts formats like: 1.0.0, 1.0.0.0, 0.4.0.8
      */
     fun isValidSemver(version: String): Boolean {
         val semverRegex = Regex("""^\d+\.\d+\.\d+(\.\d+)?(-[a-zA-Z0-9.-]+)?$""")

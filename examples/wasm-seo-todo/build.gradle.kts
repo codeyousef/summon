@@ -20,7 +20,7 @@ kotlin {
     sourceSets {
         val wasmJsMain by getting {
             dependencies {
-                implementation("io.github.codeyousef:summon-core:0.4.0.7")
+                implementation("io.github.codeyousef:summon-core:0.4.0.8")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
             }
         }

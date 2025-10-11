@@ -2,12 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.4.0.7] - 2025-10-12
+## [0.4.0.8] - 2025-10-13
 
 ### 🛠️ **Comprehensive Summon CLI Overhaul**
 
-Release 0.4.0.7 consolidates every CLI fix and enhancement delivered across the 0.4.0.x line into a single
-production-ready update.
+Release 0.4.0.8 consolidates every CLI fix and enhancement delivered across the 0.4.0.x line into a single
+production-ready update and resolves the remaining template issues discovered after 0.4.0.7.
 
 #### Added
 
@@ -17,28 +17,33 @@ production-ready update.
   broken Gradle wrappers inside the shaded JAR.
 - **Extensive Testing**: `ProjectGeneratorTest` now exercises all templates, verifying version detection, Modifier API
   usage, Button parameters, and generated Kotlin syntax.
+- **Toolchain Alignment**: Templates now default to Kotlin 2.2.20, matching the Summon runtime and avoiding IR
+  compiler crashes in generated JS projects.
+- **Simplified Sample Tests**: Generated `ExampleComponentTest` no longer depends on internal test helpers, ensuring
+  new projects compile and test successfully out of the box.
 
 #### Fixed
 
 - **Gradle Wrapper Packaging**: Shadow JAR now reliably ships all wrapper assets (jar, properties, `gradlew`,
   `gradlew.bat`), eliminating "gradle: not found" errors in new projects.
 - **Version Synchronisation**: Templates pull their dependency version from `version.properties`; fallbacks and docs are
-  aligned to 0.4.0.7.
+  aligned to 0.4.0.8.
 - **Template Compilation Errors**: Corrected `Modifier().padding(...)`, Button `label` argument order, and
-  `remember` import locations so every generated project compiles out of the box.
+  `remember` import locations so every generated project compiles out of the box. Additional fixes ensure generated
+  tests only rely on publicly exported APIs.
 - **Install Command**: Works from any directory and automatically drops wrapper scripts for the downloaded JAR.
 
 #### Changed
 
 - **Documentation & Help Output**: All CLI messaging, README snippets, and examples showcase
-  `java -jar summon-cli-0.4.0.7.jar ...` usage. Removed stale npm references and clarified global install flow.
+  `java -jar summon-cli-0.4.0.8.jar ...` usage. Removed stale npm references and clarified global install flow.
 - **Repository Defaults**: Generated projects now target Maven Central exclusively, removing unnecessary GitHub
   Packages configuration.
 
 #### Notes
 
-- Download & install via `java -jar summon-cli-0.4.0.7.jar install`.
-- Library dependency: `implementation("io.github.codeyousef:summon:0.4.0.7")`.
+- Download & install via `java -jar summon-cli-0.4.0.8.jar install`.
+- Library dependency: `implementation("io.github.codeyousef:summon:0.4.0.8")`.
 - All artifacts (CLI + libraries) published to Maven Central.
 
 ## [0.4.0.0]

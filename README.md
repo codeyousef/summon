@@ -65,7 +65,7 @@ Summon combines the best ideas from modern frontend frameworks like React, Vue, 
     - Cross-browser compatibility and progressive loading
     - Production-ready WASM with optimized bundle sizes
 
-## What's New in 0.4.0.7
+## What's New in 0.4.0.8
 
 🛠️ **CLI Usability Improvements**
 
@@ -75,8 +75,10 @@ This release makes the Summon CLI much easier to install and use:
 - **Installation Documentation**: Clear instructions for downloading and running the CLI
 - **Auto Wrapper Scripts**: Install command creates wrapper scripts automatically
 - **Improved Help**: Better examples showing JAR usage
+- **Updated Toolchain**: Generated projects default to Kotlin 2.2.20 and ship lightweight tests so `./gradlew build`
+  succeeds immediately.
 
-Download: `java -jar summon-cli-0.4.0.7.jar install`
+Download: `java -jar summon-cli-0.4.0.8.jar install`
 
 ### Previous Releases
 
@@ -234,14 +236,14 @@ The Summon CLI helps you quickly scaffold new projects and generate components.
 Download the latest JAR from [GitHub Releases](https://github.com/codeyousef/summon/releases):
 
 ```bash
-# Download summon-cli-0.4.0.7.jar
+# Download summon-cli-0.4.0.8.jar
 
 # Run commands directly
-java -jar summon-cli-0.4.0.7.jar init my-app
-java -jar summon-cli-0.4.0.7.jar --help
+java -jar summon-cli-0.4.0.8.jar init my-app
+java -jar summon-cli-0.4.0.8.jar --help
 
 # OR install globally (adds 'summon' command)
-java -jar summon-cli-0.4.0.7.jar install
+java -jar summon-cli-0.4.0.8.jar install
 # Then restart terminal and use:
 summon init my-app
 ```
@@ -252,7 +254,7 @@ summon init my-app
 git clone https://github.com/codeyousef/summon.git
 cd summon
 ./gradlew :summon-cli:shadowJar
-java -jar summon-cli/build/libs/summon-cli-0.4.0.7.jar install
+java -jar summon-cli/build/libs/summon-cli-0.4.0.8.jar install
 ```
 
 #### Quick Start
@@ -281,16 +283,16 @@ repositories {
 
 dependencies {
     // For JVM projects (Ktor, Spring Boot, Quarkus)
-    implementation("io.github.codeyousef:summon-jvm:0.4.0.7")
+    implementation("io.github.codeyousef:summon-jvm:0.4.0.8")
 
     // For JavaScript/Browser projects
-    implementation("io.github.codeyousef:summon-js:0.4.0.7")
+    implementation("io.github.codeyousef:summon-js:0.4.0.8")
 
     // For WebAssembly projects
-    implementation("io.github.codeyousef:summon-wasm-js:0.4.0.7")
+    implementation("io.github.codeyousef:summon-wasm-js:0.4.0.8")
 
     // For Kotlin Multiplatform projects (includes all targets)
-    implementation("io.github.codeyousef:summon:0.4.0.7")
+    implementation("io.github.codeyousef:summon:0.4.0.8")
 }
 ```
 
@@ -363,7 +365,7 @@ Create a new WASM project using the Summon CLI:
 
 ```bash
 # Install Summon CLI (download JAR from releases first)
-java -jar summon-cli-0.4.0.7.jar install
+java -jar summon-cli-0.4.0.8.jar install
 
 # Create a new WASM project
 summon init my-wasm-app --template=wasm
@@ -446,7 +448,7 @@ kotlin {
 }
 
 dependencies {
-    implementation("io.github.codeyousef:summon-wasm-js:0.4.0.7")
+    implementation("io.github.codeyousef:summon-wasm-js:0.4.0.8")
 }
 ```
 

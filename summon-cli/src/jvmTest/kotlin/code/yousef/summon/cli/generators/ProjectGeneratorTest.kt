@@ -42,14 +42,25 @@ class ProjectGeneratorTest {
         
         val content = buildFile.readText()
         
-        // Should use version from version.properties (0.4.0.7), not hardcoded 0.4.0.0
+        // Should use version from version.properties (0.4.0.8), not hardcoded 0.4.0.0
         assertFalse(
             content.contains("summon:0.4.0.0"),
             "Generated build file should not use hardcoded old version 0.4.0.0"
         )
         assertTrue(
-            content.contains("summon:0.4.0.7"),
-            "Generated build file should use current version 0.4.0.7 from version.properties"
+            content.contains("summon:0.4.0.8"),
+            "Generated build file should use current version 0.4.0.8 from version.properties"
+        )
+
+        assertTrue(
+            content.contains("kotlin(\"multiplatform\") version \"2.2.20\"") &&
+                content.contains("kotlin(\"plugin.serialization\") version \"2.2.20\""),
+            "Generated build file should target Kotlin 2.2.20"
+        )
+
+        assertTrue(
+            content.contains("org.jetbrains.kotlin:kotlin-stdlib-js:2.2.20"),
+            "Generated JS template should include Kotlin stdlib for JS"
         )
     }
 
@@ -222,6 +233,39 @@ class ProjectGeneratorTest {
         assertTrue(
             content.contains("renderComposable(renderer"),
             "Should use renderComposable helper API"
+        )
+    }
+
+    @Test
+    fun `test basic multiplatform template adds kotlin stdlib dependencies`() {
+        val template = ProjectTemplate.fromType("basic")
+        val generator = ProjectGenerator(template)
+
+        val config = ProjectGenerator.Config(
+            projectName = "mp-app",
+            packageName = "com.example.mp",
+            targetDirectory = tempDir,
+            templateType = "basic",
+            minimal = false
+        )
+
+        generator.generate(config)
+
+        val buildFile = File(tempDir, "build.gradle.kts")
+        assertTrue(buildFile.exists(), "build.gradle.kts should exist for basic template")
+
+        val content = buildFile.readText()
+        assertTrue(
+            content.contains("org.jetbrains.kotlin:kotlin-stdlib-common:2.2.20"),
+            "Multiplatform template should include Kotlin stdlib-common"
+        )
+        assertTrue(
+            content.contains("org.jetbrains.kotlin:kotlin-stdlib:2.2.20"),
+            "Multiplatform template should include Kotlin stdlib for JVM"
+        )
+        assertTrue(
+            content.contains("org.jetbrains.kotlin:kotlin-stdlib-js:2.2.20"),
+            "Multiplatform template should include Kotlin stdlib for JS"
         )
     }
 

@@ -60,7 +60,7 @@ class ProjectGenerator(private val template: ProjectTemplate) {
             "APP_TITLE" to TemplateHelpers.transformName(config.projectName, "pascalcase"),
             "APP_CLASS" to TemplateHelpers.transformName(config.projectName, "pascalcase") + "App",
             "SUMMON_VERSION" to readVersionFromProperties(),
-            "KOTLIN_VERSION" to "2.2.0",
+            "KOTLIN_VERSION" to "2.2.20",
             "INCLUDE_EXAMPLES" to if (config.includeExamples && !config.minimal) "true" else "false",
             "INCLUDE_AUTH" to if (config.includeAuth) "true" else "false",
             "INCLUDE_DOCKER" to if (config.includeDocker) "true" else "false",
@@ -203,6 +203,7 @@ kotlin {
     sourceSets {
         val jsMain by getting {
             dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-js:${variables["KOTLIN_VERSION"]}")
                 implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
@@ -246,6 +247,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-common:${variables["KOTLIN_VERSION"]}")
                 implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
@@ -253,6 +255,7 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib:${variables["KOTLIN_VERSION"]}")
                 implementation("io.quarkus:quarkus-kotlin")
                 implementation("io.quarkus:quarkus-resteasy-reactive")
                 implementation("io.quarkus:quarkus-resteasy-reactive-jackson")
@@ -261,6 +264,7 @@ kotlin {
         }
         val jsMain by getting {
             dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-js:${variables["KOTLIN_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-html:0.12.0")
                 implementation(npm("core-js", "3.31.0"))
             }
@@ -294,6 +298,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-common:${variables["KOTLIN_VERSION"]}")
                 implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
@@ -301,6 +306,7 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib:${variables["KOTLIN_VERSION"]}")
                 implementation("org.springframework.boot:spring-boot-starter-web")
                 implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
                 implementation("org.springframework.boot:spring-boot-starter-webflux")
@@ -310,6 +316,7 @@ kotlin {
         }
         val jsMain by getting {
             dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-js:${variables["KOTLIN_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-html:0.12.0")
                 implementation(npm("core-js", "3.31.0"))
             }
@@ -341,6 +348,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-common:${variables["KOTLIN_VERSION"]}")
                 implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
@@ -348,6 +356,7 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib:${variables["KOTLIN_VERSION"]}")
                 implementation("io.ktor:ktor-server-core:2.3.7")
                 implementation("io.ktor:ktor-server-netty:2.3.7")
                 implementation("io.ktor:ktor-server-html-builder:2.3.7")
@@ -357,6 +366,7 @@ kotlin {
         }
         val jsMain by getting {
             dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-js:${variables["KOTLIN_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-html:0.12.0")
                 implementation(npm("core-js", "3.31.0"))
             }
@@ -392,6 +402,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-common:${variables["KOTLIN_VERSION"]}")
                 api("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
@@ -400,6 +411,16 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+            }
+        }
+        val jvmMain by getting {
+            dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib:${variables["KOTLIN_VERSION"]}")
+            }
+        }
+        val jsMain by getting {
+            dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-js:${variables["KOTLIN_VERSION"]}")
             }
         }
     }
@@ -445,6 +466,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-common:${variables["KOTLIN_VERSION"]}")
                 implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
@@ -455,10 +477,15 @@ kotlin {
                 implementation(kotlin("test"))
             }
         }
-        val jvmMain by getting
+        val jvmMain by getting {
+            dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib:${variables["KOTLIN_VERSION"]}")
+            }
+        }
         val jvmTest by getting
         val jsMain by getting {
             dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-js:${variables["KOTLIN_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-html:0.12.0")
                 implementation(npm("core-js", "3.31.0"))
             }
@@ -864,97 +891,28 @@ fun About() {
                 """
 package ${variables["PACKAGE_NAME"]}
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.core.BasicText as Text
-import code.yousef.summon.components.input.Button
-import code.yousef.summon.components.layout.Column
 import code.yousef.summon.state.mutableStateOf
-import code.yousef.summon.state.remember
-import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.test.TestComposer
 import kotlin.test.Test
-import kotlin.test.assertTrue
-import kotlin.getValue
-import kotlin.setValue
+import kotlin.test.assertEquals
 
 class ExampleComponentTest {
-    
+
     @Test
-    fun testBasicComponentRendering() {
-        // Test that components render without errors
-        val renderer = MockPlatformRenderer()
-        val composer = TestComposer(renderer)
-        
-        composer.compose {
-            ExampleComponent(text = "Test Text")
-        }
-        
-        // Verify component was rendered
-        assertTrue(renderer.hasRenderedElements())
+    fun `mutable state increments`() {
+        val counter = mutableStateOf(0)
+
+        counter.value += 1
+
+        assertEquals(1, counter.value)
     }
-    
+
     @Test
-    fun testComponentProps() {
-        // Test component with different props
-        val renderer = MockPlatformRenderer()
-        val composer = TestComposer(renderer)
-        
-        val testText = "Hello, World!"
-        composer.compose {
-            ExampleComponent(text = testText)
-        }
-        
-        // Verify text was passed correctly
-        assertTrue(renderer.getRenderedText().contains(testText))
-    }
-    
-    @Test
-    fun testComponentState() {
-        // Test stateful component behavior
-        val renderer = MockPlatformRenderer()
-        val composer = TestComposer(renderer)
-        
-        composer.compose {
-            var counter by remember { mutableStateOf(0) }
-            
-            Column {
-                Text("Count: ${'$'}counter")
-                Button(onClick = { ${'$'}counter++ }) {
-                    Text("Increment")
-                }
-            }
-        }
-        
-        // Verify initial state
-        assertTrue(renderer.getRenderedText().contains("Count: 0"))
-        
-        // Simulate button click and recompose
-        renderer.simulateClick("button")
-        composer.recompose()
-        
-        // Verify state update
-        assertTrue(renderer.getRenderedText().contains("Count: 1"))
-    }
-    
-    @Test
-    fun testComponentRecomposition() {
-        // Test that component updates on state changes
-        val renderer = MockPlatformRenderer()
-        val composer = TestComposer(renderer)
-        
-        var externalState by mutableStateOf("Initial")
-        
-        composer.compose {
-            Text(externalState)
-        }
-        
-        assertTrue(renderer.getRenderedText().contains("Initial"))
-        
-        // Change external state and recompose
-        externalState = "Updated"
-        composer.recompose()
-        
-        assertTrue(renderer.getRenderedText().contains("Updated"))
+    fun `mutable state stores latest value`() {
+        val message = mutableStateOf("Initial")
+
+        message.value = "Updated"
+
+        assertEquals("Updated", message.value)
     }
 }
             """.trimIndent()
@@ -1093,21 +1051,21 @@ fun ButtonExamples() {
             if (versionPropsFile.exists()) {
                 val props = java.util.Properties()
                 versionPropsFile.inputStream().use { props.load(it) }
-                props.getProperty("VERSION", "0.4.0.7")
+                props.getProperty("VERSION", "0.4.0.8")
             } else {
                 // Try relative to project root
                 val rootVersionFile = File("../version.properties")
                 if (rootVersionFile.exists()) {
                     val props = java.util.Properties()
                     rootVersionFile.inputStream().use { props.load(it) }
-                    props.getProperty("VERSION", "0.4.0.7")
+                    props.getProperty("VERSION", "0.4.0.8")
                 } else {
-                    "0.4.0.7" // Fallback to current version
+                    "0.4.0.8" // Fallback to current version
                 }
             }
         } catch (e: Exception) {
             println("⚠️  Could not read version from version.properties: ${e.message}")
-            "0.4.0.7" // Fallback
+            "0.4.0.8" // Fallback
         }
     }
 }
