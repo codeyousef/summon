@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0.6] - 2025-01-10
+
+### 🛠️ **CLI Usability Improvements**
+
+This release makes the Summon CLI much easier to install and use.
+
+#### Added
+
+- **Installation Documentation**: Added clear instructions for running and installing the CLI
+- **Wrapper Scripts**: Added `bin/summon` and `bin/summon.bat` for easier local usage
+- **CLI README**: Added dedicated `summon-cli/README.md` with comprehensive CLI documentation
+- **Help Messages**: Improved CLI help to show JAR usage examples
+
+#### Fixed
+
+- **Install Command**: Fixed JAR file detection to work when run from any directory (Downloads, etc.)
+- **Auto Wrapper Creation**: Install command now automatically creates wrapper scripts for JAR installations
+- **Documentation**: Removed incorrect npm installation references
+
+#### Notes
+
+- Users can now download the JAR and run: `java -jar summon-cli-0.4.0.6.jar install`
+- After installation, the `summon` command is available globally
+- Library version: `implementation("io.github.codeyousef:summon:0.4.0.6")`
+- All artifacts published to Maven Central
+
 ## [0.4.0.5] - 2025-10-11
 
 ### 🛠️ **CLI Template Generation Fix**
@@ -36,21 +62,11 @@ This release fixes critical compilation errors in CLI-generated projects.
 - Added `GITHUB_ISSUE_14_FIX.md` with detailed fix documentation
 - Added `VERIFICATION_REPORT.md` with comprehensive test results
 
-#### CLI Improvements
-
-- **Installation Documentation**: Added clear instructions for running and installing the CLI
-- **Wrapper Scripts**: Added `bin/summon` and `bin/summon.bat` for easier local usage
-- **Help Messages**: Improved CLI help to show JAR usage examples
-- **CLI README**: Added dedicated README for CLI-specific documentation
-- **Install Command**: Fixed JAR file detection in `install` command to work from any directory
-- **Auto Wrapper Creation**: Install command now creates wrapper scripts automatically for JAR installations
-
 #### Notes
 
 - Users can now use `implementation("io.github.codeyousef:summon:0.4.0.5")` from Maven Central
 - Generated projects now compile without errors out of the box
 - This release resolves the template generation issues reported in GitHub #14
-- Fixed installation documentation (removed incorrect npm references)
 
 ## [0.4.0.4]
 

@@ -65,12 +65,23 @@ Summon combines the best ideas from modern frontend frameworks like React, Vue, 
     - Cross-browser compatibility and progressive loading
     - Production-ready WASM with optimized bundle sizes
 
-## What's New in 0.4.0.0
+## What's New in 0.4.0.6
 
-🚀 **Major Release: Complete WebAssembly Integration**
+🛠️ **CLI Usability Improvements**
 
-This release introduces comprehensive WebAssembly support, bringing near-native performance to web applications while
-maintaining full SSR compatibility:
+This release makes the Summon CLI much easier to install and use:
+
+- **Fixed Install Command**: JAR detection now works from any directory
+- **Installation Documentation**: Clear instructions for downloading and running the CLI
+- **Auto Wrapper Scripts**: Install command creates wrapper scripts automatically
+- **Improved Help**: Better examples showing JAR usage
+
+Download: `java -jar summon-cli-0.4.0.6.jar install`
+
+### Previous Releases
+
+**0.4.0.5** - Fixed CLI template generation compilation errors  
+**0.4.0.0** - Complete WebAssembly Integration with SSR support
 
 ### ✨ **WebAssembly Features**
 
@@ -168,7 +179,14 @@ Summon provides a comprehensive set of UI components organized into logical cate
 
 ## Inspiration
 
-Summon is proudly inspired by [Kobweb](https://github.com/varabyte/kobweb), a modern framework for full stack web apps in Kotlin built upon Compose HTML. Kobweb's elegant API design and approach to creating web applications using Kotlin has been instrumental in shaping Summon's philosophy. We highly recommend checking out Kobweb if you're looking for a mature, feature-rich solution for Kotlin web development.
+Summon draws inspiration from several excellent projects:
+
+- **[Kobweb](https://github.com/varabyte/kobweb)** - Modern full-stack web framework built on Compose HTML. Kobweb's elegant API design shaped Summon's philosophy.
+- **[Spring Petclinic WASM](https://github.com/sdeleuze/spring-petclinic)** (Sébastien Deleuze) - Pioneered SSR + WASM hydration patterns, proving WASM maintains SEO compatibility.
+- **[Kilua](https://github.com/rjaros/kilua)** (Robert Jaros) - First production-ready Kotlin/WASM framework with comprehensive SSR capabilities.
+- **[kotlinx-browser](https://github.com/Kotlin/kotlinx-browser)** & **[kotlinx.html](https://github.com/Kotlin/kotlinx.html)** - Official Kotlin libraries providing WASM browser APIs and type-safe HTML generation.
+
+Summon stands on the shoulders of these giants and the broader Kotlin/WASM community.
 
 ## Documentation
 
@@ -217,14 +235,14 @@ The Summon CLI helps you quickly scaffold new projects and generate components.
 Download the latest JAR from [GitHub Releases](https://github.com/codeyousef/summon/releases):
 
 ```bash
-# Download summon-cli-0.4.0.5.jar
+# Download summon-cli-0.4.0.6.jar
 
 # Run commands directly
-java -jar summon-cli-0.4.0.5.jar init my-app
-java -jar summon-cli-0.4.0.5.jar --help
+java -jar summon-cli-0.4.0.6.jar init my-app
+java -jar summon-cli-0.4.0.6.jar --help
 
 # OR install globally (adds 'summon' command)
-java -jar summon-cli-0.4.0.5.jar install
+java -jar summon-cli-0.4.0.6.jar install
 # Then restart terminal and use:
 summon init my-app
 ```
@@ -235,7 +253,7 @@ summon init my-app
 git clone https://github.com/codeyousef/summon.git
 cd summon
 ./gradlew :summon-cli:shadowJar
-java -jar summon-cli/build/libs/summon-cli-0.4.0.5.jar install
+java -jar summon-cli/build/libs/summon-cli-0.4.0.6.jar install
 ```
 
 #### Quick Start
@@ -264,16 +282,16 @@ repositories {
 
 dependencies {
     // For JVM projects (Ktor, Spring Boot, Quarkus)
-    implementation("io.github.codeyousef:summon-jvm:0.4.0.4")
+    implementation("io.github.codeyousef:summon-jvm:0.4.0.6")
 
     // For JavaScript/Browser projects
-    implementation("io.github.codeyousef:summon-js:0.4.0.4")
+    implementation("io.github.codeyousef:summon-js:0.4.0.6")
 
     // For WebAssembly projects
-    implementation("io.github.codeyousef:summon-wasm-js:0.4.0.4")
+    implementation("io.github.codeyousef:summon-wasm-js:0.4.0.6")
 
     // For Kotlin Multiplatform projects (includes all targets)
-    implementation("io.github.codeyousef:summon:0.4.0.4")
+    implementation("io.github.codeyousef:summon:0.4.0.6")
 }
 ```
 
@@ -346,7 +364,7 @@ Create a new WASM project using the Summon CLI:
 
 ```bash
 # Install Summon CLI (download JAR from releases first)
-java -jar summon-cli-0.4.0.5.jar install
+java -jar summon-cli-0.4.0.6.jar install
 
 # Create a new WASM project
 summon init my-wasm-app --template=wasm
@@ -429,7 +447,7 @@ kotlin {
 }
 
 dependencies {
-    implementation("io.github.codeyousef:summon-wasm-js:0.4.0.4")
+    implementation("io.github.codeyousef:summon-wasm-js:0.4.0.6")
 }
 ```
 
@@ -619,83 +637,6 @@ SSR works seamlessly with popular JVM frameworks:
 See our [integration guides](docs/integration-guides.md) for detailed framework-specific examples.
 
 For maintainers: Publishing instructions are available at docs/private/publishing.md.
-
-## WASM Implementation Inspiration
-
-Summon's WebAssembly implementation was inspired by and built upon the excellent work of several pioneering projects in
-the Kotlin/WASM ecosystem:
-
-### 🌟 **Spring Petclinic** - [sdeleuze/spring-petclinic](https://github.com/sdeleuze/spring-petclinic)
-
-*Trailblazing Kotlin/WASM with Server-Side Rendering*
-
-The Spring Petclinic project by Sébastien Deleuze was groundbreaking in demonstrating that Kotlin/WASM could work
-seamlessly with server-side rendering, maintaining SEO compatibility while delivering native-like performance. This
-project proved that WASM doesn't break SEO - a critical insight that shaped Summon's architecture.
-
-**Key inspirations:**
-
-- SSR + WASM hydration patterns
-- Browser compatibility strategies
-- Performance optimization techniques
-- SEO preservation methods
-
-### 🚀 **Kilua Framework** - [rjaros/kilua](https://github.com/rjaros/kilua)
-
-*First Production-Ready Kotlin/WASM Framework with True SSR*
-
-Kilua by Robert Jaros stands as the first comprehensive Kotlin/WASM framework to achieve true server-side rendering
-capabilities. Its innovative approach to component architecture and state management provided crucial insights for
-Summon's design.
-
-**Key inspirations:**
-
-- Component lifecycle management
-- State synchronization between server and client
-- Type-safe DOM manipulation
-- Progressive enhancement patterns
-
-### 🔧 **kotlinx-browser** - [Kotlin/kotlinx-browser](https://github.com/Kotlin/kotlinx-browser)
-
-*Foundation for Browser API Access*
-
-The official Kotlin browser API library provides the fundamental building blocks for WASM browser interaction. Summon
-builds upon this solid foundation to provide higher-level abstractions while maintaining full compatibility.
-
-**Key contributions:**
-
-- WASM-compatible DOM APIs
-- Event handling abstractions
-- Browser feature detection
-- Cross-platform browser compatibility
-
-### 🎯 **kotlinx.html** - [Kotlin/kotlinx.html](https://github.com/Kotlin/kotlinx.html)
-
-*Type-Safe HTML Generation*
-
-The kotlinx.html library's approach to type-safe HTML generation inspired Summon's component model and server-side
-rendering capabilities. Its elegant DSL design influenced Summon's declarative syntax.
-
-**Key inspirations:**
-
-- Type-safe HTML DSL patterns
-- Component composition models
-- Server-side HTML generation
-- Build-time safety guarantees
-
-### 🙏 **Acknowledgments**
-
-Summon stands on the shoulders of these giants. Without their pioneering work, research, and open-source contributions,
-Summon's WASM implementation would not have been possible. We are deeply grateful to:
-
-- **Sébastien Deleuze** for proving WASM + SSR viability
-- **Robert Jaros** for creating the first production-ready framework
-- **The Kotlin Team** for providing robust browser APIs and HTML DSL
-- **The broader Kotlin/WASM community** for pushing the boundaries of what's possible
-
-### 🔗 **Related Resources**
-
-- [Kotlin/WASM Documentation](https://kotlinlang.org/docs/wasm-overview.html)
 - [WebAssembly Specification](https://webassembly.github.io/spec/)
 - [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/)
 
