@@ -59,7 +59,7 @@ class ProjectGenerator(private val template: ProjectTemplate) {
             "PACKAGE_PATH" to packagePath,
             "APP_TITLE" to TemplateHelpers.transformName(config.projectName, "pascalcase"),
             "APP_CLASS" to TemplateHelpers.transformName(config.projectName, "pascalcase") + "App",
-            "SUMMON_VERSION" to "0.4.0.0",
+            "SUMMON_VERSION" to readVersionFromProperties(),
             "KOTLIN_VERSION" to "2.2.0",
             "INCLUDE_EXAMPLES" to if (config.includeExamples && !config.minimal) "true" else "false",
             "INCLUDE_AUTH" to if (config.includeAuth) "true" else "false",
@@ -579,21 +579,21 @@ fun App() {
     val counter = remember { mutableStateOf(0) }
     
     Column(
-        modifier = Modifier.padding(16)
+        modifier = Modifier().padding("16px")
     ) {
         BasicText(
             text = "Welcome to ${variables["APP_TITLE"]}!",
-            modifier = Modifier.padding(bottom = 16)
+            modifier = Modifier().padding(bottom = "16px", left = "0px", right = "0px", top = "0px")
         )
         
         BasicText(
             text = "Count: ${'$'}{counter.value}",
-            modifier = Modifier.padding(bottom = 16)
+            modifier = Modifier().padding(bottom = "16px", left = "0px", right = "0px", top = "0px")
         )
         
         Button(
-            text = "Click me!",
-            onClick = { counter.value++ }
+            onClick = { counter.value++ },
+            label = "Click me!"
         )
     }
 }
@@ -704,7 +704,7 @@ import code.yousef.summon.modifier.Modifier
 @Composable
 fun ExampleComponent(
     text: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier()
 ) {
     BasicText(
         text = text,
@@ -1004,22 +1004,22 @@ import code.yousef.summon.modifier.padding
 
 @Composable
 fun ButtonExamples() {
-    Column(modifier = Modifier.padding(16)) {
+    Column(modifier = Modifier().padding("16px")) {
         BasicText(
             text = "Button Examples",
-            modifier = Modifier.padding(bottom = 16)
+            modifier = Modifier().padding(bottom = "16px", left = "0px", right = "0px", top = "0px")
         )
         
         Button(
-            text = "Primary Button",
             onClick = { println("Primary clicked") },
-            modifier = Modifier.padding(bottom = 8)
+            label = "Primary Button",
+            modifier = Modifier().padding(bottom = "8px", left = "0px", right = "0px", top = "0px")
         )
         
         Button(
-            text = "Secondary Button", 
             onClick = { println("Secondary clicked") },
-            modifier = Modifier.padding(bottom = 8)
+            label = "Secondary Button", 
+            modifier = Modifier().padding(bottom = "8px", left = "0px", right = "0px", top = "0px")
         )
     }
 }
@@ -1084,5 +1084,32 @@ fun ButtonExamples() {
         // In a real implementation, this would return built-in template directories
         // For now, we'll generate everything programmatically
         return File("/tmp/template-$type")
+    }
+
+    /**
+     * Read version from version.properties file
+     */
+    private fun readVersionFromProperties(): String {
+        return try {
+            val versionPropsFile = File("version.properties")
+            if (versionPropsFile.exists()) {
+                val props = java.util.Properties()
+                versionPropsFile.inputStream().use { props.load(it) }
+                props.getProperty("VERSION", "0.4.0.5")
+            } else {
+                // Try relative to project root
+                val rootVersionFile = File("../version.properties")
+                if (rootVersionFile.exists()) {
+                    val props = java.util.Properties()
+                    rootVersionFile.inputStream().use { props.load(it) }
+                    props.getProperty("VERSION", "0.4.0.5")
+                } else {
+                    "0.4.0.5" // Fallback to current version
+                }
+            }
+        } catch (e: Exception) {
+            println("⚠️  Could not read version from version.properties: ${e.message}")
+            "0.4.0.5" // Fallback
+        }
     }
 }
