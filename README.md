@@ -254,7 +254,7 @@ summon init my-app
 git clone https://github.com/codeyousef/summon.git
 cd summon
 ./gradlew :summon-cli:shadowJar
-java -jar summon-cli/build/libs/summon-cli-0.4.0.8.jar install
+java -jar summon-cli/build/libs/summon-cli-0.4.0.9.jar install
 ```
 
 #### Quick Start
@@ -365,7 +365,7 @@ Create a new WASM project using the Summon CLI:
 
 ```bash
 # Install Summon CLI (download JAR from releases first)
-java -jar summon-cli-0.4.0.8.jar install
+java -jar summon-cli-0.4.0.9.jar install
 
 # Create a new WASM project
 summon init my-wasm-app --template=wasm
