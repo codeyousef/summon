@@ -237,9 +237,7 @@ repositories {
 }
 
 kotlin {
-    jvm {
-        withJava()
-    }
+    jvm()
     js(IR) {
         browser()
         binaries.executable()
@@ -287,9 +285,7 @@ repositories {
 }
 
 kotlin {
-    jvm {
-        withJava()
-    }
+    jvm()
     js(IR) {
         browser()
         binaries.executable()
@@ -336,9 +332,7 @@ repositories {
 }
 
 kotlin {
-    jvm {
-        withJava()
-    }
+    jvm()
     js(IR) {
         browser()
         binaries.executable()
@@ -436,9 +430,7 @@ repositories {
 }
 
 kotlin {
-    jvm {
-        withJava()
-    }
+    jvm()
     js(IR) {
         browser {
             commonWebpackConfig {
@@ -537,8 +529,10 @@ package ${variables["PACKAGE_NAME"]}
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.core.BasicText
 import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.renderComposable
 import kotlinx.browser.document
 import kotlinx.browser.window
+import org.w3c.dom.HTMLElement
 
 @Composable
 fun App() {
@@ -547,11 +541,12 @@ fun App() {
 
 fun main() {
     window.onload = {
-        val rootElement = document.getElementById("root")
+        val rootElement = document.getElementById("root") as? HTMLElement
         if (rootElement != null) {
-            PlatformRenderer.render(rootElement) {
+            val renderer = PlatformRenderer()
+            renderComposable(renderer, {
                 App()
-            }
+            }, rootElement)
         }
     }
 }
@@ -571,8 +566,10 @@ import code.yousef.summon.modifier.padding
 import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.remember
 import code.yousef.summon.state.mutableStateOf
+import code.yousef.summon.renderComposable
 import kotlinx.browser.document
 import kotlinx.browser.window
+import org.w3c.dom.HTMLElement
 
 @Composable
 fun App() {
@@ -600,11 +597,12 @@ fun App() {
 
 fun main() {
     window.onload = {
-        val rootElement = document.getElementById("root")
+        val rootElement = document.getElementById("root") as? HTMLElement
         if (rootElement != null) {
-            PlatformRenderer.render(rootElement) {
+            val renderer = PlatformRenderer()
+            renderComposable(renderer, {
                 App()
-            }
+            }, rootElement)
         }
     }
 }
@@ -1095,21 +1093,21 @@ fun ButtonExamples() {
             if (versionPropsFile.exists()) {
                 val props = java.util.Properties()
                 versionPropsFile.inputStream().use { props.load(it) }
-                props.getProperty("VERSION", "0.4.0.6")
+                props.getProperty("VERSION", "0.4.0.7")
             } else {
                 // Try relative to project root
                 val rootVersionFile = File("../version.properties")
                 if (rootVersionFile.exists()) {
                     val props = java.util.Properties()
                     rootVersionFile.inputStream().use { props.load(it) }
-                    props.getProperty("VERSION", "0.4.0.6")
+                    props.getProperty("VERSION", "0.4.0.7")
                 } else {
-                    "0.4.0.6" // Fallback to current version
+                    "0.4.0.7" // Fallback to current version
                 }
             }
         } catch (e: Exception) {
             println("⚠️  Could not read version from version.properties: ${e.message}")
-            "0.4.0.6" // Fallback
+            "0.4.0.7" // Fallback
         }
     }
 }

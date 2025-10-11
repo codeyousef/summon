@@ -11,13 +11,13 @@ Command-line tool for scaffolding Summon projects and generating components.
 ### Run Without Installation
 
 ```bash
-java -jar summon-cli-0.4.0.6.jar <command>
+java -jar summon-cli-0.4.0.7.jar <command>
 ```
 
 ### Install Globally
 
 ```bash
-java -jar summon-cli-0.4.0.6.jar install
+java -jar summon-cli-0.4.0.7.jar install
 # Restart terminal, then use:
 summon <command>
 ```
@@ -61,7 +61,7 @@ summon install --force      # Reinstall
 ### JavaScript/Browser Project
 
 ```bash
-java -jar summon-cli-0.4.0.6.jar init my-web-app
+java -jar summon-cli-0.4.0.7.jar init my-web-app
 cd my-web-app
 ./gradlew jsBrowserDevelopmentRun
 ```
@@ -69,7 +69,7 @@ cd my-web-app
 ### Full-Stack Quarkus Project
 
 ```bash
-java -jar summon-cli-0.4.0.6.jar create quarkus-app --name my-fullstack
+java -jar summon-cli-0.4.0.7.jar create quarkus-app --name my-fullstack
 cd my-fullstack
 ./gradlew quarkusDev
 ```
@@ -77,7 +77,7 @@ cd my-fullstack
 ### WebAssembly Project
 
 ```bash
-java -jar summon-cli-0.4.0.6.jar init wasm-app --template=wasm
+java -jar summon-cli-0.4.0.7.jar init wasm-app --template=wasm
 cd wasm-app
 ./gradlew wasmJsBrowserDevelopmentRun
 ```
@@ -104,7 +104,7 @@ If you want to build a native executable for faster startup:
 ### Run Locally
 
 ```bash
-java -jar summon-cli/build/libs/summon-cli-0.4.0.6.jar --help
+java -jar summon-cli/build/libs/summon-cli-0.4.0.7.jar --help
 ```
 
 ### Run Tests
@@ -137,7 +137,7 @@ java -version
 On Windows, you may need to run as Administrator for global installation:
 ```bash
 # Right-click terminal → Run as Administrator
-java -jar summon-cli-0.4.0.6.jar install --global
+java -jar summon-cli-0.4.0.7.jar install --global
 ```
 
 ### Command Not Found After Install

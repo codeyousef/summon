@@ -42,14 +42,14 @@ class ProjectGeneratorTest {
         
         val content = buildFile.readText()
         
-        // Should use version from version.properties (0.4.0.6), not hardcoded 0.4.0.0
+        // Should use version from version.properties (0.4.0.7), not hardcoded 0.4.0.0
         assertFalse(
             content.contains("summon:0.4.0.0"),
             "Generated build file should not use hardcoded old version 0.4.0.0"
         )
         assertTrue(
-            content.contains("summon:0.4.0.6"),
-            "Generated build file should use current version 0.4.0.6 from version.properties"
+            content.contains("summon:0.4.0.7"),
+            "Generated build file should use current version 0.4.0.7 from version.properties"
         )
     }
 
@@ -214,10 +214,14 @@ class ProjectGeneratorTest {
         
         val content = mainFile.readText()
         
-        // Even minimal should use correct API
+        // Even minimal should use the current render API
         assertTrue(
-            content.contains("PlatformRenderer.render"),
-            "Should use PlatformRenderer.render API"
+            content.contains("val renderer = PlatformRenderer()"),
+            "Should instantiate a PlatformRenderer"
+        )
+        assertTrue(
+            content.contains("renderComposable(renderer"),
+            "Should use renderComposable helper API"
         )
     }
 
@@ -375,10 +379,14 @@ class ProjectGeneratorTest {
             "padding() should use string values with units"
         )
         
-        // 5. Verify PlatformRenderer.render usage
+        // 5. Verify renderComposable usage with instantiated renderer
         assertTrue(
-            content.contains("PlatformRenderer.render"),
-            "Should use PlatformRenderer.render API"
+            content.contains("val renderer = PlatformRenderer()"),
+            "Should instantiate a PlatformRenderer"
+        )
+        assertTrue(
+            content.contains("renderComposable(renderer"),
+            "Should use renderComposable helper API"
         )
         
         println("✅ Generated Main.kt syntax validation passed")
