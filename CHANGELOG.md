@@ -4,9 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [0.4.0.5] - 2025-10-11
 
-### 🛠️ **CLI Template Generation Fix + First Maven Central Release**
+### 🛠️ **CLI Template Generation Fix**
 
-This release fixes critical compilation errors in CLI-generated projects and marks the **first publication to Maven Central**.
+This release fixes critical compilation errors in CLI-generated projects.
 
 #### Fixed
 
@@ -38,9 +38,9 @@ This release fixes critical compilation errors in CLI-generated projects and mar
 
 #### Notes
 
-- 🎉 **First Maven Central Release**: This is the first version published to Maven Central
-- Users can now use `implementation("io.github.codeyousef:summon:0.4.0.5")` directly from Maven Central
+- Users can now use `implementation("io.github.codeyousef:summon:0.4.0.5")` from Maven Central
 - Generated projects now compile without errors out of the box
+- This release resolves the template generation issues reported in GitHub #14
 
 ## [0.4.0.4]
 
