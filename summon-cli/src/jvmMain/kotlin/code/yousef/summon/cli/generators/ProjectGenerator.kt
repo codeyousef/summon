@@ -130,6 +130,7 @@ class ProjectGenerator(private val template: ProjectTemplate) {
     private fun generateBasicProject(config: Config, variables: Map<String, String>) {
         generateBuildGradleKts(config.targetDirectory, variables, "multiplatform")
         generateSettingsGradleKts(config.targetDirectory, variables)
+        generateIndexHtml(config.targetDirectory, variables)
         generateMultiplatformStructure(config.targetDirectory, variables)
         generateGradleWrapper(config.targetDirectory)
     }
