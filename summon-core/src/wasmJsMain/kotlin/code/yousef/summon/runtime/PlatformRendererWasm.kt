@@ -1772,16 +1772,17 @@ actual open class PlatformRenderer actual constructor() {
                     wasmConsoleError("createOrReuseElement: Validation failed for cached element: ${e.message}")
                     // Remove the invalid element from cache
                     recompositionElements.remove(effectiveSummonId)
-                    wasmConsoleError("createOrReuseElement: Removed invalid element from cache, will create new one")
-                    // Don't continue with other cache checks - create fresh element immediately
-                    // Fall through to Priority 3: Create new element
+                    wasmConsoleLog("createOrReuseElement: Removed invalid element from cache, creating fresh element now")
+                    // IMMEDIATE FIX: Don't check other caches, create fresh element right away
+                    // This prevents the "bad cast" error by ensuring we always have a valid element
+                    return createFreshElement(tagName, effectiveSummonId)
                 }
             }
         } else {
             wasmConsoleLog("createOrReuseElement: No element found in recomposition cache for: $effectiveSummonId")
         }
 
-        // Priority 2: Check hydration cache if hydrating (only if recomposition cache didn't fail validation)
+        // Priority 2: Check hydration cache if hydrating
         if (isHydrating && existingElements.containsKey(effectiveSummonId)) {
             val existingElement = existingElements[effectiveSummonId]
             if (existingElement != null) {
@@ -1799,38 +1800,47 @@ actual open class PlatformRenderer actual constructor() {
                     // CRITICAL FIX: When validation fails, immediately create new element
                     wasmConsoleError("createOrReuseElement: Validation failed for hydration element: ${e.message}")
                     existingElements.remove(effectiveSummonId)
-                    // Don't continue - create fresh element immediately
-                    // Fall through to Priority 3: Create new element
+                    wasmConsoleLog("createOrReuseElement: Removed invalid hydration element, creating fresh element now")
+                    // IMMEDIATE FIX: Create fresh element right away
+                    return createFreshElement(tagName, effectiveSummonId)
                 }
             }
         }
 
-        // Priority 3: Create new element
+        // Priority 3: Create new element (no cached element found)
+        return createFreshElement(tagName, effectiveSummonId)
+    }
+
+    /**
+     * Helper method to create a fresh DOM element and cache it.
+     * Extracted to avoid code duplication and ensure consistent element creation.
+     */
+    private fun createFreshElement(tagName: String, effectiveSummonId: String): DOMElement {
         try {
-            wasmConsoleLog("createOrReuseElement: Creating new $tagName element")
+            wasmConsoleLog("createFreshElement: Creating new $tagName element with ID $effectiveSummonId")
             val newElement = DOMProvider.document.createElement(tagName)
 
             // Validate the newly created element
             val newElementType = newElement::class.simpleName ?: "Unknown"
-            wasmConsoleLog("createOrReuseElement: Created element type: $newElementType")
+            wasmConsoleLog("createFreshElement: Created element type: $newElementType")
 
             // Validate the newly created element by trying to get its native ID
             try {
                 DOMProvider.getNativeElementId(newElement)
-                wasmConsoleLog("createOrReuseElement: New element validation successful")
+                wasmConsoleLog("createFreshElement: New element validation successful")
             } catch (typeError: IllegalArgumentException) {
-                wasmConsoleError("createOrReuseElement: CRITICAL ERROR - DOMProvider.document.createElement returned wrong type: $newElementType")
-                wasmConsoleError("createOrReuseElement: Type validation failed: $typeError")
+                wasmConsoleError("createFreshElement: CRITICAL ERROR - DOMProvider.document.createElement returned wrong type: $newElementType")
+                wasmConsoleError("createFreshElement: Type validation failed: $typeError")
                 throw WasmDOMException("Element creation failed - wrong type returned: $newElementType")
             }
 
             // Cache the new element for future recompositions
             recompositionElements[effectiveSummonId] = newElement
-            wasmConsoleLog("createOrReuseElement: Created and cached new element: $effectiveSummonId")
+            wasmConsoleLog("createFreshElement: Created and cached new element: $effectiveSummonId")
 
             return newElement // Return the new element to be appended to DOM
         } catch (e: Exception) {
-            wasmConsoleError("createOrReuseElement: FAILED to create element: ${e.message}")
+            wasmConsoleError("createFreshElement: FAILED to create element: ${e.message}")
             throw e
         }
     }
