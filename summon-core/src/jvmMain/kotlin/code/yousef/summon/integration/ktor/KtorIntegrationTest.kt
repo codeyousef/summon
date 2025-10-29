@@ -3,6 +3,7 @@ package code.yousef.summon.integration.ktor
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.layout.Column
+import code.yousef.summon.integration.ktor.KtorRenderer.Companion.respondSummonHydrated
 import code.yousef.summon.runtime.Composable
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -30,6 +31,14 @@ fun Application.configureKtorIntegrationTest() {
                 KtorTestComponent()
             }
         }
+
+        get("/hydrated") {
+            call.respondSummonHydrated {
+                KtorTestComponent()
+            }
+        }
+
+        summonRouter(basePath = "/pages")
     }
 }
 

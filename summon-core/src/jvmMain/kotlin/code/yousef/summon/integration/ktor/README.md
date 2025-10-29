@@ -72,6 +72,37 @@ routing {
 }
 ```
 
+### Hydrated SSR (one-liner)
+
+```kotlin
+routing {
+  get("/") {
+    call.respondSummonHydrated {
+      HomePage() // @Composable
+    }
+  }
+}
+```
+
+### File-based router mounted on Ktor
+
+```kotlin
+routing {
+  summonRouter(basePath = "/")
+}
+```
+
+This uses Summon’s server router to resolve the current request path and renders with hydration by default.
+You can disable hydration or provide your own 404 handler if you need to integrate with existing error pages:
+
+```kotlin
+routing {
+  summonRouter(basePath = "/app", enableHydration = false) {
+    respond(HttpStatusCode.NotFound, "Custom 404")
+  }
+}
+```
+
 #### Method 3: Using the Streaming Support
 
 ```kotlin
