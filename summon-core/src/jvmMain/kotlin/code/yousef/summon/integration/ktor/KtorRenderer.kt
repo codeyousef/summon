@@ -10,6 +10,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
+import kotlin.text.Charsets
 
 /**
  * Integration class for rendering Summon components in a Ktor application.
@@ -158,5 +159,19 @@ class KtorRenderer {
                 }
             }
         }
+
+        /**
+         * Hydrated SSR response: renders a Summon component with hydration data/scripts.
+         * Uses PlatformRenderer.renderComposableRootWithHydration to produce a full HTML document.
+         */
+        suspend fun ApplicationCall.respondSummonHydrated(
+            status: HttpStatusCode = HttpStatusCode.OK,
+            content: @Composable () -> Unit
+        ) {
+            val renderer = KtorRenderer()
+            setPlatformRenderer(renderer.renderer)
+            val html = renderer.renderer.renderComposableRootWithHydration(content)
+            respondText(html, ContentType.Text.Html.withCharset(Charsets.UTF_8), status)
+        }
     }
-} 
+}
