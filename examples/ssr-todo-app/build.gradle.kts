@@ -1,3 +1,5 @@
+import java.util.*
+
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
@@ -9,9 +11,17 @@ repositories {
 }
 
 val ktorVersion = "2.3.12"
+val summonVersion: String = Properties().apply {
+    rootProject.file("version.properties").inputStream().use { load(it) }
+}.getProperty("VERSION")
+val usePublishedSummon = project.hasProperty("usePublishedSummon")
 
 dependencies {
-    implementation(project(":summon-core"))
+    if (usePublishedSummon) {
+        implementation("io.github.codeyousef:summon-jvm:$summonVersion")
+    } else {
+        implementation(project(":summon-core"))
+    }
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-server-html-builder:$ktorVersion")

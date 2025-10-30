@@ -1,3 +1,5 @@
+import java.util.*
+
 plugins {
     kotlin("multiplatform")
 }
@@ -5,6 +7,11 @@ plugins {
 repositories {
     mavenCentral()
 }
+
+val summonVersion: String = Properties().apply {
+    rootProject.file("version.properties").inputStream().use { load(it) }
+}.getProperty("VERSION")
+val usePublishedSummon = project.hasProperty("usePublishedSummon")
 
 kotlin {
     @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
@@ -20,7 +27,11 @@ kotlin {
     sourceSets {
         val wasmJsMain by getting {
             dependencies {
-                implementation("io.github.codeyousef:summon-core:0.4.0.9")
+                if (usePublishedSummon) {
+                    implementation("io.github.codeyousef:summon-core:$summonVersion")
+                } else {
+                    implementation(project(":summon-core"))
+                }
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
             }
         }
