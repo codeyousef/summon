@@ -1,11 +1,14 @@
 package code.yousef.summon.integration.springboot
 
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.CallbackRegistry
 import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.runtime.clearPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers
 
 /**
  * Integration class for rendering Summon components in a Spring WebFlux application.
@@ -16,7 +19,6 @@ import reactor.core.publisher.Mono
  * - io.projectreactor.kotlin:reactor-kotlin-extensions
  */
 class WebFluxRenderer {
-    private val renderer = PlatformRenderer()
 
     /**
      * Renders a Summon component as HTML and returns it as a Mono<String>.
@@ -27,30 +29,36 @@ class WebFluxRenderer {
      */
     fun renderHtml(content: @Composable () -> Unit): Mono<String> {
         return Mono.fromCallable {
-            createHTML().html {
-                head {
-                    meta(charset = "UTF-8")
-                    meta(name = "viewport", content = "width=device-width, initial-scale=1.0")
-                    title("Summon WebFlux Application")
-                    style {
-                        unsafe {
-                            +"""
-                        body { 
-                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                            margin: 0;
-                            padding: 20px;
-                            color: #333;
-                        }
-                        """
+            val renderer = PlatformRenderer()
+            setPlatformRenderer(renderer)
+            try {
+                createHTML().html {
+                    head {
+                        meta(charset = "UTF-8")
+                        meta(name = "viewport", content = "width=device-width, initial-scale=1.0")
+                        title("Summon WebFlux Application")
+                        style {
+                            unsafe {
+                                +"""
+                            body { 
+                                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                                margin: 0;
+                                padding: 20px;
+                                color: #333;
+                            }
+                            """
+                            }
                         }
                     }
+                    body {
+                        content()
+                    }
                 }
-                body {
-                    setPlatformRenderer(renderer)
-                    content()
-                }
+            } finally {
+                CallbackRegistry.clear()
+                clearPlatformRenderer()
             }
-        }
+        }.subscribeOn(Schedulers.boundedElastic())
     }
 
     /**
@@ -62,17 +70,38 @@ class WebFluxRenderer {
      */
     fun renderStream(content: @Composable () -> Unit): Mono<String> {
         return Mono.fromCallable {
-            createHTML().html {
-                head {
-                    meta(charset = "UTF-8")
-                    meta(name = "viewport", content = "width=device-width, initial-scale=1.0")
-                    title("Summon WebFlux Stream")
+            val renderer = PlatformRenderer()
+            setPlatformRenderer(renderer)
+            try {
+                createHTML().html {
+                    head {
+                        meta(charset = "UTF-8")
+                        meta(name = "viewport", content = "width=device-width, initial-scale=1.0")
+                        title("Summon WebFlux Stream")
+                    }
+                    body {
+                        content()
+                    }
                 }
-                body {
-                    setPlatformRenderer(renderer)
-                    content()
-                }
+            } finally {
+                CallbackRegistry.clear()
+                clearPlatformRenderer()
             }
-        }
+        }.subscribeOn(Schedulers.boundedElastic())
     }
-} 
+
+    /**
+     * Renders a Summon component with hydration metadata so WebFlux clients can hydrate on load.
+     */
+    fun renderHydrated(content: @Composable () -> Unit): Mono<String> {
+        return Mono.fromCallable {
+            val renderer = PlatformRenderer()
+            setPlatformRenderer(renderer)
+            try {
+                renderer.renderComposableRootWithHydration(content)
+            } finally {
+                clearPlatformRenderer()
+            }
+        }.subscribeOn(Schedulers.boundedElastic())
+    }
+}

@@ -60,7 +60,7 @@ class ProjectGenerator(private val template: ProjectTemplate) {
             "APP_TITLE" to TemplateHelpers.transformName(config.projectName, "pascalcase"),
             "APP_CLASS" to TemplateHelpers.transformName(config.projectName, "pascalcase") + "App",
             "SUMMON_VERSION" to readVersionFromProperties(),
-            "KOTLIN_VERSION" to "2.2.20",
+            "KOTLIN_VERSION" to "2.2.21",
             "INCLUDE_EXAMPLES" to if (config.includeExamples && !config.minimal) "true" else "false",
             "INCLUDE_AUTH" to if (config.includeAuth) "true" else "false",
             "INCLUDE_DOCKER" to if (config.includeDocker) "true" else "false",
@@ -210,9 +210,9 @@ kotlin {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-js:${variables["KOTLIN_VERSION"]}")
                 implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-html:0.12.0")
-                implementation(npm("core-js", "3.31.0"))
+                implementation(npm("core-js", "3.46.0"))
             }
         }
         val jsTest by getting {
@@ -234,7 +234,7 @@ tasks.named<org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack>("jsBro
 plugins {
     kotlin("multiplatform") version "${variables["KOTLIN_VERSION"]}"
     kotlin("plugin.serialization") version "${variables["KOTLIN_VERSION"]}"
-    id("io.quarkus") version "3.23.0"
+    id("io.quarkus") version "3.15.7"
 }
 
 repositories {
@@ -257,15 +257,15 @@ kotlin {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-common:${variables["KOTLIN_VERSION"]}")
                 implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
             }
         }
         val jvmMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib:${variables["KOTLIN_VERSION"]}")
                 implementation("io.quarkus:quarkus-kotlin")
-                implementation("io.quarkus:quarkus-resteasy-reactive")
-                implementation("io.quarkus:quarkus-resteasy-reactive-jackson")
+                implementation("io.quarkus:quarkus-rest")
+                implementation("io.quarkus:quarkus-rest-jackson")
                 implementation("io.quarkus:quarkus-qute")
             }
         }
@@ -273,7 +273,7 @@ kotlin {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-js:${variables["KOTLIN_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-html:0.12.0")
-                implementation(npm("core-js", "3.31.0"))
+                implementation(npm("core-js", "3.46.0"))
             }
         }
     }
@@ -287,8 +287,8 @@ plugins {
     kotlin("multiplatform") version "${variables["KOTLIN_VERSION"]}"
     kotlin("plugin.serialization") version "${variables["KOTLIN_VERSION"]}"
     kotlin("plugin.spring") version "${variables["KOTLIN_VERSION"]}"
-    id("org.springframework.boot") version "3.5.0"
-    id("io.spring.dependency-management") version "1.1.4"
+    id("org.springframework.boot") version "3.5.7"
+    id("io.spring.dependency-management") version "1.1.7"
 }
 
 repositories {
@@ -311,7 +311,7 @@ kotlin {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-common:${variables["KOTLIN_VERSION"]}")
                 implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
             }
         }
         val jvmMain by getting {
@@ -328,7 +328,7 @@ kotlin {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-js:${variables["KOTLIN_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-html:0.12.0")
-                implementation(npm("core-js", "3.31.0"))
+                implementation(npm("core-js", "3.46.0"))
             }
         }
     }
@@ -364,24 +364,24 @@ kotlin {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-common:${variables["KOTLIN_VERSION"]}")
                 implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
             }
         }
         val jvmMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib:${variables["KOTLIN_VERSION"]}")
-                implementation("io.ktor:ktor-server-core:2.3.7")
-                implementation("io.ktor:ktor-server-netty:2.3.7")
-                implementation("io.ktor:ktor-server-html-builder:2.3.7")
-                implementation("io.ktor:ktor-server-content-negotiation:2.3.7")
-                implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
+                implementation("io.ktor:ktor-server-core:3.3.1")
+                implementation("io.ktor:ktor-server-netty:3.3.1")
+                implementation("io.ktor:ktor-server-html-builder:3.3.1")
+                implementation("io.ktor:ktor-server-content-negotiation:3.3.1")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:3.3.1")
             }
         }
         val jsMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-js:${variables["KOTLIN_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-html:0.12.0")
-                implementation(npm("core-js", "3.31.0"))
+                implementation(npm("core-js", "3.46.0"))
             }
         }
     }
@@ -421,7 +421,7 @@ kotlin {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-common:${variables["KOTLIN_VERSION"]}")
                 api("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
             }
         }
         val commonTest by getting {
@@ -488,7 +488,7 @@ kotlin {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-common:${variables["KOTLIN_VERSION"]}")
                 implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
             }
         }
         val commonTest by getting {
@@ -506,7 +506,7 @@ kotlin {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-js:${variables["KOTLIN_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-html:0.12.0")
-                implementation(npm("core-js", "3.31.0"))
+                implementation(npm("core-js", "3.46.0"))
             }
         }
         val jsTest by getting

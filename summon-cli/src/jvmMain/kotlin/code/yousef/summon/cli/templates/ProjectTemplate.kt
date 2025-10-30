@@ -46,7 +46,7 @@ data class ProjectTemplate(
             dependencies = TemplateDependencies(
                 kotlin = listOf("kotlin-stdlib-js"),
                 summon = listOf("io.github.codeyousef:summon:0.4.0.9"),
-                npm = listOf("core-js@3.31.0")
+                npm = listOf("core-js@3.46.0")
             ),
             postSetupInstructions = listOf(
                 "Run './gradlew jsBrowserDevelopmentRun' to start development server",
@@ -64,12 +64,12 @@ data class ProjectTemplate(
                 "PROJECT_NAME" to TemplateVariable("Project name", "string", "summon-quarkus-app"),
                 "PACKAGE_NAME" to TemplateVariable("Package name", "string", "com.example.app"),
                 "APP_TITLE" to TemplateVariable("Application title", "string", "My Quarkus App"),
-                "QUARKUS_VERSION" to TemplateVariable("Quarkus version", "string", "3.23.0")
+                "QUARKUS_VERSION" to TemplateVariable("Quarkus version", "string", "3.15.7")
             ),
             dependencies = TemplateDependencies(
                 kotlin = listOf("kotlin-stdlib-jdk8", "kotlin-stdlib-js"),
                 summon = listOf("io.github.codeyousef:summon:0.4.0.9"),
-                quarkus = listOf("quarkus-core", "quarkus-qute", "quarkus-kotlin", "quarkus-resteasy-reactive")
+                quarkus = listOf("quarkus-core", "quarkus-qute", "quarkus-kotlin", "quarkus-rest")
             ),
             postSetupInstructions = listOf(
                 "Run './gradlew quarkusDev' to start in development mode",
@@ -88,7 +88,7 @@ data class ProjectTemplate(
                 "PROJECT_NAME" to TemplateVariable("Project name", "string", "summon-spring-app"),
                 "PACKAGE_NAME" to TemplateVariable("Package name", "string", "com.example.app"),
                 "APP_TITLE" to TemplateVariable("Application title", "string", "My Spring App"),
-                "SPRING_BOOT_VERSION" to TemplateVariable("Spring Boot version", "string", "3.5.0")
+                "SPRING_BOOT_VERSION" to TemplateVariable("Spring Boot version", "string", "3.5.7")
             ),
             dependencies = TemplateDependencies(
                 kotlin = listOf("kotlin-stdlib-jdk8", "kotlin-stdlib-js"),
@@ -116,7 +116,7 @@ data class ProjectTemplate(
                 "PROJECT_NAME" to TemplateVariable("Project name", "string", "summon-ktor-app"),
                 "PACKAGE_NAME" to TemplateVariable("Package name", "string", "com.example.app"),
                 "APP_TITLE" to TemplateVariable("Application title", "string", "My Ktor App"),
-                "KTOR_VERSION" to TemplateVariable("Ktor version", "string", "2.3.7")
+                "KTOR_VERSION" to TemplateVariable("Ktor version", "string", "3.3.1")
             ),
             dependencies = TemplateDependencies(
                 kotlin = listOf("kotlin-stdlib-jdk8", "kotlin-stdlib-js"),

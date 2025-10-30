@@ -147,22 +147,24 @@ fun RouterComponent(
     // Store the previous Router from CompositionLocal
     val previousRouter = localRouter.current
 
-    try {
-        // Provide the new Router via CompositionLocal
-        // This makes the router accessible to all child composables
-        // through the LocalRouter property
-        localRouter.provides(router)
+    RouterContext.withRouter(router) {
+        try {
+            // Provide the new Router via CompositionLocal
+            // This makes the router accessible to all child composables
+            // through the LocalRouter property
+            localRouter.provides(router)
 
-        // Delegate the actual content rendering to the 
-        // platform-specific Router implementation
-        router.create(initialPath)
+            // Delegate the actual content rendering to the 
+            // platform-specific Router implementation
+            router.create(initialPath)
 
-        // Note: Platform-specific implementations may use LaunchedEffect
-        // to handle browser history changes (for JS) or server-side
-        // state changes (for JVM).
-    } finally {
-        // Restore the previous Router when this composable leaves the composition
-        localRouter.provides(previousRouter)
+            // Note: Platform-specific implementations may use LaunchedEffect
+            // to handle browser history changes (for JS) or server-side
+            // state changes (for JVM).
+        } finally {
+            // Restore the previous Router when this composable leaves the composition
+            localRouter.provides(previousRouter)
+        }
     }
 }
 

@@ -1,281 +1,148 @@
 # Summon Framework Integrations
 
-This directory contains integration packages that help you use Summon with various backend frameworks.
+This directory contains integration packages that help you embed Summon pages in popular JVM backends.
 
 ## Available Integrations
 
 ### Quarkus Integration
 
-The `quarkus` package provides utilities for integrating Summon UI components with Quarkus applications.
+Key helpers:
 
-#### Setup
+- `RoutingContext.respondSummonHydrated` for one-line hydrated SSR responses
+- `Router.summonRouter` to mount Summon's file-based router within Vert.x/Quarkus
+- Qute and HTMX extensions in `code.yousef.summon.integrations.quarkus`
 
-1. Add Quarkus dependencies to your project:
+Setup example:
 
 ```kotlin
-// In build.gradle.kts
 dependencies {
-    implementation("io.quarkus:quarkus-core:3.7.1")
-    implementation("io.quarkus:quarkus-vertx-web:3.7.1")
-    implementation("io.quarkus:quarkus-kotlin:3.7.1")
+    implementation("io.github.codeyousef:summon:$summonVersion")
+    implementation("io.github.codeyousef:summon-quarkus:$summonVersion")
+
+    implementation("io.quarkus:quarkus-rest")
+    implementation("io.quarkus:quarkus-vertx-web")
+    implementation("io.quarkus:quarkus-kotlin")
 }
 ```
 
-#### Basic Usage
+Hydrated response helper:
 
 ```kotlin
-import code.yousef.summon.components.Text
-import code.yousef.summon.integration.quarkus.QuarkusRenderer
-import code.yousef.summon.integration.quarkus.QuarkusRenderer.Companion.summonRenderer
-import io.quarkus.vertx.web.Route
-import io.vertx.ext.web.RoutingContext
-
-class ExampleRoutes {
-    @Route(path = "/hello")
-    fun helloWorld(context: RoutingContext) {
-        context.summonRenderer("Hello World").render {
-            Text("Hello from Summon!")
-        }
+@Route(path = "/hydrated")
+fun hydrated(context: RoutingContext) {
+    context.respondSummonHydrated {
+        HomePage()
     }
 }
 ```
 
-#### Qute Template Integration
-
-1. Add Qute dependency:
+Mount the file-based router when the application starts:
 
 ```kotlin
-implementation("io.quarkus:quarkus-qute:3.7.1")
-```
+import jakarta.annotation.PostConstruct
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.inject.Inject
+import io.vertx.ext.web.Router
 
-2. Register components:
+@ApplicationScoped
+class SummonRoutes {
 
-```kotlin
-import code.yousef.summon.components.Text
-import code.yousef.summon.integration.quarkus.SummonQuteExtensions
+    @Inject
+    lateinit var router: Router
 
-fun registerComponents() {
-    SummonQuteExtensions.registerComponent("Greeting") { props ->
-        {
-            val name = props["name"] as? String ?: "World"
-            Text("Hello, $name!")
-        }
+    @PostConstruct
+    fun install() {
+        router.summonRouter(basePath = "/pages")
     }
 }
 ```
 
-3. Use in Qute templates:
+Refer to `integration/quarkus/README.md` for Qute usage, HTMX helpers, and advanced configuration.
 
-```html
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Summon with Qute</title>
-</head>
-<body>
-    <h1>Welcome</h1>
-    <div>
-        {renderSummon('Greeting', {'name': 'Quarkus User'})}
-    </div>
-</body>
-</html>
-```
+### Ktor Integration
 
-## Ktor Integration
+Key helpers:
 
-The Ktor integration provides support for rendering Summon components in a Ktor application.
+- `ApplicationCall.respondSummonHydrated` for hydrated SSR responses
+- `Routing.summonRouter` to expose Summon's file-based router
+- `KtorRenderer` utilities for HTML or streaming responses
 
-### Setup
-
-Add the following dependencies to your `build.gradle.kts`:
+Dependencies:
 
 ```kotlin
 dependencies {
-    implementation("io.ktor:ktor-server-core:2.x.x")
-    implementation("io.ktor:ktor-server-netty:2.x.x")
-    // Or another Ktor server engine of your choice
+    implementation("io.ktor:ktor-server-core:3.3.1")
+    implementation("io.ktor:ktor-server-netty:3.3.1")
+    implementation("io.github.codeyousef:summon:$summonVersion")
+    implementation("io.github.codeyousef:summon-ktor:$summonVersion")
 }
 ```
 
-### Basic Usage
+Usage:
 
 ```kotlin
-import code.yousef.summon.integration.ktor.KtorRenderer
-import io.ktor.server.application.*
-import io.ktor.server.routing.*
-
 fun Application.configureRouting() {
-    val renderer = KtorRenderer()
-    
     routing {
         get("/") {
-            renderer.renderHtml(call) {
-                // Your Summon components here
-            }
+            call.respondSummonHydrated { HomePage() }
         }
-        
-        get("/stream") {
-            renderer.renderStreaming(call) {
-                // Your Summon components here
-            }
-        }
+
+        summonRouter(basePath = "/pages")
     }
 }
 ```
 
-## Spring Boot Integration
+See `integration/ktor/README.md` for streaming, custom templates, and hybrid HTML examples.
 
-The Spring Boot integration provides support for rendering Summon components in a Spring Boot application.
+### Spring Boot Integration
 
-### Setup
+Key helpers:
 
-Add the following dependencies to your `build.gradle.kts`:
+- `SpringBootRenderer.renderHydrated` / `renderHydratedToResponse` for Spring MVC
+- `WebFluxRenderer.renderHydrated` for reactive handlers
+- `WebFluxSupport.summonRouter` to expose Summon's file-based router
+- Thymeleaf extensions and optional auto configuration
+
+Dependencies:
 
 ```kotlin
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-web:3.x.x")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
+
+    implementation("io.github.codeyousef:summon:$summonVersion")
+    implementation("io.github.codeyousef:summon-spring-boot:$summonVersion")
 }
 ```
 
-### Basic Usage
-
-#### Using with Spring MVC
+Spring MVC example:
 
 ```kotlin
-import code.yousef.summon.integration.springboot.SpringBootRenderer
-import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.GetMapping
-import jakarta.servlet.http.HttpServletResponse
-
 @Controller
 class MyController {
-    
-    @GetMapping("/summon")
-    fun renderSummon(response: HttpServletResponse) {
-        SpringBootRenderer.render(response) {
-            // Your Summon components here
+
+    private val renderer = SpringBootRenderer()
+
+    @GetMapping("/")
+    fun home(response: HttpServletResponse) {
+        renderer.renderHydratedToResponse(response) {
+            HomePage()
         }
     }
 }
 ```
 
-#### Using with WebFlux
-
-Add this dependency:
+WebFlux router bridge:
 
 ```kotlin
-dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-webflux:3.x.x")
+@Configuration
+class Routes {
+    @Bean
+    fun summonRoutes(): RouterFunction<ServerResponse> =
+        WebFluxSupport.summonRouter(basePath = "/pages")
 }
 ```
 
-Then use it in your WebFlux controllers:
-
-```kotlin
-import code.yousef.summon.integration.springboot.WebFluxSupport
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RestController
-import reactor.core.publisher.Mono
-
-@RestController
-class MyWebFluxController {
-    
-    @GetMapping("/webflux")
-    fun webflux(): Mono<String> {
-        return WebFluxSupport.renderToMono {
-            // Your Summon components here
-        }
-    }
-    
-    @GetMapping("/webflux-streaming")
-    fun webfluxStreaming() = WebFluxSupport.renderToFlux {
-        // Your Summon components here
-    }
-}
-```
-
-#### Thymeleaf Integration
-
-Add this dependency:
-
-```kotlin
-dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-thymeleaf:3.x.x")
-}
-```
-
-Then in your Thymeleaf template:
-
-```html
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Summon + Thymeleaf</title>
-</head>
-<body>
-    <div th:text="${#summon.render(@myComponent)}"></div>
-</body>
-</html>
-```
-
-And in your Spring Boot controller:
-
-```kotlin
-import org.springframework.stereotype.Controller
-import org.springframework.ui.Model
-import org.springframework.web.bind.annotation.GetMapping
-
-@Controller
-class MyThymeleafController {
-    
-    @GetMapping("/thymeleaf")
-    fun thymeleafPage(model: Model): String {
-        model.addAttribute("myComponent") {
-            // Your Summon components here
-        }
-        return "template-name"
-    }
-}
-```
-
-## Examples
-
-Check the example test files in each integration package for more complete examples:
-- `KtorIntegrationTest.kt`
-- `SpringBootIntegrationTest.kt` 
-- `WebFluxIntegrationTest.kt`
-
-## Future Integrations
-
-- Spring Boot
-- Ktor
-- Micronaut
-
-## Creating Custom Integrations
-
-If you need to integrate Summon with a different framework, follow these general steps:
-
-1. Create an integration class that initializes the `JvmPlatformRenderer`
-2. Set up the renderer using `setPlatformRenderer()`
-3. Create a method to render composable functions 
-4. Handle the output appropriately for your framework
-
-Example template:
-
-```kotlin
-class MyFrameworkRenderer(/* framework-specific params */) {
-    private val renderer = JvmPlatformRenderer()
-    
-    fun render(content: @Composable () -> Unit) {
-        setPlatformRenderer(renderer)
-        
-        val html = buildString {
-            appendHTML().html {
-                // HTML structure
-                content()
-            }
-        }
-        
-        // Framework-specific output handling
-    }
-} 
+For more detail, see `integration/springboot/README.md`.

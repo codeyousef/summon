@@ -1,7 +1,9 @@
 package code.yousef.summon.integration.ktor
 
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.CallbackRegistry
 import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.runtime.clearPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -22,7 +24,6 @@ import kotlinx.html.stream.createHTML
  * - io.ktor:ktor-server-html-builder
  */
 object KtorStreamingSupport {
-    private val renderer = PlatformRenderer()
 
     /**
      * Creates a Flow of HTML chunks for a Summon component.
@@ -37,33 +38,34 @@ object KtorStreamingSupport {
         chunkSize: Int = 1024,
         content: @Composable () -> Unit
     ): Flow<String> = flow {
-        // Set up the renderer
+        val renderer = PlatformRenderer()
         setPlatformRenderer(renderer)
 
-        // Start with the HTML header
-        val header = buildString {
-            append("<!DOCTYPE html>\n<html>\n<head>\n")
-            append("  <meta charset=\"UTF-8\">\n")
-            append("  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n")
-            append("  <title>$title</title>\n")
-            append("</head>\n<body>\n")
+        try {
+            val header = buildString {
+                append("<!DOCTYPE html>\n<html>\n<head>\n")
+                append("  <meta charset=\"UTF-8\">\n")
+                append("  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n")
+                append("  <title>$title</title>\n")
+                append("</head>\n<body>\n")
+            }
+
+            emit(header)
+
+            val htmlContent = createHTML().div {
+                content()
+            }
+
+            val chunks = htmlContent.chunked(chunkSize)
+            for (chunk in chunks) {
+                emit(chunk)
+            }
+
+            emit("\n</body>\n</html>")
+        } finally {
+            CallbackRegistry.clear()
+            clearPlatformRenderer()
         }
-
-        emit(header)
-
-        // Create the HTML for the content
-        val htmlContent = createHTML().div {
-            content()
-        }
-
-        // Split the content into chunks and emit them
-        val chunks = htmlContent.chunked(chunkSize)
-        for (chunk in chunks) {
-            emit(chunk)
-        }
-
-        // End with HTML footer
-        emit("\n</body>\n</html>")
     }
 
     /**
@@ -87,4 +89,4 @@ object KtorStreamingSupport {
             }
         }
     }
-} 
+}

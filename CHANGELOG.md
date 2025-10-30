@@ -2,6 +2,75 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0.11] - 2025-11-01
+
+### Added
+
+- **Diagnostics Stress Suite**: New `PlatformRendererThreadIsolationTest` and `HydrationConcurrencyTest` verify
+  per-thread renderer isolation and guard against callback leaks under concurrent load.
+
+### Changed
+
+- **Renderer Lifecycle**: Introduced `PlatformRendererStore` to back `setPlatformRenderer` with a thread-local store on
+  JVM and lightweight singletons on JS/WASM. `clearPlatformRenderer()` is now available to explicitly drop state after
+  each request.
+- **Callback Registry IDs**: Hydration callbacks now use compact `cb-<context>-<counter>-<random>` identifiers and
+  automatically evict executed callbacks to reduce memory retention.
+- **Documentation Refresh**: Ktor, Spring Boot, and Quarkus integration guides highlight the new per-request renderer
+  lifecycle so apps avoid cross-request state sharing.
+
+### Fixed
+
+- **Server Request Leakage**: Ktor, Spring Boot (MVC & WebFlux), and Quarkus helpers now dispose both the callback
+  registry and renderer state after every response, eliminating cross-request hydration bleed-through.
+- **Example Parity**: The SSR todo application provisions a fresh renderer per request, preventing renderer reuse across
+  Ktor worker threads.
+- **Baseline Clean-ups**: Common `renderComposableRoot` clears the callback registry on exit, and tests reset the
+  renderer store to keep diagnostics deterministic.
+- **WASM DOM Harness**: Node-based WASM tests bootstrap a `happy-dom` environment and load Summon’s bridge script so
+  integration tests execute against a functional DOM instead of skipping.
+
+## [0.4.0.10] - 2025-10-30
+
+### Added
+
+- **Ktor Integration Enhancements**:
+    - `respondSummonHydrated` helper for one-line hydrated SSR responses within Ktor applications.
+    - `summonRouter` bridge to mount Summon’s server router with hydration toggles and pluggable not-found handlers.
+    - JVM end-to-end tests (`KtorIntegrationE2ETest`) covering hydrated responses, router navigation, and custom 404
+      flows.
+- **Quarkus Parity**:
+    - `QuarkusRouterBridge` with `Router.summonRouter` and default/not-found handling for file-based pages.
+    - `RoutingContext.respondSummonHydrated` helper plus Vert.x-powered E2E coverage (`QuarkusIntegrationE2ETest`).
+- **Spring Boot / WebFlux Parity**:
+    - `SpringBootRenderer.renderHydrated` and `renderHydratedToResponse` APIs for hydrated MVC responses.
+    - `WebFluxRenderer.renderHydrated` and `WebFluxSupport.summonRouter` bridge mirroring Ktor/Quarkus behaviour.
+    - `SpringBootRendererHydrationTest`, `WebFluxRendererHydrationTest`, and `SpringWebFluxRouterTest` to validate the
+      new helpers.
+
+### Changed
+
+- **Dependency Refresh**: Version catalog now targets Kotlin 2.2.21, Ktor 3.3.1, Quarkus 3.15.7, Spring Boot 3.5.7,
+  core-js 3.46.0, Clikt 5.0.3, and aligned transitive libraries.
+- **Template & Documentation Updates**: CLI generators, templates, quickstart docs, and example READMEs reference the
+  new toolchain (Kotlin 2.2.21, updated npm pins, refreshed Quarkus/Spring/Ktor coordinates).
+- **Tooling Alignment**: AtomicFU 0.29.0 and refreshed kotlinx ecosystem dependencies are sourced from the version
+  catalog to keep targets in sync.
+- **Documentation Refresh**: Ktor, Quarkus, and Spring Boot integration READMEs now describe hydrated helpers, router
+  bridges, and setup instructions.
+- **Integration Overview**: `integration/README.md` highlights the parity features across backends.
+
+### Fixed
+
+- **WASM Test Harness**: `WasmDOMIntegrationTest` now skips gracefully when the runtime lacks the JS DOM bridge,
+  restoring a clean WASM test run.
+- **Backend Hydration Safety**: Callback registry is now scoped per execution context and every backend integration (
+  Ktor, Spring Boot/WebFlux, Quarkus) instantiates/clears its renderer per request, eliminating cross-request hydration
+  leaks and data races.
+- **Reactive Streaming Stability**: WebFlux and Ktor streaming helpers avoid blocking event loops by using
+  coroutine-reactor bridges and CopyOnWrite listener collections, preventing `ConcurrentModificationException`s under
+  load.
+
 ## [0.4.0.9] - 2025-10-13
 
 ### 🛠️ **Comprehensive Summon CLI Overhaul**
@@ -1176,4 +1245,6 @@ This release maintains full backward compatibility. No changes are required for 
 - Basic layout modifiers
 - Styling modifiers
 - Component system 
-
+- **Server-Side Stability**: Added per-request renderer instantiation, callback cleanup, concurrency-safe listener
+  collections, and hover-style locking to eliminate shared-state races and memory leaks mapped out during the Oct 31
+  audit.

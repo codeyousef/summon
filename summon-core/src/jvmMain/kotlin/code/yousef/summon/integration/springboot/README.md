@@ -4,10 +4,10 @@ This module provides comprehensive integration between the Summon UI library and
 
 ## Features
 
-1. **SpringBootRenderer**: Simple renderer for Spring MVC responses
-2. **ThymeleafExtensions**: Integration with Thymeleaf templates
-3. **WebFluxSupport**: Integration with reactive Spring WebFlux
-4. **AutoConfiguration**: Automatic configuration for Spring Boot applications
+- **Hydrated SSR helpers** for Spring MVC via `SpringBootRenderer.renderHydrated`/`renderHydratedToResponse`
+- **Reactive support** with `WebFluxRenderer.renderHydrated` and streaming helpers
+- **File-based routing for WebFlux** through `WebFluxSupport.summonRouter`
+- **Template integration** for Thymeleaf plus optional auto configuration
 
 ## Getting Started
 
@@ -23,11 +23,15 @@ dependencies {
     // Optional: Thymeleaf for template integration
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     
+    // Optional: WebFlux for reactive endpoints
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
+    
     // Summon core
-    implementation("code.yousef:summon:0.1.0")
+    implementation("io.github.codeyousef:summon:0.4.0.9")
     
     // Summon Spring Boot integration
-    implementation("code.yousef:summon-spring-boot:0.1.0")
+    implementation("io.github.codeyousef:summon-spring-boot:0.4.0.9")
 }
 ```
 
@@ -52,17 +56,34 @@ fun GreetingComponent(name: String) {
 ```kotlin
 @Controller
 class HomeController {
-    
+
+    private val renderer = SpringBootRenderer()
+
     @GetMapping("/", produces = [MediaType.TEXT_HTML_VALUE])
     @ResponseBody
-    fun home(): ResponseEntity<String> {
-        val renderer = SpringBootRenderer()
-        return renderer.render(title = "My App") {
+    fun home(): ResponseEntity<String> =
+        renderer.renderHydrated {
             GreetingComponent("Spring Boot User")
         }
+}
+```
+
+Need a custom status or plain HTML without hydration? Use `render(...)` or `renderHydratedToResponse(...)` for
+servlet-style handlers:
+
+```kotlin
+@GetMapping("/legacy")
+fun legacy(response: HttpServletResponse) {
+    SpringBootRenderer().renderHydratedToResponse(response, HttpStatus.ACCEPTED) {
+        Text("Hydrated HTML with ACCEPTED status")
     }
 }
 ```
+
+> **Thread-safety tip:** Each renderer method should wrap rendering in a `try/finally` block that calls
+`CallbackRegistry.clear()` and `clearPlatformRenderer()` (already handled by the helpers in this module). When
+> constructing a renderer manually, always pair `setPlatformRenderer(renderer)` with `clearPlatformRenderer()` to avoid
+> sharing state across servlet threads.
 
 ### 4. Use with Thymeleaf Templates
 
@@ -113,6 +134,32 @@ class ReactiveController {
         }
     }
 }
+```
+
+### WebFlux file-based routing
+
+Mount Summon's file-based router into WebFlux using the new bridge:
+
+```kotlin
+@Configuration
+class Routes {
+    @Bean
+    fun summonRoutes(): RouterFunction<ServerResponse> =
+        WebFluxSupport.summonRouter(basePath = "/pages")
+}
+```
+
+Disable hydration or plug in a custom 404 handler when needed:
+
+```kotlin
+WebFluxSupport.summonRouter(
+    basePath = "/static",
+    enableHydration = false,
+    notFound = { request ->
+        ServerResponse.status(HttpStatus.NOT_FOUND)
+            .bodyValue("custom-not-found")
+    }
+)
 ```
 
 ## Example Application

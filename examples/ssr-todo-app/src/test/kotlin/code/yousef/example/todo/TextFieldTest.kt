@@ -3,6 +3,7 @@ package code.yousef.example.todo
 import code.yousef.summon.components.input.Form
 import code.yousef.summon.components.input.TextField
 import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.runtime.clearPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -15,14 +16,18 @@ class TextFieldTest {
         setPlatformRenderer(renderer)
 
         // Act - Render a text field inside a form
-        val html = renderer.renderComposableRoot {
-            Form(onSubmit = {}) {
-                TextField(
-                    value = "",
-                    onValueChange = {},
-                    placeholder = "Add new todo..."
-                )
+        val html = try {
+            renderer.renderComposableRoot {
+                Form(onSubmit = {}) {
+                    TextField(
+                        value = "",
+                        onValueChange = {},
+                        placeholder = "Add new todo..."
+                    )
+                }
             }
+        } finally {
+            clearPlatformRenderer()
         }
 
         // Assert - TextField should have name attribute for form data collection
@@ -53,12 +58,16 @@ class TextFieldTest {
         val testValue = "Test Todo Item"
 
         // Act
-        val html = renderer.renderComposableRoot {
-            TextField(
-                value = testValue,
-                onValueChange = {},
-                placeholder = "Enter todo"
-            )
+        val html = try {
+            renderer.renderComposableRoot {
+                TextField(
+                    value = testValue,
+                    onValueChange = {},
+                    placeholder = "Enter todo"
+                )
+            }
+        } finally {
+            clearPlatformRenderer()
         }
 
         // Assert - Basic text field rendering

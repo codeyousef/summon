@@ -19,17 +19,26 @@ private val routerRegistry = ConcurrentHashMap<String, Router>()
  * JVM implementation of RouterContext
  */
 actual object RouterContext {
-    /**
-     * The current router instance.
-     */
-    actual var current: Router? = null
-        internal set
+    private val threadLocalRouter = ThreadLocal<Router?>()
 
     /**
-     * Clears the current router instance.
+     * The current router instance, scoped to the executing thread.
+     */
+    actual var current: Router?
+        get() = threadLocalRouter.get()
+        internal set(value) {
+            if (value == null) {
+                threadLocalRouter.remove()
+            } else {
+                threadLocalRouter.set(value)
+            }
+        }
+
+    /**
+     * Clears the current router instance for this thread.
      */
     actual fun clear() {
-        current = null
+        threadLocalRouter.remove()
     }
 
     /**

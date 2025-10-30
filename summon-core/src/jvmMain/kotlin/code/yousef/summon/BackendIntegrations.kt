@@ -1,6 +1,7 @@
 package code.yousef.summon
 
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 
 // Listener type for lifecycle events
@@ -22,7 +23,7 @@ object BackendIntegrations {
     // Using the top-level LifecycleListener type alias
 
     // Store for lifecycle listeners
-    private val lifecycleListeners = ConcurrentHashMap<String, MutableList<LifecycleListener>>()
+    private val lifecycleListeners = ConcurrentHashMap<String, CopyOnWriteArrayList<LifecycleListener>>()
 
     // Initialization flag
     private val initialized = AtomicBoolean(false)
@@ -31,7 +32,7 @@ object BackendIntegrations {
      * Register a lifecycle listener with an optional ID
      */
     fun registerLifecycleListener(id: String = "anonymous-${System.currentTimeMillis()}", listener: LifecycleListener) {
-        lifecycleListeners.getOrPut(id) { mutableListOf() }.add(listener)
+        lifecycleListeners.computeIfAbsent(id) { CopyOnWriteArrayList() }.add(listener)
     }
 
     /**

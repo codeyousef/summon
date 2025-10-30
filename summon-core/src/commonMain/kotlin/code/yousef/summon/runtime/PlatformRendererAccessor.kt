@@ -2,47 +2,24 @@ package code.yousef.summon.runtime
 
 import code.yousef.summon.core.error.ComponentNotFoundException
 
-// Removed import for core.PlatformRenderer
-// import code.yousef.summon.core.PlatformRenderer
-
 /**
  * Utility function for accessing the current platform renderer.
  * This simplifies access to the PlatformRenderer by centralizing the access pattern.
  *
  * @throws ComponentNotFoundException if no renderer is set
  */
-private var renderer: PlatformRenderer? = null
-
-/**
- * Get the current platform renderer.
- * First tries to get it from CompositionLocal, then falls back to static renderer.
- * @throws ComponentNotFoundException if no renderer has been set.
- */
 fun getPlatformRenderer(): PlatformRenderer {
-    // Try to get renderer from CompositionLocal first if we're in a composition
-    return try {
-        // Use CompositionLocal if available (preferred approach within @Composable functions)
-        if (CompositionLocal.currentComposer != null) {
-            try {
-                LocalPlatformRenderer.current
-            } catch (e: IllegalStateException) {
-                // If LocalPlatformRenderer hasn't been provided, fall back to static renderer
-                renderer ?: throw ComponentNotFoundException(
-                    "PlatformRenderer"
-                )
-            }
-        } else {
-            // Fall back to static renderer when outside composition
-            renderer ?: throw ComponentNotFoundException(
-                "PlatformRenderer"
-            )
+    val composer = CompositionLocal.currentComposer
+    if (composer != null) {
+        try {
+            return LocalPlatformRenderer.current
+        } catch (_: IllegalStateException) {
+            // Fall through to global store fallback
         }
-    } catch (e: IllegalStateException) {
-        // If CompositionLocal access fails, fall back to static renderer
-        renderer ?: throw ComponentNotFoundException(
-            "PlatformRenderer"
-        )
     }
+
+    return PlatformRendererStore.get()
+        ?: throw ComponentNotFoundException("PlatformRenderer")
 }
 
 /**
@@ -52,7 +29,7 @@ fun getPlatformRenderer(): PlatformRenderer {
  * @param newRenderer The platform renderer to use (New PlatformRenderer type)
  */
 fun setPlatformRenderer(newRenderer: PlatformRenderer) {
-    renderer = newRenderer
+    PlatformRendererStore.set(newRenderer)
 
     // Update the CompositionLocal when possible
     try {
@@ -66,10 +43,10 @@ fun setPlatformRenderer(newRenderer: PlatformRenderer) {
     }
 }
 
-// Remove the old getRenderer() method as it's redundant/confusing
-/*
-@Deprecated("Use getPlatformRenderer() instead", ReplaceWith("getPlatformRenderer()"))
-fun getRenderer(): PlatformRenderer {
-    return getPlatformRenderer()
+/**
+ * Clears the renderer associated with the current execution context.
+ * Should be invoked after request/response rendering completes to avoid leaks.
+ */
+fun clearPlatformRenderer() {
+    PlatformRendererStore.clear()
 }
-*/ 

@@ -126,7 +126,7 @@ ServerSideRenderUtils.renderPageToString(
 ### Prerequisites
 
 - Java 17 or later
-- Kotlin 2.2.0-Beta1 or compatible version
+- Kotlin 2.2.21 or compatible version
 - Summon framework 0.3.2.2
 
 ### Local Development

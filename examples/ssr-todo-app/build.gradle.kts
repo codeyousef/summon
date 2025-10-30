@@ -11,7 +11,7 @@ repositories {
 val ktorVersion = "2.3.12"
 
 dependencies {
-    implementation("io.github.codeyousef:summon-jvm:0.4.0.9")
+    implementation(project(":summon-core"))
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-server-html-builder:$ktorVersion")

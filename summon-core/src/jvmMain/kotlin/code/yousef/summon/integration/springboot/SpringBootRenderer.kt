@@ -1,12 +1,19 @@
 package code.yousef.summon.integration.springboot
 
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.CallbackRegistry
 import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.runtime.clearPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import jakarta.servlet.http.HttpServletResponse
-import kotlinx.html.*
+import kotlinx.html.body
+import kotlinx.html.head
+import kotlinx.html.html
+import kotlinx.html.meta
 import kotlinx.html.stream.appendHTML
+import kotlinx.html.title
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 
 /**
@@ -18,7 +25,6 @@ import org.springframework.http.ResponseEntity
  * - org.springframework.boot:spring-boot-starter-thymeleaf (optional, for template integration)
  */
 class SpringBootRenderer {
-    private val renderer = PlatformRenderer()
 
     /**
      * Renders a Summon composable function to a Spring ResponseEntity.
@@ -33,28 +39,28 @@ class SpringBootRenderer {
         status: HttpStatus = HttpStatus.OK,
         content: @Composable () -> Unit
     ): ResponseEntity<String> {
-        // Set up the renderer
+        val renderer = PlatformRenderer()
         setPlatformRenderer(renderer)
-
-        // Create HTML output
-        val html = buildString {
-            appendHTML().html {
-                // Basic HTML structure
-                head {
-                    meta(charset = "UTF-8")
-                    meta(name = "viewport", content = "width=device-width, initial-scale=1.0")
-                    title(title)
-                }
-                body {
-                    // Render the content
-                    content()
+        val html = try {
+            buildString {
+                appendHTML().html {
+                    head {
+                        meta(charset = "UTF-8")
+                        meta(name = "viewport", content = "width=device-width, initial-scale=1.0")
+                        title(title)
+                    }
+                    body {
+                        content()
+                    }
                 }
             }
+        } finally {
+            CallbackRegistry.clear()
+            clearPlatformRenderer()
         }
 
-        // Return the response entity
         return ResponseEntity.status(status)
-            .header("Content-Type", "text/html; charset=UTF-8")
+            .contentType(MediaType.TEXT_HTML)
             .body(html)
     }
 
@@ -71,29 +77,33 @@ class SpringBootRenderer {
         title: String = "Summon App",
         content: @Composable () -> Unit
     ) {
-        // Set up the renderer
+        val renderer = PlatformRenderer()
         setPlatformRenderer(renderer)
 
-        // Create HTML output
-        val html = buildString {
-            appendHTML().html {
-                // Basic HTML structure
-                head {
-                    meta(charset = "UTF-8")
-                    meta(name = "viewport", content = "width=device-width, initial-scale=1.0")
-                    title(title)
-                }
-                body {
-                    // Render the content
-                    content()
+        val html = try {
+            buildString {
+                appendHTML().html {
+                    head {
+                        meta(charset = "UTF-8")
+                        meta(name = "viewport", content = "width=device-width, initial-scale=1.0")
+                        title(title)
+                    }
+                    body {
+                        content()
+                    }
                 }
             }
+        } finally {
+            CallbackRegistry.clear()
+            clearPlatformRenderer()
         }
 
         // Write the response
-        response.contentType = "text/html; charset=UTF-8"
-        response.writer.write(html)
-        response.writer.flush()
+        response.status = HttpStatus.OK.value()
+        response.contentType = MediaType.TEXT_HTML_VALUE
+        response.writer.use {
+            it.write(html)
+        }
     }
 
     /**
@@ -111,6 +121,45 @@ class SpringBootRenderer {
     }
 
     /**
+     * Renders a Summon composable with hydration metadata inside a ResponseEntity.
+     */
+    fun renderHydrated(
+        status: HttpStatus = HttpStatus.OK,
+        content: @Composable () -> Unit
+    ): ResponseEntity<String> {
+        val renderer = PlatformRenderer()
+        setPlatformRenderer(renderer)
+        val html = try {
+            renderer.renderComposableRootWithHydration(content)
+        } finally {
+            clearPlatformRenderer()
+        }
+        return ResponseEntity.status(status)
+            .contentType(MediaType.TEXT_HTML)
+            .body(html)
+    }
+
+    /**
+     * Writes a hydrated Summon response directly to the servlet response.
+     */
+    fun renderHydratedToResponse(
+        response: HttpServletResponse,
+        status: HttpStatus = HttpStatus.OK,
+        content: @Composable () -> Unit
+    ) {
+        val renderer = PlatformRenderer()
+        setPlatformRenderer(renderer)
+        val html = try {
+            renderer.renderComposableRootWithHydration(content)
+        } finally {
+            clearPlatformRenderer()
+        }
+        response.status = status.value()
+        response.contentType = MediaType.TEXT_HTML_VALUE
+        response.writer.use { it.write(html) }
+    }
+
+    /**
      * Renders a Summon composable function as a streaming response.
      * This is useful for large pages or server-sent events.
      *
@@ -122,30 +171,33 @@ class SpringBootRenderer {
         content: @Composable () -> Unit
     ) {
         // Set up the renderer
-        setPlatformRenderer(renderer)
-
         // Set response headers
         response.contentType = "text/html; charset=UTF-8"
 
-        // Write the HTML header
+        val renderer = PlatformRenderer()
+        setPlatformRenderer(renderer)
+
         val writer = response.writer
-        writer.write("<!DOCTYPE html><html><head>")
-        writer.write("<meta charset=\"UTF-8\">")
-        writer.write("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">")
-        writer.write("<title>Summon Streaming App</title></head><body>")
-        writer.flush()
+        try {
+            writer.write("<!DOCTYPE html><html><head>")
+            writer.write("<meta charset=\"UTF-8\">")
+            writer.write("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">")
+            writer.write("<title>Summon Streaming App</title></head><body>")
+            writer.flush()
 
-        // Create HTML content
-        val html = buildString {
-            appendHTML().apply {
-                content()
+            val html = buildString {
+                appendHTML().apply {
+                    content()
+                }
             }
-        }
 
-        // Stream the content
-        writer.write(html)
-        writer.write("</body></html>")
-        writer.flush()
+            writer.write(html)
+            writer.write("</body></html>")
+            writer.flush()
+        } finally {
+            CallbackRegistry.clear()
+            clearPlatformRenderer()
+        }
     }
 
     companion object {

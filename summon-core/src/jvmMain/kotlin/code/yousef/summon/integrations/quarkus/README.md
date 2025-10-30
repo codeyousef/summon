@@ -8,6 +8,8 @@ This module provides integration between Summon and Quarkus, making it easy to u
 - **Qute Template Integration**: Seamlessly integrates with Quarkus Qute templates
 - **Component Loading**: Ensures components load properly after navigation
 - **Layout Stability**: Prevents layout shifts when indicators appear
+- **Hydrated SSR helpers**: `RoutingContext.respondSummonHydrated` for one-liner interactive pages
+- **File-based routing**: `Router.summonRouter` bridges Summon's server router into Vert.x/Quarkus
 
 ## Getting Started
 
@@ -17,11 +19,11 @@ Add the following dependencies to your `build.gradle.kts` file:
 
 ```kotlin
 dependencies {
-    implementation("code.yousef:summon-core:$summonVersion")
-    implementation("code.yousef:summon-quarkus-integration:$summonVersion")
+    implementation("io.github.codeyousef:summon:$summonVersion")
+    implementation("io.github.codeyousef:summon-quarkus:$summonVersion")
 
     // Quarkus dependencies
-    implementation("io.quarkus:quarkus-resteasy-reactive")
+    implementation("io.quarkus:quarkus-rest")
     implementation("io.quarkus:quarkus-qute")
     // Add other Quarkus dependencies as needed
 }
@@ -90,6 +92,60 @@ class WebResource {
             content()
         }
     }
+}
+```
+
+### Hydrated SSR helpers
+
+Serve hydrated HTML directly from a `RoutingContext`:
+
+```kotlin
+@Route(path = "/hydrated")
+fun hydrated(context: RoutingContext) {
+    context.respondSummonHydrated {
+        Text("Hello from hydrated Summon + Quarkus")
+    }
+}
+```
+
+> **Thread-safety tip:** The helpers in this module create and dispose a `PlatformRenderer` for each Vert.x request. If
+> you render manually (e.g., inside custom handlers), wrap calls in `try/finally` and invoke `clearPlatformRenderer()`
+> after rendering so thread-local state never leaks between requests.
+
+### File-based routing
+
+Mount Summon's server router for file-based pages so Quarkus can serve the generated routes automatically:
+
+```kotlin
+import jakarta.annotation.PostConstruct
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.inject.Inject
+import io.vertx.ext.web.Router
+
+@ApplicationScoped
+class SummonRoutes {
+
+    @Inject
+    lateinit var router: Router
+
+    @PostConstruct
+    fun install() {
+        router.summonRouter(basePath = "/pages")
+    }
+}
+```
+
+Disable hydration or provide a custom 404 handler:
+
+```kotlin
+router.summonRouter(
+    basePath = "/static",
+    enableHydration = false
+) { ctx ->
+    ctx.response()
+        .setStatusCode(404)
+        .putHeader("Content-Type", "text/plain; charset=UTF-8")
+        .end("custom-not-found")
 }
 ```
 

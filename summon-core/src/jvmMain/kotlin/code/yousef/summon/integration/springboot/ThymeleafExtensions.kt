@@ -1,7 +1,9 @@
 package code.yousef.summon.integration.springboot
 
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.CallbackRegistry
 import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.runtime.clearPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import kotlinx.html.div
 import kotlinx.html.stream.appendHTML
@@ -46,8 +48,8 @@ class SummonExpressionObjectFactory : IExpressionObjectFactory {
  * Expression object that provides access to Summon component rendering
  */
 class SummonExpressionObject {
-    private val componentRegistry = mutableMapOf<String, (Map<String, Any>) -> @Composable () -> Unit>()
-    private val renderer = PlatformRenderer()
+    private val componentRegistry =
+        java.util.concurrent.ConcurrentHashMap<String, (Map<String, Any>) -> @Composable () -> Unit>()
 
     /**
      * Register a composable function with a name for use in Thymeleaf templates.
@@ -77,14 +79,18 @@ class SummonExpressionObject {
         val composable = factory(props)
 
         // Set up the renderer
+        val renderer = PlatformRenderer()
         setPlatformRenderer(renderer)
 
-        // Render the component to a string
-        return buildString {
-            appendHTML().div {
-                // Render the content
-                composable()
+        return try {
+            buildString {
+                appendHTML().div {
+                    composable()
+                }
             }
+        } finally {
+            CallbackRegistry.clear()
+            clearPlatformRenderer()
         }
     }
 

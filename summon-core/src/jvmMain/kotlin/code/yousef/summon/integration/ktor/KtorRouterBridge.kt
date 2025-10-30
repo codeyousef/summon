@@ -1,15 +1,16 @@
 package code.yousef.summon.integration.ktor
 
+import code.yousef.summon.runtime.CallbackRegistry
 import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.runtime.clearPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import code.yousef.summon.routing.DefaultPageRegistry
 import code.yousef.summon.routing.PageLoader
 import code.yousef.summon.routing.PageRegistry
 import code.yousef.summon.routing.RouterComponent
 import code.yousef.summon.routing.createFileBasedServerRouter
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
+import io.ktor.http.*
+import io.ktor.server.application.*
 import io.ktor.server.request.path
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
@@ -57,14 +58,19 @@ fun Routing.summonRouter(
         setPlatformRenderer(renderer)
         val router = createFileBasedServerRouter(requestPath)
 
-        val html = if (enableHydration) {
-            renderer.renderComposableRootWithHydration {
-                RouterComponent(router, requestPath)
+        val html = try {
+            if (enableHydration) {
+                renderer.renderComposableRootWithHydration {
+                    RouterComponent(router, requestPath)
+                }
+            } else {
+                renderer.renderComposableRoot {
+                    RouterComponent(router, requestPath)
+                }
             }
-        } else {
-            renderer.renderComposableRoot {
-                RouterComponent(router, requestPath)
-            }
+        } finally {
+            CallbackRegistry.clear()
+            clearPlatformRenderer()
         }
 
         val status = if (hasRoute) HttpStatusCode.OK else HttpStatusCode.NotFound

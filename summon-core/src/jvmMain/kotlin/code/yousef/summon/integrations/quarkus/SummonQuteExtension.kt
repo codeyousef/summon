@@ -1,7 +1,6 @@
 package code.yousef.summon.integrations.quarkus
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.PlatformRenderer
 import io.quarkus.qute.EngineBuilder
 import io.quarkus.qute.EvalContext
 import io.quarkus.qute.NamespaceResolver
@@ -40,7 +39,6 @@ import java.util.function.Supplier
  * ```
  */
 class SummonQuteExtension : Consumer<EngineBuilder> {
-    private val renderer = PlatformRenderer()
     private var config = Config()
 
     /**

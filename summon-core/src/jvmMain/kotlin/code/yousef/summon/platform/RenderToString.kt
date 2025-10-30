@@ -2,6 +2,8 @@ package code.yousef.summon.platform
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.runtime.clearPlatformRenderer
+import code.yousef.summon.runtime.setPlatformRenderer
 
 /**
  * Metadata for HTML pages
@@ -21,8 +23,13 @@ object RenderToString {
      * Render a composable to HTML string.
      */
     fun basic(renderer: PlatformRenderer, composable: @Composable () -> Unit): String {
+        setPlatformRenderer(renderer)
         // Use renderComposableRoot instead of renderComposable to properly set up the rendering context
-        val result = renderer.renderComposableRoot(composable)
+        val result = try {
+            renderer.renderComposableRoot(composable)
+        } finally {
+            clearPlatformRenderer()
+        }
 
         // Add doctype if needed
         return if (result.startsWith("<!DOCTYPE")) {
@@ -58,7 +65,12 @@ object RenderToString {
         }
 
         // Use renderComposableRoot to properly set up the rendering context
-        val result = renderer.renderComposableRoot(composable)
+        setPlatformRenderer(renderer)
+        val result = try {
+            renderer.renderComposableRoot(composable)
+        } finally {
+            clearPlatformRenderer()
+        }
 
         // Add doctype if needed
         return if (metadata.includeDocType && result.startsWith("<!DOCTYPE")) {
@@ -78,4 +90,4 @@ object RenderToString {
 fun renderToString(content: @Composable () -> Unit): String {
     val renderer = PlatformRenderer()
     return RenderToString.basic(renderer, content)
-} 
+}

@@ -1,41 +1,48 @@
 [versions]
 # Kotlin
-kotlin = "2.2.20"
+kotlin = "2.2.21"
 
 # Kotlinx
 kotlinxCoroutines = "1.10.2"
-kotlinxCoroutinesJs = "1.10.1"
-kotlinxCoroutinesJdk8 = "1.10.1"
-kotlinxSerialization = "1.8.1"
+kotlinxCoroutinesJs = "1.10.2"
+kotlinxCoroutinesJdk8 = "1.10.2"
+kotlinxSerialization = "1.9.0"
 kotlinxHtml = "0.12.0"
 kotlinxDatetime = "0.6.2"
-atomicfu = "0.30.0-beta"
+atomicfu = "0.29.0"
+kotlinxBrowser = "0.5.0"
 
 # Kotlin Wrappers
-kotlinWrappersBase = "1.0.0-pre.682"
-kotlinWrappersExtensions = "1.0.1-pre.682"
-kotlinReactDom = "18.2.0-pre.682"
+kotlinWrappersBase = "2025.10.14"
+kotlinWrappersExtensions = "1.0.1-pre.823"
+kotlinReactDom = "2025.10.14-19.2.0"
 
 # NPM
-coreJs = "3.31.0"
+coreJs = "3.46.0"
 
 # Quarkus
-quarkus = "3.23.0"
-quarkusJvm = "3.6.5"
+quarkus = "3.15.7"
+quarkusJvm = "3.15.7"
 
 # Ktor
-ktor = "2.3.7"
+ktor = "3.3.1"
 
 # Spring Boot
-springBoot = "3.5.0"
-springBootJvm = "3.2.3"
-reactorKotlin = "1.2.3"
-reactorKotlinJvm = "1.2.2"
+springBoot = "3.5.7"
+springBootJvm = "3.5.7"
+reactorKotlin = "1.2.4"
+reactorKotlinJvm = "1.2.4"
+springFramework = "6.2.12"
+blockhound = "1.0.8.RELEASE"
+reactorCore = "3.7.12"
 
 # CLI
-clikt = "5.0.1"
+clikt = "5.0.3"
 shadowJar = "8.1.1"
-graalvm = "0.10.2"
+graalvm = "0.11.2"
+kaml = "0.102.0"
+commonsCompress = "1.28.0"
+commonsIo = "2.20.0"
 
 [libraries]
 # Kotlin
@@ -48,6 +55,7 @@ kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotl
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-jdk8 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8", version.ref = "kotlinxCoroutinesJdk8" }
+kotlinx-coroutines-reactor = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-core-js = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-js", version.ref = "kotlinxCoroutinesJs" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 kotlinx-serialization-json-jvm = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm", version.ref = "kotlinxSerialization" }
@@ -57,6 +65,7 @@ kotlinx-html-jvm = { module = "org.jetbrains.kotlinx:kotlinx-html-jvm", version.
 kotlinx-html-js = { module = "org.jetbrains.kotlinx:kotlinx-html-js", version.ref = "kotlinxHtml" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicfu" }
+kotlinx-browser = { module = "org.jetbrains.kotlinx:kotlinx-browser", version.ref = "kotlinxBrowser" }
 
 # Kotlin Wrappers
 kotlin-js = { module = "org.jetbrains.kotlin-wrappers:kotlin-js", version.ref = "kotlinWrappersBase" }
@@ -71,8 +80,8 @@ quarkus-core-jvm = { module = "io.quarkus:quarkus-core", version.ref = "quarkusJ
 quarkus-qute-jvm = { module = "io.quarkus:quarkus-qute", version.ref = "quarkusJvm" }
 quarkus-kotlin-jvm = { module = "io.quarkus:quarkus-kotlin", version.ref = "quarkusJvm" }
 quarkus-vertx-http-jvm = { module = "io.quarkus:quarkus-vertx-http", version.ref = "quarkusJvm" }
-quarkus-resteasy-reactive-jvm = { module = "io.quarkus:quarkus-resteasy-reactive", version.ref = "quarkusJvm" }
-quarkus-resteasy-reactive-jackson-jvm = { module = "io.quarkus:quarkus-resteasy-reactive-jackson", version.ref = "quarkusJvm" }
+quarkus-resteasy-reactive-jvm = { module = "io.quarkus:quarkus-rest", version.ref = "quarkusJvm" }
+quarkus-resteasy-reactive-jackson-jvm = { module = "io.quarkus:quarkus-rest-jackson", version.ref = "quarkusJvm" }
 quarkus-websockets-jvm = { module = "io.quarkus:quarkus-websockets", version.ref = "quarkusJvm" }
 quarkus-arc-jvm = { module = "io.quarkus:quarkus-arc", version.ref = "quarkusJvm" }
 quarkus-core-deployment-jvm = { module = "io.quarkus:quarkus-core-deployment", version.ref = "quarkusJvm" }
@@ -84,8 +93,8 @@ quarkus-core = { module = "io.quarkus:quarkus-core", version.ref = "quarkus" }
 quarkus-qute = { module = "io.quarkus:quarkus-qute", version.ref = "quarkus" }
 quarkus-kotlin = { module = "io.quarkus:quarkus-kotlin", version.ref = "quarkus" }
 quarkus-vertx-http = { module = "io.quarkus:quarkus-vertx-http", version.ref = "quarkus" }
-quarkus-resteasy-reactive = { module = "io.quarkus:quarkus-resteasy-reactive", version.ref = "quarkus" }
-quarkus-resteasy-reactive-jackson = { module = "io.quarkus:quarkus-resteasy-reactive-jackson", version.ref = "quarkus" }
+quarkus-resteasy-reactive = { module = "io.quarkus:quarkus-rest", version.ref = "quarkus" }
+quarkus-resteasy-reactive-jackson = { module = "io.quarkus:quarkus-rest-jackson", version.ref = "quarkus" }
 quarkus-websockets = { module = "io.quarkus:quarkus-websockets", version.ref = "quarkus" }
 quarkus-arc = { module = "io.quarkus:quarkus-arc", version.ref = "quarkus" }
 quarkus-core-deployment = { module = "io.quarkus:quarkus-core-deployment", version.ref = "quarkus" }
@@ -98,6 +107,7 @@ ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor"
 ktor-server-html-builder = { module = "io.ktor:ktor-server-html-builder", version.ref = "ktor" }
 ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
 
 # Spring Boot for JVM
 spring-boot-starter-web-jvm = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "springBootJvm" }
@@ -110,9 +120,15 @@ spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-start
 spring-boot-starter-thymeleaf = { module = "org.springframework.boot:spring-boot-starter-thymeleaf", version.ref = "springBoot" }
 spring-boot-starter-webflux = { module = "org.springframework.boot:spring-boot-starter-webflux", version.ref = "springBoot" }
 reactor-kotlin-extensions = { module = "io.projectreactor.kotlin:reactor-kotlin-extensions", version.ref = "reactorKotlin" }
+spring-test = { module = "org.springframework:spring-test", version.ref = "springFramework" }
+reactor-test = { module = "io.projectreactor:reactor-test", version.ref = "reactorCore" }
+blockhound = { module = "io.projectreactor.tools:blockhound", version.ref = "blockhound" }
 
 # CLI
 clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
+commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commonsCompress" }
+commons-io = { module = "commons-io:commons-io", version.ref = "commonsIo" }
+kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

@@ -1,6 +1,7 @@
 package code.yousef.summon.runtime
 
 import code.yousef.summon.modifier.Modifier
+import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertSame
 
@@ -8,6 +9,12 @@ import kotlin.test.assertSame
  * Tests for the PlatformRendererAccessor utility functions
  */
 class PlatformRendererAccessorTest {
+
+    @AfterTest
+    fun tearDown() {
+        CallbackRegistry.clear()
+        clearPlatformRenderer()
+    }
 
     @Test
     fun testSetAndGetPlatformRenderer() {

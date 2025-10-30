@@ -518,42 +518,45 @@ class ProgressTest {
         CompositionLocal.provideComposer(MockComposer()) {
             // Set the mock renderer as the platform renderer
             setPlatformRenderer(mockRenderer)
+            try {
+                // Call the LinearProgress composable with default parameters
+                LinearProgress()
 
-            // Call the LinearProgress composable with default parameters
-            LinearProgress()
+                // Verify that renderProgress was called with the correct parameters
+                assertTrue(mockRenderer.renderProgressCalled, "renderProgress should have been called")
+                assertNull(mockRenderer.lastProgressValue, "Progress value should be null")
+                assertEquals(ProgressType.LINEAR, mockRenderer.lastProgressType, "Progress type should be LINEAR")
+                assertNotNull(mockRenderer.lastModifier, "Modifier should not be null")
 
-            // Verify that renderProgress was called with the correct parameters
-            assertTrue(mockRenderer.renderProgressCalled, "renderProgress should have been called")
-            assertNull(mockRenderer.lastProgressValue, "Progress value should be null")
-            assertEquals(ProgressType.LINEAR, mockRenderer.lastProgressType, "Progress type should be LINEAR")
-            assertNotNull(mockRenderer.lastModifier, "Modifier should not be null")
+                // Reset the mock
+                mockRenderer.renderProgressCalled = false
+                mockRenderer.lastProgressValue = null
+                mockRenderer.lastProgressType = null
+                mockRenderer.lastModifier = null
 
-            // Reset the mock
-            mockRenderer.renderProgressCalled = false
-            mockRenderer.lastProgressValue = null
-            mockRenderer.lastProgressType = null
-            mockRenderer.lastModifier = null
+                // Call the LinearProgress composable with custom parameters
+                LinearProgress(
+                    progress = 0.75f,
+                    modifier = Modifier().background("yellow")
+                )
 
-            // Call the LinearProgress composable with custom parameters
-            LinearProgress(
-                progress = 0.75f,
-                modifier = Modifier().background("yellow")
-            )
-
-            // Verify that renderProgress was called with the correct parameters
-            assertTrue(mockRenderer.renderProgressCalled, "renderProgress should have been called")
-            assertEquals(0.75f, mockRenderer.lastProgressValue, "Progress value should be 0.75f")
-            assertEquals(ProgressType.LINEAR, mockRenderer.lastProgressType, "Progress type should be LINEAR")
-            assertNotNull(mockRenderer.lastModifier, "Modifier should not be null")
-            assertTrue(
-                mockRenderer.lastModifier!!.styles.containsKey("background-color"),
-                "Modifier should have background-color"
-            )
-            assertEquals(
-                "yellow",
-                mockRenderer.lastModifier!!.styles["background-color"],
-                "Background color should be yellow"
-            )
+                // Verify that renderProgress was called with the correct parameters
+                assertTrue(mockRenderer.renderProgressCalled, "renderProgress should have been called")
+                assertEquals(0.75f, mockRenderer.lastProgressValue, "Progress value should be 0.75f")
+                assertEquals(ProgressType.LINEAR, mockRenderer.lastProgressType, "Progress type should be LINEAR")
+                assertNotNull(mockRenderer.lastModifier, "Modifier should not be null")
+                assertTrue(
+                    mockRenderer.lastModifier!!.styles.containsKey("background-color"),
+                    "Modifier should have background-color"
+                )
+                assertEquals(
+                    "yellow",
+                    mockRenderer.lastModifier!!.styles["background-color"],
+                    "Background color should be yellow"
+                )
+            } finally {
+                clearPlatformRenderer()
+            }
         }
     }
 
@@ -566,35 +569,38 @@ class ProgressTest {
         CompositionLocal.provideComposer(MockComposer()) {
             // Set the mock renderer as the platform renderer
             setPlatformRenderer(mockRenderer)
+            try {
+                // Call the CircularProgress composable with default parameters
+                CircularProgress()
 
-            // Call the CircularProgress composable with default parameters
-            CircularProgress()
+                // Verify that renderProgress was called with the correct parameters
+                assertTrue(mockRenderer.renderProgressCalled, "renderProgress should have been called")
+                assertNull(mockRenderer.lastProgressValue, "Progress value should be null")
+                assertEquals(ProgressType.CIRCULAR, mockRenderer.lastProgressType, "Progress type should be CIRCULAR")
+                assertNotNull(mockRenderer.lastModifier, "Modifier should not be null")
 
-            // Verify that renderProgress was called with the correct parameters
-            assertTrue(mockRenderer.renderProgressCalled, "renderProgress should have been called")
-            assertNull(mockRenderer.lastProgressValue, "Progress value should be null")
-            assertEquals(ProgressType.CIRCULAR, mockRenderer.lastProgressType, "Progress type should be CIRCULAR")
-            assertNotNull(mockRenderer.lastModifier, "Modifier should not be null")
+                // Reset the mock
+                mockRenderer.renderProgressCalled = false
+                mockRenderer.lastProgressValue = null
+                mockRenderer.lastProgressType = null
+                mockRenderer.lastModifier = null
 
-            // Reset the mock
-            mockRenderer.renderProgressCalled = false
-            mockRenderer.lastProgressValue = null
-            mockRenderer.lastProgressType = null
-            mockRenderer.lastModifier = null
+                // Call the CircularProgress composable with custom parameters
+                CircularProgress(
+                    progress = 0.5f,
+                    modifier = Modifier().padding("5px")
+                )
 
-            // Call the CircularProgress composable with custom parameters
-            CircularProgress(
-                progress = 0.5f,
-                modifier = Modifier().padding("5px")
-            )
-
-            // Verify that renderProgress was called with the correct parameters
-            assertTrue(mockRenderer.renderProgressCalled, "renderProgress should have been called")
-            assertEquals(0.5f, mockRenderer.lastProgressValue, "Progress value should be 0.5f")
-            assertEquals(ProgressType.CIRCULAR, mockRenderer.lastProgressType, "Progress type should be CIRCULAR")
-            assertNotNull(mockRenderer.lastModifier, "Modifier should not be null")
-            assertTrue(mockRenderer.lastModifier!!.styles.containsKey("padding"), "Modifier should have padding")
-            assertEquals("5px", mockRenderer.lastModifier!!.styles["padding"], "Padding should be 5px")
+                // Verify that renderProgress was called with the correct parameters
+                assertTrue(mockRenderer.renderProgressCalled, "renderProgress should have been called")
+                assertEquals(0.5f, mockRenderer.lastProgressValue, "Progress value should be 0.5f")
+                assertEquals(ProgressType.CIRCULAR, mockRenderer.lastProgressType, "Progress type should be CIRCULAR")
+                assertNotNull(mockRenderer.lastModifier, "Modifier should not be null")
+                assertTrue(mockRenderer.lastModifier!!.styles.containsKey("padding"), "Modifier should have padding")
+                assertEquals("5px", mockRenderer.lastModifier!!.styles["padding"], "Padding should be 5px")
+            } finally {
+                clearPlatformRenderer()
+            }
         }
     }
 
@@ -607,35 +613,38 @@ class ProgressTest {
         CompositionLocal.provideComposer(MockComposer()) {
             // Set the mock renderer as the platform renderer
             setPlatformRenderer(mockRenderer)
+            try {
+                // Call the IndeterminateProgress composable with default parameters
+                IndeterminateProgress()
 
-            // Call the IndeterminateProgress composable with default parameters
-            IndeterminateProgress()
+                // Verify that renderProgress was called with the correct parameters
+                assertTrue(mockRenderer.renderProgressCalled, "renderProgress should have been called")
+                assertNull(mockRenderer.lastProgressValue, "Progress value should be null")
+                assertEquals(ProgressType.LINEAR, mockRenderer.lastProgressType, "Progress type should be LINEAR")
+                assertNotNull(mockRenderer.lastModifier, "Modifier should not be null")
 
-            // Verify that renderProgress was called with the correct parameters
-            assertTrue(mockRenderer.renderProgressCalled, "renderProgress should have been called")
-            assertNull(mockRenderer.lastProgressValue, "Progress value should be null")
-            assertEquals(ProgressType.LINEAR, mockRenderer.lastProgressType, "Progress type should be LINEAR")
-            assertNotNull(mockRenderer.lastModifier, "Modifier should not be null")
+                // Reset the mock
+                mockRenderer.renderProgressCalled = false
+                mockRenderer.lastProgressValue = null
+                mockRenderer.lastProgressType = null
+                mockRenderer.lastModifier = null
 
-            // Reset the mock
-            mockRenderer.renderProgressCalled = false
-            mockRenderer.lastProgressValue = null
-            mockRenderer.lastProgressType = null
-            mockRenderer.lastModifier = null
+                // Call the IndeterminateProgress composable with custom parameters
+                IndeterminateProgress(
+                    type = ProgressType.CIRCULAR,
+                    modifier = Modifier().height("30px")
+                )
 
-            // Call the IndeterminateProgress composable with custom parameters
-            IndeterminateProgress(
-                type = ProgressType.CIRCULAR,
-                modifier = Modifier().height("30px")
-            )
-
-            // Verify that renderProgress was called with the correct parameters
-            assertTrue(mockRenderer.renderProgressCalled, "renderProgress should have been called")
-            assertNull(mockRenderer.lastProgressValue, "Progress value should be null")
-            assertEquals(ProgressType.CIRCULAR, mockRenderer.lastProgressType, "Progress type should be CIRCULAR")
-            assertNotNull(mockRenderer.lastModifier, "Modifier should not be null")
-            assertTrue(mockRenderer.lastModifier!!.styles.containsKey("height"), "Modifier should have height")
-            assertEquals("30px", mockRenderer.lastModifier!!.styles["height"], "Height should be 30px")
+                // Verify that renderProgress was called with the correct parameters
+                assertTrue(mockRenderer.renderProgressCalled, "renderProgress should have been called")
+                assertNull(mockRenderer.lastProgressValue, "Progress value should be null")
+                assertEquals(ProgressType.CIRCULAR, mockRenderer.lastProgressType, "Progress type should be CIRCULAR")
+                assertNotNull(mockRenderer.lastModifier, "Modifier should not be null")
+                assertTrue(mockRenderer.lastModifier!!.styles.containsKey("height"), "Modifier should have height")
+                assertEquals("30px", mockRenderer.lastModifier!!.styles["height"], "Height should be 30px")
+            } finally {
+                clearPlatformRenderer()
+            }
         }
     }
 }

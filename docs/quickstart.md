@@ -15,7 +15,7 @@ Get started with Summon in just a few minutes! This guide will help you set up y
 ```kotlin
 // build.gradle.kts
 plugins {
-    kotlin("multiplatform") version "2.2.0-RC2"
+    kotlin("multiplatform") version "2.2.21"
 }
 
 repositories {
@@ -45,7 +45,7 @@ kotlin {
 ```kotlin
 // build.gradle.kts
 plugins {
-    kotlin("jvm") version "2.2.0-RC2"
+    kotlin("jvm") version "2.2.21"
 }
 
 repositories {
@@ -62,7 +62,7 @@ dependencies {
 ```kotlin
 // build.gradle.kts
 plugins {
-    kotlin("js") version "2.2.0-RC2"
+    kotlin("js") version "2.2.21"
 }
 
 repositories {
@@ -407,9 +407,9 @@ Create `src/jsMain/resources/index.html`:
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("io.ktor:ktor-server-core:2.3.7")
-    implementation("io.ktor:ktor-server-netty:2.3.7")
-    implementation("io.ktor:ktor-server-html-builder:2.3.7")
+    implementation("io.ktor:ktor-server-core:3.3.1")
+    implementation("io.ktor:ktor-server-netty:3.3.1")
+    implementation("io.ktor:ktor-server-html-builder:3.3.1")
     // No Summon dependency needed - using standalone implementation
 }
 ```
@@ -547,7 +547,8 @@ Now that you have a working Summon application, you can:
 ### Build errors?
 
 Ensure you have:
-- Kotlin 1.9+ (2.2.0-RC2 recommended)
+
+- Kotlin 1.9+ (2.2.21 recommended)
 - JDK 17+
 - Gradle 8.0+
 

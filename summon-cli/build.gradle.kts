@@ -45,9 +45,9 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
 
                 // File operations
-                implementation("com.charleskorn.kaml:kaml:0.61.0")
-                implementation("org.apache.commons:commons-compress:1.27.1")
-                implementation("commons-io:commons-io:2.18.0")
+                implementation(libs.kaml)
+                implementation(libs.commons.compress)
+                implementation(libs.commons.io)
             }
         }
         val jvmTest by getting {

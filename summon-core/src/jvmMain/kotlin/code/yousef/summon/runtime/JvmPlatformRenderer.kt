@@ -340,6 +340,7 @@ actual open class PlatformRenderer {
                 System.err.println("Warning: currentBuilder not cleared properly in renderComposableRoot.")
                 currentBuilder = null
             }
+            CallbackRegistry.clear()
             // Restore previous context if needed (should be null)
             // currentBuilder = previousBuilder
         }
@@ -349,17 +350,19 @@ actual open class PlatformRenderer {
     actual open fun renderComposableRootWithHydration(composable: @Composable () -> Unit): String {
         // Clear any previous callbacks to start fresh
         CallbackRegistry.clear()
-        
-        // Render the composable content first (this will register callbacks)
-        val bodyContent = renderComposableContent(composable)
-        
-        // Generate hydration data (no raw JS)
-        val hydrationData = generateHydrationData()
-        
-        // Create the complete HTML document with hydration support
-        val result = createHydratedDocument(bodyContent, hydrationData)
-        
-        return result
+
+        return try {
+            // Render the composable content first (this will register callbacks)
+            val bodyContent = renderComposableContent(composable)
+
+            // Generate hydration data (no raw JS)
+            val hydrationData = generateHydrationData()
+
+            // Create the complete HTML document with hydration support
+            createHydratedDocument(bodyContent, hydrationData)
+        } finally {
+            CallbackRegistry.clear()
+        }
     }
     
     private fun renderComposableContent(composable: @Composable () -> Unit): String {

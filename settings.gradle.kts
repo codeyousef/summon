@@ -7,3 +7,6 @@ include(":summon-cli")
 // Examples
 include(":examples:ssr-todo-app")
 include(":examples:wasm-seo-todo")
+
+// Diagnostics suite
+include(":diagnostics")

@@ -2,7 +2,9 @@ package code.yousef.summon.integrations.quarkus
 
 
 import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.CallbackRegistry
 import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.runtime.clearPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import io.quarkus.qute.RawString
 import io.quarkus.qute.TemplateExtension
@@ -13,8 +15,7 @@ import kotlinx.html.stream.appendHTML
  * Registry for Summon components that can be accessed by name in Qute templates.
  */
 object QuteComponentRegistry {
-    private val components = mutableMapOf<String, @Composable () -> Unit>()
-    private val renderer = PlatformRenderer()
+    private val components = java.util.concurrent.ConcurrentHashMap<String, @Composable () -> Unit>()
 
     /**
      * Register a component with a specific name
@@ -36,13 +37,18 @@ object QuteComponentRegistry {
         val component = components[name] ?: return ""
 
         // Set up the renderer
+        val renderer = PlatformRenderer()
         setPlatformRenderer(renderer)
 
-        // Create HTML output
-        return buildString {
-            appendHTML().div {
-                component()
+        return try {
+            buildString {
+                appendHTML().div {
+                    component()
+                }
             }
+        } finally {
+            CallbackRegistry.clear()
+            clearPlatformRenderer()
         }
     }
 }

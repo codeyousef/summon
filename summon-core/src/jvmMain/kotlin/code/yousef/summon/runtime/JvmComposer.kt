@@ -2,6 +2,7 @@ package code.yousef.summon.runtime
 
 import code.yousef.summon.annotation.Composable
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * JVM implementation of the Composer interface.
@@ -16,7 +17,7 @@ class JvmComposer : Composer {
     private val nodeStack = mutableListOf<Int>()
     private val groupStack = mutableListOf<Any?>()
     private val stateReads = mutableSetOf<Any>()
-    private val stateWriteListeners = ConcurrentHashMap<Any, MutableList<() -> Unit>>()
+    private val stateWriteListeners = ConcurrentHashMap<Any, CopyOnWriteArrayList<() -> Unit>>()
     private val disposables = mutableListOf<() -> Unit>()
 
     override fun startNode() {
@@ -126,7 +127,7 @@ class JvmComposer : Composer {
      * @param callback The callback to trigger when the state changes
      */
     fun registerStateListener(state: Any, callback: () -> Unit) {
-        stateWriteListeners.getOrPut(state) { mutableListOf() }.add(callback)
+        stateWriteListeners.computeIfAbsent(state) { CopyOnWriteArrayList() }.add(callback)
     }
 
     /**
@@ -151,9 +152,7 @@ class JvmComposer : Composer {
      */
     private fun clearStateListeners() {
         // Remove this composer's callbacks from state write listeners
-        stateWriteListeners.values.forEach { listeners ->
-            listeners.removeAll { true } // Remove all listeners for simplicity
-        }
+        stateWriteListeners.values.forEach { listeners -> listeners.clear() }
     }
 
     override fun recompose() {

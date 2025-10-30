@@ -18,15 +18,15 @@ In your Ktor application's `build.gradle.kts` file:
 ```kotlin
 dependencies {
     // Ktor dependencies
-    implementation("io.ktor:ktor-server-core:2.3.1")
-    implementation("io.ktor:ktor-server-netty:2.3.1")
-    implementation("io.ktor:ktor-html-builder:2.3.1")
+    implementation("io.ktor:ktor-server-core:3.3.1")
+    implementation("io.ktor:ktor-server-netty:3.3.1")
+    implementation("io.ktor:ktor-server-html-builder:3.3.1")
     
     // Summon core
-    implementation("code.yousef:summon:0.1.0")
+    implementation("io.github.codeyousef:summon:0.4.0.9")
     
     // Summon Ktor integration
-    implementation("code.yousef:summon-ktor:0.1.0")
+    implementation("io.github.codeyousef:summon-ktor:0.4.0.9")
 }
 ```
 
@@ -119,6 +119,10 @@ routing {
     }
 }
 ```
+
+> **Thread-safety tip:** The route helpers (`respondSummonHydrated`, `summonRouter`, streaming APIs) create and dispose
+> a `PlatformRenderer` per request. If you instantiate `KtorRenderer` manually, call `setPlatformRenderer(renderer)`
+> before rendering and `clearPlatformRenderer()` in a `finally` block to prevent cross-request leaks.
 
 #### Method 4: Hybrid Approach with Traditional Ktor HTML DSL
 

@@ -3,7 +3,10 @@ package code.yousef.summon.integrations.quarkus.renderer
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.integrations.quarkus.htmx.htmlAttribute
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.CallbackRegistry
 import code.yousef.summon.runtime.LocalPlatformRenderer
+import code.yousef.summon.runtime.clearPlatformRenderer
+import code.yousef.summon.runtime.setPlatformRenderer
 import kotlinx.html.div
 import kotlinx.html.stream.createHTML
 import kotlinx.html.unsafe
@@ -27,7 +30,8 @@ class HtmxAwareRenderer {
     fun renderToString(content: @Composable () -> Unit): String {
         logger.debug("HtmxAwareRenderer.renderToString() - Starting to render composable content")
 
-        try {
+        return try {
+            setPlatformRenderer(platformRenderer)
             // Use the JvmPlatformRenderer to render the composable content
             logger.debug("HtmxAwareRenderer.renderToString() - Using platformRenderer.renderComposableRoot")
             val html = platformRenderer.renderComposableRoot {
@@ -46,10 +50,13 @@ class HtmxAwareRenderer {
 
             logger.debug("HtmxAwareRenderer.renderToString() - HTML processing completed, processed HTML length: ${processedHtml.length}")
 
-            return processedHtml
+            processedHtml
         } catch (e: Exception) {
             logger.error("HtmxAwareRenderer.renderToString() - Error rendering composable content", e)
             throw e
+        } finally {
+            CallbackRegistry.clear()
+            clearPlatformRenderer()
         }
     }
 

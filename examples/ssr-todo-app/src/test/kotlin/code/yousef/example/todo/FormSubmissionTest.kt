@@ -3,6 +3,7 @@ package code.yousef.example.todo
 import code.yousef.example.todo.components.CreateTodoForm
 import code.yousef.example.todo.models.FormState
 import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.runtime.clearPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -16,8 +17,12 @@ class FormSubmissionTest {
         val formState = FormState.success()
 
         // Act
-        val html = renderer.renderComposableRoot {
-            CreateTodoForm(formState = formState)
+        val html = try {
+            renderer.renderComposableRoot {
+                CreateTodoForm(formState = formState)
+            }
+        } finally {
+            clearPlatformRenderer()
         }
 
         // Assert - Check that form has correct attributes for SSR submission
@@ -44,8 +49,12 @@ class FormSubmissionTest {
         val formState = FormState.success()
 
         // Act
-        val html = renderer.renderComposableRoot {
-            CreateTodoForm(formState = formState)
+        val html = try {
+            renderer.renderComposableRoot {
+                CreateTodoForm(formState = formState)
+            }
+        } finally {
+            clearPlatformRenderer()
         }
 
         // Assert - Check that input field has name attribute for form data
@@ -64,8 +73,12 @@ class FormSubmissionTest {
         val formState = FormState.success()
 
         // Act
-        val html = renderer.renderComposableRoot {
-            CreateTodoForm(formState = formState)
+        val html = try {
+            renderer.renderComposableRoot {
+                CreateTodoForm(formState = formState)
+            }
+        } finally {
+            clearPlatformRenderer()
         }
 
         // Assert - Check that button is a submit type

@@ -12,7 +12,9 @@ import code.yousef.example.todo.services.SessionTodoService
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.runtime.CallbackRegistry
 import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.runtime.clearPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -127,7 +129,6 @@ fun Application.configureTodoApp() {
  * T027: Error handling for 404 and validation errors
  */
 fun Route.todoRoutes() {
-    val renderer = PlatformRenderer()
 
     // Helper function to get or create session
     fun ApplicationCall.getTodoSession(): TodoSession {
@@ -147,6 +148,8 @@ fun Route.todoRoutes() {
         editingTodoId: Int? = null,
         editFormState: FormState = FormState.success()
     ) {
+        val renderer = PlatformRenderer()
+        setPlatformRenderer(renderer)
         try {
             val session = getTodoSession()
             val todoService = SessionTodoService(session)
@@ -169,6 +172,9 @@ fun Route.todoRoutes() {
                 ContentType.Text.Html,
                 HttpStatusCode.InternalServerError
             )
+        } finally {
+            CallbackRegistry.clear()
+            clearPlatformRenderer()
         }
     }
 
@@ -326,10 +332,6 @@ fun Route.todoRoutes() {
 }
 
 fun main() {
-    // Initialize Summon renderer
-    val renderer = PlatformRenderer()
-    setPlatformRenderer(renderer)
-
     embeddedServer(Netty, port = 8080) {
         configureTodoApp()
     }.start(wait = true)

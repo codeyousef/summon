@@ -73,8 +73,6 @@ class CDISupport {
      */
     @ApplicationScoped
     class CDIAwareRenderer {
-        private val renderer = PlatformRenderer()
-
         /**
          * Renders a component, ensuring all CDI dependencies are injected first.
          *

@@ -10,6 +10,7 @@ This monorepo contains:
 
 - **`summon-core/`** - The main Summon library
 - **`summon-cli/`** - Command-line tool for project generation 
+- **`diagnostics/`** - Stress tests, leak detectors, and JMH benchmarks
 - **`docs/`** - Documentation and guides
 
 > 📝 **Examples**: Example projects showing various integrations have been moved to a separate repository for cleaner core library maintenance.
@@ -75,7 +76,7 @@ This release makes the Summon CLI much easier to install and use:
 - **Installation Documentation**: Clear instructions for downloading and running the CLI
 - **Auto Wrapper Scripts**: Install command creates wrapper scripts automatically
 - **Improved Help**: Better examples showing JAR usage
-- **Updated Toolchain**: Generated projects default to Kotlin 2.2.20 and ship lightweight tests so `./gradlew build`
+- **Updated Toolchain**: Generated projects default to Kotlin 2.2.21 and ship lightweight tests so `./gradlew build`
   succeeds immediately.
 
 Download: `java -jar summon-cli-0.4.0.9.jar install`

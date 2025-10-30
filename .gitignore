@@ -141,3 +141,4 @@ examples/wasm-seo-todo/.gradle/
 /private-key-working.asc
 /sign-artifact.sh
 /.junie/guidelines.md
+/gradle/*

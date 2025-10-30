@@ -1,7 +1,9 @@
 package code.yousef.summon.integration.ktor
 
 import code.yousef.summon.annotation.Composable
+import code.yousef.summon.runtime.CallbackRegistry
 import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.runtime.clearPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -22,7 +24,6 @@ import kotlin.text.Charsets
  * - io.ktor:ktor-server-html-builder
  */
 class KtorRenderer {
-    val renderer = PlatformRenderer()
 
     /**
      * Renders a Summon composable function to an HTML string.
@@ -31,19 +32,23 @@ class KtorRenderer {
      * @return HTML string output of the rendered content
      */
     fun renderToString(content: @Composable () -> Unit): String {
-        // Set up the renderer
+        val renderer = PlatformRenderer()
         setPlatformRenderer(renderer)
 
         // Render the component to a string
-        return createHTML().html {
-            head {
-                meta(charset = "UTF-8")
-                meta(name = "viewport", content = "width=device-width, initial-scale=1.0")
+        return try {
+            createHTML().html {
+                head {
+                    meta(charset = "UTF-8")
+                    meta(name = "viewport", content = "width=device-width, initial-scale=1.0")
+                }
+                body {
+                    content()
+                }
             }
-            body {
-                // Render the content
-                content()
-            }
+        } finally {
+            CallbackRegistry.clear()
+            clearPlatformRenderer()
         }
     }
 
@@ -54,17 +59,23 @@ class KtorRenderer {
      * @param content The composable content to render
      */
     suspend fun renderHtml(call: ApplicationCall, content: @Composable () -> Unit) {
+        val renderer = PlatformRenderer()
         setPlatformRenderer(renderer)
 
-        call.respondHtml {
-            head {
-                meta(charset = "UTF-8")
-                meta(name = "viewport", content = "width=device-width, initial-scale=1.0")
-                title("Summon App")
+        try {
+            call.respondHtml {
+                head {
+                    meta(charset = "UTF-8")
+                    meta(name = "viewport", content = "width=device-width, initial-scale=1.0")
+                    title("Summon App")
+                }
+                body {
+                    content()
+                }
             }
-            body {
-                content()
-            }
+        } finally {
+            CallbackRegistry.clear()
+            clearPlatformRenderer()
         }
     }
 
@@ -76,22 +87,27 @@ class KtorRenderer {
      * @param content The composable content to render
      */
     suspend fun renderStream(call: ApplicationCall, content: @Composable () -> Unit) {
+        val renderer = PlatformRenderer()
         setPlatformRenderer(renderer)
 
-        call.respondTextWriter(contentType = ContentType.Text.Html) {
-            append("<!DOCTYPE html><html><head>")
-            append("<meta charset=\"UTF-8\">")
-            append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">")
-            append("<title>Summon Streaming App</title></head><body>")
+        try {
+            call.respondTextWriter(contentType = ContentType.Text.Html) {
+                append("<!DOCTYPE html><html><head>")
+                append("<meta charset=\"UTF-8\">")
+                append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">")
+                append("<title>Summon Streaming App</title></head><body>")
 
-            // Stream the content
-            val html = createHTML().apply {
-                content()
-            }.toString()
-            append(html)
+                val html = createHTML().apply {
+                    content()
+                }.toString()
+                append(html)
 
-            append("</body></html>")
-            flush()
+                append("</body></html>")
+                flush()
+            }
+        } finally {
+            CallbackRegistry.clear()
+            clearPlatformRenderer()
         }
     }
 
@@ -115,18 +131,23 @@ class KtorRenderer {
         ) {
             route(path, method) {
                 handle {
-                    val renderer = KtorRenderer()
-                    setPlatformRenderer(renderer.renderer)
+                    val renderer = PlatformRenderer()
+                    setPlatformRenderer(renderer)
 
-                    call.respondHtml(status) {
-                        head {
-                            meta(charset = "UTF-8")
-                            meta(name = "viewport", content = "width=device-width, initial-scale=1.0")
-                            title(title)
+                    try {
+                        call.respondHtml(status) {
+                            head {
+                                meta(charset = "UTF-8")
+                                meta(name = "viewport", content = "width=device-width, initial-scale=1.0")
+                                title(title)
+                            }
+                            body {
+                                content()
+                            }
                         }
-                        body {
-                            content()
-                        }
+                    } finally {
+                        CallbackRegistry.clear()
+                        clearPlatformRenderer()
                     }
                 }
             }
@@ -145,18 +166,23 @@ class KtorRenderer {
             status: HttpStatusCode = HttpStatusCode.OK,
             content: @Composable () -> Unit
         ) {
-            val renderer = KtorRenderer()
-            setPlatformRenderer(renderer.renderer)
+            val renderer = PlatformRenderer()
+            setPlatformRenderer(renderer)
 
-            respondHtml(status) {
-                head {
-                    meta(charset = "UTF-8")
-                    meta(name = "viewport", content = "width=device-width, initial-scale=1.0")
-                    title(title)
+            try {
+                respondHtml(status) {
+                    head {
+                        meta(charset = "UTF-8")
+                        meta(name = "viewport", content = "width=device-width, initial-scale=1.0")
+                        title(title)
+                    }
+                    body {
+                        content()
+                    }
                 }
-                body {
-                    content()
-                }
+            } finally {
+                CallbackRegistry.clear()
+                clearPlatformRenderer()
             }
         }
 
@@ -168,10 +194,15 @@ class KtorRenderer {
             status: HttpStatusCode = HttpStatusCode.OK,
             content: @Composable () -> Unit
         ) {
-            val renderer = KtorRenderer()
-            setPlatformRenderer(renderer.renderer)
-            val html = renderer.renderer.renderComposableRootWithHydration(content)
-            respondText(html, ContentType.Text.Html.withCharset(Charsets.UTF_8), status)
+            val renderer = PlatformRenderer()
+            setPlatformRenderer(renderer)
+            try {
+                val html = renderer.renderComposableRootWithHydration(content)
+                respondText(html, ContentType.Text.Html.withCharset(Charsets.UTF_8), status)
+            } finally {
+                CallbackRegistry.clear()
+                clearPlatformRenderer()
+            }
         }
     }
 }

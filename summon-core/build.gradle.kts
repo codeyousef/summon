@@ -6,7 +6,7 @@ import java.util.*
 apply(from = "../version.gradle.kts")
 
 // Manual version override for now
-version = "0.4.0.9"
+version = "0.4.1.0"
 group = "io.github.codeyousef"
 
 plugins {
@@ -82,7 +82,7 @@ kotlin {
         nodejs()
         binaries.executable()
 
-        // WASM production build compiler options (Kotlin 2.2.20+)
+        // WASM production build compiler options (Kotlin 2.2.21+)
         compilerOptions {
             freeCompilerArgs.addAll(
                 "-Xwasm-debugger-custom-formatters", // Enable debugging support for production
@@ -102,7 +102,7 @@ kotlin {
                 implementation(libs.kotlinx.html)
                 implementation(libs.kotlinx.datetime)
                 // Add atomicfu as compileOnly to avoid conflicts
-                compileOnly("org.jetbrains.kotlinx:atomicfu:0.25.0")
+                compileOnly(libs.atomicfu)
             }
         }
         val commonTest by getting {
@@ -143,12 +143,18 @@ kotlin {
                 implementation(libs.spring.boot.starter.thymeleaf.jvm)
                 implementation(libs.spring.boot.starter.webflux.jvm)
                 implementation(libs.reactor.kotlin.extensions.jvm)
+                implementation(libs.kotlinx.coroutines.reactor)
 
                 implementation(libs.kotlinx.html.jvm)
                 implementation(libs.kotlinx.serialization.json.jvm)
             }
         }
-        val jvmTest by getting
+        val jvmTest by getting {
+            dependencies {
+                implementation(libs.ktor.server.test.host)
+                implementation(libs.spring.test)
+            }
+        }
         // Create webMain for shared web code
         val webMain by creating {
             dependsOn(commonMain)
@@ -168,7 +174,7 @@ kotlin {
                 implementation(libs.kotlin.extensions)
                 implementation(libs.kotlin.browser)
                 implementation(libs.kotlin.react.dom)
-                implementation(npm("core-js", "3.31.0"))
+                implementation(npm("core-js", libs.versions.coreJs.get()))
                 implementation(libs.kotlinx.coroutines.core.js)
                 implementation(libs.kotlinx.serialization.json.js)
                 implementation(libs.kotlin.stdlib.js)
@@ -181,7 +187,7 @@ kotlin {
             dependsOn(webMain)
             dependencies {
                 // kotlinx-browser provides WASM-compatible DOM API types (replaces org.w3c.dom.events from stdlib)
-                implementation("org.jetbrains.kotlinx:kotlinx-browser:0.3")
+                implementation(libs.kotlinx.browser)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)
                 // Removed atomicfu - causing persistent IC cache issues
@@ -193,7 +199,11 @@ kotlin {
                 // AtomicFU plugin handles atomicfu dependencies automatically
             }
         }
-        val wasmJsTest by getting
+        val wasmJsTest by getting {
+            dependencies {
+                implementation(npm("happy-dom", "14.10.3"))
+            }
+        }
     }
 }
 
@@ -236,13 +246,13 @@ kotlin.sourceSets.all {
     }
 }
 
-// Compiler workarounds no longer needed with Kotlin 2.2.20 and stable incremental compilation
+// Compiler workarounds no longer needed with Kotlin 2.2.21 and stable incremental compilation
 
-// WASM compilation workarounds no longer needed with Kotlin 2.2.20 Beta
+// WASM compilation workarounds no longer needed with Kotlin 2.2.21 Beta
 
-// JS tests are now enabled with Kotlin 2.2.20 and proper AtomicFU configuration
+// JS tests are now enabled with Kotlin 2.2.21 and proper AtomicFU configuration
 
-// WASM production executables are now enabled with Kotlin 2.2.20 Beta stability
+// WASM production executables are now enabled with Kotlin 2.2.21 Beta stability
 
 tasks.getByName<org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack>("jsBrowserProductionWebpack") {
     mainOutputFileName = "summon-hydration.js"

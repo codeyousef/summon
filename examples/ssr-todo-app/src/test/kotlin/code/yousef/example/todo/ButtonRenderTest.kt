@@ -4,6 +4,7 @@ import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.input.ButtonVariant
 import code.yousef.summon.components.input.Form
 import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.runtime.clearPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -16,14 +17,18 @@ class ButtonRenderTest {
         setPlatformRenderer(renderer)
 
         // Act - Render a button inside a form context
-        val html = renderer.renderComposableRoot {
-            Form(onSubmit = {}) {
-                Button(
-                    onClick = {},
-                    label = "Add Todo",
-                    variant = ButtonVariant.PRIMARY
-                )
+        val html = try {
+            renderer.renderComposableRoot {
+                Form(onSubmit = {}) {
+                    Button(
+                        onClick = {},
+                        label = "Add Todo",
+                        variant = ButtonVariant.PRIMARY
+                    )
+                }
             }
+        } finally {
+            clearPlatformRenderer()
         }
 
         // Assert - Button should be rendered as submit type for form submission
@@ -49,12 +54,16 @@ class ButtonRenderTest {
         setPlatformRenderer(renderer)
 
         // Act
-        val html = renderer.renderComposableRoot {
-            Button(
-                onClick = {},
-                label = "Test Button",
-                variant = ButtonVariant.PRIMARY
-            )
+        val html = try {
+            renderer.renderComposableRoot {
+                Button(
+                    onClick = {},
+                    label = "Test Button",
+                    variant = ButtonVariant.PRIMARY
+                )
+            }
+        } finally {
+            clearPlatformRenderer()
         }
 
         // Assert - Basic button rendering
