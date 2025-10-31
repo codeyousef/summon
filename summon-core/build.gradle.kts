@@ -538,39 +538,41 @@ tasks.register("publishToCentralPortalManually") {
                         rootProject.file("private-key.asc").exists() -> rootProject.file("private-key.asc")
                         else -> null
                     }
-                    if (privateKeyFile != null && privateKeyFile.exists()) {
-                        // Use shell script wrapper for reliable GPG execution
-                        val signScript = rootProject.file("sign-artifact.sh")
-                        if (signScript.exists()) {
-                            // Convert Windows paths to WSL paths
-                            fun String.toWslPath(): String {
-                                return this.replace("\\", "/")
-                                    .replace(Regex("^([A-Z]):"), "/mnt/${this[0].lowercaseChar()}")
-                            }
+                    if (privateKeyFile == null || !privateKeyFile.exists()) {
+                        throw GradleException("private-key.asc not found. Cannot sign artifacts.")
+                    }
 
-                            exec {
-                                commandLine(
-                                    "bash", signScript.absolutePath.toWslPath(),
-                                    signingPassword, privateKeyFile.absolutePath.toWslPath(),
-                                    sigFile.absolutePath.toWslPath(), file.absolutePath.toWslPath()
-                                )
-                                isIgnoreExitValue = true
-                            }
+                    val signScript = rootProject.file("sign-artifact.sh")
+                    if (!signScript.exists()) {
+                        throw GradleException("sign-artifact.sh not found. Cannot sign artifacts.")
+                    }
+
+                    fun String.toWslPath(): String {
+                        val windowsDrive = Regex("^([A-Z]):")
+                        return if (windowsDrive.containsMatchIn(this)) {
+                            this.replace("\\", "/")
+                                .replace(windowsDrive) { matchResult ->
+                                    "/mnt/${matchResult.groupValues[1].lowercase()}"
+                                }
                         } else {
-                            println("   ⚠️  sign-artifact.sh not found")
+                            this
                         }
-                        
-                        if (!sigFile.exists()) {
-                            println("   ⚠️  GPG signing failed, creating placeholder signature")
-                            sigFile.writeText("-----BEGIN PGP SIGNATURE-----\n(GPG signing failed)\n-----END PGP SIGNATURE-----\n")
-                        }
-                    } else {
-                        println("   ⚠️  private-key.asc not found, creating placeholder signature")
-                        sigFile.writeText("-----BEGIN PGP SIGNATURE-----\n(No private key found)\n-----END PGP SIGNATURE-----\n")
+                    }
+
+                    exec {
+                        commandLine(
+                            "bash", signScript.absolutePath.toWslPath(),
+                            signingPassword, privateKeyFile.absolutePath.toWslPath(),
+                            sigFile.absolutePath.toWslPath(), file.absolutePath.toWslPath()
+                        )
+                        isIgnoreExitValue = false
+                    }
+
+                    if (!sigFile.exists()) {
+                        throw GradleException("Failed to create signature for ${file.name}")
                     }
                 } catch (e: Exception) {
-                    println("   ⚠️  GPG signing error: ${e.message}")
-                    sigFile.writeText("-----BEGIN PGP SIGNATURE-----\n(GPG error)\n-----END PGP SIGNATURE-----\n")
+                    throw GradleException("GPG signing error for ${file.name}: ${e.message}", e)
                 }
             }
             
