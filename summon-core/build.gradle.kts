@@ -22,6 +22,22 @@ repositories {
     gradlePluginPortal()
 }
 
+// Kotlin/Wasm incremental cache can hold stale fragments after package moves.
+// Ensure we clear cached klibs before recompiling the development executables.
+listOf(
+    "compileDevelopmentExecutableKotlinWasmJs",
+    "compileTestDevelopmentExecutableKotlinWasmJs"
+).forEach { taskName ->
+    tasks.matching { it.name == taskName }.configureEach {
+        doFirst {
+            val cacheDir = layout.buildDirectory.dir("klib/cache").get().asFile
+            if (cacheDir.exists()) {
+                cacheDir.deleteRecursively()
+            }
+        }
+    }
+}
+
 configurations {
     create("quarkusIntegration")
     create("quarkusDeployment")
