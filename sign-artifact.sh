@@ -39,6 +39,7 @@ fi
 # Sign the artifact
 "$GPG_BIN" --batch --yes --pinentry-mode loopback \
   --passphrase "$PASSPHRASE" \
+  --default-key "$KEY_ID" \
   --local-user "$KEY_ID" \
   --armor --detach-sign \
   --output "$OUTPUT_FILE" \
