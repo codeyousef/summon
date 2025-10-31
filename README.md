@@ -66,20 +66,24 @@ Summon combines the best ideas from modern frontend frameworks like React, Vue, 
     - Cross-browser compatibility and progressive loading
     - Production-ready WASM with optimized bundle sizes
 
-## What's New in 0.4.1.0
+## What's New in 0.4.2.0
 
-🛠️ **CLI Usability Improvements**
+🧭 **Package & Documentation Realignment**
 
-This release makes the Summon CLI much easier to install and use:
+This release focuses on tidying the public surface so projects have a single, predictable import path per feature:
 
-- **Fixed Install Command**: JAR detection now works from any directory
-- **Installation Documentation**: Clear instructions for downloading and running the CLI
-- **Auto Wrapper Scripts**: Install command creates wrapper scripts automatically
-- **Improved Help**: Better examples showing JAR usage
-- **Updated Toolchain**: Generated projects default to Kotlin 2.2.21 and ship lightweight tests so `./gradlew build`
-  succeeds immediately.
+- **Foundation namespace**: `ThemeProvider`, `BasicText`, and theme helpers now live under
+  `code.yousef.summon.components.foundation`, so generated code and examples import from a single location.
+- **Authentication components**: `SecuredComponent` and `LoginComponent` moved to `code.yousef.summon.components.auth`
+  with updated API reference snippets.
+- **Styling split**: Global styling utilities moved to `code.yousef.summon.components.styles`, while new
+  `BoxShadowModifiers.kt` and `ClipPathModifiers.kt` give the frequently-used modifier helpers their own home.
+- **Cross-target consistency**: JS effects (`code.yousef.summon.effects.browser`), SEO helpers
+  (`code.yousef.summon.seo.routes`), and Quarkus navigation support (
+  `code.yousef.summon.integration.quarkus.navigationsupport`)
+  now mirror the same package names across code, docs, templates, and tests.
 
-Download: `java -jar summon-cli-0.4.1.0.jar install`
+Download: `java -jar summon-cli-0.4.2.0.jar install`
 
 ### Previous Releases
 
@@ -237,14 +241,14 @@ The Summon CLI helps you quickly scaffold new projects and generate components.
 Download the latest JAR from [GitHub Releases](https://github.com/codeyousef/summon/releases):
 
 ```bash
-# Download summon-cli-0.4.1.0.jar
+# Download summon-cli-0.4.2.0.jar
 
 # Run commands directly
-java -jar summon-cli-0.4.1.0.jar init my-app
-java -jar summon-cli-0.4.1.0.jar --help
+java -jar summon-cli-0.4.2.0.jar init my-app
+java -jar summon-cli-0.4.2.0.jar --help
 
 # OR install globally (adds 'summon' command)
-java -jar summon-cli-0.4.1.0.jar install
+java -jar summon-cli-0.4.2.0.jar install
 # Then restart terminal and use:
 summon init my-app
 ```
@@ -255,7 +259,7 @@ summon init my-app
 git clone https://github.com/codeyousef/summon.git
 cd summon
 ./gradlew :summon-cli:shadowJar
-java -jar summon-cli/build/libs/summon-cli-0.4.1.0.jar install
+java -jar summon-cli/build/libs/summon-cli-0.4.2.0.jar install
 ```
 
 #### Quick Start
@@ -284,16 +288,16 @@ repositories {
 
 dependencies {
     // For JVM projects (Ktor, Spring Boot, Quarkus)
-    implementation("io.github.codeyousef:summon-jvm:0.4.1.0")
+  implementation("io.github.codeyousef:summon-jvm:0.4.2.0")
 
     // For JavaScript/Browser projects
-    implementation("io.github.codeyousef:summon-js:0.4.1.0")
+  implementation("io.github.codeyousef:summon-js:0.4.2.0")
 
     // For WebAssembly projects
-    implementation("io.github.codeyousef:summon-wasm-js:0.4.1.0")
+  implementation("io.github.codeyousef:summon-wasm-js:0.4.2.0")
 
     // For Kotlin Multiplatform projects (includes all targets)
-    implementation("io.github.codeyousef:summon:0.4.1.0")
+  implementation("io.github.codeyousef:summon:0.4.2.0")
 }
 ```
 
@@ -366,7 +370,7 @@ Create a new WASM project using the Summon CLI:
 
 ```bash
 # Install Summon CLI (download JAR from releases first)
-java -jar summon-cli-0.4.1.0.jar install
+java -jar summon-cli-0.4.2.0.jar install
 
 # Create a new WASM project
 summon init my-wasm-app --template=wasm
@@ -449,7 +453,7 @@ kotlin {
 }
 
 dependencies {
-    implementation("io.github.codeyousef:summon-wasm-js:0.4.1.0")
+  implementation("io.github.codeyousef:summon-wasm-js:0.4.2.0")
 }
 ```
 

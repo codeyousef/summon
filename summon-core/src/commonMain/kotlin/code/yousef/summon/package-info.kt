@@ -136,7 +136,7 @@
  * - [code.yousef.summon.modifier] - Type-safe styling and attributes system
  *
  * ### Component Packages
- * - [code.yousef.summon.components.core] - Foundational components like [ThemeProvider][code.yousef.summon.components.core.ThemeProvider]
+ * - [code.yousef.summon.components.foundation] - Foundational components like [ThemeProvider][code.yousef.summon.components.foundation.ThemeProvider]
  * - [code.yousef.summon.components.input] - Interactive components ([Button][code.yousef.summon.components.input.Button], [TextField], etc.)
  * - [code.yousef.summon.components.layout] - Layout containers ([Column], [Row], [Box])
  * - [code.yousef.summon.components.display] - Display components ([Text], [Image], [Icon])

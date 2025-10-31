@@ -171,7 +171,7 @@ class PageSubcommand : CliktCommand(
 package routing.pages
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.core.BasicText
+import code.yousef.summon.components.foundation.BasicText
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.components.layout.Row
 import code.yousef.summon.components.layout.Box

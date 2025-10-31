@@ -573,7 +573,7 @@ kotlin {
 package ${variables["PACKAGE_NAME"]}
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.core.BasicText
+import code.yousef.summon.components.foundation.BasicText
 import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.renderComposable
 import kotlinx.browser.document
@@ -604,7 +604,7 @@ fun main() {
 package ${variables["PACKAGE_NAME"]}
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.core.BasicText
+import code.yousef.summon.components.foundation.BasicText
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.components.input.Button
 import code.yousef.summon.modifier.Modifier
@@ -739,7 +739,7 @@ ktor {
 package ${variables["PACKAGE_NAME"]}
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.core.BasicText
+import code.yousef.summon.components.foundation.BasicText
 import code.yousef.summon.modifier.Modifier
 
 /**
@@ -971,7 +971,7 @@ class LibraryTest {
 package ${variables["PACKAGE_NAME"]}.examples
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.core.BasicText
+import code.yousef.summon.components.foundation.BasicText
 import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.modifier.Modifier
@@ -1070,21 +1070,21 @@ fun ButtonExamples() {
             if (versionPropsFile.exists()) {
                 val props = java.util.Properties()
                 versionPropsFile.inputStream().use { props.load(it) }
-                props.getProperty("VERSION", "0.4.1.0")
+                props.getProperty("VERSION", "0.4.2.0")
             } else {
                 // Try relative to project root
                 val rootVersionFile = File("../version.properties")
                 if (rootVersionFile.exists()) {
                     val props = java.util.Properties()
                     rootVersionFile.inputStream().use { props.load(it) }
-                    props.getProperty("VERSION", "0.4.1.0")
+                    props.getProperty("VERSION", "0.4.2.0")
                 } else {
-                    "0.4.1.0" // Fallback to current version
+                    "0.4.2.0" // Fallback to current version
                 }
             }
         } catch (e: Exception) {
             println("⚠️  Could not read version from version.properties: ${e.message}")
-            "0.4.1.0" // Fallback
+            "0.4.2.0" // Fallback
         }
     }
 }

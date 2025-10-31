@@ -623,7 +623,7 @@ Effects that utilize platform-specific APIs.
 ### JavaScript Platform
 
 ```kotlin
-package code.yousef.summon.effects.js
+package code.yousef.summon.effects.browser
 
 // Effect for browser history
 @Composable

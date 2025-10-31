@@ -186,7 +186,7 @@ import code.yousef.summon.runtime.LocalPlatformRenderer
  * @param ariaLabel Accessible name for screen readers
  * @param ariaDescribedBy ID of element describing this text for accessibility
  * @param semantic Semantic HTML element type ('paragraph', 'heading', 'caption', etc.)
- * @see code.yousef.summon.components.core.BasicText for simple text display
+ * @see code.yousef.summon.components.foundation.BasicText for simple text display
  * @see Label for form-associated text labels
  * @since 1.0.0
  */

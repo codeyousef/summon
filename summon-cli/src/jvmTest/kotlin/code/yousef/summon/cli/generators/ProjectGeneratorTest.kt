@@ -42,14 +42,14 @@ class ProjectGeneratorTest {
         
         val content = buildFile.readText()
 
-        // Should use version from version.properties (0.4.1.0), not hardcoded 0.4.0.0
+        // Should use version from version.properties (0.4.2.0), not hardcoded 0.4.0.0
         assertFalse(
             content.contains("summon:0.4.0.0"),
             "Generated build file should not use hardcoded old version 0.4.0.0"
         )
         assertTrue(
-            content.contains("summon:0.4.1.0"),
-            "Generated build file should use current version 0.4.1.0 from version.properties"
+            content.contains("summon:0.4.2.0"),
+            "Generated build file should use current version 0.4.2.0 from version.properties"
         )
 
         assertTrue(

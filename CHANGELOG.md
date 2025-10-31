@@ -6,37 +6,27 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- **WASM Regression Coverage**: `WasmDOMIntegrationTest.todo buttons mutate list as expected` drives the full add /
-  done / clear flow via the WASM bridge and asserts DOM state, guarding against future button regressions.
-- **JS Test Bootstrap**: `setup-happydom.cjs` is preloaded through `NODE_OPTIONS` so `:summon-core:jsTest` now runs
-  under Happy DOM without manual environment setup.
+- **Focused Styling Modules**: `BoxShadowModifiers.kt` and `ClipPathModifiers.kt` split the legacy `StylingModifiers`
+  helpers into dedicated files, making the styling API easier to discover and maintain.
 
 ### Changed
 
-- **WASM Renderer Lifecycle**: `PlatformRendererWasm` now tracks expected children per container, reconciles removed
-  nodes, and records handler IDs on elements to keep DOM and state aligned across recompositions.
-- **Bridge Telemetry**: `summon-wasm-init.js` stores the latest event payload per handler, falls back to
-  `wasmExecuteCallback` when direct callbacks are unavailable, and exposes `wasmClickElement` for automated tests.
-- **JS SSR Hydration**: `PlatformRenderer.renderComposableRootWithHydration` emits `data-summon-*` attributes and JSON
-  payload stubs so SSR output matches JVM behaviour.
-- **Browser Diagnostics**: `BrowserCompatibility.kt` guards `canvas.getContext` calls, normalises performance metrics,
-  and treats “No memory” errors as non-recoverable to mirror runtime observations.
-- **Package Normalisation**: Security APIs now live under `code.yousef.summon.security.*`, routing exposes `History`
-  from `code.yousef.summon.routing`, and all Quarkus helpers share the
-  `code.yousef.summon.integration.quarkus` namespace. Docs and Quarkus service descriptors were updated accordingly.
+- **Package Consolidation**: Moved foundational UI APIs to `code.yousef.summon.components.foundation`, security
+  components to `code.yousef.summon.components.auth`, global styles to `code.yousef.summon.components.styles`, JS
+  effects to `code.yousef.summon.effects.browser`, SEO helpers to `code.yousef.summon.seo.routes`, and the Quarkus
+  navigation bridge to `code.yousef.summon.integration.quarkus.navigationsupport`. CLI templates, generators, and docs
+  now reference the new namespaces to avoid import ambiguity.
+- **Documentation Structure**: API reference sections and examples were renamed to mirror the new packages (e.g. the
+  “Foundation” and “Styling” component chapters) and include updated import snippets for authentication utilities.
+- **Release Metadata**: Bumped every project artifact, script, and download snippet to version `0.4.2.0` so the CLI,
+  examples, and guides stay in sync with the latest release.
 
 ### Fixed
 
-- **Button Interactivity**: Clearing completed todos and toggling done state now works on WASM; stale elements and
-  orphaned event listeners are removed during recomposition.
-- **Hydration/Test Parity**: Event handlers registered via `registerWasmEventCallback` are recreated after hydration and
-  properly torn down when elements disappear, eliminating the sporadic “button does nothing” regressions.
-- **Node Test Bootstrap**: WASM tests create deterministic root nodes even when the bridge script is skipped, ensuring
-  integration coverage runs instead of silently skipping.
-- **JS Test Reliability**: Happy DOM globals (`window`, `document`, constructors) are attached before modules load,
-  allowing the full JS test suite (including progressive enhancement and renderer tests) to execute headlessly.
+- **Conflicting Imports**: Removed duplicated package names like `core`, `style`, and `navigation` that previously came
+  from different namespaces, eliminating ambiguous imports across multiplatform targets and tests.
 
-## [0.4.1.0] - 2025-11-01
+## [0.4.2.0] - 2025-11-01
 
 ### Added
 

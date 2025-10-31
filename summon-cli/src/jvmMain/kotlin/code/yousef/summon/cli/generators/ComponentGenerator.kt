@@ -155,7 +155,7 @@ class ComponentGenerator {
 package components${variables["PACKAGE_SUFFIX"]}
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.core.BasicText
+import code.yousef.summon.components.foundation.BasicText
 import code.yousef.summon.modifier.Modifier
 
 /**
@@ -186,7 +186,7 @@ fun ${variables["COMPONENT_NAME"]}(
 package components${variables["PACKAGE_SUFFIX"]}
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.core.BasicText
+import code.yousef.summon.components.foundation.BasicText
 import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.layout.Column
 import code.yousef.summon.modifier.Modifier

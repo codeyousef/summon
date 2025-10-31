@@ -5,20 +5,21 @@ built with type-safe styling, accessibility features, and cross-platform compati
 
 ## Table of Contents
 
-- [Core Components](#core-components)
+- [Foundation Components](#foundation-components)
 - [Layout Components](#layout-components)
 - [Display Components](#display-components)
 - [Input Components](#input-components)
 - [Feedback Components](#feedback-components)
 - [Navigation Components](#navigation-components)
-- [Style Components](#style-components)
+- [Styling Components](#styling-components)
 - [Component Architecture](#component-architecture)
 
 ---
 
-## Core Components
+## Foundation Components
 
-Core components provide foundational functionality and theming.
+Foundation components (package `code.yousef.summon.components.foundation`) provide theming and other low-level building
+blocks shared across the design system.
 
 ### ThemeProvider
 
@@ -611,9 +612,9 @@ data class TabItem(
 
 ---
 
-## Style Components
+## Styling Components
 
-Components that affect styling and layout globally.
+Components that manage global CSS and animation styling concerns live under `code.yousef.summon.components.styles`.
 
 ### GlobalStyle
 
