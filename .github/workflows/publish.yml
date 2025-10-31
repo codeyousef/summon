@@ -100,11 +100,15 @@ jobs:
 
           chmod 600 private-key.asc
 
-          if ! grep -q "BEGIN PGP PRIVATE KEY BLOCK" private-key.asc; then
-            echo "::error::Signing key does not appear to be a valid ASCII-armored PGP private key"
-            cat /tmp/base64-decode.log || true
+          # Validate the signing key is importable before proceeding (fail fast)
+          TMP_GNUPGHOME=$(mktemp -d)
+          export GNUPGHOME="$TMP_GNUPGHOME"
+          if ! gpg --batch --yes --import --import-options show-only private-key.asc >/dev/null 2>&1; then
+            echo "::error::Signing key is not a valid PGP private key or passphrase locked"
+            rm -rf "$TMP_GNUPGHOME"
             exit 1
           fi
+          rm -rf "$TMP_GNUPGHOME"
 
       - name: Publish Summon library to Maven Central
         run: ./gradlew :summon-core:publishToCentralPortalManually
