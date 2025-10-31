@@ -139,6 +139,5 @@ examples/wasm-seo-todo/gradlew.bat
 examples/wasm-seo-todo/.gradle/
 /public-key-working.asc
 /private-key-working.asc
-/sign-artifact.sh
 /.junie/*
 /gradle/*
