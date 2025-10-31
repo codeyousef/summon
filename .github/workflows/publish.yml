@@ -2,8 +2,8 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -54,6 +54,14 @@ jobs:
 
       - name: Run full test suite
         run: ./gradlew allTests
+
+      - name: Ensure tag does not already exist
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if git ls-remote --tags origin "refs/tags/v${VERSION}" | grep -q .; then
+            echo "::error::Tag v${VERSION} already exists. Bump version.properties before releasing."
+            exit 1
+          fi
 
       - name: Ensure publishing secrets are present
         shell: bash
@@ -109,6 +117,14 @@ jobs:
           echo "notes<<EOF" >> "$GITHUB_OUTPUT"
           echo "$NOTES" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Create and push release tag
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "v${VERSION}" -m "Summon ${VERSION}"
+          git push origin "v${VERSION}"
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
