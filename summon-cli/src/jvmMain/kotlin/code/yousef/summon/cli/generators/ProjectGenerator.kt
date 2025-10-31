@@ -52,6 +52,9 @@ class ProjectGenerator(private val template: ProjectTemplate) {
 
     private fun prepareVariables(config: Config): Map<String, String> {
         val packagePath = config.packageName.replace(".", "/")
+        val fullstackTemplates = setOf("quarkus", "spring-boot", "ktor")
+        val isFullstack = config.templateType in fullstackTemplates
+        val rootElementId = if (isFullstack) "app" else "root"
 
         return mapOf(
             "PROJECT_NAME" to config.projectName,
@@ -64,7 +67,9 @@ class ProjectGenerator(private val template: ProjectTemplate) {
             "INCLUDE_EXAMPLES" to if (config.includeExamples && !config.minimal) "true" else "false",
             "INCLUDE_AUTH" to if (config.includeAuth) "true" else "false",
             "INCLUDE_DOCKER" to if (config.includeDocker) "true" else "false",
-            "MINIMAL" to if (config.minimal) "true" else "false"
+            "MINIMAL" to if (config.minimal) "true" else "false",
+            "IS_FULLSTACK" to if (isFullstack) "true" else "false",
+            "ROOT_ELEMENT_ID" to rootElementId
         )
     }
 
@@ -87,6 +92,9 @@ class ProjectGenerator(private val template: ProjectTemplate) {
         generateBuildGradleKts(config.targetDirectory, variables, "quarkus")
         generateSettingsGradleKts(config.targetDirectory, variables)
         generateApplicationProperties(config.targetDirectory, variables, "quarkus")
+        generateSharedSummonApp(config.targetDirectory, variables)
+        generateFullstackJsSupport(config.targetDirectory, variables)
+        generateQuarkusServer(config.targetDirectory, variables)
         generateMainKt(config.targetDirectory, variables, "quarkus")
         generateGradleWrapper(config.targetDirectory)
     }
@@ -98,6 +106,9 @@ class ProjectGenerator(private val template: ProjectTemplate) {
         generateBuildGradleKts(config.targetDirectory, variables, "spring-boot")
         generateSettingsGradleKts(config.targetDirectory, variables)
         generateApplicationProperties(config.targetDirectory, variables, "spring-boot")
+        generateSharedSummonApp(config.targetDirectory, variables)
+        generateFullstackJsSupport(config.targetDirectory, variables)
+        generateSpringBootServer(config.targetDirectory, variables)
         generateMainKt(config.targetDirectory, variables, "spring-boot")
         generateGradleWrapper(config.targetDirectory)
     }
@@ -109,6 +120,9 @@ class ProjectGenerator(private val template: ProjectTemplate) {
         generateBuildGradleKts(config.targetDirectory, variables, "ktor")
         generateSettingsGradleKts(config.targetDirectory, variables)
         generateApplicationProperties(config.targetDirectory, variables, "ktor")
+        generateSharedSummonApp(config.targetDirectory, variables)
+        generateFullstackJsSupport(config.targetDirectory, variables)
+        generateKtorServer(config.targetDirectory, variables)
         generateMainKt(config.targetDirectory, variables, "ktor")
         generateGradleWrapper(config.targetDirectory)
     }
@@ -247,7 +261,14 @@ repositories {
 kotlin {
     jvm()
     js(IR) {
-        browser()
+        browser {
+            commonWebpackConfig {
+                cssSupport {
+                    enabled.set(true)
+                }
+                outputFileName = "app.js"
+            }
+        }
         binaries.executable()
     }
     
@@ -278,6 +299,14 @@ kotlin {
         }
     }
 }
+
+val webpackTask = tasks.named("jsBrowserProductionWebpack")
+tasks.named("quarkusDev") {
+    dependsOn(webpackTask)
+}
+tasks.named("build") {
+    dependsOn(webpackTask)
+}
         """.trimIndent()
     }
 
@@ -301,7 +330,14 @@ repositories {
 kotlin {
     jvm()
     js(IR) {
-        browser()
+        browser {
+            commonWebpackConfig {
+                cssSupport {
+                    enabled.set(true)
+                }
+                outputFileName = "app.js"
+            }
+        }
         binaries.executable()
     }
     
@@ -333,6 +369,14 @@ kotlin {
         }
     }
 }
+
+val webpackTask = tasks.named("jsBrowserProductionWebpack")
+tasks.named("bootRun") {
+    dependsOn(webpackTask)
+}
+tasks.named("build") {
+    dependsOn(webpackTask)
+}
         """.trimIndent()
     }
 
@@ -354,7 +398,14 @@ repositories {
 kotlin {
     jvm()
     js(IR) {
-        browser()
+        browser {
+            commonWebpackConfig {
+                cssSupport {
+                    enabled.set(true)
+                }
+                outputFileName = "app.js"
+            }
+        }
         binaries.executable()
     }
     
@@ -389,6 +440,14 @@ kotlin {
 
 application {
     mainClass.set("${variables["PACKAGE_NAME"]}.ApplicationKt")
+}
+
+val webpackTask = tasks.named("jsBrowserProductionWebpack")
+tasks.named("run") {
+    dependsOn(webpackTask)
+}
+tasks.named("build") {
+    dependsOn(webpackTask)
 }
         """.trimIndent()
     }
@@ -558,11 +617,12 @@ kotlin {
         val mainFile = File(sourceDir, "Main.kt")
 
         val isMinimal = variables["MINIMAL"] == "true"
+        val useSharedApp = variables["IS_FULLSTACK"] == "true"
 
-        val content = if (isMinimal) {
-            generateMinimalJsMain(variables)
-        } else {
-            generateFullJsMain(variables)
+        val content = when {
+            useSharedApp -> generateFullstackClientMain(variables)
+            isMinimal -> generateMinimalJsMain(variables)
+            else -> generateFullJsMain(variables)
         }
 
         mainFile.writeText(content)
@@ -587,7 +647,7 @@ fun App() {
 
 fun main() {
     window.onload = {
-        val rootElement = document.getElementById("root") as? HTMLElement
+        val rootElement = document.getElementById("${variables["ROOT_ELEMENT_ID"]}") as? HTMLElement
         if (rootElement != null) {
             val renderer = PlatformRenderer()
             renderComposable(renderer, {
@@ -643,12 +703,34 @@ fun App() {
 
 fun main() {
     window.onload = {
-        val rootElement = document.getElementById("root") as? HTMLElement
+        val rootElement = document.getElementById("${variables["ROOT_ELEMENT_ID"]}") as? HTMLElement
         if (rootElement != null) {
             val renderer = PlatformRenderer()
             renderComposable(renderer, {
                 App()
             }, rootElement)
+        }
+    }
+}
+        """.trimIndent()
+    }
+
+    private fun generateFullstackClientMain(variables: Map<String, String>): String {
+        return """
+package ${variables["PACKAGE_NAME"]}
+
+import code.yousef.summon.renderComposable
+import code.yousef.summon.runtime.PlatformRenderer
+import kotlinx.browser.document
+import kotlinx.browser.window
+import org.w3c.dom.HTMLElement
+
+fun main() {
+    window.onload = {
+        val rootElement = document.getElementById("${variables["ROOT_ELEMENT_ID"]}") as? HTMLElement
+        if (rootElement != null) {
+            val renderer = PlatformRenderer()
+            renderComposable(renderer, { App() }, rootElement)
         }
     }
 }
@@ -678,6 +760,292 @@ fun main() {
         jvmSourceDir.mkdirs()
 
         generateJsMain(targetDir, variables)
+    }
+
+    private fun generateSharedSummonApp(targetDir: File, variables: Map<String, String>) {
+        val commonDir = File(targetDir, "src/commonMain/kotlin/${variables["PACKAGE_PATH"]}")
+        if (!commonDir.exists()) {
+            commonDir.mkdirs()
+        }
+
+        val appFile = File(commonDir, "App.kt")
+        if (appFile.exists()) {
+            return
+        }
+
+        appFile.writeText(
+            """
+package ${variables["PACKAGE_NAME"]}
+
+import code.yousef.summon.annotation.Composable
+import code.yousef.summon.components.foundation.BasicText
+import code.yousef.summon.components.input.Button
+import code.yousef.summon.components.layout.Column
+import code.yousef.summon.modifier.Modifier
+import code.yousef.summon.modifier.padding
+import code.yousef.summon.runtime.remember
+import code.yousef.summon.state.mutableStateOf
+
+@Composable
+fun App() {
+    val counter = remember { mutableStateOf(0) }
+
+    Column(
+        modifier = Modifier().padding("24px")
+    ) {
+        BasicText(
+            text = "Welcome to ${variables["APP_TITLE"]}!",
+            modifier = Modifier().padding(bottom = "16px", left = "0px", right = "0px", top = "0px")
+        )
+
+        BasicText(
+            text = "You've clicked ${'$'}{counter.value} time(s).",
+            modifier = Modifier().padding(bottom = "12px", left = "0px", right = "0px", top = "0px")
+        )
+
+        Button(
+            onClick = { counter.value++ },
+            label = "Add one"
+        )
+    }
+}
+            """.trimIndent()
+        )
+    }
+
+    private fun generateFullstackJsSupport(targetDir: File, variables: Map<String, String>) {
+        val resourcesDir = File(targetDir, "src/jsMain/resources")
+        if (!resourcesDir.exists()) {
+            resourcesDir.mkdirs()
+        }
+
+        val indexFile = File(resourcesDir, "index.html")
+        if (!indexFile.exists()) {
+            indexFile.writeText(
+                """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>${variables["APP_TITLE"]}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <main id="${variables["ROOT_ELEMENT_ID"]}"></main>
+</body>
+</html>
+                """.trimIndent()
+            )
+        }
+    }
+
+    private fun generateKtorServer(targetDir: File, variables: Map<String, String>) {
+        val jvmDir = File(targetDir, "src/jvmMain/kotlin/${variables["PACKAGE_PATH"]}")
+        jvmDir.mkdirs()
+        val serverFile = File(jvmDir, "Application.kt")
+        serverFile.writeText(
+            """
+package ${variables["PACKAGE_NAME"]}
+
+import code.yousef.summon.runtime.PlatformRenderer
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.Application
+import io.ktor.server.application.call
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondBytes
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.get
+import io.ktor.server.routing.routing
+import java.io.File
+
+fun main() {
+    embeddedServer(Netty, port = 8080, module = Application::summonModule).start(wait = true)
+}
+
+fun Application.summonModule() {
+    routing {
+        get("/") {
+            val renderer = PlatformRenderer()
+            val body = renderer.renderComposableRoot { App() }
+            call.respondText(renderPage(body), ContentType.Text.Html)
+        }
+        get("/static/app.js") {
+            val bundle = File("build/dist/js/productionExecutable/app.js")
+            if (bundle.exists()) {
+                call.respondBytes(bundle.readBytes(), ContentType.Application.JavaScript)
+            } else {
+                call.respondBytes(
+                    "// Run `./gradlew jsBrowserProductionWebpack` to generate the browser bundle."
+                        .toByteArray(),
+                    ContentType.Application.JavaScript,
+                    HttpStatusCode.OK
+                )
+            }
+        }
+        get("/health") {
+            call.respondText("OK", ContentType.Text.Plain)
+        }
+    }
+}
+
+private fun renderPage(content: String): String = \"\"\"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>${variables["APP_TITLE"]}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <main id="${variables["ROOT_ELEMENT_ID"]}">
+        ${'$'}content
+    </main>
+    <script src="/static/app.js"></script>
+</body>
+</html>
+\"\"\".trimIndent()
+            """.trimIndent()
+        )
+    }
+
+    private fun generateSpringBootServer(targetDir: File, variables: Map<String, String>) {
+        val jvmDir = File(targetDir, "src/jvmMain/kotlin/${variables["PACKAGE_PATH"]}")
+        jvmDir.mkdirs()
+        val serverFile = File(jvmDir, "Application.kt")
+        serverFile.writeText(
+            """
+package ${variables["PACKAGE_NAME"]}
+
+import code.yousef.summon.runtime.PlatformRenderer
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RestController
+import java.io.File
+
+@SpringBootApplication
+class ${variables["APP_CLASS"]}Application
+
+fun main(args: Array<String>) = runApplication<${variables["APP_CLASS"]}Application>(*args)
+
+@RestController
+class SummonController {
+
+    @GetMapping("/", produces = [MediaType.TEXT_HTML_VALUE])
+    fun index(): ResponseEntity<String> {
+        val renderer = PlatformRenderer()
+        val body = renderer.renderComposableRoot { App() }
+        return ResponseEntity.ok()
+            .contentType(MediaType.TEXT_HTML)
+            .body(renderPage(body))
+    }
+
+    @GetMapping("/static/app.js", produces = ["application/javascript"])
+    fun bundle(): ResponseEntity<String> {
+        val bundle = File("build/dist/js/productionExecutable/app.js")
+        val script = if (bundle.exists()) {
+            bundle.readText()
+        } else {
+            "// Run `./gradlew jsBrowserProductionWebpack` to build the frontend bundle."
+        }
+        return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType("application/javascript"))
+            .body(script)
+    }
+
+    @GetMapping("/health", produces = [MediaType.TEXT_PLAIN_VALUE])
+    fun health(): String = "OK"
+}
+
+private fun renderPage(content: String): String = \"\"\"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>${variables["APP_TITLE"]}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <main id="${variables["ROOT_ELEMENT_ID"]}">
+        ${'$'}content
+    </main>
+    <script src="/static/app.js"></script>
+</body>
+</html>
+\"\"\".trimIndent()
+            """.trimIndent()
+        )
+    }
+
+    private fun generateQuarkusServer(targetDir: File, variables: Map<String, String>) {
+        val jvmDir = File(targetDir, "src/jvmMain/kotlin/${variables["PACKAGE_PATH"]}")
+        jvmDir.mkdirs()
+        val serverFile = File(jvmDir, "SummonResource.kt")
+        serverFile.writeText(
+            """
+package ${variables["PACKAGE_NAME"]}
+
+import code.yousef.summon.runtime.PlatformRenderer
+import jakarta.ws.rs.GET
+import jakarta.ws.rs.Path
+import jakarta.ws.rs.Produces
+import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.Response
+import java.io.File
+
+@Path("/")
+class SummonResource {
+
+    @GET
+    @Produces(MediaType.TEXT_HTML)
+    fun index(): String {
+        val renderer = PlatformRenderer()
+        val body = renderer.renderComposableRoot { App() }
+        return renderPage(body)
+    }
+
+    @GET
+    @Path("/static/app.js")
+    @Produces("application/javascript")
+    fun bundle(): Response {
+        val bundle = File("build/dist/js/productionExecutable/app.js")
+        val payload = if (bundle.exists()) {
+            bundle.readText()
+        } else {
+            "// Run `./gradlew jsBrowserProductionWebpack` to build the frontend bundle."
+        }
+        return Response.ok(payload, "application/javascript").build()
+    }
+
+    @GET
+    @Path("/health")
+    @Produces(MediaType.TEXT_PLAIN)
+    fun health(): String = "OK"
+}
+
+private fun renderPage(content: String): String = \"\"\"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>${variables["APP_TITLE"]}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <main id="${variables["ROOT_ELEMENT_ID"]}">
+        ${'$'}content
+    </main>
+    <script src="/static/app.js"></script>
+</body>
+</html>
+\"\"\".trimIndent()
+            """.trimIndent()
+        )
     }
 
     private fun generateApplicationProperties(targetDir: File, variables: Map<String, String>, type: String) {

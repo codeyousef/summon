@@ -4,6 +4,7 @@ import code.yousef.summon.cli.generators.ProjectGenerator
 import code.yousef.summon.cli.templates.ProjectTemplate
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -21,7 +22,17 @@ class CreateCommand : CliktCommand(
     private val template by argument(
         name = "template",
         help = "Template type to create"
-    ).choice("js-app", "quarkus-app", "spring-boot-app", "ktor-app", "library", "example", "blank")
+    ).choice(
+        "site",
+        "fullstack",
+        "js-app",
+        "quarkus-app",
+        "spring-boot-app",
+        "ktor-app",
+        "library",
+        "example",
+        "blank"
+    ).optional()
 
     private val projectName by option(
         "--name", "-n",
@@ -63,27 +74,30 @@ class CreateCommand : CliktCommand(
         help = "Generate minimal/blank project without examples"
     ).flag()
 
+    private val mode by option(
+        "--mode",
+        help = "Project mode: standalone renders a pure Summon site, fullstack wires a backend"
+    ).choice("standalone", "fullstack")
+
+    private val backend by option(
+        "--backend",
+        help = "Backend to use for fullstack projects (ktor, spring, quarkus)"
+    ).choice("ktor", "spring", "spring-boot", "quarkus")
+
     override fun run() {
         val targetDir = determineTargetDirectory()
+        val templateValue = template ?: "site"
 
-        echo("🎨 Creating Summon project from template: $template")
+        val resolution = resolveTemplateSelection(templateValue, mode, backend)
+
+        echo("🎨 Creating Summon project from template: ${resolution.displayName}")
         echo("📁 Output directory: ${targetDir.absolutePath}")
         echo("🏷️  Package: $packageName")
 
-        // Map template argument to internal template type
-        val templateType = when (template) {
-            "js-app" -> "js"
-            "quarkus-app" -> "quarkus"
-            "spring-boot-app" -> "spring-boot"
-            "ktor-app" -> "ktor"
-            "library" -> "library"
-            "example" -> "example"
-            "blank" -> "basic"
-            else -> "basic"
-        }
+        val templateType = resolution.templateType
 
         // For "blank" template, force minimal mode
-        val forceMinimal = template == "blank"
+        val forceMinimal = templateValue == "blank"
 
         // Validate target directory
         val validationError = validateTargetDirectory(targetDir)
@@ -114,7 +128,7 @@ class CreateCommand : CliktCommand(
             echo("✅ Project created successfully!")
             echo("")
 
-            printNextSteps(templateType, targetDir, template == "blank")
+            printNextSteps(templateType, targetDir, templateValue == "blank")
 
         } catch (e: Exception) {
             echo("❌ Failed to create project: ${e.message}")
@@ -151,24 +165,26 @@ class CreateCommand : CliktCommand(
                 echo("")
                 echo("🌐 Your app will be available at http://localhost:8080")
                 echo("📝 Backend: src/main/kotlin/")
-                echo("📝 Frontend: src/jsMain/kotlin/")
-                echo("🔥 Hot reload enabled for both frontend and backend")
+                echo("📝 Summon UI: src/commonMain/kotlin/ and src/jsMain/kotlin/")
+                echo("🔥 Frontend bundle is built automatically before the server starts")
             }
 
             "spring-boot" -> {
                 echo("  ${stepOffset + 1}. ./gradlew bootRun")
                 echo("")
                 echo("🌐 Your app will be available at http://localhost:8080")
-                echo("📝 Backend: src/main/kotlin/")
-                echo("📝 Frontend: src/jsMain/kotlin/")
+                echo("📝 Backend: src/jvmMain/kotlin/")
+                echo("📝 Summon UI: src/commonMain/kotlin/ and src/jsMain/kotlin/")
+                echo("⚙️  The JS bundle is generated automatically before bootRun")
             }
 
             "ktor" -> {
                 echo("  ${stepOffset + 1}. ./gradlew run")
                 echo("")
                 echo("🌐 Your app will be available at http://localhost:8080")
-                echo("📝 Backend: src/main/kotlin/")
-                echo("📝 Frontend: src/jsMain/kotlin/")
+                echo("📝 Backend: src/jvmMain/kotlin/")
+                echo("📝 Summon UI: src/commonMain/kotlin/ and src/jsMain/kotlin/")
+                echo("⚙️  The JS bundle is generated automatically before run")
             }
 
             "library" -> {
@@ -193,6 +209,69 @@ class CreateCommand : CliktCommand(
         echo("")
         echo("📖 Documentation: https://github.com/codeyousef/summon")
         echo("🐛 Issues: https://github.com/codeyousef/summon/issues")
+    }
+
+    private data class TemplateResolution(
+        val templateType: String,
+        val displayName: String
+    )
+
+    private fun resolveTemplateSelection(
+        templateArg: String,
+        modeArg: String?,
+        backendArg: String?
+    ): TemplateResolution {
+        val normalizedBackend = backendArg?.let { normalizeBackend(it) }
+
+        if (modeArg != null) {
+            return when (modeArg) {
+                "standalone" -> TemplateResolution("js", "standalone site (browser)")
+                "fullstack" -> {
+                    val backend = normalizedBackend
+                        ?: error("❌ --backend is required when --mode=fullstack (ktor, spring, or quarkus)")
+                    TemplateResolution(
+                        backend,
+                        "fullstack (${backendDisplayName(backend)})"
+                    )
+                }
+
+                else -> TemplateResolution("js", modeArg)
+            }
+        }
+
+        return when (templateArg) {
+            "site", "js-app" -> TemplateResolution("js", "standalone site (browser)")
+            "fullstack" -> {
+                val backend = normalizedBackend
+                    ?: error("❌ --backend is required when using the 'fullstack' template (ktor, spring, or quarkus)")
+                TemplateResolution(
+                    backend,
+                    "fullstack (${backendDisplayName(backend)})"
+                )
+            }
+
+            "quarkus-app" -> TemplateResolution("quarkus", "fullstack (Quarkus)")
+            "spring-boot-app" -> TemplateResolution("spring-boot", "fullstack (Spring Boot)")
+            "ktor-app" -> TemplateResolution("ktor", "fullstack (Ktor)")
+            "library" -> TemplateResolution("library", "component library")
+            "example" -> TemplateResolution("example", "example showcase")
+            "blank" -> TemplateResolution("basic", "blank multiplatform")
+            else -> TemplateResolution("basic", templateArg)
+        }
+    }
+
+    private fun normalizeBackend(value: String): String = when (value.lowercase()) {
+        "ktor" -> "ktor"
+        "spring", "spring-boot" -> "spring-boot"
+        "quarkus" -> "quarkus"
+        else -> error("❌ Unsupported backend '$value'. Use ktor, spring, or quarkus.")
+    }
+
+    private fun backendDisplayName(type: String): String = when (type) {
+        "ktor" -> "Ktor"
+        "spring-boot" -> "Spring Boot"
+        "quarkus" -> "Quarkus"
+        else -> type
     }
 
     private fun determineTargetDirectory(): File {

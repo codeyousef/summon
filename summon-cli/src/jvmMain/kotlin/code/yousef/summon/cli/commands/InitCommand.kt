@@ -27,7 +27,7 @@ class InitCommand : CliktCommand(
     private val template by option(
         "--template", "-t",
         help = "Project template to use"
-    ).choice("js", "quarkus", "spring-boot", "ktor", "basic").default("basic")
+    ).choice("site", "fullstack", "js", "quarkus", "spring-boot", "ktor", "basic").default("basic")
 
     private val packageName by option(
         "--package", "-p",
@@ -64,12 +64,24 @@ class InitCommand : CliktCommand(
         help = "Include example components"
     ).flag()
 
+    private val mode by option(
+        "--mode",
+        help = "Project mode: standalone site or fullstack"
+    ).choice("standalone", "fullstack")
+
+    private val backend by option(
+        "--backend",
+        help = "Backend to use for fullstack projects (ktor, spring, quarkus)"
+    ).choice("ktor", "spring", "spring-boot", "quarkus")
+
     override fun run() {
         val targetDir = determineTargetDirectory()
 
+        val resolved = resolveTemplateSelection(template, mode, backend)
+
         echo("🚀 Initializing Summon project: $projectName")
         echo("📁 Target directory: ${targetDir.absolutePath}")
-        echo("📦 Template: $template")
+        echo("📦 Template: ${resolved.displayName}")
         echo("🏷️  Package: $packageName")
 
         var finalProjectName = projectName
@@ -93,14 +105,14 @@ class InitCommand : CliktCommand(
         }
 
         try {
-            val projectTemplate = ProjectTemplate.fromType(template)
+            val projectTemplate = ProjectTemplate.fromType(resolved.templateType)
             val generator = ProjectGenerator(projectTemplate)
 
             val config = ProjectGenerator.Config(
                 projectName = finalProjectName,
                 packageName = finalPackageName,
                 targetDirectory = targetDir,
-                templateType = template,
+                templateType = resolved.templateType,
                 minimal = finalMinimal,
                 overwrite = force
             )
@@ -120,7 +132,7 @@ class InitCommand : CliktCommand(
 
             val nextStep = if (!here && targetDir.name != ".") "3" else "2"
 
-            when (template) {
+            when (resolved.templateType) {
                 "js" -> {
                     echo("  $nextStep. ./gradlew jsBrowserDevelopmentRun")
                     echo("     Open http://localhost:8080 to see your app")
@@ -134,11 +146,15 @@ class InitCommand : CliktCommand(
                 "spring-boot" -> {
                     echo("  $nextStep. ./gradlew bootRun")
                     echo("     Open http://localhost:8080 to see your app")
+                    val msgStep = (nextStep.toInt() + 1).toString()
+                    echo("  $msgStep. Summon UI shared in src/commonMain/kotlin/")
                 }
 
                 "ktor" -> {
                     echo("  $nextStep. ./gradlew run")
                     echo("     Open http://localhost:8080 to see your app")
+                    val msgStep = (nextStep.toInt() + 1).toString()
+                    echo("  $msgStep. Summon UI shared in src/commonMain/kotlin/")
                 }
 
                 else -> {
@@ -245,5 +261,65 @@ class InitCommand : CliktCommand(
 
             else -> null
         }
+    }
+
+    private data class TemplateResolution(
+        val templateType: String,
+        val displayName: String
+    )
+
+    private fun resolveTemplateSelection(
+        templateArg: String,
+        modeArg: String?,
+        backendArg: String?
+    ): TemplateResolution {
+        val normalizedBackend = backendArg?.let { normalizeBackend(it) }
+
+        if (modeArg != null) {
+            return when (modeArg) {
+                "standalone" -> TemplateResolution("js", "standalone site (browser)")
+                "fullstack" -> {
+                    val backend = normalizedBackend
+                        ?: error("❌ --backend is required when --mode=fullstack (ktor, spring, or quarkus)")
+                    TemplateResolution(
+                        backend,
+                        "fullstack (${backendDisplayName(backend)})"
+                    )
+                }
+
+                else -> TemplateResolution(templateArg, templateArg)
+            }
+        }
+
+        return when (templateArg) {
+            "site", "js" -> TemplateResolution("js", "standalone site (browser)")
+            "fullstack" -> {
+                val backend = normalizedBackend
+                    ?: error("❌ --backend is required when using the 'fullstack' template (ktor, spring, or quarkus)")
+                TemplateResolution(
+                    backend,
+                    "fullstack (${backendDisplayName(backend)})"
+                )
+            }
+
+            "quarkus" -> TemplateResolution("quarkus", "fullstack (Quarkus)")
+            "spring-boot" -> TemplateResolution("spring-boot", "fullstack (Spring Boot)")
+            "ktor" -> TemplateResolution("ktor", "fullstack (Ktor)")
+            else -> TemplateResolution(templateArg, templateArg)
+        }
+    }
+
+    private fun normalizeBackend(value: String): String = when (value.lowercase()) {
+        "ktor" -> "ktor"
+        "spring", "spring-boot" -> "spring-boot"
+        "quarkus" -> "quarkus"
+        else -> error("❌ Unsupported backend '$value'. Use ktor, spring, or quarkus.")
+    }
+
+    private fun backendDisplayName(type: String): String = when (type) {
+        "ktor" -> "Ktor"
+        "spring-boot" -> "Spring Boot"
+        "quarkus" -> "Quarkus"
+        else -> type
     }
 }

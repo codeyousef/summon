@@ -29,6 +29,8 @@ summon <command>
 ```bash
 summon init my-app                    # Creates ./my-app/
 summon init my-app --here             # Creates in current directory  
+summon init my-app --mode=standalone  # Explicit browser-only site
+summon init my-app --mode=fullstack --backend=ktor   # Ktor backend + Summon UI
 summon init my-app --template=wasm    # WASM template
 ```
 
@@ -38,6 +40,8 @@ summon init my-app --template=wasm    # WASM template
 summon create js-app --name my-app
 summon create quarkus-app --name backend
 summon create ktor-app --name api
+summon create fullstack --backend spring --name portal
+summon create site --name marketing
 ```
 
 ### generate - Generate Components

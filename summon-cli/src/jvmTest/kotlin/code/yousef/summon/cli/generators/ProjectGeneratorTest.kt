@@ -435,4 +435,51 @@ class ProjectGeneratorTest {
         
         println("✅ Generated Main.kt syntax validation passed")
     }
+
+    @Test
+    fun `fullstack ktor template wires shared summon ui and server`() {
+        val template = ProjectTemplate.fromType("ktor")
+        val generator = ProjectGenerator(template)
+
+        val config = ProjectGenerator.Config(
+            projectName = "fullstack-app",
+            packageName = "com.example.full",
+            targetDirectory = tempDir,
+            templateType = "ktor",
+            minimal = false
+        )
+
+        generator.generate(config)
+
+        val appFile = File(tempDir, "src/commonMain/kotlin/com/example/full/App.kt")
+        assertTrue(appFile.exists(), "Shared App.kt should exist for fullstack templates")
+        val appContent = appFile.readText()
+        assertTrue(appContent.contains("@Composable"), "App.kt should declare a composable function")
+        assertTrue(appContent.contains("Button("), "App.kt should use Summon components")
+
+        val jsBootstrap = File(tempDir, "src/jsMain/kotlin/com/example/full/Main.kt")
+        assertTrue(jsBootstrap.exists(), "JS bootstrap should exist")
+        val jsContent = jsBootstrap.readText()
+        assertTrue(jsContent.contains("renderComposable(renderer"), "JS bootstrap should hydrate the shared App")
+        assertTrue(
+            jsContent.contains("document.getElementById(\"app\")"),
+            "JS bootstrap should target the shared root element"
+        )
+
+        val serverFile = File(tempDir, "src/jvmMain/kotlin/com/example/full/Application.kt")
+        assertTrue(serverFile.exists(), "Ktor server entrypoint should be generated")
+        val serverContent = serverFile.readText()
+        assertTrue(serverContent.contains("PlatformRenderer"), "Server should use PlatformRenderer for SSR")
+        assertTrue(serverContent.contains("/static/app.js"), "Server should expose the compiled JS bundle")
+
+        val buildContent = File(tempDir, "build.gradle.kts").readText()
+        assertTrue(
+            buildContent.contains("outputFileName = \"app.js\""),
+            "Build script should configure webpack output file"
+        )
+        assertTrue(
+            buildContent.contains("tasks.named(\"run\")"),
+            "Build script should ensure run depends on the JS bundle"
+        )
+    }
 }
