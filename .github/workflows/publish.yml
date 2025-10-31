@@ -84,8 +84,10 @@ jobs:
           signingPassword=${{ secrets.CENTRAL_SIGNING_PASSWORD }}
           signingKey=provided-via-secret
           EOF
-          
-          echo "${{ secrets.CENTRAL_SIGNING_KEY_ASC }}" | base64 -d > private-key.asc
+
+          cat <<'EOF' > private-key.asc
+  ${{ secrets.CENTRAL_SIGNING_KEY_ASC }}
+  EOF
           chmod 600 private-key.asc
 
       - name: Publish Summon library to Maven Central
