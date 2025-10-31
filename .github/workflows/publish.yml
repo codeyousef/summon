@@ -84,11 +84,27 @@ jobs:
           signingPassword=${{ secrets.CENTRAL_SIGNING_PASSWORD }}
           signingKey=provided-via-secret
           EOF
+          
+          SIGNING_SECRET="${{ secrets.CENTRAL_SIGNING_KEY_ASC }}"
+          if [[ -z "$SIGNING_SECRET" ]]; then
+            echo "::error::CENTRAL_SIGNING_KEY_ASC secret is not set"
+            exit 1
+          fi
 
-          cat <<'EOF' > private-key.asc
-  ${{ secrets.CENTRAL_SIGNING_KEY_ASC }}
-  EOF
+          if echo "$SIGNING_SECRET" | base64 -d > private-key.asc 2>/tmp/base64-decode.log; then
+            echo "Imported signing key from base64-encoded secret"
+          else
+            echo "$SIGNING_SECRET" > private-key.asc
+            echo "Stored signing key as literal ASCII-armored block"
+          fi
+
           chmod 600 private-key.asc
+
+          if ! grep -q "BEGIN PGP PRIVATE KEY BLOCK" private-key.asc; then
+            echo "::error::Signing key does not appear to be a valid ASCII-armored PGP private key"
+            cat /tmp/base64-decode.log || true
+            exit 1
+          fi
 
       - name: Publish Summon library to Maven Central
         run: ./gradlew :summon-core:publishToCentralPortalManually
