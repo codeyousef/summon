@@ -57,7 +57,7 @@ jobs:
           fi
 
       - name: Run full test suite
-        run: ./gradlew allTests
+        run: ./gradlew allTests --stacktrace --info
 
       - name: Ensure tag does not already exist
         run: |
