@@ -1,96 +1,127 @@
-name: Publish CLI to GitHub Packages
+name: Release
+
 on:
-  release:
-    types: [created]
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   packages: write
-  
+
 jobs:
-  publish-cli:
+  release:
     runs-on: ubuntu-latest
+    env:
+      GRADLE_OPTS: "-Dorg.gradle.jvmargs='-Xmx2g'"
     steps:
-      - uses: actions/checkout@v4
-      
-      - uses: actions/setup-java@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Grant execute permissions
+        run: chmod +x gradlew sign-artifact.sh
+
+      - name: Set up Temurin JDK 17
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-      
-      - uses: actions/cache@v3
+
+      - name: Cache Gradle
+        uses: actions/cache@v3
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-      
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-      
-      
-      - name: Extract and Verify Version
+
+      - name: Verify version matches tag
         id: version
+        shell: bash
         run: |
           VERSION=$(grep "^VERSION=" version.properties | cut -d'=' -f2)
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "Publishing version: $VERSION"
-
-          # Check if summon-cli version already exists in GitHub Packages
-          if curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-               "https://api.github.com/repos/${{ github.repository }}/packages/maven/io.github.codeyousef.summon-cli/versions" | \
-               grep -q "\"name\":\"$VERSION\""; then
-            echo "::warning::Version $VERSION of summon-cli already exists in GitHub Packages"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            TAG="${GITHUB_REF_NAME}"
+            if [[ "$TAG" != "v$VERSION" ]]; then
+              echo "::error::Tag $TAG does not match version v$VERSION from version.properties"
+              exit 1
+            fi
           fi
-      
+
+      - name: Run full test suite
+        run: ./gradlew allTests
+
+      - name: Ensure publishing secrets are present
+        shell: bash
+        run: |
+          [[ -n "${{ secrets.CENTRAL_USERNAME }}" ]] || { echo "::error::Missing required secret CENTRAL_USERNAME"; exit 1; }
+          [[ -n "${{ secrets.CENTRAL_PASSWORD }}" ]] || { echo "::error::Missing required secret CENTRAL_PASSWORD"; exit 1; }
+          [[ -n "${{ secrets.CENTRAL_SIGNING_PASSWORD }}" ]] || { echo "::error::Missing required secret CENTRAL_SIGNING_PASSWORD"; exit 1; }
+          [[ -n "${{ secrets.CENTRAL_SIGNING_KEY_ASC }}" ]] || { echo "::error::Missing required secret CENTRAL_SIGNING_KEY_ASC"; exit 1; }
+
+      - name: Configure publishing credentials
+        if: ${{ secrets.CENTRAL_USERNAME && secrets.CENTRAL_PASSWORD && secrets.CENTRAL_SIGNING_PASSWORD && secrets.CENTRAL_SIGNING_KEY_ASC }}
+        shell: bash
+        run: |
+          cat <<'EOF' > local.properties
+          mavenCentralUsername=${{ secrets.CENTRAL_USERNAME }}
+          mavenCentralPassword=${{ secrets.CENTRAL_PASSWORD }}
+          signingPassword=${{ secrets.CENTRAL_SIGNING_PASSWORD }}
+          signingKey=provided-via-secret
+          EOF
+          
+          echo "${{ secrets.CENTRAL_SIGNING_KEY_ASC }}" | base64 -d > private-key.asc
+          chmod 600 private-key.asc
+
+      - name: Publish Summon library to Maven Central
+        run: ./gradlew :summon-core:publishToCentralPortalManually
+
+      - name: Extract latest changelog entry
+        id: changelog
+        shell: bash
+        run: |
+          python <<'PY'
+          import itertools
+
+          with open("CHANGELOG.md", encoding="utf-8") as fh:
+              lines = fh.readlines()
+
+          section = []
+          capture = False
+          for line in lines:
+              if line.startswith("## ["):
+                  if capture:
+                      break
+                  capture = True
+                  continue
+              if capture:
+                  section.append(line.rstrip("\n"))
+
+          notes = "\n".join(section).strip()
+          print(notes)
+          with open("release-notes.md", "w", encoding="utf-8") as out:
+              out.write(notes + "\n")
+          PY
+          NOTES=$(cat release-notes.md)
+          echo "notes<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$NOTES" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Summon ${{ steps.version.outputs.version }}
+          body_path: release-notes.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build CLI
         run: ./gradlew summon-cli:build -PskipWrapperTests=true
-
-      - name: Validate gradle-wrapper files in JAR
-        run: |
-          echo "Validating gradle-wrapper files are included in shadowJar..."
-          JAR_FILE=$(find summon-cli/build/libs -name "summon-cli-*.jar" ! -name "*-sources.jar" ! -name "*-javadoc.jar" ! -name "*-jvm-*.jar" ! -name "*-metadata-*.jar" | head -1)
-          echo "Checking JAR: $JAR_FILE"
-
-          # Check for required gradle-wrapper files
-          REQUIRED_FILES=(
-            "gradle-wrapper/gradle-wrapper.jar"
-            "gradle-wrapper/gradle-wrapper.properties"
-            "gradle-wrapper/gradlew"
-            "gradle-wrapper/gradlew.bat"
-          )
-
-          MISSING_FILES=()
-          for file in "${REQUIRED_FILES[@]}"; do
-            if ! jar tf "$JAR_FILE" | grep -q "^$file$"; then
-              MISSING_FILES+=("$file")
-            fi
-          done
-
-          if [ ${#MISSING_FILES[@]} -ne 0 ]; then
-            echo "::error::Missing required files in JAR:"
-            for file in "${MISSING_FILES[@]}"; do
-              echo "::error::  - $file"
-            done
-            echo ""
-            echo "Contents of gradle-wrapper directory in JAR:"
-            jar tf "$JAR_FILE" | grep gradle-wrapper || echo "No gradle-wrapper files found!"
-            exit 1
-          fi
-
-          echo "✅ All required gradle-wrapper files are present in JAR"
-
-          # Verify gradle-wrapper.jar size is reasonable (should be ~43KB)
-          jar xf "$JAR_FILE" gradle-wrapper/gradle-wrapper.jar
-          WRAPPER_SIZE=$(stat -c%s gradle-wrapper/gradle-wrapper.jar 2>/dev/null || stat -f%z gradle-wrapper/gradle-wrapper.jar)
-          echo "gradle-wrapper.jar size: $WRAPPER_SIZE bytes"
-
-          if [ "$WRAPPER_SIZE" -lt 40000 ]; then
-            echo "::error::gradle-wrapper.jar is too small ($WRAPPER_SIZE bytes, expected ~43KB)"
-            exit 1
-          fi
-
-          echo "✅ gradle-wrapper.jar size is valid"
 
       - name: Publish CLI to GitHub Packages
         run: ./gradlew summon-cli:publishCliPublicationToGitHubPackagesRepository
