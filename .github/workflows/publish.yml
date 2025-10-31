@@ -103,8 +103,9 @@ jobs:
           # Validate the signing key is importable before proceeding (fail fast)
           TMP_GNUPGHOME=$(mktemp -d)
           export GNUPGHOME="$TMP_GNUPGHOME"
-          if ! gpg --batch --yes --import --import-options show-only private-key.asc >/dev/null 2>&1; then
-            echo "::error::Signing key is not a valid PGP private key or passphrase locked"
+          if ! gpg --batch --yes --import private-key.asc >/tmp/gpg-import.log 2>&1; then
+            echo "::error::Signing key could not be imported"
+            cat /tmp/gpg-import.log || true
             rm -rf "$TMP_GNUPGHOME"
             exit 1
           fi
