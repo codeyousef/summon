@@ -64,7 +64,6 @@ jobs:
           [[ -n "${{ secrets.CENTRAL_SIGNING_KEY_ASC }}" ]] || { echo "::error::Missing required secret CENTRAL_SIGNING_KEY_ASC"; exit 1; }
 
       - name: Configure publishing credentials
-        if: ${{ secrets.CENTRAL_USERNAME && secrets.CENTRAL_PASSWORD && secrets.CENTRAL_SIGNING_PASSWORD && secrets.CENTRAL_SIGNING_KEY_ASC }}
         shell: bash
         run: |
           cat <<'EOF' > local.properties
