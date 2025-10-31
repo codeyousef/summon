@@ -1,7 +1,5 @@
 package code.yousef.summon.security
 
-import security.Authentication
-
 actual object SecurityContextHolder {
     private var _authentication: Authentication? = null
 

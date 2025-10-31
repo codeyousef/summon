@@ -1,4 +1,4 @@
-package code.yousef.summon.integrations.quarkus.htmx
+package code.yousef.summon.integration.quarkus.htmx
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.Text

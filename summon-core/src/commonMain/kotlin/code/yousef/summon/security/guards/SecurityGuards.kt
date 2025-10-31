@@ -1,4 +1,4 @@
-package security.guards
+package code.yousef.summon.security.guards
 
 import code.yousef.summon.routing.GuardResult
 import code.yousef.summon.routing.Route

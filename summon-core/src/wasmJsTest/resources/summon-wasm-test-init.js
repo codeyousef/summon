@@ -71,6 +71,24 @@ if (typeof global !== 'undefined' && typeof window === 'undefined') {
         return '';
     };
 
+    global.wasmClickElement = function (elementId) {
+        return true;
+    };
+
+    global.__summonEnsureRoot = function (rootId) {
+        if (typeof document === 'undefined') {
+            return;
+        }
+        let root = document.getElementById(rootId);
+        if (!root) {
+            root = document.createElement('div');
+            root.id = rootId;
+            if (document.body) {
+                document.body.appendChild(root);
+            }
+        }
+    };
+
     global.wasmAddClassToElement = function (elementId, className) {
         // No-op in tests
     };

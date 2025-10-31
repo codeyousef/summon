@@ -1,6 +1,5 @@
 package code.yousef.summon.security
 
-import security.TokenResponse
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals

@@ -1,7 +1,7 @@
-package security.config
+package code.yousef.summon.security.config
 
-import security.AuthenticationProvider
-import security.JwtAuthenticationProvider
+import code.yousef.summon.security.AuthenticationProvider
+import code.yousef.summon.security.JwtAuthenticationProvider
 
 /**
  * Configuration class for security settings.

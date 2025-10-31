@@ -24,6 +24,11 @@ actual open class PlatformRenderer actual constructor() {
 
     // Element placement tracking to prevent duplicate appendChild calls
     private val placedElements = mutableSetOf<String>()
+    private val containerChildrenStack = mutableListOf<MutableList<String>>()
+
+    // Event handler tracking
+    private val eventHandlerIds = mutableMapOf<String, String>() // "${elementId}-${eventType}" -> handlerId
+    private var eventHandlerCounter = 0
 
     // HTML building for server-side rendering
     private val htmlBuilder = StringBuilder()
@@ -1413,12 +1418,13 @@ actual open class PlatformRenderer actual constructor() {
     private inline fun withContainerContext(container: DOMElement, block: () -> Unit) {
         val containerId = DOMProvider.getNativeElementId(container)
         containerStack.add(containerId)
+        containerChildrenStack.add(mutableListOf())
         try {
             block()
         } finally {
-            if (containerStack.isNotEmpty()) {
-                containerStack.removeLastOrNull()
-            }
+            val expectedChildren = containerChildrenStack.removeLastOrNull() ?: mutableListOf()
+            reconcileContainerChildren(containerId, expectedChildren)
+            containerStack.removeLastOrNull()
         }
     }
 
@@ -1442,7 +1448,7 @@ actual open class PlatformRenderer actual constructor() {
                 val parent = wasmGetElementParent(elementId)
                 if (parent == containerId) {
                     // Element is already in the right container - don't move it
-                    placedElements.add(elementId)
+                    recordElementPlacement(elementId)
                     wasmConsoleLog("Element $elementId already in correct container $containerId, marking as placed")
                     return
                 }
@@ -1451,15 +1457,91 @@ actual open class PlatformRenderer actual constructor() {
                 wasmConsoleLog("Appending element $elementId to container $containerId")
                 // Use WASM external function directly to avoid type casting issues
                 wasmAppendChildById(containerId, elementId)
-                placedElements.add(elementId)
+                recordElementPlacement(elementId)
             } else {
                 // If no container context, append to document body
                 val bodyId = wasmGetElementById("body") ?: "body"
                 wasmAppendChildById(bodyId, elementId)
-                placedElements.add(elementId)
+                recordElementPlacement(elementId)
             }
         } catch (e: Exception) {
             wasmConsoleError("Failed to append to container: ${e.message}")
+        }
+    }
+
+    private fun recordElementPlacement(elementId: String) {
+        placedElements.add(elementId)
+        containerChildrenStack.lastOrNull()?.let { children ->
+            if (!children.contains(elementId)) {
+                children.add(elementId)
+            }
+        }
+    }
+
+    private fun safeGetElementChildren(containerId: String): List<String> = try {
+        wasmGetElementChildren(containerId)
+            .split(',')
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+    } catch (_: Throwable) {
+        emptyList()
+    }
+
+    private fun reconcileContainerChildren(containerId: String?, expectedChildren: List<String>) {
+        val id = containerId ?: return
+        val expectedSet = expectedChildren.toSet()
+        val currentChildren = safeGetElementChildren(id)
+
+        currentChildren.filter { it !in expectedSet }.forEach { childId ->
+            cleanupEventHandlersForElement(childId)
+            wasmRemoveElementById(childId)
+        }
+
+        expectedChildren.forEach { childId ->
+            if (childId.isNotBlank()) {
+                wasmAppendChildById(id, childId)
+            }
+        }
+    }
+
+    private fun cleanupEventHandlersForElement(elementId: String) {
+        val keys = eventHandlerIds.keys.filter { it.startsWith("$elementId-") }
+        for (key in keys) {
+            val handlerId = eventHandlerIds.remove(key) ?: continue
+            val eventType = key.substringAfterLast('-')
+            try {
+                wasmRemoveEventHandler(elementId, eventType, handlerId)
+            } catch (_: Throwable) {
+                // ignore removal errors
+            }
+            attachedEventListeners.remove(key)
+        }
+    }
+
+    private fun removeElementFromDom(summonId: String) {
+        val domElement = recompositionElements[summonId] ?: existingElements[summonId]
+        val nativeId = domElement?.let {
+            runCatching { DOMProvider.getNativeElementId(it) }.getOrNull()
+        }
+
+        if (nativeId != null) {
+            cleanupEventHandlersForElement(nativeId)
+            wasmRemoveElementById(nativeId)
+            placedElements.remove(nativeId)
+        }
+
+        recompositionElements.remove(summonId)
+        existingElements.remove(summonId)
+        currentCompositionElements.remove(summonId)
+    }
+
+    private fun generateEventHandlerId(listenerKey: String): String {
+        eventHandlerCounter = (eventHandlerCounter + 1) and Int.MAX_VALUE
+        return buildString {
+            append("evh-")
+            append(eventHandlerCounter)
+            append('-')
+            append(listenerKey.hashCode().toUInt().toString(16))
         }
     }
 
@@ -1564,16 +1646,8 @@ actual open class PlatformRenderer actual constructor() {
                 // Remove elements that are no longer in the composition
                 val elementsToRemove = previousCompositionElements - currentCompositionElements
                 for (elementId in elementsToRemove) {
-                    // Remove from cache
-                    recompositionElements.remove(elementId)
-                    // Remove event listeners
-                    val elementNativeId = recompositionElements[elementId]?.let {
-                        DOMProvider.getNativeElementId(it)
-                    }
-                    if (elementNativeId != null) {
-                        attachedEventListeners.removeAll { it.startsWith("$elementNativeId-") }
-                    }
                     wasmConsoleLog("Removing unused element: $elementId")
+                    removeElementFromDom(elementId)
                 }
             }
 
@@ -1697,22 +1771,12 @@ actual open class PlatformRenderer actual constructor() {
             safeWasmConsoleLog("Reattaching ${pendingEventListeners.size} event listeners")
 
             for (listenerInfo in pendingEventListeners) {
-                try {
-                    val elementId = wasmGetElementById(listenerInfo.elementId)
-                    if (elementId != null) {
-                        // Create unique handler ID for WASM event system
-                        val handlerId = "handler-${elementId}-${listenerInfo.eventType}"
-
-                        // Register the event listener using WASM APIs
-                        val success = wasmAddEventListenerById(elementId, listenerInfo.eventType, handlerId)
-                        if (success) {
-                            safeWasmConsoleLog("Reattached ${listenerInfo.eventType} listener to $elementId")
-                        } else {
-                            safeWasmConsoleWarn("Failed to reattach ${listenerInfo.eventType} listener to $elementId")
-                        }
-                    }
-                } catch (e: Throwable) {
-                    // Ignore individual listener errors in test environment
+                runCatching {
+                    attachEventListenerInternal(listenerInfo.elementId, listenerInfo.eventType, listenerInfo.handler)
+                }.onSuccess {
+                    safeWasmConsoleLog("Reattached ${listenerInfo.eventType} listener to ${listenerInfo.elementId}")
+                }.onFailure { error ->
+                    safeWasmConsoleWarn("Failed to reattach ${listenerInfo.eventType} listener to ${listenerInfo.elementId}: ${error.message}")
                 }
             }
 
@@ -1858,31 +1922,48 @@ actual open class PlatformRenderer actual constructor() {
             pendingEventListeners.add(EventListenerInfo(elementId, eventType, handler))
             wasmConsoleLog("Queued event listener for hydration: $eventType on $elementId")
         } else {
-            // Check if event listener already exists to prevent duplicates during recomposition
-            if (attachedEventListeners.contains(listenerKey)) {
-                wasmConsoleLog("Event listener already exists, skipping: $eventType on $elementId")
-                return
-            }
+            attachEventListenerInternal(elementId, eventType, handler, listenerKey)
+        }
+    }
 
-            // Register callback with the global callback registry and get the ID
-            val handlerId = CallbackRegistry.registerCallback {
-                try {
-                    wasmConsoleLog("=== EXECUTING CALLBACK ===")
-                    handler()
-                } catch (e: Exception) {
-                    wasmConsoleError("Event handler failed: ${e.message}")
-                }
+    private fun attachEventListenerInternal(
+        elementId: String,
+        eventType: String,
+        handler: () -> Unit,
+        listenerKey: String = "$elementId-$eventType"
+    ) {
+        eventHandlerIds[listenerKey]?.let { existingId ->
+            try {
+                wasmRemoveEventHandler(elementId, eventType, existingId)
+            } catch (_: Throwable) {
+                // ignore errors removing stale handlers
             }
+            eventHandlerIds.remove(listenerKey)
+            attachedEventListeners.remove(listenerKey)
+        }
 
-            // Register the event handler with the WASM bridge
-            val success = wasmAddEventHandler(elementId, eventType, handlerId)
-            if (success) {
-                wasmConsoleLog("Successfully registered $eventType handler for $elementId with ID: $handlerId")
-                // Track that this event listener has been attached
-                attachedEventListeners.add(listenerKey)
-            } else {
-                wasmConsoleError("Failed to register $eventType handler for $elementId")
+        val handlerId = generateEventHandlerId(listenerKey)
+
+        registerWasmEventCallback(handlerId) {
+            try {
+                wasmConsoleLog("Executing registered callback $handlerId for $listenerKey")
+                handler()
+            } catch (e: Exception) {
+                wasmConsoleError("Event handler failed: ${e.message}")
             }
+        }
+
+        val success = wasmAddEventHandler(elementId, eventType, handlerId)
+        if (success) {
+            wasmConsoleLog("Successfully registered $eventType handler for $elementId with ID: $handlerId")
+            eventHandlerIds[listenerKey] = handlerId
+            attachedEventListeners.add(listenerKey)
+            runCatching {
+                wasmSetElementAttribute(elementId, "data-summon-handler-$eventType", handlerId)
+            }
+        } else {
+            wasmConsoleError("Failed to register $eventType handler for $elementId")
+            eventHandlerIds.remove(listenerKey)
         }
     }
 
@@ -2044,4 +2125,3 @@ actual open class PlatformRenderer actual constructor() {
         }
     }
 }
-

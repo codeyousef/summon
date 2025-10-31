@@ -1,4 +1,4 @@
-package code.yousef.summon.integrations.quarkus
+package code.yousef.summon.integration.quarkus
 
 import jakarta.ws.rs.ApplicationPath
 import jakarta.ws.rs.core.Application

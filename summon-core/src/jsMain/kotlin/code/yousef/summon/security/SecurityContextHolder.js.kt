@@ -1,7 +1,5 @@
 package code.yousef.summon.security
 
-import security.Authentication
-
 /**
  * JS implementation of SecurityContextHolder using a simple mutable variable.
  * Note: JavaScript in the browser is single-threaded, so a simple variable suffices.

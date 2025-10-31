@@ -20,6 +20,7 @@ import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.HTMLStyleElement
+import org.w3c.dom.events.EventListener
 import org.w3c.dom.events.Event as DomEvent
 
 /**
@@ -43,6 +44,8 @@ actual open class PlatformRenderer {
     private val parentKeyStack = mutableListOf<String>()
     private val parentChildrenMap = mutableMapOf<Element, MutableList<String>>()
     private val keyToParentMap = mutableMapOf<String, Element>()
+    private val listenerRegistry = mutableMapOf<Element, MutableMap<String, EventListener>>()
+    private var handlerCounter = 0
 
     private class ElementStack {
         private val stack = mutableListOf<Element>()
@@ -142,6 +145,7 @@ actual open class PlatformRenderer {
         unusedChildKeys.forEach { key ->
             val element = elementCache[key]
             if (element != null && element.parentNode == parent) {
+                clearEventListeners(element)
                 parent.removeChild(element)
                 elementCache.remove(key)
                 keyToParentMap.remove(key)
@@ -247,6 +251,34 @@ actual open class PlatformRenderer {
         }
 
         return element
+    }
+
+    private fun generateHandlerId(eventType: String): String {
+        val id = handlerCounter++
+        return "js-$eventType-$id"
+    }
+
+    private fun registerEventListener(
+        element: Element,
+        eventType: String,
+        handler: (DomEvent) -> Unit
+    ) {
+        val listeners = listenerRegistry.getOrPut(element) { mutableMapOf() }
+        listeners[eventType]?.let { existing ->
+            element.removeEventListener(eventType, existing)
+        }
+        val listener = EventListener { event -> handler(event) }
+        element.addEventListener(eventType, listener)
+        listeners[eventType] = listener
+        element.setAttribute("data-summon-handler-$eventType", generateHandlerId(eventType))
+    }
+
+    private fun clearEventListeners(element: Element) {
+        val listeners = listenerRegistry.remove(element) ?: return
+        listeners.forEach { (eventType, listener) ->
+            element.removeEventListener(eventType, listener)
+            element.removeAttribute("data-summon-handler-$eventType")
+        }
     }
 
     private fun applyModifier(element: Element, modifier: Modifier) {
@@ -391,8 +423,7 @@ actual open class PlatformRenderer {
 
         createElement("button", filteredModifier, { element ->
             console.log("Setting up button with click handler")
-            // Use the extension function properly
-            element.addEventListener("click") { event ->
+            registerEventListener(element, "click") { event ->
                 console.log("Button clicked!")
                 event.preventDefault()
                 event.stopPropagation()
@@ -445,14 +476,10 @@ actual open class PlatformRenderer {
             } else if (inputElement == null) {
                 element.setAttribute("value", value)
             }
-            
-            // Only add event listener if this is a new element
-            if (!isRecomposing || !element.asDynamic().hasInputListener) {
-                element.addEventListener("input") { event ->
-                    val target = event.target.asDynamic()
-                    onValueChange(target.value as String)
-                }
-                element.asDynamic().hasInputListener = true
+
+            registerEventListener(element, "input") { event ->
+                val target = event.target.asDynamic()
+                onValueChange(target.value as String)
             }
         })
     }
@@ -485,20 +512,16 @@ actual open class PlatformRenderer {
                 element.appendChild(optionElement)
             }
 
-            // Only add change event listener if this is a new element or doesn't have one
-            if (!element.asDynamic().hasChangeListener) {
-                element.addEventListener("change") { event ->
-                    console.log("Select changed!")
-                    val selectElement = event.target.asDynamic()
-                    val selectedIndex = selectElement.selectedIndex as Int
-                    console.log("Selected index: $selectedIndex")
-                    if (selectedIndex >= 0 && selectedIndex < options.size) {
-                        onSelectedChange(options[selectedIndex].value)
-                    } else {
-                        onSelectedChange(null)
-                    }
+            registerEventListener(element, "change") { event ->
+                console.log("Select changed!")
+                val selectElement = event.target.asDynamic()
+                val selectedIndex = selectElement.selectedIndex as Int
+                console.log("Selected index: $selectedIndex")
+                if (selectedIndex >= 0 && selectedIndex < options.size) {
+                    onSelectedChange(options[selectedIndex].value)
+                } else {
+                    onSelectedChange(null)
                 }
-                element.asDynamic().hasChangeListener = true
             }
         })
     }
@@ -518,7 +541,7 @@ actual open class PlatformRenderer {
             max?.let { element.setAttribute("max", it.toString()) }
             if (!enabled) element.setAttribute("disabled", "disabled")
 
-            element.addEventListener("change") { event ->
+            registerEventListener(element, "change") { event ->
                 val dateValue = event.target.asDynamic().value as? String
                 if (dateValue != null && dateValue.isNotEmpty()) {
                     try {
@@ -557,7 +580,7 @@ actual open class PlatformRenderer {
             maxLength?.let { element.setAttribute("maxlength", it.toString()) }
             placeholder?.let { element.setAttribute("placeholder", it) }
 
-            element.addEventListener("input") { event ->
+            registerEventListener(element, "input") { event ->
                 val textareaElement = event.target.asDynamic()
                 onValueChange(textareaElement.value as String)
             }
@@ -600,8 +623,25 @@ actual open class PlatformRenderer {
     }
 
     actual open fun renderComposableRootWithHydration(composable: @Composable () -> Unit): String {
-        // On the client side, this is the same as regular rendering since we can hydrate immediately
-        return renderComposableRoot(composable)
+        // Produce hydration-ready markup by adding Summon-specific markers and payload container
+        val rootElement = document.createElement("div")
+        rootElement.setAttribute("data-summon-hydration", "root")
+        rootElement.setAttribute("data-summon-renderer", "js")
+        rootElement.setAttribute("data-summon-version", js("globalThis.SUMMON_VERSION") ?: "0.4.2.0")
+
+        elementStack.withElement(rootElement) {
+            composable()
+        }
+
+        // Attach an empty hydration payload placeholder to align with server render contract
+        val payloadElement = document.createElement("script")
+        payloadElement.setAttribute("type", "application/json")
+        payloadElement.setAttribute("data-summon-hydration", "payload")
+        payloadElement.textContent =
+            js("JSON.stringify({ callbacks: [], renderer: 'js', timestamp: Date.now() })") as String
+        rootElement.appendChild(payloadElement)
+
+        return rootElement.outerHTML
     }
 
     actual open fun hydrateComposableRoot(rootElementId: String, composable: @Composable () -> Unit) {
@@ -840,7 +880,7 @@ actual open class PlatformRenderer {
             element.setAttribute("type", "checkbox")
             element.asDynamic().checked = checked
             if (!enabled) element.setAttribute("disabled", "disabled")
-            element.addEventListener("change") { event ->
+            registerEventListener(element, "change") { event ->
                 console.log("Checkbox changed!")
                 val inputElement = event.target.asDynamic()
                 onCheckedChange(inputElement.checked as Boolean)
@@ -860,7 +900,7 @@ actual open class PlatformRenderer {
             element.setAttribute("type", "radio")
             element.asDynamic().checked = checked
             if (!enabled) element.setAttribute("disabled", "disabled")
-            element.addEventListener("change") { event ->
+            registerEventListener(element, "change") { event ->
                 val radioElement = event.target.asDynamic()
                 onCheckedChange(radioElement.checked as Boolean)
             }
@@ -898,7 +938,7 @@ actual open class PlatformRenderer {
             }
             if (!enabled) element.setAttribute("disabled", "disabled")
 
-            element.addEventListener("input") { event ->
+            registerEventListener(element, "input") { event ->
                 onValueChange((event.target.asDynamic().value as String).toFloat())
             }
         })
@@ -1052,7 +1092,7 @@ actual open class PlatformRenderer {
             accept?.let { element.setAttribute("accept", it) }
             if (!enabled) element.setAttribute("disabled", "disabled")
 
-            element.addEventListener("change") { event ->
+            registerEventListener(element, "change") { event ->
                 val files = event.target.asDynamic().files
                 val fileList = mutableListOf<FileInfo>()
                 val length = files.length as Int
@@ -1089,7 +1129,7 @@ actual open class PlatformRenderer {
             } // Format as HH:mm or HH:mm:ss
             if (!enabled) element.setAttribute("disabled", "disabled")
 
-            element.addEventListener("change") { event ->
+            registerEventListener(element, "change") { event ->
                 val timeValue = event.target.asDynamic().value as? String
                 if (timeValue != null && timeValue.isNotEmpty()) {
                     try {
@@ -1242,9 +1282,10 @@ actual open class PlatformRenderer {
                         .attribute("tabindex", if (index == selectedTabIndex) "0" else "-1")
                         .className(if (index == selectedTabIndex) "tab-active" else "tab"),
                     { element ->
-                        element.addEventListener("click", {
+                        registerEventListener(element, "click") { event ->
+                            event.preventDefault()
                             onTabSelected(index)
-                        })
+                        }
                     }
                 ) {
                     renderText(tab.title, Modifier())
@@ -1279,9 +1320,10 @@ actual open class PlatformRenderer {
                         .attribute("tabindex", if (tab == selectedTab) "0" else "-1")
                         .className(if (tab == selectedTab) "tab-active" else "tab"),
                     { element ->
-                        element.addEventListener("click", {
+                        registerEventListener(element, "click") { event ->
+                            event.preventDefault()
                             onTabSelected(tab)
-                        })
+                        }
                     }
                 ) {
                     renderText(tab, Modifier())
@@ -1482,12 +1524,11 @@ actual open class PlatformRenderer {
                     .style("justifyContent", "center")
                     .style("zIndex", "1000"),
                 { element ->
-                    element.addEventListener("click", { event ->
-                        // Only dismiss if clicking backdrop, not modal content
+                    registerEventListener(element, "click") { event ->
                         if (event.target == element) {
                             onDismissRequest()
                         }
-                    })
+                    }
                 }
             ) {
                 // Modal content
@@ -1501,9 +1542,9 @@ actual open class PlatformRenderer {
                         .style("width", "90%"),
                     { element ->
                         // Stop propagation to prevent backdrop click
-                        element.addEventListener("click", { event ->
+                        registerEventListener(element, "click") { event ->
                             event.stopPropagation()
-                        })
+                        }
                     }
                 ) {
                     // Title
@@ -1574,7 +1615,10 @@ actual open class PlatformRenderer {
                         .style("fontWeight", "bold")
                         .style("padding", "8px"),
                     { element ->
-                        element.addEventListener("click", { onAction() })
+                        registerEventListener(element, "click") { event ->
+                            event.preventDefault()
+                            onAction()
+                        }
                     }
                 ) {
                     renderText(actionLabel, Modifier())
@@ -1627,7 +1671,7 @@ actual open class PlatformRenderer {
             capture?.let { element.setAttribute("capture", it) }
             if (!enabled) element.setAttribute("disabled", "disabled")
 
-            element.addEventListener("change") { event ->
+            registerEventListener(element, "change") { event ->
                 val files = event.target.asDynamic().files
                 val fileList = mutableListOf<FileInfo>()
                 val length = files.length as Int
@@ -1659,10 +1703,10 @@ actual open class PlatformRenderer {
     ) {
         createElement("form", modifier, { element ->
             if (onSubmit != null) {
-                element.addEventListener("submit", { event ->
-                    event.preventDefault() // Prevent default form submission
+                registerEventListener(element, "submit") { event ->
+                    event.preventDefault()
                     onSubmit()
-                })
+                }
             }
         }) {
             content(createFlowContent("form"))
@@ -1705,7 +1749,7 @@ actual open class PlatformRenderer {
                 }
                 if (!enabled) element.setAttribute("disabled", "disabled")
 
-                element.addEventListener("input") { event ->
+                registerEventListener(element, "input") { event ->
                     val newStart = (event.target.asDynamic().value as String).toFloat()
                     val newEnd = maxOf(newStart, value.endInclusive)
                     onValueChange(newStart..newEnd)
@@ -1723,7 +1767,7 @@ actual open class PlatformRenderer {
                 }
                 if (!enabled) element.setAttribute("disabled", "disabled")
 
-                element.addEventListener("input") { event ->
+                registerEventListener(element, "input") { event ->
                     val newEnd = (event.target.asDynamic().value as String).toFloat()
                     val newStart = minOf(value.start, newEnd)
                     onValueChange(newStart..newEnd)
@@ -2160,7 +2204,10 @@ actual open class PlatformRenderer {
                         
                         createElement("button", actionButtonModifier, { element ->
                             element.textContent = action.label
-                            element.addEventListener("click", { action.onClick() })
+                            registerEventListener(element, "click") { event ->
+                                event.preventDefault()
+                                action.onClick()
+                            }
                         })
                     }
                     
@@ -2183,7 +2230,10 @@ actual open class PlatformRenderer {
                         
                         createElement("button", dismissButtonModifier, { element ->
                             element.textContent = "×"
-                            element.addEventListener("click", { onDismiss() })
+                            registerEventListener(element, "click") { event ->
+                                event.preventDefault()
+                                onDismiss()
+                            }
                         })
                     }
                 }

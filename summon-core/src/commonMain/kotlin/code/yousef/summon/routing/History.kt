@@ -1,4 +1,4 @@
-package routing
+package code.yousef.summon.routing
 
 /**
  * Navigation history manager that provides access to browser history navigation.

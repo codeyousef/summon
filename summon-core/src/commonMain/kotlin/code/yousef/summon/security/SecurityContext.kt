@@ -1,7 +1,5 @@
 package code.yousef.summon.security
 
-import security.Authentication
-
 /**
  * Platform-specific holder for the current Authentication.
  */

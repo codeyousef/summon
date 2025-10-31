@@ -2,8 +2,6 @@ package code.yousef.summon.security
 
 // import code.yousef.summon.runtime.PlatformRendererProvider // Remove unused import
 
-import security.Authentication
-
 /**
  * JVM implementation of SecurityContextHolder using java.lang.ThreadLocal.
  */

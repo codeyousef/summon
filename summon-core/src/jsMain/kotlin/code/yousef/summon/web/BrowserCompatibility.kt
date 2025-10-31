@@ -198,8 +198,13 @@ actual object BrowserCapabilities {
     private fun hasWebGL(): Boolean {
         return try {
             val canvas = document.createElement("canvas")
-            val gl = js("canvas.getContext('webgl') || canvas.getContext('experimental-webgl')")
-            gl != null
+            val getContext = canvas.asDynamic().getContext
+            if (getContext == undefined) {
+                false
+            } else {
+                val gl = getContext.call(canvas, "webgl") ?: getContext.call(canvas, "experimental-webgl")
+                gl != null
+            }
         } catch (e: Exception) {
             false
         }
@@ -208,8 +213,13 @@ actual object BrowserCapabilities {
     private fun hasWebGL2(): Boolean {
         return try {
             val canvas = document.createElement("canvas")
-            val gl = js("canvas.getContext('webgl2')")
-            gl != null
+            val getContext = canvas.asDynamic().getContext
+            if (getContext == undefined) {
+                false
+            } else {
+                val gl = getContext.call(canvas, "webgl2")
+                gl != null
+            }
         } catch (e: Exception) {
             false
         }
@@ -250,7 +260,7 @@ class JSErrorBoundary : ErrorBoundary {
 
         return when (error) {
             is RuntimeException -> when {
-                error.message?.contains("OutOfMemory", ignoreCase = true) == true ->
+                isMemoryError(error.message) ->
                     ErrorAction.Fallback(RenderingStrategy.STATIC_FALLBACK)
 
                 error.message?.contains("security", ignoreCase = true) == true ->
@@ -260,6 +270,9 @@ class JSErrorBoundary : ErrorBoundary {
             }
 
             else -> when {
+                isSecurityError(error.message) ->
+                    ErrorAction.Graceful("Security error occurred")
+
                 canRecover(error) -> ErrorAction.Retry
                 else -> ErrorAction.Fallback(RenderingStrategy.JS_COMPATIBLE)
             }
@@ -286,14 +299,29 @@ class JSErrorBoundary : ErrorBoundary {
     override fun canRecover(error: Throwable): Boolean {
         return when (error) {
             is RuntimeException -> when {
-                error.message?.contains("OutOfMemory", ignoreCase = true) == true -> false
+                isMemoryError(error.message) -> false
                 error.message?.contains("security", ignoreCase = true) == true -> false
                 else -> true
             }
 
-            else -> true
+            else -> when {
+                isSecurityError(error.message) -> false
+                else -> !isMemoryError(error.message)
+            }
         }
     }
+}
+
+private fun isMemoryError(message: String?): Boolean {
+    if (message.isNullOrBlank()) return false
+    val normalised = message.lowercase()
+    return listOf("outofmemory", "no memory", "heap", "ran out of memory").any { it in normalised }
+}
+
+private fun isSecurityError(message: String?): Boolean {
+    if (message.isNullOrBlank()) return false
+    val normalised = message.lowercase()
+    return "security" in normalised || "access denied" in normalised || "unauthorised" in normalised
 }
 
 /**
@@ -308,28 +336,57 @@ class JSPerformanceMonitor : PerformanceMonitor {
     }
 
     override fun measure(name: String, startMark: String, endMark: String?): Double {
-        return if (js("'performance' in window && 'measure' in performance") as Boolean) {
-            if (endMark != null) {
-                js("performance.measure(name, startMark, endMark)") as Double
+        if (js("'performance' in window && 'measure' in performance") as Boolean) {
+            val measureResult = if (endMark != null) {
+                js(
+                    """
+                    (function() {
+                        try {
+                            return performance.measure(name, startMark, endMark);
+                        } catch (error) {
+                            return null;
+                        }
+                    })()
+                """
+                )
             } else {
-                js("performance.measure(name, startMark)") as Double
+                js(
+                    """
+                    (function() {
+                        try {
+                            return performance.measure(name, startMark);
+                        } catch (error) {
+                            return null;
+                        }
+                    })()
+                """
+                )
             }
-        } else {
-            0.0
+            val duration = measureResult?.unsafeCast<dynamic>()?.duration
+            return when (duration) {
+                is Number -> duration.toDouble()
+                is String -> duration.toDoubleOrNull() ?: 0.0
+                else -> 0.0
+            }
         }
+        return 0.0
     }
 
     override fun getMemoryUsage(): MemoryInfo {
-        return if (js("'performance' in window && 'memory' in performance") as Boolean) {
+        if (js("'performance' in window && 'memory' in performance") as Boolean) {
             val memory = js("performance.memory")
-            MemoryInfo(
-                usedJSHeapSize = js("memory.usedJSHeapSize || 0") as Long,
-                totalJSHeapSize = js("memory.totalJSHeapSize || 0") as Long,
-                jsHeapSizeLimit = js("memory.jsHeapSizeLimit || 0") as Long
+            fun dynamicToLong(value: dynamic): Long = when (value) {
+                is Number -> value.toDouble().toLong()
+                is String -> value.toDoubleOrNull()?.toLong() ?: 0L
+                else -> 0L
+            }
+            return MemoryInfo(
+                usedJSHeapSize = dynamicToLong(memory?.unsafeCast<dynamic>()?.usedJSHeapSize ?: 0),
+                totalJSHeapSize = dynamicToLong(memory?.unsafeCast<dynamic>()?.totalJSHeapSize ?: 0),
+                jsHeapSizeLimit = dynamicToLong(memory?.unsafeCast<dynamic>()?.jsHeapSizeLimit ?: 0)
             )
-        } else {
-            MemoryInfo()
         }
+        return MemoryInfo()
     }
 
     override fun getRenderingMetrics(): RenderingMetrics {

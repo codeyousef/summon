@@ -189,6 +189,20 @@
         }
     };
 
+    window.wasmClickElement = function (elementId) {
+        try {
+            const element = getElement(elementId);
+            if (element && typeof element.click === 'function') {
+                element.click();
+                return true;
+            }
+            return false;
+        } catch (e) {
+            console.error('[Summon WASM] clickElement failed:', e);
+            return false;
+        }
+    };
+
     // CSS class manipulation
     window.wasmAddClassToElement = function(elementId, className) {
         try {
@@ -321,41 +335,49 @@
     window.wasmAddEventListenerById = function(elementId, eventType, handlerId) {
         try {
             const element = getElement(elementId);
-            if (element) {
-                const handler = (event) => {
-                    // Store event data for retrieval
-                    eventHandlers.set(handlerId, {
-                        type: event.type,
-                        targetId: elementId,
-                        value: event.target.value || '',
-                        checked: event.target.checked || false,
-                        event: event
-                    });
+            if (!element) {
+                return false;
+            }
 
-                    // Call registered WASM callback if exists
-                    const callback = eventCallbacks.get(handlerId);
-                    console.log('[Summon WASM] Event triggered:', event.type, 'on element:', elementId, 'handler:', handlerId, 'callback found:', !!callback);
-                    if (callback) {
-                        try {
-                            console.log('[Summon WASM] Calling WASM callback for:', handlerId);
-                            callback();
-                        } catch (e) {
-                            console.error('[Summon WASM] Event callback failed:', e);
-                        }
-                    } else {
-                        console.warn('[Summon WASM] No callback registered for handler:', handlerId);
-                    }
+            let entry = eventHandlers.get(handlerId);
+            if (!entry) {
+                entry = {elementId, eventType, listener: null, lastEvent: null};
+                eventHandlers.set(handlerId, entry);
+            } else if (entry.listener) {
+                element.removeEventListener(eventType, entry.listener);
+            }
+
+            const listener = (event) => {
+                entry.lastEvent = {
+                    type: event.type,
+                    targetId: elementId,
+                    value: event && event.target ? (event.target.value ?? '') : '',
+                    checked: event && event.target ? !!event.target.checked : false,
+                    event
                 };
 
-                // Store handler reference for removal
-                if (!eventHandlers.has(handlerId)) {
-                    eventHandlers.set(handlerId, { handler, elementId, eventType });
+                const callback = eventCallbacks.get(handlerId);
+                console.log('[Summon WASM] Event triggered:', event.type, 'on element:', elementId, 'handler:', handlerId, 'callback found:', !!callback);
+                if (callback) {
+                    try {
+                        callback();
+                    } catch (err) {
+                        console.error('[Summon WASM] Event callback failed:', err);
+                    }
+                } else if (typeof wasmExecuteCallback === 'function') {
+                    try {
+                        wasmExecuteCallback(handlerId);
+                    } catch (err) {
+                        console.error('[Summon WASM] wasmExecuteCallback failed:', err);
+                    }
+                } else {
+                    console.warn('[Summon WASM] No callback registered for handler:', handlerId);
                 }
+            };
 
-                element.addEventListener(eventType, handler);
-                return true;
-            }
-            return false;
+            entry.listener = listener;
+            element.addEventListener(eventType, listener);
+            return true;
         } catch (e) {
             console.error('[Summon WASM] addEventListener failed:', e);
             return false;
@@ -365,34 +387,35 @@
     window.wasmRemoveEventListenerById = function(elementId, eventType, handlerId) {
         try {
             const element = getElement(elementId);
-            const handlerInfo = eventHandlers.get(handlerId);
-            if (element && handlerInfo && handlerInfo.handler) {
-                element.removeEventListener(eventType, handlerInfo.handler);
-                eventHandlers.delete(handlerId);
-                eventCallbacks.delete(handlerId);
-                return true;
+            const entry = eventHandlers.get(handlerId);
+            if (entry && entry.listener && element) {
+                element.removeEventListener(eventType, entry.listener);
             }
-            return false;
+            eventHandlers.delete(handlerId);
+            eventCallbacks.delete(handlerId);
+            return true;
         } catch (e) {
             console.error('[Summon WASM] removeEventListener failed:', e);
+            eventHandlers.delete(handlerId);
+            eventCallbacks.delete(handlerId);
             return false;
         }
     };
 
     // Event properties
     window.wasmGetEventType = function(handlerId) {
-        const eventData = eventHandlers.get(handlerId);
-        return eventData ? eventData.type : null;
+        const entry = eventHandlers.get(handlerId);
+        return entry && entry.lastEvent ? entry.lastEvent.type : null;
     };
 
     window.wasmGetEventTargetId = function(handlerId) {
-        const eventData = eventHandlers.get(handlerId);
-        return eventData ? eventData.targetId : null;
+        const entry = eventHandlers.get(handlerId);
+        return entry && entry.lastEvent ? entry.lastEvent.targetId : null;
     };
 
     window.wasmGetEventValue = function(handlerId) {
-        const eventData = eventHandlers.get(handlerId);
-        return eventData ? eventData.value : null;
+        const entry = eventHandlers.get(handlerId);
+        return entry && entry.lastEvent ? entry.lastEvent.value : null;
     };
 
     window.wasmGetEventTargetValue = function(handlerId) {
@@ -400,18 +423,18 @@
     };
 
     window.wasmPreventEventDefault = function(handlerId) {
-        const eventData = eventHandlers.get(handlerId);
-        if (eventData && eventData.event) {
-            eventData.event.preventDefault();
+        const entry = eventHandlers.get(handlerId);
+        if (entry && entry.lastEvent && entry.lastEvent.event) {
+            entry.lastEvent.event.preventDefault();
             return true;
         }
         return false;
     };
 
     window.wasmStopEventPropagation = function(handlerId) {
-        const eventData = eventHandlers.get(handlerId);
-        if (eventData && eventData.event) {
-            eventData.event.stopPropagation();
+        const entry = eventHandlers.get(handlerId);
+        if (entry && entry.lastEvent && entry.lastEvent.event) {
+            entry.lastEvent.event.stopPropagation();
             return true;
         }
         return false;

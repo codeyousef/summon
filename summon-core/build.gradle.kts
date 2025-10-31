@@ -59,7 +59,21 @@ kotlin {
                 enabled = false
             }
         }
-        // nodejs() // Temporarily disabled due to WSL I/O issues with test execution
+        nodejs {
+            testTask {
+                useMocha {
+                    timeout = "30s"
+                }
+                val setupScript = project.layout.projectDirectory
+                    .file("src/jsTest/resources/setup-happydom.cjs")
+                    .asFile
+                    .absolutePath
+                val existingNodeOptions = environment["NODE_OPTIONS"]?.takeIf { it.isNotBlank() }
+                val requireFlag = "--require=$setupScript"
+                val combinedOptions = listOfNotNull(existingNodeOptions, requireFlag).joinToString(" ")
+                environment("NODE_OPTIONS", combinedOptions)
+            }
+        }
         binaries.executable()
     }
 
@@ -197,6 +211,7 @@ kotlin {
         val jsTest by getting {
             dependencies {
                 // AtomicFU plugin handles atomicfu dependencies automatically
+                implementation(npm("happy-dom", "14.10.3"))
             }
         }
         val wasmJsTest by getting {

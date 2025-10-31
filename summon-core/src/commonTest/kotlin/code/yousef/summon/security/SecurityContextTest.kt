@@ -1,7 +1,5 @@
 package code.yousef.summon.security
 
-import security.SimpleAuthentication
-import security.UsernamePasswordCredentials
 import kotlin.test.*
 
 class SecurityContextTest {

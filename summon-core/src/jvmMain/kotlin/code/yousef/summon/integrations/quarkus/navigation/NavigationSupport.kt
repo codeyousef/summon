@@ -1,9 +1,9 @@
-package code.yousef.summon.integrations.quarkus.navigation
+package code.yousef.summon.integration.quarkus.navigation
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.layout.Box
-import code.yousef.summon.integrations.quarkus.htmx.htmx
-import code.yousef.summon.integrations.quarkus.htmx.htmxGet
+import code.yousef.summon.integration.quarkus.htmx.htmx
+import code.yousef.summon.integration.quarkus.htmx.htmxGet
 import code.yousef.summon.modifier.Modifier
 
 /**

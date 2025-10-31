@@ -4,16 +4,16 @@ import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.input.Button
 import code.yousef.summon.components.layout.Column
+import code.yousef.summon.components.layout.Row
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.PlatformRenderer
-import code.yousef.summon.runtime.RecomposerHolder
-import code.yousef.summon.runtime.remember
+import code.yousef.summon.modifier.ModifierExtras.withAttribute
+import code.yousef.summon.runtime.*
 import code.yousef.summon.state.mutableStateOf
 import code.yousef.summon.test.ensureWasmNodeDom
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 /**
  * Integration test demonstrating WASM DOM interaction capabilities.
@@ -184,5 +184,230 @@ class WasmDOMIntegrationTest {
         // Placeholder test - will pass for now
         // TODO: Test composable rendering in WASM
         assertTrue(true, "Composable rendering test placeholder")
+    }
+
+    @Test
+    fun `todo buttons mutate list as expected`() {
+        ensureWasmNodeDom()
+
+        if (!runCatching { wasmGetDocumentBodyId() }.isSuccess) {
+            println("Skipping todo buttons test: wasm bridge unavailable")
+            return
+        }
+
+        injectTestRootIfMissing(TEST_ROOT_ID)
+
+        val renderer = PlatformRenderer()
+        renderer.initialize(TEST_ROOT_ID)
+
+        val originalRecomposer = RecomposerHolder.current()
+        val testRecomposer = Recomposer()
+        val scheduler = ImmediateScheduler()
+
+        RecomposerHolder.setRecomposer(testRecomposer)
+        RecomposerHolder.setScheduler(scheduler)
+
+        try {
+            renderer.mountComposableRoot(TEST_ROOT_ID) {
+                TodoButtonsApp()
+            }
+
+            assertEquals(
+                0,
+                measuredTodoIds().size,
+                "Initial render should have no todo rows"
+            )
+
+            // Add two todos
+            clickButton("todo-add")
+            assertEquals(
+                listOf("todo-row-1"),
+                measuredTodoIds(),
+                "First todo should appear after clicking add"
+            )
+            assertEquals("1", rootAttribute("data-add-count"), "Add click counter should update after first add")
+            assertEquals("1", rootAttribute("data-total"), "Total count attribute should reflect first todo")
+
+            clickButton("todo-add")
+            assertEquals(
+                listOf("todo-row-1", "todo-row-2"),
+                measuredTodoIds(),
+                "Second todo should appear after clicking add again"
+            )
+            assertEquals("2", rootAttribute("data-add-count"), "Add click counter should update after second add")
+            assertEquals("2", rootAttribute("data-total"), "Total count attribute should reflect two todos")
+
+            // Mark first todo as done
+            clickButton("todo-done-1")
+            assertEquals(
+                "true",
+                attributeForTestId("todo-row-1", "data-completed"),
+                "Done button should mark first todo as completed"
+            )
+            assertEquals("1", rootAttribute("data-done-count"), "Done click counter should update after first toggle")
+
+            // Clear completed todos - should remove first row
+            clickButton("todo-clear")
+            assertEquals(
+                listOf("todo-row-2"),
+                measuredTodoIds(),
+                "Clear should remove completed todo rows"
+            )
+            assertEquals("1", rootAttribute("data-clear-count"), "Clear click counter should update")
+            assertEquals("1", rootAttribute("data-total"), "Total count attribute should reflect remaining todo")
+
+            // Mark remaining todo as done and clear again
+            clickButton("todo-done-2")
+            assertEquals(
+                "true",
+                attributeForTestId("todo-row-2", "data-completed"),
+                "Done button should mark remaining todo as completed"
+            )
+            assertEquals("2", rootAttribute("data-done-count"), "Done click counter should update after second toggle")
+
+            clickButton("todo-clear")
+            assertEquals(
+                emptyList(),
+                measuredTodoIds(),
+                "Clear should remove all completed todos"
+            )
+            assertEquals("2", rootAttribute("data-clear-count"), "Clear click counter should reflect second invocation")
+            assertEquals("0", rootAttribute("data-total"), "Total count attribute should be zero after clearing")
+        } finally {
+            RecomposerHolder.setRecomposer(originalRecomposer)
+            RecomposerHolder.setScheduler(createDefaultScheduler())
+        }
+    }
+
+    private fun injectTestRootIfMissing(rootId: String) {
+        val bodyId = runCatching { wasmGetDocumentBodyId() }.getOrNull() ?: return
+        val existing = runCatching { wasmGetElementById(rootId) }.getOrNull()
+        if (existing != null) return
+
+        val createdId = wasmCreateElementById("div")
+        wasmSetElementId(createdId, rootId)
+        wasmAppendChildById(bodyId, createdId)
+    }
+
+    private fun measuredTodoIds(): List<String> {
+        val listId = elementIdForTestId("todo-list") ?: return emptyList()
+        val rawChildren = wasmGetElementChildren(listId)
+        if (rawChildren.isBlank()) return emptyList()
+        return rawChildren.split(",")
+            .mapNotNull { childId ->
+                val trimmed = childId.trim()
+                if (trimmed.isEmpty()) null else wasmGetElementAttribute(trimmed, "data-test-id")
+            }
+            .filterNotNull()
+            .sorted()
+    }
+
+    private fun clickButton(testId: String) {
+        val elementId = elementIdForTestId(testId)
+            ?: fail("Element with data-test-id '$testId' not found")
+        wasmClickElement(elementId)
+    }
+
+    private fun attributeForTestId(testId: String, attribute: String): String? {
+        val elementId = elementIdForTestId(testId) ?: return null
+        return wasmGetElementAttribute(elementId, attribute)
+    }
+
+    private fun rootAttribute(attribute: String): String? =
+        attributeForTestId("todo-root", attribute)
+
+    private fun elementIdForTestId(testId: String): String? =
+        wasmQuerySelectorGetId("[data-test-id=\"${testId}\"]")
+
+    private class ImmediateScheduler : RecompositionScheduler {
+        override fun scheduleRecomposition(work: () -> Unit) {
+            work()
+        }
+    }
+
+    data class TodoItem(
+        val id: Int,
+        val label: String,
+        val completed: Boolean
+    )
+
+    @Composable
+    private fun TodoButtonsApp() {
+        val todos = remember { mutableStateListOf<TodoItem>() }
+        val nextIdState = remember { mutableStateOf(1) }
+
+        val addClicks = remember { mutableStateOf(0) }
+        val doneClicks = remember { mutableStateOf(0) }
+        val clearClicks = remember { mutableStateOf(0) }
+
+        Column(
+            modifier = Modifier()
+                .withAttribute("data-test-id", "todo-root")
+                .withAttribute("data-total", todos.size.toString())
+                .withAttribute("data-add-count", addClicks.value.toString())
+                .withAttribute("data-done-count", doneClicks.value.toString())
+                .withAttribute("data-clear-count", clearClicks.value.toString())
+        ) {
+            Button(
+                onClick = {
+                    addClicks.value = addClicks.value + 1
+                    val id = nextIdState.value
+                    nextIdState.value = id + 1
+                    todos.add(TodoItem(id, "Task $id", completed = false))
+                },
+                modifier = Modifier().withAttribute("data-test-id", "todo-add"),
+                label = "Add"
+            )
+
+            Column(
+                modifier = Modifier().withAttribute("data-test-id", "todo-list")
+            ) {
+                todos.forEachIndexed { index, todo ->
+                    Row(
+                        modifier = Modifier()
+                            .withAttribute("data-test-id", "todo-row-${todo.id}")
+                            .withAttribute("data-summon-id", "todo-row-${todo.id}")
+                            .withAttribute("data-completed", todo.completed.toString())
+                    ) {
+                        Text(
+                            text = todo.label,
+                            modifier = Modifier().withAttribute(
+                                "data-test-id",
+                                "todo-label-${todo.id}"
+                            )
+                        )
+                        Button(
+                            onClick = {
+                                doneClicks.value = doneClicks.value + 1
+                                todos[index] = todo.copy(completed = !todo.completed)
+                            },
+                            modifier = Modifier().withAttribute(
+                                "data-test-id",
+                                "todo-done-${todo.id}"
+                            ).withAttribute(
+                                "data-summon-id",
+                                "todo-done-${todo.id}"
+                            ),
+                            label = if (todo.completed) "Undo" else "Done"
+                        )
+                    }
+                }
+            }
+
+            Button(
+                onClick = {
+                    clearClicks.value = clearClicks.value + 1
+                    val remaining = todos.filterNot { it.completed }
+                    todos.clear()
+                    todos.addAll(remaining)
+                },
+                modifier = Modifier().withAttribute("data-test-id", "todo-clear"),
+                label = "Clear Completed"
+            )
+        }
+    }
+
+    companion object {
+        private const val TEST_ROOT_ID = "test-root"
     }
 }

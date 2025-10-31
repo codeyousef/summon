@@ -10,7 +10,7 @@ Key helpers:
 
 - `RoutingContext.respondSummonHydrated` for one-line hydrated SSR responses
 - `Router.summonRouter` to mount Summon's file-based router within Vert.x/Quarkus
-- Qute and HTMX extensions in `code.yousef.summon.integrations.quarkus`
+- Qute and HTMX extensions in `code.yousef.summon.integration.quarkus`
 
 Setup example:
 

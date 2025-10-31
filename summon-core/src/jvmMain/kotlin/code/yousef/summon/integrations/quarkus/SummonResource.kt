@@ -1,4 +1,4 @@
-package code.yousef.summon.integrations.quarkus
+package code.yousef.summon.integration.quarkus
 
 import jakarta.annotation.PostConstruct
 import jakarta.inject.Inject

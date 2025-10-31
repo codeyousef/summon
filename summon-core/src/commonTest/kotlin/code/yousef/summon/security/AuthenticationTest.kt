@@ -1,6 +1,5 @@
 package code.yousef.summon.security
 
-import security.*
 import kotlin.test.*
 
 class AuthenticationTest {

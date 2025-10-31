@@ -2,7 +2,6 @@ package code.yousef.summon.security
 
 // Import the standard runTest
 import kotlinx.coroutines.test.runTest
-import security.*
 import kotlin.test.*
 
 class JwtAuthenticationProviderTest {

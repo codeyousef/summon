@@ -1,6 +1,4 @@
-package security
-
-import code.yousef.summon.security.Principal
+package code.yousef.summon.security
 
 /**
  * Represents an authentication request with credentials.

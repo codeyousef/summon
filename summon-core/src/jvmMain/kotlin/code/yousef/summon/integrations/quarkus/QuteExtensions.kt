@@ -1,11 +1,7 @@
-package code.yousef.summon.integrations.quarkus
+package code.yousef.summon.integration.quarkus
 
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CallbackRegistry
-import code.yousef.summon.runtime.PlatformRenderer
-import code.yousef.summon.runtime.clearPlatformRenderer
-import code.yousef.summon.runtime.setPlatformRenderer
+import code.yousef.summon.runtime.*
 import io.quarkus.qute.RawString
 import io.quarkus.qute.TemplateExtension
 import kotlinx.html.div

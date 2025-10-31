@@ -1,10 +1,6 @@
-package security
+package code.yousef.summon.security
 
 import code.yousef.summon.core.mapOfCompat
-
-import code.yousef.summon.security.Permission
-import code.yousef.summon.security.Principal
-import code.yousef.summon.security.Role
 
 /**
  * Interface for authentication providers that handle different types of authentication.

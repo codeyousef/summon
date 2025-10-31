@@ -1,4 +1,4 @@
-package code.yousef.summon.integrations.quarkus
+package code.yousef.summon.integration.quarkus
 
 import code.yousef.summon.annotation.Composable
 import io.quarkus.qute.EngineBuilder

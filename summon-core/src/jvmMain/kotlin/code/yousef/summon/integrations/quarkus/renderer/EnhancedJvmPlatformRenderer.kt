@@ -1,11 +1,11 @@
-package code.yousef.summon.integrations.quarkus.renderer
+package code.yousef.summon.integration.quarkus.renderer
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.IconType
 import code.yousef.summon.components.feedback.AlertVariant
 import code.yousef.summon.components.input.FileInfo
 import code.yousef.summon.core.FlowContentCompat
-import code.yousef.summon.integrations.quarkus.htmx.HtmxAttributeHandler
+import code.yousef.summon.integration.quarkus.htmx.HtmxAttributeHandler
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.FormContent
 import code.yousef.summon.runtime.PlatformRenderer

@@ -36,7 +36,7 @@ Create a `SummonConfig.kt` file in your application:
 ```kotlin
 package com.example.application
 
-import code.yousef.summon.integrations.quarkus.EnhancedQuarkusExtension
+import code.yousef.summon.integration.quarkus.EnhancedQuarkusExtension
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Produces
 import jakarta.inject.Singleton
@@ -62,7 +62,7 @@ package com.example.application
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.layout.Box
-import code.yousef.summon.integrations.quarkus.EnhancedQuarkusExtension
+import code.yousef.summon.integration.quarkus.EnhancedQuarkusExtension
 import code.yousef.summon.modifier.Modifier
 import jakarta.inject.Inject
 import jakarta.ws.rs.GET

@@ -1,7 +1,7 @@
-package code.yousef.summon.integrations.quarkus.renderer
+package code.yousef.summon.integration.quarkus.renderer
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.integrations.quarkus.htmx.htmlAttribute
+import code.yousef.summon.integration.quarkus.htmx.htmlAttribute
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.CallbackRegistry
 import code.yousef.summon.runtime.LocalPlatformRenderer

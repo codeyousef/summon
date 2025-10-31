@@ -1,4 +1,4 @@
-package code.yousef.summon.integrations.quarkus
+package code.yousef.summon.integration.quarkus
 
 import io.quarkus.runtime.annotations.RegisterForReflection
 import java.io.File
