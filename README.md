@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.png" alt="Summon logo" width="200" />
+  <img src="https://raw.githubusercontent.com/codeyousef/summon/main/assets/logo.png" alt="Summon logo" width="200" />
 </p>
 
 # Summon
