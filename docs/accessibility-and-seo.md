@@ -197,7 +197,7 @@ StructuredData.webPage(
 StructuredData.organization(
     name = "Example Company",
     url = "https://example.com",
-    logo = "https://raw.githubusercontent.com/codeyousef/summon/main/assets/summon-logo.png"
+    logo = "https://raw.githubusercontent.com/codeyousef/summon/main/assets/logo.png"
 )
 
 StructuredData.product(

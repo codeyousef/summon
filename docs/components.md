@@ -774,7 +774,7 @@ The `Image` component displays images with various options.
 
 ```kotlin
 Image(
-    src = "/assets/summon-logo.png",
+    src = "/assets/logo.png",
     alt = "Company logo",
     modifier = Modifier()
         .width(200.px)

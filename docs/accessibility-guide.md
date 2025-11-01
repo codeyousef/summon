@@ -211,7 +211,7 @@ Button(
 ```kotlin
 // Accessible image with alternative text
 Image(
-    src = "/assets/summon-logo.png",
+    src = "/assets/logo.png",
     alt = "Company Logo",
     modifier = Modifier.ariaHidden(false)
 )

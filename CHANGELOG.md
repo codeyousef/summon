@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.2.1] - 2025-11-01
+
+### Fixed
+
+- **Brand Assets**: Updated README, CLI docs, and code examples to reference the new `assets/logo.png` image so the
+  Summon logo renders consistently across the project.
+
 ## [0.4.2.0] - 2025-11-01
 
 ### Added

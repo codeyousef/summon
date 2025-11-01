@@ -25,7 +25,7 @@ class SummonCli : CliktCommand(
         .default("false")
 
     init {
-        versionOption("0.4.2.0")
+        versionOption("0.4.2.1")
     }
 
     override fun run() {
@@ -42,10 +42,10 @@ class SummonCli : CliktCommand(
                 declarative UI to browser and JVM environments.
                 
                 📦 If you downloaded the JAR file:
-                   java -jar summon-cli-0.4.2.0.jar <command>
+                   java -jar summon-cli-0.4.2.1.jar <command>
                 
                 💡 To install globally (adds 'summon' command):
-                   java -jar summon-cli-0.4.2.0.jar install
+                   java -jar summon-cli-0.4.2.1.jar install
                    (Then restart your terminal)
                 
                 Available commands:
@@ -64,9 +64,9 @@ class SummonCli : CliktCommand(
                 Use 'summon <command> --help' for help on specific commands.
                 
                 Examples:
-                  java -jar summon-cli-0.4.2.0.jar init my-app
-                  java -jar summon-cli-0.4.2.0.jar init my-app --here
-                  java -jar summon-cli-0.4.2.0.jar generate component Button
+                  java -jar summon-cli-0.4.2.1.jar init my-app
+                  java -jar summon-cli-0.4.2.1.jar init my-app --here
+                  java -jar summon-cli-0.4.2.1.jar generate component Button
                 
                 After installation:
                   summon init my-app                    # Creates ./my-app/
