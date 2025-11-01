@@ -14,7 +14,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     env:
-      GRADLE_OPTS: "-Dorg.gradle.jvmargs='-Xmx2g'"
+      GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx2g -Dorg.gradle.vfs.watch=false"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -57,7 +57,7 @@ jobs:
           fi
 
       - name: Run full test suite
-        run: ./gradlew allTests --stacktrace --info
+        run: ./gradlew --no-daemon --max-workers=4 --console=plain allTests --stacktrace --info
 
       - name: Ensure tag does not already exist
         run: |
