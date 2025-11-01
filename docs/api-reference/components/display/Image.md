@@ -468,7 +468,7 @@ fun ClickableImage(
 ```kotlin
 // Critical images - load immediately
 Image(
-    src = "logo.svg",
+    src = "/assets/summon-logo.png",
     alt = "Company Logo",
     loading = ImageLoading.EAGER
 )

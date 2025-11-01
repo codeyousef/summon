@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/summon-logo.png" alt="Summon logo" width="200" />
+</p>
+
 # Summon
 
 > ⚠️ **Alpha Status**: Summon is currently in alpha development and actively seeking testers and feedback. While core functionality is stable, APIs may change between releases. We welcome early adopters and contributors! Please report issues and share your experience.

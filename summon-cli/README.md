@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="../assets/summon-logo.png" alt="Summon logo" width="160" />
+</p>
+
 # Summon CLI
 
 Command-line tool for scaffolding Summon projects and generating components.
