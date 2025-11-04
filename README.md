@@ -271,14 +271,17 @@ java -jar summon-cli/build/libs/summon-cli-0.4.2.1.jar install
 After installation:
 
 ```bash
-# Create a new project
-summon init my-app
+# Standalone browser UI
+summon init my-app --mode=standalone
 cd my-app
-
-# Build and run
 ./gradlew jsBrowserDevelopmentRun
+# App served at http://localhost:8080
 
-# Open http://localhost:8080
+# Full-stack Quarkus sample (creates app/ + backend/)
+summon init portal --mode=fullstack --backend=quarkus
+cd portal
+./gradlew quarkusDev
+# Backend listens on http://localhost:8080 and serves the UI bundle
 ```
 
 ### Summon Library

@@ -141,3 +141,7 @@ examples/wasm-seo-todo/.gradle/
 /private-key-working.asc
 /.junie/*
 /gradle/*
+/summon-quarkus-test/
+/summon-spring-test/
+/summon-quarkus-new/
+/summon-ktor-test/

@@ -451,14 +451,14 @@ class ProjectGeneratorTest {
 
         generator.generate(config)
 
-        val appFile = File(tempDir, "src/commonMain/kotlin/com/example/full/App.kt")
-        assertTrue(appFile.exists(), "Shared App.kt should exist for fullstack templates")
+        val appFile = File(tempDir, "app/src/commonMain/kotlin/com/example/full/App.kt")
+        assertTrue(appFile.exists(), "Shared App.kt should exist in the app module for fullstack templates")
         val appContent = appFile.readText()
         assertTrue(appContent.contains("@Composable"), "App.kt should declare a composable function")
         assertTrue(appContent.contains("Button("), "App.kt should use Summon components")
 
-        val jsBootstrap = File(tempDir, "src/jsMain/kotlin/com/example/full/Main.kt")
-        assertTrue(jsBootstrap.exists(), "JS bootstrap should exist")
+        val jsBootstrap = File(tempDir, "app/src/jsMain/kotlin/com/example/full/Main.kt")
+        assertTrue(jsBootstrap.exists(), "JS bootstrap should exist inside the app module")
         val jsContent = jsBootstrap.readText()
         assertTrue(jsContent.contains("renderComposable(renderer"), "JS bootstrap should hydrate the shared App")
         assertTrue(
@@ -466,20 +466,36 @@ class ProjectGeneratorTest {
             "JS bootstrap should target the shared root element"
         )
 
-        val serverFile = File(tempDir, "src/jvmMain/kotlin/com/example/full/Application.kt")
-        assertTrue(serverFile.exists(), "Ktor server entrypoint should be generated")
+        val serverFile = File(tempDir, "backend/src/main/kotlin/com/example/full/Application.kt")
+        assertTrue(serverFile.exists(), "Ktor server entrypoint should be generated in backend module")
         val serverContent = serverFile.readText()
         assertTrue(serverContent.contains("PlatformRenderer"), "Server should use PlatformRenderer for SSR")
         assertTrue(serverContent.contains("/static/app.js"), "Server should expose the compiled JS bundle")
 
         val buildContent = File(tempDir, "build.gradle.kts").readText()
         assertTrue(
-            buildContent.contains("outputFileName = \"app.js\""),
-            "Build script should configure webpack output file"
+            buildContent.contains("dependsOn(\":backend:run\")"),
+            "Root build script should wire run task to backend module"
         )
         assertTrue(
-            buildContent.contains("tasks.named(\"run\")"),
-            "Build script should ensure run depends on the JS bundle"
+            buildContent.contains("kotlin(\"multiplatform\")"),
+            "Root build script should declare shared Kotlin plugin aliases"
+        )
+
+        val backendBuildContent = File(tempDir, "backend/build.gradle.kts").readText()
+        assertTrue(
+            backendBuildContent.contains("dependsOn(\":app:jsBrowserDistribution\")"),
+            "Backend build should ensure JS bundle is built before server tasks"
+        )
+        assertTrue(
+            backendBuildContent.contains("into(\"static\")"),
+            "Backend resources task should ship frontend assets for the Ktor server"
+        )
+
+        val appBuildContent = File(tempDir, "app/build.gradle.kts").readText()
+        assertTrue(
+            appBuildContent.contains("outputFileName = \"app.js\""),
+            "App module should configure webpack output file"
         )
     }
 }

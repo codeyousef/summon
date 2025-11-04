@@ -28,17 +28,26 @@ summon <command>
 
 ## Commands
 
-### init - Create New Project
+### init – Create New Project
+
+`init` is the primary scaffolder. Pick a target directory (`--here`, `--dir <path>`, or let Summon create
+`<project-name>/`) and choose the mode:
 
 ```bash
-summon init my-app                    # Creates ./my-app/
-summon init my-app --here             # Creates in current directory  
-summon init my-app --mode=standalone  # Explicit browser-only site
-summon init my-app --mode=fullstack --backend=ktor   # Ktor backend + Summon UI
-summon init my-app --template=wasm    # WASM template
+# Standalone browser UI	summon init my-app --mode=standalone
+
+# Full-stack UI + backend (frontend in app/, backend in backend/)
+summon init my-app --mode=fullstack --backend=quarkus
+summon init my-app --mode=fullstack --backend=ktor
+summon init my-app --mode=fullstack --backend=spring
+
+# Additional templates	summon init my-app --template=wasm
 ```
 
-### create - Create from Template
+### create – Direct Template Access (legacy shortcuts)
+
+The `create` command still exposes the older one-shot templates when you know exactly which stack you want without the
+directory prompts.
 
 ```bash
 summon create js-app --name my-app
@@ -77,8 +86,8 @@ cd my-web-app
 ### Full-Stack Quarkus Project
 
 ```bash
-java -jar summon-cli-0.4.2.1.jar create quarkus-app --name my-fullstack
-cd my-fullstack
+java -jar summon-cli-0.4.2.1.jar init portal --mode=fullstack --backend=quarkus
+cd portal
 ./gradlew quarkusDev
 ```
 

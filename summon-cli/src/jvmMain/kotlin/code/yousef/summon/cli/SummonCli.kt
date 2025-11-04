@@ -48,31 +48,35 @@ class SummonCli : CliktCommand(
                    java -jar summon-cli-0.4.2.1.jar install
                    (Then restart your terminal)
                 
+                Recommended workflow:
+                  1. Pick a project folder: --here, --dir <path>, or default subdirectory
+                  2. Run `init` to scaffold the UI + optional backend
+                     - Standalone browser UI:  summon init my-app --mode=standalone
+                     - Full-stack app:        summon init my-app --mode=fullstack --backend=<ktor|spring|quarkus>
+                  3. Use `generate` to add components, pages, routes, etc.
+
                 Available commands:
-                  init      Initialize a new Summon project with flexible directory options
-                  create    Create a new project from predefined templates  
-                  generate  Generate components, pages, and other files
+                  init      Scaffold a new Summon project (standalone or full-stack)
+                  create    Direct template access (legacy shortcuts for js, ktor, spring, quarkus)
+                  generate  Add components, pages, routes, and other artifacts to an existing project
                   install   Install Summon CLI globally and add to PATH
-                
-                Directory Options (init/create):
+
+                Directory options (init/create):
                   --here            Generate in current directory
-                  --dir <path>      Specify custom output directory (use '.' for current)
-                  --output <path>   Alternative to --dir for create command
-                  (default)         Creates subdirectory with project name
-                
-                Use 'summon --help' to see all available options.
-                Use 'summon <command> --help' for help on specific commands.
-                
-                Examples:
-                  java -jar summon-cli-0.4.2.1.jar init my-app
-                  java -jar summon-cli-0.4.2.1.jar init my-app --here
+                  --dir <path>      Output into a custom directory ('.' for current)
+                  --output <path>   Alias for --dir when using create
+
+                Use 'summon --help' to list commands.
+                Use 'summon <command> --help' for details and advanced flags.
+
+                Example commands (JAR download):
+                  java -jar summon-cli-0.4.2.1.jar init my-app --mode=fullstack --backend=ktor
+                  java -jar summon-cli-0.4.2.1.jar init my-app --mode=standalone --here
                   java -jar summon-cli-0.4.2.1.jar generate component Button
-                
+
                 After installation:
-                  summon init my-app                    # Creates ./my-app/
-                  summon init my-app --here             # Creates in current directory
-                  summon create js-app --name my-app    # Creates ./my-app/ from template
-                  summon generate component Button      # Generate component in existing project
+                  summon init my-app --mode=fullstack --backend=quarkus
+                  summon generate component Button
             """.trimIndent()
             )
         }

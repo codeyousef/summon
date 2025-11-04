@@ -86,45 +86,451 @@ class ProjectGenerator(private val template: ProjectTemplate) {
     }
 
     private fun generateQuarkusProject(config: Config, variables: Map<String, String>) {
-        val sourceTemplate = getBuiltinTemplate("quarkus")
-        copyTemplate(sourceTemplate, config.targetDirectory, variables)
+        val appDir = File(config.targetDirectory, "app")
+        val backendDir = File(config.targetDirectory, "backend")
 
-        generateBuildGradleKts(config.targetDirectory, variables, "quarkus")
-        generateSettingsGradleKts(config.targetDirectory, variables)
-        generateApplicationProperties(config.targetDirectory, variables, "quarkus")
-        generateSharedSummonApp(config.targetDirectory, variables)
-        generateFullstackJsSupport(config.targetDirectory, variables)
-        generateQuarkusServer(config.targetDirectory, variables)
-        generateMainKt(config.targetDirectory, variables, "quarkus")
+        generateSettingsGradleKts(config.targetDirectory, variables, listOf("app", "backend"))
+        generateFullstackRootBuildGradle(config.targetDirectory, variables, "quarkus")
+
+        generateAppModule(appDir, variables)
+        generateQuarkusBackendModule(backendDir, variables)
+
         generateGradleWrapper(config.targetDirectory)
     }
 
     private fun generateSpringBootProject(config: Config, variables: Map<String, String>) {
-        val sourceTemplate = getBuiltinTemplate("spring-boot")
-        copyTemplate(sourceTemplate, config.targetDirectory, variables)
+        val appDir = File(config.targetDirectory, "app")
+        val backendDir = File(config.targetDirectory, "backend")
 
-        generateBuildGradleKts(config.targetDirectory, variables, "spring-boot")
-        generateSettingsGradleKts(config.targetDirectory, variables)
-        generateApplicationProperties(config.targetDirectory, variables, "spring-boot")
-        generateSharedSummonApp(config.targetDirectory, variables)
-        generateFullstackJsSupport(config.targetDirectory, variables)
-        generateSpringBootServer(config.targetDirectory, variables)
-        generateMainKt(config.targetDirectory, variables, "spring-boot")
+        generateSettingsGradleKts(config.targetDirectory, variables, listOf("app", "backend"))
+        generateFullstackRootBuildGradle(config.targetDirectory, variables, "spring-boot")
+
+        generateAppModule(appDir, variables)
+        generateSpringBackendModule(backendDir, variables)
+
         generateGradleWrapper(config.targetDirectory)
     }
 
     private fun generateKtorProject(config: Config, variables: Map<String, String>) {
-        val sourceTemplate = getBuiltinTemplate("ktor")
-        copyTemplate(sourceTemplate, config.targetDirectory, variables)
+        val appDir = File(config.targetDirectory, "app")
+        val backendDir = File(config.targetDirectory, "backend")
 
-        generateBuildGradleKts(config.targetDirectory, variables, "ktor")
-        generateSettingsGradleKts(config.targetDirectory, variables)
-        generateApplicationProperties(config.targetDirectory, variables, "ktor")
-        generateSharedSummonApp(config.targetDirectory, variables)
-        generateFullstackJsSupport(config.targetDirectory, variables)
-        generateKtorServer(config.targetDirectory, variables)
-        generateMainKt(config.targetDirectory, variables, "ktor")
+        generateSettingsGradleKts(config.targetDirectory, variables, listOf("app", "backend"))
+        generateFullstackRootBuildGradle(config.targetDirectory, variables, "ktor")
+
+        generateAppModule(appDir, variables)
+        generateKtorBackendModule(backendDir, variables)
+
         generateGradleWrapper(config.targetDirectory)
+    }
+
+    private fun generateFullstackRootBuildGradle(targetDir: File, variables: Map<String, String>, backendType: String) {
+        val kotlinVersion = variables["KOTLIN_VERSION"] ?: "2.2.21"
+        val buildFile = File(targetDir, "build.gradle.kts")
+
+        val aliasTasks = when (backendType) {
+            "quarkus" -> """
+tasks.register("quarkusDev") {
+    dependsOn(":backend:quarkusDev")
+}
+            """.trimIndent()
+
+            "spring-boot" -> """
+tasks.register("bootRun") {
+    dependsOn(":backend:bootRun")
+}
+            """.trimIndent()
+
+            "ktor" -> """
+tasks.register("run") {
+    dependsOn(":backend:run")
+}
+            """.trimIndent()
+
+            else -> ""
+        }
+
+        val content = buildString {
+            appendLine("plugins {")
+            appendLine("    kotlin(\"multiplatform\") version \"$kotlinVersion\" apply false")
+            appendLine("    kotlin(\"plugin.serialization\") version \"$kotlinVersion\" apply false")
+            appendLine("    kotlin(\"jvm\") version \"$kotlinVersion\" apply false")
+            appendLine("    id(\"io.quarkus\") version \"3.15.7\" apply false")
+            appendLine("    id(\"org.springframework.boot\") version \"3.5.7\" apply false")
+            appendLine("    id(\"io.spring.dependency-management\") version \"1.1.7\" apply false")
+            appendLine("    id(\"io.ktor.plugin\") version \"3.3.1\" apply false")
+            appendLine("}")
+            appendLine()
+            appendLine("allprojects {")
+            appendLine("    repositories {")
+            appendLine("        maven {")
+            appendLine("            url = uri(\"https://repo1.maven.org/maven2/\")")
+            appendLine("            name = \"MavenCentral\"")
+            appendLine("        }")
+            appendLine("    }")
+            appendLine("}")
+            if (aliasTasks.isNotBlank()) {
+                appendLine()
+                appendLine(aliasTasks)
+            }
+        }
+
+        buildFile.writeText(content)
+    }
+
+    private fun generateAppModule(appDir: File, variables: Map<String, String>) {
+        if (!appDir.exists()) {
+            appDir.mkdirs()
+        }
+
+        val buildFile = File(appDir, "build.gradle.kts")
+        buildFile.writeText(generateAppModuleBuildGradle(variables))
+
+        File(appDir, "src/commonMain/kotlin/${variables["PACKAGE_PATH"]}").mkdirs()
+        File(appDir, "src/jsMain/kotlin/${variables["PACKAGE_PATH"]}").mkdirs()
+        File(appDir, "src/jvmMain/kotlin/${variables["PACKAGE_PATH"]}").mkdirs()
+
+        generateSharedSummonApp(appDir, variables)
+        generateFullstackJsSupport(appDir, variables)
+        generateJsMain(appDir, variables)
+    }
+
+    private fun generateQuarkusBackendModule(targetDir: File, variables: Map<String, String>) {
+        ensureBackendSourceScaffolding(targetDir)
+        val buildFile = File(targetDir, "build.gradle.kts")
+        buildFile.writeText(generateQuarkusBackendBuildGradle(variables))
+        generateApplicationProperties(targetDir, variables, "quarkus")
+        generateQuarkusServer(targetDir, variables)
+    }
+
+    private fun generateSpringBackendModule(targetDir: File, variables: Map<String, String>) {
+        ensureBackendSourceScaffolding(targetDir)
+        val buildFile = File(targetDir, "build.gradle.kts")
+        buildFile.writeText(generateSpringBackendBuildGradle(variables))
+        generateApplicationProperties(targetDir, variables, "spring-boot")
+        generateSpringBootServer(targetDir, variables)
+    }
+
+    private fun generateKtorBackendModule(targetDir: File, variables: Map<String, String>) {
+        ensureBackendSourceScaffolding(targetDir)
+        val buildFile = File(targetDir, "build.gradle.kts")
+        buildFile.writeText(generateKtorBackendBuildGradle(variables))
+        generateApplicationProperties(targetDir, variables, "ktor")
+        generateKtorServer(targetDir, variables)
+    }
+
+    private fun ensureBackendSourceScaffolding(targetDir: File) {
+        listOf(
+            "src/main/java",
+            "src/main/kotlin",
+            "src/main/resources",
+            "src/test/java",
+            "src/test/kotlin",
+            "src/test/resources"
+        ).forEach { relative ->
+            File(targetDir, relative).mkdirs()
+        }
+    }
+
+    private fun generateAppModuleBuildGradle(variables: Map<String, String>): String {
+        return """
+plugins {
+    kotlin("multiplatform")
+    kotlin("plugin.serialization")
+}
+
+repositories {
+    maven {
+        url = uri("https://repo1.maven.org/maven2/")
+        name = "MavenCentral"
+    }
+}
+
+kotlin {
+    jvm {
+    }
+    js(IR) {
+        browser {
+            commonWebpackConfig {
+                cssSupport {
+                    enabled.set(true)
+                }
+                outputFileName = "app.js"
+            }
+        }
+        binaries.executable()
+    }
+
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-common:${variables["KOTLIN_VERSION"]}")
+                implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+            }
+        }
+        val jvmMain by getting {
+            dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib:${variables["KOTLIN_VERSION"]}")
+            }
+        }
+        val jsMain by getting {
+            dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-js:${variables["KOTLIN_VERSION"]}")
+                implementation("org.jetbrains.kotlinx:kotlinx-html:0.12.0")
+                implementation(npm("core-js", "3.46.0"))
+            }
+        }
+    }
+}
+        """.trimIndent()
+    }
+
+    private fun generateQuarkusBackendBuildGradle(variables: Map<String, String>): String {
+        return """
+import org.gradle.api.file.DuplicatesStrategy
+import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.compile.JavaCompile
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
+
+plugins {
+    id("java")
+    kotlin("jvm") version "${variables["KOTLIN_VERSION"]}"
+    kotlin("plugin.serialization") version "${variables["KOTLIN_VERSION"]}"
+    id("io.quarkus") version "3.15.7"
+}
+
+kotlin {
+    jvmToolchain(17)
+}
+
+repositories {
+    maven {
+        url = uri("https://repo1.maven.org/maven2/")
+        name = "MavenCentral"
+    }
+}
+
+dependencies {
+    implementation(enforcedPlatform("io.quarkus:quarkus-bom:3.15.7"))
+    implementation("io.quarkus:quarkus-kotlin")
+    implementation("io.quarkus:quarkus-rest")
+    implementation("io.quarkus:quarkus-rest-jackson")
+    implementation("io.quarkus:quarkus-qute")
+    implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
+    implementation(project(":app"))
+}
+
+sourceSets {
+    named("main") {
+        java.setSrcDirs(listOf("src/main/java", "src/main/kotlin"))
+    }
+    named("test") {
+        java.setSrcDirs(listOf("src/test/java", "src/test/kotlin"))
+    }
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.release.set(17)
+}
+
+tasks.withType<io.quarkus.gradle.tasks.QuarkusGenerateCode>().configureEach {
+    setSourcesDirectories(
+        setOf(
+            project.layout.projectDirectory.dir("src/main/java").asFile.toPath(),
+            project.layout.projectDirectory.dir("src/main/kotlin").asFile.toPath()
+        )
+    )
+}
+
+tasks.named<io.quarkus.gradle.tasks.QuarkusGenerateCode>("quarkusGenerateCodeTests") {
+    setSourcesDirectories(
+        setOf(
+            project.layout.projectDirectory.dir("src/test/java").asFile.toPath(),
+            project.layout.projectDirectory.dir("src/test/kotlin").asFile.toPath()
+        )
+    )
+    enabled = false
+}
+
+val frontendResourcesDir = project(":app").layout.projectDirectory.dir("src/jsMain/resources")
+val frontendBundleDir = project(":app").layout.buildDirectory.dir("dist/js/productionExecutable")
+
+tasks.named<Copy>("processResources") {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    dependsOn(":app:jsBrowserDistribution")
+    from(frontendResourcesDir) {
+        into("META-INF/resources/static")
+    }
+    from(frontendBundleDir) {
+        into("META-INF/resources/static")
+    }
+}
+
+tasks.named("quarkusDev") {
+    dependsOn(":app:jsBrowserDistribution")
+}
+
+tasks.named("build") {
+    dependsOn(":app:jsBrowserDistribution")
+}
+        """.trimIndent()
+    }
+
+    private fun generateSpringBackendBuildGradle(variables: Map<String, String>): String {
+        return """
+import org.gradle.api.tasks.Copy
+import org.gradle.api.file.DuplicatesStrategy
+import org.gradle.api.tasks.compile.JavaCompile
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
+
+plugins {
+    id("java")
+    kotlin("jvm") version "${variables["KOTLIN_VERSION"]}"
+    kotlin("plugin.serialization") version "${variables["KOTLIN_VERSION"]}"
+    kotlin("plugin.spring") version "${variables["KOTLIN_VERSION"]}"
+    id("org.springframework.boot") version "3.5.7"
+    id("io.spring.dependency-management") version "1.1.7"
+}
+
+kotlin {
+    jvmToolchain(17)
+}
+
+springBoot {
+    mainClass.set("${variables["PACKAGE_NAME"]}.${variables["APP_CLASS"]}Application")
+}
+
+repositories {
+    maven {
+        url = uri("https://repo1.maven.org/maven2/")
+        name = "MavenCentral"
+    }
+}
+
+dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
+    implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
+    implementation(project(":app"))
+}
+
+sourceSets {
+    named("main") {
+        java.setSrcDirs(listOf("src/main/java", "src/main/kotlin"))
+    }
+    named("test") {
+        java.setSrcDirs(listOf("src/test/java", "src/test/kotlin"))
+    }
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.release.set(17)
+}
+
+val frontendResourcesDirSpring = project(":app").layout.projectDirectory.dir("src/jsMain/resources")
+val frontendBundleDirSpring = project(":app").layout.buildDirectory.dir("dist/js/productionExecutable")
+
+tasks.named<Copy>("processResources") {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    dependsOn(":app:jsBrowserDistribution")
+    from(frontendResourcesDirSpring) {
+        into("static")
+    }
+    from(frontendBundleDirSpring) {
+        into("static")
+    }
+}
+
+tasks.named("bootRun") {
+    dependsOn(":app:jsBrowserDistribution")
+}
+
+tasks.named("build") {
+    dependsOn(":app:jsBrowserDistribution")
+}
+        """.trimIndent()
+    }
+
+    private fun generateKtorBackendBuildGradle(variables: Map<String, String>): String {
+        return """
+import org.gradle.api.file.DuplicatesStrategy
+import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.compile.JavaCompile
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
+
+plugins {
+    id("java")
+    kotlin("jvm") version "${variables["KOTLIN_VERSION"]}"
+    kotlin("plugin.serialization") version "${variables["KOTLIN_VERSION"]}"
+    id("io.ktor.plugin") version "3.3.1"
+}
+
+kotlin {
+    jvmToolchain(17)
+}
+
+repositories {
+    maven {
+        url = uri("https://repo1.maven.org/maven2/")
+        name = "MavenCentral"
+    }
+}
+
+application {
+    mainClass.set("${variables["PACKAGE_NAME"]}.ApplicationKt")
+}
+
+dependencies {
+    implementation("io.ktor:ktor-server-core:3.3.1")
+    implementation("io.ktor:ktor-server-netty:3.3.1")
+    implementation("io.ktor:ktor-server-html-builder:3.3.1")
+    implementation("io.ktor:ktor-server-content-negotiation:3.3.1")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:3.3.1")
+    implementation("ch.qos.logback:logback-classic:1.4.14")
+    implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
+    implementation(project(":app"))
+}
+
+sourceSets {
+    named("main") {
+        java.setSrcDirs(listOf("src/main/java", "src/main/kotlin"))
+    }
+    named("test") {
+        java.setSrcDirs(listOf("src/test/java", "src/test/kotlin"))
+    }
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.release.set(17)
+}
+
+val frontendResourcesDirKtor = project(":app").layout.projectDirectory.dir("src/jsMain/resources")
+val frontendBundleDirKtor = project(":app").layout.buildDirectory.dir("dist/js/productionExecutable")
+
+tasks.named<Copy>("processResources") {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    dependsOn(":app:jsBrowserDistribution")
+    from(frontendResourcesDirKtor) {
+        into("static")
+    }
+    from(frontendBundleDirKtor) {
+        into("static")
+    }
+}
+
+tasks.named("run") {
+    dependsOn(":app:jsBrowserDistribution")
+}
+
+tasks.named("build") {
+    dependsOn(":app:jsBrowserDistribution")
+}
+        """.trimIndent()
     }
 
     private fun generateLibraryProject(config: Config, variables: Map<String, String>) {
@@ -178,10 +584,8 @@ class ProjectGenerator(private val template: ProjectTemplate) {
         val buildFile = File(targetDir, "build.gradle.kts")
         val content = when (type) {
             "js" -> generateJsBuildGradle(variables)
-            "quarkus" -> generateQuarkusBuildGradle(variables)
-            "spring-boot" -> generateSpringBootBuildGradle(variables)
-            "ktor" -> generateKtorBuildGradle(variables)
             "library" -> generateLibraryBuildGradle(variables)
+            "multiplatform" -> generateMultiplatformBuildGradle(variables)
             else -> generateMultiplatformBuildGradle(variables)
         }
         buildFile.writeText(content)
@@ -243,214 +647,6 @@ tasks.named<org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack>("jsBro
         """.trimIndent()
     }
 
-    private fun generateQuarkusBuildGradle(variables: Map<String, String>): String {
-        return """
-plugins {
-    kotlin("multiplatform") version "${variables["KOTLIN_VERSION"]}"
-    kotlin("plugin.serialization") version "${variables["KOTLIN_VERSION"]}"
-    id("io.quarkus") version "3.15.7"
-}
-
-repositories {
-    maven {
-        url = uri("https://repo1.maven.org/maven2/")
-        name = "MavenCentral"
-    }
-}
-
-kotlin {
-    jvm()
-    js(IR) {
-        browser {
-            commonWebpackConfig {
-                cssSupport {
-                    enabled.set(true)
-                }
-                outputFileName = "app.js"
-            }
-        }
-        binaries.executable()
-    }
-    
-    sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-common:${variables["KOTLIN_VERSION"]}")
-                implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-            }
-        }
-        val jvmMain by getting {
-            dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib:${variables["KOTLIN_VERSION"]}")
-                implementation("io.quarkus:quarkus-kotlin")
-                implementation("io.quarkus:quarkus-rest")
-                implementation("io.quarkus:quarkus-rest-jackson")
-                implementation("io.quarkus:quarkus-qute")
-            }
-        }
-        val jsMain by getting {
-            dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-js:${variables["KOTLIN_VERSION"]}")
-                implementation("org.jetbrains.kotlinx:kotlinx-html:0.12.0")
-                implementation(npm("core-js", "3.46.0"))
-            }
-        }
-    }
-}
-
-val webpackTask = tasks.named("jsBrowserProductionWebpack")
-tasks.named("quarkusDev") {
-    dependsOn(webpackTask)
-}
-tasks.named("build") {
-    dependsOn(webpackTask)
-}
-        """.trimIndent()
-    }
-
-    private fun generateSpringBootBuildGradle(variables: Map<String, String>): String {
-        return """
-plugins {
-    kotlin("multiplatform") version "${variables["KOTLIN_VERSION"]}"
-    kotlin("plugin.serialization") version "${variables["KOTLIN_VERSION"]}"
-    kotlin("plugin.spring") version "${variables["KOTLIN_VERSION"]}"
-    id("org.springframework.boot") version "3.5.7"
-    id("io.spring.dependency-management") version "1.1.7"
-}
-
-repositories {
-    maven {
-        url = uri("https://repo1.maven.org/maven2/")
-        name = "MavenCentral"
-    }
-}
-
-kotlin {
-    jvm()
-    js(IR) {
-        browser {
-            commonWebpackConfig {
-                cssSupport {
-                    enabled.set(true)
-                }
-                outputFileName = "app.js"
-            }
-        }
-        binaries.executable()
-    }
-    
-    sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-common:${variables["KOTLIN_VERSION"]}")
-                implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-            }
-        }
-        val jvmMain by getting {
-            dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib:${variables["KOTLIN_VERSION"]}")
-                implementation("org.springframework.boot:spring-boot-starter-web")
-                implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
-                implementation("org.springframework.boot:spring-boot-starter-webflux")
-                implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-                implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
-            }
-        }
-        val jsMain by getting {
-            dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-js:${variables["KOTLIN_VERSION"]}")
-                implementation("org.jetbrains.kotlinx:kotlinx-html:0.12.0")
-                implementation(npm("core-js", "3.46.0"))
-            }
-        }
-    }
-}
-
-val webpackTask = tasks.named("jsBrowserProductionWebpack")
-tasks.named("bootRun") {
-    dependsOn(webpackTask)
-}
-tasks.named("build") {
-    dependsOn(webpackTask)
-}
-        """.trimIndent()
-    }
-
-    private fun generateKtorBuildGradle(variables: Map<String, String>): String {
-        return """
-plugins {
-    kotlin("multiplatform") version "${variables["KOTLIN_VERSION"]}"
-    kotlin("plugin.serialization") version "${variables["KOTLIN_VERSION"]}"
-    application
-}
-
-repositories {
-    maven {
-        url = uri("https://repo1.maven.org/maven2/")
-        name = "MavenCentral"
-    }
-}
-
-kotlin {
-    jvm()
-    js(IR) {
-        browser {
-            commonWebpackConfig {
-                cssSupport {
-                    enabled.set(true)
-                }
-                outputFileName = "app.js"
-            }
-        }
-        binaries.executable()
-    }
-    
-    sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-common:${variables["KOTLIN_VERSION"]}")
-                implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-            }
-        }
-        val jvmMain by getting {
-            dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib:${variables["KOTLIN_VERSION"]}")
-                implementation("io.ktor:ktor-server-core:3.3.1")
-                implementation("io.ktor:ktor-server-netty:3.3.1")
-                implementation("io.ktor:ktor-server-html-builder:3.3.1")
-                implementation("io.ktor:ktor-server-content-negotiation:3.3.1")
-                implementation("io.ktor:ktor-serialization-kotlinx-json:3.3.1")
-            }
-        }
-        val jsMain by getting {
-            dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-js:${variables["KOTLIN_VERSION"]}")
-                implementation("org.jetbrains.kotlinx:kotlinx-html:0.12.0")
-                implementation(npm("core-js", "3.46.0"))
-            }
-        }
-    }
-}
-
-application {
-    mainClass.set("${variables["PACKAGE_NAME"]}.ApplicationKt")
-}
-
-val webpackTask = tasks.named("jsBrowserProductionWebpack")
-tasks.named("run") {
-    dependsOn(webpackTask)
-}
-tasks.named("build") {
-    dependsOn(webpackTask)
-}
-        """.trimIndent()
-    }
 
     private fun generateLibraryBuildGradle(variables: Map<String, String>): String {
         return """
@@ -574,9 +770,22 @@ kotlin {
         """.trimIndent()
     }
 
-    private fun generateSettingsGradleKts(targetDir: File, variables: Map<String, String>) {
+    private fun generateSettingsGradleKts(
+        targetDir: File,
+        variables: Map<String, String>,
+        modules: List<String> = emptyList()
+    ) {
         val settingsFile = File(targetDir, "settings.gradle.kts")
-        settingsFile.writeText("rootProject.name = \"${variables["PROJECT_NAME"]}\"\n")
+        val content = buildString {
+            appendLine("rootProject.name = \"${variables["PROJECT_NAME"]}\"")
+            if (modules.isNotEmpty()) {
+                appendLine()
+                modules.forEach { module ->
+                    appendLine("include(\":$module\")")
+                }
+            }
+        }
+        settingsFile.writeText(content)
     }
 
     private fun generateIndexHtml(targetDir: File, variables: Map<String, String>) {
@@ -840,9 +1049,10 @@ fun App() {
     }
 
     private fun generateKtorServer(targetDir: File, variables: Map<String, String>) {
-        val jvmDir = File(targetDir, "src/jvmMain/kotlin/${variables["PACKAGE_PATH"]}")
+        val jvmDir = File(targetDir, "src/main/kotlin/${variables["PACKAGE_PATH"]}")
         jvmDir.mkdirs()
         val serverFile = File(jvmDir, "Application.kt")
+        val tripleQuote = "\"\"\""
         serverFile.writeText(
             """
 package ${variables["PACKAGE_NAME"]}
@@ -859,7 +1069,6 @@ import io.ktor.server.response.respondBytes
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
-import java.io.File
 
 fun main() {
     embeddedServer(Netty, port = 8080, module = Application::summonModule).start(wait = true)
@@ -873,13 +1082,13 @@ fun Application.summonModule() {
             call.respondText(renderPage(body), ContentType.Text.Html)
         }
         get("/static/app.js") {
-            val bundle = File("build/dist/js/productionExecutable/app.js")
-            if (bundle.exists()) {
-                call.respondBytes(bundle.readBytes(), ContentType.Application.JavaScript)
+            val resource = Thread.currentThread().contextClassLoader.getResourceAsStream("static/app.js")
+            if (resource != null) {
+                val payload = resource.use { it.readBytes() }
+                call.respondBytes(payload, ContentType.Application.JavaScript)
             } else {
                 call.respondBytes(
-                    "// Run `./gradlew jsBrowserProductionWebpack` to generate the browser bundle."
-                        .toByteArray(),
+                    "// Run `./gradlew :app:jsBrowserProductionWebpack` to generate the browser bundle.".toByteArray(),
                     ContentType.Application.JavaScript,
                     HttpStatusCode.OK
                 )
@@ -891,7 +1100,7 @@ fun Application.summonModule() {
     }
 }
 
-private fun renderPage(content: String): String = \"\"\"
+private fun renderPage(content: String): String = $tripleQuote
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -906,15 +1115,16 @@ private fun renderPage(content: String): String = \"\"\"
     <script src="/static/app.js"></script>
 </body>
 </html>
-\"\"\".trimIndent()
+$tripleQuote.trimIndent()
             """.trimIndent()
         )
     }
 
     private fun generateSpringBootServer(targetDir: File, variables: Map<String, String>) {
-        val jvmDir = File(targetDir, "src/jvmMain/kotlin/${variables["PACKAGE_PATH"]}")
+        val jvmDir = File(targetDir, "src/main/kotlin/${variables["PACKAGE_PATH"]}")
         jvmDir.mkdirs()
         val serverFile = File(jvmDir, "Application.kt")
+        val tripleQuote = "\"\"\""
         serverFile.writeText(
             """
 package ${variables["PACKAGE_NAME"]}
@@ -926,12 +1136,16 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
-import java.io.File
 
 @SpringBootApplication
-class ${variables["APP_CLASS"]}Application
-
-fun main(args: Array<String>) = runApplication<${variables["APP_CLASS"]}Application>(*args)
+class ${variables["APP_CLASS"]}Application {
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            runApplication<${variables["APP_CLASS"]}Application>(*args)
+        }
+    }
+}
 
 @RestController
 class SummonController {
@@ -947,12 +1161,9 @@ class SummonController {
 
     @GetMapping("/static/app.js", produces = ["application/javascript"])
     fun bundle(): ResponseEntity<String> {
-        val bundle = File("build/dist/js/productionExecutable/app.js")
-        val script = if (bundle.exists()) {
-            bundle.readText()
-        } else {
-            "// Run `./gradlew jsBrowserProductionWebpack` to build the frontend bundle."
-        }
+        val resource = Thread.currentThread().contextClassLoader.getResourceAsStream("static/app.js")
+        val script = resource?.bufferedReader()?.use { it.readText() }
+            ?: "// Run `./gradlew :app:jsBrowserProductionWebpack` to build the frontend bundle."
         return ResponseEntity.ok()
             .contentType(MediaType.parseMediaType("application/javascript"))
             .body(script)
@@ -962,7 +1173,7 @@ class SummonController {
     fun health(): String = "OK"
 }
 
-private fun renderPage(content: String): String = \"\"\"
+private fun renderPage(content: String): String = $tripleQuote
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -977,15 +1188,16 @@ private fun renderPage(content: String): String = \"\"\"
     <script src="/static/app.js"></script>
 </body>
 </html>
-\"\"\".trimIndent()
+$tripleQuote.trimIndent()
             """.trimIndent()
         )
     }
 
     private fun generateQuarkusServer(targetDir: File, variables: Map<String, String>) {
-        val jvmDir = File(targetDir, "src/jvmMain/kotlin/${variables["PACKAGE_PATH"]}")
+        val jvmDir = File(targetDir, "src/main/kotlin/${variables["PACKAGE_PATH"]}")
         jvmDir.mkdirs()
         val serverFile = File(jvmDir, "SummonResource.kt")
+        val tripleQuote = "\"\"\""
         serverFile.writeText(
             """
 package ${variables["PACKAGE_NAME"]}
@@ -996,7 +1208,6 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import java.io.File
 
 @Path("/")
 class SummonResource {
@@ -1013,12 +1224,9 @@ class SummonResource {
     @Path("/static/app.js")
     @Produces("application/javascript")
     fun bundle(): Response {
-        val bundle = File("build/dist/js/productionExecutable/app.js")
-        val payload = if (bundle.exists()) {
-            bundle.readText()
-        } else {
-            "// Run `./gradlew jsBrowserProductionWebpack` to build the frontend bundle."
-        }
+        val resource = javaClass.classLoader.getResourceAsStream("META-INF/resources/static/app.js")
+        val payload = resource?.bufferedReader()?.use { it.readText() }
+            ?: "// Run `./gradlew :app:jsBrowserProductionWebpack` to build the frontend bundle."
         return Response.ok(payload, "application/javascript").build()
     }
 
@@ -1028,7 +1236,7 @@ class SummonResource {
     fun health(): String = "OK"
 }
 
-private fun renderPage(content: String): String = \"\"\"
+private fun renderPage(content: String): String = $tripleQuote
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1043,13 +1251,13 @@ private fun renderPage(content: String): String = \"\"\"
     <script src="/static/app.js"></script>
 </body>
 </html>
-\"\"\".trimIndent()
+$tripleQuote.trimIndent()
             """.trimIndent()
         )
     }
 
     private fun generateApplicationProperties(targetDir: File, variables: Map<String, String>, type: String) {
-        val resourcesDir = File(targetDir, "src/jvmMain/resources")
+        val resourcesDir = File(targetDir, "src/main/resources")
         resourcesDir.mkdirs()
 
         when (type) {
@@ -1059,7 +1267,7 @@ private fun renderPage(content: String): String = \"\"\"
                     """
 quarkus.http.port=8080
 quarkus.http.host=0.0.0.0
-quarkus.qute.dev-mode.no-restart-templates=**/*.html
+quarkus.qute.dev-mode.no-restart-templates=.*\\.html
                 """.trimIndent()
                 )
             }
