@@ -3,7 +3,6 @@ package code.yousef.summon.cli.commands
 import code.yousef.summon.cli.generators.ProjectGenerator
 import code.yousef.summon.cli.templates.ProjectTemplate
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.default
 import com.github.ajalt.clikt.parameters.options.default
@@ -13,25 +12,29 @@ import com.github.ajalt.clikt.parameters.types.choice
 import java.io.File
 
 /**
- * Command to initialize a new Summon project in the current directory or a specified directory.
+ * Scaffold a new Summon project (standalone site or full-stack backend + Summon UI).
  */
-class InitCommand : CliktCommand(
-    name = "init"
-) {
+class InitCommand(
+    private val templateResolver: (String) -> ProjectTemplate = { ProjectTemplate.fromType(it) },
+    private val generatorFactory: (ProjectTemplate) -> ProjectExecutor = { template ->
+        val generator = ProjectGenerator(template)
+        ProjectExecutor { config -> generator.generate(config) }
+    },
+    private val inputProvider: () -> String? = { readLine() }
+) : CliktCommand(name = "init") {
+
+    fun interface ProjectExecutor {
+        fun generate(config: ProjectGenerator.Config)
+    }
 
     private val projectName by argument(
         name = "name",
         help = "Name of the project"
     ).default("summon-app")
 
-    private val template by option(
-        "--template", "-t",
-        help = "Project template to use"
-    ).choice("site", "fullstack", "js", "quarkus", "spring-boot", "ktor", "basic").default("basic")
-
     private val packageName by option(
         "--package", "-p",
-        help = "Base package name (e.g., com.example.myapp)"
+        help = "Base package name (e.g., com.example.app)"
     ).default("com.example.app")
 
     private val directory by option(
@@ -41,285 +44,191 @@ class InitCommand : CliktCommand(
 
     private val here by option(
         "--here",
-        help = "Generate project in current directory"
+        help = "Generate the project in the current directory"
     ).flag()
 
     private val force by option(
         "--force", "-f",
-        help = "Overwrite existing files"
-    ).flag()
-
-    private val interactive by option(
-        "--interactive", "-i",
-        help = "Interactive mode for configuration"
-    ).flag()
-
-    private val minimal by option(
-        "--minimal", "-m",
-        help = "Generate minimal/blank project without examples"
-    ).flag()
-
-    private val examples by option(
-        "--examples", "-e",
-        help = "Include example components"
+        help = "Overwrite existing files if the directory is not empty"
     ).flag()
 
     private val mode by option(
         "--mode",
-        help = "Project mode: standalone site or fullstack"
+        help = "Skip the prompt by specifying standalone or fullstack"
     ).choice("standalone", "fullstack")
 
     private val backend by option(
         "--backend",
-        help = "Backend to use for fullstack projects (ktor, spring, quarkus)"
-    ).choice("ktor", "spring", "spring-boot", "quarkus")
+        help = "Backend to use for fullstack projects (spring, ktor, quarkus)"
+    ).choice("spring", "spring-boot", "ktor", "quarkus")
 
     override fun run() {
         val targetDir = determineTargetDirectory()
-
-        val resolved = resolveTemplateSelection(template, mode, backend)
+        val selection = resolveTemplateSelection()
 
         echo("🚀 Initializing Summon project: $projectName")
         echo("📁 Target directory: ${targetDir.absolutePath}")
-        echo("📦 Template: ${resolved.displayName}")
+        echo("📦 Template: ${selection.displayName}")
         echo("🏷️  Package: $packageName")
 
-        var finalProjectName = projectName
-        var finalPackageName = packageName
-        var finalMinimal = minimal
-        var finalExamples = examples
-
-        if (interactive) {
-            val interactiveResult = runInteractiveMode()
-            finalProjectName = interactiveResult.projectName
-            finalPackageName = interactiveResult.packageName
-            finalMinimal = interactiveResult.minimal
-            finalExamples = interactiveResult.examples
-        }
-
-        // Validate target directory
         val validationError = validateTargetDirectory(targetDir)
         if (validationError != null) {
             echo("❌ $validationError")
             return
         }
 
-        try {
-            val projectTemplate = ProjectTemplate.fromType(resolved.templateType)
-            val generator = ProjectGenerator(projectTemplate)
+        val projectTemplate = templateResolver(selection.templateType)
+        val projectExecutor = generatorFactory(projectTemplate)
 
-            val config = ProjectGenerator.Config(
-                projectName = finalProjectName,
-                packageName = finalPackageName,
-                targetDirectory = targetDir,
-                templateType = resolved.templateType,
-                minimal = finalMinimal,
-                overwrite = force
+        val config = ProjectGenerator.Config(
+            projectName = projectName,
+            packageName = packageName,
+            targetDirectory = targetDir,
+            templateType = selection.templateType,
+            minimal = false,
+            overwrite = force
+        )
+
+        echo("📋 Generating project structure...")
+        projectExecutor.generate(config)
+        echo("✅ Project created successfully!\n")
+
+        printNextSteps(targetDir, selection)
+    }
+
+    private fun printNextSteps(targetDir: File, selection: TemplateResolution) {
+        val startIndex = if (!here && targetDir.name != ".") {
+            echo("Next steps:")
+            echo("  1. cd ${targetDir.name}")
+            2
+        } else {
+            echo("Next steps:")
+            1
+        }
+
+        echo("  $startIndex. ./gradlew build")
+
+        when (selection.templateType) {
+            "js" -> {
+                echo("  ${startIndex + 1}. ./gradlew jsBrowserDevelopmentRun")
+                echo("     Open http://localhost:8080 to see your app")
+            }
+
+            "ktor" -> {
+                echo("  ${startIndex + 1}. ./gradlew run")
+                echo("     Backend + Summon UI available at http://localhost:8080")
+            }
+
+            "spring-boot" -> {
+                echo("  ${startIndex + 1}. ./gradlew bootRun")
+                echo("     Backend + Summon UI available at http://localhost:8080")
+            }
+
+            "quarkus" -> {
+                echo("  ${startIndex + 1}. ./gradlew unitTest   # lightweight backend checks")
+                echo("  ${startIndex + 2}. ./gradlew quarkusDev  # hot-reload backend + Summon UI")
+            }
+        }
+    }
+
+    private fun resolveTemplateSelection(): TemplateResolution {
+        val selectedMode = mode?.let { parseMode(it) } ?: promptForMode()
+
+        return when (selectedMode) {
+            Mode.STANDALONE -> TemplateResolution(
+                templateType = "js",
+                displayName = "Standalone site (browser)",
+                mode = selectedMode,
+                backend = null
             )
 
-            echo("📋 Generating project structure...")
-            generator.generate(config)
-
-            echo("✅ Project created successfully!")
-            echo("")
-            echo("Next steps:")
-            if (!here && targetDir.name != ".") {
-                echo("  1. cd ${targetDir.name}")
-                echo("  2. ./gradlew build")
-            } else {
-                echo("  1. ./gradlew build")
-            }
-
-            val nextStep = if (!here && targetDir.name != ".") "3" else "2"
-
-            when (resolved.templateType) {
-                "js" -> {
-                    echo("  $nextStep. ./gradlew jsBrowserDevelopmentRun")
-                    echo("     Open http://localhost:8080 to see your app")
-                }
-
-                "quarkus" -> {
-                    echo("  $nextStep. ./gradlew quarkusDev")
-                    echo("     Open http://localhost:8080 to see your app")
-                }
-
-                "spring-boot" -> {
-                    echo("  $nextStep. ./gradlew bootRun")
-                    echo("     Open http://localhost:8080 to see your app")
-                    val msgStep = (nextStep.toInt() + 1).toString()
-                    echo("  $msgStep. Summon UI shared in src/commonMain/kotlin/")
-                }
-
-                "ktor" -> {
-                    echo("  $nextStep. ./gradlew run")
-                    echo("     Open http://localhost:8080 to see your app")
-                    val msgStep = (nextStep.toInt() + 1).toString()
-                    echo("  $msgStep. Summon UI shared in src/commonMain/kotlin/")
-                }
-
-                else -> {
-                    echo("  $nextStep. ./gradlew jsBrowserDevelopmentRun  # For browser development")
-                    val nextNextStep = if (!here && targetDir.name != ".") "4" else "3"
-                    echo("  $nextNextStep. ./gradlew run                      # For JVM development")
-                }
-            }
-
-        } catch (e: Exception) {
-            echo("❌ Failed to create project: ${e.message}")
-            if (currentContext.findObject<Boolean>() == true) { // verbose mode
-                e.printStackTrace()
+            Mode.FULLSTACK -> {
+                val selectedBackend = backend?.let { parseBackend(it) } ?: promptForBackend()
+                TemplateResolution(
+                    templateType = selectedBackend.templateType,
+                    displayName = "Full stack (${selectedBackend.displayName})",
+                    mode = selectedMode,
+                    backend = selectedBackend
+                )
             }
         }
     }
 
-    private data class InteractiveResult(
-        val projectName: String,
-        val packageName: String,
-        val minimal: Boolean,
-        val examples: Boolean
-    )
-
-    private fun runInteractiveMode(): InteractiveResult {
-        echo("🔧 Interactive project setup")
-        echo("Press Enter to use default values shown in [brackets]")
-        echo("")
-
-        // Implement interactive prompts using basic input
-        val finalProjectName = projectName ?: run {
-            echo("Project name [my-summon-app]: ", trailingNewline = false)
-            val input = readLine()?.trim()
-            if (input.isNullOrBlank()) "my-summon-app" else input
-        }
-
-        val finalPackageName = packageName ?: run {
-            echo("Package name [com.example.app]: ", trailingNewline = false)
-            val input = readLine()?.trim()
-            if (input.isNullOrBlank()) "com.example.app" else input
-        }
-
-        val isMinimal = minimal || run {
-            echo("Create minimal project? [y/N]: ", trailingNewline = false)
-            readLine()?.trim()?.lowercase() == "y"
-        }
-
-        val includeExamples = !isMinimal && (examples || run {
-            echo("Include example components? [Y/n]: ", trailingNewline = false)
-            readLine()?.trim()?.lowercase() != "n"
-        })
-
-        echo("📝 Project configuration:")
-        echo("   Name: $finalProjectName")
-        echo("   Package: $finalPackageName")
-        echo("   Type: ${if (isMinimal) "Minimal" else "Full"}")
-        if (!isMinimal) echo("   Examples: ${if (includeExamples) "Yes" else "No"}")
-        echo("")
-
-        echo("Continue with this configuration? [Y/n]: ", trailingNewline = false)
-        val confirm = readLine()?.trim()?.lowercase()
-        if (confirm == "n") {
-            echo("❌ Project creation cancelled")
-            throw ProgramResult(1)
-        }
-
-        return InteractiveResult(
-            projectName = finalProjectName,
-            packageName = finalPackageName,
-            minimal = isMinimal,
-            examples = includeExamples
-        )
-    }
-
-    private fun determineTargetDirectory(): File {
-        return when {
-            here -> {
-                // Generate in current directory
-                File(".").absoluteFile
-            }
-
-            directory != null -> {
-                // Use specified directory
-                val dir = File(directory!!)
-                if (dir.isAbsolute) dir else File(".", directory!!).absoluteFile
-            }
-
-            else -> {
-                // Default: create subdirectory with project name
-                File(".", projectName).absoluteFile
+    private fun promptForMode(): Mode {
+        while (true) {
+            echo("Select project type:")
+            echo("  1) Standalone site")
+            echo("  2) Full stack (Summon UI + backend)")
+            echo("> ", trailingNewline = false)
+            when (inputProvider()?.trim()?.lowercase()) {
+                "1", "standalone", "s" -> return Mode.STANDALONE
+                "2", "fullstack", "f" -> return Mode.FULLSTACK
+                else -> echo("Please enter 1 or 2.")
             }
         }
     }
 
-    private fun validateTargetDirectory(targetDir: File): String? {
-        return when {
-            targetDir.exists() && !targetDir.isDirectory() -> {
-                "Target path exists but is not a directory"
+    private fun promptForBackend(): Backend {
+        while (true) {
+            echo("Select backend:")
+            echo("  1) Spring Boot")
+            echo("  2) Ktor")
+            echo("  3) Quarkus")
+            echo("> ", trailingNewline = false)
+            when (inputProvider()?.trim()?.lowercase()) {
+                "1", "spring", "spring-boot", "s" -> return Backend.SPRING
+                "2", "ktor", "k" -> return Backend.KTOR
+                "3", "quarkus", "q" -> return Backend.QUARKUS
+                else -> echo("Please enter 1, 2, or 3.")
             }
-
-            targetDir.exists() && targetDir.listFiles()?.isNotEmpty() == true && !force -> {
-                "Directory is not empty. Use --force to overwrite or choose a different location"
-            }
-
-            else -> null
         }
+    }
+
+    private fun parseMode(value: String): Mode = when (value.lowercase()) {
+        "standalone" -> Mode.STANDALONE
+        "fullstack" -> Mode.FULLSTACK
+        else -> error("❌ Unsupported mode '$value'. Use standalone or fullstack.")
+    }
+
+    private fun parseBackend(value: String): Backend = when (value.lowercase()) {
+        "spring", "spring-boot" -> Backend.SPRING
+        "ktor" -> Backend.KTOR
+        "quarkus" -> Backend.QUARKUS
+        else -> error("❌ Unsupported backend '$value'. Use spring, ktor, or quarkus.")
+    }
+
+    private fun determineTargetDirectory(): File = when {
+        here -> File(".").absoluteFile
+        directory != null -> {
+            val dir = File(directory!!)
+            if (dir.isAbsolute) dir else File(".", directory!!).absoluteFile
+        }
+
+        else -> File(".", projectName).absoluteFile
+    }
+
+    private fun validateTargetDirectory(targetDir: File): String? = when {
+        targetDir.exists() && !targetDir.isDirectory ->
+            "Target path exists but is not a directory"
+
+        targetDir.exists() && targetDir.listFiles()?.isNotEmpty() == true && !force ->
+            "Directory is not empty. Use --force to overwrite or choose a different location"
+
+        else -> null
     }
 
     private data class TemplateResolution(
         val templateType: String,
-        val displayName: String
+        val displayName: String,
+        val mode: Mode,
+        val backend: Backend?
     )
 
-    private fun resolveTemplateSelection(
-        templateArg: String,
-        modeArg: String?,
-        backendArg: String?
-    ): TemplateResolution {
-        val normalizedBackend = backendArg?.let { normalizeBackend(it) }
+    private enum class Mode { STANDALONE, FULLSTACK }
 
-        if (modeArg != null) {
-            return when (modeArg) {
-                "standalone" -> TemplateResolution("js", "standalone site (browser)")
-                "fullstack" -> {
-                    val backend = normalizedBackend
-                        ?: error("❌ --backend is required when --mode=fullstack (ktor, spring, or quarkus)")
-                    TemplateResolution(
-                        backend,
-                        "fullstack (${backendDisplayName(backend)})"
-                    )
-                }
-
-                else -> TemplateResolution(templateArg, templateArg)
-            }
-        }
-
-        return when (templateArg) {
-            "site", "js" -> TemplateResolution("js", "standalone site (browser)")
-            "fullstack" -> {
-                val backend = normalizedBackend
-                    ?: error("❌ --backend is required when using the 'fullstack' template (ktor, spring, or quarkus)")
-                TemplateResolution(
-                    backend,
-                    "fullstack (${backendDisplayName(backend)})"
-                )
-            }
-
-            "quarkus" -> TemplateResolution("quarkus", "fullstack (Quarkus)")
-            "spring-boot" -> TemplateResolution("spring-boot", "fullstack (Spring Boot)")
-            "ktor" -> TemplateResolution("ktor", "fullstack (Ktor)")
-            else -> TemplateResolution(templateArg, templateArg)
-        }
-    }
-
-    private fun normalizeBackend(value: String): String = when (value.lowercase()) {
-        "ktor" -> "ktor"
-        "spring", "spring-boot" -> "spring-boot"
-        "quarkus" -> "quarkus"
-        else -> error("❌ Unsupported backend '$value'. Use ktor, spring, or quarkus.")
-    }
-
-    private fun backendDisplayName(type: String): String = when (type) {
-        "ktor" -> "Ktor"
-        "spring-boot" -> "Spring Boot"
-        "quarkus" -> "Quarkus"
-        else -> type
+    private enum class Backend(val templateType: String, val displayName: String) {
+        SPRING("spring-boot", "Spring Boot"),
+        KTOR("ktor", "Ktor"),
+        QUARKUS("quarkus", "Quarkus")
     }
 }

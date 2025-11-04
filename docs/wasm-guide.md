@@ -1,6 +1,6 @@
 # WebAssembly (WASM) Guide
 
-Summon 0.4.2.1 introduces comprehensive WebAssembly support, bringing near-native performance to web applications while
+Summon 0.4.2.2 introduces comprehensive WebAssembly support, bringing near-native performance to web applications while
 maintaining full compatibility with server-side rendering and JavaScript fallbacks.
 
 ## Table of Contents
@@ -53,14 +53,14 @@ Create a new WASM project:
 # Visit: https://github.com/codeyousef/summon/packages
 # Or use the native executable directly
 
-# Create WASM project
-summon init my-wasm-app --template=wasm
+# Create a new project (start from the standalone template)
+java -jar summon-cli-0.4.2.2.jar init my-wasm-app --mode=standalone
 
 # Navigate to project
 cd my-wasm-app
 
-# Run development server
-summon dev --target=wasm
+# Run development server (after enabling the WASM target)
+./gradlew wasmJsBrowserDevelopmentRun
 ```
 
 ### Your First WASM Component
@@ -142,19 +142,19 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("io.github.codeyousef:summon:0.4.2.1")
+                implementation("io.github.codeyousef:summon:0.4.2.2")
             }
         }
 
         val wasmJsMain by getting {
             dependencies {
-                implementation("io.github.codeyousef:summon-wasm-js:0.4.2.1")
+                implementation("io.github.codeyousef:summon-wasm-js:0.4.2.2")
             }
         }
 
         val jvmMain by getting {
             dependencies {
-                implementation("io.github.codeyousef:summon-jvm:0.4.2.1")
+                implementation("io.github.codeyousef:summon-jvm:0.4.2.2")
             }
         }
     }
@@ -248,10 +248,6 @@ fun main() {
 
 ```bash
 # Start development server with hot reload
-# (Note: CLI commands depend on having Summon CLI from GitHub Packages)
-summon dev --target=wasm --hot-reload
-
-# Custom webpack dev server
 ./gradlew wasmJsBrowserDevelopmentRun --continuous
 ```
 

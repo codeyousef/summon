@@ -15,88 +15,58 @@ Command-line tool for scaffolding Summon projects and generating components.
 ### Run Without Installation
 
 ```bash
-java -jar summon-cli-0.4.2.1.jar <command>
+java -jar summon-cli-0.4.2.2.jar init my-app
+java -jar summon-cli-0.4.2.2.jar --help
 ```
 
-### Install Globally
+## Command
+
+### init – Scaffold a Summon Project
+
+`init` now drives the entire workflow. Run it once and follow the prompts:
+
+1. Choose the project type:
+    - `1` – Standalone site (browser-only)
+    - `2` – Full stack (Summon UI + backend)
+2. If full stack, choose the backend:
+    - `1` – Spring Boot
+    - `2` – Ktor
+    - `3` – Quarkus
+
+Useful flags:
 
 ```bash
-java -jar summon-cli-0.4.2.1.jar install
-# Restart terminal, then use:
-summon <command>
-```
-
-## Commands
-
-### init – Create New Project
-
-`init` is the primary scaffolder. Pick a target directory (`--here`, `--dir <path>`, or let Summon create
-`<project-name>/`) and choose the mode:
-
-```bash
-# Standalone browser UI	summon init my-app --mode=standalone
-
-# Full-stack UI + backend (frontend in app/, backend in backend/)
-summon init my-app --mode=fullstack --backend=quarkus
-summon init my-app --mode=fullstack --backend=ktor
-summon init my-app --mode=fullstack --backend=spring
-
-# Additional templates	summon init my-app --template=wasm
-```
-
-### create – Direct Template Access (legacy shortcuts)
-
-The `create` command still exposes the older one-shot templates when you know exactly which stack you want without the
-directory prompts.
-
-```bash
-summon create js-app --name my-app
-summon create quarkus-app --name backend
-summon create ktor-app --name api
-summon create fullstack --backend spring --name portal
-summon create site --name marketing
-```
-
-### generate - Generate Components
-
-```bash
-summon generate component Button
-summon generate page About
-summon generate route /api/users
-```
-
-### install - Install Globally
-
-```bash
-summon install              # Install for current user
-summon install --global     # System-wide (requires admin)
-summon install --force      # Reinstall
+java -jar summon-cli-0.4.2.2.jar init portal --mode=fullstack --backend=quarkus  # Skip prompts
+java -jar summon-cli-0.4.2.2.jar init marketing --mode=standalone --here          # Generate in current dir
 ```
 
 ## Usage Examples
 
-### JavaScript/Browser Project
+### Standalone Browser Project
 
 ```bash
-java -jar summon-cli-0.4.2.1.jar init my-web-app
-cd my-web-app
+java -jar summon-cli-0.4.2.2.jar init landing --mode=standalone
+cd landing
 ./gradlew jsBrowserDevelopmentRun
+```
+
+### Full-Stack Ktor Project
+
+```bash
+java -jar summon-cli-0.4.2.2.jar init portal --mode=fullstack --backend=ktor
+cd portal
+./gradlew build
+./gradlew run
 ```
 
 ### Full-Stack Quarkus Project
 
 ```bash
-java -jar summon-cli-0.4.2.1.jar init portal --mode=fullstack --backend=quarkus
+java -jar summon-cli-0.4.2.2.jar init portal --mode=fullstack --backend=quarkus
 cd portal
+./gradlew build
+./gradlew unitTest
 ./gradlew quarkusDev
-```
-
-### WebAssembly Project
-
-```bash
-java -jar summon-cli-0.4.2.1.jar init wasm-app --template=wasm
-cd wasm-app
-./gradlew wasmJsBrowserDevelopmentRun
 ```
 
 ## Building Native Executables
@@ -121,7 +91,7 @@ If you want to build a native executable for faster startup:
 ### Run Locally
 
 ```bash
-java -jar summon-cli/build/libs/summon-cli-0.4.2.1.jar --help
+java -jar summon-cli/build/libs/summon-cli-0.4.2.2.jar --help
 ```
 
 ### Run Tests
@@ -129,6 +99,9 @@ java -jar summon-cli/build/libs/summon-cli-0.4.2.1.jar --help
 ```bash
 ./gradlew :summon-cli:jvmTest
 ```
+
+This command scaffolds fresh standalone, Ktor, Spring, and Quarkus samples and runs their Gradle builds, so expect it to
+take a few minutes.
 
 ## Troubleshooting
 
@@ -149,15 +122,6 @@ java -version
 # Should show version 17 or higher
 ```
 
-### Install Command Fails
-
-On Windows, you may need to run as Administrator for global installation:
-```bash
-# Right-click terminal → Run as Administrator
-java -jar summon-cli-0.4.2.1.jar install --global
-```
-
-### Command Not Found After Install
 
 Restart your terminal or run:
 ```bash

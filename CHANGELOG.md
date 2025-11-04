@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.2.2] - 2025-11-04
+
+### Added
+
+- **CLI integration coverage**: New smoke tests scaffold standalone, Spring Boot, Ktor, and Quarkus projects and run
+  their Gradle builds, providing automated guardrails for template regressions.
+- **Quarkus unit check**: Generated Quarkus backends ship with a lightweight `unitTest` task so developers can verify
+  the backend without triggering the heavier dev-mode code generation.
+
+### Changed
+
+- **Unified CLI flow**: The Summon CLI now exposes a single `init` command with prompts for standalone vs. full-stack
+  stacks and backend selection (Spring, Ktor, Quarkus). `--mode/--backend` flags support non-interactive environments.
+- **Documentation refresh**: README quick starts, backend guides, and CLI help output all reference the new workflow and
+  updated dependency coordinates.
+
+### Fixed
+
+- **Quarkus scaffolding**: Eliminated the `java` plugin conflict by generating separate `app/` and `backend/` modules
+  and wiring backend-specific Gradle aliases, restoring out-of-the-box builds for Quarkus projects.
+
 ## [0.4.2.1] - 2025-11-01
 
 ### Fixed

@@ -1,9 +1,6 @@
 package code.yousef.summon.cli
 
-import code.yousef.summon.cli.commands.CreateCommand
-import code.yousef.summon.cli.commands.GenerateCommand
 import code.yousef.summon.cli.commands.InitCommand
-import code.yousef.summon.cli.commands.InstallCommand
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.main
 import com.github.ajalt.clikt.core.subcommands
@@ -25,7 +22,7 @@ class SummonCli : CliktCommand(
         .default("false")
 
     init {
-        versionOption("0.4.2.1")
+        versionOption("0.4.2.2")
     }
 
     override fun run() {
@@ -42,41 +39,32 @@ class SummonCli : CliktCommand(
                 declarative UI to browser and JVM environments.
                 
                 📦 If you downloaded the JAR file:
-                   java -jar summon-cli-0.4.2.1.jar <command>
+                   java -jar summon-cli-0.4.2.2.jar init <name>
                 
-                💡 To install globally (adds 'summon' command):
-                   java -jar summon-cli-0.4.2.1.jar install
-                   (Then restart your terminal)
-                
-                Recommended workflow:
+                Quick start:
                   1. Pick a project folder: --here, --dir <path>, or default subdirectory
-                  2. Run `init` to scaffold the UI + optional backend
-                     - Standalone browser UI:  summon init my-app --mode=standalone
-                     - Full-stack app:        summon init my-app --mode=fullstack --backend=<ktor|spring|quarkus>
-                  3. Use `generate` to add components, pages, routes, etc.
+                  2. Run `java -jar summon-cli-0.4.2.2.jar init <name>`
+                  3. Choose project type when prompted:
+                     - 1) Standalone site (browser-only)
+                     - 2) Full stack (Summon UI + backend)
+                  4. If full stack, pick a backend:
+                     - 1) Spring Boot
+                     - 2) Ktor
+                     - 3) Quarkus
 
-                Available commands:
-                  init      Scaffold a new Summon project (standalone or full-stack)
-                  create    Direct template access (legacy shortcuts for js, ktor, spring, quarkus)
-                  generate  Add components, pages, routes, and other artifacts to an existing project
-                  install   Install Summon CLI globally and add to PATH
+                Available command:
+                  init      Scaffold a Summon project (standalone or full-stack)
 
-                Directory options (init/create):
+                Useful flags:
                   --here            Generate in current directory
                   --dir <path>      Output into a custom directory ('.' for current)
-                  --output <path>   Alias for --dir when using create
+                  --mode <type>     Skip the prompt (standalone, fullstack)
+                  --backend <type>  Skip the prompt for backends (spring, ktor, quarkus)
 
-                Use 'summon --help' to list commands.
-                Use 'summon <command> --help' for details and advanced flags.
-
-                Example commands (JAR download):
-                  java -jar summon-cli-0.4.2.1.jar init my-app --mode=fullstack --backend=ktor
-                  java -jar summon-cli-0.4.2.1.jar init my-app --mode=standalone --here
-                  java -jar summon-cli-0.4.2.1.jar generate component Button
-
-                After installation:
-                  summon init my-app --mode=fullstack --backend=quarkus
-                  summon generate component Button
+                Example (non-interactive):
+                  java -jar summon-cli-0.4.2.2.jar init portal --mode=fullstack --backend=quarkus
+                  java -jar summon-cli-0.4.2.2.jar init landing-page --mode=standalone --here
+                For Quarkus projects, run `./gradlew unitTest` before `./gradlew quarkusDev`.
             """.trimIndent()
             )
         }
@@ -87,10 +75,5 @@ class SummonCli : CliktCommand(
  * Main function - entry point for the CLI application
  */
 fun main(args: Array<String>) = SummonCli()
-    .subcommands(
-        InitCommand(),
-        CreateCommand(),
-        GenerateCommand(),
-        InstallCommand()
-    )
+    .subcommands(InitCommand())
     .main(args)

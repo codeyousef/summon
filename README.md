@@ -70,24 +70,20 @@ Summon combines the best ideas from modern frontend frameworks like React, Vue, 
     - Cross-browser compatibility and progressive loading
     - Production-ready WASM with optimized bundle sizes
 
-## What's New in 0.4.2.1
+## What's New in 0.4.2.2
 
-🧭 **Package & Documentation Realignment**
+🪄 **One-Command Summon CLI & Hardened Templates**
 
-This release focuses on tidying the public surface so projects have a single, predictable import path per feature:
+This release streamlines the project generator and locks in higher confidence for full-stack starters:
 
-- **Foundation namespace**: `ThemeProvider`, `BasicText`, and theme helpers now live under
-  `code.yousef.summon.components.foundation`, so generated code and examples import from a single location.
-- **Authentication components**: `SecuredComponent` and `LoginComponent` moved to `code.yousef.summon.components.auth`
-  with updated API reference snippets.
-- **Styling split**: Global styling utilities moved to `code.yousef.summon.components.styles`, while new
-  `BoxShadowModifiers.kt` and `ClipPathModifiers.kt` give the frequently-used modifier helpers their own home.
-- **Cross-target consistency**: JS effects (`code.yousef.summon.effects.browser`), SEO helpers
-  (`code.yousef.summon.seo.routes`), and Quarkus navigation support (
-  `code.yousef.summon.integration.quarkus.navigationsupport`)
-  now mirror the same package names across code, docs, templates, and tests.
-
-Download: `java -jar summon-cli-0.4.2.1.jar install`
+- **Single `init` workflow** – The CLI now exposes one entry point that walks between “Standalone site” and “Full stack”
+  with Spring, Ktor, or Quarkus choices. `--mode/--backend` flags let you skip prompts in CI.
+- **Backend-ready scaffolds** – Generated projects split cleanly into `app/` and `backend/`, wire default Gradle aliases
+  (e.g. `./gradlew quarkusDev`) and include a lightweight Quarkus `unitTest` task to dodge upstream tooling bugs.
+- **Integration smoke tests** – New CLI integration tests bootstrap every template and run their Gradle builds,
+  catching regressions in the scaffolding and toolchain before release.
+- **Doc refresh** – README quick starts, CLI help, and backend guides now describe the unified `init` experience
+  and reference the latest dependency coordinates.
 
 ### Previous Releases
 
@@ -245,16 +241,11 @@ The Summon CLI helps you quickly scaffold new projects and generate components.
 Download the latest JAR from [GitHub Releases](https://github.com/codeyousef/summon/releases):
 
 ```bash
-# Download summon-cli-0.4.2.1.jar
+# Download summon-cli-0.4.2.2.jar
 
 # Run commands directly
-java -jar summon-cli-0.4.2.1.jar init my-app
-java -jar summon-cli-0.4.2.1.jar --help
-
-# OR install globally (adds 'summon' command)
-java -jar summon-cli-0.4.2.1.jar install
-# Then restart terminal and use:
-summon init my-app
+java -jar summon-cli-0.4.2.2.jar init my-app
+java -jar summon-cli-0.4.2.2.jar --help
 ```
 
 #### Option 2: Build from Source
@@ -263,25 +254,35 @@ summon init my-app
 git clone https://github.com/codeyousef/summon.git
 cd summon
 ./gradlew :summon-cli:shadowJar
-java -jar summon-cli/build/libs/summon-cli-0.4.2.1.jar install
+java -jar summon-cli/build/libs/summon-cli-0.4.2.2.jar init my-app
 ```
 
 #### Quick Start
 
-After installation:
-
 ```bash
-# Standalone browser UI
-summon init my-app --mode=standalone
-cd my-app
-./gradlew jsBrowserDevelopmentRun
-# App served at http://localhost:8080
+# Let Summon CLI prompt for stack + backend
+java -jar summon-cli-0.4.2.2.jar init portal
 
-# Full-stack Quarkus sample (creates app/ + backend/)
-summon init portal --mode=fullstack --backend=quarkus
+# Or skip the prompts entirely
+java -jar summon-cli-0.4.2.2.jar init landing --mode=standalone --here
+java -jar summon-cli-0.4.2.2.jar init portal --mode=fullstack --backend=ktor
+
+# After generation (examples)
 cd portal
-./gradlew quarkusDev
-# Backend listens on http://localhost:8080 and serves the UI bundle
+./gradlew build
+./gradlew run          # Ktor full-stack projects
+
+cd ../portal-spring
+./gradlew build
+./gradlew bootRun      # Spring Boot full-stack projects
+
+cd ../portal-quarkus
+./gradlew build
+./gradlew unitTest     # Lightweight backend checks
+./gradlew quarkusDev   # Hot reload backend + Summon UI
+
+cd ../landing
+./gradlew jsBrowserDevelopmentRun  # Standalone browser project
 ```
 
 ### Summon Library
@@ -295,16 +296,16 @@ repositories {
 
 dependencies {
     // For JVM projects (Ktor, Spring Boot, Quarkus)
-  implementation("io.github.codeyousef:summon-jvm:0.4.2.1")
+  implementation("io.github.codeyousef:summon-jvm:0.4.2.2")
 
     // For JavaScript/Browser projects
-  implementation("io.github.codeyousef:summon-js:0.4.2.1")
+  implementation("io.github.codeyousef:summon-js:0.4.2.2")
 
     // For WebAssembly projects
-  implementation("io.github.codeyousef:summon-wasm-js:0.4.2.1")
+  implementation("io.github.codeyousef:summon-wasm-js:0.4.2.2")
 
     // For Kotlin Multiplatform projects (includes all targets)
-  implementation("io.github.codeyousef:summon:0.4.2.1")
+  implementation("io.github.codeyousef:summon:0.4.2.2")
 }
 ```
 
@@ -373,17 +374,11 @@ maintaining full compatibility with server-side rendering and JavaScript fallbac
 
 ### Getting Started with WASM
 
-Create a new WASM project using the Summon CLI:
+Create a new project with the Summon CLI, then enable the WASM target using the steps that follow:
 
 ```bash
-# Install Summon CLI (download JAR from releases first)
-java -jar summon-cli-0.4.2.1.jar install
-
-# Create a new WASM project
-summon init my-wasm-app --template=wasm
-
-# Or add WASM to an existing project
-summon generate wasm-config
+# Download the CLI JAR from releases first, then run:
+java -jar summon-cli-0.4.2.2.jar init my-wasm-app --mode=standalone
 ```
 
 ### Basic WASM Application
@@ -460,7 +455,7 @@ kotlin {
 }
 
 dependencies {
-  implementation("io.github.codeyousef:summon-wasm-js:0.4.2.1")
+  implementation("io.github.codeyousef:summon-wasm-js:0.4.2.2")
 }
 ```
 
@@ -500,16 +495,16 @@ The Summon CLI provides comprehensive WASM development tools:
 
 ```bash
 # Build WASM for development
-summon build --target=wasm --mode=development
+./gradlew wasmJsBrowserDevelopmentRun
 
 # Build optimized WASM for production
-summon build --target=wasm --mode=production
+./gradlew wasmJsBrowserProductionWebpack
 
 # Run WASM development server with hot reload
-summon dev --target=wasm
+./gradlew wasmJsBrowserDevelopmentRun --continuous
 
 # Analyze WASM bundle size and performance
-summon analyze --target=wasm
+./gradlew wasmJsBrowserDistribution
 ```
 
 ## Server-Side Rendering (SSR)
