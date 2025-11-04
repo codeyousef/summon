@@ -201,6 +201,7 @@ tasks.register("run") {
         buildFile.writeText(generateQuarkusBackendBuildGradle(variables))
         generateApplicationProperties(targetDir, variables, "quarkus")
         generateQuarkusServer(targetDir, variables)
+        generateQuarkusTests(targetDir, variables)
     }
 
     private fun generateSpringBackendModule(targetDir: File, variables: Map<String, String>) {
@@ -292,6 +293,8 @@ kotlin {
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.api.tasks.testing.Test
+import org.gradle.api.tasks.JavaExec
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 
 plugins {
@@ -333,6 +336,25 @@ sourceSets {
 
 tasks.withType<JavaCompile>().configureEach {
     options.release.set(17)
+}
+
+tasks.named<Test>("test") {
+    enabled = false
+}
+
+val testSourceSet = project.extensions
+    .getByType(org.gradle.api.tasks.SourceSetContainer::class.java)
+    .getByName("test")
+
+val unitTest = tasks.register<JavaExec>("unitTest") {
+    group = "verification"
+    description = "Runs lightweight Summon backend checks without Quarkus bootstrap"
+    classpath = testSourceSet.runtimeClasspath
+    mainClass.set("${variables["PACKAGE_NAME"]}.SummonResourceTestKt")
+}
+
+tasks.named("check") {
+    dependsOn(unitTest)
 }
 
 tasks.withType<io.quarkus.gradle.tasks.QuarkusGenerateCode>().configureEach {
@@ -461,6 +483,7 @@ tasks.named("build") {
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.api.tasks.testing.Test
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 
 plugins {
@@ -1252,6 +1275,26 @@ private fun renderPage(content: String): String = $tripleQuote
 </body>
 </html>
 $tripleQuote.trimIndent()
+            """.trimIndent()
+        )
+    }
+
+    private fun generateQuarkusTests(targetDir: File, variables: Map<String, String>) {
+        val testDir = File(targetDir, "src/test/kotlin/${variables["PACKAGE_PATH"]}")
+        testDir.mkdirs()
+        val testFile = File(testDir, "SummonResourceTest.kt")
+        testFile.writeText(
+            """
+package ${variables["PACKAGE_NAME"]}
+
+fun runSummonBackendChecks() {
+    val resource = SummonResource()
+    check(resource.health() == "OK") {
+        "Expected /health endpoint to return OK"
+    }
+}
+
+fun main() = runSummonBackendChecks()
             """.trimIndent()
         )
     }

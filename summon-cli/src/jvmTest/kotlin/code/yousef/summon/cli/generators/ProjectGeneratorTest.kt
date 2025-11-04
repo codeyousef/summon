@@ -498,4 +498,46 @@ class ProjectGeneratorTest {
             "App module should configure webpack output file"
         )
     }
+
+    @Test
+    fun `fullstack quarkus template adds health test`() {
+        val template = ProjectTemplate.fromType("quarkus")
+        val generator = ProjectGenerator(template)
+
+        val config = ProjectGenerator.Config(
+            projectName = "portal",
+            packageName = "com.example.portal",
+            targetDirectory = tempDir,
+            templateType = "quarkus",
+            minimal = false
+        )
+
+        generator.generate(config)
+
+        val testFile = File(tempDir, "backend/src/test/kotlin/com/example/portal/SummonResourceTest.kt")
+        assertTrue(testFile.exists(), "Quarkus backend should generate SummonResourceTest.kt")
+        val testContent = testFile.readText()
+        assertTrue(
+            testContent.contains("runSummonBackendChecks"),
+            "SummonResourceTest should expose a main-backed check"
+        )
+
+        val backendBuild = File(tempDir, "backend/build.gradle.kts").readText()
+        assertTrue(
+            backendBuild.contains("quarkusGenerateCodeTests"),
+            "Quarkus backend build script should configure code generation for tests"
+        )
+        assertTrue(
+            backendBuild.contains("enabled = false"),
+            "Quarkus test code generation should be disabled to work around Kotlin-only projects"
+        )
+        assertTrue(
+            backendBuild.contains("unitTest"),
+            "Quarkus backend build script should register a unitTest task"
+        )
+        assertTrue(
+            backendBuild.contains("SummonResourceTestKt"),
+            "Unit test task should target the generated SummonResourceTestKt entry point"
+        )
+    }
 }
