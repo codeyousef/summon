@@ -11,6 +11,9 @@ import java.io.File
 class ProjectGenerator(private val template: ProjectTemplate) {
 
     private val templateEngine = TemplateEngine()
+    private val devIncludeBuildPath: String? = System.getProperty("summon.dev.includeBuild")
+        ?.takeIf { it.isNotBlank() }
+        ?: System.getenv("SUMMON_DEV_INCLUDE_BUILD")?.takeIf { it.isNotBlank() }
 
     data class Config(
         val projectName: String,
@@ -807,9 +810,22 @@ kotlin {
                     appendLine("include(\":$module\")")
                 }
             }
+            devIncludeBuildPath?.let { includePath ->
+                appendLine()
+                appendLine("includeBuild(\"${includePath.escapeForKotlinString()}\") {")
+                appendLine("    dependencySubstitution {")
+                appendLine("        substitute(module(\"io.github.codeyousef:summon\")).using(project(\":summon-core\"))")
+                appendLine("        substitute(module(\"io.github.codeyousef:summon-jvm\")).using(project(\":summon-core\"))")
+                appendLine("        substitute(module(\"io.github.codeyousef:summon-js\")).using(project(\":summon-core\"))")
+                appendLine("        substitute(module(\"io.github.codeyousef:summon-wasm-js\")).using(project(\":summon-core\"))")
+                appendLine("    }")
+                appendLine("}")
+            }
         }
         settingsFile.writeText(content)
     }
+
+    private fun String.escapeForKotlinString(): String = this.replace("\\", "\\\\")
 
     private fun generateIndexHtml(targetDir: File, variables: Map<String, String>) {
         val resourcesDir = File(targetDir, "src/jsMain/resources")

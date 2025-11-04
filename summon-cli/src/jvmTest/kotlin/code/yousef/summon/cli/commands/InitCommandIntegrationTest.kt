@@ -2,7 +2,6 @@ package code.yousef.summon.cli.commands
 
 import com.github.ajalt.clikt.core.parse
 import java.io.File
-import java.nio.file.Files
 import java.time.Duration
 import java.time.Instant
 import kotlin.io.path.createTempDirectory
@@ -13,11 +12,12 @@ import kotlin.test.assertTrue
 class InitCommandIntegrationTest {
 
     private val repoRoot: File = File("..").canonicalFile
-    private val localMavenRepo: File by lazy { publishSummonToLocalRepository() }
-    private val repositoryInitScript: File by lazy { createRepositoryInitScript() }
 
     @Test
     fun `generated templates build without unexpected warnings`() {
+        val previousInclude = System.getProperty("summon.dev.includeBuild")
+        System.setProperty("summon.dev.includeBuild", repoRoot.absolutePath)
+
         val workspaceRoot = createTempDirectory("summon-cli-it").toFile()
         val generatedProjects = mutableListOf<File>()
 
@@ -58,34 +58,38 @@ class InitCommandIntegrationTest {
                     warningModeFail = scenario.warningModeFail
                 )
 
-                assertEquals(
-                    0,
-                    gradleResult.exitCode,
-                    buildString {
-                        appendLine("Gradle command failed for ${scenario.projectName}")
-                        appendLine("Command: ${gradleResult.command.joinToString(" ")}")
-                        appendLine("Output:\n${gradleResult.output}")
-                    }
-                )
+                val failureMessage = buildString {
+                    appendLine("Gradle command failed for ${scenario.projectName}")
+                    appendLine("Command: ${gradleResult.command.joinToString(" ")}")
+                    appendLine("Output:")
+                    appendLine(gradleResult.output)
+                }
+
+                assertEquals(0, gradleResult.exitCode, failureMessage)
 
                 val unexpectedWarnings = findUnexpectedWarnings(
                     output = gradleResult.output,
                     includeDeprecated = scenario.checkDeprecated
                 )
-                assertTrue(
-                    unexpectedWarnings.isEmpty(),
-                    buildString {
+                if (unexpectedWarnings.isNotEmpty()) {
+                    val warningMessage = buildString {
                         appendLine("Unexpected warnings detected for ${scenario.projectName}:")
                         appendLine(unexpectedWarnings.joinToString(separator = "\n"))
                         appendLine()
                         appendLine("Full Gradle output:")
                         appendLine(gradleResult.output)
                     }
-                )
+                    assertTrue(false, warningMessage)
+                }
             }
         } finally {
             generatedProjects.reversed().forEach { it.deleteRecursively() }
             workspaceRoot.deleteRecursively()
+            if (previousInclude == null) {
+                System.clearProperty("summon.dev.includeBuild")
+            } else {
+                System.setProperty("summon.dev.includeBuild", previousInclude)
+            }
         }
     }
 
@@ -102,8 +106,6 @@ class InitCommandIntegrationTest {
     private fun runGradle(projectDir: File, tasks: List<String>, warningModeFail: Boolean): GradleResult {
         val command = mutableListOf("./gradlew", "--no-daemon", "--console=plain")
         command += if (warningModeFail) "--warning-mode=fail" else "--warning-mode=all"
-        command += listOf("--init-script", repositoryInitScript.absolutePath)
-        command += listOf("-Dmaven.repo.local=${localMavenRepo.absolutePath}")
         command.addAll(tasks)
 
         val process = ProcessBuilder(command)
@@ -174,50 +176,4 @@ class InitCommandIntegrationTest {
         val output: String,
         val durationMillis: Long
     )
-
-    private fun publishSummonToLocalRepository(): File {
-        val repoDir = Files.createTempDirectory("summon-m2").toFile().apply { deleteOnExit() }
-        val command = listOf(
-            "./gradlew",
-            "--no-daemon",
-            "--console=plain",
-            "-x",
-            "test",
-            "publishToMavenLocal",
-            "-Dmaven.repo.local=${repoDir.absolutePath}"
-        )
-
-        val process = ProcessBuilder(command)
-            .directory(repoRoot)
-            .redirectErrorStream(true)
-            .apply { environment()["CI"] = "true" }
-            .start()
-
-        val output = process.inputStream.bufferedReader().use { it.readText() }
-        val exitCode = process.waitFor()
-
-        check(exitCode == 0) {
-            buildString {
-                appendLine("Failed to publish Summon artifacts to local repository (exit $exitCode)")
-                appendLine("Command: ${command.joinToString(" ")}")
-                appendLine("Output:\n$output")
-            }
-        }
-
-        return repoDir
-    }
-
-    private fun createRepositoryInitScript(): File {
-        val script = Files.createTempFile("summon-repo", ".gradle.kts").toFile().apply { deleteOnExit() }
-        script.writeText(
-            """
-                allprojects {
-                    repositories {
-                        mavenLocal()
-                    }
-                }
-            """.trimIndent()
-        )
-        return script
-    }
 }

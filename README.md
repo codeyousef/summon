@@ -70,58 +70,6 @@ Summon combines the best ideas from modern frontend frameworks like React, Vue, 
     - Cross-browser compatibility and progressive loading
     - Production-ready WASM with optimized bundle sizes
 
-## What's New in 0.4.2.2
-
-🪄 **One-Command Summon CLI & Hardened Templates**
-
-This release streamlines the project generator and locks in higher confidence for full-stack starters:
-
-- **Single `init` workflow** – The CLI now exposes one entry point that walks between “Standalone site” and “Full stack”
-  with Spring, Ktor, or Quarkus choices. `--mode/--backend` flags let you skip prompts in CI.
-- **Backend-ready scaffolds** – Generated projects split cleanly into `app/` and `backend/`, wire default Gradle aliases
-  (e.g. `./gradlew quarkusDev`) and include a lightweight Quarkus `unitTest` task to dodge upstream tooling bugs.
-- **Integration smoke tests** – New CLI integration tests bootstrap every template and run their Gradle builds,
-  catching regressions in the scaffolding and toolchain before release.
-- **Doc refresh** – README quick starts, CLI help, and backend guides now describe the unified `init` experience
-  and reference the latest dependency coordinates.
-
-### Previous Releases
-
-**0.4.0.0** - Complete WebAssembly Integration with SSR support
-
-### ✨ **WebAssembly Features**
-
-- **Complete WASM Target Support**: Full Kotlin/WASM compilation with all platform features
-- **Server-Side Rendering**: WASM applications with SSR for optimal SEO and performance
-- **Progressive Enhancement**: Automatic fallback to JavaScript when WASM is not supported
-- **Browser Compatibility**: Intelligent browser detection with graceful degradation
-- **Optimized Performance**: Near-native execution speed with minimal bundle overhead
-- **Seamless Hydration**: Client-side hydration maintains state and interactivity
-
-### 🔧 **Technical Improvements**
-
-- **Enhanced Build System**: Complete WASM compilation pipeline with webpack integration
-- **Cross-Platform APIs**: Unified APIs working seamlessly across JS, WASM, and JVM
-- **Error Handling**: Comprehensive error boundaries and fallback mechanisms
-- **Bundle Optimization**: Code splitting and lazy loading for optimal performance
-- **Development Tools**: Enhanced CLI with WASM project templates and build tools
-
-### 📦 **Platform Targets**
-
-- **WASM-JS**: Primary WebAssembly target for modern browsers
-- **JavaScript**: Fallback target for compatibility and development
-- **JVM**: Server-side rendering and backend integration
-
-Previous enhancements included in this release:
-
-- **Enhanced Theme System** with typed theme classes for more type-safe access
-- **Improved Modifier API** with type-safe CSS properties and enum support
-- **Comprehensive Border API** with support for individual sides and properties
-- **Enhanced Flexbox Layout** with alignment controls for Row and Column components
-- **Extensive Color System** with Material Design and Catppuccin palettes
-- **Gradient Support** for both linear and radial gradients with flexible options
-- **Animation Enhancements** with keyframes and transition support
-- **Comprehensive Documentation** with WASM integration guides and examples
 
 ## Component Categories
 
@@ -316,56 +264,6 @@ dependencies {
 Summon uses a centralized version management approach to ensure consistency across the main project and example projects. The version information is defined in a single place and referenced from all other places.
 
 For more information, see [VERSIONING.md](VERSIONING.md).
-
-## Security Best Practices
-
-### Protecting Sensitive Credentials
-
-To prevent accidentally committing sensitive credentials to the repository, Summon includes a Git pre-commit hook that checks for actual credentials in `gradle.properties`.
-
-#### Installing the Git Hook
-
-1. **Windows**:
-   ```
-   .git-hooks\install-hooks.bat
-   ```
-
-2. **Unix/Linux/macOS**:
-   ```
-   chmod +x .git-hooks/install-hooks.sh
-   .git-hooks/install-hooks.sh
-   ```
-
-The pre-commit hook will prevent commits that contain actual credentials (not placeholders) in `gradle.properties`.
-
-#### Recommended Approach for Credentials
-
-For local development:
-
-1. Keep placeholder values in `gradle.properties` (which is version controlled):
-   ```properties
-   # No authentication needed - using Maven Central
-   ```
-
-2. Store your actual credentials in `local.properties` (which is ignored by Git):
-   ```properties
-   # No authentication needed - using Maven Central
-   ```
-
-3. In your build script, prioritize values from `local.properties` over `gradle.properties`:
-   ```kotlin
-   val localProperties = java.util.Properties().apply {
-       val localFile = rootProject.file("local.properties")
-       if (localFile.exists()) {
-           load(localFile.inputStream())
-       }
-   }
-
-   // No authentication needed when using Maven Central
-   // repositories { mavenCentral() }
-   ```
-
-This approach ensures that sensitive credentials are never committed to version control while maintaining a clear example of what credentials are needed in the version-controlled `gradle.properties` file.
 
 ## WebAssembly (WASM) Support
 
@@ -582,47 +480,6 @@ val context = RenderContext(
 
 val seoOptimizedHtml = renderer.renderComposableRootWithHydration {
     MyApp()
-}
-```
-
-### Real-World SSR Examples
-
-#### E-commerce Product Page
-```kotlin
-@Composable
-fun ProductPage(productId: String) {
-    val product = remember { mutableStateOf(loadProduct(productId)) }
-    val cartItems = remember { mutableStateOf(0) }
-    
-    Column(modifier = Modifier()) {
-        Text("${product.value.name}", modifier = Modifier())
-        Text("$${product.value.price}", modifier = Modifier())
-        
-        Button(
-            onClick = { cartItems.value += 1 },
-            label = "Add to Cart (${cartItems.value})",
-            modifier = Modifier()
-        )
-    }
-}
-```
-
-#### Blog Post with Comments
-```kotlin
-@Composable
-fun BlogPost(postId: String) {
-    val post = remember { mutableStateOf(loadBlogPost(postId)) }
-    val comments = remember { mutableStateOf(loadComments(postId)) }
-    
-    Column(modifier = Modifier()) {
-        Text(post.value.title, modifier = Modifier())
-        Text(post.value.content, modifier = Modifier())
-        
-        Text("Comments (${comments.value.size})", modifier = Modifier())
-        comments.value.forEach { comment ->
-            Text("${comment.author}: ${comment.text}", modifier = Modifier())
-        }
-    }
 }
 ```
 
