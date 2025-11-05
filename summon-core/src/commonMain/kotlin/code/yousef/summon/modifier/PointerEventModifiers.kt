@@ -204,9 +204,7 @@ fun Modifier.enablePointerEvents(): Modifier =
  * @return A new [Modifier] with the onclick attribute
  */
 fun Modifier.onClick(handler: String): Modifier {
-    // Directly add the prefixed event key to the map
-    val key = "__event:click"
-    return Modifier(this.styles + (key to handler), this.attributes)
+    return attribute("onclick", handler)
 }
 
 /**
@@ -216,9 +214,7 @@ fun Modifier.onClick(handler: String): Modifier {
  * @return A new [Modifier] with the onmouseenter attribute
  */
 fun Modifier.onMouseEnter(handler: String): Modifier {
-    // Directly add the prefixed event key to the map
-    val key = "__event:mouseenter"
-    return Modifier(this.styles + (key to handler), this.attributes)
+    return attribute("onmouseenter", handler)
 }
 
 /**
@@ -228,8 +224,7 @@ fun Modifier.onMouseEnter(handler: String): Modifier {
  * @return A new [Modifier] with the onmouseleave attribute
  */
 fun Modifier.onMouseLeave(handler: String): Modifier {
-    val key = "__event:mouseleave"
-    return Modifier(this.styles + (key to handler), this.attributes)
+    return attribute("onmouseleave", handler)
 }
 
 /**
@@ -239,8 +234,7 @@ fun Modifier.onMouseLeave(handler: String): Modifier {
  * @return A new [Modifier] with the ontouchstart attribute
  */
 fun Modifier.onTouchStart(handler: String): Modifier {
-    val key = "__event:touchstart"
-    return Modifier(this.styles + (key to handler), this.attributes)
+    return attribute("ontouchstart", handler)
 }
 
 /**
@@ -250,8 +244,7 @@ fun Modifier.onTouchStart(handler: String): Modifier {
  * @return A new [Modifier] with the ontouchend attribute
  */
 fun Modifier.onTouchEnd(handler: String): Modifier {
-    val key = "__event:touchend"
-    return Modifier(this.styles + (key to handler), this.attributes)
+    return attribute("ontouchend", handler)
 }
 
 /**
@@ -261,8 +254,7 @@ fun Modifier.onTouchEnd(handler: String): Modifier {
  * @return A new [Modifier] with the ontouchmove attribute
  */
 fun Modifier.onTouchMove(handler: String): Modifier {
-    val key = "__event:touchmove"
-    return Modifier(this.styles + (key to handler), this.attributes)
+    return attribute("ontouchmove", handler)
 }
 
 /**
@@ -272,8 +264,7 @@ fun Modifier.onTouchMove(handler: String): Modifier {
  * @return A new [Modifier] with the ondragstart attribute
  */
 fun Modifier.onDragStart(handler: String): Modifier {
-    val key = "__event:dragstart"
-    return Modifier(this.styles + (key to handler), this.attributes)
+    return attribute("ondragstart", handler)
 }
 
 /**
@@ -283,8 +274,7 @@ fun Modifier.onDragStart(handler: String): Modifier {
  * @return A new [Modifier] with the ondragend attribute
  */
 fun Modifier.onDragEnd(handler: String): Modifier {
-    val key = "__event:dragend"
-    return Modifier(this.styles + (key to handler), this.attributes)
+    return attribute("ondragend", handler)
 }
 
 /**
@@ -294,8 +284,7 @@ fun Modifier.onDragEnd(handler: String): Modifier {
  * @return A new [Modifier] with the ondragover attribute
  */
 fun Modifier.onDragOver(handler: String): Modifier {
-    val key = "__event:dragover"
-    return Modifier(this.styles + (key to handler), this.attributes)
+    return attribute("ondragover", handler)
 }
 
 /**
@@ -305,8 +294,7 @@ fun Modifier.onDragOver(handler: String): Modifier {
  * @return A new [Modifier] with the ondrop attribute
  */
 fun Modifier.onDrop(handler: String): Modifier {
-    val key = "__event:drop"
-    return Modifier(this.styles + (key to handler), this.attributes)
+    return attribute("ondrop", handler)
 }
 
 /**

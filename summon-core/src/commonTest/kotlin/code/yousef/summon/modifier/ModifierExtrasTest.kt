@@ -8,13 +8,11 @@ class ModifierExtrasTest {
 
     @Test
     fun testOnClick() {
-        val handler = { println("Clicked!") }
+        val handler = {}
         val modifier = with(ModifierExtras) {
             Modifier().onClick(handler)
         }
-        // Note: This implementation sets "onclick" as a style, which might be incorrect.
-        // Testing the behavior as implemented.
-        assertEquals(handler.toString(), modifier.styles["onclick"], "ModifierExtras.onClick failed.")
+        assertEquals(handler, modifier.events["click"], "ModifierExtras.onClick failed to register handler.")
     }
 
     @Test

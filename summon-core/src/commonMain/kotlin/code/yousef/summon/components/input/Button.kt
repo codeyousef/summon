@@ -226,11 +226,27 @@ fun Button(
         iconName ?: "no-icon",
         iconPosition.name
     ).joinToString("-")
-    val uniqueId = "button-" + stableProps.hashCode().toString().replace("-", "")
+    val sanitizedLabel = label.lowercase()
+        .replace(Regex("[^a-z0-9]+"), "-")
+        .trim('-')
+    val uniqueHash = stableProps.hashCode().toUInt().toString(16)
+    val uniqueId = buildString {
+        append("button-")
+        if (sanitizedLabel.isNotEmpty()) {
+            append(sanitizedLabel.take(24))
+            append('-')
+        }
+        append(uniqueHash)
+    }
 
     // Apply base button styling
-    val baseModifier = modifier
-        .attribute("data-summon-id", uniqueId)
+    val modifierWithId = if (modifier.attributes.containsKey("data-summon-id")) {
+        modifier
+    } else {
+        modifier.attribute("data-summon-id", uniqueId)
+    }
+
+    val baseModifier = modifierWithId
         .style("display", "inline-flex")
         .style("align-items", "center")
         .style("justify-content", "center")
@@ -351,6 +367,15 @@ fun Button(
         .style("pointer-events", if (disabled) "none" else "auto")
         // Add data-variant attribute for CSS targeting
         .withAttribute("data-variant", variant.name.lowercase())
+        .let {
+            if (disabled) {
+                it
+                    .attribute("disabled", "true")
+                    .attribute("aria-disabled", "true")
+            } else {
+                it
+            }
+        }
 
     // Use the renderButton method, passing onClick, modifier and content
     renderer.renderButton(

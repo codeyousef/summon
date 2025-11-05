@@ -127,7 +127,7 @@ fun Modifier.animate(
     fillMode: String = "forwards"
 ): Modifier {
     val animation = "$name ${duration}ms $timingFunction ${delay}ms $iterationCount $direction $fillMode"
-    return Modifier(this.styles + ("animation" to animation))
+    return copy(styles = this.styles + ("animation" to animation))
 }
 
 /**
@@ -214,7 +214,7 @@ fun Modifier.animTransition(
     delay: Int = 0
 ): Modifier {
     val transition = "$property ${duration}ms $timingFunction ${delay}ms"
-    return Modifier(this.styles + ("transition" to transition))
+    return copy(styles = this.styles + ("transition" to transition))
 }
 
 /**
@@ -230,7 +230,7 @@ fun Modifier.animOpacity(value: Float): Modifier {
     } else {
         value.toString()
     }
-    return Modifier(this.styles + ("opacity" to formattedValue))
+    return copy(styles = this.styles + ("opacity" to formattedValue))
 }
 
 /**
@@ -319,5 +319,5 @@ fun Modifier.scale(
  * @return A new Modifier with the style added
  */
 fun Modifier.animStyle(property: String, value: String): Modifier {
-    return Modifier(this.styles + (property to value))
+    return copy(styles = this.styles + (property to value))
 } 

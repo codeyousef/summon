@@ -1,11 +1,7 @@
 package code.yousef.summon.modifier
 
 // Import necessary functions if not resolved automatically
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotSame
-import kotlin.test.assertTrue
-import kotlin.test.assertFalse
+import kotlin.test.*
 
 class CoreModifiersTest {
 
@@ -46,12 +42,16 @@ class CoreModifiersTest {
         assertEquals("value", m.attribute("data-attr", "value").attributes["data-attr"], "attribute() helper failed.")
         assertEquals("value", m.attribute("aria-label", "value").attributes["aria-label"], "attribute() helper failed.")
 
-        // Test that PointerEventModifiers helpers DO add __event: prefix
-        assertEquals("value", m.onClick("value").styles["__event:click"], "onClick() helper prefix failed.")
-        assertEquals("value", m.onMouseEnter("value").styles["__event:mouseenter"], "onMouseEnter() helper prefix failed.")
-        
-        // Test that CoreModifiers.event helper DOES add __event: prefix
-        assertEquals("true", m.event("focus") {}.styles["__event:focus"], "event() helper prefix failed.")
+        // Test that PointerEventModifiers helpers write attributes
+        assertEquals("value", m.onClick("value").attributes["onclick"], "onClick() helper attribute failed.")
+        assertEquals(
+            "value",
+            m.onMouseEnter("value").attributes["onmouseenter"],
+            "onMouseEnter() helper attribute failed."
+        )
+
+        // Test that CoreModifiers.event helper stores handler
+        assertTrue(m.event("focus") {}.events.containsKey("focus"), "event() helper failed to register handler.")
 
         // Test that non-prefixed standard HTML attributes are still added directly by .style()
         assertEquals("value", m.style("id", "value").styles["id"], "id style failed.")
@@ -78,11 +78,15 @@ class CoreModifiersTest {
 
     @Test
     fun testClone() {
-        val original = Modifier().style("color", "blue").style("margin", "5px")
+        val original = Modifier()
+            .style("color", "blue")
+            .style("margin", "5px")
+            .event("focus") {}
         val clone = original.clone()
 
         assertEquals(original.styles, clone.styles, "Clone styles should match original.")
         assertNotSame(original.styles, clone.styles, "Clone styles map should be a different instance.")
+        assertEquals(original.events.keys, clone.events.keys, "Clone should retain event handlers.")
         assertNotSame(original, clone, "Clone modifier should be a different instance.")
     }
 
@@ -102,7 +106,6 @@ class CoreModifiersTest {
     @Test
     fun testEvent() {
         val m = Modifier().event("focus") { /* Handler logic */ }
-        // Verify the marker style is added
-        assertEquals("true", m.styles["__event:focus"], "Event marker style not added correctly.")
+        assertTrue(m.events.containsKey("focus"), "Event handler not added correctly.")
     }
 } 

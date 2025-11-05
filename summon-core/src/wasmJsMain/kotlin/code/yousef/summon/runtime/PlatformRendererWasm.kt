@@ -1376,14 +1376,31 @@ actual open class PlatformRenderer actual constructor() {
     private fun applyModifierToElement(element: DOMElement, modifier: Modifier) {
         try {
             val elementId = DOMProvider.getNativeElementId(element)
-
-            // Extract CSS properties from modifier (this would be enhanced with actual modifier parsing)
-            // For now, we'll apply basic styling
-            modifier.toString().takeIf { it.isNotBlank() }?.let { modifierString ->
-                wasmSetElementAttribute(elementId, "data-modifier", modifierString)
+            val styleText = modifier.toStyleStringKebabCase()
+            if (styleText.isNotEmpty()) {
+                wasmSetElementStyle(elementId, styleText)
             }
 
-            // Apply common Summon styles
+            modifier.attributes.forEach { (name, value) ->
+                when (name.lowercase()) {
+                    "disabled" -> {
+                        wasmSetElementDisabled(elementId, true)
+                        wasmSetElementAttribute(elementId, name, value)
+                    }
+
+                    else -> wasmSetElementAttribute(elementId, name, value)
+                }
+            }
+
+            if (modifier.eventHandlers.isNotEmpty()) {
+                val disabled = modifier.attributes.containsKey("disabled")
+                modifier.eventHandlers.forEach { (eventName, handler) ->
+                    if (!(disabled && eventName.equals("click", ignoreCase = true))) {
+                        attachEventListenerWithHydration(element, eventName.lowercase(), handler)
+                    }
+                }
+            }
+
             wasmAddClassToElement(elementId, "summon-component")
 
         } catch (e: Exception) {

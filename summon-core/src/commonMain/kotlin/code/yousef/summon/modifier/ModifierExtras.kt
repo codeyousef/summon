@@ -12,7 +12,7 @@ object ModifierExtras {
      * @return A new Modifier with the added event handler
      */
     fun Modifier.onClick(handler: () -> Unit): Modifier =
-        style("onclick", handler.toString())
+        copy(eventHandlers = this.eventHandlers + ("click" to handler))
 
     /**
      * Adds a single attribute to the Modifier by creating a new Modifier instance.
@@ -57,5 +57,5 @@ object ModifierExtras {
     @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
     @Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
     fun Modifier.attribute(name: String, value: String): Modifier =
-        Modifier(styles, attributes + (name to value))
+        Modifier(styles, attributes + (name to value), eventHandlers)
 } 

@@ -66,9 +66,34 @@ actual open class PlatformRenderer {
 
         // Add hydration marker for SSR compatibility
         if (this is CommonAttributeGroupFacade) {
-            // Generate unique hydration ID for each element
-            val hydrationId = "summon-${UUID.randomUUID().toString().take(8)}"
-            this.attributes["data-summon-id"] = hydrationId
+            val existingId = this.attributes["data-summon-id"] ?: modifier.attributes["data-summon-id"]
+            if (existingId == null) {
+                // Generate unique hydration ID for each element
+                val hydrationId = "summon-${UUID.randomUUID().toString().take(8)}"
+                this.attributes["data-summon-id"] = hydrationId
+            }
+
+            if (modifier.eventHandlers.isNotEmpty()) {
+                val isDisabled = modifier.attributes.containsKey("disabled")
+                if (!isDisabled) {
+                    modifier.eventHandlers.forEach { (eventName, handler) ->
+                        val callbackId = CallbackRegistry.registerCallback(handler)
+                        when (eventName.lowercase()) {
+                            "click" -> {
+                                if (!this.attributes.containsKey("data-onclick-id")) {
+                                    this.attributes["data-onclick-id"] = callbackId
+                                }
+                                this.attributes["data-onclick-action"] = "true"
+                            }
+
+                            else -> {
+                                this.attributes["data-summon-event-$eventName-id"] = callbackId
+                                this.attributes["data-summon-event-$eventName-action"] = "true"
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -137,11 +162,15 @@ actual open class PlatformRenderer {
             if (!attributes.containsKey("type")) {
                 attributes["type"] = "button"
             }
-            
-            // Register the onClick callback and get an ID
-            val callbackId = CallbackRegistry.registerCallback(onClick)
-            attributes["data-onclick-id"] = callbackId
-            attributes["data-onclick-action"] = "true"
+
+            val isDisabled = modifier.attributes.containsKey("disabled")
+            if (!isDisabled) {
+                if (!attributes.containsKey("data-onclick-id")) {
+                    val callbackId = CallbackRegistry.registerCallback(onClick)
+                    attributes["data-onclick-id"] = callbackId
+                }
+                attributes["data-onclick-action"] = "true"
+            }
             
             renderContent(content)
         }

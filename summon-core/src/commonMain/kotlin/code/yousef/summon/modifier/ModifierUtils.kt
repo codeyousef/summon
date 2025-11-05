@@ -224,7 +224,8 @@ object EventModifiers {
     /**
      * Sets an onClick handler for the element.
      */
-    fun Modifier.onClick(handler: () -> Unit): Modifier = style("onclick", handler.toString())
+    fun Modifier.onClick(handler: () -> Unit): Modifier =
+        copy(eventHandlers = this.eventHandlers + ("click" to handler))
 
     /**
      * Sets the pointer-events property.
@@ -242,7 +243,7 @@ object AttributeModifiers {
     @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
     @Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
     fun Modifier.attribute(name: String, value: String): Modifier {
-        return Modifier(this.styles, this.attributes + (name to value))
+        return Modifier(this.styles, this.attributes + (name to value), this.eventHandlers)
     }
 
     /**

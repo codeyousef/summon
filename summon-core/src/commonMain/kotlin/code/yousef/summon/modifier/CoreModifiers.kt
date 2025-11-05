@@ -10,10 +10,8 @@ package code.yousef.summon.modifier
  */
 typealias ModifierHandler = () -> Unit
 
-// Extension properties - Modifier already has an attributes property, so this is removed
-
 val Modifier.events: Map<String, ModifierHandler>
-    get() = emptyMap() // Not implemented in the actual Modifier class
+    get() = eventHandlers
 
 /**
  * Applies a code block conditionally to modify this Modifier
@@ -30,7 +28,7 @@ inline fun Modifier.applyIf(condition: Boolean, block: Modifier.() -> Modifier):
  * Creates a clone of this modifier
  */
 fun Modifier.clone(): Modifier {
-    return Modifier(styles.toMap(), attributes.toMap())
+    return Modifier(styles.toMap(), attributes.toMap(), eventHandlers.toMap())
 }
 
 /**
@@ -44,10 +42,5 @@ fun Modifier.combine(other: Modifier): Modifier = this.then(other)
  * as the actual handler function can't be stored in styles.
  */
 fun Modifier.event(eventName: String, handler: ModifierHandler): Modifier {
-    // Directly add the prefixed event key to the map
-    val key = "__event:$eventName"
-    // Store a marker or potentially a serialized handler if possible
-    return Modifier(this.styles + (key to "true"), this.attributes) // Store "true" as marker
+    return copy(eventHandlers = eventHandlers + (eventName to handler))
 }
-
-//    style("__event:$eventName", "true") // Old implementation 
