@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 
 class LayoutModifierExtrasTest {
 
-    private inline fun <T> testModifier(block: LayoutModifierExtras.() -> T): T = with(LayoutModifierExtras, block)
+    private inline fun <T> testModifier(block: LayoutModifiers.() -> T): T = with(LayoutModifiers, block)
 
     @Test
     fun testMaxWidth() {

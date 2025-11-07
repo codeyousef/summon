@@ -114,7 +114,7 @@ object CallbackRegistry {
         renderContexts.remove(callbackContextKey())
     }
 
-    private inline fun <T> withLock(noinline block: () -> T): T = withCallbackRegistryLock(lock, block)
+    private fun <T> withLock(block: () -> T): T = withCallbackRegistryLock(lock, block)
 
     private fun purgeExpiredLocked(ttlMillis: Long = DEFAULT_TTL_MS) {
         if (registeredCallbacks.isEmpty()) return

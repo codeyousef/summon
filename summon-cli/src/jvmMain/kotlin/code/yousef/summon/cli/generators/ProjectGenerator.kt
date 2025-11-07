@@ -1148,16 +1148,13 @@ fun Application.summonModule() {
         post("/summon/callback/{callbackId}") {
             val callbackId = call.parameters["callbackId"]
             if (callbackId.isNullOrBlank()) {
-                call.respondText(""" { "action":"error", "status":"missing-id" }
-            """, ContentType.Application.Json, HttpStatusCode.BadRequest)
+                call.respondText($tripleQuote{"action":"error","status":"missing-id"}$tripleQuote, ContentType.Application.Json, HttpStatusCode.BadRequest)
             } else {
                 val executed = CallbackRegistry.executeCallback(callbackId)
                 val (status, payload) = if (executed) {
-                    HttpStatusCode.OK to """ { "action":"reload", "status":"ok" }
-            """
+                    HttpStatusCode.OK to $tripleQuote{"action":"reload","status":"ok"}$tripleQuote
                 } else {
-                    HttpStatusCode.NotFound to """ { "action":"noop", "status":"missing" }
-            """
+                    HttpStatusCode.NotFound to $tripleQuote{"action":"noop","status":"missing"}$tripleQuote
                 }
                 call.respondText(payload, ContentType.Application.Json, status)
             }
@@ -1190,13 +1187,12 @@ private suspend fun ApplicationCall.respondHydrationAsset(name: String, contentT
     if (payload != null) {
         respondBytes(payload, contentType)
     } else {
-        respond(HttpStatusCode.NotFound, """ { "status":"missing" }
-            """)
+        respond(HttpStatusCode.NotFound, $tripleQuote{"status":"missing"}$tripleQuote)
     }
 }
 
 private fun loadHydrationAsset(name: String): ByteArray? {
-    val locations = listOf("static/$name", "META-INF/resources/static/$name")
+    val locations = listOf("static/${'$'}name", "META-INF/resources/static/${'$'}name")
     locations.forEach { path ->
         val resource = Thread.currentThread().contextClassLoader.getResourceAsStream(path)
         if (resource != null) {
@@ -1279,9 +1275,9 @@ class SummonController {
         val executed = CallbackRegistry.executeCallback(callbackId)
         val status = if (executed) HttpStatus.OK else HttpStatus.NOT_FOUND
         val payload = if (executed) {
-            """ { "action":"reload", "status":"ok" }"""
+            $tripleQuote{"action":"reload","status":"ok"}$tripleQuote
         } else {
-            """ { "action":"noop", "status":"missing" }"""
+            $tripleQuote{"action":"noop","status":"missing"}$tripleQuote
         }
         return ResponseEntity.status(status)
             .contentType(MediaType.APPLICATION_JSON)
@@ -1310,7 +1306,7 @@ private fun injectAppBundle(document: String): String {
 }
 
 private fun serveHydrationAsset(name: String, mediaType: MediaType): ResponseEntity<ByteArray> {
-    val locations = listOf("static/$name", "META-INF/resources/static/$name")
+    val locations = listOf("static/${'$'}name", "META-INF/resources/static/${'$'}name")
     locations.forEach { path ->
         val resource = Thread.currentThread().contextClassLoader.getResourceAsStream(path)
         if (resource != null) {
@@ -1388,9 +1384,9 @@ class SummonResource {
         val executed = CallbackRegistry.executeCallback(callbackId)
         val status = if (executed) Response.Status.OK else Response.Status.NOT_FOUND
         val payload = if (executed) {
-            """ { "action":"reload", "status":"ok" }"""
+            $tripleQuote{"action":"reload","status":"ok"}$tripleQuote
         } else {
-            """ { "action":"noop", "status":"missing" }"""
+            $tripleQuote{"action":"noop","status":"missing"}$tripleQuote
         }
         return Response.status(status).entity(payload).type(MediaType.APPLICATION_JSON).build()
     }
@@ -1419,7 +1415,7 @@ private fun injectAppBundle(document: String): String {
 }
 
 private fun serveHydrationAsset(name: String, mediaType: String): Response {
-    val locations = listOf("static/$name", "META-INF/resources/static/$name")
+    val locations = listOf("static/${'$'}name", "META-INF/resources/static/${'$'}name")
     locations.forEach { path ->
         val resource = SummonResource::class.java.classLoader.getResourceAsStream(path)
         if (resource != null) {
@@ -1843,21 +1839,21 @@ fun ButtonExamples() {
             if (versionPropsFile.exists()) {
                 val props = java.util.Properties()
                 versionPropsFile.inputStream().use { props.load(it) }
-                props.getProperty("VERSION", "0.4.2.2")
+                props.getProperty("VERSION", "0.4.3.0")
             } else {
                 // Try relative to project root
                 val rootVersionFile = File("../version.properties")
                 if (rootVersionFile.exists()) {
                     val props = java.util.Properties()
                     rootVersionFile.inputStream().use { props.load(it) }
-                    props.getProperty("VERSION", "0.4.2.2")
+                    props.getProperty("VERSION", "0.4.3.0")
                 } else {
-                    "0.4.2.2" // Fallback to current version
+                    "0.4.3.0" // Fallback to current version
                 }
             }
         } catch (e: Exception) {
             println("⚠️  Could not read version from version.properties: ${e.message}")
-            "0.4.2.2" // Fallback
+            "0.4.3.0" // Fallback
         }
     }
 }

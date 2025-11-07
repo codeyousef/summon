@@ -5,7 +5,7 @@ import code.yousef.summon.components.display.Text
 import code.yousef.summon.core.mapOfCompat
 import code.yousef.summon.core.splitCompat
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.StylingModifierExtras.textDecoration
+import code.yousef.summon.modifier.StylingModifiers.textDecoration
 import code.yousef.summon.runtime.Composable
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer

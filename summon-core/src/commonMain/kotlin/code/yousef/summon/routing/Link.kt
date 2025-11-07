@@ -23,7 +23,7 @@ fun Link(
     modifier: Modifier = Modifier(),
     onClick: (() -> Unit)? = null
 ) {
-    val router = LocalRouter
+    val router = LocalRouter ?: RouterContext.current
 
     InternalLink(
         href = href,

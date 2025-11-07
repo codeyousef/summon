@@ -1,5 +1,9 @@
 package code.yousef.summon.modifier
 
+import code.yousef.summon.modifier.aspectRatio as baseAspectRatio
+import code.yousef.summon.modifier.inset as baseInset
+import code.yousef.summon.modifier.positionInset as basePositionInset
+
 /**
  * This file contains all modifier functions organized by category.
  * It resolves ambiguity issues by providing a single implementation
@@ -36,6 +40,12 @@ object LayoutModifiers {
      */
     fun Modifier.maxHeight(value: String): Modifier = style("max-height", value)
 
+    fun Modifier.aspectRatio(value: Number): Modifier =
+        baseAspectRatio(value)
+
+    fun Modifier.aspectRatio(width: Number, height: Number): Modifier =
+        baseAspectRatio(width, height)
+
     /**
      * Sets the minimum width of the element.
      */
@@ -50,6 +60,25 @@ object LayoutModifiers {
      * Sets the position property of the element.
      */
     fun Modifier.position(value: String): Modifier = style("position", value)
+
+    /**
+     * Applies CSS inset shorthand.
+     */
+    fun Modifier.inset(value: String): Modifier =
+        baseInset(value)
+
+    fun Modifier.inset(vertical: String, horizontal: String): Modifier =
+        baseInset(vertical, horizontal)
+
+    fun Modifier.inset(top: String, right: String, bottom: String, left: String): Modifier =
+        baseInset(top, right, bottom, left)
+
+    fun Modifier.positionInset(
+        top: String? = null,
+        right: String? = null,
+        bottom: String? = null,
+        left: String? = null
+    ): Modifier = basePositionInset(top, right, bottom, left)
 
     /**
      * Sets the top position of the element.

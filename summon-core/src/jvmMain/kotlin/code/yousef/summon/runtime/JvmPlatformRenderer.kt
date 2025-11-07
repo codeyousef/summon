@@ -36,6 +36,13 @@ actual open class PlatformRenderer {
         setPlatformRenderer(this)
     }
 
+    private fun cssPropertyName(key: String): String =
+        if (key.contains('-')) {
+            key
+        } else {
+            key.replace(Regex("([a-z])([A-Z])"), "$1-$2").lowercase()
+        }
+
     // Apply Modifier - handles both styles and attributes
     // This extension function applies to any FlowOrMetaDataContent
     private fun FlowOrMetaDataContent.applyModifier(modifier: Modifier) {
@@ -43,12 +50,7 @@ actual open class PlatformRenderer {
         if (modifier.styles.isNotEmpty()) {
             val styleString = modifier.styles
                 .map { (key, value) ->
-                    val cssPropertyName = if (key.contains('-')) {
-                        key
-                    } else {
-                        key.replace(Regex("([a-z])([A-Z])"), "$1-$2").lowercase()
-                    }
-                    "$cssPropertyName: $value"
+                    "${cssPropertyName(key)}: $value"
                 }
                 .joinToString(separator = "; ", postfix = ";")
 
@@ -92,6 +94,24 @@ actual open class PlatformRenderer {
                             }
                         }
                     }
+                }
+            }
+        }
+
+        if (modifier.pseudoElements.isNotEmpty() && this is CommonAttributeGroupFacade) {
+            val hostId = this.attributes["data-summon-id"]
+            if (hostId != null) {
+                modifier.pseudoElements.forEach { pseudo ->
+                    val cssBody = pseudo.styles.entries.joinToString("; ") {
+                        "${cssPropertyName(it.key)}: ${it.value};"
+                    }
+                    val css = """
+                        [data-summon-id="$hostId"]${pseudo.element.selector} {
+                            content: ${pseudo.content};
+                            $cssBody
+                        }
+                    """.trimIndent()
+                    addHeadElement("<style>$css</style>")
                 }
             }
         }

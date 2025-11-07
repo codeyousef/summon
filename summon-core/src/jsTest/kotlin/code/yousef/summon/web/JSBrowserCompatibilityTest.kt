@@ -323,11 +323,11 @@ class JSBrowserCompatibilityTest {
         assertNotNull(gracefulAction)
         assertNotNull(fatalAction)
 
-        assertTrue(fallbackAction is ErrorAction.Fallback)
-        assertEquals(RenderingStrategy.JS_COMPATIBLE, fallbackAction.strategy)
+        val fallback = fallbackAction as ErrorAction.Fallback
+        assertEquals(RenderingStrategy.JS_COMPATIBLE, fallback.strategy)
 
-        assertTrue(gracefulAction is ErrorAction.Graceful)
-        assertEquals("Test message", gracefulAction.message)
+        val graceful = gracefulAction as ErrorAction.Graceful
+        assertEquals("Test message", graceful.message)
     }
 
     @Test

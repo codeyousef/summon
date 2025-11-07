@@ -204,6 +204,21 @@ fun Modifier.left(value: String): Modifier
 // Z-index
 fun Modifier.zIndex(value: String): Modifier
 fun Modifier.zIndex(value: Int): Modifier
+
+// Inset shorthand
+fun Modifier.inset(value: String): Modifier
+fun Modifier.inset(vertical: String, horizontal: String): Modifier
+fun Modifier.inset(top: String, right: String, bottom: String, left: String): Modifier
+fun Modifier.positionInset(
+    top: String? = null,
+    right: String? = null,
+    bottom: String? = null,
+    left: String? = null
+): Modifier
+
+// Aspect ratio
+fun Modifier.aspectRatio(ratio: Number): Modifier
+fun Modifier.aspectRatio(width: Number, height: Number): Modifier
 ```
 
 ### Usage Examples
@@ -245,10 +260,15 @@ fun Modifier.backgroundImage(url: String): Modifier
 fun Modifier.backgroundSize(value: String): Modifier
 fun Modifier.backgroundRepeat(value: String): Modifier
 fun Modifier.backgroundPosition(value: String): Modifier
+fun Modifier.backgroundLayers(vararg layers: GradientLayer): Modifier
+fun Modifier.backgroundLayers(builder: GradientLayerScope.() -> Unit): Modifier
 
 // Text color
 fun Modifier.color(value: String): Modifier
 ```
+
+`GradientLayerScope` exposes `radialGradient`, `linearGradient`, and `image/url` helpers so complex multi-layer
+backgrounds can be expressed with type-safe builders instead of composing raw CSS strings.
 
 ### Typography Modifiers
 
@@ -572,6 +592,26 @@ fun Modifier.animationDelay(value: String): Modifier
 fun Modifier.animationIterationCount(value: String): Modifier
 ```
 
+### Pseudo-element Modifiers
+
+```kotlin
+fun Modifier.before(
+    ensurePositionRelative: Boolean = true,
+    content: String? = null,
+    builder: Modifier.() -> Modifier
+): Modifier
+
+fun Modifier.after(
+    ensurePositionRelative: Boolean = true,
+    content: String? = null,
+    builder: Modifier.() -> Modifier
+): Modifier
+```
+
+Both helpers collect modifier styles for their respective pseudo-element and automatically inject a `data-summon-id` +
+scoped `<style>` rule during rendering, which keeps background glows and grain overlays encapsulated without manual DOM
+nodes.
+
 ### Shadow and Effects
 
 ```kotlin
@@ -583,7 +623,14 @@ fun Modifier.dropShadow(value: String): Modifier
 // Filters
 fun Modifier.filter(value: String): Modifier
 fun Modifier.backdropFilter(value: String): Modifier
+fun Modifier.filter(builder: FilterBuilder.() -> Unit): Modifier
+fun Modifier.backdropFilter(builder: FilterBuilder.() -> Unit): Modifier
+fun Modifier.mixBlendMode(value: String): Modifier
+fun Modifier.mixBlendMode(value: BlendMode): Modifier
 ```
+
+The builder overloads accept blur/brightness/contrast/hue-rotate/drop-shadow steps, mirroring the CSS filter functions
+available to the raw string helpers.
 
 ### Grid Layout
 

@@ -252,6 +252,66 @@ fun Modifier.minHeight(value: String): Modifier =
 fun Modifier.maxHeight(value: String): Modifier =
     style("max-height", value)
 
+/**
+ * Constrains element proportions using CSS aspect-ratio.
+ *
+ * @param ratio Numeric ratio such as 1.5 for 3:2 layouts
+ */
+fun Modifier.aspectRatio(ratio: Number): Modifier =
+    style("aspect-ratio", ratio.toString())
+
+private fun Number.toCssRatioPart(): String {
+    val doubleValue = this.toDouble()
+    return if (doubleValue % 1.0 == 0.0) {
+        doubleValue.toLong().toString()
+    } else {
+        this.toString()
+    }
+}
+
+/**
+ * Constrains element proportions using width/height inputs.
+ *
+ * @param width Ratio numerator
+ * @param height Ratio denominator
+ */
+fun Modifier.aspectRatio(width: Number, height: Number): Modifier =
+    style("aspect-ratio", "${width.toCssRatioPart()} / ${height.toCssRatioPart()}")
+
+/**
+ * Applies CSS inset shorthand.
+ */
+fun Modifier.inset(value: String): Modifier = style("inset", value)
+
+/**
+ * Applies CSS inset shorthand with vertical/horizontal values.
+ */
+fun Modifier.inset(vertical: String, horizontal: String): Modifier =
+    style("inset", "$vertical $horizontal")
+
+/**
+ * Applies CSS inset shorthand with explicit sides.
+ */
+fun Modifier.inset(top: String, right: String, bottom: String, left: String): Modifier =
+    style("inset", "$top $right $bottom $left")
+
+/**
+ * Fine-grained inset helper mapping to top/right/bottom/left individually.
+ */
+fun Modifier.positionInset(
+    top: String? = null,
+    right: String? = null,
+    bottom: String? = null,
+    left: String? = null
+): Modifier {
+    var result = this
+    top?.let { result = result.style("top", it) }
+    right?.let { result = result.style("right", it) }
+    bottom?.let { result = result.style("bottom", it) }
+    left?.let { result = result.style("left", it) }
+    return result
+}
+
 // fillMaxWidth() removed - exists as member function in Modifier class
 
 // padding(String) removed - exists as member function in Modifier class

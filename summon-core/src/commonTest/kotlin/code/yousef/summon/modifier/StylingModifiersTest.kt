@@ -1,7 +1,5 @@
 package code.yousef.summon.modifier
 
-import code.yousef.summon.modifier.BackgroundClip
-import code.yousef.summon.modifier.BorderStyle
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -79,6 +77,52 @@ class StylingModifiersTest {
         assertEquals(position, expectedModifier.styles["background-position"], "Combined background(position) failed.")
         assertEquals(size, expectedModifier.styles["background-size"], "Combined background(size) failed.")
         assertEquals(repeat, expectedModifier.styles["background-repeat"], "Combined background(repeat) failed.")
+    }
+
+    @Test
+    fun testBackgroundLayersDsl() {
+        val modifier = Modifier().backgroundLayers {
+            radialGradient {
+                shape("ellipse")
+                size("900px", "600px")
+                position("25%", "20%")
+                colorStop("rgba(0, 247, 255, 0.2)", "0%")
+                colorStop("transparent", "80%")
+            }
+            linearGradient {
+                direction("to top")
+                colorStop("rgba(8, 0, 50, 0.8)", "0%")
+                colorStop("transparent", "80%")
+            }
+        }
+
+        val value = modifier.styles["background-image"] ?: error("background-image not set")
+        assertTrue(value.contains("radial-gradient"), "Expected radial gradient layer")
+        assertTrue(value.contains("linear-gradient"), "Expected linear gradient layer")
+        assertTrue(value.contains("25% 20%"), "Expected custom position in gradient")
+    }
+
+    @Test
+    fun testFilterBuilderDsl() {
+        val modifier = Modifier().filter {
+            blur(20)
+            saturate(1.2)
+            hueRotate(45)
+        }
+
+        val filterValue = modifier.styles["filter"] ?: error("filter not set")
+        assertTrue(filterValue.contains("blur(20px)"), "Blur value missing from filter DSL")
+        assertTrue(filterValue.contains("saturate(1.2)"), "Saturate value missing from filter DSL")
+        assertTrue(filterValue.contains("hue-rotate(45deg)"), "Hue rotate value missing from filter DSL")
+    }
+
+    @Test
+    fun testMixBlendMode() {
+        val modifier = Modifier().mixBlendMode(BlendMode.Multiply)
+        assertEquals("multiply", modifier.styles["mix-blend-mode"], "mixBlendMode enum overload failed.")
+
+        val custom = Modifier().mixBlendMode("color-dodge")
+        assertEquals("color-dodge", custom.styles["mix-blend-mode"], "mixBlendMode string overload failed.")
     }
 
     // --- Border Tests --- 

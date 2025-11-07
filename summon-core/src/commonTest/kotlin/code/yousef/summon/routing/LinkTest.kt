@@ -108,10 +108,7 @@ class LinkTest {
             lastModifier = modifier
 
             // Extract onClick handler from modifier for testing
-            val styles = modifier.styles
-            if (styles.containsKey("onclick")) {
-                capturedOnClickHandler = styles["onclick"] as? (() -> Unit)
-            }
+            capturedOnClickHandler = modifier.eventHandlers["click"]
         }
 
         override fun renderText(text: String, modifier: Modifier) {
@@ -344,21 +341,22 @@ class LinkTest {
         assertEquals("/home", renderer.lastHref)
         assertEquals("_self", renderer.lastTarget) // Default target is "_self"
 
-        // Verify the modifier has an onclick style
-        assertNotNull(renderer.lastModifier, "Modifier should not be null")
-        assertTrue(renderer.lastModifier!!.styles.containsKey("onclick"), "Modifier should have onclick style")
+        assertNotNull(renderer.capturedOnClickHandler, "Link should capture click handler")
+        renderer.capturedOnClickHandler?.invoke()
+        assertEquals("/home", router.lastNavigatedPath, "router should navigate when link is clicked")
     }
 
     @Test
     fun testLinkWithCustomOnClick() {
         val renderer = MockLinkRenderer()
         val router = MockRouter()
+        var customInvoked = false
 
         runComposableTest(renderer, router) {
             Link(
                 text = "Custom Click",
                 href = "/custom",
-                onClick = { /* Custom onClick handler */ }
+                onClick = { customInvoked = true }
             )
         }
 
@@ -366,9 +364,10 @@ class LinkTest {
         assertEquals(true, renderer.renderEnhancedLinkCalled)
         assertEquals("/custom", renderer.lastHref)
 
-        // Verify the modifier has an onclick style
-        assertNotNull(renderer.lastModifier, "Modifier should not be null")
-        assertTrue(renderer.lastModifier!!.styles.containsKey("onclick"), "Modifier should have onclick style")
+        assertNotNull(renderer.capturedOnClickHandler, "click handler should be attached")
+        renderer.capturedOnClickHandler?.invoke()
+        assertTrue(customInvoked, "custom handler should be invoked")
+        assertEquals("/custom", router.lastNavigatedPath)
     }
 
     @Test
@@ -387,10 +386,7 @@ class LinkTest {
         // Verify target was set correctly
         assertEquals("_blank", renderer.lastTarget)
 
-        // Simulate click on the link
         renderer.capturedOnClickHandler?.invoke()
-
-        // Verify router.navigate was NOT called because target is not "_self"
         assertNull(router.lastNavigatedPath)
     }
 

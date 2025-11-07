@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.4.2.3] - 2025-11-07
+## [0.4.3.0] - 2025-11-07
 
 ### Added
 
@@ -10,6 +10,16 @@ All notable changes to this project will be documented in this file.
   extensions (`pointerEvents`, `visibility`, `fontStyle`) so callers get autocompletion instead of memorizing strings.
 - Expanded the pointer-event helpers (`disablePointerEvents`, `enablePointerEvents`) and text modifiers to consume the
   new enums, plus test coverage to lock in the behavior.
+- Gradient-heavy backgrounds now have a dedicated DSL: `backgroundLayers { radialGradient { … } }` plus layered filter
+  builders, pseudo-element hooks (`before`/`after`), and mix-blend helpers so aurora/film-grain mocks can be expressed
+  without raw CSS strings.
+- Layout utilities gained `aspectRatio`, `inset`, and `positionInset` shorthands matching the single-file portfolio
+  reference implementation.
+- Button hydration fixes are fully baked into the CLI templates and renderers, guaranteeing every generated project
+  ships
+  with live click handlers (no follow-up scripts required).
+- Styling docs and the modifier API reference now cover the new gradient/filter/pseudo-element APIs with practical code
+  samples to keep design teams in sync.
 
 ### Fixed
 
@@ -18,8 +28,11 @@ All notable changes to this project will be documented in this file.
 - CLI-generated Ktor/Spring/Quarkus servers now expose `/summon-hydration.*` assets and a `/summon/callback/{id}` bridge
   backed by a persistent `CallbackRegistry`, so every button rendered by the templates ships with a functioning
   `onClick` handler out of the box.
+- The long-running “non-functioning buttons” regression is closed: renderer-side callback wiring, hydration client
+  POSTs,
+  and CLI assets were aligned and validated across JVM/JS/WASM.
 
-## [0.4.2.2] - 2025-11-04
+## [0.4.3.0] - 2025-11-04
 
 ### Added
 

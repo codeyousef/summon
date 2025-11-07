@@ -200,7 +200,8 @@ import kotlin.js.JsName
 data class Modifier(
     val styles: Map<String, String> = emptyMap(),
     val attributes: Map<String, String> = emptyMap(),
-    val eventHandlers: Map<String, () -> Unit> = emptyMap()
+    val eventHandlers: Map<String, () -> Unit> = emptyMap(),
+    val pseudoElements: List<PseudoElementDefinition> = emptyList()
 ) {
 
     // Note: The companion object 'create' method won't be directly on the Modifier class in JS
@@ -529,7 +530,8 @@ data class Modifier(
         Modifier(
             styles = this.styles + other.styles,
             attributes = this.attributes + other.attributes,
-            eventHandlers = this.eventHandlers + other.eventHandlers
+            eventHandlers = this.eventHandlers + other.eventHandlers,
+            pseudoElements = this.pseudoElements + other.pseudoElements
         )
 
     /**

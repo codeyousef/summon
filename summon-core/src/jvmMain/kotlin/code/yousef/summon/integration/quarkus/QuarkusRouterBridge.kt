@@ -89,7 +89,7 @@ private fun String.normalizeBasePath(): String {
 }
 
 private fun RoutingContext.resolveRouterPath(basePath: String): String {
-    val fullPath = this.normalisedPath() ?: request().path()
+    val fullPath = this.normalizedPath() ?: request().path()
     if (basePath == "/") {
         return fullPath.ensureLeadingSlash().ifBlank { "/" }
     }

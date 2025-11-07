@@ -281,6 +281,23 @@ actual open class PlatformRenderer {
         }
     }
 
+    private fun cssPropertyName(key: String): String =
+        if (key.contains('-')) {
+            key
+        } else {
+            key.replace(Regex("([a-z])([A-Z])"), "$1-$2").lowercase()
+        }
+
+    private fun ensureSummonId(element: Element): String {
+        val existing = element.getAttribute("data-summon-id")
+        if (existing != null && existing.isNotBlank()) {
+            return existing
+        }
+        val generated = "summon-js-" + (js("Math.random().toString(36).substring(2, 10)") as String)
+        element.setAttribute("data-summon-id", generated)
+        return generated
+    }
+
     private fun applyModifier(element: Element, modifier: Modifier) {
         // Apply styles using the toStyleString method which converts camelCase properties to kebab-case
         val styleString = modifier.toStyleString()
@@ -326,6 +343,23 @@ actual open class PlatformRenderer {
                 registerEventListener(element, lowerEvent) {
                     handler()
                 }
+            }
+        }
+
+        if (modifier.pseudoElements.isNotEmpty()) {
+            val hostId = ensureSummonId(element)
+            modifier.pseudoElements.forEach { pseudo ->
+                val cssBody = pseudo.styles.entries.joinToString("; ") {
+                    "${cssPropertyName(it.key)}: ${it.value};"
+                }
+                val styleElement = document.createElement("style")
+                styleElement.textContent = """
+                    [data-summon-id="$hostId"]${pseudo.element.selector} {
+                        content: ${pseudo.content};
+                        $cssBody
+                    }
+                """.trimIndent()
+                document.head?.appendChild(styleElement)
             }
         }
     }
@@ -544,7 +578,7 @@ actual open class PlatformRenderer {
         val rootElement = document.createElement("div")
         rootElement.setAttribute("data-summon-hydration", "root")
         rootElement.setAttribute("data-summon-renderer", "js")
-        rootElement.setAttribute("data-summon-version", js("globalThis.SUMMON_VERSION") ?: "0.4.2.2")
+        rootElement.setAttribute("data-summon-version", js("globalThis.SUMMON_VERSION") ?: "0.4.3.0")
 
         elementStack.withElement(rootElement) {
             composable()

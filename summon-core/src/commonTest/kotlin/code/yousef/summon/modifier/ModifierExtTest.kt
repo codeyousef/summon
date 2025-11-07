@@ -1,31 +1,26 @@
 package code.yousef.summon.modifier
 
-import code.yousef.summon.modifier.LayoutModifiers.gap
-import code.yousef.summon.modifier.LayoutModifiers.position
-import code.yousef.summon.modifier.LayoutModifiers.top
-import code.yousef.summon.modifier.LayoutModifiers.right
-import code.yousef.summon.modifier.LayoutModifiers.bottom
-import code.yousef.summon.modifier.LayoutModifiers.left
-import code.yousef.summon.modifier.LayoutModifiers.display
-import code.yousef.summon.modifier.LayoutModifiers.flexDirection
-import code.yousef.summon.modifier.LayoutModifiers.justifyContent
+import code.yousef.summon.modifier.EventModifiers.onClick
 import code.yousef.summon.modifier.LayoutModifiers.alignItems
-import code.yousef.summon.modifier.LayoutModifiers.overflow
+import code.yousef.summon.modifier.LayoutModifiers.bottom
+import code.yousef.summon.modifier.LayoutModifiers.display
 import code.yousef.summon.modifier.LayoutModifiers.flex
-import code.yousef.summon.modifier.LayoutModifiers.gridTemplateColumns
+import code.yousef.summon.modifier.LayoutModifiers.flexDirection
+import code.yousef.summon.modifier.LayoutModifiers.gap
 import code.yousef.summon.modifier.LayoutModifiers.gridColumnGap
 import code.yousef.summon.modifier.LayoutModifiers.gridRowGap
+import code.yousef.summon.modifier.LayoutModifiers.gridTemplateColumns
+import code.yousef.summon.modifier.LayoutModifiers.justifyContent
+import code.yousef.summon.modifier.LayoutModifiers.left
+import code.yousef.summon.modifier.LayoutModifiers.overflow
+import code.yousef.summon.modifier.LayoutModifiers.position
+import code.yousef.summon.modifier.LayoutModifiers.right
+import code.yousef.summon.modifier.LayoutModifiers.top
 import code.yousef.summon.modifier.StylingModifiers.opacity
-import code.yousef.summon.modifier.border
-import code.yousef.summon.modifier.StylingModifiers.borderRadius
-import code.yousef.summon.modifier.StylingModifiers.fontWeight
-import code.yousef.summon.modifier.StylingModifiers.color
-import code.yousef.summon.modifier.LayoutModifiers.width
-import code.yousef.summon.modifier.LayoutModifiers.height
-import code.yousef.summon.modifier.AttributeModifiers.attribute
-import code.yousef.summon.modifier.EventModifiers.onClick
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class ModifierExtTest {
 
@@ -173,9 +168,12 @@ class ModifierExtTest {
 
     @Test
     fun testOnClick() {
-        val handler = { /* do nothing */ }
+        var invoked = false
+        val handler = { invoked = true }
         val modifier = Modifier().onClick(handler)
-        // Testing the specific implementation in ModifierExt.kt (style-based)
-        assertEquals(handler.toString(), modifier.styles["onclick"])
+        val storedHandler = modifier.eventHandlers["click"]
+        assertNotNull(storedHandler, "click handler should be stored in eventHandlers")
+        storedHandler.invoke()
+        assertTrue(invoked, "stored handler should be the same instance")
     }
 } 

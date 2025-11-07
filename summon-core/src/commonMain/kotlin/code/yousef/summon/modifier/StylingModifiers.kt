@@ -30,6 +30,52 @@ fun Modifier.filter(vararg filters: Pair<FilterFunction, String>): Modifier =
     style("filter", filters.joinToString(" ") { "${it.first}(${it.second})" })
 
 /**
+ * DSL for composing CSS filters with strong typing.
+ */
+class FilterBuilder internal constructor() {
+    private val parts = mutableListOf<String>()
+
+    private fun add(function: FilterFunction, value: String) {
+        parts += "${function}($value)"
+    }
+
+    fun blur(radius: Number) = add(FilterFunction.Blur, radius.px)
+    fun brightness(amount: Number) = add(FilterFunction.Brightness, amount.toString())
+    fun contrast(amount: Number) = add(FilterFunction.Contrast, amount.toString())
+    fun grayscale(amount: Number) = add(FilterFunction.Grayscale, amount.toString())
+    fun hueRotate(degrees: Number) = add(FilterFunction.HueRotate, "${degrees}deg")
+    fun invert(amount: Number) = add(FilterFunction.Invert, amount.toString())
+    fun saturate(amount: Number) = add(FilterFunction.Saturate, amount.toString())
+    fun sepia(amount: Number) = add(FilterFunction.Sepia, amount.toString())
+    fun dropShadow(offsetX: String, offsetY: String, blurRadius: String = "0", color: String = "currentColor") =
+        add(FilterFunction.DropShadow, listOf(offsetX, offsetY, blurRadius, color).joinToString(" ").trim())
+
+    fun raw(value: String) {
+        parts += value
+    }
+
+    internal fun build(): String = parts.joinToString(" ")
+}
+
+/**
+ * Filter builder variant: `Modifier.filter { blur(12.px); saturate(1.1) }`.
+ */
+fun Modifier.filter(builder: FilterBuilder.() -> Unit): Modifier {
+    val result = FilterBuilder().apply(builder).build()
+    require(result.isNotBlank()) { "filter builder must define at least one filter" }
+    return style("filter", result)
+}
+
+/**
+ * Applies CSS backdrop-filter using the builder DSL.
+ */
+fun Modifier.backdropFilter(builder: FilterBuilder.() -> Unit): Modifier {
+    val result = FilterBuilder().apply(builder).build()
+    require(result.isNotBlank()) { "backdropFilter builder must define at least one filter" }
+    return style("backdrop-filter", result)
+}
+
+/**
  * Applies a 3D rotation with type-safe parameters.
  *
  * @param x X-axis component
@@ -95,3 +141,15 @@ fun Modifier.animation(
     fillMode: AnimationFillMode = AnimationFillMode.None
 ): Modifier =
     style("animation", "$name $duration $easing $delay $iterationCount $direction $fillMode")
+
+/**
+ * Applies CSS mix-blend-mode using a type-safe enum.
+ */
+fun Modifier.mixBlendMode(value: BlendMode): Modifier =
+    style("mix-blend-mode", value.toString())
+
+/**
+ * Applies CSS mix-blend-mode using a raw value.
+ */
+fun Modifier.mixBlendMode(value: String): Modifier =
+    style("mix-blend-mode", value)

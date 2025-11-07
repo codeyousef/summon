@@ -2,6 +2,7 @@ package code.yousef.summon.cli.generators
 
 import code.yousef.summon.cli.templates.ProjectTemplate
 import java.io.File
+import kotlin.io.path.createTempDirectory
 import kotlin.test.*
 
 /**
@@ -14,7 +15,7 @@ class ProjectGeneratorTest {
 
     @BeforeTest
     fun setup() {
-        tempDir = createTempDir("summon-test-")
+        tempDir = createTempDirectory("summon-test-").toFile()
     }
 
     @AfterTest
@@ -42,14 +43,14 @@ class ProjectGeneratorTest {
         
         val content = buildFile.readText()
 
-        // Should use version from version.properties (0.4.2.2), not hardcoded 0.4.0.0
+        // Should use version from version.properties (0.4.3.0), not hardcoded 0.4.0.0
         assertFalse(
             content.contains("summon:0.4.0.0"),
             "Generated build file should not use hardcoded old version 0.4.0.0"
         )
         assertTrue(
-            content.contains("summon:0.4.2.2"),
-            "Generated build file should use current version 0.4.2.2 from version.properties"
+            content.contains("summon:0.4.3.0"),
+            "Generated build file should use current version 0.4.3.0 from version.properties"
         )
 
         assertTrue(

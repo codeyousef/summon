@@ -28,7 +28,7 @@ inline fun Modifier.applyIf(condition: Boolean, block: Modifier.() -> Modifier):
  * Creates a clone of this modifier
  */
 fun Modifier.clone(): Modifier {
-    return Modifier(styles.toMap(), attributes.toMap(), eventHandlers.toMap())
+    return Modifier(styles.toMap(), attributes.toMap(), eventHandlers.toMap(), pseudoElements.toList())
 }
 
 /**

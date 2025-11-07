@@ -283,9 +283,42 @@ Modifier
         endColor = Color.rgb(0, 0, 255)
     )
 
+    // Layered backgrounds (aurora + grain stack)
+    .backgroundLayers {
+        radialGradient {
+            shape(RadialGradientShape.Ellipse)
+            size("900px", "600px")
+            position("25%", "20%")
+            colorStop("rgba(0, 247, 255, 0.35)", "0%")
+            colorStop("transparent", "80%")
+        }
+        linearGradient {
+            direction("to top")
+            colorStop("rgba(8, 0, 50, 0.65)", "0%")
+            colorStop("transparent", "90%")
+        }
+        url("/static/grain.png")
+    }
+
+The `backgroundLayers` DSL accepts any number of `radialGradient`, `linearGradient`, or `url/image` entries. Each builder exposes helpers for shape, size, positions, and color stops so you can mirror complex CSS strings from the portfolio mock without hand-written serialization.
+
     // Filters
     .filter("blur(5px)")
     .filter("brightness(150%)")
+
+    // Filter/backdrop DSL
+    .filter {
+        blur(20)
+        saturate(1.15)
+        hueRotate(40)
+    }
+    .backdropFilter {
+        brightness(1.05)
+        contrast(1.1)
+    }
+    .mixBlendMode(BlendMode.Multiply)
+
+`filter { ... }` and `backdropFilter { ... }` use the same builder under the hood, so you can mix blur, brightness, contrast, hue rotation, or drop-shadow steps with readable Kotlin while keeping the generated CSS in sync with the mock’s blur/saturate stack.
 
     // Transitions
     .transition("background-color 0.3s ease")
@@ -311,6 +344,33 @@ Modifier
     .overflow(Overflow.Hidden)
     .overflowX(Overflow.Auto)
     .overflowY(Overflow.Scroll)
+    .aspectRatio(16, 9)
+    .inset("0")
+```
+
+### Pseudo-element Hooks
+
+Use `before`/`after` to attach glow layers or film-grain canvases without extra DOM nodes. The pseudo-element inherits
+the host element’s `data-summon-id`, so the runtime injects the proper scoped CSS automatically.
+
+```kotlin
+Modifier()
+    .before {
+        style("content", "\"\"")
+            .style("position", "absolute")
+            .style("inset", "-20vmax")
+            .style("background", "radial-gradient(circle, rgba(255,255,255,0.15), transparent)")
+            .style("filter", "blur(40px)")
+            .style("opacity", "0.6")
+    }
+    .after {
+        style("content", "\"\"")
+            .style("position", "absolute")
+            .style("inset", "0")
+            .style("background", "url('/static/grain.png')")
+            .style("mix-blend-mode", "soft-light")
+            .style("opacity", "0.4")
+    }
 ```
 
 ### State Modifiers

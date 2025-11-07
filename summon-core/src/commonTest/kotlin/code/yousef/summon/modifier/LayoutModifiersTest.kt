@@ -30,6 +30,18 @@ class LayoutModifiersTest {
     }
 
     @Test
+    fun testAspectRatioSingleValue() {
+        val modifier = Modifier().aspectRatio(1.35f)
+        assertEquals("1.35", modifier.styles["aspect-ratio"])
+    }
+
+    @Test
+    fun testAspectRatioPair() {
+        val modifier = Modifier().aspectRatio(16, 9)
+        assertEquals("16 / 9", modifier.styles["aspect-ratio"])
+    }
+
+    @Test
     fun testFillMaxWidth() {
         val modifier = Modifier().fillMaxWidth()
         assertEquals("100%", modifier.styles["width"])
@@ -144,6 +156,26 @@ class LayoutModifiersTest {
         assertNull(modifierBottomOnly.styles["margin-right"])
         assertNull(modifierBottomOnly.styles["margin-left"])
         assertNull(modifierBottomOnly.styles["margin"])
+    }
+
+    @Test
+    fun testInsetShorthand() {
+        val modifier = Modifier().inset("0")
+        assertEquals("0", modifier.styles["inset"])
+
+        val verticalHorizontal = Modifier().inset("5vmax", "auto")
+        assertEquals("5vmax auto", verticalHorizontal.styles["inset"])
+
+        val fourSides = Modifier().inset("1px", "2px", "3px", "4px")
+        assertEquals("1px 2px 3px 4px", fourSides.styles["inset"])
+    }
+
+    @Test
+    fun testPositionInset() {
+        val modifier = Modifier().positionInset(top = "0", left = "-20vmax")
+        assertEquals("0", modifier.styles["top"])
+        assertEquals("-20vmax", modifier.styles["left"])
+        assertNull(modifier.styles["bottom"])
     }
 
     // --- Flexbox Tests --- 

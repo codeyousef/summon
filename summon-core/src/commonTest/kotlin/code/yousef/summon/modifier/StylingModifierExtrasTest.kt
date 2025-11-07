@@ -8,7 +8,7 @@ class StylingModifierExtrasTest {
     @Test
     fun testFontStyle() {
         val value = "oblique"
-        val modifier = with(StylingModifierExtras) {
+        val modifier = with(StylingModifiers) {
             Modifier().fontStyle(value)
         }
         assertEquals(value, modifier.styles["font-style"], "StylingModifierExtras.fontStyle failed.")
@@ -17,13 +17,13 @@ class StylingModifierExtrasTest {
     @Test
     fun testTextAlign() {
         val stringValue = "justify"
-        val modifierString = with(StylingModifierExtras) {
+        val modifierString = with(StylingModifiers) {
             Modifier().textAlign(stringValue, component = null)
         }
         assertEquals(stringValue, modifierString.styles["text-align"], "StylingModifierExtras.textAlign(String) failed.")
 
         val enumValue = TextAlign.End
-        val modifierEnum = with(StylingModifierExtras) {
+        val modifierEnum = with(StylingModifiers) {
             Modifier().textAlign(enumValue, component = null)
         }
         assertEquals(enumValue.toString(), modifierEnum.styles["text-align"], "StylingModifierExtras.textAlign(Enum) failed.")
@@ -32,7 +32,7 @@ class StylingModifierExtrasTest {
     @Test
     fun testTextDecoration() {
         val value = "line-through"
-        val modifier = with(StylingModifierExtras) {
+        val modifier = with(StylingModifiers) {
             Modifier().textDecoration(value)
         }
         assertEquals(value, modifier.styles["text-decoration"], "StylingModifierExtras.textDecoration failed.")
@@ -41,7 +41,7 @@ class StylingModifierExtrasTest {
     @Test
     fun testBoxShadow() {
         val value = "2px 2px 5px rgba(0,0,0,0.3)"
-        val modifier = with(StylingModifierExtras) {
+        val modifier = with(StylingModifiers) {
             Modifier().boxShadow(value)
         }
         assertEquals(value, modifier.styles["box-shadow"], "StylingModifierExtras.boxShadow failed.")
@@ -50,7 +50,7 @@ class StylingModifierExtrasTest {
     @Test
     fun testTransition() {
         val value = "color 0.3s ease-in-out"
-        val modifier = with(StylingModifierExtras) {
+        val modifier = with(StylingModifiers) {
             Modifier().transition(value)
         }
         assertEquals(value, modifier.styles["transition"], "StylingModifierExtras.transition failed.")
@@ -59,7 +59,7 @@ class StylingModifierExtrasTest {
     @Test
     fun testTransform() {
         val value = "rotate(45deg)"
-        val modifier = with(StylingModifierExtras) {
+        val modifier = with(StylingModifiers) {
             Modifier().transform(value)
         }
         assertEquals(value, modifier.styles["transform"], "StylingModifierExtras.transform failed.")
