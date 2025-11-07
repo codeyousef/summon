@@ -12,7 +12,6 @@ import code.yousef.example.todo.services.SessionTodoService
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.CallbackRegistry
 import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.clearPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
@@ -173,7 +172,6 @@ fun Route.todoRoutes() {
                 HttpStatusCode.InternalServerError
             )
         } finally {
-            CallbackRegistry.clear()
             clearPlatformRenderer()
         }
     }

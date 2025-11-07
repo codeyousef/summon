@@ -345,7 +345,7 @@ actual open class PlatformRenderer {
     }
 
     actual open fun renderComposableRoot(composable: @Composable (() -> Unit)): String {
-        val currentContext = currentBuilder
+        CallbackRegistry.beginRender()
         val result = StringBuilder()
         try {
             result.appendHTML(prettyPrint = false).html {
@@ -369,33 +369,24 @@ actual open class PlatformRenderer {
                 System.err.println("Warning: currentBuilder not cleared properly in renderComposableRoot.")
                 currentBuilder = null
             }
-            CallbackRegistry.clear()
-            // Restore previous context if needed (should be null)
-            // currentBuilder = previousBuilder
+            CallbackRegistry.abandonRenderContext()
         }
         return result.toString()
     }
 
     actual open fun renderComposableRootWithHydration(composable: @Composable () -> Unit): String {
-        // Clear any previous callbacks to start fresh
-        CallbackRegistry.clear()
-
+        CallbackRegistry.beginRender()
         return try {
-            // Render the composable content first (this will register callbacks)
             val bodyContent = renderComposableContent(composable)
-
-            // Generate hydration data (no raw JS)
-            val hydrationData = generateHydrationData()
-
-            // Create the complete HTML document with hydration support
+            val callbackIds = CallbackRegistry.finishRenderAndCollectCallbackIds()
+            val hydrationData = generateHydrationData(callbackIds)
             createHydratedDocument(bodyContent, hydrationData)
         } finally {
-            CallbackRegistry.clear()
+            CallbackRegistry.abandonRenderContext()
         }
     }
     
     private fun renderComposableContent(composable: @Composable () -> Unit): String {
-        val currentContext = currentBuilder
         val result = StringBuilder()
         try {
             result.appendHTML(prettyPrint = false).div {
@@ -414,10 +405,8 @@ actual open class PlatformRenderer {
         }
         return result.toString()
     }
-    
-    private fun generateHydrationData(): String {
-        val callbackIds = CallbackRegistry.getAllCallbackIds()
 
+    private fun generateHydrationData(callbackIds: Set<String>): String {
         // Enhanced hydration data for WASM compatibility
         val hydrationData = mapOf(
             "version" to 1,

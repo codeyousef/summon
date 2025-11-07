@@ -1,25 +1,15 @@
 package code.yousef.summon.integration.ktor
 
-import code.yousef.summon.runtime.CallbackRegistry
+import code.yousef.summon.routing.*
 import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.clearPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
-import code.yousef.summon.routing.DefaultPageRegistry
-import code.yousef.summon.routing.PageLoader
-import code.yousef.summon.routing.PageRegistry
-import code.yousef.summon.routing.RouterComponent
-import code.yousef.summon.routing.createFileBasedServerRouter
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.request.path
-import io.ktor.server.response.respond
-import io.ktor.server.response.respondText
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import io.ktor.server.routing.Route
-import io.ktor.server.routing.Routing
-import io.ktor.server.routing.get
-import io.ktor.server.routing.route
-import kotlin.LazyThreadSafetyMode
-import kotlin.text.Charsets
 
 private val defaultNotFoundHandler: suspend ApplicationCall.() -> Unit = {
     respond(HttpStatusCode.NotFound)
@@ -69,7 +59,6 @@ fun Routing.summonRouter(
                 }
             }
         } finally {
-            CallbackRegistry.clear()
             clearPlatformRenderer()
         }
 

@@ -15,6 +15,9 @@ All notable changes to this project will be documented in this file.
 
 - `Modifier.flexDirection` (and the DSL variants) now accept the existing `FlexDirection` enum, eliminating the need to
   pass raw CSS strings for flex layouts.
+- CLI-generated Ktor/Spring/Quarkus servers now expose `/summon-hydration.*` assets and a `/summon/callback/{id}` bridge
+  backed by a persistent `CallbackRegistry`, so every button rendered by the templates ships with a functioning
+  `onClick` handler out of the box.
 
 ## [0.4.2.2] - 2025-11-04
 

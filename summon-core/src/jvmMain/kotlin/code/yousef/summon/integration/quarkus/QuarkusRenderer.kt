@@ -1,18 +1,13 @@
 package code.yousef.summon.integration.quarkus
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.CallbackRegistry
 import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.clearPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import io.vertx.core.http.HttpServerResponse
 import io.vertx.ext.web.RoutingContext
-import kotlinx.html.body
-import kotlinx.html.head
-import kotlinx.html.html
-import kotlinx.html.meta
+import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
-import kotlinx.html.title
 
 /**
  * Integration class for rendering Summon components in a Quarkus application.
@@ -52,7 +47,6 @@ class QuarkusRenderer(private val response: HttpServerResponse) {
                 }
             }
         } finally {
-            CallbackRegistry.clear()
             clearPlatformRenderer()
         }
         sendHtml(html, statusCode)
@@ -70,7 +64,6 @@ class QuarkusRenderer(private val response: HttpServerResponse) {
         val html = try {
             renderer.renderComposableRootWithHydration(content)
         } finally {
-            CallbackRegistry.clear()
             clearPlatformRenderer()
         }
         sendHtml(html, statusCode)

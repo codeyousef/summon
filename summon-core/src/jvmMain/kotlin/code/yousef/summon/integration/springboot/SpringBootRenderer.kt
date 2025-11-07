@@ -1,17 +1,12 @@
 package code.yousef.summon.integration.springboot
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.CallbackRegistry
 import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.clearPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
 import jakarta.servlet.http.HttpServletResponse
-import kotlinx.html.body
-import kotlinx.html.head
-import kotlinx.html.html
-import kotlinx.html.meta
+import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
-import kotlinx.html.title
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -55,7 +50,6 @@ class SpringBootRenderer {
                 }
             }
         } finally {
-            CallbackRegistry.clear()
             clearPlatformRenderer()
         }
 
@@ -94,7 +88,6 @@ class SpringBootRenderer {
                 }
             }
         } finally {
-            CallbackRegistry.clear()
             clearPlatformRenderer()
         }
 
@@ -195,7 +188,6 @@ class SpringBootRenderer {
             writer.write("</body></html>")
             writer.flush()
         } finally {
-            CallbackRegistry.clear()
             clearPlatformRenderer()
         }
     }

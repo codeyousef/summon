@@ -1,7 +1,6 @@
 package code.yousef.summon.integration.ktor
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.CallbackRegistry
 import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.clearPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
@@ -12,7 +11,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
-import kotlin.text.Charsets
 
 /**
  * Integration class for rendering Summon components in a Ktor application.
@@ -47,7 +45,6 @@ class KtorRenderer {
                 }
             }
         } finally {
-            CallbackRegistry.clear()
             clearPlatformRenderer()
         }
     }
@@ -74,7 +71,6 @@ class KtorRenderer {
                 }
             }
         } finally {
-            CallbackRegistry.clear()
             clearPlatformRenderer()
         }
     }
@@ -106,7 +102,6 @@ class KtorRenderer {
                 flush()
             }
         } finally {
-            CallbackRegistry.clear()
             clearPlatformRenderer()
         }
     }
@@ -146,7 +141,6 @@ class KtorRenderer {
                             }
                         }
                     } finally {
-                        CallbackRegistry.clear()
                         clearPlatformRenderer()
                     }
                 }
@@ -181,7 +175,6 @@ class KtorRenderer {
                     }
                 }
             } finally {
-                CallbackRegistry.clear()
                 clearPlatformRenderer()
             }
         }
@@ -200,7 +193,6 @@ class KtorRenderer {
                 val html = renderer.renderComposableRootWithHydration(content)
                 respondText(html, ContentType.Text.Html.withCharset(Charsets.UTF_8), status)
             } finally {
-                CallbackRegistry.clear()
                 clearPlatformRenderer()
             }
         }

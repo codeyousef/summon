@@ -1,7 +1,10 @@
 package code.yousef.summon.integration.quarkus
 
 
-import code.yousef.summon.runtime.*
+import code.yousef.summon.runtime.Composable
+import code.yousef.summon.runtime.PlatformRenderer
+import code.yousef.summon.runtime.clearPlatformRenderer
+import code.yousef.summon.runtime.setPlatformRenderer
 import io.quarkus.qute.RawString
 import io.quarkus.qute.TemplateExtension
 import kotlinx.html.div
@@ -43,7 +46,6 @@ object QuteComponentRegistry {
                 }
             }
         } finally {
-            CallbackRegistry.clear()
             clearPlatformRenderer()
         }
     }

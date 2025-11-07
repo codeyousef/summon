@@ -1,7 +1,6 @@
 package code.yousef.summon.integration.ktor
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.CallbackRegistry
 import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.clearPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
@@ -63,7 +62,6 @@ object KtorStreamingSupport {
 
             emit("\n</body>\n</html>")
         } finally {
-            CallbackRegistry.clear()
             clearPlatformRenderer()
         }
     }

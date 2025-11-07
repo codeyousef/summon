@@ -1,7 +1,6 @@
 package code.yousef.summon.integration.springboot
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.CallbackRegistry
 import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.clearPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
@@ -89,7 +88,6 @@ class SummonExpressionObject {
                 }
             }
         } finally {
-            CallbackRegistry.clear()
             clearPlatformRenderer()
         }
     }

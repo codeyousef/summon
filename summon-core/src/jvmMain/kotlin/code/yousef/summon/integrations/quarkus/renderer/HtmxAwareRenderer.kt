@@ -3,7 +3,6 @@ package code.yousef.summon.integration.quarkus.renderer
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.integration.quarkus.htmx.htmlAttribute
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.CallbackRegistry
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.clearPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
@@ -55,7 +54,6 @@ class HtmxAwareRenderer {
             logger.error("HtmxAwareRenderer.renderToString() - Error rendering composable content", e)
             throw e
         } finally {
-            CallbackRegistry.clear()
             clearPlatformRenderer()
         }
     }

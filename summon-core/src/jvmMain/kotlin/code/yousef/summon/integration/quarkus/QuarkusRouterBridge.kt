@@ -1,18 +1,12 @@
 package code.yousef.summon.integration.quarkus
 
-import code.yousef.summon.runtime.CallbackRegistry
+import code.yousef.summon.routing.*
 import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.clearPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
-import code.yousef.summon.routing.DefaultPageRegistry
-import code.yousef.summon.routing.PageLoader
-import code.yousef.summon.routing.PageRegistry
-import code.yousef.summon.routing.RouterComponent
-import code.yousef.summon.routing.createFileBasedServerRouter
 import io.vertx.core.http.HttpHeaders
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
-import kotlin.LazyThreadSafetyMode
 
 private val defaultNotFoundHandler: RoutingContext.() -> Unit = {
     response()
@@ -65,7 +59,6 @@ fun Router.summonRouter(
                 }
             }
         } finally {
-            CallbackRegistry.clear()
             clearPlatformRenderer()
         }
 

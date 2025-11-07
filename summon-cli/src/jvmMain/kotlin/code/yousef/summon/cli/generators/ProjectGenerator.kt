@@ -1096,10 +1096,12 @@ fun App() {
             """
 package ${variables["PACKAGE_NAME"]}
 
+import code.yousef.summon.runtime.CallbackRegistry
 import code.yousef.summon.runtime.PlatformRenderer
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
@@ -1107,6 +1109,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.response.respondBytes
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
+import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 
 fun main() {
@@ -1117,8 +1120,8 @@ fun Application.summonModule() {
     routing {
         get("/") {
             val renderer = PlatformRenderer()
-            val body = renderer.renderComposableRoot { App() }
-            call.respondText(renderPage(body), ContentType.Text.Html)
+            val hydrated = renderer.renderComposableRootWithHydration { App() }
+            call.respondText(injectAppBundle(hydrated), ContentType.Text.Html)
         }
         get("/static/app.js") {
             val resource = Thread.currentThread().contextClassLoader.getResourceAsStream("static/app.js")
@@ -1133,28 +1136,75 @@ fun Application.summonModule() {
                 )
             }
         }
+        get("/summon-hydration.js") {
+            call.respondHydrationAsset("summon-hydration.js", ContentType.Application.JavaScript)
+        }
+        get("/summon-hydration.wasm") {
+            call.respondHydrationAsset("summon-hydration.wasm", ContentType.parse("application/wasm"))
+        }
+        get("/summon-hydration.wasm.js") {
+            call.respondHydrationAsset("summon-hydration.wasm.js", ContentType.Application.JavaScript)
+        }
+        post("/summon/callback/{callbackId}") {
+            val callbackId = call.parameters["callbackId"]
+            if (callbackId.isNullOrBlank()) {
+                call.respondText(""" { "action":"error", "status":"missing-id" }
+            """, ContentType.Application.Json, HttpStatusCode.BadRequest)
+            } else {
+                val executed = CallbackRegistry.executeCallback(callbackId)
+                val (status, payload) = if (executed) {
+                    HttpStatusCode.OK to """ { "action":"reload", "status":"ok" }
+            """
+                } else {
+                    HttpStatusCode.NotFound to """ { "action":"noop", "status":"missing" }
+            """
+                }
+                call.respondText(payload, ContentType.Application.Json, status)
+            }
+        }
         get("/health") {
             call.respondText("OK", ContentType.Text.Plain)
         }
     }
 }
 
-private fun renderPage(content: String): String = $tripleQuote
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>${variables["APP_TITLE"]}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-</head>
-<body>
-    <main id="${variables["ROOT_ELEMENT_ID"]}">
-        ${'$'}content
-    </main>
-    <script src="/static/app.js"></script>
-</body>
-</html>
-$tripleQuote.trimIndent()
+private fun injectAppBundle(document: String): String {
+    val marker = "</body>"
+    val scriptTag = "    <script src=\"/static/app.js\"></script>\n"
+    val index = document.lastIndexOf(marker)
+    return if (index != -1) {
+        buildString(document.length + scriptTag.length) {
+            append(document.substring(0, index))
+            append('\n')
+            append(scriptTag)
+            append(marker)
+            append(document.substring(index + marker.length))
+        }
+    } else {
+        document + "\n" + scriptTag
+    }
+}
+
+private suspend fun ApplicationCall.respondHydrationAsset(name: String, contentType: ContentType) {
+    val payload = loadHydrationAsset(name)
+    if (payload != null) {
+        respondBytes(payload, contentType)
+    } else {
+        respond(HttpStatusCode.NotFound, """ { "status":"missing" }
+            """)
+    }
+}
+
+private fun loadHydrationAsset(name: String): ByteArray? {
+    val locations = listOf("static/$name", "META-INF/resources/static/$name")
+    locations.forEach { path ->
+        val resource = Thread.currentThread().contextClassLoader.getResourceAsStream(path)
+        if (resource != null) {
+            return resource.use { it.readBytes() }
+        }
+    }
+    return null
+}
             """.trimIndent()
         )
     }
@@ -1168,12 +1218,16 @@ $tripleQuote.trimIndent()
             """
 package ${variables["PACKAGE_NAME"]}
 
+import code.yousef.summon.runtime.CallbackRegistry
 import code.yousef.summon.runtime.PlatformRenderer
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
 
 @SpringBootApplication
@@ -1192,10 +1246,10 @@ class SummonController {
     @GetMapping("/", produces = [MediaType.TEXT_HTML_VALUE])
     fun index(): ResponseEntity<String> {
         val renderer = PlatformRenderer()
-        val body = renderer.renderComposableRoot { App() }
+        val body = injectAppBundle(renderer.renderComposableRootWithHydration { App() })
         return ResponseEntity.ok()
             .contentType(MediaType.TEXT_HTML)
-            .body(renderPage(body))
+            .body(body)
     }
 
     @GetMapping("/static/app.js", produces = ["application/javascript"])
@@ -1208,26 +1262,66 @@ class SummonController {
             .body(script)
     }
 
+    @GetMapping("/summon-hydration.js", produces = ["application/javascript"])
+    fun hydrationJs(): ResponseEntity<ByteArray> =
+        serveHydrationAsset("summon-hydration.js", MediaType.parseMediaType("application/javascript"))
+
+    @GetMapping("/summon-hydration.wasm", produces = ["application/wasm"])
+    fun hydrationWasm(): ResponseEntity<ByteArray> =
+        serveHydrationAsset("summon-hydration.wasm", MediaType.parseMediaType("application/wasm"))
+
+    @GetMapping("/summon-hydration.wasm.js", produces = ["application/javascript"])
+    fun hydrationWasmJs(): ResponseEntity<ByteArray> =
+        serveHydrationAsset("summon-hydration.wasm.js", MediaType.parseMediaType("application/javascript"))
+
+    @PostMapping("/summon/callback/{callbackId}", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun invokeCallback(@PathVariable callbackId: String): ResponseEntity<String> {
+        val executed = CallbackRegistry.executeCallback(callbackId)
+        val status = if (executed) HttpStatus.OK else HttpStatus.NOT_FOUND
+        val payload = if (executed) {
+            """ { "action":"reload", "status":"ok" }"""
+        } else {
+            """ { "action":"noop", "status":"missing" }"""
+        }
+        return ResponseEntity.status(status)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(payload)
+    }
+
     @GetMapping("/health", produces = [MediaType.TEXT_PLAIN_VALUE])
     fun health(): String = "OK"
 }
 
-private fun renderPage(content: String): String = $tripleQuote
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>${variables["APP_TITLE"]}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-</head>
-<body>
-    <main id="${variables["ROOT_ELEMENT_ID"]}">
-        ${'$'}content
-    </main>
-    <script src="/static/app.js"></script>
-</body>
-</html>
-$tripleQuote.trimIndent()
+private fun injectAppBundle(document: String): String {
+    val marker = "</body>"
+    val scriptTag = "    <script src=\"/static/app.js\"></script>\n"
+    val index = document.lastIndexOf(marker)
+    return if (index != -1) {
+        buildString(document.length + scriptTag.length) {
+            append(document.substring(0, index))
+            append('\n')
+            append(scriptTag)
+            append(marker)
+            append(document.substring(index + marker.length))
+        }
+    } else {
+        document + "\n" + scriptTag
+    }
+}
+
+private fun serveHydrationAsset(name: String, mediaType: MediaType): ResponseEntity<ByteArray> {
+    val locations = listOf("static/$name", "META-INF/resources/static/$name")
+    locations.forEach { path ->
+        val resource = Thread.currentThread().contextClassLoader.getResourceAsStream(path)
+        if (resource != null) {
+            val payload = resource.use { it.readBytes() }
+            return ResponseEntity.ok()
+                .contentType(mediaType)
+                .body(payload)
+        }
+    }
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ByteArray(0))
+}
             """.trimIndent()
         )
     }
@@ -1241,9 +1335,12 @@ $tripleQuote.trimIndent()
             """
 package ${variables["PACKAGE_NAME"]}
 
+import code.yousef.summon.runtime.CallbackRegistry
 import code.yousef.summon.runtime.PlatformRenderer
 import jakarta.ws.rs.GET
+import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
+import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
@@ -1253,10 +1350,10 @@ class SummonResource {
 
     @GET
     @Produces(MediaType.TEXT_HTML)
-    fun index(): String {
+    fun index(): Response {
         val renderer = PlatformRenderer()
-        val body = renderer.renderComposableRoot { App() }
-        return renderPage(body)
+        val body = injectAppBundle(renderer.renderComposableRootWithHydration { App() })
+        return Response.ok(body, MediaType.TEXT_HTML).build()
     }
 
     @GET
@@ -1270,27 +1367,68 @@ class SummonResource {
     }
 
     @GET
+    @Path("/summon-hydration.js")
+    @Produces("application/javascript")
+    fun hydrationJs(): Response = serveHydrationAsset("summon-hydration.js", "application/javascript")
+
+    @GET
+    @Path("/summon-hydration.wasm")
+    @Produces("application/wasm")
+    fun hydrationWasm(): Response = serveHydrationAsset("summon-hydration.wasm", "application/wasm")
+
+    @GET
+    @Path("/summon-hydration.wasm.js")
+    @Produces("application/javascript")
+    fun hydrationWasmJs(): Response = serveHydrationAsset("summon-hydration.wasm.js", "application/javascript")
+
+    @POST
+    @Path("/summon/callback/{callbackId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    fun invokeCallback(@PathParam("callbackId") callbackId: String): Response {
+        val executed = CallbackRegistry.executeCallback(callbackId)
+        val status = if (executed) Response.Status.OK else Response.Status.NOT_FOUND
+        val payload = if (executed) {
+            """ { "action":"reload", "status":"ok" }"""
+        } else {
+            """ { "action":"noop", "status":"missing" }"""
+        }
+        return Response.status(status).entity(payload).type(MediaType.APPLICATION_JSON).build()
+    }
+
+    @GET
     @Path("/health")
     @Produces(MediaType.TEXT_PLAIN)
     fun health(): String = "OK"
 }
 
-private fun renderPage(content: String): String = $tripleQuote
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>${variables["APP_TITLE"]}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-</head>
-<body>
-    <main id="${variables["ROOT_ELEMENT_ID"]}">
-        ${'$'}content
-    </main>
-    <script src="/static/app.js"></script>
-</body>
-</html>
-$tripleQuote.trimIndent()
+private fun injectAppBundle(document: String): String {
+    val marker = "</body>"
+    val scriptTag = "    <script src=\"/static/app.js\"></script>\n"
+    val index = document.lastIndexOf(marker)
+    return if (index != -1) {
+        buildString(document.length + scriptTag.length) {
+            append(document.substring(0, index))
+            append('\n')
+            append(scriptTag)
+            append(marker)
+            append(document.substring(index + marker.length))
+        }
+    } else {
+        document + "\n" + scriptTag
+    }
+}
+
+private fun serveHydrationAsset(name: String, mediaType: String): Response {
+    val locations = listOf("static/$name", "META-INF/resources/static/$name")
+    locations.forEach { path ->
+        val resource = SummonResource::class.java.classLoader.getResourceAsStream(path)
+        if (resource != null) {
+            val payload = resource.use { it.readBytes() }
+            return Response.ok(payload, mediaType).build()
+        }
+    }
+    return Response.status(Response.Status.NOT_FOUND).build()
+}
             """.trimIndent()
         )
     }

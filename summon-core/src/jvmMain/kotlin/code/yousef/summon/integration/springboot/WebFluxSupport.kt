@@ -1,32 +1,21 @@
 package code.yousef.summon.integration.springboot
 
 import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.CallbackRegistry
+import code.yousef.summon.routing.*
 import code.yousef.summon.runtime.PlatformRenderer
 import code.yousef.summon.runtime.clearPlatformRenderer
 import code.yousef.summon.runtime.setPlatformRenderer
-import code.yousef.summon.routing.DefaultPageRegistry
-import code.yousef.summon.routing.PageLoader
-import code.yousef.summon.routing.PageRegistry
-import code.yousef.summon.routing.RouterComponent
-import code.yousef.summon.routing.createFileBasedServerRouter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactor.asFlux
 import kotlinx.html.div
 import kotlinx.html.stream.appendHTML
 import org.reactivestreams.Publisher
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
-import org.springframework.web.reactive.function.server.HandlerFunction
-import org.springframework.web.reactive.function.server.RequestPredicates
-import org.springframework.web.reactive.function.server.RouterFunction
-import org.springframework.web.reactive.function.server.RouterFunctions
-import org.springframework.web.reactive.function.server.ServerRequest
-import org.springframework.web.reactive.function.server.ServerResponse
-import kotlin.LazyThreadSafetyMode
+import org.springframework.web.reactive.function.server.*
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 
 /**
  * Support for integrating Summon with Spring WebFlux for reactive rendering.
@@ -115,7 +104,6 @@ object WebFluxSupport {
 
             emit("\n</body>\n</html>")
         } finally {
-            CallbackRegistry.clear()
             clearPlatformRenderer()
         }
     }
@@ -176,7 +164,6 @@ object WebFluxSupport {
                 }
             }
         } finally {
-            CallbackRegistry.clear()
             clearPlatformRenderer()
         }
 
