@@ -1148,6 +1148,15 @@ fun Modifier.overflowY(value: String): Modifier =
 fun Modifier.visibility(value: String): Modifier =
     style("visibility", value)
 
+/**
+ * Type-safe overload for CSS visibility values.
+ *
+ * @param value Visibility enum (Visible, Hidden, Collapse)
+ * @return A new Modifier with visibility applied
+ */
+fun Modifier.visibility(value: Visibility): Modifier =
+    style("visibility", value.toString())
+
 // fontSize(String) removed - exists as member function in Modifier class
 
 // cursor(String) removed - exists as member function in Modifier class

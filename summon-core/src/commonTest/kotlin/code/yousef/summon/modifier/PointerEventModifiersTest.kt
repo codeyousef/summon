@@ -21,6 +21,12 @@ class PointerEventModifiersTest {
     }
 
     @Test
+    fun testPointerEventsEnumModifier() {
+        val modifier = Modifier().pointerEvents(PointerEvents.VisiblePainted)
+        assertEquals("visiblePainted", modifier.styles["pointer-events"])
+    }
+
+    @Test
     fun testOnClickModifier() {
         val handlerCode = "alert('Clicked!')"
         val modifier = Modifier().onClick(handlerCode)

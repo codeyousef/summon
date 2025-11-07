@@ -1,158 +1,136 @@
 package code.yousef.summon.modifier
 
-/**
- * Provides layout-related extension functions for the Modifier class,
- * organized in a way that allows for explicit imports
- * to resolve ambiguity issues.
- */
+@Deprecated(
+    message = "LayoutModifierExtras is kept for backwards compatibility only. Import LayoutModifiers.* instead."
+)
 object LayoutModifierExtras {
-    /**
-     * Sets the max-width property of the element.
-     * @param value The CSS max-width value (e.g., "100%", "300px", etc.)
-     * @return A new Modifier with the added style
-     */
-    // Shadowed by member function - use the member function instead
-    // fun Modifier.maxWidth(value: String): Modifier =
-    //     style("max-width", value)
-
-    /**
-     * Sets the width property of the element.
-     * @param value The CSS width value (e.g., "100%", "300px", etc.)
-     * @return A new Modifier with the added style
-     */
-    // Shadowed by member function - use the member function instead
-    // fun Modifier.width(value: String): Modifier =
-    //     style("width", value)
-
-    /**
-     * Sets the height property of the element.
-     * @param value The CSS height value (e.g., "100%", "300px", etc.)
-     * @return A new Modifier with the added style
-     */
-    // Shadowed by member function - use the member function instead
-    // fun Modifier.height(value: String): Modifier =
-    //     style("height", value)
-
-    /**
-     * Sets the position property of the element.
-     * @param value The CSS position value (e.g., "relative", "absolute", etc.)
-     * @return A new Modifier with the added style
-     */
+    @Deprecated(
+        message = "Use LayoutModifiers.position instead.",
+        replaceWith = ReplaceWith(
+            expression = "this.position(value)",
+            imports = ["code.yousef.summon.modifier.LayoutModifiers.position"]
+        )
+    )
     fun Modifier.position(value: String): Modifier =
-        style("position", value)
+        LayoutModifiers.run { this@position.position(value) }
 
-    /**
-     * Sets the top property of the element.
-     * @param value The CSS top value (e.g., "0", "10px", etc.)
-     * @return A new Modifier with the added style
-     */
+    @Deprecated(
+        message = "Use LayoutModifiers.top instead.",
+        replaceWith = ReplaceWith(
+            expression = "this.top(value)",
+            imports = ["code.yousef.summon.modifier.LayoutModifiers.top"]
+        )
+    )
     fun Modifier.top(value: String): Modifier =
-        style("top", value)
+        LayoutModifiers.run { this@top.top(value) }
 
-    /**
-     * Sets the right property of the element.
-     * @param value The CSS right value (e.g., "0", "10px", etc.)
-     * @return A new Modifier with the added style
-     */
+    @Deprecated(
+        message = "Use LayoutModifiers.right instead.",
+        replaceWith = ReplaceWith(
+            expression = "this.right(value)",
+            imports = ["code.yousef.summon.modifier.LayoutModifiers.right"]
+        )
+    )
     fun Modifier.right(value: String): Modifier =
-        style("right", value)
+        LayoutModifiers.run { this@right.right(value) }
 
-    /**
-     * Sets the bottom property of the element.
-     * @param value The CSS bottom value (e.g., "0", "10px", etc.)
-     * @return A new Modifier with the added style
-     */
+    @Deprecated(
+        message = "Use LayoutModifiers.bottom instead.",
+        replaceWith = ReplaceWith(
+            expression = "this.bottom(value)",
+            imports = ["code.yousef.summon.modifier.LayoutModifiers.bottom"]
+        )
+    )
     fun Modifier.bottom(value: String): Modifier =
-        style("bottom", value)
+        LayoutModifiers.run { this@bottom.bottom(value) }
 
-    /**
-     * Sets the left property of the element.
-     * @param value The CSS left value (e.g., "0", "10px", etc.)
-     * @return A new Modifier with the added style
-     */
+    @Deprecated(
+        message = "Use LayoutModifiers.left instead.",
+        replaceWith = ReplaceWith(
+            expression = "this.left(value)",
+            imports = ["code.yousef.summon.modifier.LayoutModifiers.left"]
+        )
+    )
     fun Modifier.left(value: String): Modifier =
-        style("left", value)
+        LayoutModifiers.run { this@left.left(value) }
 
-    /**
-     * Sets the flex property of the element.
-     * @param value The CSS flex value (e.g., "1", "1 1 auto", etc.)
-     * @return A new Modifier with the added style
-     */
+    @Deprecated(
+        message = "Use LayoutModifiers.flex instead.",
+        replaceWith = ReplaceWith(
+            expression = "this.flex(value)",
+            imports = ["code.yousef.summon.modifier.LayoutModifiers.flex"]
+        )
+    )
     fun Modifier.flex(value: String): Modifier =
-        style("flex", value)
+        LayoutModifiers.run { this@flex.flex(value) }
 
-    /**
-     * Sets the flex-direction property of the element.
-     * @param value The CSS flex-direction value (e.g., "row", "column", etc.)
-     * @return A new Modifier with the added style
-     */
+    @Deprecated(
+        message = "Use LayoutModifiers.flexDirection instead.",
+        replaceWith = ReplaceWith(
+            expression = "this.flexDirection(value)",
+            imports = ["code.yousef.summon.modifier.LayoutModifiers.flexDirection"]
+        )
+    )
     fun Modifier.flexDirection(value: String): Modifier =
-        style("flex-direction", value)
+        LayoutModifiers.run { this@flexDirection.flexDirection(value) }
 
-    /**
-     * Sets the display property of the element.
-     * @param value The CSS display value (e.g., "flex", "block", etc.)
-     * @return A new Modifier with the added style
-     */
+    @Deprecated(
+        message = "Use LayoutModifiers.display instead.",
+        replaceWith = ReplaceWith(
+            expression = "this.display(value)",
+            imports = ["code.yousef.summon.modifier.LayoutModifiers.display"]
+        )
+    )
     fun Modifier.display(value: String): Modifier =
-        style("display", value)
+        LayoutModifiers.run { this@display.display(value) }
 
-    /**
-     * Sets the grid-template-columns property of the element.
-     * @param value The CSS grid-template-columns value (e.g., "1fr 1fr", "repeat(3, 1fr)", etc.)
-     * @return A new Modifier with the added style
-     */
+    @Deprecated(
+        message = "Use LayoutModifiers.gridTemplateColumns instead.",
+        replaceWith = ReplaceWith(
+            expression = "this.gridTemplateColumns(value)",
+            imports = ["code.yousef.summon.modifier.LayoutModifiers.gridTemplateColumns"]
+        )
+    )
     fun Modifier.gridTemplateColumns(value: String): Modifier =
-        style("grid-template-columns", value)
+        LayoutModifiers.run { this@gridTemplateColumns.gridTemplateColumns(value) }
 
-    /**
-     * Sets the grid-column-gap property of the element.
-     * @param value The CSS grid-column-gap value (e.g., "10px", "1rem", etc.)
-     * @return A new Modifier with the added style
-     */
+    @Deprecated(
+        message = "Use LayoutModifiers.gridColumnGap instead.",
+        replaceWith = ReplaceWith(
+            expression = "this.gridColumnGap(value)",
+            imports = ["code.yousef.summon.modifier.LayoutModifiers.gridColumnGap"]
+        )
+    )
     fun Modifier.gridColumnGap(value: String): Modifier =
-        style("grid-column-gap", value)
+        LayoutModifiers.run { this@gridColumnGap.gridColumnGap(value) }
 
-    /**
-     * Sets the grid-row-gap property of the element.
-     * @param value The CSS grid-row-gap value (e.g., "10px", "1rem", etc.)
-     * @return A new Modifier with the added style
-     */
+    @Deprecated(
+        message = "Use LayoutModifiers.gridRowGap instead.",
+        replaceWith = ReplaceWith(
+            expression = "this.gridRowGap(value)",
+            imports = ["code.yousef.summon.modifier.LayoutModifiers.gridRowGap"]
+        )
+    )
     fun Modifier.gridRowGap(value: String): Modifier =
-        style("grid-row-gap", value)
+        LayoutModifiers.run { this@gridRowGap.gridRowGap(value) }
 
-    /**
-     * Sets the overflow property of the element.
-     * @param value The CSS overflow value (e.g., "hidden", "auto", etc.)
-     * @return A new Modifier with the added style
-     */
+    @Deprecated(
+        message = "Use LayoutModifiers.overflow instead.",
+        replaceWith = ReplaceWith(
+            expression = "this.overflow(value)",
+            imports = ["code.yousef.summon.modifier.LayoutModifiers.overflow"]
+        )
+    )
     fun Modifier.overflow(value: String): Modifier =
-        style("overflow", value)
+        LayoutModifiers.run { this@overflow.overflow(value) }
 
-
-    /**
-     * Sets the border-radius property of the element.
-     * @param value The CSS border-radius value (e.g., "4px", "50%", etc.)
-     * @return A new Modifier with the added style
-     */
-    // Shadowed by member function - use the member function instead
-    // fun Modifier.borderRadius(value: String): Modifier =
-    //     style("border-radius", value)
-
-    /**
-     * Sets the font-weight property of the element.
-     * @param value The CSS font-weight value (e.g., "bold", "400", etc.)
-     * @return A new Modifier with the added style
-     */
+    @Deprecated(
+        message = "Use LayoutModifiers.fontWeight instead.",
+        replaceWith = ReplaceWith(
+            expression = "this.fontWeight(value)",
+            imports = ["code.yousef.summon.modifier.LayoutModifiers.fontWeight"]
+        )
+    )
     fun Modifier.fontWeight(value: String): Modifier =
-        style("font-weight", value)
-
-    /**
-     * Sets the color property of the element.
-     * @param value The CSS color value (e.g., "red", "#ff0000", etc.)
-     * @return A new Modifier with the added style
-     */
-    // Shadowed by member function - use the member function instead
-    // fun Modifier.color(value: String): Modifier =
-    //     style("color", value)
-} 
+        LayoutModifiers.run { this@fontWeight.fontWeight(value) }
+}

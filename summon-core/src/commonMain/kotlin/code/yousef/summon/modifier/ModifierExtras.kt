@@ -40,6 +40,14 @@ object ModifierExtras {
         style("pointer-events", value)
 
     /**
+     * Sets the pointer-events property of the element using type-safe values.
+     * @param value The PointerEvents enum value
+     * @return A new Modifier with the added style
+     */
+    fun Modifier.pointerEvents(value: PointerEvents): Modifier =
+        style("pointer-events", value.toString())
+
+    /**
      * Gets an attribute value or null if not present
      * @param name The attribute name
      * @return The attribute value or null if not found

@@ -25,6 +25,13 @@ fun Modifier.fontStyle(value: String, component: TextComponent? = null): Modifie
     style("font-style", value)
 
 /**
+ * Sets the font style using the FontStyle enum.
+ * Only applicable to text components.
+ */
+fun Modifier.fontStyle(value: FontStyle, component: TextComponent? = null): Modifier =
+    style("font-style", value.toString())
+
+/**
  * Sets the font weight (normal, bold, etc).
  * Only applicable to text components.
  */

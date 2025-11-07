@@ -23,6 +23,12 @@ class TypedModifiersTest {
     }
 
     @Test
+    fun testFontStyleEnum() {
+        val modifier = Modifier().fontStyle(FontStyle.Oblique)
+        assertEquals("oblique", modifier.styles["font-style"])
+    }
+
+    @Test
     fun testFontWeight() {
         val value = "bold"
         val modifier = Modifier().fontWeight(value)

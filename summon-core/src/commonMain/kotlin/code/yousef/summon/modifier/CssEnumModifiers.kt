@@ -1,10 +1,11 @@
 package code.yousef.summon.modifier
 
-import code.yousef.summon.modifier.LayoutModifierExtras.display
-import code.yousef.summon.modifier.LayoutModifierExtras.overflow
-import code.yousef.summon.modifier.LayoutModifierExtras.position
 import code.yousef.summon.modifier.LayoutModifiers.alignItems
+import code.yousef.summon.modifier.LayoutModifiers.display
+import code.yousef.summon.modifier.LayoutModifiers.flexDirection
 import code.yousef.summon.modifier.LayoutModifiers.justifyContent
+import code.yousef.summon.modifier.LayoutModifiers.overflow
+import code.yousef.summon.modifier.LayoutModifiers.position
 
 /**
  * Sets the position property of the element using a Position enum value.
@@ -71,3 +72,9 @@ fun Modifier.alignSelf(value: AlignSelf): Modifier = alignSelf(value.toString())
  * @param value The CSS align-content value as an AlignContent enum
  */
 fun Modifier.alignContent(value: AlignContent): Modifier = alignContent(value.toString())
+
+/**
+ * Sets the flex-direction property of the element using a FlexDirection enum value.
+ * @param value The CSS flex-direction value as a FlexDirection enum
+ */
+fun Modifier.flexDirection(value: FlexDirection): Modifier = flexDirection(value.toString())

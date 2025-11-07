@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.2.3] - 2025-11-07
+
+### Added
+
+- Introduced type-safe enums for `PointerEvents`, `Visibility`, and `FontStyle`, along with overloaded modifier
+  extensions (`pointerEvents`, `visibility`, `fontStyle`) so callers get autocompletion instead of memorizing strings.
+- Expanded the pointer-event helpers (`disablePointerEvents`, `enablePointerEvents`) and text modifiers to consume the
+  new enums, plus test coverage to lock in the behavior.
+
+### Fixed
+
+- `Modifier.flexDirection` (and the DSL variants) now accept the existing `FlexDirection` enum, eliminating the need to
+  pass raw CSS strings for flex layouts.
+
 ## [0.4.2.2] - 2025-11-04
 
 ### Added

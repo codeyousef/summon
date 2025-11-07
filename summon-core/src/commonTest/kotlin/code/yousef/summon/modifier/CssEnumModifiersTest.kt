@@ -2,10 +2,6 @@ package code.yousef.summon.modifier
 
 // Import the specific extension functions if needed, or rely on package import
 // Import Enums used
-import code.yousef.summon.modifier.Position
-import code.yousef.summon.modifier.Display
-import code.yousef.summon.modifier.AlignItems
-import code.yousef.summon.modifier.JustifyContent
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -58,5 +54,19 @@ class CssEnumModifiersTest {
         assertEquals(expectedValue, modified.styles["justify-content"], "JustifyContent enum modifier failed.")
     }
 
-    // Add more tests for other enum modifiers if desired, following the same pattern.
-} 
+    @Test
+    fun testFlexDirectionEnumModifier() {
+        val modifier = Modifier()
+        val modified = modifier.flexDirection(FlexDirection.ColumnReverse)
+
+        assertEquals(FlexDirection.ColumnReverse.toString(), modified.styles["flex-direction"])
+    }
+
+    @Test
+    fun testVisibilityEnumModifier() {
+        val modifier = Modifier()
+        val modified = modifier.visibility(Visibility.Hidden)
+
+        assertEquals(Visibility.Hidden.toString(), modified.styles["visibility"])
+    }
+}

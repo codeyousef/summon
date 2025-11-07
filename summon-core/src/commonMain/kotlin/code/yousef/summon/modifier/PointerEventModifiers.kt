@@ -178,24 +178,31 @@
  */
 package code.yousef.summon.modifier
 
-import code.yousef.summon.modifier.ModifierExtras.pointerEvents
-
 /**
  * Makes the element ignore all pointer events (clicks, touches, hovers).
  * Events will pass through to elements behind this one.
  * 
  * @return A new [Modifier] with pointer-events: none
  */
-fun Modifier.disablePointerEvents(): Modifier = 
-    pointerEvents("none")
+fun Modifier.disablePointerEvents(): Modifier =
+    pointerEvents(PointerEvents.None)
 
 /**
  * Enables pointer events on the element (default behavior).
  * 
  * @return A new [Modifier] with pointer-events: auto
  */
-fun Modifier.enablePointerEvents(): Modifier = 
-    pointerEvents("auto")
+fun Modifier.enablePointerEvents(): Modifier =
+    pointerEvents(PointerEvents.Auto)
+
+/**
+ * Sets the CSS pointer-events property using type-safe enum values.
+ *
+ * @param value PointerEvents enum describing the desired behavior
+ * @return A new [Modifier] with pointer-events applied
+ */
+fun Modifier.pointerEvents(value: PointerEvents): Modifier =
+    style("pointer-events", value.toString())
 
 /**
  * Adds a click event listener to the element.

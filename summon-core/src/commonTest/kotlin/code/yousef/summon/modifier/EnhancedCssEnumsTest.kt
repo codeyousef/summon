@@ -156,4 +156,38 @@ class EnhancedCssEnumsTest {
         assertEquals("zoom-in", Cursor.ZoomIn.toString())
         assertEquals("zoom-out", Cursor.ZoomOut.toString())
     }
+
+    // --- Visibility Tests ---
+
+    @Test
+    fun testVisibilityEnumValues() {
+        assertEquals("visible", Visibility.Visible.toString())
+        assertEquals("hidden", Visibility.Hidden.toString())
+        assertEquals("collapse", Visibility.Collapse.toString())
+    }
+
+    // --- PointerEvents Tests ---
+
+    @Test
+    fun testPointerEventsEnumValues() {
+        assertEquals("auto", PointerEvents.Auto.toString())
+        assertEquals("none", PointerEvents.None.toString())
+        assertEquals("visiblePainted", PointerEvents.VisiblePainted.toString())
+        assertEquals("visibleFill", PointerEvents.VisibleFill.toString())
+        assertEquals("visibleStroke", PointerEvents.VisibleStroke.toString())
+        assertEquals("visible", PointerEvents.Visible.toString())
+        assertEquals("painted", PointerEvents.Painted.toString())
+        assertEquals("fill", PointerEvents.Fill.toString())
+        assertEquals("stroke", PointerEvents.Stroke.toString())
+        assertEquals("all", PointerEvents.All.toString())
+    }
+
+    // --- FontStyle Tests ---
+
+    @Test
+    fun testFontStyleEnumValues() {
+        assertEquals("normal", FontStyle.Normal.toString())
+        assertEquals("italic", FontStyle.Italic.toString())
+        assertEquals("oblique", FontStyle.Oblique.toString())
+    }
 }

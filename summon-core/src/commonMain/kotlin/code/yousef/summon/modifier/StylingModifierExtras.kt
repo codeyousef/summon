@@ -1,26 +1,36 @@
 package code.yousef.summon.modifier
 
-/**
- * Provides styling-related extension functions for the Modifier class,
- * organized in a way that allows for explicit imports
- * to resolve ambiguity issues.
- */
+@Deprecated(
+    message = "StylingModifierExtras is kept for backwards compatibility only. Import StylingModifiers.* instead."
+)
 object StylingModifierExtras {
-    /**
-     * Sets the font-style property of the element.
-     */
+    @Deprecated(
+        message = "Use StylingModifiers.fontStyle instead.",
+        replaceWith = ReplaceWith(
+            expression = "this.fontStyle(value)",
+            imports = ["code.yousef.summon.modifier.StylingModifiers.fontStyle"]
+        )
+    )
     fun Modifier.fontStyle(value: String): Modifier =
-        style("font-style", value)
+        StylingModifiers.run { this@fontStyle.fontStyle(value) }
 
-    /**
-     * Sets the text-decoration property of the element.
-     */
+    @Deprecated(
+        message = "Use StylingModifiers.textDecoration instead.",
+        replaceWith = ReplaceWith(
+            expression = "this.textDecoration(value)",
+            imports = ["code.yousef.summon.modifier.StylingModifiers.textDecoration"]
+        )
+    )
     fun Modifier.textDecoration(value: String): Modifier =
-        style("text-decoration", value)
+        StylingModifiers.run { this@textDecoration.textDecoration(value) }
 
-    /**
-     * Sets the transform property of the element.
-     */
+    @Deprecated(
+        message = "Use StylingModifiers.transform instead.",
+        replaceWith = ReplaceWith(
+            expression = "this.transform(value)",
+            imports = ["code.yousef.summon.modifier.StylingModifiers.transform"]
+        )
+    )
     fun Modifier.transform(value: String): Modifier =
-        style("transform", value)
-} 
+        StylingModifiers.run { this@transform.transform(value) }
+}

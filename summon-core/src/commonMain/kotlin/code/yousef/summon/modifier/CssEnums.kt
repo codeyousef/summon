@@ -195,6 +195,17 @@ enum class Display(val value: String) {
 }
 
 /**
+ * CSS visibility values.
+ */
+enum class Visibility(val value: String) {
+    Visible("visible"),
+    Hidden("hidden"),
+    Collapse("collapse");
+
+    override fun toString(): String = value
+}
+
+/**
  * CSS justify-content values.
  */
 enum class JustifyContent(val value: String) {
@@ -285,6 +296,17 @@ enum class FontWeight(val value: String) {
          */
         fun fromValue(weight: Int): FontWeight? = values().find { it.value == weight.toString() }
     }
+}
+
+/**
+ * CSS font-style values.
+ */
+enum class FontStyle(val value: String) {
+    Normal("normal"),
+    Italic("italic"),
+    Oblique("oblique");
+
+    override fun toString(): String = value
 }
 
 /**
@@ -395,6 +417,24 @@ enum class Cursor(val value: String) {
     NwseResize("nwse-resize"),
     ZoomIn("zoom-in"),
     ZoomOut("zoom-out");
+
+    override fun toString(): String = value
+}
+
+/**
+ * CSS pointer-events values.
+ */
+enum class PointerEvents(val value: String) {
+    Auto("auto"),
+    None("none"),
+    VisiblePainted("visiblePainted"),
+    VisibleFill("visibleFill"),
+    VisibleStroke("visibleStroke"),
+    Visible("visible"),
+    Painted("painted"),
+    Fill("fill"),
+    Stroke("stroke"),
+    All("all");
 
     override fun toString(): String = value
 }

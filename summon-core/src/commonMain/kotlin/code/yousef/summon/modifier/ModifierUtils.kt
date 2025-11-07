@@ -87,6 +87,11 @@ object LayoutModifiers {
     fun Modifier.flexDirection(value: String): Modifier = style("flex-direction", value)
 
     /**
+     * Sets the flex direction using the FlexDirection enum.
+     */
+    fun Modifier.flexDirection(value: FlexDirection): Modifier = style("flex-direction", value.toString())
+
+    /**
      * Sets the flex wrap property.
      */
     fun Modifier.flexWrap(value: String): Modifier = style("flex-wrap", value)
@@ -188,6 +193,11 @@ object StylingModifiers {
     fun Modifier.fontStyle(value: String): Modifier = style("font-style", value)
 
     /**
+     * Sets the font-style property using the FontStyle enum.
+     */
+    fun Modifier.fontStyle(value: FontStyle): Modifier = style("font-style", value.toString())
+
+    /**
      * Sets the line-height property.
      */
     fun Modifier.lineHeight(value: Number): Modifier = style("line-height", value.toString())
@@ -231,6 +241,11 @@ object EventModifiers {
      * Sets the pointer-events property.
      */
     fun Modifier.pointerEvents(value: String): Modifier = style("pointer-events", value)
+
+    /**
+     * Sets the pointer-events property using the PointerEvents enum.
+     */
+    fun Modifier.pointerEvents(value: PointerEvents): Modifier = style("pointer-events", value.toString())
 }
 
 /**
