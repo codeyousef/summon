@@ -575,7 +575,7 @@ actual open class PlatformRenderer {
         val rootElement = document.createElement("div")
         rootElement.setAttribute("data-summon-hydration", "root")
         rootElement.setAttribute("data-summon-renderer", "js")
-        rootElement.setAttribute("data-summon-version", js("globalThis.SUMMON_VERSION") ?: "0.4.5.1")
+        rootElement.setAttribute("data-summon-version", js("globalThis.SUMMON_VERSION") ?: "0.4.6.0")
 
         elementStack.withElement(rootElement) {
             composable()
@@ -1203,7 +1203,8 @@ actual open class PlatformRenderer {
         title: String?,
         ariaLabel: String?,
         ariaDescribedBy: String?,
-        modifier: Modifier
+        modifier: Modifier,
+        fallbackText: String?
     ) {
         createElement("a", modifier, { element ->
             element.setAttribute("href", href)

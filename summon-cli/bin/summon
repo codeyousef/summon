@@ -2,7 +2,7 @@
 # Summon CLI launcher script for Unix/Linux/macOS
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-JAR_FILE="$SCRIPT_DIR/../build/libs/summon-cli-0.4.5.1.jar"
+JAR_FILE="$SCRIPT_DIR/../build/libs/summon-cli-0.4.6.0.jar"
 
 if [ -f "$JAR_FILE" ]; then
     exec java -jar "$JAR_FILE" "$@"

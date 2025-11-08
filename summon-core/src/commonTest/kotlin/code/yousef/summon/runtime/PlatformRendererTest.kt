@@ -227,7 +227,8 @@ class PlatformRendererTest {
             title: String?,
             ariaLabel: String?,
             ariaDescribedBy: String?,
-            modifier: Modifier
+            modifier: Modifier,
+            fallbackText: String?
         ) {
         }
 

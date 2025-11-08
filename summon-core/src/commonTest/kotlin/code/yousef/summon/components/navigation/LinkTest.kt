@@ -81,6 +81,7 @@ class LinkTest {
         var renderEnhancedLinkCalled = false
         var renderTextCallCount = 0
         var lastRenderedText: String? = null
+        var lastFallbackText: String? = null
 
         // Implement renderEnhancedLink
         override fun renderEnhancedLink(
@@ -89,7 +90,8 @@ class LinkTest {
             title: String?,
             ariaLabel: String?,
             ariaDescribedBy: String?,
-            modifier: Modifier
+            modifier: Modifier,
+            fallbackText: String?
         ) {
             renderEnhancedLinkCalled = true
             lastHref = href
@@ -98,6 +100,7 @@ class LinkTest {
             lastAriaLabel = ariaLabel
             lastAriaDescribedBy = ariaDescribedBy
             lastModifier = modifier
+            lastFallbackText = fallbackText
         }
 
         // --- Add No-Op implementations for ALL PlatformRenderer methods ---
@@ -337,6 +340,50 @@ class LinkTest {
         assertNull(renderer.lastAriaDescribedBy)
         assertNotNull(renderer.lastModifier)
         assertEquals(null, renderer.lastModifier?.attributes?.get("rel"))
+    }
+
+    @Test
+    fun linkSuppressesFallbackTextByDefault() {
+        val renderer = MockLinkRenderer()
+        runComposableTest(renderer) {
+            Link(href = "/docs") {
+                Text("Docs")
+            }
+        }
+
+        assertNull(renderer.lastFallbackText)
+    }
+
+    @Test
+    fun linkAllowsExplicitFallbackText() {
+        val renderer = MockLinkRenderer()
+        runComposableTest(renderer) {
+            Link(
+                href = "/about",
+                fallbackText = "About Summon"
+            ) {
+                Text("About Summon")
+            }
+        }
+
+        assertEquals("About Summon", renderer.lastFallbackText)
+    }
+
+    @Test
+    fun clientNavigationModeOverwritesHrefAndSetsDataHref() {
+        val renderer = MockLinkRenderer()
+        runComposableTest(renderer) {
+            Link(
+                href = "#features",
+                navigationMode = LinkNavigationMode.Client
+            ) {
+                Text("Read more")
+            }
+        }
+
+        assertEquals("#", renderer.lastHref)
+        val modifier = renderer.lastModifier ?: error("Modifier should be recorded")
+        assertEquals("#features", modifier.attributes["data-href"])
     }
 
     @Test
@@ -664,6 +711,24 @@ class LinkTest {
         val modifier = renderer.lastModifier!!
         assertEquals("/docs#getting-started", modifier.attributes["data-href"])
         assertEquals("docs", modifier.attributes["data-copy"])
+    }
+
+    @Test
+    fun clientNavigationPrefersExplicitDataHref() {
+        val renderer = MockLinkRenderer()
+        runComposableTest(renderer) {
+            Link(
+                href = "#faq",
+                navigationMode = LinkNavigationMode.Client,
+                dataHref = "/docs#faq"
+            ) {
+                Text("FAQ")
+            }
+        }
+
+        val modifier = renderer.lastModifier!!
+        assertEquals("/docs#faq", modifier.attributes["data-href"])
+        assertEquals("#", renderer.lastHref)
     }
 
     @Test

@@ -463,7 +463,8 @@ expect open class PlatformRenderer() {
         title: String? = null,
         ariaLabel: String? = null,
         ariaDescribedBy: String? = null,
-        modifier: Modifier = Modifier()
+        modifier: Modifier = Modifier(),
+        fallbackText: String? = null
     )
 
     /** Renders a canvas element */

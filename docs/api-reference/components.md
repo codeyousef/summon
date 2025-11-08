@@ -576,18 +576,39 @@ Components for navigation and routing.
 
 ### Link
 
-Navigation links with routing support.
+Navigation links with routing + hydration support.
 
 ```kotlin
 @Composable
 fun Link(
     href: String,
     modifier: Modifier = Modifier(),
-    external: Boolean = false,
     target: String? = null,
+    rel: String? = null,
+    title: String? = null,
+    isExternal: Boolean = false,
+    isNoFollow: Boolean = false,
+    ariaLabel: String? = null,
+    ariaDescribedBy: String? = null,
+    id: String? = null,
+    dataHref: String? = null,
+    dataAttributes: Map<String, String> = emptyMap(),
+    navigationMode: LinkNavigationMode = LinkNavigationMode.Native,
+    fallbackText: String? = null,
     content: @Composable () -> Unit
 )
+
+enum class LinkNavigationMode {
+    Native,
+    Client
+}
 ```
+
+- `navigationMode = LinkNavigationMode.Client` rewrites the rendered `href` to `#` and mirrors the original path into
+  `data-href`, which the hydration runtime (and existing Aurora scripts) already watches for smooth client-side scrolls.
+- `fallbackText` lets you intentionally inject server-rendered copy for non-hydrated environments; when `null`, Summon
+  no
+  longer mirrors the original `href` as fallback text, so custom children render without duplicate labels.
 
 ### TabLayout
 

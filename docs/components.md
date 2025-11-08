@@ -116,17 +116,33 @@ fun CheckboxExample(): String {
 
 ### Link
 
-The `Link` component creates hyperlinks.
+`Link` renders accessible anchors that participate in Summon's routing + hydration lifecycle. It accepts custom child
+content (text, icons, layouts) and now exposes two hydration-friendly knobs:
+
+- `navigationMode = LinkNavigationMode.Client` – prevents the browser from following the raw hash while keeping the
+  desired target in `data-href` for Summon's runtime to interpret (ideal for smooth-scrolling section jumps).
+- `fallbackText` – optional server-rendered text for environments that can't hydrate (e.g., email clients). When left
+  `null`, the raw `href` is no longer echoed as fallback content, so you won't see duplicated `/path` labels.
 
 ```kotlin
 Link(
-    text = "Visit our website",
-    href = "https://example.com",
-    target = "_blank",
+    href = "#pricing",
+    navigationMode = LinkNavigationMode.Client,
     modifier = Modifier()
         .color("#0077cc")
-        .textDecoration(TextDecoration.Underline)
-)
+        .textDecoration(TextDecoration.None)
+) {
+    Text("See pricing")
+}
+
+Link(
+    href = "https://example.com/download",
+    target = "_blank",
+    fallbackText = "Download specs"
+) {
+    Icon(Icons.Download)
+    Text("Download specs")
+}
 ```
 
 ## Layout Components

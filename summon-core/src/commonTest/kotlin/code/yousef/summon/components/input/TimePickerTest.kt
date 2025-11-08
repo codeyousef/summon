@@ -101,7 +101,16 @@ class MockTimePickerRenderer : MockPlatformRenderer() {
     override fun renderCard(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {}
     override fun renderLink(href: String, modifier: Modifier) {}
     override fun renderLink(modifier: Modifier, href: String, content: @Composable () -> Unit) {}
-    override fun renderEnhancedLink(href: String, target: String?, title: String?, ariaLabel: String?, ariaDescribedBy: String?, modifier: Modifier) {}
+    override fun renderEnhancedLink(
+        href: String,
+        target: String?,
+        title: String?,
+        ariaLabel: String?,
+        ariaDescribedBy: String?,
+        modifier: Modifier,
+        fallbackText: String?
+    ) {
+    }
     override fun renderTabLayout(tabs: List<Tab>, selectedTabIndex: Int, onTabSelected: (Int) -> Unit, modifier: Modifier) {}
     override fun renderTabLayout(modifier: Modifier, content: @Composable (() -> Unit)) {}
     override fun renderTabLayout(tabs: List<String>, selectedTab: String, onTabSelected: (String) -> Unit, modifier: Modifier, content: () -> Unit) {}

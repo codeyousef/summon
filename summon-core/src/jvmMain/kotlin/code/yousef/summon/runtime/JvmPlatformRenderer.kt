@@ -2101,7 +2101,8 @@ actual open class PlatformRenderer {
         title: String?,
         ariaLabel: String?,
         ariaDescribedBy: String?,
-        modifier: Modifier
+        modifier: Modifier,
+        fallbackText: String?
     ) {
         requireBuilder().a(href = href) {
             applyModifier(modifier)
@@ -2109,7 +2110,9 @@ actual open class PlatformRenderer {
             if (title != null) this.title = title
             if (ariaLabel != null) attributes["aria-label"] = ariaLabel
             if (ariaDescribedBy != null) attributes["aria-describedby"] = ariaDescribedBy
-            +href
+            if (!fallbackText.isNullOrBlank()) {
+                +fallbackText
+            }
         }
     }
 
