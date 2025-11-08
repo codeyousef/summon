@@ -189,11 +189,11 @@ The Summon CLI helps you quickly scaffold new projects and generate components.
 Download the latest JAR from [GitHub Releases](https://github.com/codeyousef/summon/releases):
 
 ```bash
-# Download summon-cli-0.4.3.0.jar
+# Download summon-cli-0.4.4.0.jar
 
 # Run commands directly
-java -jar summon-cli-0.4.3.0.jar init my-app
-java -jar summon-cli-0.4.3.0.jar --help
+java -jar summon-cli-0.4.4.0.jar init my-app
+java -jar summon-cli-0.4.4.0.jar --help
 ```
 
 #### Option 2: Build from Source
@@ -202,18 +202,18 @@ java -jar summon-cli-0.4.3.0.jar --help
 git clone https://github.com/codeyousef/summon.git
 cd summon
 ./gradlew :summon-cli:shadowJar
-java -jar summon-cli/build/libs/summon-cli-0.4.3.0.jar init my-app
+java -jar summon-cli/build/libs/summon-cli-0.4.4.0.jar init my-app
 ```
 
 #### Quick Start
 
 ```bash
 # Let Summon CLI prompt for stack + backend
-java -jar summon-cli-0.4.3.0.jar init portal
+java -jar summon-cli-0.4.4.0.jar init portal
 
 # Or skip the prompts entirely
-java -jar summon-cli-0.4.3.0.jar init landing --mode=standalone --here
-java -jar summon-cli-0.4.3.0.jar init portal --mode=fullstack --backend=ktor
+java -jar summon-cli-0.4.4.0.jar init landing --mode=standalone --here
+java -jar summon-cli-0.4.4.0.jar init portal --mode=fullstack --backend=ktor
 
 # After generation (examples)
 cd portal
@@ -244,16 +244,16 @@ repositories {
 
 dependencies {
     // For JVM projects (Ktor, Spring Boot, Quarkus)
-  implementation("io.github.codeyousef:summon-jvm:0.4.3.0")
+  implementation("io.github.codeyousef:summon-jvm:0.4.4.0")
 
     // For JavaScript/Browser projects
-  implementation("io.github.codeyousef:summon-js:0.4.3.0")
+  implementation("io.github.codeyousef:summon-js:0.4.4.0")
 
     // For WebAssembly projects
-  implementation("io.github.codeyousef:summon-wasm-js:0.4.3.0")
+  implementation("io.github.codeyousef:summon-wasm-js:0.4.4.0")
 
     // For Kotlin Multiplatform projects (includes all targets)
-  implementation("io.github.codeyousef:summon:0.4.3.0")
+  implementation("io.github.codeyousef:summon:0.4.4.0")
 }
 ```
 
@@ -276,7 +276,7 @@ Create a new project with the Summon CLI, then enable the WASM target using the 
 
 ```bash
 # Download the CLI JAR from releases first, then run:
-java -jar summon-cli-0.4.3.0.jar init my-wasm-app --mode=standalone
+java -jar summon-cli-0.4.4.0.jar init my-wasm-app --mode=standalone
 ```
 
 ### Basic WASM Application
@@ -353,7 +353,7 @@ kotlin {
 }
 
 dependencies {
-  implementation("io.github.codeyousef:summon-wasm-js:0.4.3.0")
+  implementation("io.github.codeyousef:summon-wasm-js:0.4.4.0")
 }
 ```
 
