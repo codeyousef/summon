@@ -67,6 +67,18 @@ fun Modifier.background(
     .style("background-size", size)
     .style("background-repeat", repeat)
 
+/**
+ * Sets `background-clip: text` and, by default, the WebKit-prefixed variant
+ * so gradient text works across browsers.
+ */
+fun Modifier.backgroundClipText(includeWebkitPrefix: Boolean = true): Modifier {
+    var updated = backgroundClip(BackgroundClip.Text)
+    if (includeWebkitPrefix) {
+        updated = updated.style("-webkit-background-clip", "text")
+    }
+    return updated
+}
+
 
 fun Modifier.radialGradient(
     shape: String = "circle",

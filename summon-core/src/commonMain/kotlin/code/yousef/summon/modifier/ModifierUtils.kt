@@ -299,6 +299,12 @@ object AttributeModifiers {
      */
     fun Modifier.getAttribute(name: String): String? =
         attributes[name]
+
+    /**
+     * Sets the HTML button type attribute (`type="button|submit|reset"`).
+     */
+    fun Modifier.buttonType(value: ButtonType): Modifier =
+        attribute("type", value.value)
 }
 
 // Add additional semantic aliases for common usage patterns

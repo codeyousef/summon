@@ -310,6 +310,43 @@ enum class FontStyle(val value: String) {
 }
 
 /**
+ * CSS text-decoration values.
+ */
+enum class TextDecoration(val value: String) {
+    None("none"),
+    Underline("underline"),
+    LineThrough("line-through"),
+    Overline("overline");
+
+    override fun toString(): String = value
+}
+
+/**
+ * CSS white-space values.
+ */
+enum class WhiteSpace(val value: String) {
+    Normal("normal"),
+    NoWrap("nowrap"),
+    Pre("pre"),
+    PreLine("pre-line"),
+    PreWrap("pre-wrap"),
+    BreakSpaces("break-spaces");
+
+    override fun toString(): String = value
+}
+
+/**
+ * HTML button types.
+ */
+enum class ButtonType(val value: String) {
+    Button("button"),
+    Submit("submit"),
+    Reset("reset");
+
+    override fun toString(): String = value
+}
+
+/**
  * CSS radial-gradient shape values.
  */
 enum class RadialGradientShape(val value: String) {

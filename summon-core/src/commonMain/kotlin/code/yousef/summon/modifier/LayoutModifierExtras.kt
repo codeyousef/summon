@@ -55,16 +55,6 @@ object LayoutModifierExtras {
         LayoutModifiers.run { this@left.left(value) }
 
     @Deprecated(
-        message = "Use LayoutModifiers.flex instead.",
-        replaceWith = ReplaceWith(
-            expression = "this.flex(value)",
-            imports = ["code.yousef.summon.modifier.LayoutModifiers.flex"]
-        )
-    )
-    fun Modifier.flex(value: String): Modifier =
-        LayoutModifiers.run { this@flex.flex(value) }
-
-    @Deprecated(
         message = "Use LayoutModifiers.flexDirection instead.",
         replaceWith = ReplaceWith(
             expression = "this.flexDirection(value)",

@@ -30,6 +30,17 @@ fun Modifier.filter(vararg filters: Pair<FilterFunction, String>): Modifier =
     style("filter", filters.joinToString(" ") { "${it.first}(${it.second})" })
 
 /**
+ * Applies a single CSS filter function.
+ */
+fun Modifier.filter(function: FilterFunction, value: String): Modifier =
+    filter(function to value)
+
+/**
+ * Applies a single CSS filter function with numeric value and optional unit.
+ */
+fun Modifier.filter(function: FilterFunction, value: Number, unit: String): Modifier =
+    filter(function to "$value$unit")
+/**
  * DSL for composing CSS filters with strong typing.
  */
 class FilterBuilder internal constructor() {
@@ -153,3 +164,19 @@ fun Modifier.mixBlendMode(value: BlendMode): Modifier =
  */
 fun Modifier.mixBlendMode(value: String): Modifier =
     style("mix-blend-mode", value)
+
+/**
+ * Applies CSS background-blend-mode for multiple background layers using type-safe enums.
+ *
+ * @param modes Blend modes applied in order; must provide at least one value.
+ */
+fun Modifier.backgroundBlendModes(vararg modes: BlendMode): Modifier {
+    require(modes.isNotEmpty()) { "backgroundBlendModes requires at least one mode" }
+    return style("background-blend-mode", modes.joinToString(", ") { it.toString() })
+}
+
+/**
+ * Applies CSS background-blend-mode using a raw string (for advanced custom sequences).
+ */
+fun Modifier.backgroundBlendModes(value: String): Modifier =
+    style("background-blend-mode", value)

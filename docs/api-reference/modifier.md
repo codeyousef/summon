@@ -183,9 +183,16 @@ fun Modifier.marginOf(
     left: String? = null
 ): Modifier
 
-// Auto margins for centering
-fun Modifier.marginAuto(): Modifier = margin("auto")
-fun Modifier.centerHorizontally(): Modifier = style("margin-left", "auto").style("margin-right", "auto")
+// Convenience helper
+fun Modifier.centerHorizontally(vertical: String = "0"): Modifier
+```
+
+### CSS Function Helpers
+
+```kotlin
+fun cssMin(vararg values: String): String
+fun cssMax(vararg values: String): String
+fun cssClamp(min: String, preferred: String, max: String): String
 ```
 
 ### Position Modifiers
@@ -262,12 +269,17 @@ fun Modifier.backgroundRepeat(value: String): Modifier
 fun Modifier.backgroundPosition(value: String): Modifier
 fun Modifier.backgroundLayers(vararg layers: GradientLayer): Modifier
 fun Modifier.backgroundLayers(builder: GradientLayerScope.() -> Unit): Modifier
+fun Modifier.backgroundBlendModes(vararg modes: BlendMode): Modifier
+fun Modifier.backgroundBlendModes(value: String): Modifier
+fun Modifier.backgroundClip(value: BackgroundClip): Modifier
+fun Modifier.backgroundClipText(includeWebkitPrefix: Boolean = true): Modifier
 
 // Text color
 fun Modifier.color(value: String): Modifier
 ```
 
-`GradientLayerScope` exposes `radialGradient`, `linearGradient`, and `image/url` helpers so complex multi-layer
+`GradientLayerScope` exposes `radialGradient`, `linearGradient`, `conicGradient`, and `image/url` helpers so complex
+multi-layer
 backgrounds can be expressed with type-safe builders instead of composing raw CSS strings.
 
 ### Typography Modifiers
@@ -279,14 +291,22 @@ fun Modifier.fontWeight(value: String): Modifier
 fun Modifier.fontWeight(value: FontWeight): Modifier
 fun Modifier.fontFamily(value: String): Modifier
 fun Modifier.fontStyle(value: String): Modifier
+fun Modifier.fontStyle(value: FontStyle): Modifier
 
 // Text styling
 fun Modifier.textAlign(value: String): Modifier
 fun Modifier.textAlign(value: TextAlign): Modifier
 fun Modifier.textDecoration(value: String): Modifier
+fun Modifier.textDecoration(value: TextDecoration): Modifier
+fun Modifier.textDecoration(vararg values: TextDecoration): Modifier
 fun Modifier.textTransform(value: String): Modifier
+fun Modifier.textTransform(value: TextTransform): Modifier
 fun Modifier.lineHeight(value: String): Modifier
+fun Modifier.lineHeight(value: Number): Modifier
 fun Modifier.letterSpacing(value: String): Modifier
+fun Modifier.letterSpacing(value: Number): Modifier
+fun Modifier.whiteSpace(value: String): Modifier
+fun Modifier.whiteSpace(value: WhiteSpace): Modifier
 ```
 
 ### Border Modifiers
@@ -346,6 +366,7 @@ fun Modifier.alignItems(value: AlignItems): Modifier
 fun Modifier.alignContent(value: String): Modifier
 fun Modifier.flexWrap(value: String): Modifier
 fun Modifier.gap(value: String): Modifier
+fun Modifier.flex(grow: Number, shrink: Number, basis: String): Modifier
 
 // Flex items
 fun Modifier.flexGrow(value: String): Modifier
@@ -623,6 +644,8 @@ fun Modifier.dropShadow(value: String): Modifier
 // Filters
 fun Modifier.filter(value: String): Modifier
 fun Modifier.backdropFilter(value: String): Modifier
+fun Modifier.filter(function: FilterFunction, value: String): Modifier
+fun Modifier.filter(function: FilterFunction, value: Number, unit: String): Modifier
 fun Modifier.filter(builder: FilterBuilder.() -> Unit): Modifier
 fun Modifier.backdropFilter(builder: FilterBuilder.() -> Unit): Modifier
 fun Modifier.mixBlendMode(value: String): Modifier

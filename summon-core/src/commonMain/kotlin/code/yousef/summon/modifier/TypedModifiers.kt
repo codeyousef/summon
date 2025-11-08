@@ -62,6 +62,22 @@ fun Modifier.textDecoration(value: String, component: TextComponent? = null): Mo
     style("text-decoration", value)
 
 /**
+ * Sets the text decoration using the TextDecoration enum.
+ * Only applicable to text components.
+ */
+fun Modifier.textDecoration(value: TextDecoration, component: TextComponent? = null): Modifier =
+    textDecoration(value.toString(), component)
+
+/**
+ * Sets multiple text decorations (e.g., underline + line-through).
+ * Only applicable to text components.
+ */
+fun Modifier.textDecoration(vararg values: TextDecoration, component: TextComponent? = null): Modifier {
+    require(values.isNotEmpty()) { "textDecoration requires at least one value" }
+    return textDecoration(values.joinToString(" ") { it.toString() }, component)
+}
+
+/**
  * Sets the line height with a string value.
  * Only applicable to text components.
  */
@@ -88,6 +104,20 @@ fun Modifier.letterSpacing(value: String, component: TextComponent? = null): Mod
  */
 fun Modifier.letterSpacing(value: Number, component: TextComponent? = null): Modifier =
     style("letter-spacing", "${value}px")
+
+/**
+ * Controls white-space handling.
+ * Only applicable to text components.
+ */
+fun Modifier.whiteSpace(value: String, component: TextComponent? = null): Modifier =
+    style("white-space", value)
+
+/**
+ * Controls white-space handling using the WhiteSpace enum.
+ * Only applicable to text components.
+ */
+fun Modifier.whiteSpace(value: WhiteSpace, component: TextComponent? = null): Modifier =
+    whiteSpace(value.toString(), component)
 
 /**
  * Sets the text transformation (uppercase, lowercase, etc).

@@ -94,12 +94,20 @@ class StylingModifiersTest {
                 colorStop("rgba(8, 0, 50, 0.8)", "0%")
                 colorStop("transparent", "80%")
             }
+            conicGradient {
+                from(210)
+                colorStop("#ffffff88")
+                colorStop("#ffffff00", "40%")
+                colorStop("#ffffff00", "70%")
+                colorStop("#ffffff33")
+            }
         }
 
         val value = modifier.styles["background-image"] ?: error("background-image not set")
         assertTrue(value.contains("radial-gradient"), "Expected radial gradient layer")
         assertTrue(value.contains("linear-gradient"), "Expected linear gradient layer")
         assertTrue(value.contains("25% 20%"), "Expected custom position in gradient")
+        assertTrue(value.contains("conic-gradient"), "Expected conic gradient layer")
     }
 
     @Test
@@ -123,6 +131,47 @@ class StylingModifiersTest {
 
         val custom = Modifier().mixBlendMode("color-dodge")
         assertEquals("color-dodge", custom.styles["mix-blend-mode"], "mixBlendMode string overload failed.")
+    }
+
+    @Test
+    fun testBackgroundBlendModes() {
+        val typed = Modifier().backgroundBlendModes(BlendMode.Screen, BlendMode.Normal)
+        assertEquals(
+            "screen, normal",
+            typed.styles["background-blend-mode"],
+            "backgroundBlendModes enum overload failed."
+        )
+
+        val raw = Modifier().backgroundBlendModes("screen, screen, screen, normal, normal")
+        assertEquals(
+            "screen, screen, screen, normal, normal",
+            raw.styles["background-blend-mode"],
+            "backgroundBlendModes string overload failed."
+        )
+    }
+
+    @Test
+    fun testBackgroundClipTextHelper() {
+        val modifier = Modifier().backgroundClipText()
+        assertEquals("text", modifier.styles["background-clip"], "backgroundClipText should set background-clip")
+        assertEquals(
+            "text",
+            modifier.styles["-webkit-background-clip"],
+            "backgroundClipText should set webkit prefix by default"
+        )
+
+        val noPrefix = Modifier().backgroundClipText(includeWebkitPrefix = false)
+        assertEquals("text", noPrefix.styles["background-clip"])
+        assertEquals(null, noPrefix.styles["-webkit-background-clip"])
+    }
+
+    @Test
+    fun testFilterFunctionOverloads() {
+        val single = Modifier().filter(FilterFunction.Blur, "5px")
+        assertEquals("blur(5px)", single.styles["filter"])
+
+        val numeric = Modifier().filter(FilterFunction.Blur, 5, "px")
+        assertEquals("blur(5px)", numeric.styles["filter"])
     }
 
     // --- Border Tests --- 

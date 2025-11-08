@@ -1,6 +1,6 @@
 # WebAssembly (WASM) Guide
 
-Summon 0.4.4.0 introduces comprehensive WebAssembly support, bringing near-native performance to web applications while
+Summon 0.4.5.0 introduces comprehensive WebAssembly support, bringing near-native performance to web applications while
 maintaining full compatibility with server-side rendering and JavaScript fallbacks.
 
 ## Table of Contents
@@ -54,7 +54,7 @@ Create a new WASM project:
 # Or use the native executable directly
 
 # Create a new project (start from the standalone template)
-java -jar summon-cli-0.4.4.0.jar init my-wasm-app --mode=standalone
+java -jar summon-cli-0.4.5.0.jar init my-wasm-app --mode=standalone
 
 # Navigate to project
 cd my-wasm-app
@@ -142,19 +142,19 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("io.github.codeyousef:summon:0.4.4.0")
+                implementation("io.github.codeyousef:summon:0.4.5.0")
             }
         }
 
         val wasmJsMain by getting {
             dependencies {
-                implementation("io.github.codeyousef:summon-wasm-js:0.4.4.0")
+                implementation("io.github.codeyousef:summon-wasm-js:0.4.5.0")
             }
         }
 
         val jvmMain by getting {
             dependencies {
-                implementation("io.github.codeyousef:summon-jvm:0.4.4.0")
+                implementation("io.github.codeyousef:summon-jvm:0.4.5.0")
             }
         }
     }

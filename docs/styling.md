@@ -152,14 +152,17 @@ fun LayoutExample(): String {
 fun CenteredElement(): String {
     return Div(
         modifier = Modifier()
-            .width("200px")
+            .width(cssMin("1200px", "92vw"))
             .height("100px")
-            .style("margin", "0 auto") // Horizontal centering
+            .centerHorizontally() // Horizontal centering
+            .padding("${cssClamp("22px", "4vw", "48px")} 0")
             .backgroundColor("#f0f0f0")
     ) {
         Text("Centered content")
     }
 }
+
+`cssMin(...)`, `cssMax(...)`, and `cssClamp(min, preferred, max)` are utility helpers that build the corresponding CSS functions for you, so you can express responsive sizes (e.g., `width(cssMin("1200px", "92vw"))` or `padding("${cssClamp("22px", "4vw", "48px")} 0")`) without hand-writing the function strings.
 ```
 
 ### Appearance Modifiers
@@ -210,7 +213,7 @@ Modifier
     .backgroundSize(BackgroundSize.Cover)
     .backgroundPosition("center")
     .backgroundRepeat(BackgroundRepeat.NoRepeat)
-    .backgroundClip(BackgroundClip.Text) // Clip background to text
+    .backgroundClipText()
 
     // Radial gradients
     .radialGradient(
@@ -218,6 +221,17 @@ Modifier
         colors = listOf("rgba(0, 247, 255, 0.15) 0%", "rgba(0, 247, 255, 0) 70%"),
         position = "center"
     )
+    .backgroundLayers {
+        linearGradient {
+            direction("180deg")
+            colorStop("#ffffff", "0%")
+            colorStop("#dfdfea", "65%")
+            colorStop("#c5c5d4", "100%")
+        }
+    }
+    .backgroundClipText() // sets background-clip + prefixed version
+    .color("transparent")
+    .textShadow("0 1px 0 #ffffff33")
     .radialGradient(
         innerColor = "rgba(0, 247, 255, 0.15)",
         outerColor = "rgba(0, 247, 255, 0)",
@@ -297,6 +311,13 @@ Modifier
             colorStop("rgba(8, 0, 50, 0.65)", "0%")
             colorStop("transparent", "90%")
         }
+        conicGradient {
+            from(210)
+            colorStop("#ffffff88", null)
+            colorStop("#ffffff00", "40%")
+            colorStop("#ffffff00", "70%")
+            colorStop("#ffffff33", null)
+        }
         url("/static/grain.png")
     }
 
@@ -317,8 +338,9 @@ The `backgroundLayers` DSL accepts any number of `radialGradient`, `linearGradie
         contrast(1.1)
     }
     .mixBlendMode(BlendMode.Multiply)
+    .backgroundBlendModes(BlendMode.Screen, BlendMode.Screen, BlendMode.Screen, BlendMode.Normal, BlendMode.Normal)
 
-`filter { ... }` and `backdropFilter { ... }` use the same builder under the hood, so you can mix blur, brightness, contrast, hue rotation, or drop-shadow steps with readable Kotlin while keeping the generated CSS in sync with the mock’s blur/saturate stack.
+`filter { ... }` and `backdropFilter { ... }` use the same builder under the hood, so you can mix blur, brightness, contrast, hue rotation, or drop-shadow steps with readable Kotlin while keeping the generated CSS in sync with the mock’s blur/saturate stack. Pair this with `backgroundBlendModes(...)` when layering aurora gradients over texture images so the blend order stays consistent with the mock, and use `Canvas`/`ScriptTag` from `code.yousef.summon.components.foundation` when you need raw shader hooks inside the same hero section.
 
     // Transitions
     .transition("background-color 0.3s ease")

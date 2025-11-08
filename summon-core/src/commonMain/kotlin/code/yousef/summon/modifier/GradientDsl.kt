@@ -118,6 +118,48 @@ class RadialGradientBuilder internal constructor(private val repeating: Boolean)
 }
 
 /**
+ * Builder for conic gradient declarations.
+ */
+class ConicGradientBuilder internal constructor(private val repeating: Boolean) {
+    private var from: String? = null
+    private var position: String? = null
+    private val colorStops = mutableListOf<String>()
+
+    fun from(value: String) {
+        from = value
+    }
+
+    fun from(degrees: Number) {
+        from("${degrees}deg")
+    }
+
+    fun position(value: String) {
+        position = value
+    }
+
+    fun position(x: String, y: String) {
+        position = "$x $y"
+    }
+
+    fun colorStop(color: String, position: String? = null) {
+        colorStops += formatColorStop(color, position)
+    }
+
+    fun colorStop(color: Color, position: String? = null) =
+        colorStop(color.toString(), position)
+
+    internal fun build(): GradientLayer {
+        require(colorStops.isNotEmpty()) { "conicGradient requires at least one color stop" }
+        val parts = mutableListOf<String>()
+        from?.let { parts += "from $it" }
+        position?.let { parts += "at $it" }
+        parts.addAll(colorStops)
+        val fn = if (repeating) "repeating-conic-gradient" else "conic-gradient"
+        return GradientLayer.Raw("$fn(${parts.joinToString(", ")})")
+    }
+}
+
+/**
  * DSL scope that collects individual background layers.
  */
 class GradientLayerScope internal constructor() {
@@ -130,6 +172,11 @@ class GradientLayerScope internal constructor() {
 
     fun radialGradient(repeating: Boolean = false, builder: RadialGradientBuilder.() -> Unit) {
         val layer = RadialGradientBuilder(repeating).apply(builder).build()
+        layers += layer
+    }
+
+    fun conicGradient(repeating: Boolean = false, builder: ConicGradientBuilder.() -> Unit) {
+        val layer = ConicGradientBuilder(repeating).apply(builder).build()
         layers += layer
     }
 

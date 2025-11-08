@@ -54,6 +54,24 @@ class TypedModifiersTest {
     }
 
     @Test
+    fun testTextDecorationEnumOverloads() {
+        val enumModifier = Modifier().textDecoration(TextDecoration.Underline)
+        assertEquals("underline", enumModifier.styles["text-decoration"])
+
+        val combined = Modifier().textDecoration(TextDecoration.Underline, TextDecoration.LineThrough)
+        assertEquals("underline line-through", combined.styles["text-decoration"])
+    }
+
+    @Test
+    fun testWhiteSpace() {
+        val stringModifier = Modifier().whiteSpace("nowrap")
+        assertEquals("nowrap", stringModifier.styles["white-space"])
+
+        val enumModifier = Modifier().whiteSpace(WhiteSpace.PreWrap)
+        assertEquals("pre-wrap", enumModifier.styles["white-space"])
+    }
+
+    @Test
     fun testLineHeight() {
         val stringValue = "1.5"
         val modifierString = Modifier().lineHeight(stringValue)

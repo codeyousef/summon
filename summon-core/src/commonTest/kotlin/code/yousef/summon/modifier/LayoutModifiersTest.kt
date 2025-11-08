@@ -116,6 +116,15 @@ class LayoutModifiersTest {
     }
 
     @Test
+    fun testCenterHorizontally() {
+        val modifier = Modifier().centerHorizontally()
+        assertEquals("0 auto", modifier.styles["margin"])
+
+        val withVertical = Modifier().centerHorizontally("24px")
+        assertEquals("24px auto", withVertical.styles["margin"])
+    }
+
+    @Test
     fun testMarginFourSides() {
         val top = "1px"
         val right = "2px"
@@ -196,6 +205,12 @@ class LayoutModifiersTest {
         val value = 1
         val modifier = Modifier().flexGrow(value)
         assertEquals(value.toString(), modifier.styles["flex-grow"])
+    }
+
+    @Test
+    fun testFlexShorthandHelper() {
+        val modifier = Modifier().flex(1, 1, "480px")
+        assertEquals("1 1 480px", modifier.styles["flex"])
     }
 
     @Test

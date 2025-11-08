@@ -588,5 +588,5 @@ class CompatibilityLayer {
 }
 ```
 
-This API reference covers all major WASM-specific functionality in Summon 0.4.4.0. For complete examples and integration
+This API reference covers all major WASM-specific functionality in Summon 0.4.5.0. For complete examples and integration
 guides, see the [WASM Guide](../wasm-guide.md).

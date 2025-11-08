@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.5.0]
+
+### Added
+
+- `Modifier.backgroundBlendModes(...)` (plus docs + tests) so aurora stacks can pair gradient layers with mix/blend
+  sequences without stringly-typed CSS.
+- `TextDecoration` and `WhiteSpace` enums, along with overloads that accept one or many values, keeping typography
+  modifiers fully type-safe.
+- `Modifier.centerHorizontally()` wraps the common `margin: <vertical> auto` pattern for centering fixed-width blocks.
+- Added `cssMin`, `cssMax`, and `cssClamp` helpers so responsive sizes and paddings can use the native CSS functions
+  without embedding raw strings.
+- `backgroundLayers` now supports `conicGradient { ... }`, `backgroundClipText()` handles the WebKit prefix
+  automatically,
+  and `Modifier.filter(FilterFunction, value)` overloads let you express single filters without tuple boilerplate.
+- `ButtonType` enum + `Modifier.buttonType(...)` remove the need to call `.attribute("type", ...)` when wiring CTA
+  buttons.
+
+### Documentation
+
+- Styling and API reference guides now document the new blend-mode helper, the anchor/canvas/script primitives, and the
+  enum-based text helpers so designers can copy working snippets straight into Summon projects.
+
 ## [0.4.4.0]
 
 ### Added

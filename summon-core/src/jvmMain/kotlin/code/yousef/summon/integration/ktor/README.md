@@ -23,10 +23,10 @@ dependencies {
     implementation("io.ktor:ktor-server-html-builder:3.3.1")
     
     // Summon core
-    implementation("io.github.codeyousef:summon:0.4.4.0")
+    implementation("io.github.codeyousef:summon:0.4.5.0")
     
     // Summon Ktor integration
-    implementation("io.github.codeyousef:summon-ktor:0.4.4.0")
+    implementation("io.github.codeyousef:summon-ktor:0.4.5.0")
 }
 ```
 

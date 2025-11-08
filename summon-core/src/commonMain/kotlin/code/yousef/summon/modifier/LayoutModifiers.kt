@@ -497,6 +497,14 @@ fun Modifier.margin(top: String, right: String, bottom: String, left: String): M
     style("margin", "$top $right $bottom $left")
 
 /**
+ * Centers the element horizontally by applying `margin: {vertical} auto`.
+ *
+ * @param vertical Vertical margin (default "0")
+ */
+fun Modifier.centerHorizontally(vertical: String = "0"): Modifier =
+    margin(vertical, "auto")
+
+/**
  * Sets margin for specific sides using named parameters for enhanced readability.
  *
  * This function provides a more declarative approach to setting margins,
@@ -810,6 +818,16 @@ fun Modifier.flexShrink(value: Int): Modifier =
  */
 fun Modifier.flexBasis(value: String): Modifier =
     style("flex-basis", value)
+
+/**
+ * Applies the flex shorthand (`flex: grow shrink basis`) in a type-safe way.
+ *
+ * @param grow Flex-grow factor (e.g., 1)
+ * @param shrink Flex-shrink factor (e.g., 1)
+ * @param basis Flex-basis value (e.g., "480px", "30%")
+ */
+fun Modifier.flex(grow: Number, shrink: Number, basis: String): Modifier =
+    style("flex", "${grow.toString()} ${shrink.toString()} $basis")
 
 /**
  * Overrides the align-items property for individual flex items.
