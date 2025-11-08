@@ -190,10 +190,13 @@ fun Modifier.centerHorizontally(vertical: String = "0"): Modifier
 ### CSS Function Helpers
 
 ```kotlin
-fun cssMin(vararg values: String): String
-fun cssMax(vararg values: String): String
-fun cssClamp(min: String, preferred: String, max: String): String
+fun cssMin(vararg values: CssValue): CssValue
+fun cssMax(vararg values: CssValue): CssValue
+fun cssClamp(min: CssValue, preferred: CssValue, max: CssValue): CssValue
 ```
+
+Use the existing numeric extensions (e.g., `22.px`, `4.vw`, `48.px`) from `code.yousef.summon.extensions.*` to produce
+`CssValue` instances that can be passed to these helpers and then into modifiers like `fontSize`, `padding`, or `width`.
 
 ### Position Modifiers
 
@@ -287,6 +290,7 @@ backgrounds can be expressed with type-safe builders instead of composing raw CS
 ```kotlin
 // Font properties
 fun Modifier.fontSize(value: String): Modifier
+fun Modifier.fontSize(value: Number): Modifier
 fun Modifier.fontWeight(value: String): Modifier
 fun Modifier.fontWeight(value: FontWeight): Modifier
 fun Modifier.fontFamily(value: String): Modifier

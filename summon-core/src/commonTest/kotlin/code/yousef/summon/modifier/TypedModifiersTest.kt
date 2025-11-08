@@ -1,5 +1,7 @@
 package code.yousef.summon.modifier
 
+import code.yousef.summon.extensions.px
+import code.yousef.summon.extensions.vw
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -33,6 +35,13 @@ class TypedModifiersTest {
         val value = "bold"
         val modifier = Modifier().fontWeight(value)
         assertEquals(value, modifier.styles["font-weight"])
+    }
+
+    @Test
+    fun testFontSizeStringOverload() {
+        val clampValue = cssClamp(22.px, 3.6.vw, 36.px)
+        val modifier = Modifier().fontSize(clampValue)
+        assertEquals(clampValue, modifier.styles["font-size"])
     }
 
     @Test

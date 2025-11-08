@@ -1,5 +1,7 @@
 package code.yousef.summon.modifier
 
+import code.yousef.summon.css.CssValue
+
 /**
  * Builds a CSS `min()` function value.
  *
@@ -7,7 +9,7 @@ package code.yousef.summon.modifier
  * Modifier.width(cssMin("1200px", "92vw"))
  * ````
  */
-fun cssMin(vararg values: String): String {
+fun cssMin(vararg values: CssValue): CssValue {
     require(values.size >= 2) { "cssMin requires at least two values" }
     return "min(${values.joinToString(", ")})"
 }
@@ -15,7 +17,7 @@ fun cssMin(vararg values: String): String {
 /**
  * Builds a CSS `max()` function value.
  */
-fun cssMax(vararg values: String): String {
+fun cssMax(vararg values: CssValue): CssValue {
     require(values.size >= 2) { "cssMax requires at least two values" }
     return "max(${values.joinToString(", ")})"
 }
@@ -23,5 +25,5 @@ fun cssMax(vararg values: String): String {
 /**
  * Builds a CSS `clamp(min, preferred, max)` value.
  */
-fun cssClamp(min: String, preferred: String, max: String): String =
+fun cssClamp(min: CssValue, preferred: CssValue, max: CssValue): CssValue =
     "clamp($min, $preferred, $max)"

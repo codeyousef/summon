@@ -3,7 +3,7 @@ REM Summon CLI launcher script for Windows
 setlocal
 
 set SCRIPT_DIR=%~dp0
-set JAR_FILE=%SCRIPT_DIR%..\build\libs\summon-cli-0.4.5.0.jar
+set JAR_FILE=%SCRIPT_DIR%..\build\libs\summon-cli-0.4.5.1.jar
 
 if exist "%JAR_FILE%" (
     java -jar "%JAR_FILE%" %*

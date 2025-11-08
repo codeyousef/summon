@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.5.1]
+
+### Added
+
+- `cssMin`/`cssMax`/`cssClamp` accept the existing unit extensions (e.g., `22.px`, `4.vw`), and typography helpers such
+  as `fontSize` include string overloads so responsive math can skip `.style(...)`.
+
 ## [0.4.5.0]
 
 ### Added

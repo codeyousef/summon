@@ -152,17 +152,17 @@ fun LayoutExample(): String {
 fun CenteredElement(): String {
     return Div(
         modifier = Modifier()
-            .width(cssMin("1200px", "92vw"))
+            .width(cssMin(1200.px, 92.vw))
             .height("100px")
             .centerHorizontally() // Horizontal centering
-            .padding("${cssClamp("22px", "4vw", "48px")} 0")
+            .padding("${cssClamp(22.px, 4.vw, 48.px)} 0")
             .backgroundColor("#f0f0f0")
     ) {
         Text("Centered content")
     }
 }
 
-`cssMin(...)`, `cssMax(...)`, and `cssClamp(min, preferred, max)` are utility helpers that build the corresponding CSS functions for you, so you can express responsive sizes (e.g., `width(cssMin("1200px", "92vw"))` or `padding("${cssClamp("22px", "4vw", "48px")} 0")`) without hand-writing the function strings.
+`cssMin(...)`, `cssMax(...)`, and `cssClamp(min, preferred, max)` are utility helpers that build the corresponding CSS functions for you, so you can express responsive sizes (e.g., `width(cssMin(1200.px, 92.vw))` or `padding("${cssClamp(22.px, 4.vw, 48.px)} 0")`) without hand-writing the function strings. Import `code.yousef.summon.extensions.*` to access the `.px`, `.vw`, and related unit helpers.
 ```
 
 ### Appearance Modifiers
