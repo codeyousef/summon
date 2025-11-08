@@ -168,6 +168,9 @@ fun Link(
     isNoFollow: Boolean = false,
     ariaLabel: String? = null,
     ariaDescribedBy: String? = null,
+    id: String? = null,
+    dataHref: String? = null,
+    dataAttributes: Map<String, String> = emptyMap(),
     content: @Composable () -> Unit
 ) {
     val composer = CompositionLocal.currentComposer
@@ -185,11 +188,25 @@ fun Link(
     // --- End Rel Attribute Calculation --- 
 
     // Apply rel attribute via Modifier as it needs special calculation
-    val finalModifier = if (finalRel != null) {
+    var finalModifier = if (finalRel != null) {
         modifier.attribute("rel", finalRel)
     } else {
         modifier
     }
+
+    if (!id.isNullOrBlank()) {
+        finalModifier = finalModifier.id(id)
+    }
+
+    finalModifier = finalModifier
+        .dataAttributes(dataAttributes)
+        .let {
+            if (!dataHref.isNullOrBlank()) {
+                it.dataAttribute("href", dataHref)
+            } else {
+                it
+            }
+        }
 
     composer?.startNode() // Start Link node
     if (composer?.inserting == true) {
@@ -210,6 +227,39 @@ fun Link(
     content()
 
     composer?.endNode() // End Link node
+}
+
+/**
+ * String-based convenience wrapper that emits a semantic anchor element.
+ */
+@Composable
+fun AnchorLink(
+    label: String,
+    href: String,
+    modifier: Modifier = Modifier(),
+    target: String? = null,
+    rel: String? = null,
+    title: String? = null,
+    id: String? = null,
+    ariaLabel: String? = null,
+    ariaDescribedBy: String? = null,
+    dataHref: String? = href,
+    dataAttributes: Map<String, String> = emptyMap()
+) {
+    Link(
+        href = href,
+        modifier = modifier,
+        target = target,
+        rel = rel,
+        title = title,
+        ariaLabel = ariaLabel,
+        ariaDescribedBy = ariaDescribedBy,
+        id = id,
+        dataHref = dataHref,
+        dataAttributes = dataAttributes
+    ) {
+        Text(label)
+    }
 }
 
 // --- Helper Functions (Updated) --- 
@@ -241,13 +291,13 @@ fun ExternalLink(
 
 /**
  * Creates a button-styled link composable.
- * @param text The text content of the link.
+ * @param label The text content of the link.
  * @param href The URL this link points to.
  * @param modifier Modifier to apply. Defaults provide button-like styling.
  */
 @Composable
 fun ButtonLink(
-    text: String,
+    label: String,
     href: String,
     modifier: Modifier = Modifier()
         .padding("10px 20px") // Example button styles
@@ -260,12 +310,28 @@ fun ButtonLink(
                 "background-color" to "#45a049",
                 "box-shadow" to "0 2px 4px rgba(0,0,0,0.2)"
             )
-        )
+        ),
+    target: String? = null,
+    rel: String? = null,
+    title: String? = null,
+    id: String? = null,
+    ariaLabel: String? = null,
+    ariaDescribedBy: String? = null,
+    dataHref: String? = href,
+    dataAttributes: Map<String, String> = emptyMap()
 ) {
     Link(
         href = href,
-        modifier = modifier
+        modifier = modifier,
+        target = target,
+        rel = rel,
+        title = title,
+        ariaLabel = ariaLabel,
+        ariaDescribedBy = ariaDescribedBy,
+        id = id,
+        dataHref = dataHref,
+        dataAttributes = dataAttributes
     ) {
-        Text(text) // Pass text as content
+        Text(label) // Pass text as content
     }
 } 

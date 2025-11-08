@@ -208,13 +208,14 @@ import code.yousef.summon.runtime.LocalPlatformRenderer
  */
 @Composable
 fun Button(
-    onClick: () -> Unit,
+    onClick: (() -> Unit)? = null,
     label: String,
     modifier: Modifier = Modifier(),
     variant: ButtonVariant = ButtonVariant.PRIMARY,
     disabled: Boolean = false,
     iconName: String? = null,
-    iconPosition: IconPosition = IconPosition.START
+    iconPosition: IconPosition = IconPosition.START,
+    dataAttributes: Map<String, String> = emptyMap()
 ) {
     val renderer = LocalPlatformRenderer.current
 
@@ -240,11 +241,11 @@ fun Button(
     }
 
     // Apply base button styling
-    val modifierWithId = if (modifier.attributes.containsKey("data-summon-id")) {
+    val modifierWithId = (if (modifier.attributes.containsKey("data-summon-id")) {
         modifier
     } else {
         modifier.attribute("data-summon-id", uniqueId)
-    }
+    }).dataAttributes(dataAttributes)
 
     val baseModifier = modifierWithId
         .style("display", "inline-flex")
@@ -378,10 +379,12 @@ fun Button(
         }
 
     // Use the renderButton method, passing onClick, modifier and content
+    val safeOnClick = onClick ?: {}
+
     renderer.renderButton(
         onClick = if (disabled) {
             {}
-        } else onClick,
+        } else safeOnClick,
         modifier = finalModifier
     ) {
         // Button content

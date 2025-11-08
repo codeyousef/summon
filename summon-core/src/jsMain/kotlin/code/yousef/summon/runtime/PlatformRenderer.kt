@@ -16,10 +16,7 @@ import kotlinx.browser.document
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.html.*
-import org.w3c.dom.Element
-import org.w3c.dom.HTMLElement
-import org.w3c.dom.HTMLInputElement
-import org.w3c.dom.HTMLStyleElement
+import org.w3c.dom.*
 import org.w3c.dom.events.EventListener
 import org.w3c.dom.events.Event as DomEvent
 
@@ -1450,6 +1447,43 @@ actual open class PlatformRenderer {
         createElement(tagName, modifier) {
             content(createFlowContent(tagName))
         }
+    }
+
+    actual open fun renderCanvas(
+        modifier: Modifier,
+        width: Int?,
+        height: Int?,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
+        createElement("canvas", modifier, { element ->
+            val canvas = element as? HTMLCanvasElement
+            width?.let { canvas?.width = it }
+            height?.let { canvas?.height = it }
+        }) {
+            content(createFlowContent("canvas"))
+        }
+    }
+
+    actual open fun renderScriptTag(
+        src: String?,
+        async: Boolean,
+        defer: Boolean,
+        type: String?,
+        modifier: Modifier,
+        inlineContent: String?
+    ) {
+        createElement("script", modifier, { element ->
+            val script = element as? HTMLScriptElement
+            type?.let { script?.type = it }
+            if (src != null) {
+                script?.src = src
+            }
+            script?.async = async
+            script?.defer = defer
+            if (!inlineContent.isNullOrEmpty()) {
+                script?.textContent = inlineContent
+            }
+        })
     }
 
     actual open fun renderModal(

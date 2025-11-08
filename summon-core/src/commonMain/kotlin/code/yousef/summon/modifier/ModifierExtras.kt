@@ -36,6 +36,8 @@ object ModifierExtras {
      * @param value The CSS pointer-events value (e.g., "none", "auto", etc.)
      * @return A new Modifier with the added style
      */
+    @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+    @Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
     fun Modifier.pointerEvents(value: String): Modifier =
         style("pointer-events", value)
 
@@ -44,6 +46,8 @@ object ModifierExtras {
      * @param value The PointerEvents enum value
      * @return A new Modifier with the added style
      */
+    @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+    @Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
     fun Modifier.pointerEvents(value: PointerEvents): Modifier =
         style("pointer-events", value.toString())
 

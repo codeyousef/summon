@@ -251,6 +251,18 @@ open class MockPlatformRenderer : PlatformRenderer() {
     var lastHtmlContentRendered: String? = null
     var lastHtmlModifierRendered: Modifier? = null
     var lastHtmlSanitizeEnabledRendered: Boolean? = null
+    var renderCanvasCalled = false
+    var lastCanvasModifier: Modifier? = null
+    var lastCanvasWidth: Int? = null
+    var lastCanvasHeight: Int? = null
+    var lastCanvasContent: (@Composable FlowContentCompat.() -> Unit)? = null
+    var renderScriptTagCalled = false
+    var lastScriptSrcRendered: String? = null
+    var lastScriptAsyncRendered: Boolean? = null
+    var lastScriptDeferRendered: Boolean? = null
+    var lastScriptTypeRendered: String? = null
+    var lastScriptModifierRendered: Modifier? = null
+    var lastScriptInlineContentRendered: String? = null
 
     /**
      * Resets all tracking properties to their default state.
@@ -489,6 +501,18 @@ open class MockPlatformRenderer : PlatformRenderer() {
         lastHtmlContentRendered = null
         lastHtmlModifierRendered = null
         lastHtmlSanitizeEnabledRendered = null
+        renderCanvasCalled = false
+        lastCanvasModifier = null
+        lastCanvasWidth = null
+        lastCanvasHeight = null
+        lastCanvasContent = null
+        renderScriptTagCalled = false
+        lastScriptSrcRendered = null
+        lastScriptAsyncRendered = null
+        lastScriptDeferRendered = null
+        lastScriptTypeRendered = null
+        lastScriptModifierRendered = null
+        lastScriptInlineContentRendered = null
     }
 
     override fun renderText(text: String, modifier: Modifier) {
@@ -1043,5 +1067,35 @@ open class MockPlatformRenderer : PlatformRenderer() {
         lastHtmlContentRendered = htmlContent
         lastHtmlModifierRendered = modifier
         lastHtmlSanitizeEnabledRendered = sanitize
+    }
+
+    override fun renderCanvas(
+        modifier: Modifier,
+        width: Int?,
+        height: Int?,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
+        renderCanvasCalled = true
+        lastCanvasModifier = modifier
+        lastCanvasWidth = width
+        lastCanvasHeight = height
+        lastCanvasContent = content
+    }
+
+    override fun renderScriptTag(
+        src: String?,
+        async: Boolean,
+        defer: Boolean,
+        type: String?,
+        modifier: Modifier,
+        inlineContent: String?
+    ) {
+        renderScriptTagCalled = true
+        lastScriptSrcRendered = src
+        lastScriptAsyncRendered = async
+        lastScriptDeferRendered = defer
+        lastScriptTypeRendered = type
+        lastScriptModifierRendered = modifier
+        lastScriptInlineContentRendered = inlineContent
     }
 }

@@ -1,16 +1,11 @@
 package code.yousef.summon.components.input
 
-import code.yousef.summon.annotation.Composable
 import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.Composer
 import code.yousef.summon.runtime.CompositionLocal
 import code.yousef.summon.runtime.LocalPlatformRenderer
 import code.yousef.summon.runtime.MockPlatformRenderer
 import code.yousef.summon.util.MockComposer
-import kotlin.test.Test
-import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 // Extension functions for testing
 private fun Modifier.hasStyle(property: String, value: String): Boolean =
@@ -199,6 +194,36 @@ class ButtonTest {
             // is correct if the Button component wraps or replaces the onClick when disabled.
             mockRenderer.lastButtonOnClickRendered?.invoke()
             assertFalse(buttonClicked, "onClick handler should not execute its original logic when button is disabled")
+        }
+    }
+
+    @Test
+    fun buttonSupportsDataAttributesAndNullableOnClick() {
+        val mockRenderer = MockPlatformRenderer()
+
+        CompositionLocal.provideComposer(MockComposer()) {
+            LocalPlatformRenderer.provides(mockRenderer)
+
+            Button(
+                label = "Copy",
+                onClick = null,
+                dataAttributes = mapOf(
+                    "copy" to "token",
+                    "href" to "#copy"
+                )
+            )
+
+            assertTrue(mockRenderer.renderButtonCalled, "renderButton should have been called")
+            val modifier = mockRenderer.lastButtonModifierRendered
+            assertNotNull(modifier, "Modifier should not be null")
+            assertEquals("token", modifier!!.attributes["data-copy"])
+            assertEquals("#copy", modifier.attributes["data-href"])
+            assertNotNull(
+                mockRenderer.lastButtonOnClickRendered,
+                "Button should supply a no-op onClick when none provided"
+            )
+            // Invoking should be safe even though it is a no-op
+            mockRenderer.lastButtonOnClickRendered?.invoke()
         }
     }
 }

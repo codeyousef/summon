@@ -2,6 +2,7 @@ package code.yousef.summon.components.navigation
 
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.IconType
+import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.feedback.AlertVariant
 import code.yousef.summon.components.feedback.ProgressType
 import code.yousef.summon.components.input.FileInfo
@@ -78,6 +79,8 @@ class LinkTest {
         var lastAriaDescribedBy: String? = null
         var lastModifier: Modifier? = null
         var renderEnhancedLinkCalled = false
+        var renderTextCallCount = 0
+        var lastRenderedText: String? = null
 
         // Implement renderEnhancedLink
         override fun renderEnhancedLink(
@@ -99,7 +102,10 @@ class LinkTest {
 
         // --- Add No-Op implementations for ALL PlatformRenderer methods ---
         // Ones previously added:
-        override fun renderText(text: String, modifier: Modifier) {}
+        override fun renderText(text: String, modifier: Modifier) {
+            renderTextCallCount++
+            lastRenderedText = text
+        }
         override fun renderLabel(text: String, modifier: Modifier, forElement: String?) {}
         override fun renderButton(
             onClick: () -> Unit,
@@ -612,4 +618,68 @@ class LinkTest {
         // Should not add noopener noreferrer for _top
         assertNull(renderer.lastModifier?.attributes?.get("rel"))
     }
-} 
+
+    @Test
+    fun anchorLinkAppliesDataAttributesAndLabelExactlyOnce() {
+        val renderer = MockLinkRenderer()
+        runComposableTest(renderer) {
+            AnchorLink(
+                label = "Get Started",
+                href = "#get-started",
+                id = "hero-cta",
+                target = "_blank",
+                dataHref = "#get-started",
+                ariaLabel = "Jump to hero CTA",
+                dataAttributes = mapOf(
+                    "analytics" to "hero",
+                    "copy" to "installation"
+                )
+            )
+        }
+
+        assertEquals(true, renderer.renderEnhancedLinkCalled)
+        assertEquals("#get-started", renderer.lastHref)
+        val modifier = renderer.lastModifier!!
+        assertEquals("hero-cta", modifier.attributes["id"])
+        assertEquals("#get-started", modifier.attributes["data-href"])
+        assertEquals("hero", modifier.attributes["data-analytics"])
+        assertEquals("installation", modifier.attributes["data-copy"])
+        assertEquals("Get Started", renderer.lastRenderedText)
+        assertEquals(1, renderer.renderTextCallCount)
+    }
+
+    @Test
+    fun linkSupportsStructuredDataAttributes() {
+        val renderer = MockLinkRenderer()
+        runComposableTest(renderer) {
+            Link(
+                href = "/docs",
+                dataHref = "/docs#getting-started",
+                dataAttributes = mapOf("copy" to "docs")
+            ) {
+                Text("Docs")
+            }
+        }
+
+        val modifier = renderer.lastModifier!!
+        assertEquals("/docs#getting-started", modifier.attributes["data-href"])
+        assertEquals("docs", modifier.attributes["data-copy"])
+    }
+
+    @Test
+    fun buttonLinkCarriesDataAttributesToModifier() {
+        val renderer = MockLinkRenderer()
+        runComposableTest(renderer) {
+            ButtonLink(
+                label = "Launch App",
+                href = "/launch",
+                dataHref = "/launch?source=hero",
+                dataAttributes = mapOf("analytics" to "cta")
+            )
+        }
+
+        val modifier = renderer.lastModifier!!
+        assertEquals("/launch?source=hero", modifier.attributes["data-href"])
+        assertEquals("cta", modifier.attributes["data-analytics"])
+    }
+}

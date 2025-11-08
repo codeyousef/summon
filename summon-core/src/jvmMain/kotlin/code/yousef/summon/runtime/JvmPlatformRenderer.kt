@@ -1526,6 +1526,44 @@ actual open class PlatformRenderer {
         builder.comment(" Note: Direct custom tag rendering requires JS DOM manipulation ")
     }
 
+    actual open fun renderCanvas(
+        modifier: Modifier,
+        width: Int?,
+        height: Int?,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
+        requireBuilder().canvas {
+            applyModifier(modifier)
+            width?.let { attributes["width"] = it.toString() }
+            height?.let { attributes["height"] = it.toString() }
+            renderContent(content)
+        }
+    }
+
+    actual open fun renderScriptTag(
+        src: String?,
+        async: Boolean,
+        defer: Boolean,
+        type: String?,
+        modifier: Modifier,
+        inlineContent: String?
+    ) {
+        requireBuilder().script(type = type, src = src) {
+            applyModifier(modifier)
+            if (async) {
+                attributes["async"] = "async"
+            }
+            if (defer) {
+                attributes["defer"] = "defer"
+            }
+            if (!inlineContent.isNullOrEmpty()) {
+                unsafe {
+                    +inlineContent
+                }
+            }
+        }
+    }
+
     actual open fun renderSpan(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         requireBuilder().span {
             applyModifier(modifier)

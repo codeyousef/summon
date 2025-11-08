@@ -1172,6 +1172,26 @@ actual open class PlatformRenderer actual constructor() {
         wasmConsoleLog("PlatformRenderer renderHtmlTag - WASM stub")
     }
 
+    actual open fun renderCanvas(
+        modifier: Modifier,
+        width: Int?,
+        height: Int?,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
+        wasmConsoleLog("PlatformRenderer renderCanvas - WASM stub")
+    }
+
+    actual open fun renderScriptTag(
+        src: String?,
+        async: Boolean,
+        defer: Boolean,
+        type: String?,
+        modifier: Modifier,
+        inlineContent: String?
+    ) {
+        wasmConsoleLog("PlatformRenderer renderScriptTag - WASM stub")
+    }
+
     actual open fun renderSnackbar(message: String, actionLabel: String?, onAction: (() -> Unit)?) {
         wasmConsoleLog("PlatformRenderer renderSnackbar - WASM stub")
     }

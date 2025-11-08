@@ -1,5 +1,6 @@
 package code.yousef.summon.components.display
 
+import code.yousef.summon.components.foundation.RawHtml
 import code.yousef.summon.runtime.MockPlatformRenderer
 import code.yousef.summon.util.runComposableTest
 import kotlin.test.*
@@ -70,6 +71,25 @@ class RichTextTest {
         assertTrue(mockRenderer.renderHtmlCalled)
         assertEquals(trustedHtml, mockRenderer.lastHtmlContentRendered)
         // Html component should have minimal sanitization
+        assertFalse(mockRenderer.lastHtmlSanitizeEnabledRendered == true)
+    }
+
+    @Test
+    fun testRawHtmlBuilderDisablesSanitization() {
+        val mockRenderer = MockPlatformRenderer()
+
+        runComposableTest(mockRenderer) {
+            RawHtml {
+                +"<canvas id=\"gl\"></canvas>"
+                +"<script>console.log('inline')</script>"
+            }
+        }
+
+        assertTrue(mockRenderer.renderHtmlCalled)
+        assertEquals(
+            "<canvas id=\"gl\"></canvas><script>console.log('inline')</script>",
+            mockRenderer.lastHtmlContentRendered
+        )
         assertFalse(mockRenderer.lastHtmlSanitizeEnabledRendered == true)
     }
 

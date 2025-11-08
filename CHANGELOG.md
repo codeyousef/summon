@@ -2,7 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.4.3.0] - 2025-11-07
+## [0.4.4.0]
+
+### Added
+
+- Canonical `AnchorLink`/enhanced `ButtonLink` primitives plus new `dataHref`, `id`, and `dataAttributes` parameters on
+  `Link`, ensuring hero CTAs preserve their original labels and analytics hooks without ad-hoc helpers.
+- Low-level HTML helpers—`Canvas`, `ScriptTag`, and a dual-mode `RawHtml` DSL—landed in
+  `code.yousef.summon.components.foundation`, so canvas-driven backgrounds and inline scripts no longer require
+  `kotlinx-html`.
+- `Modifier.dataAttributes(...)` and intrinsic `Modifier.pointerEvents(...)` overloads let callers declare multiple
+  `data-*` hooks or pointer behaviors in a single, type-safe call.
+- Renderer contracts on all platforms (JVM/JS/WASM) now expose `renderCanvas` and `renderScriptTag`, plus the test
+  harness tracks those calls to keep multiplatform parity honest.
+
+### Changed
+
+- `Button` accepts a nullable `onClick` and propagates declarative data attributes, which unblocks hydration-friendly
+  “Copy” chips that rely on `data-copy`/`data-href` instead of no-op lambdas.
+- `MockPlatformRenderer`, link/button tests, and rich-text specs were expanded to lock in the new attributes,
+  preventing regressions as the primitives evolve.
+
+## [0.4.3.0]
 
 ### Added
 
@@ -32,7 +53,7 @@ All notable changes to this project will be documented in this file.
   POSTs,
   and CLI assets were aligned and validated across JVM/JS/WASM.
 
-## [0.4.3.0] - 2025-11-04
+## [0.4.3.0]
 
 ### Added
 
@@ -53,14 +74,14 @@ All notable changes to this project will be documented in this file.
 - **Quarkus scaffolding**: Eliminated the `java` plugin conflict by generating separate `app/` and `backend/` modules
   and wiring backend-specific Gradle aliases, restoring out-of-the-box builds for Quarkus projects.
 
-## [0.4.2.1] - 2025-11-01
+## [0.4.2.1]
 
 ### Fixed
 
 - **Brand Assets**: Updated README, CLI docs, and code examples to reference the new `assets/logo.png` image so the
   Summon logo renders consistently across the project.
 
-## [0.4.2.0] - 2025-11-01
+## [0.4.2.0]
 
 ### Added
 
@@ -84,7 +105,7 @@ All notable changes to this project will be documented in this file.
 - **Conflicting Imports**: Removed duplicated package names like `core`, `style`, and `navigation` that previously came
   from different namespaces, eliminating ambiguous imports across multiplatform targets and tests.
 
-## [0.4.2.0] - 2025-11-01
+## [0.4.2.0]
 
 ### Added
 
@@ -112,7 +133,7 @@ All notable changes to this project will be documented in this file.
 - **WASM DOM Harness**: Node-based WASM tests bootstrap a `happy-dom` environment and load Summon’s bridge script so
   integration tests execute against a functional DOM instead of skipping.
 
-## [0.4.0.10] - 2025-10-30
+## [0.4.0.10]
 
 ### Added
 
@@ -153,7 +174,7 @@ All notable changes to this project will be documented in this file.
   coroutine-reactor bridges and CopyOnWrite listener collections, preventing `ConcurrentModificationException`s under
   load.
 
-## [0.4.0.9] - 2025-10-13
+## [0.4.0.9]
 
 ### 🛠️ **Comprehensive Summon CLI Overhaul**
 

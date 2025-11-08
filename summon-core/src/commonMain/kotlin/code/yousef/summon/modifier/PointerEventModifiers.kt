@@ -201,6 +201,8 @@ fun Modifier.enablePointerEvents(): Modifier =
  * @param value PointerEvents enum describing the desired behavior
  * @return A new [Modifier] with pointer-events applied
  */
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+@Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
 fun Modifier.pointerEvents(value: PointerEvents): Modifier =
     style("pointer-events", value.toString())
 

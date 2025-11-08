@@ -613,6 +613,26 @@ data class Modifier(
         attribute("data-$name", value)
 
     /**
+     * Applies a map of data attributes in a single call.
+     * Keys may be provided with or without the `data-` prefix.
+     * Blank keys are ignored.
+     * @param values Map of attribute names to values.
+     */
+    fun dataAttributes(values: Map<String, String>): Modifier {
+        var updated = this
+        values.forEach { (key, value) ->
+            val trimmedKey = key.trim()
+            if (trimmedKey.isEmpty()) return@forEach
+            updated = if (trimmedKey.startsWith("data-")) {
+                updated.attribute(trimmedKey, value)
+            } else {
+                updated.dataAttribute(trimmedKey, value)
+            }
+        }
+        return updated
+    }
+
+    /**
      * Sets an `aria-*` attribute of the element for accessibility.
      * @param name The name of the ARIA attribute (without the "aria-" prefix).
      * @param value The value of the ARIA attribute.
@@ -676,6 +696,20 @@ data class Modifier(
      */
     fun cursor(value: String): Modifier = // Kept for direct string values
         style("cursor", value)
+
+    /**
+     * Sets the CSS `pointer-events` property using a raw string value.
+     * @param value The CSS pointer-events value.
+     */
+    fun pointerEvents(value: String): Modifier =
+        style("pointer-events", value)
+
+    /**
+     * Sets the CSS `pointer-events` property using the PointerEvents enum.
+     * @param value PointerEvents value describing the desired behavior.
+     */
+    fun pointerEvents(value: PointerEvents): Modifier =
+        style("pointer-events", value.value)
 
     /**
      * Sets the CSS `cursor` property using a Cursor enum (if defined and convertible to string).

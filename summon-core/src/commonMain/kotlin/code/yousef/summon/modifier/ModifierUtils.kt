@@ -269,11 +269,15 @@ object EventModifiers {
     /**
      * Sets the pointer-events property.
      */
+    @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+    @Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
     fun Modifier.pointerEvents(value: String): Modifier = style("pointer-events", value)
 
     /**
      * Sets the pointer-events property using the PointerEvents enum.
      */
+    @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+    @Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
     fun Modifier.pointerEvents(value: PointerEvents): Modifier = style("pointer-events", value.toString())
 }
 

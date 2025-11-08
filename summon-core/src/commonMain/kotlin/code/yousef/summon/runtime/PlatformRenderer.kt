@@ -466,6 +466,24 @@ expect open class PlatformRenderer() {
         modifier: Modifier = Modifier()
     )
 
+    /** Renders a canvas element */
+    open fun renderCanvas(
+        modifier: Modifier,
+        width: Int? = null,
+        height: Int? = null,
+        content: @Composable FlowContentCompat.() -> Unit
+    )
+
+    /** Renders a script tag with optional inline content */
+    open fun renderScriptTag(
+        src: String?,
+        async: Boolean,
+        defer: Boolean,
+        type: String?,
+        modifier: Modifier,
+        inlineContent: String?
+    )
+
     /** Renders a Tab layout */
     open fun renderTabLayout(
         tabs: List<Tab>,
