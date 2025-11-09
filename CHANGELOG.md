@@ -2,11 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
-
-- _No changes yet_
-
-## [0.4.5.1]
+## [0.4.6.0]
 
 ### Added
 
@@ -18,7 +14,7 @@ All notable changes to this project will be documented in this file.
 - Server-side rendering no longer injects the raw `href` as fallback content when custom link children are provided; an
   optional `fallbackText` parameter keeps the previous behavior for teams that still need it.
 
-## [0.4.6.0]
+## [0.4.5.1]
 
 ### Added
 
