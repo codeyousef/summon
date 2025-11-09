@@ -8,6 +8,7 @@ import code.yousef.summon.core.FlowContentCompat
 import code.yousef.summon.integration.quarkus.htmx.HtmxAttributeHandler
 import code.yousef.summon.modifier.Modifier
 import code.yousef.summon.runtime.FormContent
+import code.yousef.summon.runtime.NativeSelectOption
 import code.yousef.summon.runtime.PlatformRenderer
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
@@ -211,7 +212,48 @@ class EnhancedJvmPlatformRenderer : PlatformRenderer() {
         super.renderForm(onSubmit, processModifier(modifier), content)
     }
 
-    // renderFormField method doesn't exist in PlatformRenderer
+    override fun renderFormField(
+        modifier: Modifier,
+        labelId: String?,
+        isRequired: Boolean,
+        isError: Boolean,
+        errorMessageId: String?,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
+        super.renderFormField(
+            processModifier(modifier),
+            labelId,
+            isRequired,
+            isError,
+            errorMessageId,
+            content
+        )
+    }
+
+    override fun renderNativeInput(
+        type: String,
+        modifier: Modifier,
+        value: String?,
+        isChecked: Boolean?
+    ) {
+        super.renderNativeInput(type, processModifier(modifier), value, isChecked)
+    }
+
+    override fun renderNativeTextarea(modifier: Modifier, value: String?) {
+        super.renderNativeTextarea(processModifier(modifier), value)
+    }
+
+    override fun renderNativeSelect(modifier: Modifier, options: List<NativeSelectOption>) {
+        super.renderNativeSelect(processModifier(modifier), options)
+    }
+
+    override fun renderNativeButton(
+        type: String,
+        modifier: Modifier,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
+        super.renderNativeButton(type, processModifier(modifier), content)
+    }
 
     override fun renderRadioButton(
         checked: Boolean,

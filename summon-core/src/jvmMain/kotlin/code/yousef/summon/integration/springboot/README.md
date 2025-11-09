@@ -28,10 +28,10 @@ dependencies {
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
     
     // Summon core
-    implementation("io.github.codeyousef:summon:0.4.6.0")
+    implementation("io.github.codeyousef:summon:0.4.7.0")
     
     // Summon Spring Boot integration
-    implementation("io.github.codeyousef:summon-spring-boot:0.4.6.0")
+    implementation("io.github.codeyousef:summon-spring-boot:0.4.7.0")
 }
 ```
 

@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.7.0]
+
+### Added
+
+- Introduced `code.yousef.summon.components.forms.*` with an SSR-friendly `Form`, text inputs, text areas, selects,
+  checkboxes, and semantic submit/reset buttons that reuse Summon spacing/colors and emit proper label/description/error
+  relationships without `RawHtml`.
+- Expanded `PlatformRenderer` (and its JVM/JS/WASM implementations plus the Quarkus wrapper) with native element hooks
+  (`renderNativeInput/Textarea/Select/Button`) and a `NativeSelectOption` model so server-managed forms can render pure
+  HTML fields while still flowing through the modifier system.
+- Added JVM snapshot coverage (`FormComponentsJvmTest`) to prove the new form primitives serialize hidden inputs, field
+  defaults, and submit buttons exactly as expected, alongside updated `MockPlatformRenderer` tracking for the new native
+  APIs.
+- Introduced `MarkdownEditor`, a composable pairing Summon's multiline `TextArea` with an optional live Markdown preview
+  so content teams can author and instantly validate markdown inside admin experiences.
+
 ## [0.4.6.0]
 
 ### Added

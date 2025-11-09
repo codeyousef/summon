@@ -951,6 +951,37 @@ actual open class PlatformRenderer actual constructor() {
         wasmConsoleLog("PlatformRenderer renderFormField - WASM stub")
     }
 
+    actual open fun renderNativeInput(
+        type: String,
+        modifier: Modifier,
+        value: String?,
+        isChecked: Boolean?
+    ) {
+        wasmConsoleLog("PlatformRenderer renderNativeInput($type) - WASM stub")
+    }
+
+    actual open fun renderNativeTextarea(
+        modifier: Modifier,
+        value: String?
+    ) {
+        wasmConsoleLog("PlatformRenderer renderNativeTextarea - WASM stub")
+    }
+
+    actual open fun renderNativeSelect(
+        modifier: Modifier,
+        options: List<NativeSelectOption>
+    ) {
+        wasmConsoleLog("PlatformRenderer renderNativeSelect(${options.size}) - WASM stub")
+    }
+
+    actual open fun renderNativeButton(
+        type: String,
+        modifier: Modifier,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
+        wasmConsoleLog("PlatformRenderer renderNativeButton($type) - WASM stub")
+    }
+
     actual open fun renderRadioButton(selected: Boolean, onClick: () -> Unit, enabled: Boolean, modifier: Modifier) {
         wasmConsoleLog("PlatformRenderer renderRadioButton: $selected - WASM stub")
     }

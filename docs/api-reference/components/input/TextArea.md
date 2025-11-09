@@ -204,97 +204,17 @@ fun AutoResizeTextAreaExample() {
 }
 ```
 
-### Rich Text Editor
+### Markdown & Code Editors
+
+For authoring experiences that need Markdown previews or syntax highlighting, build on top of `TextArea` rather than
+reimplementing it. Two recommended wrappers are:
+
+- [`MarkdownEditor`](MarkdownEditor.md) for live Markdown editing.
+- Custom code editors that compose `TextArea` with domain-specific toolbars or syntax highlighting.
 
 ```kotlin
 @Composable
-fun RichTextEditorExample() {
-    var content by remember { mutableStateOf("") }
-    var isBold by remember { mutableStateOf(false) }
-    var isItalic by remember { mutableStateOf(false) }
-
-    Column(modifier = Modifier().gap(Spacing.MD)) {
-        Text("Rich Text Editor", style = Typography.H6)
-
-        // Formatting toolbar
-        Row(
-            modifier = Modifier()
-                .gap(Spacing.SM)
-                .padding(Spacing.SM)
-                .backgroundColor(Colors.Gray.LIGHT)
-                .borderRadius(BorderRadius.SM)
-        ) {
-            Button(
-                text = "B",
-                size = ButtonSize.SMALL,
-                type = if (isBold) ButtonType.PRIMARY else ButtonType.SECONDARY,
-                onClick = { isBold = !isBold },
-                modifier = Modifier()
-                    .fontWeight(FontWeight.BOLD)
-                    .minWidth(32.px)
-            )
-
-            Button(
-                text = "I",
-                size = ButtonSize.SMALL,
-                type = if (isItalic) ButtonType.PRIMARY else ButtonType.SECONDARY,
-                onClick = { isItalic = !isItalic },
-                modifier = Modifier()
-                    .fontStyle("italic")
-                    .minWidth(32.px)
-            )
-
-            Button(
-                text = "Clear",
-                size = ButtonSize.SMALL,
-                type = ButtonType.OUTLINE,
-                onClick = {
-                    content = ""
-                    isBold = false
-                    isItalic = false
-                }
-            )
-        }
-
-        TextArea(
-            value = content,
-            onValueChange = { content = it },
-            placeholder = "Start typing your formatted text...",
-            rows = 6,
-            modifier = Modifier()
-                .width(500.px)
-                .border(Border.solid(1.px, Colors.Gray.MAIN))
-                .borderRadius(BorderRadius.MD)
-                .padding(Spacing.SM)
-                .fontWeight(if (isBold) FontWeight.BOLD else FontWeight.NORMAL)
-                .fontStyle(if (isItalic) "italic" else "normal")
-        )
-
-        // Preview
-        if (content.isNotEmpty()) {
-            Card(
-                modifier = Modifier()
-                    .width(500.px)
-                    .backgroundColor(Colors.Info.LIGHT)
-                    .padding(Spacing.MD)
-            ) {
-                Column(modifier = Modifier().gap(Spacing.SM)) {
-                    Text("Preview:", style = Typography.CAPTION.copy(fontWeight = FontWeight.BOLD))
-                    Text(
-                        content,
-                        style = Typography.BODY2.copy(
-                            fontWeight = if (isBold) FontWeight.BOLD else FontWeight.NORMAL,
-                            fontStyle = if (isItalic) "italic" else "normal"
-                        )
-                    )
-                }
-            }
-        }
-    }
-}
-```
-
-### Code Editor
+fun CodeEditorExample() {
 
 ```kotlin
 @Composable

@@ -575,7 +575,7 @@ actual open class PlatformRenderer {
         val rootElement = document.createElement("div")
         rootElement.setAttribute("data-summon-hydration", "root")
         rootElement.setAttribute("data-summon-renderer", "js")
-        rootElement.setAttribute("data-summon-version", js("globalThis.SUMMON_VERSION") ?: "0.4.6.0")
+        rootElement.setAttribute("data-summon-version", js("globalThis.SUMMON_VERSION") ?: "0.4.7.0")
 
         elementStack.withElement(rootElement) {
             composable()
@@ -1707,6 +1707,77 @@ actual open class PlatformRenderer {
         errorMessageId: String?,
         content: @Composable (FlowContentCompat.() -> Unit)
     ) {
+    }
+
+    actual open fun renderNativeInput(
+        type: String,
+        modifier: Modifier,
+        value: String?,
+        isChecked: Boolean?
+    ) {
+        createElement("input", modifier, { element ->
+            element.setAttribute("type", type)
+            val inputElement = element as? HTMLInputElement
+            if (value != null && inputElement != null && inputElement.value != value) {
+                inputElement.value = value
+                inputElement.defaultValue = value
+            }
+            if (isChecked != null && inputElement != null) {
+                inputElement.checked = isChecked
+            }
+        })
+    }
+
+    actual open fun renderNativeTextarea(
+        modifier: Modifier,
+        value: String?
+    ) {
+        createElement("textarea", modifier, { element ->
+            val textarea = element as? HTMLTextAreaElement
+            val resolvedValue = value ?: ""
+            if (textarea != null && textarea.value != resolvedValue) {
+                textarea.value = resolvedValue
+                textarea.defaultValue = resolvedValue
+            }
+            if (element.textContent != resolvedValue) {
+                element.textContent = resolvedValue
+            }
+        })
+    }
+
+    actual open fun renderNativeSelect(
+        modifier: Modifier,
+        options: List<NativeSelectOption>
+    ) {
+        createElement("select", modifier, { element ->
+            val selectElement = element as? HTMLSelectElement ?: return@createElement
+
+            while (selectElement.firstChild != null) {
+                selectElement.removeChild(selectElement.firstChild!!)
+            }
+
+            options.forEach { optionConfig ->
+                val optionElement = (element.ownerDocument ?: document).createElement("option") as HTMLOptionElement
+                optionElement.value = optionConfig.value
+                optionElement.text = optionConfig.label
+                optionElement.selected = optionConfig.isSelected
+                optionElement.disabled = optionConfig.isDisabled || optionConfig.isPlaceholder
+                optionElement.hidden = optionConfig.isPlaceholder
+                selectElement.appendChild(optionElement)
+            }
+        })
+    }
+
+    actual open fun renderNativeButton(
+        type: String,
+        modifier: Modifier,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
+        createElement("button", modifier, { element ->
+            element.setAttribute("type", type)
+        }) {
+            content(createFlowContent("button"))
+        }
     }
 
     actual open fun renderRadioButton(selected: Boolean, onClick: () -> Unit, enabled: Boolean, modifier: Modifier) {

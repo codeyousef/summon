@@ -66,6 +66,23 @@ open class MockPlatformRenderer : PlatformRenderer() {
     var lastButtonOnClickRendered: (() -> Unit)? = null
     var lastButtonContentRendered: (@Composable FlowContentCompat.() -> Unit)? = null
 
+    // Native form element tracking
+    var renderNativeInputCalled = false
+    var lastNativeInputTypeRendered: String? = null
+    var lastNativeInputValueRendered: String? = null
+    var lastNativeInputCheckedRendered: Boolean? = null
+    var lastNativeInputModifierRendered: Modifier? = null
+    var renderNativeTextareaCalled = false
+    var lastNativeTextareaValueRendered: String? = null
+    var lastNativeTextareaModifierRendered: Modifier? = null
+    var renderNativeSelectCalled = false
+    var lastNativeSelectModifierRendered: Modifier? = null
+    var lastNativeSelectOptionsRendered: List<NativeSelectOption>? = null
+    var renderNativeButtonCalled = false
+    var lastNativeButtonTypeRendered: String? = null
+    var lastNativeButtonModifierRendered: Modifier? = null
+    var lastNativeButtonContentRendered: (@Composable FlowContentCompat.() -> Unit)? = null
+
     // Checkbox tracking properties
     var renderCheckboxCalled = false
     var lastCheckboxCheckedRendered: Boolean? = null
@@ -757,6 +774,42 @@ open class MockPlatformRenderer : PlatformRenderer() {
         lastFormFieldIsErrorRendered = isError
         lastFormFieldErrorMessageIdRendered = errorMessageId
         lastFormFieldContentLambdaRendered = content
+    }
+
+    override fun renderNativeInput(
+        type: String,
+        modifier: Modifier,
+        value: String?,
+        isChecked: Boolean?
+    ) {
+        renderNativeInputCalled = true
+        lastNativeInputTypeRendered = type
+        lastNativeInputValueRendered = value
+        lastNativeInputCheckedRendered = isChecked
+        lastNativeInputModifierRendered = modifier
+    }
+
+    override fun renderNativeTextarea(modifier: Modifier, value: String?) {
+        renderNativeTextareaCalled = true
+        lastNativeTextareaModifierRendered = modifier
+        lastNativeTextareaValueRendered = value
+    }
+
+    override fun renderNativeSelect(modifier: Modifier, options: List<NativeSelectOption>) {
+        renderNativeSelectCalled = true
+        lastNativeSelectModifierRendered = modifier
+        lastNativeSelectOptionsRendered = options
+    }
+
+    override fun renderNativeButton(
+        type: String,
+        modifier: Modifier,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
+        renderNativeButtonCalled = true
+        lastNativeButtonTypeRendered = type
+        lastNativeButtonModifierRendered = modifier
+        lastNativeButtonContentRendered = content
     }
 
     override fun renderRangeSlider(

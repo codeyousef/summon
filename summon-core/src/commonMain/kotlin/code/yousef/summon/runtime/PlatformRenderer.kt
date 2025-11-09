@@ -62,6 +62,26 @@ data class SelectOption<T>(
 )
 
 /**
+ * Represents a static option used by native `<select>` elements that do not rely on
+ * Summon's JavaScript event system. These options are rendered exactly as provided,
+ * making them ideal for server-managed forms.
+ *
+ * @property value Submitted value for the option
+ * @property label Visible label shown to users
+ * @property isSelected Whether the option should be pre-selected
+ * @property isDisabled Whether the option is available for selection
+ * @property isPlaceholder Marks the option as a non-selectable placeholder (hidden on open menus)
+ * @since 1.0.0
+ */
+data class NativeSelectOption(
+    val value: String,
+    val label: String,
+    val isSelected: Boolean = false,
+    val isDisabled: Boolean = false,
+    val isPlaceholder: Boolean = false
+)
+
+/**
  * Abstract platform renderer that bridges Summon's declarative UI components to platform-specific output.
  *
  * The PlatformRenderer is the core abstraction that enables Summon to work across different platforms
@@ -390,6 +410,33 @@ expect open class PlatformRenderer() {
         isRequired: Boolean = false,
         isError: Boolean = false,
         errorMessageId: String? = null,
+        content: @Composable FlowContentCompat.() -> Unit
+    )
+
+    /** Renders a native HTML input that does not require JavaScript interop */
+    open fun renderNativeInput(
+        type: String,
+        modifier: Modifier,
+        value: String? = null,
+        isChecked: Boolean? = null
+    )
+
+    /** Renders a native HTML textarea element */
+    open fun renderNativeTextarea(
+        modifier: Modifier,
+        value: String? = null
+    )
+
+    /** Renders a native HTML select element with the provided static options */
+    open fun renderNativeSelect(
+        modifier: Modifier,
+        options: List<NativeSelectOption>
+    )
+
+    /** Renders a native HTML button element */
+    open fun renderNativeButton(
+        type: String,
+        modifier: Modifier,
         content: @Composable FlowContentCompat.() -> Unit
     )
 

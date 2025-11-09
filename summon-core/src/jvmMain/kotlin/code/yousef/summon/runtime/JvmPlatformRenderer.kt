@@ -2057,6 +2057,69 @@ actual open class PlatformRenderer {
         }
     }
 
+    actual open fun renderNativeInput(
+        type: String,
+        modifier: Modifier,
+        value: String?,
+        isChecked: Boolean?
+    ) {
+        requireBuilder().input {
+            applyModifier(modifier)
+            attributes["type"] = type
+            value?.let { this.value = it }
+            if (isChecked != null) {
+                this.checked = isChecked
+            }
+        }
+    }
+
+    actual open fun renderNativeTextarea(
+        modifier: Modifier,
+        value: String?
+    ) {
+        requireBuilder().textArea {
+            applyModifier(modifier)
+            value?.let { +it }
+        }
+    }
+
+    actual open fun renderNativeSelect(
+        modifier: Modifier,
+        options: List<NativeSelectOption>
+    ) {
+        requireBuilder().select {
+            applyModifier(modifier)
+            options.forEach { optionConfig ->
+                option {
+                    attributes["value"] = optionConfig.value
+                    if (optionConfig.isDisabled) {
+                        disabled = true
+                    }
+                    if (optionConfig.isPlaceholder) {
+                        attributes["hidden"] = "hidden"
+                        attributes["disabled"] = "disabled"
+                    }
+                    if (optionConfig.isSelected) {
+                        selected = true
+                    }
+                    +optionConfig.label
+                }
+            }
+        }
+    }
+
+    actual open fun renderNativeButton(
+        type: String,
+        modifier: Modifier,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
+        requireBuilder().button {
+            applyModifier(modifier)
+            attributes["type"] = type
+            renderContent(content)
+        }
+    }
+
     actual open fun renderRadioButton(
         selected: Boolean,
         onClick: () -> Unit,
