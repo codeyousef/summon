@@ -1,15 +1,15 @@
-// import code.yousef.summon.seo.SEO
-// import code.yousef.summon.seo.OGType
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.input.Button
-import code.yousef.summon.components.input.TextField
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.components.layout.Row
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.renderComposableRoot
-import code.yousef.summon.runtime.DirectDOMRenderer
-import code.yousef.summon.runtime.wasmExecuteCallback
+// import codes.yousef.summon.seo.SEO
+// import codes.yousef.summon.seo.OGType
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.components.input.Button
+import codes.yousef.summon.components.input.TextField
+import codes.yousef.summon.components.layout.Column
+import codes.yousef.summon.components.layout.Row
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.renderComposableRoot
+import codes.yousef.summon.runtime.DirectDOMRenderer
+import codes.yousef.summon.runtime.wasmExecuteCallback
 
 /**
  * Todo App using pure Summon Framework components.

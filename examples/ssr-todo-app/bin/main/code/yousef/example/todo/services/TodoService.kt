@@ -1,9 +1,9 @@
 package code.yousef.example.todo.services
 
-import code.yousef.example.todo.models.Todo
-import code.yousef.example.todo.models.TodoSession
-import code.yousef.example.todo.models.TodoStats
-import code.yousef.example.todo.models.ValidationException
+import codes.yousef.example.todo.models.Todo
+import codes.yousef.example.todo.models.TodoSession
+import codes.yousef.example.todo.models.TodoStats
+import codes.yousef.example.todo.models.ValidationException
 
 /**
  * Service interface for todo CRUD operations

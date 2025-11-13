@@ -1,7 +1,7 @@
 package code.yousef.example.todo.design
 
-import code.yousef.summon.extensions.percent
-import code.yousef.summon.extensions.px
+import codes.yousef.summon.extensions.percent
+import codes.yousef.summon.extensions.px
 
 enum class MaxWidth(val value: String) {
     SM(640.px),      // Small screens

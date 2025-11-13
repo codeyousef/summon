@@ -1,6 +1,6 @@
 package code.yousef.example.todo.design
 
-import code.yousef.summon.modifier.*
+import codes.yousef.summon.modifier.*
 
 // Design system specific modifiers that use our type-safe enums
 

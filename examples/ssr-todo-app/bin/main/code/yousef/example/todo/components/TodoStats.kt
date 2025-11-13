@@ -1,14 +1,14 @@
 package code.yousef.example.todo.components
 
-import code.yousef.example.todo.design.*
-import code.yousef.example.todo.design.ModifierExtensions.typography
-import code.yousef.example.todo.models.TodoStats
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.components.layout.Row
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.ModifierExtras.withAttribute
+import codes.yousef.example.todo.design.*
+import codes.yousef.example.todo.design.ModifierExtensions.typography
+import codes.yousef.example.todo.models.TodoStats
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.components.layout.Column
+import codes.yousef.summon.components.layout.Row
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.ModifierExtras.withAttribute
 
 /**
  * Component for displaying todo statistics

@@ -1,19 +1,19 @@
 package code.yousef.example.todo
 
-import code.yousef.example.todo.components.CreateTodoForm
-import code.yousef.example.todo.components.TodoList
-import code.yousef.example.todo.components.TodoStatsDisplay
-import code.yousef.example.todo.design.*
-import code.yousef.example.todo.design.ModifierExtensions.marginVertical
-import code.yousef.example.todo.design.ModifierExtensions.radius
-import code.yousef.example.todo.design.ModifierExtensions.spacing
-import code.yousef.example.todo.models.*
-import code.yousef.example.todo.services.SessionTodoService
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.PlatformRenderer
-import code.yousef.summon.runtime.setPlatformRenderer
+import codes.yousef.example.todo.components.CreateTodoForm
+import codes.yousef.example.todo.components.TodoList
+import codes.yousef.example.todo.components.TodoStatsDisplay
+import codes.yousef.example.todo.design.*
+import codes.yousef.example.todo.design.ModifierExtensions.marginVertical
+import codes.yousef.example.todo.design.ModifierExtensions.radius
+import codes.yousef.example.todo.design.ModifierExtensions.spacing
+import codes.yousef.example.todo.models.*
+import codes.yousef.example.todo.services.SessionTodoService
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.runtime.setPlatformRenderer
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -47,14 +47,14 @@ fun TodoApp(
     editFormState: FormState = FormState.success()
 ) {
     // Global container for background
-    code.yousef.summon.components.layout.Column(
+    codes.yousef.summon.components.layout.Column(
         modifier = Modifier()
             .backgroundColor(SemanticColor.BACKGROUND.lightValue)
             .style("width", "100%")
             .style("min-height", "100vh")
     ) {
         // Centered container with max width
-        code.yousef.summon.components.layout.Column(
+        codes.yousef.summon.components.layout.Column(
             modifier = Modifier()
                 .style("width", "100%")
                 .style("max-width", MaxWidth.LG.value)

@@ -1,6 +1,6 @@
 package code.yousef.example.todo.design
 
-import code.yousef.summon.extensions.px
+import codes.yousef.summon.extensions.px
 
 enum class TextSize(val value: String) {
     XS(12.px),       // 0.75rem

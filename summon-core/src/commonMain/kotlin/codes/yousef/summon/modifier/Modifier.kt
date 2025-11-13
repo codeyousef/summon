@@ -1,0 +1,756 @@
+/**
+ * # Summon Modifier Package
+ *
+ * This package provides the type-safe styling system for Summon UI components.
+ *
+ * ## Overview
+ *
+ * The modifier package implements a Jetpack Compose-inspired styling system that enables:
+ *
+ * - **Type-Safe Styling**: Chainable modifier functions with compile-time safety
+ * - **CSS Integration**: Direct mapping to CSS properties and HTML attributes
+ * - **Cross-Platform Support**: Works consistently across Browser and JVM platforms
+ * - **JavaScript Interop**: Full export support for JavaScript environments
+ * - **Performance**: Efficient style application and minimal runtime overhead
+ *
+ * ## Key Components
+ *
+ * - [Modifier] - Core modifier class for styling and attributes
+ * - **Styling Functions** - Type-safe functions for CSS properties
+ * - **Layout Modifiers** - Padding, margin, sizing, and positioning
+ * - **Accessibility Modifiers** - ARIA attributes and semantic markup
+ * - **Interaction Modifiers** - Hover states, focus, and event handling
+ *
+ * ## Usage Patterns
+ *
+ * ```kotlin
+ * // Basic styling
+ * val buttonModifier = Modifier()
+ *     .padding("16px")
+ *     .backgroundColor("#007bff")
+ *     .color("white")
+ *     .borderRadius("8px")
+ *
+ * // Chaining and composition
+ * val complexModifier = Modifier()
+ *     .fillMaxWidth()
+ *     .height("200px")
+ *     .margin("16px")
+ *     .shadow("0px", "2px", "4px", "rgba(0,0,0,0.1)")
+ *     .hover(mapOfCompat("transform" to "translateY(-2px)"))
+ *
+ * // Accessibility
+ * val accessibleModifier = Modifier()
+ *     .role("button")
+ *     .ariaAttribute("label", "Close dialog")
+ *     .tabIndex(0)
+ * ```
+ *
+ * @since 1.0.0
+ */
+package codes.yousef.summon.modifier
+
+import codes.yousef.summon.core.splitCompat
+import kotlin.js.JsName
+
+/**
+ * Type-safe styling system for Summon UI components.
+ *
+ * Modifier provides a declarative, chainable API for applying styles and attributes to UI components.
+ * Inspired by Jetpack Compose, it enables type-safe styling with excellent IDE support and compile-time
+ * checking while maintaining direct compatibility with CSS and HTML.
+ *
+ * ## Architecture
+ *
+ * The Modifier system is built around immutable data classes that chain together styling operations:
+ * - Each modifier function returns a new instance with additional styling
+ * - Styles are stored as CSS property-value pairs
+ * - HTML attributes are maintained separately for semantic markup
+ * - Cross-platform rendering converts modifiers to platform-specific output
+ *
+ * ## Core Features
+ *
+ * ### CSS Property Support
+ * - **Layout**: [padding], [margin], [width], [height], [fillMaxWidth], [fillMaxHeight]
+ * - **Appearance**: [backgroundColor], [color], [borderRadius], [shadow], [opacity]
+ * - **Typography**: [fontSize], [fontWeight]
+ * - **Positioning**: [absolutePosition], [zIndex]
+ * - **Interaction**: [cursor], [hover] effects
+ *
+ * ### HTML Attributes
+ * - **Identity**: [id], [className], [addClass]
+ * - **Accessibility**: [role], [ariaAttribute], [tabIndex]
+ * - **Data**: [dataAttribute] for custom data attributes
+ *
+ * ### JavaScript Interoperability
+ * The entire Modifier API is exported for JavaScript use with appropriate name mappings:
+ * - Constructor and methods are directly callable from JS
+ * - Property names are mapped to avoid conflicts (e.g., `htmlAttributes`)
+ * - Factory functions provide convenient creation patterns
+ *
+ * ## Usage Examples
+ *
+ * ### Basic Styling
+ * ```kotlin
+ * Button(
+ *     onClick = { /* action */ },
+ *     label = "Save",
+ *     modifier = Modifier()
+ *         .padding("12px 24px")
+ *         .backgroundColor("#007bff")
+ *         .color("white")
+ *         .borderRadius("6px")
+ * )
+ * ```
+ *
+ * ### Layout and Sizing
+ * ```kotlin
+ * Column(
+ *     modifier = Modifier()
+ *         .fillMaxWidth()
+ *         .height("400px")
+ *         .margin("16px")
+ *         .padding("20px")
+ * ) {
+ *     // Content
+ * }
+ * ```
+ *
+ * ### Accessibility
+ * ```kotlin
+ * Icon(
+ *     name = "close",
+ *     modifier = Modifier()
+ *         .role("button")
+ *         .ariaAttribute("label", "Close dialog")
+ *         .tabIndex(0)
+ *         .cursor("pointer")
+ * )
+ * ```
+ *
+ * ### Complex Compositions
+ * ```kotlin
+ * val cardModifier = Modifier()
+ *     .fillMaxWidth()
+ *     .backgroundColor("white")
+ *     .borderRadius("12px")
+ *     .shadow("0px", "4px", "6px", "rgba(0, 0, 0, 0.1)")
+ *     .padding("24px")
+ *     .hover(mapOfCompat(
+ *         "transform" to "translateY(-2px)",
+ *         "box-shadow" to "0px 8px 12px rgba(0, 0, 0, 0.15)"
+ *     ))
+ * ```
+ *
+ * ### JavaScript Usage
+ * ```javascript
+ * // Create modifier from JavaScript
+ * const modifier = new summon.modifier.Modifier(
+ *     { "color": "blue", "padding": "10px" },
+ *     { "id": "my-element" }
+ * );
+ *
+ * // Use factory functions
+ * const styled = summon.modifier.createModifierWithStyles({
+ *     "background-color": "red",
+ *     "border-radius": "5px"
+ * });
+ * ```
+ *
+ * ## Platform Integration
+ *
+ * ### Browser/JavaScript Platform
+ * - Styles are applied directly to DOM elements via the `style` attribute
+ * - Attributes become HTML element attributes
+ * - Hover effects generate CSS classes or use JavaScript event handlers
+ *
+ * ### JVM/Server Platform
+ * - Styles are serialized to CSS inline styles in generated HTML
+ * - Attributes are included in HTML element markup
+ * - Server-side rendering maintains full styling information
+ *
+ * ## Performance Considerations
+ *
+ * - Modifiers are immutable, enabling safe sharing and caching
+ * - Style maps use efficient Kotlin collections
+ * - CSS generation is lazy and cached where possible
+ * - Platform renderers optimize style application
+ *
+ * ## Extension and Customization
+ *
+ * Modifiers can be extended with domain-specific styling functions:
+ *
+ * ```kotlin
+ * fun Modifier.brandPrimary() = this
+ *     .backgroundColor("#007bff")
+ *     .color("white")
+ *     .fontWeight("600")
+ *
+ * fun Modifier.cardShadow() = this
+ *     .shadow("0px", "2px", "8px", "rgba(0, 0, 0, 0.12)")
+ * ```
+ *
+ * @property styles Map of CSS property names to values
+ * @property attributes Map of HTML attribute names to values (renamed to `htmlAttributes` in JS)
+ * @constructor Creates a new Modifier with the specified styles and attributes
+ * @see codes.yousef.summon.runtime.PlatformRenderer
+ * @see codes.yousef.summon.components
+ * @since 1.0.0
+ */
+data class Modifier(
+    val styles: Map<String, String> = emptyMap(),
+    val attributes: Map<String, String> = emptyMap(),
+    val eventHandlers: Map<String, () -> Unit> = emptyMap(),
+    val pseudoElements: List<PseudoElementDefinition> = emptyList()
+) {
+
+    // Note: The companion object 'create' method won't be directly on the Modifier class in JS
+    // like `Modifier.create()`. It's better to use top-level @JsExport-ed factory functions.
+    // The primary constructor of the data class IS available in JS.
+    // e.g. new package.path.Modifier({ "color": "red" }, { "id": "myElement" })
+
+    /**
+     * Generic style method for adding any CSS property.
+     *
+     * @param propertyName The CSS property name (e.g., "color", "font-size").
+     * @param value The property value (e.g., "red", "12px").
+     * @return A new Modifier with the added style.
+     */
+    fun style(propertyName: String, value: String): Modifier =
+        copy(styles = this.styles + (propertyName to value))
+
+    /**
+     * Sets multiple style properties at once.
+     *
+     * @param properties A map where keys are CSS property names and values are their corresponding values.
+     *                   In JavaScript, this can be a simple object like { "color": "blue", "margin": "10px" }.
+     * @return A new Modifier with the added styles.
+     */
+    fun withStyles(properties: Map<String, String>): Modifier =
+        copy(styles = this.styles + properties)
+
+    /**
+     * Sets the background color of the element.
+     * @param color The CSS color value (e.g., "red", "#FF0000", "rgb(255,0,0)").
+     * @return A new Modifier with the background-color style.
+     */
+    fun background(color: String): Modifier =
+        style("background-color", color)
+
+    /**
+     * Alias for background() to match CSS property name.
+     * Sets the background color of the element.
+     * @param color The CSS color value.
+     * @return A new Modifier with the background-color style.
+     */
+    fun backgroundColor(color: String): Modifier =
+        background(color)
+
+    /**
+     * Sets the padding of the element using a single value for all sides.
+     * @param value The CSS padding value (e.g., "10px", "1rem").
+     * @return A new Modifier with the padding style.
+     */
+    @JsName("paddingUniform")
+    fun padding(value: String): Modifier =
+        style("padding", value)
+
+    /**
+     * Sets padding for each side individually.
+     * @param top Padding for the top side.
+     * @param right Padding for the right side.
+     * @param bottom Padding for the bottom side.
+     * @param left Padding for the left side.
+     * @return A new Modifier with the specified padding styles.
+     */
+    @JsName("paddingSides")
+    fun padding(top: String, right: String, bottom: String, left: String): Modifier =
+        style("padding", "$top $right $bottom $left") // Or apply individually if preferred
+
+    /**
+     * Sets the width of the element.
+     * @param value The CSS width value (e.g., "100px", "50%").
+     * @return A new Modifier with the width style.
+     */
+    fun width(value: String): Modifier =
+        style("width", value)
+
+    /**
+     * Sets the maximum width of the element.
+     * @param value The CSS max-width value.
+     * @return A new Modifier with the max-width style.
+     */
+    fun maxWidth(value: String): Modifier =
+        style("max-width", value)
+
+    /**
+     * Sets the height of the element.
+     * @param value The CSS height value (e.g., "100px", "50vh").
+     * @return A new Modifier with the height style.
+     */
+    fun height(value: String): Modifier =
+        style("height", value)
+
+    /**
+     * Sets both width and height of the element.
+     * @param width The CSS width value.
+     * @param height The CSS height value.
+     * @return A new Modifier with both width and height styles.
+     */
+    @JsName("sizeDetailed")
+    fun size(width: String, height: String): Modifier =
+        this.width(width).height(height)
+
+    /**
+     * Sets equal width and height for the element.
+     * @param value The CSS value for both width and height.
+     * @return A new Modifier with equal width and height styles.
+     */
+    @JsName("sizeUniform")
+    fun size(value: String): Modifier =
+        size(value, value) // Calls the @JsName("sizeDetailed") in Kotlin
+
+    /**
+     * Adds a border to the element.
+     * @param width The border width (e.g., "1px").
+     * @param style The border style (e.g., "solid", "dashed").
+     * @param color The border color (e.g., "black").
+     * @return A new Modifier with the border style.
+     */
+    fun border(width: String, style: String, color: String): Modifier =
+        this.style("border", "$width $style $color")
+
+    /**
+     * Adds a border to the element using a BorderStyle enum (if defined and convertible to string).
+     * @param width The border width.
+     * @param style The BorderStyle enum value.
+     * @param color The border color.
+     * @return A new Modifier with the border style.
+     */
+    // fun border(width: String, style: BorderStyle, color: String): Modifier =
+    // border(width, style.name.lowercase(), color) // Example if BorderStyle is an enum
+
+    /**
+     * Sets the border radius for rounded corners.
+     * @param value The CSS border-radius value (e.g., "5px", "50%").
+     * @return A new Modifier with the border-radius style.
+     */
+    fun borderRadius(value: String): Modifier =
+        style("border-radius", value)
+
+    /**
+     * Sets the text color.
+     * @param value The CSS color value.
+     * @return A new Modifier with the color style.
+     */
+    fun color(value: String): Modifier =
+        style("color", value)
+
+    /**
+     * Sets the font size.
+     * @param value The CSS font-size value (e.g., "16px", "1.2em").
+     * @return A new Modifier with the font-size style.
+     */
+    fun fontSize(value: String): Modifier =
+        style("font-size", value)
+
+    /**
+     * Sets the font weight.
+     * @param value The CSS font-weight value (e.g., "bold", "normal", "700").
+     * @param component (Optional) Placeholder for potential component context, currently unused.
+     * @return A new Modifier with the font-weight style.
+     */
+    fun fontWeight(value: String, component: Any? = null): Modifier =
+        // Added component parameter for consistency if other deprecated methods had it
+        style("font-weight", value)
+
+    /**
+     * Sets margins around the element using a single value for all sides.
+     * @param value The CSS margin value.
+     * @return A new Modifier with the margin style.
+     */
+    @JsName("marginUniform")
+    fun margin(value: String): Modifier =
+        style("margin", value)
+
+    /**
+     * Sets margins for each side individually.
+     * @param top Margin for the top side.
+     * @param right Margin for the right side.
+     * @param bottom Margin for the bottom side.
+     * @param left Margin for the left side.
+     * @return A new Modifier with the specified margin styles.
+     */
+    @JsName("marginSides")
+    fun margin(top: String, right: String, bottom: String, left: String): Modifier =
+        style("margin", "$top $right $bottom $left") // Or apply individually
+
+    /**
+     * Sets the object-fit property, typically for images or videos.
+     * @param value The CSS object-fit value (e.g., "fill", "contain", "cover").
+     * @param component (Optional) Placeholder for potential component context, currently unused.
+     * @return A new Modifier with the object-fit style.
+     */
+    fun objectFit(value: String, component: Any? = null): Modifier = // Added component parameter
+        style("object-fit", value)
+
+    /**
+     * Sets the element to fill its container's width and height.
+     * Equivalent to width("100%") and height("100%").
+     * @return A new Modifier making the element fill its allocated space.
+     */
+    fun fillMaxSize(): Modifier =
+        this.fillMaxWidth().fillMaxHeight()
+
+    /**
+     * Sets the element to fill the width of its container.
+     * Equivalent to width("100%").
+     * @return A new Modifier with width set to 100%.
+     */
+    fun fillMaxWidth(): Modifier =
+        style("width", "100%")
+
+    /**
+     * Sets the element to fill the height of its container.
+     * Equivalent to height("100%").
+     * @return A new Modifier with height set to 100%.
+     */
+    fun fillMaxHeight(): Modifier =
+        style("height", "100%")
+
+    /**
+     * Sets box shadow for the element.
+     * @param offsetX The horizontal offset of the shadow.
+     * @param offsetY The vertical offset of the shadow.
+     * @param blurRadius The blur radius of the shadow.
+     * @param color The color of the shadow.
+     * @return A new Modifier with the box-shadow style.
+     */
+    @JsName("shadowDetailed")
+    fun shadow(offsetX: String, offsetY: String, blurRadius: String, color: String): Modifier =
+        style("box-shadow", "$offsetX $offsetY $blurRadius $color")
+
+    /**
+     * Adds a simple shadow with common default values (e.g., a subtle gray shadow).
+     * You might want to define specific defaults here.
+     * @return A new Modifier with a default box-shadow style.
+     */
+    @JsName("shadowDefault")
+    fun shadow(): Modifier =
+        shadow("0px", "2px", "4px", "rgba(0,0,0,0.1)") // Calls the @JsName("shadowDetailed") in Kotlin
+
+    /**
+     * Sets the element's position to absolute and allows specifying offsets.
+     * @param top (Optional) Top offset (e.g., "10px").
+     * @param right (Optional) Right offset.
+     * @param bottom (Optional) Bottom offset.
+     * @param left (Optional) Left offset.
+     * @return A new Modifier with absolute positioning and specified offsets.
+     */
+    fun absolutePosition(
+        top: String? = null,
+        right: String? = null,
+        bottom: String? = null,
+        left: String? = null
+    ): Modifier {
+        var mod: Modifier = style("position", "absolute")
+        top?.let { mod = mod.style("top", it) }
+        right?.let { mod = mod.style("right", it) }
+        bottom?.let { mod = mod.style("bottom", it) }
+        left?.let { mod = mod.style("left", it) }
+        return mod
+    }
+
+    /**
+     * Sets the element's opacity.
+     * @param value Opacity value between 0.0 (fully transparent) and 1.0 (fully opaque).
+     * @return A new Modifier with the opacity style.
+     */
+    fun opacity(value: Float): Modifier =
+        style("opacity", value.toString().takeIf { value >= 0.0f && value <= 1.0f } ?: "1.0")
+
+
+    /**
+     * Adds a hover effect by specifying styles to apply on hover.
+     * Note: For pure JS/CSS, this typically requires generating CSS rules or using JS event listeners.
+     * A simple Modifier might just store these intended hover styles, and the rendering system
+     * would be responsible for applying them (e.g., by generating dynamic CSS classes).
+     * This example just merges them into a special 'attributes' key for simplicity,
+     * which isn't standard CSS practice for inline styles.
+     * A more robust solution would involve CSS classes or a dedicated styling engine.
+     *
+     * @param hoverStyles A map of CSS property names to values to apply on hover.
+     * @return A new Modifier that includes hover style information.
+     */
+    fun hover(hoverStyles: Map<String, String>): Modifier {
+        // This is a simplified representation. Actual hover effects in web
+        // are usually handled by CSS pseudo-classes (:hover) or JavaScript event listeners.
+        // Storing it this way would require a custom rendering logic to interpret.
+        // For demonstration, let's assume it adds a custom attribute.
+        val currentHover =
+            attributes["data-hover-styles"]?.let { prev -> // Uses the JS renamed `htmlAttributes` in Kotlin via `attributes`
+                // Crude merge, could be improved
+                prev.splitCompat(';').associate {
+                    val parts = it.splitCompat(':')
+                    parts[0].trim() to parts[1].trim()
+                } + hoverStyles
+            } ?: hoverStyles
+        val hoverString = currentHover.entries.joinToString(";") { "${it.key}:${it.value}" }
+        return attribute("data-hover-styles", hoverString)
+    }
+
+
+    /**
+     * Sets an HTML attribute on the element.
+     * @param name The attribute name (e.g., "id", "data-custom").
+     * @param value The attribute value.
+     * @return A new Modifier with the added attribute.
+     */
+    fun attribute(name: String, value: String): Modifier =
+        copy(attributes = this.attributes + (name to value)) // Accesses the Kotlin property `attributes`
+
+    /**
+     * Sets multiple HTML attributes at once.
+     * @param attrs A map where keys are attribute names and values are their corresponding values.
+     *              In JavaScript, this can be a simple object.
+     * @return A new Modifier with the added attributes.
+     */
+    @JsName("withAttributes") // Renamed for JS to avoid clash with the 'attributes' property
+    fun attributes(attrs: Map<String, String>): Modifier =
+        copy(attributes = this.attributes + attrs)  // Accesses the Kotlin property `attributes`
+
+    /**
+     * Combines this modifier with another modifier.
+     * Styles and attributes from the `other` modifier will override those
+     * with the same keys in `this` modifier.
+     * @param other The Modifier to combine with.
+     * @return A new Modifier that is the result of the combination.
+     */
+    fun then(other: Modifier): Modifier =
+        Modifier(
+            styles = this.styles + other.styles,
+            attributes = this.attributes + other.attributes,
+            eventHandlers = this.eventHandlers + other.eventHandlers,
+            pseudoElements = this.pseudoElements + other.pseudoElements
+        )
+
+    /**
+     * Converts the styles map to a CSS inline style string.
+     * Example: "color: red; font-size: 12px;"
+     * @return A string representation of styles suitable for inline CSS.
+     */
+    fun toStyleString(): String =
+        if (styles.isEmpty()) "" else styles.entries.joinToString(
+            separator = "; ",
+            postfix = ";"
+        ) { "${it.key}: ${it.value}" }
+
+
+    /**
+     * Converts the styles map to a CSS inline style string with camelCase property names
+     * transformed to kebab-case (e.g., "fontSize" becomes "font-size").
+     * This is primarily for applying to actual CSS style properties.
+     * @return A string representation of styles suitable for inline CSS, with kebab-case keys.
+     */
+    fun toStyleStringKebabCase(): String {
+        return styles.entries.joinToString(separator = ";") { (key, value) ->
+            val kebabKey = key.replace(Regex("([a-z])([A-Z])")) {
+                "${it.groupValues[1]}-${it.groupValues[2].lowercase()}"
+            }.lowercase() // Ensure fully kebab, e.g. backgroundColor -> background-color
+            "$kebabKey:$value"
+        }.ifEmpty { "" }
+    }
+
+    /**
+     * Checks if this modifier has a specific style with the given key and value.
+     * @param key The style key to check
+     * @param value The expected value for the style
+     * @return true if the style exists with the given value, false otherwise
+     */
+    fun hasStyle(key: String, value: String): Boolean {
+        return styles[key] == value
+    }
+
+    // --- Common HTML Attributes as methods ---
+
+    /**
+     * Sets the `id` attribute of the element.
+     * @param value The ID value.
+     * @return A new Modifier with the id attribute.
+     */
+    fun id(value: String): Modifier =
+        attribute("id", value)
+
+    /**
+     * Sets the `class` attribute of the element.
+     * Note: This will overwrite any existing classes. Use `addClass` to append.
+     * @param value The class name(s).
+     * @return A new Modifier with the class attribute.
+     */
+    fun className(value: String): Modifier =
+        attribute("class", value)
+
+    /**
+     * Adds a class to the element's class list.
+     * If the element already has classes, this will append the new class, ensuring no duplicates.
+     * @param value The class name to add.
+     * @return A new Modifier with the updated class attribute.
+     */
+    fun addClass(value: String): Modifier {
+        val existingClasses =
+            attributes["class"]?.splitCompat(' ')?.toSet() ?: emptySet() // Accesses the Kotlin property `attributes`
+        val newClasses = (existingClasses + value.trim()).filter { it.isNotEmpty() }.joinToString(" ")
+        return attribute("class", newClasses)
+    }
+
+    /**
+     * Sets a `data-*` attribute of the element.
+     * @param name The name of the data attribute (without the "data-" prefix).
+     * @param value The value of the data attribute.
+     * @return A new Modifier with the data attribute.
+     */
+    fun dataAttribute(name: String, value: String): Modifier =
+        attribute("data-$name", value)
+
+    /**
+     * Applies a map of data attributes in a single call.
+     * Keys may be provided with or without the `data-` prefix.
+     * Blank keys are ignored.
+     * @param values Map of attribute names to values.
+     */
+    fun dataAttributes(values: Map<String, String>): Modifier {
+        var updated = this
+        values.forEach { (key, value) ->
+            val trimmedKey = key.trim()
+            if (trimmedKey.isEmpty()) return@forEach
+            updated = if (trimmedKey.startsWith("data-")) {
+                updated.attribute(trimmedKey, value)
+            } else {
+                updated.dataAttribute(trimmedKey, value)
+            }
+        }
+        return updated
+    }
+
+    /**
+     * Sets an `aria-*` attribute of the element for accessibility.
+     * @param name The name of the ARIA attribute (without the "aria-" prefix).
+     * @param value The value of the ARIA attribute.
+     * @return A new Modifier with the ARIA attribute.
+     */
+    fun ariaAttribute(name: String, value: String): Modifier =
+        attribute("aria-$name", value)
+
+    /**
+     * Sets the `role` attribute of the element for accessibility.
+     * @param value The role value.
+     * @return A new Modifier with the role attribute.
+     */
+    fun role(value: String): Modifier =
+        attribute("role", value)
+
+    /**
+     * Sets the `tabindex` attribute of the element, affecting focusability.
+     * @param value The tabindex value.
+     * @return A new Modifier with the tabindex attribute.
+     */
+    fun tabIndex(value: Int): Modifier =
+        attribute("tabindex", value.toString())
+
+    /**
+     * Sets the margin at the bottom of the element.
+     * @param value The CSS margin-bottom value.
+     * @return A new Modifier with the margin-bottom style.
+     */
+    fun marginBottom(value: String): Modifier =
+        style("margin-bottom", value)
+
+    /**
+     * Sets the margin at the top of the element.
+     * @param value The CSS margin-top value.
+     * @return A new Modifier with the margin-top style.
+     */
+    fun marginTop(value: String): Modifier =
+        style("margin-top", value)
+
+    /**
+     * Sets the margin at the left of the element.
+     * @param value The CSS margin-left value.
+     * @return A new Modifier with the margin-left style.
+     */
+    fun marginLeft(value: String): Modifier =
+        style("margin-left", value)
+
+    /**
+     * Sets the margin at the right of the element.
+     * @param value The CSS margin-right value.
+     * @return A new Modifier with the margin-right style.
+     */
+    fun marginRight(value: String): Modifier =
+        style("margin-right", value)
+
+    /**
+     * Sets the CSS `cursor` property.
+     * @param value The CSS cursor value (e.g., "pointer", "default", "text").
+     * @return A new Modifier with the cursor style.
+     */
+    fun cursor(value: String): Modifier = // Kept for direct string values
+        style("cursor", value)
+
+    /**
+     * Sets the CSS `pointer-events` property using a raw string value.
+     * @param value The CSS pointer-events value.
+     */
+    fun pointerEvents(value: String): Modifier =
+        style("pointer-events", value)
+
+    /**
+     * Sets the CSS `pointer-events` property using the PointerEvents enum.
+     * @param value PointerEvents value describing the desired behavior.
+     */
+    fun pointerEvents(value: PointerEvents): Modifier =
+        style("pointer-events", value.value)
+
+    /**
+     * Sets the CSS `cursor` property using a Cursor enum (if defined and convertible to string).
+     * @param value The Cursor enum value.
+     * @return A new Modifier with the cursor style.
+     */
+    // fun cursor(value: Cursor): Modifier =
+    //    style("cursor", value.name.lowercase()) // Example if Cursor is an enum
+
+    /**
+     * Sets the `z-index` of the element, affecting stacking order.
+     * @param value The z-index value.
+     * @return A new Modifier with the z-index style.
+     */
+    fun zIndex(value: Int): Modifier =
+        style("z-index", value.toString())
+}
+
+/**
+ * Factory function to create an empty Modifier.
+ */
+fun createEmptyModifier(): Modifier = Modifier()
+
+/**
+ * Factory function to create a Modifier with initial styles.
+ * @param styles A map of style properties.
+ * @return A new Modifier with the specified styles.
+ */
+fun createModifierWithStyles(styles: Map<String, String>): Modifier {
+    // In JS, to pass an empty map for attributes: new Modifier(styles, undefined) or new Modifier(styles, {})
+    return Modifier(styles = styles)
+}
+
+/**
+ * Factory function to create a Modifier with initial attributes.
+ * Exported to JavaScript with the name "createModifierWithAttributes".
+ * In JS: `yourModuleName.codes.yousef.summon.modifier.createModifierWithAttributes({ id: 'myElement' })`
+ * @param attributes A map of attributes. Can be a JS object when called from JS.
+ * @return A new Modifier with the specified attributes.
+ */
+fun createModifierWithAttributes(attributes: Map<String, String>): Modifier {
+    // In JS, to pass an empty map for styles: new Modifier(undefined, attributes) or new Modifier({}, attributes)
+    return Modifier(attributes = attributes)
+}
