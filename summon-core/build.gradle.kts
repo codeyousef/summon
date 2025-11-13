@@ -622,17 +622,10 @@ tasks.register("publishToCentralPortalManually") {
 tasks.register("publishToLegacyGroupId") {
     group = "publishing"
     description = "Publish to Maven Central using legacy group ID (io.github.codeyousef) - until 0.5.0.0"
+    dependsOn("publishToMavenLocal", "javadocJar")
 
     doLast {
-        // Temporarily change group ID
-        val originalGroup = project.group
-        project.group = "io.github.codeyousef"
-
-        try {
-            // Re-publish to Maven Local with legacy group
-            project.tasks.getByName("publishToMavenLocal").actions.forEach { it.execute(project.tasks.getByName("publishToMavenLocal")) }
-
-            // Load credentials
+        // Load credentials
             val localProperties = Properties().apply {
                 val localFile = rootProject.file("local.properties")
                 if (localFile.exists()) {
@@ -668,10 +661,13 @@ tasks.register("publishToLegacyGroupId") {
                 val targetDir = file("$bundleDir/$mavenPath")
                 targetDir.mkdirs()
 
-                val localMavenDir =
-                    file("${System.getProperty("user.home")}/.m2/repository/io/github/codeyousef/$artifactId/${project.version}")
-                if (localMavenDir.exists()) {
-                    localMavenDir.listFiles()?.forEach { file ->
+                // Source artifacts from codes.yousef (the new group where they were published)
+                val sourceDir =
+                    file("${System.getProperty("user.home")}/.m2/repository/codes/yousef/$artifactId/${project.version}")
+
+                if (sourceDir.exists()) {
+                    println("📦 Copying $artifactId from codes.yousef to legacy bundle...")
+                    sourceDir.listFiles()?.forEach { file ->
                         if ((file.name.endsWith(".jar") || file.name.endsWith(".pom") ||
                                     file.name.endsWith(".klib") || file.name.endsWith(".module")) &&
                             !file.name.endsWith(".md5") && !file.name.endsWith(".sha1") &&
@@ -681,6 +677,8 @@ tasks.register("publishToLegacyGroupId") {
                             allFiles.add(File(targetDir, file.name))
                         }
                     }
+                } else {
+                    println("⚠️  Source not found: $sourceDir")
                 }
             }
 
@@ -734,11 +732,6 @@ tasks.register("publishToLegacyGroupId") {
             }
 
             println("✅ Legacy group ID upload complete")
-
-        } finally {
-            // Restore original group
-            project.group = originalGroup
-        }
     }
 }
 
