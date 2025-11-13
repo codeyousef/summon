@@ -7,11 +7,8 @@
 > 📦 **IMPORTANT: Group ID Migration** (November 2025)
 >
 > Summon is migrating from `io.github.codeyousef` to `codes.yousef`!
->
-> **What you need to know:**
-> - We are now publishing to **both** group IDs for backward compatibility
 > - Version **0.5.0.0** will be the LAST release under `io.github.codeyousef`
-> - Starting with version **0.5.1.0**, all releases will ONLY be published to `codes.yousef`
+> - Please switch your dependencies to `codes.yousef` as soon as possible
 >
 > **Action Required:**
 > Update your dependencies from:

@@ -503,10 +503,14 @@ tasks.register("publishToCentralPortalManually") {
                 
                 // Add javadoc jar for each platform
                 val javadocJar = file("${layout.buildDirectory.get()}/libs/summon-core-${project.version}-javadoc.jar")
-                if (javadocJar.exists()) {
-                    val renamedJavadocJar = File(targetDir, "$artifactId-${project.version}-javadoc.jar")
-                    javadocJar.copyTo(renamedJavadocJar, overwrite = true)
-                    allFilesToProcess.add(renamedJavadocJar)
+                val needsJavadoc = artifactId in listOf("summon", "summon-jvm")
+                if (needsJavadoc && javadocJar.exists()) {
+                    val javadocFileName = "$artifactId-${project.version}-javadoc.jar"
+                    val targetJavadocJar = File(targetDir, javadocFileName)
+                    if (!targetJavadocJar.exists()) {
+                        javadocJar.copyTo(targetJavadocJar, overwrite = true)
+                        allFilesToProcess.add(targetJavadocJar)
+                    }
                 }
             } else {
                 println("⚠️ No artifacts found for $artifactId at $localMavenDir")
@@ -576,9 +580,9 @@ tasks.register("publishToCentralPortalManually") {
                     throw GradleException("GPG signing error for ${file.name}: ${e.message}", e)
                 }
             }
-            
-            println("📦 Creating ZIP bundle for API upload...")
-            
+
+        println("📦 Creating ZIP bundle for Central Portal API")
+
             // Create ZIP file for Central Portal API
             val zipFile = file("${bundleDir.parent}/summon-${project.version}-bundle.zip")
             ant.invokeMethod("zip", mapOf(
@@ -625,125 +629,208 @@ tasks.register("publishToLegacyGroupId") {
     dependsOn("publishToMavenLocal", "javadocJar")
 
     doLast {
-        // Load credentials
-            val localProperties = Properties().apply {
-                val localFile = rootProject.file("local.properties")
-                if (localFile.exists()) {
-                    load(localFile.inputStream())
-                }
+        val skipLegacyUpload = (project.findProperty("skipLegacyUpload") as String?) == "true"
+        // Load credentials (only needed for upload)
+        val localProperties = Properties().apply {
+            val localFile = rootProject.file("local.properties")
+            if (localFile.exists()) {
+                load(localFile.inputStream())
             }
+        }
+        val username = localProperties.getProperty("mavenCentralUsername")
+        val password = localProperties.getProperty("mavenCentralPassword")
+        val signingPassword = localProperties.getProperty("signingPassword") ?: System.getenv("SIGNING_PASSWORD")
+        ?: throw GradleException("signingPassword not found. Provide in local.properties or env SIGNING_PASSWORD")
 
-            val username = localProperties.getProperty("mavenCentralUsername")
-                ?: throw GradleException("mavenCentralUsername not found in local.properties")
-            val password = localProperties.getProperty("mavenCentralPassword")
-                ?: throw GradleException("mavenCentralPassword not found in local.properties")
-            val signingPassword = localProperties.getProperty("signingPassword")
-                ?: throw GradleException("signingPassword not found in local.properties")
+        println("🚀 Preparing LEGACY bundle (io.github.codeyousef)... skipUpload=$skipLegacyUpload")
 
-            println("🚀 Publishing to Maven Central with LEGACY group ID (io.github.codeyousef)...")
-            println("⚠️  This is the last release cycle - switching to codes.yousef in 0.5.0.0")
+        // Create bundle for legacy group
+        val bundleDir = file("${layout.buildDirectory.get()}/central-portal-bundle-legacy")
+        bundleDir.deleteRecursively()
 
-            // Create bundle for legacy group
-            val bundleDir = file("${layout.buildDirectory.get()}/central-portal-bundle-legacy")
-            bundleDir.deleteRecursively()
+        val artifactMappings = mapOf(
+            "summon" to "kotlinMultiplatform",
+            "summon-jvm" to "jvm",
+            "summon-js" to "js",
+            "summon-core" to "wasmJs"
+        )
 
-            val artifactMappings = mapOf(
-                "summon" to "kotlinMultiplatform",
-                "summon-jvm" to "jvm",
-                "summon-js" to "js",
-                "summon-core" to "wasmJs"
-            )
+        val allFiles = mutableListOf<File>()
 
-            val allFiles = mutableListOf<File>()
+        artifactMappings.forEach { (artifactId, _) ->
+            val legacyMavenPath = "io/github/codeyousef/$artifactId/${project.version}"
+            val targetDir = file("$bundleDir/$legacyMavenPath")
+            targetDir.mkdirs()
 
-            artifactMappings.forEach { (artifactId, _) ->
-                val mavenPath = "io/github/codeyousef/$artifactId/${project.version}"
-                val targetDir = file("$bundleDir/$mavenPath")
-                targetDir.mkdirs()
+            // Source artifacts from codes.yousef (the new group where they were published)
+            val sourceDir =
+                file("${System.getProperty("user.home")}/.m2/repository/codes/yousef/$artifactId/${project.version}")
 
-                // Source artifacts from codes.yousef (the new group where they were published)
-                val sourceDir =
-                    file("${System.getProperty("user.home")}/.m2/repository/codes/yousef/$artifactId/${project.version}")
+            if (sourceDir.exists()) {
+                println("📦 Copying $artifactId from codes.yousef to legacy bundle...")
 
-                if (sourceDir.exists()) {
-                    println("📦 Copying $artifactId from codes.yousef to legacy bundle...")
-
-                    // Copy ALL files including checksums and signatures
-                    sourceDir.listFiles()?.forEach { file ->
-                        if (file.isFile) {
-                            file.copyTo(File(targetDir, file.name), overwrite = true)
-                            // Track main artifact files for javadoc checking
-                            if ((file.name.endsWith(".jar") || file.name.endsWith(".pom") ||
-                                        file.name.endsWith(".klib") || file.name.endsWith(".module")) &&
-                                !file.name.endsWith(".md5") && !file.name.endsWith(".sha1") &&
-                                !file.name.endsWith(".asc")
-                            ) {
-                                allFiles.add(File(targetDir, file.name))
-                            }
-                        }
+                // Copy all files 1:1
+                sourceDir.listFiles()?.forEach { file ->
+                    if (file.isFile) {
+                        file.copyTo(File(targetDir, file.name), overwrite = true)
                     }
+                }
 
-                    // Add javadoc jar for each artifact (required by Maven Central)
-                    val javadocJar =
-                        file("${layout.buildDirectory.get()}/libs/summon-core-${project.version}-javadoc.jar")
-                    if (javadocJar.exists()) {
-                        val javadocFileName = "$artifactId-${project.version}-javadoc.jar"
-                        val targetJavadocJar = File(targetDir, javadocFileName)
+                // Add/ensure javadoc jar (required by Central) using the generic javadoc we build
+                val javadocJar = file("${layout.buildDirectory.get()}/libs/summon-core-${project.version}-javadoc.jar")
+                val needsJavadoc = artifactId in listOf("summon", "summon-jvm")
+                if (needsJavadoc && javadocJar.exists()) {
+                    val javadocFileName = "$artifactId-${project.version}-javadoc.jar"
+                    val targetJavadocJar = File(targetDir, javadocFileName)
+                    if (!targetJavadocJar.exists()) {
                         javadocJar.copyTo(targetJavadocJar, overwrite = true)
-
-                        // Generate checksums and signature for javadoc
-                        val md5Hash = MessageDigest.getInstance("MD5")
-                            .digest(targetJavadocJar.readBytes())
-                            .joinToString("") { "%02x".format(it) }
-                        File(targetDir, "$javadocFileName.md5").writeText(md5Hash)
-
-                        val sha1Hash = MessageDigest.getInstance("SHA-1")
-                            .digest(targetJavadocJar.readBytes())
-                            .joinToString("") { "%02x".format(it) }
-                        File(targetDir, "$javadocFileName.sha1").writeText(sha1Hash)
-
-                        // Sign javadoc jar
-                        val sigFile = File(targetDir, "$javadocFileName.asc")
-                        val privateKeyFile = rootProject.file("private-key.asc")
-                        val signScript = rootProject.file("sign-artifact.sh")
-
-                        if (privateKeyFile.exists() && signScript.exists()) {
-                            exec {
-                                commandLine(
-                                    "bash", signScript.absolutePath,
-                                    signingPassword, privateKeyFile.absolutePath,
-                                    sigFile.absolutePath, targetJavadocJar.absolutePath
-                                )
-                            }
-                        }
                     }
-                } else {
-                    println("⚠️  Source not found: $sourceDir")
+                }
+            } else {
+                println("⚠️  Source not found: $sourceDir")
+            }
+        }
+
+        // Rewrite coordinates in textual metadata to legacy group and fully re-sign/re-checksum everything
+        val textualExtensions = setOf(".pom", ".module", ".json")
+        val needArtifactsPatterns = listOf(
+            Regex(".*\\.pom$"),
+            Regex(".*\\.module$"),
+            Regex(".*\\.jar$"),
+            Regex(".*\\.klib$"),
+            Regex(".*kotlin-tooling-metadata\\.json$")
+        )
+
+        // Rewrite group coordinates in textual metadata to the legacy groupId
+        bundleDir.walkTopDown()
+            .filter { it.isFile && (it.extension in listOf("pom", "module", "json")) }
+            .forEach { file ->
+                try {
+                    val content = file.readText()
+                    val updated = content.replace("codes.yousef", "io.github.codeyousef")
+                    if (updated != content) file.writeText(updated)
+                } catch (e: Exception) {
+                    throw GradleException("Failed rewriting groupId in ${file.absolutePath}: ${e.message}", e)
                 }
             }
 
-            // Create ZIP and upload
-            val zipFile = file("${bundleDir.parent}/summon-${project.version}-legacy-bundle.zip")
-            ant.invokeMethod(
-                "zip", mapOf(
-                    "destfile" to zipFile.absolutePath,
-                    "basedir" to bundleDir.absolutePath
-                )
-            )
+        // Helper to generate checksum files
+        fun generateChecksumFiles(target: File) {
+            val bytes = target.readBytes()
+            val md5 = MessageDigest.getInstance("MD5").digest(bytes).joinToString("") { "%02x".format(it) }
+            val sha1 = MessageDigest.getInstance("SHA-1").digest(bytes).joinToString("") { "%02x".format(it) }
+            File(target.parentFile, "${target.name}.md5").writeText(md5)
+            File(target.parentFile, "${target.name}.sha1").writeText(sha1)
+        }
 
-            val authString = Base64.getEncoder().encodeToString("$username:$password".toByteArray())
+        // Sign a file producing .asc using our script/key
+        fun selectPrivateKeyFile(): File {
+            val candidates = listOf(
+                rootProject.file("private-key-working.asc"),
+                rootProject.file("private-key-clean.asc"),
+                rootProject.file("private-key-fixed.asc"),
+                rootProject.file("private-key-ascii.asc"),
+                rootProject.file("private-key.asc")
+            )
+            val found = candidates.firstOrNull { it.exists() }
+            return found
+                ?: throw GradleException("No private key file found. Checked: ${candidates.joinToString { it.name }}")
+        }
+
+        fun signFile(target: File) {
+            if (skipLegacyUpload) return // allow local bundle without signing
+            val privateKeyFile = selectPrivateKeyFile()
+            val signScript = rootProject.file("sign-artifact.sh")
+            if (!signScript.exists()) {
+                if (skipLegacyUpload) return else throw GradleException("Signing script missing: sign-artifact.sh")
+            }
+            val ascOut = File(target.parentFile, "${target.name}.asc")
             exec {
+                commandLine(
+                    "bash", signScript.absolutePath,
+                    signingPassword, privateKeyFile.absolutePath,
+                    ascOut.absolutePath, target.absolutePath
+                )
+                isIgnoreExitValue = false
+            }
+            if (!ascOut.exists() && !skipLegacyUpload) {
+                throw GradleException("Failed to create signature for ${target.name}")
+            }
+        }
+
+        // Iterate over every artifact file and generate md5/sha1 and .asc
+        bundleDir.walkTopDown()
+            .filter { it.isFile }
+            .forEach { file ->
+                // Only process main artifacts (skip checksum/signature files)
+                if (file.name.endsWith(".md5") || file.name.endsWith(".sha1") || file.name.endsWith(".asc")) return@forEach
+
+                // We require checksums and signatures for these artifact kinds
+                val isArtifact = needArtifactsPatterns.any { it.matches(file.name) }
+                if (isArtifact) {
+                    generateChecksumFiles(file)
+                    signFile(file)
+                    // also checksum the signature itself
+                    val asc = File(file.parentFile, "${file.name}.asc")
+                    if (asc.exists()) generateChecksumFiles(asc)
+                }
+            }
+
+        // Validate artifacts: ensure required md5/sha1/asc exist for each primary artifact
+        val requiredOk = mutableListOf<String>()
+        val requiredMissing = mutableListOf<String>()
+        bundleDir.walkTopDown().filter { it.isFile }.forEach { file ->
+            if (file.name.endsWith(".md5") || file.name.endsWith(".sha1") || file.name.endsWith(".asc")) return@forEach
+            val isArtifact = needArtifactsPatterns.any { it.matches(file.name) }
+            if (!isArtifact) return@forEach
+            val md5 = File(file.parentFile, "${file.name}.md5")
+            val sha1 = File(file.parentFile, "${file.name}.sha1")
+            val asc = File(file.parentFile, "${file.name}.asc")
+            val ok =
+                if (skipLegacyUpload) (md5.exists() && sha1.exists()) else (md5.exists() && sha1.exists() && asc.exists())
+            if (ok) requiredOk.add(file.relativeTo(bundleDir).path) else requiredMissing.add(file.relativeTo(bundleDir).path)
+        }
+        if (requiredMissing.isNotEmpty()) {
+            println("❌ Missing artifacts for legacy bundle:")
+            requiredMissing.forEach { println("   - $it (missing md5/sha1 and/or asc)") }
+            throw GradleException("Legacy bundle validation failed: missing checksums/signatures for ${requiredMissing.size} artifacts")
+        } else {
+            println("✅ Legacy bundle validation passed for ${requiredOk.size} artifacts")
+        }
+
+        println("🧰 Creating LEGACY ZIP bundle for Central Portal upload...")
+        val legacyZip = file("${bundleDir.parent}/summon-${project.version}-legacy-bundle.zip")
+        ant.invokeMethod(
+            "zip", mapOf(
+                "destfile" to legacyZip.absolutePath,
+                "basedir" to bundleDir.absolutePath
+            )
+        )
+
+        val authString =
+            if (!skipLegacyUpload) Base64.getEncoder().encodeToString("$username:$password".toByteArray()) else null
+        if (!skipLegacyUpload) {
+            println("🚀 Uploading LEGACY bundle to Central Portal...")
+            val legacyUpload = exec {
                 isIgnoreExitValue = true
                 commandLine(
                     "curl", "-X", "POST",
                     "https://central.sonatype.com/api/v1/publisher/upload",
-                    "-H", "Authorization: Basic $authString",
-                    "-F", "bundle=@${zipFile.absolutePath}",
+                    "-H", "Authorization: Basic ${authString}",
+                    "-F", "bundle=@${legacyZip.absolutePath}",
                     "--fail-with-body"
                 )
             }
+            if (legacyUpload.exitValue == 0) {
+                println("✅ Legacy upload successful! Validate at Central Portal UI.")
+            } else {
+                println("❌ Legacy upload failed. Please upload manually: ${legacyZip.absolutePath}")
+            }
+        } else {
+            println("⏭️ Skipped upload. Legacy bundle ready at: ${legacyZip.absolutePath}")
+        }
 
-            println("✅ Legacy group ID upload complete")
+        println("✅ Legacy group ID bundle prepared with rewritten POMs/modules and regenerated checksums/signatures (including .asc checksums)")
     }
 }
 

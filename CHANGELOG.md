@@ -1105,12 +1105,12 @@ This release maintains full backward compatibility. No changes are required for 
   - Clipboard state caching for synchronous interface compatibility
   - Console logging for debugging clipboard operations
 
-### Changed
+#### Changed
 - Updated all Composer implementations (CommonComposer, JvmComposer, JsComposer) to support new interface methods
 - Enhanced Router to properly track and update current path state
 - Improved test infrastructure with comprehensive test coverage for new features
 
-### Fixed
+#### Fixed
 - Fixed compilation errors in test files by adding required Composer interface methods
 - Resolved syntax errors in MockComposer implementations across test files
 - Fixed router navigation state synchronization with browser history
