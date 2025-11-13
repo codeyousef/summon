@@ -171,23 +171,43 @@ fun Modifier.transitionDelay(value: Number): Modifier
 
 ---
 
-### 8. Pseudo-Element Modifiers (Partial) ✅
+### 8. Pseudo-Element and Pseudo-Selector Modifiers ✅
 
-**Status**: **PARTIALLY IMPLEMENTED**
+**Status**: **FULLY IMPLEMENTED**
 
+**Pseudo-Elements** (in `PseudoElementModifiers.kt`):
 ```kotlin
 fun Modifier.before(ensurePositionRelative: Boolean = true, content: String? = null, builder: Modifier.() -> Modifier): Modifier
 fun Modifier.after(ensurePositionRelative: Boolean = true, content: String? = null, builder: Modifier.() -> Modifier): Modifier
 ```
 
-**Location**: `summon-core/src/commonMain/kotlin/code/yousef/summon/modifier/PseudoElementModifiers.kt`
+**Pseudo-Selectors** (in `TransitionModifiers.kt`):
+```kotlin
+fun Modifier.hover(hoverModifier: Modifier): Modifier
+fun Modifier.focus(focusModifier: Modifier): Modifier
+fun Modifier.active(activeModifier: Modifier): Modifier
+fun Modifier.focusWithin(focusWithinModifier: Modifier): Modifier
+fun Modifier.firstChild(firstChildModifier: Modifier): Modifier
+fun Modifier.lastChild(lastChildModifier: Modifier): Modifier
+fun Modifier.nthChild(n: String, nthChildModifier: Modifier): Modifier
+fun Modifier.onlyChild(onlyChildModifier: Modifier): Modifier
+fun Modifier.visited(visitedModifier: Modifier): Modifier
+fun Modifier.disabledStyles(disabledModifier: Modifier): Modifier
+fun Modifier.checkedStyles(checkedModifier: Modifier): Modifier
+```
+
+**Locations**: 
+- `summon-core/src/commonMain/kotlin/code/yousef/summon/modifier/PseudoElementModifiers.kt`
+- `summon-core/src/commonMain/kotlin/code/yousef/summon/modifier/TransitionModifiers.kt`
 
 **Features**:
-- `::before` and `::after` pseudo-elements
-- Nested modifier DSL for pseudo-element styling
-- Automatic position: relative handling
-
-**Note**: Other pseudo-selectors like `:focus`, `:active`, `:focus-within` still need to be implemented.
+- Pseudo-elements: `::before` and `::after`
+- Interactive states: `:hover`, `:focus`, `:active`, `:focus-within`
+- Structural selectors: `:first-child`, `:last-child`, `:nth-child()`, `:only-child`
+- State selectors: `:visited`, `:disabled`, `:checked`
+- Nested modifier DSL for all pseudo styling
+- Automatic position: relative handling for pseudo-elements
+- Map-based and Modifier-based overloads for all selectors
 
 ---
 

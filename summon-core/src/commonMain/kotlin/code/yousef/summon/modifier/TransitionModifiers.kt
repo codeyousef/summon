@@ -165,3 +165,152 @@ fun Modifier.focusWithin(styles: Map<String, String>): Modifier {
     val focusWithinString = styles.entries.joinToString(";") { "${it.key}:${it.value}" }
     return attribute("data-focus-within-styles", focusWithinString)
 }
+
+/**
+ * Applies styles when the element is the first child of its parent.
+ * 
+ * @param firstChildModifier Modifier containing styles to apply when first child
+ * @return A new [Modifier] with first-child styles
+ */
+fun Modifier.firstChild(firstChildModifier: Modifier): Modifier =
+    firstChild(firstChildModifier.styles)
+
+/**
+ * Applies styles when the element is the first child using a map of CSS properties.
+ * 
+ * @param styles Map of CSS property names to values
+ * @return A new [Modifier] with first-child styles
+ */
+fun Modifier.firstChild(styles: Map<String, String>): Modifier {
+    if (styles.isEmpty()) return this
+    val firstChildString = styles.entries.joinToString(";") { "${it.key}:${it.value}" }
+    return attribute("data-first-child-styles", firstChildString)
+}
+
+/**
+ * Applies styles when the element is the last child of its parent.
+ * 
+ * @param lastChildModifier Modifier containing styles to apply when last child
+ * @return A new [Modifier] with last-child styles
+ */
+fun Modifier.lastChild(lastChildModifier: Modifier): Modifier =
+    lastChild(lastChildModifier.styles)
+
+/**
+ * Applies styles when the element is the last child using a map of CSS properties.
+ * 
+ * @param styles Map of CSS property names to values
+ * @return A new [Modifier] with last-child styles
+ */
+fun Modifier.lastChild(styles: Map<String, String>): Modifier {
+    if (styles.isEmpty()) return this
+    val lastChildString = styles.entries.joinToString(";") { "${it.key}:${it.value}" }
+    return attribute("data-last-child-styles", lastChildString)
+}
+
+/**
+ * Applies styles when the element matches the nth-child selector.
+ * 
+ * @param n The nth-child formula (e.g., "2n", "odd", "even", "3")
+ * @param nthChildModifier Modifier containing styles to apply
+ * @return A new [Modifier] with nth-child styles
+ */
+fun Modifier.nthChild(n: String, nthChildModifier: Modifier): Modifier =
+    nthChild(n, nthChildModifier.styles)
+
+/**
+ * Applies styles when the element matches the nth-child selector using a map of CSS properties.
+ * 
+ * @param n The nth-child formula (e.g., "2n", "odd", "even", "3")
+ * @param styles Map of CSS property names to values
+ * @return A new [Modifier] with nth-child styles
+ */
+fun Modifier.nthChild(n: String, styles: Map<String, String>): Modifier {
+    if (styles.isEmpty()) return this
+    val nthChildString = styles.entries.joinToString(";") { "${it.key}:${it.value}" }
+    return attribute("data-nth-child-styles", "$n:$nthChildString")
+}
+
+/**
+ * Applies styles when the element is an only child.
+ * 
+ * @param onlyChildModifier Modifier containing styles to apply when only child
+ * @return A new [Modifier] with only-child styles
+ */
+fun Modifier.onlyChild(onlyChildModifier: Modifier): Modifier =
+    onlyChild(onlyChildModifier.styles)
+
+/**
+ * Applies styles when the element is an only child using a map of CSS properties.
+ * 
+ * @param styles Map of CSS property names to values
+ * @return A new [Modifier] with only-child styles
+ */
+fun Modifier.onlyChild(styles: Map<String, String>): Modifier {
+    if (styles.isEmpty()) return this
+    val onlyChildString = styles.entries.joinToString(";") { "${it.key}:${it.value}" }
+    return attribute("data-only-child-styles", onlyChildString)
+}
+
+/**
+ * Applies styles when the element is visited (for links).
+ * 
+ * @param visitedModifier Modifier containing styles to apply when visited
+ * @return A new [Modifier] with visited styles
+ */
+fun Modifier.visited(visitedModifier: Modifier): Modifier =
+    visited(visitedModifier.styles)
+
+/**
+ * Applies styles when the element is visited using a map of CSS properties.
+ * 
+ * @param styles Map of CSS property names to values
+ * @return A new [Modifier] with visited styles
+ */
+fun Modifier.visited(styles: Map<String, String>): Modifier {
+    if (styles.isEmpty()) return this
+    val visitedString = styles.entries.joinToString(";") { "${it.key}:${it.value}" }
+    return attribute("data-visited-styles", visitedString)
+}
+
+/**
+ * Applies styles when the element is disabled.
+ * 
+ * @param disabledModifier Modifier containing styles to apply when disabled
+ * @return A new [Modifier] with disabled styles
+ */
+fun Modifier.disabledStyles(disabledModifier: Modifier): Modifier =
+    disabledStyles(disabledModifier.styles)
+
+/**
+ * Applies styles when the element is disabled using a map of CSS properties.
+ * 
+ * @param styles Map of CSS property names to values
+ * @return A new [Modifier] with disabled styles
+ */
+fun Modifier.disabledStyles(styles: Map<String, String>): Modifier {
+    if (styles.isEmpty()) return this
+    val disabledString = styles.entries.joinToString(";") { "${it.key}:${it.value}" }
+    return attribute("data-disabled-styles", disabledString)
+}
+
+/**
+ * Applies styles when the element is checked (for checkboxes/radio buttons).
+ * 
+ * @param checkedModifier Modifier containing styles to apply when checked
+ * @return A new [Modifier] with checked styles
+ */
+fun Modifier.checkedStyles(checkedModifier: Modifier): Modifier =
+    checkedStyles(checkedModifier.styles)
+
+/**
+ * Applies styles when the element is checked using a map of CSS properties.
+ * 
+ * @param styles Map of CSS property names to values
+ * @return A new [Modifier] with checked styles
+ */
+fun Modifier.checkedStyles(styles: Map<String, String>): Modifier {
+    if (styles.isEmpty()) return this
+    val checkedString = styles.entries.joinToString(";") { "${it.key}:${it.value}" }
+    return attribute("data-checked-styles", checkedString)
+}
