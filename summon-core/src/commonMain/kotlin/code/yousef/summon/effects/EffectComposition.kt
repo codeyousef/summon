@@ -174,11 +174,11 @@
  * @see CommonEffects for utility effects
  * @since 1.0.0
  */
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.DisposableEffect
-import code.yousef.summon.runtime.LaunchedEffect
+import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.runtime.DisposableEffect
+import codes.yousef.summon.runtime.LaunchedEffect
 import kotlinx.coroutines.*
 import kotlinx.datetime.Clock
 import kotlin.time.Duration.Companion.milliseconds

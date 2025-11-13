@@ -1,4 +1,4 @@
-package code.yousef.summon.stylesheet
+package codes.yousef.summon.stylesheet
 
 import kotlinx.browser.document
 import org.w3c.dom.HTMLStyleElement

@@ -1,9 +1,9 @@
-package code.yousef.summon.components.feedback
+package codes.yousef.summon.components.feedback
 
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.runtime.CompositionLocal
+import codes.yousef.summon.runtime.LocalPlatformRenderer
 
 
 /**

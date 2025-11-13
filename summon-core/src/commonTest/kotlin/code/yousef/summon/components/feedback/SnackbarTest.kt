@@ -1,12 +1,8 @@
-package code.yousef.summon.components.feedback
+package codes.yousef.summon.components.feedback
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.Composer
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.runtime.clearPlatformRenderer
-import code.yousef.summon.runtime.setPlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

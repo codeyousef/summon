@@ -1,4 +1,4 @@
-package code.yousef.summon.annotation
+package codes.yousef.summon.annotation
 
 /**
  * An annotation which identifies a [Composable] function as one which will be used as the root skeleton for every

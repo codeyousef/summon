@@ -1,4 +1,4 @@
-package code.yousef.summon.web
+package codes.yousef.summon.web
 
 /**
  * Platform-specific error boundary function declarations.

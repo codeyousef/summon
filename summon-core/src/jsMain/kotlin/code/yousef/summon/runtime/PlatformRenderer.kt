@@ -1,17 +1,17 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
 // Import extension functions for Element
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.IconType
-import code.yousef.summon.components.feedback.AlertVariant
-import code.yousef.summon.components.feedback.ProgressType
-import code.yousef.summon.components.input.FileInfo
-import code.yousef.summon.components.navigation.Tab
-import code.yousef.summon.core.FlowContentCompat
-import code.yousef.summon.core.asFlowContentCompat
-import code.yousef.summon.js.console
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.ModifierExtras.withAttribute
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.display.IconType
+import codes.yousef.summon.components.feedback.AlertVariant
+import codes.yousef.summon.components.feedback.ProgressType
+import codes.yousef.summon.components.input.FileInfo
+import codes.yousef.summon.components.navigation.Tab
+import codes.yousef.summon.core.FlowContentCompat
+import codes.yousef.summon.core.asFlowContentCompat
+import codes.yousef.summon.js.console
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.ModifierExtras.withAttribute
 import kotlinx.browser.document
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
@@ -247,6 +247,12 @@ actual open class PlatformRenderer {
             }
         }
 
+        // Handle portal teleportation if specified
+        val portalTarget = modifier.attributes["data-portal-target"]
+        if (portalTarget != null) {
+            PortalManager.portal(element, portalTarget)
+        }
+
         return element
     }
 
@@ -276,6 +282,12 @@ actual open class PlatformRenderer {
             element.removeEventListener(eventType, listener)
             element.removeAttribute("data-summon-handler-$eventType")
         }
+        // Also clean up any injected styles for this element
+        StyleInjector.cleanupElementStyles(element)
+        // And unportal if it's in a portal
+        if (PortalManager.isPortaled(element)) {
+            PortalManager.unportal(element)
+        }
     }
 
     private fun cssPropertyName(key: String): String =
@@ -295,6 +307,18 @@ actual open class PlatformRenderer {
         return generated
     }
 
+    private fun parseStyleString(styleString: String): Map<String, String> {
+        return styleString.split(";")
+            .filter { it.isNotBlank() }
+            .mapNotNull { rule ->
+                val parts = rule.split(":", limit = 2)
+                if (parts.size == 2) {
+                    parts[0].trim() to parts[1].trim()
+                } else null
+            }
+            .toMap()
+    }
+
     private fun applyModifier(element: Element, modifier: Modifier) {
         // Apply styles using the toStyleString method which converts camelCase properties to kebab-case
         val styleString = modifier.toStyleString()
@@ -304,29 +328,81 @@ actual open class PlatformRenderer {
 
         // Apply other attributes from the modifier
         for ((key, value) in modifier.attributes) {
-            if (key == "data-hover-styles") {
-                // Create a unique class name for this element's hover styles
-                val uniqueClassName = "hover-${js("Math.random().toString(36).substring(2, 10)") as String}"
+            when {
+                key == "data-hover-styles" -> {
+                    val styles = parseStyleString(value)
+                    StyleInjector.injectPseudoSelectorStyles(element, ":hover", styles)
+                }
 
-                // Add the class to the element
-                val currentClasses = element.getAttribute("class") ?: ""
-                element.setAttribute("class", "$currentClasses $uniqueClassName")
+                key == "data-focus-styles" -> {
+                    val styles = parseStyleString(value)
+                    StyleInjector.injectPseudoSelectorStyles(element, ":focus", styles)
+                }
 
-                // Create a style element for the hover styles
-                val styleElement = document.createElement("style")
-                val hoverStyles = value.split(";").filter { it.isNotEmpty() }
-                    .joinToString("") { "  ${it.trim()};\n" }
+                key == "data-active-styles" -> {
+                    val styles = parseStyleString(value)
+                    StyleInjector.injectPseudoSelectorStyles(element, ":active", styles)
+                }
 
-                styleElement.textContent = """
-                    .$uniqueClassName:hover {
-                    $hoverStyles
+                key == "data-focus-within-styles" -> {
+                    val styles = parseStyleString(value)
+                    StyleInjector.injectPseudoSelectorStyles(element, ":focus-within", styles)
+                }
+
+                key == "data-first-child-styles" -> {
+                    val styles = parseStyleString(value)
+                    StyleInjector.injectPseudoSelectorStyles(element, ":first-child", styles)
+                }
+
+                key == "data-last-child-styles" -> {
+                    val styles = parseStyleString(value)
+                    StyleInjector.injectPseudoSelectorStyles(element, ":last-child", styles)
+                }
+
+                key == "data-nth-child-styles" -> {
+                    val parts = value.split("|||")
+                    if (parts.size == 2) {
+                        val selector = parts[0]
+                        val styles = parseStyleString(parts[1])
+                        StyleInjector.injectPseudoSelectorStyles(element, ":nth-child($selector)", styles)
                     }
-                """.trimIndent()
+                }
 
-                // Add the style element to the document head
-                document.head?.appendChild(styleElement)
-            } else {
-                element.setAttribute(key, value)
+                key == "data-only-child-styles" -> {
+                    val styles = parseStyleString(value)
+                    StyleInjector.injectPseudoSelectorStyles(element, ":only-child", styles)
+                }
+
+                key == "data-visited-styles" -> {
+                    val styles = parseStyleString(value)
+                    StyleInjector.injectPseudoSelectorStyles(element, ":visited", styles)
+                }
+
+                key == "data-disabled-styles" -> {
+                    val styles = parseStyleString(value)
+                    StyleInjector.injectPseudoSelectorStyles(element, ":disabled", styles)
+                }
+
+                key == "data-checked-styles" -> {
+                    val styles = parseStyleString(value)
+                    StyleInjector.injectPseudoSelectorStyles(element, ":checked", styles)
+                }
+
+                key == "data-media-queries" -> {
+                    // Format: "query1{styles1}|query2{styles2}|..."
+                    value.split("|").forEach { queryBlock ->
+                        val queryMatch = Regex("""^([^{]+)\{([^}]+)\}$""").find(queryBlock)
+                        if (queryMatch != null) {
+                            val (mediaQuery, stylesString) = queryMatch.destructured
+                            val styles = parseStyleString(stylesString)
+                            StyleInjector.injectMediaQueryStyles(element, mediaQuery, styles)
+                        }
+                    }
+                }
+
+                else -> {
+                    element.setAttribute(key, value)
+                }
             }
         }
 
@@ -575,7 +651,7 @@ actual open class PlatformRenderer {
         val rootElement = document.createElement("div")
         rootElement.setAttribute("data-summon-hydration", "root")
         rootElement.setAttribute("data-summon-renderer", "js")
-        rootElement.setAttribute("data-summon-version", js("globalThis.SUMMON_VERSION") ?: "0.4.7.0")
+        rootElement.setAttribute("data-summon-version", js("globalThis.SUMMON_VERSION") ?: "0.4.8.0")
 
         elementStack.withElement(rootElement) {
             composable()

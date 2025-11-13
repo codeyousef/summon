@@ -1,4 +1,4 @@
-package code.yousef.summon.core
+package codes.yousef.summon.core
 
 /**
  * Base interface for all UI components in the Summon library.

@@ -1,9 +1,9 @@
-package code.yousef.summon.routing
+package codes.yousef.summon.routing
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.DisposableEffect
-import code.yousef.summon.runtime.LaunchedEffect
-import code.yousef.summon.runtime.rememberMutableStateOf
+import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.runtime.DisposableEffect
+import codes.yousef.summon.runtime.LaunchedEffect
+import codes.yousef.summon.runtime.rememberMutableStateOf
 import kotlinx.browser.window
 import kotlin.js.js
 

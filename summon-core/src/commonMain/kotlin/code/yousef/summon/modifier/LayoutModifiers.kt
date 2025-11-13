@@ -157,10 +157,10 @@
  * @see code.yousef.summon.animation for animation system integration
  * @since 1.0.0
  */
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
-import code.yousef.summon.extensions.percent
-import code.yousef.summon.extensions.px
+import codes.yousef.summon.extensions.percent
+import codes.yousef.summon.extensions.px
 
 /**
  * Sets the minimum width constraint for the element.

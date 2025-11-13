@@ -1,10 +1,10 @@
-package code.yousef.summon.integration.quarkus.htmx
+package codes.yousef.summon.integration.quarkus.htmx
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.input.Button
-import code.yousef.summon.components.layout.Box
-import code.yousef.summon.modifier.Modifier
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.components.input.Button
+import codes.yousef.summon.components.layout.Box
+import codes.yousef.summon.modifier.Modifier
 
 /**
  * Composable components for HTMX integration.

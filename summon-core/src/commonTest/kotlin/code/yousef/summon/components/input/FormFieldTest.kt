@@ -1,12 +1,12 @@
-package code.yousef.summon.components.input
+package codes.yousef.summon.components.input
 
 // Import other types used in PlatformRenderer methods for the mock
 
 // Add import for shared MockPlatformRenderer
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runComposableTest
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.MockPlatformRenderer
+import codes.yousef.summon.util.runComposableTest
 import kotlin.test.*
 
 class FormFieldTest {

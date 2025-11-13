@@ -1,6 +1,6 @@
-package code.yousef.summon.accessibility
+package codes.yousef.summon.accessibility
 
-import code.yousef.summon.runtime.wasmFocusElement
+import codes.yousef.summon.runtime.wasmFocusElement
 
 /**
  * WASM implementation of platform-specific accessibility functions.

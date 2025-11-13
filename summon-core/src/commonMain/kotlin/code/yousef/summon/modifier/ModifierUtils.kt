@@ -1,8 +1,8 @@
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
-import code.yousef.summon.modifier.aspectRatio as baseAspectRatio
-import code.yousef.summon.modifier.inset as baseInset
-import code.yousef.summon.modifier.positionInset as basePositionInset
+import codes.yousef.summon.modifier.aspectRatio as baseAspectRatio
+import codes.yousef.summon.modifier.inset as baseInset
+import codes.yousef.summon.modifier.positionInset as basePositionInset
 
 /**
  * This file contains all modifier functions organized by category.

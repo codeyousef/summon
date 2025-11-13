@@ -1,4 +1,4 @@
-package code.yousef.summon.validation
+package codes.yousef.summon.validation
 
 /**
  * Simple class to represent validation result for form components

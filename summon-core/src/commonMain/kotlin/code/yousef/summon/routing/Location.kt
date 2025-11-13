@@ -1,6 +1,6 @@
-package code.yousef.summon.routing
+package codes.yousef.summon.routing
 
-import code.yousef.summon.core.splitCompat
+import codes.yousef.summon.core.splitCompat
 
 /**
  * Represents a location in the application's navigation history.

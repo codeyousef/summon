@@ -1,8 +1,8 @@
-package code.yousef.summon.components.navigation
+package codes.yousef.summon.components.navigation
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.getPlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.getPlatformRenderer
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 

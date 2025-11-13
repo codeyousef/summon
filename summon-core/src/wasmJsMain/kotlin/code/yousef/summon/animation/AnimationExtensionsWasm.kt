@@ -1,6 +1,6 @@
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
-import code.yousef.summon.runtime.wasmConsoleLog
+import codes.yousef.summon.runtime.wasmConsoleLog
 import kotlinx.coroutines.delay as kotlinxDelay
 
 actual fun AnimationController.startAnimation(durationMs: Int) {

@@ -1,9 +1,9 @@
-package code.yousef.summon.integration.quarkus
+package codes.yousef.summon.integration.quarkus
 
-import code.yousef.summon.routing.*
-import code.yousef.summon.runtime.PlatformRenderer
-import code.yousef.summon.runtime.clearPlatformRenderer
-import code.yousef.summon.runtime.setPlatformRenderer
+import codes.yousef.summon.routing.*
+import codes.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.runtime.clearPlatformRenderer
+import codes.yousef.summon.runtime.setPlatformRenderer
 import io.vertx.core.http.HttpHeaders
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext

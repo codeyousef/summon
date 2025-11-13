@@ -1,12 +1,12 @@
-package code.yousef.summon.routing
+package codes.yousef.summon.routing
 
 // This file is generated at build time - do not edit
 
-import code.yousef.summon.routing.pages.AboutPage
-import code.yousef.summon.routing.pages.HomePage
-import code.yousef.summon.routing.pages.NotFoundPage
-import code.yousef.summon.routing.pages.blog.BlogPostPage
-import code.yousef.summon.routing.pages.users.UserProfilePage
+import codes.yousef.summon.routing.pages.AboutPage
+import codes.yousef.summon.routing.pages.HomePage
+import codes.yousef.summon.routing.pages.NotFoundPage
+import codes.yousef.summon.routing.pages.blog.BlogPostPage
+import codes.yousef.summon.routing.pages.users.UserProfilePage
 
 object GeneratedPageLoader {
     /**

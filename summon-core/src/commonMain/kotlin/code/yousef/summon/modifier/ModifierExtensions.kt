@@ -1,4 +1,4 @@
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
 /**
  * Extension functions for Modifier to provide convenient number-based overloads
@@ -52,5 +52,3 @@ fun Modifier.size(value: Number): Modifier =
 fun Modifier.borderRadius(value: Number): Modifier = style("border-radius", "${value}px")
 
 fun Modifier.fontSize(value: Number): Modifier = style("font-size", "${value}px")
-
-fun Modifier.fontSize(value: String): Modifier = style("font-size", value)

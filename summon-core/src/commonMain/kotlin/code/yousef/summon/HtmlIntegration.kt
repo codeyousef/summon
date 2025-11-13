@@ -1,6 +1,6 @@
-package code.yousef.summon
+package codes.yousef.summon
 
-// import code.yousef.summon.runtime.PlatformRendererProvider // Remove unused import
+// import codes.yousef.summon.runtime.PlatformRendererProvider // Remove unused import
 
 /**
  * Expect declaration to check if a generic receiver is capable of handling HTML tags.

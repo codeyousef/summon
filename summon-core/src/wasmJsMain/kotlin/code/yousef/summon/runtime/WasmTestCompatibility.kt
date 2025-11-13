@@ -1,4 +1,4 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
 /**
  * Safe wrapper for wasmConsoleLog that works in both browser and Node.js environments.

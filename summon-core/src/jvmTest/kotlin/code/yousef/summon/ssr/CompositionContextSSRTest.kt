@@ -1,10 +1,10 @@
-package code.yousef.summon.ssr
+package codes.yousef.summon.ssr
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.*
-import code.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.*
+import codes.yousef.summon.state.mutableStateOf
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull

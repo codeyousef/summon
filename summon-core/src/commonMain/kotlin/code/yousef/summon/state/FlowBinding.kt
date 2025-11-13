@@ -1,4 +1,4 @@
-package code.yousef.summon.state
+package codes.yousef.summon.state
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*

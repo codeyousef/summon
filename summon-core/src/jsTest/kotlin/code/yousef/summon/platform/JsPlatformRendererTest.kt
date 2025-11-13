@@ -1,9 +1,9 @@
-package code.yousef.summon.platform
+package codes.yousef.summon.platform
 
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.PlatformRenderer
-import code.yousef.summon.runtime.getPlatformRenderer
-import code.yousef.summon.runtime.setPlatformRenderer
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.runtime.getPlatformRenderer
+import codes.yousef.summon.runtime.setPlatformRenderer
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue

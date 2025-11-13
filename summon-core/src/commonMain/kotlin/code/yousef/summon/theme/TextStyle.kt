@@ -1,4 +1,4 @@
-package code.yousef.summon.theme
+package codes.yousef.summon.theme
 
 /**
  * Re-export of Theme.TextStyle for backward compatibility.

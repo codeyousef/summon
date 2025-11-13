@@ -1,6 +1,6 @@
-package code.yousef.summon.annotation
+package codes.yousef.summon.annotation
 
-import code.yousef.summon.core.SummonApp
+import codes.yousef.summon.core.SummonApp
 
 /**
  * Registry for app entry points annotated with @App.

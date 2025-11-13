@@ -1,6 +1,9 @@
-package code.yousef.summon.accessibility
+package codes.yousef.summon.accessibility
 
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class ContrastCheckingTest {
 

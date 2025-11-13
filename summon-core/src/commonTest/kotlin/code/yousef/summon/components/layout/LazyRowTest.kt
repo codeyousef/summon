@@ -1,8 +1,8 @@
-package code.yousef.summon.components.layout
+package codes.yousef.summon.components.layout
 
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runComposableTest
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.MockPlatformRenderer
+import codes.yousef.summon.util.runComposableTest
 import kotlin.test.*
 
 /**

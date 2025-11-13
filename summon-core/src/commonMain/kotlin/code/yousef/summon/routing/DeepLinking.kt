@@ -1,13 +1,13 @@
 @file:Suppress("UNCHECKED_CAST")
 
-package code.yousef.summon.routing
+package codes.yousef.summon.routing
 
-import code.yousef.summon.core.splitCompat
+import codes.yousef.summon.core.splitCompat
 
 // Removed androidx import
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * Provides support for deep linking, allowing direct navigation to specific application states.

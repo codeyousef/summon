@@ -79,7 +79,7 @@
  * @see ResponsiveLayout for component-level responsive design
  * @since 1.0.0
  */
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
 /**
  * Media query types supported by the framework.

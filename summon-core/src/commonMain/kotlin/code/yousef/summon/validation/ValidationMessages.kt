@@ -1,4 +1,4 @@
-package code.yousef.summon.validation
+package codes.yousef.summon.validation
 
 /**
  * Centralized validation error messages used throughout the Summon framework.

@@ -1,7 +1,7 @@
-package code.yousef.summon.ssr
+package codes.yousef.summon.ssr
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.core.mapOfCompat
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.core.mapOfCompat
 
 // The HydrationStrategy enum and HydrationSupport interface have been moved to ServerSideRendering.kt
 // to avoid duplication.

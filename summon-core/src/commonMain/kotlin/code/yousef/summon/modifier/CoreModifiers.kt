@@ -1,4 +1,4 @@
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
 /**
  * Extension functions that add core functionality to the Modifier class

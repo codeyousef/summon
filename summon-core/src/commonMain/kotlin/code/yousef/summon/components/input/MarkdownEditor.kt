@@ -1,11 +1,11 @@
-package code.yousef.summon.components.input
+package codes.yousef.summon.components.input
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.Markdown
-import code.yousef.summon.components.foundation.BasicText
-import code.yousef.summon.components.layout.Spacer
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.theme.Spacing
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.display.Markdown
+import codes.yousef.summon.components.foundation.BasicText
+import codes.yousef.summon.components.layout.Spacer
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.theme.Spacing
 
 /**
  * Minimal Markdown editor composed of a text area and optional live preview.

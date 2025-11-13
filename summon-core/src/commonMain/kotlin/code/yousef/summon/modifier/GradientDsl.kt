@@ -1,6 +1,6 @@
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
-import code.yousef.summon.core.style.Color
+import codes.yousef.summon.core.style.Color
 
 /**
  * Represents a CSS gradient or image layer that can be composed via [backgroundLayers].

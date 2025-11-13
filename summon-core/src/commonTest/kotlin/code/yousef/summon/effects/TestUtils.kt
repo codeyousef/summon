@@ -1,6 +1,6 @@
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
-import code.yousef.summon.runtime.Composable
+import codes.yousef.summon.runtime.Composable
 
 /**
  * Simplified dummy scope for testing.

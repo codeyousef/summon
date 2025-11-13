@@ -1,6 +1,6 @@
-package code.yousef.summon.core
+package codes.yousef.summon.core
 
-import code.yousef.summon.validation.ValidationMessages
+import codes.yousef.summon.validation.ValidationMessages
 
 /**
  * Interface for validating input fields.

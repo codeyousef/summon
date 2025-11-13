@@ -1,9 +1,9 @@
-package code.yousef.summon.ssr
+package codes.yousef.summon.ssr
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.CommonComposer
-import code.yousef.summon.runtime.PlatformRenderer
-import code.yousef.summon.runtime.getPlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.runtime.CommonComposer
+import codes.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.runtime.getPlatformRenderer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

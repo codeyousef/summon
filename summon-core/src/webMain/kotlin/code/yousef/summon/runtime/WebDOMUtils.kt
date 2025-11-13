@@ -1,6 +1,6 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
-import code.yousef.summon.core.getCurrentTimeMillis
+import codes.yousef.summon.core.getCurrentTimeMillis
 
 /**
  * Shared DOM utilities for web platforms (JavaScript and WebAssembly).

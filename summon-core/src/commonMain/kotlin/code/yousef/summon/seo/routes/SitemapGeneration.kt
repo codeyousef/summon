@@ -1,9 +1,9 @@
-package code.yousef.summon.seo.routes
+package codes.yousef.summon.seo.routes
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.routing.Route
-import code.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.routing.Route
+import codes.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * SitemapGeneration provides utilities for creating XML sitemaps

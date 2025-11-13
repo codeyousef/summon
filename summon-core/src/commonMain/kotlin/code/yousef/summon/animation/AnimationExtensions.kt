@@ -34,7 +34,7 @@
  * @see Animation for core animation primitives
  * @since 1.0.0
  */
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
 /**
  * Starts an animation with the specified duration on an [AnimationController].

@@ -1,6 +1,6 @@
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
-import code.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.state.mutableStateOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

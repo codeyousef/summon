@@ -1,6 +1,8 @@
-package code.yousef.summon.lifecycle
+package codes.yousef.summon.lifecycle
 
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 /**
  * Tests for the lifecycle module.

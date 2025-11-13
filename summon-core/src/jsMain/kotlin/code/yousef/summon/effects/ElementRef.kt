@@ -1,4 +1,4 @@
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
 import org.w3c.dom.Element
 import kotlin.random.Random

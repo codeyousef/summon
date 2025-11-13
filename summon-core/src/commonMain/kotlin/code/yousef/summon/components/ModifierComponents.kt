@@ -1,4 +1,4 @@
-package code.yousef.summon.components
+package codes.yousef.summon.components
 
 /**
  * Interface markers to define component capabilities for type-specific modifiers.

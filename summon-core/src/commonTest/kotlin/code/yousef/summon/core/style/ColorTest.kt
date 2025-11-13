@@ -1,11 +1,6 @@
-package code.yousef.summon.core.style
+package codes.yousef.summon.core.style
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
-import kotlin.test.assertTrue
-import kotlin.test.assertFalse
-import kotlin.test.assertFailsWith
+import kotlin.test.*
 
 class ColorTest {
 

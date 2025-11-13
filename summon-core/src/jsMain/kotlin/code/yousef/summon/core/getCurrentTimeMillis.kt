@@ -1,4 +1,4 @@
-package code.yousef.summon.core
+package codes.yousef.summon.core
 
 import kotlin.js.Date
 

@@ -1,4 +1,4 @@
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
 /**
  * Auto margin modifiers for centering elements.

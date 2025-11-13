@@ -1,4 +1,4 @@
-package code.yousef.summon.web
+package codes.yousef.summon.web
 
 import kotlinx.browser.document
 import kotlinx.browser.window

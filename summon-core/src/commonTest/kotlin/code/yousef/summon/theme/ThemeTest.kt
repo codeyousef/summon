@@ -1,12 +1,10 @@
-package code.yousef.summon.theme
+package codes.yousef.summon.theme
 
-import code.yousef.summon.core.style.Color
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.FontWeight
+import codes.yousef.summon.core.style.Color
+import codes.yousef.summon.modifier.FontWeight
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 class ThemeTest {
 

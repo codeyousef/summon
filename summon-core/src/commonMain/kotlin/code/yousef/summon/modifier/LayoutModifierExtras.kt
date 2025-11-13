@@ -1,4 +1,4 @@
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
 @Deprecated(
     message = "LayoutModifierExtras is kept for backwards compatibility only. Import LayoutModifiers.* instead."

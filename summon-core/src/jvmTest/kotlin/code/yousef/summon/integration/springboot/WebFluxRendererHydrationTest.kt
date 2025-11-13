@@ -1,6 +1,6 @@
-package code.yousef.summon.integration.springboot
+package codes.yousef.summon.integration.springboot
 
-import code.yousef.summon.components.display.Text
+import codes.yousef.summon.components.display.Text
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue

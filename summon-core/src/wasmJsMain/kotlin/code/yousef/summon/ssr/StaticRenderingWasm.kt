@@ -1,6 +1,6 @@
-package code.yousef.summon.ssr
+package codes.yousef.summon.ssr
 
-import code.yousef.summon.runtime.wasmConsoleLog
+import codes.yousef.summon.runtime.wasmConsoleLog
 
 actual object FileSystemAccess {
     actual fun writeTextFile(path: String, content: String) {

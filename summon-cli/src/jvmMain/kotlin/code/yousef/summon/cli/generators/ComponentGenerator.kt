@@ -1,7 +1,7 @@
-package code.yousef.summon.cli.generators
+package codes.yousef.summon.cli.generators
 
-import code.yousef.summon.cli.templates.TemplateEngine
-import code.yousef.summon.cli.templates.TemplateHelpers
+import codes.yousef.summon.cli.templates.TemplateEngine
+import codes.yousef.summon.cli.templates.TemplateHelpers
 import java.io.File
 
 /**
@@ -154,9 +154,9 @@ class ComponentGenerator {
 
 package components${variables["PACKAGE_SUFFIX"]}
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.foundation.BasicText
-import code.yousef.summon.modifier.Modifier
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.foundation.BasicText
+import codes.yousef.summon.modifier.Modifier
 
 /**
  * ${variables["COMPONENT_NAME"]} component
@@ -185,14 +185,14 @@ fun ${variables["COMPONENT_NAME"]}(
 
 package components${variables["PACKAGE_SUFFIX"]}
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.foundation.BasicText
-import code.yousef.summon.components.input.Button
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.padding
-import code.yousef.summon.state.mutableStateOf
-import code.yousef.summon.state.remember
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.foundation.BasicText
+import codes.yousef.summon.components.input.Button
+import codes.yousef.summon.components.layout.Column
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.padding
+import codes.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.state.remember
 
 /**
  * ${variables["COMPONENT_NAME"]} component
@@ -236,15 +236,15 @@ fun ${variables["COMPONENT_NAME"]}(
 
 package components${variables["PACKAGE_SUFFIX"]}
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.input.Button
-import code.yousef.summon.components.input.TextField
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.padding
-import code.yousef.summon.state.mutableStateOf
-import code.yousef.summon.state.remember
-import code.yousef.summon.validation.Validator
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.input.Button
+import codes.yousef.summon.components.input.TextField
+import codes.yousef.summon.components.layout.Column
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.padding
+import codes.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.state.remember
+import codes.yousef.summon.validation.Validator
 
 /**
  * ${variables["COMPONENT_NAME"]} component
@@ -328,9 +328,9 @@ private fun validateForm(data: Map<String, String>): Map<String, String> {
 
 package components${variables["PACKAGE_SUFFIX"]}
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.layout.Box
-import code.yousef.summon.modifier.Modifier
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.layout.Box
+import codes.yousef.summon.modifier.Modifier
 
 /**
  * ${variables["COMPONENT_NAME"]} component
@@ -360,11 +360,11 @@ fun ${variables["COMPONENT_NAME"]}(
 
 package components${variables["PACKAGE_SUFFIX"]}
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.input.TextField
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.state.mutableStateOf
-import code.yousef.summon.state.remember
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.input.TextField
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.state.remember
 
 /**
  * ${variables["COMPONENT_NAME"]} component
@@ -414,9 +414,9 @@ private fun processInput(input: String): String {
         return """
 package components${variables["PACKAGE_SUFFIX"]}
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.test.TestComposer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.runtime.MockPlatformRenderer
+import codes.yousef.summon.test.TestComposer
 import kotlin.test.Test
 import kotlin.test.assertTrue
 

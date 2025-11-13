@@ -1,9 +1,9 @@
-package code.yousef.summon.validation
+package codes.yousef.summon.validation
 
 import kotlin.test.Test
-import kotlin.test.assertTrue
-import kotlin.test.assertFalse
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class AllValidatorsTest {
     

@@ -1,8 +1,8 @@
-package code.yousef.summon
+package codes.yousef.summon
 
-import code.yousef.summon.state.MutableStateImpl
-import code.yousef.summon.state.State
-import code.yousef.summon.state.SummonMutableState
+import codes.yousef.summon.state.MutableStateImpl
+import codes.yousef.summon.state.State
+import codes.yousef.summon.state.SummonMutableState
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths

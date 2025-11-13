@@ -1,7 +1,7 @@
-package code.yousef.summon
+package codes.yousef.summon
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.runtime.PlatformRenderer
 
 /**
  * Extension functions for JvmPlatformRenderer.

@@ -1,8 +1,6 @@
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
-import code.yousef.summon.runtime.Composable
 import kotlin.test.*
-import code.yousef.summon.effects.TestCompositionScope
 
 class CommonEffectsExtendedTest {
 

@@ -1,6 +1,6 @@
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
-import code.yousef.summon.components.layout.Alignment
+import codes.yousef.summon.components.layout.Alignment
 
 /**
  * Sets the vertical alignment of items in a Row.

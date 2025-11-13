@@ -1,7 +1,7 @@
-package code.yousef.summon.components.styles
+package codes.yousef.summon.components.styles
 
-import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runComposableTest
+import codes.yousef.summon.runtime.MockPlatformRenderer
+import codes.yousef.summon.util.runComposableTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

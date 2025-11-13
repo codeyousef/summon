@@ -1,4 +1,4 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
 /**
  * DirectDOMRenderer bypasses the normal WASM recomposition system to avoid

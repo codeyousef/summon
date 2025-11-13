@@ -1,4 +1,4 @@
-package code.yousef.summon.routing.generator
+package codes.yousef.summon.routing.generator
 
 // Implementation of page loader code generation
 /**
@@ -49,7 +49,7 @@ object PageLoaderGenerator {
         }
 
         return buildString {
-            appendLine("package code.yousef.summon.routing")
+            appendLine("package codes.yousef.summon.routing")
             appendLine()
             appendLine("// This file is generated at build time - do not edit")
             appendLine()

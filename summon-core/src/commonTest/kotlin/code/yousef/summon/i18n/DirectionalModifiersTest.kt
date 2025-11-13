@@ -1,6 +1,7 @@
-package code.yousef.summon.i18n
+package codes.yousef.summon.i18n
 
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class DirectionalModifiersTest {
     

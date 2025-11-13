@@ -1,8 +1,8 @@
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.state.SummonMutableState
-import code.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.state.SummonMutableState
+import codes.yousef.summon.state.mutableStateOf
 import kotlinx.browser.window
 import org.w3c.dom.events.Event
 

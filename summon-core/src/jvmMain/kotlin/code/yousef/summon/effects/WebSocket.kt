@@ -1,17 +1,15 @@
 @file:JvmName("WebSocketJvm")
 
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
-import kotlinx.coroutines.*
 import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.WebSocket
 import java.nio.ByteBuffer
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
-import java.net.http.HttpClient
-import java.net.http.WebSocket
-import java.time.Duration
 
 /**
  * JVM WebSocket client implementation using Java 11+ WebSocket API

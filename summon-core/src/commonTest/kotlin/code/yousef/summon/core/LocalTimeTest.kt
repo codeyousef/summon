@@ -1,13 +1,9 @@
-package code.yousef.summon.core
+package codes.yousef.summon.core
 
 // Use the LocalTime class from this package, not from kotlinx.datetime
 // import kotlinx.datetime.LocalTime
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-import kotlin.test.assertFalse
-import kotlin.test.assertFailsWith
+import kotlin.test.*
 
 class LocalTimeTest {
 

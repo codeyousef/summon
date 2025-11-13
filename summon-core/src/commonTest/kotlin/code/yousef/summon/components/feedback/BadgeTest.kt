@@ -1,10 +1,10 @@
-package code.yousef.summon.components.feedback
+package codes.yousef.summon.components.feedback
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.Composer
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.MockPlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.runtime.Composer
+import codes.yousef.summon.runtime.CompositionLocal
+import codes.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.runtime.MockPlatformRenderer
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue

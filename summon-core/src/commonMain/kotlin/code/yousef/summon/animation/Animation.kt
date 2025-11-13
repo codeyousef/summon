@@ -51,12 +51,12 @@
  *
  * @since 1.0.0
  */
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
-import code.yousef.summon.animation.AnimationController.cancel
-import code.yousef.summon.animation.AnimationController.pause
-import code.yousef.summon.animation.AnimationController.resume
-import code.yousef.summon.animation.AnimationController.stop
+import codes.yousef.summon.animation.AnimationController.cancel
+import codes.yousef.summon.animation.AnimationController.pause
+import codes.yousef.summon.animation.AnimationController.resume
+import codes.yousef.summon.animation.AnimationController.stop
 
 
 /**

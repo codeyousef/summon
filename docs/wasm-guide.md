@@ -54,7 +54,7 @@ Create a new WASM project:
 # Or use the native executable directly
 
 # Create a new project (start from the standalone template)
-java -jar summon-cli-0.4.7.0.jar init my-wasm-app --mode=standalone
+java -jar summon-cli-0.4.8.0.jar init my-wasm-app --mode=standalone
 
 # Navigate to project
 cd my-wasm-app

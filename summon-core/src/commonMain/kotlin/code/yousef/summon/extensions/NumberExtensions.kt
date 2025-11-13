@@ -1,6 +1,6 @@
-package code.yousef.summon.extensions
+package codes.yousef.summon.extensions
 
-import code.yousef.summon.css.CssValue
+import codes.yousef.summon.css.CssValue
 
 /**
  * Extensions for Number to provide CSS unit helpers

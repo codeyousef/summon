@@ -1,8 +1,6 @@
 @file:OptIn(ExperimentalWasmJsInterop::class)
 
-package code.yousef.summon.test
-
-import kotlin.js.ExperimentalWasmJsInterop
+package codes.yousef.summon.test
 
 @Suppress("UnsafeCastFromDynamic")
 private fun installNodeDomImpl(): Unit =

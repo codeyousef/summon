@@ -1,8 +1,4 @@
-package code.yousef.summon.runtime
-
-import code.yousef.summon.runtime.wasmConsoleLog
-import code.yousef.summon.runtime.wasmConsoleWarn
-import code.yousef.summon.runtime.wasmConsoleError
+package codes.yousef.summon.runtime
 
 /**
  * Minimal WASM Renderer stub to enable compilation.

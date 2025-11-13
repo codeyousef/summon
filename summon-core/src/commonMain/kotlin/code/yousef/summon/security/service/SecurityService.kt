@@ -1,11 +1,11 @@
-package code.yousef.summon.security.service
+package codes.yousef.summon.security.service
 
-import code.yousef.summon.security.*
-import code.yousef.summon.security.annotations.RequiresAccess
-import code.yousef.summon.security.annotations.RequiresAuthentication
-import code.yousef.summon.security.annotations.RequiresPermissions
-import code.yousef.summon.security.annotations.RequiresRoles
-import code.yousef.summon.security.config.SecurityConfig
+import codes.yousef.summon.security.*
+import codes.yousef.summon.security.annotations.RequiresAccess
+import codes.yousef.summon.security.annotations.RequiresAuthentication
+import codes.yousef.summon.security.annotations.RequiresPermissions
+import codes.yousef.summon.security.annotations.RequiresRoles
+import codes.yousef.summon.security.config.SecurityConfig
 
 /**
  * Service that provides security-related functionality.

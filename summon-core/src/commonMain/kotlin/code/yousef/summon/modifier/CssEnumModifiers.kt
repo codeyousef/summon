@@ -1,11 +1,11 @@
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
-import code.yousef.summon.modifier.LayoutModifiers.alignItems
-import code.yousef.summon.modifier.LayoutModifiers.display
-import code.yousef.summon.modifier.LayoutModifiers.flexDirection
-import code.yousef.summon.modifier.LayoutModifiers.justifyContent
-import code.yousef.summon.modifier.LayoutModifiers.overflow
-import code.yousef.summon.modifier.LayoutModifiers.position
+import codes.yousef.summon.modifier.LayoutModifiers.alignItems
+import codes.yousef.summon.modifier.LayoutModifiers.display
+import codes.yousef.summon.modifier.LayoutModifiers.flexDirection
+import codes.yousef.summon.modifier.LayoutModifiers.justifyContent
+import codes.yousef.summon.modifier.LayoutModifiers.overflow
+import codes.yousef.summon.modifier.LayoutModifiers.position
 
 /**
  * Sets the position property of the element using a Position enum value.

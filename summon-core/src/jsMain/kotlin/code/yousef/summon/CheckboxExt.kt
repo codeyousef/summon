@@ -1,4 +1,4 @@
-package code.yousef.summon
+package codes.yousef.summon
 
 import kotlinx.browser.document
 import org.w3c.dom.HTMLInputElement

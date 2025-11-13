@@ -1,7 +1,6 @@
-package code.yousef.summon.i18n
+package codes.yousef.summon.i18n
 
-import code.yousef.summon.js.console
-import code.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.state.mutableStateOf
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.DelicateCoroutinesApi

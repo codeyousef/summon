@@ -1,9 +1,9 @@
-package code.yousef.summon.integration
+package codes.yousef.summon.integration
 
-import code.yousef.summon.js.testutil.ensureJsDom
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.ModifierExtras.withAttribute
-import code.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.js.testutil.ensureJsDom
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.ModifierExtras.withAttribute
+import codes.yousef.summon.runtime.PlatformRenderer
 import kotlinx.browser.document
 import org.w3c.dom.HTMLElement
 import kotlin.test.*

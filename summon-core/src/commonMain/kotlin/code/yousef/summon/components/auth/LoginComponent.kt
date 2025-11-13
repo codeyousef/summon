@@ -1,9 +1,9 @@
-package code.yousef.summon.components.auth
+package codes.yousef.summon.components.auth
 
-import code.yousef.summon.routing.Router
-import code.yousef.summon.security.AuthenticationResult
-import code.yousef.summon.security.UsernamePasswordCredentials
-import code.yousef.summon.security.service.SecurityService
+import codes.yousef.summon.routing.Router
+import codes.yousef.summon.security.AuthenticationResult
+import codes.yousef.summon.security.UsernamePasswordCredentials
+import codes.yousef.summon.security.service.SecurityService
 
 /**
  * A component that handles user login

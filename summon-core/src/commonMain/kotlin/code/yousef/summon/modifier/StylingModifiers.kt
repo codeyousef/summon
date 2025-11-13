@@ -1,6 +1,6 @@
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
-import code.yousef.summon.extensions.px
+import codes.yousef.summon.extensions.px
 
 /**
  * Box shadow and remaining styling utilities that have not yet been split into dedicated modules.

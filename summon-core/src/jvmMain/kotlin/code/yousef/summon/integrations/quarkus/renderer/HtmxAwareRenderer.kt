@@ -1,11 +1,11 @@
-package code.yousef.summon.integration.quarkus.renderer
+package codes.yousef.summon.integration.quarkus.renderer
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.integration.quarkus.htmx.htmlAttribute
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.clearPlatformRenderer
-import code.yousef.summon.runtime.setPlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.integration.quarkus.htmx.htmlAttribute
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.runtime.clearPlatformRenderer
+import codes.yousef.summon.runtime.setPlatformRenderer
 import kotlinx.html.div
 import kotlinx.html.stream.createHTML
 import kotlinx.html.unsafe

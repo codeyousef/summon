@@ -1,6 +1,6 @@
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
-import code.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.Modifier
 
 /**
  * Prebuilt animation effects built on top of the core animation modifiers.

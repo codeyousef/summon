@@ -1,8 +1,10 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.state.mutableStateOf
-import kotlin.test.*
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.state.mutableStateOf
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class RecomposerSchedulingTest {
     

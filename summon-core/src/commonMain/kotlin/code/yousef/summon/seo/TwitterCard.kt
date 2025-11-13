@@ -1,7 +1,7 @@
-package code.yousef.summon.seo
+package codes.yousef.summon.seo
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * Types of Twitter Cards available.

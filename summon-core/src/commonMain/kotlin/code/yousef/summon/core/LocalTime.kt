@@ -1,7 +1,7 @@
-package code.yousef.summon.core
+package codes.yousef.summon.core
 
-import code.yousef.summon.core.error.ErrorHandler
-import code.yousef.summon.core.error.requireInRange
+import codes.yousef.summon.core.error.ErrorHandler
+import codes.yousef.summon.core.error.requireInRange
 
 // Commented out to avoid name conflict with the custom LocalTime class
 // import kotlinx.datetime.LocalTime

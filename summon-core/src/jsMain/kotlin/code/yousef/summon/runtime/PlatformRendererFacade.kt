@@ -1,7 +1,7 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.modifier.Modifier
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.modifier.Modifier
 
 /**
  * JavaScript-friendly facade for PlatformRenderer.

@@ -47,7 +47,7 @@
  * @see OverflowModifiers for overflow control
  * @since 1.0.0
  */
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
 /**
  * Scroll behavior types.

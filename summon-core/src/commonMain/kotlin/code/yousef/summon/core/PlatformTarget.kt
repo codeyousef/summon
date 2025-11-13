@@ -1,4 +1,4 @@
-package code.yousef.summon.core
+package codes.yousef.summon.core
 
 /**
  * Sealed class representing different compilation targets in the Summon framework.

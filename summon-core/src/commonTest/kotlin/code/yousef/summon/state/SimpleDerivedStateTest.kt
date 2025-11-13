@@ -1,13 +1,7 @@
-package code.yousef.summon.state
+package codes.yousef.summon.state
 
-import code.yousef.summon.runtime.CommonComposer
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.MockPlatformRenderer
-import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 class SimpleDerivedStateTest {
 

@@ -1,7 +1,7 @@
-package code.yousef.summon.i18n
+package codes.yousef.summon.i18n
 
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.Composable
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.Composable
 
 /**
  * Utility class for RTL layout support

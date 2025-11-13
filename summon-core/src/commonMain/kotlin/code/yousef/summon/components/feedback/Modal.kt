@@ -1,14 +1,13 @@
-package code.yousef.summon.components.feedback
+package codes.yousef.summon.components.feedback
 
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.input.Button
-import code.yousef.summon.components.input.ButtonVariant
-import code.yousef.summon.components.layout.Box
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.components.layout.Row
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.components.input.Button
+import codes.yousef.summon.components.input.ButtonVariant
+import codes.yousef.summon.components.layout.Column
+import codes.yousef.summon.components.layout.Row
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * Modal variants that determine the modal's visual style and behavior.

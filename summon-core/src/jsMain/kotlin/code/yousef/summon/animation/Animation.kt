@@ -1,4 +1,4 @@
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
 /**
  * Represents the status of an animation.

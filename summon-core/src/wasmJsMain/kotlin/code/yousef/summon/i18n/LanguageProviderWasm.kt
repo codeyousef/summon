@@ -1,7 +1,7 @@
-package code.yousef.summon.i18n
+package codes.yousef.summon.i18n
 
-import code.yousef.summon.runtime.safeWasmConsoleLog
-import code.yousef.summon.runtime.safeWasmConsoleWarn
+import codes.yousef.summon.runtime.safeWasmConsoleLog
+import codes.yousef.summon.runtime.safeWasmConsoleWarn
 
 /**
  * WASM implementation of triggerLanguageChange

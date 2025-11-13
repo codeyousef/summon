@@ -1,10 +1,10 @@
-package code.yousef.summon.theme
+package codes.yousef.summon.theme
 
-import code.yousef.summon.core.mapOfCompat
+import codes.yousef.summon.core.mapOfCompat
 
-import code.yousef.summon.core.style.Color
-import code.yousef.summon.modifier.*
-import code.yousef.summon.modifier.StylingModifiers.textDecoration
+import codes.yousef.summon.core.style.Color
+import codes.yousef.summon.modifier.*
+import codes.yousef.summon.modifier.StylingModifiers.textDecoration
 
 
 /**

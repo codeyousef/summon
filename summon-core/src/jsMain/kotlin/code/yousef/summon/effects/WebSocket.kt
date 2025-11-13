@@ -1,11 +1,9 @@
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
 import kotlinx.browser.window
-import org.w3c.dom.WebSocket as DomWebSocket
-import org.w3c.dom.events.Event
-import org.w3c.dom.MessageEvent
 import org.w3c.dom.CloseEvent
-import kotlin.js.Promise
+import org.w3c.dom.MessageEvent
+import org.w3c.dom.WebSocket as DomWebSocket
 
 /**
  * JavaScript WebSocket client implementation

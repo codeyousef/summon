@@ -1,4 +1,4 @@
-package code.yousef.summon.components
+package codes.yousef.summon.components
 
 import kotlin.test.Test
 import kotlin.test.assertTrue

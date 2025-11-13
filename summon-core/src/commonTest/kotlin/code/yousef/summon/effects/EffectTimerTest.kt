@@ -1,4 +1,4 @@
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

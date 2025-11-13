@@ -1,11 +1,11 @@
-package code.yousef.summon
+package codes.yousef.summon
 
-import code.yousef.summon.lifecycle.LifecycleObserver
-import code.yousef.summon.lifecycle.LifecycleOwner
-import code.yousef.summon.lifecycle.LifecycleState
-import code.yousef.summon.lifecycle.currentLifecycleOwner
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.DisposableEffect
+import codes.yousef.summon.lifecycle.LifecycleObserver
+import codes.yousef.summon.lifecycle.LifecycleOwner
+import codes.yousef.summon.lifecycle.LifecycleState
+import codes.yousef.summon.lifecycle.currentLifecycleOwner
+import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.runtime.DisposableEffect
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

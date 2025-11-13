@@ -1,7 +1,7 @@
-package code.yousef.summon
+package codes.yousef.summon
 
-import code.yousef.summon.state.SummonMutableState
-import code.yousef.summon.validation.ValidationResult
+import codes.yousef.summon.state.SummonMutableState
+import codes.yousef.summon.validation.ValidationResult
 import kotlinx.browser.document
 import org.w3c.dom.HTMLTextAreaElement
 import org.w3c.dom.events.Event

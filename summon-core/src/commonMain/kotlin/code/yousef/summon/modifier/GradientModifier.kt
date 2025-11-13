@@ -156,7 +156,7 @@
  * @see ColorSystem for color management
  * @since 1.0.0
  */
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
 /**
  * Applies a linear gradient background.

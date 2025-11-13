@@ -1,7 +1,7 @@
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
-import code.yousef.summon.runtime.safeWasmConsoleLog
-import code.yousef.summon.runtime.safeWasmConsoleWarn
+import codes.yousef.summon.runtime.safeWasmConsoleLog
+import codes.yousef.summon.runtime.safeWasmConsoleWarn
 
 actual class ElementRef actual constructor() {
     init {

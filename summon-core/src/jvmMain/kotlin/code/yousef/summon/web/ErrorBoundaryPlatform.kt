@@ -1,4 +1,4 @@
-package code.yousef.summon.web
+package codes.yousef.summon.web
 
 /**
  * JVM implementations of error boundary platform functions.

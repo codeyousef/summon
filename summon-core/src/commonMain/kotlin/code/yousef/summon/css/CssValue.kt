@@ -1,4 +1,4 @@
-package code.yousef.summon.css
+package codes.yousef.summon.css
 
 /**
  * Lightweight alias representing a CSS value string.

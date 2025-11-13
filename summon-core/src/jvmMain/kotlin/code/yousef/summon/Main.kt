@@ -1,11 +1,11 @@
-package code.yousef.summon
+package codes.yousef.summon
 
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.input.Button
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.components.layout.Row
-import code.yousef.summon.components.layout.Spacer
-import code.yousef.summon.modifier.Modifier
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.components.input.Button
+import codes.yousef.summon.components.layout.Column
+import codes.yousef.summon.components.layout.Row
+import codes.yousef.summon.components.layout.Spacer
+import codes.yousef.summon.modifier.Modifier
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 

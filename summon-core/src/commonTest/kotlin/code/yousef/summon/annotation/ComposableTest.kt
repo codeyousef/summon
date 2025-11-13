@@ -1,8 +1,8 @@
-package code.yousef.summon.annotation
+package codes.yousef.summon.annotation
 
 import kotlin.test.Test
 import kotlin.test.assertTrue
-import code.yousef.summon.annotation.StandardComposable as StdComposable
+import codes.yousef.summon.annotation.StandardComposable as StdComposable
 
 /**
  * Tests for the Composable annotation.

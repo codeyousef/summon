@@ -1,7 +1,7 @@
-package code.yousef.summon
+package codes.yousef.summon
 
 
-import code.yousef.summon.annotation.Composable
+import codes.yousef.summon.annotation.Composable
 import kotlinx.html.TagConsumer
 
 /**

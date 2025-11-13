@@ -1,4 +1,4 @@
-package code.yousef.summon.security
+package codes.yousef.summon.security
 
 import kotlin.jvm.JvmInline
 

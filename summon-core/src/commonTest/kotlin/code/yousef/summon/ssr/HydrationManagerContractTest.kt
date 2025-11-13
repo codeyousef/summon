@@ -1,6 +1,6 @@
-package code.yousef.summon.ssr
+package codes.yousef.summon.ssr
 
-import code.yousef.summon.core.getCurrentTimeMillis
+import codes.yousef.summon.core.getCurrentTimeMillis
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertNotNull

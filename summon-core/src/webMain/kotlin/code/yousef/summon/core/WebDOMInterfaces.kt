@@ -1,4 +1,4 @@
-package code.yousef.summon.core
+package codes.yousef.summon.core
 
 /**
  * Common DOM interfaces shared between JS and WASM implementations.

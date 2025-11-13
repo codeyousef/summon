@@ -206,7 +206,7 @@
  * @see ErrorHandler for utility functions
  * @since 1.0.0
  */
-package code.yousef.summon.core.error
+package codes.yousef.summon.core.error
 
 /**
  * Base class for Summon framework errors.

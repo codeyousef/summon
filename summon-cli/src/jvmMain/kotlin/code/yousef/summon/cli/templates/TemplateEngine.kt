@@ -1,4 +1,4 @@
-package code.yousef.summon.cli.templates
+package codes.yousef.summon.cli.templates
 
 import java.io.File
 

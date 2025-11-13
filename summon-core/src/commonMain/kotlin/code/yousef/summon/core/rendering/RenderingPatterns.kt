@@ -1,8 +1,8 @@
-package code.yousef.summon.core.rendering
+package codes.yousef.summon.core.rendering
 
-import code.yousef.summon.core.splitCompat
+import codes.yousef.summon.core.splitCompat
 
-import code.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.Modifier
 
 /**
  * Common patterns and utilities for platform-specific rendering.

@@ -1,8 +1,8 @@
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
-import code.yousef.summon.components.MediaComponent
-import code.yousef.summon.components.ScrollableComponent
-import code.yousef.summon.components.TextComponent
+import codes.yousef.summon.components.MediaComponent
+import codes.yousef.summon.components.ScrollableComponent
+import codes.yousef.summon.components.TextComponent
 
 /**
  * This file contains type-safe modifier extensions that can only be applied to specific component types.

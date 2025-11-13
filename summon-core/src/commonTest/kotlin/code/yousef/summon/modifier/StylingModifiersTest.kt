@@ -1,4 +1,4 @@
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

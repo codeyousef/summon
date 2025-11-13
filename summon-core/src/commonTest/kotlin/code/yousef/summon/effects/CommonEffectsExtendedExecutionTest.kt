@@ -1,13 +1,7 @@
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.Composer
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.DisposableEffect
-import code.yousef.summon.runtime.LaunchedEffect
-import code.yousef.summon.runtime.SideEffect
-import code.yousef.summon.state.SummonMutableState
-import code.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.state.SummonMutableState
 import kotlin.test.*
 
 /**

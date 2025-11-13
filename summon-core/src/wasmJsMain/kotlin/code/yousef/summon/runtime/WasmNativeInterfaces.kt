@@ -1,4 +1,4 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
 /**
  * Type-safe external interfaces for WASM DOM manipulation.

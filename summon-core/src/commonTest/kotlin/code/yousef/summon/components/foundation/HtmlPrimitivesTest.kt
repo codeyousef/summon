@@ -1,9 +1,9 @@
-package code.yousef.summon.components.foundation
+package codes.yousef.summon.components.foundation
 
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.PointerEvents
-import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runComposableTest
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.PointerEvents
+import codes.yousef.summon.runtime.MockPlatformRenderer
+import codes.yousef.summon.util.runComposableTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

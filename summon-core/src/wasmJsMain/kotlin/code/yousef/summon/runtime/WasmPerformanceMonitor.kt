@@ -1,10 +1,6 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
-import code.yousef.summon.runtime.wasmConsoleLog
-import code.yousef.summon.runtime.wasmConsoleWarn
-import code.yousef.summon.runtime.wasmConsoleError
-
-import code.yousef.summon.core.getCurrentTimeMillis
+import codes.yousef.summon.core.getCurrentTimeMillis
 
 /**
  * WebAssembly-specific performance monitoring system.

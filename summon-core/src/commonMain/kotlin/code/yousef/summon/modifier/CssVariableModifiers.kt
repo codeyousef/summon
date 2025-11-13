@@ -62,7 +62,7 @@
  * @see StyleModifiers for standard styling functions
  * @since 1.0.0
  */
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
 /**
  * Sets a CSS custom property (CSS variable) on the element.

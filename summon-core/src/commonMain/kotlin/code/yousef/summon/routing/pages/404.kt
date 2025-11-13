@@ -1,11 +1,10 @@
-package code.yousef.summon.routing.pages
+package codes.yousef.summon.routing.pages
 
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.textAlign
-import code.yousef.summon.routing.Link
-import code.yousef.summon.runtime.Composable
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.components.layout.Column
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.routing.Link
+import codes.yousef.summon.runtime.Composable
 
 /**
  * Not Found (404) page component for the application.

@@ -1,6 +1,6 @@
-package code.yousef.summon.i18n
+package codes.yousef.summon.i18n
 
-import code.yousef.summon.core.mapOfCompat
+import codes.yousef.summon.core.mapOfCompat
 
 /**
  * Interface for providing translations.

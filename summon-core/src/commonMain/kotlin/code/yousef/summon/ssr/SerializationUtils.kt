@@ -1,4 +1,4 @@
-package code.yousef.summon.ssr
+package codes.yousef.summon.ssr
 
 /**
  * Utility functions for serializing data to JSON format.

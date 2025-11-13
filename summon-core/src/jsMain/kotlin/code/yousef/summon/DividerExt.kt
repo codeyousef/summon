@@ -1,4 +1,4 @@
-package code.yousef.summon
+package codes.yousef.summon
 
 /**
  * JavaScript-specific utilities for the Divider component.

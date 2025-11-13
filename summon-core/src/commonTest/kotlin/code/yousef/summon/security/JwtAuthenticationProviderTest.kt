@@ -1,4 +1,4 @@
-package code.yousef.summon.security
+package codes.yousef.summon.security
 
 // Import the standard runTest
 import kotlinx.coroutines.test.runTest

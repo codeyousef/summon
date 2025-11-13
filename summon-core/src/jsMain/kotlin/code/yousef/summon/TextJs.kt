@@ -1,8 +1,8 @@
 @file:Suppress("UNCHECKED_CAST")
 
-package code.yousef.summon
+package codes.yousef.summon
 
-import code.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.Modifier
 import kotlinx.html.TagConsumer
 import kotlinx.html.span
 import kotlinx.html.style

@@ -1,10 +1,9 @@
-package code.yousef.summon.components.layout
+package codes.yousef.summon.components.layout
 
-import code.yousef.summon.runtime.Composable
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class LazyListScopeTest {
 

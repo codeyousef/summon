@@ -1,6 +1,6 @@
-package code.yousef.summon
+package codes.yousef.summon
 
-import code.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.Modifier
 
 /**
  * Extension functions for Modifier to help with JS implementation.

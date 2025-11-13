@@ -1,4 +1,4 @@
-package code.yousef.summon.components.input
+package codes.yousef.summon.components.input
 
 /**
  * Represents information about a file selected by the user.

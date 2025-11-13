@@ -1,4 +1,4 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
 /**
  * JavaScript implementation of SummonLogger for logging.

@@ -1,7 +1,7 @@
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
 // Import specific functions if needed, or rely on package import
-import code.yousef.summon.modifier.AttributeModifiers.getAttribute
+import codes.yousef.summon.modifier.AttributeModifiers.getAttribute
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

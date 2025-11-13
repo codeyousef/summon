@@ -1,8 +1,8 @@
-package code.yousef.summon.util
+package codes.yousef.summon.util
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.routing.Router
-import code.yousef.summon.runtime.Composer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.routing.Router
+import codes.yousef.summon.runtime.Composer
 
 /**
  * Shared test mock implementations to reduce code duplication across test files.

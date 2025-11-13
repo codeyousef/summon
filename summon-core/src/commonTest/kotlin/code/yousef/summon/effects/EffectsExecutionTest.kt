@@ -1,8 +1,8 @@
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.Composer
-import code.yousef.summon.runtime.CompositionLocal
+import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.runtime.Composer
+import codes.yousef.summon.runtime.CompositionLocal
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue

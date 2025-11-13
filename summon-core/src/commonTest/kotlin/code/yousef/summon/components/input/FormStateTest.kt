@@ -1,4 +1,4 @@
-package code.yousef.summon.components.input
+package codes.yousef.summon.components.input
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

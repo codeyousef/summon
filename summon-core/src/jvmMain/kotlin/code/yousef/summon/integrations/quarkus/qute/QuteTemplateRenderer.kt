@@ -1,9 +1,9 @@
-package code.yousef.summon.integration.quarkus.qute
+package codes.yousef.summon.integration.quarkus.qute
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.layout.Box
-import code.yousef.summon.integration.quarkus.htmx.htmlAttribute
-import code.yousef.summon.modifier.Modifier
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.layout.Box
+import codes.yousef.summon.integration.quarkus.htmx.htmlAttribute
+import codes.yousef.summon.modifier.Modifier
 import io.quarkus.qute.Template
 
 /**

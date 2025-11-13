@@ -1,4 +1,4 @@
-package code.yousef.summon.js
+package codes.yousef.summon.js
 
 /**
  * External interface for Console

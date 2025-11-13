@@ -1,7 +1,7 @@
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
-import code.yousef.summon.core.style.Color
-import code.yousef.summon.extensions.px
+import codes.yousef.summon.core.style.Color
+import codes.yousef.summon.extensions.px
 
 /**
  * Box shadow utilities extracted from the legacy `StylingModifiers` file. These helpers keep the

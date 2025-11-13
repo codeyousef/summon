@@ -1,6 +1,6 @@
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
-import code.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.Modifier
 import kotlinx.browser.document
 import org.w3c.dom.HTMLDivElement
 import kotlin.test.*

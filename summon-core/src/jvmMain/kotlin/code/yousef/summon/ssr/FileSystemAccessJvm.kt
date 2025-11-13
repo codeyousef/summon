@@ -1,4 +1,4 @@
-package code.yousef.summon.ssr
+package codes.yousef.summon.ssr
 
 import java.io.File
 

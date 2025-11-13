@@ -1,11 +1,11 @@
-package code.yousef.summon.routing.pages.blog
+package codes.yousef.summon.routing.pages.blog
 
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.routing.Link
-import code.yousef.summon.routing.RouteParams
-import code.yousef.summon.runtime.Composable
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.components.layout.Column
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.routing.Link
+import codes.yousef.summon.routing.RouteParams
+import codes.yousef.summon.runtime.Composable
 
 /**
  * Blog post page component that demonstrates dynamic routing.

@@ -1,17 +1,16 @@
-package code.yousef.summon.components.input
+package codes.yousef.summon.components.input
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.layout.Box
-import code.yousef.summon.components.layout.Row
-import code.yousef.summon.modifier.AlignItems
-import code.yousef.summon.modifier.EventModifiers.onClick
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.ModifierExtras.pointerEvents
-import code.yousef.summon.modifier.alignItems
-import code.yousef.summon.modifier.applyIf
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.components.layout.Box
+import codes.yousef.summon.components.layout.Row
+import codes.yousef.summon.modifier.AlignItems
+import codes.yousef.summon.modifier.EventModifiers.onClick
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.alignItems
+import codes.yousef.summon.modifier.applyIf
+import codes.yousef.summon.runtime.CompositionLocal
+import codes.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * A composable that displays a radio button, typically used as part of a group

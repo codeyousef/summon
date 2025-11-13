@@ -1,8 +1,4 @@
-package code.yousef.summon.runtime
-
-import code.yousef.summon.runtime.wasmConsoleLog
-import code.yousef.summon.runtime.wasmConsoleWarn
-import code.yousef.summon.runtime.wasmConsoleError
+package codes.yousef.summon.runtime
 
 /**
  * Console functions for WASM - single definition to avoid duplicates

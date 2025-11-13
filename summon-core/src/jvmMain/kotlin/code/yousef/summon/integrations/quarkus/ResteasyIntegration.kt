@@ -1,4 +1,4 @@
-package code.yousef.summon.integration.quarkus
+package codes.yousef.summon.integration.quarkus
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.ws.rs.Produces

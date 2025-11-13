@@ -1,7 +1,7 @@
-package code.yousef.summon.i18n
+package codes.yousef.summon.i18n
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.state.mutableStateOf
 
 /**
  * Provides language context to the application

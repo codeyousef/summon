@@ -1,4 +1,4 @@
-package code.yousef.summon.e2e
+package codes.yousef.summon.e2e
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

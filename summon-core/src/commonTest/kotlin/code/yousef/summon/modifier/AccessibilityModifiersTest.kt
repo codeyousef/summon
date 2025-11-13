@@ -1,12 +1,10 @@
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
 // Import necessary functions/enums if not automatically resolved
-import code.yousef.summon.modifier.AttributeModifiers.getAttribute // Needed for verification
+import codes.yousef.summon.modifier.AttributeModifiers.getAttribute
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 class AccessibilityModifiersTest {
 

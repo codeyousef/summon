@@ -1,11 +1,6 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
-import code.yousef.summon.annotation.Composable
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
-import kotlin.test.assertFalse
+import kotlin.test.*
 
 /**
  * Tests for the Recomposer class

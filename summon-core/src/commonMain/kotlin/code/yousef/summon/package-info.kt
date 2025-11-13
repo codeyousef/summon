@@ -283,5 +283,5 @@
  * @author Yousef
  * @since 1.0.0
  */
-package code.yousef.summon
+package codes.yousef.summon
 

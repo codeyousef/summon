@@ -1,4 +1,4 @@
-package code.yousef.summon.integration
+package codes.yousef.summon.integration
 
 import kotlin.test.Test
 import kotlin.test.assertTrue

@@ -1,4 +1,4 @@
-package code.yousef.summon.routing
+package codes.yousef.summon.routing
 
 /**
  * Loads pages from the file system and registers them with the PageRegistry.

@@ -1,12 +1,12 @@
-package code.yousef.summon.ssr
+package codes.yousef.summon.ssr
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.core.mapOfCompat
-import code.yousef.summon.runtime.LaunchedEffect
-import code.yousef.summon.runtime.PlatformRenderer
-import code.yousef.summon.runtime.mutableStateOf
-import code.yousef.summon.runtime.remember
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.core.mapOfCompat
+import codes.yousef.summon.runtime.LaunchedEffect
+import codes.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.runtime.mutableStateOf
+import codes.yousef.summon.runtime.remember
 import kotlinx.coroutines.delay
 import kotlinx.html.body
 import kotlinx.html.head

@@ -1,6 +1,6 @@
-package code.yousef.summon.theme
+package codes.yousef.summon.theme
 
-import code.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.Modifier
 
 
 /**

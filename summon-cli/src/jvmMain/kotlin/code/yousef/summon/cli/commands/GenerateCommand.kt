@@ -1,6 +1,6 @@
-package code.yousef.summon.cli.commands
+package codes.yousef.summon.cli.commands
 
-import code.yousef.summon.cli.generators.ComponentGenerator
+import codes.yousef.summon.cli.generators.ComponentGenerator
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
@@ -170,22 +170,22 @@ class PageSubcommand : CliktCommand(
 
 package routing.pages
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.foundation.BasicText
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.components.layout.Row
-import code.yousef.summon.components.layout.Box
-import code.yousef.summon.components.layout.Spacer
-import code.yousef.summon.components.navigation.Link
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.padding
-import code.yousef.summon.modifier.fillMaxWidth
-import code.yousef.summon.modifier.fillMaxSize
-import code.yousef.summon.modifier.weight
-import code.yousef.summon.theme.Color
-import code.yousef.summon.theme.TextStyle
-import code.yousef.summon.theme.FontWeight
-import code.yousef.summon.components.layout.Alignment
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.foundation.BasicText
+import codes.yousef.summon.components.layout.Column
+import codes.yousef.summon.components.layout.Row
+import codes.yousef.summon.components.layout.Box
+import codes.yousef.summon.components.layout.Spacer
+import codes.yousef.summon.components.navigation.Link
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.padding
+import codes.yousef.summon.modifier.fillMaxWidth
+import codes.yousef.summon.modifier.fillMaxSize
+import codes.yousef.summon.modifier.weight
+import codes.yousef.summon.theme.Color
+import codes.yousef.summon.theme.TextStyle
+import codes.yousef.summon.theme.FontWeight
+import codes.yousef.summon.components.layout.Alignment
 
 /**
  * $name page component
@@ -355,10 +355,10 @@ class ThemeSubcommand : CliktCommand(
         return """
 package theme
 
-import code.yousef.summon.theme.Theme
-import code.yousef.summon.theme.Colors
-import code.yousef.summon.theme.Typography
-import code.yousef.summon.theme.Shapes
+import codes.yousef.summon.theme.Theme
+import codes.yousef.summon.theme.Colors
+import codes.yousef.summon.theme.Typography
+import codes.yousef.summon.theme.Shapes
 
 /**
  * ${name} theme based on ${base} design system

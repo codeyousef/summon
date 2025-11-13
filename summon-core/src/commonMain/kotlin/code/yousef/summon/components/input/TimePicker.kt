@@ -1,11 +1,11 @@
-package code.yousef.summon.components.input
+package codes.yousef.summon.components.input
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.core.splitCompat
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.mutableStateOf
-import code.yousef.summon.runtime.remember
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.core.splitCompat
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.runtime.mutableStateOf
+import codes.yousef.summon.runtime.remember
 import kotlinx.datetime.LocalTime
 
 /**

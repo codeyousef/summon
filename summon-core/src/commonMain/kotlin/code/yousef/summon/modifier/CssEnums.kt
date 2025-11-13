@@ -100,9 +100,9 @@
  * @see code.yousef.summon.modifier.Modifier for core modifier functionality
  * @since 1.0.0
  */
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
-import code.yousef.summon.extensions.px
+import codes.yousef.summon.extensions.px
 
 /**
  * CSS position property values for element positioning control.

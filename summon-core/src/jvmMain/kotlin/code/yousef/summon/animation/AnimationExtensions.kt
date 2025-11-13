@@ -1,7 +1,7 @@
 /**
  * JVM implementations of animation extensions.
  */
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
 import kotlinx.coroutines.delay as coroutinesDelay
 

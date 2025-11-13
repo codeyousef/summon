@@ -1,6 +1,6 @@
-package code.yousef.summon.routing
+package codes.yousef.summon.routing
 
-import code.yousef.summon.runtime.Composable
+import codes.yousef.summon.runtime.Composable
 
 /**
  * Manages state that is tied to a specific route path.

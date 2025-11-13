@@ -1,6 +1,6 @@
-package code.yousef.summon.routing.generator
+package codes.yousef.summon.routing.generator
 
-import code.yousef.summon.core.mapOfCompat
+import codes.yousef.summon.core.mapOfCompat
 
 /**
  * Implementation of a build plugin for page discovery.

@@ -1,15 +1,15 @@
-package code.yousef.summon.integration.quarkus.renderer
+package codes.yousef.summon.integration.quarkus.renderer
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.IconType
-import code.yousef.summon.components.feedback.AlertVariant
-import code.yousef.summon.components.input.FileInfo
-import code.yousef.summon.core.FlowContentCompat
-import code.yousef.summon.integration.quarkus.htmx.HtmxAttributeHandler
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.FormContent
-import code.yousef.summon.runtime.NativeSelectOption
-import code.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.display.IconType
+import codes.yousef.summon.components.feedback.AlertVariant
+import codes.yousef.summon.components.input.FileInfo
+import codes.yousef.summon.core.FlowContentCompat
+import codes.yousef.summon.integration.quarkus.htmx.HtmxAttributeHandler
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.FormContent
+import codes.yousef.summon.runtime.NativeSelectOption
+import codes.yousef.summon.runtime.PlatformRenderer
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 

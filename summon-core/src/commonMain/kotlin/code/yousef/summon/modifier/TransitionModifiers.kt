@@ -1,6 +1,6 @@
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
-import code.yousef.summon.core.mapOfCompat
+import codes.yousef.summon.core.mapOfCompat
 
 fun Modifier.transition(value: String): Modifier =
     style("transition", value)

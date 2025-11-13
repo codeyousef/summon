@@ -1,8 +1,8 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
 import kotlin.test.Test
 import kotlin.test.assertTrue
-import code.yousef.summon.annotation.Composable as AnnotationComposable
+import codes.yousef.summon.annotation.Composable as AnnotationComposable
 
 /**
  * Tests for the Composable typealias.

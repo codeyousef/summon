@@ -1,15 +1,15 @@
-package code.yousef.summon.integration
+package codes.yousef.summon.integration
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.input.Button
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.components.layout.Row
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.ModifierExtras.withAttribute
-import code.yousef.summon.runtime.*
-import code.yousef.summon.state.mutableStateOf
-import code.yousef.summon.test.ensureWasmNodeDom
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.components.input.Button
+import codes.yousef.summon.components.layout.Column
+import codes.yousef.summon.components.layout.Row
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.ModifierExtras.withAttribute
+import codes.yousef.summon.runtime.*
+import codes.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.test.ensureWasmNodeDom
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

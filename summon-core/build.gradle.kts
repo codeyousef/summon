@@ -6,8 +6,8 @@ import java.util.*
 apply(from = "../version.gradle.kts")
 
 // Manual version override for now
-version = "0.4.7.0"
-group = "io.github.codeyousef"
+version = "0.4.8.0"
+group = "codes.yousef"
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -440,10 +440,10 @@ tasks.register<Jar>("javadocJar") {
     }
 }
 
-// Maven Central Publishing via Central Portal API
+// Maven Central Publishing via Central Portal API (New Group ID)
 tasks.register("publishToCentralPortalManually") {
     group = "publishing"
-    description = "Publish to Maven Central using Central Portal API"
+    description = "Publish to Maven Central using Central Portal API (codes.yousef)"
     dependsOn("publishToMavenLocal", "javadocJar")
     
     doLast {
@@ -481,12 +481,13 @@ tasks.register("publishToCentralPortalManually") {
         val allFilesToProcess = mutableListOf<File>()
 
         artifactMappings.forEach { (artifactId, _) ->
-            val mavenPath = "io/github/codeyousef/$artifactId/${project.version}"
+            val mavenPath = "codes/yousef/$artifactId/${project.version}"
             val targetDir = file("$bundleDir/$mavenPath")
             targetDir.mkdirs()
             
             // Copy artifacts from local Maven repository
-            val localMavenDir = file("${System.getProperty("user.home")}/.m2/repository/io/github/codeyousef/$artifactId/${project.version}")
+            val localMavenDir =
+                file("${System.getProperty("user.home")}/.m2/repository/codes/yousef/$artifactId/${project.version}")
             if (localMavenDir.exists()) {
                 println("📦 Processing $artifactId artifacts...")
                 
@@ -614,6 +615,155 @@ tasks.register("publishToCentralPortalManually") {
         if (allFilesToProcess.isEmpty()) {
             throw GradleException("No Maven artifacts found. Make sure to run publishToMavenLocal first.")
         }
+    }
+}
+
+// Legacy publishing to io.github.codeyousef (until 0.5.0.0)
+tasks.register("publishToLegacyGroupId") {
+    group = "publishing"
+    description = "Publish to Maven Central using legacy group ID (io.github.codeyousef) - until 0.5.0.0"
+
+    doLast {
+        // Temporarily change group ID
+        val originalGroup = project.group
+        project.group = "io.github.codeyousef"
+
+        try {
+            // Re-publish to Maven Local with legacy group
+            project.tasks.getByName("publishToMavenLocal").actions.forEach { it.execute(project.tasks.getByName("publishToMavenLocal")) }
+
+            // Load credentials
+            val localProperties = Properties().apply {
+                val localFile = rootProject.file("local.properties")
+                if (localFile.exists()) {
+                    load(localFile.inputStream())
+                }
+            }
+
+            val username = localProperties.getProperty("mavenCentralUsername")
+                ?: throw GradleException("mavenCentralUsername not found in local.properties")
+            val password = localProperties.getProperty("mavenCentralPassword")
+                ?: throw GradleException("mavenCentralPassword not found in local.properties")
+            val signingPassword = localProperties.getProperty("signingPassword")
+                ?: throw GradleException("signingPassword not found in local.properties")
+
+            println("🚀 Publishing to Maven Central with LEGACY group ID (io.github.codeyousef)...")
+            println("⚠️  This is the last release cycle - switching to codes.yousef in 0.5.0.0")
+
+            // Create bundle for legacy group
+            val bundleDir = file("${layout.buildDirectory.get()}/central-portal-bundle-legacy")
+            bundleDir.deleteRecursively()
+
+            val artifactMappings = mapOf(
+                "summon" to "kotlinMultiplatform",
+                "summon-jvm" to "jvm",
+                "summon-js" to "js",
+                "summon-core" to "wasmJs"
+            )
+
+            val allFiles = mutableListOf<File>()
+
+            artifactMappings.forEach { (artifactId, _) ->
+                val mavenPath = "io/github/codeyousef/$artifactId/${project.version}"
+                val targetDir = file("$bundleDir/$mavenPath")
+                targetDir.mkdirs()
+
+                val localMavenDir =
+                    file("${System.getProperty("user.home")}/.m2/repository/io/github/codeyousef/$artifactId/${project.version}")
+                if (localMavenDir.exists()) {
+                    localMavenDir.listFiles()?.forEach { file ->
+                        if ((file.name.endsWith(".jar") || file.name.endsWith(".pom") ||
+                                    file.name.endsWith(".klib") || file.name.endsWith(".module")) &&
+                            !file.name.endsWith(".md5") && !file.name.endsWith(".sha1") &&
+                            !file.name.endsWith(".asc")
+                        ) {
+                            file.copyTo(File(targetDir, file.name), overwrite = true)
+                            allFiles.add(File(targetDir, file.name))
+                        }
+                    }
+                }
+            }
+
+            // Sign and checksum all files (simplified version)
+            allFiles.forEach { file ->
+                val md5Hash = MessageDigest.getInstance("MD5")
+                    .digest(file.readBytes())
+                    .joinToString("") { "%02x".format(it) }
+                File(file.parent, "${file.name}.md5").writeText(md5Hash)
+
+                val sha1Hash = MessageDigest.getInstance("SHA-1")
+                    .digest(file.readBytes())
+                    .joinToString("") { "%02x".format(it) }
+                File(file.parent, "${file.name}.sha1").writeText(sha1Hash)
+
+                // GPG signing
+                val sigFile = File(file.parent, "${file.name}.asc")
+                val privateKeyFile = rootProject.file("private-key.asc")
+                val signScript = rootProject.file("sign-artifact.sh")
+
+                if (privateKeyFile.exists() && signScript.exists()) {
+                    exec {
+                        commandLine(
+                            "bash", signScript.absolutePath,
+                            signingPassword, privateKeyFile.absolutePath,
+                            sigFile.absolutePath, file.absolutePath
+                        )
+                    }
+                }
+            }
+
+            // Create ZIP and upload
+            val zipFile = file("${bundleDir.parent}/summon-${project.version}-legacy-bundle.zip")
+            ant.invokeMethod(
+                "zip", mapOf(
+                    "destfile" to zipFile.absolutePath,
+                    "basedir" to bundleDir.absolutePath
+                )
+            )
+
+            val authString = Base64.getEncoder().encodeToString("$username:$password".toByteArray())
+            exec {
+                isIgnoreExitValue = true
+                commandLine(
+                    "curl", "-X", "POST",
+                    "https://central.sonatype.com/api/v1/publisher/upload",
+                    "-H", "Authorization: Basic $authString",
+                    "-F", "bundle=@${zipFile.absolutePath}",
+                    "--fail-with-body"
+                )
+            }
+
+            println("✅ Legacy group ID upload complete")
+
+        } finally {
+            // Restore original group
+            project.group = originalGroup
+        }
+    }
+}
+
+// Combined task to publish to both group IDs
+tasks.register("publishToBothGroupIds") {
+    group = "publishing"
+    description = "Publish to both codes.yousef and io.github.codeyousef (until 0.5.0.0)"
+    dependsOn("publishToMavenLocal", "javadocJar")
+    finalizedBy("publishToCentralPortalManually", "publishToLegacyGroupId")
+
+    doLast {
+        println("")
+        println("=" + "=".repeat(79))
+        println("📦 DUAL PUBLISHING COMPLETE")
+        println("=" + "=".repeat(79))
+        println("✅ Published to: codes.yousef (NEW)")
+        println("✅ Published to: io.github.codeyousef (LEGACY - until 0.5.0.0)")
+        println("")
+        println("⚠️  MIGRATION NOTICE:")
+        println("   Version 0.5.0.0 will be the LAST release under io.github.codeyousef")
+        println("   All future releases will ONLY be published to codes.yousef")
+        println("")
+        println("   Please update your dependencies to:")
+        println("   implementation(\"codes.yousef:summon:${project.version}\")")
+        println("=" + "=".repeat(79))
     }
 }
 

@@ -1,8 +1,8 @@
-package code.yousef.summon.accessibility
+package codes.yousef.summon.accessibility
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * AccessibleElement is a wrapper component that adds accessibility attributes to its content.

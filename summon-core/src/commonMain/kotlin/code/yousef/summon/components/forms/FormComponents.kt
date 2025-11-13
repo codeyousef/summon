@@ -1,10 +1,10 @@
-package code.yousef.summon.components.forms
+package codes.yousef.summon.components.forms
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.core.FlowContent
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.getPlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.core.FlowContent
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.runtime.getPlatformRenderer
 
 /**
  * Describes how a form submission should be performed.

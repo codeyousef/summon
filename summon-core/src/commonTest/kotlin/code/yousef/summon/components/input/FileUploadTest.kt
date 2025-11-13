@@ -1,17 +1,17 @@
-package code.yousef.summon.components.input
+package codes.yousef.summon.components.input
 
 // Import other types used in PlatformRenderer methods for the mock
 
-import code.yousef.summon.components.input.FileInfo
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.state.State
-import code.yousef.summon.util.runComposableTest
+import codes.yousef.summon.components.input.FileInfo
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.MockPlatformRenderer
+import codes.yousef.summon.state.State
+import codes.yousef.summon.util.runComposableTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import code.yousef.summon.components.input.FileInfo as ExpectFileInfo
+import codes.yousef.summon.components.input.FileInfo as ExpectFileInfo
 
 // REMOVED Test-specific implementation for FileInfo - Moved to TestFixtures.kt
 

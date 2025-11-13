@@ -1,8 +1,8 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
-import code.yousef.summon.state.State
-import code.yousef.summon.state.SummonMutableState
-import code.yousef.summon.state.mutableStateOf as statePackageMutableStateOf
+import codes.yousef.summon.state.State
+import codes.yousef.summon.state.SummonMutableState
+import codes.yousef.summon.state.mutableStateOf as statePackageMutableStateOf
 
 /**
  * Type alias for backward compatibility with existing code.

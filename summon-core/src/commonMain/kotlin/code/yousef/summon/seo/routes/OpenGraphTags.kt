@@ -1,9 +1,9 @@
-package code.yousef.summon.seo.routes
+package codes.yousef.summon.seo.routes
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.SideEffect
+import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.runtime.CompositionLocal
+import codes.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.runtime.SideEffect
 
 
 /**

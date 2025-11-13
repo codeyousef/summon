@@ -1,12 +1,12 @@
-package code.yousef.summon.components.feedback
+package codes.yousef.summon.components.feedback
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.layout.Box
-import code.yousef.summon.components.layout.Row
-import code.yousef.summon.modifier.*
-import code.yousef.summon.modifier.ModifierExtras.onClick
-import code.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.components.layout.Box
+import codes.yousef.summon.components.layout.Row
+import codes.yousef.summon.modifier.*
+import codes.yousef.summon.modifier.ModifierExtras.onClick
+import codes.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * Badge types for different semantic meanings

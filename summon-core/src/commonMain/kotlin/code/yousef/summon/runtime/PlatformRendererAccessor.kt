@@ -1,6 +1,6 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
-import code.yousef.summon.core.error.ComponentNotFoundException
+import codes.yousef.summon.core.error.ComponentNotFoundException
 
 /**
  * Utility function for accessing the current platform renderer.

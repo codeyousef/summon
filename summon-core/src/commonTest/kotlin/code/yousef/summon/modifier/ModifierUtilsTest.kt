@@ -1,7 +1,6 @@
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
-import code.yousef.summon.modifier.AttributeModifiers.attribute // Import the extension function
-import code.yousef.summon.modifier.AttributeModifiers.getAttribute // Import the extension function
+import codes.yousef.summon.modifier.AttributeModifiers.getAttribute
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

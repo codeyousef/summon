@@ -1,16 +1,4 @@
-package code.yousef.summon.core
-
-import code.yousef.summon.lifecycle.LifecycleOwner
-import code.yousef.summon.lifecycle.LifecycleState
-import code.yousef.summon.lifecycle.LifecycleObserver
-import code.yousef.summon.LifecycleAware
-import code.yousef.summon.LifecycleAwareComponent
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
-import kotlin.test.assertFalse
+package codes.yousef.summon.core
 
 class LifecycleTest {
 

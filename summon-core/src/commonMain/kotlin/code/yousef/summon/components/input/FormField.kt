@@ -1,14 +1,14 @@
-package code.yousef.summon.components.input
+package codes.yousef.summon.components.input
 
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.components.layout.Row
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.theme.ColorHelpers
-import code.yousef.summon.theme.Spacer
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.components.layout.Column
+import codes.yousef.summon.components.layout.Row
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.runtime.CompositionLocal
+import codes.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.theme.ColorHelpers
+import codes.yousef.summon.theme.Spacer
 
 
 /**

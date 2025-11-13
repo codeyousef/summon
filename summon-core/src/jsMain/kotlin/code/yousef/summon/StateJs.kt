@@ -1,8 +1,8 @@
-package code.yousef.summon
+package codes.yousef.summon
 
-import code.yousef.summon.js.console
-import code.yousef.summon.state.MutableStateImpl
-import code.yousef.summon.state.SummonMutableState
+import codes.yousef.summon.js.console
+import codes.yousef.summon.state.MutableStateImpl
+import codes.yousef.summon.state.SummonMutableState
 import kotlinx.browser.localStorage
 import kotlinx.browser.window
 

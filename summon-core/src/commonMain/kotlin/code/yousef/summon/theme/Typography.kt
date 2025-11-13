@@ -1,4 +1,4 @@
-package code.yousef.summon.theme
+package codes.yousef.summon.theme
 
 /**
  * Typography class that defines all text styles for the application.

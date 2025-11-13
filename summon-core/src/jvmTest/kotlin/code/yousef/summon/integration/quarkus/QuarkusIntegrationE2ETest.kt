@@ -1,7 +1,7 @@
-package code.yousef.summon.integration.quarkus
+package codes.yousef.summon.integration.quarkus
 
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.integration.quarkus.QuarkusRenderer.Companion.respondSummonHydrated
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.integration.quarkus.QuarkusRenderer.Companion.respondSummonHydrated
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpServer
 import io.vertx.core.http.HttpServerOptions
@@ -12,11 +12,7 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class QuarkusIntegrationE2ETest {
 

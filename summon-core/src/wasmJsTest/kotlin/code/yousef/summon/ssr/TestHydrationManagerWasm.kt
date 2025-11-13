@@ -1,4 +1,4 @@
-package code.yousef.summon.ssr
+package codes.yousef.summon.ssr
 
 /**
  * WASM-specific implementation of TestHydrationManager for contract tests.

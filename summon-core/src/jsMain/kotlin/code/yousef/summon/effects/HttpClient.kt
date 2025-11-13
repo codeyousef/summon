@@ -1,11 +1,9 @@
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
 import kotlinx.browser.window
-import kotlinx.coroutines.await
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
-import org.w3c.fetch.*
+import org.w3c.fetch.Headers
+import org.w3c.fetch.RequestInit
+import org.w3c.fetch.Response
 import kotlin.js.Promise
 
 /**

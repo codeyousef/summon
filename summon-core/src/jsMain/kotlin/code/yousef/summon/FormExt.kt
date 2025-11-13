@@ -1,6 +1,6 @@
-package code.yousef.summon
+package codes.yousef.summon
 
-import code.yousef.summon.components.input.FormState
+import codes.yousef.summon.components.input.FormState
 import kotlinx.browser.document
 import org.w3c.dom.HTMLFormElement
 import org.w3c.dom.events.Event

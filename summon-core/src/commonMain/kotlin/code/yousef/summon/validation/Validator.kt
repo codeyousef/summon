@@ -1,4 +1,4 @@
-package code.yousef.summon.validation
+package codes.yousef.summon.validation
 
 /**
  * Core interface for implementing form field validation logic.

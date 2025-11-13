@@ -1,8 +1,8 @@
-package code.yousef.summon.theme
+package codes.yousef.summon.theme
 
-import code.yousef.summon.core.mapOfCompat
+import codes.yousef.summon.core.mapOfCompat
 
-import code.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.Modifier
 import kotlin.math.pow
 
 

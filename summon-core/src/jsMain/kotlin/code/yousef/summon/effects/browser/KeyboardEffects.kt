@@ -1,10 +1,10 @@
-package code.yousef.summon.effects.browser
+package codes.yousef.summon.effects.browser
 
-import code.yousef.summon.effects.CompositionScope
-import code.yousef.summon.effects.KeyModifier
-import code.yousef.summon.effects.KeyboardEvent
-import code.yousef.summon.effects.onMountWithCleanup
-import code.yousef.summon.runtime.Composable
+import codes.yousef.summon.effects.CompositionScope
+import codes.yousef.summon.effects.KeyModifier
+import codes.yousef.summon.effects.KeyboardEvent
+import codes.yousef.summon.effects.onMountWithCleanup
+import codes.yousef.summon.runtime.Composable
 import kotlinx.browser.document
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.KeyboardEvent as DomKeyboardEvent

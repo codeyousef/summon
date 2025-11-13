@@ -1,6 +1,6 @@
-package code.yousef.summon.cli.generators
+package codes.yousef.summon.cli.generators
 
-import code.yousef.summon.cli.templates.ProjectTemplate
+import codes.yousef.summon.cli.templates.ProjectTemplate
 import java.io.File
 import kotlin.io.path.createTempDirectory
 import kotlin.test.*
@@ -43,14 +43,14 @@ class ProjectGeneratorTest {
         
         val content = buildFile.readText()
 
-        // Should use version from version.properties (0.4.7.0), not hardcoded 0.4.0.0
+        // Should use version from version.properties (0.4.8.0), not hardcoded 0.4.0.0
         assertFalse(
             content.contains("summon:0.4.0.0"),
             "Generated build file should not use hardcoded old version 0.4.0.0"
         )
         assertTrue(
-            content.contains("summon:0.4.7.0"),
-            "Generated build file should use current version 0.4.7.0 from version.properties"
+            content.contains("summon:0.4.8.0"),
+            "Generated build file should use current version 0.4.8.0 from version.properties"
         )
 
         assertTrue(
@@ -195,13 +195,13 @@ class ProjectGeneratorTest {
         
         // Should import Modifier
         assertTrue(
-            content.contains("import code.yousef.summon.modifier.Modifier"),
+            content.contains("import codes.yousef.summon.modifier.Modifier"),
             "Should import Modifier class"
         )
         
         // Should import padding extension
         assertTrue(
-            content.contains("import code.yousef.summon.modifier.padding"),
+            content.contains("import codes.yousef.summon.modifier.padding"),
             "Should import padding extension function"
         )
     }

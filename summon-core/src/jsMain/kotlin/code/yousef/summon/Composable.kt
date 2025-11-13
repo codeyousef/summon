@@ -1,7 +1,7 @@
-package code.yousef.summon
+package codes.yousef.summon
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.*
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.runtime.*
 import org.w3c.dom.HTMLElement
 
 /**

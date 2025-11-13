@@ -1,4 +1,4 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
 import kotlinx.browser.document
 import kotlinx.browser.window

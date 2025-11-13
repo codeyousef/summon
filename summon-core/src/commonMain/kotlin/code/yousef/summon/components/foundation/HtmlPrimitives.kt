@@ -1,9 +1,9 @@
-package code.yousef.summon.components.foundation
+package codes.yousef.summon.components.foundation
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.core.FlowContentCompat
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.core.FlowContentCompat
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * Cross-platform canvas element that maps directly to `<canvas>`.

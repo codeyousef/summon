@@ -1,16 +1,16 @@
-package code.yousef.summon.security.guards
+package codes.yousef.summon.security.guards
 
-import code.yousef.summon.routing.GuardResult
-import code.yousef.summon.routing.Route
-import code.yousef.summon.routing.RouteGuard
-import code.yousef.summon.routing.RouteParams
-import code.yousef.summon.security.Permission
-import code.yousef.summon.security.Role
-import code.yousef.summon.security.SecurityContext
-import code.yousef.summon.security.annotations.RequiresAccess
-import code.yousef.summon.security.annotations.RequiresAuthentication
-import code.yousef.summon.security.annotations.RequiresPermissions
-import code.yousef.summon.security.annotations.RequiresRoles
+import codes.yousef.summon.routing.GuardResult
+import codes.yousef.summon.routing.Route
+import codes.yousef.summon.routing.RouteGuard
+import codes.yousef.summon.routing.RouteParams
+import codes.yousef.summon.security.Permission
+import codes.yousef.summon.security.Role
+import codes.yousef.summon.security.SecurityContext
+import codes.yousef.summon.security.annotations.RequiresAccess
+import codes.yousef.summon.security.annotations.RequiresAuthentication
+import codes.yousef.summon.security.annotations.RequiresPermissions
+import codes.yousef.summon.security.annotations.RequiresRoles
 
 /**
  * A route guard that checks if the user is authenticated.

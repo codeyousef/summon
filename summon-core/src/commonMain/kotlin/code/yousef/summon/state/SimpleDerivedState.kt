@@ -1,8 +1,8 @@
-package code.yousef.summon.state
+package codes.yousef.summon.state
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.LaunchedEffect
-import code.yousef.summon.runtime.remember
+import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.runtime.LaunchedEffect
+import codes.yousef.summon.runtime.remember
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 

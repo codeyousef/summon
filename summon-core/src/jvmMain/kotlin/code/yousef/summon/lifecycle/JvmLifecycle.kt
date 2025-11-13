@@ -1,4 +1,4 @@
-package code.yousef.summon.lifecycle
+package codes.yousef.summon.lifecycle
 
 // Expect declarations are in this same package (commonMain/kotlin/code/yousef/summon/lifecycle)
 // So, direct usage of LifecycleState, LifecycleObserver, LifecycleOwner will refer to them.

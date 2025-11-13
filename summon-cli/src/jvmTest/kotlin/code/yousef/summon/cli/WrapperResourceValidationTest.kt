@@ -1,4 +1,4 @@
-package code.yousef.summon.cli
+package codes.yousef.summon.cli
 
 import kotlin.test.Test
 import kotlin.test.assertNotNull

@@ -1,4 +1,4 @@
-package code.yousef.summon.web
+package codes.yousef.summon.web
 
 /**
  * Browser compatibility utilities shared between JS and WASM implementations.

@@ -1,8 +1,9 @@
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
-import code.yousef.summon.runtime.Composable
-import kotlin.test.*
-import code.yousef.summon.effects.TestCompositionScope
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.fail
 
 class EffectsTest {
 

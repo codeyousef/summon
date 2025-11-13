@@ -1,4 +1,4 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test

@@ -1,6 +1,6 @@
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
-import code.yousef.summon.core.style.Color
+import codes.yousef.summon.core.style.Color
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

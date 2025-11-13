@@ -1,8 +1,8 @@
-package code.yousef.summon.i18n
+package codes.yousef.summon.i18n
 
-import code.yousef.summon.core.mapOfCompat
+import codes.yousef.summon.core.mapOfCompat
 
-import code.yousef.summon.runtime.Composable
+import codes.yousef.summon.runtime.Composable
 import kotlin.math.abs
 
 /**

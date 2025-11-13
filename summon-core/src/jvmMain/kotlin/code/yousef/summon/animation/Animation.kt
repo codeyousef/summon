@@ -1,4 +1,4 @@
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.concurrent.thread

@@ -1,6 +1,6 @@
-package code.yousef.summon.seo
+package codes.yousef.summon.seo
 
-import code.yousef.summon.annotation.Composable
+import codes.yousef.summon.annotation.Composable
 
 /**
  * High-level composable component that combines all SEO functionality.

@@ -1,4 +1,4 @@
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
 /**
  * Interface for clipboard operations that can be implemented by platform-specific code

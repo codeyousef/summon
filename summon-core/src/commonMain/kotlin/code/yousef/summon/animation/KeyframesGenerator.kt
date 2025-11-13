@@ -130,7 +130,7 @@
  * @see Animation for core animation system
  * @since 1.0.0
  */
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
 /**
  * Comprehensive utility for generating CSS keyframes definitions.

@@ -1,4 +1,4 @@
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
 /**
  * Platform-independent way to get current time in milliseconds.

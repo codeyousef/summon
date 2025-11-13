@@ -1,6 +1,6 @@
-package code.yousef.summon.core
+package codes.yousef.summon.core
 
-import code.yousef.summon.annotation.Composable
+import codes.yousef.summon.annotation.Composable
 import kotlinx.browser.document
 
 /**

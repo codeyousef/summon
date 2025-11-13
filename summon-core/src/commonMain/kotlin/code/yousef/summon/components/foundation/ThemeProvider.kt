@@ -1,9 +1,9 @@
-package code.yousef.summon.components.foundation
+package codes.yousef.summon.components.foundation
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.styles.GlobalStyle
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.theme.Theme
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.styles.GlobalStyle
+import codes.yousef.summon.runtime.CompositionLocal
+import codes.yousef.summon.theme.Theme
 
 /**
  * Enhanced theme configuration that extends the base theme with additional design tokens.

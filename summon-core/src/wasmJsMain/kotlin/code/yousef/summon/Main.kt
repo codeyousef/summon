@@ -1,10 +1,10 @@
-package code.yousef.summon
+package codes.yousef.summon
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.PlatformRenderer
-import code.yousef.summon.runtime.setPlatformRenderer
-import code.yousef.summon.runtime.wasmConsoleLog
-import code.yousef.summon.runtime.wasmGetDocumentBodyId
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.runtime.setPlatformRenderer
+import codes.yousef.summon.runtime.wasmConsoleLog
+import codes.yousef.summon.runtime.wasmGetDocumentBodyId
 
 /**
  * Global reference to the PlatformRenderer for WASM.

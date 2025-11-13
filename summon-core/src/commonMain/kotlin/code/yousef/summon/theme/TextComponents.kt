@@ -1,10 +1,10 @@
-package code.yousef.summon.theme
+package codes.yousef.summon.theme
 
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.fontFamily
-import code.yousef.summon.modifier.letterSpacing
-import code.yousef.summon.runtime.Composable
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.fontFamily
+import codes.yousef.summon.modifier.letterSpacing
+import codes.yousef.summon.runtime.Composable
 
 /**
  * A collection of composable functions for themed text styles.

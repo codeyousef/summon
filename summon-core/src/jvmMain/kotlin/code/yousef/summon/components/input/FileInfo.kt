@@ -1,4 +1,4 @@
-package code.yousef.summon.components.input
+package codes.yousef.summon.components.input
 
 import java.io.File
 

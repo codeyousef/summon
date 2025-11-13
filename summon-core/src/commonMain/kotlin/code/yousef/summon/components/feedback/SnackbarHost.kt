@@ -1,9 +1,9 @@
-package code.yousef.summon.components.feedback
+package codes.yousef.summon.components.feedback
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.mutableStateOf
-import code.yousef.summon.runtime.remember
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.mutableStateOf
+import codes.yousef.summon.runtime.remember
 import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds

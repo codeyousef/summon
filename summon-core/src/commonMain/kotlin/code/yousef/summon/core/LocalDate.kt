@@ -1,4 +1,4 @@
-package code.yousef.summon.core
+package codes.yousef.summon.core
 
 // Import kotlinx.datetime for LocalDate
 import kotlinx.datetime.LocalDate

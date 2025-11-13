@@ -1,6 +1,6 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
-import code.yousef.summon.annotation.Composable
+import codes.yousef.summon.annotation.Composable
 
 /**
  * A simple implementation of Composer that can be used on any platform

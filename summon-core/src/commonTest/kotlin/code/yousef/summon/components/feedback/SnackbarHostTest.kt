@@ -1,8 +1,8 @@
-package code.yousef.summon.components.feedback
+package codes.yousef.summon.components.feedback
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.Composer
-import code.yousef.summon.runtime.CompositionLocal
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.runtime.Composer
+import codes.yousef.summon.runtime.CompositionLocal
 import kotlin.test.*
 import kotlin.time.Duration.Companion.milliseconds
 

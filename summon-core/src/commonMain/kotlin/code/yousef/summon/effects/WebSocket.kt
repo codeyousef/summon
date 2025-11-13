@@ -1,4 +1,4 @@
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
 /**
  * WebSocket connection state

@@ -1,8 +1,8 @@
-package code.yousef.summon.core
+package codes.yousef.summon.core
 
-import code.yousef.summon.runtime.PlatformRenderer
-import code.yousef.summon.runtime.getPlatformRenderer
-import code.yousef.summon.runtime.setPlatformRenderer
+import codes.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.runtime.getPlatformRenderer
+import codes.yousef.summon.runtime.setPlatformRenderer
 
 /**
  * Provider for accessing the platform renderer.

@@ -1,13 +1,8 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
-import code.yousef.summon.core.RenderUtils
-import code.yousef.summon.core.Renderer
-import code.yousef.summon.js.console
-import kotlinx.browser.document
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
-import kotlin.test.assertNotNull
 import kotlin.test.fail
 
 /**

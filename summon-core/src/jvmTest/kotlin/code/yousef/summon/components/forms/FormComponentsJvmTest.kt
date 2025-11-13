@@ -1,6 +1,6 @@
-package code.yousef.summon.components.forms
+package codes.yousef.summon.components.forms
 
-import code.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.runtime.PlatformRenderer
 import kotlin.test.Test
 import kotlin.test.assertTrue
 

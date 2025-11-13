@@ -1,10 +1,9 @@
-package code.yousef.summon.components.input
+package codes.yousef.summon.components.input
 
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.ModifierExtras.pointerEvents
-import code.yousef.summon.modifier.applyIf
-import code.yousef.summon.runtime.*
-import code.yousef.summon.validation.Validator
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.applyIf
+import codes.yousef.summon.runtime.*
+import codes.yousef.summon.validation.Validator
 
 /**
  * A composable that displays a checkbox input field.

@@ -1,11 +1,11 @@
-package code.yousef.summon.ssr
+package codes.yousef.summon.ssr
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.core.mapOfCompat
-import code.yousef.summon.routing.RouteDefinition
-import code.yousef.summon.routing.RouteParams
-import code.yousef.summon.runtime.PlatformRenderer
-import code.yousef.summon.runtime.getPlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.core.mapOfCompat
+import codes.yousef.summon.routing.RouteDefinition
+import codes.yousef.summon.routing.RouteParams
+import codes.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.runtime.getPlatformRenderer
 
 /**
  * Handles static rendering of Summon components to HTML with improved compatibility

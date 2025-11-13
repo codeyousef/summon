@@ -1,7 +1,7 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.state.MutableState
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.state.MutableState
 
 /**
  * Manages the hydration of server-rendered components for client-side interactivity.

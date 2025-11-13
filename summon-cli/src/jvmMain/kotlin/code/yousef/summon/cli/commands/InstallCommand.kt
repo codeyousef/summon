@@ -1,4 +1,4 @@
-package code.yousef.summon.cli.commands
+package codes.yousef.summon.cli.commands
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.flag

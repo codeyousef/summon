@@ -1,10 +1,10 @@
-package code.yousef.summon.components.input
+package codes.yousef.summon.components.input
 
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.MockComposer
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.CompositionLocal
+import codes.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.runtime.MockPlatformRenderer
+import codes.yousef.summon.util.MockComposer
 import kotlin.test.*
 
 // Extension functions for testing

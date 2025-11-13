@@ -1,4 +1,4 @@
-package code.yousef.summon.annotation
+package codes.yousef.summon.annotation
 
 /**
  * This file provides type aliases for standardized usage of the Composable annotation.
@@ -14,6 +14,6 @@ package code.yousef.summon.annotation
  * The preferred way to use the Composable annotation in new code.
  *
  * Use this import pattern for new code:
- * import code.yousef.summon.annotation.StandardComposable as Composable
+ * import codes.yousef.summon.annotation.StandardComposable as Composable
  */
 typealias StandardComposable = Composable 

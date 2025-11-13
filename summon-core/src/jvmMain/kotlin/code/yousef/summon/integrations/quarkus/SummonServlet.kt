@@ -1,4 +1,4 @@
-package code.yousef.summon.integration.quarkus
+package codes.yousef.summon.integration.quarkus
 
 // import jakarta.servlet.annotation.WebServlet // Temporarily commented out
 import jakarta.servlet.http.HttpServlet

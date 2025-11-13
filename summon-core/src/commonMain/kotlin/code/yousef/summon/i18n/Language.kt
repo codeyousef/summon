@@ -1,4 +1,4 @@
-package code.yousef.summon.i18n
+package codes.yousef.summon.i18n
 
 /**
  * Represents a supported language in the application

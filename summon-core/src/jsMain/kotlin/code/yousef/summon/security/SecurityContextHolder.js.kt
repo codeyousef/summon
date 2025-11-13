@@ -1,4 +1,4 @@
-package code.yousef.summon.security
+package codes.yousef.summon.security
 
 /**
  * JS implementation of SecurityContextHolder using a simple mutable variable.

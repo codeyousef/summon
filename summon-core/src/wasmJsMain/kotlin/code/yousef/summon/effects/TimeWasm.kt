@@ -1,8 +1,8 @@
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
-import code.yousef.summon.runtime.safeWasmConsoleError
-import code.yousef.summon.runtime.safeWasmConsoleLog
-import code.yousef.summon.runtime.safeWasmConsoleWarn
+import codes.yousef.summon.runtime.safeWasmConsoleError
+import codes.yousef.summon.runtime.safeWasmConsoleLog
+import codes.yousef.summon.runtime.safeWasmConsoleWarn
 import kotlinx.datetime.Clock
 
 // Simple timeout storage for WASM implementation

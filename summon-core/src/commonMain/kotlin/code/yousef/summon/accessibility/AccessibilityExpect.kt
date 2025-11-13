@@ -1,4 +1,4 @@
-package code.yousef.summon.accessibility
+package codes.yousef.summon.accessibility
 
 /**
  * Platform-specific function to attempt to set the focus to the HTML/DOM element

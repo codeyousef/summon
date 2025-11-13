@@ -1,9 +1,7 @@
 @file:JvmName("StorageJvm")
 
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap

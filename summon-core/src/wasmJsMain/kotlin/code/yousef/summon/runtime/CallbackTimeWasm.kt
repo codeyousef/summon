@@ -1,3 +1,3 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
 internal actual fun currentTimeMillis(): Long = 0L

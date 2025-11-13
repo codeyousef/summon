@@ -1,4 +1,4 @@
-package code.yousef.summon.focus
+package codes.yousef.summon.focus
 
 import kotlin.test.Test
 import kotlin.test.assertTrue

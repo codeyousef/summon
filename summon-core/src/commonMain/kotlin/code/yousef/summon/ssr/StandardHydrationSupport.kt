@@ -1,6 +1,6 @@
-package code.yousef.summon.ssr
+package codes.yousef.summon.ssr
 
-import code.yousef.summon.annotation.Composable
+import codes.yousef.summon.annotation.Composable
 
 /**
  * Standard implementation of hydration support for server-side rendering.

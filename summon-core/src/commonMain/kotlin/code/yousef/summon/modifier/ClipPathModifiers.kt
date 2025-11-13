@@ -1,4 +1,4 @@
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
 /**
  * Clip-path utilities extracted from `StylingModifiers`. They remain simple extension wrappers so

@@ -1,6 +1,6 @@
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
-import code.yousef.summon.extensions.px
+import codes.yousef.summon.extensions.px
 
 fun Modifier.borderWidth(value: Number): Modifier =
     style("border-width", value.px)

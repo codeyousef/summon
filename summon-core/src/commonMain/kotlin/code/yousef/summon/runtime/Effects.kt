@@ -1,6 +1,6 @@
 @file:Suppress("UNCHECKED_CAST")
 
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
 import kotlinx.coroutines.*
 

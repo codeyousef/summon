@@ -1,7 +1,7 @@
-package code.yousef.summon.cli.commands
+package codes.yousef.summon.cli.commands
 
-import code.yousef.summon.cli.generators.ProjectGenerator
-import code.yousef.summon.cli.templates.ProjectTemplate
+import codes.yousef.summon.cli.generators.ProjectGenerator
+import codes.yousef.summon.cli.templates.ProjectTemplate
 import com.github.ajalt.clikt.core.BadParameterValue
 import com.github.ajalt.clikt.core.parse
 import java.io.File

@@ -1,4 +1,4 @@
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap

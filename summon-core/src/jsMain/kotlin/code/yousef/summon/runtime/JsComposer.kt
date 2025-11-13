@@ -1,6 +1,6 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
-import code.yousef.summon.annotation.Composable
+import codes.yousef.summon.annotation.Composable
 
 // Console access provided by WebDOMUtils console object
 

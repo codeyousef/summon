@@ -1,6 +1,6 @@
-package code.yousef.summon.components.input
+package codes.yousef.summon.components.input
 
-import code.yousef.summon.runtime.wasmConsoleLog
+import codes.yousef.summon.runtime.wasmConsoleLog
 
 actual class FileInfo {
     actual val name: String = "wasm-file-stub.txt"

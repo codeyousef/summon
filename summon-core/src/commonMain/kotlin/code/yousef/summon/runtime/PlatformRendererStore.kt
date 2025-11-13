@@ -1,4 +1,4 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
 /**
  * Platform specific storage for the current [PlatformRenderer] instance.

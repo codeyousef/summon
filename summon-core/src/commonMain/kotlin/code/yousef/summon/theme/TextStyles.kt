@@ -1,4 +1,4 @@
-package code.yousef.summon.theme
+package codes.yousef.summon.theme
 
 /**
  * Text styles for material design typography.

@@ -1,6 +1,6 @@
-package code.yousef.summon.integration.quarkus.deployment
+package codes.yousef.summon.integration.quarkus.deployment
 
-import code.yousef.summon.integration.quarkus.QuarkusExtension
+import codes.yousef.summon.integration.quarkus.QuarkusExtension
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem
 import io.quarkus.deployment.annotations.BuildStep
 import io.quarkus.deployment.builditem.FeatureBuildItem

@@ -1,15 +1,15 @@
-package code.yousef.summon.components.feedback
+package codes.yousef.summon.components.feedback
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.IconDefaults
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.layout.Box
-import code.yousef.summon.components.layout.Row
-import code.yousef.summon.modifier.AlignItems
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.alignItems
-import code.yousef.summon.modifier.flexGrow
-import code.yousef.summon.runtime.*
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.display.IconDefaults
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.components.layout.Box
+import codes.yousef.summon.components.layout.Row
+import codes.yousef.summon.modifier.AlignItems
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.alignItems
+import codes.yousef.summon.modifier.flexGrow
+import codes.yousef.summon.runtime.*
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 

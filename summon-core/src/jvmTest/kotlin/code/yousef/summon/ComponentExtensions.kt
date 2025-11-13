@@ -1,12 +1,12 @@
-package code.yousef.summon
+package codes.yousef.summon
 
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.LocalPlatformRenderer
 import kotlinx.html.TagConsumer
 import kotlinx.html.stream.appendHTML
-import code.yousef.summon.test.Button as TestButton
-import code.yousef.summon.test.Image as TestImage
-import code.yousef.summon.test.Text as TestText
+import codes.yousef.summon.test.Button as TestButton
+import codes.yousef.summon.test.Image as TestImage
+import codes.yousef.summon.test.Text as TestText
 
 fun <T> TestImage.renderJvm(consumer: TagConsumer<T>): TagConsumer<T> {
     val sb = StringBuilder()

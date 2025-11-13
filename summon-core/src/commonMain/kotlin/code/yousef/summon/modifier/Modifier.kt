@@ -48,9 +48,9 @@
  *
  * @since 1.0.0
  */
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
-import code.yousef.summon.core.splitCompat
+import codes.yousef.summon.core.splitCompat
 import kotlin.js.JsName
 
 /**

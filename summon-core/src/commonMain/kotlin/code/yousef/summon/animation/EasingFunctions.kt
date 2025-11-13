@@ -1,4 +1,4 @@
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
 import kotlin.math.cos
 import kotlin.math.pow

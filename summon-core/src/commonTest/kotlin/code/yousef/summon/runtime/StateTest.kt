@@ -1,9 +1,9 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
+import codes.yousef.summon.state.State
+import codes.yousef.summon.state.SummonMutableState
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import code.yousef.summon.state.State
-import code.yousef.summon.state.SummonMutableState
 
 class StateTest {
 

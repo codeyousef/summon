@@ -1,6 +1,6 @@
-package code.yousef.summon.security
+package codes.yousef.summon.security
 
-import code.yousef.summon.core.mapOfCompat
+import codes.yousef.summon.core.mapOfCompat
 
 /**
  * Interface for authentication providers that handle different types of authentication.

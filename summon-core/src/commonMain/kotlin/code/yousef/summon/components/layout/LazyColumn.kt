@@ -1,13 +1,13 @@
-package code.yousef.summon.components.layout
+package codes.yousef.summon.components.layout
 
-import code.yousef.summon.core.mapOfCompat
+import codes.yousef.summon.core.mapOfCompat
 
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.remember
-import code.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.runtime.CompositionLocal
+import codes.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.runtime.remember
+import codes.yousef.summon.state.mutableStateOf
 
 /**
  * State holder for lazy lists that tracks scroll position and visible items.

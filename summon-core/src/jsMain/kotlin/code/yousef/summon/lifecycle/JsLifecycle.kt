@@ -1,12 +1,12 @@
-package code.yousef.summon.lifecycle
+package codes.yousef.summon.lifecycle
 
 
-import code.yousef.summon.lifecycle.LifecycleOwner
+import codes.yousef.summon.lifecycle.LifecycleOwner
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.Document
 import org.w3c.dom.events.Event
-import code.yousef.summon.lifecycle.LifecycleOwner as ExpectedLifecycleOwner
+import codes.yousef.summon.lifecycle.LifecycleOwner as ExpectedLifecycleOwner
 
 /**
  * Extension property to access document.visibilityState which is not defined in the Kotlin/JS DOM API

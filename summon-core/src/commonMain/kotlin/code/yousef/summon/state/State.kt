@@ -80,9 +80,9 @@
  *
  * @since 1.0.0
  */
-package code.yousef.summon.state
+package codes.yousef.summon.state
 
-import code.yousef.summon.runtime.RecomposerHolder
+import codes.yousef.summon.runtime.RecomposerHolder
 import kotlin.reflect.KProperty
 
 /**

@@ -1,6 +1,6 @@
-package code.yousef.summon.core
+package codes.yousef.summon.core
 
-import code.yousef.summon.runtime.Composable
+import codes.yousef.summon.runtime.Composable
 import kotlin.test.*
 
 class CompositionContextTest {

@@ -1,6 +1,6 @@
-package code.yousef.summon.core.style
+package codes.yousef.summon.core.style
 
-import code.yousef.summon.core.error.ValidationException
+import codes.yousef.summon.core.error.ValidationException
 
 /**
  * Represents an RGBA color

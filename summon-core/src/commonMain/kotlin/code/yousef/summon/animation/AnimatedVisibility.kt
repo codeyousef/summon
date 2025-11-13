@@ -1,13 +1,13 @@
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
-import code.yousef.summon.core.FlowContent
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.LaunchedEffect
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.remember
-import code.yousef.summon.state.State
-import code.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.core.FlowContent
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.runtime.LaunchedEffect
+import codes.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.runtime.remember
+import codes.yousef.summon.state.State
+import codes.yousef.summon.state.mutableStateOf
 
 /**
  * Animation entry mode for AnimatedVisibility

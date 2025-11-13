@@ -1,8 +1,8 @@
-package code.yousef.summon.cli.generators
+package codes.yousef.summon.cli.generators
 
-import code.yousef.summon.cli.templates.ProjectTemplate
-import code.yousef.summon.cli.templates.TemplateEngine
-import code.yousef.summon.cli.templates.TemplateHelpers
+import codes.yousef.summon.cli.templates.ProjectTemplate
+import codes.yousef.summon.cli.templates.TemplateEngine
+import codes.yousef.summon.cli.templates.TemplateHelpers
 import java.io.File
 
 /**
@@ -269,7 +269,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-common:${variables["KOTLIN_VERSION"]}")
-                implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
+                implementation("codes.yousef:summon:${variables["SUMMON_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
             }
@@ -324,7 +324,7 @@ dependencies {
     implementation("io.quarkus:quarkus-rest")
     implementation("io.quarkus:quarkus-rest-jackson")
     implementation("io.quarkus:quarkus-qute")
-    implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
+    implementation("codes.yousef:summon:${variables["SUMMON_VERSION"]}")
     implementation(project(":app"))
 }
 
@@ -440,7 +440,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
-    implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
+    implementation("codes.yousef:summon:${variables["SUMMON_VERSION"]}")
     implementation(project(":app"))
 }
 
@@ -518,7 +518,7 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation:3.3.1")
     implementation("io.ktor:ktor-serialization-kotlinx-json:3.3.1")
     implementation("ch.qos.logback:logback-classic:1.4.14")
-    implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
+    implementation("codes.yousef:summon:${variables["SUMMON_VERSION"]}")
     implementation(project(":app"))
 }
 
@@ -652,7 +652,7 @@ kotlin {
         val jsMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-js:${variables["KOTLIN_VERSION"]}")
-                implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
+                implementation("codes.yousef:summon:${variables["SUMMON_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-html:0.12.0")
@@ -700,7 +700,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-common:${variables["KOTLIN_VERSION"]}")
-                api("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
+                api("codes.yousef:summon:${variables["SUMMON_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
             }
@@ -767,7 +767,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-common:${variables["KOTLIN_VERSION"]}")
-                implementation("io.github.codeyousef:summon:${variables["SUMMON_VERSION"]}")
+                implementation("codes.yousef:summon:${variables["SUMMON_VERSION"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
             }
@@ -814,10 +814,10 @@ kotlin {
                 appendLine()
                 appendLine("includeBuild(\"${includePath.escapeForKotlinString()}\") {")
                 appendLine("    dependencySubstitution {")
-                appendLine("        substitute(module(\"io.github.codeyousef:summon\")).using(project(\":summon-core\"))")
-                appendLine("        substitute(module(\"io.github.codeyousef:summon-jvm\")).using(project(\":summon-core\"))")
-                appendLine("        substitute(module(\"io.github.codeyousef:summon-js\")).using(project(\":summon-core\"))")
-                appendLine("        substitute(module(\"io.github.codeyousef:summon-wasm-js\")).using(project(\":summon-core\"))")
+                appendLine("        substitute(module(\"codes.yousef:summon\")).using(project(\":summon-core\"))")
+                appendLine("        substitute(module(\"codes.yousef:summon-jvm\")).using(project(\":summon-core\"))")
+                appendLine("        substitute(module(\"codes.yousef:summon-js\")).using(project(\":summon-core\"))")
+                appendLine("        substitute(module(\"codes.yousef:summon-wasm-js\")).using(project(\":summon-core\"))")
                 appendLine("    }")
                 appendLine("}")
             }
@@ -880,10 +880,10 @@ kotlin {
         return """
 package ${variables["PACKAGE_NAME"]}
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.foundation.BasicText
-import code.yousef.summon.runtime.PlatformRenderer
-import code.yousef.summon.renderComposable
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.foundation.BasicText
+import codes.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.renderComposable
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.HTMLElement
@@ -911,16 +911,16 @@ fun main() {
         return """
 package ${variables["PACKAGE_NAME"]}
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.foundation.BasicText
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.components.input.Button
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.padding
-import code.yousef.summon.runtime.PlatformRenderer
-import code.yousef.summon.runtime.remember
-import code.yousef.summon.state.mutableStateOf
-import code.yousef.summon.renderComposable
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.foundation.BasicText
+import codes.yousef.summon.components.layout.Column
+import codes.yousef.summon.components.input.Button
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.padding
+import codes.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.runtime.remember
+import codes.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.renderComposable
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.HTMLElement
@@ -967,8 +967,8 @@ fun main() {
         return """
 package ${variables["PACKAGE_NAME"]}
 
-import code.yousef.summon.renderComposable
-import code.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.renderComposable
+import codes.yousef.summon.runtime.PlatformRenderer
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.HTMLElement
@@ -1025,14 +1025,14 @@ fun main() {
             """
 package ${variables["PACKAGE_NAME"]}
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.foundation.BasicText
-import code.yousef.summon.components.input.Button
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.padding
-import code.yousef.summon.runtime.remember
-import code.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.foundation.BasicText
+import codes.yousef.summon.components.input.Button
+import codes.yousef.summon.components.layout.Column
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.padding
+import codes.yousef.summon.runtime.remember
+import codes.yousef.summon.state.mutableStateOf
 
 @Composable
 fun App() {
@@ -1096,8 +1096,8 @@ fun App() {
             """
 package ${variables["PACKAGE_NAME"]}
 
-import code.yousef.summon.runtime.CallbackRegistry
-import code.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.runtime.CallbackRegistry
+import codes.yousef.summon.runtime.PlatformRenderer
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
@@ -1214,8 +1214,8 @@ private fun loadHydrationAsset(name: String): ByteArray? {
             """
 package ${variables["PACKAGE_NAME"]}
 
-import code.yousef.summon.runtime.CallbackRegistry
-import code.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.runtime.CallbackRegistry
+import codes.yousef.summon.runtime.PlatformRenderer
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.http.HttpStatus
@@ -1331,8 +1331,8 @@ private fun serveHydrationAsset(name: String, mediaType: MediaType): ResponseEnt
             """
 package ${variables["PACKAGE_NAME"]}
 
-import code.yousef.summon.runtime.CallbackRegistry
-import code.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.runtime.CallbackRegistry
+import codes.yousef.summon.runtime.PlatformRenderer
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
@@ -1507,9 +1507,9 @@ ktor {
                 """
 package ${variables["PACKAGE_NAME"]}
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.foundation.BasicText
-import code.yousef.summon.modifier.Modifier
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.foundation.BasicText
+import codes.yousef.summon.modifier.Modifier
 
 /**
  * Example component for ${variables["PROJECT_NAME"]} library
@@ -1679,7 +1679,7 @@ fun About() {
                 """
 package ${variables["PACKAGE_NAME"]}
 
-import code.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.state.mutableStateOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -1739,12 +1739,12 @@ class LibraryTest {
             """
 package ${variables["PACKAGE_NAME"]}.examples
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.foundation.BasicText
-import code.yousef.summon.components.input.Button
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.padding
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.foundation.BasicText
+import codes.yousef.summon.components.input.Button
+import codes.yousef.summon.components.layout.Column
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.padding
 
 @Composable
 fun ButtonExamples() {
@@ -1839,21 +1839,21 @@ fun ButtonExamples() {
             if (versionPropsFile.exists()) {
                 val props = java.util.Properties()
                 versionPropsFile.inputStream().use { props.load(it) }
-                props.getProperty("VERSION", "0.4.7.0")
+                props.getProperty("VERSION", "0.4.8.0")
             } else {
                 // Try relative to project root
                 val rootVersionFile = File("../version.properties")
                 if (rootVersionFile.exists()) {
                     val props = java.util.Properties()
                     rootVersionFile.inputStream().use { props.load(it) }
-                    props.getProperty("VERSION", "0.4.7.0")
+                    props.getProperty("VERSION", "0.4.8.0")
                 } else {
-                    "0.4.7.0" // Fallback to current version
+                    "0.4.8.0" // Fallback to current version
                 }
             }
         } catch (e: Exception) {
             println("⚠️  Could not read version from version.properties: ${e.message}")
-            "0.4.7.0" // Fallback
+            "0.4.8.0" // Fallback
         }
     }
 }

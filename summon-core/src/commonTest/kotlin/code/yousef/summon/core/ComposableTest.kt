@@ -1,12 +1,10 @@
-package code.yousef.summon.core
+package codes.yousef.summon.core
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.CommonComposer
-import code.yousef.summon.runtime.ComposerContext
-import code.yousef.summon.runtime.Composer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.runtime.CommonComposer
+import codes.yousef.summon.runtime.ComposerContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 /**

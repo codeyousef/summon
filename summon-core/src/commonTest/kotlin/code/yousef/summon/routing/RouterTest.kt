@@ -1,11 +1,10 @@
-package code.yousef.summon.routing
+package codes.yousef.summon.routing
 
+import codes.yousef.summon.runtime.Composable
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
-import kotlin.collections.emptyMap
 import kotlin.test.assertNotNull
-import code.yousef.summon.runtime.Composable
+import kotlin.test.assertNull
 
 class RouterTest {
 

@@ -1,4 +1,4 @@
-package code.yousef.summon.accessibility
+package codes.yousef.summon.accessibility
 
 import kotlin.test.*
 

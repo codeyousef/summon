@@ -1,10 +1,10 @@
-package code.yousef.summon.components.feedback
+package codes.yousef.summon.components.feedback
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.core.mapOfCompat
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.core.mapOfCompat
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.CompositionLocal
+import codes.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * Animation styles available for the Progress component.

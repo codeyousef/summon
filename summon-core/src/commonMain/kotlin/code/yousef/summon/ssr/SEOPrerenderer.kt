@@ -1,4 +1,4 @@
-package code.yousef.summon.ssr
+package codes.yousef.summon.ssr
 
 /**
  * The SEOPrerenderer class provides utilities for server-side rendering with SEO enhancements.

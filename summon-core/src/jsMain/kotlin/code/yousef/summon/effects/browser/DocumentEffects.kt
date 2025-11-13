@@ -1,8 +1,8 @@
-package code.yousef.summon.effects.browser
+package codes.yousef.summon.effects.browser
 
-import code.yousef.summon.effects.CompositionScope
-import code.yousef.summon.effects.effectWithDeps
-import code.yousef.summon.runtime.Composable
+import codes.yousef.summon.effects.CompositionScope
+import codes.yousef.summon.effects.effectWithDeps
+import codes.yousef.summon.runtime.Composable
 import kotlinx.browser.document
 import org.w3c.dom.HTMLLinkElement
 import org.w3c.dom.HTMLMetaElement

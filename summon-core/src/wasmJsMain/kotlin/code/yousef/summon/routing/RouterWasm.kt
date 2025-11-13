@@ -1,7 +1,7 @@
-package code.yousef.summon.routing
+package codes.yousef.summon.routing
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.wasmConsoleLog
+import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.runtime.wasmConsoleLog
 
 /**
  * WASM implementation of the RouterContext object

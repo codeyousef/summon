@@ -1,4 +1,4 @@
-package code.yousef.summon.core.error
+package codes.yousef.summon.core.error
 
 import kotlin.test.*
 

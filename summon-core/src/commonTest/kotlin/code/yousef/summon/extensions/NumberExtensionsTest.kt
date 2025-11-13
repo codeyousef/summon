@@ -1,4 +1,4 @@
-package code.yousef.summon.extensions
+package codes.yousef.summon.extensions
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

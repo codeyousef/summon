@@ -1,8 +1,8 @@
-package code.yousef.summon.components.display
+package codes.yousef.summon.components.display
 
-import code.yousef.summon.components.foundation.RawHtml
-import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runComposableTest
+import codes.yousef.summon.components.foundation.RawHtml
+import codes.yousef.summon.runtime.MockPlatformRenderer
+import codes.yousef.summon.util.runComposableTest
 import kotlin.test.*
 
 class RichTextTest {

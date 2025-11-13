@@ -1,8 +1,8 @@
-package code.yousef.summon.seo.routes
+package codes.yousef.summon.seo.routes
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.SideEffect
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.runtime.SideEffect
 
 /**
  * Enum for Twitter card types

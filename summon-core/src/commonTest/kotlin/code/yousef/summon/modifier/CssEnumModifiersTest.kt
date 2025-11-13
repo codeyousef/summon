@@ -1,4 +1,4 @@
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
 // Import the specific extension functions if needed, or rely on package import
 // Import Enums used

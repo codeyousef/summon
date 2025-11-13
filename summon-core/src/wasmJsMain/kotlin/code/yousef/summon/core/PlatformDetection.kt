@@ -1,6 +1,6 @@
-package code.yousef.summon.core
+package codes.yousef.summon.core
 
-import code.yousef.summon.runtime.*
+import codes.yousef.summon.runtime.*
 
 /**
  * WebAssembly-specific implementation of platform detection.

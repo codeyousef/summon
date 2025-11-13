@@ -1,16 +1,13 @@
-package code.yousef.summon.integration.ktor
+package codes.yousef.summon.integration.ktor
 
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.integration.ktor.KtorRenderer.Companion.respondSummonHydrated
-import io.ktor.client.request.get
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.call
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.get
-import io.ktor.server.routing.routing
-import io.ktor.server.testing.testApplication
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.integration.ktor.KtorRenderer.Companion.respondSummonHydrated
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.testing.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

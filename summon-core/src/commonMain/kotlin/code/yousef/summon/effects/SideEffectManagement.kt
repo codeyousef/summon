@@ -1,9 +1,9 @@
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.DisposableEffect
-import code.yousef.summon.runtime.LaunchedEffect
-import code.yousef.summon.state.SummonMutableState
+import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.runtime.DisposableEffect
+import codes.yousef.summon.runtime.LaunchedEffect
+import codes.yousef.summon.state.SummonMutableState
 
 /**
  * A dummy job interface for API compatibility.

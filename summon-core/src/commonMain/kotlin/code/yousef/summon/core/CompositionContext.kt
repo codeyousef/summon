@@ -112,10 +112,10 @@
  * @see Recomposer for recomposition management
  * @since 1.0.0
  */
-package code.yousef.summon.core
+package codes.yousef.summon.core
 
-import code.yousef.summon.core.CompositionContext.Companion.withContext
-import code.yousef.summon.runtime.Composable
+import codes.yousef.summon.core.CompositionContext.Companion.withContext
+import codes.yousef.summon.runtime.Composable
 
 /**
  * Platform-specific holder for thread-local data.

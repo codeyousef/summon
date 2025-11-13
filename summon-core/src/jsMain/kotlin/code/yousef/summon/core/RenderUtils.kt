@@ -1,7 +1,7 @@
-package code.yousef.summon.core
+package codes.yousef.summon.core
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.runtime.PlatformRenderer
 import kotlinx.browser.document
 import org.w3c.dom.HTMLElement
 

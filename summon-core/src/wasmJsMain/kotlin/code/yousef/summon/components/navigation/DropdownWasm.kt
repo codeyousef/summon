@@ -1,0 +1,114 @@
+package codes.yousef.summon.components.navigation
+
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.layout.Box
+import codes.yousef.summon.core.FlowContent
+import codes.yousef.summon.modifier.*
+import codes.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.runtime.mutableStateOf
+import codes.yousef.summon.runtime.remember
+
+/**
+ * WASM-specific dropdown implementation
+ * Uses WASM-compatible event handling
+ */
+@Composable
+actual fun Dropdown(
+    trigger: @Composable FlowContent.() -> Unit,
+    modifier: Modifier,
+    triggerBehavior: DropdownTrigger,
+    alignment: DropdownAlignment,
+    closeOnItemClick: Boolean,
+    content: @Composable FlowContent.() -> Unit
+) {
+    val isOpen = remember { mutableStateOf(false) }
+    val renderer = LocalPlatformRenderer.current
+    val menuId = remember { "dropdown-menu-${isOpen.hashCode()}" }
+
+    val containerModifier = modifier
+        .style("position", "relative")
+        .style("display", "inline-block")
+        .ariaHasPopup(true)
+        .ariaExpanded(isOpen.value)
+
+    renderer.renderBlock(containerModifier) {
+        // Trigger element
+        Box(
+            modifier = Modifier()
+                .style("cursor", "pointer")
+                .ariaControls(menuId)
+                .role("button")
+                .tabIndex(0)
+                .apply {
+                    when (triggerBehavior) {
+                        DropdownTrigger.HOVER, DropdownTrigger.BOTH -> {
+                            // WASM: Use data attributes for hover behavior
+                            dataAttribute("dropdown-hover-open", "true")
+                            onMouseEnter("document.getElementById('$menuId').style.display='block'")
+                            onMouseLeave("document.getElementById('$menuId').style.display='none'")
+                        }
+
+                        DropdownTrigger.CLICK -> {
+                            onClick(
+                                """
+                                const menu = document.getElementById('$menuId');
+                                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+                                event.stopPropagation();
+                            """.trimIndent()
+                            )
+                        }
+                    }
+                    if (triggerBehavior == DropdownTrigger.BOTH) {
+                        onClick(
+                            """
+                            const menu = document.getElementById('$menuId');
+                            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+                            event.stopPropagation();
+                        """.trimIndent()
+                        )
+                    }
+                }
+        ) {
+            trigger()
+        }
+
+        // Dropdown menu
+        Box(
+            modifier = Modifier()
+                .id(menuId)
+                .dataAttribute("dropdown-menu", "true")
+                .style("position", "absolute")
+                .style("top", "100%")
+                .style("display", "none")
+                .style("z-index", "1000")
+                .style("min-width", "200px")
+                .style("margin-top", "4px")
+                .style("background-color", "white")
+                .style("border", "1px solid #ddd")
+                .style("border-radius", "4px")
+                .style("box-shadow", "0 2px 8px rgba(0,0,0,0.15)")
+                .apply {
+                    when (alignment) {
+                        DropdownAlignment.LEFT -> style("left", "0")
+                        DropdownAlignment.RIGHT -> style("right", "0")
+                        DropdownAlignment.CENTER -> {
+                            style("left", "50%")
+                            style("transform", "translateX(-50%)")
+                        }
+                    }
+                    if (triggerBehavior == DropdownTrigger.HOVER || triggerBehavior == DropdownTrigger.BOTH) {
+                        onMouseEnter("this.style.display='block'")
+                        onMouseLeave("this.style.display='none'")
+                    }
+                    if (closeOnItemClick) {
+                        onClick("this.style.display='none'")
+                    }
+                }
+                .role("menu")
+                .ariaLabelledBy("dropdown-trigger")
+        ) {
+            content()
+        }
+    }
+}
+

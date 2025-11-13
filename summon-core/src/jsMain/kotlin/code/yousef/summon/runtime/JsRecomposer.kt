@@ -1,4 +1,4 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
 /**
  * JS-specific extension methods for Recomposer to provide thread safety.

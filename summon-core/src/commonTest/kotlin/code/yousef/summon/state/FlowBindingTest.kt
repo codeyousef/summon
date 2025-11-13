@@ -1,15 +1,10 @@
-package code.yousef.summon.state
+package codes.yousef.summon.state
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flow
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertNotEquals
-import kotlin.test.assertTrue
+import kotlin.test.assertNotNull
 
 class FlowBindingTest {
 

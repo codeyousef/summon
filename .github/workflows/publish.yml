@@ -111,8 +111,8 @@ jobs:
           fi
           rm -rf "$TMP_GNUPGHOME"
 
-      - name: Publish Summon library to Maven Central
-        run: ./gradlew :summon-core:publishToCentralPortalManually
+      - name: Publish Summon library to Maven Central (both group IDs)
+        run: ./gradlew :summon-core:publishToBothGroupIds
 
       - name: Extract latest changelog entry
         id: changelog

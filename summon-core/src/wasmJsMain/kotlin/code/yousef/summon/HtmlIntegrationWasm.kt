@@ -1,4 +1,4 @@
-package code.yousef.summon
+package codes.yousef.summon
 
 /**
  * WASM implementation of HTML integration functions.

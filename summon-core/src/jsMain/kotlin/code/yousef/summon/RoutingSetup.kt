@@ -1,9 +1,9 @@
-package code.yousef.summon
+package codes.yousef.summon
 
-import code.yousef.summon.js.console
-import code.yousef.summon.routing.Router
-import code.yousef.summon.routing.createRouter
-import code.yousef.summon.runtime.Composable
+import codes.yousef.summon.js.console
+import codes.yousef.summon.routing.Router
+import codes.yousef.summon.routing.createRouter
+import codes.yousef.summon.runtime.Composable
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.HTMLElement

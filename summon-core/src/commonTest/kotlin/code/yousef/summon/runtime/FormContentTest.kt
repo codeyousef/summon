@@ -1,6 +1,6 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
-import code.yousef.summon.core.FlowContentCompat
+import codes.yousef.summon.core.FlowContentCompat
 import kotlin.reflect.KClass
 import kotlin.test.Test
 import kotlin.test.assertTrue

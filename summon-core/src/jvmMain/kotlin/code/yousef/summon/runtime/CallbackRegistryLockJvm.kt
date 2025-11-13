@@ -1,4 +1,4 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
 internal actual class CallbackRegistryLock {
     val monitor = Any()

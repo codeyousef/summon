@@ -1,6 +1,6 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
-import code.yousef.summon.core.FlowContent
+import codes.yousef.summon.core.FlowContent
 
 // Define FormContent as an extension of FlowContent
 typealias FormContent = FlowContent

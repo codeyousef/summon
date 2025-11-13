@@ -1,13 +1,13 @@
-package code.yousef.summon.components.integrationtest
+package codes.yousef.summon.components.integrationtest
 
-import code.yousef.summon.components.display.RichText
-import code.yousef.summon.components.foundation.EnhancedThemeConfig
-import code.yousef.summon.components.foundation.ThemeProvider
-import code.yousef.summon.components.foundation.useTheme
-import code.yousef.summon.components.styles.GlobalKeyframes
-import code.yousef.summon.components.styles.GlobalStyle
-import code.yousef.summon.runtime.MockPlatformRenderer
-import code.yousef.summon.util.runComposableTest
+import codes.yousef.summon.components.display.RichText
+import codes.yousef.summon.components.foundation.EnhancedThemeConfig
+import codes.yousef.summon.components.foundation.ThemeProvider
+import codes.yousef.summon.components.foundation.useTheme
+import codes.yousef.summon.components.styles.GlobalKeyframes
+import codes.yousef.summon.components.styles.GlobalStyle
+import codes.yousef.summon.runtime.MockPlatformRenderer
+import codes.yousef.summon.util.runComposableTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

@@ -1,10 +1,10 @@
-package code.yousef.summon.util
+package codes.yousef.summon.util
 
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.theme.Theme
-import code.yousef.summon.theme.ColorSystem
-import code.yousef.summon.routing.RouteParams
-import code.yousef.summon.validation.*
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.routing.RouteParams
+import codes.yousef.summon.theme.ColorSystem
+import codes.yousef.summon.theme.Theme
+import codes.yousef.summon.validation.*
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 

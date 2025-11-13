@@ -1,8 +1,8 @@
-package code.yousef.summon.integration
+package codes.yousef.summon.integration
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.runtime.PlatformRenderer
 import kotlin.test.Test
 import kotlin.test.assertTrue
 

@@ -1,6 +1,6 @@
-package code.yousef.summon
+package codes.yousef.summon
 
-import code.yousef.summon.components.feedback.AlertVariant
+import codes.yousef.summon.components.feedback.AlertVariant
 import kotlinx.browser.document
 import org.w3c.dom.HTMLElement
 

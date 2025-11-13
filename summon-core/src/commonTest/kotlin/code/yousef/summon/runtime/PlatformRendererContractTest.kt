@@ -1,6 +1,6 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
-import code.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.Modifier
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue

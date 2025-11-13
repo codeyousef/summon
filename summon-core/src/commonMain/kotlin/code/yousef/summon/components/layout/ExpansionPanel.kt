@@ -1,9 +1,9 @@
-package code.yousef.summon.components.layout
+package codes.yousef.summon.components.layout
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.core.FlowContent
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.getPlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.core.FlowContent
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.getPlatformRenderer
 
 /**
  * A layout composable that creates a collapsible panel with a header and expandable content.

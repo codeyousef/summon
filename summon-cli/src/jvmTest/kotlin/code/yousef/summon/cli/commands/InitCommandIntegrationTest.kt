@@ -1,4 +1,4 @@
-package code.yousef.summon.cli.commands
+package codes.yousef.summon.cli.commands
 
 import com.github.ajalt.clikt.core.parse
 import java.io.File

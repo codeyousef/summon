@@ -1,6 +1,6 @@
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
-import code.yousef.summon.css.CssValue
+import codes.yousef.summon.css.CssValue
 
 /**
  * Builds a CSS `min()` function value.

@@ -1,13 +1,9 @@
-package code.yousef.summon.platform
+package codes.yousef.summon.platform
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.PlatformRenderer
-import code.yousef.summon.platform.RenderToString
-import code.yousef.summon.platform.PageMetadata
-import code.yousef.summon.platform.renderToString
+import codes.yousef.summon.runtime.PlatformRenderer
 import kotlin.test.Test
-import kotlin.test.assertTrue
 import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class RenderToStringTest {
     

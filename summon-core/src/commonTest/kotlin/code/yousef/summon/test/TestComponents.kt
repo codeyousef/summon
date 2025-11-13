@@ -1,4 +1,4 @@
-package code.yousef.summon.test
+package codes.yousef.summon.test
 
 /**
  * Lightweight component representations used by multiplatform tests.

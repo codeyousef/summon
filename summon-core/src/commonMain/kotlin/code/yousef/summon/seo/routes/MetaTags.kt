@@ -1,7 +1,7 @@
-package code.yousef.summon.seo.routes
+package codes.yousef.summon.seo.routes
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.getPlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.runtime.getPlatformRenderer
 
 /**
  * MetaTags component for easily configuring page metadata in HTML head

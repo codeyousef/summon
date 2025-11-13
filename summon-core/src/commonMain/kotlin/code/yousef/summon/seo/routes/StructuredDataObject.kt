@@ -1,7 +1,7 @@
-package code.yousef.summon.seo.routes
+package codes.yousef.summon.seo.routes
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.core.splitCompat
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.core.splitCompat
 
 /**
  * The StructuredData object provides utilities for generating JSON-LD structured data

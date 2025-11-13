@@ -1,11 +1,11 @@
-package code.yousef.summon.components.input
+package codes.yousef.summon.components.input
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.foundation.BasicText
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.*
-import code.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.foundation.BasicText
+import codes.yousef.summon.components.layout.Column
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.*
+import codes.yousef.summon.state.mutableStateOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

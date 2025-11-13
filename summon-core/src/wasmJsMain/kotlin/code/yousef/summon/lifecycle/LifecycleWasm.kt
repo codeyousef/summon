@@ -1,7 +1,7 @@
-package code.yousef.summon.lifecycle
+package codes.yousef.summon.lifecycle
 
-import code.yousef.summon.runtime.safeWasmConsoleLog
-import code.yousef.summon.runtime.safeWasmConsoleWarn
+import codes.yousef.summon.runtime.safeWasmConsoleLog
+import codes.yousef.summon.runtime.safeWasmConsoleWarn
 
 actual enum class LifecycleState {
     INITIALIZED,

@@ -176,7 +176,7 @@
  * @see AnimationModifiers for animated interactions
  * @since 1.0.0
  */
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
 /**
  * Makes the element ignore all pointer events (clicks, touches, hovers).

@@ -1,4 +1,4 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
 /**
  * WebAssembly implementation of WebDOMUtils platform-specific functions.

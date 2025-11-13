@@ -1,9 +1,9 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.js.console
-import code.yousef.summon.state.MutableState
-import code.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.js.console
+import codes.yousef.summon.state.MutableState
+import codes.yousef.summon.state.mutableStateOf
 import kotlinx.browser.document
 import org.w3c.dom.Element
 

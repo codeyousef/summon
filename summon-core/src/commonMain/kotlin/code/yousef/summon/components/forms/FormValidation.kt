@@ -57,7 +57,7 @@
  * @see Form for form component
  * @since 1.0.0
  */
-package code.yousef.summon.components.forms
+package codes.yousef.summon.components.forms
 
 /**
  * Represents a validation rule with an error message.
@@ -267,3 +267,132 @@ fun validateValue(value: String, validators: List<Validator>): String? {
 fun validateValueAll(value: String, validators: List<Validator>): List<String> {
     return validators.mapNotNull { it.validate(value) }
 }
+
+/**
+ * Async validator for server-side validation.
+ * Platform-specific implementations provide the actual validation logic.
+ */
+interface AsyncValidator {
+    /**
+     * Validates a value asynchronously and returns an error message if invalid.
+     */
+    suspend fun validate(value: String): String?
+}
+
+/**
+ * Validation result that can be either synchronous or asynchronous.
+ */
+sealed class ValidationResult {
+    data class Sync(val error: String?) : ValidationResult()
+    data class Async(val pending: Boolean, val error: String?) : ValidationResult()
+}
+
+/**
+ * Form validation state manager.
+ */
+class FormValidationState {
+    private val fieldErrors = mutableMapOf<String, String?>()
+    private val fieldValidators = mutableMapOf<String, List<Validator>>()
+    private val asyncValidators = mutableMapOf<String, AsyncValidator>()
+
+    /**
+     * Registers validators for a field.
+     */
+    fun registerField(fieldName: String, validators: List<Validator>) {
+        fieldValidators[fieldName] = validators
+    }
+
+    /**
+     * Registers an async validator for a field.
+     */
+    fun registerAsyncValidator(fieldName: String, validator: AsyncValidator) {
+        asyncValidators[fieldName] = validator
+    }
+
+    /**
+     * Validates a single field.
+     */
+    fun validateField(fieldName: String, value: String): String? {
+        val validators = fieldValidators[fieldName] ?: return null
+        val error = validateValue(value, validators)
+        fieldErrors[fieldName] = error
+        return error
+    }
+
+    /**
+     * Validates a single field asynchronously.
+     */
+    suspend fun validateFieldAsync(fieldName: String, value: String): String? {
+        // First run sync validators
+        val syncError = validateField(fieldName, value)
+        if (syncError != null) return syncError
+
+        // Then run async validator if present
+        val asyncValidator = asyncValidators[fieldName]
+        if (asyncValidator != null) {
+            val asyncError = asyncValidator.validate(value)
+            fieldErrors[fieldName] = asyncError
+            return asyncError
+        }
+
+        return null
+    }
+
+    /**
+     * Validates all registered fields.
+     */
+    fun validateAll(values: Map<String, String>): Map<String, String?> {
+        val errors = mutableMapOf<String, String?>()
+        fieldValidators.keys.forEach { fieldName ->
+            val value = values[fieldName] ?: ""
+            errors[fieldName] = validateField(fieldName, value)
+        }
+        return errors
+    }
+
+    /**
+     * Gets the error message for a field.
+     */
+    fun getError(fieldName: String): String? = fieldErrors[fieldName]
+
+    /**
+     * Checks if a field has an error.
+     */
+    fun hasError(fieldName: String): Boolean = fieldErrors[fieldName] != null
+
+    /**
+     * Checks if the entire form is valid.
+     */
+    fun isValid(): Boolean = fieldErrors.values.all { it == null }
+
+    /**
+     * Clears errors for a specific field.
+     */
+    fun clearFieldError(fieldName: String) {
+        fieldErrors[fieldName] = null
+    }
+
+    /**
+     * Clears all errors.
+     */
+    fun clearAllErrors() {
+        fieldErrors.clear()
+    }
+}
+
+/**
+ * Server-side validation request.
+ */
+data class ServerValidationRequest(
+    val fieldName: String,
+    val value: String,
+    val formData: Map<String, String> = emptyMap()
+)
+
+/**
+ * Server-side validation response.
+ */
+data class ServerValidationResponse(
+    val valid: Boolean,
+    val error: String? = null
+)

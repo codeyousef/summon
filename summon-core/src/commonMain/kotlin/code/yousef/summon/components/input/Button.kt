@@ -76,16 +76,16 @@
  *
  * @since 1.0.0
  */
-package code.yousef.summon.components.input
+package codes.yousef.summon.components.input
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.Icon
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.ModifierExtras.withAttribute
-import code.yousef.summon.modifier.hover
-import code.yousef.summon.modifier.transition
-import code.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.display.Icon
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.ModifierExtras.withAttribute
+import codes.yousef.summon.modifier.hover
+import codes.yousef.summon.modifier.transition
+import codes.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * Interactive button component for triggering actions.

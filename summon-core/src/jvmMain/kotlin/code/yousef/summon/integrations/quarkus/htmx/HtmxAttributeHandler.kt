@@ -1,6 +1,6 @@
-package code.yousef.summon.integration.quarkus.htmx
+package codes.yousef.summon.integration.quarkus.htmx
 
-import code.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.Modifier
 import kotlinx.html.CommonAttributeGroupFacade
 
 /**

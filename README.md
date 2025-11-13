@@ -4,6 +4,27 @@
 
 # Summon
 
+> 📦 **IMPORTANT: Group ID Migration** (November 2025)
+>
+> Summon is migrating from `io.github.codeyousef` to `codes.yousef`!
+>
+> **What you need to know:**
+> - We are now publishing to **both** group IDs for backward compatibility
+> - Version **0.5.0.0** will be the LAST release under `io.github.codeyousef`
+> - Starting with version **0.5.1.0**, all releases will ONLY be published to `codes.yousef`
+>
+> **Action Required:**
+> Update your dependencies from:
+> ```kotlin
+> implementation("io.github.codeyousef:summon:0.4.8.0")  // Old - deprecated
+> ```
+> To:
+> ```kotlin
+> implementation("codes.yousef:summon:0.4.8.0")  // New - use this!
+> ```
+>
+> See [Migration Guide](#group-id-migration) below for details.
+
 > ⚠️ **Alpha Status**: Summon is currently in alpha development and actively seeking testers and feedback. While core functionality is stable, APIs may change between releases. We welcome early adopters and contributors! Please report issues and share your experience.
 
 **Summon** is a powerful, type-safe frontend framework for Kotlin Multiplatform that brings the elegance of Jetpack Compose to both browser and JVM environments. Build beautiful, responsive applications with a declarative syntax that feels natural to Kotlin developers.
@@ -189,11 +210,11 @@ The Summon CLI helps you quickly scaffold new projects and generate components.
 Download the latest JAR from [GitHub Releases](https://github.com/codeyousef/summon/releases):
 
 ```bash
-# Download summon-cli-0.4.7.0.jar
+# Download summon-cli-0.4.8.0.jar
 
 # Run commands directly
-java -jar summon-cli-0.4.7.0.jar init my-app
-java -jar summon-cli-0.4.7.0.jar --help
+java -jar summon-cli-0.4.8.0.jar init my-app
+java -jar summon-cli-0.4.8.0.jar --help
 ```
 
 #### Option 2: Build from Source
@@ -202,18 +223,18 @@ java -jar summon-cli-0.4.7.0.jar --help
 git clone https://github.com/codeyousef/summon.git
 cd summon
 ./gradlew :summon-cli:shadowJar
-java -jar summon-cli/build/libs/summon-cli-0.4.7.0.jar init my-app
+java -jar summon-cli/build/libs/summon-cli-0.4.8.0.jar init my-app
 ```
 
 #### Quick Start
 
 ```bash
 # Let Summon CLI prompt for stack + backend
-java -jar summon-cli-0.4.7.0.jar init portal
+java -jar summon-cli-0.4.8.0.jar init portal
 
 # Or skip the prompts entirely
-java -jar summon-cli-0.4.7.0.jar init landing --mode=standalone --here
-java -jar summon-cli-0.4.7.0.jar init portal --mode=fullstack --backend=ktor
+java -jar summon-cli-0.4.8.0.jar init landing --mode=standalone --here
+java -jar summon-cli-0.4.8.0.jar init portal --mode=fullstack --backend=ktor
 
 # After generation (examples)
 cd portal
@@ -243,21 +264,100 @@ repositories {
 }
 
 dependencies {
+    // ⚠️ NEW GROUP ID - Use codes.yousef (not io.github.codeyousef)
+
     // For JVM projects (Ktor, Spring Boot, Quarkus)
-  implementation("io.github.codeyousef:summon-jvm:0.4.7.0")
+    implementation("codes.yousef:summon-jvm:0.4.8.0")
 
     // For JavaScript/Browser projects
-  implementation("io.github.codeyousef:summon-js:0.4.7.0")
+    implementation("codes.yousef:summon-js:0.4.8.0")
 
     // For WebAssembly projects
-  implementation("io.github.codeyousef:summon-wasm-js:0.4.7.0")
+    implementation("codes.yousef:summon-wasm-js:0.4.8.0")
 
     // For Kotlin Multiplatform projects (includes all targets)
-  implementation("io.github.codeyousef:summon:0.4.7.0")
+    implementation("codes.yousef:summon:0.4.8.0")
 }
 ```
 
+> 📦 **Migration Note**: If you're upgrading from an older version, change `io.github.codeyousef` to `codes.yousef` in
+> your dependencies. Both group IDs will be published until version 0.5.0.0 for compatibility.
+
 **Note**: No authentication required - Summon is available directly from Maven Central!
+
+## Group ID Migration
+
+### Why We're Migrating
+
+We're transitioning from `io.github.codeyousef` to `codes.yousef` to:
+
+- Use our official domain (`codes.yousef`)
+- Simplify the group ID structure
+- Align with Maven Central best practices
+
+### Migration Timeline
+
+| Version     | io.github.codeyousef | codes.yousef | Notes                         |
+|-------------|----------------------|--------------|-------------------------------|
+| 0.4.8.0     | ✅ Published          | ✅ Published  | Both available                |
+| 0.4.9.0     | ✅ Published          | ✅ Published  | Both available                |
+| **0.5.0.0** | ✅ **FINAL**          | ✅ Published  | **Last version on old group** |
+| 0.5.1.0+    | ❌ Not published      | ✅ Published  | **New group only**            |
+
+### How to Migrate
+
+#### Step 1: Update Your Dependencies
+
+In your `build.gradle.kts`, change:
+
+```kotlin
+// ❌ OLD - Don't use
+dependencies {
+    implementation("io.github.codeyousef:summon:0.4.7.0")
+}
+```
+
+To:
+
+```kotlin
+// ✅ NEW - Use this
+dependencies {
+    implementation("codes.yousef:summon:0.4.8.0")
+}
+```
+
+#### Step 2: Update Imports (If Using Direct Imports)
+
+If you have any hardcoded imports (unlikely), update:
+
+```kotlin
+// ❌ OLD
+import io.github.codeyousef.summon.*
+
+// ✅ NEW
+import codes.yousef.summon.*
+```
+
+**Note**: For most users, you don't need to change imports - they're handled automatically by your dependencies.
+
+#### Step 3: Verify
+
+Run `./gradlew build` to ensure everything compiles correctly.
+
+### Backward Compatibility
+
+- **Versions 0.4.8.0 through 0.5.0.0**: Published to BOTH group IDs
+- **Version 0.5.1.0 onwards**: Published ONLY to `codes.yousef`
+- **No code changes required**: Just update the dependency declaration
+
+### Need Help?
+
+If you encounter issues during migration:
+
+1. Check that you've updated ALL Summon dependencies
+2. Clean your build: `./gradlew clean`
+3. Refresh dependencies: `./gradlew --refresh-dependencies`
+4. File an issue on GitHub if problems persist
 
 ## Version Management
 
@@ -276,7 +376,7 @@ Create a new project with the Summon CLI, then enable the WASM target using the 
 
 ```bash
 # Download the CLI JAR from releases first, then run:
-java -jar summon-cli-0.4.7.0.jar init my-wasm-app --mode=standalone
+java -jar summon-cli-0.4.8.0.jar init my-wasm-app --mode=standalone
 ```
 
 ### Basic WASM Application

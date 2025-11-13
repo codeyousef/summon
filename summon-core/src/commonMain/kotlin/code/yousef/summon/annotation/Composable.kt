@@ -20,7 +20,7 @@
  *
  * @since 1.0.0
  */
-package code.yousef.summon.annotation
+package codes.yousef.summon.annotation
 
 /**
  * Marks a function as composable, enabling it to participate in the Summon composition system.

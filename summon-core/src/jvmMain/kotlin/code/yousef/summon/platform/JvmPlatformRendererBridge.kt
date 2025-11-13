@@ -1,8 +1,8 @@
-package code.yousef.summon.platform
+package codes.yousef.summon.platform
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.PlatformRenderer
-import code.yousef.summon.runtime.setPlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.runtime.setPlatformRenderer
 
 /**
  * Initializes the JVM platform renderer and sets it as the current renderer.

@@ -1,11 +1,11 @@
-package code.yousef.summon.routing.pages.users
+package codes.yousef.summon.routing.pages.users
 
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.routing.NavLink
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.CompositionLocal
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.components.layout.Column
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.routing.NavLink
+import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.runtime.CompositionLocal
 
 /**
  * A simple composable function representing the User Profile page.

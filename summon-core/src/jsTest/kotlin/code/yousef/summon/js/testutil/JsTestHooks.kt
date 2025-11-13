@@ -1,4 +1,4 @@
-package code.yousef.summon.js.testutil
+package codes.yousef.summon.js.testutil
 
 import kotlin.test.BeforeTest
 

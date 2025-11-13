@@ -1,11 +1,11 @@
-package code.yousef.summon
+package codes.yousef.summon
 
-import code.yousef.summon.annotation.AppRegistry
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.routing.createRouter
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.PlatformRenderer
-import code.yousef.summon.runtime.setPlatformRenderer
+import codes.yousef.summon.annotation.AppRegistry
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.routing.createRouter
+import codes.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.runtime.setPlatformRenderer
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.HTMLElement

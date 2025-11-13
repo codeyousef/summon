@@ -1,4 +1,4 @@
-package code.yousef.summon
+package codes.yousef.summon
 
 import kotlinx.html.TagConsumer
 import kotlinx.html.div

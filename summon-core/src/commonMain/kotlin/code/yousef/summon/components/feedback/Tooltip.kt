@@ -1,8 +1,8 @@
-package code.yousef.summon.components.feedback
+package codes.yousef.summon.components.feedback
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.core.mapOfCompat
-import code.yousef.summon.modifier.Modifier
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.core.mapOfCompat
+import codes.yousef.summon.modifier.Modifier
 
 /**
  * Tooltip placement options that determine where the tooltip appears relative to its trigger element.

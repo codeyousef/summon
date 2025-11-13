@@ -1,6 +1,6 @@
 @file:Suppress("UnsafeCastFromDynamic")
 
-package code.yousef.summon.js.testutil
+package codes.yousef.summon.js.testutil
 
 private fun installDomImpl() {
     js(

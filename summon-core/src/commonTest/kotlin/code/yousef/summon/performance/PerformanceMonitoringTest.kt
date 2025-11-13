@@ -1,4 +1,4 @@
-package code.yousef.summon.performance
+package codes.yousef.summon.performance
 
 import kotlin.test.Test
 import kotlin.test.assertNotNull

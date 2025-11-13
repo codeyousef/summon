@@ -1,6 +1,9 @@
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 // Mock implementation of ClipboardAPI for testing
 private class MockClipboardAPI : ClipboardAPI {

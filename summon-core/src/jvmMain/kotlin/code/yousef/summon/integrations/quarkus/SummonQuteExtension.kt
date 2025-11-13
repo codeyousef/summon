@@ -1,6 +1,6 @@
-package code.yousef.summon.integration.quarkus
+package codes.yousef.summon.integration.quarkus
 
-import code.yousef.summon.annotation.Composable
+import codes.yousef.summon.annotation.Composable
 import io.quarkus.qute.EngineBuilder
 import io.quarkus.qute.EvalContext
 import io.quarkus.qute.NamespaceResolver

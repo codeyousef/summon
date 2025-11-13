@@ -97,13 +97,13 @@
  * @see Animation for core animation primitives
  * @since 1.0.0
  */
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
-import code.yousef.summon.core.splitCompat
+import codes.yousef.summon.core.splitCompat
 
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.TransitionTimingFunction
-import code.yousef.summon.modifier.transition
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.TransitionTimingFunction
+import codes.yousef.summon.modifier.transition
 
 /**
  * Adds a CSS animation to an element.

@@ -1,9 +1,9 @@
-package code.yousef.summon.effects.jvm
+package codes.yousef.summon.effects.jvm
 
-import code.yousef.summon.effects.ClipboardAPI
-import code.yousef.summon.effects.CompositionScope
-import code.yousef.summon.effects.onMountWithCleanup
-import code.yousef.summon.runtime.Composable
+import codes.yousef.summon.effects.ClipboardAPI
+import codes.yousef.summon.effects.CompositionScope
+import codes.yousef.summon.effects.onMountWithCleanup
+import codes.yousef.summon.runtime.Composable
 import java.awt.Toolkit
 import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.StringSelection

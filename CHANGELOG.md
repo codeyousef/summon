@@ -2,6 +2,92 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.8.0] - 2025-11-13
+
+### 🚨 IMPORTANT: Group ID Migration
+
+**Summon is now published under `codes.yousef` (new) in addition to `io.github.codeyousef` (legacy)**
+
+- **Action Required**: Update your dependencies from `io.github.codeyousef` to `codes.yousef`
+- **Timeline**: Version 0.5.0.0 will be the LAST release under `io.github.codeyousef`
+- **After 0.5.0.0**: All releases will ONLY be published to `codes.yousef`
+- **Migration Guide**: See [GROUP_ID_MIGRATION.md](GROUP_ID_MIGRATION.md) for complete details
+
+**Update your dependencies**:
+
+```kotlin
+// Old (deprecated)
+implementation("io.github.codeyousef:summon:0.4.8.0")
+
+// New (use this!)
+implementation("codes.yousef:summon:0.4.8.0")
+```
+
+Both group IDs are published for versions 0.4.8.0 through 0.5.0.0 for backward compatibility.
+
+### Added
+
+- **Dynamic CSS Injection System**: Introduced `StyleInjector` (JS) and `StyleInjectorWasm` (WASM) for automatic
+  generation of scoped CSS rules for pseudo-selectors and media queries that can't be applied as inline styles.
+- **Portal/Teleport Component**: Implemented `PortalManager` for JS platform enabling DOM teleportation for modals,
+  tooltips, and overlays with automatic lifecycle management.
+- **Enhanced Pseudo-Selector Support**: Added comprehensive pseudo-selector modifiers including `focus()`, `active()`,
+  `focusWithin()`, `firstChild()`, `lastChild()`, `nthChild()`, `onlyChild()`, `visited()`, `disabledStyles()`, and
+  `checkedStyles()`.
+- **Media Query System**: Introduced type-safe `MediaQuery` sealed class with support for viewport queries (MinWidth,
+  MaxWidth, MinHeight, MaxHeight), orientation (Portrait, Landscape), user preferences (PrefersDarkScheme,
+  PrefersLightScheme, PrefersReducedMotion), device capabilities (CanHover, NoHover, FinePointer, CoarsePointer), and
+  logical operators (And, Or, Custom).
+- **Predefined Breakpoints**: Added `Breakpoints` object with industry-standard responsive breakpoints (XS: 320px, SM:
+  640px, MD: 768px, LG: 1024px, XL: 1280px, XXL: 1536px).
+- **CSS Variable Helpers**: Introduced `cssVar()` modifier functions for defining and referencing CSS custom properties
+  with optional fallback values.
+- **Scroll Utilities**: Added `scrollBehavior()`, `scrollSnapType()`, `scrollSnapAlign()`, `scrollMargin()`, and
+  `scrollPadding()` modifier functions, plus `onScroll()` event handler.
+- **Async Form Validation**: Implemented `AsyncValidator` interface and enhanced `FormValidationState` with
+  `validateFieldAsync()` for server-side validation, along with `ServerValidationRequest` and `ServerValidationResponse`
+  data classes.
+- **Platform-Specific Dropdown**: Converted `Dropdown` component to expect/actual pattern with separate implementations
+  for JS (DOM APIs), JVM (SSR-compatible), and WASM platforms, removing inline JavaScript from common code.
+- **Additional Mouse Events**: Added `onMouseMove()` event handler to pointer event modifiers.
+
+### Enhanced
+
+- **PlatformRenderer Integration**: Updated JS `PlatformRenderer` to automatically detect and process pseudo-selector
+  and media query data attributes, integrate `PortalManager` for portal teleportation, and handle automatic style
+  cleanup.
+- **Form Validation**: Enhanced existing form validation system with async support, form-level state management, and
+  comprehensive error tracking.
+
+### Fixed
+
+- **TextArea SSR Artifacts**: Removed visible HTML comment artifacts (`<!-- onValueChange handler needed (JS) -->`) from
+  server-side rendered output in `JvmPlatformRenderer` for TextField, TextArea, DatePicker, Slider, RangeSlider, and
+  TimePicker components.
+
+### Documentation
+
+- Created comprehensive API reference documentation (2,400+ lines) covering all new features with 100+ practical
+  examples
+- Added `StyleInjector` API reference with implementation details and performance considerations
+- Added `PortalManager` API reference with common use cases and lifecycle management
+- Added Media Query Modifiers API reference with responsive design patterns
+- Added Pseudo-Selector Modifiers API reference with interactive state examples
+- Added Async Form Validation API reference with coroutine integration patterns
+- Created complete API Reference Index with platform support matrix
+- Added Quick Reference Guide with practical examples for all features
+- Added Future Considerations Complete document with architecture decisions
+- Added Release Notes with migration guide (100% backward compatible)
+
+### Technical Details
+
+- Zero breaking changes - all enhancements are additive
+- Full Kotlin implementations where possible, KotlinJS interop where needed
+- Platform-specific optimizations for JS, JVM, and WASM
+- Memory-safe lifecycle management throughout
+- Automatic cleanup prevents memory leaks
+- Type-safe APIs with comprehensive error handling
+
 ## [0.4.7.0]
 
 ### Added

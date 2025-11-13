@@ -1,4 +1,4 @@
-package code.yousef.summon.lifecycle
+package codes.yousef.summon.lifecycle
 
 /**
  * Expected declarations for platform-specific lifecycle management.

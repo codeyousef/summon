@@ -1,4 +1,4 @@
-package code.yousef.summon.i18n
+package codes.yousef.summon.i18n
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject

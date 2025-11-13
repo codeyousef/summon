@@ -1,4 +1,4 @@
-package code.yousef.summon.security.annotations
+package codes.yousef.summon.security.annotations
 
 /**
  * Annotation to mark a route or component as requiring authentication

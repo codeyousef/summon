@@ -1,4 +1,4 @@
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
 // Import necessary functions if not resolved automatically
 import kotlin.test.*

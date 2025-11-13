@@ -1,4 +1,4 @@
-package code.yousef.summon.theme
+package codes.yousef.summon.theme
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

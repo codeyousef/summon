@@ -1,6 +1,6 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
-import code.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.state.mutableStateOf
 
 /**
  * Marks a composable function as skippable if all parameters are equal.

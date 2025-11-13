@@ -1,9 +1,9 @@
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.state.State
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.state.State
 
 /**
  * Animation content transition type.

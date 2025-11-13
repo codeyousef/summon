@@ -1,4 +1,4 @@
-package code.yousef.summon
+package codes.yousef.summon
 
 // Comment out the entire file temporarily to isolate build issues
 /*

@@ -1,4 +1,4 @@
-package code.yousef.summon.core
+package codes.yousef.summon.core
 
 /**
  * WebAssembly implementation of getCurrentTimeMillis.

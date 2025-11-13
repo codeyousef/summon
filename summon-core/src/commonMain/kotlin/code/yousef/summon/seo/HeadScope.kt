@@ -1,4 +1,4 @@
-package code.yousef.summon.seo
+package codes.yousef.summon.seo
 
 /**
  * Scope for defining HTML head elements in a type-safe, composable way.

@@ -1,10 +1,10 @@
-package code.yousef.summon.util
+package codes.yousef.summon.util
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.Composer
-import code.yousef.summon.runtime.CompositionLocal
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.runtime.Composer
+import codes.yousef.summon.runtime.CompositionLocal
+import codes.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.runtime.PlatformRenderer
 
 // Basic Mock Composer (moved from component tests)
 internal class TestComposer : Composer {

@@ -1,6 +1,6 @@
-package code.yousef.summon
+package codes.yousef.summon
 
-import code.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.Modifier
 import kotlinx.html.CommonAttributeGroupFacade
 import kotlinx.html.style
 import java.util.concurrent.ConcurrentHashMap

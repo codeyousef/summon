@@ -1,4 +1,4 @@
-package code.yousef.summon
+package codes.yousef.summon
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList

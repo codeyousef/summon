@@ -1,12 +1,12 @@
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.transition
-import code.yousef.summon.modifier.TransitionTimingFunction
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.TransitionTimingFunction
+import codes.yousef.summon.modifier.transition
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class AnimationModifiersTest {
 

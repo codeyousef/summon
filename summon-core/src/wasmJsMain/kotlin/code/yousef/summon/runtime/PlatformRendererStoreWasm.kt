@@ -1,4 +1,4 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
 /**
  * WASM JS currently executes on the JS main thread, so reuse the JS implementation semantics.

@@ -1,4 +1,4 @@
-package code.yousef.summon.ssr
+package codes.yousef.summon.ssr
 
 /**
  * JVM-specific implementation uses the default TestHydrationManager

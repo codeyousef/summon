@@ -1,9 +1,9 @@
-package code.yousef.summon.integration.springboot
+package codes.yousef.summon.integration.springboot
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.PlatformRenderer
-import code.yousef.summon.runtime.clearPlatformRenderer
-import code.yousef.summon.runtime.setPlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.runtime.clearPlatformRenderer
+import codes.yousef.summon.runtime.setPlatformRenderer
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import reactor.core.publisher.Mono

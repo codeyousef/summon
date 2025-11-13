@@ -1,4 +1,4 @@
-package code.yousef.summon.ssr
+package codes.yousef.summon.ssr
 
 /**
  * JS-specific implementation uses the default TestHydrationManager

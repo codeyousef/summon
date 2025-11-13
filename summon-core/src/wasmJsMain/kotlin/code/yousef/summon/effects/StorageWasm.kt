@@ -1,8 +1,6 @@
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
-import code.yousef.summon.runtime.wasmConsoleLog
-import code.yousef.summon.runtime.wasmConsoleWarn
-import code.yousef.summon.runtime.wasmConsoleError
+import codes.yousef.summon.runtime.wasmConsoleLog
 
 actual class Storage {
     private val inMemoryStorage = mutableMapOf<String, String>()

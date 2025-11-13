@@ -49,16 +49,16 @@
  *
  * @since 1.0.0
  */
-package code.yousef.summon.accessibility
+package codes.yousef.summon.accessibility
 
-import code.yousef.summon.accessibility.AccessibilityUtils.createRelationshipModifier
-import code.yousef.summon.accessibility.AccessibilityUtils.createRoleModifier
-import code.yousef.summon.accessibility.Role.*
-import code.yousef.summon.accessibility.State.*
-import code.yousef.summon.core.mapOfCompat
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.accessibility.AccessibilityUtils.createRelationshipModifier
+import codes.yousef.summon.accessibility.AccessibilityUtils.createRoleModifier
+import codes.yousef.summon.accessibility.Role.*
+import codes.yousef.summon.accessibility.State.*
+import codes.yousef.summon.core.mapOfCompat
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * Comprehensive utilities for accessibility-related tasks in the Summon framework.

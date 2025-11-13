@@ -1,6 +1,9 @@
-package code.yousef.summon.annotation
+package codes.yousef.summon.annotation
 
-import kotlin.test.*
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class AppRegistryTest {
     

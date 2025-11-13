@@ -1,4 +1,4 @@
-package code.yousef.summon.integration.quarkus
+package codes.yousef.summon.integration.quarkus
 
 import jakarta.servlet.http.HttpServlet
 import org.jboss.logging.Logger

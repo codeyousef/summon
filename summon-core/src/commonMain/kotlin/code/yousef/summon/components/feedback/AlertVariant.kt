@@ -1,4 +1,4 @@
-package code.yousef.summon.components.feedback
+package codes.yousef.summon.components.feedback
 
 /**
  * Enum class defining the types of alert variations available

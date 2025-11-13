@@ -16,12 +16,12 @@
  *
  * @since 1.0.0
  */
-package code.yousef.summon.components.foundation
+package codes.yousef.summon.components.foundation
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.modifier.*
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.theme.TextStyle
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.modifier.*
+import codes.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.theme.TextStyle
 
 /**
  * Represents the result of a text layout operation.

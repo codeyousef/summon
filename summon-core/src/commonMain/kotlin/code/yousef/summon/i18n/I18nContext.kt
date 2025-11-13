@@ -1,7 +1,7 @@
-package code.yousef.summon.i18n
+package codes.yousef.summon.i18n
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.CompositionLocal
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.runtime.CompositionLocal
 
 /**
  * Internationalization context providing language and translation support.

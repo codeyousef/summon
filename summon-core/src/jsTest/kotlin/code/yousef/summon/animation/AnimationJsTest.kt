@@ -1,12 +1,8 @@
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.promise
-import kotlinx.coroutines.delay as coroutinesDelay
 
 /**
  * Tests for JS-specific implementations of the animation module.

@@ -1,6 +1,6 @@
-package code.yousef.summon.init
+package codes.yousef.summon.init
 
-import code.yousef.summon.routing.Router
+import codes.yousef.summon.routing.Router
 
 /**
  * An annotation which identifies a function as one which will be called when the page opens, before nodes are laid out.

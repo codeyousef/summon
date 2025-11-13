@@ -1,4 +1,4 @@
-package code.yousef.summon.runtime
+package codes.yousef.summon.runtime
 
 /**
  * JavaScript runtime executes on a single thread, so we can store the renderer globally.

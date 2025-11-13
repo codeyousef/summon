@@ -56,15 +56,15 @@
  * @see DropdownItem for menu item component
  * @since 1.0.0
  */
-package code.yousef.summon.components.navigation
+package codes.yousef.summon.components.navigation
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.layout.Box
-import code.yousef.summon.core.FlowContent
-import code.yousef.summon.modifier.*
-import code.yousef.summon.runtime.LocalPlatformRenderer
-import code.yousef.summon.runtime.mutableStateOf
-import code.yousef.summon.runtime.remember
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.core.FlowContent
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.ariaDisabled
+import codes.yousef.summon.modifier.hover
+import codes.yousef.summon.modifier.onClick
+import codes.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * Trigger behavior for dropdown menus.
@@ -93,6 +93,8 @@ enum class DropdownAlignment {
 /**
  * A dropdown menu component with hover/click trigger support.
  *
+ * Platform-specific implementations provide proper event handling.
+ *
  * @param trigger Composable content for the trigger element
  * @param modifier Modifier applied to the dropdown container
  * @param triggerBehavior How the dropdown should open (hover, click, or both)
@@ -101,82 +103,14 @@ enum class DropdownAlignment {
  * @param content The dropdown menu content
  */
 @Composable
-fun Dropdown(
+expect fun Dropdown(
     trigger: @Composable FlowContent.() -> Unit,
     modifier: Modifier = Modifier(),
     triggerBehavior: DropdownTrigger = DropdownTrigger.HOVER,
     alignment: DropdownAlignment = DropdownAlignment.LEFT,
     closeOnItemClick: Boolean = true,
     content: @Composable FlowContent.() -> Unit
-) {
-    val isOpen = remember { mutableStateOf(false) }
-    val renderer = LocalPlatformRenderer.current
-
-    val containerModifier = modifier
-        .style("position", "relative")
-        .style("display", "inline-block")
-        .apply {
-            when (triggerBehavior) {
-                DropdownTrigger.HOVER, DropdownTrigger.BOTH -> {
-                    onMouseEnter("this.querySelector('[data-dropdown-menu]').style.display='block'")
-                    onMouseLeave("this.querySelector('[data-dropdown-menu]').style.display='none'")
-                }
-                DropdownTrigger.CLICK -> {
-                    onClick("""
-                        const menu = this.querySelector('[data-dropdown-menu]');
-                        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-                        event.stopPropagation();
-                    """.trimIndent())
-                }
-            }
-        }
-        .ariaHasPopup(true)
-        .ariaExpanded(isOpen.value)
-
-    renderer.renderBlock(containerModifier) {
-        // Trigger element
-        Box(
-            modifier = Modifier()
-                .style("cursor", "pointer")
-                .ariaControls("dropdown-menu")
-                .role("button")
-                .tabIndex(0)
-        ) {
-            trigger()
-        }
-
-        // Dropdown menu
-        Box(
-            modifier = Modifier()
-                .dataAttribute("dropdown-menu", "true")
-                .id("dropdown-menu")
-                .style("position", "absolute")
-                .style("top", "100%")
-                .style("display", "none")
-                .style("z-index", "1000")
-                .style("min-width", "200px")
-                .style("margin-top", "4px")
-                .style("background-color", "white")
-                .style("border", "1px solid #ddd")
-                .style("border-radius", "4px")
-                .style("box-shadow", "0 2px 8px rgba(0,0,0,0.15)")
-                .apply {
-                    when (alignment) {
-                        DropdownAlignment.LEFT -> style("left", "0")
-                        DropdownAlignment.RIGHT -> style("right", "0")
-                        DropdownAlignment.CENTER -> {
-                            style("left", "50%")
-                            style("transform", "translateX(-50%)")
-                        }
-                    }
-                }
-                .role("menu")
-                .ariaLabelledBy("dropdown-trigger")
-        ) {
-            content()
-        }
-    }
-}
+)
 
 /**
  * A dropdown menu item component.

@@ -1,8 +1,8 @@
-package code.yousef.summon
+package codes.yousef.summon
 
-import code.yousef.summon.test.Button
-import code.yousef.summon.test.Image
-import code.yousef.summon.test.Text
+import codes.yousef.summon.test.Button
+import codes.yousef.summon.test.Image
+import codes.yousef.summon.test.Text
 
 internal inline fun assert(value: Boolean, lazyMessage: () -> Any = { "" }) {
     if (!value) {

@@ -1,10 +1,10 @@
-package code.yousef.summon.components.display
+package codes.yousef.summon.components.display
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.modifier.ariaLabel
-import code.yousef.summon.modifier.fontFamily
-import code.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.ariaLabel
+import codes.yousef.summon.modifier.fontFamily
+import codes.yousef.summon.runtime.LocalPlatformRenderer
 
 
 /**

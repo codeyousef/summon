@@ -1,11 +1,11 @@
-package code.yousef.summon.effects.browser
+package codes.yousef.summon.effects.browser
 
-import code.yousef.summon.effects.CompositionScope
-import code.yousef.summon.effects.onMountWithCleanup
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.state.SummonMutableState
-import code.yousef.summon.state.mutableStateOf
-import code.yousef.summon.theme.MediaQuery
+import codes.yousef.summon.effects.CompositionScope
+import codes.yousef.summon.effects.onMountWithCleanup
+import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.state.SummonMutableState
+import codes.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.theme.MediaQuery
 import kotlinx.browser.window
 import org.w3c.dom.MediaQueryList
 import org.w3c.dom.events.Event

@@ -1,4 +1,4 @@
-package code.yousef.summon.routing
+package codes.yousef.summon.routing
 
 /**
  * Configuration options for the router.

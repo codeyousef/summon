@@ -1,9 +1,9 @@
-package code.yousef.summon.integration.springboot
+package codes.yousef.summon.integration.springboot
 
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.input.Button
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.runtime.Composable
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.components.input.Button
+import codes.yousef.summon.components.layout.Column
+import codes.yousef.summon.runtime.Composable
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

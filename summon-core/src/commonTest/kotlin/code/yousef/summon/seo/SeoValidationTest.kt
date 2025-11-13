@@ -1,4 +1,4 @@
-package code.yousef.summon.seo
+package codes.yousef.summon.seo
 
 import kotlin.test.Test
 import kotlin.test.assertFalse

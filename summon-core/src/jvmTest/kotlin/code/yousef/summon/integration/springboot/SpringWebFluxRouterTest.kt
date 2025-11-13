@@ -1,4 +1,4 @@
-package code.yousef.summon.integration.springboot
+package codes.yousef.summon.integration.springboot
 
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient

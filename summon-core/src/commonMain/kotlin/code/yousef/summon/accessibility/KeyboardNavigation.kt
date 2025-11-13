@@ -1,10 +1,10 @@
-package code.yousef.summon.accessibility
+package codes.yousef.summon.accessibility
 
-import code.yousef.summon.accessibility.KeyboardNavigation.keyboardNavigation
-import code.yousef.summon.core.mapOfCompat
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.Composable
-import code.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.accessibility.KeyboardNavigation.keyboardNavigation
+import codes.yousef.summon.core.mapOfCompat
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * Keys commonly used for keyboard navigation in web applications.

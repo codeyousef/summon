@@ -1,8 +1,8 @@
-package code.yousef.summon.integration.quarkus
+package codes.yousef.summon.integration.quarkus
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.runtime.PlatformRenderer
-import code.yousef.summon.runtime.setPlatformRenderer
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.runtime.setPlatformRenderer
 import io.quarkus.qute.TemplateExtension
 import kotlinx.html.body
 import kotlinx.html.div
