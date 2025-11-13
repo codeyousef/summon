@@ -5,17 +5,28 @@ on:
   push:
     branches:
       - main
-    tags:
-      - 'v*'
+
+permissions:
+  contents: write
+  packages: write
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
+    env:
+      GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx2g -Dorg.gradle.vfs.watch=false"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Grant execute permissions
+        run: |
+          chmod +x gradlew
+          if [ -f sign-artifact.sh ]; then
+            chmod +x sign-artifact.sh
+          fi
 
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -24,22 +35,74 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      - name: Build and test
+      - name: Extract version from version.properties
+        id: version
+        shell: bash
         run: |
-          ./gradlew build --stacktrace --no-daemon
+          VERSION=$(grep "^VERSION=" version.properties | cut -d'=' -f2)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            TAG="${GITHUB_REF_NAME}"
+            if [[ "$TAG" != "v$VERSION" ]]; then
+              echo "::error::Tag $TAG does not match version v$VERSION from version.properties"
+              exit 1
+            fi
+          fi
 
-      - name: Prepare local.properties for Central
+      - name: Build and test
+        run: ./gradlew --no-daemon --max-workers=4 --console=plain build --stacktrace
+
+      - name: Ensure tag does not already exist
         run: |
-          cat > local.properties <<'EOF'
+          VERSION="${{ steps.version.outputs.version }}"
+          if git ls-remote --tags origin "refs/tags/v${VERSION}" | grep -q .; then
+            echo "::error::Tag v${VERSION} already exists. Bump version.properties before releasing."
+            exit 1
+          fi
+
+      - name: Ensure publishing secrets are present
+        shell: bash
+        run: |
+          [[ -n "${{ secrets.MAVEN_CENTRAL_USERNAME }}" ]] || { echo "::error::Missing required secret MAVEN_CENTRAL_USERNAME"; exit 1; }
+          [[ -n "${{ secrets.MAVEN_CENTRAL_PASSWORD }}" ]] || { echo "::error::Missing required secret MAVEN_CENTRAL_PASSWORD"; exit 1; }
+          [[ -n "${{ secrets.SIGNING_PASSWORD }}" ]] || { echo "::error::Missing required secret SIGNING_PASSWORD"; exit 1; }
+          [[ -n "${{ secrets.GPG_PRIVATE_KEY_ASC }}" ]] || { echo "::error::Missing required secret GPG_PRIVATE_KEY_ASC"; exit 1; }
+
+      - name: Configure publishing credentials
+        shell: bash
+        run: |
+          cat <<'EOF' > local.properties
           mavenCentralUsername=${{ secrets.MAVEN_CENTRAL_USERNAME }}
           mavenCentralPassword=${{ secrets.MAVEN_CENTRAL_PASSWORD }}
           signingPassword=${{ secrets.SIGNING_PASSWORD }}
+          signingKey=provided-via-secret
           EOF
+          
+          SIGNING_SECRET="${{ secrets.GPG_PRIVATE_KEY_ASC }}"
+          if [[ -z "$SIGNING_SECRET" ]]; then
+            echo "::error::GPG_PRIVATE_KEY_ASC secret is not set"
+            exit 1
+          fi
 
-      - name: Write GPG private key file
-        run: |
-          echo "${{ secrets.GPG_PRIVATE_KEY_ASC }}" > private-key-ascii.asc
-          chmod 600 private-key-ascii.asc
+          if echo "$SIGNING_SECRET" | base64 -d > private-key.asc 2>/tmp/base64-decode.log; then
+            echo "Imported signing key from base64-encoded secret"
+          else
+            echo "$SIGNING_SECRET" > private-key.asc
+            echo "Stored signing key as literal ASCII-armored block"
+          fi
+
+          chmod 600 private-key.asc
+
+          # Validate the signing key is importable before proceeding (fail fast)
+          TMP_GNUPGHOME=$(mktemp -d)
+          export GNUPGHOME="$TMP_GNUPGHOME"
+          if ! gpg --batch --yes --import private-key.asc >/tmp/gpg-import.log 2>&1; then
+            echo "::error::Signing key could not be imported"
+            cat /tmp/gpg-import.log || true
+            rm -rf "$TMP_GNUPGHOME"
+            exit 1
+          fi
+          rm -rf "$TMP_GNUPGHOME"
 
       - name: Publish to codes.yousef via Central Portal API
         env:
@@ -49,15 +112,70 @@ jobs:
         run: |
           ./gradlew :summon-core:publishToCentralPortalManually --stacktrace --no-daemon
 
-      - name: Publish legacy bundle to io.github.codeyousef (until 0.5.0.0)
+      - name: Publish legacy bundle to io.github.codeyousef (v0.4.* and v0.5.0.0 only)
         if: |
-          startsWith(github.ref, 'refs/tags/v0.4.') || 
-          startsWith(github.ref, 'refs/tags/0.4.') || 
-          github.ref == 'refs/tags/v0.5.0.0' || 
-          github.ref == 'refs/tags/0.5.0.0'
+          startsWith(steps.version.outputs.version, '0.4.') || 
+          steps.version.outputs.version == '0.5.0.0'
         env:
           MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
         run: |
           ./gradlew :summon-core:publishToLegacyGroupId --stacktrace --no-daemon
+
+      - name: Extract latest changelog entry
+        id: changelog
+        shell: bash
+        run: |
+          python <<'PY'
+          import itertools
+
+          with open("CHANGELOG.md", encoding="utf-8") as fh:
+              lines = fh.readlines()
+
+          section = []
+          capture = False
+          for line in lines:
+              if line.startswith("## ["):
+                  if capture:
+                      break
+                  capture = True
+                  continue
+              if capture:
+                  section.append(line.rstrip("\n"))
+
+          notes = "\n".join(section).strip()
+          print(notes)
+          with open("release-notes.md", "w", encoding="utf-8") as out:
+              out.write(notes + "\n")
+          PY
+          NOTES=$(cat release-notes.md)
+          echo "notes<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$NOTES" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Create and push release tag
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "v${VERSION}" -m "Summon ${VERSION}"
+          git push origin "v${VERSION}"
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Summon ${{ steps.version.outputs.version }}
+          body_path: release-notes.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build CLI
+        run: ./gradlew summon-cli:build -PskipWrapperTests=true
+
+      - name: Publish CLI to GitHub Packages
+        run: ./gradlew summon-cli:publishCliPublicationToGitHubPackagesRepository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
