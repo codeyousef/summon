@@ -217,15 +217,18 @@ fun DropdownItem(
             }
         }
 
-    if (href != null) {
-        renderer.renderElement("a", itemModifier.attribute("href", href)) {
-            renderer.renderText(label)
-        }
+    // For links, we should use Link component, but for simplicity use renderBlock with appropriate tag
+    val finalModifier = if (href != null) {
+        itemModifier
+            .attribute("href", href)
+            .attribute("data-is-link", "true")
     } else {
-        renderer.renderBlock(itemModifier) {
-            renderer.renderText(label)
-        }
+        itemModifier
     }
+    
+    renderer.renderBlock(finalModifier, content = {
+        renderer.renderText(label, Modifier())
+    })
 }
 
 /**
@@ -245,11 +248,12 @@ fun DropdownDivider(
     modifier: Modifier = Modifier()
 ) {
     val renderer = LocalPlatformRenderer.current
-    renderer.renderElement(
-        "hr",
+    renderer.renderBlock(
         modifier
+            .style("height", "1px")
             .style("margin", "4px 0")
-            .style("border", "none")
-            .style("border-top", "1px solid #e0e0e0")
-    ) {}
+            .style("background-color", "#e0e0e0")
+            .style("border", "none"),
+        content = {}
+    )
 }

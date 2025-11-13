@@ -196,32 +196,4 @@ fun Modifier.scrollPadding(value: String): Modifier {
     return style("scroll-padding", value)
 }
 
-/**
- * Sets horizontal overflow behavior.
- *
- * @param value The overflow value (visible, hidden, scroll, auto)
- * @return A new [Modifier] with overflow-x style
- */
-fun Modifier.overflowX(value: String): Modifier {
-    return style("overflow-x", value)
-}
-
-/**
- * Sets vertical overflow behavior.
- *
- * @param value The overflow value (visible, hidden, scroll, auto)
- * @return A new [Modifier] with overflow-y style
- */
-fun Modifier.overflowY(value: String): Modifier {
-    return style("overflow-y", value)
-}
-
-/**
- * Sets both horizontal and vertical overflow behavior.
- *
- * @param value The overflow value (visible, hidden, scroll, auto)
- * @return A new [Modifier] with overflow style
- */
-fun Modifier.overflow(value: String): Modifier {
-    return style("overflow", value)
-}
+// Note: overflow, overflowX, and overflowY are defined in LayoutModifiers.kt
