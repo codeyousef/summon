@@ -667,46 +667,58 @@ tasks.register("publishToLegacyGroupId") {
 
                 if (sourceDir.exists()) {
                     println("📦 Copying $artifactId from codes.yousef to legacy bundle...")
+
+                    // Copy ALL files including checksums and signatures
                     sourceDir.listFiles()?.forEach { file ->
-                        if ((file.name.endsWith(".jar") || file.name.endsWith(".pom") ||
-                                    file.name.endsWith(".klib") || file.name.endsWith(".module")) &&
-                            !file.name.endsWith(".md5") && !file.name.endsWith(".sha1") &&
-                            !file.name.endsWith(".asc")
-                        ) {
+                        if (file.isFile) {
                             file.copyTo(File(targetDir, file.name), overwrite = true)
-                            allFiles.add(File(targetDir, file.name))
+                            // Track main artifact files for javadoc checking
+                            if ((file.name.endsWith(".jar") || file.name.endsWith(".pom") ||
+                                        file.name.endsWith(".klib") || file.name.endsWith(".module")) &&
+                                !file.name.endsWith(".md5") && !file.name.endsWith(".sha1") &&
+                                !file.name.endsWith(".asc")
+                            ) {
+                                allFiles.add(File(targetDir, file.name))
+                            }
+                        }
+                    }
+
+                    // Add javadoc jar for each artifact (required by Maven Central)
+                    val javadocJar =
+                        file("${layout.buildDirectory.get()}/libs/summon-core-${project.version}-javadoc.jar")
+                    if (javadocJar.exists()) {
+                        val javadocFileName = "$artifactId-${project.version}-javadoc.jar"
+                        val targetJavadocJar = File(targetDir, javadocFileName)
+                        javadocJar.copyTo(targetJavadocJar, overwrite = true)
+
+                        // Generate checksums and signature for javadoc
+                        val md5Hash = MessageDigest.getInstance("MD5")
+                            .digest(targetJavadocJar.readBytes())
+                            .joinToString("") { "%02x".format(it) }
+                        File(targetDir, "$javadocFileName.md5").writeText(md5Hash)
+
+                        val sha1Hash = MessageDigest.getInstance("SHA-1")
+                            .digest(targetJavadocJar.readBytes())
+                            .joinToString("") { "%02x".format(it) }
+                        File(targetDir, "$javadocFileName.sha1").writeText(sha1Hash)
+
+                        // Sign javadoc jar
+                        val sigFile = File(targetDir, "$javadocFileName.asc")
+                        val privateKeyFile = rootProject.file("private-key.asc")
+                        val signScript = rootProject.file("sign-artifact.sh")
+
+                        if (privateKeyFile.exists() && signScript.exists()) {
+                            exec {
+                                commandLine(
+                                    "bash", signScript.absolutePath,
+                                    signingPassword, privateKeyFile.absolutePath,
+                                    sigFile.absolutePath, targetJavadocJar.absolutePath
+                                )
+                            }
                         }
                     }
                 } else {
                     println("⚠️  Source not found: $sourceDir")
-                }
-            }
-
-            // Sign and checksum all files (simplified version)
-            allFiles.forEach { file ->
-                val md5Hash = MessageDigest.getInstance("MD5")
-                    .digest(file.readBytes())
-                    .joinToString("") { "%02x".format(it) }
-                File(file.parent, "${file.name}.md5").writeText(md5Hash)
-
-                val sha1Hash = MessageDigest.getInstance("SHA-1")
-                    .digest(file.readBytes())
-                    .joinToString("") { "%02x".format(it) }
-                File(file.parent, "${file.name}.sha1").writeText(sha1Hash)
-
-                // GPG signing
-                val sigFile = File(file.parent, "${file.name}.asc")
-                val privateKeyFile = rootProject.file("private-key.asc")
-                val signScript = rootProject.file("sign-artifact.sh")
-
-                if (privateKeyFile.exists() && signScript.exists()) {
-                    exec {
-                        commandLine(
-                            "bash", signScript.absolutePath,
-                            signingPassword, privateKeyFile.absolutePath,
-                            sigFile.absolutePath, file.absolutePath
-                        )
-                    }
                 }
             }
 
