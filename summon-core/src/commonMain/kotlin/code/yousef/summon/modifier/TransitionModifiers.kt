@@ -102,3 +102,66 @@ fun Modifier.backdropFilters(vararg filters: String): Modifier =
 
 fun Modifier.hoverElevation(elevation: String): Modifier =
     hover(mapOfCompat("box-shadow" to elevation))
+
+/**
+ * Applies styles when the element has focus.
+ * 
+ * @param focusModifier Modifier containing styles to apply on focus
+ * @return A new [Modifier] with focus styles
+ */
+fun Modifier.focus(focusModifier: Modifier): Modifier =
+    focus(focusModifier.styles)
+
+/**
+ * Applies styles when the element has focus using a map of CSS properties.
+ * 
+ * @param styles Map of CSS property names to values
+ * @return A new [Modifier] with focus styles
+ */
+fun Modifier.focus(styles: Map<String, String>): Modifier {
+    if (styles.isEmpty()) return this
+    val focusString = styles.entries.joinToString(";") { "${it.key}:${it.value}" }
+    return attribute("data-focus-styles", focusString)
+}
+
+/**
+ * Applies styles when the element is active (being clicked/pressed).
+ * 
+ * @param activeModifier Modifier containing styles to apply when active
+ * @return A new [Modifier] with active styles
+ */
+fun Modifier.active(activeModifier: Modifier): Modifier =
+    active(activeModifier.styles)
+
+/**
+ * Applies styles when the element is active using a map of CSS properties.
+ * 
+ * @param styles Map of CSS property names to values
+ * @return A new [Modifier] with active styles
+ */
+fun Modifier.active(styles: Map<String, String>): Modifier {
+    if (styles.isEmpty()) return this
+    val activeString = styles.entries.joinToString(";") { "${it.key}:${it.value}" }
+    return attribute("data-active-styles", activeString)
+}
+
+/**
+ * Applies styles when the element or any of its descendants have focus.
+ * 
+ * @param focusWithinModifier Modifier containing styles to apply when focus is within
+ * @return A new [Modifier] with focus-within styles
+ */
+fun Modifier.focusWithin(focusWithinModifier: Modifier): Modifier =
+    focusWithin(focusWithinModifier.styles)
+
+/**
+ * Applies styles when the element or any of its descendants have focus using a map of CSS properties.
+ * 
+ * @param styles Map of CSS property names to values
+ * @return A new [Modifier] with focus-within styles
+ */
+fun Modifier.focusWithin(styles: Map<String, String>): Modifier {
+    if (styles.isEmpty()) return this
+    val focusWithinString = styles.entries.joinToString(";") { "${it.key}:${it.value}" }
+    return attribute("data-focus-within-styles", focusWithinString)
+}
