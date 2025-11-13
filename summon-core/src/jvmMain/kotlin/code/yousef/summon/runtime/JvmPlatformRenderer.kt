@@ -222,7 +222,7 @@ actual open class PlatformRenderer {
             }
 
             attributes["data-onchange-action"] = "true"
-            comment(" onValueChange handler needed (JS) ")
+            // onValueChange handler will be attached by client-side JS
         }
     }
 
@@ -281,7 +281,7 @@ actual open class PlatformRenderer {
             id = "date-${UUID.randomUUID()}"
             name = id
             attributes["data-onchange-action"] = "true"
-            comment(" onValueChange handler needed (JS) ")
+            // onValueChange handler will be attached by client-side JS
         }
     }
 
@@ -319,7 +319,7 @@ actual open class PlatformRenderer {
             }
 
             attributes["data-onchange-action"] = "true"
-            comment(" onValueChange handler needed (JS) ")
+            // onValueChange handler will be attached by client-side JS
             +value
         }
     }
@@ -1277,7 +1277,7 @@ actual open class PlatformRenderer {
             this.disabled = !enabled
             id = "slider-${UUID.randomUUID()}"
             name = id
-            comment(" onValueChange handler needed (JS) ")
+            // onValueChange handler will be attached by client-side JS
             attributes["data-onchange-action"] = "true"
         }
     }
@@ -1318,7 +1318,7 @@ actual open class PlatformRenderer {
                 attributes["data-onchange-action"] = "true"
             }
             }
-            comment(" onValueChange handler needed (JS) to coordinate sliders ")
+            // onValueChange handlers will be attached by client-side JS to coordinate sliders
         }
     }
 
@@ -1333,11 +1333,11 @@ actual open class PlatformRenderer {
             applyModifier(modifier)
             if (value != null) this.value = value.toString().take(8) // HH:MM:SS
             this.disabled = !enabled
-            comment(" 12/24 hour display depends on browser/locale. ")
+            // 12/24 hour display depends on browser/locale
             id = "time-${UUID.randomUUID()}"
             name = id
             attributes["data-onchange-action"] = "true"
-            comment(" onValueChange handler needed (JS) ")
+            // onValueChange handler will be attached by client-side JS
         }
     }
 

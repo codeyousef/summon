@@ -237,6 +237,16 @@ fun Modifier.onMouseLeave(handler: String): Modifier {
 }
 
 /**
+ * Adds a mouse move event listener to the element.
+ * 
+ * @param handler The JavaScript code to execute when the mouse moves over the element
+ * @return A new [Modifier] with the onmousemove attribute
+ */
+fun Modifier.onMouseMove(handler: String): Modifier {
+    return attribute("onmousemove", handler)
+}
+
+/**
  * Adds a touch start event listener to the element.
  * 
  * @param handler The JavaScript code to execute when the element is touched

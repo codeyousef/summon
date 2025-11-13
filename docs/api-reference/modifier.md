@@ -12,6 +12,10 @@ styling, layout, and behavior to components in a type-safe, composable way.
 - [CSS Enums](#css-enums)
 - [Accessibility Modifiers](#accessibility-modifiers)
 - [Interactive Modifiers](#interactive-modifiers)
+- [Pseudo-Selector Modifiers](#pseudo-selector-modifiers) ⭐ NEW
+- [CSS Variables](#css-variables) ⭐ NEW
+- [Media Queries](#media-queries) ⭐ NEW
+- [Scroll Modifiers](#scroll-modifiers) ⭐ NEW
 - [Advanced Modifiers](#advanced-modifiers)
 - [Theme Integration](#theme-integration)
 - [Best Practices](#best-practices)
@@ -739,6 +743,396 @@ Modifier()
     .hover(
         Modifier().themeBackgroundColor("surfaceVariant")
     )
+```
+
+---
+
+## Pseudo-Selector Modifiers
+
+Apply styles based on element state and structural position using pseudo-selectors.
+
+### Interactive State Selectors
+
+```kotlin
+// Hover state
+Box(
+    modifier = Modifier()
+        .backgroundColor("#f0f0f0")
+        .hover(Modifier().backgroundColor("#e0e0e0"))
+)
+
+// Focus state
+TextField(
+    modifier = Modifier()
+        .outlineColor("gray")
+        .focus(Modifier().outlineColor("blue"))
+)
+
+// Active state (being clicked)
+Button(
+    modifier = Modifier()
+        .backgroundColor("#007bff")
+        .active(Modifier().backgroundColor("#0056b3"))
+)
+
+// Focus-within (element or descendants have focus)
+Box(
+    modifier = Modifier()
+        .borderColor("gray")
+        .focusWithin(Modifier().borderColor("blue"))
+)
+```
+
+### Structural Selectors
+
+```kotlin
+// First child
+Box(
+    modifier = Modifier()
+        .firstChild(Modifier().marginTop("0px"))
+)
+
+// Last child
+Box(
+    modifier = Modifier()
+        .lastChild(Modifier().marginBottom("0px"))
+)
+
+// Nth child
+Box(
+    modifier = Modifier()
+        .nthChild("2n", Modifier().backgroundColor("#f5f5f5")) // Even rows
+        .nthChild("odd", Modifier().backgroundColor("white"))   // Odd rows
+)
+
+// Only child
+Box(
+    modifier = Modifier()
+        .onlyChild(Modifier().margin("0 auto"))
+)
+```
+
+### State Selectors
+
+```kotlin
+// Visited links
+Link(
+    modifier = Modifier()
+        .color("blue")
+        .visited(Modifier().color("purple"))
+)
+
+// Disabled state
+Button(
+    modifier = Modifier()
+        .disabledStyles(Modifier()
+            .backgroundColor("gray")
+            .cursor("not-allowed")
+        )
+)
+
+// Checked state (checkboxes/radios)
+Checkbox(
+    modifier = Modifier()
+        .checkedStyles(Modifier().backgroundColor("blue"))
+)
+```
+
+### Using Map Syntax
+
+All pseudo-selectors support map-based syntax:
+
+```kotlin
+Modifier().hover(mapOf(
+    "background-color" to "#e0e0e0",
+    "transform" to "scale(1.05)"
+))
+```
+
+---
+
+## CSS Variables
+
+Define and use CSS custom properties (CSS variables) for theming and dynamic styling.
+
+### Defining Variables
+
+```kotlin
+// Define on a container
+Box(
+    modifier = Modifier()
+        .cssVar("primary-color", "#007bff")
+        .cssVar("spacing", "16px")
+        .cssVar("border-radius", "8px")
+) {
+    // Children can use these variables
+}
+
+// Define multiple variables
+Box(
+    modifier = Modifier()
+        .cssVars(mapOf(
+            "primary-color" to "#007bff",
+            "secondary-color" to "#6c757d",
+            "success-color" to "#28a745"
+        ))
+)
+```
+
+### Using Variables
+
+```kotlin
+// Use variables in styles
+Box(
+    modifier = Modifier()
+        .backgroundColor(cssVar("primary-color"))
+        .padding(cssVar("spacing"))
+        .borderRadius(cssVar("border-radius"))
+)
+
+// With fallback values
+Box(
+    modifier = Modifier()
+        .color(cssVar("text-color", "#000000"))
+)
+```
+
+### Theming Pattern
+
+```kotlin
+@Composable
+fun ThemedApp() {
+    val isDark = remember { mutableStateOf(false) }
+    
+    val theme = if (isDark.value) {
+        mapOf(
+            "bg-primary" to "#1a1a1a",
+            "text-primary" to "#ffffff",
+            "surface" to "#2a2a2a"
+        )
+    } else {
+        mapOf(
+            "bg-primary" to "#ffffff",
+            "text-primary" to "#000000",
+            "surface" to "#f5f5f5"
+        )
+    }
+    
+    Box(modifier = Modifier().cssVars(theme)) {
+        // All children use theme variables
+        Content()
+    }
+}
+```
+
+---
+
+## Media Queries
+
+Apply responsive styles based on viewport dimensions and device characteristics.
+
+### Viewport Breakpoints
+
+```kotlin
+// Mobile-first approach
+Box(
+    modifier = Modifier()
+        .padding("8px")
+        .mediaQuery(MediaQuery.MinWidth(768)) {
+            padding("16px")
+        }
+        .mediaQuery(MediaQuery.MinWidth(1024)) {
+            padding("24px")
+        }
+)
+
+// Max-width queries
+Box(
+    modifier = Modifier()
+        .display("block")
+        .mediaQuery(MediaQuery.MaxWidth(767)) {
+            display("none") // Hide on mobile
+        }
+)
+```
+
+### Device Orientation
+
+```kotlin
+Box(
+    modifier = Modifier()
+        .mediaQuery(MediaQuery.Portrait) {
+            flexDirection("column")
+        }
+        .mediaQuery(MediaQuery.Landscape) {
+            flexDirection("row")
+        }
+)
+```
+
+### User Preferences
+
+```kotlin
+// Dark mode support
+Box(
+    modifier = Modifier()
+        .backgroundColor("#ffffff")
+        .color("#000000")
+        .mediaQuery(MediaQuery.PrefersDarkScheme) {
+            backgroundColor("#1a1a1a")
+            color("#ffffff")
+        }
+)
+
+// Reduced motion
+Box(
+    modifier = Modifier()
+        .transition("all", 300)
+        .mediaQuery(MediaQuery.PrefersReducedMotion) {
+            transition("none")
+        }
+)
+```
+
+### Device Capabilities
+
+```kotlin
+// Hover-capable devices
+Box(
+    modifier = Modifier()
+        .mediaQuery(MediaQuery.CanHover) {
+            // Add hover effects only on devices that support it
+        }
+        .mediaQuery(MediaQuery.NoHover) {
+            // Touch-optimized styles
+            padding("12px") // Larger touch targets
+        }
+)
+
+// Pointer precision
+Box(
+    modifier = Modifier()
+        .mediaQuery(MediaQuery.FinePointer) {
+            // Mouse/trackpad styles
+        }
+        .mediaQuery(MediaQuery.CoarsePointer) {
+            // Touch styles
+            minHeight("44px") // Larger touch targets
+        }
+)
+```
+
+### Common Breakpoints
+
+Use the predefined `Breakpoints` constants:
+
+```kotlin
+import code.yousef.summon.modifier.Breakpoints
+
+Box(
+    modifier = Modifier()
+        .mediaQuery(MediaQuery.MinWidth(Breakpoints.SM)) { /* Tablet */ }
+        .mediaQuery(MediaQuery.MinWidth(Breakpoints.MD)) { /* Desktop */ }
+        .mediaQuery(MediaQuery.MinWidth(Breakpoints.LG)) { /* Large desktop */ }
+)
+```
+
+### Complex Queries
+
+```kotlin
+// Combine multiple conditions with AND
+modifier.mediaQuery(
+    MediaQuery.And(
+        MediaQuery.MinWidth(768),
+        MediaQuery.MaxWidth(1024),
+        MediaQuery.Landscape
+    )
+) {
+    // Styles for tablets in landscape
+}
+
+// Multiple conditions with OR
+modifier.mediaQuery(
+    MediaQuery.Or(
+        MediaQuery.MaxWidth(767),
+        MediaQuery.Portrait
+    )
+) {
+    // Mobile or any device in portrait
+}
+```
+
+---
+
+## Scroll Modifiers
+
+Control scroll behavior and handle scroll events.
+
+### Scroll Events
+
+```kotlin
+Box(
+    modifier = Modifier()
+        .height("400px")
+        .overflowY("scroll")
+        .onScroll("handleScroll(event)")
+)
+```
+
+### Scroll Behavior
+
+```kotlin
+// Smooth scrolling
+Box(
+    modifier = Modifier()
+        .scrollBehavior(ScrollBehavior.SMOOTH)
+        .overflowY("auto")
+)
+```
+
+### Scroll Snapping
+
+```kotlin
+// Container with snap points
+Box(
+    modifier = Modifier()
+        .scrollSnapType(ScrollSnapType.Y_MANDATORY)
+        .overflowY("scroll")
+) {
+    // Child elements
+    repeat(10) {
+        Box(
+            modifier = Modifier()
+                .scrollSnapAlign(ScrollSnapAlign.START)
+                .height("100vh")
+        ) {
+            Text("Section $it")
+        }
+    }
+}
+```
+
+### Overflow Control
+
+```kotlin
+// Vertical scrolling only
+Modifier().overflowY("auto").overflowX("hidden")
+
+// Horizontal scrolling
+Modifier().overflowX("scroll").overflowY("hidden")
+
+// Both directions
+Modifier().overflow("auto")
+```
+
+### Scroll Margin and Padding
+
+```kotlin
+// Scroll margin (space between snap point and viewport)
+Modifier().scrollMargin("20px")
+
+// Scroll padding (offset for snap alignment)
+Modifier().scrollPadding("20px")
 ```
 
 ---
