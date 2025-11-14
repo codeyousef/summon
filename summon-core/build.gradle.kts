@@ -591,14 +591,17 @@ tasks.register("publishToCentralPortalManually") {
             ))
             
             println("🚀 Uploading to Central Portal via REST API...")
-            
+        println("📦 Bundle: ${zipFile.absolutePath}")
+        println("👤 Username: ${username}")
+
             // Upload via Central Portal REST API
             val password = localProperties.getProperty("mavenCentralPassword")
             val authString = Base64.getEncoder().encodeToString("$username:$password".toByteArray())
             
             val uploadResult = exec {
                 isIgnoreExitValue = true
-                commandLine("curl", "-X", "POST",
+                commandLine(
+                    "curl", "-v", "-X", "POST",
                     "https://central.sonatype.com/api/v1/publisher/upload",
                     "-H", "Authorization: Basic $authString",
                     "-F", "bundle=@${zipFile.absolutePath}",
@@ -611,9 +614,10 @@ tasks.register("publishToCentralPortalManually") {
                 println("🔗 Check status at: https://central.sonatype.com/publishing/deployments")
                 println("💡 The deployment will be validated and published automatically")
             } else {
-                println("❌ Upload failed. Manual upload may be required.")
+                println("❌ Upload failed with exit code: ${uploadResult.exitValue}")
                 println("📂 ZIP bundle location: ${zipFile.absolutePath}")
                 println("🔗 Manual upload at: https://central.sonatype.com/publishing/deployments")
+                throw GradleException("Failed to upload to Maven Central. Check credentials and try again.")
             }
             
         if (allFilesToProcess.isEmpty()) {
@@ -811,10 +815,12 @@ tasks.register("publishToLegacyGroupId") {
             if (!skipLegacyUpload) Base64.getEncoder().encodeToString("$username:$password".toByteArray()) else null
         if (!skipLegacyUpload) {
             println("🚀 Uploading LEGACY bundle to Central Portal...")
+            println("📦 Bundle: ${legacyZip.absolutePath}")
+            println("👤 Username: ${username}")
             val legacyUpload = exec {
                 isIgnoreExitValue = true
                 commandLine(
-                    "curl", "-X", "POST",
+                    "curl", "-v", "-X", "POST",
                     "https://central.sonatype.com/api/v1/publisher/upload",
                     "-H", "Authorization: Basic ${authString}",
                     "-F", "bundle=@${legacyZip.absolutePath}",
@@ -824,7 +830,9 @@ tasks.register("publishToLegacyGroupId") {
             if (legacyUpload.exitValue == 0) {
                 println("✅ Legacy upload successful! Validate at Central Portal UI.")
             } else {
-                println("❌ Legacy upload failed. Please upload manually: ${legacyZip.absolutePath}")
+                println("❌ Legacy upload failed with exit code: ${legacyUpload.exitValue}")
+                println("📂 Bundle location: ${legacyZip.absolutePath}")
+                throw GradleException("Failed to upload legacy bundle to Maven Central. Check credentials and try again.")
             }
         } else {
             println("⏭️ Skipped upload. Legacy bundle ready at: ${legacyZip.absolutePath}")
