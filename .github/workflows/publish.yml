@@ -60,68 +60,53 @@ jobs:
             exit 1
           fi
 
-      - name: Ensure publishing secrets are present
+      - name: Setup publishing secrets (fallback to legacy names)
+        id: setup-secrets
         shell: bash
         run: |
-          [[ -n "${{ secrets.MAVEN_CENTRAL_USERNAME }}" ]] || { echo "::error::Missing required secret MAVEN_CENTRAL_USERNAME"; exit 1; }
-          [[ -n "${{ secrets.MAVEN_CENTRAL_PASSWORD }}" ]] || { echo "::error::Missing required secret MAVEN_CENTRAL_PASSWORD"; exit 1; }
-          [[ -n "${{ secrets.SIGNING_PASSWORD }}" ]] || { echo "::error::Missing required secret SIGNING_PASSWORD"; exit 1; }
-          [[ -n "${{ secrets.GPG_PRIVATE_KEY_ASC }}" ]] || { echo "::error::Missing required secret GPG_PRIVATE_KEY_ASC"; exit 1; }
+          USER="${{ secrets.MAVEN_CENTRAL_USERNAME != '' && secrets.MAVEN_CENTRAL_USERNAME || secrets.CENTRAL_USERNAME }}"
+          PASS="${{ secrets.MAVEN_CENTRAL_PASSWORD != '' && secrets.MAVEN_CENTRAL_PASSWORD || secrets.CENTRAL_PASSWORD }}"
+          SIGN_PW="${{ secrets.SIGNING_PASSWORD != '' && secrets.SIGNING_PASSWORD || secrets.CENTRAL_SIGNING_PASSWORD }}"
+          SIGN_KEY="${{ secrets.GPG_PRIVATE_KEY_ASC != '' && secrets.GPG_PRIVATE_KEY_ASC || secrets.CENTRAL_SIGNING_KEY_ASC }}"
 
-      - name: Configure publishing credentials
-        shell: bash
-        run: |
-          cat <<'EOF' > local.properties
-          mavenCentralUsername=${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          mavenCentralPassword=${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-          signingPassword=${{ secrets.SIGNING_PASSWORD }}
+          if [[ -z "$USER" || -z "$PASS" || -z "$SIGN_PW" || -z "$SIGN_KEY" ]]; then
+            echo "::error::One or more required publishing secrets are missing (username/password/signing password/key)."; exit 1;
+          fi
+
+          cat <<EOF > local.properties
+          mavenCentralUsername=${USER}
+          mavenCentralPassword=${PASS}
+          signingPassword=${SIGN_PW}
           signingKey=provided-via-secret
           EOF
-          
-          SIGNING_SECRET="${{ secrets.GPG_PRIVATE_KEY_ASC }}"
-          if [[ -z "$SIGNING_SECRET" ]]; then
-            echo "::error::GPG_PRIVATE_KEY_ASC secret is not set"
-            exit 1
-          fi
 
-          if echo "$SIGNING_SECRET" | base64 -d > private-key.asc 2>/tmp/base64-decode.log; then
+          # Try base64 decode first; fallback to raw armored key
+          if echo "$SIGN_KEY" | base64 -d > private-key.asc 2>/tmp/base64-decode.log; then
             echo "Imported signing key from base64-encoded secret"
           else
-            echo "$SIGNING_SECRET" > private-key.asc
+            echo "$SIGN_KEY" > private-key.asc
             echo "Stored signing key as literal ASCII-armored block"
           fi
-
           chmod 600 private-key.asc
 
-          # Validate the signing key is importable before proceeding (fail fast)
           TMP_GNUPGHOME=$(mktemp -d)
           export GNUPGHOME="$TMP_GNUPGHOME"
           if ! gpg --batch --yes --import private-key.asc >/tmp/gpg-import.log 2>&1; then
-            echo "::error::Signing key could not be imported"
-            cat /tmp/gpg-import.log || true
-            rm -rf "$TMP_GNUPGHOME"
-            exit 1
+            echo "::error::Signing key could not be imported"; cat /tmp/gpg-import.log || true; rm -rf "$TMP_GNUPGHOME"; exit 1
           fi
           rm -rf "$TMP_GNUPGHOME"
 
-      - name: Publish to codes.yousef via Central Portal API
-        env:
-          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+      - name: Publish (auto-select dual or single)
+        shell: bash
         run: |
-          ./gradlew :summon-core:publishToCentralPortalManually --stacktrace --no-daemon
-
-      - name: Publish legacy bundle to io.github.codeyousef (v0.4.* and v0.5.0.0 only)
-        if: |
-          startsWith(steps.version.outputs.version, '0.4.') || 
-          steps.version.outputs.version == '0.5.0.0'
-        env:
-          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-        run: |
-          ./gradlew :summon-core:publishToLegacyGroupId --stacktrace --no-daemon
+          VERSION="${{ steps.version.outputs.version }}"
+          if [[ "$VERSION" =~ ^0\.4\. || "$VERSION" == "0.5.0.0" ]]; then
+            echo "🔄 Dual publishing (new + legacy) for version $VERSION"
+            ./gradlew :summon-core:publishToBothGroupIds --stacktrace --no-daemon
+          else
+            echo "➡️ Publishing only to new group (codes.yousef) for version $VERSION"
+            ./gradlew :summon-core:publishToCentralPortalManually --stacktrace --no-daemon
+          fi
 
       - name: Extract latest changelog entry
         id: changelog
@@ -178,4 +163,3 @@ jobs:
         run: ./gradlew summon-cli:publishCliPublicationToGitHubPackagesRepository
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
