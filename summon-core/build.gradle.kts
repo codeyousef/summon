@@ -1,12 +1,11 @@
 import java.security.MessageDigest
-import java.time.LocalDateTime
 import java.util.*
 
 // Apply version management
 apply(from = "../version.gradle.kts")
 
 // Manual version override for now
-version = "0.4.8.1"
+version = "0.4.8.2"
 group = "codes.yousef"
 
 plugins {
@@ -278,6 +277,14 @@ kotlin.sourceSets.all {
     }
 }
 
+// Suppress expect/actual Beta warnings globally
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().configureEach {
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+}
+
 // Compiler workarounds no longer needed with Kotlin 2.2.21 and stable incremental compilation
 
 // WASM compilation workarounds no longer needed with Kotlin 2.2.21 Beta
@@ -459,8 +466,6 @@ tasks.register("publishToCentralPortalManually") {
         val username = localProperties.getProperty("mavenCentralUsername") 
             ?: throw GradleException("mavenCentralUsername not found in local.properties")
 
-        val signingKey = localProperties.getProperty("signingKey")
-            ?: throw GradleException("signingKey not found in local.properties")
         val signingPassword = localProperties.getProperty("signingPassword")
             ?: throw GradleException("signingPassword not found in local.properties")
             
@@ -565,14 +570,13 @@ tasks.register("publishToCentralPortalManually") {
                         }
                     }
 
-                    exec {
+                    providers.exec {
                         commandLine(
                             "bash", signScript.absolutePath.toWslPath(),
                             signingPassword, privateKeyFile.absolutePath.toWslPath(),
                             sigFile.absolutePath.toWslPath(), file.absolutePath.toWslPath()
                         )
-                        isIgnoreExitValue = false
-                    }
+                    }.result.get().assertNormalExitValue()
 
                     if (!sigFile.exists()) {
                         throw GradleException("Failed to create signature for ${file.name}")
@@ -598,9 +602,8 @@ tasks.register("publishToCentralPortalManually") {
             // Upload via Central Portal REST API
             val password = localProperties.getProperty("mavenCentralPassword")
             val authString = Base64.getEncoder().encodeToString("$username:$password".toByteArray())
-            
-            val uploadResult = exec {
-                isIgnoreExitValue = true
+
+        val uploadResult = providers.exec {
                 commandLine(
                     "curl", "-v", "-X", "POST",
                     "https://central.sonatype.com/api/v1/publisher/upload",
@@ -608,8 +611,9 @@ tasks.register("publishToCentralPortalManually") {
                     "-F", "bundle=@${zipFile.absolutePath}",
                     "--fail-with-body"
                 )
-            }
-            
+            isIgnoreExitValue = true
+        }.result.get()
+
             if (uploadResult.exitValue == 0) {
                 println("✅ Successfully uploaded to Central Portal!")
                 println("🔗 Check status at: https://central.sonatype.com/publishing/deployments")
@@ -660,7 +664,6 @@ tasks.register("publishToLegacyGroupId") {
             "summon-core" to "wasmJs"
         )
 
-        val allFiles = mutableListOf<File>()
 
         artifactMappings.forEach { (artifactId, _) ->
             val legacyMavenPath = "io/github/codeyousef/$artifactId/${project.version}"
@@ -697,7 +700,6 @@ tasks.register("publishToLegacyGroupId") {
         }
 
         // Rewrite coordinates in textual metadata to legacy group and fully re-sign/re-checksum everything
-        val textualExtensions = setOf(".pom", ".module", ".json")
         val needArtifactsPatterns = listOf(
             Regex(".*\\.pom$"),
             Regex(".*\\.module$"),
@@ -750,14 +752,13 @@ tasks.register("publishToLegacyGroupId") {
                 if (skipLegacyUpload) return else throw GradleException("Signing script missing: sign-artifact.sh")
             }
             val ascOut = File(target.parentFile, "${target.name}.asc")
-            exec {
+            providers.exec {
                 commandLine(
                     "bash", signScript.absolutePath,
                     signingPassword, privateKeyFile.absolutePath,
                     ascOut.absolutePath, target.absolutePath
                 )
-                isIgnoreExitValue = false
-            }
+            }.result.get().assertNormalExitValue()
             if (!ascOut.exists() && !skipLegacyUpload) {
                 throw GradleException("Failed to create signature for ${target.name}")
             }
@@ -818,8 +819,7 @@ tasks.register("publishToLegacyGroupId") {
             println("🚀 Uploading LEGACY bundle to Central Portal...")
             println("📦 Bundle: ${legacyZip.absolutePath}")
             println("👤 Username: ${username}")
-            val legacyUpload = exec {
-                isIgnoreExitValue = true
+            val legacyUpload = providers.exec {
                 commandLine(
                     "curl", "-v", "-X", "POST",
                     "https://central.sonatype.com/api/v1/publisher/upload",
@@ -827,7 +827,8 @@ tasks.register("publishToLegacyGroupId") {
                     "-F", "bundle=@${legacyZip.absolutePath}",
                     "--fail-with-body"
                 )
-            }
+                isIgnoreExitValue = true
+            }.result.get()
             if (legacyUpload.exitValue == 0) {
                 println("✅ Legacy upload successful! Validate at Central Portal UI.")
             } else {
@@ -849,281 +850,13 @@ tasks.register("publishToBothGroupIds") {
     description = "Publish to both codes.yousef and io.github.codeyousef (until 0.5.0.0)"
     dependsOn("publishToMavenLocal", "javadocJar")
     finalizedBy("publishToCentralPortalManually", "publishToLegacyGroupId")
-
-    doLast {
-        println("")
-        println("=" + "=".repeat(79))
-        println("📦 DUAL PUBLISHING COMPLETE")
-        println("=" + "=".repeat(79))
-        println("✅ Published to: codes.yousef (NEW)")
-        println("✅ Published to: io.github.codeyousef (LEGACY - until 0.5.0.0)")
-        println("")
-        println("⚠️  MIGRATION NOTICE:")
-        println("   Version 0.5.0.0 will be the LAST release under io.github.codeyousef")
-        println("   All future releases will ONLY be published to codes.yousef")
-        println("")
-        println("   Please update your dependencies to:")
-        println("   implementation(\"codes.yousef:summon:${project.version}\")")
-        println("=" + "=".repeat(79))
-    }
 }
 
-// Global Kotlin compiler flags to reduce warnings
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().configureEach {
-    compilerOptions {
-        freeCompilerArgs.addAll(
-            "-Xexpect-actual-classes",
-            "-Xuse-fir-lt=false",
-        )
-    }
+// Fix JS test compilation order - ensure main JS compilation completes first
+tasks.named("compileTestKotlinJs") {
+    dependsOn("compileKotlinJs")
 }
 
-// Phase 5: Production build optimization tasks
-tasks.register("buildOptimizedJS") {
-    group = "production"
-    description = "Build optimized JavaScript bundle for production"
-    dependsOn("jsBrowserProductionWebpack")
-
-    doLast {
-        println("✅ Optimized JavaScript bundle built successfully")
-        val outputDir = layout.buildDirectory.dir("kotlin-webpack/js/productionExecutable").get().asFile
-        if (outputDir.exists()) {
-            outputDir.listFiles()?.forEach { file ->
-                if (file.extension == "js") {
-                    val sizeKB = file.length() / 1024
-                    println("📦 ${file.name}: ${sizeKB}KB")
-                }
-            }
-        }
-    }
-}
-
-tasks.register("buildOptimizedWasm") {
-    group = "production"
-    description = "Build optimized WASM bundle for production"
-    dependsOn("wasmJsBrowserProductionWebpack")
-
-    doLast {
-        println("✅ Optimized WASM bundle built successfully")
-        val outputDir = layout.buildDirectory.dir("kotlin-webpack/wasmJs/productionExecutable").get().asFile
-        if (outputDir.exists()) {
-            outputDir.listFiles()?.forEach { file ->
-                if (file.extension in listOf("js", "wasm")) {
-                    val sizeKB = file.length() / 1024
-                    println("📦 ${file.name}: ${sizeKB}KB")
-                }
-            }
-        }
-    }
-}
-
-tasks.register("analyzeBundleSize") {
-    group = "analysis"
-    description = "Analyze and compare bundle sizes for JS and WASM"
-    dependsOn("buildOptimizedJS", "buildOptimizedWasm")
-
-    doLast {
-        println("📊 Bundle Size Analysis")
-        println("=".repeat(50))
-
-        val jsDir = layout.buildDirectory.dir("kotlin-webpack/js/productionExecutable").get().asFile
-        val wasmDir = layout.buildDirectory.dir("kotlin-webpack/wasmJs/productionExecutable").get().asFile
-
-        var jsTotalSize = 0L
-        var wasmTotalSize = 0L
-
-        if (jsDir.exists()) {
-            println("JavaScript Bundle:")
-            jsDir.listFiles()?.forEach { file ->
-                if (file.extension == "js") {
-                    val sizeKB = file.length() / 1024
-                    jsTotalSize += file.length()
-                    println("  📄 ${file.name}: ${sizeKB}KB")
-
-                    // Check for compressed versions
-                    val gzFile = File(file.parent, "${file.name}.gz")
-                    if (gzFile.exists()) {
-                        val gzSizeKB = gzFile.length() / 1024
-                        println("    📦 Gzipped: ${gzSizeKB}KB")
-                    }
-
-                    val brFile = File(file.parent, "${file.name}.br")
-                    if (brFile.exists()) {
-                        val brSizeKB = brFile.length() / 1024
-                        println("    📦 Brotli: ${brSizeKB}KB")
-                    }
-                }
-            }
-            println("  🔢 Total JS: ${jsTotalSize / 1024}KB")
-        }
-
-        if (wasmDir.exists()) {
-            println("\nWASM Bundle:")
-            wasmDir.listFiles()?.forEach { file ->
-                if (file.extension in listOf("js", "wasm")) {
-                    val sizeKB = file.length() / 1024
-                    wasmTotalSize += file.length()
-                    println("  📄 ${file.name}: ${sizeKB}KB")
-
-                    // Check for compressed versions
-                    val gzFile = File(file.parent, "${file.name}.gz")
-                    if (gzFile.exists()) {
-                        val gzSizeKB = gzFile.length() / 1024
-                        println("    📦 Gzipped: ${gzSizeKB}KB")
-                    }
-                }
-            }
-            println("  🔢 Total WASM: ${wasmTotalSize / 1024}KB")
-        }
-
-        println("\n📈 Comparison:")
-        if (jsTotalSize > 0 && wasmTotalSize > 0) {
-            val difference = ((wasmTotalSize - jsTotalSize).toFloat() / jsTotalSize * 100)
-            val comparison = if (difference > 0) "+${difference.toInt()}%" else "${difference.toInt()}%"
-            println("  WASM vs JS: $comparison")
-        }
-
-        // Check against Phase 5 verification criteria
-        val wasmSizeKB = wasmTotalSize / 1024
-        val jsSizeKB = jsTotalSize / 1024
-
-        println("\n✅ Phase 5 Verification:")
-        println("  WASM bundle < 500KB: ${if (wasmSizeKB < 500) "✅" else "❌"} (${wasmSizeKB}KB)")
-        println("  JS bundle < 200KB: ${if (jsSizeKB < 200) "✅" else "❌"} (${jsSizeKB}KB)")
-    }
-}
-
-tasks.register("optimizeForProduction") {
-    group = "production"
-    description = "Complete production optimization build"
-    dependsOn("buildOptimizedJS", "buildOptimizedWasm", "analyzeBundleSize")
-
-    doLast {
-        println("🚀 Production optimization complete!")
-        println("🔗 Next steps:")
-        println("  1. Review bundle analysis results")
-        println("  2. Deploy to CDN with proper caching headers")
-        println("  3. Configure server compression middleware")
-        println("  4. Set up performance monitoring")
-    }
-}
-
-tasks.register("benchmarkLoadTime") {
-    group = "analysis"
-    description = "Benchmark load time for different bundle strategies"
-    dependsOn("optimizeForProduction")
-
-    doLast {
-        println("⏱️ Load Time Benchmarking")
-        println("=".repeat(40))
-
-        // Simulate load time analysis
-        val jsDir = layout.buildDirectory.dir("kotlin-webpack/js/productionExecutable").get().asFile
-        val wasmDir = layout.buildDirectory.dir("kotlin-webpack/wasmJs/productionExecutable").get().asFile
-
-        if (jsDir.exists()) {
-            jsDir.listFiles()?.forEach { file ->
-                if (file.extension == "js") {
-                    val sizeKB = file.length() / 1024
-
-                    // Simulate load times (based on bundle size and typical connection speeds)
-                    val load3G = (sizeKB * 8) / 1024.0 // Rough estimate for 3G (1 Mbps)
-                    val load4G = (sizeKB * 8) / 10240.0 // Rough estimate for 4G (10 Mbps)
-                    val loadBroadband = (sizeKB * 8) / 51200.0 // Rough estimate for broadband (50 Mbps)
-
-                    println("JavaScript Bundle (${file.name}):")
-                    println("  📶 3G: ${String.format("%.2f", load3G)}s")
-                    println("  📶 4G: ${String.format("%.2f", load4G)}s")
-                    println("  🏠 Broadband: ${String.format("%.2f", loadBroadband)}s")
-                }
-            }
-        }
-
-        if (wasmDir.exists()) {
-            wasmDir.listFiles()?.forEach { file ->
-                if (file.extension == "wasm") {
-                    val sizeKB = file.length() / 1024
-
-                    // WASM load times (including compilation overhead)
-                    val compileOverhead = 0.2 // 200ms compilation time
-                    val load3G = (sizeKB * 8) / 1024.0 + compileOverhead
-                    val load4G = (sizeKB * 8) / 10240.0 + compileOverhead
-                    val loadBroadband = (sizeKB * 8) / 51200.0 + compileOverhead
-
-                    println("\nWASM Bundle (${file.name}):")
-                    println("  📶 3G: ${String.format("%.2f", load3G)}s")
-                    println("  📶 4G: ${String.format("%.2f", load4G)}s")
-                    println("  🏠 Broadband: ${String.format("%.2f", loadBroadband)}s")
-                }
-            }
-        }
-
-        println("\n📊 Time to Interactive Estimate:")
-        println("  Target: < 3 seconds")
-        println("  💡 Use resource hints and preloading for optimal performance")
-    }
-}
-
-tasks.register("generatePerformanceReport") {
-    group = "analysis"
-    description = "Generate comprehensive performance report"
-    dependsOn("benchmarkLoadTime")
-
-    doLast {
-        val reportFile = layout.buildDirectory.file("reports/performance-report.md").get().asFile
-        reportFile.parentFile.mkdirs()
-
-        val report = buildString {
-            appendLine("# Summon Framework Performance Report")
-            appendLine()
-            appendLine("Generated: ${LocalDateTime.now()}")
-            appendLine()
-
-            appendLine("## Bundle Analysis")
-
-            val jsDir = layout.buildDirectory.dir("dist/js/productionExecutable").get().asFile
-            val wasmDir = layout.buildDirectory.dir("dist/wasmJs/productionExecutable").get().asFile
-
-            if (jsDir.exists()) {
-                appendLine("### JavaScript Bundle")
-                jsDir.listFiles()?.forEach { file ->
-                    if (file.extension == "js") {
-                        val sizeKB = file.length() / 1024
-                        appendLine("- **${file.name}**: ${sizeKB}KB")
-                    }
-                }
-            }
-
-            if (wasmDir.exists()) {
-                appendLine("### WASM Bundle")
-                wasmDir.listFiles()?.forEach { file ->
-                    if (file.extension in listOf("js", "wasm")) {
-                        val sizeKB = file.length() / 1024
-                        appendLine("- **${file.name}**: ${sizeKB}KB")
-                    }
-                }
-            }
-
-            appendLine()
-            appendLine("## Optimization Features Enabled")
-            appendLine("- ✅ Dead code elimination")
-            appendLine("- ✅ Tree shaking")
-            appendLine("- ✅ Gzip compression")
-            appendLine("- ✅ Brotli compression")
-            appendLine("- ✅ Content hashing for CDN caching")
-            appendLine("- ✅ WASM async loading")
-            appendLine("- ✅ Bundle splitting (ready for implementation)")
-            appendLine()
-
-            appendLine("## Recommendations")
-            appendLine("1. **CDN Deployment**: Use content hashes for long-term caching")
-            appendLine("2. **Compression**: Enable Brotli on server for ~20% better compression")
-            appendLine("3. **Resource Hints**: Add preload/prefetch tags for critical resources")
-            appendLine("4. **Lazy Loading**: Implement for non-critical components")
-            appendLine("5. **Service Worker**: Cache static assets for offline support")
-        }
-
-        reportFile.writeText(report)
-        println("📋 Performance report generated: ${reportFile.absolutePath}")
-    }
+tasks.named("compileTestDevelopmentExecutableKotlinJs") {
+    dependsOn("compileKotlinJs", "jsMainClasses")
 }

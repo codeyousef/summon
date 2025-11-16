@@ -11,9 +11,15 @@ import kotlinx.browser.window
 import org.w3c.dom.HTMLElement
 
 /**
- * Entry point for Summon applications in the JS target.
- * This is automatically called when the page loads.
+ * Entry point for Summon applications in the JS target (CLIENT-SIDE RENDERING MODE).
+ *
+ * NOTE: This function is currently DISABLED to avoid conflicts with SSR hydration.
+ * For SSR applications, SummonHydrationClient.main() is used instead.
+ *
+ * To enable client-side rendering mode (no SSR), uncomment this function
+ * and comment out SummonHydrationClient.main() in SummonHydrationClient.kt
  */
+/*
 fun main() {
     // Initialize the platform renderer
     val renderer = PlatformRenderer()
@@ -27,6 +33,7 @@ fun main() {
         })
     }
 }
+*/
 
 /**
  * Creates a root element for the application if it doesn't exist.

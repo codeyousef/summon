@@ -10,7 +10,15 @@ private object SummonDomInitializer {
             """
         // Setup a global parent stack for compatibility with existing code
         if (typeof window.currentParent === 'undefined') {
-            window.currentParent = document.body;
+            // For SSR hydration, prefer the SSR root container over document.body
+            var ssrRoot = document.querySelector('[data-summon-hydration="root"]');
+            if (ssrRoot) {
+                console.log('Initialized currentParent to SSR root container');
+                window.currentParent = ssrRoot;
+            } else {
+                console.log('Initialized currentParent to document.body (no SSR root found)');
+                window.currentParent = document.body;
+            }
             window._parentStack = [];
             
             // Add compatibility layer for existing code
@@ -23,7 +31,9 @@ private object SummonDomInitializer {
                 if (window._parentStack.length > 0) {
                     window.currentParent = window._parentStack.pop();
                 } else {
-                    window.currentParent = document.body;
+                    // Fallback to SSR root or document.body
+                    var fallbackRoot = document.querySelector('[data-summon-hydration="root"]');
+                    window.currentParent = fallbackRoot || document.body;
                 }
             };
         }

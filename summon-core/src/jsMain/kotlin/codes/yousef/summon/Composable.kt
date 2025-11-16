@@ -15,13 +15,26 @@ private var globalRootContainer: HTMLElement? = null
  * This is a top-level function that's used by RenderUtils.renderComposable
  * to render a composable to a DOM element.
  *
+ * For SSR hydration, this should NOT be called. Instead, use SummonHydrationClient.
+ *
  * @param renderer The platform renderer to use
  * @param composable The composable to render
  * @param container The DOM element to render into
  */
 fun renderComposable(renderer: PlatformRenderer, composable: @Composable () -> Unit, container: HTMLElement) {
     globalRootContainer = container
-    container.innerHTML = ""
+
+    // Check if this is an SSR container with existing content
+    val isSSRContainer = container.getAttribute("data-summon-hydration") == "root" ||
+            container.getAttribute("data-ssr") == "true"
+
+    if (isSSRContainer) {
+        js("console.warn('renderComposable called on SSR container - this may break hydration. Use SummonHydrationClient instead.');")
+        // Don't clear the container in SSR mode - it contains server-rendered content
+    } else {
+        // Clear container only for client-side rendering
+        container.innerHTML = ""
+    }
 
     try {
         setPlatformRenderer(renderer)

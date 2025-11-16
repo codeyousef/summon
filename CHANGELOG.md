@@ -2,6 +2,53 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.8.2] - 2025-11-16
+
+### Fixed
+
+- **SSR Hydration Root Container Detection**: Fixed critical issue where the hydration client was defaulting to
+  `document.body` instead of locating the actual SSR root container emitted by `respondSummonHydrated`. The hydration
+  script now correctly finds and uses the server-rendered root element marked with `data-summon-root` attribute.
+
+- **Correct Hydration Mode**: Switched the top-level client boot process from `renderComposable` (render mode) to
+  `hydrate(...)` (hydration mode). This ensures event listeners are properly attached to the existing server-rendered
+  DOM elements instead of creating a parallel tree, which was causing onClick handlers to fail silently.
+
+- **Stable Callback ID Preservation**: Ensured callback IDs emitted during server-side rendering are preserved and
+  correctly matched during the hydration process. Button `onClick` events and other interactive features now function
+  correctly immediately after page load without requiring page refresh or additional user interaction.
+
+- **Ktor SSR Integration**: Enhanced `respondSummonHydrated` to emit a stable root container ID with proper
+  `data-summon-root` marker attribute. The hydration bundle is now included with preload hints for improved performance
+  and reliability in production SSR deployments.
+
+- **Kotlin Compiler Warnings**: Added `-Xexpect-actual-classes` compiler flag to suppress Beta warnings for
+  expect/actual classes across all targets. This eliminates hundreds of compilation warnings while maintaining type
+  safety and multiplatform functionality.
+
+- **Build Configuration**: Added proper `gradle.properties` generation to all CLI-generated projects with adequate
+  memory settings (2GB heap, 768MB metaspace) to prevent OOM errors during builds on resource-constrained environments.
+
+- **JS Test Compilation Order**: Fixed race condition where JS test compilation could start before main compilation
+  completed, causing `NoSuchFileException` for missing linkdata directories. Added explicit task dependencies to ensure
+  proper build order.
+
+### Changed
+
+- Updated all documentation, examples, CLI templates, and test fixtures to version 0.4.8.2
+- Improved hydration client logging to aid in debugging SSR integration issues
+- CLI-generated projects now include production-ready gradle.properties with optimized JVM settings
+- All generated build.gradle.kts files now include compiler flags to suppress known Beta API warnings
+
+### Technical Details
+
+This release resolves multiple production issues:
+
+1. **SSR Hydration**: The "Button onClick doesn't work after SSR hydration" issue is fully resolved with proper root
+   container detection and hydration mode
+2. **Build Reliability**: Eliminates compilation warnings and memory errors that affected developer experience
+3. **CI/CD Ready**: Generated projects now build cleanly in constrained environments (Docker, CI runners)
+
 ## [0.4.8.1] - 2025-01-16
 
 ### Fixed

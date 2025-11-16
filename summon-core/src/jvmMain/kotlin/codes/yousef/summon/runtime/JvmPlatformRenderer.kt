@@ -482,7 +482,7 @@ actual open class PlatformRenderer {
             </head>
             <body>
                 <!-- Server-rendered content with hydration markers -->
-                <div id="summon-app" data-ssr="true" data-hydration-ready="false">
+                <div id="summon-app" data-ssr="true" data-hydration-ready="false" data-summon-hydration="root">
                     $bodyContent
                 </div>
 

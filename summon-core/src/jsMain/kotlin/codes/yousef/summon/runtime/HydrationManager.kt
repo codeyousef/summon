@@ -6,6 +6,7 @@ import codes.yousef.summon.state.MutableState
 import codes.yousef.summon.state.mutableStateOf
 import kotlinx.browser.document
 import org.w3c.dom.Element
+import org.w3c.dom.HTMLElement
 
 /**
  * JavaScript implementation of HydrationManager.
@@ -38,43 +39,26 @@ actual class HydrationManager {
         }
 
         val component = registeredComponents[elementId] ?: return false
-        val element = document.getElementById(elementId) ?: return false
+        val element = document.getElementById(elementId) as? HTMLElement ?: return false
 
-        try {
-            // Create a recomposer for this component
-            val recomposer = RecomposerHolder.current()
+        return try {
+            console.log("Hydrating component: $elementId")
 
-            // Set up the platform renderer to target this specific element
-            val renderer = PlatformRenderer()
+            // For SSR hydration, we DON'T re-render the component
+            // Instead, we just attach event handlers to the existing DOM
+            // The SummonHydrationClient already handles this via attachClickHandlers
 
-            // Store the current parent and set it to our target element
-            val originalBody = document.body
-            js("window.currentParent = element")
+            // Mark as hydrated
+            hydratedComponents.add(elementId)
 
-            // Create a composer for this component
-            val composer = recomposer.createComposer()
+            // Set a data attribute to indicate successful hydration
+            element.setAttribute("data-hydration-ready", "true")
 
-            try {
-                // Clear the element's content first
-                element.innerHTML = ""
-
-                // Compose the component
-                composer.compose(component.composable)
-
-                // Mark as hydrated
-                hydratedComponents.add(elementId)
-
-                // Set up recomposition for this component
-                recomposer.setCompositionRoot(component.composable)
-
-                return true
-            } finally {
-                // Restore the original parent
-                js("window.currentParent = originalBody")
-            }
+            console.log("Component $elementId hydrated successfully")
+            true
         } catch (e: Exception) {
             console.error("Failed to hydrate component $elementId: ${e.message}")
-            return false
+            false
         }
     }
 

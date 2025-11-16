@@ -83,6 +83,7 @@ class ProjectGenerator(private val template: ProjectTemplate) {
         // Generate specific JS files
         generateBuildGradleKts(config.targetDirectory, variables, "js")
         generateSettingsGradleKts(config.targetDirectory, variables)
+        generateGradleProperties(config.targetDirectory)
         generateIndexHtml(config.targetDirectory, variables)
         generateMainKt(config.targetDirectory, variables, "js")
         generateGradleWrapper(config.targetDirectory)
@@ -94,6 +95,7 @@ class ProjectGenerator(private val template: ProjectTemplate) {
 
         generateSettingsGradleKts(config.targetDirectory, variables, listOf("app", "backend"))
         generateFullstackRootBuildGradle(config.targetDirectory, variables, "quarkus")
+        generateGradleProperties(config.targetDirectory)
 
         generateAppModule(appDir, variables)
         generateQuarkusBackendModule(backendDir, variables)
@@ -107,6 +109,7 @@ class ProjectGenerator(private val template: ProjectTemplate) {
 
         generateSettingsGradleKts(config.targetDirectory, variables, listOf("app", "backend"))
         generateFullstackRootBuildGradle(config.targetDirectory, variables, "spring-boot")
+        generateGradleProperties(config.targetDirectory)
 
         generateAppModule(appDir, variables)
         generateSpringBackendModule(backendDir, variables)
@@ -120,6 +123,7 @@ class ProjectGenerator(private val template: ProjectTemplate) {
 
         generateSettingsGradleKts(config.targetDirectory, variables, listOf("app", "backend"))
         generateFullstackRootBuildGradle(config.targetDirectory, variables, "ktor")
+        generateGradleProperties(config.targetDirectory)
 
         generateAppModule(appDir, variables)
         generateKtorBackendModule(backendDir, variables)
@@ -670,6 +674,13 @@ kotlin {
 tasks.named<org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack>("jsBrowserProductionWebpack") {
     mainOutputFileName = "${variables["PROJECT_NAME"]}.js"
 }
+
+// Suppress expect/actual Beta warnings
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().configureEach {
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+}
         """.trimIndent()
     }
 
@@ -733,6 +744,13 @@ publishing {
         }
     }
 }
+
+// Suppress expect/actual Beta warnings
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().configureEach {
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+}
         """.trimIndent()
     }
 
@@ -793,6 +811,13 @@ kotlin {
         val jsTest by getting
     }
 }
+
+// Suppress expect/actual Beta warnings
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().configureEach {
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+}
         """.trimIndent()
     }
 
@@ -826,6 +851,25 @@ kotlin {
     }
 
     private fun String.escapeForKotlinString(): String = this.replace("\\", "\\\\")
+
+    private fun generateGradleProperties(targetDir: File) {
+        val propertiesFile = File(targetDir, "gradle.properties")
+        val content = """
+# Gradle JVM Settings
+org.gradle.jvmargs=-Xmx2G -XX:MaxMetaspaceSize=768M -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+
+# Gradle Daemon Settings
+org.gradle.daemon=true
+org.gradle.parallel=true
+org.gradle.caching=true
+org.gradle.configureondemand=false
+
+# Kotlin Settings
+kotlin.code.style=official
+kotlin.mpp.stability.nowarn=true
+        """.trimIndent()
+        propertiesFile.writeText(content)
+    }
 
     private fun generateIndexHtml(targetDir: File, variables: Map<String, String>) {
         val resourcesDir = File(targetDir, "src/jsMain/resources")
