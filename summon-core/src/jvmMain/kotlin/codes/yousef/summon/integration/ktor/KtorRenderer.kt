@@ -182,6 +182,11 @@ class KtorRenderer {
         /**
          * Hydrated SSR response: renders a Summon component with hydration data/scripts.
          * Uses PlatformRenderer.renderComposableRootWithHydration to produce a full HTML document.
+         * 
+         * This method ensures callback context stability across coroutine thread switches,
+         * which is critical for SSR hydration to work correctly. Without this, callbacks
+         * registered during rendering may not match the callback IDs in the hydration data
+         * sent to the client, causing onClick handlers and other interactive features to fail.
          */
         suspend fun ApplicationCall.respondSummonHydrated(
             status: HttpStatusCode = HttpStatusCode.OK,
@@ -189,9 +194,17 @@ class KtorRenderer {
         ) {
             val renderer = PlatformRenderer()
             setPlatformRenderer(renderer)
+            
+            // Create stable callback context for this request to ensure callbacks
+            // registered during rendering can be reliably collected even if the
+            // coroutine switches threads (common in Ktor with thread pools)
+            val callbackContext = codes.yousef.summon.runtime.CallbackContextElement()
+            
             try {
-                val html = renderer.renderComposableRootWithHydration(content)
-                respondText(html, ContentType.Text.Html.withCharset(Charsets.UTF_8), status)
+                kotlinx.coroutines.withContext(callbackContext) {
+                    val html = renderer.renderComposableRootWithHydration(content)
+                    respondText(html, ContentType.Text.Html.withCharset(Charsets.UTF_8), status)
+                }
             } finally {
                 clearPlatformRenderer()
             }

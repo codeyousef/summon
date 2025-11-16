@@ -6,7 +6,7 @@ import java.util.*
 apply(from = "../version.gradle.kts")
 
 // Manual version override for now
-version = "0.4.8.0"
+version = "0.4.8.1"
 group = "codes.yousef"
 
 plugins {
@@ -174,6 +174,7 @@ kotlin {
                 implementation(libs.spring.boot.starter.webflux.jvm)
                 implementation(libs.reactor.kotlin.extensions.jvm)
                 implementation(libs.kotlinx.coroutines.reactor)
+                implementation(libs.kotlinx.coroutines.core)
 
                 implementation(libs.kotlinx.html.jvm)
                 implementation(libs.kotlinx.serialization.json.jvm)

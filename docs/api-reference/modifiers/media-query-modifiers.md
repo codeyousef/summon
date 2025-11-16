@@ -6,7 +6,7 @@ Type-safe media query support for responsive design in the Summon framework. Pro
 styles based on viewport dimensions, device characteristics, and user preferences.
 
 **Package**: `code.yousef.summon.modifier`  
-**Since**: 0.4.8.0
+**Since**: 0.4.8.1
 
 ---
 

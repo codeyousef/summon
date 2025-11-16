@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.8.1] - 2025-01-16
+
+### Fixed
+
+- **Critical SSR Callback Hydration Fix**: Fixed callback ID mismatch between server-rendered HTML and client-side hydration data in coroutine-based frameworks (Ktor, Spring WebFlux). The issue was caused by thread context switching during request handling, causing callbacks to be registered on one thread but collected from another. Implemented `CallbackContextElement` coroutine context element to maintain stable callback context across thread switches, ensuring onClick handlers and other interactive features hydrate correctly.
+
+### Changed
+
+- **Ktor Integration Enhancement**: Updated `respondSummonHydrated` to use coroutine-local callback context, ensuring reliable SSR hydration in production environments with thread pools and coroutine dispatchers.
+
 ## [0.4.8.0] - 2025-11-13
 
 ### 🚨 IMPORTANT: Group ID Migration

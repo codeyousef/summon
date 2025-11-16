@@ -714,6 +714,48 @@ fun handleRequest(): String {
 val globalRenderer = PlatformRenderer() // May hold onto resources
 ```
 
+#### 5. onClick handlers not working after hydration
+
+**Problem**: Buttons and interactive elements don't respond to clicks in the browser, despite being rendered correctly.
+
+**Symptoms**:
+- Callback IDs in HTML don't match hydration data
+- Console shows "Callback not found" warnings
+- No network requests to `/summon/callback` when clicking
+
+**Root Cause**: In coroutine-based frameworks (Ktor, Spring WebFlux), the request may be processed by different threads during coroutine suspension/resumption. This causes callbacks to be registered on one thread but collected from another, resulting in mismatched callback IDs.
+
+**Solution**: Ensure you're using version **0.4.8.1 or later** and the proper hydration method:
+
+```kotlin
+// Ktor - Use respondSummonHydrated (already includes the fix)
+get("/") {
+    call.respondSummonHydrated {
+        HomePage()
+    }
+}
+
+// Manual rendering - Ensure proper context
+suspend fun renderWithHydration(content: @Composable () -> Unit): String {
+    val renderer = PlatformRenderer()
+    setPlatformRenderer(renderer)
+    
+    val callbackContext = CallbackContextElement()
+    
+    return try {
+        withContext(callbackContext) {
+            renderer.renderComposableRootWithHydration(content)
+        }
+    } finally {
+        clearPlatformRenderer()
+    }
+}
+```
+
+**Why this works**: The `CallbackContextElement` maintains a stable callback context ID throughout the request lifecycle, even when the coroutine switches threads. This ensures callbacks registered during rendering are collected correctly for hydration.
+
+**Fixed in**: Version 0.4.8.1 (2025-01-16)
+
 ### Performance Issues
 
 #### Slow rendering
