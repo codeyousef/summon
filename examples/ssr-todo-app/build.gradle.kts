@@ -42,7 +42,7 @@ dependencies {
 }
 
 application {
-    mainClass.set("code.yousef.example.todo.TodoAppKt")
+    mainClass.set("codes.yousef.example.todo.TodoAppKt")
 }
 
 kotlin {

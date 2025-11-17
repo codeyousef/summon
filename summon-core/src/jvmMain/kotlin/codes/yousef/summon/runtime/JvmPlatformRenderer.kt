@@ -395,12 +395,47 @@ actual open class PlatformRenderer {
     }
 
     actual open fun renderComposableRootWithHydration(composable: @Composable () -> Unit): String {
+        val debugEnabled = System.getProperty("summon.debug.callbacks", "false").toBoolean()
+        
+        if (debugEnabled) {
+            val contextKeyBefore = callbackContextKey()
+            System.err.println("[Summon][SSR] Starting render with context key: $contextKeyBefore")
+        }
+        
         CallbackRegistry.beginRender()
+        
+        if (debugEnabled) {
+            val contextKeyAfterBegin = callbackContextKey()
+            System.err.println("[Summon][SSR] After beginRender, context key: $contextKeyAfterBegin")
+        }
+        
         return try {
             val bodyContent = renderComposableContent(composable)
+            
+            if (debugEnabled) {
+                System.err.println("[Summon][SSR] Body content rendered (${bodyContent.length} chars)")
+                val contextKeyBeforeCollect = callbackContextKey()
+                System.err.println("[Summon][SSR] Before collecting callbacks, context key: $contextKeyBeforeCollect")
+            }
+            
             val callbackIds = CallbackRegistry.finishRenderAndCollectCallbackIds()
+            
+            if (debugEnabled) {
+                System.err.println("[Summon][SSR] Collected ${callbackIds.size} callback IDs: $callbackIds")
+            }
+            
             val hydrationData = generateHydrationData(callbackIds)
-            createHydratedDocument(bodyContent, hydrationData)
+            val fullDoc = createHydratedDocument(bodyContent, hydrationData)
+            
+            if (debugEnabled) {
+                // Extract callback IDs from the HTML for verification
+                val htmlCallbackPattern = """data-onclick-id="([^"]+)"""".toRegex()
+                val htmlCallbacks = htmlCallbackPattern.findAll(fullDoc).map { it.groupValues[1] }.toList()
+                System.err.println("[Summon][SSR] Callback IDs in HTML: $htmlCallbacks")
+                System.err.println("[Summon][SSR] Callback IDs in hydration data: $callbackIds")
+            }
+            
+            fullDoc
         } finally {
             CallbackRegistry.abandonRenderContext()
         }
