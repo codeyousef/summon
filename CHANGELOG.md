@@ -6,7 +6,11 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- **Comprehensive Debug Logging**: Added detailed logging to diagnose callback ID mismatch issues in SSR hydration. Logs track callback context keys, registration, collection, and verification between HTML and hydration data. This helps identify why callback IDs may not match between rendering and hydration phases.
+- **Conditional Debug Logging**: Debug logging for callback lifecycle is now gated behind the `summon.debug.callbacks=true` system property. This prevents debug output from appearing in tests and production unless explicitly enabled. Enable with `-Dsummon.debug.callbacks=true` to diagnose callback ID mismatch issues. Logs track callback context keys, registration, collection, and verification between HTML and hydration data.
+
+### Changed
+
+- **Debug Logging Behavior**: All debug logs in `CallbackRegistry` and `renderComposableRootWithHydration` are now conditional and disabled by default to prevent interference with tests and production builds.
 
 ## [0.4.8.3] - 2025-01-17
 

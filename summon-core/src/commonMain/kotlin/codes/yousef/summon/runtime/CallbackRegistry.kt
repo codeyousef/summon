@@ -4,6 +4,7 @@ import kotlin.random.Random
 
 internal expect fun callbackContextKey(): Long
 internal expect class CallbackRegistryLock()
+internal expect fun isCallbackDebugEnabled(): Boolean
 
 internal expect fun <T> withCallbackRegistryLock(lock: CallbackRegistryLock, block: () -> T): T
 
@@ -34,7 +35,9 @@ object CallbackRegistry {
             val contextKey = callbackContextKey()
             registeredCallbacks[id] = CallbackEntry(callback, currentTimeMillis())
             val wasAdded = renderContexts[contextKey]?.add(id)
-            SummonLogger.log("[CallbackRegistry] Registered callback $id for context $contextKey (added to context: $wasAdded, context exists: ${renderContexts.containsKey(contextKey)})")
+            if (isCallbackDebugEnabled()) {
+                SummonLogger.log("[CallbackRegistry] Registered callback $id for context $contextKey (added to context: $wasAdded, context exists: ${renderContexts.containsKey(contextKey)})")
+            }
             id
         }
     }
@@ -72,7 +75,9 @@ object CallbackRegistry {
     fun finishRenderAndCollectCallbackIds(): Set<String> = withLock {
         val contextKey = callbackContextKey()
         val collected = renderContexts.remove(contextKey)?.toSet() ?: emptySet()
-        SummonLogger.log("[CallbackRegistry] finishRenderAndCollectCallbackIds for context $contextKey: collected ${collected.size} callbacks: $collected")
+        if (isCallbackDebugEnabled()) {
+            SummonLogger.log("[CallbackRegistry] finishRenderAndCollectCallbackIds for context $contextKey: collected ${collected.size} callbacks: $collected")
+        }
         collected
     }
 
@@ -109,7 +114,9 @@ object CallbackRegistry {
     fun beginRender() = withLock {
         val contextKey = callbackContextKey()
         renderContexts[contextKey] = mutableSetOf()
-        SummonLogger.log("[CallbackRegistry] beginRender for context $contextKey (total contexts: ${renderContexts.size})")
+        if (isCallbackDebugEnabled()) {
+            SummonLogger.log("[CallbackRegistry] beginRender for context $contextKey (total contexts: ${renderContexts.size})")
+        }
         purgeExpiredLocked()
     }
 

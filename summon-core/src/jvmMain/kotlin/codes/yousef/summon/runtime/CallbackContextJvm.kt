@@ -9,3 +9,10 @@ package codes.yousef.summon.runtime
  * - Coroutine-based applications (stable context across thread switches)
  */
 internal actual fun callbackContextKey(): Long = getStableCallbackContextKey()
+
+/**
+ * Returns whether callback debug logging is enabled via system property.
+ */
+internal actual fun isCallbackDebugEnabled(): Boolean {
+    return System.getProperty("summon.debug.callbacks", "false").toBoolean()
+}
