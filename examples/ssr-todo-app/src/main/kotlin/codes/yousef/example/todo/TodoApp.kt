@@ -11,10 +11,8 @@ import codes.yousef.example.todo.models.*
 import codes.yousef.example.todo.services.SessionTodoService
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.integration.ktor.KtorRenderer.Companion.respondSummonHydrated
 import codes.yousef.summon.modifier.Modifier
-import codes.yousef.summon.runtime.PlatformRenderer
-import codes.yousef.summon.runtime.clearPlatformRenderer
-import codes.yousef.summon.runtime.setPlatformRenderer
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -147,15 +145,14 @@ fun Route.todoRoutes() {
         editingTodoId: Int? = null,
         editFormState: FormState = FormState.success()
     ) {
-        val renderer = PlatformRenderer()
-        setPlatformRenderer(renderer)
         try {
             val session = getTodoSession()
             val todoService = SessionTodoService(session)
             val todos = todoService.getAll()
             val stats = todoService.getStats()
 
-            val html = renderer.renderComposableRoot {
+            // Use respondSummonHydrated for proper SSR with callback hydration
+            respondSummonHydrated {
                 TodoApp(
                     todos = todos,
                     stats = stats,
@@ -164,15 +161,12 @@ fun Route.todoRoutes() {
                     editFormState = editFormState
                 )
             }
-            respondText(html, ContentType.Text.Html)
         } catch (e: Exception) {
             respondText(
                 "Error: ${e.message}",
                 ContentType.Text.Html,
                 HttpStatusCode.InternalServerError
             )
-        } finally {
-            clearPlatformRenderer()
         }
     }
 

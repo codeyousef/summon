@@ -20,6 +20,9 @@ object CallbackRegistry {
     private val lock = CallbackRegistryLock()
     private val registeredCallbacks = mutableMapOf<String, CallbackEntry>()
     private val renderContexts = mutableMapOf<Long, MutableSet<String>>()
+
+    // Store per-context counters instead of global counter to avoid mismatch
+    private val contextCounters = mutableMapOf<Long, Long>()
     private var callbackCounter = 0L
 
     /**
@@ -37,6 +40,12 @@ object CallbackRegistry {
             val wasAdded = renderContexts[contextKey]?.add(id)
             if (isCallbackDebugEnabled()) {
                 SummonLogger.log("[CallbackRegistry] Registered callback $id for context $contextKey (added to context: $wasAdded, context exists: ${renderContexts.containsKey(contextKey)})")
+                // Log stack trace to see WHERE this callback is being registered from
+                try {
+                    throw Exception("Callback registration stack trace")
+                } catch (e: Exception) {
+                    SummonLogger.log("[CallbackRegistry] Registration location:\n${e.stackTraceToString().take(500)}")
+                }
             }
             id
         }
@@ -114,6 +123,8 @@ object CallbackRegistry {
     fun beginRender() = withLock {
         val contextKey = callbackContextKey()
         renderContexts[contextKey] = mutableSetOf()
+        // Reset counter for this context to ensure consistent IDs
+        contextCounters[contextKey] = 0L
         if (isCallbackDebugEnabled()) {
             SummonLogger.log("[CallbackRegistry] beginRender for context $contextKey (total contexts: ${renderContexts.size})")
         }
@@ -125,7 +136,9 @@ object CallbackRegistry {
      * Typically `finishRenderAndCollectCallbackIds` should be used instead.
      */
     fun abandonRenderContext() = withLock {
-        renderContexts.remove(callbackContextKey())
+        val contextKey = callbackContextKey()
+        renderContexts.remove(contextKey)
+        contextCounters.remove(contextKey)
     }
 
     private fun <T> withLock(block: () -> T): T = withCallbackRegistryLock(lock, block)
@@ -143,7 +156,15 @@ object CallbackRegistry {
     }
 
     private fun nextCallbackIdLocked(): String {
-        val counter = ++callbackCounter
+        val contextKey = callbackContextKey()
+        // Use per-context counter if available, otherwise fall back to global
+        val counter = if (contextCounters.containsKey(contextKey)) {
+            val current = contextCounters[contextKey]!!
+            contextCounters[contextKey] = current + 1
+            current + 1
+        } else {
+            ++callbackCounter
+        }
         return buildString {
             append("cb-")
             append(counter.toString(16))

@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.8.8] - 2025-11-17
+
+### Fixed
+
+- **Critical SSR Callback ID Mismatch**: Fixed bug where callback IDs in server-rendered HTML didn't match the callback
+  IDs in hydration data
+    - **Symptom**: Button with `data-onclick-id="cb-1-6063"` in HTML, but hydration data contained `cb-2-1844`, causing
+      clicks to fail
+    - **Root Cause**: Global `callbackCounter` was shared across all render contexts, incrementing whenever ANY callback
+      was registered anywhere
+    - **Solution**: Implemented per-context callback counters that reset to 0 when `beginRender()` is called for each
+      SSR request
+    - **Impact**: onClick handlers, form submissions, and all interactive features now work correctly in SSR
+      applications
+    - **No breaking changes** - pure bug fix
+
 ## [0.4.8.7] - 2025-11-17
 
 ### Fixed
