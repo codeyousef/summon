@@ -16,7 +16,7 @@ import kotlin.test.assertTrue
  * even in coroutine contexts where threads may switch during rendering.
  * 
  * This test validates the fix for the critical SSR callback hydration issue
- * resolved in version 0.4.8.6.
+ * resolved in version 0.4.8.7.
  */
 class CallbackHydrationTest {
 

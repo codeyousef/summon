@@ -651,7 +651,7 @@ actual open class PlatformRenderer {
         val rootElement = document.createElement("div")
         rootElement.setAttribute("data-summon-hydration", "root")
         rootElement.setAttribute("data-summon-renderer", "js")
-        rootElement.setAttribute("data-summon-version", js("globalThis.SUMMON_VERSION") ?: "0.4.8.6")
+        rootElement.setAttribute("data-summon-version", js("globalThis.SUMMON_VERSION") ?: "0.4.8.7")
 
         elementStack.withElement(rootElement) {
             composable()

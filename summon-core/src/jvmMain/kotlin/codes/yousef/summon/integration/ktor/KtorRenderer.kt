@@ -201,10 +201,13 @@ class KtorRenderer {
             val callbackContext = codes.yousef.summon.runtime.CallbackContextElement()
             
             try {
-                kotlinx.coroutines.withContext(callbackContext) {
-                    val html = renderer.renderComposableRootWithHydration(content)
-                    respondText(html, ContentType.Text.Html.withCharset(Charsets.UTF_8), status)
+                // CRITICAL: Install callback context BEFORE rendering starts
+                // withContext is not enough because renderComposableRootWithHydration is not suspend
+                val html = kotlinx.coroutines.withContext(callbackContext) {
+                    // The context is now properly installed in the thread-local before rendering
+                    renderer.renderComposableRootWithHydration(content)
                 }
+                respondText(html, ContentType.Text.Html.withCharset(Charsets.UTF_8), status)
             } finally {
                 clearPlatformRenderer()
             }
