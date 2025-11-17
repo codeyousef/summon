@@ -31,8 +31,10 @@ object CallbackRegistry {
         return withLock {
             purgeExpiredLocked()
             val id = nextCallbackIdLocked()
+            val contextKey = callbackContextKey()
             registeredCallbacks[id] = CallbackEntry(callback, currentTimeMillis())
-            renderContexts[callbackContextKey()]?.add(id)
+            val wasAdded = renderContexts[contextKey]?.add(id)
+            SummonLogger.log("[CallbackRegistry] Registered callback $id for context $contextKey (added to context: $wasAdded, context exists: ${renderContexts.containsKey(contextKey)})")
             id
         }
     }
@@ -68,7 +70,10 @@ object CallbackRegistry {
      * The callbacks remain available for execution after this call.
      */
     fun finishRenderAndCollectCallbackIds(): Set<String> = withLock {
-        renderContexts.remove(callbackContextKey())?.toSet() ?: emptySet()
+        val contextKey = callbackContextKey()
+        val collected = renderContexts.remove(contextKey)?.toSet() ?: emptySet()
+        SummonLogger.log("[CallbackRegistry] finishRenderAndCollectCallbackIds for context $contextKey: collected ${collected.size} callbacks: $collected")
+        collected
     }
 
     /**
@@ -102,7 +107,9 @@ object CallbackRegistry {
      * are tracked so they can be embedded into hydration metadata.
      */
     fun beginRender() = withLock {
-        renderContexts[callbackContextKey()] = mutableSetOf()
+        val contextKey = callbackContextKey()
+        renderContexts[contextKey] = mutableSetOf()
+        SummonLogger.log("[CallbackRegistry] beginRender for context $contextKey (total contexts: ${renderContexts.size})")
         purgeExpiredLocked()
     }
 
