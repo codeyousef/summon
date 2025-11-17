@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.4.8.5] - 2025-11-17
+## [0.4.8.6] - 2025-11-17
 
 ### Fixed
 
@@ -35,7 +35,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Updated all documentation, examples, CLI templates, and test fixtures to version 0.4.8.5
+- Updated all documentation, examples, CLI templates, and test fixtures to version 0.4.8.6
 - Improved hydration client logging to aid in debugging SSR integration issues
 - CLI-generated projects now include production-ready gradle.properties with optimized JVM settings
 - All generated build.gradle.kts files now include compiler flags to suppress known Beta API warnings
@@ -59,7 +59,7 @@ This release resolves multiple production issues:
 
 - **Ktor Integration Enhancement**: Updated `respondSummonHydrated` to use coroutine-local callback context, ensuring reliable SSR hydration in production environments with thread pools and coroutine dispatchers.
 
-## [0.4.8.5] - 2025-11-13
+## [0.4.8.6] - 2025-11-13
 
 ### 🚨 IMPORTANT: Group ID Migration
 
@@ -74,13 +74,13 @@ This release resolves multiple production issues:
 
 ```kotlin
 // Old (deprecated)
-implementation("io.github.codeyousef:summon:0.4.8.5")
+implementation("io.github.codeyousef:summon:0.4.8.6")
 
 // New (use this!)
-implementation("codes.yousef:summon:0.4.8.5")
+implementation("codes.yousef:summon:0.4.8.6")
 ```
 
-Both group IDs are published for versions 0.4.8.5 through 0.5.0.0 for backward compatibility.
+Both group IDs are published for versions 0.4.8.6 through 0.5.0.0 for backward compatibility.
 
 ### Added
 

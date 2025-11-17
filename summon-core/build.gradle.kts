@@ -5,7 +5,7 @@ import java.util.*
 apply(from = "../version.gradle.kts")
 
 // Manual version override for now
-version = "0.4.8.5"
+version = "0.4.8.6"
 group = "codes.yousef"
 
 plugins {
@@ -302,8 +302,12 @@ tasks.register<Copy>("copyJsHydrationBundle") {
     dependsOn("jsBrowserDistribution")
 
     val jsOutputFile = layout.buildDirectory.file("dist/js/productionExecutable/summon-hydration.js")
+    val sourceMapFile = layout.buildDirectory.file("dist/js/productionExecutable/summon-hydration.js.map")
+    
     from(jsOutputFile)
-    into(layout.buildDirectory.dir("resources/jvm/main/static"))
+
+    // Copy to source directory so it's included in the JAR
+    into(file("src/jvmMain/resources/static"))
     
     // Only run if the JS file exists
     onlyIf {
@@ -311,7 +315,9 @@ tasks.register<Copy>("copyJsHydrationBundle") {
     }
     
     doLast {
-        println("Copied Summon hydration bundle to JVM resources")
+        println("Copied Summon hydration bundle to src/jvmMain/resources/static/ (will be included in JAR)")
+        val destFile = file("src/jvmMain/resources/static/summon-hydration.js")
+        println("Bundle size: ${destFile.length() / 1024}KB")
     }
 }
 

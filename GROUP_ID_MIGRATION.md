@@ -1,6 +1,6 @@
 # Group ID Migration Guide
 
-**Effective Date**: November 13, 2025 (Version 0.4.8.5)  
+**Effective Date**: November 13, 2025 (Version 0.4.8.6)  
 **Completion Date**: Version 0.5.1.0 (estimated Q1 2026)
 
 ---
@@ -23,7 +23,7 @@ the migration timeline, steps, and what you need to do.
 
 ## Migration Timeline
 
-### Phase 1: Dual Publishing (Current - 0.4.8.5 through 0.5.0.0)
+### Phase 1: Dual Publishing (Current - 0.4.8.6 through 0.5.0.0)
 
 **Status**: ✅ Active  
 **Duration**: ~2-3 months
@@ -37,7 +37,7 @@ the migration timeline, steps, and what you need to do.
 
 **Versions in this phase**:
 
-- 0.4.8.5 ✅
+- 0.4.8.6 ✅
 - 0.4.9.0 (planned)
 - 0.5.0.0 ⚠️ FINAL version on old group ID
 
@@ -73,8 +73,8 @@ dependencies {
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("codes.yousef:summon:0.4.8.5")
-    implementation("codes.yousef:summon-jvm:0.4.8.5")
+    implementation("codes.yousef:summon:0.4.8.6")
+    implementation("codes.yousef:summon-jvm:0.4.8.6")
 }
 ```
 
@@ -113,7 +113,7 @@ Update to `codes.yousef` in your `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    api("codes.yousef:summon:0.4.8.5")  // Use 'api' for libraries
+    api("codes.yousef:summon:0.4.8.6")  // Use 'api' for libraries
 }
 ```
 
@@ -162,7 +162,7 @@ Ensure transitive dependencies resolve correctly:
 
 ## Troubleshooting
 
-### Issue: "Cannot resolve codes.yousef:summon:0.4.8.5"
+### Issue: "Cannot resolve codes.yousef:summon:0.4.8.6"
 
 **Solution**:
 
@@ -181,7 +181,7 @@ Ensure transitive dependencies resolve correctly:
 configurations.all {
     resolutionStrategy {
         // Force new group ID
-        force("codes.yousef:summon:0.4.8.5")
+        force("codes.yousef:summon:0.4.8.6")
 
         // Exclude old group ID
         exclude(group = "io.github.codeyousef", module = "summon")
@@ -195,7 +195,7 @@ configurations.all {
 Use consistent versions across all Summon dependencies:
 
 ```kotlin
-val summonVersion = "0.4.8.5"
+val summonVersion = "0.4.8.6"
 
 dependencies {
     implementation("codes.yousef:summon:$summonVersion")
@@ -220,7 +220,7 @@ Update your workflow files:
 # After
 - name: Add dependencies
   run: |
-    implementation("codes.yousef:summon:0.4.8.5")
+    implementation("codes.yousef:summon:0.4.8.6")
 ```
 
 ### Jenkins, GitLab CI, etc.
@@ -234,7 +234,7 @@ Update any hardcoded dependency strings in your pipeline scripts.
 | Summon Version | io.github.codeyousef | codes.yousef | Recommended               |
 |----------------|----------------------|--------------|---------------------------|
 | 0.4.7.0        | ✅                    | ❌            | Upgrade                   |
-| 0.4.8.5        | ✅                    | ✅            | **Use codes.yousef**      |
+| 0.4.8.6        | ✅                    | ✅            | **Use codes.yousef**      |
 | 0.4.9.0        | ✅                    | ✅            | **Use codes.yousef**      |
 | 0.5.0.0        | ✅ FINAL              | ✅            | **Use codes.yousef**      |
 | 0.5.1.0+       | ❌                    | ✅            | **Must use codes.yousef** |
@@ -294,7 +294,7 @@ Need help with migration?
 ## Timeline Summary
 
 ```
-November 2025: 0.4.8.5 released (dual publishing begins)
+November 2025: 0.4.8.6 released (dual publishing begins)
     ↓
 December 2025: 0.4.9.0 (dual publishing continues)
     ↓
@@ -332,5 +332,5 @@ and community in the long term.
 ---
 
 **Last Updated**: November 13, 2025  
-**Applies to**: Summon 0.4.8.5 and later
+**Applies to**: Summon 0.4.8.6 and later
 
