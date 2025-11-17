@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.8.4] - 2025-01-17
+
+### Added
+
+- **Comprehensive Debug Logging**: Added detailed logging to diagnose callback ID mismatch issues in SSR hydration. Logs track callback context keys, registration, collection, and verification between HTML and hydration data. This helps identify why callback IDs may not match between rendering and hydration phases.
+
 ## [0.4.8.3] - 2025-01-17
 
 ### Fixed
