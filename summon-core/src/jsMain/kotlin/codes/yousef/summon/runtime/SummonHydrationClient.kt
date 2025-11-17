@@ -66,7 +66,24 @@ object SummonHydrationClient {
                 SummonLogger.log("Button $i HTML: ${button.outerHTML}")
             }
 
-            // Hydrate all interactive elements
+            // Discover SSR root for proper hydration
+            val rootElement: Element? =
+                document.getElementById("summon-app")
+                    ?: document.querySelector("[data-summon-hydration=\"root\"]") as? Element
+
+            if (rootElement != null) {
+                SummonLogger.log(
+                    "Found SSR root element for hydration: id='${rootElement.id}', data-summon-hydration='${
+                        rootElement.getAttribute(
+                            "data-summon-hydration"
+                        )
+                    }'"
+                )
+            } else {
+                SummonLogger.warn("No SSR root element found (id='summon-app' or [data-summon-hydration=\"root\"]). Hydration will still attach handlers to existing DOM but without a known root container.")
+            }
+
+            // Hydrate all interactive elements (attach handlers to existing SSR DOM)
             hydrateClickHandlers(hydrationData)
             hydrateFormInputs()
 

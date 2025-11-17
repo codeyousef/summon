@@ -46,8 +46,29 @@ actual object RenderUtils {
     }
 
     actual fun hydrate(container: Any, composable: @Composable () -> Unit): Renderer<Any> {
-        // For now, hydrate falls back to renderComposable
-        return renderComposable(container, composable)
+        val htmlContainer = container as? HTMLElement
+            ?: throw IllegalArgumentException("Container must be an HTMLElement for JS target")
+
+        // IMPORTANT: do not clear SSR content when hydrating
+        parentStack.addLast(currentParent)
+        currentParent = htmlContainer
+
+        try {
+            composable()
+        } finally {
+            currentParent = parentStack.removeLastOrNull() ?: (document.body ?: error("document.body is null"))
+        }
+
+        return object : Renderer<Any> {
+            override fun render(composable: @Composable () -> Unit): Any {
+                // Subsequent renders can use a normal client render
+                return renderComposable(htmlContainer, composable)
+            }
+
+            override fun dispose() {
+                // No-op for now
+            }
+        }
     }
 
     actual fun renderToFile(composable: @Composable () -> Unit, file: Any) {
