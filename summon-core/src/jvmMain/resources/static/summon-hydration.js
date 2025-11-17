@@ -57,14 +57,29 @@
     function attachClickHandlers(root, hydration) {
         // Prefer explicit callback registry if provided; otherwise, use data attributes
         var callbackMap = hydration && hydration.callbacks ? hydration.callbacks : null;
+        // Convert array to set for faster lookup
+        var callbackSet = null;
+        if (callbackMap) {
+            if (Array.isArray(callbackMap)) {
+                callbackSet = new Set(callbackMap);
+            } else {
+                // If it's an object, use it as-is
+                callbackSet = callbackMap;
+            }
+        }
         var clickable = root.querySelectorAll('[data-onclick-action="true"][data-onclick-id]');
         var count = 0;
         clickable.forEach(function (el) {
             var id = el.getAttribute('data-onclick-id');
             if (!id) return;
-            if (callbackMap && !callbackMap[id]) {
-                // If a registry is present and this id is missing, skip to avoid invalid calls
-                return;
+            // Check if callback ID exists in the registry
+            if (callbackSet) {
+                var exists = (callbackSet instanceof Set) ? callbackSet.has(id) : callbackSet[id];
+                if (!exists) {
+                    // If a registry is present and this id is missing, skip to avoid invalid calls
+                    warn('Callback ID not found in hydration data: ' + id);
+                    return;
+                }
             }
             // Prevent double-binding
             if (el.__summon_hydrated_click__) return;

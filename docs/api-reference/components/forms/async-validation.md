@@ -6,7 +6,7 @@ Enhanced form validation system with asynchronous validation support for server-
 validators, state management, and seamless integration with existing synchronous validators.
 
 **Package**: `code.yousef.summon.components.forms`  
-**Since**: 1.0.0 (async support added in 0.4.8.1)
+**Since**: 1.0.0 (async support added in 0.4.8.3)
 
 ---
 

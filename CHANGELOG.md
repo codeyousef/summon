@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.8.3] - 2025-01-17
+
+### Fixed
+
+- **Critical Hydration Script Bug**: Fixed callback ID validation in the hydration script that was preventing onClick handlers from being attached. The script was checking for callback IDs in an object format (`callbackMap[id]`), but the server was sending them as an array (`["cb-1-2345"]`). Updated the script to handle both array and object formats correctly, ensuring onClick handlers are properly attached during hydration.
+
 ## [0.4.8.2] - 2025-11-16
 
 ### Fixed

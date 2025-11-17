@@ -8,7 +8,7 @@ constraints.
 
 **Platform**: JS only  
 **Package**: `code.yousef.summon.runtime`  
-**Since**: 0.4.8.1
+**Since**: 0.4.8.3
 
 ---
 
