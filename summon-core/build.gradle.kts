@@ -5,7 +5,7 @@ import java.util.*
 apply(from = "../version.gradle.kts")
 
 // Manual version override for now
-version = "0.4.8.8"
+version = "0.4.8.9"
 group = "codes.yousef"
 
 plugins {
@@ -102,6 +102,9 @@ kotlin {
                 }
                 // WASM-specific configuration
                 devtool = "source-map"
+
+                // Ensure stable output filename for hydration WASM JS wrapper
+                outputFileName = "summon-hydration.wasm.js"
             }
             testTask {
                 // Skip browser tests in CI/headless environments where browsers aren't available
@@ -297,33 +300,57 @@ tasks.getByName<org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack>("j
     mainOutputFileName = "summon-hydration.js"
 }
 
-// Copy the generated JS bundle to JVM resources for serving
-tasks.register<Copy>("copyJsHydrationBundle") {
-    dependsOn("jsBrowserDistribution")
+// Copy the generated JS + WASM bundles to JVM resources for serving
+val summonHydrationOutputDir = layout.buildDirectory.dir("dist/js/productionExecutable")
+val wasmOutputDir = layout.buildDirectory.dir("kotlin-webpack/wasmJs/productionExecutable")
 
-    val jsOutputFile = layout.buildDirectory.file("dist/js/productionExecutable/summon-hydration.js")
-    val sourceMapFile = layout.buildDirectory.file("dist/js/productionExecutable/summon-hydration.js.map")
-    
+tasks.register<Copy>("copyHydrationBundles") {
+    dependsOn("jsBrowserDistribution", "wasmJsBrowserProductionWebpack")
+
+    val jsOutputFile = summonHydrationOutputDir.map { it.file("summon-hydration.js") }
+    val wasmJsOutputFile = wasmOutputDir.map { it.file("summon-hydration.wasm.js") }
+    val wasmHashedOutputFile = wasmOutputDir.map { dir ->
+        dir.asFile.listFiles()?.firstOrNull { it.extension == "wasm" } ?: File("/nonexistent")
+    }
+
     from(jsOutputFile)
+    from(wasmJsOutputFile)
+    // Rename hashed wasm file to stable summon-hydration.wasm
+    from(wasmHashedOutputFile) {
+        rename { "summon-hydration.wasm" }
+    }
+
+    // Also expose core and vendor bundles under /static/
+    from(jsOutputFile) {
+        into("static")
+        rename { "summon-core.js" }
+    }
+    from(wasmJsOutputFile) {
+        into("static")
+        rename { "vendors.js" }
+    }
 
     // Copy to source directory so it's included in the JAR
     into(file("src/jvmMain/resources/static"))
-    
-    // Only run if the JS file exists
+
+    // Only run if at least the JS file exists
     onlyIf {
         jsOutputFile.get().asFile.exists()
     }
-    
+
     doLast {
-        println("Copied Summon hydration bundle to src/jvmMain/resources/static/ (will be included in JAR)")
-        val destFile = file("src/jvmMain/resources/static/summon-hydration.js")
-        println("Bundle size: ${destFile.length() / 1024}KB")
+        println("Copied Summon hydration bundles to src/jvmMain/resources/static/ (will be included in JAR)")
+        println(" - JS: summon-hydration.js")
+        println(" - WASM JS wrapper: summon-hydration.wasm.js")
+        println(" - WASM binary (renamed): summon-hydration.wasm")
+        println(" - Core JS: static/summon-core.js")
+        println(" - Vendors JS: static/vendors.js")
     }
 }
 
-// Ensure the JS bundle is copied before JVM resources are processed
+// Ensure the bundles are copied before JVM resources are processed
 tasks.named<ProcessResources>("jvmProcessResources") {
-    dependsOn("copyJsHydrationBundle")
+    dependsOn("copyHydrationBundles")
 }
 
 tasks.register("verifyQuarkusIntegration") {

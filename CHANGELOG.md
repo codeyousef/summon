@@ -2,7 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.4.8.8] - 2025-11-17
+## [0.4.8.9] - 2025-11-18
+
+### Added
+
+- **First-class Hydration Bundles in Summon Core**
+  - Summon now builds and embeds all hydration bundles directly into the JVM artifact so consuming apps don’t need custom asset wiring.
+  - Assets are emitted under stable, loader-friendly URLs:
+    - `/summon-hydration.js`
+    - `/summon-hydration.wasm`
+    - `/summon-hydration.wasm.js`
+    - `/static/summon-core.js`
+    - `/static/vendors.js`
+  - The new `copyHydrationBundles` Gradle task runs before `jvmProcessResources` to ensure bundles are present in `resources/static` for all JVM integrations.
+
+### Fixed
+
+- **WASM Hydration Asset Mismatch**: Ensured the Kotlin/Wasm browser build emits the hydration wrapper with a stable file name (`summon-hydration.wasm.js`) and the `.wasm` binary is renamed to `summon-hydration.wasm` inside the JAR.
+- **Consuming App 404s on Hydration Assets**: Eliminated the need for downstream projects to manually copy or rename hydration bundles; any Summon-based Ktor/Spring/Quarkus server that serves classpath `static` resources will now satisfy the loader’s 5 URLs out of the box.
+
+## [0.4.8.8] - 2025-11-17 (internal reference, superseded by 0.4.8.9)
 
 ### Fixed
 
