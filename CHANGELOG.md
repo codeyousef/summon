@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.9.0] - 2025-11-18
+
+### Fixed
+
+- **WASM Hydration Bundle Detection**: Fixed a critical issue in `summon-hydration.wasm.js` where accessing `process.release.name` without checking for `process.release` existence caused a `TypeError` in Firefox and other browsers. This ensures reliable hydration across all supported environments.
+
 ## [0.4.8.9] - 2025-11-18
 
 ### Added

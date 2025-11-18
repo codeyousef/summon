@@ -5,7 +5,7 @@ import java.util.*
 apply(from = "../version.gradle.kts")
 
 // Manual version override for now
-version = "0.4.8.9"
+version = "0.4.9.0"
 group = "codes.yousef"
 
 plugins {
@@ -314,7 +314,14 @@ tasks.register<Copy>("copyHydrationBundles") {
     }
 
     from(jsOutputFile)
-    from(wasmJsOutputFile)
+    from(wasmJsOutputFile) {
+        filter { line ->
+            line.replace(
+                "\"undefined\"!=typeof process&&\"node\"===process.release.name",
+                "\"undefined\"!=typeof process&&process.release&&\"node\"===process.release.name"
+            )
+        }
+    }
     // Rename hashed wasm file to stable summon-hydration.wasm
     from(wasmHashedOutputFile) {
         rename { "summon-hydration.wasm" }
@@ -328,6 +335,12 @@ tasks.register<Copy>("copyHydrationBundles") {
     from(wasmJsOutputFile) {
         into("static")
         rename { "vendors.js" }
+        filter { line ->
+            line.replace(
+                "\"undefined\"!=typeof process&&\"node\"===process.release.name",
+                "\"undefined\"!=typeof process&&process.release&&\"node\"===process.release.name"
+            )
+        }
     }
 
     // Copy to source directory so it's included in the JAR

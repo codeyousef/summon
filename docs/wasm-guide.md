@@ -54,7 +54,7 @@ Create a new WASM project:
 # Or use the native executable directly
 
 # Create a new project (start from the standalone template)
-java -jar summon-cli-0.4.8.9.jar init my-wasm-app --mode=standalone
+java -jar summon-cli-0.4.9.0.jar init my-wasm-app --mode=standalone
 
 # Navigate to project
 cd my-wasm-app
@@ -152,9 +152,9 @@ kotlin {
         val wasmJsMain by getting {
             dependencies {
                 // New group ID (preferred)
-                implementation("codes.yousef:summon-wasm-js:0.4.8.9")
+                implementation("codes.yousef:summon-wasm-js:0.4.9.0")
                 // Legacy (deprecated; supported only until 0.5.0.0)
-                // implementation("io.github.codeyousef:summon-wasm-js:0.4.8.9")
+                // implementation("io.github.codeyousef:summon-wasm-js:0.4.9.0")
             }
         }
 
