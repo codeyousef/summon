@@ -166,6 +166,7 @@ class InitCommandIntegrationTest {
             "Scripts are not yet supported with K2"
         )
         val webpackWarningPattern = Regex("\\[\\d+ warnings?]")
+        val webpackPerformancePattern = Regex("asset size limit:|entrypoint size limit:|webpack performance recommendations", RegexOption.IGNORE_CASE)
 
         return output
             .lineSequence()
@@ -177,7 +178,7 @@ class InitCommandIntegrationTest {
             .filterNot { line ->
                 toleratedFragments.any { fragment ->
                     line.contains(fragment, ignoreCase = true)
-                } || webpackWarningPattern.containsMatchIn(line)
+                } || webpackWarningPattern.containsMatchIn(line) || webpackPerformancePattern.containsMatchIn(line)
             }
             .toList()
     }
