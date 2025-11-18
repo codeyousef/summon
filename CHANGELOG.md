@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.9.1] - 2025-11-18
+
+### Fixed
+
+- **WASM Console Log Reference Error**: Fixed `Uncaught (in promise) ReferenceError: wasmConsoleLog is not defined` by ensuring the `summon-wasm-init.js` script (which defines the bridge functions) is loaded before the WASM module initialization. The `copyHydrationBundles` task now prepends the init script content to `summon-hydration.wasm.js`.
+- **Version Consistency**: Updated all internal version references, documentation, and CLI templates to 0.4.9.1.
+- **CLI Version Reader**: Updated `ProjectGenerator` to correctly read the version from `version.properties` or fallback to `0.4.9.1`.
+
 ## [0.4.9.0] - 2025-11-18
 
 ### Fixed
@@ -272,7 +280,7 @@ Both group IDs are published for versions 0.4.8.7 through 0.5.0.0 for backward c
   extensions (`pointerEvents`, `visibility`, `fontStyle`) so callers get autocompletion instead of memorizing strings.
 - Expanded the pointer-event helpers (`disablePointerEvents`, `enablePointerEvents`) and text modifiers to consume the
   new enums, plus test coverage to lock in the behavior.
-- Gradient-heavy backgrounds now have a dedicated DSL: `backgroundLayers { radialGradient { … } }` plus layered filter
+- Gradient-heavy backgrounds now have a dedicated DSL: `backgroundLayers { radialGradient { … }` plus layered filter
   builders, pseudo-element hooks (`before`/`after`), and mix-blend helpers so aurora/film-grain mocks can be expressed
   without raw CSS strings.
 - Layout utilities gained `aspectRatio`, `inset`, and `positionInset` shorthands matching the single-file portfolio

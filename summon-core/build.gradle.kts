@@ -5,7 +5,7 @@ import java.util.*
 apply(from = "../version.gradle.kts")
 
 // Manual version override for now
-version = "0.4.9.0"
+version = "0.4.9.1"
 group = "codes.yousef"
 
 plugins {
@@ -343,8 +343,8 @@ tasks.register<Copy>("copyHydrationBundles") {
         }
     }
 
-    // Copy to source directory so it's included in the JAR
-    into(file("src/jvmMain/resources/static"))
+    // Copy to generated resources directory instead of source tree
+    into(layout.buildDirectory.dir("generated/resources/hydration/static"))
 
     // Only run if at least the JS file exists
     onlyIf {
@@ -352,12 +352,34 @@ tasks.register<Copy>("copyHydrationBundles") {
     }
 
     doLast {
-        println("Copied Summon hydration bundles to src/jvmMain/resources/static/ (will be included in JAR)")
+        // Prepend summon-wasm-init.js to summon-hydration.wasm.js in the output directory
+        // This ensures global functions like wasmConsoleLog are defined before the WASM module loads
+        val wasmInitFile = project.file("src/wasmJsMain/resources/summon-wasm-init.js")
+        val outputDir = layout.buildDirectory.dir("generated/resources/hydration/static").get().asFile
+        val wasmJsFile = File(outputDir, "summon-hydration.wasm.js")
+        
+        if (wasmInitFile.exists() && wasmJsFile.exists()) {
+            println("Prepending summon-wasm-init.js to summon-hydration.wasm.js...")
+            val initContent = wasmInitFile.readText()
+            val originalContent = wasmJsFile.readText()
+            wasmJsFile.writeText(initContent + "\n" + originalContent)
+        }
+
+        println("Copied Summon hydration bundles to build/generated/resources/hydration/static/")
         println(" - JS: summon-hydration.js")
         println(" - WASM JS wrapper: summon-hydration.wasm.js")
         println(" - WASM binary (renamed): summon-hydration.wasm")
         println(" - Core JS: static/summon-core.js")
         println(" - Vendors JS: static/vendors.js")
+    }
+}
+
+// Add generated resources to JVM source set
+kotlin {
+    sourceSets {
+        val jvmMain by getting {
+            resources.srcDir(layout.buildDirectory.dir("generated/resources/hydration"))
+        }
     }
 }
 
