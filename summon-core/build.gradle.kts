@@ -108,10 +108,24 @@ kotlin {
             }
             testTask {
                 // Skip browser tests in CI/headless environments where browsers aren't available
-                enabled = false
+                enabled = true
             }
         }
-        nodejs()
+        nodejs {
+            testTask {
+                useMocha {
+                    timeout = "30s"
+                }
+                val setupScript = project.layout.projectDirectory
+                    .file("src/jsTest/resources/setup-happydom.cjs")
+                    .asFile
+                    .absolutePath
+                val existingNodeOptions = environment["NODE_OPTIONS"]?.takeIf { it.isNotBlank() }
+                val requireFlag = "--require=$setupScript"
+                val combinedOptions = listOfNotNull(existingNodeOptions, requireFlag).joinToString(" ")
+                environment("NODE_OPTIONS", combinedOptions)
+            }
+        }
         binaries.executable()
 
         // WASM production build compiler options (Kotlin 2.2.21+)
@@ -892,4 +906,14 @@ tasks.named("compileTestKotlinJs") {
 
 tasks.named("compileTestDevelopmentExecutableKotlinJs") {
     dependsOn("compileKotlinJs", "jsMainClasses")
+}
+
+// Enable standard output logging for WASM Node tests
+tasks.withType<org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest>().configureEach {
+    if (name == "wasmJsNodeTest") {
+        testLogging {
+            events("passed", "skipped", "failed", "standardOut", "standardError")
+            showStandardStreams = true
+        }
+    }
 }

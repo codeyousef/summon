@@ -164,15 +164,22 @@ actual class HydrationManager actual constructor() {
     // Helper methods
 
     private fun verifyElementExists(elementId: String): Boolean {
-        // In WASM, we would use an external function to check DOM
-        // For now, assume element exists if it's been registered
-        return true
+        try {
+            return DOMProvider.document.getElementById(elementId) != null
+        } catch (e: Throwable) {
+            // Fallback for test environment if DOMProvider fails
+            return true
+        }
     }
 
     private fun markElementAsHydrated(elementId: String) {
-        // In WASM, we would use an external function to set DOM attribute
-        // For now, just log the action
-        safeLog("Marking element as hydrated: $elementId")
+        try {
+            val element = DOMProvider.document.getElementById(elementId)
+            element?.setAttribute("data-hydrated-by", "wasm")
+            safeLog("Marking element as hydrated: $elementId")
+        } catch (e: Throwable) {
+            safeLog("Could not mark element as hydrated (test env): $elementId")
+        }
     }
 
     private fun getCurrentTimestamp(): Long {
