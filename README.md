@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://raw.githubusercontent.com/codeyousef/summon/main/assets/logo.png" alt="Summon logo" width="200" />
   <br>
-  <a href="https://x.com/DeepIssueMassaj">@DeepIssueMassaj</a>
+  <a href="https://x.com/DeepIssueMassaj">x.com/@DeepIssueMassaj</a>
 </p>
 
 # Summon
@@ -15,11 +15,11 @@
 > **Action Required:**
 > Update your dependencies from:
 > ```kotlin
-> implementation("io.github.codeyousef:summon:0.4.8.7")  // Old - deprecated
+> implementation("io.github.codeyousef:summon:0.4.9.3")  // Old - deprecated
 > ```
 > To:
 > ```kotlin
-> implementation("codes.yousef:summon:0.4.8.7")  // New - use this!
+> implementation("codes.yousef:summon:0.4.9.3")  // New - use this!
 > ```
 >
 > See [Migration Guide](#group-id-migration) below for details.
@@ -209,11 +209,11 @@ The Summon CLI helps you quickly scaffold new projects and generate components.
 Download the latest JAR from [GitHub Releases](https://github.com/codeyousef/summon/releases):
 
 ```bash
-# Download summon-cli-0.4.8.7.jar
+# Download summon-cli-0.4.9.3.jar
 
 # Run commands directly
-java -jar summon-cli-0.4.8.7.jar init my-app
-java -jar summon-cli-0.4.8.7.jar --help
+java -jar summon-cli-0.4.9.3.jar init my-app
+java -jar summon-cli-0.4.9.3.jar --help
 ```
 
 #### Option 2: Build from Source
@@ -222,18 +222,19 @@ java -jar summon-cli-0.4.8.7.jar --help
 git clone https://github.com/codeyousef/summon.git
 cd summon
 ./gradlew :summon-cli:shadowJar
-java -jar summon-cli/build/libs/summon-cli-0.4.8.7.jar init my-app
+java -jar summon-cli/build/libs/summon-cli-0.4.9.3.jar init my-app
 ```
 
 #### Quick Start
 
 ```bash
 # Let Summon CLI prompt for stack + backend
-java -jar summon-cli-0.4.8.7.jar init portal
+java -jar summon-cli-0.4.9.3.jar init portal
 
 # Or skip the prompts entirely
-java -jar summon-cli-0.4.8.7.jar init landing --mode=standalone --here
-java -jar summon-cli-0.4.8.7.jar init portal --mode=fullstack --backend=ktor
+java -jar summon-cli-0.4.9.3.jar init landing --mode=standalone --here
+java -jar summon-cli-0.4.9.3.jar init portal --mode=fullstack --backend=ktor
+```
 
 # After generation (examples)
 cd portal
@@ -266,16 +267,16 @@ dependencies {
     // ⚠️ NEW GROUP ID - Use codes.yousef (not io.github.codeyousef)
 
     // For JVM projects (Ktor, Spring Boot, Quarkus)
-    implementation("codes.yousef:summon-jvm:0.4.8.7")
+    implementation("codes.yousef:summon-jvm:0.4.9.3")
 
     // For JavaScript/Browser projects
-    implementation("codes.yousef:summon-js:0.4.8.7")
+    implementation("codes.yousef:summon-js:0.4.9.3")
 
     // For WebAssembly projects
-    implementation("codes.yousef:summon-wasm-js:0.4.9.2")
+    implementation("codes.yousef:summon-wasm-js:0.4.9.3")
 
     // For Kotlin Multiplatform projects (includes all targets)
-    implementation("codes.yousef:summon:0.4.8.7")
+    implementation("codes.yousef:summon:0.4.9.3")
 }
 ```
 
@@ -300,6 +301,7 @@ We're transitioning from `io.github.codeyousef` to `codes.yousef` to:
 |-------------|----------------------|--------------|-------------------------------|
 | 0.4.8.7     | ✅ Published          | ✅ Published  | Both available                |
 | 0.4.9.0     | ✅ Published          | ✅ Published  | Both available                |
+| 0.4.9.3     | ✅ Published          | ✅ Published  | Both available                |
 | **0.5.0.0** | ✅ **FINAL**          | ✅ Published  | **Last version on old group** |
 | 0.5.1.0+    | ❌ Not published      | ✅ Published  | **New group only**            |
 
@@ -321,7 +323,7 @@ To:
 ```kotlin
 // ✅ NEW - Use this
 dependencies {
-    implementation("codes.yousef:summon:0.4.8.7")
+    implementation("codes.yousef:summon:0.4.9.3")
 }
 ```
 
@@ -375,7 +377,7 @@ Create a new project with the Summon CLI, then enable the WASM target using the 
 
 ```bash
 # Download the CLI JAR from releases first, then run:
-java -jar summon-cli-0.4.9.2.jar init my-wasm-app --mode=standalone
+java -jar summon-cli-0.4.9.3.jar init my-wasm-app --mode=standalone
 ```
 
 ### Basic WASM Application
@@ -452,7 +454,7 @@ kotlin {
 }
 
 dependencies {
-  implementation("io.github.codeyousef:summon-wasm-js:0.4.7.0")
+  implementation("codes.yousef:summon-wasm-js:0.4.9.3")
 }
 ```
 

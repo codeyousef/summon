@@ -40,6 +40,7 @@ the migration timeline, steps, and what you need to do.
 - 0.4.8.7 ✅
 - 0.4.9.0 ✅
 - 0.4.9.1 ✅
+- 0.4.9.3 ✅
 - 0.5.0.0 ⚠️ FINAL version on old group ID
 
 ### Phase 2: New Group Only (0.5.1.0 onwards)
@@ -74,8 +75,8 @@ dependencies {
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("codes.yousef:summon:0.4.9.1")
-    implementation("codes.yousef:summon-jvm:0.4.9.1")
+    implementation("codes.yousef:summon:0.4.9.3")
+    implementation("codes.yousef:summon-jvm:0.4.9.3")
 }
 ```
 
@@ -114,7 +115,7 @@ Update to `codes.yousef` in your `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    api("codes.yousef:summon:0.4.9.1")  // Use 'api' for libraries
+    api("codes.yousef:summon:0.4.9.3")  // Use 'api' for libraries
 }
 ```
 
@@ -163,7 +164,7 @@ Ensure transitive dependencies resolve correctly:
 
 ## Troubleshooting
 
-### Issue: "Cannot resolve codes.yousef:summon:0.4.9.1"
+### Issue: "Cannot resolve codes.yousef:summon:0.4.9.3"
 
 **Solution**:
 
@@ -182,7 +183,7 @@ Ensure transitive dependencies resolve correctly:
 configurations.all {
     resolutionStrategy {
         // Force new group ID
-        force("codes.yousef:summon:0.4.9.1")
+        force("codes.yousef:summon:0.4.9.3")
 
         // Exclude old group ID
         exclude(group = "io.github.codeyousef", module = "summon")
@@ -196,7 +197,7 @@ configurations.all {
 Use consistent versions across all Summon dependencies:
 
 ```kotlin
-val summonVersion = "0.4.9.1"
+val summonVersion = "0.4.9.3"
 
 dependencies {
     implementation("codes.yousef:summon:$summonVersion")
@@ -221,7 +222,7 @@ Update your workflow files:
 # After
 - name: Add dependencies
   run: |
-    implementation("codes.yousef:summon:0.4.9.1")
+    implementation("codes.yousef:summon:0.4.9.3")
 ```
 
 ### Jenkins, GitLab CI, etc.
@@ -238,6 +239,7 @@ Update any hardcoded dependency strings in your pipeline scripts.
 | 0.4.8.7        | ✅                    | ✅            | **Use codes.yousef**      |
 | 0.4.9.0        | ✅                    | ✅            | **Use codes.yousef**      |
 | 0.4.9.1        | ✅                    | ✅            | **Use codes.yousef**      |
+| 0.4.9.3        | ✅                    | ✅            | **Use codes.yousef**      |
 | 0.5.0.0        | ✅ FINAL              | ✅            | **Use codes.yousef**      |
 | 0.5.1.0+       | ❌                    | ✅            | **Must use codes.yousef** |
 
@@ -336,5 +338,5 @@ and community in the long term.
 ---
 
 **Last Updated**: November 13, 2025  
-**Applies to**: Summon 0.4.9.1 and later
+**Applies to**: Summon 0.4.9.3 and later
 
