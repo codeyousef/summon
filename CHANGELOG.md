@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- **WASM Runtime Error**: Fixed `process.release is undefined` error by disabling Node.js polyfills in Webpack configuration.
+- **WASM Runtime Error**: Fixed `process.release is undefined` error by providing proper process mock in Webpack configuration.
 
 ## [0.4.9.2] - 2025-11-19
 

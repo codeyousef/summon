@@ -5,7 +5,7 @@ import java.util.*
 apply(from = "../version.gradle.kts")
 
 // Manual version override for now
-version = "0.4.9.3"
+version = "0.4.9.4"
 group = "codes.yousef"
 
 plugins {
@@ -322,13 +322,17 @@ tasks.register<Copy>("copyHydrationBundles") {
     dependsOn("jsBrowserDistribution", "wasmJsBrowserProductionWebpack")
 
     val jsOutputFile = summonHydrationOutputDir.map { it.file("summon-hydration.js") }
+    val jsMapFile = summonHydrationOutputDir.map { it.file("summon-hydration.js.map") }
     val wasmJsOutputFile = wasmOutputDir.map { it.file("summon-hydration.wasm.js") }
+    val wasmJsMapFile = wasmOutputDir.map { it.file("summon-hydration.wasm.js.map") }
     val wasmHashedOutputFile = wasmOutputDir.map { dir ->
         dir.asFile.listFiles()?.firstOrNull { it.extension == "wasm" } ?: File("/nonexistent")
     }
 
     from(jsOutputFile)
+    from(jsMapFile)
     from(wasmJsOutputFile)
+    from(wasmJsMapFile)
     // Rename hashed wasm file to stable summon-hydration.wasm
     from(wasmHashedOutputFile) {
         rename { "summon-hydration.wasm" }
