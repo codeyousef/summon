@@ -108,7 +108,7 @@ kotlin {
             }
             testTask {
                 // Skip browser tests in CI/headless environments where browsers aren't available
-                enabled = true
+                enabled = false
             }
         }
         nodejs {
