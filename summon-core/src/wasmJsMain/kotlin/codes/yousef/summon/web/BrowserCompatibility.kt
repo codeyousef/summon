@@ -1,5 +1,7 @@
 package codes.yousef.summon.web
 
+import codes.yousef.summon.runtime.*
+
 /**
  * WebAssembly implementation of browser compatibility detection.
  * Uses external JavaScript functions to access browser APIs.
@@ -283,55 +285,3 @@ object WasmFeatureDetection {
         return wasmHasPromises()
     }
 }
-
-// External WASM function declarations for browser detection
-external fun wasmGetUserAgent(): String
-external fun wasmExtractBrowserVersion(userAgent: String, browserName: String): Int
-external fun wasmGetTimestamp(): Long
-external fun wasmGetLocationHref(): String
-
-// Feature detection externals
-external fun wasmHasAsyncAwait(): Boolean
-external fun wasmHasFetchAPI(): Boolean
-external fun wasmHasWebSockets(): Boolean
-external fun wasmHasLocalStorage(): Boolean
-external fun wasmHasSessionStorage(): Boolean
-external fun wasmHasIndexedDB(): Boolean
-external fun wasmHasWebWorkers(): Boolean
-external fun wasmHasServiceWorkers(): Boolean
-external fun wasmHasPushNotifications(): Boolean
-external fun wasmHasWebGL(): Boolean
-external fun wasmHasWebGL2(): Boolean
-external fun wasmHasWebRTC(): Boolean
-external fun wasmHasTouchEvents(): Boolean
-external fun wasmHasPointerEvents(): Boolean
-external fun wasmHasResizeObserver(): Boolean
-external fun wasmHasIntersectionObserver(): Boolean
-external fun wasmHasMutationObserver(): Boolean
-external fun wasmHasModuleSupport(): Boolean
-external fun wasmHasArrowFunctions(): Boolean
-external fun wasmHasPromises(): Boolean
-
-// WASM support testing
-external fun wasmTestBasicWasmSupport(): Boolean
-external fun wasmTestAdvancedWasmSupport(): Boolean
-
-// Error reporting externals
-external fun wasmConsoleError(message: String)
-external fun wasmReportError(errorData: String)
-
-// Performance monitoring externals
-external fun wasmPerformanceMark(name: String)
-external fun wasmPerformanceMeasure(name: String, startMark: String, endMark: String): Double
-external fun wasmPerformanceMeasureToNow(name: String, startMark: String): Double
-external fun wasmGetUsedHeapSize(): Long
-external fun wasmGetTotalHeapSize(): Long
-external fun wasmGetHeapSizeLimit(): Long
-external fun wasmGetFrameRate(): Double
-external fun wasmGetRenderTime(): Double
-external fun wasmGetHydrationTime(): Double
-external fun wasmGetScriptLoadTime(): Double
-external fun wasmGetDOMContentLoadedTime(): Double
-external fun wasmGetFirstContentfulPaint(): Double
-external fun wasmGetLargestContentfulPaint(): Double
-external fun wasmReportMetrics(metricsData: String)

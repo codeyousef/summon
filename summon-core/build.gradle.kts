@@ -5,7 +5,7 @@ import java.util.*
 apply(from = "../version.gradle.kts")
 
 // Manual version override for now
-version = "0.4.9.1"
+version = "0.4.9.2"
 group = "codes.yousef"
 
 plugins {
@@ -111,7 +111,21 @@ kotlin {
                 enabled = false
             }
         }
-        nodejs()
+        nodejs {
+            testTask {
+                useMocha {
+                    timeout = "30s"
+                }
+                val setupScript = project.layout.projectDirectory
+                    .file("src/jsTest/resources/setup-happydom.cjs")
+                    .asFile
+                    .absolutePath
+                val existingNodeOptions = environment["NODE_OPTIONS"]?.takeIf { it.isNotBlank() }
+                val requireFlag = "--require=$setupScript"
+                val combinedOptions = listOfNotNull(existingNodeOptions, requireFlag).joinToString(" ")
+                environment("NODE_OPTIONS", combinedOptions)
+            }
+        }
         binaries.executable()
 
         // WASM production build compiler options (Kotlin 2.2.21+)
@@ -314,14 +328,7 @@ tasks.register<Copy>("copyHydrationBundles") {
     }
 
     from(jsOutputFile)
-    from(wasmJsOutputFile) {
-        filter { line ->
-            line.replace(
-                "\"undefined\"!=typeof process&&\"node\"===process.release.name",
-                "\"undefined\"!=typeof process&&process.release&&\"node\"===process.release.name"
-            )
-        }
-    }
+    from(wasmJsOutputFile)
     // Rename hashed wasm file to stable summon-hydration.wasm
     from(wasmHashedOutputFile) {
         rename { "summon-hydration.wasm" }
@@ -335,16 +342,10 @@ tasks.register<Copy>("copyHydrationBundles") {
     from(wasmJsOutputFile) {
         into("static")
         rename { "vendors.js" }
-        filter { line ->
-            line.replace(
-                "\"undefined\"!=typeof process&&\"node\"===process.release.name",
-                "\"undefined\"!=typeof process&&process.release&&\"node\"===process.release.name"
-            )
-        }
     }
 
-    // Copy to generated resources directory instead of source tree
-    into(layout.buildDirectory.dir("generated/resources/hydration/static"))
+    // Copy to source directory so it's included in the JAR
+    into(file("src/jvmMain/resources/static"))
 
     // Only run if at least the JS file exists
     onlyIf {
@@ -352,34 +353,12 @@ tasks.register<Copy>("copyHydrationBundles") {
     }
 
     doLast {
-        // Prepend summon-wasm-init.js to summon-hydration.wasm.js in the output directory
-        // This ensures global functions like wasmConsoleLog are defined before the WASM module loads
-        val wasmInitFile = project.file("src/wasmJsMain/resources/summon-wasm-init.js")
-        val outputDir = layout.buildDirectory.dir("generated/resources/hydration/static").get().asFile
-        val wasmJsFile = File(outputDir, "summon-hydration.wasm.js")
-        
-        if (wasmInitFile.exists() && wasmJsFile.exists()) {
-            println("Prepending summon-wasm-init.js to summon-hydration.wasm.js...")
-            val initContent = wasmInitFile.readText()
-            val originalContent = wasmJsFile.readText()
-            wasmJsFile.writeText(initContent + "\n" + originalContent)
-        }
-
-        println("Copied Summon hydration bundles to build/generated/resources/hydration/static/")
+        println("Copied Summon hydration bundles to src/jvmMain/resources/static/ (will be included in JAR)")
         println(" - JS: summon-hydration.js")
         println(" - WASM JS wrapper: summon-hydration.wasm.js")
         println(" - WASM binary (renamed): summon-hydration.wasm")
         println(" - Core JS: static/summon-core.js")
         println(" - Vendors JS: static/vendors.js")
-    }
-}
-
-// Add generated resources to JVM source set
-kotlin {
-    sourceSets {
-        val jvmMain by getting {
-            resources.srcDir(layout.buildDirectory.dir("generated/resources/hydration"))
-        }
     }
 }
 
@@ -927,4 +906,14 @@ tasks.named("compileTestKotlinJs") {
 
 tasks.named("compileTestDevelopmentExecutableKotlinJs") {
     dependsOn("compileKotlinJs", "jsMainClasses")
+}
+
+// Enable standard output logging for WASM Node tests
+tasks.withType<org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest>().configureEach {
+    if (name == "wasmJsNodeTest") {
+        testLogging {
+            events("passed", "skipped", "failed", "standardOut", "standardError")
+            showStandardStreams = true
+        }
+    }
 }

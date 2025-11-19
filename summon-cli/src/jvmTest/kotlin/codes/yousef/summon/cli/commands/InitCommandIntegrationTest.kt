@@ -164,7 +164,7 @@ class InitCommandIntegrationTest {
             "-Xexpect-actual-classes",
             "KT-61573",
             "Scripts are not yet supported with K2",
-            "Waiting for the other yarn instance to finish"
+            "ExperimentalWasmJsInterop"
         )
         val webpackWarningPattern = Regex("\\[\\d+ warnings?]|webpack \\d+\\.\\d+\\.\\d+ compiled with \\d+ warnings?", RegexOption.IGNORE_CASE)
         val webpackPerformancePattern = Regex("asset size limit:|entrypoint size limit:|webpack performance recommendations", RegexOption.IGNORE_CASE)

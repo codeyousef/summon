@@ -1,5 +1,7 @@
 package codes.yousef.summon.web
 
+import codes.yousef.summon.runtime.*
+
 /**
  * WebAssembly-specific implementations of error boundary utilities.
  * Uses external JavaScript functions to access browser APIs safely.
@@ -286,37 +288,5 @@ enum class PerformanceStatus {
     POOR
 }
 
-// External WASM function declarations for error boundary utilities
-external fun wasmEnableStaticFormFallbacks()
-external fun wasmClearWasmCache(): Boolean
-external fun wasmVerifyJSFallback(): Boolean
-external fun wasmClearModuleCache(): Boolean
-external fun wasmLoadCompatibilityShims(): Boolean
-external fun wasmCheckNetworkConnectivity(): Boolean
-external fun wasmRetryNetworkOperation(): Boolean
-external fun wasmEnableOfflineMode(): Boolean
-external fun wasmClearAllCaches(): Boolean
-external fun wasmResetToKnownState(): Boolean
-external fun wasmVerifyBasicFunctionality(): Boolean
-
-// Error handling externals
-external fun wasmGetCurrentTime(): Long
-external fun wasmLogError(message: String)
-external fun wasmLogWarning(message: String)
-external fun wasmReportError(message: String, stackTrace: String, metadata: String)
-external fun wasmDelay(ms: Int)
-external fun wasmSetupGlobalErrorHandling()
-
-// Memory management externals
-external fun wasmGetUsedMemory(): Long
-external fun wasmGetTotalMemory(): Long
-external fun wasmGetMemoryLimit(): Long
-external fun wasmForceGarbageCollection(): Boolean
-external fun wasmReduceMemoryUsage(): Boolean
-
-// Performance monitoring externals
-external fun wasmGetCurrentFrameRate(): Double
-external fun wasmGetCPUUsage(): Double
-external fun wasmEnableEmergencyOptimizations(): Boolean
 external fun wasmEnablePerformanceOptimizations(): Boolean
 external fun wasmEnableMinorOptimizations(): Boolean

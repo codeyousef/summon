@@ -6,12 +6,15 @@ package codes.yousef.summon.runtime
  * catches any errors and silently continues.
  */
 internal fun safeWasmConsoleLog(message: String) {
+    // Logging disabled to prevent stack overflow during recomposition
+    /*
     try {
         wasmConsoleLog(message)
     } catch (e: Throwable) {
         // Silently ignore if wasmConsoleLog is not available (e.g., in Node.js tests)
         // This allows tests to run without browser-specific functions
     }
+    */
 }
 
 /**
