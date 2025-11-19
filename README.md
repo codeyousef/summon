@@ -1,5 +1,7 @@
 <p align="center">
   <img src="https://raw.githubusercontent.com/codeyousef/summon/main/assets/logo.png" alt="Summon logo" width="200" />
+  <br>
+  <a href="https://x.com/DeepIssueMassaj">@DeepIssueMassaj</a>
 </p>
 
 # Summon
@@ -612,3 +614,4 @@ Summon aims to give back to the Kotlin/WASM community by:
 - Supporting other developers building WASM applications
 
 Together, we're building the future of web development with Kotlin! 🚀
+
