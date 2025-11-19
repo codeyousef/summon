@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.9.2] - 2025-11-19
+
+### Fixed
+
+- **WASM Hydration Issues**: Implemented `hydrateComposableRoot` with fallback logic to resolve hydration problems in WebAssembly.
+- **JavaScript File Removal**: Eliminated the need for manual JavaScript files (`initialize-summon.js`, `JsEnvironmentSetup.js`) by fully utilizing Kotlin/JS capabilities.
+- **PlatformRendererWasm.kt Compilation Errors**: Fixed various compilation errors in the WebAssembly-specific platform renderer.
+- **Build Configuration**: Updated to skip browser tests in headless environments, preventing unnecessary test failures in CI/CD pipelines.
+- **Generated Artifacts Cleanup**: Removed unnecessary generated artifacts from source control to reduce clutter and potential confusion.
+
 ## [0.4.8.9] - 2025-11-18
 
 ### Added

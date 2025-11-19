@@ -270,7 +270,7 @@ dependencies {
     implementation("codes.yousef:summon-js:0.4.8.7")
 
     // For WebAssembly projects
-    implementation("codes.yousef:summon-wasm-js:0.4.8.9")
+    implementation("codes.yousef:summon-wasm-js:0.4.9.2")
 
     // For Kotlin Multiplatform projects (includes all targets)
     implementation("codes.yousef:summon:0.4.8.7")
@@ -373,7 +373,7 @@ Create a new project with the Summon CLI, then enable the WASM target using the 
 
 ```bash
 # Download the CLI JAR from releases first, then run:
-java -jar summon-cli-0.4.8.9.jar init my-wasm-app --mode=standalone
+java -jar summon-cli-0.4.9.2.jar init my-wasm-app --mode=standalone
 ```
 
 ### Basic WASM Application
