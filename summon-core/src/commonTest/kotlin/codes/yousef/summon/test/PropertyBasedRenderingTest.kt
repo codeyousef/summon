@@ -20,7 +20,7 @@ class PropertyBasedRenderingTest {
             val html = renderer.renderComposableRoot {
                 RenderTestComponent(tree)
             }
-            
+
             // Basic invariants
             assertTrue(html.isNotEmpty(), "Rendered HTML should not be empty")
             // Simple check for tag balance

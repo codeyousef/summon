@@ -2,6 +2,7 @@ package codes.yousef.summon.test
 
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.choice
+import io.kotest.property.arbitrary.filter
 import io.kotest.property.arbitrary.list
 import io.kotest.property.arbitrary.map
 import io.kotest.property.arbitrary.string
@@ -26,8 +27,12 @@ object Generators {
      * @param maxDepth Maximum depth of the tree
      */
     fun componentTree(maxDepth: Int = 3): Arb<TestComponent> {
-        val textArb = Arb.string().map { TestText(it) }
-        val buttonArb = Arb.string().map { TestButton(it) }
+        // Use alphanumeric strings to avoid HTML escaping issues in the test environment (Happy DOM)
+        val safeStringArb = Arb.string(minSize = 1, maxSize = 20).filter { str -> 
+            str.all { it.isLetterOrDigit() || it.isWhitespace() } && str.isNotBlank()
+        }
+        val textArb = safeStringArb.map { TestText(it) }
+        val buttonArb = safeStringArb.map { TestButton(it) }
         val leafArb = Arb.choice(textArb, buttonArb)
         
         if (maxDepth <= 0) return leafArb

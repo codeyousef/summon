@@ -12,6 +12,7 @@ import codes.yousef.summon.core.asFlowContentCompat
 import codes.yousef.summon.js.console
 import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.modifier.ModifierExtras.withAttribute
+import codes.yousef.summon.runtime.LocalPlatformRenderer
 import kotlinx.browser.document
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
@@ -639,6 +640,10 @@ actual open class PlatformRenderer {
     actual open fun renderComposableRoot(composable: @Composable () -> Unit): String {
         // Create a detached root element for rendering if not using a specific container
         val rootElement = document.createElement("div")
+        
+        // Provide this renderer to the composition local so child composables can access it
+        LocalPlatformRenderer.provides(this)
+        
         // Temporarily set this as the current element for rendering
         elementStack.withElement(rootElement) {
             composable()
@@ -656,6 +661,9 @@ actual open class PlatformRenderer {
         rootElement.setAttribute("data-summon-hydration", "root")
         rootElement.setAttribute("data-summon-renderer", "js")
         rootElement.setAttribute("data-summon-version", js("globalThis.SUMMON_VERSION") ?: "0.4.9.3")
+
+        // Provide this renderer to the composition local so child composables can access it
+        LocalPlatformRenderer.provides(this)
 
         elementStack.withElement(rootElement) {
             composable()
@@ -683,6 +691,9 @@ actual open class PlatformRenderer {
                 // Set up recomposer for this root
                 val recomposer = RecomposerHolder.current()
                 recomposer.setCompositionRoot(composable)
+
+                // Provide this renderer to the composition local so child composables can access it
+                LocalPlatformRenderer.provides(this)
 
                 // Render the composable
                 composable()
