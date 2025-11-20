@@ -15,8 +15,8 @@ Command-line tool for scaffolding Summon projects and generating components.
 ### Run Without Installation
 
 ```bash
-java -jar summon-cli-0.4.8.9.jar init my-app
-java -jar summon-cli-0.4.8.9.jar --help
+java -jar summon-cli-0.4.9.4.jar init my-app
+java -jar summon-cli-0.4.9.4.jar --help
 ```
 
 ## Command
@@ -36,8 +36,8 @@ java -jar summon-cli-0.4.8.9.jar --help
 Useful flags:
 
 ```bash
-java -jar summon-cli-0.4.8.9.jar init portal --mode=fullstack --backend=quarkus  # Skip prompts
-java -jar summon-cli-0.4.8.9.jar init marketing --mode=standalone --here          # Generate in current dir
+java -jar summon-cli-0.4.9.4.jar init portal --mode=fullstack --backend=quarkus  # Skip prompts
+java -jar summon-cli-0.4.9.4.jar init marketing --mode=standalone --here          # Generate in current dir
 ```
 
 ## Usage Examples
@@ -45,7 +45,7 @@ java -jar summon-cli-0.4.8.9.jar init marketing --mode=standalone --here        
 ### Standalone Browser Project
 
 ```bash
-java -jar summon-cli-0.4.8.9.jar init landing --mode=standalone
+java -jar summon-cli-0.4.9.4.jar init landing --mode=standalone
 cd landing
 ./gradlew jsBrowserDevelopmentRun
 ```
@@ -53,7 +53,7 @@ cd landing
 ### Full-Stack Ktor Project
 
 ```bash
-java -jar summon-cli-0.4.8.9.jar init portal --mode=fullstack --backend=ktor
+java -jar summon-cli-0.4.9.4.jar init portal --mode=fullstack --backend=ktor
 cd portal
 ./gradlew build
 ./gradlew run
@@ -62,7 +62,7 @@ cd portal
 ### Full-Stack Quarkus Project
 
 ```bash
-java -jar summon-cli-0.4.8.9.jar init portal --mode=fullstack --backend=quarkus
+java -jar summon-cli-0.4.9.4.jar init portal --mode=fullstack --backend=quarkus
 cd portal
 ./gradlew build
 ./gradlew unitTest
@@ -91,7 +91,7 @@ If you want to build a native executable for faster startup:
 ### Run Locally
 
 ```bash
-java -jar summon-cli/build/libs/summon-cli-0.4.8.9.jar --help
+java -jar summon-cli/build/libs/summon-cli-0.4.9.4.jar --help
 ```
 
 ### Run Tests

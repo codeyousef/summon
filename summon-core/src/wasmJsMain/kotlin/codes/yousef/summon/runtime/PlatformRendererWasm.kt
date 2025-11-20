@@ -490,6 +490,10 @@ actual open class PlatformRenderer actual constructor() {
             isStringRenderMode = false
             isHydrating = true
 
+            // Make sure the platform renderer is set globally so composables use THIS instance
+            setPlatformRenderer(this)
+            LocalPlatformRenderer.provides(this)
+
             // Try to get the root element - handle gracefully if not found
             val rootElementNativeId = try {
                 val id = wasmGetElementById(rootElementId)
@@ -583,6 +587,12 @@ actual open class PlatformRenderer actual constructor() {
             isHydrating = false
         }
     }
+
+    /**
+     * Helper to render composable in a specific element (client-side render fallback)
+     */
+    // Removed duplicate renderComposableInElement definition
+
 
     actual open fun renderComposable(composable: @Composable () -> Unit) {
         wasmConsoleLog("PlatformRenderer renderComposable - WASM stub")

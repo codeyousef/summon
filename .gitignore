@@ -145,3 +145,8 @@ examples/wasm-seo-todo/.gradle/
 /summon-spring-test/
 /summon-quarkus-new/
 /summon-ktor-test/
+
+# Generated JS/WASM artifacts in source tree
+summon-core/src/jvmMain/resources/static/*.js
+summon-core/src/jvmMain/resources/static/*.wasm
+summon-core/src/jvmMain/resources/static/static/
