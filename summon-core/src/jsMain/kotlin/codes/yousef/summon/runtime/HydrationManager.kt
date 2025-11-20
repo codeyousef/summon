@@ -12,6 +12,7 @@ import org.w3c.dom.HTMLElement
  * JavaScript implementation of HydrationManager.
  * This handles the actual hydration of server-rendered components on the client side.
  */
+@Deprecated("Use GlobalEventListener and ClientDispatcher for hydration instead.")
 actual class HydrationManager {
     private val registeredComponents = mutableMapOf<String, HydrationInfo>()
     private val hydratedComponents = mutableSetOf<String>()

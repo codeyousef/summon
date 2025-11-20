@@ -1,7 +1,7 @@
 package codes.yousef.summon.runtime
 
 import codes.yousef.summon.modifier.Modifier
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue

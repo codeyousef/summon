@@ -5,6 +5,8 @@ import kotlinx.browser.window
 import org.w3c.dom.Element
 import org.w3c.fetch.Headers
 import org.w3c.fetch.RequestInit
+import codes.yousef.summon.hydration.Bootloader
+import codes.yousef.summon.hydration.GlobalEventListener
 
 /**
  * Client-side hydration for Summon components.
@@ -37,6 +39,19 @@ object SummonHydrationClient {
     private fun startHydration() {
         try {
             SummonLogger.log("Starting Summon component hydration...")
+            
+            // Initialize Global Event Listener (The Ears)
+            GlobalEventListener.init()
+            
+            // Process Bootloader Queue
+            Bootloader.processQueue()
+            
+            // Check for parked state
+            val state = window.asDynamic().__SUMMON_STATE__
+            if (state != null) {
+                SummonLogger.log("Hydrated with state object")
+            }
+
             SummonLogger.log("Document ready state: ${document.readyState}")
             SummonLogger.log("Document body exists: ${document.body != null}")
 
@@ -134,6 +149,7 @@ object SummonHydrationClient {
         )
     }
 
+    @Deprecated("Use GlobalEventListener instead.")
     private fun hydrateClickHandlers(hydrationData: HydrationData?) {
         SummonLogger.log("Starting to hydrate click handlers...")
 
@@ -186,6 +202,7 @@ object SummonHydrationClient {
         SummonLogger.log("  - Total processed: ${clickableElements.length} elements")
     }
 
+    @Deprecated("Use ClientDispatcher instead.")
     private fun handleClick(callbackId: String) {
         SummonLogger.log("=== BUTTON CLICK DETECTED ===")
         SummonLogger.log("Executing callback: $callbackId")
@@ -202,6 +219,7 @@ object SummonHydrationClient {
         executeCallbackOnServer(callbackId)
     }
 
+    @Deprecated("Use ClientDispatcher instead.")
     private fun executeCallbackOnServer(callbackId: String) {
         SummonLogger.log("=== MAKING SERVER REQUEST ===")
 
@@ -286,6 +304,7 @@ object SummonHydrationClient {
         }
     }
 
+    @Deprecated("Use GlobalEventListener instead.")
     private fun hydrateFormInputs() {
         // Add enhanced interactions to form inputs
         val inputs = document.querySelectorAll("input, textarea, select")

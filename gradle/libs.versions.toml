@@ -44,6 +44,11 @@ kaml = "0.102.0"
 commonsCompress = "1.28.0"
 commonsIo = "2.20.0"
 
+# Testing
+kotest = "5.9.1"
+jsoup = "1.18.1"
+binaryCompatibilityValidator = "0.16.3"
+
 [libraries]
 # Kotlin
 kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
@@ -130,6 +135,11 @@ commons-compress = { module = "org.apache.commons:commons-compress", version.ref
 commons-io = { module = "commons-io:commons-io", version.ref = "commonsIo" }
 kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
 
+# Testing
+kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest" }
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
+
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
@@ -140,3 +150,4 @@ spring-dependency-management = { id = "io.spring.dependency-management", version
 shadow-jar = { id = "com.github.johnrengelman.shadow", version.ref = "shadowJar" }
 graalvm-native-image = { id = "org.graalvm.buildtools.native", version.ref = "graalvm" }
 atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "atomicfu" }
+binary-compatibility-validator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "binaryCompatibilityValidator" }

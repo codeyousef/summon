@@ -18,6 +18,8 @@ import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 import java.util.*
 import kotlin.uuid.ExperimentalUuidApi
+import codes.yousef.summon.hydration.SummonTagConsumer
+import codes.yousef.summon.hydration.ServerStateEncoder
 
 // Interface defined in PlatformRenderer.kt commonMain
 // interface FormContent : FlowContent
@@ -394,7 +396,42 @@ actual open class PlatformRenderer {
         return result.toString()
     }
 
+    private val BOOTLOADER_SCRIPT = """
+(function() {
+    window.__SUMMON_QUEUE__ = [];
+    window.addEventListener('click', function(e) {
+        if (!window.Summon) {
+            var t = e.target;
+            while (t && !t.getAttribute('data-sid')) t = t.parentElement;
+            if (t) {
+                window.__SUMMON_QUEUE__.push({
+                    type: 'click',
+                    targetId: t.getAttribute('data-sid'),
+                    timestamp: Date.now(),
+                    originalEvent: e
+                });
+            }
+        }
+    }, true);
+    
+    var s = document.getElementById('summon-state');
+    if (s) {
+        try {
+            var raw = s.textContent;
+            var json = atob(raw);
+            window.__SUMMON_STATE__ = JSON.parse(json);
+        } catch (e) {
+            console.error('Summon: State hydration failed', e);
+        }
+    }
+})();
+"""
+
     actual open fun renderComposableRootWithHydration(composable: @Composable () -> Unit): String {
+        return renderComposableRootWithHydration(null, composable)
+    }
+
+    actual open fun renderComposableRootWithHydration(state: Any?, composable: @Composable () -> Unit): String {
         val debugEnabled = System.getProperty("summon.debug.callbacks", "false").toBoolean()
         
         if (debugEnabled) {
@@ -425,7 +462,7 @@ actual open class PlatformRenderer {
             }
             
             val hydrationData = generateHydrationData(callbackIds)
-            val fullDoc = createHydratedDocument(bodyContent, hydrationData)
+            val fullDoc = createHydratedDocument(bodyContent, hydrationData, state)
             
             if (debugEnabled) {
                 // Extract callback IDs from the HTML for verification
@@ -444,7 +481,9 @@ actual open class PlatformRenderer {
     private fun renderComposableContent(composable: @Composable () -> Unit): String {
         val result = StringBuilder()
         try {
-            result.appendHTML(prettyPrint = false).div {
+            val consumer = result.appendHTML(prettyPrint = false)
+            val summonConsumer = SummonTagConsumer(consumer)
+            summonConsumer.div {
                 currentBuilder = this // Set context
                 try {
                     renderContent(composable)
@@ -494,39 +533,50 @@ actual open class PlatformRenderer {
         return jsonData
     }
 
-    private fun createHydratedDocument(bodyContent: String, hydrationData: String): String {
-        return """
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Summon App</title>
+    private fun createHydratedDocument(bodyContent: String, hydrationData: String, state: Any? = null): String {
+        val stateScript = if (state != null && state is String) {
+             val encoded = Base64.getEncoder().encodeToString(state.toByteArray())
+             """<script id="summon-state" type="application/json+summon">$encoded</script>"""
+        } else {
+            ""
+        }
+        
+        val bootloader = """<script>$BOOTLOADER_SCRIPT</script>"""
 
-                <!-- SEO-critical metadata is preserved for search engines -->
-                <meta name="description" content="Summon Framework Application">
-                <meta name="robots" content="index, follow">
-                <meta property="og:type" content="website">
-                <meta property="og:title" content="Summon App">
+        return """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summon App</title>
 
-                ${headElements.joinToString("\n                ")}
+    <!-- SEO-critical metadata is preserved for search engines -->
+    <meta name="description" content="Summon Framework Application">
+    <meta name="robots" content="index, follow">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Summon App">
 
-                <!-- Preload hydration resources for better performance -->
-                <link rel="preload" href="/summon-hydration.js" as="script">
-                <link rel="preload" href="/summon-hydration.wasm" as="fetch" type="application/wasm" crossorigin>
-            </head>
-            <body>
-                <!-- Server-rendered content with hydration markers -->
-                <div id="summon-app" data-ssr="true" data-hydration-ready="false" data-summon-hydration="root">
-                    $bodyContent
-                </div>
+    $bootloader
+    $stateScript
 
-                <!-- Hydration data for Summon components -->
-                <script type="application/json" id="summon-hydration-data">
-                    $hydrationData
-                </script>
+    ${headElements.joinToString("\n    ")}
 
-                <!-- Progressive enhancement: Forms work without JS -->
+    <!-- Preload hydration resources for better performance -->
+    <link rel="preload" href="/summon-hydration.js" as="script">
+    <link rel="preload" href="/summon-hydration.wasm" as="fetch" type="application/wasm" crossorigin>
+</head>
+<body>
+    <!-- Server-rendered content with hydration markers -->
+    <div id="summon-app" data-ssr="true" data-hydration-ready="false" data-summon-hydration="root">
+        $bodyContent
+    </div>
+
+    <!-- Hydration data for Summon components -->
+    <script type="application/json" id="summon-hydration-data">
+        $hydrationData
+    </script>
+
+    <!-- Progressive enhancement: Forms work without JS -->
                 <noscript>
                     <style>
                         [data-onclick-action], [data-onchange-action] {

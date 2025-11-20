@@ -647,6 +647,10 @@ actual open class PlatformRenderer {
     }
 
     actual open fun renderComposableRootWithHydration(composable: @Composable () -> Unit): String {
+        return renderComposableRootWithHydration(null, composable)
+    }
+
+    actual open fun renderComposableRootWithHydration(state: Any?, composable: @Composable () -> Unit): String {
         // Produce hydration-ready markup by adding Summon-specific markers and payload container
         val rootElement = document.createElement("div")
         rootElement.setAttribute("data-summon-hydration", "root")

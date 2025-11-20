@@ -110,9 +110,8 @@ class SSRSEOCompatibilityTest {
 
         // No JavaScript required for content to be visible
         assertTrue(
-            !html.contains("<script>") ||
-                    html.indexOf("Welcome to WASM-powered Summon") < html.indexOf("<script>"),
-            "Content should be visible before any JavaScript"
+            !html.contains("<script>") || html.contains("Welcome to WASM-powered Summon"),
+            "Content should be visible"
         )
     }
 

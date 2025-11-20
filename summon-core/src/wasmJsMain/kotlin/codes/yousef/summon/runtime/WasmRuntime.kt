@@ -1626,6 +1626,8 @@ fun wasmExecuteCallback(callbackId: String): Boolean {
     }
 }
 
+fun wasmGetSummonState(): String? = js("window.__SUMMON_STATE__ ? JSON.stringify(window.__SUMMON_STATE__) : null")
+
 
 
 

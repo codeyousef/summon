@@ -47,6 +47,10 @@ actual open class PlatformRenderer actual constructor() {
     )
 
     actual open fun renderText(text: String, modifier: Modifier) {
+        // Generate deterministic ID
+        val key = modifier.attributes["key"]
+        val sid = generateNextId("span", key)
+
         if (isStringRenderMode) {
             // HTML string building mode for SSR
             val modifierAttrs = buildModifierAttributes(modifier)
@@ -54,7 +58,8 @@ actual open class PlatformRenderer actual constructor() {
                 tagName = "span",
                 attributes = mutableMapOf(
                     "class" to "summon-text",
-                    "data-text" to text
+                    "data-text" to text,
+                    "data-sid" to sid
                 ).apply {
                     if (modifierAttrs.isNotEmpty()) {
                         putAll(modifierAttrs)
@@ -71,8 +76,8 @@ actual open class PlatformRenderer actual constructor() {
         } else {
             // DOM rendering mode for client
             try {
-                // Check for hydration markers in modifier
-                val summonId = modifier.attributes?.get("data-summon-id") ?: "text-${text.hashCode()}"
+                // Use generated SID
+                val summonId = sid
 
                 // Create or reuse text element (returns new element or null if reused)
                 val newElement = createOrReuseElement("span", summonId)
@@ -87,6 +92,7 @@ actual open class PlatformRenderer actual constructor() {
 
                 textElement.setAttribute("class", "summon-text")
                 textElement.setAttribute("data-text", text)
+                textElement.setAttribute("data-sid", sid)
 
                 // Set text content using DOM API
                 val elementId = DOMProvider.getNativeElementId(textElement)
@@ -117,16 +123,19 @@ actual open class PlatformRenderer actual constructor() {
         modifier: Modifier,
         content: @Composable FlowContentCompat.() -> Unit
     ) {
+        // Generate deterministic ID
+        val key = modifier.attributes["key"]
+        val sid = generateNextId("button", key)
+
         if (isStringRenderMode) {
             // HTML string building mode for SSR
-            val summonId = modifier.attributes?.get("data-summon-id") ?: "button-${onClick.hashCode()}"
             val modifierAttrs = buildModifierAttributes(modifier)
             val element = HtmlElement(
                 tagName = "button",
                 attributes = mutableMapOf(
                     "class" to "summon-button",
                     "type" to "button",
-                    "data-summon-id" to summonId
+                    "data-sid" to sid
                 ).apply {
                     if (modifierAttrs.isNotEmpty()) {
                         putAll(modifierAttrs)
@@ -136,11 +145,15 @@ actual open class PlatformRenderer actual constructor() {
 
             // Push element onto stack for nested content
             htmlStack.add(element)
+            // Push ID for children
+            pushId(sid)
             try {
                 // Render nested content
                 val contentScope = createFlowContentCompat()
                 content(contentScope)
             } finally {
+                // Pop ID
+                popId()
                 // Pop element and add to parent or root
                 htmlStack.removeLastOrNull()
                 if (htmlStack.isNotEmpty()) {
@@ -153,8 +166,8 @@ actual open class PlatformRenderer actual constructor() {
             // DOM rendering mode for client
             try {
                 wasmConsoleLog("renderButton called, onClick = $onClick")
-                // Check for hydration markers in modifier
-                val summonId = modifier.attributes?.get("data-summon-id") ?: "button-${onClick.hashCode()}"
+                // Use generated SID
+                val summonId = sid
 
                 // Create or reuse button element (returns new element or null if reused)
                 val newElement = createOrReuseElement("button", summonId)
@@ -169,6 +182,7 @@ actual open class PlatformRenderer actual constructor() {
 
                 buttonElement.setAttribute("class", "summon-button")
                 buttonElement.setAttribute("type", "button")
+                buttonElement.setAttribute("data-sid", sid)
 
                 // Set up click event handler with hydration support
                 val wrappedOnClick = {
@@ -181,11 +195,17 @@ actual open class PlatformRenderer actual constructor() {
                 // Apply modifier styles and attributes
                 applyModifierToElement(buttonElement, modifier)
 
+                // Push ID for children
+                pushId(sid)
+
                 // Set up content rendering context
                 withContainerContext(buttonElement) {
                     val contentScope = createFlowContentCompat()
                     content(contentScope)
                 }
+
+                // Pop ID
+                popId()
 
                 // Always append to container to ensure it's registered in the current composition
                 val elementId = DOMProvider.getNativeElementId(buttonElement)
@@ -193,8 +213,11 @@ actual open class PlatformRenderer actual constructor() {
                 appendToCurrentContainer(buttonElement)
 
             } catch (e: Exception) {
-                wasmConsoleError("Failed to render button - ${e.message}")
-                wasmConsoleLog("PlatformRenderer renderButton - WASM fallback")
+                wasmConsoleError("Failed to render button: ${e.message}")
+                // Ensure we pop if we pushed
+                if (idStack.last() == sid) {
+                    popId()
+                }
             }
         }
     }
@@ -348,6 +371,9 @@ actual open class PlatformRenderer actual constructor() {
             htmlBuilder.clear()
             htmlStack.clear()
 
+            // Provide the renderer so composables can access it
+            LocalPlatformRenderer.provides(this)
+
             // Create root element in HTML stack
             val rootElement = HtmlElement(
                 tagName = "div",
@@ -384,6 +410,10 @@ actual open class PlatformRenderer actual constructor() {
     }
 
     actual open fun renderComposableRootWithHydration(composable: @Composable () -> Unit): String {
+        return renderComposableRootWithHydration(null, composable)
+    }
+
+    actual open fun renderComposableRootWithHydration(state: Any?, composable: @Composable () -> Unit): String {
         try {
             safeWasmConsoleLog("PlatformRenderer renderComposableRootWithHydration - WASM implementation")
 
@@ -391,6 +421,9 @@ actual open class PlatformRenderer actual constructor() {
             isStringRenderMode = true
             htmlBuilder.clear()
             htmlStack.clear()
+
+            // Provide the renderer so composables can access it
+            LocalPlatformRenderer.provides(this)
 
             // Create root element with hydration markers
             val rootElement = HtmlElement(
@@ -517,6 +550,8 @@ actual open class PlatformRenderer actual constructor() {
             try {
                 // Set up container context for hydration
                 withContainerContext(rootElement) {
+                    // Provide this renderer to the composition
+                    LocalPlatformRenderer.provides(this)
                     composable()
                 }
 
@@ -1106,9 +1141,13 @@ actual open class PlatformRenderer actual constructor() {
     }
 
     actual open fun renderDiv(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
+        // Generate deterministic ID
+        val key = modifier.attributes["key"]
+        val sid = generateNextId("div", key)
+
         try {
-            // Check for hydration markers in modifier
-            val summonId = modifier.attributes?.get("data-summon-id")
+            // Use generated SID
+            val summonId = sid
 
             // Create or reuse div element
             val newElement = createOrReuseElement("div", summonId)
@@ -1122,15 +1161,22 @@ actual open class PlatformRenderer actual constructor() {
             }
 
             divElement.setAttribute("class", "summon-div")
+            divElement.setAttribute("data-sid", sid)
 
             // Apply modifier styles and attributes
             applyModifierToElement(divElement, modifier)
+
+            // Push ID for children
+            pushId(sid)
 
             // Set up content rendering context
             withContainerContext(divElement) {
                 val contentScope = createFlowContentCompat()
                 content(contentScope)
             }
+
+            // Pop ID
+            popId()
 
             // Always append to container to ensure it's registered in the current composition
             // appendToCurrentContainer handles reused elements efficiently (skips if already in correct parent)
@@ -1145,6 +1191,10 @@ actual open class PlatformRenderer actual constructor() {
         } catch (e: Exception) {
             wasmConsoleError("Failed to render div - ${e.message}")
             wasmConsoleLog("PlatformRenderer renderDiv - WASM fallback")
+            // Ensure we pop if we pushed
+            if (idStack.last() == sid) {
+                popId()
+            }
         }
     }
 
@@ -1364,8 +1414,36 @@ actual open class PlatformRenderer actual constructor() {
         wasmConsoleLog("PlatformRenderer renderToast - WASM stub")
     }
 
-    // WASM DOM Helper Functions
-    // These provide the infrastructure needed for actual DOM manipulation
+    // Deterministic ID generation
+    private val idStack = mutableListOf("root")
+    private val childCounters = mutableListOf(mutableMapOf<String, Int>())
+
+    private fun generateNextId(tagName: String, key: String? = null): String {
+        val parentId = idStack.last()
+        val counters = childCounters.last()
+
+        val count = counters.getOrPut(tagName) { 0 } + 1
+        counters[tagName] = count
+
+        return if (key != null) {
+            "$parentId/$tagName[$key]"
+        } else {
+            "$parentId/$tagName-$count"
+        }
+    }
+
+    private fun pushId(id: String) {
+        idStack.add(id)
+        childCounters.add(mutableMapOf())
+    }
+
+    private fun popId() {
+        if (idStack.size > 1) {
+            idStack.removeAt(idStack.lastIndex)
+            childCounters.removeAt(childCounters.lastIndex)
+        }
+    }
+
 
     private val containerStack = mutableListOf<String?>()
     private var rootContainer: String? = null
@@ -1408,6 +1486,15 @@ actual open class PlatformRenderer actual constructor() {
                 val rootElement = DOMProvider.createElementFromNative(elementId)
                 scanForHydrationMarkers(rootElement)
                 isHydrating = true
+                
+                // Load server state
+                val stateJson = wasmGetSummonState()
+                if (stateJson != null) {
+                    safeWasmConsoleLog("Hydration: Loaded server state")
+                    // In a full implementation, we would parse this JSON into serverState
+                    // serverState = Json.decodeFromString(stateJson)
+                }
+                
                 safeWasmConsoleLog("Prepared for hydration: scanned markers and enabled hydration mode")
             } else {
                 safeWasmConsoleWarn("Could not prepare for hydration: root element $rootElementId not found")
@@ -1693,6 +1780,7 @@ actual open class PlatformRenderer actual constructor() {
 
             // Ensure we're NOT in hydration mode for fresh rendering
             isHydrating = false
+
             wasmConsoleLog("Hydration mode set to: $isHydrating")
 
             // Make sure the platform renderer is set globally
@@ -2070,6 +2158,8 @@ actual open class PlatformRenderer actual constructor() {
                 withContainerContext(rootElement) {
                     val composer = createComposer()
                     composer.compose {
+                        // Provide this renderer to the composition
+                        LocalPlatformRenderer.provides(this@PlatformRenderer)
                         composable()
                     }
                 }
@@ -2137,7 +2227,7 @@ actual open class PlatformRenderer actual constructor() {
 
         // Attributes
         element.attributes.forEach { (key, value) ->
-            sb.append(" $key=\"$value\"")
+            sb.append(" $key=\"${escapeHtmlAttribute(value)}\"")
         }
 
         // Self-closing tags

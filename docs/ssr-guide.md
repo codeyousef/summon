@@ -11,6 +11,17 @@ Summon provides a comprehensive Server-Side Rendering (SSR) implementation that 
 - [Hydration](#hydration)
 - [Performance](#performance)
 - [Real-World Examples](#real-world-examples)
+
+## Hydration
+
+Summon uses a "Resumable Server-Driven UI" architecture for hydration. This ensures that the client-side application picks up exactly where the server left off, preserving state and ensuring instant interactivity.
+
+For a detailed guide on how hydration works and how to use it, please refer to the [Hydration Guide](hydration.md).
+
+### Legacy Hydration
+The previous hydration mechanism (using `HydrationManager`) is deprecated. Please migrate to the new architecture using `renderComposableRootWithHydration` and `UiState`.
+
+## Performance
 - [Best Practices](#best-practices)
 - [Troubleshooting](#troubleshooting)
 
