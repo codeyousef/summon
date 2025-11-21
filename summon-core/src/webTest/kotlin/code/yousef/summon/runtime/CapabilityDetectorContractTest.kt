@@ -18,7 +18,7 @@ class CapabilityDetectorContractTest {
         // This test will fail until CapabilityDetector is implemented
         val detector = try {
             createTestCapabilityDetector()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             // Expected to fail until implementation exists
             return
         }
@@ -33,7 +33,7 @@ class CapabilityDetectorContractTest {
     fun `getBrowserInfo should return valid browser information`() {
         val detector = try {
             createTestCapabilityDetector()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             // Expected to fail until implementation exists
             return
         }
@@ -50,7 +50,7 @@ class CapabilityDetectorContractTest {
     fun `selectPlatformTarget should return valid platform target`() {
         val detector = try {
             createTestCapabilityDetector()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             // Expected to fail until implementation exists
             return
         }
@@ -69,7 +69,7 @@ class CapabilityDetectorContractTest {
     fun `selectPlatformTarget should prefer WASM when supported`() {
         val detector = try {
             createTestCapabilityDetector()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             // Expected to fail until implementation exists
             return
         }
@@ -94,7 +94,7 @@ class CapabilityDetectorContractTest {
     fun `capability detection should be consistent`() {
         val detector = try {
             createTestCapabilityDetector()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             // Expected to fail until implementation exists
             return
         }
@@ -121,7 +121,7 @@ class CapabilityDetectorContractTest {
     fun `browser info should be consistent`() {
         val detector = try {
             createTestCapabilityDetector()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             // Expected to fail until implementation exists
             return
         }

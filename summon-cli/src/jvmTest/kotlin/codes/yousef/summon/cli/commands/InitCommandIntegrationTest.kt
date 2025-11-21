@@ -25,22 +25,22 @@ class InitCommandIntegrationTest {
             TemplateScenario(
                 projectName = "standalone-site",
                 initArgs = arrayOf("--mode=standalone"),
-                gradleTasks = listOf("build")
+                gradleTasks = listOf("kotlinUpgradeYarnLock", "build")
             ),
             TemplateScenario(
                 projectName = "portal-ktor",
                 initArgs = arrayOf("--mode=fullstack", "--backend=ktor"),
-                gradleTasks = listOf("build")
+                gradleTasks = listOf("kotlinUpgradeYarnLock", "build")
             ),
             TemplateScenario(
                 projectName = "portal-spring",
                 initArgs = arrayOf("--mode=fullstack", "--backend=spring"),
-                gradleTasks = listOf("build")
+                gradleTasks = listOf("kotlinUpgradeYarnLock", "build")
             ),
             TemplateScenario(
                 projectName = "portal-quarkus",
                 initArgs = arrayOf("--mode=fullstack", "--backend=quarkus"),
-                gradleTasks = listOf("build", "unitTest"),
+                gradleTasks = listOf("kotlinUpgradeYarnLock", "build", "unitTest"),
                 warningModeFail = false,
                 checkDeprecated = true
             )

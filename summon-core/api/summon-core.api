@@ -6986,6 +6986,7 @@ public final class codes/yousef/summon/runtime/PlatformRendererCompositionLocalK
 
 public final class codes/yousef/summon/runtime/Recomposer {
 	public fun <init> ()V
+	public final fun composeInitial (Lkotlin/jvm/functions/Function0;)V
 	public final fun createComposer ()Lcodes/yousef/summon/runtime/Composer;
 	public final fun isComposing ()Z
 	public final fun processRecompositions (Lkotlin/jvm/functions/Function0;)V
