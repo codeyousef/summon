@@ -1627,10 +1627,9 @@ fun MyApp() {
             
             Button(
                 onClick = { /* Handle click */ },
+                label = "Get Started",
                 modifier = Modifier.padding(top = 8)
-            ) {
-                Text("Get Started")
-            }
+            )
         }
     }
 }
@@ -1693,16 +1692,16 @@ fun Counter() {
         Text("Count: ${'$'}counter")
         
         Row {
-            Button(onClick = { ${'$'}counter-- }) {
-                Text("-")
-            }
+            Button(
+                onClick = { ${'$'}counter-- },
+                label = "-"
+            )
             
             Button(
                 onClick = { ${'$'}counter++ },
+                label = "+",
                 modifier = Modifier.padding(start = 8)
-            ) {
-                Text("+")
-            }
+            )
         }
     }
 }

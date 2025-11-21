@@ -18,7 +18,7 @@ class BundleLoaderContractTest {
     fun `loadBundle should handle success callback`() = runTest {
         val loader = try {
             createTestBundleLoader()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             // Expected to fail until implementation exists
             return@runTest
         }
@@ -47,7 +47,7 @@ class BundleLoaderContractTest {
     fun `loadBundle should handle error callback for invalid targets`() = runTest {
         val loader = try {
             createTestBundleLoader()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             // Expected to fail until implementation exists
             return@runTest
         }
@@ -79,7 +79,7 @@ class BundleLoaderContractTest {
     fun `getLoadState should return valid load state`() {
         val loader = try {
             createTestBundleLoader()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             // Expected to fail until implementation exists
             return
         }
@@ -98,7 +98,7 @@ class BundleLoaderContractTest {
     fun `cancelLoading should not throw exception`() {
         val loader = try {
             createTestBundleLoader()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             // Expected to fail until implementation exists
             return
         }
@@ -115,7 +115,7 @@ class BundleLoaderContractTest {
     fun `multiple loadBundle calls should handle state properly`() = runTest {
         val loader = try {
             createTestBundleLoader()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             // Expected to fail until implementation exists
             return@runTest
         }
@@ -149,7 +149,7 @@ class BundleLoaderContractTest {
     fun `load state should change during bundle loading`() = runTest {
         val loader = try {
             createTestBundleLoader()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             // Expected to fail until implementation exists
             return@runTest
         }

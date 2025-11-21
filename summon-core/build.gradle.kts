@@ -221,6 +221,10 @@ kotlin {
             }
         }
 
+        val webTest by creating {
+            dependsOn(commonTest)
+        }
+
         val jsMain by getting {
             dependsOn(webMain)
             dependencies {
@@ -251,12 +255,14 @@ kotlin {
         }
 
         val jsTest by getting {
+            dependsOn(webTest)
             dependencies {
                 // AtomicFU plugin handles atomicfu dependencies automatically
                 implementation(npm("happy-dom", "14.10.3"))
             }
         }
         val wasmJsTest by getting {
+            dependsOn(webTest)
             dependencies {
                 implementation(npm("happy-dom", "14.10.3"))
             }
