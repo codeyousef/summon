@@ -675,6 +675,15 @@ tasks.named<org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack>("jsBro
     mainOutputFileName = "${variables["PROJECT_NAME"]}.js"
 }
 
+tasks.named<org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack>("jsBrowserDevelopmentRun") {
+    devServerProperty.set(
+        devServerProperty.getOrElse(org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig.DevServer()).copy(
+            open = false,
+            port = 8080
+        )
+    )
+}
+
 // Suppress expect/actual Beta warnings
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().configureEach {
     compilerOptions {
@@ -810,6 +819,15 @@ kotlin {
         }
         val jsTest by getting
     }
+}
+
+tasks.named<org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack>("jsBrowserDevelopmentRun") {
+    devServerProperty.set(
+        devServerProperty.getOrElse(org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig.DevServer()).copy(
+            open = false,
+            port = 8080
+        )
+    )
 }
 
 // Suppress expect/actual Beta warnings
@@ -991,7 +1009,11 @@ fun App() {
         )
         
         Button(
-            onClick = { counter.value++ },
+            onClick = { 
+                println("Button clicked! Current count: ${'$'}{counter.value}")
+                counter.value++ 
+                println("New count: ${'$'}{counter.value}")
+            },
             label = "Click me!"
         )
     }
@@ -1887,21 +1909,21 @@ fun ButtonExamples() {
             if (versionPropsFile.exists()) {
                 val props = java.util.Properties()
                 versionPropsFile.inputStream().use { props.load(it) }
-                props.getProperty("VERSION", "0.4.9.4")
+                props.getProperty("VERSION", "0.5.0.0")
             } else {
                 // Try relative to project root
                 val rootVersionFile = File("../version.properties")
                 if (rootVersionFile.exists()) {
                     val props = java.util.Properties()
                     rootVersionFile.inputStream().use { props.load(it) }
-                    props.getProperty("VERSION", "0.4.9.4")
+                    props.getProperty("VERSION", "0.5.0.0")
                 } else {
-                    "0.4.9.4" // Fallback to current version
+                    "0.5.0.0" // Fallback to current version
                 }
             }
         } catch (e: Exception) {
             println("⚠️  Could not read version from version.properties: ${e.message}")
-            "0.4.9.4" // Fallback
+            "0.5.0.0" // Fallback
         }
     }
 }

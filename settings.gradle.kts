@@ -11,6 +11,8 @@ include(":summon-cli")
 // Examples
 include(":examples:ssr-todo-app")
 include(":examples:wasm-seo-todo")
+include(":examples:hello-world-js")
+include(":examples:hello-world-wasm")
 
 // Diagnostics suite
 include(":diagnostics")

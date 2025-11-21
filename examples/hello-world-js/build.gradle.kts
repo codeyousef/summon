@@ -1,5 +1,5 @@
 plugins {
-    kotlin("multiplatform") version "2.2.0"
+    kotlin("multiplatform")
 }
 
 repositories {
@@ -19,8 +19,17 @@ kotlin {
     sourceSets {
         val jsMain by getting {
             dependencies {
-                implementation("io.github.codeyousef:summon:0.4.0.0")
+                implementation(project(":summon-core"))
             }
         }
     }
+}
+
+tasks.named<org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack>("jsBrowserDevelopmentRun") {
+    devServerProperty.set(
+        devServerProperty.getOrElse(org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig.DevServer()).copy(
+            open = false,
+            port = 8080
+        )
+    )
 }

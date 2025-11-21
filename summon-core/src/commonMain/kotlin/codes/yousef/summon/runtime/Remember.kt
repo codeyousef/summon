@@ -87,13 +87,10 @@ import codes.yousef.summon.state.mutableStateOf
 fun <T> remember(calculation: () -> T): T {
     val composer = CompositionLocal.currentComposer ?: return calculation()
 
-    // Get the current slot index
-    composer.nextSlot()
-
     // Check if we already have a value
     val existing = composer.getSlot() as? T
 
-    return if (existing != null) {
+    val result = if (existing != null) {
         // Return the existing value
         existing
     } else {
@@ -102,6 +99,11 @@ fun <T> remember(calculation: () -> T): T {
         composer.setSlot(value)
         value
     }
+
+    // Move to next slot
+    composer.nextSlot()
+
+    return result
 }
 
 /**
@@ -115,33 +117,36 @@ fun <T> remember(calculation: () -> T): T {
 fun <T> remember(vararg keys: Any?, calculation: () -> T): T {
     val composer = CompositionLocal.currentComposer ?: return calculation()
 
-    // Get the current slot index for the keys
-    composer.nextSlot()
-
     // Check if we have stored keys
     val storedInputs = composer.getSlot() as? Array<*>
 
-    // Get the next slot for the value
+    // See if keys have changed
+    val inputsChanged = storedInputs == null || !keys.contentEquals(storedInputs)
+
+    if (inputsChanged) {
+        composer.setSlot(keys)
+    }
+
+    // Move to next slot for value
     composer.nextSlot()
 
     // Check if we already have a value
     val existing = composer.getSlot() as? T
 
-    // See if keys have changed
-    val inputsChanged = storedInputs == null || !keys.contentEquals(storedInputs)
-
-    return if (!inputsChanged && existing != null) {
+    val result = if (!inputsChanged && existing != null) {
         // Return the existing value
         existing
     } else {
-        // Store the new keys
-        composer.setSlot(keys)
-
         // Calculate and store a new value
         val value = calculation()
         composer.setSlot(value)
         value
     }
+
+    // Move to next slot
+    composer.nextSlot()
+
+    return result
 }
 
 /**

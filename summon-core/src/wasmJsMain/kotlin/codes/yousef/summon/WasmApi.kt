@@ -115,6 +115,23 @@ fun renderComposableRoot(rootElementId: String, composable: @Composable () -> Un
 }
 
 /**
+ * Hydrates a composable function to the DOM element with the specified ID.
+ * This is used when the HTML has been pre-rendered by the server.
+ */
+fun hydrateComposableRoot(rootElementId: String, composable: @Composable () -> Unit) {
+    wasmConsoleLog("hydrateComposableRoot called for element: $rootElementId")
+    
+    try {
+        val renderer = PlatformRenderer()
+        renderer.hydrateComposableRoot(rootElementId, composable)
+    } catch (e: Exception) {
+        wasmConsoleError("Error in hydrateComposableRoot: ${e.message}")
+        // Fallback to client-side rendering
+        renderComposableRoot(rootElementId, composable)
+    }
+}
+
+/**
  * Simple Composer implementation for WASM.
  */
 private class ComposerImpl : Composer {

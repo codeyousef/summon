@@ -1,5 +1,5 @@
 plugins {
-    kotlin("multiplatform") version "2.2.0"
+    kotlin("multiplatform")
 }
 
 repositories {
@@ -20,7 +20,7 @@ kotlin {
     sourceSets {
         val wasmJsMain by getting {
             dependencies {
-                implementation("io.github.codeyousef:summon:0.4.0.0")
+                implementation(project(":summon-core"))
             }
         }
     }

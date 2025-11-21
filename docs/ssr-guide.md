@@ -736,7 +736,7 @@ val globalRenderer = PlatformRenderer() // May hold onto resources
 
 **Root Cause**: In coroutine-based frameworks (Ktor, Spring WebFlux), the request may be processed by different threads during coroutine suspension/resumption. This causes callbacks to be registered on one thread but collected from another, resulting in mismatched callback IDs.
 
-**Solution**: Ensure you're using version **0.4.9.4 or later** and the proper hydration method:
+**Solution**: Ensure you're using version **0.5.0.0 or later** and the proper hydration method:
 
 ```kotlin
 // Ktor - Use respondSummonHydrated (already includes the fix)

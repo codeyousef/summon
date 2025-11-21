@@ -168,7 +168,6 @@ actual open class PlatformRenderer {
         // Try to reuse existing element if we're recomposing
         val element = if (isRecomposing && elementCache.containsKey(elementKey)) {
             val cached = elementCache[elementKey]!!
-            console.log("Reusing element: $tagName with key: $elementKey")
 
             // Check if element needs to be moved to a different parent
             val oldParent = keyToParentMap[elementKey]
@@ -204,7 +203,6 @@ actual open class PlatformRenderer {
         } else {
             // Create new element
             val newElement = document.createElement(tagName)
-            console.log("Creating new element: $tagName with key: $elementKey")
 
             // Apply modifiers
             applyModifier(newElement, modifier)
@@ -214,7 +212,6 @@ actual open class PlatformRenderer {
             keyToParentMap[elementKey] = parent
 
             // Add to current parent
-            console.log("Appending $tagName to parent: ${parent.asDynamic().tagName}")
             parent.appendChild(newElement)
 
             newElement
@@ -236,7 +233,6 @@ actual open class PlatformRenderer {
 
         // Render content if provided
         if (content != null) {
-            console.log("Rendering content for $tagName")
             elementStack.push(element)
             parentKeyStack.add(currentParentKey)
             currentParentKey = elementKey
@@ -696,7 +692,7 @@ actual open class PlatformRenderer {
                 LocalPlatformRenderer.provides(this)
 
                 // Render the composable
-                composable()
+                recomposer.composeInitial(composable)
             }
         } else {
             console.error("Could not find element with ID: $rootElementId for hydration")

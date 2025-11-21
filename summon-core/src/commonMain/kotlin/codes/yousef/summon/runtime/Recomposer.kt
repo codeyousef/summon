@@ -316,21 +316,22 @@ class Recomposer {
          * Performs the actual composition by invoking the composable root.
          */
         private fun compose(compositionRoot: @Composable () -> Unit) {
-            // Set this composer as the active composer for state tracking
-            recomposer.setActiveComposer(this)
+            // Set this composer as the active composer using CompositionLocal
+            // This ensures that remember {} and other composables can access the composer
+            CompositionLocal.provideComposer(this) {
+                try {
+                    // Start a new composition group
+                    startGroup("recomposition")
 
-            try {
-                // Start a new composition group
-                startGroup("recomposition")
+                    // Invoke the composable root
+                    compositionRoot()
 
-                // Invoke the composable root
-                compositionRoot()
-
-                // End the composition group
-                endGroup()
-            } finally {
-                // Clear the active composer
-                recomposer.setActiveComposer(null)
+                    // End the composition group
+                    endGroup()
+                } catch (e: Exception) {
+                    println("Error during composition: $e")
+                    throw e
+                }
             }
         }
 
@@ -346,18 +347,17 @@ class Recomposer {
 
         override fun startGroup(key: Any?) {
             groupStack.add(key)
-            // Save the current slot index so we can restore it when the group ends
-            slots[slotIndex] = slotIndex
+            // Store the key in the slot to maintain alignment
+            slots[slotIndex] = key
             slotIndex++
         }
 
         override fun endGroup() {
             if (groupStack.isNotEmpty()) {
                 groupStack.removeAt(groupStack.size - 1)
-                // Restore the slot index from when the group started
-                slotIndex = (slots[slotIndex - 1] as? Int) ?: slotIndex
             }
         }
+
 
         override fun changed(value: Any?): Boolean {
             val slotValue = getSlot()
@@ -377,7 +377,8 @@ class Recomposer {
         }
 
         override fun getSlot(): Any? {
-            return slots[slotIndex]
+            val value = slots[slotIndex]
+            return value
         }
 
         override fun setSlot(value: Any?) {
@@ -445,19 +446,26 @@ class Recomposer {
         }
 
         override fun <T> compose(composable: @Composable () -> T): T {
-            // Store the previous active composer
-            val previousComposer = recomposer.activeComposer
-            // Set this as the active composer
-            recomposer.setActiveComposer(this)
-
-            startCompose()
-            try {
-                return composable()
-            } finally {
-                endCompose()
-                // Restore the previous active composer
-                recomposer.setActiveComposer(previousComposer)
+            // Use CompositionLocal to manage the composer
+            return CompositionLocal.provideComposer(this) {
+                startCompose()
+                try {
+                    composable()
+                } finally {
+                    endCompose()
+                }
             }
+        }
+    }
+
+    /**
+     * Performs the initial composition synchronously.
+     * This ensures that the composition structure matches what will be used during recomposition.
+     */
+    fun composeInitial(root: @Composable () -> Unit) {
+        val composer = createComposer()
+        if (composer is RecomposerBackedComposer) {
+            composer.recompose(root)
         }
     }
 }
@@ -466,4 +474,4 @@ class Recomposer {
  * Global holder for the Recomposer instance.
  * This is already defined in State.kt, so we'll remove the duplicate here.
  */
-// Removed duplicate object declaration to resolve conflict with State.kt 
+// Removed duplicate object declaration to resolve conflict with State.kt
