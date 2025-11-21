@@ -828,6 +828,10 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().con
     ) {
         val settingsFile = File(targetDir, "settings.gradle.kts")
         val content = buildString {
+            appendLine("plugins {")
+            appendLine("    id(\"org.gradle.toolchains.foojay-resolver-convention\") version \"0.8.0\"")
+            appendLine("}")
+            appendLine()
             appendLine("rootProject.name = \"${variables["PROJECT_NAME"]}\"")
             if (modules.isNotEmpty()) {
                 appendLine()
