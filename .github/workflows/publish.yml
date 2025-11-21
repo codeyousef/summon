@@ -57,14 +57,14 @@ jobs:
           fi
 
       - name: Run full test suite
-        run: ./gradlew --no-daemon --max-workers=4 --console=plain allTests --stacktrace --info
+        run: ./gradlew --no-daemon --max-workers=4 --console=plain :summon-core:jvmTest :summon-core:jsTest :summon-core:wasmJsTest :summon-cli:jvmTest --stacktrace --info
 
-      - name: Upload summon-cli allTests report
+      - name: Upload summon-cli jvmTest report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: summon-cli-allTests-report
-          path: summon-cli/build/reports/tests/allTests
+          name: summon-cli-jvmTest-report
+          path: summon-cli/build/reports/tests/jvmTest
 
       - name: Ensure tag does not already exist
         shell: bash

@@ -82,11 +82,7 @@ val shadowJar = tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.
 
 
     manifest {
-        attributes(
-            "Main-Class" to "code.yousef.summon.cli.SummonCliKt",
-            "Implementation-Title" to "Summon CLI",
-            "Implementation-Version" to project.version
-        )
+        attributes("Main-Class" to "codes.yousef.summon.cli.SummonCliKt")
     }
 
     // Relocate dependencies to avoid conflicts

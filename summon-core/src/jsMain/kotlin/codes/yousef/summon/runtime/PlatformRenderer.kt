@@ -12,6 +12,7 @@ import codes.yousef.summon.core.asFlowContentCompat
 import codes.yousef.summon.js.console
 import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.modifier.ModifierExtras.withAttribute
+import codes.yousef.summon.runtime.LocalPlatformRenderer
 import kotlinx.browser.document
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
@@ -167,7 +168,6 @@ actual open class PlatformRenderer {
         // Try to reuse existing element if we're recomposing
         val element = if (isRecomposing && elementCache.containsKey(elementKey)) {
             val cached = elementCache[elementKey]!!
-            console.log("Reusing element: $tagName with key: $elementKey")
 
             // Check if element needs to be moved to a different parent
             val oldParent = keyToParentMap[elementKey]
@@ -203,7 +203,6 @@ actual open class PlatformRenderer {
         } else {
             // Create new element
             val newElement = document.createElement(tagName)
-            console.log("Creating new element: $tagName with key: $elementKey")
 
             // Apply modifiers
             applyModifier(newElement, modifier)
@@ -213,7 +212,6 @@ actual open class PlatformRenderer {
             keyToParentMap[elementKey] = parent
 
             // Add to current parent
-            console.log("Appending $tagName to parent: ${parent.asDynamic().tagName}")
             parent.appendChild(newElement)
 
             newElement
@@ -235,7 +233,6 @@ actual open class PlatformRenderer {
 
         // Render content if provided
         if (content != null) {
-            console.log("Rendering content for $tagName")
             elementStack.push(element)
             parentKeyStack.add(currentParentKey)
             currentParentKey = elementKey
@@ -639,6 +636,10 @@ actual open class PlatformRenderer {
     actual open fun renderComposableRoot(composable: @Composable () -> Unit): String {
         // Create a detached root element for rendering if not using a specific container
         val rootElement = document.createElement("div")
+        
+        // Provide this renderer to the composition local so child composables can access it
+        LocalPlatformRenderer.provides(this)
+        
         // Temporarily set this as the current element for rendering
         elementStack.withElement(rootElement) {
             composable()
@@ -647,11 +648,18 @@ actual open class PlatformRenderer {
     }
 
     actual open fun renderComposableRootWithHydration(composable: @Composable () -> Unit): String {
+        return renderComposableRootWithHydration(null, composable)
+    }
+
+    actual open fun renderComposableRootWithHydration(state: Any?, composable: @Composable () -> Unit): String {
         // Produce hydration-ready markup by adding Summon-specific markers and payload container
         val rootElement = document.createElement("div")
         rootElement.setAttribute("data-summon-hydration", "root")
         rootElement.setAttribute("data-summon-renderer", "js")
         rootElement.setAttribute("data-summon-version", js("globalThis.SUMMON_VERSION") ?: "0.4.9.3")
+
+        // Provide this renderer to the composition local so child composables can access it
+        LocalPlatformRenderer.provides(this)
 
         elementStack.withElement(rootElement) {
             composable()
@@ -680,8 +688,11 @@ actual open class PlatformRenderer {
                 val recomposer = RecomposerHolder.current()
                 recomposer.setCompositionRoot(composable)
 
+                // Provide this renderer to the composition local so child composables can access it
+                LocalPlatformRenderer.provides(this)
+
                 // Render the composable
-                composable()
+                recomposer.composeInitial(composable)
             }
         } else {
             console.error("Could not find element with ID: $rootElementId for hydration")

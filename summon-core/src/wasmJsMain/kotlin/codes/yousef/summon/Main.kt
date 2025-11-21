@@ -14,36 +14,6 @@ private var globalRenderer: PlatformRenderer? = null
 // The renderComposableRoot function is now in WasmApi.kt with proper CompositionLocal setup
 
 /**
- * Hydrates an existing server-rendered DOM with client-side interactivity.
- * This is used for SSR/hydration scenarios in WASM.
- *
- * @param rootElementId The ID of the DOM element containing server-rendered content
- * @param content The root composable function
- */
-fun hydrateComposableRoot(rootElementId: String = "root", content: @Composable () -> Unit) {
-    try {
-        wasmConsoleLog("Summon WASM: Starting hydration...")
-
-        // Initialize the platform renderer if not already done
-        val renderer = globalRenderer ?: PlatformRenderer().also {
-            globalRenderer = it
-            setPlatformRenderer(it)
-        }
-
-        // Initialize the renderer with the root element
-        renderer.initialize(rootElementId)
-
-        // Hydrate the existing DOM
-        renderer.hydrateComposableRoot(rootElementId, content)
-
-        wasmConsoleLog("Summon WASM: Hydration completed successfully")
-    } catch (e: Exception) {
-        wasmConsoleLog("Summon WASM: Hydration failed - ${e.message}")
-        throw e
-    }
-}
-
-/**
  * Entry point for WASM applications.
  * This function is automatically called when the WASM module loads.
  *

@@ -1,4 +1,4 @@
-package code.yousef.example.todo
+package codes.yousef.example.todo
 
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.components.display.Text
@@ -21,7 +21,8 @@ fun main() {
     println("Testing Summon SSR...")
     
     val renderer = PlatformRenderer()
-    val html = renderer.renderComposableRoot { SimplePage() }
+    // Using renderComposableRootWithHydration to test the new hydration approach
+    val html = renderer.renderComposableRootWithHydration { SimplePage() }
     
     println("Generated HTML:")
     println("================")

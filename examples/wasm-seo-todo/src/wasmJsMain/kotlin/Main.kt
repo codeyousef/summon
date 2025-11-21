@@ -7,7 +7,7 @@ import codes.yousef.summon.components.input.TextField
 import codes.yousef.summon.components.layout.Column
 import codes.yousef.summon.components.layout.Row
 import codes.yousef.summon.modifier.Modifier
-import codes.yousef.summon.renderComposableRoot
+import codes.yousef.summon.hydrateComposableRoot
 import codes.yousef.summon.runtime.DirectDOMRenderer
 import codes.yousef.summon.runtime.wasmExecuteCallback
 
@@ -132,12 +132,12 @@ fun clearAllTodos() {
 
 /**
  * Main entry point for the WASM application.
- * Uses Summon's renderComposableRoot to mount the app.
+ * Uses Summon's hydrateComposableRoot to mount the app.
  */
 fun main() {
     try {
         // Mount the Todo app to the root element
-        renderComposableRoot("root") {
+        hydrateComposableRoot("root") {
             TodoApp()
         }
 

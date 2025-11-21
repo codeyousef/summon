@@ -11,6 +11,17 @@ Summon provides a comprehensive Server-Side Rendering (SSR) implementation that 
 - [Hydration](#hydration)
 - [Performance](#performance)
 - [Real-World Examples](#real-world-examples)
+
+## Hydration
+
+Summon uses a "Resumable Server-Driven UI" architecture for hydration. This ensures that the client-side application picks up exactly where the server left off, preserving state and ensuring instant interactivity.
+
+For a detailed guide on how hydration works and how to use it, please refer to the [Hydration Guide](hydration.md).
+
+### Legacy Hydration
+The previous hydration mechanism (using `HydrationManager`) is deprecated. Please migrate to the new architecture using `renderComposableRootWithHydration` and `UiState`.
+
+## Performance
 - [Best Practices](#best-practices)
 - [Troubleshooting](#troubleshooting)
 
@@ -725,7 +736,7 @@ val globalRenderer = PlatformRenderer() // May hold onto resources
 
 **Root Cause**: In coroutine-based frameworks (Ktor, Spring WebFlux), the request may be processed by different threads during coroutine suspension/resumption. This causes callbacks to be registered on one thread but collected from another, resulting in mismatched callback IDs.
 
-**Solution**: Ensure you're using version **0.4.9.4 or later** and the proper hydration method:
+**Solution**: Ensure you're using version **0.5.0.0 or later** and the proper hydration method:
 
 ```kotlin
 // Ktor - Use respondSummonHydrated (already includes the fix)

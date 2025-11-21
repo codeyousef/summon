@@ -29,6 +29,14 @@ abstract class PlatformRenderer {
   - **Returns**: HTML string with hydration scripts included
   - **Platform**: JVM only
 
+- `renderComposableRootWithHydration(state: Any?, content: @Composable () -> Unit): String`
+  - Renders a composable with client-side hydration support and initial state injection.
+  - **Parameters**: 
+    - `state`: The initial state object (should implement `UiState` or be serializable).
+    - `content`: The root composable to render.
+  - **Returns**: HTML string with hydration scripts and state payload included.
+  - **Platform**: JVM only
+
 ### `JvmPlatformRenderer`
 
 JVM-specific implementation of `PlatformRenderer` for server-side rendering.

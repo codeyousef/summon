@@ -1,10 +1,10 @@
 package examples
 
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.style.GlobalStyle
-import code.yousef.summon.components.style.MediaQuery
-import code.yousef.summon.components.layout.Box
-import code.yousef.summon.modifier.Modifier
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.style.GlobalStyle
+import codes.yousef.summon.components.style.MediaQuery
+import codes.yousef.summon.components.layout.Box
+import codes.yousef.summon.modifier.Modifier
 
 /**
  * Example demonstrating how to use MediaQuery to generate actual CSS @media rules

@@ -5,13 +5,14 @@ import java.util.*
 apply(from = "../version.gradle.kts")
 
 // Manual version override for now
-version = "0.4.9.4"
+version = "0.5.0.0"
 group = "codes.yousef"
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.atomicfu)
+    alias(libs.plugins.binary.compatibility.validator)
     `maven-publish`
     signing
 }
@@ -54,6 +55,11 @@ kotlin {
                 compilerOptions {
                     jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
                 }
+            }
+        }
+        testRuns.named("test") {
+            executionTask.configure {
+                useJUnitPlatform()
             }
         }
     }
@@ -155,6 +161,7 @@ kotlin {
             dependencies {
                 implementation(libs.kotlin.test)
                 implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.kotest.property)
             }
         }
         val jvmMain by getting {
@@ -200,6 +207,8 @@ kotlin {
             dependencies {
                 implementation(libs.ktor.server.test.host)
                 implementation(libs.spring.test)
+                implementation(libs.kotest.runner.junit5)
+                implementation(libs.jsoup)
             }
         }
         // Create webMain for shared web code
