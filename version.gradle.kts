@@ -2,7 +2,7 @@
 // This file centralizes version information to avoid duplication
 
 // Read version information from version.properties
-val versionPropsFile = project.file("version.properties")
+val versionPropsFile = rootProject.file("version.properties")
 val versionProps = java.util.Properties()
 
 if (versionPropsFile.exists()) {
