@@ -1,6 +1,7 @@
 package codes.yousef.summon.cli.generators
 
 import codes.yousef.summon.cli.templates.ProjectTemplate
+import codes.yousef.summon.cli.util.VersionReader
 import java.io.File
 import kotlin.io.path.createTempDirectory
 import kotlin.test.*
@@ -42,15 +43,16 @@ class ProjectGeneratorTest {
         assertTrue(buildFile.exists(), "build.gradle.kts should exist")
 
         val content = buildFile.readText()
+        val currentVersion = VersionReader.readVersion()
 
-        // Should use version from version.properties (0.5.0.2), not hardcoded 0.4.0.0
+        // Should use version from version.properties, not hardcoded 0.4.0.0
         assertFalse(
             content.contains("summon:0.4.0.0"),
             "Generated build file should not use hardcoded old version 0.4.0.0"
         )
         assertTrue(
-            content.contains("summon:0.5.0.2"),
-            "Generated build file should use current version 0.5.0.2 from version.properties"
+            content.contains("summon:$currentVersion"),
+            "Generated build file should use current version $currentVersion from version.properties"
         )
 
         assertTrue(
