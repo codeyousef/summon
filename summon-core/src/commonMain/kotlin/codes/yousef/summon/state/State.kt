@@ -195,16 +195,24 @@ interface MutableState<T> : SummonMutableState<T> {
 class MutableStateImpl<T>(initialValue: T) : MutableState<T> {
     private val listeners = mutableListOf<(T) -> Unit>()
 
+    init {
+        println("MutableStateImpl created: $this with value $initialValue")
+    }
+
     override var value: T = initialValue
         get() {
             // Only record read if we're in a composition context
-            if (RecomposerHolder.current().isComposing()) {
-                RecomposerHolder.current().recordRead(this)
+            val recomposer = RecomposerHolder.current()
+            val isComposing = recomposer.isComposing()
+            println("MutableStateImpl.get($this): value=$field, isComposing=$isComposing")
+            if (isComposing) {
+                recomposer.recordRead(this)
             }
             return field
         }
         set(newValue) {
             if (field != newValue) {
+                println("MutableStateImpl.set($this): oldValue=$field, newValue=$newValue")
                 field = newValue
                 notifyListeners()
                 // Notify the recomposer that this state has changed

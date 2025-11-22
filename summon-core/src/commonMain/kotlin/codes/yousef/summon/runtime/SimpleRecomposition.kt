@@ -53,8 +53,11 @@ fun Composer.key(key: Any?, block: () -> Unit) {
  * List implementation that tracks modifications for recomposition.
  */
 fun <T> mutableStateListOf(vararg elements: T): MutableList<T> {
+    println("mutableStateListOf called")
     return SnapshotMutableList<T>().apply {
-        addAll(elements)
+        if (elements.isNotEmpty()) {
+            addAll(elements)
+        }
     }
 }
 
@@ -62,18 +65,73 @@ private class SnapshotMutableList<T> : MutableList<T> {
     private val list = mutableListOf<T>()
     private val modification = mutableStateOf(0)
 
-    override val size: Int get() = list.size
+    init {
+        println("SnapshotMutableList created: $this. Modification state: $modification")
+    }
 
-    override fun contains(element: T): Boolean = list.contains(element)
-    override fun containsAll(elements: Collection<T>): Boolean = list.containsAll(elements)
-    override fun get(index: Int): T = list[index]
-    override fun indexOf(element: T): Int = list.indexOf(element)
-    override fun isEmpty(): Boolean = list.isEmpty()
-    override fun iterator(): MutableIterator<T> = list.iterator()
-    override fun lastIndexOf(element: T): Int = list.lastIndexOf(element)
+    override val size: Int get() {
+        // Record read of modification state to track dependencies
+        @Suppress("UNUSED_VARIABLE")
+        val read = modification.value
+        println("SnapshotMutableList.size($this): ${list.size}. Modification state: $modification")
+        return list.size
+    }
+
+    override fun contains(element: T): Boolean {
+        // Record read
+        @Suppress("UNUSED_VARIABLE")
+        val read = modification.value
+        return list.contains(element)
+    }
+    
+    override fun containsAll(elements: Collection<T>): Boolean {
+        // Record read
+        @Suppress("UNUSED_VARIABLE")
+        val read = modification.value
+        return list.containsAll(elements)
+    }
+    
+    override fun get(index: Int): T {
+        // Record read
+        @Suppress("UNUSED_VARIABLE")
+        val read = modification.value
+        return list[index]
+    }
+    
+    override fun indexOf(element: T): Int {
+        // Record read
+        @Suppress("UNUSED_VARIABLE")
+        val read = modification.value
+        return list.indexOf(element)
+    }
+    
+    override fun isEmpty(): Boolean {
+        // Record read
+        @Suppress("UNUSED_VARIABLE")
+        val read = modification.value
+        return list.isEmpty()
+    }
+    
+    override fun iterator(): MutableIterator<T> {
+        // Record read
+        @Suppress("UNUSED_VARIABLE")
+        val read = modification.value
+        println("SnapshotMutableList.iterator: size=${list.size}")
+        return list.iterator()
+    }
+    
+    override fun lastIndexOf(element: T): Int {
+        // Record read
+        @Suppress("UNUSED_VARIABLE")
+        val read = modification.value
+        return list.lastIndexOf(element)
+    }
+    
     override fun add(element: T): Boolean {
+        println("SnapshotMutableList.add: element=$element")
         return list.add(element).also {
             modification.value++
+            println("SnapshotMutableList.add: new size=${list.size}, modification=${modification.value}")
         }
     }
 
@@ -83,24 +141,48 @@ private class SnapshotMutableList<T> : MutableList<T> {
     }
 
     override fun addAll(index: Int, elements: Collection<T>): Boolean {
+        if (elements.isEmpty()) return false
         return list.addAll(index, elements).also {
             modification.value++
         }
     }
 
     override fun addAll(elements: Collection<T>): Boolean {
+        if (elements.isEmpty()) return false
         return list.addAll(elements).also {
             modification.value++
         }
     }
 
     override fun clear() {
-        list.clear()
-        modification.value++
+        println("SnapshotMutableList.clear($this)")
+        if (list.isNotEmpty()) {
+            list.clear()
+            modification.value++
+        }
     }
 
-    override fun listIterator(): MutableListIterator<T> = list.listIterator()
-    override fun listIterator(index: Int): MutableListIterator<T> = list.listIterator(index)
+    override fun listIterator(): MutableListIterator<T> {
+        // Record read
+        @Suppress("UNUSED_VARIABLE")
+        val read = modification.value
+        return list.listIterator()
+    }
+    
+    override fun listIterator(index: Int): MutableListIterator<T> {
+        // Record read
+        @Suppress("UNUSED_VARIABLE")
+        val read = modification.value
+        return list.listIterator(index)
+    }
+
+    override fun subList(fromIndex: Int, toIndex: Int): MutableList<T> {
+        // Record read
+        @Suppress("UNUSED_VARIABLE")
+        val read = modification.value
+        return list.subList(fromIndex, toIndex)
+    }
+
     override fun remove(element: T): Boolean {
         return list.remove(element).also {
             if (it) modification.value++
@@ -131,11 +213,11 @@ private class SnapshotMutableList<T> : MutableList<T> {
         }
     }
 
-    override fun subList(fromIndex: Int, toIndex: Int): MutableList<T> {
-        return list.subList(fromIndex, toIndex)
-    }
-
     fun forEachIndexed(action: (index: Int, T) -> Unit) {
+        // Record read
+        @Suppress("UNUSED_VARIABLE")
+        val read = modification.value
+        println("SnapshotMutableList.forEachIndexed: size=${list.size}")
         list.forEachIndexed(action)
     }
 }

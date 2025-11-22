@@ -45,7 +45,7 @@ data class ProjectTemplate(
             ),
             dependencies = TemplateDependencies(
                 kotlin = listOf("kotlin-stdlib-js"),
-                summon = listOf("codes.yousef:summon:0.5.0.0"),
+                summon = listOf("codes.yousef:summon:${VersionReader.readVersion()}"),
                 npm = listOf("core-js@3.46.0")
             ),
             postSetupInstructions = listOf(
@@ -68,7 +68,7 @@ data class ProjectTemplate(
             ),
             dependencies = TemplateDependencies(
                 kotlin = listOf("kotlin-stdlib-jdk8", "kotlin-stdlib-js"),
-                summon = listOf("codes.yousef:summon:0.5.0.0"),
+                summon = listOf("codes.yousef:summon:${VersionReader.readVersion()}"),
                 quarkus = listOf("quarkus-core", "quarkus-qute", "quarkus-kotlin", "quarkus-rest")
             ),
             postSetupInstructions = listOf(
@@ -92,7 +92,7 @@ data class ProjectTemplate(
             ),
             dependencies = TemplateDependencies(
                 kotlin = listOf("kotlin-stdlib-jdk8", "kotlin-stdlib-js"),
-                summon = listOf("codes.yousef:summon:0.5.0.0"),
+                summon = listOf("codes.yousef:summon:${VersionReader.readVersion()}"),
                 spring = listOf(
                     "spring-boot-starter-web",
                     "spring-boot-starter-thymeleaf",
@@ -120,7 +120,7 @@ data class ProjectTemplate(
             ),
             dependencies = TemplateDependencies(
                 kotlin = listOf("kotlin-stdlib-jdk8", "kotlin-stdlib-js"),
-                summon = listOf("codes.yousef:summon:0.5.0.0"),
+                summon = listOf("codes.yousef:summon:${VersionReader.readVersion()}"),
                 ktor = listOf("ktor-server-core", "ktor-server-netty", "ktor-server-html-builder")
             ),
             postSetupInstructions = listOf(

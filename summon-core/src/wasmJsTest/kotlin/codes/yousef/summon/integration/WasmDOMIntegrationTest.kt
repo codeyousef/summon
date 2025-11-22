@@ -188,8 +188,10 @@ class WasmDOMIntegrationTest {
     }
 
     @Test
-    @Ignore // TODO: Fix infinite recomposition loop in ImmediateScheduler
+    // @Ignore // TODO: Fix infinite recomposition loop in ImmediateScheduler
     fun `todo buttons mutate list as expected`() {
+        println("STARTING TEST: todo buttons mutate list as expected")
+        wasmClearElementStore() // Clear store at start of test
         ensureWasmNodeDom()
 
         if (!runCatching { wasmGetDocumentBodyId() }.isSuccess) {
@@ -197,7 +199,14 @@ class WasmDOMIntegrationTest {
             return
         }
 
+        // Ensure fresh start by removing existing root if present
+        if (runCatching { wasmGetElementById(TEST_ROOT_ID) }.getOrNull() != null) {
+            wasmRemoveElementById(TEST_ROOT_ID)
+        }
+        
         injectTestRootIfMissing(TEST_ROOT_ID)
+        // Clear the root to ensure clean state
+        wasmSetElementInnerHTML(TEST_ROOT_ID, "")
 
         val renderer = PlatformRenderer()
         renderer.initialize(TEST_ROOT_ID)
@@ -210,37 +219,56 @@ class WasmDOMIntegrationTest {
         RecomposerHolder.setScheduler(scheduler)
 
         try {
+            println("Mounting composable root...")
             renderer.mountComposableRoot(TEST_ROOT_ID) {
                 TodoButtonsApp()
             }
+            println("Mounted composable root.")
 
             assertEquals(
                 0,
                 measuredTodoIds().size,
                 "Initial render should have no todo rows"
             )
+            println("Initial assertion passed.")
+
+            val rootHtml = wasmGetElementInnerHTML(TEST_ROOT_ID)
+            println("DEBUG: test-root innerHTML: $rootHtml")
 
             // Add two todos
+            println("Clicking add button 1...")
             clickButton("todo-add")
+            println("Clicked add button 1.")
+            
+            val ids1 = measuredTodoIds()
+            println("Ids after add 1: $ids1")
             assertEquals(
                 listOf("todo-row-1"),
-                measuredTodoIds(),
+                ids1,
                 "First todo should appear after clicking add"
             )
             assertEquals("1", rootAttribute("data-add-count"), "Add click counter should update after first add")
             assertEquals("1", rootAttribute("data-total"), "Total count attribute should reflect first todo")
 
+            println("Clicking add button 2...")
             clickButton("todo-add")
+            println("Clicked add button 2.")
+            
+            val ids2 = measuredTodoIds()
+            println("Ids after add 2: $ids2")
             assertEquals(
                 listOf("todo-row-1", "todo-row-2"),
-                measuredTodoIds(),
+                ids2,
                 "Second todo should appear after clicking add again"
             )
             assertEquals("2", rootAttribute("data-add-count"), "Add click counter should update after second add")
             assertEquals("2", rootAttribute("data-total"), "Total count attribute should reflect two todos")
 
             // Mark first todo as done
+            println("Clicking done button 1...")
             clickButton("todo-done-1")
+            println("Clicked done button 1.")
+            
             assertEquals(
                 "true",
                 attributeForTestId("todo-row-1", "data-completed"),
@@ -249,17 +277,25 @@ class WasmDOMIntegrationTest {
             assertEquals("1", rootAttribute("data-done-count"), "Done click counter should update after first toggle")
 
             // Clear completed todos - should remove first row
+            println("Clicking clear button...")
             clickButton("todo-clear")
+            println("Clicked clear button.")
+            
+            val ids3 = measuredTodoIds()
+            println("Ids after clear: $ids3")
             assertEquals(
                 listOf("todo-row-2"),
-                measuredTodoIds(),
+                ids3,
                 "Clear should remove completed todo rows"
             )
             assertEquals("1", rootAttribute("data-clear-count"), "Clear click counter should update")
             assertEquals("1", rootAttribute("data-total"), "Total count attribute should reflect remaining todo")
 
             // Mark remaining todo as done and clear again
+            println("Clicking done button 2...")
             clickButton("todo-done-2")
+            println("Clicked done button 2.")
+            
             assertEquals(
                 "true",
                 attributeForTestId("todo-row-2", "data-completed"),
@@ -267,10 +303,15 @@ class WasmDOMIntegrationTest {
             )
             assertEquals("2", rootAttribute("data-done-count"), "Done click counter should update after second toggle")
 
+            println("Clicking clear button 2...")
             clickButton("todo-clear")
+            println("Clicked clear button 2.")
+            
+            val ids4 = measuredTodoIds()
+            println("Ids after clear 2: $ids4")
             assertEquals(
                 emptyList(),
-                measuredTodoIds(),
+                ids4,
                 "Clear should remove all completed todos"
             )
             assertEquals("2", rootAttribute("data-clear-count"), "Clear click counter should reflect second invocation")
@@ -288,7 +329,8 @@ class WasmDOMIntegrationTest {
 
         val createdId = wasmCreateElementById("div")
         wasmSetElementId(createdId, rootId)
-        wasmAppendChildById(bodyId, createdId)
+        // Use rootId because createdId was removed from store by wasmSetElementId
+        wasmAppendChildById(bodyId, rootId)
     }
 
     private fun measuredTodoIds(): List<String> {
@@ -305,8 +347,17 @@ class WasmDOMIntegrationTest {
     }
 
     private fun clickButton(testId: String) {
+        println("DEBUG: clickButton looking for $testId")
         val elementId = elementIdForTestId(testId)
-            ?: fail("Element with data-test-id '$testId' not found")
+        if (elementId == null) {
+            println("DEBUG: Element not found! Dumping body HTML:")
+            val bodyId = wasmGetDocumentBodyId()
+            if (bodyId != null) {
+                println(wasmGetElementInnerHTML(bodyId))
+            }
+            fail("Element with data-test-id '$testId' not found")
+        }
+        println("DEBUG: Found element $elementId, clicking...")
         wasmClickElement(elementId)
     }
 
@@ -328,7 +379,9 @@ class WasmDOMIntegrationTest {
         private val MAX_LOOPS = 100
 
         override fun scheduleRecomposition(work: () -> Unit) {
+            println("ImmediateScheduler: scheduleRecomposition called")
             if (isRunning) {
+                println("ImmediateScheduler: already running, queuing work")
                 pendingWork.add(work)
                 return
             }
@@ -336,6 +389,7 @@ class WasmDOMIntegrationTest {
             isRunning = true
             loopCount = 0
             try {
+                println("ImmediateScheduler: executing work")
                 work()
                 
                 // Process any work that was queued during execution
@@ -343,12 +397,14 @@ class WasmDOMIntegrationTest {
                     if (loopCount++ > MAX_LOOPS) {
                         throw IllegalStateException("Infinite recomposition loop detected in ImmediateScheduler")
                     }
+                    println("ImmediateScheduler: executing queued work (loop $loopCount)")
                     val nextWork = pendingWork.removeAt(0)
                     nextWork()
                 }
             } finally {
                 isRunning = false
                 pendingWork.clear()
+                println("ImmediateScheduler: finished")
             }
         }
     }
@@ -378,10 +434,17 @@ class WasmDOMIntegrationTest {
         ) {
             Button(
                 onClick = {
+                    println("DEBUG: onClick started")
                     addClicks.value = addClicks.value + 1
+                    println("DEBUG: addClicks updated")
                     val id = nextIdState.value
+                    println("DEBUG: nextIdState read: $id")
                     nextIdState.value = id + 1
-                    todos.add(TodoItem(id, "Task $id", completed = false))
+                    println("DEBUG: nextIdState updated")
+                    val item = TodoItem(id, "Task $id", completed = false)
+                    println("DEBUG: TodoItem created: $item")
+                    todos.add(item)
+                    println("DEBUG: todos.add called")
                 },
                 modifier = Modifier()
                     .withAttribute("data-test-id", "todo-add")

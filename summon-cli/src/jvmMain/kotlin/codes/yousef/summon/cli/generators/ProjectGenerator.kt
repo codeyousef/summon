@@ -3,6 +3,7 @@ package codes.yousef.summon.cli.generators
 import codes.yousef.summon.cli.templates.ProjectTemplate
 import codes.yousef.summon.cli.templates.TemplateEngine
 import codes.yousef.summon.cli.templates.TemplateHelpers
+import codes.yousef.summon.cli.util.VersionReader
 import java.io.File
 
 /**
@@ -1903,26 +1904,6 @@ fun ButtonExamples() {
      * Read version from version.properties file
      */
     private fun readVersionFromProperties(): String {
-        return try {
-            val versionPropsFile = File("version.properties")
-            if (versionPropsFile.exists()) {
-                val props = java.util.Properties()
-                versionPropsFile.inputStream().use { props.load(it) }
-                props.getProperty("VERSION", "0.5.0.0")
-            } else {
-                // Try relative to project root
-                val rootVersionFile = File("../version.properties")
-                if (rootVersionFile.exists()) {
-                    val props = java.util.Properties()
-                    rootVersionFile.inputStream().use { props.load(it) }
-                    props.getProperty("VERSION", "0.5.0.0")
-                } else {
-                    "0.5.0.0" // Fallback to current version
-                }
-            }
-        } catch (e: Exception) {
-            println("⚠️  Could not read version from version.properties: ${e.message}")
-            "0.5.0.0" // Fallback
-        }
+        return VersionReader.readVersion()
     }
 }

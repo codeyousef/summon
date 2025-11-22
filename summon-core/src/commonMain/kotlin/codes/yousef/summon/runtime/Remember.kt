@@ -89,6 +89,8 @@ fun <T> remember(calculation: () -> T): T {
 
     // Check if we already have a value
     val existing = composer.getSlot() as? T
+    
+    // println("Remember: slotIndex=${(composer as? codes.yousef.summon.runtime.Recomposer.RecomposerBackedComposer)?.slotIndex}, existing=$existing") // Cannot access private slotIndex
 
     val result = if (existing != null) {
         // Return the existing value
@@ -96,6 +98,7 @@ fun <T> remember(calculation: () -> T): T {
     } else {
         // Calculate and store a new value
         val value = calculation()
+        println("Remember: calculating new value: $value")
         composer.setSlot(value)
         value
     }
@@ -201,4 +204,4 @@ fun <T> derivedStateOf(vararg dependencies: Any?, calculation: () -> T): SummonM
     }
 
     return state
-} 
+}

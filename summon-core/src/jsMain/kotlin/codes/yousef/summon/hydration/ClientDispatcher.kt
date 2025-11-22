@@ -25,6 +25,13 @@ object ClientDispatcher {
                 console.log("RPC: ${action.endpoint}", action.payload)
                 // TODO: Implement actual fetch to /summon/dispatch
             }
+            is UiAction.ToggleVisibility -> {
+                val el = kotlinx.browser.document.getElementById(action.targetId) as? org.w3c.dom.HTMLElement
+                if (el != null) {
+                    val currentDisplay = kotlinx.browser.window.getComputedStyle(el).display
+                    el.style.display = if (currentDisplay == "none") "block" else "none"
+                }
+            }
         }
     }
 }

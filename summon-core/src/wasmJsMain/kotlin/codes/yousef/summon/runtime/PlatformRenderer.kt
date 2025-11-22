@@ -1841,20 +1841,14 @@ actual open class PlatformRenderer actual constructor() {
             // Store the wrapped composable as the composition root for recomposition
             recomposer.setCompositionRoot(wrappedComposable)
 
-            // Set the active composer so state reads are tracked
-            recomposer.setActiveComposer(composer)
-
             // Render the composable tree with proper composition context
-            withContainerContext(rootElement) {
-                try {
-                    // Start the composition
-                    composer.startGroup("root")
-                    composable()
-                    composer.endGroup()
-                } finally {
-                    // Clear the active composer after composition
-                    recomposer.setActiveComposer(null)
-                }
+            // Note: wrappedComposable handles withContainerContext internally, so we don't need it here
+            // to avoid double reconciliation which would clear the children
+            CompositionLocal.provideComposer(composer) {
+                // Start the composition
+                composer.startGroup("root")
+                wrappedComposable()
+                composer.endGroup()
             }
 
             wasmConsoleLog("Composable root mounted successfully with proper composition context")

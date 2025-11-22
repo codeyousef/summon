@@ -346,6 +346,7 @@ class Recomposer {
         }
 
         override fun startGroup(key: Any?) {
+            println("Composer($this): startGroup key=$key slotIndex=$slotIndex")
             groupStack.add(key)
             // Store the key in the slot to maintain alignment
             slots[slotIndex] = key
@@ -353,6 +354,7 @@ class Recomposer {
         }
 
         override fun endGroup() {
+            println("Composer($this): endGroup slotIndex=$slotIndex")
             if (groupStack.isNotEmpty()) {
                 groupStack.removeAt(groupStack.size - 1)
             }
@@ -378,10 +380,12 @@ class Recomposer {
 
         override fun getSlot(): Any? {
             val value = slots[slotIndex]
+            println("Composer($this): getSlot index=$slotIndex value=$value")
             return value
         }
 
         override fun setSlot(value: Any?) {
+            println("Composer($this): setSlot index=$slotIndex value=$value")
             slots[slotIndex] = value
         }
 
@@ -419,6 +423,7 @@ class Recomposer {
         }
 
         override fun dispose() {
+            println("Composer($this): dispose called")
             // Clean up all resources
             disposables.forEach { it() }
             disposables.clear()

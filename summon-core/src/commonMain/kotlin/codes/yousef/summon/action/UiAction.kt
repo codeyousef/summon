@@ -26,4 +26,12 @@ sealed class UiAction {
         val payload: JsonElement,
         val optimisticUpdate: JsonElement? = null
     ) : UiAction()
+
+    /**
+     * Toggles the visibility of a DOM element on the client side.
+     * This avoids a server round-trip for simple UI interactions like menus.
+     */
+    @Serializable
+    @SerialName("toggle")
+    data class ToggleVisibility(val targetId: String) : UiAction()
 }

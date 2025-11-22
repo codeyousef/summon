@@ -5,7 +5,7 @@ import java.util.*
 apply(from = "../version.gradle.kts")
 
 // Manual version override for now
-version = "0.5.0.0"
+version = "0.5.0.1"
 group = "codes.yousef"
 
 plugins {
@@ -697,10 +697,10 @@ tasks.register("publishToCentralPortalManually") {
     }
 }
 
-// Legacy publishing to io.github.codeyousef (until 0.5.0.0)
+// Legacy publishing to io.github.codeyousef (until 0.5.0.1)
 tasks.register("publishToLegacyGroupId") {
     group = "publishing"
-    description = "Publish to Maven Central using legacy group ID (io.github.codeyousef) - until 0.5.0.0"
+    description = "Publish to Maven Central using legacy group ID (io.github.codeyousef) - until 0.5.0.1"
     dependsOn("publishToMavenLocal", "javadocJar")
 
     doLast {
@@ -913,7 +913,7 @@ tasks.register("publishToLegacyGroupId") {
 // Combined task to publish to both group IDs
 tasks.register("publishToBothGroupIds") {
     group = "publishing"
-    description = "Publish to both codes.yousef and io.github.codeyousef (until 0.5.0.0)"
+    description = "Publish to both codes.yousef and io.github.codeyousef (until 0.5.0.1)"
     dependsOn("publishToMavenLocal", "javadocJar")
     finalizedBy("publishToCentralPortalManually", "publishToLegacyGroupId")
 }

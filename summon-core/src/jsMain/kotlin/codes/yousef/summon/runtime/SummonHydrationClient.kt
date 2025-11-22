@@ -120,7 +120,7 @@ object SummonHydrationClient {
             return null
         }
 
-        val jsonText = dataElement.textContent ?: ""
+        val jsonText = (dataElement.textContent ?: "").trim()
         return try {
             parseHydrationData(jsonText)
         } catch (e: Exception) {
@@ -145,7 +145,7 @@ object SummonHydrationClient {
         return HydrationData(
             version = js("parsed.version") as Int,
             callbacks = callbackIds.toList(),
-            timestamp = js("parsed.timestamp") as Long
+            timestamp = (js("parsed.timestamp") as Number).toDouble()
         )
     }
 
@@ -330,7 +330,7 @@ object SummonHydrationClient {
 data class HydrationData(
     val version: Int,
     val callbacks: List<String>,
-    val timestamp: Long
+    val timestamp: Double
 )
 
 /**

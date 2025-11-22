@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0.1] - 2025-11-22
+
+### Fixed
+
+- **Hydration Whitespace**: Fixed `JSON.parse` errors caused by leading/trailing whitespace in server-rendered hydration data by adding `.trim()` to the client-side parser.
+- **Timestamp Serialization**: Resolved type mismatch where server-sent `Long` timestamps were causing runtime errors in Kotlin/JS; updated `HydrationData` to use `Double` for correct JS Number mapping.
+- **Mobile Menu Toggle**: Implemented `UiAction.ToggleVisibility` to allow instant client-side toggling of UI elements (like the mobile menu) without triggering a slow server round-trip.
+
 ## [0.5.0.0] - 2025-11-21
 
 ### 🚨 IMPORTANT: Final Legacy Group ID Release

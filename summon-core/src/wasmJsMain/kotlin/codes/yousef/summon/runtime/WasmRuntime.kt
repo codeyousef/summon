@@ -36,15 +36,23 @@ class EventHandlerEntry(
 // Helper function to get or create element store entry
 private fun getElement(elementId: String): Node? {
     if (elementStore.containsKey(elementId)) {
+        // console.log("[Summon WASM] getElement($elementId) found in store")
         return elementStore[elementId]
     }
     // Try to find element in DOM
     val element = document.getElementById(elementId)
     if (element != null) {
+        console.log("[Summon WASM] getElement($elementId) found in DOM, adding to store")
         elementStore[elementId] = element
         return element
     }
+    console.log("[Summon WASM] getElement($elementId) NOT found")
     return null
+}
+
+fun wasmClearElementStore() {
+    console.log("[Summon WASM] Clearing element store. Size was: " + elementStore.size)
+    elementStore.clear()
 }
 
 // Helper to store element and return its ID
@@ -172,8 +180,10 @@ fun wasmGetElementInnerHTML(elementId: String): String? {
     return try {
         val node = getElement(elementId)
         if (node is Element) {
+            console.log("[Summon WASM] getInnerHTML for $elementId. childNodes: " + node.childNodes.length)
             node.innerHTML
         } else {
+            console.error("[Summon WASM] getInnerHTML: node $elementId is not an Element")
             null
         }
     } catch (e: Throwable) {
@@ -189,8 +199,13 @@ fun wasmAppendChildById(parentId: String, childId: String): Boolean {
         val child = getElement(childId)
         if (parent != null && child != null) {
             parent.appendChild(child)
+            console.log("[Summon WASM] Appended child $childId to parent $parentId. Parent childNodes length: " + parent.childNodes.length)
+            if (parent is Element) {
+                 console.log("[Summon WASM] Parent outerHTML: " + parent.outerHTML)
+            }
             true
         } else {
+            console.error("[Summon WASM] appendChild failed: parent=$parent (id=$parentId), child=$child (id=$childId)")
             false
         }
     } catch (e: Throwable) {
@@ -231,14 +246,46 @@ fun wasmRemoveElementById(elementId: String): Boolean {
     }
 }
 
+private fun jsClick(element: JsAny): Unit = js("""{
+    var event = new MouseEvent('click', {
+        view: window,
+        bubbles: true,
+        cancelable: true
+    });
+    element.dispatchEvent(event);
+}""")
+
 fun wasmClickElement(elementId: String): Boolean {
     return try {
         val element = getElement(elementId)
+        if (element == null) {
+            console.error("[Summon WASM] clickElement failed: Element with ID $elementId not found in store")
+            return false
+        }
+
+        // Try native click first for HTMLElement as it's more reliable in happy-dom
         if (element is HTMLElement) {
-            element.click()
-            true
-        } else {
-            false
+            try {
+                element.click()
+                return true
+            } catch (e: Throwable) {
+                console.warn("[Summon WASM] native click failed, falling back to jsClick: ${e.message}")
+            }
+        }
+        
+        // Fallback to jsClick
+        try {
+            jsClick(element)
+            return true
+        } catch (e: Throwable) {
+            console.error("[Summon WASM] clickElement failed: ${e.message}")
+            // Fallback to native click if jsClick fails (unlikely)
+            if (element is HTMLElement) {
+                element.click()
+                true
+            } else {
+                false
+            }
         }
     } catch (e: Throwable) {
         console.error("[Summon WASM] clickElement failed:" + ": " + e.message)
