@@ -79,10 +79,12 @@
 package codes.yousef.summon.components.input
 
 import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.action.UiAction
 import codes.yousef.summon.components.display.Icon
 import codes.yousef.summon.components.display.Text
 import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.modifier.ModifierExtras.withAttribute
+import codes.yousef.summon.modifier.action
 import codes.yousef.summon.modifier.hover
 import codes.yousef.summon.modifier.transition
 import codes.yousef.summon.runtime.LocalPlatformRenderer
@@ -198,6 +200,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * @param disabled Whether the button is disabled and cannot be interacted with
  * @param iconName Optional icon name to display alongside the label
  * @param iconPosition Position of the icon relative to the label text
+ * @param action Optional [UiAction] to dispatch when the button is clicked (client-side action)
  * @sample ButtonSamples.BasicButton
  * @sample ButtonSamples.ButtonWithIcon
  * @sample ButtonSamples.DisabledButton
@@ -215,7 +218,8 @@ fun Button(
     disabled: Boolean = false,
     iconName: String? = null,
     iconPosition: IconPosition = IconPosition.START,
-    dataAttributes: Map<String, String> = emptyMap()
+    dataAttributes: Map<String, String> = emptyMap(),
+    action: UiAction? = null
 ) {
     val renderer = LocalPlatformRenderer.current
 
@@ -246,6 +250,7 @@ fun Button(
     } else {
         modifier.attribute("data-summon-id", uniqueId)
     }).dataAttributes(dataAttributes)
+      .let { if (action != null) it.action(action) else it }
 
     val baseModifier = modifierWithId
         .style("display", "inline-flex")

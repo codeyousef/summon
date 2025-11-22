@@ -2196,8 +2196,8 @@ public final class codes/yousef/summon/components/foundation/ThemeProviderKt {
 }
 
 public final class codes/yousef/summon/components/input/ButtonKt {
-	public static final fun Button (Lkotlin/jvm/functions/Function0;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/components/input/ButtonVariant;ZLjava/lang/String;Lcodes/yousef/summon/components/input/IconPosition;Ljava/util/Map;)V
-	public static synthetic fun Button$default (Lkotlin/jvm/functions/Function0;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/components/input/ButtonVariant;ZLjava/lang/String;Lcodes/yousef/summon/components/input/IconPosition;Ljava/util/Map;ILjava/lang/Object;)V
+	public static final fun Button (Lkotlin/jvm/functions/Function0;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/components/input/ButtonVariant;ZLjava/lang/String;Lcodes/yousef/summon/components/input/IconPosition;Ljava/util/Map;Lcodes/yousef/summon/action/UiAction;)V
+	public static synthetic fun Button$default (Lkotlin/jvm/functions/Function0;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/components/input/ButtonVariant;ZLjava/lang/String;Lcodes/yousef/summon/components/input/IconPosition;Ljava/util/Map;Lcodes/yousef/summon/action/UiAction;ILjava/lang/Object;)V
 }
 
 public final class codes/yousef/summon/components/input/ButtonSamples {
@@ -4660,6 +4660,10 @@ public final class codes/yousef/summon/modifier/AccessibilityModifiersKt {
 	public static final fun hasStyle (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Z
 	public static final fun removeAttribute (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun tabbable (Lcodes/yousef/summon/modifier/Modifier;)Lcodes/yousef/summon/modifier/Modifier;
+}
+
+public final class codes/yousef/summon/modifier/ActionModifierKt {
+	public static final fun action (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/action/UiAction;)Lcodes/yousef/summon/modifier/Modifier;
 }
 
 public final class codes/yousef/summon/modifier/AlignContent : java/lang/Enum {

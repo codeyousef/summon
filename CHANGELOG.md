@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.5.0.1] - 2025-11-22
+## [0.5.0.2] - 2025-11-22
+
+### Added
+
+- **Server-Side Action Dispatch**: Added `Modifier.action(UiAction)` and updated `Button` component to support server-side definition of client actions (e.g., `UiAction.ToggleVisibility`), eliminating the need for manual JS patches for simple interactions like mobile menu toggles.
+
+## [0.5.0.2] - 2025-11-22
 
 ### Fixed
 
