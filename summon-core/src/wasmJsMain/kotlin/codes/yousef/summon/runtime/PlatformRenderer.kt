@@ -1233,7 +1233,114 @@ actual open class PlatformRenderer actual constructor() {
     }
 
     actual open fun renderResponsiveLayout(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
-        wasmConsoleLog("PlatformRenderer renderResponsiveLayout - WASM stub")
+        if (isStringRenderMode) {
+            // HTML string building mode
+            val modifierAttrs = buildModifierAttributes(modifier)
+            val element = HtmlElement(
+                tagName = "div",
+                attributes = mutableMapOf(
+                    "class" to "summon-responsive-layout",
+                    "style" to "width: 100%;"
+                ).apply {
+                    if (modifierAttrs.isNotEmpty()) {
+                        putAll(modifierAttrs)
+                    }
+                }
+            )
+
+            // Push element onto stack for nested content
+            htmlStack.add(element)
+            try {
+                // Render nested content
+                val contentScope = createFlowContentCompat()
+                content(contentScope)
+            } finally {
+                // Pop element and add to parent or root
+                htmlStack.removeLastOrNull()
+                if (htmlStack.isNotEmpty()) {
+                    htmlStack.last().content.append(renderHtmlElement(element))
+                } else {
+                    htmlBuilder.append(renderHtmlElement(element))
+                }
+            }
+        } else {
+            // DOM mode
+            renderResponsiveLayoutWasmSafe(modifier) {
+                val flowContent = createWasmFlowContentCompat()
+                flowContent.content()
+            }
+        }
+    }
+
+    private fun renderResponsiveLayoutWasmSafe(modifier: Modifier, content: @Composable () -> Unit) {
+        try {
+            // Check for hydration markers in modifier or use stable counter
+            val summonId = modifier.attributes?.get("data-summon-id") ?: "responsive-${++columnCounter}"
+
+            // Create or reuse element
+            val newElement = createOrReuseElement("div", summonId)
+            val element = if (newElement != null) {
+                newElement
+            } else {
+                recompositionElements[summonId]
+                    ?: throw WasmDOMException("Failed to retrieve reused element: $summonId")
+            }
+
+            // Inject styles if not present
+            val styleId = "summon-responsive-styles"
+            val existingStyle = DOMProvider.document.getElementById(styleId)
+            if (existingStyle == null) {
+                val style = DOMProvider.document.createElement("style")
+                style.setAttribute("id", styleId)
+                
+                val css = """
+                    [data-screen-size="SMALL"] .small-content { display: block !important; }
+                    [data-screen-size="MEDIUM"] .medium-content { display: block !important; }
+                    [data-screen-size="LARGE"] .large-content { display: block !important; }
+                    [data-screen-size="XLARGE"] .xlarge-content { display: block !important; }
+                """.trimIndent()
+                
+                wasmSetElementTextContent(DOMProvider.getNativeElementId(style), css)
+                DOMProvider.document.head?.appendChild(style)
+            }
+
+            // Logic to update layout
+            fun updateLayout() {
+                val width = DOMProvider.window.innerWidth
+                val size = when {
+                    width < 600 -> "SMALL"
+                    width < 960 -> "MEDIUM"
+                    width < 1280 -> "LARGE"
+                    else -> "XLARGE"
+                }
+                element.setAttribute("data-screen-size", size)
+                
+                val elementId = DOMProvider.getNativeElementId(element)
+                wasmRemoveClassFromElement(elementId, "small-screen medium-screen large-screen xlarge-screen")
+                wasmAddClassToElement(elementId, "${size.lowercase()}-screen")
+            }
+
+            // Initial update
+            updateLayout()
+            
+            // Add resize listener
+            // Note: This listener is not currently cleaned up on element removal
+            DOMProvider.window.addEventListener("resize") { updateLayout() }
+
+            // Apply modifier
+            applyModifierToElement(element, modifier)
+
+            // Content
+            withContainerContext(element) {
+                content()
+            }
+
+            // Append
+            appendToCurrentContainer(element)
+
+        } catch (e: Exception) {
+            wasmConsoleError("Failed to render responsive layout - ${e.message}")
+        }
     }
 
     actual open fun renderHtmlTag(

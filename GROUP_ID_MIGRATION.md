@@ -23,7 +23,7 @@ the migration timeline, steps, and what you need to do.
 
 ## Migration Timeline
 
-### Phase 1: Dual Publishing (Current - 0.4.8.7 through 0.5.0.2)
+### Phase 1: Dual Publishing (Current - 0.4.8.7 through 0.5.0.3)
 
 **Status**: ✅ Active  
 **Duration**: ~2-3 months
@@ -43,7 +43,7 @@ the migration timeline, steps, and what you need to do.
 - 0.4.9.3 ✅
 - 0.4.9.4 ✅
 - 0.5.0.0 ✅
-- 0.5.0.2 ⚠️ FINAL version on old group ID
+- 0.5.0.3 ⚠️ FINAL version on old group ID
 
 ### Phase 2: New Group Only (0.5.1.0 onwards)
 
@@ -77,8 +77,8 @@ dependencies {
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("codes.yousef:summon:0.5.0.2")
-    implementation("codes.yousef:summon-jvm:0.5.0.2")
+    implementation("codes.yousef:summon:0.5.0.3")
+    implementation("codes.yousef:summon-jvm:0.5.0.3")
 }
 ```
 
@@ -117,7 +117,7 @@ Update to `codes.yousef` in your `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    api("codes.yousef:summon:0.5.0.2")  // Use 'api' for libraries
+    api("codes.yousef:summon:0.5.0.3")  // Use 'api' for libraries
 }
 ```
 
@@ -166,7 +166,7 @@ Ensure transitive dependencies resolve correctly:
 
 ## Troubleshooting
 
-### Issue: "Cannot resolve codes.yousef:summon:0.5.0.2"
+### Issue: "Cannot resolve codes.yousef:summon:0.5.0.3"
 
 **Solution**:
 
@@ -185,7 +185,7 @@ Ensure transitive dependencies resolve correctly:
 configurations.all {
     resolutionStrategy {
         // Force new group ID
-        force("codes.yousef:summon:0.5.0.2")
+        force("codes.yousef:summon:0.5.0.3")
 
         // Exclude old group ID
         exclude(group = "io.github.codeyousef", module = "summon")
@@ -199,7 +199,7 @@ configurations.all {
 Use consistent versions across all Summon dependencies:
 
 ```kotlin
-val summonVersion = "0.5.0.2"
+val summonVersion = "0.5.0.3"
 
 dependencies {
     implementation("codes.yousef:summon:$summonVersion")
@@ -224,7 +224,7 @@ Update your workflow files:
 # After
 - name: Add dependencies
   run: |
-    implementation("codes.yousef:summon:0.5.0.2")
+    implementation("codes.yousef:summon:0.5.0.3")
 ```
 
 ### Jenkins, GitLab CI, etc.
@@ -244,7 +244,7 @@ Update any hardcoded dependency strings in your pipeline scripts.
 | 0.4.9.3        | ✅                    | ✅            | **Use codes.yousef**      |
 | 0.4.9.4        | ✅                    | ✅            | **Use codes.yousef**      |
 | 0.5.0.0        | ✅                    | ✅            | **Use codes.yousef**      |
-| 0.5.0.2        | ✅ FINAL              | ✅            | **Use codes.yousef**      |
+| 0.5.0.3        | ✅ FINAL              | ✅            | **Use codes.yousef**      |
 | 0.5.1.0+       | ❌                    | ✅            | **Must use codes.yousef** |
 
 ---
@@ -257,7 +257,7 @@ Update any hardcoded dependency strings in your pipeline scripts.
 
 ### Q: What if I don't migrate before 0.5.1.0?
 
-**A**: You'll be stuck on version 0.5.0.2 or earlier. To get newer versions, you'll need to migrate.
+**A**: You'll be stuck on version 0.5.0.3 or earlier. To get newer versions, you'll need to migrate.
 
 ### Q: Can I use both group IDs in the same project?
 
@@ -271,7 +271,7 @@ Update any hardcoded dependency strings in your pipeline scripts.
 
 **A**: You have until we release 0.5.1.0 (estimated Q1 2026). However, we recommend migrating now to avoid issues later.
 
-### Q: What happens to the old group ID after 0.5.0.2?
+### Q: What happens to the old group ID after 0.5.0.3?
 
 **A**: It remains on Maven Central for existing versions, but receives no new updates.
 
@@ -308,7 +308,7 @@ December 2025: 0.4.9.0 (dual publishing continues)
     ↓
 December 2025: 0.4.9.1 (dual publishing continues)
     ↓
-January 2026: 0.5.0.2 (FINAL version on old group ID)
+January 2026: 0.5.0.3 (FINAL version on old group ID)
     ↓
 February 2026: 0.5.1.0 (NEW group ID only)
 ```
@@ -342,5 +342,5 @@ and community in the long term.
 ---
 
 **Last Updated**: November 22, 2025  
-**Applies to**: Summon 0.5.0.2 and later
+**Applies to**: Summon 0.5.0.3 and later
 

@@ -1707,6 +1707,21 @@ actual open class PlatformRenderer {
         requireBuilder().div {
             applyModifier(modifier)
             comment(" ResponsiveLayout: Ensure CSS handles different screen sizes ")
+            
+            // Add responsive styles
+            style {
+                unsafe {
+                    raw(
+                        """
+                        [data-screen-size="SMALL"] .small-content { display: block !important; }
+                        [data-screen-size="MEDIUM"] .medium-content { display: block !important; }
+                        [data-screen-size="LARGE"] .large-content { display: block !important; }
+                        [data-screen-size="XLARGE"] .xlarge-content { display: block !important; }
+                        """.trimIndent()
+                    )
+                }
+            }
+
             // Add screen size detection script (example from previous JvmPlatformRenderer)
             script(type = "text/javascript") {
                 unsafe {

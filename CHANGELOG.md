@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0.3] - 2025-11-22
+
+### Fixed
+
+- **ResponsiveLayout CSS Injection**: Fixed an issue where `ResponsiveLayout` content was hidden on all platforms because the necessary CSS rules for visibility toggling were not being injected by the renderers.
+
 ## [0.5.0.2] - 2025-11-22
 
 ### Added

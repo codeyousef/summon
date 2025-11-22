@@ -20,10 +20,7 @@
 > ```
 > To:
 > ```kotlin
-> > implementation("io.github.codeyousef:summon:0.5.0.2")  // Old - deprecated
-> // OR
-> implementation("codes.yousef:summon:0.5.0.2")  // New - use this!
-
+> implementation("codes.yousef:summon:0.5.0.3")  // New - use this!
 > ```
 >
 > See [Migration Guide](#group-id-migration) below for details.

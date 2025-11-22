@@ -1516,13 +1516,40 @@ actual open class PlatformRenderer {
         modifier: Modifier,
         content: @Composable (FlowContentCompat.() -> Unit)
     ) {
-        // Responsive layout container with flexbox for adaptability
-        val responsiveModifier = modifier
-            .style("display", "flex")
-            .style("flexWrap", "wrap")
-            .style("width", "100%")
+        createElement("div", modifier, setup = { element ->
+            // Inject styles if not present
+            if (document.getElementById("summon-responsive-styles") == null) {
+                val style = document.createElement("style")
+                style.id = "summon-responsive-styles"
+                style.textContent = """
+                    [data-screen-size="SMALL"] .small-content { display: block !important; }
+                    [data-screen-size="MEDIUM"] .medium-content { display: block !important; }
+                    [data-screen-size="LARGE"] .large-content { display: block !important; }
+                    [data-screen-size="XLARGE"] .xlarge-content { display: block !important; }
+                """.trimIndent()
+                document.head?.appendChild(style)
+            }
 
-        createElement("div", responsiveModifier) {
+            // Add logic to detect screen size and update attributes
+            fun updateLayout() {
+                val width = kotlinx.browser.window.innerWidth
+                val size = when {
+                    width < 600 -> "SMALL"
+                    width < 960 -> "MEDIUM"
+                    width < 1280 -> "LARGE"
+                    else -> "XLARGE"
+                }
+                element.setAttribute("data-screen-size", size)
+                
+                // Update classes for styling hooks
+                element.classList.remove("small-screen", "medium-screen", "large-screen", "xlarge-screen")
+                element.classList.add("${size.lowercase()}-screen")
+            }
+            
+            kotlinx.browser.window.addEventListener("resize", { updateLayout() })
+            // Initial update
+            updateLayout()
+        }) {
             content(createFlowContent("div"))
         }
     }
