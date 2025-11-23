@@ -237,7 +237,7 @@ graalvmNative {
                     "--no-fallback",
                     "--initialize-at-build-time=kotlin.DeprecationLevel",
                     "--static",  // Force static linking to avoid linker issues
-                    "-J-Xmx6g",
+                    "-J-Xmx4g",
                     "-J-Xms1g",
                     "-O0"  // No optimization to prevent hanging
                 )

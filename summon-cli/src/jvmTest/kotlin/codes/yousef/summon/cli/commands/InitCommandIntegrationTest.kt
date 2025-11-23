@@ -4,6 +4,7 @@ import com.github.ajalt.clikt.core.parse
 import java.io.File
 import java.time.Duration
 import java.time.Instant
+import java.util.concurrent.TimeUnit
 import kotlin.io.path.createTempDirectory
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -130,8 +131,32 @@ class InitCommandIntegrationTest {
             .start()
 
         val start = Instant.now()
-        val output = process.inputStream.bufferedReader().use { it.readText() }
-        val exitCode = process.waitFor()
+        
+        // Use a separate thread to read output to prevent blocking if buffer fills up
+        val outputBuilder = StringBuilder()
+        val readerThread = Thread {
+            process.inputStream.bufferedReader().use { reader ->
+                var line = reader.readLine()
+                while (line != null) {
+                    synchronized(outputBuilder) {
+                        outputBuilder.appendLine(line)
+                    }
+                    line = reader.readLine()
+                }
+            }
+        }
+        readerThread.start()
+        
+        val finished = process.waitFor(10, java.util.concurrent.TimeUnit.MINUTES)
+        if (!finished) {
+            process.destroyForcibly()
+            readerThread.join(1000)
+            throw RuntimeException("Gradle task timed out after 10 minutes. Output so far:\n$outputBuilder")
+        }
+        
+        readerThread.join()
+        val output = outputBuilder.toString()
+        val exitCode = process.exitValue()
         val duration = Duration.between(start, Instant.now()).toMillis()
 
         return GradleResult(
