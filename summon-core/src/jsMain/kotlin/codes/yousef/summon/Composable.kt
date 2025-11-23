@@ -39,24 +39,22 @@ fun renderComposable(renderer: PlatformRenderer, composable: @Composable () -> U
     try {
         setPlatformRenderer(renderer)
         val recomposer = RecomposerHolder.current()
-        val composer = recomposer.createComposer()
-
-        fun runComposition() {
-            CompositionLocal.provideComposer(composer) {
-                LocalPlatformRenderer.provides(renderer)
-                renderer.startRecomposition()
-                renderer.renderInto(container) {
-                    composable()
-                }
-                renderer.endRecomposition()
+        
+        // Define the root composable that sets up the environment
+        val root: @Composable () -> Unit = {
+            LocalPlatformRenderer.provides(renderer)
+            renderer.startRecomposition()
+            renderer.renderInto(container) {
+                composable()
             }
+            renderer.endRecomposition()
         }
 
-        recomposer.setCompositionRoot {
-            runComposition()
-        }
-
-        runComposition()
+        recomposer.setCompositionRoot(root)
+        
+        // Use composeInitial to ensure the initial composition follows the same
+        // structure (startGroup/endGroup) as subsequent recompositions.
+        recomposer.composeInitial(root)
     } catch (e: Exception) {
         js("console.error('Error rendering composable to container: ', e);")
         js("console.error('Stack trace: ', e.stack);")

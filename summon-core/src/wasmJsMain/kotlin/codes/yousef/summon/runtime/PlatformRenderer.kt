@@ -1580,6 +1580,12 @@ actual open class PlatformRenderer actual constructor() {
         wasmConsoleLog("Reset element counters for recomposition")
     }
 
+    actual open fun startRecomposition() {
+        resetElementCounters()
+    }
+
+    actual open fun endRecomposition() {}
+
     // Hydration-specific state
     private var isHydrating = false
 

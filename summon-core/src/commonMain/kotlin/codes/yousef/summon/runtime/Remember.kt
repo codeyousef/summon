@@ -98,7 +98,6 @@ fun <T> remember(calculation: () -> T): T {
     } else {
         // Calculate and store a new value
         val value = calculation()
-        println("Remember: calculating new value: $value")
         composer.setSlot(value)
         value
     }

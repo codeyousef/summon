@@ -38,6 +38,9 @@ actual open class PlatformRenderer {
         setPlatformRenderer(this)
     }
 
+    actual open fun startRecomposition() {}
+    actual open fun endRecomposition() {}
+
     private fun cssPropertyName(key: String): String =
         if (key.contains('-')) {
             key

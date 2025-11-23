@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0.5] - 2025-11-23
+
+### Fixed
+
+- **Hamburger Menu Hydration**: Fixed a critical hydration mismatch issue where the hamburger menu would not function correctly after server-side rendering. This was caused by inconsistent element ID generation between server and client during recomposition.
+- **Recomposition Lifecycle**: Implemented `startRecomposition` and `endRecomposition` hooks in `PlatformRenderer` to ensure stable element ID generation and proper cleanup of unused elements during recomposition cycles.
+- **E2E Testing**: Updated E2E tests to verify the fix and ensure the hamburger menu works correctly in a real browser environment.
+
 ## [0.5.0.4] - 2025-11-23
 
 ### Fixed

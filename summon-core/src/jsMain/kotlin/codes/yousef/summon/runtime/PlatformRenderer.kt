@@ -71,7 +71,7 @@ actual open class PlatformRenderer {
     /**
      * Starts a recomposition cycle. Call this before recomposing to track which elements are used.
      */
-    fun startRecomposition() {
+    actual open fun startRecomposition() {
         isRecomposing = true
         usedElements.clear()
         elementCounter = 0  // Reset counter to ensure consistent keys across recompositions
@@ -83,7 +83,7 @@ actual open class PlatformRenderer {
     /**
      * Ends a recomposition cycle. Removes elements that weren't used in this composition.
      */
-    fun endRecomposition() {
+    actual open fun endRecomposition() {
         if (isRecomposing) {
             // Remove unused elements from their parents and cache
             val unusedKeys = elementCache.keys - usedElements
@@ -662,7 +662,7 @@ actual open class PlatformRenderer {
         val rootElement = document.createElement("div")
         rootElement.setAttribute("data-summon-hydration", "root")
         rootElement.setAttribute("data-summon-renderer", "js")
-        rootElement.setAttribute("data-summon-version", js("globalThis.SUMMON_VERSION") ?: "0.4.9.3")
+        rootElement.setAttribute("data-summon-version", js("globalThis.SUMMON_VERSION") ?: "0.5.0.5")
 
         // Provide this renderer to the composition local so child composables can access it
         LocalPlatformRenderer.provides(this)

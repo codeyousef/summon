@@ -709,4 +709,15 @@ expect open class PlatformRenderer() {
         modifier: Modifier
     )
 
+    /**
+     * Called at the start of a recomposition cycle.
+     * Platforms can use this to reset counters or prepare state.
+     */
+    open fun startRecomposition()
+
+    /**
+     * Called at the end of a recomposition cycle.
+     * Platforms can use this to cleanup or finalize state.
+     */
+    open fun endRecomposition()
 }

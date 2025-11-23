@@ -320,6 +320,9 @@ class Recomposer {
             // This ensures that remember {} and other composables can access the composer
             CompositionLocal.provideComposer(this) {
                 try {
+                    // Notify platform renderer about recomposition start
+                    LocalPlatformRenderer.current.startRecomposition()
+
                     // Start a new composition group
                     startGroup("recomposition")
 
@@ -331,6 +334,9 @@ class Recomposer {
                 } catch (e: Exception) {
                     println("Error during composition: $e")
                     throw e
+                } finally {
+                    // Notify platform renderer about recomposition end
+                    LocalPlatformRenderer.current.endRecomposition()
                 }
             }
         }
@@ -346,7 +352,6 @@ class Recomposer {
         }
 
         override fun startGroup(key: Any?) {
-            println("Composer($this): startGroup key=$key slotIndex=$slotIndex")
             groupStack.add(key)
             // Store the key in the slot to maintain alignment
             slots[slotIndex] = key
@@ -354,7 +359,6 @@ class Recomposer {
         }
 
         override fun endGroup() {
-            println("Composer($this): endGroup slotIndex=$slotIndex")
             if (groupStack.isNotEmpty()) {
                 groupStack.removeAt(groupStack.size - 1)
             }
@@ -380,12 +384,10 @@ class Recomposer {
 
         override fun getSlot(): Any? {
             val value = slots[slotIndex]
-            println("Composer($this): getSlot index=$slotIndex value=$value")
             return value
         }
 
         override fun setSlot(value: Any?) {
-            println("Composer($this): setSlot index=$slotIndex value=$value")
             slots[slotIndex] = value
         }
 
@@ -423,7 +425,6 @@ class Recomposer {
         }
 
         override fun dispose() {
-            println("Composer($this): dispose called")
             // Clean up all resources
             disposables.forEach { it() }
             disposables.clear()
