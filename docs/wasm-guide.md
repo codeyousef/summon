@@ -143,27 +143,27 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 // New group ID (preferred)
-                implementation("codes.yousef:summon:0.5.0.3")
+                implementation("codes.yousef:summon:0.5.0.4")
                 // Legacy (deprecated; supported only until 0.5.0.0)
-                // implementation("io.github.codeyousef:summon:0.5.0.3")
+                // implementation("io.github.codeyousef:summon:0.5.0.4")
             }
         }
 
         val wasmJsMain by getting {
             dependencies {
                 // New group ID (preferred)
-                implementation("codes.yousef:summon-wasm-js:0.5.0.3")
+                implementation("codes.yousef:summon-wasm-js:0.5.0.4")
                 // Legacy (deprecated; supported only until 0.5.0.0)
-                // implementation("io.github.codeyousef:summon-wasm-js:0.5.0.3")
+                // implementation("io.github.codeyousef:summon-wasm-js:0.5.0.4")
             }
         }
 
         val jvmMain by getting {
             dependencies {
                 // New group ID (preferred)
-                implementation("codes.yousef:summon-jvm:0.5.0.3")
+                implementation("codes.yousef:summon-jvm:0.5.0.4")
                 // Legacy (deprecated; supported only until 0.5.0.0)
-                // implementation("io.github.codeyousef:summon-jvm:0.5.0.3")
+                // implementation("io.github.codeyousef:summon-jvm:0.5.0.4")
             }
         }
     }

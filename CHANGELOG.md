@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0.4] - 2025-11-23
+
+### Fixed
+
+- **PlatformRenderer Refresh Issue**: Fixed a critical issue where clicking on `Icon`, `Button`, or elements with `onClick` handlers would trigger a page refresh or form submission. All click handlers now automatically call `preventDefault()` and `stopPropagation()`.
+- **MaterialIcon Rendering**: Fixed `renderIcon` to correctly render the font ligature text for Material Icons.
+- **MaterialIcon Class**: Updated `MaterialIcon` component to automatically include the `material-icons` CSS class.
+- **Hamburger Menu Guide**: Updated the guide with the correct implementation using `Box` wrapper and added the missing Material Icons font dependency.
+
 ## [0.5.0.3] - 2025-11-22
 
 ### Fixed

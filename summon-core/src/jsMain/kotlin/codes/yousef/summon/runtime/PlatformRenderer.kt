@@ -410,7 +410,11 @@ actual open class PlatformRenderer {
                 if (isDisabled && lowerEvent == "click") {
                     return@forEach
                 }
-                registerEventListener(element, lowerEvent) {
+                registerEventListener(element, lowerEvent) { event ->
+                    if (lowerEvent == "click") {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
                     handler()
                 }
             }
@@ -460,7 +464,9 @@ actual open class PlatformRenderer {
 
             val isDisabled = modifier.attributes.containsKey("disabled")
             if (!isDisabled) {
-                registerEventListener(element, "click") {
+                registerEventListener(element, "click") { event ->
+                    event.preventDefault()
+                    event.stopPropagation()
                     onClick()
                 }
             }
@@ -873,14 +879,24 @@ actual open class PlatformRenderer {
         svgContent: String?,
         type: IconType
     ) {
-        // Assuming IconType has a method to get its SVG path or similar representation
-        // For simplicity, let's assume it's a class name for a font icon or an SVG string
-        // This needs a more concrete implementation based on how IconType is defined
-        createElement("i", modifier, setup = { element -> // Explicitly named 'setup'
-            // If IconType provides a class name:
-            // element.className = icon.getClassName()
-            // If IconType provides SVG content:
-            // element.innerHTML = icon.getSvgContent()
+        createElement("i", modifier, setup = { element ->
+            when (type) {
+                IconType.FONT -> {
+                    element.textContent = name
+                }
+                IconType.SVG -> {
+                    svgContent?.let { element.innerHTML = it }
+                }
+                else -> {}
+            }
+
+            if (onClick != null) {
+                registerEventListener(element, "click") { event ->
+                    event.preventDefault()
+                    event.stopPropagation()
+                    onClick()
+                }
+            }
         })
     }
 

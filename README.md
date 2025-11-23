@@ -20,7 +20,7 @@
 > ```
 > To:
 > ```kotlin
-> implementation("codes.yousef:summon:0.5.0.3")  // New - use this!
+> implementation("codes.yousef:summon:0.5.0.4")  // New - use this!
 > ```
 >
 > See [Migration Guide](#group-id-migration) below for details.

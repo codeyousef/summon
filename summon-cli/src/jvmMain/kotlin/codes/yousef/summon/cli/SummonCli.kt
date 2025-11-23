@@ -1,6 +1,7 @@
 package codes.yousef.summon.cli
 
 import codes.yousef.summon.cli.commands.InitCommand
+import codes.yousef.summon.cli.util.VersionReader
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.main
 import com.github.ajalt.clikt.core.subcommands
@@ -22,7 +23,7 @@ class SummonCli : CliktCommand(
         .default("false")
 
     init {
-        versionOption("0.5.0.2")
+        versionOption(VersionReader.readVersion())
     }
 
     override fun run() {
@@ -39,11 +40,11 @@ class SummonCli : CliktCommand(
                 declarative UI to browser and JVM environments.
                 
                 📦 If you downloaded the JAR file:
-                   java -jar summon-cli-0.5.0.2.jar init <name>
+                   java -jar summon-cli-0.5.0.4.jar init <name>
                 
                 Quick start:
                   1. Pick a project folder: --here, --dir <path>, or default subdirectory
-                  2. Run `java -jar summon-cli-0.5.0.2.jar init <name>`
+                  2. Run `java -jar summon-cli-0.5.0.4.jar init <name>`
                   3. Choose project type when prompted:
                      - 1) Standalone site (browser-only)
                      - 2) Full stack (Summon UI + backend)
@@ -62,8 +63,8 @@ class SummonCli : CliktCommand(
                   --backend <type>  Skip the prompt for backends (spring, ktor, quarkus)
 
                 Example (non-interactive):
-                  java -jar summon-cli-0.5.0.2.jar init portal --mode=fullstack --backend=quarkus
-                  java -jar summon-cli-0.5.0.2.jar init landing-page --mode=standalone --here
+                  java -jar summon-cli-0.5.0.4.jar init portal --mode=fullstack --backend=quarkus
+                  java -jar summon-cli-0.5.0.4.jar init landing-page --mode=standalone --here
                 For Quarkus projects, run `./gradlew unitTest` before `./gradlew quarkusDev`.
             """.trimIndent()
             )

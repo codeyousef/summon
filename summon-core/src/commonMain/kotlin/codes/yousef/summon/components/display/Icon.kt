@@ -129,7 +129,7 @@ fun MaterialIcon(
 ) {
     Icon(
         name = name, // Material Icons use ligatures
-        modifier = modifier,
+        modifier = modifier.addClass("material-icons"),
         size = size,
         color = color,
         type = IconType.FONT,
