@@ -31,9 +31,9 @@ fun HamburgerMenu(
 
     Column(modifier = modifier) {
         // Hamburger Button
-        // We use a native button element to guarantee correct behavior and accessibility.
-        renderer.renderHtmlTag(
-            tagName = "button",
+        // We use renderButton to ensure cross-platform compatibility (Wasm/JS) and proper event handling.
+        renderer.renderButton(
+            onClick = { isOpen.value = !isOpen.value },
             modifier = Modifier()
                 .cursor(Cursor.Pointer)
                 .padding("8px")
@@ -51,10 +51,6 @@ fun HamburgerMenu(
                 .attribute("aria-label", if (isOpen.value) "Close menu" else "Open menu")
                 .attribute("aria-expanded", isOpen.value.toString())
                 .withAttribute("data-test-id", "hamburger-button")
-                // Event handling
-                .onClick {
-                    isOpen.value = !isOpen.value
-                }
         ) {
             MaterialIcon(
                 name = if (isOpen.value) "close" else "menu",
