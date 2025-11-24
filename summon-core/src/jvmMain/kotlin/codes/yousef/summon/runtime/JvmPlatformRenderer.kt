@@ -403,14 +403,28 @@ actual open class PlatformRenderer {
     window.addEventListener('click', function(e) {
         if (!window.Summon) {
             var t = e.target;
-            while (t && !t.getAttribute('data-sid')) t = t.parentElement;
+            // Look for data-sid (SummonTagConsumer) or data-summon-id (JvmPlatformRenderer)
+            // Also check for data-onclick-action to identify interactive elements
+            while (t && !t.getAttribute('data-sid') && !t.getAttribute('data-summon-id') && !t.getAttribute('data-onclick-action')) {
+                t = t.parentElement;
+            }
+            
             if (t) {
-                window.__SUMMON_QUEUE__.push({
-                    type: 'click',
-                    targetId: t.getAttribute('data-sid'),
-                    timestamp: Date.now(),
-                    originalEvent: e
-                });
+                // Prevent default behavior for interactive elements during hydration gap
+                // This prevents form submissions or link navigation for elements that should be handled by JS
+                if (t.getAttribute('data-onclick-action') === 'true' || t.getAttribute('role') === 'button') {
+                    e.preventDefault();
+                }
+
+                var id = t.getAttribute('data-sid') || t.getAttribute('data-summon-id');
+                if (id) {
+                    window.__SUMMON_QUEUE__.push({
+                        type: 'click',
+                        targetId: id,
+                        timestamp: Date.now(),
+                        originalEvent: e
+                    });
+                }
             }
         }
     }, true);

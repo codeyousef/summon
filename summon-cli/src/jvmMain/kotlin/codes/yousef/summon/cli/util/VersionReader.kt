@@ -14,7 +14,7 @@ object VersionReader {
      * Reads the VERSION property from version.properties in the repository root.
      * Returns cached version if already loaded.
      *
-     * @return The version string, or "0.5.1.2" as fallback
+     * @return The version string, or "0.5.1.3" as fallback
      */
     fun readVersion(): String {
         if (cachedVersion != null) {
@@ -46,8 +46,8 @@ object VersionReader {
             val versionFile = possiblePaths.firstOrNull { it.exists() && it.canRead() }
 
             if (versionFile == null) {
-                println("Warning: version.properties not found, using fallback version 0.5.1.2")
-                cachedVersion = "0.5.1.2"
+                println("Warning: version.properties not found, using fallback version 0.5.1.3")
+                cachedVersion = "0.5.1.3"
                 return cachedVersion!!
             }
 
@@ -59,7 +59,7 @@ object VersionReader {
             val version = properties.getProperty("VERSION")
             if (version.isNullOrBlank()) {
                 println("Warning: VERSION property not found in version.properties, using fallback")
-                cachedVersion = "0.5.1.2"
+                cachedVersion = "0.5.1.3"
             } else {
                 cachedVersion = version.trim()
             }
@@ -67,7 +67,7 @@ object VersionReader {
             cachedVersion!!
         } catch (e: Exception) {
                 println("Error reading version.properties: ${e.message}")
-                cachedVersion = "0.5.1.2"
+                cachedVersion = "0.5.1.3"
                 cachedVersion!!
             }
     }

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.1.3] - 2025-11-24
+
+### Fixed
+
+- **Hydration Gap**: Updated `BOOTLOADER_SCRIPT` in `JvmPlatformRenderer` to explicitly intercept click events on elements with `role="button"` or `data-onclick-action="true"` and call `preventDefault()`. This ensures that interactions during the hydration gap (before JS loads) do not trigger browser default behaviors like page refreshes or form submissions.
+
 ## [0.5.1.2] - 2025-11-24
 
 ### Fixed
