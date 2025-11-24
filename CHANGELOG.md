@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0.6] - 2025-11-24
+
+### Fixed
+
+- **Hamburger Menu**: Updated `HamburgerMenu` component to use a native `<button>` element instead of a `div`. This ensures proper accessibility, prevents unwanted page refreshes in some contexts, and guarantees a minimum touch target size for better usability.
+
 ## [0.5.0.5] - 2025-11-23
 
 ### Fixed

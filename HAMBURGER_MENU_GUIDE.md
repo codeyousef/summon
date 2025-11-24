@@ -29,21 +29,18 @@ Create a file `ResponsiveNavBar.kt`:
 package com.example.components
 
 import codes.yousef.summon.annotation.Composable
-import codes.yousef.summon.components.display.MaterialIcon
 import codes.yousef.summon.components.display.Text
-import codes.yousef.summon.components.layout.Box
 import codes.yousef.summon.components.layout.Column
 import codes.yousef.summon.components.layout.ResponsiveLayout
 import codes.yousef.summon.components.layout.Row
 import codes.yousef.summon.components.layout.ScreenSize
+import codes.yousef.summon.components.navigation.HamburgerMenu
 import codes.yousef.summon.modifier.*
 import codes.yousef.summon.modifier.LayoutModifiers.alignItems
 import codes.yousef.summon.modifier.LayoutModifiers.display
 import codes.yousef.summon.modifier.LayoutModifiers.gap
 import codes.yousef.summon.modifier.LayoutModifiers.justifyContent
 import codes.yousef.summon.modifier.ModifierExtras.onClick
-import codes.yousef.summon.runtime.mutableStateOf
-import codes.yousef.summon.runtime.remember
 
 @Composable
 fun ResponsiveNavBar() {
@@ -75,10 +72,6 @@ fun ResponsiveNavBar() {
 
     // Define the Mobile Layout (Hamburger Menu)
     val mobileLayout = @Composable {
-        // State to track if the menu is open
-        // This works with Summon's hydration system
-        val isOpen = remember { mutableStateOf(false) }
-
         Column(
             modifier = Modifier()
                 .fillMaxWidth()
@@ -92,52 +85,30 @@ fun ResponsiveNavBar() {
                     .padding("16px")
                     .display(Display.Flex)
                     .justifyContent(JustifyContent.SpaceBetween)
-                    .alignItems(AlignItems.Center)
+                    .alignItems(AlignItems.FlexStart) // Align top so logo doesn't move when menu opens
             ) {
                 Logo()
 
-                // Hamburger Icon
-                // Wrapped in a Box to ensure proper click target size and z-index
-                Box(
-                    modifier = Modifier()
-                        .cursor(Cursor.Pointer)
-                        .style("z-index", "100") // Ensure it's above other elements
-                        .padding("8px") // Add padding for touch target
-                        .onClick { isOpen.value = !isOpen.value }
-                        .display(Display.Flex)
-                        .alignItems(AlignItems.Center)
-                        .justifyContent(JustifyContent.Center)
-                ) {
-                    MaterialIcon(
-                        name = if (isOpen.value) "close" else "menu",
-                        modifier = Modifier()
-                            .fontSize("24px")
-                            .color("#333")
-                            .style("text-transform", "none") // CRITICAL: Prevents "menu" -> "MENU" which breaks ligatures
-                            .style("line-height", "1")
-                            .display(Display.Block)
-                    )
-                }
-            }
-
-            // Collapsible Menu Content
-            // Only visible when isOpen.value is true
-            if (isOpen.value) {
-                Column(
-                    modifier = Modifier()
-                        .fillMaxWidth()
-                        .padding("0", "16px", "16px", "16px")
-                        .gap("12px")
-                        .style("border-top", "1px solid #eee")
-                        .paddingTop("16px")
-                ) {
-                    links.forEach { link ->
-                        NavLink(
-                            text = link, 
-                            modifier = Modifier().fillMaxWidth().padding("8px")
-                        )
+                // Use the HamburgerMenu component
+                // It handles the state and toggling internally
+                HamburgerMenu(
+                    // iconColor = "#333333", // Optional: Defaults to inherited color
+                    menuContent = {
+                        Column(
+                            modifier = Modifier()
+                                .gap("12px")
+                                .paddingTop("16px")
+                                .style("min-width", "200px") // Ensure menu has width
+                        ) {
+                            links.forEach { link ->
+                                NavLink(
+                                    text = link, 
+                                    modifier = Modifier().fillMaxWidth().padding("8px")
+                                )
+                            }
+                        }
                     }
-                }
+                )
             }
         }
     }
@@ -207,7 +178,7 @@ fun Route.homeRoute() {
 ## Key Concepts
 
 1.  **`ResponsiveLayout`**: This component renders all layout variants to the DOM but uses CSS/JS to toggle their visibility based on the client's screen size. This ensures no layout shift during hydration.
-2.  **`remember { mutableStateOf(...) }`**: This creates a state variable that survives recompositions. In the context of Summon SSR + Hydration, this state is managed by the client-side runtime after the initial HTML load.
+2.  **`HamburgerMenu`**: A built-in component that handles the open/close state and accessibility attributes for the mobile menu. It uses a native `<button>` element to ensure accessibility and prevent unwanted page refreshes.
 3.  **`onClick` Lambda**: The lambda passed to `onClick` is executed in the client's browser context. Summon handles the binding of this event.
 4.  **`MaterialIcon`**: A convenient wrapper for rendering Material Design icons. Ensure you have the Material Icons font loaded in your HTML head (usually handled by Summon's default template or added manually).
 

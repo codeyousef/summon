@@ -7,14 +7,14 @@ import codes.yousef.summon.components.layout.Column
 import codes.yousef.summon.modifier.*
 import codes.yousef.summon.modifier.ModifierExtras.onClick
 import codes.yousef.summon.modifier.ModifierExtras.withAttribute
+import codes.yousef.summon.runtime.LocalPlatformRenderer
 import codes.yousef.summon.runtime.remember
 import codes.yousef.summon.state.mutableStateOf
 
 /**
  * A responsive hamburger menu component that toggles visibility of content.
  *
- * This component uses a div-based button (Box) to ensure no form submission or page refresh occurs.
- * It includes proper accessibility attributes to function as a button for screen readers.
+ * This component uses a native button element to ensure accessibility and proper behavior.
  *
  * @param modifier Modifier to apply to the container
  * @param iconColor Color of the hamburger icon
@@ -23,42 +23,45 @@ import codes.yousef.summon.state.mutableStateOf
 @Composable
 fun HamburgerMenu(
     modifier: Modifier = Modifier(),
-    iconColor: String = "#333333",
+    iconColor: String? = null,
     menuContent: @Composable () -> Unit
 ) {
     val isOpen = remember { mutableStateOf(false) }
+    val renderer = LocalPlatformRenderer.current
 
     Column(modifier = modifier) {
         // Hamburger Button
-        // We use a Box (div) instead of a button element to guarantee no default form submission behavior
-        // causing page refreshes. We add accessibility roles to make it behave like a button for AT.
-        Box(
+        // We use a native button element to guarantee correct behavior and accessibility.
+        renderer.renderHtmlTag(
+            tagName = "button",
             modifier = Modifier()
                 .cursor(Cursor.Pointer)
                 .padding("8px")
                 .display(Display.Flex)
                 .alignItems(AlignItems.Center)
                 .justifyContent(JustifyContent.Center)
+                // Reset button styles
+                .style("background", "transparent")
+                .style("border", "none")
+                .style("outline", "none")
+                .style("min-width", "40px")
+                .style("min-height", "40px")
                 // Accessibility
-                .role("button")
-                .withAttribute("tabindex", "0")
+                .attribute("type", "button")
+                .attribute("aria-label", if (isOpen.value) "Close menu" else "Open menu")
+                .attribute("aria-expanded", isOpen.value.toString())
                 .withAttribute("data-test-id", "hamburger-button")
-                .ariaLabel(if (isOpen.value) "Close menu" else "Open menu")
-                .withAttribute("aria-expanded", isOpen.value.toString())
                 // Event handling
                 .onClick { 
                     isOpen.value = !isOpen.value 
                 }
-                // Add key handler for keyboard accessibility (Enter/Space) if needed, 
-                // though onClick often handles this in some frameworks, explicit handling is safer for divs
-                .withAttribute("onkeydown", "if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}")
         ) {
             MaterialIcon(
                 name = if (isOpen.value) "close" else "menu",
                 modifier = Modifier()
                     .fontSize("24px")
-                    .color(iconColor)
-                    .style("user-select", "none") // Prevent text selection
+                    .style("user-select", "none"), // Prevent text selection
+                color = iconColor
             )
         }
 
