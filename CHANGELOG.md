@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.1.1] - 2025-11-24
+
+### Fixed
+
+- **Hamburger Menu**: Fixed `renderNativeButton` in `JvmPlatformRenderer` to correctly respect the `type` attribute, ensuring the hamburger menu button is rendered as `type="button"` to prevent form submission and page refreshes.
+- **Mobile Header**: Updated `MobileHeader` to remove ineffective manual `onclick` and `type` attributes from the container `div`, ensuring clean and correct HTML output.
+
 ## [0.5.1.0] - 2025-11-24
 
 ### Fixed
@@ -718,8 +725,7 @@ most thoroughly documented Kotlin Multiplatform UI framework.
 #### Enhanced
 
 - **Developer Experience**: Clear onboarding paths with progressive examples
-- **Production Readiness**: Enterprise deployment guidance and best practices
-- **Framework Adoption**: Documentation quality that inspires confidence
+- **Production Readiness**: Documentation quality that inspires confidence
 - **Cross-Platform Development**: Comprehensive platform-specific guidance
 
 #### Documentation Quality Standards

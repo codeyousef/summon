@@ -181,12 +181,7 @@ actual open class PlatformRenderer {
     ) {
         requireBuilder().button {
             applyModifier(modifier)
-
-            // Add proper button type to prevent form submission issues
-            // Only set type="button" if not already specified in modifier
-            if (!attributes.containsKey("type")) {
-                attributes["type"] = "button"
-            }
+            attributes["type"] = type
 
             val isDisabled = modifier.attributes.containsKey("disabled")
             if (!isDisabled) {

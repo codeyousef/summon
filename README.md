@@ -10,7 +10,7 @@
 >
 > Summon is migrating from `io.github.codeyousef` to `codes.yousef`!
 > - Version **0.5.0.x** will be the LAST release series under `io.github.codeyousef`
-> - Future versions (0.5.1.0+) will be published **ONLY** to `codes.yousef`
+> - Future versions (0.5.1.1+) will be published **ONLY** to `codes.yousef`
 > - Please migrate your dependencies now!
 
 > **Action Required:**
@@ -336,7 +336,7 @@ We're transitioning from `io.github.codeyousef` to `codes.yousef` to:
 | 0.4.9.3     | ✅ Published          | ✅ Published  | Both available                |
 | 0.4.9.4     | ✅ Published          | ✅ Published  | Both available                |
 | **0.5.0.2** | ✅ **FINAL**          | ✅ Published  | **Last version on old group** |
-| 0.5.1.0+    | ❌ Not published      | ✅ Published  | **New group only**            |
+| 0.5.1.1+    | ❌ Not published      | ✅ Published  | **New group only**            |
 
 ### How to Migrate
 
@@ -381,7 +381,7 @@ Run `./gradlew build` to ensure everything compiles correctly.
 ### Backward Compatibility
 
 - **Versions 0.4.8.7 through 0.5.0.2**: Published to BOTH group IDs
-- **Version 0.5.1.0 onwards**: Published ONLY to `codes.yousef`
+- **Version 0.5.1.1 onwards**: Published ONLY to `codes.yousef`
 - **No code changes required**: Just update the dependency declaration
 
 ### Need Help?

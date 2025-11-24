@@ -1,7 +1,7 @@
 # Group ID Migration Guide
 
 **Effective Date**: November 13, 2025 (Version 0.4.8.7)  
-**Completion Date**: Version 0.5.1.0 (estimated Q1 2026)
+**Completion Date**: Version 0.5.1.1 (estimated Q1 2026)
 
 ---
 
@@ -45,7 +45,7 @@ the migration timeline, steps, and what you need to do.
 - 0.5.0.0 ✅
 - 0.5.0.5 ⚠️ FINAL version on old group ID
 
-### Phase 2: New Group Only (0.5.1.0 onwards)
+### Phase 2: New Group Only (0.5.1.1 onwards)
 
 **Status**: 🔜 Upcoming  
 **Start Date**: Q1 2026 (estimated)
@@ -245,7 +245,7 @@ Update any hardcoded dependency strings in your pipeline scripts.
 | 0.4.9.4        | ✅                    | ✅            | **Use codes.yousef**      |
 | 0.5.0.0        | ✅                    | ✅            | **Use codes.yousef**      |
 | 0.5.0.5        | ✅ FINAL              | ✅            | **Use codes.yousef**      |
-| 0.5.1.0+       | ❌                    | ✅            | **Must use codes.yousef** |
+| 0.5.1.1+       | ❌                    | ✅            | **Must use codes.yousef** |
 
 ---
 
@@ -255,7 +255,7 @@ Update any hardcoded dependency strings in your pipeline scripts.
 
 **A**: No. Only update the dependency declaration in `build.gradle.kts`. Your imports and code remain unchanged.
 
-### Q: What if I don't migrate before 0.5.1.0?
+### Q: What if I don't migrate before 0.5.1.1?
 
 **A**: You'll be stuck on version 0.5.0.5 or earlier. To get newer versions, you'll need to migrate.
 
@@ -269,7 +269,7 @@ Update any hardcoded dependency strings in your pipeline scripts.
 
 ### Q: How long do I have to migrate?
 
-**A**: You have until we release 0.5.1.0 (estimated Q1 2026). However, we recommend migrating now to avoid issues later.
+**A**: You have until we release 0.5.1.1 (estimated Q1 2026). However, we recommend migrating now to avoid issues later.
 
 ### Q: What happens to the old group ID after 0.5.0.5?
 
@@ -310,7 +310,7 @@ December 2025: 0.4.9.1 (dual publishing continues)
     ↓
 January 2026: 0.5.0.5 (FINAL version on old group ID)
     ↓
-February 2026: 0.5.1.0 (NEW group ID only)
+February 2026: 0.5.1.1 (NEW group ID only)
 ```
 
 ---
