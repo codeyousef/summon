@@ -27,16 +27,19 @@ fun App() {
 
         Text(
             text = "Count: $count",
-            modifier = Modifier()
-                .fontSize("24px")
-                .padding("0 0 16px 0")
+            modifier = Modifier().padding("0 0 16px 0")
         )
 
         Button(
             onClick = { setCount(count + 1) },
-            label = "Click me!",
             modifier = Modifier()
-        )
+                .background("#007bff")
+                .color("white")
+                .padding("10px 20px")
+                .borderRadius("4px")
+        ) {
+            Text("Click me")
+        }
     }
 }
 

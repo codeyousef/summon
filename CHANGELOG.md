@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.1.0] - 2025-11-24
+
+### Fixed
+
+- **Hamburger Menu**: Replaced `renderButton` with `renderNativeButton` in `HamburgerMenu` to strictly enforce `type="button"` on the native element. This prevents form submission in all contexts, including when wrapped in a `<form>` without an `onSubmit` handler, resolving the persistent page refresh issue on mobile devices.
+
 ## [0.5.0.9] - 2025-11-24
 
 ### Fixed
@@ -761,7 +767,7 @@ Design 3 inspired components.
     - `containerWidth()`, `shadow()`, `radius()`
     - `typography()`, `buttonSize()`
 - **Optimized Imports**: Proper use of core library modifiers
-    - Leverages existing `gap()`, `alignItems()`, `justifyContent()`
+    - Leverages existing `gap()`, `alignItems()`, `justifyContent`
     - Uses core `opacity()`, `fontFamily()` modifiers
 
 #### Fixed
