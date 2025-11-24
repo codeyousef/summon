@@ -58,23 +58,21 @@ fun HamburgerMenu(
 
     Column(modifier = modifier) {
         // Hamburger Button
-        // We use renderNativeButton to strictly enforce type="button" and prevent form submission.
-        // This is more robust than renderButton which might infer type based on context.
-        renderer.renderNativeButton(
-            type = "button",
+        // We use a div (Box) with role="button" instead of a native button element.
+        // This is to absolutely guarantee that no browser default behavior (like form submission or page refresh)
+        // can be triggered, which was reported as an issue even with type="button".
+        renderer.renderBox(
             modifier = Modifier()
                 .cursor(Cursor.Pointer)
                 .padding("8px")
                 .display(Display.Flex)
                 .alignItems(AlignItems.Center)
                 .justifyContent(JustifyContent.Center)
-                // Reset button styles
-                .style("background", "transparent")
-                .style("border", "none")
-                .style("outline", "none")
                 .style("min-width", "40px")
                 .style("min-height", "40px")
                 // Accessibility
+                .attribute("role", "button")
+                .attribute("tabindex", "0")
                 .attribute("aria-label", if (isOpen) "Close menu" else "Open menu")
                 .attribute("aria-expanded", isOpen.toString())
                 .withAttribute("data-test-id", "hamburger-button")
