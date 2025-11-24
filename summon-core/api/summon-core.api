@@ -2635,6 +2635,11 @@ public final class codes/yousef/summon/components/navigation/DropdownTrigger : j
 	public static fun values ()[Lcodes/yousef/summon/components/navigation/DropdownTrigger;
 }
 
+public final class codes/yousef/summon/components/navigation/HamburgerMenuKt {
+	public static final fun HamburgerMenu (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
+	public static synthetic fun HamburgerMenu$default (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+}
+
 public final class codes/yousef/summon/components/navigation/LinkKt {
 	public static final fun AnchorLink (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Lcodes/yousef/summon/components/navigation/LinkNavigationMode;Ljava/lang/String;)V
 	public static synthetic fun AnchorLink$default (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Lcodes/yousef/summon/components/navigation/LinkNavigationMode;Ljava/lang/String;ILjava/lang/Object;)V
@@ -6899,6 +6904,7 @@ public final class codes/yousef/summon/runtime/NativeSelectOption {
 public class codes/yousef/summon/runtime/PlatformRenderer {
 	public fun <init> ()V
 	public fun addHeadElement (Ljava/lang/String;)V
+	public fun endRecomposition ()V
 	public fun getHeadElements ()Ljava/util/List;
 	public fun hydrateComposableRoot (Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
 	public fun renderAlert (Ljava/lang/String;Lcodes/yousef/summon/components/feedback/AlertVariant;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;)V
@@ -7002,6 +7008,7 @@ public class codes/yousef/summon/runtime/PlatformRenderer {
 	public fun renderToast (Lcodes/yousef/summon/components/feedback/ToastData;Lkotlin/jvm/functions/Function0;Lcodes/yousef/summon/modifier/Modifier;)V
 	public fun renderTooltip (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;)V
 	public fun renderVerticalPager (ILjava/lang/Object;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
+	public fun startRecomposition ()V
 }
 
 public final class codes/yousef/summon/runtime/PlatformRendererAccessorKt {

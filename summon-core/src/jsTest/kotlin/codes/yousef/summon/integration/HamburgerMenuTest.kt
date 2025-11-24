@@ -60,8 +60,9 @@ class HamburgerMenuTest {
         assertNotNull(button, "Hamburger button should be rendered")
         
         // Verify button accessibility attributes
-        assertEquals("button", button.getAttribute("role"), "Element should have role='button'")
-        assertEquals("0", button.getAttribute("tabindex"), "Element should be focusable (tabindex='0')")
+        assertEquals("BUTTON", button.tagName, "Element should be a native <button> tag")
+        assertEquals("button", button.getAttribute("type"), "Button should have type='button'")
+        // Native buttons don't need explicit role="button" or tabindex="0"
 
         assertNull(getMenuContent(), "Menu content should be initially hidden")
 
