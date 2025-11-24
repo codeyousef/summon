@@ -157,6 +157,8 @@ val copyGradleWrapper by tasks.registering(Copy::class) {
 tasks.withType<ProcessResources> {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
     dependsOn(copyGradleWrapper)
+    // Include version.properties from root project
+    from("../version.properties")
 }
 
 // Publishing configuration for CLI tool

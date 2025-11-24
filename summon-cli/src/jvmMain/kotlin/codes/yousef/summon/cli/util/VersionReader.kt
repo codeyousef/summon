@@ -22,7 +22,19 @@ object VersionReader {
         }
 
         return try {
-            // Try multiple possible locations for version.properties
+            // 1. Try to load from classpath (for packaged JAR)
+            val resourceStream = VersionReader::class.java.classLoader.getResourceAsStream("version.properties")
+            if (resourceStream != null) {
+                val properties = Properties()
+                resourceStream.use { properties.load(it) }
+                val version = properties.getProperty("VERSION")
+                if (!version.isNullOrBlank()) {
+                    cachedVersion = version.trim()
+                    return cachedVersion!!
+                }
+            }
+
+            // 2. Fallback to file system (for development/tests)
             val possiblePaths = listOf(
                 File("version.properties"),
                 File("../version.properties"),
@@ -34,8 +46,8 @@ object VersionReader {
             val versionFile = possiblePaths.firstOrNull { it.exists() && it.canRead() }
 
             if (versionFile == null) {
-                println("Warning: version.properties not found, using fallback version 0.5.0.3")
-                cachedVersion = "0.5.0.3"
+                println("Warning: version.properties not found, using fallback version 0.5.0.6")
+                cachedVersion = "0.5.0.6"
                 return cachedVersion!!
             }
 
@@ -47,7 +59,7 @@ object VersionReader {
             val version = properties.getProperty("VERSION")
             if (version.isNullOrBlank()) {
                 println("Warning: VERSION property not found in version.properties, using fallback")
-                cachedVersion = "0.5.0.3"
+                cachedVersion = "0.5.0.6"
             } else {
                 cachedVersion = version.trim()
             }
@@ -55,7 +67,7 @@ object VersionReader {
             cachedVersion!!
         } catch (e: Exception) {
             println("Error reading version.properties: ${e.message}")
-            cachedVersion = "0.5.0.3"
+            cachedVersion = "0.5.0.6"
             cachedVersion!!
         }
     }
