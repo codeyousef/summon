@@ -2,12 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.5.0.8] - 2025-11-24
+## [0.5.0.9] - 2025-11-24
 
 ### Fixed
 
-- **Webpack Build**: Added `suppress-assets-log.js` to suppress Webpack asset logging, resolving a parser crash in Kotlin Gradle Plugin 2.2.21 caused by unexpected build output.
-- **Hamburger Menu**: Updated `HamburgerMenu` to use `renderButton` instead of `renderHtmlTag`, ensuring proper event handling (preventDefault) and preventing page refreshes on click.
+- **Hamburger Menu**: Updated `HamburgerMenu` to support controlled component pattern (state hoisting) with `isOpen` and `onToggle` parameters. This implementation explicitly uses `renderButton` with `type="button"` and `preventDefault()` to ensure it does not trigger page refreshes or form submissions.
 
 ## [0.5.0.8] - 2025-11-24
 

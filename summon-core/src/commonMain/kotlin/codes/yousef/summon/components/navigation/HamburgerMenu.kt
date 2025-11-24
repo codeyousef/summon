@@ -27,13 +27,40 @@ fun HamburgerMenu(
     menuContent: @Composable () -> Unit
 ) {
     val isOpen = remember { mutableStateOf(false) }
+    HamburgerMenu(
+        modifier = modifier,
+        isOpen = isOpen.value,
+        onToggle = { isOpen.value = !isOpen.value },
+        iconColor = iconColor,
+        menuContent = menuContent
+    )
+}
+
+/**
+ * A responsive hamburger menu component that toggles visibility of content.
+ * Controlled version where state is managed by the caller.
+ *
+ * @param modifier Modifier to apply to the container
+ * @param isOpen Whether the menu is currently open
+ * @param onToggle Callback when the menu toggle button is clicked
+ * @param iconColor Color of the hamburger icon
+ * @param menuContent The content to display when the menu is open
+ */
+@Composable
+fun HamburgerMenu(
+    modifier: Modifier = Modifier(),
+    isOpen: Boolean,
+    onToggle: () -> Unit,
+    iconColor: String? = null,
+    menuContent: @Composable () -> Unit
+) {
     val renderer = LocalPlatformRenderer.current
 
     Column(modifier = modifier) {
         // Hamburger Button
         // We use renderButton to ensure cross-platform compatibility (Wasm/JS) and proper event handling.
         renderer.renderButton(
-            onClick = { isOpen.value = !isOpen.value },
+            onClick = onToggle,
             modifier = Modifier()
                 .cursor(Cursor.Pointer)
                 .padding("8px")
@@ -48,12 +75,12 @@ fun HamburgerMenu(
                 .style("min-height", "40px")
                 // Accessibility
                 .attribute("type", "button")
-                .attribute("aria-label", if (isOpen.value) "Close menu" else "Open menu")
-                .attribute("aria-expanded", isOpen.value.toString())
+                .attribute("aria-label", if (isOpen) "Close menu" else "Open menu")
+                .attribute("aria-expanded", isOpen.toString())
                 .withAttribute("data-test-id", "hamburger-button")
         ) {
             MaterialIcon(
-                name = if (isOpen.value) "close" else "menu",
+                name = if (isOpen) "close" else "menu",
                 modifier = Modifier()
                     .fontSize("24px")
                     .style("user-select", "none"), // Prevent text selection
@@ -62,7 +89,7 @@ fun HamburgerMenu(
         }
 
         // Menu Content
-        if (isOpen.value) {
+        if (isOpen) {
             Box(
                 modifier = Modifier()
                     .fillMaxWidth()
