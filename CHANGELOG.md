@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.1.4] - 2025-11-25
+
+### Fixed
+
+- **Hamburger Menu Client-Side Toggle**: Completely reimplemented hamburger menu to use pure client-side toggle via `data-action` attribute instead of server callbacks. Menu content is now always rendered (hidden with `display: none` when closed) and toggled client-side by `ClientDispatcher`, eliminating the page refresh issue caused by server round-trips.
+
+### Changed
+
+- **ClientDispatcher**: Enhanced `toggleElementVisibility()` to update `aria-expanded`, `aria-label`, and icon text for hamburger menus, providing proper accessibility state updates.
+
 ## [0.5.1.3] - 2025-11-24
 
 ### Fixed

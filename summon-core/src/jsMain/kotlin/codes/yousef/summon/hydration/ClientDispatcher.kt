@@ -3,6 +3,8 @@ package codes.yousef.summon.hydration
 import codes.yousef.summon.action.UiAction
 import kotlinx.serialization.json.Json
 import kotlinx.browser.window
+import kotlinx.browser.document
+import org.w3c.dom.HTMLElement
 
 object ClientDispatcher {
     private val json = Json { ignoreUnknownKeys = true }
@@ -26,10 +28,47 @@ object ClientDispatcher {
                 // TODO: Implement actual fetch to /summon/dispatch
             }
             is UiAction.ToggleVisibility -> {
-                val el = kotlinx.browser.document.getElementById(action.targetId) as? org.w3c.dom.HTMLElement
-                if (el != null) {
-                    val currentDisplay = kotlinx.browser.window.getComputedStyle(el).display
-                    el.style.display = if (currentDisplay == "none") "block" else "none"
+                toggleElementVisibility(action.targetId)
+            }
+        }
+    }
+
+    /**
+     * Toggles the visibility of an element and updates related accessibility attributes.
+     * For hamburger menus, also updates the icon and aria-expanded state of the trigger button.
+     */
+    private fun toggleElementVisibility(targetId: String) {
+        val el = document.getElementById(targetId) as? HTMLElement
+        if (el == null) {
+            console.warn("ToggleVisibility: Element not found with id '$targetId'")
+            return
+        }
+
+        val currentDisplay = window.getComputedStyle(el).display
+        val isCurrentlyHidden = currentDisplay == "none"
+        val newDisplay = if (isCurrentlyHidden) "block" else "none"
+
+        el.style.display = newDisplay
+
+        // Find the trigger button that controls this element (by aria-controls attribute)
+        val triggerButton = document.querySelector("[aria-controls='$targetId']") as? HTMLElement
+        if (triggerButton != null) {
+            // Update aria-expanded state
+            triggerButton.setAttribute("aria-expanded", isCurrentlyHidden.toString())
+
+            // Update aria-label for hamburger menus
+            val isHamburger = triggerButton.getAttribute("data-hamburger-toggle") == "true"
+            if (isHamburger) {
+                triggerButton.setAttribute(
+                    "aria-label",
+                    if (isCurrentlyHidden) "Close menu" else "Open menu"
+                )
+
+                // Update the icon inside the hamburger button
+                // Look for Material Icons span inside the button
+                val iconSpan = triggerButton.querySelector(".material-icons") as? HTMLElement
+                if (iconSpan != null) {
+                    iconSpan.textContent = if (isCurrentlyHidden) "close" else "menu"
                 }
             }
         }
