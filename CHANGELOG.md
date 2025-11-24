@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.1.2] - 2025-11-24
+
+### Fixed
+
+- **Hamburger Menu**: Replaced the native `<button>` element with a `<div>` (Box) styled as a button to strictly prevent default browser actions (submission/refresh) in all contexts. This resolves persistent refresh issues on mobile devices where `type="button"` was not sufficient.
+
 ## [0.5.1.1] - 2025-11-24
 
 ### Fixed
