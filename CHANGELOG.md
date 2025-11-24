@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0.8] - 2025-11-24
+
+### Fixed
+
+- **Webpack Build**: Added `suppress-assets-log.js` to suppress Webpack asset logging, resolving a parser crash in Kotlin Gradle Plugin 2.2.21 caused by unexpected build output.
+- **Hamburger Menu**: Updated `HamburgerMenu` to use `renderButton` instead of `renderHtmlTag`, ensuring proper event handling (preventDefault) and preventing page refreshes on click.
+
+## [0.5.0.8] - 2025-11-24
+
+### Fixed
+
+- **Webpack Build**: Added `suppress-assets-log.js` to suppress Webpack asset logging, resolving a parser crash in Kotlin Gradle Plugin 2.2.21 caused by unexpected build output.
+- **Hamburger Menu**: Updated `HamburgerMenu` to use `renderButton` instead of `renderHtmlTag`, ensuring proper event handling (preventDefault) and preventing page refreshes on click.
+
 ## [0.5.0.7] - 2025-11-24
 
 ### Fixed
@@ -461,14 +475,7 @@ Both group IDs are published for versions 0.4.8.7 through 0.5.0.0 for backward c
   Ktor worker threads.
 - **Baseline Clean-ups**: Common `renderComposableRoot` clears the callback registry on exit, and tests reset the
   renderer store to keep diagnostics deterministic.
-- **WASM DOM Harness**: Node-based WASM tests bootstrap a `happy-dom` environment and load Summon’s bridge script so
-  integration tests execute against a functional DOM instead of skipping.
-
-## [0.4.0.10]
-
-### Added
-
-- **Ktor Integration Enhancements**:
+- **WASM DOM Harness**: Node-based WASM tests bootstrap
     - `respondSummonHydrated` helper for one-line hydrated SSR responses within Ktor applications.
     - `summonRouter` bridge to mount Summon’s server router with hydration toggles and pluggable not-found handlers.
     - JVM end-to-end tests (`KtorIntegrationE2ETest`) covering hydrated responses, router navigation, and custom 404
