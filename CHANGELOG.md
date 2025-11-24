@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0.7] - 2025-11-24
+
+### Fixed
+
+- **JvmPlatformRenderer**: Fixed `renderHtmlTag` to correctly render native `<button>` elements with `type="button"`, resolving page refresh issues on click.
+- **JvmPlatformRenderer**: Fixed `renderIcon` to correctly render Material Icons by including the icon name as text content.
+
 ## [0.5.0.6] - 2025-11-24
 
 ### Fixed

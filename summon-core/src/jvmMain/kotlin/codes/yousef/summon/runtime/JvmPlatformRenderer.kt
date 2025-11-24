@@ -1310,7 +1310,16 @@ actual open class PlatformRenderer {
             if (svgContent != null) {
                 unsafe { raw(svgContent) }
             } else {
-                i { comment(" Icon font class for '$name' needed via CSS/Modifier ") }
+                // Handle Font Icons
+                val classes = modifier.attributes["class"] ?: ""
+                if (classes.contains("material-icons")) {
+                    // Material Icons use ligatures - the name is the text content
+                    +name
+                } else {
+                    // Other icon sets (like FontAwesome) typically use the name as a CSS class
+                    // We render an inner <i> tag with the name as the class
+                    i(classes = name)
+                }
             }
         }
     }
@@ -1603,23 +1612,60 @@ actual open class PlatformRenderer {
     ) {
         val builder = requireBuilder()
 
-        // Create a div container to hold our custom tag content
-        builder.div {
-            // Apply the modifier to the div for now
-            applyModifier(modifier)
+        when (tagName.lowercase()) {
+            "button" -> {
+                builder.button {
+                    applyModifier(modifier)
+                    // Ensure type="button" if not present to prevent form submission
+                    if (!attributes.containsKey("type")) {
+                        attributes["type"] = "button"
+                    }
+                    renderContent(content)
+                }
+            }
+            "div" -> {
+                builder.div {
+                    applyModifier(modifier)
+                    renderContent(content)
+                }
+            }
+            "span" -> {
+                builder.span {
+                    applyModifier(modifier)
+                    renderContent(content)
+                }
+            }
+            "p" -> {
+                builder.p {
+                    applyModifier(modifier)
+                    renderContent(content)
+                }
+            }
+            "a" -> {
+                builder.a {
+                    applyModifier(modifier)
+                    renderContent(content)
+                }
+            }
+            else -> {
+                // Create a div container to hold our custom tag content
+                builder.div {
+                    // Apply the modifier to the div for now
+                    applyModifier(modifier)
 
-            // Add a comment indicating this is a custom tag wrapper
-            comment(" Custom tag '$tagName' wrapped in div. JS needed to transform DOM. ")
+                    // Add a comment indicating this is a custom tag wrapper
+                    comment(" Custom tag '$tagName' wrapped in div. JS needed to transform DOM. ")
 
-            // Add data attribute to help JS transform this element
-            attributes["data-custom-tag"] = tagName
+                    // Add data attribute to help JS transform this element
+                    attributes["data-custom-tag"] = tagName
 
-            // Render the content in the div
-            renderContent(content)
+                    // Render the content in the div
+                    renderContent(content)
+                }
+                // Add a comment about the limitation
+                builder.comment(" Note: Direct custom tag rendering requires JS DOM manipulation ")
+            }
         }
-
-        // Add a comment about the limitation
-        builder.comment(" Note: Direct custom tag rendering requires JS DOM manipulation ")
     }
 
     actual open fun renderCanvas(

@@ -52,8 +52,8 @@ fun HamburgerMenu(
                 .attribute("aria-expanded", isOpen.value.toString())
                 .withAttribute("data-test-id", "hamburger-button")
                 // Event handling
-                .onClick { 
-                    isOpen.value = !isOpen.value 
+                .onClick {
+                    isOpen.value = !isOpen.value
                 }
         ) {
             MaterialIcon(

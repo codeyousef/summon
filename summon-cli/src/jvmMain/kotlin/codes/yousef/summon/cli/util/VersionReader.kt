@@ -46,8 +46,8 @@ object VersionReader {
             val versionFile = possiblePaths.firstOrNull { it.exists() && it.canRead() }
 
             if (versionFile == null) {
-                println("Warning: version.properties not found, using fallback version 0.5.0.6")
-                cachedVersion = "0.5.0.6"
+                println("Warning: version.properties not found, using fallback version 0.5.0.7")
+                cachedVersion = "0.5.0.7"
                 return cachedVersion!!
             }
 
@@ -59,7 +59,7 @@ object VersionReader {
             val version = properties.getProperty("VERSION")
             if (version.isNullOrBlank()) {
                 println("Warning: VERSION property not found in version.properties, using fallback")
-                cachedVersion = "0.5.0.6"
+                cachedVersion = "0.5.0.7"
             } else {
                 cachedVersion = version.trim()
             }
@@ -67,7 +67,7 @@ object VersionReader {
             cachedVersion!!
         } catch (e: Exception) {
             println("Error reading version.properties: ${e.message}")
-            cachedVersion = "0.5.0.6"
+            cachedVersion = "0.5.0.7"
             cachedVersion!!
         }
     }
