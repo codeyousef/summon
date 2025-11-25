@@ -4,6 +4,10 @@ import java.util.*
 // Apply version management
 apply(from = "../version.gradle.kts")
 
+// Manual version override for now
+version = "0.5.2.0"
+group = "codes.yousef"
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
@@ -217,10 +221,6 @@ kotlin {
             }
         }
 
-        val webTest by creating {
-            dependsOn(commonTest)
-        }
-
         val jsMain by getting {
             dependsOn(webMain)
             dependencies {
@@ -251,14 +251,12 @@ kotlin {
         }
 
         val jsTest by getting {
-            dependsOn(webTest)
             dependencies {
                 // AtomicFU plugin handles atomicfu dependencies automatically
                 implementation(npm("happy-dom", "14.10.3"))
             }
         }
         val wasmJsTest by getting {
-            dependsOn(webTest)
             dependencies {
                 implementation(npm("happy-dom", "14.10.3"))
             }
@@ -693,10 +691,10 @@ tasks.register("publishToCentralPortalManually") {
     }
 }
 
-// Legacy publishing to io.github.codeyousef (until 0.5.0.2)
+// Legacy publishing to io.github.codeyousef (until 0.5.0.0)
 tasks.register("publishToLegacyGroupId") {
     group = "publishing"
-    description = "Publish to Maven Central using legacy group ID (io.github.codeyousef) - until 0.5.0.2"
+    description = "Publish to Maven Central using legacy group ID (io.github.codeyousef) - until 0.5.0.0"
     dependsOn("publishToMavenLocal", "javadocJar")
 
     doLast {
@@ -909,7 +907,7 @@ tasks.register("publishToLegacyGroupId") {
 // Combined task to publish to both group IDs
 tasks.register("publishToBothGroupIds") {
     group = "publishing"
-    description = "Publish to both codes.yousef and io.github.codeyousef (until 0.5.0.2)"
+    description = "Publish to both codes.yousef and io.github.codeyousef (until 0.5.0.0)"
     dependsOn("publishToMavenLocal", "javadocJar")
     finalizedBy("publishToCentralPortalManually", "publishToLegacyGroupId")
 }

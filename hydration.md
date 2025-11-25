@@ -25,7 +25,7 @@ Ensure you are using the latest version of Summon.
 
 ```kotlin
 // build.gradle.kts
-implementation("codes.yousef:summon:0.5.0.5")
+implementation("codes.yousef:summon:0.5.2.0")
 ```
 
 ### 2. Server-Side Changes

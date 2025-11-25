@@ -2,135 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.5.1.4] - 2025-11-25
-
-### Fixed
-
-- **Hamburger Menu Client-Side Toggle**: Completely reimplemented hamburger menu to use pure client-side toggle via `data-action` attribute instead of server callbacks. Menu content is now always rendered (hidden with `display: none` when closed) and toggled client-side by `ClientDispatcher`, eliminating the page refresh issue caused by server round-trips.
-
-### Changed
-
-- **ClientDispatcher**: Enhanced `toggleElementVisibility()` to update `aria-expanded`, `aria-label`, and icon text for hamburger menus, providing proper accessibility state updates.
-
-## [0.5.1.3] - 2025-11-24
-
-### Fixed
-
-- **Hydration Gap**: Updated `BOOTLOADER_SCRIPT` in `JvmPlatformRenderer` to explicitly intercept click events on elements with `role="button"` or `data-onclick-action="true"` and call `preventDefault()`. This ensures that interactions during the hydration gap (before JS loads) do not trigger browser default behaviors like page refreshes or form submissions.
-
-## [0.5.1.2] - 2025-11-24
-
-### Fixed
-
-- **Hamburger Menu**: Replaced the native `<button>` element with a `<div>` (Box) styled as a button to strictly prevent default browser actions (submission/refresh) in all contexts. This resolves persistent refresh issues on mobile devices where `type="button"` was not sufficient.
-
-## [0.5.1.1] - 2025-11-24
-
-### Fixed
-
-- **Hamburger Menu**: Fixed `renderNativeButton` in `JvmPlatformRenderer` to correctly respect the `type` attribute, ensuring the hamburger menu button is rendered as `type="button"` to prevent form submission and page refreshes.
-- **Mobile Header**: Updated `MobileHeader` to remove ineffective manual `onclick` and `type` attributes from the container `div`, ensuring clean and correct HTML output.
-
-## [0.5.1.0] - 2025-11-24
-
-### Fixed
-
-- **Hamburger Menu**: Replaced `renderButton` with `renderNativeButton` in `HamburgerMenu` to strictly enforce `type="button"` on the native element. This prevents form submission in all contexts, including when wrapped in a `<form>` without an `onSubmit` handler, resolving the persistent page refresh issue on mobile devices.
-
-## [0.5.0.9] - 2025-11-24
-
-### Fixed
-
-- **Hamburger Menu**: Updated `HamburgerMenu` to support controlled component pattern (state hoisting) with `isOpen` and `onToggle` parameters. This implementation explicitly uses `renderButton` with `type="button"` and `preventDefault()` to ensure it does not trigger page refreshes or form submissions.
-
-## [0.5.0.8] - 2025-11-24
-
-### Fixed
-
-- **Webpack Build**: Added `suppress-assets-log.js` to suppress Webpack asset logging, resolving a parser crash in Kotlin Gradle Plugin 2.2.21 caused by unexpected build output.
-- **Hamburger Menu**: Updated `HamburgerMenu` to use `renderButton` instead of `renderHtmlTag`, ensuring proper event handling (preventDefault) and preventing page refreshes on click.
-
-## [0.5.0.7] - 2025-11-24
-
-### Fixed
-
-- **JvmPlatformRenderer**: Fixed `renderHtmlTag` to correctly render native `<button>` elements with `type="button"`, resolving page refresh issues on click.
-- **JvmPlatformRenderer**: Fixed `renderIcon` to correctly render Material Icons by including the icon name as text content.
-
-## [0.5.0.6] - 2025-11-24
-
-### Fixed
-
-- **Hamburger Menu**: Updated `HamburgerMenu` component to use a native `<button>` element instead of a `div`. This ensures proper accessibility, prevents unwanted page refreshes in some contexts, and guarantees a minimum touch target size for better usability.
-
-## [0.5.0.5] - 2025-11-23
-
-### Fixed
-
-- **Hamburger Menu Hydration**: Fixed a critical hydration mismatch issue where the hamburger menu would not function correctly after server-side rendering. This was caused by inconsistent element ID generation between server and client during recomposition.
-- **Recomposition Lifecycle**: Implemented `startRecomposition` and `endRecomposition` hooks in `PlatformRenderer` to ensure stable element ID generation and proper cleanup of unused elements during recomposition cycles.
-- **E2E Testing**: Updated E2E tests to verify the fix and ensure the hamburger menu works correctly in a real browser environment.
-
-## [0.5.0.4] - 2025-11-23
-
-### Fixed
-
-- **PlatformRenderer Refresh Issue**: Fixed a critical issue where clicking on `Icon`, `Button`, or elements with `onClick` handlers would trigger a page refresh or form submission. All click handlers now automatically call `preventDefault()` and `stopPropagation()`.
-- **MaterialIcon Rendering**: Fixed `renderIcon` to correctly render the font ligature text for Material Icons.
-- **MaterialIcon Class**: Updated `MaterialIcon` component to automatically include the `material-icons` CSS class.
-- **Hamburger Menu Guide**: Updated the guide with the correct implementation using `Box` wrapper and added the missing Material Icons font dependency.
-
-## [0.5.0.3] - 2025-11-22
-
-### Fixed
-
-- **ResponsiveLayout CSS Injection**: Fixed an issue where `ResponsiveLayout` content was hidden on all platforms because the necessary CSS rules for visibility toggling were not being injected by the renderers.
-
-## [0.5.0.2] - 2025-11-22
+## [0.5.2.0] - 2025-11-25
 
 ### Added
 
-- **Server-Side Action Dispatch**: Added `Modifier.action(UiAction)` and updated `Button` component to support server-side definition of client actions (e.g., `UiAction.ToggleVisibility`), eliminating the need for manual JS patches for simple interactions like mobile menu toggles.
+- **Zero-Config Hydration Support**: Implemented all requirements from SUMMON_LIBRARY_REQUIREMENTS.md for a truly "drop-in" hydration experience.
 
-## [0.5.0.2] - 2025-11-22
+- **Ktor Integration** (`KtorRenderer.kt`):
+  - `Route.summonStaticAssets()` - Serves JS/WASM hydration files directly from the library JAR
+  - `Route.summonCallbackHandler()` - Handles POST `/summon/callback/{callbackId}` requests automatically
+  - `ApplicationCall.respondSummonPage()` - Convenience alias for `respondSummonHydrated`
 
-### Fixed
+- **Quarkus/Vert.x Integration** (`QuarkusRenderer.kt`):
+  - `Router.summonStaticAssets()` - Serves hydration assets via Vert.x Router
+  - `Router.summonCallbackHandler()` - Handles callback execution via Vert.x
+  - `RoutingContext.respondSummonPage()` - Convenience alias for `respondSummonHydrated`
 
-- **Hydration Whitespace**: Fixed `JSON.parse` errors caused by leading/trailing whitespace in server-rendered hydration data by adding `.trim()` to the client-side parser.
-- **Timestamp Serialization**: Resolved type mismatch where server-sent `Long` timestamps were causing runtime errors in Kotlin/JS; updated `HydrationData` to use `Double` for correct JS Number mapping.
-- **Mobile Menu Toggle**: Implemented `UiAction.ToggleVisibility` to allow instant client-side toggling of UI elements (like the mobile menu) without triggering a slow server round-trip.
-
-## [0.5.0.0] - 2025-11-21
-
-### 🚨 IMPORTANT: Final Legacy Group ID Release
-
-This is the **FINAL** release published under the legacy `io.github.codeyousef` group ID.
-Future releases (starting with 0.5.1.0) will be published **EXCLUSIVELY** to `codes.yousef`.
-
-**Action Required:**
-Migrate your dependencies to `codes.yousef` immediately to receive future updates.
-
-```kotlin
-implementation("codes.yousef:summon:0.5.0.0")
-```
-
-### Added
-
-- **End-to-End Testing Infrastructure**: Introduced a comprehensive Playwright-based E2E test suite (`e2e-tests/`) to validate the framework across real browser environments.
-- **Binary Compatibility Validation**: Added `summon-core.api` to track public API changes and ensure binary compatibility in future releases.
-- **Hydration Documentation**: Added dedicated `docs/hydration.md` guide explaining the hydration architecture, troubleshooting, and best practices.
-- **CLI Enhancements**: Updated project templates and generators to align with the latest runtime changes and best practices.
+- **Spring Boot Integration** (`SpringBootRenderer.kt`):
+  - `handleSummonAsset(request, response)` - For use in Spring controllers to serve hydration assets
+  - `getSummonAsset(name)` - Returns ResponseEntity for hydration assets
+  - `handleCallback(callbackId)` - Handles callback execution and returns appropriate ResponseEntity
 
 ### Changed
 
-- **Hydration Architecture**: Consolidated hydration logic into `summon-core` with improved stability and performance.
-- **Documentation**: Extensive updates to `README.md` and documentation guides to reflect the new group ID and latest features.
+- **WASM MIME Type**: All integrations now properly serve `.wasm` files with `Content-Type: application/wasm`
+- **Hydration Data Injection**: `respondSummonHydrated` automatically injects the `<script id="summon-hydration-data">` tag
 
-### Fixed
+### Documentation
 
-- **Gradle Configuration**: Fixed `configure-on-demand` issues in `gradle.properties` that were causing CI failures in multi-module builds.
+- Updated `SUMMON_LIBRARY_REQUIREMENTS.md` to reflect all implemented requirements
 
-## [0.4.9.3] - 2025-11-19
+## [0.5.1.0] - 2025-11-19
 
 ### Fixed
 
@@ -509,7 +411,14 @@ Both group IDs are published for versions 0.4.8.7 through 0.5.0.0 for backward c
   Ktor worker threads.
 - **Baseline Clean-ups**: Common `renderComposableRoot` clears the callback registry on exit, and tests reset the
   renderer store to keep diagnostics deterministic.
-- **WASM DOM Harness**: Node-based WASM tests bootstrap
+- **WASM DOM Harness**: Node-based WASM tests bootstrap a `happy-dom` environment and load Summon’s bridge script so
+  integration tests execute against a functional DOM instead of skipping.
+
+## [0.4.0.10]
+
+### Added
+
+- **Ktor Integration Enhancements**:
     - `respondSummonHydrated` helper for one-line hydrated SSR responses within Ktor applications.
     - `summonRouter` bridge to mount Summon’s server router with hydration toggles and pluggable not-found handlers.
     - JVM end-to-end tests (`KtorIntegrationE2ETest`) covering hydrated responses, router navigation, and custom 404
@@ -747,7 +656,8 @@ most thoroughly documented Kotlin Multiplatform UI framework.
 #### Enhanced
 
 - **Developer Experience**: Clear onboarding paths with progressive examples
-- **Production Readiness**: Documentation quality that inspires confidence
+- **Production Readiness**: Enterprise deployment guidance and best practices
+- **Framework Adoption**: Documentation quality that inspires confidence
 - **Cross-Platform Development**: Comprehensive platform-specific guidance
 
 #### Documentation Quality Standards
@@ -795,7 +705,7 @@ Design 3 inspired components.
     - `containerWidth()`, `shadow()`, `radius()`
     - `typography()`, `buttonSize()`
 - **Optimized Imports**: Proper use of core library modifiers
-    - Leverages existing `gap()`, `alignItems()`, `justifyContent`
+    - Leverages existing `gap()`, `alignItems()`, `justifyContent()`
     - Uses core `opacity()`, `fontFamily()` modifiers
 
 #### Fixed
@@ -1129,6 +1039,451 @@ This release represents a comprehensive code refactoring and cleanup effort that
 This release maintains full backward compatibility. No changes are required for existing applications. The refactoring was designed to improve internal code quality while preserving all public APIs.
 
 ## [0.2.9.0]
+
+### Added
+- **Core Library Enhancements:**
+  - Added `toCssString()` method to Color class for CSS string conversion
+  - Added missing `Rotate3d` to TransformFunction enum for 3D rotation transformations
+  - Added backdrop filter modifiers (backdropFilter, backdropBlur, backdropBrightness, backdropContrast, backdropGrayscale, backdropHueRotate, backdropInvert, backdropOpacity, backdropSaturate, backdropSepia)
+  - Enhanced shadowConfig function to convert string colors to Color objects automatically
+  - Added support for multiple backdrop filters with chaining
+
+### Fixed
+- **Cross-Platform Compatibility:**
+  - Fixed `DOT_MATCHES_ALL` regex issue in RichText component by using `[\s\S]*?` pattern for multiplatform compatibility
+  - Fixed `Math.toRadians()` reference in LayoutModifiers by using manual calculation: `angle.degrees.toDouble() * kotlin.math.PI / 180.0`
+  - Fixed floating-point precision test failure in ShadowConfigTest by making assertions more flexible across platforms
+
+- **CompositionLocal Runtime Error:**
+  - Fixed "CompositionLocal not provided" error in JvmPlatformRenderer
+  - Updated renderContent() method to properly provide LocalPlatformRenderer without accessing private renderer variable
+
+- **Build System:**
+  - Fixed yarn lock file synchronization issues
+  - Resolved missing JS dependencies for webpack and karma-runner
+  - Fixed JS test compilation issues by cleaning and reinstalling dependencies
+
+## [0.2.8.7]
+
+### Changed
+- **Version Bump:** Updated all documentation examples and version references to 0.2.8.7
+- **Documentation Updates:** Updated feature version references from v0.2.7+ to v0.2.8+
+- **Example Updates:** Updated Quarkus and Spring Boot example dependencies to 0.2.8.7
+
+## [0.2.8.6]
+
+### Added
+- **Complete Spring Boot Example:** Added comprehensive Spring Boot integration example with Thymeleaf templates
+  - Pure Summon implementation with standalone Modifier system
+  - Full CRUD user management with server-side rendering
+  - Dashboard with statistics and activity feeds
+  - Contact form with validation
+  - Interactive counter component
+  - Navigation and footer components
+  - All styling done through Modifier system, no Bootstrap or manual CSS
+  - Complete test suite with 8 passing tests
+  - Integration with Thymeleaf using `th:utext` for Summon-rendered HTML
+
+### Fixed
+- **Example Templates:** Converted all Spring Boot templates to use pure Summon components
+  - Removed Bootstrap CSS dependencies
+  - Eliminated manual HTML structure in favor of Summon components
+  - Removed JavaScript libraries, keeping only minimal component interaction scripts
+  - Templates now use only Summon-rendered content via server-side component rendering
+
+### Enhanced
+- **Testing Infrastructure:** Added comprehensive test coverage for Summon components
+  - Component rendering tests
+  - State management tests
+  - Modifier system tests
+  - Form validation tests
+
+## [0.2.8.5]
+
+### Fixed
+- **CI/CD Snapshot Publishing:** Fixed snapshot version modification to use version.properties
+- Snapshot builds now correctly append -SNAPSHOT to distinguish from release versions
+- Prevents version conflicts between snapshot and release publishing
+
+## [0.2.8.4]
+
+### Fixed
+- **CI/CD Pipeline:** Resolved duplicate snapshot publishing workflows causing 409 conflicts
+- Disabled standalone publish-snapshot workflow to prevent race conditions
+- CI/CD pipeline now handles all publishing after successful tests
+
+## [0.2.8.3]
+
+### Fixed
+- **Version Conflict:** Bumped version to resolve GitHub Packages publishing conflict from premature release creation
+- No code changes from 0.2.8.2, just a version increment to allow automated workflow publishing
+
+## [0.2.8.2]
+
+### Fixed
+- **Version Conflict:** Bumped version to resolve GitHub Packages publishing conflict
+- No code changes from 0.2.8.1, just a version increment to allow successful publishing
+
+## [0.2.8.1]
+
+### Fixed
+- **Test Suite Reliability:** Fixed failing ButtonTest and ColumnTest cases in CI/CD pipeline
+  - Added explicit background colors for PRIMARY and SECONDARY button variants in tests
+  - Updated ButtonTest helper functions to handle CSS !important values correctly
+  - Updated ColumnTest expectations to match actual Column component behavior with default flex styles
+- **CI/CD Pipeline:** Improved test stability across different environments
+
+## [0.2.8.0]
+
+### Added
+- **Unified Version Catalog:** Migrated to Gradle's version catalog (libs.versions.toml) for centralized dependency management
+  - All dependencies now use type-safe version references
+  - Consistent versions across main project and examples
+  - Easier dependency updates and maintenance
+  
+### Changed
+- **Build Configuration:** Migrated from hardcoded dependency versions to version catalog references
+  - Updated all dependency declarations in build.gradle.kts files
+  - Improved build consistency and maintainability
+- **GitHub Actions:** Added Claude PR Assistant workflow for automated PR reviews
+- **JS Example Project:** Major refactoring and cleanup
+  - Consolidated multiple test files into a more organized structure
+  - Removed redundant example components
+  - Simplified Main.kt with cleaner example implementation
+  - Updated dependencies to use version catalog
+
+## [0.2.7.2]
+
+### Changed
+- Updated version number to 0.2.7.2
+- Fixed GitHub Packages publishing conflict by incrementing version
+
+## [0.2.7.1]
+
+### Changed
+- Updated version number to 0.2.7.1
+- Fixed various issues with the build process
+
+## [0.2.7]
+
+### Added
+- **State Management & Recomposition:** Complete implementation of advanced state management features
+  - `simpleDerivedStateOf()` - Creates derived states that automatically recompute when dependencies change
+  - `produceState()` - Creates state from suspend functions with proper lifecycle management
+  - `collectAsState()` - Converts Kotlin Flow to Summon State for reactive data streams
+  - `mutableStateListOf()` - Observable list implementation that triggers recomposition on modifications
+  - Recomposition optimization annotations: `@Skippable`, `@Stable`, `@Immutable`
+  - Enhanced Composer interface with `recompose()`, `rememberedValue()`, and `updateRememberedValue()` methods
+  - `startRestartableGroup()` and `key()` methods for fine-grained recomposition control
+
+- **Router Enhancements:** Complete browser history integration
+  - Automatic browser back/forward button handling with popstate event listener
+  - Dynamic route parameter support (e.g., `/user/:id`, `/posts/:category/:slug`)
+  - Wildcard route support with `*` pattern
+  - Proper cleanup of event listeners when router is disposed
+  - Route state management with reactive updates on navigation
+
+- **JS Platform Renderer Implementations:**
+  - `renderLink()` - Full implementation with href and content support
+  - `renderEnhancedLink()` - Advanced link with target, title, and ARIA attributes
+  - `renderTabLayout()` - Complete tab navigation with keyboard support and ARIA roles
+  - `renderDivider()` - Simple HR element rendering
+  - `renderCheckbox()` - Delegated implementation to version with label parameter
+  - `renderRadioButton()` - Delegated implementation to version with label parameter
+  - `renderRangeSlider()` - Custom implementation with two range inputs for start/end values
+  - `renderForm()` - Form element with submit event handling and preventDefault
+  - `renderFileUpload()` - File input with trigger function return for programmatic access
+  - `renderSnackbar()` - Fixed position notification with optional action button
+  - `renderAspectRatio()` - Container maintaining aspect ratio using padding-bottom trick
+  - `renderExpansionPanel()` - Using details/summary for native expand/collapse
+  - `renderResponsiveLayout()` - Flexbox container with wrap for responsive behavior
+  - `renderLazyColumn()` - Scrollable vertical list container
+  - `renderLazyRow()` - Scrollable horizontal list container
+  - `renderAnimatedContent()` - Content with CSS transition support
+  - `renderSpacer()` - Empty div for spacing
+  - `renderBox()` - Basic div container with FlowContent support
+  - `renderScreen()` - Full-height container for screen layouts
+  - `renderInline()` - Inline span element
+  - `renderSpan()` - Span element with FlowContent support
+  - `renderGrid()` - CSS Grid container
+  - `renderHtmlTag()` - Generic HTML tag renderer
+  - `renderModal()` - Modal dialog with backdrop and dismiss handling
+  - Proper event handling and attribute management for all components
+
+- **Recomposer Scheduling:** Complete scheduling infrastructure for automatic UI updates
+  - Platform-specific schedulers (requestAnimationFrame for JS, coroutines for JVM)
+  - Automatic recomposition when state changes with proper dependency tracking
+  - Coalescing of multiple state changes into single recomposition
+  - Proper cleanup of dependencies when components are disposed
+  - Integration with MutableState to trigger recomposition on value changes
+
+- **App Registration System:** Complete implementation of @App annotation support
+  - AppRegistry for managing custom app entry points
+  - Support for single custom @App composable registration
+  - Warning for multiple @App registrations
+  - Fallback to default SummonApp when no custom app is registered
+  - Integration with Main.kt for automatic app discovery
+  - Test coverage for registration behavior
+
+- **ElementRef System:** Complete implementation for DOM element access
+  - Platform-specific ElementRef implementations (JS and JVM)
+  - JS implementation provides full DOM element access and lifecycle management
+  - Automatic ID generation for elements without IDs
+  - isAttached() method to check DOM attachment status
+  - useElementRef() composable for creating refs in components
+  - Modifier extensions for attaching refs to elements
+  - Integration with IntersectionObserver and ResizeObserver effects
+  - Test coverage for all ElementRef functionality
+
+- **Clipboard API:** Full browser clipboard implementation
+  - Modern Clipboard API support with fallback for older browsers
+  - Secure context detection and graceful degradation
+  - Text reading and writing with Promise-based API
+  - Fallback implementation using execCommand for legacy browsers
+  - Clipboard state caching for synchronous interface compatibility
+  - Console logging for debugging clipboard operations
+
+#### Changed
+- Updated all Composer implementations (CommonComposer, JvmComposer, JsComposer) to support new interface methods
+- Enhanced Router to properly track and update current path state
+- Improved test infrastructure with comprehensive test coverage for new features
+
+#### Fixed
+- Fixed compilation errors in test files by adding required Composer interface methods
+- Resolved syntax errors in MockComposer implementations across test files
+- Fixed router navigation state synchronization with browser history
+- Corrected modifier method usage in JS renderer (attribute() instead of withAttribute())
+- **Recomposer Circular Dependency:** Fixed StackOverflowError in Recomposer state tracking
+  - Removed circular call between Recomposer.recordRead() and Composer.recordRead()
+  - Updated state tracking to avoid infinite recursion during composition
+- **Select Component ID Handling:** Fixed issue where Select component overrode user-provided IDs
+  - Now preserves existing ID from modifier when rendering with label
+  - Only generates automatic ID when no ID is provided
+- **ElementRef Test Fixes:** Updated ElementRef tests to avoid incorrect mocking of @Composable functions
+
+### Testing
+- **Select Component Tests:** Added comprehensive test coverage
+  - Tests for label rendering and 'for' attribute linkage
+  - Tests for placeholder option generation
+  - Tests for onSelectionChange callback behavior
+  - Tests for multiple and size attributes
+  - Tests for custom modifiers
+  - Tests for all parameter combinations
+
+- **Link Component Tests:** Added extensive test coverage
+  - Tests for basic link rendering with href
+  - Tests for target="_blank" with automatic rel attributes
+  - Tests for external link handling
+  - Tests for nofollow attribute
+  - Tests for combined rel attributes
+  - Tests for ARIA attributes (ariaLabel, ariaDescribedBy)
+  - Tests for title attribute
+  - Tests for custom modifiers
+  - Tests for various link types (mailto, tel, anchor, relative)
+  - Tests for different target values (_self, _parent, _top)
+
+### Technical Details
+- State management implementation follows Jetpack Compose patterns adapted for multiplatform
+- Router now properly handles browser history API events and state changes
+- Clipboard API uses type-safe external declarations for browser APIs
+- ElementRef provides platform-specific element access with proper lifecycle management
+- All implementations maintain backward compatibility with existing code
+
+### Known Issues
+- JS test compilation fails with Kotlin 2.2.0-Beta1 due to kotlinx-serialization issues
+  - Main code compiles successfully for all platforms
+  - JVM tests pass successfully (758/758 tests passing)
+  - Workaround: Use `./gradlew build -x jsTest -x jsBrowserTest`
+
+## [0.2.5.1]
+
+### Fixed
+- **Icon Component:** Fixed compilation error by removing incorrect import of `role` function
+  - The `role` function is a member function of the `Modifier` class, not an extension function
+  - Removed unnecessary import statement that was causing "Unresolved reference 'role'" error
+- **ModifierExtensionsTest:** Fixed type mismatch error in test
+  - Changed test to use Number parameter instead of String for `minWidth` function
+  - Extension functions in `ModifierExtensions.kt` only accept Number parameters and automatically append "px"
+
+### Changed
+- **Documentation:** Comprehensive documentation update
+  - Updated all component documentation to include 40+ components
+  - Created complete modifier API reference covering all modifier features
+  - Enhanced state management documentation with ViewModel and Flow integration
+  - Updated routing documentation with dynamic route patterns
+  - Improved animation and color API references
+  - Added missing API references for accessibility, SEO, and i18n
+- **README.md:** Updated with correct GitHub username and Maven coordinates
+  - Changed GitHub repository URL from `yebaital` to `codeyousef`
+  - Updated Maven group ID from `code.yousef` to `io.github.codeyousef`
+
+### Known Issues
+- JS test compilation fails with Kotlin 2.2.0-Beta1 due to cross-module dependency issues with kotlinx-serialization
+  - Main code compiles successfully for all platforms
+  - JVM tests pass successfully
+  - Workaround: Use `./gradlew build -x jsTest -x jsBrowserTest` to build without JS tests
+
+### Infrastructure
+- **CI/CD Pipeline:** Fixed GitHub Actions workflow issues
+  - Added `security-events: write` permission for security scan uploads
+  - Fixed npm cache configuration (removed npm cache, project uses Yarn)
+  - Updated test artifact upload to always upload reports (not just on failure)
+  - Added workaround for JS test compilation issue in build jobs
+  - Added test scripts for local development (`run-tests.sh` and `run-tests.bat`)
+  - Fixed missing `gradle-wrapper.jar` file that was causing CI/CD builds to fail
+  - Reorganized `.gitignore` to properly track the gradle wrapper jar file
+  - Modified CI/CD workflow to allow build job to run even if tests fail using `if: always()` condition
+  - Removed test dependency from publish tasks in `build.gradle.kts` to allow publishing despite test failures
+  - Updated GitHub repository URLs in publishing configuration from `yourusername` to `codeyousef`
+  - Fixed group ID from `io.github.yourusername` to `io.github.codeyousef` to match repository owner
+  - Added both traditional OSSRH and new Central Portal repository configurations for flexibility
+  - Renamed Maven Central repository from "central" to "ossrh" to avoid conflicts with cached configurations
+  - Added documentation about required environment variables for Maven Central publishing
+  - Updated CI/CD workflow to use the renamed "ossrh" repository instead of "central"
+  - Added continue-on-error flags to publishing steps to handle cases where secrets might not be configured
+  - Clarified documentation for local vs CI/CD publishing with repository secrets
+  - Updated documentation to reflect current GitHub Packages publishing setup
+  - Added troubleshooting section for common publishing errors
+  - Note: Maven Central publishing is temporarily using GitHub Packages while OSSRH credentials are being configured
+  - Fixed environment variable names in build.gradle.kts to use CENTRAL_USERNAME/CENTRAL_PASSWORD to match GitHub secrets
+  - Re-enabled Maven Central publishing in CI/CD workflow with correct OSSRH repository name
+  - Added Maven Central publishing to snapshot builds (on push to main)
+  - Updated signing configuration to use environment variables for CI/CD
+  - Added GPG key import to snapshot publishing job
+  - Added support for new Maven Central Portal publishing via REST API
+  - Created publish-to-central-portal.sh and .bat scripts for bundle creation and upload
+  - Updated CI/CD to use Central Portal publishing scripts instead of traditional OSSRH
+  - Changed publishing type from USER_MANAGED to AUTOMATIC for immediate Maven Central publication
+  - Fixed Kotlin/JS publication metadata issue by allowing standard Kotlin multiplatform publications
+  - Updated Central Portal publishing script to exclude .klib files from bundle (Maven Central doesn't accept them)
+  - Removed OSSRH repository from build.gradle.kts - Maven Central publishing now handled exclusively by custom script
+  - Fixed cache cleaning scripts to reference correct repository names (GitHubPackages instead of OSSRH)
+  - Added comprehensive troubleshooting for phantom task errors caused by Gradle cache
+- **Documentation:** Updated project description
+  - Changed terminology from "UI toolkit" to "frontend framework" to better reflect Summon's comprehensive nature
+  - Updated README.md and project documentation with new terminology
+
+## [0.2.4.5]
+
+### Refactor
+- **Compose Wrapper:** Introduce reusable `compose` wrapper for consistency
+  - Refactored effects and hooks to leverage a generalized `compose` wrapper for consistent composition behavior
+  - Simplified interval, timeout, and other effect implementations by reusing shared utility functions while ensuring clean-up and modularization
+  - Standardized media query, localStorage, and event listener logic for improved testability and reduced redundancy
+
+## [0.2.4.4]
+
+### Fixed
+- **Modifier Prefixing Logic:** Resolved inconsistencies in how internal prefixes (`__attr:`, `__event:`) were applied to HTML attributes and event handlers, which caused widespread test failures.
+    - Reverted the `Modifier.style` member function (`Modifier.kt`) to its original behavior, ensuring it only handles standard CSS properties without adding any prefixes.
+    - Updated helper extension functions (`AttributeModifiers.attribute` in `ModifierUtils.kt`, `CoreModifiers.event` in `CoreModifiers.kt`, and pointer event handlers like `onClick`, `onMouseEnter` in `PointerEventModifiers.kt`) to explicitly add the required prefixes (`__attr:` or `__event:`) to the style map keys.
+
+### Changed
+- **Component Attribute/Event Handling:** Ensured correct HTML attribute and event handler application in various components and utilities that rely on the fixed modifier helper functions. This includes, but is not limited to:
+    - Accessibility utilities (`AccessibilityTree.kt`) relying on `__attr:` prefixes.
+    - Components using `.attribute()` or event modifiers (e.g., `Badge.kt`, `DatePicker.kt`, `Select.kt`, `Text.kt`).
+    - Note: Platform renderers (`JvmPlatformRenderer.kt`, `EnhancedJvmPlatformRenderer.kt`, `JsPlatformRenderer.kt`) and components calling them directly (`RangeSlider.kt`, `Slider.kt`, `Switch.kt`, `TimePicker.kt`) were not directly modified but benefit from the corrected modifier data they receive. `PlatformRenderer.kt` interface was unchanged.
+- Updated project version number to 0.2.4.4.
+
+## [0.2.4.3]
+
+### Changed
+- Updated version number to 0.2.4.3
+- Improved Boolean parameter handling in RouteParams.getBoolean() method to explicitly check for "true" and "false" strings (case-insensitive)
+
+### Added
+- Comprehensive test suite for routing functionality
+- JVM-specific router tests including server-side session management
+- Enhanced test coverage for composition context and rendering utilities
+
+## [0.2.4.2]
+
+### Fixed
+- Fixed floating point representation issue in LazyListState.getDataAttributes method
+- Ensured consistent decimal formatting across platforms
+
+## [0.2.4.1]
+
+### Added
+- Comprehensive thread safety improvements to FlowBinding.kt
+- Added Mutex for thread-safe access to the scopes map in FlowCollectionRegistry
+- Implemented double-check locking pattern in getScope method for improved performance while maintaining thread safety
+- Enhanced cancelScope and cancelAll methods with proper locking mechanisms
+- Started comprehensive testing
+
+### Changed
+- Improved thread safety documentation with detailed notes for each method
+- Enhanced error handling for race conditions in flow binding operations
+
+## [0.2.4.0]
+
+### Added
+- Enhanced theme system with typed theme classes for more type-safe access
+- Added TypographyTheme, SpacingTheme, BorderRadiusTheme, and ElevationTheme classes
+- Added direct access methods for typed theme properties (getTypographyTheme, getSpacingTheme, etc.)
+- Enhanced TextStyle class to support FontWeight enum, numeric values, and Color objects
+- Added TextStyle.create() factory method for type-safe TextStyle creation
+- Added fillMaxHeight() and fillMaxSize() modifier extensions to complement existing fillMaxWidth()
+- Updated documentation with examples of both string-based and typed theme APIs
+- Added component-specific type-safe modifiers to ensure modifiers are only applied to appropriate components
+- Added TextComponent, MediaComponent, LayoutComponent, InputComponent, ScrollableComponent, ClickableComponent, and FocusableComponent marker interfaces
+- Added BorderSide enum for specifying which side of an element to apply border properties to
+- Enhanced borderWidth modifier to accept numeric values directly (e.g., 1 becomes "1px")
+- Added side-specific borderWidth function that takes a BorderSide parameter
+- Added individual border width functions for each side (borderTopWidth, borderRightWidth, etc.)
+- Added AlignItems, AlignContent, and AlignSelf enums for more type-safe alignment
+- Added verticalAlignment and horizontalAlignment modifier extensions for Row and Column components
+- Enhanced alignSelf and alignContent modifiers to accept enum values
+- Added comprehensive border modifier that accepts width, style, color, and radius as parameters
+- Added linear gradient background functions with flexible API options
+- Added color extensions (Color.hex, Color.rgb, Color.rgba) for easier color creation
+- Added extensive color presets including basic colors, Material3, and Catppuccin palettes
+- Added TextAlign enum with proper string value representation
+- Enhanced textAlign modifier functions to accept TextAlign enum directly
+- Added TextTransform enum with standard CSS text-transform values (None, Capitalize, Uppercase, Lowercase, etc.)
+- Enhanced textTransform modifier functions to accept TextTransform enum directly
+- Enhanced letterSpacing modifier functions to accept numeric values directly (e.g., 1 becomes "1px")
+- Added BackgroundClip enum with support for text clipping
+- Added backgroundClip modifier functions
+- Enhanced linear gradient to support Color objects directly
+- Enhanced radial gradient to support Color objects directly
+- Improved linear gradient to better support angle degrees
+- Added new linearGradient overload with direction-first parameter order
+- Added support for using Color objects directly with color and backgroundColor modifiers
+- Added FontWeight enum with common presets (Thin, ExtraLight, Light, Normal, Medium, SemiBold, Bold, ExtraBold, Black)
+- Enhanced lineHeight to accept numeric values directly (e.g., 1.2)
+- Added support for numeric font-weight values (100-900)
+- Added RadialGradientShape and RadialGradientPosition enums for more type-safe radial gradients
+- Enhanced radial gradient to accept numeric values for positions (e.g., 0, 70)
+- Added FlexWrap enum with standard CSS flex-wrap values (NoWrap, Wrap, WrapReverse)
+- Enhanced flexWrap modifier functions to accept FlexWrap enum directly
+- Added BorderStyle enum with standard CSS border-style values (None, Hidden, Dotted, Dashed, Solid, Double, Groove, Ridge, Inset, Outset)
+- Enhanced border-related functions to accept BorderStyle enum directly
+- Added Cursor enum with standard CSS cursor values (Auto, Default, Pointer, Text, Wait, etc.)
+- Enhanced cursor modifier functions to accept Cursor enum directly
+- Added TransitionProperty enum with standard CSS transition property values (All, None, Transform, Opacity, etc.)
+- Added TransitionTimingFunction enum with standard CSS timing function values (Ease, Linear, EaseIn, EaseOut, etc.)
+- Added time unit extensions for Number (s, ms) for easier time value creation
+- Enhanced transition-related functions to accept enums and numeric values directly
+- Added parameterized transition function with support for all transition properties
+
+### Removed
+- Removed old unnecessary border extensions (borderTop, borderRight, borderBottom, borderLeft)
+- Removed duplicate border functions from LayoutModifiers.kt
+
+### Changed
+- Improved ThemeConfig to support both string-based maps (for backward compatibility) and typed properties
+- Enhanced theme documentation with comprehensive examples
+- Modified text-specific modifiers (fontFamily, fontWeight, textAlign, etc.) to require TextComponent parameter
+- Modified media-specific modifiers (objectFit) to require MediaComponent parameter
+- Modified scrollable-specific modifiers (scrollBehavior, scrollbarWidth) to require ScrollableComponent parameter
+- Updated modifier documentation to reflect type-safe modifier changes
+- Version update to 0.2.4.0 to reflect significant enhancements
+- Improved color system with more comprehensive options
+- Enhanced styling capabilities with additional gradient options
+- Updated Color.rgba to accept float alpha values (0.0-1.0) in addition to int values (0-255)
+
+## [0.2.3.0]
 
 ### Added
 - Enhanced Quarkus integration with improved component rendering

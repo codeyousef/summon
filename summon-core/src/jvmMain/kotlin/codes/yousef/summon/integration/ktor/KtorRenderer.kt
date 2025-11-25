@@ -1,6 +1,7 @@
 package codes.yousef.summon.integration.ktor
 
 import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.runtime.CallbackRegistry
 import codes.yousef.summon.runtime.PlatformRenderer
 import codes.yousef.summon.runtime.clearPlatformRenderer
 import codes.yousef.summon.runtime.setPlatformRenderer
@@ -211,6 +212,142 @@ class KtorRenderer {
             } finally {
                 clearPlatformRenderer()
             }
+        }
+        
+        /**
+         * Convenience alias for [respondSummonHydrated].
+         * Renders a Summon page with full hydration support, automatically injecting
+         * the hydration script and data for client-side interactivity.
+         * 
+         * Usage:
+         * ```kotlin
+         * get("/") {
+         *     call.respondSummonPage { 
+         *         MyLandingPage()
+         *     }
+         * }
+         * ```
+         */
+        suspend fun ApplicationCall.respondSummonPage(
+            status: HttpStatusCode = HttpStatusCode.OK,
+            content: @Composable () -> Unit
+        ) = respondSummonHydrated(status, content)
+        
+        /**
+         * Serves Summon hydration assets (JS, WASM) directly from the library JAR.
+         * This removes the need for users to manually extract and serve static files.
+         * 
+         * Assets are served at the following paths:
+         * - `/summon-hydration.js` - JavaScript hydration client
+         * - `/summon-hydration.wasm` - WebAssembly module
+         * - `/summon-hydration.wasm.js` - WASM loader script
+         * 
+         * Usage:
+         * ```kotlin
+         * routing {
+         *     summonStaticAssets()
+         *     // ... other routes
+         * }
+         * ```
+         */
+        fun Route.summonStaticAssets() {
+            get("/summon-hydration.js") {
+                call.respondSummonAsset("summon-hydration.js", ContentType.Application.JavaScript)
+            }
+            get("/summon-hydration.wasm") {
+                call.respondSummonAsset("summon-hydration.wasm", ContentType("application", "wasm"))
+            }
+            get("/summon-hydration.wasm.js") {
+                call.respondSummonAsset("summon-hydration.wasm.js", ContentType.Application.JavaScript)
+            }
+            // Also serve from /summon-assets/ prefix for consistency
+            route("/summon-assets") {
+                get("/summon-hydration.js") {
+                    call.respondSummonAsset("summon-hydration.js", ContentType.Application.JavaScript)
+                }
+                get("/summon-hydration.wasm") {
+                    call.respondSummonAsset("summon-hydration.wasm", ContentType("application", "wasm"))
+                }
+                get("/summon-hydration.wasm.js") {
+                    call.respondSummonAsset("summon-hydration.wasm.js", ContentType.Application.JavaScript)
+                }
+            }
+        }
+        
+        /**
+         * Handles callback execution requests from the hydration client.
+         * This allows server-side callbacks to be triggered by client-side events.
+         * 
+         * Endpoints:
+         * - `POST /summon/callback/{callbackId}` - Executes a registered callback
+         * 
+         * Response format (JSON):
+         * - Success: `{"action":"reload","status":"ok"}`
+         * - Not found: `{"action":"noop","status":"missing"}`
+         * - Invalid: `{"action":"error","status":"missing-id"}`
+         * 
+         * Usage:
+         * ```kotlin
+         * routing {
+         *     summonCallbackHandler()
+         *     // ... other routes
+         * }
+         * ```
+         */
+        fun Route.summonCallbackHandler() {
+            post("/summon/callback/{callbackId}") {
+                val callbackId = call.parameters["callbackId"]
+                if (callbackId.isNullOrBlank()) {
+                    call.respondText(
+                        """{"action":"error","status":"missing-id"}""",
+                        ContentType.Application.Json,
+                        HttpStatusCode.BadRequest
+                    )
+                } else {
+                    val executed = CallbackRegistry.executeCallback(callbackId)
+                    val (status, payload) = if (executed) {
+                        HttpStatusCode.OK to """{"action":"reload","status":"ok"}"""
+                    } else {
+                        HttpStatusCode.NotFound to """{"action":"noop","status":"missing"}"""
+                    }
+                    call.respondText(payload, ContentType.Application.Json, status)
+                }
+            }
+        }
+        
+        /**
+         * Loads and responds with a Summon asset from the library JAR resources.
+         */
+        private suspend fun ApplicationCall.respondSummonAsset(name: String, contentType: ContentType) {
+            val payload = loadSummonAsset(name)
+            if (payload != null) {
+                respondBytes(payload, contentType)
+            } else {
+                respondText(
+                    """{"status":"not-found","asset":"$name"}""",
+                    ContentType.Application.Json,
+                    HttpStatusCode.NotFound
+                )
+            }
+        }
+        
+        /**
+         * Loads a Summon asset from the library JAR resources.
+         * Searches in multiple locations for compatibility.
+         */
+        private fun loadSummonAsset(name: String): ByteArray? {
+            val locations = listOf(
+                "static/$name",
+                "META-INF/resources/static/$name",
+                "codes/yousef/summon/static/$name"
+            )
+            for (path in locations) {
+                val resource = Thread.currentThread().contextClassLoader.getResourceAsStream(path)
+                if (resource != null) {
+                    return resource.use { it.readBytes() }
+                }
+            }
+            return null
         }
     }
 }

@@ -2637,7 +2637,9 @@ public final class codes/yousef/summon/components/navigation/DropdownTrigger : j
 
 public final class codes/yousef/summon/components/navigation/HamburgerMenuKt {
 	public static final fun HamburgerMenu (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
+	public static final fun HamburgerMenu (Lcodes/yousef/summon/modifier/Modifier;ZLkotlin/jvm/functions/Function0;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
 	public static synthetic fun HamburgerMenu$default (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+	public static synthetic fun HamburgerMenu$default (Lcodes/yousef/summon/modifier/Modifier;ZLkotlin/jvm/functions/Function0;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
 }
 
 public final class codes/yousef/summon/components/navigation/LinkKt {
@@ -4122,8 +4124,12 @@ public final class codes/yousef/summon/integration/ktor/KtorRenderer$Companion {
 	public static synthetic fun respondSummon$default (Lcodes/yousef/summon/integration/ktor/KtorRenderer$Companion;Lio/ktor/server/application/ApplicationCall;Ljava/lang/String;Lio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public final fun respondSummonHydrated (Lio/ktor/server/application/ApplicationCall;Lio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun respondSummonHydrated$default (Lcodes/yousef/summon/integration/ktor/KtorRenderer$Companion;Lio/ktor/server/application/ApplicationCall;Lio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun respondSummonPage (Lio/ktor/server/application/ApplicationCall;Lio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun respondSummonPage$default (Lcodes/yousef/summon/integration/ktor/KtorRenderer$Companion;Lio/ktor/server/application/ApplicationCall;Lio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public final fun summon (Lio/ktor/server/routing/Route;Ljava/lang/String;Lio/ktor/http/HttpMethod;Ljava/lang/String;Lio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function0;)V
 	public static synthetic fun summon$default (Lcodes/yousef/summon/integration/ktor/KtorRenderer$Companion;Lio/ktor/server/routing/Route;Ljava/lang/String;Lio/ktor/http/HttpMethod;Ljava/lang/String;Lio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+	public final fun summonCallbackHandler (Lio/ktor/server/routing/Route;)V
+	public final fun summonStaticAssets (Lio/ktor/server/routing/Route;)V
 }
 
 public final class codes/yousef/summon/integration/ktor/KtorRouterBridgeKt {
@@ -4243,8 +4249,12 @@ public final class codes/yousef/summon/integration/quarkus/QuarkusRenderer {
 public final class codes/yousef/summon/integration/quarkus/QuarkusRenderer$Companion {
 	public final fun respondSummonHydrated (Lio/vertx/ext/web/RoutingContext;ILkotlin/jvm/functions/Function0;)V
 	public static synthetic fun respondSummonHydrated$default (Lcodes/yousef/summon/integration/quarkus/QuarkusRenderer$Companion;Lio/vertx/ext/web/RoutingContext;ILkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+	public final fun respondSummonPage (Lio/vertx/ext/web/RoutingContext;ILkotlin/jvm/functions/Function0;)V
+	public static synthetic fun respondSummonPage$default (Lcodes/yousef/summon/integration/quarkus/QuarkusRenderer$Companion;Lio/vertx/ext/web/RoutingContext;ILkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+	public final fun summonCallbackHandler (Lio/vertx/ext/web/Router;)V
 	public final fun summonRenderer (Lio/vertx/ext/web/RoutingContext;Ljava/lang/String;)Lcodes/yousef/summon/integration/quarkus/QuarkusRenderer;
 	public static synthetic fun summonRenderer$default (Lcodes/yousef/summon/integration/quarkus/QuarkusRenderer$Companion;Lio/vertx/ext/web/RoutingContext;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/integration/quarkus/QuarkusRenderer;
+	public final fun summonStaticAssets (Lio/vertx/ext/web/Router;)V
 }
 
 public final class codes/yousef/summon/integration/quarkus/QuarkusRouterBridgeKt {
@@ -4536,6 +4546,9 @@ public final class codes/yousef/summon/integration/springboot/SpringBootRenderer
 
 public final class codes/yousef/summon/integration/springboot/SpringBootRenderer$Companion {
 	public final fun getCurrentRenderer ()Lcodes/yousef/summon/integration/springboot/SpringBootRenderer;
+	public final fun getSummonAsset (Ljava/lang/String;)Lorg/springframework/http/ResponseEntity;
+	public final fun handleCallback (Ljava/lang/String;)Lorg/springframework/http/ResponseEntity;
+	public final fun handleSummonAsset (Ljakarta/servlet/http/HttpServletRequest;Ljakarta/servlet/http/HttpServletResponse;)V
 }
 
 public final class codes/yousef/summon/integration/springboot/SpringBootTestController {

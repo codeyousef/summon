@@ -7,7 +7,7 @@ This guide demonstrates the exact correct way to implement a responsive hamburge
 Ensure you have the Summon dependencies in your `build.gradle.kts`:
 
 ```kotlin
-implementation("codes.yousef.summon:summon-core:0.5.0.5")
+implementation("codes.yousef.summon:summon-core:0.5.2.0")
 // Add other necessary dependencies
 ```
 

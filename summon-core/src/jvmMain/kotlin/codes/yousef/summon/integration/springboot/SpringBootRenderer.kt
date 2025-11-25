@@ -1,9 +1,11 @@
 package codes.yousef.summon.integration.springboot
 
 import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.runtime.CallbackRegistry
 import codes.yousef.summon.runtime.PlatformRenderer
 import codes.yousef.summon.runtime.clearPlatformRenderer
 import codes.yousef.summon.runtime.setPlatformRenderer
+import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
@@ -198,6 +200,114 @@ class SpringBootRenderer {
          */
         fun getCurrentRenderer(): SpringBootRenderer {
             return SpringBootRenderer()
+        }
+        
+        /**
+         * Handles requests for Summon hydration assets from the library JAR.
+         * Use this method in a Spring controller to serve assets.
+         * 
+         * Example usage in a controller:
+         * ```kotlin
+         * @GetMapping("/summon-hydration.js", "/summon-hydration.wasm", "/summon-hydration.wasm.js")
+         * fun summonAssets(request: HttpServletRequest, response: HttpServletResponse) {
+         *     SpringBootRenderer.handleSummonAsset(request, response)
+         * }
+         * ```
+         */
+        fun handleSummonAsset(request: HttpServletRequest, response: HttpServletResponse) {
+            val path = request.servletPath
+            val assetName = path.substringAfterLast('/')
+            
+            val contentType = when {
+                assetName.endsWith(".wasm") && !assetName.endsWith(".wasm.js") -> "application/wasm"
+                assetName.endsWith(".js") -> "application/javascript"
+                else -> "application/octet-stream"
+            }
+            
+            val payload = loadSummonAsset(assetName)
+            if (payload != null) {
+                response.status = HttpStatus.OK.value()
+                response.contentType = contentType
+                response.outputStream.use { it.write(payload) }
+            } else {
+                response.status = HttpStatus.NOT_FOUND.value()
+                response.contentType = MediaType.APPLICATION_JSON_VALUE
+                response.writer.write("""{"status":"not-found","asset":"$assetName"}""")
+            }
+        }
+        
+        /**
+         * Returns a ResponseEntity for a Summon asset.
+         * 
+         * Example usage:
+         * ```kotlin
+         * @GetMapping("/summon-hydration.js")
+         * fun summonJs(): ResponseEntity<ByteArray> = SpringBootRenderer.getSummonAsset("summon-hydration.js")
+         * ```
+         */
+        fun getSummonAsset(name: String): ResponseEntity<ByteArray> {
+            val contentType = when {
+                name.endsWith(".wasm") && !name.endsWith(".wasm.js") -> MediaType("application", "wasm")
+                name.endsWith(".js") -> MediaType.parseMediaType("application/javascript")
+                else -> MediaType.APPLICATION_OCTET_STREAM
+            }
+            
+            val payload = loadSummonAsset(name)
+            return if (payload != null) {
+                ResponseEntity.ok()
+                    .contentType(contentType)
+                    .body(payload)
+            } else {
+                ResponseEntity.notFound().build()
+            }
+        }
+        
+        /**
+         * Handles callback execution requests from the hydration client.
+         * 
+         * Example usage in a controller:
+         * ```kotlin
+         * @PostMapping("/summon/callback/{callbackId}")
+         * fun callback(@PathVariable callbackId: String): ResponseEntity<String> {
+         *     return SpringBootRenderer.handleCallback(callbackId)
+         * }
+         * ```
+         */
+        fun handleCallback(callbackId: String?): ResponseEntity<String> {
+            if (callbackId.isNullOrBlank()) {
+                return ResponseEntity.badRequest()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body("""{"action":"error","status":"missing-id"}""")
+            }
+            
+            val executed = CallbackRegistry.executeCallback(callbackId)
+            return if (executed) {
+                ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body("""{"action":"reload","status":"ok"}""")
+            } else {
+                ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body("""{"action":"noop","status":"missing"}""")
+            }
+        }
+        
+        /**
+         * Loads a Summon asset from the library JAR resources.
+         */
+        private fun loadSummonAsset(name: String): ByteArray? {
+            val locations = listOf(
+                "static/$name",
+                "META-INF/resources/static/$name",
+                "codes/yousef/summon/static/$name"
+            )
+            for (path in locations) {
+                val resource = Thread.currentThread().contextClassLoader.getResourceAsStream(path)
+                if (resource != null) {
+                    return resource.use { it.readBytes() }
+                }
+            }
+            return null
         }
     }
 } 

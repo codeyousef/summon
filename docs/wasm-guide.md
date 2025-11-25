@@ -1,6 +1,6 @@
 # WebAssembly (WASM) Guide
 
-Summon 0.5.0.0 introduces comprehensive WebAssembly support, bringing near-native performance to web applications while
+Summon 0.5.2.0 introduces comprehensive WebAssembly support, bringing near-native performance to web applications while
 maintaining full compatibility with server-side rendering and JavaScript fallbacks.
 
 ## Table of Contents
@@ -54,7 +54,7 @@ Create a new WASM project:
 # Or use the native executable directly
 
 # Create a new project (start from the standalone template)
-java -jar summon-cli-0.5.0.5.jar init my-wasm-app --mode=standalone
+java -jar summon-cli-0.5.2.0.jar init my-wasm-app --mode=standalone
 
 # Navigate to project
 cd my-wasm-app
@@ -143,27 +143,27 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 // New group ID (preferred)
-                implementation("codes.yousef:summon:0.5.0.5")
-                // Legacy (deprecated; supported only until 0.5.0.0)
-                // implementation("io.github.codeyousef:summon:0.5.0.5")
+                implementation("codes.yousef:summon:0.5.2.0")
+                // Legacy (deprecated; supported only until 0.5.2.0)
+                // implementation("io.github.codeyousef:summon:0.5.2.0")
             }
         }
 
         val wasmJsMain by getting {
             dependencies {
                 // New group ID (preferred)
-                implementation("codes.yousef:summon-wasm-js:0.5.0.5")
-                // Legacy (deprecated; supported only until 0.5.0.0)
-                // implementation("io.github.codeyousef:summon-wasm-js:0.5.0.5")
+                implementation("codes.yousef:summon-wasm-js:0.5.2.0")
+                // Legacy (deprecated; supported only until 0.5.2.0)
+                // implementation("io.github.codeyousef:summon-wasm-js:0.5.2.0")
             }
         }
 
         val jvmMain by getting {
             dependencies {
                 // New group ID (preferred)
-                implementation("codes.yousef:summon-jvm:0.5.0.5")
-                // Legacy (deprecated; supported only until 0.5.0.0)
-                // implementation("io.github.codeyousef:summon-jvm:0.5.0.5")
+                implementation("codes.yousef:summon-jvm:0.5.2.0")
+                // Legacy (deprecated; supported only until 0.5.2.0)
+                // implementation("io.github.codeyousef:summon-jvm:0.5.2.0")
             }
         }
     }
