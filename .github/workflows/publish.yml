@@ -66,7 +66,9 @@ jobs:
         run: |
           # Clean JS test compilation to avoid cache corruption issues with K2
           ./gradlew --no-daemon :summon-core:cleanCompileTestKotlinJs || true
-          ./gradlew --no-daemon --max-workers=4 --console=plain --build-cache :summon-core:jvmTest :summon-core:jsTest :summon-core:wasmJsTest :summon-cli:jvmTest --stacktrace
+          # Run tests without build cache for JS tests to avoid restoring corrupted K2 artifacts
+          ./gradlew --no-daemon --max-workers=4 --console=plain :summon-core:jvmTest :summon-core:wasmJsTest :summon-cli:jvmTest --stacktrace
+          ./gradlew --no-daemon --max-workers=4 --console=plain --no-build-cache :summon-core:jsTest --stacktrace
 
       - name: Upload summon-cli jvmTest report
         if: always()
