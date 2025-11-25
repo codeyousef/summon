@@ -5,7 +5,7 @@ import java.util.*
 apply(from = "../version.gradle.kts")
 
 // Manual version override for now
-version = "0.5.2.0"
+version = "0.5.2.1"
 group = "codes.yousef"
 
 plugins {
@@ -346,16 +346,8 @@ tasks.register<Copy>("copyHydrationBundles") {
     from(wasmHashedOutputFile) {
         rename { "summon-hydration.wasm" }
     }
-
-    // Also expose core and vendor bundles under /static/
-    from(jsOutputFile) {
-        into("static")
-        rename { "summon-core.js" }
-    }
-    from(wasmJsOutputFile) {
-        into("static")
-        rename { "vendors.js" }
-    }
+    // Also keep the original hashed WASM file (WASM loader references it by hash)
+    from(wasmHashedOutputFile)
 
     // Copy to source directory so it's included in the JAR
     into(file("src/jvmMain/resources/static"))
@@ -366,12 +358,12 @@ tasks.register<Copy>("copyHydrationBundles") {
     }
 
     doLast {
+        val hashedName = wasmHashedOutputFile.get().name
         println("Copied Summon hydration bundles to src/jvmMain/resources/static/ (will be included in JAR)")
         println(" - JS: summon-hydration.js")
         println(" - WASM JS wrapper: summon-hydration.wasm.js")
         println(" - WASM binary (renamed): summon-hydration.wasm")
-        println(" - Core JS: static/summon-core.js")
-        println(" - Vendors JS: static/vendors.js")
+        println(" - WASM binary (hashed): $hashedName")
     }
 }
 

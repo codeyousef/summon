@@ -641,22 +641,6 @@ actual open class PlatformRenderer {
                             jsPreload.as = 'script';
                             document.head.appendChild(jsPreload);
                         }
-
-                        // Prefetch non-critical resources for future navigation
-                        setTimeout(() => {
-                            const prefetchResources = [
-                                '/static/summon-core.js',
-                                '/static/vendors.js'
-                            ];
-
-                            prefetchResources.forEach(resource => {
-                                const link = document.createElement('link');
-                                link.rel = 'prefetch';
-                                link.href = resource;
-                                link.as = 'script';
-                                document.head.appendChild(link);
-                            });
-                        }, 100);
                     })();
                 </script>
 

@@ -120,9 +120,10 @@ class QuarkusRenderer(private val response: HttpServerResponse) {
          * Registers routes to serve Summon hydration assets from the library JAR.
          * 
          * Assets are served at:
-         * - `/summon-hydration.js` - JavaScript hydration client
-         * - `/summon-hydration.wasm` - WebAssembly module
+         * - `/summon-hydration.js` - JavaScript hydration client (for JS mode)
+         * - `/summon-hydration.wasm` - WebAssembly module (stable name)
          * - `/summon-hydration.wasm.js` - WASM loader script
+         * - `/{hash}.wasm` - Hashed WASM files (webpack generates these with content hashes)
          * 
          * Usage:
          * ```kotlin
@@ -138,6 +139,15 @@ class QuarkusRenderer(private val response: HttpServerResponse) {
             }
             get("/summon-hydration.wasm.js").handler { ctx ->
                 ctx.respondSummonAsset("summon-hydration.wasm.js", "application/javascript")
+            }
+            // Serve hashed WASM files (webpack generates these with content hashes)
+            getWithRegex("/([a-f0-9]+)\\.wasm").handler { ctx ->
+                val filename = ctx.pathParam("param0")
+                if (filename != null) {
+                    ctx.respondSummonAsset("$filename.wasm", "application/wasm")
+                } else {
+                    ctx.response().setStatusCode(404).end()
+                }
             }
             // Also serve from /summon-assets/ prefix
             get("/summon-assets/summon-hydration.js").handler { ctx ->

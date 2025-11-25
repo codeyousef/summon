@@ -206,9 +206,18 @@ class SpringBootRenderer {
          * Handles requests for Summon hydration assets from the library JAR.
          * Use this method in a Spring controller to serve assets.
          * 
+         * Supported paths:
+         * - `/summon-hydration.js` - JavaScript hydration client (for JS mode)
+         * - `/summon-hydration.wasm` - WebAssembly module (stable name)
+         * - `/summon-hydration.wasm.js` - WASM loader script
+         * - `/{hash}.wasm` - Hashed WASM files (webpack generates these with content hashes)
+         * 
          * Example usage in a controller:
          * ```kotlin
-         * @GetMapping("/summon-hydration.js", "/summon-hydration.wasm", "/summon-hydration.wasm.js")
+         * @GetMapping(
+         *     "/summon-hydration.js", "/summon-hydration.wasm", "/summon-hydration.wasm.js",
+         *     "/{hash:[a-f0-9]+}.wasm"
+         * )
          * fun summonAssets(request: HttpServletRequest, response: HttpServletResponse) {
          *     SpringBootRenderer.handleSummonAsset(request, response)
          * }
@@ -216,7 +225,16 @@ class SpringBootRenderer {
          */
         fun handleSummonAsset(request: HttpServletRequest, response: HttpServletResponse) {
             val path = request.servletPath
-            val assetName = path.substringAfterLast('/')
+            
+            // Determine the asset name based on the path
+            val assetName = when {
+                // Handle /static/* paths
+                path.startsWith("/static/") -> path.removePrefix("/")
+                // Handle hashed WASM files (e.g., /abc123def456.wasm)
+                path.matches(Regex("^/[a-f0-9]+\\.wasm$")) -> path.removePrefix("/")
+                // Handle root-level assets
+                else -> path.substringAfterLast('/')
+            }
             
             val contentType = when {
                 assetName.endsWith(".wasm") && !assetName.endsWith(".wasm.js") -> "application/wasm"

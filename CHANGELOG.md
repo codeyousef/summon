@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.2.1] - 2025-11-25
+
+### Fixed
+
+- **WASM Hashed File Serving**: Fixed `summonStaticAssets()` to serve hashed WASM files (e.g., `5879e3a6a3625f8b6452.wasm`) that the WASM loader references
+- **Build Process**: Fixed `copyHydrationBundles` task to preserve original hashed WASM filename in addition to the stable `summon-hydration.wasm` name
+
+### Removed
+
+- **Removed Invalid Prefetch**: Removed prefetch of non-existent `/static/summon-core.js` and `/static/vendors.js` files that were causing 404 errors
+- **Removed Invalid Routes**: Removed `/static/summon-core.js` and `/static/vendors.js` routes from all integrations (these files don't exist)
+
 ## [0.5.2.0] - 2025-11-25
 
 ### Added

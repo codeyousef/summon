@@ -238,9 +238,10 @@ class KtorRenderer {
          * This removes the need for users to manually extract and serve static files.
          * 
          * Assets are served at the following paths:
-         * - `/summon-hydration.js` - JavaScript hydration client
-         * - `/summon-hydration.wasm` - WebAssembly module
+         * - `/summon-hydration.js` - JavaScript hydration client (for JS mode)
+         * - `/summon-hydration.wasm` - WebAssembly module (stable name)
          * - `/summon-hydration.wasm.js` - WASM loader script
+         * - `/{hash}.wasm` - Hashed WASM files (webpack generates these with content hashes)
          * 
          * Usage:
          * ```kotlin
@@ -259,6 +260,15 @@ class KtorRenderer {
             }
             get("/summon-hydration.wasm.js") {
                 call.respondSummonAsset("summon-hydration.wasm.js", ContentType.Application.JavaScript)
+            }
+            // Serve hashed WASM files (webpack generates these with content hashes)
+            get("/{filename}.wasm") {
+                val filename = call.parameters["filename"]
+                if (filename != null && filename.matches(Regex("^[a-f0-9]+$"))) {
+                    call.respondSummonAsset("$filename.wasm", ContentType("application", "wasm"))
+                } else {
+                    call.respond(HttpStatusCode.NotFound)
+                }
             }
             // Also serve from /summon-assets/ prefix for consistency
             route("/summon-assets") {
