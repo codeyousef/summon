@@ -11,15 +11,29 @@ object GlobalEventListener {
             document.addEventListener(eventType, { event ->
                 val target = event.target as? Element ?: return@addEventListener
                 
-                // Find closest element with data-sid
+                // Find closest element with data-sid or data-action
+                // data-action is used by HamburgerMenu and other components for client-side actions
                 var current: Element? = target
-                while (current != null && !current.hasAttribute("data-sid")) {
+                while (current != null && 
+                       !current.hasAttribute("data-sid") && 
+                       !current.hasAttribute("data-action")) {
                     current = current.parentElement
                 }
                 
                 if (current != null) {
-                    val sid = current.getAttribute("data-sid")!!
-                    handleEvent(eventType, sid, event, current)
+                    // Check for data-action first (client-side only actions like ToggleVisibility)
+                    val actionJson = current.getAttribute("data-action")
+                    if (actionJson != null) {
+                        ClientDispatcher.dispatch(actionJson)
+                        event.preventDefault()
+                        return@addEventListener
+                    }
+                    
+                    // Fall back to data-sid based handling
+                    val sid = current.getAttribute("data-sid")
+                    if (sid != null) {
+                        handleEvent(eventType, sid, event, current)
+                    }
                 }
             })
         }

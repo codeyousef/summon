@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.2.2] - 2025-11-25
+
+### Fixed
+
+- **HamburgerMenu Client-Side Toggle**: Fixed `GlobalEventListener` to handle elements with `data-action` attribute directly, not just via `data-sid`. This fixes the HamburgerMenu component which uses `data-action` for client-side `ToggleVisibility` actions.
+
 ## [0.5.2.1] - 2025-11-25
 
 ### Fixed
