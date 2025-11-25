@@ -172,6 +172,7 @@ class InitCommandIntegrationTest {
             "DeprecationWarning: The `punycode` module is deprecated",
             "warning workspace-aggregator",
             "warning Ignored scripts due to flag",
+            "Waiting for the other yarn instance",
             "rimraf@",
             "glob@",
             "inflight@",
