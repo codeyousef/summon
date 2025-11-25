@@ -1,6 +1,7 @@
 package codes.yousef.summon.hydration
 
 import codes.yousef.summon.action.UiAction
+import codes.yousef.summon.js.console
 import kotlinx.serialization.json.Json
 import kotlinx.browser.window
 import kotlinx.browser.document
