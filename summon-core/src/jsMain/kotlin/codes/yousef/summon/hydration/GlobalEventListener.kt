@@ -5,38 +5,59 @@ import org.w3c.dom.Element
 import org.w3c.dom.events.Event
 
 object GlobalEventListener {
+    private var initialized = false
+    private val eventHandlers = mutableMapOf<String, (Event) -> Unit>()
+    
+    private fun handleEventInternal(event: Event) {
+        val target = event.target as? Element ?: return
+        
+        // Find closest element with data-sid or data-action
+        // data-action is used by HamburgerMenu and other components for client-side actions
+        var current: Element? = target
+        while (current != null && 
+               !current.hasAttribute("data-sid") && 
+               !current.hasAttribute("data-action")) {
+            current = current.parentElement
+        }
+        
+        if (current != null) {
+            // Check for data-action first (client-side only actions like ToggleVisibility)
+            val actionJson = current.getAttribute("data-action")
+            if (actionJson != null) {
+                ClientDispatcher.dispatch(actionJson)
+                event.preventDefault()
+                return
+            }
+            
+            // Fall back to data-sid based handling
+            val sid = current.getAttribute("data-sid")
+            if (sid != null) {
+                val eventType = event.type
+                handleEvent(eventType, sid, event, current)
+            }
+        }
+    }
+    
     fun init() {
+        // Guard against multiple initializations
+        if (initialized) return
+        initialized = true
+        
         val events = listOf("click", "input", "change", "submit")
         events.forEach { eventType ->
-            document.addEventListener(eventType, { event ->
-                val target = event.target as? Element ?: return@addEventListener
-                
-                // Find closest element with data-sid or data-action
-                // data-action is used by HamburgerMenu and other components for client-side actions
-                var current: Element? = target
-                while (current != null && 
-                       !current.hasAttribute("data-sid") && 
-                       !current.hasAttribute("data-action")) {
-                    current = current.parentElement
-                }
-                
-                if (current != null) {
-                    // Check for data-action first (client-side only actions like ToggleVisibility)
-                    val actionJson = current.getAttribute("data-action")
-                    if (actionJson != null) {
-                        ClientDispatcher.dispatch(actionJson)
-                        event.preventDefault()
-                        return@addEventListener
-                    }
-                    
-                    // Fall back to data-sid based handling
-                    val sid = current.getAttribute("data-sid")
-                    if (sid != null) {
-                        handleEvent(eventType, sid, event, current)
-                    }
-                }
-            })
+            val handler: (Event) -> Unit = { event -> handleEventInternal(event) }
+            eventHandlers[eventType] = handler
+            document.addEventListener(eventType, handler)
         }
+    }
+    
+    // Reset initialization state and remove event listeners (for testing purposes only)
+    fun reset() {
+        eventHandlers.forEach { (eventType, handler) ->
+            document.removeEventListener(eventType, handler)
+        }
+        eventHandlers.clear()
+        initialized = false
     }
 
     fun handleEvent(type: String, sid: String, event: Event, element: Element? = null) {

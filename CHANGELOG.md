@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.2.7] - 2025-11-25
+
+### Fixed
+
+- **GlobalEventListener Test Isolation**: Fixed `GlobalEventListener` to properly track and remove event listeners on `reset()`. Previously, calling `reset()` only set `initialized = false` but didn't remove the event listeners that were already added to the document. This caused duplicate event handlers when tests called `reset()` + `init()` between tests, which would toggle the menu twice (open then close), leaving it in the hidden state.
+
+- **GlobalEventListener Initialization Guard**: Added a guard to prevent multiple initializations of `GlobalEventListener.init()`. Now subsequent calls are safely ignored if already initialized.
+
+### Added
+
+- **Comprehensive HamburgerMenu Click Tests**: Added tests that verify the full click-to-toggle flow through `GlobalEventListener` event delegation, not just direct `ClientDispatcher.dispatch()` calls. These tests catch issues with event listener registration and event bubbling.
+
 ## [0.5.2.6] - 2025-11-25
 
 ### Fixed
