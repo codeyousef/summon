@@ -32,7 +32,4 @@ actual fun triggerLanguageChange(language: Language) {
     // Dispatch a custom event that components can listen for
     val event = CustomEvent("languagechange", eventInit)
     document.dispatchEvent(event.asDynamic())
-
-    // Log the language change
-    js("console.log('Language changed to ' + language.name + ' (' + language.code + '), direction: ' + direction)")
 }

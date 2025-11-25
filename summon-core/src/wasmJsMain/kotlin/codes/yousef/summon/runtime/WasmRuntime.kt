@@ -36,22 +36,18 @@ class EventHandlerEntry(
 // Helper function to get or create element store entry
 private fun getElement(elementId: String): Node? {
     if (elementStore.containsKey(elementId)) {
-        // console.log("[Summon WASM] getElement($elementId) found in store")
         return elementStore[elementId]
     }
     // Try to find element in DOM
     val element = document.getElementById(elementId)
     if (element != null) {
-        console.log("[Summon WASM] getElement($elementId) found in DOM, adding to store")
         elementStore[elementId] = element
         return element
     }
-    console.log("[Summon WASM] getElement($elementId) NOT found")
     return null
 }
 
 fun wasmClearElementStore() {
-    console.log("[Summon WASM] Clearing element store. Size was: " + elementStore.size)
     elementStore.clear()
 }
 
@@ -180,7 +176,6 @@ fun wasmGetElementInnerHTML(elementId: String): String? {
     return try {
         val node = getElement(elementId)
         if (node is Element) {
-            console.log("[Summon WASM] getInnerHTML for $elementId. childNodes: " + node.childNodes.length)
             node.innerHTML
         } else {
             console.error("[Summon WASM] getInnerHTML: node $elementId is not an Element")
@@ -199,10 +194,6 @@ fun wasmAppendChildById(parentId: String, childId: String): Boolean {
         val child = getElement(childId)
         if (parent != null && child != null) {
             parent.appendChild(child)
-            console.log("[Summon WASM] Appended child $childId to parent $parentId. Parent childNodes length: " + parent.childNodes.length)
-            if (parent is Element) {
-                 console.log("[Summon WASM] Parent outerHTML: " + parent.outerHTML)
-            }
             true
         } else {
             console.error("[Summon WASM] appendChild failed: parent=$parent (id=$parentId), child=$child (id=$childId)")
@@ -481,8 +472,6 @@ fun wasmAddEventListenerById(elementId: String, eventType: String, handlerId: St
                 checked = checked,
                 event = event
             )
-
-            console.log("[Summon WASM] Event triggered: ${event.type} on element: $elementId handler: $handlerId")
             
             val callback = eventCallbacks[handlerId]
             if (callback != null) {
@@ -1037,7 +1026,6 @@ fun wasmCloneElement(sourceElementId: String, deep: Boolean): String? {
 
 // Register WASM event callback handler
 fun registerWasmEventCallback(handlerId: String, callback: () -> Unit) {
-    console.log("[Summon WASM] Registering event callback: $handlerId")
     eventCallbacks[handlerId] = callback
 }
 
@@ -1046,25 +1034,21 @@ fun wasmRequestAnimationFrame(): Int {
     val frameId = window.requestAnimationFrame {
         // The callback will be executed via registerWasmAnimationFrameCallback
     }
-    console.log("[Summon WASM] Requested animation frame with ID: $frameId")
     return frameId
 }
 
 fun wasmCancelAnimationFrame(frameId: Int): Boolean {
-    console.log("[Summon WASM] Cancelling animation frame: $frameId")
     window.cancelAnimationFrame(frameId)
     animationFrameCallbacks.remove(frameId)
     return true
 }
 
 fun registerWasmAnimationFrameCallback(frameId: Int, callback: () -> Unit) {
-    console.log("[Summon WASM] Registering animation frame callback for ID: $frameId")
     animationFrameCallbacks[frameId] = callback
 
     // Override the frame to execute our callback
     window.cancelAnimationFrame(frameId)
     val newFrameId = window.requestAnimationFrame {
-        console.log("[Summon WASM] Executing animation frame callback for ID: $frameId")
         try {
             callback()
         } catch (e: Throwable) {

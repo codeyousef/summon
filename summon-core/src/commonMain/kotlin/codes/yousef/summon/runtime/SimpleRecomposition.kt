@@ -53,7 +53,6 @@ fun Composer.key(key: Any?, block: () -> Unit) {
  * List implementation that tracks modifications for recomposition.
  */
 fun <T> mutableStateListOf(vararg elements: T): MutableList<T> {
-    println("mutableStateListOf called")
     return SnapshotMutableList<T>().apply {
         if (elements.isNotEmpty()) {
             addAll(elements)
@@ -65,15 +64,10 @@ private class SnapshotMutableList<T> : MutableList<T> {
     private val list = mutableListOf<T>()
     private val modification = mutableStateOf(0)
 
-    init {
-        println("SnapshotMutableList created: $this. Modification state: $modification")
-    }
-
     override val size: Int get() {
         // Record read of modification state to track dependencies
         @Suppress("UNUSED_VARIABLE")
         val read = modification.value
-        println("SnapshotMutableList.size($this): ${list.size}. Modification state: $modification")
         return list.size
     }
 
@@ -116,7 +110,6 @@ private class SnapshotMutableList<T> : MutableList<T> {
         // Record read
         @Suppress("UNUSED_VARIABLE")
         val read = modification.value
-        println("SnapshotMutableList.iterator: size=${list.size}")
         return list.iterator()
     }
     
@@ -128,10 +121,8 @@ private class SnapshotMutableList<T> : MutableList<T> {
     }
     
     override fun add(element: T): Boolean {
-        println("SnapshotMutableList.add: element=$element")
         return list.add(element).also {
             modification.value++
-            println("SnapshotMutableList.add: new size=${list.size}, modification=${modification.value}")
         }
     }
 
@@ -155,7 +146,6 @@ private class SnapshotMutableList<T> : MutableList<T> {
     }
 
     override fun clear() {
-        println("SnapshotMutableList.clear($this)")
         if (list.isNotEmpty()) {
             list.clear()
             modification.value++
@@ -217,7 +207,6 @@ private class SnapshotMutableList<T> : MutableList<T> {
         // Record read
         @Suppress("UNUSED_VARIABLE")
         val read = modification.value
-        println("SnapshotMutableList.forEachIndexed: size=${list.size}")
         list.forEachIndexed(action)
     }
 }
