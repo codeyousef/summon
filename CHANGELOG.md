@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.2.5] - 2025-11-25
+
+### Added
+
+- **HamburgerMenu Comprehensive Test Suite**: Added 14 tests across all platforms to verify HamburgerMenu functionality without publishing:
+  - 8 JVM SSR tests verifying ID consistency, accessibility attributes, visibility states, and JSON serialization
+  - 4 JS integration tests verifying DOM structure, ID matching, and data-action parsing
+  - 2 common tests verifying UiAction serialization roundtrip
+
 ## [0.5.2.4] - 2025-11-25
 
 ### Fixed
@@ -9,13 +18,6 @@ All notable changes to this project will be documented in this file.
 - **HamburgerMenu ID Mismatch**: Fixed critical bug where the hamburger button's `data-action.targetId` and `aria-controls` would have a different ID than the menu content's `id` attribute. The issue was caused by the ID counter being incremented inside a `remember` block, which could be evaluated multiple times during SSR when no composer context exists. Now the ID is generated once at the start of the composable function.
 
 - **HamburgerMenu Serialization**: Fixed `UiAction.ToggleVisibility` serialization to include the polymorphic type discriminator (`"type":"toggle"`) required by `ClientDispatcher` for deserialization.
-
-### Added
-
-- **HamburgerMenu Test Suite**: Added comprehensive tests for HamburgerMenu component:
-  - 8 JVM SSR tests verifying ID consistency, accessibility attributes, visibility states, and JSON serialization
-  - 4 JS integration tests verifying DOM structure, ID matching, and data-action parsing
-  - 2 common tests verifying UiAction serialization roundtrip
 
 ## [0.5.2.3] - 2025-11-25
 
