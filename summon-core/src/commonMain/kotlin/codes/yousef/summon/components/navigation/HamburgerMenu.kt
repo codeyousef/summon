@@ -73,8 +73,9 @@ fun HamburgerMenu(
     val menuContentId = "hamburger-menu-${++menuIdCounter}"
 
     // Serialize the toggle action for client-side handling
-    val toggleAction = UiAction.ToggleVisibility(menuContentId)
-    val actionJson = Json.encodeToString(toggleAction)
+    // Use the polymorphic serializer to include the type discriminator so ClientDispatcher can decode it
+    val toggleAction: UiAction = UiAction.ToggleVisibility(menuContentId)
+    val actionJson = Json.encodeToString(UiAction.serializer(), toggleAction)
 
     Column(modifier = modifier) {
         // Hamburger Button

@@ -106,4 +106,92 @@ class HamburgerMenuTest {
         val computedDisplay = window.getComputedStyle(menuContainer).display
         assertEquals("none", computedDisplay, "Menu content should be hidden initially")
     }
+
+    @Test
+    fun `hamburger menu button and content have matching IDs`() {
+        renderComposable(renderer, {
+            HamburgerMenu {
+                renderer.renderText("Menu Content", Modifier())
+            }
+        }, container)
+
+        val button = container.querySelector("[data-hamburger-toggle='true']") as? HTMLElement
+        assertNotNull(button, "Should find hamburger button")
+
+        val ariaControls = button.getAttribute("aria-controls")
+        assertNotNull(ariaControls, "Button should have aria-controls")
+        assertTrue(ariaControls.startsWith("hamburger-menu-"), "aria-controls should be hamburger-menu-*")
+
+        // Find the menu container by id
+        val menuContainer = container.querySelector("#$ariaControls") as? HTMLElement
+        assertNotNull(menuContainer, "Should find menu container with id matching aria-controls")
+
+        // Verify data-action contains the same ID
+        val dataAction = button.getAttribute("data-action")
+        assertNotNull(dataAction, "Button should have data-action")
+        assertTrue(dataAction.contains(ariaControls), 
+            "data-action should contain targetId '$ariaControls', got: $dataAction")
+    }
+
+    @Test
+    fun `multiple hamburger menus have unique IDs`() {
+        renderComposable(renderer, {
+            HamburgerMenu {
+                renderer.renderText("Menu 1", Modifier())
+            }
+            HamburgerMenu {
+                renderer.renderText("Menu 2", Modifier())
+            }
+        }, container)
+
+        val buttons = container.querySelectorAll("[data-hamburger-toggle='true']")
+        assertEquals(2, buttons.length, "Should have 2 hamburger buttons")
+
+        val ids = mutableSetOf<String>()
+        for (i in 0 until buttons.length) {
+            val button = buttons.item(i) as HTMLElement
+            val ariaControls = button.getAttribute("aria-controls")
+            assertNotNull(ariaControls, "Button $i should have aria-controls")
+            
+            // Verify uniqueness
+            assertTrue(ids.add(ariaControls), "ID '$ariaControls' should be unique")
+            
+            // Verify menu container exists with this id
+            val menuContainer = container.querySelector("#$ariaControls")
+            assertNotNull(menuContainer, "Menu container with id '$ariaControls' should exist")
+            
+            // Verify data-action contains correct id
+            val dataAction = button.getAttribute("data-action")
+            assertNotNull(dataAction, "Button should have data-action")
+            assertTrue(dataAction.contains(ariaControls),
+                "data-action should contain '$ariaControls'")
+        }
+    }
+
+    @Test
+    fun `data-action contains valid toggle action JSON`() {
+        renderComposable(renderer, {
+            HamburgerMenu {
+                renderer.renderText("Menu Content", Modifier())
+            }
+        }, container)
+
+        val button = container.querySelector("[data-hamburger-toggle='true']") as? HTMLElement
+        assertNotNull(button, "Should find hamburger button")
+
+        val dataAction = button.getAttribute("data-action")
+        assertNotNull(dataAction, "Button should have data-action")
+
+        // Parse and validate JSON
+        val parsed = JSON.parse<dynamic>(dataAction)
+        assertEquals("toggle", parsed.type as String, "type should be 'toggle'")
+        
+        val targetId = parsed.targetId as String
+        assertTrue(targetId.startsWith("hamburger-menu-"), "targetId should be hamburger-menu-*")
+        
+        // Verify this targetId matches aria-controls
+        val ariaControls = button.getAttribute("aria-controls")
+        assertEquals(ariaControls, targetId, "data-action targetId should match aria-controls")
+    }
 }
+
