@@ -63,7 +63,10 @@ jobs:
           fi
 
       - name: Run full test suite
-        run: ./gradlew --no-daemon --max-workers=4 --console=plain --build-cache :summon-core:jvmTest :summon-core:jsTest :summon-core:wasmJsTest :summon-cli:jvmTest --stacktrace
+        run: |
+          # Clean JS test compilation to avoid cache corruption issues with K2
+          ./gradlew --no-daemon :summon-core:cleanCompileTestKotlinJs || true
+          ./gradlew --no-daemon --max-workers=4 --console=plain --build-cache :summon-core:jvmTest :summon-core:jsTest :summon-core:wasmJsTest :summon-cli:jvmTest --stacktrace
 
       - name: Upload summon-cli jvmTest report
         if: always()
