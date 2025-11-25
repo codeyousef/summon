@@ -13,8 +13,15 @@ import kotlin.test.assertNotNull
  * JVM-specific tests for HamburgerMenu component.
  * These tests verify the SSR output to ensure IDs are consistent between
  * the hamburger button and menu content.
+ * 
+ * Note: HamburgerMenu uses random IDs (hamburger-menu-NNNNNN) to avoid counter
+ * synchronization issues during SSR when composable functions may be invoked
+ * multiple times without a proper composer context.
  */
 class HamburgerMenuSSRTest {
+
+    // Pattern for hamburger menu IDs: hamburger-menu-<6 digits>
+    private val menuIdPattern = """hamburger-menu-\d+"""
 
     @Test
     fun `single hamburger menu has consistent IDs`() {
@@ -27,12 +34,12 @@ class HamburgerMenuSSRTest {
         }
 
         // Extract the aria-controls value from the button
-        val ariaControlsMatch = Regex("""aria-controls="(hamburger-menu-\d+)"""").find(html)
+        val ariaControlsMatch = Regex("""aria-controls="($menuIdPattern)"""").find(html)
         assertNotNull(ariaControlsMatch, "Should find aria-controls attribute")
         val ariaControlsId = ariaControlsMatch.groupValues[1]
 
         // Extract the id from the menu content div
-        val menuIdMatch = Regex("""id="(hamburger-menu-\d+)"""").find(html)
+        val menuIdMatch = Regex("""id="($menuIdPattern)"""").find(html)
         assertNotNull(menuIdMatch, "Should find menu id attribute")
         val menuId = menuIdMatch.groupValues[1]
 
@@ -65,14 +72,14 @@ class HamburgerMenuSSRTest {
         }
 
         // Find all aria-controls values
-        val ariaControlsMatches = Regex("""aria-controls="(hamburger-menu-\d+)"""")
+        val ariaControlsMatches = Regex("""aria-controls="($menuIdPattern)"""")
             .findAll(html).toList()
         assertEquals(2, ariaControlsMatches.size, "Should have 2 hamburger menus")
 
         val ariaControlsIds = ariaControlsMatches.map { it.groupValues[1] }
 
         // Find all menu ids
-        val menuIdMatches = Regex("""id="(hamburger-menu-\d+)"""")
+        val menuIdMatches = Regex("""id="($menuIdPattern)"""")
             .findAll(html).toList()
         assertEquals(2, menuIdMatches.size, "Should have 2 menu content divs")
 
@@ -148,7 +155,7 @@ class HamburgerMenuSSRTest {
         }
 
         // Find the menu content container (has hamburger-menu-* id)
-        val menuMatch = Regex("""<div[^>]*id="hamburger-menu-\d+"[^>]*>""").find(html)
+        val menuMatch = Regex("""<div[^>]*id="$menuIdPattern"[^>]*>""").find(html)
         assertNotNull(menuMatch, "Should find menu content container")
         
         val menuDiv = menuMatch.value
@@ -178,7 +185,7 @@ class HamburgerMenuSSRTest {
             "Button should have aria-label='Close menu' when open")
 
         // Find the menu content container
-        val menuMatch = Regex("""<div[^>]*id="hamburger-menu-\d+"[^>]*>""").find(html)
+        val menuMatch = Regex("""<div[^>]*id="$menuIdPattern"[^>]*>""").find(html)
         assertNotNull(menuMatch, "Should find menu content container")
         
         val menuDiv = menuMatch.value
@@ -272,11 +279,11 @@ class HamburgerMenuSSRTest {
         }
 
         // Find all aria-controls
-        val ariaControlsIds = Regex("""aria-controls="(hamburger-menu-\d+)"""")
+        val ariaControlsIds = Regex("""aria-controls="($menuIdPattern)"""")
             .findAll(html).map { it.groupValues[1] }.toList()
         
         // Find all menu ids  
-        val menuIds = Regex("""id="(hamburger-menu-\d+)"""")
+        val menuIds = Regex("""id="($menuIdPattern)"""")
             .findAll(html).map { it.groupValues[1] }.toList()
 
         assertEquals(menuCount, ariaControlsIds.size, "Should have $menuCount aria-controls")

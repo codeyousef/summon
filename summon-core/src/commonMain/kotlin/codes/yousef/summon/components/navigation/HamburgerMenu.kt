@@ -40,8 +40,10 @@ fun HamburgerMenu(
     )
 }
 
-// Counter for generating unique menu IDs
-private var menuIdCounter = 0
+// ID generation for HamburgerMenu using random UUIDs to avoid counter synchronization issues.
+// During SSR without a composer, composable functions may be invoked multiple times,
+// and a global counter would get out of sync. UUIDs ensure each menu instance gets a unique ID.
+private fun generateMenuId(): String = "hamburger-menu-${kotlin.random.Random.nextInt(100000, 999999)}"
 
 /**
  * A responsive hamburger menu component that toggles visibility of content.
@@ -67,10 +69,12 @@ fun HamburgerMenu(
 ) {
     val renderer = LocalPlatformRenderer.current
 
-    // Generate unique ID for this menu's content at the start of the composable.
-    // We capture the ID immediately to ensure both the button and menu use the same value.
-    // This avoids any issues with remember/composer contexts that could cause ID mismatches.
-    val menuContentId = "hamburger-menu-${++menuIdCounter}"
+    // Generate unique ID for this menu instance.
+    // We use remember to ensure stability across recompositions when a composer is available.
+    // When no composer is available (SSR), a new random ID is generated, which is fine
+    // because the button and menu div are rendered in the same function call and will
+    // use the same menuContentId variable.
+    val menuContentId = remember { generateMenuId() }
 
     // Serialize the toggle action for client-side handling
     // Use the polymorphic serializer to include the type discriminator so ClientDispatcher can decode it

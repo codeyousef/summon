@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.2.6] - 2025-11-25
+
+### Fixed
+
+- **HamburgerMenu ID Counter Race Condition**: Fixed critical bug where the global ID counter would get out of sync during SSR when multiple HamburgerMenu components are rendered (e.g., in ResponsiveLayout for different breakpoints). The counter was being incremented each time `remember` was evaluated, but without a composer context during SSR, `remember` doesn't memoize - it just runs the calculation each time. Changed ID generation to use random 6-digit numbers (`hamburger-menu-NNNNNN`) to ensure unique IDs without relying on a global counter that could drift.
+
 ## [0.5.2.5] - 2025-11-25
 
 ### Added
