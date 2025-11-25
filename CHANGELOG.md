@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.2.4] - 2025-11-25
+
+### Fixed
+
+- **HamburgerMenu ID Mismatch**: Fixed critical bug where the hamburger button's `data-action.targetId` and `aria-controls` would have a different ID than the menu content's `id` attribute. The issue was caused by the ID counter being incremented inside a `remember` block, which could be evaluated multiple times during SSR when no composer context exists. Now the ID is generated once at the start of the composable function.
+
 ## [0.5.2.3] - 2025-11-25
 
 ### Fixed

@@ -67,8 +67,10 @@ fun HamburgerMenu(
 ) {
     val renderer = LocalPlatformRenderer.current
 
-    // Generate unique ID for this menu's content
-    val menuContentId = remember { "hamburger-menu-${++menuIdCounter}" }
+    // Generate unique ID for this menu's content at the start of the composable.
+    // We capture the ID immediately to ensure both the button and menu use the same value.
+    // This avoids any issues with remember/composer contexts that could cause ID mismatches.
+    val menuContentId = "hamburger-menu-${++menuIdCounter}"
 
     // Serialize the toggle action for client-side handling
     val toggleAction = UiAction.ToggleVisibility(menuContentId)
