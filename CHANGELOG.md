@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.2.3] - 2025-11-25
+
+### Fixed
+
+- **HamburgerMenu Console Fix**: Added missing `warn()` method to `Console` external interface and added missing `import codes.yousef.summon.js.console` to `ClientDispatcher.kt`. This fixes runtime errors when toggling hamburger menu visibility.
+
 ## [0.5.2.2] - 2025-11-25
 
 ### Fixed
