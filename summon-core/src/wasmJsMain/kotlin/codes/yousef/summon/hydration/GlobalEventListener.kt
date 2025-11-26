@@ -4,6 +4,9 @@ import kotlinx.browser.document
 import org.w3c.dom.Element
 import org.w3c.dom.events.Event
 
+// Top-level function to set hydration active flag (required for WASM js() calls)
+private fun setHydrationActiveFlag(): Unit = js("window.__SUMMON_HYDRATION_ACTIVE__ = true")
+
 /**
  * Global event listener for WASM target.
  * Handles document-level events for data-action based client-side interactions.
@@ -49,7 +52,11 @@ object GlobalEventListener {
         // Guard against multiple initializations
         if (initialized) return
         initialized = true
-        
+
+        // Signal to the bootloader that WASM hydration is now active
+        // This prevents the bootloader from double-handling data-action clicks
+        setHydrationActiveFlag()
+
         // Add document-level event listeners for data-action and data-sid handling
         val events = listOf("click", "input", "change", "submit")
         events.forEach { eventType ->
@@ -58,7 +65,7 @@ object GlobalEventListener {
             document.addEventListener(eventType, handler)
         }
     }
-    
+
     // Reset initialization state and remove event listeners (for testing purposes only)
     fun reset() {
         eventHandlers.forEach { (eventType, handler) ->

@@ -447,6 +447,10 @@ actual open class PlatformRenderer {
             // Check for data-action first (client-side only actions like ToggleVisibility)
             var actionJson = t.getAttribute('data-action');
             if (actionJson) {
+                // Skip if JS/WASM hydration is active - GlobalEventListener will handle it
+                if (window.__SUMMON_HYDRATION_ACTIVE__) {
+                    return;
+                }
                 if (handleDataAction(actionJson, t)) {
                     e.preventDefault();
                     return;

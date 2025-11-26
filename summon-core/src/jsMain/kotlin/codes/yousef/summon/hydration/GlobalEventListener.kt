@@ -54,6 +54,10 @@ object GlobalEventListener {
 
         console.log("[Summon JS] GlobalEventListener.init() - registering document event listeners")
 
+        // Signal to the bootloader that JS hydration is now active
+        // This prevents the bootloader from double-handling data-action clicks
+        js("window.__SUMMON_HYDRATION_ACTIVE__ = true")
+
         val events = listOf("click", "input", "change", "submit")
         events.forEach { eventType ->
             val handler: (Event) -> Unit = { event -> handleEventInternal(event) }
