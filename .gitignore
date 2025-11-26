@@ -150,3 +150,8 @@ examples/wasm-seo-todo/.gradle/
 summon-core/src/jvmMain/resources/static/*.js
 summon-core/src/jvmMain/resources/static/*.wasm
 summon-core/src/jvmMain/resources/static/static/
+
+# E2E test artifacts
+e2e-tests/playwright-report/
+e2e-tests/test-results/
+e2e-tests/.playwright/
