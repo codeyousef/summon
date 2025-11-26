@@ -400,16 +400,61 @@ actual open class PlatformRenderer {
     private val BOOTLOADER_SCRIPT = """
 (function() {
     window.__SUMMON_QUEUE__ = [];
+    
+    // Handle data-action based toggles immediately without waiting for WASM/JS hydration
+    function handleDataAction(actionJson, triggerElement) {
+        try {
+            var action = JSON.parse(actionJson);
+            if (action.type === 'toggle' && action.targetId) {
+                var target = document.getElementById(action.targetId);
+                if (target) {
+                    var currentDisplay = getComputedStyle(target).display;
+                    var isHidden = currentDisplay === 'none';
+                    target.style.display = isHidden ? 'block' : 'none';
+                    
+                    // Update aria-expanded on trigger
+                    if (triggerElement) {
+                        triggerElement.setAttribute('aria-expanded', isHidden.toString());
+                        
+                        // Update hamburger menu icon if applicable
+                        if (triggerElement.getAttribute('data-hamburger-toggle') === 'true') {
+                            triggerElement.setAttribute('aria-label', isHidden ? 'Close menu' : 'Open menu');
+                            var iconSpan = triggerElement.querySelector('.material-icons');
+                            if (iconSpan) {
+                                iconSpan.textContent = isHidden ? 'close' : 'menu';
+                            }
+                        }
+                    }
+                    console.log('[Summon] Toggle action handled:', action.targetId, '→', isHidden ? 'shown' : 'hidden');
+                    return true;
+                }
+            }
+        } catch (e) {
+            console.error('[Summon] Error parsing data-action:', e);
+        }
+        return false;
+    }
+    
     window.addEventListener('click', function(e) {
-        if (!window.Summon) {
-            var t = e.target;
-            // Look for data-sid (SummonTagConsumer) or data-summon-id (JvmPlatformRenderer)
-            // Also check for data-onclick-action to identify interactive elements
-            while (t && !t.getAttribute('data-sid') && !t.getAttribute('data-summon-id') && !t.getAttribute('data-onclick-action')) {
-                t = t.parentElement;
+        var t = e.target;
+        // Look for data-sid (SummonTagConsumer) or data-summon-id (JvmPlatformRenderer)
+        // Also check for data-onclick-action to identify interactive elements
+        while (t && !t.getAttribute('data-sid') && !t.getAttribute('data-summon-id') && !t.getAttribute('data-onclick-action') && !t.getAttribute('data-action')) {
+            t = t.parentElement;
+        }
+        
+        if (t) {
+            // Check for data-action first (client-side only actions like ToggleVisibility)
+            var actionJson = t.getAttribute('data-action');
+            if (actionJson) {
+                if (handleDataAction(actionJson, t)) {
+                    e.preventDefault();
+                    return;
+                }
             }
             
-            if (t) {
+            // Fall back to queuing if Summon isn't loaded yet
+            if (!window.Summon) {
                 // Prevent default behavior for interactive elements during hydration gap
                 // This prevents form submissions or link navigation for elements that should be handled by JS
                 if (t.getAttribute('data-onclick-action') === 'true' || t.getAttribute('role') === 'button') {

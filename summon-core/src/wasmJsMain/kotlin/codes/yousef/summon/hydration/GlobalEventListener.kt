@@ -4,6 +4,10 @@ import kotlinx.browser.document
 import org.w3c.dom.Element
 import org.w3c.dom.events.Event
 
+/**
+ * Global event listener for WASM target.
+ * Handles document-level events for data-action based client-side interactions.
+ */
 object GlobalEventListener {
     private var initialized = false
     private val eventHandlers = mutableMapOf<String, (Event) -> Unit>()
@@ -20,7 +24,6 @@ object GlobalEventListener {
         if (current != null) {
             val actionJson = current.getAttribute("data-action")
             if (actionJson != null) {
-                console.log("[Summon] Found data-action on element: ${current.tagName}, action: $actionJson")
                 ClientDispatcher.dispatch(actionJson)
                 event.preventDefault()
                 return
@@ -47,17 +50,13 @@ object GlobalEventListener {
         if (initialized) return
         initialized = true
         
-        console.log("[Summon] GlobalEventListener.init() - Setting up document event listeners")
-        
+        // Add document-level event listeners for data-action and data-sid handling
         val events = listOf("click", "input", "change", "submit")
         events.forEach { eventType ->
             val handler: (Event) -> Unit = { event -> handleEventInternal(event) }
             eventHandlers[eventType] = handler
             document.addEventListener(eventType, handler)
-            console.log("[Summon] Added '$eventType' event listener to document")
         }
-        
-        console.log("[Summon] GlobalEventListener initialization complete")
     }
     
     // Reset initialization state and remove event listeners (for testing purposes only)
@@ -70,7 +69,7 @@ object GlobalEventListener {
     }
 
     fun handleEvent(type: String, sid: String, event: Event, element: Element? = null) {
-        val el = element ?: document.querySelector("[data-sid='$sid']") ?: return
+        val el = element ?: document.querySelector("[data-sid='$sid']") as? Element ?: return
         
         val actionJson = el.getAttribute("data-action")
         if (actionJson != null) {

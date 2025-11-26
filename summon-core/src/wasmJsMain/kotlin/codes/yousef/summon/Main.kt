@@ -1,6 +1,7 @@
 package codes.yousef.summon
 
 import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.hydration.GlobalEventListener
 import codes.yousef.summon.runtime.PlatformRenderer
 import codes.yousef.summon.runtime.setPlatformRenderer
 import codes.yousef.summon.runtime.wasmConsoleLog
@@ -22,6 +23,10 @@ private var globalRenderer: PlatformRenderer? = null
 fun main() {
     wasmConsoleLog("Summon WASM: Module loaded")
     wasmConsoleLog("Summon WASM: Call renderComposableRoot() to mount your app")
+
+    // Initialize the GlobalEventListener for handling data-action events
+    // This is crucial for HamburgerMenu and other components that use client-side toggle
+    GlobalEventListener.init()
 
     // Log that the framework is ready
     try {

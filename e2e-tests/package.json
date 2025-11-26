@@ -1,10 +1,16 @@
 {
   "name": "e2e-tests",
   "version": "1.0.0",
-  "description": "",
+  "description": "End-to-end tests for Summon framework",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npx playwright test",
+    "test:hydration": "BASE_URL=http://localhost:8080 npx playwright test tests/hydration.spec.ts",
+    "test:hamburger": "BASE_URL=http://localhost:8080 npx playwright test tests/hamburger-menu.spec.ts",
+    "test:smoke": "BASE_URL=http://localhost:8080 npx playwright test tests/smoke.spec.ts",
+    "test:all": "ts-node run-e2e.ts",
+    "test:report": "npx playwright show-report",
+    "install:browsers": "npx playwright install"
   },
   "keywords": [],
   "author": "",

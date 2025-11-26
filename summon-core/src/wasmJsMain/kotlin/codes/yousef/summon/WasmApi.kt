@@ -1,6 +1,7 @@
 package codes.yousef.summon
 
 import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.hydration.GlobalEventListener
 import codes.yousef.summon.runtime.*
 
 /**
@@ -11,6 +12,11 @@ fun renderComposableRoot(rootElementId: String, composable: @Composable () -> Un
     wasmConsoleLog("renderComposableRoot called for element: $rootElementId")
 
     try {
+        // Initialize global event listener for data-action handling
+        // This is crucial for HamburgerMenu and other components that use
+        // client-side only actions via data-action attribute
+        GlobalEventListener.init()
+
         // Create renderer
         val renderer = PlatformRenderer()
         wasmConsoleLog("Created PlatformRenderer")
@@ -117,11 +123,16 @@ fun renderComposableRoot(rootElementId: String, composable: @Composable () -> Un
 /**
  * Hydrates a composable function to the DOM element with the specified ID.
  * This is used when the HTML has been pre-rendered by the server.
+ * Also initializes the GlobalEventListener for handling data-action
+ * events like HamburgerMenu toggle.
  */
 fun hydrateComposableRoot(rootElementId: String, composable: @Composable () -> Unit) {
     wasmConsoleLog("hydrateComposableRoot called for element: $rootElementId")
     
     try {
+        // Initialize global event listener for data-action handling
+        GlobalEventListener.init()
+        
         val renderer = PlatformRenderer()
         renderer.hydrateComposableRoot(rootElementId, composable)
     } catch (e: Exception) {

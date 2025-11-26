@@ -27,6 +27,7 @@ interface ProjectConfig {
     path?: string; // for example
     command: string;
     readyUrl: string;
+    testFile?: string; // specific test file to run (defaults to smoke.spec.ts)
 }
 
 const projects: ProjectConfig[] = [
@@ -38,13 +39,23 @@ const projects: ProjectConfig[] = [
         command: './gradlew jsBrowserDevelopmentRun',
         readyUrl: 'http://localhost:8080'
     },
-    // Examples
+    // Examples - Hydration Test (comprehensive component testing)
+    {
+        name: 'hydration-test',
+        type: 'example',
+        path: '.',
+        command: './gradlew :examples:hydration-test:jsBrowserDevelopmentRun',
+        readyUrl: 'http://localhost:8080',
+        testFile: 'tests/hydration.spec.ts'
+    },
+    // Examples - Hello World JS
     {
         name: 'hello-world-js',
         type: 'example',
         path: '.',
         command: './gradlew :examples:hello-world-js:jsBrowserDevelopmentRun',
-        readyUrl: 'http://localhost:8080'
+        readyUrl: 'http://localhost:8080',
+        testFile: 'tests/smoke.spec.ts'
     }
 ];
 
@@ -150,8 +161,9 @@ async function run() {
             }
 
             // 3. Run Playwright
-            console.log('Running Playwright tests...');
-            execSync(`npx playwright test tests/smoke.spec.ts`, { 
+            const testFile = project.testFile || 'tests/smoke.spec.ts';
+            console.log(`Running Playwright tests: ${testFile}...`);
+            execSync(`npx playwright test ${testFile}`, { 
                 stdio: 'inherit',
                 cwd: __dirname,
                 env: { ...process.env, BASE_URL: project.readyUrl }

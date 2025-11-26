@@ -13,6 +13,8 @@ include(":examples:ssr-todo-app")
 include(":examples:wasm-seo-todo")
 include(":examples:hello-world-js")
 include(":examples:hello-world-wasm")
+include(":examples:hydration-test")
+include(":examples:ssr-hydration-test")
 
 // Diagnostics suite
 include(":diagnostics")
