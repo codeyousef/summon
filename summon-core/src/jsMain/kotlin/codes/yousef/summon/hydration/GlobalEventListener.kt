@@ -10,16 +10,22 @@ object GlobalEventListener {
     
     private fun handleEventInternal(event: Event) {
         val target = event.target as? Element ?: return
-        
+
+        // Only log click events to avoid spam
+        if (event.type == "click") {
+            console.log("[Summon JS] Click event on: ${target.tagName}")
+        }
+
         // First, look specifically for data-action (for toggle menus, etc.)
         var current: Element? = target
         while (current != null && !current.hasAttribute("data-action")) {
             current = current.parentElement
         }
-        
+
         if (current != null) {
             val actionJson = current.getAttribute("data-action")
             if (actionJson != null) {
+                console.log("[Summon JS] Found data-action on ${current.tagName}: $actionJson")
                 ClientDispatcher.dispatch(actionJson)
                 event.preventDefault()
                 return
@@ -46,12 +52,16 @@ object GlobalEventListener {
         if (initialized) return
         initialized = true
 
+        console.log("[Summon JS] GlobalEventListener.init() - registering document event listeners")
+
         val events = listOf("click", "input", "change", "submit")
         events.forEach { eventType ->
             val handler: (Event) -> Unit = { event -> handleEventInternal(event) }
             eventHandlers[eventType] = handler
             document.addEventListener(eventType, handler)
         }
+
+        console.log("[Summon JS] GlobalEventListener initialized successfully")
     }
     
     // Reset initialization state and remove event listeners (for testing purposes only)

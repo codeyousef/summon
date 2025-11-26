@@ -11,24 +11,29 @@ object ClientDispatcher {
     private val json = Json { ignoreUnknownKeys = true }
 
     fun dispatch(actionJson: String) {
+        console.log("[Summon JS] ClientDispatcher.dispatch() called with: $actionJson")
         try {
             val action = json.decodeFromString<UiAction>(actionJson)
+            console.log("[Summon JS] Parsed action: $action")
             dispatch(action)
         } catch (e: Exception) {
-            console.error("[Summon] Failed to dispatch action: $actionJson")
-            console.error("[Summon] Error:", e)
+            console.error("[Summon JS] Failed to dispatch action: $actionJson")
+            console.error("[Summon JS] Error:", e)
         }
     }
 
     fun dispatch(action: UiAction) {
         when (action) {
             is UiAction.Navigate -> {
+                console.log("[Summon JS] Navigate to: ${action.url}")
                 window.location.href = action.url
             }
             is UiAction.ServerRpc -> {
+                console.log("[Summon JS] ServerRpc: ${action.endpoint}")
                 // TODO: Implement actual fetch to /summon/dispatch
             }
             is UiAction.ToggleVisibility -> {
+                console.log("[Summon JS] ToggleVisibility: ${action.targetId}")
                 toggleElementVisibility(action.targetId)
             }
         }
@@ -39,9 +44,10 @@ object ClientDispatcher {
      * For hamburger menus, also updates the icon and aria-expanded state of the trigger button.
      */
     private fun toggleElementVisibility(targetId: String) {
+        console.log("[Summon JS] toggleElementVisibility('$targetId')")
         val el = document.getElementById(targetId) as? HTMLElement
         if (el == null) {
-            console.warn("[Summon] ToggleVisibility: Element not found with id '$targetId'")
+            console.warn("[Summon JS] ToggleVisibility: Element not found with id '$targetId'")
             return
         }
 
@@ -49,6 +55,7 @@ object ClientDispatcher {
         val isCurrentlyHidden = currentDisplay == "none"
         val newDisplay = if (isCurrentlyHidden) "block" else "none"
 
+        console.log("[Summon JS] Toggling '$targetId': $currentDisplay -> $newDisplay")
         el.style.display = newDisplay
 
         // Find the trigger button that controls this element (by aria-controls attribute)
