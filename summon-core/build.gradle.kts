@@ -5,7 +5,7 @@ import java.util.*
 apply(from = "../version.gradle.kts")
 
 // Manual version override for now
-version = "0.5.2.7"
+version = "0.5.2.8"
 group = "codes.yousef"
 
 plugins {
