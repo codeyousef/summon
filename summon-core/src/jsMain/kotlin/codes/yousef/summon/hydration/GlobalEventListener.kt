@@ -50,12 +50,19 @@ object GlobalEventListener {
     fun init() {
         // Guard against multiple initializations
         if (initialized) return
+
+        // Check if another hydration client (JS or WASM) is already active
+        // This prevents double-handling when both bundles load
+        if (js("window.__SUMMON_HYDRATION_ACTIVE__ === true") as Boolean) {
+            console.log("[Summon JS] GlobalEventListener.init() - skipping, another hydration client is already active")
+            return
+        }
+
         initialized = true
 
         console.log("[Summon JS] GlobalEventListener.init() - registering document event listeners")
 
-        // Signal to the bootloader that JS hydration is now active
-        // This prevents the bootloader from double-handling data-action clicks
+        // Signal to the bootloader and other hydration clients that this one is now active
         js("window.__SUMMON_HYDRATION_ACTIVE__ = true")
 
         val events = listOf("click", "input", "change", "submit")

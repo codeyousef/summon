@@ -90,9 +90,9 @@ test.describe('SSR Hydration Tests', () => {
       const menuContentId = await hamburgerButton.getAttribute('aria-controls');
       expect(menuContentId).toBeTruthy();
       console.log(`Menu content id: ${menuContentId}`);
-      
+
       const menuContent = page.locator(`#${menuContentId}`);
-      
+
       // Initially hidden
       const initialDisplay = await menuContent.evaluate(el => getComputedStyle(el).display);
       console.log(`Initial display style: ${initialDisplay}`);
@@ -122,6 +122,146 @@ test.describe('SSR Hydration Tests', () => {
       const closedDisplay = await menuContent.evaluate(el => getComputedStyle(el).display);
       console.log(`After close display style: ${closedDisplay}`);
       expect(closedDisplay).toBe('none');
+    });
+
+    test('hamburger menu multiple toggle cycles work correctly', async ({ page }) => {
+      // Test multiple open/close cycles to catch double-handling bugs
+      page.on('console', msg => console.log('PAGE LOG:', msg.text()));
+
+      const baseURL = process.env.BASE_URL || 'http://localhost:8080';
+      await page.goto(baseURL, { waitUntil: 'networkidle' });
+
+      await page.waitForSelector('body span', { timeout: 10000 });
+      await expect(page.locator('span:has-text("SSR Hydration Test App")')).toBeVisible({ timeout: 10000 });
+
+      // Wait for hydration to complete
+      await page.waitForTimeout(2000);
+
+      const hamburgerButton = page.locator('[data-test-id="hamburger-button"]');
+      await expect(hamburgerButton).toBeVisible();
+
+      const menuContentId = await hamburgerButton.getAttribute('aria-controls');
+      const menuContent = page.locator(`#${menuContentId}`);
+
+      // Test 5 complete open/close cycles
+      for (let i = 0; i < 5; i++) {
+        console.log(`\n=== Cycle ${i + 1} ===`);
+
+        // Verify initially closed
+        const beforeClick = await menuContent.evaluate(el => getComputedStyle(el).display);
+        console.log(`Before open click: ${beforeClick}`);
+        expect(beforeClick).toBe('none');
+
+        // Click to open
+        await hamburgerButton.click();
+        await page.waitForTimeout(150);
+
+        const afterOpen = await menuContent.evaluate(el => getComputedStyle(el).display);
+        console.log(`After open click: ${afterOpen}`);
+        expect(afterOpen).toBe('block');
+
+        // Click to close
+        await hamburgerButton.click();
+        await page.waitForTimeout(150);
+
+        const afterClose = await menuContent.evaluate(el => getComputedStyle(el).display);
+        console.log(`After close click: ${afterClose}`);
+        expect(afterClose).toBe('none');
+      }
+
+      console.log('\nAll 5 cycles passed!');
+    });
+
+    test('hamburger menu works immediately after page load (bootloader)', async ({ page }) => {
+      // This tests that the bootloader handles clicks BEFORE hydration completes
+      page.on('console', msg => console.log('PAGE LOG:', msg.text()));
+
+      const baseURL = process.env.BASE_URL || 'http://localhost:8080';
+
+      // Navigate but don't wait for networkidle - we want to test bootloader
+      await page.goto(baseURL, { waitUntil: 'domcontentloaded' });
+
+      // Wait just for the DOM to be ready, not for hydration
+      await page.waitForSelector('[data-test-id="hamburger-button"]', { timeout: 5000 });
+
+      const hamburgerButton = page.locator('[data-test-id="hamburger-button"]');
+      const menuContentId = await hamburgerButton.getAttribute('aria-controls');
+      const menuContent = page.locator(`#${menuContentId}`);
+
+      // Test immediate click (may be handled by bootloader or hydration)
+      console.log('Testing immediate click...');
+
+      const initialDisplay = await menuContent.evaluate(el => getComputedStyle(el).display);
+      console.log(`Initial display: ${initialDisplay}`);
+      expect(initialDisplay).toBe('none');
+
+      await hamburgerButton.click();
+      await page.waitForTimeout(100);
+
+      const afterFirstClick = await menuContent.evaluate(el => getComputedStyle(el).display);
+      console.log(`After first click: ${afterFirstClick}`);
+      expect(afterFirstClick).toBe('block');
+
+      await hamburgerButton.click();
+      await page.waitForTimeout(100);
+
+      const afterSecondClick = await menuContent.evaluate(el => getComputedStyle(el).display);
+      console.log(`After second click: ${afterSecondClick}`);
+      expect(afterSecondClick).toBe('none');
+    });
+
+    test('hamburger menu verifies only one event handler is active', async ({ page }) => {
+      // This test verifies that the __SUMMON_HYDRATION_ACTIVE__ flag prevents double-handling
+      const consoleLogs: string[] = [];
+      page.on('console', msg => {
+        consoleLogs.push(msg.text());
+        console.log('PAGE LOG:', msg.text());
+      });
+
+      const baseURL = process.env.BASE_URL || 'http://localhost:8080';
+      await page.goto(baseURL, { waitUntil: 'networkidle' });
+
+      await page.waitForSelector('body span', { timeout: 10000 });
+      await page.waitForTimeout(2000);
+
+      // Check that the hydration flag is set
+      const hydrationActive = await page.evaluate(() => (window as any).__SUMMON_HYDRATION_ACTIVE__);
+      console.log(`__SUMMON_HYDRATION_ACTIVE__: ${hydrationActive}`);
+      expect(hydrationActive).toBe(true);
+
+      // Count how many GlobalEventListener initializations happened
+      const jsInitLogs = consoleLogs.filter(log =>
+        log.includes('[Summon JS] GlobalEventListener.init() - registering')
+      );
+      const wasmInitLogs = consoleLogs.filter(log =>
+        log.includes('[Summon WASM] GlobalEventListener.init() - registering')
+      );
+      const skipLogs = consoleLogs.filter(log =>
+        log.includes('skipping, another hydration client is already active')
+      );
+
+      console.log(`JS init logs: ${jsInitLogs.length}`);
+      console.log(`WASM init logs: ${wasmInitLogs.length}`);
+      console.log(`Skip logs: ${skipLogs.length}`);
+
+      // Exactly ONE should be registering (either JS or WASM)
+      const totalRegistrations = jsInitLogs.length + wasmInitLogs.length;
+      expect(totalRegistrations).toBe(1);
+
+      // Now test that the hamburger works correctly
+      const hamburgerButton = page.locator('[data-test-id="hamburger-button"]');
+      const menuContentId = await hamburgerButton.getAttribute('aria-controls');
+      const menuContent = page.locator(`#${menuContentId}`);
+
+      await hamburgerButton.click();
+      await page.waitForTimeout(100);
+      const afterOpen = await menuContent.evaluate(el => getComputedStyle(el).display);
+      expect(afterOpen).toBe('block');
+
+      await hamburgerButton.click();
+      await page.waitForTimeout(100);
+      const afterClose = await menuContent.evaluate(el => getComputedStyle(el).display);
+      expect(afterClose).toBe('none');
     });
 
     test('data-action attribute is present on hamburger button', async ({ page }) => {
