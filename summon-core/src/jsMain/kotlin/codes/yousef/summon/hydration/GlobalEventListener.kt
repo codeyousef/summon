@@ -20,7 +20,6 @@ object GlobalEventListener {
         if (current != null) {
             val actionJson = current.getAttribute("data-action")
             if (actionJson != null) {
-                console.log("[Summon] Found data-action on element: ${current.tagName}, action: $actionJson")
                 ClientDispatcher.dispatch(actionJson)
                 event.preventDefault()
                 return
@@ -46,18 +45,13 @@ object GlobalEventListener {
         // Guard against multiple initializations
         if (initialized) return
         initialized = true
-        
-        console.log("[Summon] GlobalEventListener.init() - Setting up document event listeners")
-        
+
         val events = listOf("click", "input", "change", "submit")
         events.forEach { eventType ->
             val handler: (Event) -> Unit = { event -> handleEventInternal(event) }
             eventHandlers[eventType] = handler
             document.addEventListener(eventType, handler)
-            console.log("[Summon] Added '$eventType' event listener to document")
         }
-        
-        console.log("[Summon] GlobalEventListener initialization complete")
     }
     
     // Reset initialization state and remove event listeners (for testing purposes only)
