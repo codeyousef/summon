@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.3.0] - 2025-11-27
+
+### Added
+
+- **HamburgerMenu menuContainerModifier**: Added `menuContainerModifier` parameter to `HamburgerMenu` component, allowing native Summon styling of the dropdown container without requiring `GlobalStyle` CSS. Supports positioning, background, border, and other styles directly via the Modifier API.
+
+- **SSR i18n Support**: Added `lang` and `dir` parameters to SSR hydration rendering:
+  - `renderComposableRootWithHydration(lang, dir, composable)` in `JvmPlatformRenderer`
+  - `respondSummonHydrated(status, lang, dir, content)` in `KtorRenderer`
+  - `respondSummonPage(status, lang, dir, content)` in `KtorRenderer`
+  - HTML documents now render with proper `<html lang="..." dir="...">` attributes for RTL language support
+
+### Changed
+
+- **Maven Publishing**: Removed legacy `io.github.codeyousef` group ID publishing. All artifacts are now published exclusively under `codes.yousef`. If you're still using the legacy group ID, update your dependencies:
+  ```kotlin
+  // Old (no longer published)
+  implementation("io.github.codeyousef:summon:x.x.x")
+
+  // New (use this)
+  implementation("codes.yousef:summon:0.5.3.0")
+  ```
+
 ## [0.5.2.9] - 2025-11-25
 
 ### Fixed

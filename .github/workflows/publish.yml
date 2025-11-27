@@ -130,8 +130,8 @@ jobs:
           fi
           rm -rf "$TMP_GNUPGHOME"
 
-      - name: Publish Summon library to both group IDs (codes.yousef + legacy)
-        run: ./gradlew :summon-core:publishToBothGroupIds --stacktrace --info
+      - name: Publish Summon library to Maven Central (codes.yousef)
+        run: ./gradlew :summon-core:publishToCentralPortalManually --stacktrace --info
 
       - name: Extract latest changelog entry
         id: changelog

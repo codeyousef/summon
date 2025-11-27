@@ -492,10 +492,44 @@ actual open class PlatformRenderer {
 """
 
     actual open fun renderComposableRootWithHydration(composable: @Composable () -> Unit): String {
-        return renderComposableRootWithHydration(null, composable)
+        return renderComposableRootWithHydration(null, "en", "ltr", composable)
+    }
+
+    /**
+     * Renders a composable to a full HTML document with hydration support and i18n attributes.
+     *
+     * @param lang The language code for the HTML document (e.g., "en", "ar", "he")
+     * @param dir The text direction for the HTML document ("ltr" or "rtl")
+     * @param composable The composable content to render
+     * @return A complete HTML document string with hydration data
+     */
+    open fun renderComposableRootWithHydration(
+        lang: String = "en",
+        dir: String = "ltr",
+        composable: @Composable () -> Unit
+    ): String {
+        return renderComposableRootWithHydration(null, lang, dir, composable)
     }
 
     actual open fun renderComposableRootWithHydration(state: Any?, composable: @Composable () -> Unit): String {
+        return renderComposableRootWithHydration(state, "en", "ltr", composable)
+    }
+
+    /**
+     * Renders a composable to a full HTML document with hydration support, state, and i18n attributes.
+     *
+     * @param state Optional state to embed in the document for client-side hydration
+     * @param lang The language code for the HTML document (e.g., "en", "ar", "he")
+     * @param dir The text direction for the HTML document ("ltr" or "rtl")
+     * @param composable The composable content to render
+     * @return A complete HTML document string with hydration data
+     */
+    open fun renderComposableRootWithHydration(
+        state: Any?,
+        lang: String = "en",
+        dir: String = "ltr",
+        composable: @Composable () -> Unit
+    ): String {
         val debugEnabled = System.getProperty("summon.debug.callbacks", "false").toBoolean()
         
         if (debugEnabled) {
@@ -526,7 +560,7 @@ actual open class PlatformRenderer {
             }
             
             val hydrationData = generateHydrationData(callbackIds)
-            val fullDoc = createHydratedDocument(bodyContent, hydrationData, state)
+            val fullDoc = createHydratedDocument(bodyContent, hydrationData, state, lang, dir)
             
             if (debugEnabled) {
                 // Extract callback IDs from the HTML for verification
@@ -597,18 +631,24 @@ actual open class PlatformRenderer {
         return jsonData
     }
 
-    private fun createHydratedDocument(bodyContent: String, hydrationData: String, state: Any? = null): String {
+    private fun createHydratedDocument(
+        bodyContent: String,
+        hydrationData: String,
+        state: Any? = null,
+        lang: String = "en",
+        dir: String = "ltr"
+    ): String {
         val stateScript = if (state != null && state is String) {
              val encoded = Base64.getEncoder().encodeToString(state.toByteArray())
              """<script id="summon-state" type="application/json+summon">$encoded</script>"""
         } else {
             ""
         }
-        
+
         val bootloader = """<script>$BOOTLOADER_SCRIPT</script>"""
 
         return """<!DOCTYPE html>
-<html lang="en">
+<html lang="$lang" dir="$dir">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

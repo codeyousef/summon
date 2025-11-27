@@ -183,55 +183,69 @@ class KtorRenderer {
         /**
          * Hydrated SSR response: renders a Summon component with hydration data/scripts.
          * Uses PlatformRenderer.renderComposableRootWithHydration to produce a full HTML document.
-         * 
+         *
          * This method ensures callback context stability across coroutine thread switches,
          * which is critical for SSR hydration to work correctly. Without this, callbacks
          * registered during rendering may not match the callback IDs in the hydration data
          * sent to the client, causing onClick handlers and other interactive features to fail.
+         *
+         * @param status The HTTP status code for the response
+         * @param lang The language code for the HTML document (e.g., "en", "ar", "he")
+         * @param dir The text direction for the HTML document ("ltr" or "rtl")
+         * @param content The composable content to render
          */
         suspend fun ApplicationCall.respondSummonHydrated(
             status: HttpStatusCode = HttpStatusCode.OK,
+            lang: String = "en",
+            dir: String = "ltr",
             content: @Composable () -> Unit
         ) {
             val renderer = PlatformRenderer()
             setPlatformRenderer(renderer)
-            
+
             // Create stable callback context for this request to ensure callbacks
             // registered during rendering can be reliably collected even if the
             // coroutine switches threads (common in Ktor with thread pools)
             val callbackContext = codes.yousef.summon.runtime.CallbackContextElement()
-            
+
             try {
                 // CRITICAL: Install callback context BEFORE rendering starts
                 // withContext is not enough because renderComposableRootWithHydration is not suspend
                 val html = kotlinx.coroutines.withContext(callbackContext) {
                     // The context is now properly installed in the thread-local before rendering
-                    renderer.renderComposableRootWithHydration(content)
+                    renderer.renderComposableRootWithHydration(lang, dir, content)
                 }
                 respondText(html, ContentType.Text.Html.withCharset(Charsets.UTF_8), status)
             } finally {
                 clearPlatformRenderer()
             }
         }
-        
+
         /**
          * Convenience alias for [respondSummonHydrated].
          * Renders a Summon page with full hydration support, automatically injecting
          * the hydration script and data for client-side interactivity.
-         * 
+         *
          * Usage:
          * ```kotlin
          * get("/") {
-         *     call.respondSummonPage { 
+         *     call.respondSummonPage {
          *         MyLandingPage()
          *     }
          * }
          * ```
+         *
+         * @param status The HTTP status code for the response
+         * @param lang The language code for the HTML document (e.g., "en", "ar", "he")
+         * @param dir The text direction for the HTML document ("ltr" or "rtl")
+         * @param content The composable content to render
          */
         suspend fun ApplicationCall.respondSummonPage(
             status: HttpStatusCode = HttpStatusCode.OK,
+            lang: String = "en",
+            dir: String = "ltr",
             content: @Composable () -> Unit
-        ) = respondSummonHydrated(status, content)
+        ) = respondSummonHydrated(status, lang, dir, content)
         
         /**
          * Serves Summon hydration assets (JS, WASM) directly from the library JAR.

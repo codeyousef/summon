@@ -5,7 +5,7 @@ import java.util.*
 apply(from = "../version.gradle.kts")
 
 // Manual version override for now
-version = "0.5.2.12"
+version = "0.5.3.0"
 group = "codes.yousef"
 
 plugins {
@@ -896,12 +896,16 @@ tasks.register("publishToLegacyGroupId") {
     }
 }
 
-// Combined task to publish to both group IDs
+// Legacy task - now only publishes to codes.yousef (legacy io.github.codeyousef removed in 0.5.3.0)
 tasks.register("publishToBothGroupIds") {
     group = "publishing"
-    description = "Publish to both codes.yousef and io.github.codeyousef (until 0.5.0.0)"
+    description = "DEPRECATED: Now only publishes to codes.yousef. Use publishToCentralPortalManually instead."
     dependsOn("publishToMavenLocal", "javadocJar")
-    finalizedBy("publishToCentralPortalManually", "publishToLegacyGroupId")
+    finalizedBy("publishToCentralPortalManually")
+    doFirst {
+        logger.warn("⚠️ publishToBothGroupIds is deprecated. Legacy io.github.codeyousef publishing was removed in 0.5.3.0.")
+        logger.warn("   Use 'publishToCentralPortalManually' instead.")
+    }
 }
 
 // Fix JS test compilation order - ensure main JS compilation completes first
