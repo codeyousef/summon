@@ -21,18 +21,21 @@ import kotlinx.serialization.json.Json
  * The menu content is always rendered but hidden initially, allowing pure client-side toggling.
  *
  * @param modifier Modifier to apply to the container
+ * @param menuContainerModifier Modifier to apply to the dropdown menu container (for positioning, background, etc.)
  * @param iconColor Color of the hamburger icon
  * @param menuContent The content to display when the menu is open
  */
 @Composable
 fun HamburgerMenu(
     modifier: Modifier = Modifier(),
+    menuContainerModifier: Modifier = Modifier(),
     iconColor: String? = null,
     menuContent: @Composable () -> Unit
 ) {
     val isOpen = remember { mutableStateOf(false) }
     HamburgerMenu(
         modifier = modifier,
+        menuContainerModifier = menuContainerModifier,
         isOpen = isOpen.value,
         onToggle = { isOpen.value = !isOpen.value },
         iconColor = iconColor,
@@ -54,6 +57,7 @@ private fun generateMenuId(): String = "hamburger-menu-${kotlin.random.Random.ne
  * when closed, allowing the GlobalEventListener to toggle visibility purely client-side.
  *
  * @param modifier Modifier to apply to the container
+ * @param menuContainerModifier Modifier to apply to the dropdown menu container (for positioning, background, etc.)
  * @param isOpen Whether the menu is currently open
  * @param onToggle Callback when the menu toggle button is clicked (used for client-side state)
  * @param iconColor Color of the hamburger icon
@@ -62,6 +66,7 @@ private fun generateMenuId(): String = "hamburger-menu-${kotlin.random.Random.ne
 @Composable
 fun HamburgerMenu(
     modifier: Modifier = Modifier(),
+    menuContainerModifier: Modifier = Modifier(),
     isOpen: Boolean,
     onToggle: () -> Unit,
     iconColor: String? = null,
@@ -122,10 +127,13 @@ fun HamburgerMenu(
         // Menu Content - ALWAYS rendered but hidden when closed
         // This allows client-side toggling via GlobalEventListener without server round-trips.
         // The display style is toggled by ClientDispatcher.dispatch(UiAction.ToggleVisibility).
+        // Base styles are applied first, then menuContainerModifier allows customization,
+        // and finally the required id and display styles are applied last to ensure they work.
         Box(
             modifier = Modifier()
                 .fillMaxWidth()
-                .style("z-index", "1000")
+                .zIndex(1000)
+                .then(menuContainerModifier)
                 .attribute("id", menuContentId)
                 // Initially hidden if not open; ClientDispatcher will toggle this
                 .style("display", if (isOpen) "block" else "none")
