@@ -145,6 +145,30 @@ Link(
 }
 ```
 
+#### Enhanced Links with Rich Content
+
+For advanced link styling with composable content rendered inside the anchor tag, the platform renderer supports `renderEnhancedLink` with content:
+
+```kotlin
+// Rich link with icon and styled text
+renderer.renderEnhancedLink(
+    href = "/about",
+    target = "_blank",
+    title = "Learn more about us",
+    ariaLabel = "About page",
+    modifier = Modifier()
+        .padding(8.px)
+        .display(Display.Flex)
+        .alignItems(AlignItems.Center)
+        .gap(8.px)
+) {
+    Text("Learn More")
+    Icon(name = "arrow-right")
+}
+```
+
+This renders the composable content directly inside the `<a>` tag, enabling complex link designs with icons, badges, or any other components.
+
 ## Layout Components
 
 ### Row
@@ -909,6 +933,48 @@ Tooltip(
 ```
 
 ## Additional Navigation Components
+
+### HamburgerMenu
+
+The `HamburgerMenu` component creates a responsive hamburger menu with toggle functionality, perfect for mobile navigation.
+
+```kotlin
+var isOpen by remember { mutableStateOf(false) }
+
+HamburgerMenu(
+    modifier = Modifier().position(Position.Relative),
+    menuContainerModifier = Modifier()
+        .position(Position.Absolute)
+        .style("top", "100%")
+        .style("left", "0")
+        .backgroundColor(Color("#0a1628"))
+        .borderRadius("8px")
+        .border("1px", BorderStyle.Solid, Color("#333"))
+        .zIndex(1000)
+        .style("min-width", "280px"),
+    isOpen = isOpen,
+    onToggle = { isOpen = !isOpen },
+    iconColor = "white"
+) {
+    // Menu content
+    Column(modifier = Modifier().padding(16.px)) {
+        Link(href = "/home") { Text("Home") }
+        Link(href = "/about") { Text("About") }
+        Link(href = "/contact") { Text("Contact") }
+    }
+}
+```
+
+#### Parameters
+
+- **modifier**: Modifier applied to the outer container
+- **menuContainerModifier**: Modifier applied to the dropdown menu container (for positioning, background, borders, etc.)
+- **isOpen**: Whether the menu is currently open (controlled version)
+- **onToggle**: Callback when the toggle button is clicked
+- **iconColor**: Color of the hamburger icon
+- **menuContent**: Composable content to display when the menu is open
+
+The `menuContainerModifier` parameter allows native Summon styling of the dropdown without requiring `GlobalStyle` CSS.
 
 ### TabLayout
 

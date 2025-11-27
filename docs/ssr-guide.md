@@ -231,6 +231,24 @@ val html = renderer.renderComposableRootWithHydration {
 // Client-side JavaScript will make components interactive
 ```
 
+### Hydration with i18n Support
+
+For internationalized applications, especially those with RTL (right-to-left) languages, you can specify the `lang` and `dir` attributes:
+
+```kotlin
+// Render with Arabic RTL support
+val html = renderer.renderComposableRootWithHydration(
+    lang = "ar",
+    dir = "rtl"
+) {
+    MyArabicApp()
+}
+
+// Output: <html lang="ar" dir="rtl">...</html>
+```
+
+This ensures proper text direction and language attributes in the HTML document.
+
 ### Hydration with Initial State
 
 ```kotlin
@@ -828,23 +846,31 @@ This will include helpful comments in the generated HTML for debugging purposes.
 ### Ktor
 
 ```kotlin
+import codes.yousef.summon.integration.ktor.respondSummonHydrated
+import codes.yousef.summon.integration.ktor.respondSummonPage
+
 fun Application.configureSummon() {
     routing {
+        // Basic hydrated response
         get("/") {
-            val renderer = PlatformRenderer()
-            val html = renderer.renderComposableRoot {
+            call.respondSummonHydrated {
                 HomePage()
             }
-            call.respondText(html, ContentType.Text.Html)
         }
-        
+
+        // With i18n support (RTL languages)
+        get("/ar") {
+            call.respondSummonHydrated(lang = "ar", dir = "rtl") {
+                ArabicHomePage()
+            }
+        }
+
+        // Using the convenience alias
         get("/products/{id}") {
             val productId = call.parameters["id"] ?: return@get call.respond(HttpStatusCode.BadRequest)
-            val renderer = PlatformRenderer()
-            val html = renderer.renderComposableRoot {
+            call.respondSummonPage {
                 ProductPage(productId)
             }
-            call.respondText(html, ContentType.Text.Html)
         }
     }
 }

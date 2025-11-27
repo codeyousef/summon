@@ -2421,6 +2421,25 @@ actual open class PlatformRenderer {
         }
     }
 
+    actual open fun renderEnhancedLink(
+        href: String,
+        target: String?,
+        title: String?,
+        ariaLabel: String?,
+        ariaDescribedBy: String?,
+        modifier: Modifier,
+        content: @Composable () -> Unit
+    ) {
+        requireBuilder().a(href = href) {
+            applyModifier(modifier)
+            if (target != null) this.target = target
+            if (title != null) this.title = title
+            if (ariaLabel != null) attributes["aria-label"] = ariaLabel
+            if (ariaDescribedBy != null) attributes["aria-describedby"] = ariaDescribedBy
+            renderContent(content)
+        }
+    }
+
     actual open fun renderTabLayout(
         tabs: List<Tab>,
         selectedTabIndex: Int,

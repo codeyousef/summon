@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.4.0] - 2025-11-27
+
+### Added
+
+- **renderEnhancedLink with Content**: Added new overload of `renderEnhancedLink` that accepts a `content: @Composable () -> Unit` parameter, allowing composable content to be rendered inside anchor tags. This enables creating rich links with icons, styled text, or any other composable content:
+  ```kotlin
+  renderer.renderEnhancedLink(
+      href = "/about",
+      target = "_blank",
+      title = "About Us",
+      modifier = Modifier().padding(8.px)
+  ) {
+      Text("Learn More")
+      Icon(name = "arrow-right")
+  }
+  ```
+  Implemented across all platforms (JVM, JS, WASM).
+
 ## [0.5.3.0] - 2025-11-27
 
 ### Added
@@ -22,7 +40,7 @@ All notable changes to this project will be documented in this file.
   implementation("io.github.codeyousef:summon:x.x.x")
 
   // New (use this)
-  implementation("codes.yousef:summon:0.5.3.0")
+  implementation("codes.yousef:summon:0.5.4.0")
   ```
 
 ## [0.5.2.9] - 2025-11-25

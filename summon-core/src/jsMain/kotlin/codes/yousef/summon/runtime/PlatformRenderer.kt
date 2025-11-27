@@ -1318,6 +1318,26 @@ actual open class PlatformRenderer {
         })
     }
 
+    actual open fun renderEnhancedLink(
+        href: String,
+        target: String?,
+        title: String?,
+        ariaLabel: String?,
+        ariaDescribedBy: String?,
+        modifier: Modifier,
+        content: @Composable () -> Unit
+    ) {
+        createElement("a", modifier, { element ->
+            element.setAttribute("href", href)
+            target?.let { element.setAttribute("target", it) }
+            title?.let { element.setAttribute("title", it) }
+            ariaLabel?.let { element.setAttribute("aria-label", it) }
+            ariaDescribedBy?.let { element.setAttribute("aria-describedby", it) }
+        }) {
+            content()
+        }
+    }
+
     actual open fun renderTabLayout(
         tabs: List<Tab>,
         selectedTabIndex: Int,

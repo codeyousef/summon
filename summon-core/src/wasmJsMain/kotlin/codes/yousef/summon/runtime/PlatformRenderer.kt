@@ -1103,6 +1103,18 @@ actual open class PlatformRenderer actual constructor() {
         wasmConsoleLog("PlatformRenderer renderEnhancedLink - WASM stub")
     }
 
+    actual open fun renderEnhancedLink(
+        href: String,
+        target: String?,
+        title: String?,
+        ariaLabel: String?,
+        ariaDescribedBy: String?,
+        modifier: Modifier,
+        content: @Composable () -> Unit
+    ) {
+        wasmConsoleLog("PlatformRenderer renderEnhancedLink with content - WASM stub")
+    }
+
     actual open fun renderTabLayout(
         tabs: List<Tab>,
         selectedTabIndex: Int,

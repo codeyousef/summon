@@ -517,6 +517,27 @@ expect open class PlatformRenderer() {
         fallbackText: String? = null
     )
 
+    /**
+     * Renders an enhanced hyperlink with composable content inside the anchor tag.
+     *
+     * @param href The URL for the link
+     * @param target The target attribute (e.g., "_blank")
+     * @param title The title attribute for hover text
+     * @param ariaLabel Accessibility label
+     * @param ariaDescribedBy ID of element that describes this link
+     * @param modifier Styling modifier
+     * @param content Composable content to render inside the anchor tag
+     */
+    open fun renderEnhancedLink(
+        href: String,
+        target: String? = null,
+        title: String? = null,
+        ariaLabel: String? = null,
+        ariaDescribedBy: String? = null,
+        modifier: Modifier = Modifier(),
+        content: @Composable () -> Unit
+    )
+
     /** Renders a canvas element */
     open fun renderCanvas(
         modifier: Modifier,
