@@ -82,6 +82,8 @@ object GlobalEventListener {
         }
         eventHandlers.clear()
         initialized = false
+        // Also reset the global flag so init() can run again
+        js("window.__SUMMON_HYDRATION_ACTIVE__ = false")
     }
 
     fun handleEvent(type: String, sid: String, event: Event, element: Element? = null) {
