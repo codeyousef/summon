@@ -2,6 +2,68 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.5.0] - 2025-11-28
+
+### Added
+
+- **Hydration Performance Optimization** - Non-blocking hydration system targeting Lighthouse performance improvements (Mobile: 45→70+, Desktop: 59→85+)
+
+  - **HydrationScheduler**: Non-blocking task scheduler using `requestIdleCallback` with `requestAnimationFrame` fallback
+    - 50ms max blocking time per task batch (FR-001)
+    - Priority-aware processing (CRITICAL → VISIBLE → NEAR → DEFERRED)
+    - Scroll-aware yielding to maintain 60fps during scrolling
+    - Graceful error isolation - task failures don't affect other tasks (FR-007)
+    - Platform implementations for both JS and WASM
+
+  - **DOMBatcher**: Read-write phase separation to prevent layout thrashing
+    - Batches DOM read operations before write operations
+    - RAF-based scheduling for optimal browser timing
+    - `syncMode` for test compatibility with immediate execution
+
+  - **EventBuffer**: Captures user events during hydration for replay
+    - Buffers click, input, submit, change, focus, blur events
+    - Replays events after component hydration completes
+    - Prevents dropped clicks during hydration (SC-008)
+
+  - **PriorityHydrationQueue**: Viewport-aware component prioritization
+    - Four priority levels: CRITICAL, VISIBLE, NEAR (200px threshold), DEFERRED
+    - Auto-detection of priority based on viewport position
+    - Dynamic priority promotion when elements enter viewport
+    - Scroll-based visibility detection
+
+  - **HydrationPriority enum**: Developer-assignable hydration priorities
+    - `data-hydration-priority` attribute for SSR output
+    - `Modifier.hydrationPriority()`, `.hydrationCritical()`, `.hydrationDeferred()` extensions
+
+- **GlobalEventListener Enhancements**
+  - `markElementHydrated()` for event replay triggering
+  - Event buffering integration for non-hydrated components
+
+- **ClientDispatcher Enhancements**
+  - DOMBatcher integration for batched DOM operations
+  - `syncMode` flag for test compatibility
+
+### Changed
+
+- **SummonHydrationClient**: Uses HydrationScheduler for non-blocking startup
+- **HydrationManagerWasm**: Uses HydrationScheduler for async component hydration
+- **Test Infrastructure**: Added `syncMode` to HydrationScheduler and ClientDispatcher for synchronous test execution
+
+### Technical Details
+
+These changes implement the hydration optimization spec (002-hydration-optimization):
+- **Non-blocking Hydration**: Uses browser idle time via requestIdleCallback
+- **DOM Batching**: Prevents layout thrashing with read-write phase separation
+- **Event Preservation**: Captures and replays user events during hydration
+- **Priority Scheduling**: Critical components hydrate first, deferred components during idle
+
+Target metrics:
+- TBT (Total Blocking Time): <300ms (from ~27,000ms)
+- TTI (Time to Interactive): <3.5s
+- Main Thread Work: <4s total
+- Frame Rate During Scroll: 50+ fps
+- Dropped Clicks: 0%
+
 ## [0.5.4.2] - 2025-11-28
 
 ### Added

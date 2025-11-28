@@ -726,6 +726,76 @@ data class Modifier(
      */
     fun zIndex(value: Int): Modifier =
         style("z-index", value.toString())
+
+    // ========================================
+    // Hydration Priority
+    // ========================================
+
+    /**
+     * Sets the hydration priority for this element.
+     *
+     * Hydration priority determines the order in which server-rendered components
+     * are hydrated on the client. Higher priority components are hydrated first.
+     *
+     * ## Priority Levels
+     *
+     * - **CRITICAL**: Developer-marked must-hydrate-first components (e.g., CTA buttons)
+     * - **VISIBLE**: Components currently in the viewport (auto-detected)
+     * - **NEAR**: Components within 200px of viewport (auto-detected)
+     * - **DEFERRED**: Below-fold components, hydrated on scroll or idle
+     *
+     * ## Usage
+     *
+     * ```kotlin
+     * // Mark a CTA button as critical
+     * Button(
+     *     onClick = { /* action */ },
+     *     label = "Buy Now",
+     *     modifier = Modifier()
+     *         .hydrationPriority(HydrationPriority.CRITICAL)
+     * )
+     *
+     * // Mark footer content as deferred
+     * Footer(
+     *     modifier = Modifier()
+     *         .hydrationPriority(HydrationPriority.DEFERRED)
+     * )
+     * ```
+     *
+     * @param priority The hydration priority level
+     * @return A new Modifier with the hydration-priority data attribute
+     * @see codes.yousef.summon.hydration.HydrationPriority
+     */
+    fun hydrationPriority(priority: String): Modifier =
+        dataAttribute("hydration-priority", priority)
+
+    /**
+     * Marks this element for critical hydration (highest priority).
+     *
+     * Use for must-hydrate-first components like:
+     * - Primary CTA buttons
+     * - Login/authentication forms
+     * - Navigation menus
+     * - Critical interactive elements
+     *
+     * @return A new Modifier with critical hydration priority
+     */
+    fun hydrationCritical(): Modifier =
+        hydrationPriority("critical")
+
+    /**
+     * Marks this element for deferred hydration (lowest priority).
+     *
+     * Use for below-the-fold or non-critical components like:
+     * - Footer content
+     * - Related articles sections
+     * - Social sharing buttons
+     * - Non-essential widgets
+     *
+     * @return A new Modifier with deferred hydration priority
+     */
+    fun hydrationDeferred(): Modifier =
+        hydrationPriority("deferred")
 }
 
 /**

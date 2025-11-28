@@ -2,6 +2,7 @@ package codes.yousef.summon.e2e
 
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.components.input.Button
+import codes.yousef.summon.hydration.HydrationScheduler
 import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.runtime.*
 import kotlinx.browser.document
@@ -9,6 +10,7 @@ import kotlinx.browser.window
 import org.w3c.dom.HTMLButtonElement
 import org.w3c.dom.HTMLElement
 import kotlin.test.Test
+import kotlin.test.AfterTest
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -18,11 +20,20 @@ fun triggerClick(element: HTMLElement) {
 
 class HydrationTest {
 
+    @AfterTest
+    fun tearDown() {
+        // Reset sync mode to default after tests
+        HydrationScheduler.instance.syncMode = false
+    }
+
     @Test
     fun testHydration() {
-// Setup DOM with server-rendered content
-val buttonId = "test-btn-hydration"
-val initialText = "Click Me"
+        // Enable sync mode for immediate hydration (no async scheduling)
+        HydrationScheduler.instance.syncMode = true
+
+        // Setup DOM with server-rendered content
+        val buttonId = "test-btn-hydration"
+        val initialText = "Click Me"
         // We use data-summon-id to match what the renderer looks for
         // Note: We must match the internal structure of Button component (which uses a span for text)
         val textId = "text-${initialText.hashCode()}"
