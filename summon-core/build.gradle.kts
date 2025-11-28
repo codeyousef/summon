@@ -1,12 +1,8 @@
 import java.security.MessageDigest
 import java.util.*
 
-// Apply version management
+// Apply version management - sets project.version and project.group from version.properties
 apply(from = "../version.gradle.kts")
-
-// Manual version override for now
-version = "0.5.4.2"
-group = "codes.yousef"
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
