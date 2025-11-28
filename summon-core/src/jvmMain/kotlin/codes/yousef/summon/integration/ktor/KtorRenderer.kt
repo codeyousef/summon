@@ -8,10 +8,14 @@ import codes.yousef.summon.runtime.setPlatformRenderer
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.html.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
+import java.io.ByteArrayOutputStream
+import java.util.concurrent.ConcurrentHashMap
+import java.util.zip.GZIPOutputStream
 
 /**
  * Integration class for rendering Summon components in a Ktor application.
@@ -339,28 +343,64 @@ class KtorRenderer {
             }
         }
         
+        // Cache for compressed assets to avoid re-compressing on each request
+        private val compressedAssetCache = ConcurrentHashMap<String, ByteArray>()
+        private val rawAssetCache = ConcurrentHashMap<String, ByteArray>()
+
         /**
          * Loads and responds with a Summon asset from the library JAR resources.
-         * Includes appropriate Cache-Control headers for optimal caching.
+         * Supports gzip compression and caching for optimal performance.
          */
         private suspend fun ApplicationCall.respondSummonAsset(name: String, contentType: ContentType) {
-            val payload = loadSummonAsset(name)
-            if (payload != null) {
-                // Add cache headers for optimal performance
-                response.header(
-                    codes.yousef.summon.ssr.CacheHeaders.Headers.CACHE_CONTROL,
-                    codes.yousef.summon.ssr.CacheHeaders.forAsset(name)
-                )
-                respondBytes(payload, contentType)
-            } else {
+            val payload = loadSummonAssetCached(name)
+            if (payload == null) {
                 respondText(
                     """{"status":"not-found","asset":"$name"}""",
                     ContentType.Application.Json,
                     HttpStatusCode.NotFound
                 )
+                return
+            }
+
+            // Add cache headers - assets are immutable, cache for 1 year
+            response.header(HttpHeaders.CacheControl, "public, max-age=31536000, immutable")
+            response.header(HttpHeaders.Vary, "Accept-Encoding")
+
+            // Check if client accepts gzip
+            val acceptEncoding = request.header(HttpHeaders.AcceptEncoding) ?: ""
+            if (acceptEncoding.contains("gzip") && !name.endsWith(".wasm")) {
+                // Serve gzip-compressed version (except for .wasm which doesn't compress well)
+                val compressed = getCompressedAsset(name, payload)
+                response.header(HttpHeaders.ContentEncoding, "gzip")
+                respondBytes(compressed, contentType)
+            } else {
+                respondBytes(payload, contentType)
             }
         }
-        
+
+        /**
+         * Gets or creates a gzip-compressed version of an asset.
+         */
+        private fun getCompressedAsset(name: String, original: ByteArray): ByteArray {
+            return compressedAssetCache.getOrPut(name) {
+                ByteArrayOutputStream().use { baos ->
+                    GZIPOutputStream(baos).use { gzos ->
+                        gzos.write(original)
+                    }
+                    baos.toByteArray()
+                }
+            }
+        }
+
+        /**
+         * Loads a Summon asset with caching.
+         */
+        private fun loadSummonAssetCached(name: String): ByteArray? {
+            return rawAssetCache.getOrPut(name) {
+                loadSummonAsset(name) ?: return null
+            }
+        }
+
         /**
          * Loads a Summon asset from the library JAR resources.
          * Searches in multiple locations for compatibility.

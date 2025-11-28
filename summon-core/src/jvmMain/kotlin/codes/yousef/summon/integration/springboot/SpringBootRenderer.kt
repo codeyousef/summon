@@ -9,9 +9,13 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import java.io.ByteArrayOutputStream
+import java.util.concurrent.ConcurrentHashMap
+import java.util.zip.GZIPOutputStream
 
 /**
  * Integration class for rendering Summon components in a Spring Boot application.
@@ -259,40 +263,73 @@ class SpringBootRenderer {
             }
         }
         
+        // Cache for compressed assets
+        private val compressedAssetCache = ConcurrentHashMap<String, ByteArray>()
+        private val rawAssetCache = ConcurrentHashMap<String, ByteArray>()
+
         /**
-         * Returns a ResponseEntity for a Summon asset.
-         * Includes appropriate Cache-Control headers for optimal caching.
+         * Returns a ResponseEntity for a Summon asset with gzip support.
          *
          * Example usage:
          * ```kotlin
          * @GetMapping("/summon-hydration.js")
-         * fun summonJs(): ResponseEntity<ByteArray> = SpringBootRenderer.getSummonAsset("summon-hydration.js")
+         * fun summonJs(request: HttpServletRequest): ResponseEntity<ByteArray> =
+         *     SpringBootRenderer.getSummonAsset("summon-hydration.js", request)
          * ```
          */
-        fun getSummonAsset(name: String): ResponseEntity<ByteArray> {
+        fun getSummonAsset(name: String, request: HttpServletRequest? = null): ResponseEntity<ByteArray> {
             val contentType = when {
                 name.endsWith(".wasm") && !name.endsWith(".wasm.js") -> MediaType("application", "wasm")
                 name.endsWith(".js") -> MediaType.parseMediaType("application/javascript")
                 else -> MediaType.APPLICATION_OCTET_STREAM
             }
 
-            val payload = loadSummonAsset(name)
-            return if (payload != null) {
-                ResponseEntity.ok()
-                    .contentType(contentType)
-                    .header(
-                        codes.yousef.summon.ssr.CacheHeaders.Headers.CACHE_CONTROL,
-                        codes.yousef.summon.ssr.CacheHeaders.forAsset(name)
-                    )
-                    .body(payload)
+            val payload = loadSummonAssetCached(name) ?: return ResponseEntity.notFound().build()
+
+            // Check if client accepts gzip
+            val acceptEncoding = request?.getHeader("Accept-Encoding") ?: ""
+            val useGzip = acceptEncoding.contains("gzip") && !name.endsWith(".wasm")
+
+            val builder = ResponseEntity.ok()
+                .contentType(contentType)
+                .header(HttpHeaders.CACHE_CONTROL, "public, max-age=31536000, immutable")
+                .header(HttpHeaders.VARY, "Accept-Encoding")
+
+            return if (useGzip) {
+                val compressed = getCompressedAsset(name, payload)
+                builder.header(HttpHeaders.CONTENT_ENCODING, "gzip")
+                    .body(compressed)
             } else {
-                ResponseEntity.notFound().build()
+                builder.body(payload)
             }
         }
-        
+
+        /**
+         * Gets or creates a gzip-compressed version of an asset.
+         */
+        private fun getCompressedAsset(name: String, original: ByteArray): ByteArray {
+            return compressedAssetCache.getOrPut(name) {
+                ByteArrayOutputStream().use { baos ->
+                    GZIPOutputStream(baos).use { gzos ->
+                        gzos.write(original)
+                    }
+                    baos.toByteArray()
+                }
+            }
+        }
+
+        /**
+         * Loads a Summon asset with caching.
+         */
+        private fun loadSummonAssetCached(name: String): ByteArray? {
+            return rawAssetCache.getOrPut(name) {
+                loadSummonAsset(name) ?: return null
+            }
+        }
+
         /**
          * Handles callback execution requests from the hydration client.
-         * 
+         *
          * Example usage in a controller:
          * ```kotlin
          * @PostMapping("/summon/callback/{callbackId}")
@@ -307,7 +344,7 @@ class SpringBootRenderer {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body("""{"action":"error","status":"missing-id"}""")
             }
-            
+
             val executed = CallbackRegistry.executeCallback(callbackId)
             return if (executed) {
                 ResponseEntity.ok()
@@ -319,7 +356,7 @@ class SpringBootRenderer {
                     .body("""{"action":"noop","status":"missing"}""")
             }
         }
-        
+
         /**
          * Loads a Summon asset from the library JAR resources.
          */

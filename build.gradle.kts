@@ -37,9 +37,16 @@ tasks.register("buildCliExecutables") {
     dependsOn(":summon-cli:buildNativeExecutable", ":summon-cli:shadowJar")
 
     doLast {
-        println("✅ CLI tool executables built successfully!")
-        println("📁 Shadow JAR: summon-cli/build/libs/")
-        println("🔧 Native executable: summon-cli/build/native/nativeCompile/")
-        println("💡 Use these artifacts for GitHub Releases")
+        println("CLI tool executables built successfully!")
+        println("Shadow JAR: summon-cli/build/libs/")
+        println("Native executable: summon-cli/build/native/nativeCompile/")
+        println("Use these artifacts for GitHub Releases")
     }
+}
+
+// Performance benchmarking tasks
+tasks.register("benchmark") {
+    group = "benchmark"
+    description = "Run all JMH benchmarks (use ./gradlew :diagnostics:jmh)"
+    dependsOn(":diagnostics:jmh")
 }

@@ -10,6 +10,9 @@ import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
+import java.io.ByteArrayOutputStream
+import java.util.concurrent.ConcurrentHashMap
+import java.util.zip.GZIPOutputStream
 
 /**
  * Integration class for rendering Summon components in a Quarkus application.
@@ -194,29 +197,64 @@ class QuarkusRenderer(private val response: HttpServerResponse) {
             }
         }
         
+        // Cache for compressed assets
+        private val compressedAssetCache = ConcurrentHashMap<String, ByteArray>()
+        private val rawAssetCache = ConcurrentHashMap<String, ByteArray>()
+
         /**
          * Responds with a Summon asset from the library JAR.
-         * Includes appropriate Cache-Control headers for optimal caching.
+         * Supports gzip compression and caching for optimal performance.
          */
         private fun RoutingContext.respondSummonAsset(name: String, contentType: String) {
-            val payload = loadSummonAsset(name)
-            if (payload != null) {
-                response()
-                    .setStatusCode(200)
-                    .putHeader("Content-Type", contentType)
-                    .putHeader(
-                        codes.yousef.summon.ssr.CacheHeaders.Headers.CACHE_CONTROL,
-                        codes.yousef.summon.ssr.CacheHeaders.forAsset(name)
-                    )
-                    .end(io.vertx.core.buffer.Buffer.buffer(payload))
-            } else {
+            val payload = loadSummonAssetCached(name)
+            if (payload == null) {
                 response()
                     .setStatusCode(404)
                     .putHeader("Content-Type", "application/json")
                     .end("""{"status":"not-found","asset":"$name"}""")
+                return
+            }
+
+            val resp = response()
+                .setStatusCode(200)
+                .putHeader("Content-Type", contentType)
+                .putHeader("Cache-Control", "public, max-age=31536000, immutable")
+                .putHeader("Vary", "Accept-Encoding")
+
+            // Check if client accepts gzip
+            val acceptEncoding = request().getHeader("Accept-Encoding") ?: ""
+            if (acceptEncoding.contains("gzip") && !name.endsWith(".wasm")) {
+                val compressed = getCompressedAsset(name, payload)
+                resp.putHeader("Content-Encoding", "gzip")
+                    .end(io.vertx.core.buffer.Buffer.buffer(compressed))
+            } else {
+                resp.end(io.vertx.core.buffer.Buffer.buffer(payload))
             }
         }
-        
+
+        /**
+         * Gets or creates a gzip-compressed version of an asset.
+         */
+        private fun getCompressedAsset(name: String, original: ByteArray): ByteArray {
+            return compressedAssetCache.getOrPut(name) {
+                ByteArrayOutputStream().use { baos ->
+                    GZIPOutputStream(baos).use { gzos ->
+                        gzos.write(original)
+                    }
+                    baos.toByteArray()
+                }
+            }
+        }
+
+        /**
+         * Loads a Summon asset with caching.
+         */
+        private fun loadSummonAssetCached(name: String): ByteArray? {
+            return rawAssetCache.getOrPut(name) {
+                loadSummonAsset(name) ?: return null
+            }
+        }
+
         /**
          * Loads a Summon asset from the library JAR resources.
          */

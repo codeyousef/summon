@@ -7,42 +7,33 @@ import org.w3c.fetch.Headers
 import org.w3c.fetch.RequestInit
 import codes.yousef.summon.hydration.Bootloader
 import codes.yousef.summon.hydration.GlobalEventListener
-import codes.yousef.summon.hydration.HydrationScheduler
-import codes.yousef.summon.hydration.HydrationTask
-import codes.yousef.summon.hydration.HydrationPriority
-import codes.yousef.summon.hydration.SimpleHydrationTask
 
 /**
  * Client-side hydration for Summon components.
  * This script runs in the browser and activates server-rendered Summon components.
- *
- * Uses HydrationScheduler for non-blocking hydration that doesn't block the main thread.
  */
 object SummonHydrationClient {
-
-    private val scheduler = HydrationScheduler.instance
-
-    /**
-     * Enable/disable verbose logging.
-     */
-    var enableLogging = true
 
     /**
      * Initializes Summon hydration when the page loads.
      * This function is automatically called when the JS bundle loads.
      */
     fun initialize() {
+        // Check for performance metrics opt-in and initialize if enabled
+        PerformanceMetrics.checkAndInitialize()
+
+        perfMarkStart("initialize", HydrationPhase.INITIALIZATION)
+
         SummonLogger.log("=== SUMMON HYDRATION CLIENT INITIALIZING ===")
         SummonLogger.log("Browser user agent: ${js("navigator.userAgent")}")
         SummonLogger.log("Current URL: ${window.location.href}")
         SummonLogger.log("Document ready state: ${document.readyState}")
 
-        // Configure scheduler logging based on our logging setting
-        scheduler.enableLogging = enableLogging
-
         if (js("document.readyState === 'loading'") as Boolean) {
             SummonLogger.log("Document still loading, waiting for DOMContentLoaded...")
+            perfMarkStart("dom-wait", HydrationPhase.DOM_READY)
             document.addEventListener("DOMContentLoaded", {
+                perfMarkEnd("dom-wait")
                 SummonLogger.log("DOMContentLoaded event fired, starting hydration...")
                 startHydration()
             })
@@ -50,31 +41,25 @@ object SummonHydrationClient {
             SummonLogger.log("Document already loaded, starting hydration immediately...")
             startHydration()
         }
+
+        perfMarkEnd("initialize")
     }
 
     private fun startHydration() {
+        perfMarkStart("startHydration", HydrationPhase.INITIALIZATION)
         try {
-            SummonLogger.log("Starting Summon component hydration (non-blocking)...")
-            val startTime = js("performance.now()") as Double
+            SummonLogger.log("Starting Summon component hydration...")
 
-            // Initialize Global Event Listener (The Ears) - CRITICAL priority
-            scheduler.scheduleTask(SimpleHydrationTask(
-                id = "global-event-listener",
-                priority = HydrationPriority.CRITICAL
-            ) {
+            // Initialize Global Event Listener (The Ears)
+            withPerfMetrics("global-event-listener-init", HydrationPhase.EVENT_SYSTEM) {
                 GlobalEventListener.init()
-                true
-            })
+            }
 
-            // Process Bootloader Queue - CRITICAL priority
-            scheduler.scheduleTask(SimpleHydrationTask(
-                id = "bootloader-queue",
-                priority = HydrationPriority.CRITICAL
-            ) {
+            // Process Bootloader Queue
+            withPerfMetrics("bootloader-process-queue", HydrationPhase.EVENT_REPLAY) {
                 Bootloader.processQueue()
-                true
-            })
-
+            }
+            
             // Check for parked state
             val state = window.asDynamic().__SUMMON_STATE__
             if (state != null) {
@@ -84,7 +69,7 @@ object SummonHydrationClient {
             SummonLogger.log("Document ready state: ${document.readyState}")
             SummonLogger.log("Document body exists: ${document.body != null}")
 
-            // Load hydration data - this is synchronous and fast
+            // Load hydration data
             val hydrationData = loadHydrationData()
             SummonLogger.log("Hydration data loaded: ${hydrationData != null}")
             if (hydrationData != null) {
@@ -127,134 +112,27 @@ object SummonHydrationClient {
                 SummonLogger.warn("No SSR root element found (id='summon-app' or [data-summon-hydration=\"root\"]). Hydration will still attach handlers to existing DOM but without a known root container.")
             }
 
-            // Schedule click handler hydration with priorities based on visibility
-            scheduleClickHandlerHydration(hydrationData)
-
-            // Schedule form input hydration - NEAR priority (usually lower in page)
-            scheduler.scheduleTask(SimpleHydrationTask(
-                id = "form-inputs",
-                priority = HydrationPriority.NEAR
-            ) {
+            // Hydrate all interactive elements (attach handlers to existing SSR DOM)
+            withPerfMetrics("hydrate-click-handlers", HydrationPhase.COMPONENT_HYDRATION) {
+                hydrateClickHandlers(hydrationData)
+            }
+            withPerfMetrics("hydrate-form-inputs", HydrationPhase.COMPONENT_HYDRATION) {
                 hydrateFormInputs()
-                true
-            })
-
-            // Set up completion callback
-            scheduler.onAllTasksComplete = {
-                val elapsed = js("performance.now()") as Double - startTime
-                SummonLogger.log("Summon hydration completed successfully in ${elapsed.toInt()}ms (non-blocking)")
-
-                // Verify hydration worked
-                val hydratedButtons = document.querySelectorAll("button[data-onclick-action=\"true\"]")
-                SummonLogger.log("Post-hydration: buttons with click handlers: ${hydratedButtons.length}")
             }
 
-            // Start the scheduler (it auto-starts on first task, but explicit start is clearer)
-            scheduler.start()
+            // Verify hydration worked
+            val hydratedButtons = document.querySelectorAll("button[data-onclick-action=\"true\"]")
+            SummonLogger.log("Post-hydration: buttons with click handlers: ${hydratedButtons.length}")
 
+            perfMarkEnd("startHydration")
+            SummonLogger.log("Summon hydration completed successfully")
+
+            // Mark hydration complete for performance metrics
+            PerformanceMetrics.markHydrationComplete()
         } catch (e: Exception) {
+            perfMarkEnd("startHydration")
             SummonLogger.error("Summon hydration failed: ${e.message}")
             SummonLogger.error("Exception: $e")
-        }
-    }
-
-    /**
-     * Schedule click handler hydration with priorities based on element visibility.
-     * Elements in the viewport get VISIBLE priority, others get NEAR or DEFERRED.
-     */
-    private fun scheduleClickHandlerHydration(hydrationData: HydrationData?) {
-        val clickableElements = document.querySelectorAll("[data-onclick-action=\"true\"]")
-        SummonLogger.log("Scheduling hydration for ${clickableElements.length} clickable elements")
-
-        for (i in 0 until clickableElements.length) {
-            val element = clickableElements.item(i) as? Element ?: continue
-            val callbackId = element.getAttribute("data-onclick-id") ?: continue
-            val tagName = element.tagName.lowercase()
-
-            // Determine priority based on element position
-            val priority = determineElementPriority(element)
-
-            scheduler.scheduleTask(SimpleHydrationTask(
-                id = "click-handler-$callbackId",
-                priority = priority
-            ) {
-                hydrateClickHandler(element, callbackId, hydrationData)
-                true
-            })
-
-            SummonLogger.log("Scheduled click handler hydration: $callbackId (priority: $priority)")
-        }
-    }
-
-    /**
-     * Determine hydration priority based on element's viewport visibility.
-     */
-    private fun determineElementPriority(element: Element): HydrationPriority {
-        // Check for explicit priority attribute
-        val explicitPriority = element.getAttribute(HydrationPriority.ATTRIBUTE_NAME)
-        if (explicitPriority != null) {
-            return HydrationPriority.fromString(explicitPriority)
-        }
-
-        // Check if element is in viewport
-        try {
-            val rect = element.getBoundingClientRect()
-            val viewportHeight = window.innerHeight.toDouble()
-            val viewportWidth = window.innerWidth.toDouble()
-
-            // Element is visible if any part is in viewport
-            val isInViewport = rect.top < viewportHeight &&
-                    rect.bottom > 0 &&
-                    rect.left < viewportWidth &&
-                    rect.right > 0
-
-            if (isInViewport) {
-                return HydrationPriority.VISIBLE
-            }
-
-            // Element is near viewport (within 200px)
-            val nearThreshold = 200.0
-            val isNearViewport = rect.top < viewportHeight + nearThreshold &&
-                    rect.bottom > -nearThreshold
-
-            if (isNearViewport) {
-                return HydrationPriority.NEAR
-            }
-
-            // Element is far from viewport
-            return HydrationPriority.DEFERRED
-        } catch (e: Exception) {
-            // If we can't determine position, use VISIBLE as safe default
-            return HydrationPriority.VISIBLE
-        }
-    }
-
-    /**
-     * Hydrate a single click handler for an element.
-     */
-    private fun hydrateClickHandler(element: Element, callbackId: String, hydrationData: HydrationData?): Boolean {
-        val tagName = element.tagName.lowercase()
-
-        // Verify the callback exists in our hydration data
-        if (hydrationData?.callbacks?.contains(callbackId) == true) {
-            SummonLogger.log("Callback $callbackId found in hydration data, adding event listener...")
-
-            element.addEventListener("click", { event ->
-                SummonLogger.log("CLICK EVENT TRIGGERED for callbackId: $callbackId")
-                event.preventDefault()
-                handleClick(callbackId)
-            })
-
-            SummonLogger.log("Event listener added successfully for: $callbackId")
-            return true
-        } else {
-            SummonLogger.warn("Callback not found in hydration data: $callbackId")
-            if (hydrationData == null) {
-                SummonLogger.warn("  - Hydration data is null")
-            } else {
-                SummonLogger.warn("  - Available callbacks: ${hydrationData.callbacks}")
-            }
-            return false
         }
     }
 

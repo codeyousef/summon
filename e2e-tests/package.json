@@ -10,7 +10,11 @@
     "test:smoke": "BASE_URL=http://localhost:8080 npx playwright test tests/smoke.spec.ts",
     "test:all": "ts-node run-e2e.ts",
     "test:report": "npx playwright show-report",
-    "install:browsers": "npx playwright install"
+    "install:browsers": "npx playwright install",
+    "test:perf": "BASE_URL=http://localhost:8080 npx playwright test --config=playwright.perf.config.ts",
+    "test:perf:vitals": "BASE_URL=http://localhost:8080 npx playwright test --config=playwright.perf.config.ts tests/performance/core-web-vitals.spec.ts",
+    "test:perf:hydration": "BASE_URL=http://localhost:8080 npx playwright test --config=playwright.perf.config.ts tests/performance/hydration-metrics.spec.ts",
+    "test:perf:tbt": "BASE_URL=http://localhost:8080 npx playwright test --config=playwright.perf.config.ts tests/performance/tbt-tti.spec.ts"
   },
   "keywords": [],
   "author": "",

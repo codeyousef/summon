@@ -667,7 +667,6 @@ actual open class PlatformRenderer {
 
     <!-- Preload hydration resources for better performance -->
     <link rel="preload" href="/summon-hydration.js" as="script">
-    <link rel="preload" href="/summon-hydration.wasm" as="fetch" type="application/wasm" crossorigin>
 </head>
 <body>
     <!-- Server-rendered content with hydration markers -->
@@ -707,21 +706,13 @@ actual open class PlatformRenderer {
 
                         // Preload appropriate bundle based on browser support
                         if (typeof WebAssembly === 'object' && WebAssembly.instantiate && isModernBrowser) {
-                            // Modern browser with WASM support - preload WASM bundle
+                            // Modern browser with WASM support - preload WASM loader script
+                            // Note: We don't preload the .wasm file because webpack uses hashed filenames
                             const wasmPreload = document.createElement('link');
                             wasmPreload.rel = 'modulepreload';
                             wasmPreload.href = '/summon-hydration.wasm.js';
                             wasmPreload.as = 'script';
                             document.head.appendChild(wasmPreload);
-
-                            // Preload the WASM file itself
-                            const wasmFilePreload = document.createElement('link');
-                            wasmFilePreload.rel = 'preload';
-                            wasmFilePreload.href = '/summon-hydration.wasm';
-                            wasmFilePreload.as = 'fetch';
-                            wasmFilePreload.type = 'application/wasm';
-                            wasmFilePreload.crossOrigin = 'anonymous';
-                            document.head.appendChild(wasmFilePreload);
                         } else {
                             // Legacy browser - preload JS fallback
                             const jsPreload = document.createElement('link');
