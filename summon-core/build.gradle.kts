@@ -5,7 +5,7 @@ import java.util.*
 apply(from = "../version.gradle.kts")
 
 // Manual version override for now
-version = "0.5.4.1"
+version = "0.5.4.2"
 group = "codes.yousef"
 
 plugins {
@@ -135,11 +135,12 @@ kotlin {
         binaries.executable()
 
         // WASM production build compiler options (Kotlin 2.2.21+)
+        // Performance optimization: DCE and member name minification enabled by default
         compilerOptions {
             freeCompilerArgs.addAll(
-                "-Xwasm-debugger-custom-formatters", // Enable debugging support for production
-                "-Xir-dce=false",                     // Disable dead code elimination to prevent symbol issues
-                "-Xir-minimized-member-names=false"   // Keep member names for proper symbol resolution
+                "-Xwasm-debugger-custom-formatters" // Enable debugging support for production
+                // DCE and minimized member names are enabled by default in production mode
+                // Previously disabled flags removed: -Xir-dce=false, -Xir-minimized-member-names=false
             )
         }
     }
@@ -231,6 +232,8 @@ kotlin {
                 implementation(libs.kotlin.browser)
                 implementation(libs.kotlin.react.dom)
                 implementation(npm("core-js", libs.versions.coreJs.get()))
+                // Performance optimization: TerserPlugin for JS minification
+                implementation(devNpm("terser-webpack-plugin", "5.3.10"))
                 implementation(libs.kotlinx.coroutines.core.js)
                 implementation(libs.kotlinx.serialization.json.js)
                 implementation(libs.kotlin.stdlib.js)
@@ -926,3 +929,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest>().co
         }
     }
 }
+
+// Performance optimization: WASM optimization is handled by Kotlin compiler with DCE enabled
+// The default Kotlin 2.2.21 WASM optimizations are now enabled (DCE flags removed from compilerOptions)
+// Binaryen wasm-opt is applied automatically by the Kotlin Gradle plugin in production builds

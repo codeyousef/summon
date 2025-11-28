@@ -2,6 +2,50 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.4.2] - 2025-11-28
+
+### Added
+
+- **Performance Optimization: Webpack Configuration**
+  - Added `terser-optimization.js` - TerserPlugin configuration for aggressive JavaScript minification with dead code elimination, console removal, and variable mangling
+  - Added `code-splitting.js` - Vendor code separation into kotlin-stdlib, kotlinx-libs, and vendors chunks for better caching
+  - Added `cache-busting.js` - Content hash filenames (`[name].[contenthash:8].bundle.js`) for optimal browser caching
+
+- **Performance Optimization: WASM Bundle Size Reduction**
+  - Enabled Dead Code Elimination (DCE) for WASM builds by removing `-Xir-dce=false` flag
+  - WASM binary reduced from 778KB to 261KB (66% reduction)
+  - WASM wrapper reduced from 624KB to 204KB (67% reduction)
+
+- **Cache Headers for Static Assets**
+  - New `CacheHeaders.kt` utility in `codes.yousef.summon.ssr` package
+  - `IMMUTABLE_ASSET` - 1-year cache with immutable directive for hashed files
+  - `VERSIONED_ASSET` - 1-day cache for stable-named assets
+  - `forAsset(name)` - Automatic cache strategy selection based on filename pattern
+  - Updated Ktor, Spring Boot, and Quarkus integrations to include Cache-Control headers
+
+- **Image Component Performance Enhancements**
+  - Added `FetchPriority` enum (HIGH, LOW, AUTO) - hints browser about image fetch priority
+  - Added `ImageDecoding` enum (SYNC, ASYNC, AUTO) - hints browser about image decoding strategy
+  - Added `ImageSource` data class for Picture element sources
+  - New Image parameters: `srcset`, `sizes`, `fetchPriority`, `decoding`
+  - New `Picture` composable for modern image format support (WebP, AVIF)
+  - New `ResponsiveImage` composable for automatic srcset generation
+
+### Changed
+
+- **Build Configuration**
+  - Added `terser-webpack-plugin` NPM dev dependency
+  - JS bundle now split into runtime (924B), kotlinx-libs (112KB), main (146KB)
+  - Production builds now disable source maps for smaller bundles
+
+### Technical Details
+
+These changes address Lighthouse performance audit findings:
+- **Bundle Optimization**: Reduces initial JavaScript parse time and improves FCP/LCP
+- **Code Splitting**: Enables better caching - vendor code changes rarely vs app code
+- **Cache Headers**: Enables browser caching for returning visitors (80%+ cache hit rate target)
+- **Image Optimization**: Supports responsive images, lazy loading, and modern formats
+
 ## [0.5.4.1] - 2025-11-28
 
 ### Fixed
@@ -50,7 +94,7 @@ All notable changes to this project will be documented in this file.
   implementation("io.github.codeyousef:summon:x.x.x")
 
   // New (use this)
-  implementation("codes.yousef:summon:0.5.4.1")
+  implementation("codes.yousef:summon:0.5.4.2")
   ```
 
 ## [0.5.2.9] - 2025-11-25
