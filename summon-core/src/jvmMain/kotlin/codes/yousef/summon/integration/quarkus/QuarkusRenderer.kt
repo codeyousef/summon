@@ -196,6 +196,7 @@ class QuarkusRenderer(private val response: HttpServerResponse) {
         
         /**
          * Responds with a Summon asset from the library JAR.
+         * Includes appropriate Cache-Control headers for optimal caching.
          */
         private fun RoutingContext.respondSummonAsset(name: String, contentType: String) {
             val payload = loadSummonAsset(name)
@@ -203,6 +204,10 @@ class QuarkusRenderer(private val response: HttpServerResponse) {
                 response()
                     .setStatusCode(200)
                     .putHeader("Content-Type", contentType)
+                    .putHeader(
+                        codes.yousef.summon.ssr.CacheHeaders.Headers.CACHE_CONTROL,
+                        codes.yousef.summon.ssr.CacheHeaders.forAsset(name)
+                    )
                     .end(io.vertx.core.buffer.Buffer.buffer(payload))
             } else {
                 response()

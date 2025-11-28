@@ -246,6 +246,11 @@ class SpringBootRenderer {
             if (payload != null) {
                 response.status = HttpStatus.OK.value()
                 response.contentType = contentType
+                // Add cache headers for optimal performance
+                response.setHeader(
+                    codes.yousef.summon.ssr.CacheHeaders.Headers.CACHE_CONTROL,
+                    codes.yousef.summon.ssr.CacheHeaders.forAsset(assetName)
+                )
                 response.outputStream.use { it.write(payload) }
             } else {
                 response.status = HttpStatus.NOT_FOUND.value()
@@ -256,7 +261,8 @@ class SpringBootRenderer {
         
         /**
          * Returns a ResponseEntity for a Summon asset.
-         * 
+         * Includes appropriate Cache-Control headers for optimal caching.
+         *
          * Example usage:
          * ```kotlin
          * @GetMapping("/summon-hydration.js")
@@ -269,11 +275,15 @@ class SpringBootRenderer {
                 name.endsWith(".js") -> MediaType.parseMediaType("application/javascript")
                 else -> MediaType.APPLICATION_OCTET_STREAM
             }
-            
+
             val payload = loadSummonAsset(name)
             return if (payload != null) {
                 ResponseEntity.ok()
                     .contentType(contentType)
+                    .header(
+                        codes.yousef.summon.ssr.CacheHeaders.Headers.CACHE_CONTROL,
+                        codes.yousef.summon.ssr.CacheHeaders.forAsset(name)
+                    )
                     .body(payload)
             } else {
                 ResponseEntity.notFound().build()

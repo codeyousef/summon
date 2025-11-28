@@ -341,10 +341,16 @@ class KtorRenderer {
         
         /**
          * Loads and responds with a Summon asset from the library JAR resources.
+         * Includes appropriate Cache-Control headers for optimal caching.
          */
         private suspend fun ApplicationCall.respondSummonAsset(name: String, contentType: ContentType) {
             val payload = loadSummonAsset(name)
             if (payload != null) {
+                // Add cache headers for optimal performance
+                response.header(
+                    codes.yousef.summon.ssr.CacheHeaders.Headers.CACHE_CONTROL,
+                    codes.yousef.summon.ssr.CacheHeaders.forAsset(name)
+                )
                 respondBytes(payload, contentType)
             } else {
                 respondText(
