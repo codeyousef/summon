@@ -101,7 +101,7 @@ class LinkTest {
             ariaLabel: String?,
             ariaDescribedBy: String?,
             modifier: Modifier,
-            fallbackText: String?
+            content: @Composable () -> Unit
         ) {
             renderEnhancedLinkCalled = true
             lastHref = href
@@ -110,6 +110,9 @@ class LinkTest {
 
             // Extract onClick handler from modifier for testing
             capturedOnClickHandler = modifier.eventHandlers["click"]
+
+            // Execute content to allow Text rendering
+            content()
         }
 
         override fun renderText(text: String, modifier: Modifier) {

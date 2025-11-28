@@ -81,9 +81,9 @@ class LinkTest {
         var renderEnhancedLinkCalled = false
         var renderTextCallCount = 0
         var lastRenderedText: String? = null
-        var lastFallbackText: String? = null
+        var contentExecuted = false
 
-        // Implement renderEnhancedLink
+        // Implement renderEnhancedLink with content
         override fun renderEnhancedLink(
             href: String,
             target: String?,
@@ -91,7 +91,7 @@ class LinkTest {
             ariaLabel: String?,
             ariaDescribedBy: String?,
             modifier: Modifier,
-            fallbackText: String?
+            content: @Composable () -> Unit
         ) {
             renderEnhancedLinkCalled = true
             lastHref = href
@@ -100,7 +100,9 @@ class LinkTest {
             lastAriaLabel = ariaLabel
             lastAriaDescribedBy = ariaDescribedBy
             lastModifier = modifier
-            lastFallbackText = fallbackText
+            // Execute the content lambda to verify it's passed correctly
+            contentExecuted = true
+            content()
         }
 
         // --- Add No-Op implementations for ALL PlatformRenderer methods ---
@@ -344,7 +346,7 @@ class LinkTest {
     }
 
     @Test
-    fun linkSuppressesFallbackTextByDefault() {
+    fun linkPassesContentToRenderer() {
         val renderer = MockLinkRenderer()
         runComposableTest(renderer) {
             Link(href = "/docs") {
@@ -352,22 +354,8 @@ class LinkTest {
             }
         }
 
-        assertNull(renderer.lastFallbackText)
-    }
-
-    @Test
-    fun linkAllowsExplicitFallbackText() {
-        val renderer = MockLinkRenderer()
-        runComposableTest(renderer) {
-            Link(
-                href = "/about",
-                fallbackText = "About Summon"
-            ) {
-                Text("About Summon")
-            }
-        }
-
-        assertEquals("About Summon", renderer.lastFallbackText)
+        assertEquals(true, renderer.contentExecuted)
+        assertEquals("Docs", renderer.lastRenderedText)
     }
 
     @Test

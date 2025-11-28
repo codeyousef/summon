@@ -148,8 +148,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * @param dataHref Optional `data-href` override for analytics or hydration hooks.
  * @param dataAttributes Arbitrary `data-*` attributes applied to the anchor.
  * @param navigationMode Controls whether the browser should perform the navigation (`Native`) or defer to the hydration runtime (`Client`).
- * @param fallbackText Optional SSR fallback text rendered before custom content. Defaults to `null` to avoid duplicate labels.
- * @param content The composable content to display inside the link (e.g., Text, Icon).
+ * @param content The composable content to display inside the link (e.g., Text, Icon). This content is rendered inside the `<a>` tag.
  *
  * @see Text for link text content
  * @see Button for button-style navigation
@@ -194,7 +193,6 @@ fun Link(
     dataHref: String? = null,
     dataAttributes: Map<String, String> = emptyMap(),
     navigationMode: LinkNavigationMode = LinkNavigationMode.Native,
-    fallbackText: String? = null,
     content: @Composable () -> Unit
 ) {
     val composer = CompositionLocal.currentComposer
@@ -244,7 +242,7 @@ fun Link(
     if (composer?.inserting == true) {
         val renderer = LocalPlatformRenderer.current
 
-        // Use the enhanced link renderer with accessibility attributes
+        // Use the enhanced link renderer with content inside the <a> tag
         renderer.renderEnhancedLink(
             href = resolvedHref,
             target = target,
@@ -252,12 +250,9 @@ fun Link(
             ariaLabel = ariaLabel,
             ariaDescribedBy = ariaDescribedBy,
             modifier = finalModifier,
-            fallbackText = fallbackText
+            content = content
         )
     }
-
-    // Execute the content lambda within the Link scope
-    content()
 
     composer?.endNode() // End Link node
 }
@@ -278,8 +273,7 @@ fun AnchorLink(
     ariaDescribedBy: String? = null,
     dataHref: String? = href,
     dataAttributes: Map<String, String> = emptyMap(),
-    navigationMode: LinkNavigationMode = LinkNavigationMode.Native,
-    fallbackText: String? = null
+    navigationMode: LinkNavigationMode = LinkNavigationMode.Native
 ) {
     Link(
         href = href,
@@ -292,8 +286,7 @@ fun AnchorLink(
         id = id,
         dataHref = dataHref,
         dataAttributes = dataAttributes,
-        navigationMode = navigationMode,
-        fallbackText = fallbackText
+        navigationMode = navigationMode
     ) {
         Text(label)
     }
@@ -314,8 +307,7 @@ fun ExternalLink(
     href: String,
     modifier: Modifier = Modifier(),
     noFollow: Boolean = false,
-    navigationMode: LinkNavigationMode = LinkNavigationMode.Native,
-    fallbackText: String? = null
+    navigationMode: LinkNavigationMode = LinkNavigationMode.Native
 ) {
     Link(
         href = href,
@@ -323,8 +315,7 @@ fun ExternalLink(
         target = "_blank",
         isExternal = true,
         isNoFollow = noFollow,
-        navigationMode = navigationMode,
-        fallbackText = fallbackText
+        navigationMode = navigationMode
     ) {
         Text(text) // Pass text as content
     }
@@ -360,8 +351,7 @@ fun ButtonLink(
     ariaDescribedBy: String? = null,
     dataHref: String? = href,
     dataAttributes: Map<String, String> = emptyMap(),
-    navigationMode: LinkNavigationMode = LinkNavigationMode.Native,
-    fallbackText: String? = null
+    navigationMode: LinkNavigationMode = LinkNavigationMode.Native
 ) {
     Link(
         href = href,
@@ -374,8 +364,7 @@ fun ButtonLink(
         id = id,
         dataHref = dataHref,
         dataAttributes = dataAttributes,
-        navigationMode = navigationMode,
-        fallbackText = fallbackText
+        navigationMode = navigationMode
     ) {
         Text(label) // Pass text as content
     }

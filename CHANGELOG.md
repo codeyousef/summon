@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.4.1] - 2025-11-28
+
+### Fixed
+
+- **Link Component Content Rendering**: Fixed `Link` component to properly render content inside the `<a>` tag. Previously, `content()` was called separately after `renderEnhancedLink` closed the anchor, causing link content (text, icons, etc.) to appear outside the clickable link area. Now `Link` passes its content lambda directly to the renderer for correct HTML structure.
+
+### Changed
+
+- **Removed fallbackText Parameter**: The `fallbackText` parameter has been removed from `Link`, `AnchorLink`, `ExternalLink`, and `ButtonLink` functions as it is no longer needed. Use the `content` lambda to render any content inside links.
+
 ## [0.5.4.0] - 2025-11-27
 
 ### Added
@@ -40,7 +50,7 @@ All notable changes to this project will be documented in this file.
   implementation("io.github.codeyousef:summon:x.x.x")
 
   // New (use this)
-  implementation("codes.yousef:summon:0.5.4.0")
+  implementation("codes.yousef:summon:0.5.4.1")
   ```
 
 ## [0.5.2.9] - 2025-11-25
