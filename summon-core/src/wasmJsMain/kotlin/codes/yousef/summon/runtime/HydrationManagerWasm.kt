@@ -3,10 +3,15 @@ package codes.yousef.summon.runtime
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.state.MutableState
 import codes.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.hydration.HydrationScheduler
+import codes.yousef.summon.hydration.HydrationPriority
+import codes.yousef.summon.hydration.SimpleHydrationTask
 
 /**
  * WASM implementation of HydrationManager for runtime.
  * This class manages server-rendered component hydration for client-side interactivity.
+ *
+ * Uses HydrationScheduler for non-blocking hydration that doesn't block the main thread.
  */
 actual class HydrationManager actual constructor() {
     private val registeredComponents = mutableMapOf<String, HydrationInfo>()
@@ -14,6 +19,12 @@ actual class HydrationManager actual constructor() {
     private val hydratedElements = mutableSetOf<String>()
     private var componentIdCounter = 0
     private var hydrationMarkerCounter = 0
+    private val scheduler = HydrationScheduler.instance
+
+    /**
+     * Enable/disable verbose logging.
+     */
+    var enableLogging = false
 
     actual fun registerComponent(
         elementId: String,
@@ -38,26 +49,91 @@ actual class HydrationManager actual constructor() {
         }
     }
 
+    /**
+     * Hydrate all registered components using non-blocking scheduling.
+     *
+     * Components are scheduled based on their priority (viewport visibility).
+     * Critical and visible components are hydrated first, deferred components later.
+     */
     actual fun hydrateAll() {
-        safeLog("Starting hydration of ${registeredComponents.size} components")
+        safeLog("Scheduling hydration of ${registeredComponents.size} components (non-blocking)")
 
-        var successCount = 0
-        var failureCount = 0
+        // Configure scheduler logging
+        scheduler.enableLogging = enableLogging
+
+        var scheduledCount = 0
 
         registeredComponents.forEach { (elementId, info) ->
-            try {
-                if (hydrateComponent(elementId)) {
-                    successCount++
-                } else {
-                    failureCount++
-                }
-            } catch (e: Exception) {
-                safeError("Failed to hydrate component $elementId: ${e.message}")
-                failureCount++
-            }
+            // Determine priority based on element visibility
+            val priority = determineComponentPriority(elementId)
+
+            scheduler.scheduleTask(SimpleHydrationTask(
+                id = "component-$elementId",
+                priority = priority
+            ) {
+                hydrateComponent(elementId)
+            })
+
+            scheduledCount++
+            safeLog("Scheduled component hydration: $elementId (priority: $priority)")
         }
 
-        safeLog("Hydration complete: $successCount succeeded, $failureCount failed")
+        // Set up completion callback
+        scheduler.onAllTasksComplete = {
+            val hydratedCount = hydratedElements.size
+            val failedCount = registeredComponents.size - hydratedCount
+            safeLog("Hydration complete: $hydratedCount succeeded, $failedCount failed (non-blocking)")
+        }
+
+        // Start the scheduler
+        scheduler.start()
+
+        safeLog("Scheduled $scheduledCount components for hydration")
+    }
+
+    /**
+     * Determine hydration priority based on element's viewport visibility.
+     */
+    private fun determineComponentPriority(elementId: String): HydrationPriority {
+        try {
+            val element = DOMProvider.document.getElementById(elementId) ?: return HydrationPriority.VISIBLE
+
+            // Check for explicit priority attribute
+            val explicitPriority = element.getAttribute(HydrationPriority.ATTRIBUTE_NAME)
+            if (explicitPriority != null) {
+                return HydrationPriority.fromString(explicitPriority)
+            }
+
+            // Check if element is in viewport using getBoundingClientRect
+            val rect = element.getBoundingClientRect()
+            val viewportHeight = kotlinx.browser.window.innerHeight.toDouble()
+            val viewportWidth = kotlinx.browser.window.innerWidth.toDouble()
+
+            // Element is visible if any part is in viewport
+            val isInViewport = rect.top < viewportHeight &&
+                    rect.bottom > 0 &&
+                    rect.left < viewportWidth &&
+                    rect.right > 0
+
+            if (isInViewport) {
+                return HydrationPriority.VISIBLE
+            }
+
+            // Element is near viewport (within 200px)
+            val nearThreshold = 200.0
+            val isNearViewport = rect.top < viewportHeight + nearThreshold &&
+                    rect.bottom > -nearThreshold
+
+            if (isNearViewport) {
+                return HydrationPriority.NEAR
+            }
+
+            // Element is far from viewport
+            return HydrationPriority.DEFERRED
+        } catch (e: Throwable) {
+            // If we can't determine position, use VISIBLE as safe default
+            return HydrationPriority.VISIBLE
+        }
     }
 
     actual fun hydrateComponent(elementId: String): Boolean {

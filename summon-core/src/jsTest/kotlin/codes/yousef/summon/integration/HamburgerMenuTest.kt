@@ -38,15 +38,20 @@ class HamburgerMenuTest {
         container = document.createElement("div") as HTMLElement
         container.id = "hamburger-test-root"
         document.body?.appendChild(container)
-        
+
         // Reset and initialize GlobalEventListener for event delegation tests
         GlobalEventListener.reset()
         GlobalEventListener.init()
+
+        // Enable sync mode for ClientDispatcher to ensure DOM changes are immediate
+        ClientDispatcher.syncMode = true
     }
 
     @AfterTest
     fun tearDown() {
         container.parentElement?.removeChild(container)
+        // Reset sync mode to default after tests
+        ClientDispatcher.syncMode = false
     }
 
     @Test
