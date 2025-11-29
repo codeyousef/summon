@@ -1192,6 +1192,16 @@ public final class codes/yousef/summon/components/auth/SecuredComponent {
 	public static synthetic fun withSecurityRequirements$default (Lcodes/yousef/summon/components/auth/SecuredComponent;ZLjava/util/Set;Ljava/util/Set;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
 }
 
+public final class codes/yousef/summon/components/display/FetchPriority : java/lang/Enum {
+	public static final field AUTO Lcodes/yousef/summon/components/display/FetchPriority;
+	public static final field HIGH Lcodes/yousef/summon/components/display/FetchPriority;
+	public static final field LOW Lcodes/yousef/summon/components/display/FetchPriority;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getValue ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Lcodes/yousef/summon/components/display/FetchPriority;
+	public static fun values ()[Lcodes/yousef/summon/components/display/FetchPriority;
+}
+
 public final class codes/yousef/summon/components/display/IconDefaults {
 	public static final field INSTANCE Lcodes/yousef/summon/components/display/IconDefaults;
 	public final fun Add (Lcodes/yousef/summon/modifier/Modifier;)V
@@ -1243,9 +1253,19 @@ public final class codes/yousef/summon/components/display/IconType : java/lang/E
 	public static fun values ()[Lcodes/yousef/summon/components/display/IconType;
 }
 
+public final class codes/yousef/summon/components/display/ImageDecoding : java/lang/Enum {
+	public static final field ASYNC Lcodes/yousef/summon/components/display/ImageDecoding;
+	public static final field AUTO Lcodes/yousef/summon/components/display/ImageDecoding;
+	public static final field SYNC Lcodes/yousef/summon/components/display/ImageDecoding;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getValue ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Lcodes/yousef/summon/components/display/ImageDecoding;
+	public static fun values ()[Lcodes/yousef/summon/components/display/ImageDecoding;
+}
+
 public final class codes/yousef/summon/components/display/ImageKt {
-	public static final fun Image (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Lcodes/yousef/summon/components/display/ImageLoading;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;)V
-	public static synthetic fun Image$default (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Lcodes/yousef/summon/components/display/ImageLoading;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+	public static final fun Image (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Lcodes/yousef/summon/components/display/ImageLoading;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/components/display/FetchPriority;Lcodes/yousef/summon/components/display/ImageDecoding;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;)V
+	public static synthetic fun Image$default (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Lcodes/yousef/summon/components/display/ImageLoading;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/components/display/FetchPriority;Lcodes/yousef/summon/components/display/ImageDecoding;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
 }
 
 public final class codes/yousef/summon/components/display/ImageLoading : java/lang/Enum {
@@ -1256,6 +1276,31 @@ public final class codes/yousef/summon/components/display/ImageLoading : java/la
 	public final fun getValue ()Ljava/lang/String;
 	public static fun valueOf (Ljava/lang/String;)Lcodes/yousef/summon/components/display/ImageLoading;
 	public static fun values ()[Lcodes/yousef/summon/components/display/ImageLoading;
+}
+
+public final class codes/yousef/summon/components/display/ImageSource {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/components/display/ImageSource;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/components/display/ImageSource;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/components/display/ImageSource;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMedia ()Ljava/lang/String;
+	public final fun getSizes ()Ljava/lang/String;
+	public final fun getSrcset ()Ljava/lang/String;
+	public final fun getType ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/display/PictureKt {
+	public static final fun Picture (Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/components/display/ImageLoading;Lcodes/yousef/summon/components/display/FetchPriority;Lcodes/yousef/summon/components/display/ImageDecoding;)V
+	public static synthetic fun Picture$default (Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/components/display/ImageLoading;Lcodes/yousef/summon/components/display/FetchPriority;Lcodes/yousef/summon/components/display/ImageDecoding;ILjava/lang/Object;)V
+	public static final fun ResponsiveImage (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/components/display/ImageLoading;Lcodes/yousef/summon/components/display/FetchPriority;ZZ)V
+	public static synthetic fun ResponsiveImage$default (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/components/display/ImageLoading;Lcodes/yousef/summon/components/display/FetchPriority;ZZILjava/lang/Object;)V
 }
 
 public final class codes/yousef/summon/components/display/RichTextKt {
@@ -2636,21 +2681,21 @@ public final class codes/yousef/summon/components/navigation/DropdownTrigger : j
 }
 
 public final class codes/yousef/summon/components/navigation/HamburgerMenuKt {
-	public static final fun HamburgerMenu (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
-	public static final fun HamburgerMenu (Lcodes/yousef/summon/modifier/Modifier;ZLkotlin/jvm/functions/Function0;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
-	public static synthetic fun HamburgerMenu$default (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
-	public static synthetic fun HamburgerMenu$default (Lcodes/yousef/summon/modifier/Modifier;ZLkotlin/jvm/functions/Function0;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+	public static final fun HamburgerMenu (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
+	public static final fun HamburgerMenu (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/Modifier;ZLkotlin/jvm/functions/Function0;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
+	public static synthetic fun HamburgerMenu$default (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+	public static synthetic fun HamburgerMenu$default (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/Modifier;ZLkotlin/jvm/functions/Function0;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
 }
 
 public final class codes/yousef/summon/components/navigation/LinkKt {
-	public static final fun AnchorLink (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Lcodes/yousef/summon/components/navigation/LinkNavigationMode;Ljava/lang/String;)V
-	public static synthetic fun AnchorLink$default (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Lcodes/yousef/summon/components/navigation/LinkNavigationMode;Ljava/lang/String;ILjava/lang/Object;)V
-	public static final fun ButtonLink (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Lcodes/yousef/summon/components/navigation/LinkNavigationMode;Ljava/lang/String;)V
-	public static synthetic fun ButtonLink$default (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Lcodes/yousef/summon/components/navigation/LinkNavigationMode;Ljava/lang/String;ILjava/lang/Object;)V
-	public static final fun ExternalLink (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ZLcodes/yousef/summon/components/navigation/LinkNavigationMode;Ljava/lang/String;)V
-	public static synthetic fun ExternalLink$default (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ZLcodes/yousef/summon/components/navigation/LinkNavigationMode;Ljava/lang/String;ILjava/lang/Object;)V
-	public static final fun Link (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Lcodes/yousef/summon/components/navigation/LinkNavigationMode;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
-	public static synthetic fun Link$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Lcodes/yousef/summon/components/navigation/LinkNavigationMode;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+	public static final fun AnchorLink (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Lcodes/yousef/summon/components/navigation/LinkNavigationMode;)V
+	public static synthetic fun AnchorLink$default (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Lcodes/yousef/summon/components/navigation/LinkNavigationMode;ILjava/lang/Object;)V
+	public static final fun ButtonLink (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Lcodes/yousef/summon/components/navigation/LinkNavigationMode;)V
+	public static synthetic fun ButtonLink$default (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Lcodes/yousef/summon/components/navigation/LinkNavigationMode;ILjava/lang/Object;)V
+	public static final fun ExternalLink (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ZLcodes/yousef/summon/components/navigation/LinkNavigationMode;)V
+	public static synthetic fun ExternalLink$default (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ZLcodes/yousef/summon/components/navigation/LinkNavigationMode;ILjava/lang/Object;)V
+	public static final fun Link (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Lcodes/yousef/summon/components/navigation/LinkNavigationMode;Lkotlin/jvm/functions/Function0;)V
+	public static synthetic fun Link$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Lcodes/yousef/summon/components/navigation/LinkNavigationMode;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
 }
 
 public final class codes/yousef/summon/components/navigation/LinkNavigationMode : java/lang/Enum {
@@ -3919,9 +3964,104 @@ public final class codes/yousef/summon/focus/NavigationState {
 	public final fun getCurrentFocusIndex ()Lcodes/yousef/summon/state/SummonMutableState;
 }
 
+public final class codes/yousef/summon/hydration/CapturedEvent {
+	public static final field Companion Lcodes/yousef/summon/hydration/CapturedEvent$Companion;
+	public static final field DATA_ALT_KEY Ljava/lang/String;
+	public static final field DATA_BUTTON Ljava/lang/String;
+	public static final field DATA_CHECKED Ljava/lang/String;
+	public static final field DATA_CLIENT_X Ljava/lang/String;
+	public static final field DATA_CLIENT_Y Ljava/lang/String;
+	public static final field DATA_CTRL_KEY Ljava/lang/String;
+	public static final field DATA_META_KEY Ljava/lang/String;
+	public static final field DATA_SHIFT_KEY Ljava/lang/String;
+	public static final field DATA_VALUE Ljava/lang/String;
+	public static final field DEFAULT_MAX_AGE_MS J
+	public static final field TYPE_BLUR Ljava/lang/String;
+	public static final field TYPE_CHANGE Ljava/lang/String;
+	public static final field TYPE_CLICK Ljava/lang/String;
+	public static final field TYPE_FOCUS Ljava/lang/String;
+	public static final field TYPE_INPUT Ljava/lang/String;
+	public static final field TYPE_SUBMIT Ljava/lang/String;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;JLjava/util/Map;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;JLjava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()J
+	public final fun component4 ()Ljava/util/Map;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;JLjava/util/Map;)Lcodes/yousef/summon/hydration/CapturedEvent;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/hydration/CapturedEvent;Ljava/lang/String;Ljava/lang/String;JLjava/util/Map;ILjava/lang/Object;)Lcodes/yousef/summon/hydration/CapturedEvent;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getData ()Ljava/util/Map;
+	public final fun getTargetId ()Ljava/lang/String;
+	public final fun getTimestamp ()J
+	public final fun getType ()Ljava/lang/String;
+	public fun hashCode ()I
+	public final fun isStale (JJ)Z
+	public static synthetic fun isStale$default (Lcodes/yousef/summon/hydration/CapturedEvent;JJILjava/lang/Object;)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/hydration/CapturedEvent$Companion {
+}
+
+public final class codes/yousef/summon/hydration/EventReplayResult : java/lang/Enum {
+	public static final field ERROR Lcodes/yousef/summon/hydration/EventReplayResult;
+	public static final field STALE Lcodes/yousef/summon/hydration/EventReplayResult;
+	public static final field SUCCESS Lcodes/yousef/summon/hydration/EventReplayResult;
+	public static final field TARGET_NOT_FOUND Lcodes/yousef/summon/hydration/EventReplayResult;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcodes/yousef/summon/hydration/EventReplayResult;
+	public static fun values ()[Lcodes/yousef/summon/hydration/EventReplayResult;
+}
+
+public final class codes/yousef/summon/hydration/HydrationPriority : java/lang/Enum {
+	public static final field ATTRIBUTE_NAME Ljava/lang/String;
+	public static final field CRITICAL Lcodes/yousef/summon/hydration/HydrationPriority;
+	public static final field Companion Lcodes/yousef/summon/hydration/HydrationPriority$Companion;
+	public static final field DEFERRED Lcodes/yousef/summon/hydration/HydrationPriority;
+	public static final field NEAR Lcodes/yousef/summon/hydration/HydrationPriority;
+	public static final field VISIBLE Lcodes/yousef/summon/hydration/HydrationPriority;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getValue ()I
+	public static fun valueOf (Ljava/lang/String;)Lcodes/yousef/summon/hydration/HydrationPriority;
+	public static fun values ()[Lcodes/yousef/summon/hydration/HydrationPriority;
+}
+
+public final class codes/yousef/summon/hydration/HydrationPriority$Companion {
+	public final fun fromString (Ljava/lang/String;)Lcodes/yousef/summon/hydration/HydrationPriority;
+}
+
+public abstract interface class codes/yousef/summon/hydration/HydrationTask {
+	public abstract fun execute ()Z
+	public abstract fun getId ()Ljava/lang/String;
+	public abstract fun getPriority ()Lcodes/yousef/summon/hydration/HydrationPriority;
+	public fun onComplete ()V
+	public fun onError (Ljava/lang/Throwable;)V
+}
+
+public final class codes/yousef/summon/hydration/HydrationTask$DefaultImpls {
+	public static fun onComplete (Lcodes/yousef/summon/hydration/HydrationTask;)V
+	public static fun onError (Lcodes/yousef/summon/hydration/HydrationTask;Ljava/lang/Throwable;)V
+}
+
+public final class codes/yousef/summon/hydration/HydrationTaskKt {
+	public static final fun hydrationTask (Ljava/lang/String;Lcodes/yousef/summon/hydration/HydrationPriority;Lkotlin/jvm/functions/Function0;)Lcodes/yousef/summon/hydration/HydrationTask;
+	public static synthetic fun hydrationTask$default (Ljava/lang/String;Lcodes/yousef/summon/hydration/HydrationPriority;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Lcodes/yousef/summon/hydration/HydrationTask;
+}
+
 public final class codes/yousef/summon/hydration/ServerStateEncoder {
 	public static final field INSTANCE Lcodes/yousef/summon/hydration/ServerStateEncoder;
 	public final fun getJson ()Lkotlinx/serialization/json/Json;
+}
+
+public final class codes/yousef/summon/hydration/SimpleHydrationTask : codes/yousef/summon/hydration/HydrationTask {
+	public fun <init> (Ljava/lang/String;Lcodes/yousef/summon/hydration/HydrationPriority;Lkotlin/jvm/functions/Function0;)V
+	public synthetic fun <init> (Ljava/lang/String;Lcodes/yousef/summon/hydration/HydrationPriority;Lkotlin/jvm/functions/Function0;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun execute ()Z
+	public fun getId ()Ljava/lang/String;
+	public fun getPriority ()Lcodes/yousef/summon/hydration/HydrationPriority;
+	public fun onComplete ()V
+	public fun onError (Ljava/lang/Throwable;)V
 }
 
 public final class codes/yousef/summon/hydration/SummonTagConsumer : kotlinx/html/TagConsumer {
@@ -4122,10 +4262,10 @@ public final class codes/yousef/summon/integration/ktor/KtorRenderer {
 public final class codes/yousef/summon/integration/ktor/KtorRenderer$Companion {
 	public final fun respondSummon (Lio/ktor/server/application/ApplicationCall;Ljava/lang/String;Lio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun respondSummon$default (Lcodes/yousef/summon/integration/ktor/KtorRenderer$Companion;Lio/ktor/server/application/ApplicationCall;Ljava/lang/String;Lio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public final fun respondSummonHydrated (Lio/ktor/server/application/ApplicationCall;Lio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static synthetic fun respondSummonHydrated$default (Lcodes/yousef/summon/integration/ktor/KtorRenderer$Companion;Lio/ktor/server/application/ApplicationCall;Lio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public final fun respondSummonPage (Lio/ktor/server/application/ApplicationCall;Lio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static synthetic fun respondSummonPage$default (Lcodes/yousef/summon/integration/ktor/KtorRenderer$Companion;Lio/ktor/server/application/ApplicationCall;Lio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun respondSummonHydrated (Lio/ktor/server/application/ApplicationCall;Lio/ktor/http/HttpStatusCode;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun respondSummonHydrated$default (Lcodes/yousef/summon/integration/ktor/KtorRenderer$Companion;Lio/ktor/server/application/ApplicationCall;Lio/ktor/http/HttpStatusCode;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun respondSummonPage (Lio/ktor/server/application/ApplicationCall;Lio/ktor/http/HttpStatusCode;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun respondSummonPage$default (Lcodes/yousef/summon/integration/ktor/KtorRenderer$Companion;Lio/ktor/server/application/ApplicationCall;Lio/ktor/http/HttpStatusCode;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public final fun summon (Lio/ktor/server/routing/Route;Ljava/lang/String;Lio/ktor/http/HttpMethod;Ljava/lang/String;Lio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function0;)V
 	public static synthetic fun summon$default (Lcodes/yousef/summon/integration/ktor/KtorRenderer$Companion;Lio/ktor/server/routing/Route;Ljava/lang/String;Lio/ktor/http/HttpMethod;Ljava/lang/String;Lio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
 	public final fun summonCallbackHandler (Lio/ktor/server/routing/Route;)V
@@ -4546,7 +4686,8 @@ public final class codes/yousef/summon/integration/springboot/SpringBootRenderer
 
 public final class codes/yousef/summon/integration/springboot/SpringBootRenderer$Companion {
 	public final fun getCurrentRenderer ()Lcodes/yousef/summon/integration/springboot/SpringBootRenderer;
-	public final fun getSummonAsset (Ljava/lang/String;)Lorg/springframework/http/ResponseEntity;
+	public final fun getSummonAsset (Ljava/lang/String;Ljakarta/servlet/http/HttpServletRequest;)Lorg/springframework/http/ResponseEntity;
+	public static synthetic fun getSummonAsset$default (Lcodes/yousef/summon/integration/springboot/SpringBootRenderer$Companion;Ljava/lang/String;Ljakarta/servlet/http/HttpServletRequest;ILjava/lang/Object;)Lorg/springframework/http/ResponseEntity;
 	public final fun handleCallback (Ljava/lang/String;)Lorg/springframework/http/ResponseEntity;
 	public final fun handleSummonAsset (Ljakarta/servlet/http/HttpServletRequest;Ljakarta/servlet/http/HttpServletResponse;)V
 }
@@ -5599,6 +5740,9 @@ public final class codes/yousef/summon/modifier/Modifier {
 	public fun hashCode ()I
 	public final fun height (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public final fun hover (Ljava/util/Map;)Lcodes/yousef/summon/modifier/Modifier;
+	public final fun hydrationCritical ()Lcodes/yousef/summon/modifier/Modifier;
+	public final fun hydrationDeferred ()Lcodes/yousef/summon/modifier/Modifier;
+	public final fun hydrationPriority (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public final fun id (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public final fun margin (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public final fun margin (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
@@ -6839,6 +6983,39 @@ public final class codes/yousef/summon/runtime/HydrationManager {
 	public final fun restoreState (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)Lcodes/yousef/summon/state/MutableState;
 }
 
+public final class codes/yousef/summon/runtime/HydrationPerformanceReport {
+	public fun <init> (DLjava/util/Map;Ljava/util/List;Ljava/util/List;D)V
+	public final fun component1 ()D
+	public final fun component2 ()Ljava/util/Map;
+	public final fun component3 ()Ljava/util/List;
+	public final fun component4 ()Ljava/util/List;
+	public final fun component5 ()D
+	public final fun copy (DLjava/util/Map;Ljava/util/List;Ljava/util/List;D)Lcodes/yousef/summon/runtime/HydrationPerformanceReport;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/runtime/HydrationPerformanceReport;DLjava/util/Map;Ljava/util/List;Ljava/util/List;DILjava/lang/Object;)Lcodes/yousef/summon/runtime/HydrationPerformanceReport;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMetrics ()Ljava/util/List;
+	public final fun getPhases ()Ljava/util/Map;
+	public final fun getSummaries ()Ljava/util/List;
+	public final fun getTimestamp ()D
+	public final fun getTotalHydrationTime ()D
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/runtime/HydrationPhase : java/lang/Enum {
+	public static final field COMPLETE Lcodes/yousef/summon/runtime/HydrationPhase;
+	public static final field COMPONENT_HYDRATION Lcodes/yousef/summon/runtime/HydrationPhase;
+	public static final field DOM_READY Lcodes/yousef/summon/runtime/HydrationPhase;
+	public static final field EVENT_REPLAY Lcodes/yousef/summon/runtime/HydrationPhase;
+	public static final field EVENT_SYSTEM Lcodes/yousef/summon/runtime/HydrationPhase;
+	public static final field INITIALIZATION Lcodes/yousef/summon/runtime/HydrationPhase;
+	public static final field SCRIPT_LOAD Lcodes/yousef/summon/runtime/HydrationPhase;
+	public final fun getDisplayName ()Ljava/lang/String;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcodes/yousef/summon/runtime/HydrationPhase;
+	public static fun values ()[Lcodes/yousef/summon/runtime/HydrationPhase;
+}
+
 public final class codes/yousef/summon/runtime/ImmediateScheduler : codes/yousef/summon/runtime/RecompositionScheduler {
 	public fun <init> ()V
 	public fun scheduleRecomposition (Lkotlin/jvm/functions/Function0;)V
@@ -6894,6 +7071,47 @@ public final class codes/yousef/summon/runtime/JvmRecompositionSchedulerKt {
 	public static final fun createDefaultScheduler ()Lcodes/yousef/summon/runtime/RecompositionScheduler;
 }
 
+public final class codes/yousef/summon/runtime/MetricEntry {
+	public fun <init> (Ljava/lang/String;DDLcodes/yousef/summon/runtime/HydrationPhase;Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/lang/String;DDLcodes/yousef/summon/runtime/HydrationPhase;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()D
+	public final fun component3 ()D
+	public final fun component4 ()Lcodes/yousef/summon/runtime/HydrationPhase;
+	public final fun component5 ()Ljava/util/Map;
+	public final fun copy (Ljava/lang/String;DDLcodes/yousef/summon/runtime/HydrationPhase;Ljava/util/Map;)Lcodes/yousef/summon/runtime/MetricEntry;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/runtime/MetricEntry;Ljava/lang/String;DDLcodes/yousef/summon/runtime/HydrationPhase;Ljava/util/Map;ILjava/lang/Object;)Lcodes/yousef/summon/runtime/MetricEntry;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDuration ()D
+	public final fun getMetadata ()Ljava/util/Map;
+	public final fun getName ()Ljava/lang/String;
+	public final fun getPhase ()Lcodes/yousef/summon/runtime/HydrationPhase;
+	public final fun getStartTime ()D
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/runtime/MetricSummary {
+	public fun <init> (Ljava/lang/String;IDDDD)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()I
+	public final fun component3 ()D
+	public final fun component4 ()D
+	public final fun component5 ()D
+	public final fun component6 ()D
+	public final fun copy (Ljava/lang/String;IDDDD)Lcodes/yousef/summon/runtime/MetricSummary;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/runtime/MetricSummary;Ljava/lang/String;IDDDDILjava/lang/Object;)Lcodes/yousef/summon/runtime/MetricSummary;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAverageTime ()D
+	public final fun getCount ()I
+	public final fun getMaxTime ()D
+	public final fun getMinTime ()D
+	public final fun getName ()Ljava/lang/String;
+	public final fun getTotalTime ()D
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class codes/yousef/summon/runtime/NativeSelectOption {
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;ZZZ)V
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;ZZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -6912,6 +7130,42 @@ public final class codes/yousef/summon/runtime/NativeSelectOption {
 	public final fun isPlaceholder ()Z
 	public final fun isSelected ()Z
 	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/runtime/PerformanceConfig {
+	public static final field INSTANCE Lcodes/yousef/summon/runtime/PerformanceConfig;
+	public final fun getEnabled ()Z
+	public final fun getExposeToWindow ()Z
+	public final fun getMaxHistorySize ()I
+	public final fun setEnabled (Z)V
+	public final fun setExposeToWindow (Z)V
+	public final fun setMaxHistorySize (I)V
+}
+
+public final class codes/yousef/summon/runtime/PerformanceMetrics {
+	public static final field INSTANCE Lcodes/yousef/summon/runtime/PerformanceMetrics;
+	public final fun checkAndInitialize ()V
+	public final fun getMetrics ()Ljava/util/List;
+	public final fun getMetricsByPhase (Lcodes/yousef/summon/runtime/HydrationPhase;)Ljava/util/List;
+	public final fun getReport ()Lcodes/yousef/summon/runtime/HydrationPerformanceReport;
+	public final fun isEnabled ()Z
+	public final fun markEnd (Ljava/lang/String;)D
+	public final fun markHydrationComplete ()V
+	public final fun markStart (Ljava/lang/String;Lcodes/yousef/summon/runtime/HydrationPhase;)V
+	public static synthetic fun markStart$default (Lcodes/yousef/summon/runtime/PerformanceMetrics;Ljava/lang/String;Lcodes/yousef/summon/runtime/HydrationPhase;ILjava/lang/Object;)V
+	public final fun measure (Ljava/lang/String;Lcodes/yousef/summon/runtime/HydrationPhase;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public static synthetic fun measure$default (Lcodes/yousef/summon/runtime/PerformanceMetrics;Ljava/lang/String;Lcodes/yousef/summon/runtime/HydrationPhase;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun recordMetric (Ljava/lang/String;DLjava/lang/String;)V
+	public static synthetic fun recordMetric$default (Lcodes/yousef/summon/runtime/PerformanceMetrics;Ljava/lang/String;DLjava/lang/String;ILjava/lang/Object;)V
+	public final fun reset ()V
+}
+
+public final class codes/yousef/summon/runtime/PerformanceMetricsKt {
+	public static final fun perfMarkEnd (Ljava/lang/String;)D
+	public static final fun perfMarkStart (Ljava/lang/String;Lcodes/yousef/summon/runtime/HydrationPhase;)V
+	public static synthetic fun perfMarkStart$default (Ljava/lang/String;Lcodes/yousef/summon/runtime/HydrationPhase;ILjava/lang/Object;)V
+	public static final fun withPerfMetrics (Ljava/lang/String;Lcodes/yousef/summon/runtime/HydrationPhase;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public static synthetic fun withPerfMetrics$default (Ljava/lang/String;Lcodes/yousef/summon/runtime/HydrationPhase;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Object;
 }
 
 public class codes/yousef/summon/runtime/PlatformRenderer {
@@ -6945,15 +7199,21 @@ public class codes/yousef/summon/runtime/PlatformRenderer {
 	public fun renderColumn (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
 	public fun renderComposable (Lkotlin/jvm/functions/Function0;)V
 	public fun renderComposableRoot (Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
+	public fun renderComposableRootWithHydration (Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
 	public fun renderComposableRootWithHydration (Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
+	public fun renderComposableRootWithHydration (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
 	public fun renderComposableRootWithHydration (Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
+	public static synthetic fun renderComposableRootWithHydration$default (Lcodes/yousef/summon/runtime/PlatformRenderer;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun renderComposableRootWithHydration$default (Lcodes/yousef/summon/runtime/PlatformRenderer;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/String;
 	public fun renderDatePicker (Lkotlinx/datetime/LocalDate;Lkotlin/jvm/functions/Function1;ZLkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lcodes/yousef/summon/modifier/Modifier;)V
 	public static synthetic fun renderDatePicker$default (Lcodes/yousef/summon/runtime/PlatformRenderer;Lkotlinx/datetime/LocalDate;Lkotlin/jvm/functions/Function1;ZLkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
 	public fun renderDiv (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
 	public fun renderDivider (Lcodes/yousef/summon/modifier/Modifier;)V
 	public fun renderDropdownMenu (ZLkotlin/jvm/functions/Function0;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;)V
 	public fun renderEnhancedLink (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)V
+	public fun renderEnhancedLink (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;)V
 	public static synthetic fun renderEnhancedLink$default (Lcodes/yousef/summon/runtime/PlatformRenderer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;ILjava/lang/Object;)V
+	public static synthetic fun renderEnhancedLink$default (Lcodes/yousef/summon/runtime/PlatformRenderer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
 	public fun renderExpansionPanel (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
 	public fun renderFilePicker (Lkotlin/jvm/functions/Function1;ZZLjava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;)V
 	public fun renderFileUpload (Lkotlin/jvm/functions/Function1;Ljava/lang/String;ZZLjava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)Lkotlin/jvm/functions/Function0;
@@ -8139,6 +8399,23 @@ public final class codes/yousef/summon/seo/routes/TwitterCardsKt {
 	public static synthetic fun TwitterProductCard$default (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)V
 	public static final fun TwitterSite (Ljava/lang/String;)V
 	public static final fun TwitterTitle (Ljava/lang/String;)V
+}
+
+public final class codes/yousef/summon/ssr/CacheHeaders {
+	public static final field HTML_RESPONSE Ljava/lang/String;
+	public static final field IMMUTABLE_ASSET Ljava/lang/String;
+	public static final field INSTANCE Lcodes/yousef/summon/ssr/CacheHeaders;
+	public static final field NO_CACHE Ljava/lang/String;
+	public static final field VERSIONED_ASSET Ljava/lang/String;
+	public final fun forAsset (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/ssr/CacheHeaders$Headers {
+	public static final field CACHE_CONTROL Ljava/lang/String;
+	public static final field ETAG Ljava/lang/String;
+	public static final field INSTANCE Lcodes/yousef/summon/ssr/CacheHeaders$Headers;
+	public static final field LAST_MODIFIED Ljava/lang/String;
+	public static final field VARY Ljava/lang/String;
 }
 
 public final class codes/yousef/summon/ssr/ClientHydration {

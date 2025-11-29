@@ -254,13 +254,14 @@ class KtorRenderer {
         /**
          * Serves Summon hydration assets (JS, WASM) directly from the library JAR.
          * This removes the need for users to manually extract and serve static files.
-         * 
+         *
          * Assets are served at the following paths:
          * - `/summon-hydration.js` - JavaScript hydration client (for JS mode)
+         * - `/summon-bootloader.js` - Browser detection, script loading, and hydration initialization
          * - `/summon-hydration.wasm` - WebAssembly module (stable name)
          * - `/summon-hydration.wasm.js` - WASM loader script
          * - `/{hash}.wasm` - Hashed WASM files (webpack generates these with content hashes)
-         * 
+         *
          * Usage:
          * ```kotlin
          * routing {
@@ -272,6 +273,9 @@ class KtorRenderer {
         fun Route.summonStaticAssets() {
             get("/summon-hydration.js") {
                 call.respondSummonAsset("summon-hydration.js", ContentType.Application.JavaScript)
+            }
+            get("/summon-bootloader.js") {
+                call.respondSummonAsset("summon-bootloader.js", ContentType.Application.JavaScript)
             }
             get("/summon-hydration.wasm") {
                 call.respondSummonAsset("summon-hydration.wasm", ContentType("application", "wasm"))
@@ -292,6 +296,9 @@ class KtorRenderer {
             route("/summon-assets") {
                 get("/summon-hydration.js") {
                     call.respondSummonAsset("summon-hydration.js", ContentType.Application.JavaScript)
+                }
+                get("/summon-bootloader.js") {
+                    call.respondSummonAsset("summon-bootloader.js", ContentType.Application.JavaScript)
                 }
                 get("/summon-hydration.wasm") {
                     call.respondSummonAsset("summon-hydration.wasm", ContentType("application", "wasm"))
