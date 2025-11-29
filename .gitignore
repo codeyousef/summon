@@ -148,6 +148,7 @@ examples/wasm-seo-todo/.gradle/
 
 # Generated JS/WASM artifacts in source tree
 summon-core/src/jvmMain/resources/static/*.js
+!summon-core/src/jvmMain/resources/static/summon-bootloader.js
 summon-core/src/jvmMain/resources/static/*.wasm
 summon-core/src/jvmMain/resources/static/static/
 

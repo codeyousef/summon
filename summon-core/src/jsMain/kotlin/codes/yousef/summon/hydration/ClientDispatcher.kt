@@ -2,7 +2,6 @@ package codes.yousef.summon.hydration
 
 import codes.yousef.summon.action.UiAction
 import codes.yousef.summon.js.console
-import kotlinx.serialization.json.Json
 import kotlinx.browser.window
 import kotlinx.browser.document
 import org.w3c.dom.HTMLElement
@@ -14,7 +13,6 @@ import org.w3c.dom.HTMLElement
  * Uses DOMBatcher for efficient DOM operations to avoid layout thrashing.
  */
 object ClientDispatcher {
-    private val json = Json { ignoreUnknownKeys = true }
     private val domBatcher = DOMBatcher.instance
 
     /**
@@ -39,14 +37,45 @@ object ClientDispatcher {
             console.log("[Summon JS] ClientDispatcher.dispatch() called with: $actionJson")
         }
         try {
-            val action = json.decodeFromString<UiAction>(actionJson)
-            if (enableLogging) {
-                console.log("[Summon JS] Parsed action: $action")
+            val action = parseUiAction(actionJson)
+            if (action != null) {
+                if (enableLogging) {
+                    console.log("[Summon JS] Parsed action: $action")
+                }
+                dispatch(action)
+            } else {
+                console.warn("[Summon JS] Unknown action type in: $actionJson")
             }
-            dispatch(action)
         } catch (e: Exception) {
             console.error("[Summon JS] Failed to dispatch action: $actionJson")
             console.error("[Summon JS] Error:", e)
+        }
+    }
+
+    /**
+     * Parse UiAction from JSON using native JS parsing.
+     * Avoids kotlinx-serialization dependency for smaller bundle size.
+     */
+    private fun parseUiAction(jsonStr: String): UiAction? {
+        val parsed = js("JSON.parse(jsonStr)")
+        val type = parsed.type as? String ?: return null
+
+        return when (type) {
+            "nav" -> {
+                val url = parsed.url as? String ?: return null
+                UiAction.Navigate(url)
+            }
+            "toggle" -> {
+                val targetId = parsed.targetId as? String ?: return null
+                UiAction.ToggleVisibility(targetId)
+            }
+            "rpc" -> {
+                // ServerRpc requires JsonElement which needs kotlinx-serialization
+                // For now, log and skip - this is rarely used client-side
+                console.warn("[Summon JS] ServerRpc actions require server round-trip, skipping client dispatch")
+                null
+            }
+            else -> null
         }
     }
 

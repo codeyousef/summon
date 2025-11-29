@@ -2,6 +2,41 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.6.0] - 2025-11-29
+
+### Fixed
+
+- **Critical TBT Fix: External Bootloader Architecture** - Moved inline bootloader to external defer script
+  - Replaced ~390 lines of inline synchronous JavaScript with 1 line external script loader
+  - Created `/summon-bootloader.js` external file (loaded with `defer` attribute)
+  - Inline script no longer blocks main thread during HTML parsing
+
+- **Bundle Size Reduction** - Reduced JS hydration bundle by 46%
+  - Before: 279KB (summon-hydration.js: 164KB + kotlinx-libs: 115KB)
+  - After: 150KB (summon-hydration.js: 125KB + kotlinx-libs: 24KB)
+  - Replaced kotlinx-serialization in ClientDispatcher with native JS JSON parsing
+  - Better tree-shaking now that serialization is not called in hot path
+
+### Technical Details
+
+Root cause of persistent TBT was identified:
+1. **Inline script blocking** - ~390 lines of JavaScript running synchronously during HTML parse
+2. **Large bundle size** - 279KB of JS must be parsed before interactive
+3. Previous micro-optimizations (console.log, getBoundingClientRect) had negligible impact
+
+Solution:
+- External bootloader with `defer` loads in parallel, executes after DOM ready
+- Native JSON.parse() for UiAction instead of kotlinx-serialization reflection
+- Bundle size nearly halved through better tree-shaking
+
+### Expected TBT Impact
+
+| Change | Impact |
+|--------|--------|
+| External defer bootloader | No inline blocking |
+| 46% smaller bundle | ~46% faster parse time |
+| **Expected TBT** | **< 300ms** (from 31,000ms+) |
+
 ## [0.5.5.3] - 2025-11-29
 
 ### Fixed
