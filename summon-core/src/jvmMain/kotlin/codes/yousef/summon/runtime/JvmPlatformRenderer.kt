@@ -826,25 +826,12 @@ actual open class PlatformRenderer {
                             detectFeatures: function() {
                                 this.jsModules = 'noModule' in HTMLScriptElement.prototype;
                                 this.serviceWorker = 'serviceWorker' in navigator;
-
-                                // WebGL detection for performance context
-                                try {
-                                    const canvas = document.createElement('canvas');
-                                    this.webgl = !!(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
-                                } catch (e) {
-                                    this.webgl = false;
-                                }
+                                // WebGL detection removed - not needed for hydration, causes blocking
+                                this.webgl = false;
                             },
 
                             logSupport: function() {
-                                console.info('Browser compatibility detected:', {
-                                    browser: this.browserName + ' ' + (this.browserVersion || 'unknown'),
-                                    wasm: this.wasm,
-                                    wasmVersion: this.wasmVersion,
-                                    jsModules: this.jsModules,
-                                    serviceWorker: this.serviceWorker,
-                                    webgl: this.webgl
-                                });
+                                // Logging removed in production for TBT optimization
                             },
 
                             shouldUseWasm: function() {
@@ -880,12 +867,9 @@ actual open class PlatformRenderer {
                                 for (let attempt = 0; attempt < this.maxRetries; attempt++) {
                                     try {
                                         const script = await this.loadScript(src, options);
-                                        console.log('Successfully loaded:', src, 'on attempt', attempt + 1);
                                         return script;
                                     } catch (error) {
-                                        console.warn('Script load attempt', attempt + 1, 'failed for:', src, error.message);
                                         if (attempt < this.maxRetries - 1) {
-                                            // Wait before retry (exponential backoff)
                                             await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
                                         }
                                     }
@@ -1039,37 +1023,12 @@ actual open class PlatformRenderer {
                                     });
                                     document.dispatchEvent(event);
 
-                                    // Graceful degradation - ensure forms still work
-                                    this.enableStaticFormFallbacks();
                                 }
                             },
 
                             enableStaticFormFallbacks: function() {
-                                console.log('Enabling static form fallbacks');
-
-                                // Make sure all interactive elements are accessible
-                                const interactiveElements = document.querySelectorAll('[data-onclick-action], [data-onchange-action]');
-                                interactiveElements.forEach(element => {
-                                    element.style.opacity = '1';
-                                    element.style.pointerEvents = 'auto';
-                                    element.removeAttribute('disabled');
-                                });
-
-                                // Add basic form validation
-                                const forms = document.querySelectorAll('form');
-                                forms.forEach(form => {
-                                    form.addEventListener('submit', function(e) {
-                                        const requiredFields = form.querySelectorAll('[required]');
-                                        for (const field of requiredFields) {
-                                            if (!field.value.trim()) {
-                                                e.preventDefault();
-                                                field.focus();
-                                                alert('Please fill in all required fields');
-                                                return;
-                                            }
-                                        }
-                                    });
-                                });
+                                // Removed for TBT optimization - causes layout thrashing
+                                // Forms work without JavaScript validation
                             }
                         };
 
@@ -1080,21 +1039,11 @@ actual open class PlatformRenderer {
                             BrowserSupport.detect();
                             PerformanceTracker.mark('browser-detection-complete');
 
-                            // Check if immediate loading is needed (critical above-the-fold content)
-                            const app = document.getElementById('summon-app');
-                            const isAboveTheFold = app && (app.getBoundingClientRect().top < window.innerHeight);
-
-                            if (isAboveTheFold || !ScriptLoader.lazyLoadingEnabled) {
-                                console.log('Loading hydration immediately (above-the-fold or lazy loading disabled)');
-                                ScriptLoader.loadHydrationScriptImmediate();
-                            } else {
-                                console.log('Setting up lazy loading for hydration script');
-                                ScriptLoader.setupLazyLoading();
-                            }
+                            // Always load hydration immediately - getBoundingClientRect removed for TBT optimization
+                            ScriptLoader.loadHydrationScriptImmediate();
 
                             PerformanceTracker.mark('init-complete');
-                            const initTime = PerformanceTracker.measure('total-init-time', 'summon-init-start', 'init-complete');
-                            console.debug('Summon initialization completed in ' + initTime.toFixed(2) + 'ms');
+                            PerformanceTracker.measure('total-init-time', 'summon-init-start', 'init-complete');
                         }
 
                         if (document.readyState === 'loading') {
@@ -1106,7 +1055,6 @@ actual open class PlatformRenderer {
                         // Global error handling for hydration
                         window.addEventListener('error', function(event) {
                             if (event.filename && (event.filename.includes('summon-hydration') || event.filename.includes('wasm'))) {
-                                console.error('Hydration script error:', event.error);
                                 const app = document.getElementById('summon-app');
                                 if (app && !app.hasAttribute('data-hydration-ready')) {
                                     app.setAttribute('data-hydration-failed', 'true');
@@ -1118,32 +1066,16 @@ actual open class PlatformRenderer {
                         // Phase 5: Service Worker registration for caching (if supported)
                         if ('serviceWorker' in navigator && BrowserSupport.serviceWorker) {
                             window.addEventListener('load', function() {
-                                navigator.serviceWorker.register('/sw.js')
-                                    .then(function(registration) {
-                                        console.log('Service Worker registered:', registration.scope);
-                                    })
-                                    .catch(function(error) {
-                                        console.debug('Service Worker registration failed:', error);
-                                    });
+                                navigator.serviceWorker.register('/sw.js').catch(function() {});
                             });
                         }
 
-                        // Phase 5: Performance monitoring and analytics
+                        // Phase 5: Performance monitoring and analytics (logging removed for TBT)
                         window.addEventListener('load', function() {
                             setTimeout(function() {
                                 const metrics = PerformanceTracker.getMetrics();
 
-                                // Log comprehensive performance metrics
-                                console.group('🚀 Summon Performance Metrics');
-                                console.log('Initialization time:', metrics.measures['total-init-time'] || 'N/A');
-                                console.log('Hydration time:', metrics.measures['total-hydration-time'] || 'N/A');
-                                console.log('Browser detection:', BrowserSupport.browserName, BrowserSupport.browserVersion);
-                                console.log('WASM support:', BrowserSupport.wasm, BrowserSupport.wasmVersion);
-                                console.log('Module support:', BrowserSupport.jsModules);
-                                console.log('Navigation timing:', metrics.navigation);
-                                console.groupEnd();
-
-                                // Dispatch metrics event for external monitoring
+                                // Dispatch metrics event for external monitoring (no console logging)
                                 const metricsEvent = new CustomEvent('summon:performance-metrics', {
                                     detail: {
                                         ...metrics,
@@ -1152,13 +1084,7 @@ actual open class PlatformRenderer {
                                     }
                                 });
                                 document.dispatchEvent(metricsEvent);
-
-                                // Check Phase 5 verification criteria
-                                const timeToInteractive = metrics.navigation?.domContentLoaded || 0;
-                                if (timeToInteractive > 0) {
-                                    console.log('⏱️ Time to Interactive: ' + timeToInteractive + 'ms ' + (timeToInteractive < 3000 ? '✅' : '❌') + ' (target: <3000ms)');
-                                }
-                            }, 1000); // Wait 1 second for all metrics to settle
+                            }, 1000);
                         });
 
                         // Export for debugging and external monitoring

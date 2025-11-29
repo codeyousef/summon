@@ -101,9 +101,6 @@ object ClientDispatcher {
                 return@read
             }
 
-            currentDisplay = window.getComputedStyle(el!!).display
-            isCurrentlyHidden = currentDisplay == "none"
-
             // Find the trigger button that controls this element
             triggerButton = document.querySelector("[aria-controls='$targetId']") as? HTMLElement
             if (triggerButton != null) {
@@ -111,6 +108,13 @@ object ClientDispatcher {
                 if (isHamburger) {
                     iconSpan = triggerButton!!.querySelector(".material-icons") as? HTMLElement
                 }
+                // Use aria-expanded as source of truth (avoids getComputedStyle for TBT)
+                val ariaExpanded = triggerButton!!.getAttribute("aria-expanded")
+                isCurrentlyHidden = ariaExpanded != "true"
+            } else {
+                // Fall back to inline style check (no forced layout)
+                currentDisplay = el!!.style.display
+                isCurrentlyHidden = currentDisplay == "none" || currentDisplay.isNullOrEmpty()
             }
         }
 

@@ -97,17 +97,8 @@ object SummonHydrationClient {
                 SummonLogger.warn("No SSR root element found (id='summon-app' or [data-summon-hydration=\"root\"]). Hydration will still attach handlers to existing DOM but without a known root container.")
             }
 
-            // Hydrate all interactive elements (attach handlers to existing SSR DOM)
-            withPerfMetrics("hydrate-click-handlers", HydrationPhase.COMPONENT_HYDRATION) {
-                hydrateClickHandlers(hydrationData)
-            }
-            withPerfMetrics("hydrate-form-inputs", HydrationPhase.COMPONENT_HYDRATION) {
-                hydrateFormInputs()
-            }
-
-            // Verify hydration worked
-            val hydratedButtons = document.querySelectorAll("button[data-onclick-action=\"true\"]")
-            SummonLogger.log("Post-hydration: buttons with click handlers: ${hydratedButtons.length}")
+            // Note: GlobalEventListener handles all event binding via event delegation
+            // Deprecated hydrateClickHandlers/hydrateFormInputs removed for TBT optimization
 
             perfMarkEnd("startHydration")
             SummonLogger.log("Summon hydration completed successfully")

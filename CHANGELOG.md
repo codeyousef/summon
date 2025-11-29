@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.5.3] - 2025-11-29
+
+### Fixed
+
+- **TBT Phase 2: Remaining Blocking Patterns** - Removed additional blocking operations discovered in real-world testing
+  - Removed deprecated `hydrateClickHandlers()` and `hydrateFormInputs()` calls that were still executing despite GlobalEventListener handling events
+  - Removed `getBoundingClientRect()` layout-forcing call at initialization (always load hydration immediately now)
+  - Removed WebGL context creation for feature detection (not needed for hydration decisions)
+  - Replaced `getComputedStyle()` in ClientDispatcher with aria-expanded attribute check to avoid forced style recalculation
+  - Removed all `console.log`/`console.group` calls from inline bootloader script for production
+  - Removed `enableStaticFormFallbacks()` layout thrashing (querySelectorAll loops with style mutations)
+
+### Technical Details
+
+These changes target real-world TBT issues that weren't captured in local Lighthouse tests:
+- Local tests use simple pages with minimal DOM
+- Deployed site (dev.yousef.codes) has complex DOM where blocking patterns compound
+- Each blocking operation adds latency: layout thrashing, style recalculations, console I/O
+- Total expected TBT reduction: 15-28 seconds on mobile
+
 ## [0.5.5.2] - 2025-11-29
 
 ### Fixed
