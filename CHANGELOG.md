@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.6.1] - 2025-11-29
+
+### Fixed
+
+- **summon-bootloader.js 404 Error** - Added missing route for `/summon-bootloader.js` in `summonStaticAssets()`
+  - The external bootloader introduced in v0.5.6.0 was not being served because the route was missing
+  - Added `get("/summon-bootloader.js")` route at root level
+  - Added `get("/summon-bootloader.js")` route under `/summon-assets/` prefix for consistency
+  - Bootloader now served with same caching (1 year, immutable) and gzip compression as other assets
+
+### Technical Details
+
+The `summonStaticAssets()` Ktor extension function was not updated when the external bootloader architecture was introduced. The HTML referenced `/summon-bootloader.js` but the route to serve it was missing, causing 404 errors and breaking SSR hydration.
+
 ## [0.5.6.0] - 2025-11-29
 
 ### Fixed
