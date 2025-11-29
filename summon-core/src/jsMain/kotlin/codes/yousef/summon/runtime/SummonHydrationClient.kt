@@ -80,21 +80,6 @@ object SummonHydrationClient {
                 }
             }
 
-            // Check for button elements BEFORE hydration
-            val allButtons = document.querySelectorAll("button")
-            SummonLogger.log("Total buttons found on page: ${allButtons.length}")
-
-            val clickableButtons = document.querySelectorAll("button[data-onclick-action=\"true\"]")
-            SummonLogger.log("Buttons with data-onclick-action='true': ${clickableButtons.length}")
-
-            for (i in 0 until clickableButtons.length) {
-                val button = clickableButtons.item(i) as? org.w3c.dom.Element ?: continue
-                val callbackId = button.getAttribute("data-onclick-id")
-                val hasAction = button.getAttribute("data-onclick-action")
-                SummonLogger.log("Button $i: callbackId='$callbackId', hasAction='$hasAction'")
-                SummonLogger.log("Button $i HTML: ${button.outerHTML}")
-            }
-
             // Discover SSR root for proper hydration
             val rootElement: Element? =
                 document.getElementById("summon-app")

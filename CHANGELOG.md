@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.5.2] - 2025-11-29
+
+### Fixed
+
+- **Critical TBT (Total Blocking Time) Optimization** - Fixed catastrophic main-thread blocking causing 31,000ms+ TBT on mobile
+  - Removed 3-second artificial lazy loading timeout (reduced to 100ms)
+  - Added production logging mode - `SummonLogger` now only logs errors in production (non-localhost)
+  - Removed debug DOM queries that ran `querySelectorAll("button")` and serialized `outerHTML` on every page load
+  - Simplified WASM detection to avoid synchronous `WebAssembly.Module/Instance` creation that blocked main thread
+
+### Added
+
+- **Local Performance Testing** - `scripts/lighthouse-test.sh` for PageSpeed Insights-equivalent local testing
+  - Uses same throttling as PageSpeed Insights (4x CPU slowdown, Slow 4G for mobile)
+  - Enforces thresholds: TBT <300ms, Performance >80% mobile / >90% desktop
+  - Generates HTML reports to `lighthouse-reports/`
+  - Exit code 1 on failure for CI/pre-commit integration
+
+### Performance Results
+
+| Metric | Before | After |
+|--------|--------|-------|
+| Mobile TBT | 31,210ms | 0ms |
+| Mobile Performance | 47% | 100% |
+| Desktop TBT | 16,380ms | 0ms |
+| Desktop Performance | 59% | 100% |
+
 ## [0.5.5.0] - 2025-11-28
 
 ### Added

@@ -806,33 +806,20 @@ actual open class PlatformRenderer {
                             },
 
                             detectWasm: function() {
+                                // Fast, non-blocking WASM detection using feature checks only
+                                // Avoids synchronous WebAssembly.Module/Instance creation which blocks main thread
                                 try {
                                     if (typeof WebAssembly === "object" && typeof WebAssembly.instantiate === "function") {
-                                        // Test basic WASM support
-                                        const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
-                                        if (module instanceof WebAssembly.Module) {
-                                            const instance = new WebAssembly.Instance(module);
-                                            if (instance instanceof WebAssembly.Instance) {
-                                                this.wasm = true;
-                                                this.wasmVersion = 'mvp'; // Minimum Viable Product
+                                        this.wasm = true;
+                                        this.wasmVersion = typeof WebAssembly.Memory !== 'undefined' ? 'advanced' : 'mvp';
 
-                                                // Check for advanced WASM features
-                                                if (typeof WebAssembly.Memory !== 'undefined') {
-                                                    this.wasmVersion = 'advanced';
-                                                }
-
-                                                // Browser-specific WASM version checks
-                                                if (this.browserName === 'chrome' && this.browserVersion >= 119) {
-                                                    this.wasmVersion = 'optimized';
-                                                } else if (this.browserName === 'safari' && this.browserVersion < 15) {
-                                                    this.wasm = false; // Safari < 15 has WASM issues
-                                                }
-                                            }
+                                        // Browser-specific checks (Safari < 15 has WASM issues)
+                                        if (this.browserName === 'safari' && this.browserVersion < 15) {
+                                            this.wasm = false;
                                         }
                                     }
                                 } catch (e) {
                                     this.wasm = false;
-                                    console.debug('WASM detection failed:', e.message);
                                 }
                             },
 
@@ -933,13 +920,12 @@ actual open class PlatformRenderer {
 
                                 observer.observe(app);
 
-                                // Fallback: Load after 3 seconds regardless
+                                // Fallback: Load after 100ms regardless (reduced from 3s for better TBT)
                                 setTimeout(() => {
                                     if (!app.hasAttribute('data-hydration-loading')) {
-                                        console.log('Lazy loading timeout reached, loading hydration script');
                                         this.loadHydrationScriptImmediate();
                                     }
-                                }, 3000);
+                                }, 100);
                             },
 
                             // Phase 5: Dynamic bundle selection with optimization

@@ -155,3 +155,6 @@ summon-core/src/jvmMain/resources/static/static/
 e2e-tests/playwright-report/
 e2e-tests/test-results/
 e2e-tests/.playwright/
+
+# Lighthouse performance reports
+lighthouse-reports/
