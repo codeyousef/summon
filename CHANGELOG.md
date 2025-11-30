@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.6.2] - 2025-11-30
+
+### Fixed
+
+- **Toggle/Disclosure Buttons Not Working** - Fixed multiple issues preventing toggle actions from working
+  - Fixed inline bootloader script to handle `data-action` immediately without checking hydration state
+  - Fixed `GlobalEventListener` to dispatch `data-action` events immediately without buffering for hydration
+  - Fixed `toggleElementVisibility` to preserve original display value using `data-original-display` attribute
+  - Changed default display value from `"block"` to `"flex"` for layout containers
+  - Updated tests to match new display value behavior
+
+### Technical Details
+
+The toggle buttons (hamburger menu, disclosure) were not working due to three issues:
+1. The inline bootloader script was skipping `data-action` handling when `window.__SUMMON_HYDRATION_ACTIVE__` was true
+2. `GlobalEventListener` was buffering `data-action` events for non-hydrated elements instead of dispatching immediately
+3. `toggleElementVisibility` was defaulting to `display: block` instead of preserving the original computed display value
+
+All three issues have been fixed. The `data-action` pattern is now handled immediately client-side without any hydration state checks.
+
 ## [0.5.6.1] - 2025-11-29
 
 ### Fixed

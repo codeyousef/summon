@@ -60,6 +60,7 @@ object ClientDispatcher {
     /**
      * Toggles the visibility of an element and updates related accessibility attributes.
      * For hamburger menus, also updates the icon and aria-expanded state of the trigger button.
+     * For disclosure toggles, updates the +/- icon.
      *
      * Uses DOMBatcher to batch read and write operations separately,
      * preventing layout thrashing by ensuring all reads complete before writes.
@@ -69,7 +70,9 @@ object ClientDispatcher {
         var el: HTMLElement? = null
         var triggerButton: HTMLElement? = null
         var iconSpan: HTMLElement? = null
+        var disclosureIcon: HTMLElement? = null
         var currentDisplay: String? = null
+        var originalDisplay: String? = null
         var isCurrentlyHidden = false
         var isHamburger = false
 
@@ -81,15 +84,32 @@ object ClientDispatcher {
                 return@read
             }
 
-            currentDisplay = window.getComputedStyle(el!!).display
-            isCurrentlyHidden = currentDisplay == "none"
+            // Get computed display to check visibility and store original
+            val computedDisplay = window.getComputedStyle(el!!).display
+            currentDisplay = computedDisplay
+            isCurrentlyHidden = computedDisplay == "none"
+
+            // Check for stored original display value
+            originalDisplay = el!!.getAttribute("data-original-display")
+            if (originalDisplay == null && !isCurrentlyHidden) {
+                // Store original display value on first read when visible
+                originalDisplay = computedDisplay
+            }
 
             // Find the trigger button that controls this element
             triggerButton = document.querySelector("[aria-controls='$targetId']") as? HTMLElement
+            if (triggerButton == null) {
+                // Also look for data-action trigger pointing to this target
+                triggerButton = document.querySelector("[data-action*='\"targetId\":\"$targetId\"']") as? HTMLElement
+            }
+
             if (triggerButton != null) {
                 isHamburger = triggerButton!!.getAttribute("data-hamburger-toggle") == "true"
                 if (isHamburger) {
                     iconSpan = triggerButton!!.querySelector(".material-icons") as? HTMLElement
+                } else {
+                    // Look for disclosure +/- icon
+                    disclosureIcon = triggerButton!!.querySelector("span:not(.material-icons)") as? HTMLElement
                 }
             }
         }
@@ -98,7 +118,15 @@ object ClientDispatcher {
         domBatcher.write {
             if (el == null) return@write
 
-            val newDisplay = if (isCurrentlyHidden) "block" else "none"
+            // Store original display value if not already stored
+            if (el!!.getAttribute("data-original-display") == null && originalDisplay != null && originalDisplay != "none") {
+                el!!.setAttribute("data-original-display", originalDisplay!!)
+            }
+
+            // Use stored original display, or 'flex' as default (common for layout containers)
+            val showDisplay = el!!.getAttribute("data-original-display") ?: "flex"
+            val newDisplay = if (isCurrentlyHidden) showDisplay else "none"
+
             if (enableLogging) {
                 wasmConsoleLog("[Summon] Toggling '$targetId': $currentDisplay -> $newDisplay")
             }
@@ -117,6 +145,14 @@ object ClientDispatcher {
 
                     // Update the icon inside the hamburger button
                     iconSpan?.textContent = if (isCurrentlyHidden) "close" else "menu"
+                } else {
+                    // Update +/- disclosure icon if present
+                    disclosureIcon?.let { icon ->
+                        val iconText = icon.textContent?.trim() ?: ""
+                        if (iconText == "+" || iconText == "−" || iconText == "-") {
+                            icon.textContent = if (isCurrentlyHidden) "−" else "+"
+                        }
+                    }
                 }
             }
         }
