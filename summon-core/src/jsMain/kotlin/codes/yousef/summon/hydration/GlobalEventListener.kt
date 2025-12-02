@@ -74,6 +74,8 @@ object GlobalEventListener {
         }
 
         // First, look specifically for data-action (for toggle menus, etc.)
+        // data-action elements are client-side only and should ALWAYS be handled immediately
+        // without buffering - they don't require hydration state
         var current: Element? = target
         while (current != null && !current.hasAttribute("data-action")) {
             current = current.parentElement
@@ -82,28 +84,13 @@ object GlobalEventListener {
         if (current != null) {
             val actionJson = current.getAttribute("data-action")
             if (actionJson != null) {
-                val elementId = current.id
-
-                // Check if element is hydrated
-                if (elementId.isNotEmpty() && !isElementHydrated(elementId)) {
-                    // Buffer the event for replay after hydration
-                    if (enableLogging) {
-                        console.log("[Summon JS] Buffering ${event.type} for non-hydrated element: $elementId")
-                    }
-                    eventBuffer.captureEvent(CapturedEvent(
-                        type = event.type,
-                        targetId = elementId,
-                        timestamp = currentTimeMillis()
-                    ))
-                    event.preventDefault()
-                    return
-                }
-
                 if (enableLogging) {
                     console.log("[Summon JS] Found data-action on ${current.tagName}: $actionJson")
                 }
+                // Dispatch immediately - data-action is client-side only, no hydration needed
                 ClientDispatcher.dispatch(actionJson)
                 event.preventDefault()
+                event.stopPropagation()
                 return
             }
         }

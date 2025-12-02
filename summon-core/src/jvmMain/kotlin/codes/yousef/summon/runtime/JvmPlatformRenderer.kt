@@ -400,8 +400,8 @@ actual open class PlatformRenderer {
     private val BOOTLOADER_SCRIPT = """
 (function() {
     window.__SUMMON_QUEUE__ = [];
-    
-    // Handle data-action based toggles immediately without waiting for WASM/JS hydration
+
+    // Handle data-action based toggles - these are client-side only and should always work
     function handleDataAction(actionJson, triggerElement) {
         try {
             var action = JSON.parse(actionJson);
@@ -410,18 +410,35 @@ actual open class PlatformRenderer {
                 if (target) {
                     var currentDisplay = getComputedStyle(target).display;
                     var isHidden = currentDisplay === 'none';
-                    target.style.display = isHidden ? 'block' : 'none';
-                    
+
+                    // Store original display value on first toggle if not already stored
+                    if (!target.hasAttribute('data-original-display') && !isHidden) {
+                        target.setAttribute('data-original-display', currentDisplay || 'block');
+                    }
+
+                    // Use stored original display value, or 'flex' for common layout containers, or 'block' as fallback
+                    var showDisplay = target.getAttribute('data-original-display') || 'flex';
+                    target.style.display = isHidden ? showDisplay : 'none';
+
                     // Update aria-expanded on trigger
                     if (triggerElement) {
                         triggerElement.setAttribute('aria-expanded', isHidden.toString());
-                        
+
                         // Update hamburger menu icon if applicable
                         if (triggerElement.getAttribute('data-hamburger-toggle') === 'true') {
                             triggerElement.setAttribute('aria-label', isHidden ? 'Close menu' : 'Open menu');
                             var iconSpan = triggerElement.querySelector('.material-icons');
                             if (iconSpan) {
                                 iconSpan.textContent = isHidden ? 'close' : 'menu';
+                            }
+                        }
+
+                        // Update +/- disclosure icon if present (non-hamburger toggles)
+                        var disclosureIcon = triggerElement.querySelector('span:not(.material-icons)');
+                        if (disclosureIcon) {
+                            var iconText = disclosureIcon.textContent.trim();
+                            if (iconText === '+' || iconText === '−' || iconText === '-') {
+                                disclosureIcon.textContent = isHidden ? '−' : '+';
                             }
                         }
                     }
@@ -434,33 +451,37 @@ actual open class PlatformRenderer {
         }
         return false;
     }
-    
+
     window.addEventListener('click', function(e) {
         var t = e.target;
-        // Look for data-sid (SummonTagConsumer) or data-summon-id (JvmPlatformRenderer)
-        // Also check for data-onclick-action to identify interactive elements
-        while (t && !t.getAttribute('data-sid') && !t.getAttribute('data-summon-id') && !t.getAttribute('data-onclick-action') && !t.getAttribute('data-action')) {
+        // First, look specifically for data-action elements (client-side only actions)
+        while (t && !t.getAttribute('data-action')) {
             t = t.parentElement;
         }
-        
+
         if (t) {
-            // Check for data-action first (client-side only actions like ToggleVisibility)
             var actionJson = t.getAttribute('data-action');
             if (actionJson) {
-                // Skip if JS/WASM hydration is active - GlobalEventListener will handle it
-                if (window.__SUMMON_HYDRATION_ACTIVE__) {
-                    return;
-                }
+                // ALWAYS handle data-action here - these are client-side only toggles
+                // that don't need hydration state management
                 if (handleDataAction(actionJson, t)) {
                     e.preventDefault();
+                    e.stopPropagation();
                     return;
                 }
             }
-            
+        }
+
+        // Reset and look for other interactive elements
+        t = e.target;
+        while (t && !t.getAttribute('data-sid') && !t.getAttribute('data-summon-id') && !t.getAttribute('data-onclick-action')) {
+            t = t.parentElement;
+        }
+
+        if (t) {
             // Fall back to queuing if Summon isn't loaded yet
             if (!window.Summon) {
                 // Prevent default behavior for interactive elements during hydration gap
-                // This prevents form submissions or link navigation for elements that should be handled by JS
                 if (t.getAttribute('data-onclick-action') === 'true' || t.getAttribute('role') === 'button') {
                     e.preventDefault();
                 }
@@ -477,7 +498,7 @@ actual open class PlatformRenderer {
             }
         }
     }, true);
-    
+
     var s = document.getElementById('summon-state');
     if (s) {
         try {

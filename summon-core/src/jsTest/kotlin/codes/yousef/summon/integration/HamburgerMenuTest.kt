@@ -232,8 +232,8 @@ class HamburgerMenuTest {
         assertNotNull(dataAction, "Button should have data-action")
         ClientDispatcher.dispatch(dataAction)
 
-        // After click, menu should be visible
-        assertEquals("block", menuContainer.style.display, "Menu should be visible after toggle")
+        // After click, menu should be visible (default is "flex" when no original display stored)
+        assertEquals("flex", menuContainer.style.display, "Menu should be visible after toggle")
 
         // Click again to close
         ClientDispatcher.dispatch(dataAction)
@@ -335,7 +335,7 @@ class HamburgerMenuTest {
         
         // Directly test ClientDispatcher first to ensure it works
         ClientDispatcher.dispatch(dataAction)
-        assertEquals("block", menuContainer.style.display, "Menu should be visible after direct dispatch")
+        assertEquals("flex", menuContainer.style.display, "Menu should be visible after direct dispatch")
         
         // Toggle back
         ClientDispatcher.dispatch(dataAction)
@@ -349,7 +349,7 @@ class HamburgerMenuTest {
         assertTrue(clickEvent.defaultPrevented, "Click event should be prevented by GlobalEventListener")
 
         // Menu should now be visible
-        assertEquals("block", menuContainer.style.display, "Menu should be visible after click")
+        assertEquals("flex", menuContainer.style.display, "Menu should be visible after click")
     }
 
     @Test
@@ -390,8 +390,8 @@ class HamburgerMenuTest {
         // Hydration: ClientDispatcher handles the toggle
         ClientDispatcher.dispatch("""{"type":"toggle","targetId":"$menuId"}""")
 
-        // Verify menu is now visible
-        assertEquals("block", menuContainer.style.display, "Menu should be visible after hydration toggle")
+        // Verify menu is now visible (default is "flex" when no original display stored)
+        assertEquals("flex", menuContainer.style.display, "Menu should be visible after hydration toggle")
         assertEquals("true", button.getAttribute("aria-expanded"), "aria-expanded should be true")
 
         // Toggle back
