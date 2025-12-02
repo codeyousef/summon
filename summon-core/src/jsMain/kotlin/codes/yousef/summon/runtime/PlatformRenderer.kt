@@ -318,7 +318,7 @@ actual open class PlatformRenderer {
 
     private fun applyModifier(element: Element, modifier: Modifier) {
         // Apply styles using the toStyleString method which converts camelCase properties to kebab-case
-        val styleString = modifier.toStyleString()
+        val styleString = modifier.toStyleStringKebabCase()
         if (js("styleString.length > 0") as Boolean) {
             element.setAttribute("style", styleString)
         }
@@ -1266,20 +1266,6 @@ actual open class PlatformRenderer {
         createElement("div", modifier, setup = { element ->
             (element as? HTMLElement)?.innerHTML = htmlContent
         })
-    }
-
-    actual open fun renderScreen(
-        modifier: Modifier,
-        content: @Composable (FlowContentCompat.() -> Unit)
-    ) {
-        // Screen is typically a full-height container
-        val screenModifier = modifier
-            .style("minHeight", "100vh")
-            .style("width", "100%")
-
-        createElement("div", screenModifier) {
-            content(createFlowContent("div"))
-        }
     }
 
     actual open fun renderLink(href: String, modifier: Modifier) {
@@ -2489,5 +2475,135 @@ actual open class PlatformRenderer {
         """.trimIndent()
 
         document.head!!.appendChild(style)
+    }
+
+    actual open fun renderRichMarkdown(markdown: String, modifier: Modifier) {
+        createElement("div", modifier, setup = { element ->
+            try {
+                val MarkdownIt = js("require('markdown-it')")
+                val hljs = js("require('highlight.js')")
+
+                val md = MarkdownIt(js("""{
+                    highlight: function (str, lang) {
+                        if (lang && hljs.getLanguage(lang)) {
+                            try {
+                                return hljs.highlight(str, { language: lang }).value;
+                            } catch (__) {}
+                        }
+                        return ''; // use external default escaping
+                    }
+                }"""))
+
+                val html = md.render(markdown)
+                element.innerHTML = html as String
+            } catch (e: Throwable) {
+                console.error("Failed to render markdown", e)
+                element.textContent = markdown
+            }
+        })
+    }
+
+    actual open fun renderCodeEditor(
+        value: String,
+        onValueChange: (String) -> Unit,
+        language: String,
+        readOnly: Boolean,
+        modifier: Modifier
+    ) {
+        // Simple textarea fallback for now, as CodeMirror 6 requires complex setup
+        createElement("textarea", modifier.style("fontFamily", "monospace"), setup = { element ->
+            val textarea = element as HTMLTextAreaElement
+            if (textarea.value != value) {
+                textarea.value = value
+            }
+            // Also set textContent for outerHTML serialization (used in tests)
+            element.textContent = value
+            
+            if (readOnly) textarea.setAttribute("readonly", "true")
+
+            registerEventListener(element, "input") { event ->
+                val target = event.target.asDynamic()
+                onValueChange(target.value as String)
+            }
+        })
+    }
+
+    actual open fun renderChart(
+        type: String,
+        dataJson: String,
+        optionsJson: String?,
+        modifier: Modifier
+    ) {
+        createElement("canvas", modifier, setup = { element ->
+            try {
+                val Chart = js("require('chart.js/auto')")
+                val canvas = element as HTMLCanvasElement
+
+                if (element.asDynamic()._chart != undefined) {
+                    element.asDynamic()._chart.destroy()
+                }
+
+                val data = JSON.parse<Any>(dataJson)
+                val options = if (optionsJson != null) JSON.parse<Any>(optionsJson) else js("{}")
+
+                val config = js("{}")
+                config.type = type
+                config.data = data
+                config.options = options
+
+                val chartInstance = js("new Chart(canvas, config)")
+                element.asDynamic()._chart = chartInstance
+            } catch (e: Throwable) {
+                console.error("Failed to render chart", e)
+            }
+        })
+    }
+
+    actual open fun renderSplitPane(
+        orientation: String,
+        modifier: Modifier,
+        first: @Composable () -> Unit,
+        second: @Composable () -> Unit
+    ) {
+        val isVertical = orientation == "vertical"
+        val containerModifier = modifier
+            .style("display", "flex")
+            .style("flexDirection", if (isVertical) "column" else "row")
+            .style("width", "100%")
+            .style("height", "100%")
+
+        createElement("div", containerModifier) {
+            // First Pane
+            createElement("div", Modifier().style("flex", "1").style("overflow", "auto")) {
+                first()
+            }
+
+            // Divider
+            createElement("div", Modifier()
+                .style(if (isVertical) "height" else "width", "5px")
+                .style("cursor", if (isVertical) "row-resize" else "col-resize")
+                .style("backgroundColor", "#ccc")
+                .style("userSelect", "none")
+            )
+
+            // Second Pane
+            createElement("div", Modifier().style("flex", "1").style("overflow", "auto")) {
+                second()
+            }
+        }
+    }
+
+    actual open fun renderScreen(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
+        // Screen is typically the root container, often with full height/width
+        val screenModifier = modifier
+            .style("width", "100%")
+            .style("height", "100vh")
+            .style("overflow", "auto")
+            .style("display", "flex")
+            .style("flexDirection", "column")
+
+        createElement("div", screenModifier) {
+            content(createFlowContent("div"))
+        }
     }
 }

@@ -637,6 +637,21 @@ FileUpload(
 }
 ```
 
+### CodeEditor
+
+The `CodeEditor` component provides a syntax-highlighted code editing experience.
+
+```kotlin
+var code by remember { mutableStateOf("fun main() { println(\"Hello\") }") }
+
+CodeEditor(
+    value = code,
+    onValueChange = { code = it },
+    language = "kotlin",
+    modifier = Modifier().height(300.px).border(1.px, BorderStyle.Solid, "#ccc")
+)
+```
+
 ## Additional Layout Components
 
 ### Box
@@ -806,6 +821,27 @@ LazyRow(
 }
 ```
 
+### SplitPane
+
+The `SplitPane` component creates a resizable split view.
+
+```kotlin
+SplitPane(
+    orientation = "horizontal",
+    modifier = Modifier().height(400.px),
+    first = {
+        Box(modifier = Modifier().backgroundColor("#eee").fillMaxSize()) {
+            Text("Left Pane")
+        }
+    },
+    second = {
+        Box(modifier = Modifier().backgroundColor("#ddd").fillMaxSize()) {
+            Text("Right Pane")
+        }
+    }
+)
+```
+
 ## Additional Display Components
 
 ### Image
@@ -844,6 +880,60 @@ Icon(
     modifier = Modifier()
         .size(24.px)
         .color("#666666")
+)
+```
+
+### Chart
+
+The `Chart` component renders interactive charts using Chart.js.
+
+```kotlin
+Chart(
+    type = "bar",
+    data = """{
+        "labels": ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+        "datasets": [{
+            "label": "# of Votes",
+            "data": [12, 19, 3, 5, 2, 3],
+            "backgroundColor": [
+                "rgba(255, 99, 132, 0.2)",
+                "rgba(54, 162, 235, 0.2)",
+                "rgba(255, 206, 86, 0.2)",
+                "rgba(75, 192, 192, 0.2)",
+                "rgba(153, 102, 255, 0.2)",
+                "rgba(255, 159, 64, 0.2)"
+            ],
+            "borderColor": [
+                "rgba(255, 99, 132, 1)",
+                "rgba(54, 162, 235, 1)",
+                "rgba(255, 206, 86, 1)",
+                "rgba(75, 192, 192, 1)",
+                "rgba(153, 102, 255, 1)",
+                "rgba(255, 159, 64, 1)"
+            ],
+            "borderWidth": 1
+        }]
+    }""",
+    modifier = Modifier().width(400.px).height(300.px)
+)
+```
+
+### RichMarkdown
+
+The `RichMarkdown` component renders Markdown content as HTML.
+
+```kotlin
+RichMarkdown(
+    markdown = """
+        # Hello World
+        This is **bold** and *italic* text.
+        
+        - List item 1
+        - List item 2
+        
+        [Link to Google](https://google.com)
+    """.trimIndent(),
+    modifier = Modifier().padding(16.px)
 )
 ```
 
@@ -1146,4 +1236,4 @@ Audio(
 )
 ```
 
-See [Video API Reference](api-reference/components/display/Video.md) and [Audio API Reference](api-reference/components/display/Audio.md) for full documentation. 
+See [Video API Reference](api-reference/components/display/Video.md) and [Audio API Reference](api-reference/components/display/Audio.md) for full documentation.

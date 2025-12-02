@@ -1365,6 +1365,11 @@ public final class codes/yousef/summon/components/auth/SecuredComponent {
 	public static synthetic fun withSecurityRequirements$default (Lcodes/yousef/summon/components/auth/SecuredComponent;ZLjava/util/Set;Ljava/util/Set;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
 }
 
+public final class codes/yousef/summon/components/display/ChartKt {
+	public static final fun Chart (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
+	public static synthetic fun Chart$default (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
+}
+
 public final class codes/yousef/summon/components/display/FetchPriority : java/lang/Enum {
 	public static final field AUTO Lcodes/yousef/summon/components/display/FetchPriority;
 	public static final field HIGH Lcodes/yousef/summon/components/display/FetchPriority;
@@ -1474,6 +1479,11 @@ public final class codes/yousef/summon/components/display/PictureKt {
 	public static synthetic fun Picture$default (Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/components/display/ImageLoading;Lcodes/yousef/summon/components/display/FetchPriority;Lcodes/yousef/summon/components/display/ImageDecoding;ILjava/lang/Object;)V
 	public static final fun ResponsiveImage (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/components/display/ImageLoading;Lcodes/yousef/summon/components/display/FetchPriority;ZZ)V
 	public static synthetic fun ResponsiveImage$default (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/components/display/ImageLoading;Lcodes/yousef/summon/components/display/FetchPriority;ZZILjava/lang/Object;)V
+}
+
+public final class codes/yousef/summon/components/display/RichMarkdownKt {
+	public static final fun RichMarkdown (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
+	public static synthetic fun RichMarkdown$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
 }
 
 public final class codes/yousef/summon/components/display/RichTextKt {
@@ -2447,6 +2457,11 @@ public final class codes/yousef/summon/components/input/CheckboxKt {
 	public static synthetic fun StatefulCheckbox$default (ZLkotlin/jvm/functions/Function1;Lcodes/yousef/summon/modifier/Modifier;ZLjava/lang/String;ZLjava/util/List;ILjava/lang/Object;)V
 }
 
+public final class codes/yousef/summon/components/input/CodeEditorKt {
+	public static final fun CodeEditor (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Ljava/lang/String;ZLcodes/yousef/summon/modifier/Modifier;)V
+	public static synthetic fun CodeEditor$default (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Ljava/lang/String;ZLcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
+}
+
 public final class codes/yousef/summon/components/input/DatePickerKt {
 	public static final fun DatePicker (Lkotlinx/datetime/LocalDate;Lkotlin/jvm/functions/Function1;Lcodes/yousef/summon/modifier/Modifier;ZLjava/lang/String;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Ljava/lang/String;Lkotlinx/datetime/LocalDate;)V
 	public static synthetic fun DatePicker$default (Lkotlinx/datetime/LocalDate;Lkotlin/jvm/functions/Function1;Lcodes/yousef/summon/modifier/Modifier;ZLjava/lang/String;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Ljava/lang/String;Lkotlinx/datetime/LocalDate;ILjava/lang/Object;)V
@@ -2821,6 +2836,11 @@ public final class codes/yousef/summon/components/layout/SpanData {
 	public final fun getModifier ()Lcodes/yousef/summon/modifier/Modifier;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/layout/SplitPaneKt {
+	public static final fun SplitPane (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;)V
+	public static synthetic fun SplitPane$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
 }
 
 public final class codes/yousef/summon/components/media/VideoKt {
@@ -7465,9 +7485,13 @@ public class codes/yousef/summon/runtime/PlatformRenderer {
 	public static synthetic fun renderCanvas$default (Lcodes/yousef/summon/runtime/PlatformRenderer;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/Integer;Ljava/lang/Integer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public fun renderCard (Lcodes/yousef/summon/modifier/Modifier;ILkotlin/jvm/functions/Function0;)V
 	public fun renderCard (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
+	public fun renderChart (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
+	public static synthetic fun renderChart$default (Lcodes/yousef/summon/runtime/PlatformRenderer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
 	public fun renderCheckbox (ZLkotlin/jvm/functions/Function1;ZLcodes/yousef/summon/modifier/Modifier;)V
 	public fun renderCheckbox (ZLkotlin/jvm/functions/Function1;ZLjava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
 	public fun renderCircularProgressIndicator (Ljava/lang/Float;Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/components/feedback/ProgressType;)V
+	public fun renderCodeEditor (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Ljava/lang/String;ZLcodes/yousef/summon/modifier/Modifier;)V
+	public static synthetic fun renderCodeEditor$default (Lcodes/yousef/summon/runtime/PlatformRenderer;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Ljava/lang/String;ZLcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
 	public fun renderColumn (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
 	public fun renderComposable (Lkotlin/jvm/functions/Function0;)V
 	public fun renderComposableRoot (Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
@@ -7528,6 +7552,7 @@ public class codes/yousef/summon/runtime/PlatformRenderer {
 	public fun renderRangeSlider (Lkotlin/ranges/ClosedFloatingPointRange;Lkotlin/jvm/functions/Function1;Lkotlin/ranges/ClosedFloatingPointRange;IZLcodes/yousef/summon/modifier/Modifier;)V
 	public static synthetic fun renderRangeSlider$default (Lcodes/yousef/summon/runtime/PlatformRenderer;Lkotlin/ranges/ClosedFloatingPointRange;Lkotlin/jvm/functions/Function1;Lkotlin/ranges/ClosedFloatingPointRange;IZLcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
 	public fun renderResponsiveLayout (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
+	public fun renderRichMarkdown (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
 	public fun renderRow (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
 	public fun renderScreen (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
 	public fun renderScriptTag (Ljava/lang/String;ZZLjava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)V
@@ -7537,6 +7562,7 @@ public class codes/yousef/summon/runtime/PlatformRenderer {
 	public fun renderSnackbar (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
 	public fun renderSpacer (Lcodes/yousef/summon/modifier/Modifier;)V
 	public fun renderSpan (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
+	public fun renderSplitPane (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;)V
 	public fun renderSurface (Lcodes/yousef/summon/modifier/Modifier;ILkotlin/jvm/functions/Function0;)V
 	public fun renderSwipeToDismiss (Ljava/lang/Object;Lkotlin/jvm/functions/Function0;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;)V
 	public fun renderSwitch (ZLkotlin/jvm/functions/Function1;ZLcodes/yousef/summon/modifier/Modifier;)V

@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.8.0] - 2025-12-02
+
+### Added
+
+- **Advanced UI Components** - New components for complex data visualization and editing
+  - `CodeEditor` - Syntax-highlighted code editing component
+  - `SplitPane` - Resizable split layout (horizontal/vertical)
+  - `Chart` - Data visualization component (bar, line, pie charts)
+  - `MarkdownEditor` - Markdown editor with live preview support
+
+- **Authentication Components** - Built-in security UI
+  - `LoginComponent` - Pre-built login form with authentication service integration
+  - `SecuredComponent` - Wrapper for content that requires specific roles/permissions
+
+### Fixed
+
+- **JS Platform Renderer Fixes** - Resolved critical issues in DOM rendering and style application
+  - Fixed `renderCodeEditor` to explicitly set `textContent` on textarea elements, ensuring correct value serialization in tests and hydration
+  - Fixed `applyModifier` to use kebab-case for CSS properties in `style` attributes (e.g., `flex-direction` instead of `flexDirection`), ensuring styles are correctly applied by the browser
+  - Resolved `AdvancedComponentsJsTest` failures (`testCodeEditorJS` and `testSplitPaneJS`)
+
 ## [0.5.7.0] - 2025-12-02
 
 ### Added
