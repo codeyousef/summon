@@ -741,4 +741,49 @@ expect open class PlatformRenderer() {
      * Platforms can use this to cleanup or finalize state.
      */
     open fun endRecomposition()
+
+    /**
+     * Renders Markdown content using a rich text editor/viewer.
+     *
+     * - **Browser**: Uses markdown-it for rendering
+     * - **Server**: Uses Flexmark-java for rendering
+     */
+    open fun renderRichMarkdown(markdown: String, modifier: Modifier)
+
+    /**
+     * Renders a code editor with syntax highlighting.
+     *
+     * - **Browser**: Uses CodeMirror 6
+     * - **Server**: Renders a read-only pre block or textarea
+     */
+    open fun renderCodeEditor(
+        value: String,
+        onValueChange: (String) -> Unit,
+        language: String = "kotlin",
+        readOnly: Boolean = false,
+        modifier: Modifier
+    )
+
+    /**
+     * Renders a chart using a charting library.
+     *
+     * - **Browser**: Uses Chart.js
+     * - **Server**: Renders a placeholder or static image (if supported)
+     */
+    open fun renderChart(
+        type: String,
+        dataJson: String,
+        optionsJson: String? = null,
+        modifier: Modifier
+    )
+
+    /**
+     * Renders a split pane layout with resizable divider.
+     */
+    open fun renderSplitPane(
+        orientation: String, // "horizontal" or "vertical"
+        modifier: Modifier,
+        first: @Composable () -> Unit,
+        second: @Composable () -> Unit
+    )
 }

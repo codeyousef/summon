@@ -1543,6 +1543,38 @@ actual open class PlatformRenderer actual constructor() {
         wasmConsoleLog("PlatformRenderer renderToast - WASM stub")
     }
 
+    actual open fun renderRichMarkdown(markdown: String, modifier: Modifier) {
+        wasmConsoleLog("PlatformRenderer renderRichMarkdown - WASM stub")
+    }
+
+    actual open fun renderCodeEditor(
+        value: String,
+        onValueChange: (String) -> Unit,
+        language: String,
+        readOnly: Boolean,
+        modifier: Modifier
+    ) {
+        wasmConsoleLog("PlatformRenderer renderCodeEditor - WASM stub")
+    }
+
+    actual open fun renderChart(
+        type: String,
+        dataJson: String,
+        optionsJson: String?,
+        modifier: Modifier
+    ) {
+        wasmConsoleLog("PlatformRenderer renderChart - WASM stub")
+    }
+
+    actual open fun renderSplitPane(
+        orientation: String,
+        modifier: Modifier,
+        first: @Composable () -> Unit,
+        second: @Composable () -> Unit
+    ) {
+        wasmConsoleLog("PlatformRenderer renderSplitPane - WASM stub")
+    }
+
     // Deterministic ID generation
     private val idStack = mutableListOf("root")
     private val childCounters = mutableListOf(mutableMapOf<String, Int>())

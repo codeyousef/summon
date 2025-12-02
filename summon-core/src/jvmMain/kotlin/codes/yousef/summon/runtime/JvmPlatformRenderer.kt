@@ -20,6 +20,8 @@ import java.util.*
 import kotlin.uuid.ExperimentalUuidApi
 import codes.yousef.summon.hydration.SummonTagConsumer
 import codes.yousef.summon.hydration.ServerStateEncoder
+import com.vladsch.flexmark.html.HtmlRenderer
+import com.vladsch.flexmark.parser.Parser
 
 // Interface defined in PlatformRenderer.kt commonMain
 // interface FormContent : FlowContent
@@ -154,7 +156,10 @@ actual open class PlatformRenderer {
 
     // Get the current builder context
     private fun requireBuilder(): FlowContent {
-        return currentBuilder ?: error("Rendering function called outside of renderComposableRoot scope")
+        if (currentBuilder == null) {
+            error("Rendering function called outside of renderComposableRoot scope")
+        }
+        return currentBuilder!!
     }
 
     actual open fun renderText(text: String, modifier: Modifier) {
@@ -389,7 +394,6 @@ actual open class PlatformRenderer {
             }
         } finally {
             if (currentBuilder != null) { // Double-check clearance on exception
-                System.err.println("Warning: currentBuilder not cleared properly in renderComposableRoot.")
                 currentBuilder = null
             }
             CallbackRegistry.abandonRenderContext()
@@ -612,7 +616,6 @@ actual open class PlatformRenderer {
             }
         } finally {
             if (currentBuilder != null) { // Double-check clearance on exception
-                System.err.println("Warning: currentBuilder not cleared properly in renderComposableContent.")
                 currentBuilder = null
             }
         }
@@ -2384,5 +2387,88 @@ actual open class PlatformRenderer {
             </style>
         """.trimIndent()
         )
+    }
+
+    actual open fun renderRichMarkdown(markdown: String, modifier: Modifier) {
+        val parser = Parser.builder().build()
+        val renderer = HtmlRenderer.builder().build()
+        val document = parser.parse(markdown)
+        val html = renderer.render(document)
+
+        requireBuilder().div {
+            applyModifier(modifier)
+            unsafe { raw(html) }
+        }
+    }
+
+    actual open fun renderCodeEditor(
+        value: String,
+        onValueChange: (String) -> Unit,
+        language: String,
+        readOnly: Boolean,
+        modifier: Modifier
+    ) {
+        requireBuilder().div {
+            applyModifier(modifier)
+            attributes["data-summon-component"] = "code-editor"
+            attributes["data-language"] = language
+            
+            // SSR Fallback: Render as read-only code block
+            pre {
+                code {
+                    classes = setOf("language-$language")
+                    +value
+                }
+            }
+        }
+    }
+
+    actual open fun renderChart(
+        type: String,
+        dataJson: String,
+        optionsJson: String?,
+        modifier: Modifier
+    ) {
+        requireBuilder().canvas {
+            applyModifier(modifier)
+            attributes["data-summon-component"] = "chart"
+            attributes["data-chart-type"] = type
+            attributes["data-chart-data"] = dataJson
+            if (optionsJson != null) {
+                attributes["data-chart-options"] = optionsJson
+            }
+            // Fallback content
+            +"Chart: $type"
+        }
+    }
+
+    actual open fun renderSplitPane(
+        orientation: String,
+        modifier: Modifier,
+        first: @Composable () -> Unit,
+        second: @Composable () -> Unit
+    ) {
+        requireBuilder().div {
+            applyModifier(modifier.then(Modifier().style("display", "flex").style("flex-direction", if (orientation == "vertical") "column" else "row")))
+            attributes["data-summon-component"] = "split-pane"
+            attributes["data-orientation"] = orientation
+
+            div {
+                attributes["data-pane"] = "first"
+                style = "flex: 1; overflow: auto;"
+                renderContent(first)
+            }
+
+            div {
+                attributes["data-pane"] = "divider"
+                style = if (orientation == "vertical") "height: 5px; cursor: row-resize; background: #ccc;" else "width: 5px; cursor: col-resize; background: #ccc;"
+            }
+
+            div {
+                attributes["data-pane"] = "second"
+                style = "flex: 1; overflow: auto;"
+                renderContent(second)
+            }
+        }
     }
 }
