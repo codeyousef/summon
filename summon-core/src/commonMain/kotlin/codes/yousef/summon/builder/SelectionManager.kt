@@ -47,11 +47,22 @@ object SelectionManager {
     val selection: SummonMutableState<String?> = mutableStateOf(null)
     
     /**
+     * Alias for selection state - holds the currently selected component ID.
+     */
+    val selectedId: SummonMutableState<String?> get() = selection
+    
+    /**
      * Reactive state holding the bounding rect of the selected component.
      */
     val selectionBounds: SummonMutableState<SelectionBounds?> = mutableStateOf(null)
     
     private val selectionListeners = mutableListOf<(String?) -> Unit>()
+    
+    /**
+     * Callback invoked when selection changes.
+     * Set to null to disable.
+     */
+    var onSelectionChange: ((String?) -> Unit)? = null
     
     /**
      * Selects a component by its ID.
@@ -62,6 +73,7 @@ object SelectionManager {
         lock.withLock {
             selection.value = componentId
             notifyListeners(componentId)
+            onSelectionChange?.invoke(componentId)
         }
     }
     
@@ -73,8 +85,21 @@ object SelectionManager {
             selection.value = null
             selectionBounds.value = null
             notifyListeners(null)
+            onSelectionChange?.invoke(null)
         }
     }
+    
+    /**
+     * Deselects the current selection (alias for clearSelection).
+     */
+    fun deselect() = clearSelection()
+    
+    /**
+     * Checks if any component is currently selected.
+     *
+     * @return true if a component is selected
+     */
+    fun hasSelection(): Boolean = selection.value != null
     
     /**
      * Checks if a specific component is selected.

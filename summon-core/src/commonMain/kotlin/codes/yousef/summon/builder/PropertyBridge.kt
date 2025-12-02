@@ -37,14 +37,31 @@ import codes.yousef.summon.state.mutableStateOf
 object PropertyBridge {
     /**
      * Reactive state holding the current tree.
-     * Linked to HistoryManager for persistence.
+     * Linked to JsonTreeHistoryManager for persistence.
      */
     val currentTree: SummonMutableState<List<JsonBlock>> = mutableStateOf(emptyList())
     
     /**
+     * Simple property storage for components (for testing and simple use cases).
+     */
+    private val propertyStore = mutableMapOf<String, MutableMap<String, Any?>>()
+    
+    /**
      * Callback invoked when properties are updated.
      */
-    var onPropertyChange: ((componentId: String, propName: String, oldValue: Any?, newValue: Any) -> Unit)? = null
+    var onPropertyChange: ((componentId: String, propName: String, newValue: Any?) -> Unit)? = null
+    
+    /**
+     * Binds a property value for a component.
+     *
+     * @param componentId The component ID
+     * @param propName The property name
+     * @param value The property value
+     */
+    fun bindProperty(componentId: String, propName: String, value: Any?) {
+        val props = propertyStore.getOrPut(componentId) { mutableMapOf() }
+        props[propName] = value
+    }
     
     /**
      * Updates a single property on a component.
@@ -52,16 +69,23 @@ object PropertyBridge {
      * @param componentId The unique ID of the component to update
      * @param propName The property name to update
      * @param value The new value for the property
-     * @return true if the component was found and updated
+     * @return true if the property was updated
      */
-    fun updateProperty(componentId: String, propName: String, value: Any): Boolean {
+    fun updateProperty(componentId: String, propName: String, value: Any?): Boolean {
+        val props = propertyStore[componentId]
+        if (props != null) {
+            props[propName] = value
+            onPropertyChange?.invoke(componentId, propName, value)
+            return true
+        }
+        // Also try updating in tree
         val tree = currentTree.value.toMutableList()
         val result = updatePropertyInTree(tree, componentId, propName, value)
         
         if (result.success) {
             currentTree.value = tree
-            HistoryManager.push(tree)
-            onPropertyChange?.invoke(componentId, propName, result.oldValue, value)
+            JsonTreeHistoryManager.push(tree)
+            onPropertyChange?.invoke(componentId, propName, value)
         }
         
         return result.success
@@ -74,23 +98,13 @@ object PropertyBridge {
      * @param properties Map of property names to new values
      * @return true if the component was found and updated
      */
-    fun updateProperties(componentId: String, properties: Map<String, Any>): Boolean {
-        val tree = currentTree.value.toMutableList()
+    fun updateProperties(componentId: String, properties: Map<String, Any?>): Boolean {
         var anyUpdated = false
-        
         properties.forEach { (propName, value) ->
-            val result = updatePropertyInTree(tree, componentId, propName, value)
-            if (result.success) {
+            if (updateProperty(componentId, propName, value)) {
                 anyUpdated = true
-                onPropertyChange?.invoke(componentId, propName, result.oldValue, value)
             }
         }
-        
-        if (anyUpdated) {
-            currentTree.value = tree
-            HistoryManager.push(tree)
-        }
-        
         return anyUpdated
     }
     
@@ -102,6 +116,9 @@ object PropertyBridge {
      * @return The property value, or null if not found
      */
     fun getProperty(componentId: String, propName: String): Any? {
+        // First check simple store
+        propertyStore[componentId]?.get(propName)?.let { return it }
+        // Then check tree
         return findComponentById(currentTree.value, componentId)?.props?.get(propName)
     }
     
@@ -109,10 +126,39 @@ object PropertyBridge {
      * Gets all properties for a component.
      *
      * @param componentId The component ID
-     * @return Map of all properties, or null if component not found
+     * @return Map of all properties (empty if component not found)
      */
-    fun getProperties(componentId: String): Map<String, Any>? {
-        return findComponentById(currentTree.value, componentId)?.props
+    fun getAllProperties(componentId: String): Map<String, Any?> {
+        return propertyStore[componentId]?.toMap() 
+            ?: findComponentById(currentTree.value, componentId)?.props 
+            ?: emptyMap()
+    }
+    
+    /**
+     * Removes a property from a component.
+     *
+     * @param componentId The component ID
+     * @param propName The property name to remove
+     */
+    fun removeProperty(componentId: String, propName: String) {
+        propertyStore[componentId]?.remove(propName)
+    }
+    
+    /**
+     * Removes all properties for a component.
+     *
+     * @param componentId The component ID
+     */
+    fun removeAllProperties(componentId: String) {
+        propertyStore.remove(componentId)
+    }
+    
+    /**
+     * Clears all stored properties.
+     */
+    fun clear() {
+        propertyStore.clear()
+        currentTree.value = emptyList()
     }
     
     /**
@@ -129,7 +175,7 @@ object PropertyBridge {
         
         if (success) {
             currentTree.value = tree
-            HistoryManager.push(tree)
+            JsonTreeHistoryManager.push(tree)
         }
         
         return success
@@ -147,7 +193,7 @@ object PropertyBridge {
         
         if (success) {
             currentTree.value = tree
-            HistoryManager.push(tree)
+            JsonTreeHistoryManager.push(tree)
         }
         
         return success
@@ -170,10 +216,10 @@ object PropertyBridge {
     }
     
     /**
-     * Initializes the tree from HistoryManager.
+     * Initializes the tree from JsonTreeHistoryManager.
      */
     fun syncFromHistory() {
-        currentTree.value = HistoryManager.getCurrentState()
+        currentTree.value = JsonTreeHistoryManager.getCurrentState()
     }
     
     // --- Private Helpers ---
@@ -187,7 +233,7 @@ object PropertyBridge {
         blocks: MutableList<JsonBlock>,
         componentId: String,
         propName: String,
-        value: Any
+        value: Any?
     ): UpdateResult {
         for (i in blocks.indices) {
             val block = blocks[i]
@@ -196,7 +242,11 @@ object PropertyBridge {
             if (nodeId == componentId) {
                 val oldValue = block.props[propName]
                 val newProps = block.props.toMutableMap()
-                newProps[propName] = value
+                if (value != null) {
+                    newProps[propName] = value
+                } else {
+                    newProps.remove(propName)
+                }
                 blocks[i] = block.copy(props = newProps)
                 return UpdateResult(success = true, oldValue = oldValue)
             }

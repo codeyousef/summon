@@ -7,7 +7,153 @@ import kotlinx.atomicfu.locks.ReentrantLock
 import kotlinx.atomicfu.locks.withLock
 
 /**
- * History stack for undo/redo functionality in visual builder mode.
+ * Generic history stack for undo/redo functionality.
+ *
+ * Maintains a list of states and a pointer to the current state,
+ * enabling navigation through edit history.
+ *
+ * ## Features
+ *
+ * - **Undo/Redo**: Navigate through edit history
+ * - **State Snapshots**: Stores each state for navigation
+ * - **Capacity Limit**: Configurable maximum history size
+ *
+ * ## Usage
+ *
+ * ```kotlin
+ * val history = HistoryManager<MyState>()
+ * history.push(initialState)
+ * history.push(newState)
+ * history.undo() // Back to initialState
+ * history.redo() // Forward to newState
+ * ```
+ *
+ * @param T The type of state being tracked
+ * @since 1.0.0
+ */
+class HistoryManager<T>(
+    /**
+     * Maximum number of history entries to keep.
+     */
+    var maxHistorySize: Int = 50
+) {
+    private val lock = ReentrantLock()
+    
+    /**
+     * The history stack of states.
+     */
+    private val history = mutableListOf<T>()
+    
+    /**
+     * Current position in the history stack.
+     */
+    private var pointer: Int = -1
+    
+    /**
+     * Pushes a new state onto the history stack.
+     *
+     * If we're not at the end of the history (after undos),
+     * this will discard any future states.
+     *
+     * @param state The new state after an edit
+     */
+    fun push(state: T) {
+        lock.withLock {
+            // Discard any states after current pointer
+            if (pointer < history.size - 1) {
+                val toRemove = history.size - pointer - 1
+                repeat(toRemove) {
+                    history.removeAt(history.size - 1)
+                }
+            }
+            
+            // Add new state
+            history.add(state)
+            pointer = history.size - 1
+            
+            // Enforce max size
+            while (history.size > maxHistorySize) {
+                history.removeAt(0)
+                pointer--
+            }
+        }
+    }
+    
+    /**
+     * Returns the current state.
+     *
+     * @throws NoSuchElementException if history is empty
+     */
+    fun current(): T {
+        return lock.withLock {
+            if (pointer >= 0 && pointer < history.size) {
+                history[pointer]
+            } else {
+                throw NoSuchElementException("History is empty")
+            }
+        }
+    }
+    
+    /**
+     * Checks if undo is available.
+     */
+    fun canUndo(): Boolean = lock.withLock { pointer > 0 }
+    
+    /**
+     * Checks if redo is available.
+     */
+    fun canRedo(): Boolean = lock.withLock { pointer < history.size - 1 }
+    
+    /**
+     * Undoes the last edit, moving back in history.
+     *
+     * @return true if undo was performed, false if at beginning
+     */
+    fun undo(): Boolean {
+        return lock.withLock {
+            if (pointer > 0) {
+                pointer--
+                true
+            } else {
+                false
+            }
+        }
+    }
+    
+    /**
+     * Redoes the last undone edit, moving forward in history.
+     *
+     * @return true if redo was performed, false if at end
+     */
+    fun redo(): Boolean {
+        return lock.withLock {
+            if (pointer < history.size - 1) {
+                pointer++
+                true
+            } else {
+                false
+            }
+        }
+    }
+    
+    /**
+     * Returns the number of states in history.
+     */
+    fun size(): Int = lock.withLock { history.size }
+    
+    /**
+     * Clears all history.
+     */
+    fun clear() {
+        lock.withLock {
+            history.clear()
+            pointer = -1
+        }
+    }
+}
+
+/**
+ * Singleton history manager for JsonBlock trees in visual builder mode.
  *
  * Maintains a list of JSON tree states and a pointer to the current state,
  * enabling navigation through edit history.
@@ -23,24 +169,24 @@ import kotlinx.atomicfu.locks.withLock
  *
  * ```kotlin
  * // Initialize with a starting state
- * HistoryManager.initialize(initialTree)
+ * JsonTreeHistoryManager.initialize(initialTree)
  *
  * // After making an edit
- * HistoryManager.push(newTreeState)
+ * JsonTreeHistoryManager.push(newTreeState)
  *
  * // Undo
- * HistoryManager.undo()
+ * JsonTreeHistoryManager.undo()
  *
  * // Redo
- * HistoryManager.redo()
+ * JsonTreeHistoryManager.redo()
  *
  * // Access current state
- * val currentTree by HistoryManager.currentState
+ * val currentTree by JsonTreeHistoryManager.currentState
  * ```
  *
  * @since 1.0.0
  */
-object HistoryManager {
+object JsonTreeHistoryManager {
     private val lock = ReentrantLock()
     
     /**

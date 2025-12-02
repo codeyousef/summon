@@ -16,19 +16,19 @@ package codes.yousef.summon.builder
  *
  * ```kotlin
  * // Register drop zones
- * CollisionDetector.registerDropZone("container-1", DropZone(
+ * CollisionDetector.registerDropZone(DropZone(
  *     id = "container-1",
- *     bounds = Bounds(x = 0.0, y = 0.0, width = 200.0, height = 400.0)
+ *     rect = Rect(x = 0.0, y = 0.0, width = 200.0, height = 400.0)
  * ))
  *
  * // During drag move
- * val hitZone = CollisionDetector.findDropZone(mouseX, mouseY)
+ * val hitZone = CollisionDetector.findDropTarget(mouseX, mouseY)
  * if (hitZone != null) {
  *     CollisionDetector.highlightZone(hitZone.id)
  * }
  *
  * // On drop
- * val targetZone = CollisionDetector.findDropZone(dropX, dropY)
+ * val targetZone = CollisionDetector.findDropTarget(dropX, dropY)
  * if (targetZone != null) {
  *     PropertyBridge.moveComponent(draggedId, targetZone.id)
  * }
@@ -46,13 +46,25 @@ object CollisionDetector {
     var onHighlight: ((zoneId: String?, add: Boolean) -> Unit)? = null
     
     /**
+     * Checks if a point is inside a rectangle.
+     *
+     * @param x X coordinate of the point
+     * @param y Y coordinate of the point
+     * @param rect The rectangle to test against
+     * @return true if the point is inside the rectangle
+     */
+    fun pointInRect(x: Double, y: Double, rect: Rect): Boolean {
+        return x >= rect.x && x < rect.x + rect.width && 
+               y >= rect.y && y < rect.y + rect.height
+    }
+    
+    /**
      * Registers a drop zone for collision detection.
      *
-     * @param id Unique identifier for the zone
      * @param zone The drop zone definition
      */
-    fun registerDropZone(id: String, zone: DropZone) {
-        dropZones[id] = zone
+    fun registerDropZone(zone: DropZone) {
+        dropZones[zone.id] = zone
     }
     
     /**
@@ -68,32 +80,37 @@ object CollisionDetector {
     }
     
     /**
-     * Updates the bounds of a registered drop zone.
+     * Updates the rect of a registered drop zone.
      *
      * @param id The zone ID
-     * @param bounds New bounding rectangle
+     * @param rect New bounding rectangle
      */
-    fun updateZoneBounds(id: String, bounds: Bounds) {
+    fun updateDropZone(id: String, rect: Rect) {
         dropZones[id]?.let { zone ->
-            dropZones[id] = zone.copy(bounds = bounds)
+            dropZones[id] = zone.copy(rect = rect)
         }
     }
     
     /**
      * Finds the drop zone containing the given point.
      *
-     * If multiple zones overlap, returns the first matching zone.
-     * For more sophisticated handling, use [findAllDropZones].
+     * If multiple zones overlap, returns the last registered (top-most) zone.
      *
      * @param x X coordinate
      * @param y Y coordinate
      * @return The drop zone at the point, or null if none
      */
-    fun findDropZone(x: Double, y: Double): DropZone? {
-        return dropZones.values.find { zone ->
-            zone.enabled && zone.bounds.contains(x, y)
+    fun findDropTarget(x: Double, y: Double): DropZone? {
+        // Return last matching zone (most recently registered = highest z-order)
+        return dropZones.values.lastOrNull { zone ->
+            zone.enabled && pointInRect(x, y, zone.rect)
         }
     }
+    
+    /**
+     * Alias for findDropTarget for compatibility.
+     */
+    fun findDropZone(x: Double, y: Double): DropZone? = findDropTarget(x, y)
     
     /**
      * Finds all drop zones containing the given point.
@@ -107,8 +124,8 @@ object CollisionDetector {
      */
     fun findAllDropZones(x: Double, y: Double): List<DropZone> {
         return dropZones.values
-            .filter { zone -> zone.enabled && zone.bounds.contains(x, y) }
-            .sortedBy { it.bounds.area() }
+            .filter { zone -> zone.enabled && pointInRect(x, y, zone.rect) }
+            .sortedBy { it.rect.width * it.rect.height }
     }
     
     /**
@@ -142,10 +159,15 @@ object CollisionDetector {
     /**
      * Clears all registered drop zones.
      */
-    fun clearAll() {
+    fun clearDropZones() {
         clearHighlight()
         dropZones.clear()
     }
+    
+    /**
+     * Alias for clearDropZones.
+     */
+    fun clearAll() = clearDropZones()
     
     /**
      * Returns all registered drop zone IDs.
@@ -154,17 +176,42 @@ object CollisionDetector {
 }
 
 /**
+ * Represents a bounding rectangle.
+ */
+data class Rect(
+    val x: Double,
+    val y: Double,
+    val width: Double,
+    val height: Double
+) {
+    val right: Double get() = x + width
+    val bottom: Double get() = y + height
+    
+    /**
+     * Checks if a point is inside this rectangle.
+     */
+    fun contains(px: Double, py: Double): Boolean {
+        return px >= x && px < right && py >= y && py < bottom
+    }
+    
+    /**
+     * Returns the area of this rectangle.
+     */
+    fun area(): Double = width * height
+}
+
+/**
  * Represents a drop zone for drag-and-drop operations.
  *
  * @property id Unique identifier
- * @property bounds Bounding rectangle
+ * @property rect Bounding rectangle
  * @property acceptTypes Component types this zone accepts (empty = all)
  * @property enabled Whether the zone is currently accepting drops
  * @property data Custom data associated with the zone
  */
 data class DropZone(
     val id: String,
-    val bounds: Bounds,
+    val rect: Rect,
     val acceptTypes: Set<String> = emptySet(),
     val enabled: Boolean = true,
     val data: Map<String, Any> = emptyMap()
@@ -178,42 +225,6 @@ data class DropZone(
 }
 
 /**
- * Represents a bounding rectangle.
+ * Legacy alias for Rect.
  */
-data class Bounds(
-    val x: Double,
-    val y: Double,
-    val width: Double,
-    val height: Double
-) {
-    val right: Double get() = x + width
-    val bottom: Double get() = y + height
-    
-    /**
-     * Checks if a point is inside this rectangle.
-     */
-    fun contains(px: Double, py: Double): Boolean {
-        return px >= x && px <= right && py >= y && py <= bottom
-    }
-    
-    /**
-     * Checks if this rectangle intersects another.
-     */
-    fun intersects(other: Bounds): Boolean {
-        return !(right < other.x || other.right < x ||
-                 bottom < other.y || other.bottom < y)
-    }
-    
-    /**
-     * Returns the area of this rectangle.
-     */
-    fun area(): Double = width * height
-    
-    /**
-     * Creates a new Bounds from DOMRect-like values.
-     */
-    companion object {
-        fun fromRect(x: Double, y: Double, width: Double, height: Double) =
-            Bounds(x, y, width, height)
-    }
-}
+typealias Bounds = Rect
