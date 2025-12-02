@@ -159,3 +159,4 @@ e2e-tests/.playwright/
 
 # Lighthouse performance reports
 lighthouse-reports/
+summon-core/src/jvmMain/resources/static/summon-hydration.wasm
