@@ -1010,6 +1010,179 @@ public abstract interface class codes/yousef/summon/animation/TwoWayConverter {
 public abstract interface annotation class codes/yousef/summon/annotation/Composable : java/lang/annotation/Annotation {
 }
 
+public final class codes/yousef/summon/builder/CollisionDetector {
+	public static final field INSTANCE Lcodes/yousef/summon/builder/CollisionDetector;
+	public final fun clearAll ()V
+	public final fun clearDropZones ()V
+	public final fun clearHighlight ()V
+	public final fun findAllDropZones (DD)Ljava/util/List;
+	public final fun findDropTarget (DD)Lcodes/yousef/summon/builder/DropZone;
+	public final fun findDropZone (DD)Lcodes/yousef/summon/builder/DropZone;
+	public final fun getHighlightedZone ()Ljava/lang/String;
+	public final fun getOnHighlight ()Lkotlin/jvm/functions/Function2;
+	public final fun getZoneIds ()Ljava/util/Set;
+	public final fun highlightZone (Ljava/lang/String;)V
+	public final fun pointInRect (DDLcodes/yousef/summon/builder/Rect;)Z
+	public final fun registerDropZone (Lcodes/yousef/summon/builder/DropZone;)V
+	public final fun setOnHighlight (Lkotlin/jvm/functions/Function2;)V
+	public final fun unregisterDropZone (Ljava/lang/String;)V
+	public final fun updateDropZone (Ljava/lang/String;Lcodes/yousef/summon/builder/Rect;)V
+}
+
+public final class codes/yousef/summon/builder/DropZone {
+	public fun <init> (Ljava/lang/String;Lcodes/yousef/summon/builder/Rect;Ljava/util/Set;ZLjava/util/Map;)V
+	public synthetic fun <init> (Ljava/lang/String;Lcodes/yousef/summon/builder/Rect;Ljava/util/Set;ZLjava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun acceptsType (Ljava/lang/String;)Z
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lcodes/yousef/summon/builder/Rect;
+	public final fun component3 ()Ljava/util/Set;
+	public final fun component4 ()Z
+	public final fun component5 ()Ljava/util/Map;
+	public final fun copy (Ljava/lang/String;Lcodes/yousef/summon/builder/Rect;Ljava/util/Set;ZLjava/util/Map;)Lcodes/yousef/summon/builder/DropZone;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/builder/DropZone;Ljava/lang/String;Lcodes/yousef/summon/builder/Rect;Ljava/util/Set;ZLjava/util/Map;ILjava/lang/Object;)Lcodes/yousef/summon/builder/DropZone;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAcceptTypes ()Ljava/util/Set;
+	public final fun getData ()Ljava/util/Map;
+	public final fun getEnabled ()Z
+	public final fun getId ()Ljava/lang/String;
+	public final fun getRect ()Lcodes/yousef/summon/builder/Rect;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/builder/EditModeManager {
+	public static final field INSTANCE Lcodes/yousef/summon/builder/EditModeManager;
+	public final fun enableEditMode ()V
+	public final fun enablePreviewMode ()V
+	public final fun getOnModeChange ()Lkotlin/jvm/functions/Function1;
+	public final fun isEditMode ()Lcodes/yousef/summon/state/SummonMutableState;
+	public final fun setOnModeChange (Lkotlin/jvm/functions/Function1;)V
+	public final fun toggleMode ()V
+}
+
+public final class codes/yousef/summon/builder/EditModeManagerKt {
+	public static final fun EditModeProvider (ZLkotlin/jvm/functions/Function0;)V
+	public static synthetic fun EditModeProvider$default (ZLkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+	public static final fun getLocalEditMode ()Lcodes/yousef/summon/runtime/CompositionLocalProvider;
+}
+
+public final class codes/yousef/summon/builder/HistoryManager {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun canRedo ()Z
+	public final fun canUndo ()Z
+	public final fun clear ()V
+	public final fun current ()Ljava/lang/Object;
+	public final fun getMaxHistorySize ()I
+	public final fun push (Ljava/lang/Object;)V
+	public final fun redo ()Z
+	public final fun setMaxHistorySize (I)V
+	public final fun size ()I
+	public final fun undo ()Z
+}
+
+public final class codes/yousef/summon/builder/JsonTreeHistoryManager {
+	public static final field INSTANCE Lcodes/yousef/summon/builder/JsonTreeHistoryManager;
+	public final fun clear ()V
+	public final fun currentPosition ()I
+	public final fun getCanRedo ()Lcodes/yousef/summon/state/SummonMutableState;
+	public final fun getCanUndo ()Lcodes/yousef/summon/state/SummonMutableState;
+	public final fun getCurrentState ()Lcodes/yousef/summon/state/SummonMutableState;
+	public final fun getCurrentState ()Ljava/util/List;
+	public final fun getMaxHistorySize ()I
+	public final fun historySize ()I
+	public final fun initialize (Ljava/util/List;)V
+	public final fun push (Ljava/util/List;)V
+	public final fun redo ()Z
+	public final fun setMaxHistorySize (I)V
+	public final fun undo ()Z
+}
+
+public final class codes/yousef/summon/builder/PropertyBridge {
+	public static final field INSTANCE Lcodes/yousef/summon/builder/PropertyBridge;
+	public final fun addChild (Ljava/lang/String;Lcodes/yousef/summon/core/registry/JsonBlock;I)Z
+	public static synthetic fun addChild$default (Lcodes/yousef/summon/builder/PropertyBridge;Ljava/lang/String;Lcodes/yousef/summon/core/registry/JsonBlock;IILjava/lang/Object;)Z
+	public final fun bindProperty (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V
+	public final fun clear ()V
+	public final fun getAllProperties (Ljava/lang/String;)Ljava/util/Map;
+	public final fun getCurrentTree ()Lcodes/yousef/summon/state/SummonMutableState;
+	public final fun getOnPropertyChange ()Lkotlin/jvm/functions/Function3;
+	public final fun getProperty (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;
+	public final fun moveComponent (Ljava/lang/String;Ljava/lang/String;I)Z
+	public static synthetic fun moveComponent$default (Lcodes/yousef/summon/builder/PropertyBridge;Ljava/lang/String;Ljava/lang/String;IILjava/lang/Object;)Z
+	public final fun removeAllProperties (Ljava/lang/String;)V
+	public final fun removeComponent (Ljava/lang/String;)Z
+	public final fun removeProperty (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun setOnPropertyChange (Lkotlin/jvm/functions/Function3;)V
+	public final fun syncFromHistory ()V
+	public final fun updateProperties (Ljava/lang/String;Ljava/util/Map;)Z
+	public final fun updateProperty (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)Z
+}
+
+public final class codes/yousef/summon/builder/Rect {
+	public fun <init> (DDDD)V
+	public final fun area ()D
+	public final fun component1 ()D
+	public final fun component2 ()D
+	public final fun component3 ()D
+	public final fun component4 ()D
+	public final fun contains (DD)Z
+	public final fun copy (DDDD)Lcodes/yousef/summon/builder/Rect;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/builder/Rect;DDDDILjava/lang/Object;)Lcodes/yousef/summon/builder/Rect;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBottom ()D
+	public final fun getHeight ()D
+	public final fun getRight ()D
+	public final fun getWidth ()D
+	public final fun getX ()D
+	public final fun getY ()D
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/builder/SelectionBounds {
+	public fun <init> (DDDDDDDD)V
+	public final fun component1 ()D
+	public final fun component2 ()D
+	public final fun component3 ()D
+	public final fun component4 ()D
+	public final fun component5 ()D
+	public final fun component6 ()D
+	public final fun component7 ()D
+	public final fun component8 ()D
+	public final fun copy (DDDDDDDD)Lcodes/yousef/summon/builder/SelectionBounds;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/builder/SelectionBounds;DDDDDDDDILjava/lang/Object;)Lcodes/yousef/summon/builder/SelectionBounds;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBottom ()D
+	public final fun getHeight ()D
+	public final fun getLeft ()D
+	public final fun getRight ()D
+	public final fun getTop ()D
+	public final fun getWidth ()D
+	public final fun getX ()D
+	public final fun getY ()D
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/builder/SelectionManager {
+	public static final field INSTANCE Lcodes/yousef/summon/builder/SelectionManager;
+	public final fun addSelectionListener (Lkotlin/jvm/functions/Function1;)V
+	public final fun clearSelection ()V
+	public final fun deselect ()V
+	public final fun getOnSelectionChange ()Lkotlin/jvm/functions/Function1;
+	public final fun getSelectedId ()Lcodes/yousef/summon/state/SummonMutableState;
+	public final fun getSelection ()Lcodes/yousef/summon/state/SummonMutableState;
+	public final fun getSelectionBounds ()Lcodes/yousef/summon/state/SummonMutableState;
+	public final fun hasSelection ()Z
+	public final fun isSelected (Ljava/lang/String;)Z
+	public final fun removeSelectionListener (Lkotlin/jvm/functions/Function1;)V
+	public final fun select (Ljava/lang/String;)V
+	public final fun setOnSelectionChange (Lkotlin/jvm/functions/Function1;)V
+	public final fun updateBounds (Lcodes/yousef/summon/builder/SelectionBounds;)V
+}
+
 public abstract class codes/yousef/summon/component/UiComponent {
 	public static final field Companion Lcodes/yousef/summon/component/UiComponent$Companion;
 	public synthetic fun <init> (ILkotlinx/serialization/internal/SerializationConstructorMarker;)V
@@ -2650,6 +2823,26 @@ public final class codes/yousef/summon/components/layout/SpanData {
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class codes/yousef/summon/components/media/VideoKt {
+	public static final fun Audio (Ljava/lang/String;ZZZZLjava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
+	public static synthetic fun Audio$default (Ljava/lang/String;ZZZZLjava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
+	public static final fun Video (Ljava/lang/String;Ljava/util/List;Ljava/lang/String;ZZZZZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
+	public static synthetic fun Video$default (Ljava/lang/String;Ljava/util/List;Ljava/lang/String;ZZZZZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
+}
+
+public final class codes/yousef/summon/components/media/VideoSource {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/components/media/VideoSource;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/components/media/VideoSource;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/components/media/VideoSource;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getSrc ()Ljava/lang/String;
+	public final fun getType ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class codes/yousef/summon/components/navigation/DropdownAlignment : java/lang/Enum {
 	public static final field CENTER Lcodes/yousef/summon/components/navigation/DropdownAlignment;
 	public static final field LEFT Lcodes/yousef/summon/components/navigation/DropdownAlignment;
@@ -3197,6 +3390,58 @@ public final class codes/yousef/summon/core/error/ValidationException : codes/yo
 	public final fun getErrors ()Ljava/util/List;
 }
 
+public final class codes/yousef/summon/core/registry/ComponentRegistry {
+	public static final field INSTANCE Lcodes/yousef/summon/core/registry/ComponentRegistry;
+	public final fun clear ()V
+	public final fun get (Ljava/lang/String;)Lkotlin/jvm/functions/Function1;
+	public final fun isRegistered (Ljava/lang/String;)Z
+	public final fun keys ()Ljava/util/Set;
+	public final fun register (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public final fun size ()I
+	public final fun unregister (Ljava/lang/String;)Z
+}
+
+public final class codes/yousef/summon/core/registry/ComponentRegistryKt {
+	public static final fun FallbackComponent (Ljava/lang/String;Ljava/util/Map;)V
+}
+
+public abstract interface class codes/yousef/summon/core/registry/FallbackComponentMarker {
+}
+
+public final class codes/yousef/summon/core/registry/JsonBlock {
+	public fun <init> (Ljava/lang/String;Ljava/util/Map;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/util/Map;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/Map;
+	public final fun component3 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/String;Ljava/util/Map;Ljava/util/List;)Lcodes/yousef/summon/core/registry/JsonBlock;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/core/registry/JsonBlock;Ljava/lang/String;Ljava/util/Map;Ljava/util/List;ILjava/lang/Object;)Lcodes/yousef/summon/core/registry/JsonBlock;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getChildren ()Ljava/util/List;
+	public final fun getProps ()Ljava/util/Map;
+	public final fun getType ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/core/registry/RenderLoop {
+	public static final field INSTANCE Lcodes/yousef/summon/core/registry/RenderLoop;
+	public final fun render (Ljava/util/List;Ljava/lang/String;)V
+	public static synthetic fun render$default (Lcodes/yousef/summon/core/registry/RenderLoop;Ljava/util/List;Ljava/lang/String;ILjava/lang/Object;)V
+}
+
+public final class codes/yousef/summon/core/registry/RenderLoopKt {
+	public static final fun ErrorComponent (Ljava/lang/String;Ljava/lang/Throwable;Ljava/lang/String;)V
+	public static final fun getBoolean (Ljava/util/Map;Ljava/lang/String;Z)Z
+	public static synthetic fun getBoolean$default (Ljava/util/Map;Ljava/lang/String;ZILjava/lang/Object;)Z
+	public static final fun getInt (Ljava/util/Map;Ljava/lang/String;I)I
+	public static synthetic fun getInt$default (Ljava/util/Map;Ljava/lang/String;IILjava/lang/Object;)I
+	public static final fun getModifier (Ljava/util/Map;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun getString (Ljava/util/Map;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public static synthetic fun getString$default (Ljava/util/Map;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
+	public static final fun renderChildren (Ljava/util/Map;)V
+}
+
 public final class codes/yousef/summon/core/rendering/ComponentRenderData {
 	public fun <init> (Lcodes/yousef/summon/modifier/Modifier;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;)V
 	public synthetic fun <init> (Lcodes/yousef/summon/modifier/Modifier;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -3404,6 +3649,23 @@ public final class codes/yousef/summon/core/style/RGBA {
 	public fun <init> ()V
 	public final fun invoke (IIIF)Lcodes/yousef/summon/core/style/Color;
 	public final fun invoke (IIII)Lcodes/yousef/summon/core/style/Color;
+}
+
+public final class codes/yousef/summon/css/CssInjector {
+	public static final field INSTANCE Lcodes/yousef/summon/css/CssInjector;
+	public final fun clear ()V
+	public final fun generateStyleBlocks ()Ljava/lang/String;
+	public final fun getAllCss ()Ljava/util/Map;
+	public final fun getUserCss (Ljava/lang/String;)Ljava/lang/String;
+	public final fun hasUserCss (Ljava/lang/String;)Z
+	public final fun injectUserCss (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun removeUserCss (Ljava/lang/String;)Z
+}
+
+public final class codes/yousef/summon/css/CssSanitizer {
+	public static final field INSTANCE Lcodes/yousef/summon/css/CssSanitizer;
+	public final fun sanitize (Ljava/lang/String;)Ljava/lang/String;
+	public final fun validate (Ljava/lang/String;)Ljava/util/List;
 }
 
 public abstract interface class codes/yousef/summon/effects/ClipboardAPI {
@@ -5567,6 +5829,16 @@ public final class codes/yousef/summon/modifier/LinearGradientBuilder {
 	public static synthetic fun colorStop$default (Lcodes/yousef/summon/modifier/LinearGradientBuilder;Lcodes/yousef/summon/core/style/Color;Ljava/lang/String;ILjava/lang/Object;)V
 	public static synthetic fun colorStop$default (Lcodes/yousef/summon/modifier/LinearGradientBuilder;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)V
 	public final fun direction (Ljava/lang/String;)V
+}
+
+public final class codes/yousef/summon/modifier/MediaModifiersKt {
+	public static final fun aspectRatio (Lcodes/yousef/summon/modifier/Modifier;II)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun lazyLoad (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static synthetic fun lazyLoad$default (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun nativeLazyLoad (Lcodes/yousef/summon/modifier/Modifier;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun pauseOnScroll (Lcodes/yousef/summon/modifier/Modifier;F)Lcodes/yousef/summon/modifier/Modifier;
+	public static synthetic fun pauseOnScroll$default (Lcodes/yousef/summon/modifier/Modifier;FILjava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun responsiveMedia (Lcodes/yousef/summon/modifier/Modifier;)Lcodes/yousef/summon/modifier/Modifier;
 }
 
 public abstract class codes/yousef/summon/modifier/MediaQuery {
@@ -8591,6 +8863,12 @@ public final class codes/yousef/summon/ssr/SimpleHtmlBuilder : codes/yousef/summ
 	public fun finalize ()Ljava/lang/String;
 }
 
+public final class codes/yousef/summon/ssr/SiteBundler {
+	public static final field INSTANCE Lcodes/yousef/summon/ssr/SiteBundler;
+	public final fun bundleSite (Ljava/lang/String;Ljava/lang/String;)[B
+	public final fun bundleSite (Ljava/util/Map;)[B
+}
+
 public final class codes/yousef/summon/ssr/StandardHydrationSupport : codes/yousef/summon/ssr/HydrationSupport {
 	public fun <init> ()V
 	public fun addHydrationMarkers (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
@@ -9335,6 +9613,27 @@ public final class codes/yousef/summon/theme/ThemeTypography {
 	public final fun getH1 ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/theme/ThemeVariableGenerator {
+	public static final field INSTANCE Lcodes/yousef/summon/theme/ThemeVariableGenerator;
+	public final fun generateVariables (Lcodes/yousef/summon/theme/Theme$ThemeConfig;)Ljava/util/Map;
+}
+
+public final class codes/yousef/summon/theme/ThemeVariableInjector {
+	public static final field INSTANCE Lcodes/yousef/summon/theme/ThemeVariableInjector;
+	public final fun clearVariables ()V
+	public final fun generateCssBlock ()Ljava/lang/String;
+	public final fun generateCssContent ()Ljava/lang/String;
+	public final fun getAllVariables ()Ljava/util/Map;
+	public final fun getVariable (Ljava/lang/String;)Ljava/lang/String;
+	public final fun injectVariables (Ljava/util/Map;)V
+	public final fun removeVariable (Ljava/lang/String;)V
+}
+
+public final class codes/yousef/summon/theme/ThemeVariableInjectorKt {
+	public static final fun ApplyCurrentThemeVariables ()V
+	public static final fun ApplyThemeVariables (Lcodes/yousef/summon/state/SummonMutableState;)V
 }
 
 public final class codes/yousef/summon/theme/Typography {

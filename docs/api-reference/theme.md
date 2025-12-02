@@ -514,6 +514,106 @@ fun ThemeSwitcher() {
 }
 ```
 
+---
+
+## Theme Variable Injection ("Vibe" System)
+
+The Theme Variable Injection system enables instant theme switching without requiring a component tree re-render. Theme values are converted to CSS custom properties and injected into `:root`.
+
+### ThemeVariableInjector
+
+Platform-specific object for injecting CSS variables into the document root:
+
+```kotlin
+expect object ThemeVariableInjector {
+    fun injectVariables(variables: Map<String, String>)
+    fun getVariable(name: String): String
+    fun removeVariable(name: String)
+    fun clearVariables()
+}
+```
+
+#### Methods
+
+- `injectVariables(variables)` - Injects all theme CSS variables into document root
+- `getVariable(name)` - Gets a CSS variable value (with `--` prefix)
+- `removeVariable(name)` - Removes a CSS variable
+- `clearVariables()` - Clears all theme CSS variables
+
+### ThemeVariableGenerator
+
+Generates CSS variable maps from ThemeConfig:
+
+```kotlin
+object ThemeVariableGenerator {
+    fun generateVariables(config: Theme.ThemeConfig): Map<String, String>
+}
+```
+
+Generated variables include:
+- `--colors-*` - Color palette values
+- `--typography-*-*` - Typography properties (font-size, font-weight, etc.)
+- `--spacing-*` - Spacing values (xs, sm, md, lg, xl, xxl)
+- `--border-radius-*` - Border radius values
+- `--shadow-*` - Elevation/shadow values
+- `--custom-*` - Custom theme values
+
+### Composable Helpers
+
+```kotlin
+// Apply theme variables from a reactive state
+@Composable
+fun ApplyThemeVariables(themeState: SummonMutableState<Theme.ThemeConfig>)
+
+// Apply current global theme variables
+@Composable
+fun ApplyCurrentThemeVariables()
+```
+
+### Usage Example
+
+```kotlin
+@Composable
+fun App() {
+    val themeState = remember { mutableStateOf(Theme.Themes.light) }
+    
+    // Apply theme variables - updates CSS whenever themeState changes
+    ApplyThemeVariables(themeState)
+    
+    Column {
+        // Use CSS variables in your styles
+        Text(
+            text = "Hello",
+            modifier = Modifier().style("color", "var(--colors-primary)")
+        )
+        
+        // Theme switcher
+        Button(onClick = {
+            themeState.value = if (themeState.value == Theme.Themes.light) 
+                Theme.Themes.dark else Theme.Themes.light
+        }) {
+            Text("Toggle Theme")
+        }
+    }
+}
+```
+
+### CSS Usage
+
+Once injected, theme variables can be used in CSS:
+
+```css
+.my-component {
+    color: var(--colors-primary);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+    font-size: var(--typography-body-font-size);
+}
+```
+
+---
+
 ## Best Practices
 
 1. **Use semantic color names**: Prefer `"primary"` over hex colors for consistency

@@ -1081,3 +1081,69 @@ TextField(
     onValueChange = { text = it }
 ).withJsAutoFocus() // Automatically focuses the field when rendered
 ``` 
+
+## Media Components
+
+### Video
+
+Type-safe video component with browser policy enforcement:
+
+```kotlin
+// Basic video with controls
+Video(
+    src = "video.mp4",
+    controls = true,
+    modifier = Modifier().width("100%")
+)
+
+// Autoplay hero video (muted is auto-enforced)
+Video(
+    src = "hero.mp4",
+    autoplay = true,
+    loop = true,
+    controls = false,
+    poster = "poster.jpg"
+)
+
+// Multiple sources for format fallback
+Video(
+    sources = listOf(
+        VideoSource("video.webm", "video/webm"),
+        VideoSource("video.mp4", "video/mp4")
+    )
+)
+
+// Pause on scroll with responsive sizing
+Box(modifier = Modifier().pauseOnScroll()) {
+    Video(
+        src = "content.mp4",
+        autoplay = true,
+        muted = true,
+        modifier = Modifier()
+            .responsiveMedia()
+            .aspectRatio(16, 9)
+    )
+}
+```
+
+### Audio
+
+Type-safe audio component:
+
+```kotlin
+// Basic audio with controls
+Audio(
+    src = "audio.mp3",
+    controls = true
+)
+
+// Background music
+Audio(
+    src = "background.mp3",
+    autoplay = true,
+    loop = true,
+    controls = false
+)
+```
+
+See [Video API Reference](api-reference/components/display/Video.md) and [Audio API Reference](api-reference/components/display/Audio.md) for full documentation. 

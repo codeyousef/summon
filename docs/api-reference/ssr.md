@@ -423,6 +423,64 @@ fun testSSRComponent() {
 - Test with different component combinations
 - Monitor memory usage during rendering
 
+---
+
+## SiteBundler
+
+Utility for bundling rendered HTML and CSS into portable static site packages.
+
+### Object Definition
+
+```kotlin
+expect object SiteBundler {
+    fun bundleSite(html: String, css: String): ByteArray
+    fun bundleSite(files: Map<String, ByteArray>): ByteArray
+}
+```
+
+### Methods
+
+#### `bundleSite(html: String, css: String): ByteArray`
+Bundles HTML and CSS into a zip archive containing:
+- `index.html` with the provided HTML content
+- `style.css` with the provided CSS content
+
+**Parameters:**
+- `html` - The HTML content for index.html
+- `css` - The CSS content for style.css
+
+**Returns:** ByteArray containing the zip archive
+
+#### `bundleSite(files: Map<String, ByteArray>): ByteArray`
+Bundles multiple files into a zip archive.
+
+**Parameters:**
+- `files` - Map of file paths to file contents
+
+**Returns:** ByteArray containing the zip archive
+
+### Usage Example
+
+```kotlin
+// Bundle a simple site
+val html = renderer.renderComposableRoot { MyApp() }
+val css = generateStyles()
+val bundle = SiteBundler.bundleSite(html, css)
+
+// Write to file
+File("site.zip").writeBytes(bundle)
+
+// Bundle with additional assets
+val bundle = SiteBundler.bundleSite(mapOf(
+    "index.html" to html.encodeToByteArray(),
+    "styles/main.css" to css.encodeToByteArray(),
+    "scripts/app.js" to js.encodeToByteArray(),
+    "images/logo.png" to logoBytes
+))
+```
+
+---
+
 ## See Also
 
 - [SSR Guide](../ssr-guide.md) - Comprehensive SSR implementation guide

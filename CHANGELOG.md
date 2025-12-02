@@ -2,25 +2,87 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.5.6.2] - 2025-11-30
+## [0.5.7.0] - 2025-12-02
 
-### Fixed
+### Added
 
-- **Toggle/Disclosure Buttons Not Working** - Fixed multiple issues preventing toggle actions from working
-  - Fixed inline bootloader script to handle `data-action` immediately without checking hydration state
-  - Fixed `GlobalEventListener` to dispatch `data-action` events immediately without buffering for hydration
-  - Fixed `toggleElementVisibility` to preserve original display value using `data-original-display` attribute
-  - Changed default display value from `"block"` to `"flex"` for layout containers
-  - Updated tests to match new display value behavior
+- **Visual Builder Foundation** - Core infrastructure for drag-and-drop UI builders
+  - `ComponentRegistry` - Thread-safe singleton for registering/retrieving component factories with fallback support
+  - `RenderLoop` - Reactive render loop with batched updates and frame-rate limiting
+  - `JsonBlock` - Data class for JSON-based component tree representation
+  - `FallbackComponent` - Visual error component for missing registrations (red dashed border)
 
-### Technical Details
+- **Theme Variable Injection ("Vibe" System)** - Instant theme switching without re-renders
+  - `ThemeVariableInjector` - Platform-specific CSS variable injection into `:root`
+  - `ThemeVariableGenerator` - Converts ThemeConfig to CSS custom properties
+  - `ApplyThemeVariables` / `ApplyCurrentThemeVariables` - Composables for reactive theme application
+  - Automatic kebab-case conversion for CSS variable names
 
-The toggle buttons (hamburger menu, disclosure) were not working due to three issues:
-1. The inline bootloader script was skipping `data-action` handling when `window.__SUMMON_HYDRATION_ACTIVE__` was true
-2. `GlobalEventListener` was buffering `data-action` events for non-hydrated elements instead of dispatching immediately
-3. `toggleElementVisibility` was defaulting to `display: block` instead of preserving the original computed display value
+- **CSS Injection System** - Dynamic stylesheet management
+  - `CssInjector` - Platform-specific `<style>` tag injection with sanitization
+  - CSS sanitization to prevent injection attacks
+  - Support for updating existing style blocks by ID
 
-All three issues have been fixed. The `data-action` pattern is now handled immediately client-side without any hydration state checks.
+- **Video/Audio Components** - Type-safe media elements
+  - `Video` component with autoplay/muted browser policy enforcement
+  - `Audio` component with standard controls
+  - `VideoSource` for multiple format fallbacks
+  - Automatic MIME type inference from file extensions
+
+- **Media Modifiers** - Scroll-based media control
+  - `Modifier.pauseOnScroll()` - Pauses media when element leaves viewport (IntersectionObserver)
+  - `Modifier.lazyLoad()` - Deferred loading near viewport
+  - `Modifier.nativeLazyLoad()` - Browser native `loading="lazy"`
+  - `Modifier.aspectRatio()` / `Modifier.responsiveMedia()` - Responsive media helpers
+
+- **Selection Manager** - Component selection state for visual editors
+  - `SelectionManager` singleton with reactive `selectedId` state
+  - `select()`, `deselect()`, `hasSelection()`, `toggle()` methods
+  - `onSelectionChange` callback for external listeners
+
+- **History Manager (Undo/Redo)** - Edit history with state snapshots
+  - Generic `HistoryManager<T>` class for any state type
+  - `JsonTreeHistoryManager` singleton for JSON component trees
+  - `push()`, `undo()`, `redo()`, `canUndo()`, `canRedo()` methods
+  - Configurable max history size with automatic pruning
+
+- **Property Bridge** - Live property updates between editor and renderer
+  - `PropertyBridge` for reactive property synchronization
+  - `updateProperty()`, `getProperty()`, `getAllProperties()` methods
+  - Tree manipulation: `addChild()`, `removeComponent()`, `moveComponent()`
+  - `onPropertyChange` callback for external listeners
+
+- **Edit Mode Manager** - Toggle between edit and preview modes
+  - `EditModeManager` singleton with reactive `isEditMode` state
+  - `enterEditMode()`, `exitEditMode()`, `toggleEditMode()` methods
+  - `onModeChange` callback for external listeners
+
+- **Collision Detector** - Hit testing for drag-and-drop
+  - `CollisionDetector` singleton for drop zone management
+  - `registerDropZone()`, `unregisterDropZone()`, `findDropTarget()` methods
+  - `Bounds` data class for rectangular regions
+  - Z-index priority for overlapping zones
+
+- **Site Bundler** - Static site packaging
+  - `SiteBundler` expect/actual for platform-specific zip creation
+  - `bundleSite(html, css)` - Bundle HTML + CSS into archive
+  - `bundleSite(files)` - Bundle arbitrary file map
+
+### Tests
+
+- Added 12 new test files covering all new features (82+ test cases)
+  - `RegistryTest` - ComponentRegistry register/retrieve/fallback
+  - `RenderTreeTest` - JsonBlock structure and nesting
+  - `ThemeInjectionTest` - ThemeVariableGenerator CSS variable creation
+  - `StyleInjectionTest` - CssInjector sanitization
+  - `MediaAttributeTest` - Video autoplay/muted browser policy enforcement
+  - `BundleTest` - SiteBundler zip archive creation
+  - `SelectionTest` - SelectionManager state management
+  - `UndoTest` - HistoryManager/HistoryStack undo/redo
+  - `ModeTest` - EditModeManager mode toggle
+  - `PropertyUpdateTest` - PropertyBridge property manipulation
+  - `CollisionTest` - CollisionDetector hit testing
+  - `VideoScrollTest` - MediaModifiers pauseOnScroll attributes
 
 ## [0.5.6.1] - 2025-11-29
 
