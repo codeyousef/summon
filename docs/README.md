@@ -38,6 +38,7 @@ seamlessly across JavaScript, WebAssembly (WASM), and JVM platforms.
 - [Accessibility API](api-reference/accessibility.md) - Accessibility features
 - [SEO API](api-reference/seo.md) - SEO features
 - [I18n API](api-reference/i18n-api.md) - Internationalization
+- [Visual Builder API](api-reference/builder.md) - **NEW**: Visual builder infrastructure
 
 ### Lifecycle & Environment Integration
 - [Framework-Agnostic Lifecycle Integration](lifecycle-integration.md) - Lifecycle management across different UI frameworks
@@ -56,6 +57,7 @@ seamlessly across JavaScript, WebAssembly (WASM), and JVM platforms.
   - **Modal System**: Dialog components with variants (Alert, Confirmation, Fullscreen)
   - **Loading Indicators**: Multiple animation types (Spinner, Dots, Linear, Circular)
   - **Toast Notifications**: Positioned notifications with action support
+  - **Video/Audio**: Type-safe media components with browser policy enforcement
 - **Network & Communication**: Built-in networking capabilities
   - **WebSocket**: Cross-platform WebSocket with auto-reconnection
   - **HTTP Client**: Full-featured HTTP client with JSON and form support
@@ -66,8 +68,9 @@ seamlessly across JavaScript, WebAssembly (WASM), and JVM platforms.
 - **Accessibility**: Built-in accessibility features
 - **Animation**: Smooth animations and transitions
 - **SSR Support**: Server-side rendering capabilities
-- **Theme System**: Flexible theming with dark mode support
+- **Theme System**: Flexible theming with dark mode support and CSS variable injection
 - **Internationalization**: Full i18n support with RTL layouts for languages like Arabic and Hebrew
+- **Visual Builder Support**: Infrastructure for building drag-and-drop UI editors
 
 ## Advanced Features
 

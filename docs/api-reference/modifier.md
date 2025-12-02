@@ -16,6 +16,7 @@ styling, layout, and behavior to components in a type-safe, composable way.
 - [CSS Variables](#css-variables) ⭐ NEW
 - [Media Queries](#media-queries) ⭐ NEW
 - [Scroll Modifiers](#scroll-modifiers) ⭐ NEW
+- [Media Element Modifiers](#media-element-modifiers) ⭐ NEW
 - [Advanced Modifiers](#advanced-modifiers)
 - [Theme Integration](#theme-integration)
 - [Best Practices](#best-practices)
@@ -1137,6 +1138,121 @@ Modifier().scrollPadding("20px")
 
 ---
 
+## Media Element Modifiers
+
+Special modifiers for Video and Audio elements. These modifiers enable advanced media control behaviors.
+
+### Pause on Scroll
+
+Automatically pause media when it scrolls out of view:
+
+```kotlin
+Video(
+    src = "video.mp4",
+    modifier = Modifier()
+        .pauseOnScroll()
+)
+
+// With custom threshold (percentage of element visible)
+Audio(
+    src = "audio.mp3", 
+    modifier = Modifier()
+        .pauseOnScroll(threshold = 0.5) // Pause when less than 50% visible
+)
+```
+
+### Lazy Loading
+
+Defer media loading until the element approaches the viewport:
+
+```kotlin
+// Lazy load with Intersection Observer
+Video(
+    src = "large-video.mp4",
+    modifier = Modifier()
+        .lazyLoad() // Default margin: 200px
+)
+
+// Custom margin for earlier loading
+Video(
+    src = "video.mp4",
+    modifier = Modifier()
+        .lazyLoad(margin = "400px") // Start loading 400px before visible
+)
+
+// Native lazy loading (uses browser's loading="lazy")
+Image(
+    src = "image.jpg",
+    modifier = Modifier()
+        .nativeLazyLoad()
+)
+```
+
+### Aspect Ratio
+
+Maintain consistent aspect ratios for media elements:
+
+```kotlin
+// 16:9 widescreen
+Video(
+    src = "video.mp4",
+    modifier = Modifier()
+        .aspectRatio(16, 9)
+)
+
+// 4:3 standard
+Video(
+    src = "old-video.mp4",
+    modifier = Modifier()
+        .aspectRatio(4, 3)
+)
+
+// 1:1 square (for Instagram-style content)
+Video(
+    src = "square.mp4",
+    modifier = Modifier()
+        .aspectRatio(1, 1)
+)
+```
+
+### Responsive Media
+
+Create fluid, responsive media containers:
+
+```kotlin
+// Full-width responsive video
+Video(
+    src = "video.mp4",
+    modifier = Modifier()
+        .responsiveMedia()
+)
+
+// Responsive with max dimensions
+Video(
+    src = "video.mp4",
+    modifier = Modifier()
+        .responsiveMedia(maxWidth = "800px", maxHeight = "600px")
+)
+```
+
+### Combined Media Modifiers
+
+```kotlin
+// Optimized video component
+Video(
+    src = "hero-video.mp4",
+    modifier = Modifier()
+        .aspectRatio(16, 9)
+        .responsiveMedia(maxWidth = "1200px")
+        .lazyLoad(margin = "300px")
+        .pauseOnScroll(threshold = 0.25)
+        .borderRadius(8.px)
+        .boxShadow("0 4px 12px rgba(0,0,0,0.15)")
+)
+```
+
+---
+
 ## Best Practices
 
 ### 1. Use Type-Safe Enums
@@ -1243,5 +1359,8 @@ When updating from older versions:
 
 - [Theme API](theme.md) - Theme integration with modifiers
 - [Components API](components.md) - Using modifiers with components
+- [Media Modifiers](modifiers/media.md) - Detailed media modifier reference
+- [Video Component](components/display/Video.md) - Video component documentation
+- [Audio Component](components/display/Audio.md) - Audio component documentation
 - [Animation API](animation.md) - Animation-specific modifiers
 - [Accessibility API](accessibility.md) - Accessibility best practices
