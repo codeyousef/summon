@@ -1,14 +1,23 @@
 package codes.yousef.summon.components.navigation
 
+import codes.yousef.summon.action.UiAction
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.components.layout.Box
 import codes.yousef.summon.core.FlowContent
 import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.runtime.remember
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+
+// ID generation for Dropdown using random numbers to avoid counter synchronization issues.
+// During SSR without a composer, composable functions may be invoked multiple times,
+// and a global counter would get out of sync. Random IDs ensure each dropdown gets a unique ID.
+private fun generateDropdownId(): String = "dropdown-menu-${kotlin.random.Random.nextInt(100000, 999999)}"
 
 /**
  * JVM-specific dropdown implementation (SSR-compatible)
- * Renders with inline JavaScript for client-side interactivity
+ * Uses data-action for client-side toggle via GlobalEventListener/ClientDispatcher
  */
 @Composable
 actual fun Dropdown(
@@ -20,9 +29,18 @@ actual fun Dropdown(
     content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
-    val menuId = "dropdown-menu-${System.nanoTime()}"
+    
+    // Generate unique ID for this dropdown instance.
+    // We use remember to ensure stability across recompositions when a composer is available.
+    val menuId = remember { generateDropdownId() }
 
-    // Container gets hover events to avoid the "gap" problem when moving from trigger to menu
+    // Serialize the toggle action for client-side handling
+    // Use the polymorphic serializer to include the type discriminator so ClientDispatcher can decode it
+    val toggleAction: UiAction = UiAction.ToggleVisibility(menuId)
+    val actionJson = Json.encodeToString(UiAction.serializer(), toggleAction)
+
+    // Container modifier - for hover behavior, we still need inline JS since UiAction
+    // doesn't have hover-specific actions yet. For click-only, we use data-action.
     val containerModifier = modifier
         .style("position", "relative")
         .style("display", "inline-block")
@@ -30,6 +48,7 @@ actual fun Dropdown(
         .dataAttribute("dropdown-container", "true")
         .apply {
             if (triggerBehavior == DropdownTrigger.HOVER || triggerBehavior == DropdownTrigger.BOTH) {
+                // Hover behavior still uses inline JS since there's no UiAction for hover events
                 onMouseEnter("document.getElementById('$menuId').style.display='block'")
                 onMouseLeave("document.getElementById('$menuId').style.display='none'")
             }
@@ -46,13 +65,8 @@ actual fun Dropdown(
                 .dataAttribute("dropdown-trigger", "true")
                 .apply {
                     if (triggerBehavior == DropdownTrigger.CLICK || triggerBehavior == DropdownTrigger.BOTH) {
-                        onClick(
-                            """
-                            const menu = document.getElementById('$menuId');
-                            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-                            event.stopPropagation();
-                        """.trimIndent()
-                        )
+                        // Use data-action for client-side toggle via GlobalEventListener
+                        attribute("data-action", actionJson)
                     }
                 }
         ) {
@@ -83,9 +97,11 @@ actual fun Dropdown(
                             style("transform", "translateX(-50%)")
                         }
                     }
-                    // Note: Hover events are on the container, not here, to avoid gap issues
                     if (closeOnItemClick) {
-                        onClick("this.style.display='none'")
+                        // For close on item click, we can use data-action as well
+                        val closeAction: UiAction = UiAction.ToggleVisibility(menuId)
+                        val closeActionJson = Json.encodeToString(UiAction.serializer(), closeAction)
+                        attribute("data-action", closeActionJson)
                     }
                 }
                 .role("menu")

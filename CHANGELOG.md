@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.8.2] - 2025-12-11
+
+### Changed
+
+- **Dropdown UiAction Refactor** - Refactored Dropdown component to use UiAction system instead of inline JavaScript
+  - Replaced inline `onClick` JavaScript handlers with `data-action` attributes containing serialized `UiAction.ToggleVisibility`
+  - Uses `remember {}` for stable menu ID generation across recompositions
+  - Follows the same pattern as `HamburgerMenu` for consistency
+  - Applied across all platform implementations (JVM, JS, WASM)
+
 ## [0.5.8.1] - 2025-12-11
 
 ### Fixed

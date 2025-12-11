@@ -9,7 +9,7 @@ The version information for Summon is centralized in a single file:
 - **version.properties**: Contains the version number, group ID, and artifact ID
 
 ```properties
-VERSION=0.5.8.1
+VERSION=0.5.8.2
 GROUP=io.github.codeyousef
 ARTIFACT_ID=summon
 ```
