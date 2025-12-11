@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.8.4] - 2025-12-11
+
+### Fixed
+
+- **Dropdown data-action Attribute Not Applied** - Fixed critical bug where the `data-action` attribute was never added to the dropdown trigger element
+  - Root cause: The code used `.apply {}` block to conditionally add the attribute. Since `Modifier` is immutable, `attribute()` returns a new `Modifier` instance, but `.apply {}` always returns the original receiver, discarding the new instance
+  - Solution: Changed from `.apply {}` to `.let {}` which properly returns the modified `Modifier` when the condition is true, or the original when false
+  - This was the actual root cause of dropdown click-to-expand not working (the previous ClientDispatcher fix in 0.5.8.3 was also necessary but insufficient)
+  - Fixed across all platform implementations (JVM, JS, WASM)
+
 ## [0.5.8.3] - 2025-12-11
 
 ### Fixed

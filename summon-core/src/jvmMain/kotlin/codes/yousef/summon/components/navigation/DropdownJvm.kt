@@ -63,10 +63,12 @@ actual fun Dropdown(
                 .role("button")
                 .tabIndex(0)
                 .dataAttribute("dropdown-trigger", "true")
-                .apply {
+                .let { mod ->
                     if (triggerBehavior == DropdownTrigger.CLICK || triggerBehavior == DropdownTrigger.BOTH) {
                         // Use data-action for client-side toggle via GlobalEventListener
-                        attribute("data-action", actionJson)
+                        mod.attribute("data-action", actionJson)
+                    } else {
+                        mod
                     }
                 }
         ) {
