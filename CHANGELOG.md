@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.8.1] - 2025-12-11
+
+### Fixed
+
+- **Dropdown Hover Gap Bug** - Fixed critical issue where hover-triggered dropdowns would close when moving mouse from trigger to menu
+  - Root cause: `onMouseEnter`/`onMouseLeave` events were attached separately to trigger and menu elements, creating a gap where neither element received hover when transitioning between them
+  - Solution: Moved hover events to the container element that wraps both trigger and menu, ensuring the dropdown stays open while hovering anywhere within the component
+  - Fixed across all platform implementations (JVM, JS, WASM)
+
 ## [0.5.8.0] - 2025-12-02
 
 ### Added

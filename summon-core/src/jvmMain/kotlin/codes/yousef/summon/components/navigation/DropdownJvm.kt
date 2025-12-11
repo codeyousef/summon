@@ -22,11 +22,18 @@ actual fun Dropdown(
     val renderer = LocalPlatformRenderer.current
     val menuId = "dropdown-menu-${System.nanoTime()}"
 
+    // Container gets hover events to avoid the "gap" problem when moving from trigger to menu
     val containerModifier = modifier
         .style("position", "relative")
         .style("display", "inline-block")
         .ariaHasPopup(true)
         .dataAttribute("dropdown-container", "true")
+        .apply {
+            if (triggerBehavior == DropdownTrigger.HOVER || triggerBehavior == DropdownTrigger.BOTH) {
+                onMouseEnter("document.getElementById('$menuId').style.display='block'")
+                onMouseLeave("document.getElementById('$menuId').style.display='none'")
+            }
+        }
 
     renderer.renderBlock(containerModifier) {
         // Trigger element
@@ -38,23 +45,7 @@ actual fun Dropdown(
                 .tabIndex(0)
                 .dataAttribute("dropdown-trigger", "true")
                 .apply {
-                    when (triggerBehavior) {
-                        DropdownTrigger.HOVER, DropdownTrigger.BOTH -> {
-                            onMouseEnter("document.getElementById('$menuId').style.display='block'")
-                            onMouseLeave("document.getElementById('$menuId').style.display='none'")
-                        }
-
-                        DropdownTrigger.CLICK -> {
-                            onClick(
-                                """
-                                const menu = document.getElementById('$menuId');
-                                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-                                event.stopPropagation();
-                            """.trimIndent()
-                            )
-                        }
-                    }
-                    if (triggerBehavior == DropdownTrigger.BOTH) {
+                    if (triggerBehavior == DropdownTrigger.CLICK || triggerBehavior == DropdownTrigger.BOTH) {
                         onClick(
                             """
                             const menu = document.getElementById('$menuId');
@@ -92,10 +83,7 @@ actual fun Dropdown(
                             style("transform", "translateX(-50%)")
                         }
                     }
-                    if (triggerBehavior == DropdownTrigger.HOVER || triggerBehavior == DropdownTrigger.BOTH) {
-                        onMouseEnter("this.style.display='block'")
-                        onMouseLeave("this.style.display='none'")
-                    }
+                    // Note: Hover events are on the container, not here, to avoid gap issues
                     if (closeOnItemClick) {
                         onClick("this.style.display='none'")
                     }
