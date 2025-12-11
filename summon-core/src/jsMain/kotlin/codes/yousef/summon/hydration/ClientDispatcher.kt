@@ -5,6 +5,7 @@ import codes.yousef.summon.js.console
 import kotlinx.browser.window
 import kotlinx.browser.document
 import org.w3c.dom.HTMLElement
+import kotlin.js.JSON
 
 /**
  * Client-side dispatcher for UI actions.
@@ -57,7 +58,7 @@ object ClientDispatcher {
      * Avoids kotlinx-serialization dependency for smaller bundle size.
      */
     private fun parseUiAction(jsonStr: String): UiAction? {
-        val parsed = js("JSON.parse(jsonStr)")
+        val parsed = JSON.parse<dynamic>(jsonStr)
         val type = parsed.type as? String ?: return null
 
         return when (type) {

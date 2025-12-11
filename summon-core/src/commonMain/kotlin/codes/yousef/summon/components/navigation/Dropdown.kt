@@ -151,23 +151,30 @@ fun DropdownItem(
             if (!enabled) {
                 ariaDisabled(true)
             }
-            if (onClick != null && enabled) {
-                onClick("event.stopPropagation(); ${createClickHandler(onClick)}")
-            }
         }
 
-    // For links, we should use Link component, but for simplicity use renderBlock with appropriate tag
-    val finalModifier = if (href != null) {
-        itemModifier
-            .attribute("href", href)
-            .attribute("data-is-link", "true")
+    // Use proper link rendering for href items, block rendering for click-only items
+    if (href != null && enabled) {
+        // Render as a proper <a> tag for navigation
+        renderer.renderEnhancedLink(
+            href = href,
+            target = null,
+            title = label,
+            modifier = itemModifier
+        ) {
+            renderer.renderText(label, Modifier())
+        }
     } else {
-        itemModifier
+        // Render as a div for click-only items
+        val blockModifier = if (onClick != null && enabled) {
+            itemModifier.onClick("event.stopPropagation(); ${createClickHandler(onClick)}")
+        } else {
+            itemModifier
+        }
+        renderer.renderBlock(blockModifier, content = {
+            renderer.renderText(label, Modifier())
+        })
     }
-
-    renderer.renderBlock(finalModifier, content = {
-        renderer.renderText(label, Modifier())
-    })
 }
 
 /**

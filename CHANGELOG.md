@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.8.3] - 2025-12-11
+
+### Fixed
+
+- **Dropdown Click Toggle Not Working** - Fixed critical bug where clicking dropdown trigger did not expand the menu
+  - Root cause: `ClientDispatcher.parseUiAction()` was using `js("JSON.parse(jsonStr)")` which doesn't properly capture the Kotlin variable `jsonStr` in the JavaScript context
+  - Solution: Changed to use `kotlin.js.JSON.parse<dynamic>(jsonStr)` which correctly parses the JSON string
+  - This affected all `data-action` based toggle interactions (Dropdown, HamburgerMenu, etc.)
+
+- **DropdownItem Link Navigation** - Fixed `DropdownItem` components with `href` not navigating
+  - Root cause: `DropdownItem` was using `renderBlock()` which renders a `<div>` element - adding an `href` attribute to a `<div>` doesn't create a working link
+  - Solution: Now uses `renderEnhancedLink()` for items with `href`, which properly renders an `<a>` tag
+  - Click-only items (with `onClick` but no `href`) still use `renderBlock()` as before
+
 ## [0.5.8.2] - 2025-12-11
 
 ### Changed
