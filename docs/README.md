@@ -48,7 +48,8 @@ seamlessly across JavaScript, WebAssembly (WASM), and JVM platforms.
 ### Integration Guides
 - [Integration Guides](integration-guides.md) - Integrate with existing frameworks and platforms
 
-
+### Roadmap
+- [Roadmap Overview](roadmap/README.md) - Future plans and version history
 
 ## Key Features
 
