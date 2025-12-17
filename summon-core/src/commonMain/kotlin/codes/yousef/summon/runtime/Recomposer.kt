@@ -321,7 +321,9 @@ class Recomposer {
             CompositionLocal.provideComposer(this) {
                 try {
                     // Notify platform renderer about recomposition start
-                    LocalPlatformRenderer.current.startRecomposition()
+                    // Use PlatformRendererStore.get() instead of LocalPlatformRenderer.current
+                    // because the CompositionLocal might not be provided yet at this point
+                    PlatformRendererStore.get()?.startRecomposition()
 
                     // Start a new composition group
                     startGroup("recomposition")
@@ -336,7 +338,9 @@ class Recomposer {
                     throw e
                 } finally {
                     // Notify platform renderer about recomposition end
-                    LocalPlatformRenderer.current.endRecomposition()
+                    // Use PlatformRendererStore.get() instead of LocalPlatformRenderer.current
+                    // because the CompositionLocal might not be provided yet at this point
+                    PlatformRendererStore.get()?.endRecomposition()
                 }
             }
         }

@@ -949,11 +949,7 @@ package ${variables["PACKAGE_NAME"]}
 
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.components.foundation.BasicText
-import codes.yousef.summon.runtime.PlatformRenderer
-import codes.yousef.summon.renderComposable
-import kotlinx.browser.document
-import kotlinx.browser.window
-import org.w3c.dom.HTMLElement
+import codes.yousef.summon.renderComposableRoot
 
 @Composable
 fun App() {
@@ -961,14 +957,8 @@ fun App() {
 }
 
 fun main() {
-    window.onload = {
-        val rootElement = document.getElementById("${variables["ROOT_ELEMENT_ID"]}") as? HTMLElement
-        if (rootElement != null) {
-            val renderer = PlatformRenderer()
-            renderComposable(renderer, {
-                App()
-            }, rootElement)
-        }
+    renderComposableRoot("${variables["ROOT_ELEMENT_ID"]}") {
+        App()
     }
 }
         """.trimIndent()
@@ -984,13 +974,9 @@ import codes.yousef.summon.components.layout.Column
 import codes.yousef.summon.components.input.Button
 import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.modifier.padding
-import codes.yousef.summon.runtime.PlatformRenderer
 import codes.yousef.summon.runtime.remember
 import codes.yousef.summon.state.mutableStateOf
-import codes.yousef.summon.renderComposable
-import kotlinx.browser.document
-import kotlinx.browser.window
-import org.w3c.dom.HTMLElement
+import codes.yousef.summon.renderComposableRoot
 
 @Composable
 fun App() {
@@ -1021,14 +1007,8 @@ fun App() {
 }
 
 fun main() {
-    window.onload = {
-        val rootElement = document.getElementById("${variables["ROOT_ELEMENT_ID"]}") as? HTMLElement
-        if (rootElement != null) {
-            val renderer = PlatformRenderer()
-            renderComposable(renderer, {
-                App()
-            }, rootElement)
-        }
+    renderComposableRoot("${variables["ROOT_ELEMENT_ID"]}") {
+        App()
     }
 }
         """.trimIndent()
@@ -1038,19 +1018,11 @@ fun main() {
         return """
 package ${variables["PACKAGE_NAME"]}
 
-import codes.yousef.summon.renderComposable
-import codes.yousef.summon.runtime.PlatformRenderer
-import kotlinx.browser.document
-import kotlinx.browser.window
-import org.w3c.dom.HTMLElement
+import codes.yousef.summon.renderComposableRoot
 
 fun main() {
-    window.onload = {
-        val rootElement = document.getElementById("${variables["ROOT_ELEMENT_ID"]}") as? HTMLElement
-        if (rootElement != null) {
-            val renderer = PlatformRenderer()
-            renderComposable(renderer, { App() }, rootElement)
-        }
+    renderComposableRoot("${variables["ROOT_ELEMENT_ID"]}") {
+        App()
     }
 }
         """.trimIndent()

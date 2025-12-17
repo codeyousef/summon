@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.8.5] - 2025-12-18
+
+### Fixed
+
+- **CLI Generated Projects Console Errors** - Fixed CLI-generated standalone projects showing console errors at runtime
+  - Root cause: Generated `Main.kt` used manual `window.onload` + `renderComposable()` pattern which bypassed proper initialization
+  - Solution: Changed to use `renderComposableRoot()` API which properly initializes `GlobalEventListener` and sets up the rendering context
+  - Affects standalone, fullstack Ktor, Spring Boot, and Quarkus project templates
+
+- **Recomposer LocalPlatformRenderer Error** - Fixed potential crash when `LocalPlatformRenderer.current` was accessed before CompositionLocal was provided
+  - Changed to use `PlatformRendererStore.get()?.` with safe calls in `Recomposer.kt`
+
+### Changed
+
+- **CLI Help Text Dynamic Version** - CLI help text now displays the actual version dynamically instead of hardcoded values
+- **CLI README Version Placeholders** - Documentation now uses `<version>` placeholders with a note to check releases page
+
 ## [0.5.8.4] - 2025-12-11
 
 ### Fixed

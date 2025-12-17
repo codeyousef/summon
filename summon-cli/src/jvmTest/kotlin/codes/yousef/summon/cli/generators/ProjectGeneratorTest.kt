@@ -237,12 +237,8 @@ class ProjectGeneratorTest {
 
         // Even minimal should use the current render API
         assertTrue(
-            content.contains("val renderer = PlatformRenderer()"),
-            "Should instantiate a PlatformRenderer"
-        )
-        assertTrue(
-            content.contains("renderComposable(renderer"),
-            "Should use renderComposable helper API"
+            content.contains("renderComposableRoot("),
+            "Should use renderComposableRoot API"
         )
     }
 
@@ -435,14 +431,10 @@ class ProjectGeneratorTest {
             "padding() should use string values with units"
         )
 
-        // 5. Verify renderComposable usage with instantiated renderer
+        // 5. Verify renderComposableRoot usage
         assertTrue(
-            content.contains("val renderer = PlatformRenderer()"),
-            "Should instantiate a PlatformRenderer"
-        )
-        assertTrue(
-            content.contains("renderComposable(renderer"),
-            "Should use renderComposable helper API"
+            content.contains("renderComposableRoot("),
+            "Should use renderComposableRoot API"
         )
 
         println("✅ Generated Main.kt syntax validation passed")
@@ -472,11 +464,7 @@ class ProjectGeneratorTest {
         val jsBootstrap = File(tempDir, "app/src/jsMain/kotlin/com/example/full/Main.kt")
         assertTrue(jsBootstrap.exists(), "JS bootstrap should exist inside the app module")
         val jsContent = jsBootstrap.readText()
-        assertTrue(jsContent.contains("renderComposable(renderer"), "JS bootstrap should hydrate the shared App")
-        assertTrue(
-            jsContent.contains("document.getElementById(\"app\")"),
-            "JS bootstrap should target the shared root element"
-        )
+        assertTrue(jsContent.contains("renderComposableRoot("), "JS bootstrap should use renderComposableRoot API")
 
         val serverFile = File(tempDir, "backend/src/main/kotlin/com/example/full/Application.kt")
         assertTrue(serverFile.exists(), "Ktor server entrypoint should be generated in backend module")
