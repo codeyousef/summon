@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.8.6] - 2025-12-18
+
+### Fixed
+
+- **currentParent ReferenceError in Browser** - Fixed "Uncaught ReferenceError: currentParent is not defined" error when running CLI-generated projects
+  - Root cause: `PlatformRendererExt.kt` accessed `currentParent` as a local variable instead of `window.currentParent`
+  - The initialization code in `Initialize.kt` sets `window.currentParent`, but the extension function was missing the `window.` prefix
+  - Fixed all JS interop calls to use `window.currentParent`
+
 ## [0.5.8.5] - 2025-12-18
 
 ### Fixed

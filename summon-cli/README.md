@@ -19,7 +19,7 @@ java -jar summon-cli-<version>.jar init my-app
 java -jar summon-cli-<version>.jar --help
 ```
 
-> **Note**: Replace `<version>` with the actual version number from the [releases page](https://github.com/codeyousef/summon/releases) (e.g., `0.5.8.5`).
+> **Note**: Replace `<version>` with the actual version number from the [releases page](https://github.com/codeyousef/summon/releases) (e.g., `0.5.8.6`).
 
 ## Command
 

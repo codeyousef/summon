@@ -19,8 +19,9 @@ fun PlatformRenderer.renderComposable(content: @Composable () -> Unit, container
     container.innerHTML = ""
 
     // Set up the container as the current parent for rendering
-    js("var previousParent = currentParent;")
-    js("currentParent = container;")
+    // Use window.currentParent to access the global variable set by Initialize.kt
+    js("var previousParent = window.currentParent;")
+    js("window.currentParent = container;")
 
     try {
         // Render the composable content into the container
@@ -30,6 +31,6 @@ fun PlatformRenderer.renderComposable(content: @Composable () -> Unit, container
         js("console.error('Error rendering composable to container: ', e);")
     } finally {
         // Restore the previous parent
-        js("currentParent = previousParent;")
+        js("window.currentParent = previousParent;")
     }
 } 
