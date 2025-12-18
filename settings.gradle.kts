@@ -15,6 +15,7 @@ include(":examples:hello-world-js")
 include(":examples:hello-world-wasm")
 include(":examples:hydration-test")
 include(":examples:ssr-hydration-test")
+include(":examples:portfolio-js")
 
 // Diagnostics suite
 include(":diagnostics")

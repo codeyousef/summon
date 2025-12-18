@@ -137,6 +137,15 @@ examples/wasm-seo-todo/gradle/
 examples/wasm-seo-todo/gradlew
 examples/wasm-seo-todo/gradlew.bat
 examples/wasm-seo-todo/.gradle/
+
+# Portfolio JS example generated files
+examples/portfolio-js/gradle/
+examples/portfolio-js/gradlew
+examples/portfolio-js/gradlew.bat
+examples/portfolio-js/.gradle/
+examples/portfolio-js/.kotlin/
+examples/portfolio-js/node_modules/
+examples/portfolio-js/kotlin-js-store/
 /public-key-working.asc
 /private-key-working.asc
 /.junie/*

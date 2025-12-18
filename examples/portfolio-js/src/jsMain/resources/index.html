@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A portfolio built with Summon, Materia, and Sigil - Kotlin Multiplatform UI frameworks">
+    <meta name="theme-color" content="#001a2c">
+    
+    <title>Portfolio | Built with Summon + Sigil</title>
+    
+    <!-- Preconnect to Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Playfair+Display:wght@700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+    
+    <!-- Open Graph / Social -->
+    <meta property="og:title" content="Portfolio | Built with Summon + Sigil">
+    <meta property="og:description" content="A portfolio built with Summon, Materia, and Sigil - Kotlin Multiplatform UI frameworks">
+    <meta property="og:type" content="website">
+    
+    <style>
+        /* Critical CSS for initial load */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            background-color: #001a2c;
+            color: #ffffff;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        
+        #root {
+            min-height: 100vh;
+        }
+        
+        /* Loading state */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, #001a2c 0%, #05294a 100%);
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+        
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #ff4668;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading screen (hidden once JS loads) -->
+    <div id="loading" class="loading-screen">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- App root - Summon renders here -->
+    <div id="root"></div>
+    
+    <!-- Summon + Sigil runtime -->
+    <script src="portfolio.js"></script>
+    
+    <!-- Hide loading screen after app initializes -->
+    <script>
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                var loading = document.getElementById('loading');
+                if (loading) {
+                    loading.classList.add('hidden');
+                    setTimeout(function() {
+                        loading.remove();
+                    }, 300);
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>
