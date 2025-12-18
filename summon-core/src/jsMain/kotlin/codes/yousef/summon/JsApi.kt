@@ -22,8 +22,8 @@ fun renderComposableRoot(rootElementId: String, composable: @Composable () -> Un
     // Initialize global event listener for data-action handling
     GlobalEventListener.init()
     
-    // Use the extension function to render
-    renderer.renderComposable(composable, rootElement)
+    // Use the proper renderComposable function that sets up recomposition
+    renderComposable(renderer, composable, rootElement)
 }
 
 /**

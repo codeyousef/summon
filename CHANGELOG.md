@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.8.7] - 2025-12-18
+
+### Fixed
+
+- **State Updates Not Re-rendering UI** - Fixed critical bug where state changes via `mutableStateOf` were not triggering UI re-renders in CLI-generated projects
+  - Root cause: `JsApi.renderComposableRoot()` was using the extension function `renderer.renderComposable()` which bypassed recomposer setup
+  - The extension function just called `composable()` directly without setting up `RecomposerHolder` or `composeInitial()`
+  - Solution: Changed to use the proper `renderComposable(renderer, composable, container)` function from `Composable.kt` that sets up recomposition correctly
+
+### Changed
+
+- **Auto-publish to Maven Central** - Added `publishingType=AUTOMATIC` to Central Portal upload URLs so packages are automatically published after validation passes (no manual approval needed)
+
 ## [0.5.8.6] - 2025-12-18
 
 ### Fixed
