@@ -304,6 +304,22 @@ fun Modifier.backgroundColor(color: String): Modifier =
     background(color)
 
 /**
+ * Sets the background color using a Color object.
+ * @param color The Color object.
+ * @return A new Modifier with the background-color style.
+ */
+fun Modifier.background(color: codes.yousef.summon.core.style.Color): Modifier =
+    style("background-color", color.toString())
+
+/**
+ * Sets the background color using a Color object.
+ * @param color The Color object.
+ * @return A new Modifier with the background-color style.
+ */
+fun Modifier.backgroundColor(color: codes.yousef.summon.core.style.Color): Modifier =
+    background(color)
+
+/**
  * Sets the padding of the element using a single value for all sides.
  * @param value The CSS padding value (e.g., "10px", "1rem").
  * @return A new Modifier with the padding style.
@@ -466,6 +482,14 @@ fun Modifier.margin(value: String): Modifier =
  */
 fun Modifier.objectFit(value: String, component: Any? = null): Modifier =
     style("object-fit", value)
+
+/**
+ * Sets the object-fit property using an ObjectFit enum.
+ * @param value The ObjectFit enum value.
+ * @return A new Modifier with the object-fit style.
+ */
+fun Modifier.objectFit(value: ObjectFit): Modifier =
+    style("object-fit", value.value)
 
 /**
  * Sets the element to fill its container's width and height.

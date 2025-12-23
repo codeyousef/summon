@@ -469,6 +469,52 @@ enum class TextAlign(val value: String) {
 }
 ```
 
+### Media Enums
+
+```kotlin
+enum class ObjectFit(val value: String) {
+    Fill("fill"), Contain("contain"), Cover("cover"),
+    None("none"), ScaleDown("scale-down")
+}
+
+enum class Cursor(val value: String) {
+    Auto("auto"), Default("default"), Pointer("pointer"),
+    Text("text"), Wait("wait"), Help("help"), NotAllowed("not-allowed"),
+    Move("move"), Crosshair("crosshair"), Grab("grab"), Grabbing("grabbing"),
+    // ... and more
+}
+```
+
+### Type-Safe Modifier Functions
+
+All CSS enum values have corresponding type-safe modifier functions:
+
+```kotlin
+// Layout
+fun Modifier.display(value: Display): Modifier
+fun Modifier.position(value: Position): Modifier
+fun Modifier.overflow(value: Overflow): Modifier
+fun Modifier.flexDirection(value: FlexDirection): Modifier
+fun Modifier.flexWrap(value: FlexWrap): Modifier
+fun Modifier.justifyContent(value: JustifyContent): Modifier
+fun Modifier.alignItems(value: AlignItems): Modifier
+fun Modifier.alignSelf(value: AlignSelf): Modifier
+fun Modifier.alignContent(value: AlignContent): Modifier
+
+// Typography
+fun Modifier.fontWeight(value: FontWeight): Modifier
+fun Modifier.fontWeight(value: Int): Modifier  // numeric: 100-900
+
+// Colors (type-safe)
+fun Modifier.color(value: Color): Modifier
+fun Modifier.backgroundColor(value: Color): Modifier
+fun Modifier.background(value: Color): Modifier
+
+// Media
+fun Modifier.objectFit(value: ObjectFit): Modifier
+fun Modifier.cursor(value: Cursor): Modifier
+```
+
 ### Usage Examples
 
 ```kotlin

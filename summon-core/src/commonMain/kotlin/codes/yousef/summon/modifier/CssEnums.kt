@@ -756,3 +756,16 @@ enum class RotationSpeed(val value: Number, val unit: String) {
     val css: String get() = "$value$unit"
     override fun toString(): String = css
 }
+
+/**
+ * CSS object-fit values for controlling how content fits within its container.
+ */
+enum class ObjectFit(val value: String) {
+    Fill("fill"),
+    Contain("contain"),
+    Cover("cover"),
+    None("none"),
+    ScaleDown("scale-down");
+
+    override fun toString(): String = value
+}

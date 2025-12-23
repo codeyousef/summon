@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.1.0] - 2025-12-23
+
+### Added
+
+- **Type-Safe CSS Enums** - Added type-safe enum overloads for all CSS property modifiers:
+  - `fontWeight(FontWeight)` - Accept FontWeight enum directly
+  - `fontWeight(Int)` - Accept numeric values (100-900)
+  - `color(Color)` - Accept Color class directly
+  - `backgroundColor(Color)` - Accept Color class directly
+  - `background(Color)` - Accept Color class directly
+  - `cursor(Cursor)` - Accept Cursor enum directly
+  - `objectFit(ObjectFit)` - Accept ObjectFit enum directly
+- **ObjectFit Enum** - Added new `ObjectFit` enum with values: `Fill`, `Contain`, `Cover`, `None`, `ScaleDown`
+
+### Changed
+
+- All modifier functions now prefer type-safe enum parameters over raw strings for better compile-time safety
+
 ## [0.6.0] - 2025-12-23
 
 ### Added
