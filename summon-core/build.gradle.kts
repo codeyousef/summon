@@ -97,6 +97,9 @@ kotlin {
     // Add WASM target with basic optimization
     @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
     wasmJs {
+        compilerOptions {
+            freeCompilerArgs.add("-opt-in=kotlin.js.ExperimentalWasmJsInterop")
+        }
         browser {
             commonWebpackConfig {
                 cssSupport {

@@ -32,16 +32,4 @@ fun Modifier.buttonType(value: ButtonType): Modifier =
 // Since LayoutModifiers is now a file with top-level functions, we can't alias it as a type easily.
 // But we can create empty objects for namespace compatibility if needed.
 
-@Deprecated("Use top-level functions instead")
-object LayoutModifiers
-@Deprecated("Use top-level functions instead")
-object StylingModifiers
-@Deprecated("Use top-level functions instead")
-object EventModifiers
-@Deprecated("Use top-level functions instead")
-object AttributeModifiers
-
-typealias Layout = LayoutModifiers
-typealias Styling = StylingModifiers
-typealias Events = EventModifiers
-typealias Attributes = AttributeModifiers
+// Deprecated objects and typealiases removed. Use top-level functions instead.

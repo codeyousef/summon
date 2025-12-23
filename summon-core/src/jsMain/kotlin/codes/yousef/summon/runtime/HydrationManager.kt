@@ -7,12 +7,9 @@ import codes.yousef.summon.state.mutableStateOf
 import kotlinx.browser.document
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
+import codes.yousef.summon.hydration.GlobalEventListener
 
-/**
- * JavaScript implementation of HydrationManager.
- * This handles the actual hydration of server-rendered components on the client side.
- */
-@Deprecated("Use GlobalEventListener and ClientDispatcher for hydration instead.")
+@Deprecated("Use GlobalEventListener instead.")
 actual class HydrationManager {
     private val registeredComponents = mutableMapOf<String, HydrationInfo>()
     private val hydratedComponents = mutableSetOf<String>()
@@ -98,80 +95,18 @@ actual class HydrationManager {
      * This scans the document for elements with data-summon-component attributes.
      */
     fun hydrateFromDOM() {
-        val elements = document.querySelectorAll("[data-summon-component]")
-        for (i in 0 until elements.length) {
-            val element = elements.item(i) as? Element ?: continue
-            val componentType = element.getAttribute("data-summon-component") ?: continue
-            val componentId = element.getAttribute("data-summon-id") ?: element.id
-
-            if (componentId.isNotEmpty()) {
-                // Try to find a registered component for this element
-                val component = registeredComponents[componentId]
-                if (component != null) {
-                    hydrateComponent(componentId)
-                } else {
-                    // Create a basic component registration based on the DOM data
-                    val initialStateJson = element.getAttribute("data-summon-state")
-                    val initialState = if (initialStateJson != null) {
-                        parseInitialState(initialStateJson)
-                    } else {
-                        emptyMap()
-                    }
-
-                    // For now, we'll need to handle specific component types
-                    when (componentType) {
-                        "counter" -> {
-                            registerCounterComponent(componentId, initialState)
-                            hydrateComponent(componentId)
-                        }
-                        // Add other component types as needed
-                    }
-                }
-            }
-        }
-    }
-
-    private fun parseInitialState(stateJson: String): Map<String, Any?> {
-        // Simple JSON parsing - in a real implementation you'd use kotlinx.serialization
-        return try {
-            val parsed = js("JSON.parse(stateJson)")
-            val result = mutableMapOf<String, Any?>()
-
-            // Convert JS object to Kotlin map
-            js(
-                """
-                for (var key in parsed) {
-                    if (parsed.hasOwnProperty(key)) {
-                        result.set(key, parsed[key]);
-                    }
-                }
-            """
-            )
-
-            result.toMap()
-        } catch (e: Exception) {
-            emptyMap()
-        }
-    }
-
-    private fun registerCounterComponent(componentId: String, initialState: Map<String, Any?>) {
-        val initialValue = (initialState["value"] as? Number)?.toInt() ?: 0
-
-        registerComponent(
-            elementId = componentId,
-            componentType = "counter",
-            initialState = initialState
-        ) {
-            // This will be replaced with the actual CounterComponent implementation
-            // that uses hydration-aware state management
-        }
+        // Deprecated implementation removed
     }
 }
 
+// import codes.yousef.summon.hydration.GlobalEventListener // Moved to top of file
+
+
 /**
  * Global hydration manager instance for JavaScript runtime.
+ * Deprecated: Use GlobalEventListener instead.
  */
-val globalHydrationManager = HydrationManager()
+// val globalHydrationManager = HydrationManager() // Removed to fix warning
 
 /**
  * Initializes hydration when the DOM is ready.
@@ -181,6 +116,7 @@ fun initializeHydration() {
     if (js("document.readyState === 'loading'") as Boolean) {
         js("document.addEventListener('DOMContentLoaded', function() { initializeHydration(); })")
     } else {
-        globalHydrationManager.hydrateFromDOM()
+        // globalHydrationManager.hydrateFromDOM()
+        GlobalEventListener.init()
     }
 }

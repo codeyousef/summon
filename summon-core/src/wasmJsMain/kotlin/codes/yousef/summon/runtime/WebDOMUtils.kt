@@ -387,12 +387,12 @@ private class WasmHistoryWrapper : DOMHistory {
         window.history.go(delta)
     }
 
-    override fun pushState(data: Any?, title: String?, url: String?) {
-        window.history.pushState(data?.toString()?.toJsString(), title ?: "", url)
+    override fun pushState(state: Any?, title: String?, url: String?) {
+        window.history.pushState(state?.toString()?.toJsString(), title ?: "", url)
     }
 
-    override fun replaceState(data: Any?, title: String?, url: String?) {
-        window.history.replaceState(data?.toString()?.toJsString(), title ?: "", url)
+    override fun replaceState(state: Any?, title: String?, url: String?) {
+        window.history.replaceState(state?.toString()?.toJsString(), title ?: "", url)
     }
 
 

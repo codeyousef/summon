@@ -80,6 +80,7 @@ class EnhancedJvmPlatformRenderer : PlatformRenderer() {
                 newModifier.styles,
                 newModifier.attributes + ("data-raw-html" to rawHtml),
                 newModifier.eventHandlers,
+                newModifier.complexEventHandlers,
                 newModifier.pseudoElements
             )
         }

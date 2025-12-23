@@ -118,6 +118,47 @@ actual open class PlatformRenderer actual constructor() {
         wasmConsoleLog("PlatformRenderer renderLabel: $text - WASM stub")
     }
 
+    actual open fun renderRawHtml(html: String) {
+        if (isStringRenderMode) {
+            // HTML string building mode for SSR
+            // We wrap raw HTML in a div to fit into the HtmlElement structure
+            val element = HtmlElement(
+                tagName = "div",
+                attributes = mutableMapOf("data-raw-html" to "true")
+            )
+            element.content.append(html)
+            htmlStack.add(element)
+        } else {
+            // DOM rendering mode for client
+            try {
+                val summonId = "raw-html-${html.hashCode()}"
+                val newElement = createOrReuseElement("div", summonId)
+                val div = if (newElement != null) {
+                    newElement
+                } else {
+                    recompositionElements[summonId]
+                        ?: throw WasmDOMException("Failed to retrieve reused element: $summonId")
+                }
+                
+                div.setAttribute("innerHTML", html)
+                // Note: Wasm DOM API might not expose innerHTML directly on Element.
+                // If setAttribute doesn't work, we might need a JS interop helper.
+                // For now, let's try setting it via JS interop if available or just textContent as fallback if needed,
+                // but innerHTML is standard. If Element doesn't have it in Kotlin/Wasm, we need a cast or helper.
+                // Assuming Element is org.w3c.dom.Element, it doesn't have innerHTML.
+                // We need to cast to HTMLElement or use a helper.
+                // Since we don't have easy casting here without checking imports, let's use a helper function.
+                // Cast to JsAny to use with the helper
+                @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+                setInnerHTML(div as JsAny, html)
+                
+                appendToCurrentContainer(div)
+            } catch (e: Exception) {
+                wasmConsoleError("Failed to render raw html: ${e.message}")
+            }
+        }
+    }
+
     actual open fun renderButton(
         onClick: () -> Unit,
         modifier: Modifier,
@@ -2464,4 +2505,8 @@ actual open class PlatformRenderer actual constructor() {
             // This is expected in test environments
         }
     }
+}
+
+private fun setInnerHTML(element: JsAny, html: String) {
+    js("element.innerHTML = html")
 }

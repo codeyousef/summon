@@ -160,13 +160,12 @@ expect object PerformanceMetrics {
 }
 
 /**
- * Inline helper for conditional instrumentation.
- * Zero overhead when disabled due to inlining.
+ * Helper for conditional instrumentation.
  */
-inline fun <T> withPerfMetrics(
+fun <T> withPerfMetrics(
     name: String,
     phase: HydrationPhase = HydrationPhase.INITIALIZATION,
-    noinline block: () -> T
+    block: () -> T
 ): T {
     return if (PerformanceConfig.enabled) {
         PerformanceMetrics.measure(name, phase, block)
@@ -176,18 +175,18 @@ inline fun <T> withPerfMetrics(
 }
 
 /**
- * Inline helper for marking operation start.
+ * Helper for marking operation start.
  */
-inline fun perfMarkStart(name: String, phase: HydrationPhase = HydrationPhase.INITIALIZATION) {
+fun perfMarkStart(name: String, phase: HydrationPhase = HydrationPhase.INITIALIZATION) {
     if (PerformanceConfig.enabled) {
         PerformanceMetrics.markStart(name, phase)
     }
 }
 
 /**
- * Inline helper for marking operation end.
+ * Helper for marking operation end.
  */
-inline fun perfMarkEnd(name: String): Double {
+fun perfMarkEnd(name: String): Double {
     return if (PerformanceConfig.enabled) {
         PerformanceMetrics.markEnd(name)
     } else {

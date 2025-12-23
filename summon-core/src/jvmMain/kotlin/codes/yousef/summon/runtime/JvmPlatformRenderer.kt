@@ -180,7 +180,7 @@ actual open class PlatformRenderer {
     }
 
     actual open fun renderRawHtml(html: String) {
-        requireBuilder().unsafe {
+        requireBuilder().consumer.onTagContentUnsafe {
             +html
         }
     }
