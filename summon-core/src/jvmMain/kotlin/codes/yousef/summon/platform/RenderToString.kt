@@ -31,12 +31,8 @@ object RenderToString {
             clearPlatformRenderer()
         }
 
-        // Add doctype if needed
-        return if (result.startsWith("<!DOCTYPE")) {
-            result
-        } else {
-            result
-        }
+        // Basic rendering doesn't add DOCTYPE for backward compatibility
+        return result
     }
 
     /**
@@ -72,11 +68,9 @@ object RenderToString {
             clearPlatformRenderer()
         }
 
-        // Add doctype if needed
-        return if (metadata.includeDocType && result.startsWith("<!DOCTYPE")) {
-            result
-        } else if (metadata.includeDocType) {
-            "<!DOCTYPE html>\n$result"
+        // Add DOCTYPE if requested
+        return if (metadata.includeDocType) {
+            "<!DOCTYPE html>$result"
         } else {
             result
         }
