@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.2.0] - 2025-12-23
+
+### Fixed
+
+- **DOCTYPE Declaration Missing** - Fixed `renderComposableRoot` on JVM to include `<!DOCTYPE html>` declaration, preventing browser quirks mode and ensuring standards-compliant rendering
+
 ## [0.6.1.0] - 2025-12-23
 
 ### Added

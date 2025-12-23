@@ -382,6 +382,8 @@ actual open class PlatformRenderer {
         CallbackRegistry.beginRender()
         val result = StringBuilder()
         try {
+            // Add DOCTYPE declaration to ensure standards mode (not quirks mode)
+            result.append("<!DOCTYPE html>")
             result.appendHTML(prettyPrint = false).html {
                 head {
                     meta(charset = "UTF-8")
