@@ -1,6 +1,6 @@
 package codes.yousef.summon.theme
 
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.modifier.lineHeight
 import kotlin.test.Test
 import kotlin.test.assertEquals

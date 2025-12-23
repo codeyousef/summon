@@ -2,7 +2,7 @@ package codes.yousef.summon.components.display
 
 import codes.yousef.summon.core.mapOfCompat
 
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.Composable
 
 
@@ -187,7 +187,7 @@ fun SuccessText(text: String, modifier: Modifier = Modifier()) {
 fun EmphasizedText(text: String, modifier: Modifier = Modifier()) {
     Text(
         text = text,
-        modifier = Modifier(modifier.styles + ("font-style" to "italic")),
+        modifier = ModifierImpl(modifier.styles + ("font-style" to "italic")),
         fontFamily = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
     )
 }
@@ -215,7 +215,7 @@ fun StrongText(text: String, modifier: Modifier = Modifier()) {
 fun QuoteText(text: String, modifier: Modifier = Modifier()) {
     Text(
         text = text,
-        modifier = Modifier(
+        modifier = ModifierImpl(
             modifier.styles +
                     ("border-left" to "4px solid #e0e0e0") +
                     ("padding-left" to "1em") +
@@ -252,7 +252,7 @@ fun TruncatedText(text: String, maxLines: Int, modifier: Modifier = Modifier()) 
 fun KeyboardText(text: String, modifier: Modifier = Modifier()) {
     Text(
         text = text,
-        modifier = Modifier(
+        modifier = ModifierImpl(
             modifier.styles +
                     ("background-color" to "#f5f5f5") +
                     ("padding" to "0.2em 0.4em") +
@@ -281,7 +281,7 @@ fun BadgeText(
 ) {
     Text(
         text = text,
-        modifier = Modifier(
+        modifier = ModifierImpl(
             modifier.styles +
                     ("background-color" to color) +
                     ("color" to textColor) +
@@ -303,7 +303,7 @@ fun BadgeText(
 fun ScreenReaderText(text: String) {
     Text(
         text = text,
-        modifier = Modifier(
+        modifier = ModifierImpl(
             mapOfCompat(
                 "position" to "absolute",
                 "width" to "1px",

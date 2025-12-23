@@ -4,7 +4,7 @@ package codes.yousef.summon.components.input
 
 // Add import for shared MockPlatformRenderer
 import codes.yousef.summon.components.display.Text
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.MockPlatformRenderer
 import codes.yousef.summon.util.runComposableTest
 import kotlin.test.*

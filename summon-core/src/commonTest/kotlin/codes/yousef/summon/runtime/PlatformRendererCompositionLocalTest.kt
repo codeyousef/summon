@@ -1,7 +1,7 @@
 package codes.yousef.summon.runtime
 
 import codes.yousef.summon.annotation.Composable
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.test.assertSame

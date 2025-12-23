@@ -1,7 +1,7 @@
 package codes.yousef.summon.integration
 
 import codes.yousef.summon.js.testutil.ensureJsDom
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.modifier.ModifierExtras.withAttribute
 import codes.yousef.summon.runtime.PlatformRenderer
 import kotlinx.browser.document

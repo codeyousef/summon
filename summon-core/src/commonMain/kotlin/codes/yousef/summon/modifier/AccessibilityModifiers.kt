@@ -148,7 +148,7 @@ package codes.yousef.summon.modifier
  */
 fun Modifier.removeAttribute(name: String): Modifier {
     if (!attributes.containsKey(name)) return this
-    return Modifier(styles, attributes.filterKeys { it != name })
+    return ModifierImpl(styles, attributes.filterKeys { it != name }, eventHandlers, complexEventHandlers, pseudoElements)
 }
 
 // role(String) removed - exists as member function in Modifier class

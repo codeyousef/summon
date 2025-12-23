@@ -1,6 +1,7 @@
 package codes.yousef.summon.components.display
 
 import codes.yousef.summon.components.foundation.RawHtml
+import codes.yousef.summon.modifier.style
 import codes.yousef.summon.runtime.MockPlatformRenderer
 import codes.yousef.summon.util.runComposableTest
 import kotlin.test.*

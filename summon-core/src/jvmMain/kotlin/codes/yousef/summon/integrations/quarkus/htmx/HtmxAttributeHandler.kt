@@ -1,6 +1,6 @@
 package codes.yousef.summon.integration.quarkus.htmx
 
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import kotlinx.html.CommonAttributeGroupFacade
 
 /**
@@ -80,7 +80,7 @@ class HtmxAttributeHandler {
             val filteredStyles = modifier.styles.filterNot { (key, _) ->
                 key.startsWith(HTML_ATTRIBUTE_PREFIX) || isHtmxAttribute(key)
             }
-            return Modifier(filteredStyles)
+            return ModifierImpl(filteredStyles)
         }
     }
 }

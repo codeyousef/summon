@@ -21,6 +21,15 @@ fun Modifier.transform(vararg transforms: Pair<TransformFunction, String>): Modi
     style("transform", transforms.joinToString(" ") { "${it.first}(${it.second})" })
 
 /**
+ * Applies a raw CSS transform string.
+ *
+ * @param value The CSS transform value
+ * @return A new Modifier with the transform applied
+ */
+fun Modifier.transform(value: String): Modifier =
+    style("transform", value)
+
+/**
  * Applies multiple CSS filter functions in a type-safe manner.
  *
  * @param filters Variable number of filter function pairs

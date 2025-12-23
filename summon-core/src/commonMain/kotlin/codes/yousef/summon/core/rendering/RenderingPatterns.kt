@@ -2,7 +2,7 @@ package codes.yousef.summon.core.rendering
 
 import codes.yousef.summon.core.splitCompat
 
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 
 /**
  * Common patterns and utilities for platform-specific rendering.

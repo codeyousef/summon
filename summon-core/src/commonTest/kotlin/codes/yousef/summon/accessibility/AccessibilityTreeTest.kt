@@ -1,6 +1,6 @@
 package codes.yousef.summon.accessibility
 
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import kotlin.test.*
 
 class AccessibilityTreeTest {
@@ -31,7 +31,7 @@ class AccessibilityTreeTest {
     @Test
     fun testInspectAccessibility() {
         // Create a modifier with multiple accessibility attributes
-        val modifier = Modifier(
+        val modifier = ModifierImpl(
             styles = mapOf("color" to "red"), // Non-accessibility attribute
             attributes = mapOf(
                 "role" to "button",
@@ -58,7 +58,7 @@ class AccessibilityTreeTest {
     @Test
     fun testModifierInspectAccessibilityExtension() {
         // Create a modifier with accessibility attributes
-        val modifier = Modifier(
+        val modifier = ModifierImpl(
             attributes = mapOf(
                 "role" to "button",
                 "aria-label" to "Test Button"

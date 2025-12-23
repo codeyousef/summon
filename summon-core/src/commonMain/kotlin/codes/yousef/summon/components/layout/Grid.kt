@@ -2,7 +2,7 @@ package codes.yousef.summon.components.layout
 
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.core.FlowContent
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.getPlatformRenderer
 
 /**
@@ -223,7 +223,7 @@ fun Grid(
     areas?.let { gridStyles["grid-template-areas"] = it }
 
     // Create a new modifier that preserves all existing styles and attributes
-    val finalModifier = Modifier(modifier.styles + gridStyles, modifier.attributes)
+    val finalModifier = ModifierImpl(modifier.styles + gridStyles, modifier.attributes)
 
     getPlatformRenderer().renderGrid(
         modifier = finalModifier,

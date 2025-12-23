@@ -4,7 +4,7 @@ import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.components.display.Markdown
 import codes.yousef.summon.components.foundation.BasicText
 import codes.yousef.summon.components.layout.Spacer
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.theme.Spacing
 
 /**

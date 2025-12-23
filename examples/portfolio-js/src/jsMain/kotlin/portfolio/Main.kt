@@ -6,7 +6,6 @@ import codes.yousef.summon.components.layout.Column
 import codes.yousef.summon.components.styles.GlobalStyle
 import codes.yousef.summon.extensions.percent
 import codes.yousef.summon.modifier.*
-import codes.yousef.summon.modifier.LayoutModifiers.minHeight
 import codes.yousef.summon.hydrateComposableRoot
 
 import portfolio.data.PortfolioContent

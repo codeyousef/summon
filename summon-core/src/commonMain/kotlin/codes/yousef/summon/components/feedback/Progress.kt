@@ -2,7 +2,7 @@ package codes.yousef.summon.components.feedback
 
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.core.mapOfCompat
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.CompositionLocal
 import codes.yousef.summon.runtime.LocalPlatformRenderer
 
@@ -46,8 +46,8 @@ data class Progress(
         val composer = CompositionLocal.currentComposer
 
         val styleModifier = Modifier()
-            .then(Modifier(getTypeStyles()))
-            .then(Modifier(getAnimationStyles()))
+            .then(ModifierImpl(getTypeStyles()))
+            .then(ModifierImpl(getAnimationStyles()))
 
         val accessibilityModifier = getAccessibilityAttributes()
             .entries

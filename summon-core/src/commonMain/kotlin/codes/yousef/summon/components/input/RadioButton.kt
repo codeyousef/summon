@@ -5,8 +5,8 @@ import codes.yousef.summon.components.display.Text
 import codes.yousef.summon.components.layout.Box
 import codes.yousef.summon.components.layout.Row
 import codes.yousef.summon.modifier.AlignItems
-import codes.yousef.summon.modifier.EventModifiers.onClick
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.onClick
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.modifier.alignItems
 import codes.yousef.summon.modifier.applyIf
 import codes.yousef.summon.runtime.CompositionLocal

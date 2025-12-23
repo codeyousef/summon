@@ -1,7 +1,7 @@
 package codes.yousef.summon.seo.routes
 
 import codes.yousef.summon.annotation.Composable
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.routing.Route
 import codes.yousef.summon.runtime.LocalPlatformRenderer
 

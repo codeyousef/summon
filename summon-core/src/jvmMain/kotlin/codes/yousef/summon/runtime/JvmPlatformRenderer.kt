@@ -9,7 +9,7 @@ import codes.yousef.summon.components.input.FileInfo
 import codes.yousef.summon.components.navigation.Tab
 import codes.yousef.summon.core.FlowContentCompat
 import codes.yousef.summon.core.asFlowContentCompat
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.modifier.overflowX
 import codes.yousef.summon.modifier.overflowY
 import kotlinx.datetime.LocalDate
@@ -176,6 +176,12 @@ actual open class PlatformRenderer {
                 htmlFor = forElement // Changed from htmlFor
             }
             +text
+        }
+    }
+
+    actual open fun renderRawHtml(html: String) {
+        requireBuilder().unsafe {
+            +html
         }
     }
 

@@ -8,45 +8,45 @@ class FocusManagementTest {
     fun testCreateFocusModifier() {
         // Test FOCUSABLE behavior
         val focusableModifier = FocusManagement.createFocusModifier(FocusManagement.FocusBehavior.FOCUSABLE)
-        assertEquals("-1", focusableModifier.styles["tabindex"], "FOCUSABLE should have tabindex=-1")
+        assertEquals("-1", focusableModifier.attributes["tabindex"], "FOCUSABLE should have tabindex=-1")
 
         // Test TABBABLE behavior
         val tabbableModifier = FocusManagement.createFocusModifier(FocusManagement.FocusBehavior.TABBABLE)
-        assertEquals("0", tabbableModifier.styles["tabindex"], "TABBABLE should have tabindex=0")
+        assertEquals("0", tabbableModifier.attributes["tabindex"], "TABBABLE should have tabindex=0")
 
         // Test DISABLED behavior
         val disabledModifier = FocusManagement.createFocusModifier(FocusManagement.FocusBehavior.DISABLED)
-        assertEquals("-1", disabledModifier.styles["tabindex"], "DISABLED should have tabindex=-1")
-        assertEquals("true", disabledModifier.styles["aria-disabled"], "DISABLED should have aria-disabled=true")
+        assertEquals("-1", disabledModifier.attributes["tabindex"], "DISABLED should have tabindex=-1")
+        assertEquals("true", disabledModifier.attributes["aria-disabled"], "DISABLED should have aria-disabled=true")
 
         // Test AUTO_FOCUS behavior
         val autoFocusModifier = FocusManagement.createFocusModifier(FocusManagement.FocusBehavior.AUTO_FOCUS)
-        assertEquals("0", autoFocusModifier.styles["tabindex"], "AUTO_FOCUS should have tabindex=0")
-        assertEquals("true", autoFocusModifier.styles["autofocus"], "AUTO_FOCUS should have autofocus=true")
+        assertEquals("0", autoFocusModifier.attributes["tabindex"], "AUTO_FOCUS should have tabindex=0")
+        assertEquals("true", autoFocusModifier.attributes["autofocus"], "AUTO_FOCUS should have autofocus=true")
     }
 
     @Test
     fun testCreateFocusPoint() {
         // Test without restore
         val focusPoint = FocusManagement.createFocusPoint("test-id", shouldRestore = false)
-        assertEquals("test-id", focusPoint.styles["id"], "Focus point should have correct id")
-        assertEquals("true", focusPoint.styles["data-focus-point"], "Focus point should have data-focus-point=true")
+        assertEquals("test-id", focusPoint.attributes["id"], "Focus point should have correct id")
+        assertEquals("true", focusPoint.attributes["data-focus-point"], "Focus point should have data-focus-point=true")
         assertNull(
-            focusPoint.styles["data-focus-restore"],
+            focusPoint.attributes["data-focus-restore"],
             "Focus point without restore should not have data-focus-restore"
         )
 
         // Test with restore
         val focusPointWithRestore = FocusManagement.createFocusPoint("test-id-2", shouldRestore = true)
-        assertEquals("test-id-2", focusPointWithRestore.styles["id"], "Focus point should have correct id")
+        assertEquals("test-id-2", focusPointWithRestore.attributes["id"], "Focus point should have correct id")
         assertEquals(
             "true",
-            focusPointWithRestore.styles["data-focus-point"],
+            focusPointWithRestore.attributes["data-focus-point"],
             "Focus point should have data-focus-point=true"
         )
         assertEquals(
             "true",
-            focusPointWithRestore.styles["data-focus-restore"],
+            focusPointWithRestore.attributes["data-focus-restore"],
             "Focus point with restore should have data-focus-restore=true"
         )
     }
@@ -54,15 +54,15 @@ class FocusManagementTest {
     @Test
     fun testCreateFocusTrap() {
         val focusTrap = FocusManagement.createFocusTrap("trap-id")
-        assertEquals("trap-id", focusTrap.styles["data-focus-trap"], "Focus trap should have correct trap id")
-        assertEquals("true", focusTrap.styles["data-focus-trap-active"], "Focus trap should be active")
+        assertEquals("trap-id", focusTrap.attributes["data-focus-trap"], "Focus trap should have correct trap id")
+        assertEquals("true", focusTrap.attributes["data-focus-trap-active"], "Focus trap should be active")
     }
 
     @Test
     fun testCreateFocusScope() {
         val focusScope = FocusManagement.createFocusScope("scope-id")
-        assertEquals("scope-id", focusScope.styles["data-focus-scope"], "Focus scope should have correct scope id")
-        assertEquals("group", focusScope.styles["role"], "Focus scope should have role=group")
+        assertEquals("scope-id", focusScope.attributes["data-focus-scope"], "Focus scope should have correct scope id")
+        assertEquals("group", focusScope.attributes["role"], "Focus scope should have role=group")
     }
 
     @Test

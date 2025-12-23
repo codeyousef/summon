@@ -10,7 +10,6 @@ import codes.yousef.summon.components.navigation.LinkNavigationMode
 import codes.yousef.summon.extensions.percent
 import codes.yousef.summon.extensions.px
 import codes.yousef.summon.modifier.*
-import codes.yousef.summon.modifier.LayoutModifiers.gap
 
 import portfolio.data.Profile
 import portfolio.theme.PortfolioTheme

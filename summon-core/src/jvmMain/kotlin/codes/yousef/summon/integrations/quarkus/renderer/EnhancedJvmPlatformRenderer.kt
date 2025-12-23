@@ -6,7 +6,7 @@ import codes.yousef.summon.components.feedback.AlertVariant
 import codes.yousef.summon.components.input.FileInfo
 import codes.yousef.summon.core.FlowContentCompat
 import codes.yousef.summon.integration.quarkus.htmx.HtmxAttributeHandler
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.FormContent
 import codes.yousef.summon.runtime.NativeSelectOption
 import codes.yousef.summon.runtime.PlatformRenderer
@@ -68,7 +68,7 @@ class EnhancedJvmPlatformRenderer : PlatformRenderer() {
             }
 
             // Create a new modifier with the regular styles
-            newModifier = Modifier(regularStyles, htmlAttributes)
+            newModifier = ModifierImpl(regularStyles, htmlAttributes)
         }
 
         // Process raw HTML content
@@ -76,8 +76,11 @@ class EnhancedJvmPlatformRenderer : PlatformRenderer() {
             val rawHtml = modifier.styles["__raw_html"] ?: ""
 
             // Add a custom attribute to indicate raw HTML content
-            newModifier = newModifier.copy(
-                attributes = newModifier.attributes + ("data-raw-html" to rawHtml)
+            newModifier = ModifierImpl(
+                newModifier.styles,
+                newModifier.attributes + ("data-raw-html" to rawHtml),
+                newModifier.eventHandlers,
+                newModifier.pseudoElements
             )
         }
 

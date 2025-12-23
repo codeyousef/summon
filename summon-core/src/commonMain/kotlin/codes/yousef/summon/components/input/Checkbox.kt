@@ -1,6 +1,6 @@
 package codes.yousef.summon.components.input
 
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.modifier.applyIf
 import codes.yousef.summon.runtime.*
 import codes.yousef.summon.validation.Validator
@@ -34,7 +34,7 @@ fun Checkbox(
     // Apply additional styling for disabled state
     val finalModifier = modifier
         .apply {
-            if (enabled) this else this.copy(styles = this.styles + ("opacity" to "0.6"))
+            if (enabled) this else this.style("opacity", "0.6")
         }
         .cursor(if (enabled) "pointer" else "default")
         .applyIf(!enabled) { pointerEvents("none") }

@@ -12,7 +12,8 @@ object ModifierExtras {
      * @return A new Modifier with the added event handler
      */
     fun Modifier.onClick(handler: () -> Unit): Modifier =
-        copy(eventHandlers = this.eventHandlers + ("click" to handler))
+        if (this is ModifierImpl) copy(eventHandlers = this.eventHandlers + ("click" to handler))
+        else ModifierImpl(eventHandlers = mapOf("click" to handler))
 
     /**
      * Adds a single attribute to the Modifier by creating a new Modifier instance.
@@ -28,7 +29,8 @@ object ModifierExtras {
      * @return A new Modifier instance with the added attributes.
      */
     fun Modifier.withAttributes(attrs: Map<String, String>): Modifier {
-        return this.copy(attributes = this.attributes + attrs) // Create a new map by combining and then copy
+        return if (this is ModifierImpl) copy(attributes = this.attributes + attrs)
+        else ModifierImpl(attributes = attrs)
     }
 
     /**
@@ -69,5 +71,6 @@ object ModifierExtras {
     @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
     @Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
     fun Modifier.attribute(name: String, value: String): Modifier =
-        Modifier(styles, attributes + (name to value), eventHandlers)
+        if (this is ModifierImpl) copy(attributes = attributes + (name to value))
+        else ModifierImpl(attributes = mapOf(name to value))
 } 

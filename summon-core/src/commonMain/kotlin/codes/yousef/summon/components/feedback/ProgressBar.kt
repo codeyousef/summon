@@ -1,6 +1,6 @@
 package codes.yousef.summon.components.feedback
 
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.Composable
 import codes.yousef.summon.runtime.CompositionLocal
 import codes.yousef.summon.runtime.LocalPlatformRenderer

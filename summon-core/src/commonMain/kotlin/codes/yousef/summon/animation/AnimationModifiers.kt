@@ -101,7 +101,7 @@ package codes.yousef.summon.animation
 
 import codes.yousef.summon.core.splitCompat
 
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.modifier.TransitionTimingFunction
 import codes.yousef.summon.modifier.transition
 
@@ -127,7 +127,7 @@ fun Modifier.animate(
     fillMode: String = "forwards"
 ): Modifier {
     val animation = "$name ${duration}ms $timingFunction ${delay}ms $iterationCount $direction $fillMode"
-    return copy(styles = this.styles + ("animation" to animation))
+    return style("animation", animation)
 }
 
 /**
@@ -214,7 +214,7 @@ fun Modifier.animTransition(
     delay: Int = 0
 ): Modifier {
     val transition = "$property ${duration}ms $timingFunction ${delay}ms"
-    return copy(styles = this.styles + ("transition" to transition))
+    return style("transition", transition)
 }
 
 /**
@@ -230,7 +230,7 @@ fun Modifier.animOpacity(value: Float): Modifier {
     } else {
         value.toString()
     }
-    return copy(styles = this.styles + ("opacity" to formattedValue))
+    return style("opacity", formattedValue)
 }
 
 /**
@@ -319,5 +319,5 @@ fun Modifier.scale(
  * @return A new Modifier with the style added
  */
 fun Modifier.animStyle(property: String, value: String): Modifier {
-    return copy(styles = this.styles + (property to value))
-} 
+    return style(property, value)
+}

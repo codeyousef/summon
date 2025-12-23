@@ -1,7 +1,7 @@
 package codes.yousef.summon.modifier
 
 // Import necessary functions/enums if not automatically resolved
-import codes.yousef.summon.modifier.AttributeModifiers.getAttribute
+import codes.yousef.summon.modifier.getAttribute
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

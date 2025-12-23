@@ -1,7 +1,7 @@
 package codes.yousef.summon.runtime
 
 import codes.yousef.summon.annotation.Composable
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 
 /**
  * JavaScript-friendly facade for PlatformRenderer.
@@ -161,6 +161,6 @@ class PlatformRendererFacade() {
                 }
             }
         }
-        return Modifier(styles)
+        return ModifierImpl(styles)
     }
 }

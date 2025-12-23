@@ -42,7 +42,7 @@ import codes.yousef.summon.components.feedback.ProgressType
 import codes.yousef.summon.components.input.FileInfo
 import codes.yousef.summon.components.navigation.Tab
 import codes.yousef.summon.core.FlowContentCompat
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 
@@ -194,6 +194,13 @@ expect open class PlatformRenderer() {
      * @since 1.0.0
      */
     open fun renderLabel(text: String, modifier: Modifier, forElement: String? = null)
+
+    /**
+     * Renders raw HTML content directly.
+     *
+     * @param html The raw HTML string to render
+     */
+    open fun renderRawHtml(html: String)
 
     // --- Interactive Component Renderers ---
 

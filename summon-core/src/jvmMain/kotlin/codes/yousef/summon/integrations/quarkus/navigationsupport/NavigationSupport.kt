@@ -4,7 +4,7 @@ import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.components.layout.Box
 import codes.yousef.summon.integration.quarkus.htmx.htmx
 import codes.yousef.summon.integration.quarkus.htmx.htmxGet
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 
 /**
  * Navigation support for Summon with Quarkus.

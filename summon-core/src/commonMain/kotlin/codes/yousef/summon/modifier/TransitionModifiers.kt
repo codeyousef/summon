@@ -62,10 +62,7 @@ fun Modifier.transitionDelay(value: Number): Modifier =
 fun Modifier.hover(hoverModifier: Modifier): Modifier =
     hover(hoverModifier.styles)
 
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-@Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
-fun Modifier.pointerEvents(value: String): Modifier =
-    style("pointer-events", value)
+
 
 fun Modifier.backdropFilter(value: String): Modifier =
     style("backdrop-filter", value)

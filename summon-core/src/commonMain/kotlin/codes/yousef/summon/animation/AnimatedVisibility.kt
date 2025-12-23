@@ -1,7 +1,7 @@
 package codes.yousef.summon.animation
 
 import codes.yousef.summon.core.FlowContent
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.Composable
 import codes.yousef.summon.runtime.LaunchedEffect
 import codes.yousef.summon.runtime.LocalPlatformRenderer

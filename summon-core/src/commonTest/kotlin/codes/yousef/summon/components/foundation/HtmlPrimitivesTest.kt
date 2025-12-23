@@ -1,6 +1,6 @@
 package codes.yousef.summon.components.foundation
 
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.modifier.PointerEvents
 import codes.yousef.summon.runtime.MockPlatformRenderer
 import codes.yousef.summon.util.runComposableTest

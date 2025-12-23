@@ -27,7 +27,7 @@ class ModifierTest {
 
     @Test
     fun testAttributes() {
-        val modifier = Modifier(attributes = mapOf("id" to "test-id"))
+        val modifier = ModifierImpl(attributes = mapOf("id" to "test-id"))
         assertEquals("test-id", modifier.attributes["id"])
     }
     

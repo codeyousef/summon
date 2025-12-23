@@ -2,7 +2,7 @@ package codes.yousef.summon.theme
 
 import codes.yousef.summon.core.mapOfCompat
 
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import kotlin.math.pow
 
 

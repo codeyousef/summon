@@ -3,7 +3,7 @@ package codes.yousef.summon.components.input
 // Import the PlatformRenderer's SelectOption, this is the one the interface method uses
 // Import the component's SelectOption for creating the options list passed TO the component
 // Import other types used in PlatformRenderer methods for the mock
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.MockPlatformRenderer
 import codes.yousef.summon.runtime.SelectOption
 import codes.yousef.summon.state.SummonMutableState

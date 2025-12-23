@@ -4,6 +4,7 @@ import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.components.styles.GlobalStyle
 import codes.yousef.summon.runtime.CompositionLocal
 import codes.yousef.summon.theme.Theme
+import codes.yousef.summon.modifier.*
 
 /**
  * Enhanced theme configuration that extends the base theme with additional design tokens.

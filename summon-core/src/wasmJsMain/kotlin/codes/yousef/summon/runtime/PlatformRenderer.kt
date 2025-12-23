@@ -7,7 +7,7 @@ import codes.yousef.summon.components.input.FileInfo
 import codes.yousef.summon.components.navigation.Tab
 import codes.yousef.summon.core.FlowContentCompat
 import codes.yousef.summon.core.createWasmFlowContentCompat
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 

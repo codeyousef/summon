@@ -10,7 +10,7 @@ import codes.yousef.summon.components.navigation.Tab
 import codes.yousef.summon.core.FlowContentCompat
 import codes.yousef.summon.core.asFlowContentCompat
 import codes.yousef.summon.js.console
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.modifier.ModifierExtras.withAttribute
 import codes.yousef.summon.runtime.LocalPlatformRenderer
 import kotlinx.browser.document
@@ -451,6 +451,15 @@ actual open class PlatformRenderer {
         })
     }
 
+    actual open fun renderRawHtml(html: String) {
+        val parent = elementStack.current
+        val temp = kotlinx.browser.document.createElement("div")
+        temp.innerHTML = html
+        while (temp.firstChild != null) {
+            parent.appendChild(temp.firstChild!!)
+        }
+    }
+
     actual open fun renderButton(
         onClick: () -> Unit,
         modifier: Modifier,
@@ -849,7 +858,7 @@ actual open class PlatformRenderer {
         modifier: Modifier,
         content: @Composable (FlowContentCompat.() -> Unit)
     ) {
-        val rowModifier = Modifier(
+        val rowModifier = ModifierImpl(
             modifier.styles + mapOf(
                 "display" to "flex",
                 "flexDirection" to "row"
@@ -1430,7 +1439,7 @@ actual open class PlatformRenderer {
         content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         // Create a block element (div with display: block)
-        val blockModifier = Modifier(
+        val blockModifier = ModifierImpl(
             modifier.styles + mapOf(
                 "display" to "block"
             )
@@ -1446,7 +1455,7 @@ actual open class PlatformRenderer {
         content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         // Create an inline element (span with display: inline)
-        val inlineModifier = Modifier(
+        val inlineModifier = ModifierImpl(
             modifier.styles + mapOf(
                 "display" to "inline"
             )

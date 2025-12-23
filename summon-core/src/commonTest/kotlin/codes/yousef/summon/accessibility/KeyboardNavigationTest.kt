@@ -1,6 +1,6 @@
 package codes.yousef.summon.accessibility
 
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

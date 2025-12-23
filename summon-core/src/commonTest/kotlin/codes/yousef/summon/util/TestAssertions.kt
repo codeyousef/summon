@@ -1,6 +1,6 @@
 package codes.yousef.summon.util
 
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.MockPlatformRenderer
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

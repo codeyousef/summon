@@ -1,8 +1,8 @@
 package codes.yousef.summon.components.layout
 
 import codes.yousef.summon.annotation.Composable
-import codes.yousef.summon.modifier.EventModifiers.onClick
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.onClick
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.LocalPlatformRenderer
 
 /**

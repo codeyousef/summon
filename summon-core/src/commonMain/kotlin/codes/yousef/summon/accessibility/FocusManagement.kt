@@ -2,7 +2,7 @@ package codes.yousef.summon.accessibility
 
 import codes.yousef.summon.core.mapOfCompat
 
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.Composable
 import codes.yousef.summon.runtime.DisposableEffect
 
@@ -46,7 +46,7 @@ object FocusManagement {
             )
         }
 
-        return Modifier(attributes)
+        return ModifierImpl(attributes = attributes)
     }
 
     /**
@@ -71,7 +71,7 @@ object FocusManagement {
             attributes["data-focus-restore"] = "true"
         }
 
-        return Modifier(attributes)
+        return ModifierImpl(attributes = attributes)
     }
 
     /**
@@ -79,8 +79,8 @@ object FocusManagement {
      * Useful for modals, dialogs, and other components that should trap focus.
      */
     fun createFocusTrap(trapId: String): Modifier {
-        return Modifier(
-            mapOfCompat(
+        return ModifierImpl(
+            attributes = mapOfCompat(
                 "data-focus-trap" to trapId,
                 "data-focus-trap-active" to "true"
             )
@@ -92,8 +92,8 @@ object FocusManagement {
      * Useful for creating logical focus groups for arrow key navigation.
      */
     fun createFocusScope(scopeId: String): Modifier {
-        return Modifier(
-            mapOfCompat(
+        return ModifierImpl(
+            attributes = mapOfCompat(
                 "data-focus-scope" to scopeId,
                 "role" to "group"
             )

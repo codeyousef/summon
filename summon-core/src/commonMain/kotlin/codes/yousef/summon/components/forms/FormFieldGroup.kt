@@ -5,7 +5,7 @@ import codes.yousef.summon.components.display.Label
 import codes.yousef.summon.components.display.Text
 import codes.yousef.summon.components.layout.Column
 import codes.yousef.summon.components.layout.Row
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 
 /**
  * Metadata returned to field content so inputs can wire accessibility relationships.

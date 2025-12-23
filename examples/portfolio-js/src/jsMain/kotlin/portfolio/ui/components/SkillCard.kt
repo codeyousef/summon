@@ -7,7 +7,6 @@ import codes.yousef.summon.components.layout.Column
 import codes.yousef.summon.components.layout.Row
 import codes.yousef.summon.extensions.percent
 import codes.yousef.summon.modifier.*
-import codes.yousef.summon.modifier.LayoutModifiers.gap
 
 import portfolio.data.Skill
 import portfolio.theme.PortfolioTheme

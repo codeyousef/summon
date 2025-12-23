@@ -4,7 +4,7 @@ import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.integration.quarkus.htmx.htmlAttribute
 import codes.yousef.summon.integration.quarkus.qute.QuteTemplateRenderer
 import codes.yousef.summon.integration.quarkus.renderer.HtmxAwareRenderer
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.LocalPlatformRenderer
 import io.quarkus.qute.Template
 import jakarta.enterprise.context.ApplicationScoped

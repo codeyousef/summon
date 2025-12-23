@@ -4,7 +4,7 @@ import codes.yousef.summon.core.mapOfCompat
 
 import codes.yousef.summon.core.style.Color
 import codes.yousef.summon.modifier.*
-import codes.yousef.summon.modifier.StylingModifiers.textDecoration
+import codes.yousef.summon.modifier.textDecoration
 
 
 /**

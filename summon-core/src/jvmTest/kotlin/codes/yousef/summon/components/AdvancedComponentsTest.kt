@@ -4,7 +4,7 @@ import codes.yousef.summon.components.display.Chart
 import codes.yousef.summon.components.display.RichMarkdown
 import codes.yousef.summon.components.input.CodeEditor
 import codes.yousef.summon.components.layout.SplitPane
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.PlatformRenderer
 import org.jsoup.Jsoup
 import kotlin.test.Test

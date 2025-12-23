@@ -60,7 +60,7 @@ package codes.yousef.summon.components.navigation
 
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.core.FlowContent
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.modifier.ariaDisabled
 import codes.yousef.summon.modifier.hover
 import codes.yousef.summon.modifier.onClick

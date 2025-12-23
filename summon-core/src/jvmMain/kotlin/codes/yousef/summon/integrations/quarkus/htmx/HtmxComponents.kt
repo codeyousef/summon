@@ -4,7 +4,7 @@ import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.components.display.Text
 import codes.yousef.summon.components.input.Button
 import codes.yousef.summon.components.layout.Box
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 
 /**
  * Composable components for HTMX integration.

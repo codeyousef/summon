@@ -3,7 +3,7 @@ package codes.yousef.summon.components.feedback
 // Import other types used in PlatformRenderer methods for the mock
 
 // Import the shared MockPlatformRenderer
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.MockPlatformRenderer
 import codes.yousef.summon.util.runComposableTest
 import kotlin.test.*

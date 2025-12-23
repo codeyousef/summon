@@ -2,7 +2,7 @@
 
 package codes.yousef.summon
 
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import kotlinx.html.TagConsumer
 import kotlinx.html.span
 import kotlinx.html.style

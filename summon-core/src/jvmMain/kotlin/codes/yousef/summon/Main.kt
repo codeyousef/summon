@@ -5,7 +5,7 @@ import codes.yousef.summon.components.input.Button
 import codes.yousef.summon.components.layout.Column
 import codes.yousef.summon.components.layout.Row
 import codes.yousef.summon.components.layout.Spacer
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 

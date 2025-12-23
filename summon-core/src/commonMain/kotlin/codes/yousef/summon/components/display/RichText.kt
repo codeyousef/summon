@@ -2,7 +2,7 @@ package codes.yousef.summon.components.display
 
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.core.splitCompat
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.LocalPlatformRenderer
 
 /**

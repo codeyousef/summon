@@ -2,7 +2,7 @@ package codes.yousef.summon.theme
 
 import codes.yousef.summon.core.mapOfCompat
 
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 
 
 /**
@@ -185,7 +185,7 @@ class MediaQueryModifier(
             .joinToString(";") { (key, value) -> "$key:$value" }
 
         return baseModifier.then(
-            Modifier(mapOfCompat("__media" to "$query{$mediaQueryEntries}"))
+            ModifierImpl(mapOfCompat("__media" to "$query{$mediaQueryEntries}"))
         )
     }
 
@@ -202,7 +202,7 @@ class MediaQueryModifier(
 
         return MediaQueryModifier(
             "__multiple",
-            Modifier(mapOfCompat("__media_multiple" to combinedQueries))
+            ModifierImpl(mapOfCompat("__media_multiple" to combinedQueries))
         )
     }
 }

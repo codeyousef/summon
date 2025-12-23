@@ -28,7 +28,7 @@ inline fun Modifier.applyIf(condition: Boolean, block: Modifier.() -> Modifier):
  * Creates a clone of this modifier
  */
 fun Modifier.clone(): Modifier {
-    return Modifier(styles.toMap(), attributes.toMap(), eventHandlers.toMap(), pseudoElements.toList())
+    return ModifierImpl(styles.toMap(), attributes.toMap(), eventHandlers.toMap(), complexEventHandlers.toMap(), pseudoElements.toList())
 }
 
 /**
@@ -42,5 +42,8 @@ fun Modifier.combine(other: Modifier): Modifier = this.then(other)
  * as the actual handler function can't be stored in styles.
  */
 fun Modifier.event(eventName: String, handler: ModifierHandler): Modifier {
-    return copy(eventHandlers = eventHandlers + (eventName to handler))
+    return when (this) {
+        is ModifierImpl -> copy(eventHandlers = eventHandlers + (eventName to handler))
+        else -> ModifierImpl(eventHandlers = mapOf(eventName to handler))
+    }
 }

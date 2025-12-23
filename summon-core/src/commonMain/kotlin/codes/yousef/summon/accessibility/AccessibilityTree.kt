@@ -56,7 +56,7 @@ import codes.yousef.summon.accessibility.AccessibilityUtils.createRoleModifier
 import codes.yousef.summon.accessibility.Role.*
 import codes.yousef.summon.accessibility.State.*
 import codes.yousef.summon.core.mapOfCompat
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.Composable
 import codes.yousef.summon.runtime.LocalPlatformRenderer
 
@@ -177,7 +177,7 @@ object AccessibilityUtils {
      * @since 1.0.0
      */
     fun createRoleModifier(role: NodeRole): Modifier {
-        return Modifier().role(role.name.lowercase())
+        return Modifier().attribute("role", role.name.lowercase())
     }
 
     /**
@@ -210,14 +210,7 @@ object AccessibilityUtils {
      * @since 1.0.0
      */
     fun createRoleModifier(customRole: String): Modifier {
-        return Modifier().role(customRole)
-    }
-
-    /**
-     * Adds an ARIA role to a Modifier.
-     */
-    private fun Modifier.role(role: String): Modifier {
-        return this.copy(attributes = this.attributes + mapOfCompat("role" to role))
+        return Modifier().attribute("role", customRole)
     }
 
     /**
@@ -259,8 +252,7 @@ object AccessibilityUtils {
      * @since 1.0.0
      */
     fun createLabelModifier(label: String): Modifier {
-        val modifier = Modifier()
-        return modifier.copy(attributes = modifier.attributes + mapOfCompat("aria-label" to label))
+        return Modifier().attribute("aria-label", label)
     }
 
     /**
@@ -271,8 +263,7 @@ object AccessibilityUtils {
         relation: String,
         targetId: String
     ): Modifier {
-        val modifier = Modifier()
-        return modifier.copy(attributes = modifier.attributes + mapOfCompat("aria-$relation" to targetId))
+        return Modifier().attribute("aria-$relation", targetId)
     }
 
     /**
@@ -753,16 +744,16 @@ private fun Modifier.applyAccessibilityAttributes(node: AccessibilityNode): Modi
     var result = this
 
     // Apply role attribute
-    result = result.copy(attributes = result.attributes + mapOfCompat("role" to node.role.name.lowercase()))
+    result = result.attribute("role", node.role.name.lowercase())
 
     // Apply label as aria-label if available
     if (node.label != null) {
-        result = result.copy(attributes = result.attributes + mapOfCompat("aria-label" to node.label))
+        result = result.attribute("aria-label", node.label)
     }
 
     // Apply description as aria-describedby if available
     if (node.description != null) {
-        result = result.copy(attributes = result.attributes + mapOfCompat("aria-describedby" to node.description))
+        result = result.attribute("aria-describedby", node.description)
     }
 
     // Apply state attributes
@@ -778,12 +769,12 @@ private fun Modifier.applyAccessibilityAttributes(node: AccessibilityNode): Modi
             State.REQUIRED -> "aria-required"
             State.SELECTED -> "aria-selected"
         }
-        result = result.copy(attributes = result.attributes + mapOfCompat(stateName to entry.value.toString()))
+        result = result.attribute(stateName, entry.value.toString())
     }
 
     // Apply other properties
     for (entry in node.properties.entries) {
-        result = result.copy(attributes = result.attributes + mapOfCompat(entry.key to entry.value))
+        result = result.attribute(entry.key, entry.value)
     }
 
     return result

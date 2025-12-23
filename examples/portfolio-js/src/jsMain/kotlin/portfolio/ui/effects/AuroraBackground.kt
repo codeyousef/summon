@@ -7,8 +7,6 @@ import codes.yousef.summon.extensions.px
 import codes.yousef.summon.extensions.vh
 import codes.yousef.summon.extensions.vw
 import codes.yousef.summon.modifier.*
-import codes.yousef.summon.modifier.LayoutModifiers.left
-import codes.yousef.summon.modifier.LayoutModifiers.top
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.CanvasRenderingContext2D

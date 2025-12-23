@@ -1,6 +1,6 @@
 package codes.yousef.summon.modifier
 
-import codes.yousef.summon.modifier.AttributeModifiers.getAttribute
+import codes.yousef.summon.modifier.getAttribute
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

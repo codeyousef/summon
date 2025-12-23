@@ -489,10 +489,7 @@ fun Modifier.margin(vertical: String, horizontal: String): Modifier =
 
 /**
  * Sets margin for all four sides individually with explicit control.
- * @deprecated This extension is shadowed by member function. Use member function instead.
  */
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-@Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
 fun Modifier.margin(top: String, right: String, bottom: String, left: String): Modifier =
     style("margin", "$top $right $bottom $left")
 
@@ -1791,3 +1788,80 @@ private fun fromSpeed(speed: RotationSpeed): AnimationDuration =
         2 -> AnimationDuration.Fast
         else -> AnimationDuration.Medium
     }
+
+// --- String-based Layout Modifiers (Compatibility) ---
+
+/**
+ * Sets the position property.
+ */
+fun Modifier.position(value: String): Modifier = style("position", value)
+
+/**
+ * Sets the top property.
+ */
+fun Modifier.top(value: String): Modifier = style("top", value)
+
+/**
+ * Sets the right property.
+ */
+fun Modifier.right(value: String): Modifier = style("right", value)
+
+/**
+ * Sets the bottom property.
+ */
+fun Modifier.bottom(value: String): Modifier = style("bottom", value)
+
+/**
+ * Sets the left property.
+ */
+fun Modifier.left(value: String): Modifier = style("left", value)
+
+/**
+ * Sets the flex-direction property.
+ */
+fun Modifier.flexDirection(value: String): Modifier = style("flex-direction", value)
+
+/**
+ * Sets the display property.
+ */
+fun Modifier.display(value: String): Modifier = style("display", value)
+
+/**
+ * Sets the grid-template-columns property.
+ */
+fun Modifier.gridTemplateColumns(value: String): Modifier = style("grid-template-columns", value)
+
+/**
+ * Sets the grid-column-gap property.
+ */
+fun Modifier.gridColumnGap(value: String): Modifier = style("grid-column-gap", value)
+
+/**
+ * Sets the grid-row-gap property.
+ */
+fun Modifier.gridRowGap(value: String): Modifier = style("grid-row-gap", value)
+
+/**
+ * Sets the overflow property.
+ */
+fun Modifier.overflow(value: String): Modifier = style("overflow", value)
+
+/**
+ * Sets the align-items property.
+ */
+fun Modifier.alignItems(value: String): Modifier = style("align-items", value)
+
+/**
+ * Sets the justify-content property.
+ */
+fun Modifier.justifyContent(value: String): Modifier = style("justify-content", value)
+
+/**
+ * Sets the gap property.
+ */
+fun Modifier.gap(value: String): Modifier = style("gap", value)
+
+/**
+ * Sets the flex property.
+ */
+fun Modifier.flex(value: String): Modifier = style("flex", value)

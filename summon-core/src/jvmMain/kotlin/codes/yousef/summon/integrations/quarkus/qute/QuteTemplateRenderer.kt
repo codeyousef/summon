@@ -3,7 +3,7 @@ package codes.yousef.summon.integration.quarkus.qute
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.components.layout.Box
 import codes.yousef.summon.integration.quarkus.htmx.htmlAttribute
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import io.quarkus.qute.Template
 
 /**

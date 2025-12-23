@@ -1,6 +1,6 @@
 package codes.yousef.summon.platform
 
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.PlatformRenderer
 import codes.yousef.summon.runtime.getPlatformRenderer
 import codes.yousef.summon.runtime.setPlatformRenderer

@@ -1,6 +1,6 @@
 package codes.yousef.summon.animation
 
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.modifier.TransitionTimingFunction
 import codes.yousef.summon.modifier.transition
 import kotlin.test.Test

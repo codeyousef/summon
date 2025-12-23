@@ -1,7 +1,7 @@
 package codes.yousef.summon.theme
 
 import codes.yousef.summon.components.display.Text
-import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.*
 import codes.yousef.summon.modifier.fontFamily
 import codes.yousef.summon.modifier.letterSpacing
 import codes.yousef.summon.runtime.Composable

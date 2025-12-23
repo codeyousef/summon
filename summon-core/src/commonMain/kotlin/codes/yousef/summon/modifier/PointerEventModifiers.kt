@@ -178,6 +178,9 @@
  */
 package codes.yousef.summon.modifier
 
+import codes.yousef.summon.events.DragEvent
+import codes.yousef.summon.events.PointerEvent
+
 /**
  * Makes the element ignore all pointer events (clicks, touches, hovers).
  * Events will pass through to elements behind this one.
@@ -196,13 +199,20 @@ fun Modifier.enablePointerEvents(): Modifier =
     pointerEvents(PointerEvents.Auto)
 
 /**
+ * Sets the CSS pointer-events property using a raw string value.
+ *
+ * @param value The CSS pointer-events value (e.g., "none", "auto", "visible").
+ * @return A new [Modifier] with pointer-events applied
+ */
+fun Modifier.pointerEvents(value: String): Modifier =
+    style("pointer-events", value)
+
+/**
  * Sets the CSS pointer-events property using type-safe enum values.
  *
  * @param value PointerEvents enum describing the desired behavior
  * @return A new [Modifier] with pointer-events applied
  */
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-@Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
 fun Modifier.pointerEvents(value: PointerEvents): Modifier =
     style("pointer-events", value.toString())
 
@@ -276,6 +286,46 @@ fun Modifier.onTouchMove(handler: String): Modifier {
     return attribute("ontouchmove", handler)
 }
 
+// ... existing imports ...
+
+// ... existing code ...
+
+/**
+ * Adds a drag start event listener with event data.
+ *
+ * @param handler The function to execute when the drag starts
+ * @return A new [Modifier] with the ondragstart event handler
+ */
+fun Modifier.onDragStart(handler: (DragEvent) -> Unit): Modifier =
+    complexEventHandler("dragstart") { event -> handler(event as DragEvent) }
+
+/**
+ * Adds a drag end event listener with event data.
+ *
+ * @param handler The function to execute when the drag ends
+ * @return A new [Modifier] with the ondragend event handler
+ */
+fun Modifier.onDragEnd(handler: (DragEvent) -> Unit): Modifier =
+    complexEventHandler("dragend") { event -> handler(event as DragEvent) }
+
+/**
+ * Adds a drag over event listener with event data.
+ *
+ * @param handler The function to execute when dragging over the element
+ * @return A new [Modifier] with the ondragover event handler
+ */
+fun Modifier.onDragOver(handler: (DragEvent) -> Unit): Modifier =
+    complexEventHandler("dragover") { event -> handler(event as DragEvent) }
+
+/**
+ * Adds a drop event listener with event data.
+ *
+ * @param handler The function to execute when something is dropped on the element
+ * @return A new [Modifier] with the ondrop event handler
+ */
+fun Modifier.onDrop(handler: (DragEvent) -> Unit): Modifier =
+    complexEventHandler("drop") { event -> handler(event as DragEvent) }
+
 /**
  * Adds a drag start event listener to the element.
  *
@@ -323,4 +373,68 @@ fun Modifier.onDrop(handler: String): Modifier {
  * @return A new [Modifier] with the draggable attribute
  */
 fun Modifier.draggable(value: Boolean): Modifier =
-    attribute("draggable", value.toString()) 
+    attribute("draggable", value.toString())
+
+// ========================================
+// Lambda-based Event Handlers
+// ========================================
+
+/**
+ * Adds a click event listener with a Kotlin lambda.
+ *
+ * @param handler The function to execute when the element is clicked
+ * @return A new [Modifier] with the click event handler
+ */
+fun Modifier.onClick(handler: () -> Unit): Modifier =
+    eventHandler("click", handler)
+
+// ... existing imports ...
+
+// ... existing code ...
+
+/**
+ * Adds a context menu event listener (right-click) with a Kotlin lambda.
+ *
+ * @param handler The function to execute when the context menu is requested
+ * @return A new [Modifier] with the contextmenu event handler
+ */
+fun Modifier.onContextMenu(handler: () -> Unit): Modifier =
+    eventHandler("contextmenu", handler)
+
+/**
+ * Adds a context menu event listener with event data.
+ *
+ * @param handler The function to execute when the context menu is requested
+ * @return A new [Modifier] with the contextmenu event handler
+ */
+fun Modifier.onContextMenu(handler: (PointerEvent) -> Unit): Modifier =
+    complexEventHandler("contextmenu") { event -> handler(event as PointerEvent) }
+
+/**
+ * Adds a double click event listener with a Kotlin lambda.
+ *
+ * @param handler The function to execute when the element is double clicked
+ * @return A new [Modifier] with the dblclick event handler
+ */
+fun Modifier.onDoubleClick(handler: () -> Unit): Modifier =
+    eventHandler("dblclick", handler)
+
+// ... existing code ...
+
+/**
+ * Internal helper to add a lambda-based event handler.
+ */
+private fun Modifier.eventHandler(event: String, handler: () -> Unit): Modifier =
+    when (this) {
+        is ModifierImpl -> copy(eventHandlers = eventHandlers + (event to handler))
+        else -> ModifierImpl(eventHandlers = mapOf(event to handler))
+    }
+
+/**
+ * Internal helper to add a complex event handler.
+ */
+private fun Modifier.complexEventHandler(event: String, handler: (Any) -> Unit): Modifier =
+    when (this) {
+        is ModifierImpl -> copy(complexEventHandlers = complexEventHandlers + (event to handler))
+        else -> ModifierImpl(complexEventHandlers = mapOf(event to handler))
+    } 

@@ -44,7 +44,13 @@ private fun Modifier.withPseudoElement(
         styles = pseudoModifier.styles,
         content = content ?: pseudoModifier.attributes["content"] ?: "\"\""
     )
-    return host.copy(pseudoElements = host.pseudoElements + definition)
+    return ModifierImpl(
+        host.styles,
+        host.attributes,
+        host.eventHandlers,
+        host.complexEventHandlers,
+        host.pseudoElements + definition
+    )
 }
 
 /**

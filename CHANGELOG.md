@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] - 2025-12-23
+
+### Added
+
+- **Platform-Agnostic Layout Primitives** - Implemented high-level application structure components including `Scaffold`, `TopAppBar`, `BottomNavigation`, `NavigationDrawer`, `BottomSheet`, `FloatingActionButton`, `Snackbar`, `NavigationRail`, `SplitPane`, and `Sidebar`.
+- **Window Insets Support** - Added `WindowInsets` API and `Modifier.windowInsetsPadding` to handle system safe areas (notches, status bars).
+- **Gesture System** - Implemented a unified gesture detection system with `GestureDetector` supporting tap, double tap, long press, drag, pinch, and rotate. Added `Modifier.gestures` and `Modifier.onContextMenu`.
+- **Drag and Drop** - Enhanced drag and drop support with `DragEvent` and `DataTransfer` API. Added `Modifier.onDragStart`, `Modifier.onDrop`, etc.
+- **Context Menu** - Added `ContextMenuArea` component and `ContextMenuItem` for creating context menus.
+- **WASI Export Surface** - Added `WasiExport` object and export functions (`summon_entry`, `summon_event`) to enable compiling Summon to `wasm32-wasi` for headless environments.
+- **CBOR UI Tree** - Implemented `UiTree`, `UiNode`, and `UiPatch` data structures with serialization support (currently JSON-backed) for headless rendering and interop.
+- **Theme DSL** - Added a type-safe DSL for defining themes.
+- **Tooltip API** - Added `Tooltip` component with automatic positioning.
+- **Clipboard API** - Added `ClipboardAPI` for reading/writing to system clipboard.
+- **Cursor Styles** - Added `Modifier.cursor` for changing mouse cursor appearance.
+- **Focus Management** - Implemented `FocusRequester` and keyboard navigation support.
+- **Semantic Accessibility** - Added comprehensive accessibility support with ARIA mapping and semantic modifiers.
+- **Navigation** - Implemented a platform-agnostic routing system with back stack management.
+
+### Changed
+
+- **Modifier Refactor** - Refactored `Modifier` to use the Companion Object pattern (similar to Jetpack Compose) for better API ergonomics and extensibility.
+
 ## [0.5.8.7] - 2025-12-18
 
 ### Fixed
