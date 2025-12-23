@@ -407,6 +407,14 @@ fun Modifier.color(value: String): Modifier =
     style("color", value)
 
 /**
+ * Sets the text color using a Color object.
+ * @param value The Color object.
+ * @return A new Modifier with the color style.
+ */
+fun Modifier.color(value: codes.yousef.summon.core.style.Color): Modifier =
+    style("color", value.toString())
+
+/**
  * Sets the font size.
  * @param value The CSS font-size value (e.g., "16px", "1.2em").
  * @return A new Modifier with the font-size style.
@@ -422,6 +430,22 @@ fun Modifier.fontSize(value: String): Modifier =
  */
 fun Modifier.fontWeight(value: String, component: Any? = null): Modifier =
     style("font-weight", value)
+
+/**
+ * Sets the font weight using a numeric value.
+ * @param value The CSS font-weight numeric value (100-900).
+ * @return A new Modifier with the font-weight style.
+ */
+fun Modifier.fontWeight(value: Int): Modifier =
+    style("font-weight", value.toString())
+
+/**
+ * Sets the font weight using a FontWeight enum.
+ * @param value The FontWeight enum value.
+ * @return A new Modifier with the font-weight style.
+ */
+fun Modifier.fontWeight(value: FontWeight): Modifier =
+    style("font-weight", value.value)
 
 /**
  * Sets margins around the element using a single value for all sides.
