@@ -169,3 +169,11 @@ e2e-tests/.playwright/
 # Lighthouse performance reports
 lighthouse-reports/
 summon-core/src/jvmMain/resources/static/summon-hydration.wasm
+
+# Unpacked dependencies / Build artifacts in root
+/kotlinx/
+/net/
+/okio/
+/code/
+/summon/
+/it/
