@@ -1,6 +1,7 @@
 [versions]
 # Kotlin
 kotlin = "2.2.21"
+aether = "0.2.0.0"
 
 # Kotlinx
 kotlinxCoroutines = "1.10.2"
@@ -55,6 +56,7 @@ binaryCompatibilityValidator = "0.16.3"
 flexmark = "0.64.8"
 
 [libraries]
+aether-core = { module = "codes.yousef.aether:aether-core", version.ref = "aether" }
 # Kotlin
 kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
 kotlin-stdlib-js = { module = "org.jetbrains.kotlin:kotlin-stdlib-js", version.ref = "kotlin" }

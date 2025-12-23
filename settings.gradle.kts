@@ -7,6 +7,7 @@ rootProject.name = "summon"
 // Core modules - always included
 include(":summon-core")
 include(":summon-cli")
+include(":summon-aether")
 
 // Examples
 include(":examples:ssr-todo-app")
