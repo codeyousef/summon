@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.2.1] - 2025-12-28
+
+### Fixed
+
+- **Native Form Submission** - Forms with server-side `action` attribute now bypass hydration event interception, allowing native browser form submission to work correctly
+- Added `data-native-form` marker to `Form` component when using action-based submission
+
 ## [0.6.2.0] - 2025-12-23
 
 ### Fixed

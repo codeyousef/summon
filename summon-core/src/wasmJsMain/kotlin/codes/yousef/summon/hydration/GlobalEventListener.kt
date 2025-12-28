@@ -73,6 +73,18 @@ object GlobalEventListener {
     private fun handleEventInternal(event: Event) {
         val target = event.target as? Element ?: return
 
+        // Skip native forms - let them submit normally without hydration interception
+        if (event.type == "submit") {
+            var formEl: Element? = target
+            while (formEl != null && formEl.tagName?.lowercase() != "form") {
+                formEl = formEl.parentElement
+            }
+            if (formEl != null && formEl.getAttribute("data-native-form") == "true") {
+                // Allow native form submission
+                return
+            }
+        }
+
         // First, look specifically for data-action (for toggle menus, etc.)
         var current: Element? = target
         while (current != null && !current.hasAttribute("data-action")) {

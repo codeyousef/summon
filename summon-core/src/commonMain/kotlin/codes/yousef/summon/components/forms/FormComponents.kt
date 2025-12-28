@@ -64,6 +64,8 @@ fun Form(
     var resolvedModifier = modifier
         .attribute("action", action)
         .attribute("method", method.value)
+        // Mark as native form to bypass hydration interception
+        .attribute("data-native-form", "true")
 
     if (encType != null) {
         resolvedModifier = resolvedModifier.attribute("enctype", encType.value)
