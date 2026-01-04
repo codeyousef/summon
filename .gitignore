@@ -177,3 +177,6 @@ summon-core/src/jvmMain/resources/static/summon-hydration.wasm
 /code/
 /summon/
 /it/
+storage/admin-credentials.json
+.gitignore
+.gitignore
