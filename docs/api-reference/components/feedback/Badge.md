@@ -20,7 +20,7 @@ component offers:
 ### Simple Text Badge
 
 ```kotlin
-import code.yousef.summon.components.feedback.*
+import codes.yousef.summon.components.feedback.*
 
 @Composable
 fun SimpleBadgeExample() {

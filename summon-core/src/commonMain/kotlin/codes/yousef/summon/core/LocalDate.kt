@@ -2,6 +2,7 @@ package codes.yousef.summon.core
 
 // Import kotlinx.datetime for LocalDate
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.number
 
 /**
  * Extension functions for kotlinx.datetime.LocalDate
@@ -20,10 +21,10 @@ import kotlinx.datetime.LocalDate
 fun LocalDate.format(pattern: String): String {
     var result = pattern
     result = result.replace("yyyy", year.toString().padStart(4, '0'))
-    result = result.replace("MM", monthNumber.toString().padStart(2, '0'))
-    result = result.replace("M", monthNumber.toString())
-    result = result.replace("dd", dayOfMonth.toString().padStart(2, '0'))
-    result = result.replace("d", dayOfMonth.toString())
+    result = result.replace("MM", month.number.toString().padStart(2, '0'))
+    result = result.replace("M", month.number.toString())
+    result = result.replace("dd", day.toString().padStart(2, '0'))
+    result = result.replace("d", day.toString())
     return result
 }
 

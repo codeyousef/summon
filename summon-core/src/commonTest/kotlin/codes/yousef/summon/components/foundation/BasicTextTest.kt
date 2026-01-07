@@ -208,10 +208,10 @@ class BasicTextTest {
 
             // Verify the layout result
             assertNotNull(layoutResult, "TextLayoutResult should not be null")
-            assertEquals(25 * 8f, layoutResult!!.width, "Width should be calculated based on text length")
-            assertEquals(20f, layoutResult!!.height, "Height should be the default value")
-            assertEquals(1, layoutResult!!.lineCount, "Line count should be 1")
-            assertFalse(layoutResult!!.hasVisualOverflow, "hasVisualOverflow should be false")
+            assertEquals(25 * 8f, layoutResult.width, "Width should be calculated based on text length")
+            assertEquals(20f, layoutResult.height, "Height should be the default value")
+            assertEquals(1, layoutResult.lineCount, "Line count should be 1")
+            assertFalse(layoutResult.hasVisualOverflow, "hasVisualOverflow should be false")
         }
     }
 }

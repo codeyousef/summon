@@ -54,13 +54,13 @@ Summon's SSR system includes:
 ### Simple Component Rendering
 
 ```kotlin
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.PlatformRenderer
-import code.yousef.summon.runtime.remember
-import code.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.components.layout.Column
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.runtime.remember
+import codes.yousef.summon.state.mutableStateOf
 
 // Create a renderer instance
 val renderer = PlatformRenderer()
@@ -113,7 +113,7 @@ fun Counter() {
 The `ServerSideRenderUtils` class provides convenient methods for common SSR scenarios:
 
 ```kotlin
-import code.yousef.summon.ssr.ServerSideRenderUtils
+import codes.yousef.summon.ssr.ServerSideRenderUtils
 
 val html = ServerSideRenderUtils.renderPageToString(
     rootComposable = { MyApp() },
@@ -131,7 +131,7 @@ val html = ServerSideRenderUtils.renderPageToString(
 For advanced scenarios, use `RenderContext` to configure the rendering environment:
 
 ```kotlin
-import code.yousef.summon.ssr.*
+import codes.yousef.summon.ssr.*
 
 val context = RenderContext(
     enableHydration = true,

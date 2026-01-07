@@ -121,7 +121,7 @@ class JSBrowserCompatibilityTest {
 
         val wasmSupport = detection.detectWasmSupport()
         assertNotNull(wasmSupport)
-        assertTrue(wasmSupport in WasmVersion.values())
+        assertTrue(wasmSupport in WasmVersion.entries.toTypedArray())
 
         val moduleSupport = detection.hasModuleSupport()
         assertNotNull(moduleSupport)
@@ -210,7 +210,7 @@ class JSBrowserCompatibilityTest {
 
     @Test
     fun testEnhancementPlanProgression() {
-        val plans = EnhancementPlan.values()
+        val plans = EnhancementPlan.entries.toTypedArray()
 
         assertTrue(plans.contains(EnhancementPlan.WASM_FULL))
         assertTrue(plans.contains(EnhancementPlan.WASM_BASIC))
@@ -224,7 +224,7 @@ class JSBrowserCompatibilityTest {
 
     @Test
     fun testFeatureDetectionCompleteness() {
-        val features = BrowserFeature.values().toSet()
+        val features = BrowserFeature.entries.toSet()
 
         val coreFeatures = setOf(
             BrowserFeature.MODERN_JS,
@@ -323,11 +323,9 @@ class JSBrowserCompatibilityTest {
         assertNotNull(gracefulAction)
         assertNotNull(fatalAction)
 
-        val fallback = fallbackAction as ErrorAction.Fallback
-        assertEquals(RenderingStrategy.JS_COMPATIBLE, fallback.strategy)
+        assertEquals(RenderingStrategy.JS_COMPATIBLE, fallbackAction.strategy)
 
-        val graceful = gracefulAction as ErrorAction.Graceful
-        assertEquals("Test message", graceful.message)
+        assertEquals("Test message", gracefulAction.message)
     }
 
     @Test

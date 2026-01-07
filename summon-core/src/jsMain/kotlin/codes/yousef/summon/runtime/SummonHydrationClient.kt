@@ -1,12 +1,10 @@
 package codes.yousef.summon.runtime
 
+import codes.yousef.summon.hydration.Bootloader
+import codes.yousef.summon.hydration.GlobalEventListener
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.Element
-import org.w3c.fetch.Headers
-import org.w3c.fetch.RequestInit
-import codes.yousef.summon.hydration.Bootloader
-import codes.yousef.summon.hydration.GlobalEventListener
 
 /**
  * Client-side hydration for Summon components.
@@ -83,7 +81,7 @@ object SummonHydrationClient {
             // Discover SSR root for proper hydration
             val rootElement: Element? =
                 document.getElementById("summon-app")
-                    ?: document.querySelector("[data-summon-hydration=\"root\"]") as? Element
+                    ?: document.querySelector("[data-summon-hydration=\"root\"]")
 
             if (rootElement != null) {
                 SummonLogger.log(

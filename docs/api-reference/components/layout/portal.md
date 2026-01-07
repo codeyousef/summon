@@ -9,7 +9,7 @@ The Portal component allows you to render content anywhere in the DOM tree while
 ## Basic Usage
 
 ```kotlin
-import code.yousef.summon.components.layout.Portal
+import codes.yousef.summon.components.layout.Portal
 
 Portal(target = "body") {
     Modal(

@@ -25,7 +25,7 @@ class JwtAuthenticationProviderTest {
 
         // Verify the result
         assertTrue(result is AuthenticationResult.Success)
-        val authentication = (result as AuthenticationResult.Success).authentication
+        val authentication = result.authentication
 
         // Verify the authentication
         assertTrue(authentication.isAuthenticated)
@@ -57,7 +57,7 @@ class JwtAuthenticationProviderTest {
 
         // Verify the result
         assertTrue(result is AuthenticationResult.Success)
-        val authentication = (result as AuthenticationResult.Success).authentication
+        val authentication = result.authentication
 
         // Verify the authentication
         assertTrue(authentication.isAuthenticated)
@@ -83,7 +83,7 @@ class JwtAuthenticationProviderTest {
 
         // Verify the result
         assertTrue(result is AuthenticationResult.Failure)
-        val error = (result as AuthenticationResult.Failure).error
+        val error = result.error
         assertTrue(error is IllegalArgumentException)
         assertEquals("Unsupported credentials type", error.message)
     }
@@ -107,7 +107,7 @@ class JwtAuthenticationProviderTest {
 
         // Verify the result
         assertTrue(result is AuthenticationResult.Success)
-        val newAuthentication = (result as AuthenticationResult.Success).authentication
+        val newAuthentication = result.authentication
 
         // Verify the new authentication
         assertTrue(newAuthentication.isAuthenticated)
@@ -139,7 +139,7 @@ class JwtAuthenticationProviderTest {
 
         // Verify the result
         assertTrue(result is AuthenticationResult.Failure)
-        val error = (result as AuthenticationResult.Failure).error
+        val error = result.error
         assertTrue(error is IllegalStateException)
         assertEquals("No refresh token available", error.message)
     }
@@ -161,7 +161,7 @@ class JwtAuthenticationProviderTest {
 
         // Verify the result
         assertTrue(result is AuthenticationResult.Failure)
-        val error = (result as AuthenticationResult.Failure).error
+        val error = result.error
         assertTrue(error is IllegalArgumentException)
         assertEquals("Can only refresh JWT tokens", error.message)
     }

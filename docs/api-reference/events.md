@@ -34,7 +34,7 @@ The base interface for all events in Summon.
 ### Interface Definition
 
 ```kotlin
-package code.yousef.summon.events
+package codes.yousef.summon.events
 
 interface Event {
     // Event type (click, change, etc.)
@@ -132,7 +132,7 @@ APIs for attaching and managing event listeners.
 ### Function Definitions
 
 ```kotlin
-package code.yousef.summon.events
+package codes.yousef.summon.events
 
 // Add an event listener to a component
 @Composable
@@ -252,7 +252,7 @@ Specialized event interfaces for common event types.
 ### Interface Definitions
 
 ```kotlin
-package code.yousef.summon.events
+package codes.yousef.summon.events
 
 // Mouse events (click, mousedown, mouseup, etc.)
 interface MouseEvent : Event {
@@ -503,7 +503,7 @@ APIs for creating and dispatching custom events.
 ### Class Definitions
 
 ```kotlin
-package code.yousef.summon.events
+package codes.yousef.summon.events
 
 // Custom event class
 class CustomEvent(
@@ -605,7 +605,7 @@ Events specific to particular platforms.
 ### Browser-Specific Events
 
 ```kotlin
-package code.yousef.summon.events.js
+package codes.yousef.summon.events.js
 
 // Window events
 interface WindowEvent : Event {
@@ -646,7 +646,7 @@ fun window.addPopStateListener(listener: (PopStateEvent) -> Unit): EventSubscrip
 ### JVM-Specific Events
 
 ```kotlin
-package code.yousef.summon.events.jvm
+package codes.yousef.summon.events.jvm
 
 // Window events for desktop applications
 interface WindowEvent : Event {

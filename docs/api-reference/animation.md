@@ -22,7 +22,7 @@ The core animation class that manages animations in the Summon framework.
 ### Class Definition
 
 ```kotlin
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
 class Animation<T>(
     val initialValue: T,
@@ -89,7 +89,7 @@ A component that animates the appearance and disappearance of its content.
 ### Function Definition
 
 ```kotlin
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
 @Composable
 fun AnimatedVisibility(
@@ -139,7 +139,7 @@ A component that animates between different content states.
 ### Function Definition
 
 ```kotlin
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
 @Composable
 fun <T> AnimatedContent(
@@ -202,7 +202,7 @@ Components for creating transitions between different states.
 ### Function Definitions
 
 ```kotlin
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
 // Create transitions
 fun <T> createTransition(initialState: T): Transition<T>
@@ -277,7 +277,7 @@ Predefined easing functions for controlling animation timing.
 ### Constants and Functions
 
 ```kotlin
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
 object EasingFunctions {
     val Linear: EasingFunction
@@ -340,7 +340,7 @@ Modifiers for applying animations to components.
 ### Modifier Functions
 
 ```kotlin
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
 // Animate CSS properties
 fun Modifier.animate(
@@ -413,7 +413,7 @@ API for defining keyframe animations.
 ### Functions and Classes
 
 ```kotlin
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
 class KeyframesBuilder {
     fun at(percentage: Int, block: KeyframeBuilder.() -> Unit)
@@ -486,7 +486,7 @@ API for creating custom animations.
 ### Functions
 
 ```kotlin
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
 // Create a custom animation
 fun createCustomAnimation(builder: CustomAnimationBuilder.() -> Unit): CustomAnimation
@@ -541,7 +541,7 @@ Convenient extension functions for common animation scenarios.
 ### Extension Functions
 
 ```kotlin
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
 // Animate numeric properties
 @Composable
@@ -641,7 +641,7 @@ Utility functions and classes for working with animations.
 ### Functions
 
 ```kotlin
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
 // Create animated values
 fun Animatable(
@@ -709,7 +709,7 @@ Advanced keyframe generation utilities.
 ### Functions
 
 ```kotlin
-package code.yousef.summon.animation
+package codes.yousef.summon.animation
 
 // Generate keyframes from a sequence
 fun generateKeyframes(

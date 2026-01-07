@@ -16,14 +16,17 @@ npm run install:browsers
 
 ### Quick Start (Manual)
 
-1. Start the hydration-test example server:
+1. Generate and start a test project:
 ```bash
-cd .. && ./gradlew :examples:hydration-test:jsBrowserDevelopmentRun
+# Generate a JS project using the CLI
+summon new test-app --template js
+cd test-app
+./gradlew jsBrowserDevelopmentRun
 ```
 
 2. In a new terminal, run the tests:
 ```bash
-npm run test:hydration
+npm run test:smoke
 ```
 
 ### Automated E2E Runner
@@ -35,11 +38,11 @@ npm run test:all
 
 ## Test Suites
 
-| Test File | Description |
-|-----------|-------------|
-| `hydration.spec.ts` | Comprehensive hydration tests (desktop, mobile, tablet) |
-| `hamburger-menu.spec.ts` | Focused hamburger menu toggle tests |
-| `smoke.spec.ts` | Basic smoke tests for hello-world examples |
+| Test File                | Description                                             |
+|--------------------------|---------------------------------------------------------|
+| `hydration.spec.ts`      | Comprehensive hydration tests (desktop, mobile, tablet) |
+| `hamburger-menu.spec.ts` | Focused hamburger menu toggle tests                     |
+| `smoke.spec.ts`          | Basic smoke tests for CLI-generated projects            |
 
 ## Available npm Scripts
 
@@ -83,11 +86,11 @@ npx playwright test --debug
 
 ## Example Project Structure
 
-The tests are designed to work with these example apps:
+The tests are designed to work with CLI-generated projects. Use the Summon CLI to generate test applications:
 
-- `examples/hydration-test/` - Comprehensive test app with HamburgerMenu, Button, etc.
-- `examples/hello-world-js/` - Basic JS example
-- `examples/hello-world-wasm/` - Basic WASM example (when configured)
+```bash
+summon new my-test-app --template hydration
+```
 
 ## CI Integration
 

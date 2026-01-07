@@ -3,7 +3,8 @@ package codes.yousef.summon.components.input
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.components.foundation.BasicText
 import codes.yousef.summon.components.layout.Column
-import codes.yousef.summon.modifier.*
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.padding
 import codes.yousef.summon.runtime.*
 import codes.yousef.summon.state.mutableStateOf
 import kotlin.test.Test
@@ -107,7 +108,7 @@ class ButtonStateTest {
             assertNotNull(onClickHandler, "Button onClick handler should not be null")
 
             println("[DEBUG_LOG] Simulating button click...")
-            onClickHandler!!.invoke()
+            onClickHandler.invoke()
 
             println("[DEBUG_LOG] Button click simulation complete")
         }

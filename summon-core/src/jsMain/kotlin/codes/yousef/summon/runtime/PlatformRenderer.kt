@@ -12,7 +12,6 @@ import codes.yousef.summon.core.asFlowContentCompat
 import codes.yousef.summon.js.console
 import codes.yousef.summon.modifier.*
 import codes.yousef.summon.modifier.ModifierExtras.withAttribute
-import codes.yousef.summon.runtime.LocalPlatformRenderer
 import kotlinx.browser.document
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
@@ -1823,7 +1822,7 @@ actual open class PlatformRenderer {
 
         // Return a trigger function that programmatically clicks the input
         return {
-            inputElement?.asDynamic()?.click()
+            inputElement.asDynamic()?.click()
         }
     }
 

@@ -7,7 +7,7 @@ maintaining their component context. This is useful for modals, tooltips, and ov
 constraints.
 
 **Platform**: JS only  
-**Package**: `code.yousef.summon.runtime`  
+**Package**: `codes.yousef.summon.runtime`  
 **Since**: 0.4.8.4
 
 ---

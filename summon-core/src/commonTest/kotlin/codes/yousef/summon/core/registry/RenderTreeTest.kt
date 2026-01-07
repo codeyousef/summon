@@ -137,7 +137,7 @@ class RenderTreeTest {
 
         // Verify leaf
         assertNotNull(node)
-        assertEquals("Leaf", node!!.type)
+        assertEquals("Leaf", node.type)
         assertEquals(5, node.props["level"])
     }
 }

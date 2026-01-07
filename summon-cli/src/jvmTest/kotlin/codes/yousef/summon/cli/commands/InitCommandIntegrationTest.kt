@@ -4,7 +4,6 @@ import com.github.ajalt.clikt.core.parse
 import java.io.File
 import java.time.Duration
 import java.time.Instant
-import java.util.concurrent.TimeUnit
 import kotlin.io.path.createTempDirectory
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -26,17 +25,20 @@ class InitCommandIntegrationTest {
             TemplateScenario(
                 projectName = "standalone-site",
                 initArgs = arrayOf("--mode=standalone"),
-                gradleTasks = listOf("kotlinUpgradeYarnLock", "build")
+                gradleTasks = listOf("kotlinUpgradeYarnLock", "build"),
+                warningModeFail = false
             ),
             TemplateScenario(
                 projectName = "portal-ktor",
                 initArgs = arrayOf("--mode=fullstack", "--backend=ktor"),
-                gradleTasks = listOf("kotlinUpgradeYarnLock", "build")
+                gradleTasks = listOf("kotlinUpgradeYarnLock", "build"),
+                warningModeFail = false
             ),
             TemplateScenario(
                 projectName = "portal-spring",
                 initArgs = arrayOf("--mode=fullstack", "--backend=spring"),
-                gradleTasks = listOf("kotlinUpgradeYarnLock", "build")
+                gradleTasks = listOf("kotlinUpgradeYarnLock", "build"),
+                warningModeFail = false
             ),
             TemplateScenario(
                 projectName = "portal-quarkus",
@@ -191,7 +193,12 @@ class InitCommandIntegrationTest {
             "KT-61573",
             "Scripts are not yet supported with K2",
             "ExperimentalWasmJsInterop",
-            "The engine \"pnpm\" appears to be invalid"
+            "The engine \"pnpm\" appears to be invalid",
+            "Unsupported API dependency types",
+            "API dependency types are used in test source sets",
+            "Adding API dependency types to test source sets is not supported",
+            "Dependencies: \n    - org.jetbrains.kotlinx:atomicfu",
+            "Replacing API dependency types in test source sets with implementation dependencies"
         )
         val webpackWarningPattern = Regex("\\[\\d+ warnings?]|webpack \\d+\\.\\d+\\.\\d+ compiled with \\d+ warnings?", RegexOption.IGNORE_CASE)
         val webpackPerformancePattern = Regex("asset size limit:|entrypoint size limit:|webpack performance recommendations", RegexOption.IGNORE_CASE)

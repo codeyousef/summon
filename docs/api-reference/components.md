@@ -18,7 +18,7 @@ built with type-safe styling, accessibility features, and cross-platform compati
 
 ## Foundation Components
 
-Foundation components (package `code.yousef.summon.components.foundation`) provide theming and other low-level building
+Foundation components (package `codes.yousef.summon.components.foundation`) provide theming and other low-level building
 blocks shared across the design system.
 
 ### ThemeProvider
@@ -635,7 +635,7 @@ data class TabItem(
 
 ## Styling Components
 
-Components that manage global CSS and animation styling concerns live under `code.yousef.summon.components.styles`.
+Components that manage global CSS and animation styling concerns live under `codes.yousef.summon.components.styles`.
 
 ### GlobalStyle
 

@@ -6,7 +6,7 @@ The `StyleInjector` provides dynamic CSS injection for pseudo-selectors and medi
 inline styles. It generates scoped CSS rules and manages their lifecycle automatically.
 
 **Platforms**: JS, WASM  
-**Package**: `code.yousef.summon.runtime`  
+**Package**: `codes.yousef.summon.runtime`  
 **Since**: 0.4.8.4
 
 ---

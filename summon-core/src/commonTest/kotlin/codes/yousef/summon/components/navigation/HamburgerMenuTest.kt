@@ -40,6 +40,6 @@ class HamburgerMenuTest {
             json
         )
         assertTrue(deserialized is codes.yousef.summon.action.UiAction.ToggleVisibility)
-        assertEquals("test-id", (deserialized as codes.yousef.summon.action.UiAction.ToggleVisibility).targetId)
+        assertEquals("test-id", deserialized.targetId)
     }
 }

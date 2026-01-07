@@ -28,7 +28,7 @@ class SelectTest {
         runComposableTest(renderer) {
             selectedState = mutableStateOf<String?>(null)
             Select<String>(
-                selectedValue = selectedState!!,
+                selectedValue = selectedState,
                 options = componentOptions
             )
         }
@@ -53,12 +53,12 @@ class SelectTest {
     @Test
     fun testSelectWithInitialValue() {
         val renderer = MockPlatformRenderer()
-        var selectedState: SummonMutableState<String?>? = null
+        var selectedState: SummonMutableState<String?>?
         val componentOptions = listOf(SelectOption("v1", "L1"), SelectOption("v2", "L2"))
 
         runComposableTest(renderer) {
             selectedState = mutableStateOf<String?>("v2")
-            Select(selectedState!!, componentOptions)
+            Select(selectedState, componentOptions)
         }
 
         assertEquals(true, renderer.renderSelectCalled)
@@ -69,12 +69,12 @@ class SelectTest {
     @Test
     fun testDisabledSelect() {
         val renderer = MockPlatformRenderer()
-        var selectedState: SummonMutableState<Int?>? = null
+        var selectedState: SummonMutableState<Int?>?
         val componentOptions = listOf(SelectOption(1, "One"))
 
         runComposableTest(renderer) {
             selectedState = mutableStateOf<Int?>(1)
-            Select(selectedState!!, componentOptions, disabled = true)
+            Select(selectedState, componentOptions, disabled = true)
         }
 
         assertEquals(true, renderer.renderSelectCalled)
@@ -85,13 +85,13 @@ class SelectTest {
     @Test
     fun testSelectWithLabel() {
         val renderer = MockPlatformRenderer()
-        var selectedState: SummonMutableState<String?>? = null
+        var selectedState: SummonMutableState<String?>?
         val componentOptions = listOf(SelectOption("opt1", "Option 1"))
 
         runComposableTest(renderer) {
             selectedState = mutableStateOf<String?>(null)
             Select(
-                selectedValue = selectedState!!,
+                selectedValue = selectedState,
                 options = componentOptions,
                 label = "Choose an option"
             )
@@ -108,13 +108,13 @@ class SelectTest {
     @Test
     fun testSelectWithPlaceholder() {
         val renderer = MockPlatformRenderer()
-        var selectedState: SummonMutableState<String?>? = null
+        var selectedState: SummonMutableState<String?>?
         val componentOptions = listOf(SelectOption("a", "A"), SelectOption("b", "B"))
 
         runComposableTest(renderer) {
             selectedState = mutableStateOf<String?>(null)
             Select(
-                selectedValue = selectedState!!,
+                selectedValue = selectedState,
                 options = componentOptions,
                 placeholder = "Select an item..."
             )
@@ -142,7 +142,7 @@ class SelectTest {
         runComposableTest(renderer) {
             selectedState = mutableStateOf<String?>(null)
             Select(
-                selectedValue = selectedState!!,
+                selectedValue = selectedState,
                 options = componentOptions,
                 onSelectedChange = { value ->
                     changeCallbackValue = value
@@ -163,13 +163,13 @@ class SelectTest {
     @Test
     fun testSelectWithMultiple() {
         val renderer = MockPlatformRenderer()
-        var selectedState: SummonMutableState<String?>? = null
+        var selectedState: SummonMutableState<String?>?
         val componentOptions = listOf(SelectOption("1", "One"), SelectOption("2", "Two"))
 
         runComposableTest(renderer) {
             selectedState = mutableStateOf<String?>(null)
             Select(
-                selectedValue = selectedState!!,
+                selectedValue = selectedState,
                 options = componentOptions,
                 multiple = true
             )
@@ -183,7 +183,7 @@ class SelectTest {
     @Test
     fun testSelectWithSize() {
         val renderer = MockPlatformRenderer()
-        var selectedState: SummonMutableState<String?>? = null
+        var selectedState: SummonMutableState<String?>?
         val componentOptions = listOf(
             SelectOption("a", "A"),
             SelectOption("b", "B"),
@@ -193,7 +193,7 @@ class SelectTest {
         runComposableTest(renderer) {
             selectedState = mutableStateOf<String?>(null)
             Select(
-                selectedValue = selectedState!!,
+                selectedValue = selectedState,
                 options = componentOptions,
                 size = 3
             )
@@ -207,13 +207,13 @@ class SelectTest {
     @Test
     fun testSelectWithCustomModifier() {
         val renderer = MockPlatformRenderer()
-        var selectedState: SummonMutableState<String?>? = null
+        var selectedState: SummonMutableState<String?>?
         val componentOptions = listOf(SelectOption("opt", "Option"))
 
         runComposableTest(renderer) {
             selectedState = mutableStateOf<String?>(null)
             Select(
-                selectedValue = selectedState!!,
+                selectedValue = selectedState,
                 options = componentOptions,
                 modifier = Modifier().className("custom-select").style("width", "200px")
             )
@@ -228,7 +228,7 @@ class SelectTest {
     @Test
     fun testSelectWithAllOptions() {
         val renderer = MockPlatformRenderer()
-        var selectedState: SummonMutableState<String?>? = null
+        var selectedState: SummonMutableState<String?>?
         val componentOptions = listOf(
             SelectOption("opt1", "Option 1"),
             SelectOption("opt2", "Option 2", disabled = true),
@@ -239,7 +239,7 @@ class SelectTest {
         runComposableTest(renderer) {
             selectedState = mutableStateOf<String?>("opt3")
             Select(
-                selectedValue = selectedState!!,
+                selectedValue = selectedState,
                 options = componentOptions,
                 disabled = false,
                 label = "Select Field",

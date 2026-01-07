@@ -55,7 +55,7 @@ object GlobalEventListener {
      * Replay a captured event by dispatching it to the target element.
      */
     private fun replayEvent(capturedEvent: CapturedEvent) {
-        val element = document.getElementById(capturedEvent.targetId) as? Element ?: return
+        val element = document.getElementById(capturedEvent.targetId) ?: return
 
         if (enableLogging) {
             wasmConsoleLog("[Summon WASM] Replaying ${capturedEvent.type} event for ${capturedEvent.targetId}")
@@ -76,7 +76,7 @@ object GlobalEventListener {
         // Skip native forms - let them submit normally without hydration interception
         if (event.type == "submit") {
             var formEl: Element? = target
-            while (formEl != null && formEl.tagName?.lowercase() != "form") {
+            while (formEl != null && formEl.tagName.lowercase() != "form") {
                 formEl = formEl.parentElement
             }
             if (formEl != null && formEl.getAttribute("data-native-form") == "true") {
@@ -193,7 +193,7 @@ object GlobalEventListener {
     }
 
     fun handleEvent(type: String, sid: String, event: Event, element: Element? = null) {
-        val el = element ?: document.querySelector("[data-sid='$sid']") as? Element ?: return
+        val el = element ?: document.querySelector("[data-sid='$sid']") ?: return
 
         val actionJson = el.getAttribute("data-action")
         if (actionJson != null) {

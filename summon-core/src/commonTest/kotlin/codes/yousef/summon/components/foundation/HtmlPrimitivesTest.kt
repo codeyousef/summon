@@ -1,7 +1,8 @@
 package codes.yousef.summon.components.foundation
 
-import codes.yousef.summon.modifier.*
+import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.modifier.PointerEvents
+import codes.yousef.summon.modifier.pointerEvents
 import codes.yousef.summon.runtime.MockPlatformRenderer
 import codes.yousef.summon.util.runComposableTest
 import kotlin.test.Test
@@ -31,7 +32,7 @@ class HtmlPrimitivesTest {
         assertEquals(512, renderer.lastCanvasHeight)
         val modifier = renderer.lastCanvasModifier
         assertNotNull(modifier, "Canvas modifier should be forwarded")
-        assertEquals("gl", modifier!!.attributes["id"])
+        assertEquals("gl", modifier.attributes["id"])
         assertEquals("hero", modifier.attributes["data-scope"])
         assertEquals("none", modifier.styles["pointer-events"])
     }
@@ -56,7 +57,7 @@ class HtmlPrimitivesTest {
         assertEquals(true, renderer.lastScriptDeferRendered)
         val modifier = renderer.lastScriptModifierRendered
         assertNotNull(modifier, "Script modifier should be captured")
-        assertEquals("app-script", modifier!!.attributes["id"])
+        assertEquals("app-script", modifier.attributes["id"])
         assertEquals("hero", modifier.attributes["data-scope"])
     }
 

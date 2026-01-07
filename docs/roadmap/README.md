@@ -24,7 +24,7 @@ To ensure high quality and stability, every feature in this roadmap must meet th
 3.  **Documentation**:
     -   Public APIs must be fully documented using KDoc.
     -   We utilize **Dokka** to generate the API reference.
-    -   Each feature must include a runnable example in the `examples/` directory.
+    - Each feature should be demonstrable via CLI-generated projects.
 
 4.  **Accessibility**:
     -   Components must pass automated accessibility checks (axe-core).

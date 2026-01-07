@@ -92,8 +92,8 @@ class ThemeProviderTest {
                 val theme = useTheme()
                 assertEquals("var(--color-primary)", theme.primaryColor)
                 assertNotNull(theme.designTokens)
-                assertEquals("#007bff", theme.designTokens!!["--color-primary"])
-                assertEquals("0.375rem", theme.designTokens!!["--border-radius"])
+                assertEquals("#007bff", theme.designTokens["--color-primary"])
+                assertEquals("0.375rem", theme.designTokens["--border-radius"])
             }
         }
 
@@ -143,8 +143,8 @@ class ThemeProviderTest {
             ThemeProvider(theme = themeWithBreakpoints) {
                 val theme = useTheme()
                 assertNotNull(theme.breakpoints)
-                assertEquals("768px", theme.breakpoints!!["md"])
-                assertEquals("1200px", theme.breakpoints!!["xl"])
+                assertEquals("768px", theme.breakpoints["md"])
+                assertEquals("1200px", theme.breakpoints["xl"])
             }
         }
     }
@@ -168,9 +168,9 @@ class ThemeProviderTest {
             ThemeProvider(theme = themeWithTypography) {
                 val theme = useTheme()
                 assertNotNull(theme.typography)
-                assertEquals("16px", theme.typography!!["fontSize"])
-                assertEquals("2.5rem", theme.typography!!["h1"])
-                assertEquals("1.5", theme.typography!!["lineHeight"])
+                assertEquals("16px", theme.typography["fontSize"])
+                assertEquals("2.5rem", theme.typography["h1"])
+                assertEquals("1.5", theme.typography["lineHeight"])
             }
         }
     }

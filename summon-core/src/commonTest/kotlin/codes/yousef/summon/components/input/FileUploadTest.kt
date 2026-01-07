@@ -3,7 +3,7 @@ package codes.yousef.summon.components.input
 // Import other types used in PlatformRenderer methods for the mock
 
 import codes.yousef.summon.components.input.FileInfo
-import codes.yousef.summon.modifier.*
+import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.runtime.MockPlatformRenderer
 import codes.yousef.summon.state.State
 import codes.yousef.summon.util.runComposableTest
@@ -128,7 +128,7 @@ class FileUploadTest {
 
         // Check that the returned State object exists and has an initial value
         assertNotNull(stateResult, "Stateful FileUpload should return a State object")
-        assertTrue(stateResult?.value?.isEmpty() ?: false, "Initial state value should be an empty list")
+        assertTrue(stateResult.value.isEmpty(), "Initial state value should be an empty list")
 
         // ** Limitation ** 
         // Similar to the stateless test, we cannot easily simulate the callback 

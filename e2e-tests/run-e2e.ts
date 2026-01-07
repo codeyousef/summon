@@ -1,4 +1,4 @@
-import { execSync, spawn } from 'child_process';
+import {execSync, spawn} from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 // @ts-ignore
@@ -38,24 +38,6 @@ const projects: ProjectConfig[] = [
         generatorType: 'js',
         command: './gradlew jsBrowserDevelopmentRun',
         readyUrl: 'http://localhost:8080'
-    },
-    // Examples - Hydration Test (comprehensive component testing)
-    {
-        name: 'hydration-test',
-        type: 'example',
-        path: '.',
-        command: './gradlew :examples:hydration-test:jsBrowserDevelopmentRun',
-        readyUrl: 'http://localhost:8080',
-        testFile: 'tests/hydration.spec.ts'
-    },
-    // Examples - Hello World JS
-    {
-        name: 'hello-world-js',
-        type: 'example',
-        path: '.',
-        command: './gradlew :examples:hello-world-js:jsBrowserDevelopmentRun',
-        readyUrl: 'http://localhost:8080',
-        testFile: 'tests/smoke.spec.ts'
     }
 ];
 

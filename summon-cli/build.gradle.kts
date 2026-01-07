@@ -1,9 +1,9 @@
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
-import java.util.zip.ZipEntry
-import java.io.FileInputStream
-import java.io.FileOutputStream
 
 // Apply version management
 apply(from = "../version-helper.gradle.kts")
@@ -231,7 +231,7 @@ graalvmNative {
     binaries {
         create("main") {
             imageName.set("summon")
-            mainClass.set("code.yousef.summon.cli.SummonCliKt")
+            mainClass.set("codes.yousef.summon.cli.SummonCliKt")
 
             // Native image build arguments - minimal configuration to prevent hanging
             buildArgs.addAll(

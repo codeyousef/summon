@@ -5,7 +5,7 @@
 Type-safe media query support for responsive design in the Summon framework. Provides declarative helpers for applying
 styles based on viewport dimensions, device characteristics, and user preferences.
 
-**Package**: `code.yousef.summon.modifier`  
+**Package**: `codes.yousef.summon.modifier`  
 **Since**: 0.4.8.4
 
 ---

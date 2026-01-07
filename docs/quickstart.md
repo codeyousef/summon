@@ -15,7 +15,7 @@ Get started with Summon in just a few minutes! This guide will help you set up y
 ```kotlin
 // build.gradle.kts
 plugins {
-    kotlin("multiplatform") version "2.2.21"
+    kotlin("multiplatform") version "2.3.0"
 }
 
 repositories {
@@ -45,7 +45,7 @@ kotlin {
 ```kotlin
 // build.gradle.kts
 plugins {
-    kotlin("jvm") version "2.2.21"
+    kotlin("jvm") version "2.3.0"
 }
 
 repositories {
@@ -62,7 +62,7 @@ dependencies {
 ```kotlin
 // build.gradle.kts
 plugins {
-    kotlin("js") version "2.2.21"
+    kotlin("js") version "2.3.0"
 }
 
 repositories {

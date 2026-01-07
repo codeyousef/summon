@@ -1183,6 +1183,231 @@ public final class codes/yousef/summon/builder/SelectionManager {
 	public final fun updateBounds (Lcodes/yousef/summon/builder/SelectionBounds;)V
 }
 
+public final class codes/yousef/summon/cbor/UiNode {
+	public static final field Companion Lcodes/yousef/summon/cbor/UiNode$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/util/List;Ljava/lang/String;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/util/List;Ljava/lang/String;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/util/Map;
+	public final fun component4 ()Ljava/util/List;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/util/List;Ljava/lang/String;Ljava/util/List;)Lcodes/yousef/summon/cbor/UiNode;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/cbor/UiNode;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/util/List;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Lcodes/yousef/summon/cbor/UiNode;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getChildren ()Ljava/util/List;
+	public final fun getEventHandlers ()Ljava/util/List;
+	public final fun getId ()Ljava/lang/String;
+	public final fun getProps ()Ljava/util/Map;
+	public final fun getTextContent ()Ljava/lang/String;
+	public final fun getType ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class codes/yousef/summon/cbor/UiNode$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcodes/yousef/summon/cbor/UiNode$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcodes/yousef/summon/cbor/UiNode;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcodes/yousef/summon/cbor/UiNode;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class codes/yousef/summon/cbor/UiNode$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public abstract class codes/yousef/summon/cbor/UiPatch {
+	public static final field Companion Lcodes/yousef/summon/cbor/UiPatch$Companion;
+	public synthetic fun <init> (ILkotlinx/serialization/internal/SerializationConstructorMarker;)V
+	public static final synthetic fun write$Self (Lcodes/yousef/summon/cbor/UiPatch;Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+}
+
+public final class codes/yousef/summon/cbor/UiPatch$AppendChild : codes/yousef/summon/cbor/UiPatch {
+	public static final field Companion Lcodes/yousef/summon/cbor/UiPatch$AppendChild$Companion;
+	public fun <init> (Ljava/lang/String;Lcodes/yousef/summon/cbor/UiNode;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lcodes/yousef/summon/cbor/UiNode;
+	public final fun copy (Ljava/lang/String;Lcodes/yousef/summon/cbor/UiNode;)Lcodes/yousef/summon/cbor/UiPatch$AppendChild;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/cbor/UiPatch$AppendChild;Ljava/lang/String;Lcodes/yousef/summon/cbor/UiNode;ILjava/lang/Object;)Lcodes/yousef/summon/cbor/UiPatch$AppendChild;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getChild ()Lcodes/yousef/summon/cbor/UiNode;
+	public final fun getParentId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class codes/yousef/summon/cbor/UiPatch$AppendChild$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcodes/yousef/summon/cbor/UiPatch$AppendChild$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcodes/yousef/summon/cbor/UiPatch$AppendChild;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcodes/yousef/summon/cbor/UiPatch$AppendChild;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class codes/yousef/summon/cbor/UiPatch$AppendChild$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class codes/yousef/summon/cbor/UiPatch$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class codes/yousef/summon/cbor/UiPatch$RemoveNode : codes/yousef/summon/cbor/UiPatch {
+	public static final field Companion Lcodes/yousef/summon/cbor/UiPatch$RemoveNode$Companion;
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lcodes/yousef/summon/cbor/UiPatch$RemoveNode;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/cbor/UiPatch$RemoveNode;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/cbor/UiPatch$RemoveNode;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getNodeId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class codes/yousef/summon/cbor/UiPatch$RemoveNode$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcodes/yousef/summon/cbor/UiPatch$RemoveNode$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcodes/yousef/summon/cbor/UiPatch$RemoveNode;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcodes/yousef/summon/cbor/UiPatch$RemoveNode;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class codes/yousef/summon/cbor/UiPatch$RemoveNode$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class codes/yousef/summon/cbor/UiPatch$Replace : codes/yousef/summon/cbor/UiPatch {
+	public static final field Companion Lcodes/yousef/summon/cbor/UiPatch$Replace$Companion;
+	public fun <init> (Ljava/lang/String;Lcodes/yousef/summon/cbor/UiNode;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lcodes/yousef/summon/cbor/UiNode;
+	public final fun copy (Ljava/lang/String;Lcodes/yousef/summon/cbor/UiNode;)Lcodes/yousef/summon/cbor/UiPatch$Replace;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/cbor/UiPatch$Replace;Ljava/lang/String;Lcodes/yousef/summon/cbor/UiNode;ILjava/lang/Object;)Lcodes/yousef/summon/cbor/UiPatch$Replace;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getNewNode ()Lcodes/yousef/summon/cbor/UiNode;
+	public final fun getNodeId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class codes/yousef/summon/cbor/UiPatch$Replace$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcodes/yousef/summon/cbor/UiPatch$Replace$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcodes/yousef/summon/cbor/UiPatch$Replace;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcodes/yousef/summon/cbor/UiPatch$Replace;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class codes/yousef/summon/cbor/UiPatch$Replace$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class codes/yousef/summon/cbor/UiPatch$UpdateProps : codes/yousef/summon/cbor/UiPatch {
+	public static final field Companion Lcodes/yousef/summon/cbor/UiPatch$UpdateProps$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/util/Map;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/Map;
+	public final fun copy (Ljava/lang/String;Ljava/util/Map;)Lcodes/yousef/summon/cbor/UiPatch$UpdateProps;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/cbor/UiPatch$UpdateProps;Ljava/lang/String;Ljava/util/Map;ILjava/lang/Object;)Lcodes/yousef/summon/cbor/UiPatch$UpdateProps;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getNodeId ()Ljava/lang/String;
+	public final fun getProps ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class codes/yousef/summon/cbor/UiPatch$UpdateProps$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcodes/yousef/summon/cbor/UiPatch$UpdateProps$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcodes/yousef/summon/cbor/UiPatch$UpdateProps;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcodes/yousef/summon/cbor/UiPatch$UpdateProps;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class codes/yousef/summon/cbor/UiPatch$UpdateProps$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class codes/yousef/summon/cbor/UiPatch$UpdateText : codes/yousef/summon/cbor/UiPatch {
+	public static final field Companion Lcodes/yousef/summon/cbor/UiPatch$UpdateText$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/cbor/UiPatch$UpdateText;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/cbor/UiPatch$UpdateText;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/cbor/UiPatch$UpdateText;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getNodeId ()Ljava/lang/String;
+	public final fun getText ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class codes/yousef/summon/cbor/UiPatch$UpdateText$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcodes/yousef/summon/cbor/UiPatch$UpdateText$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcodes/yousef/summon/cbor/UiPatch$UpdateText;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcodes/yousef/summon/cbor/UiPatch$UpdateText;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class codes/yousef/summon/cbor/UiPatch$UpdateText$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class codes/yousef/summon/cbor/UiTree {
+	public static final field Companion Lcodes/yousef/summon/cbor/UiTree$Companion;
+	public fun <init> (Lcodes/yousef/summon/cbor/UiNode;)V
+	public final fun component1 ()Lcodes/yousef/summon/cbor/UiNode;
+	public final fun copy (Lcodes/yousef/summon/cbor/UiNode;)Lcodes/yousef/summon/cbor/UiTree;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/cbor/UiTree;Lcodes/yousef/summon/cbor/UiNode;ILjava/lang/Object;)Lcodes/yousef/summon/cbor/UiTree;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getRoot ()Lcodes/yousef/summon/cbor/UiNode;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class codes/yousef/summon/cbor/UiTree$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcodes/yousef/summon/cbor/UiTree$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcodes/yousef/summon/cbor/UiTree;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcodes/yousef/summon/cbor/UiTree;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class codes/yousef/summon/cbor/UiTree$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class codes/yousef/summon/cbor/UiTreeSerializer {
+	public static final field INSTANCE Lcodes/yousef/summon/cbor/UiTreeSerializer;
+	public final fun deserialize ([B)Lcodes/yousef/summon/cbor/UiTree;
+	public final fun serialize (Lcodes/yousef/summon/cbor/UiTree;)[B
+	public final fun serializePatches (Ljava/util/List;)[B
+}
+
 public abstract class codes/yousef/summon/component/UiComponent {
 	public static final field Companion Lcodes/yousef/summon/component/UiComponent$Companion;
 	public synthetic fun <init> (ILkotlinx/serialization/internal/SerializationConstructorMarker;)V
@@ -1662,6 +1887,27 @@ public final class codes/yousef/summon/components/feedback/BadgeType : java/lang
 public final class codes/yousef/summon/components/feedback/CircularProgressKt {
 	public static final fun CircularProgress (Ljava/lang/Float;Lcodes/yousef/summon/modifier/Modifier;)V
 	public static synthetic fun CircularProgress$default (Ljava/lang/Float;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
+}
+
+public final class codes/yousef/summon/components/feedback/ContextMenuItem {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Lkotlin/jvm/functions/Function0;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Lcodes/yousef/summon/components/feedback/ContextMenuItem;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/components/feedback/ContextMenuItem;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Lcodes/yousef/summon/components/feedback/ContextMenuItem;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getIcon ()Ljava/lang/String;
+	public final fun getLabel ()Ljava/lang/String;
+	public final fun getOnClick ()Lkotlin/jvm/functions/Function0;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/feedback/ContextMenuKt {
+	public static final fun ContextMenuArea (Lkotlin/jvm/functions/Function0;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;)V
+	public static synthetic fun ContextMenuArea$default (Lkotlin/jvm/functions/Function0;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
 }
 
 public final class codes/yousef/summon/components/feedback/IndeterminateProgressKt {
@@ -2812,6 +3058,11 @@ public final class codes/yousef/summon/components/layout/RowKt {
 	public static synthetic fun Row$default (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 }
 
+public final class codes/yousef/summon/components/layout/ScaffoldKt {
+	public static final fun Scaffold (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lcodes/yousef/summon/core/style/Color;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun Scaffold$default (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lcodes/yousef/summon/core/style/Color;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+}
+
 public final class codes/yousef/summon/components/layout/ScreenSize : java/lang/Enum {
 	public static final field LARGE Lcodes/yousef/summon/components/layout/ScreenSize;
 	public static final field MEDIUM Lcodes/yousef/summon/components/layout/ScreenSize;
@@ -2841,6 +3092,35 @@ public final class codes/yousef/summon/components/layout/SpanData {
 public final class codes/yousef/summon/components/layout/SplitPaneKt {
 	public static final fun SplitPane (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;)V
 	public static synthetic fun SplitPane$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+}
+
+public final class codes/yousef/summon/components/layout/WindowInsets {
+	public static final field Companion Lcodes/yousef/summon/components/layout/WindowInsets$Companion;
+	public fun <init> ()V
+	public fun <init> (IIII)V
+	public synthetic fun <init> (IIIIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()I
+	public final fun component3 ()I
+	public final fun component4 ()I
+	public final fun copy (IIII)Lcodes/yousef/summon/components/layout/WindowInsets;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/components/layout/WindowInsets;IIIIILjava/lang/Object;)Lcodes/yousef/summon/components/layout/WindowInsets;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBottom ()I
+	public final fun getLeft ()I
+	public final fun getRight ()I
+	public final fun getTop ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/layout/WindowInsets$Companion {
+	public final fun getZero ()Lcodes/yousef/summon/components/layout/WindowInsets;
+}
+
+public final class codes/yousef/summon/components/layout/WindowInsetsKt {
+	public static final fun getLocalWindowInsets ()Lcodes/yousef/summon/runtime/CompositionLocalProvider;
+	public static final fun windowInsetsPadding (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/components/layout/WindowInsets;)Lcodes/yousef/summon/modifier/Modifier;
 }
 
 public final class codes/yousef/summon/components/media/VideoKt {
@@ -4207,6 +4487,79 @@ public final class codes/yousef/summon/effects/jvm/JvmClipboardAPI : codes/youse
 	public fun writeText (Ljava/lang/String;)V
 }
 
+public final class codes/yousef/summon/events/DataTransfer {
+	public fun <init> ()V
+	public final fun clearData (Ljava/lang/String;)V
+	public static synthetic fun clearData$default (Lcodes/yousef/summon/events/DataTransfer;Ljava/lang/String;ILjava/lang/Object;)V
+	public final fun getData (Ljava/lang/String;)Ljava/lang/String;
+	public final fun setData (Ljava/lang/String;Ljava/lang/String;)V
+}
+
+public final class codes/yousef/summon/events/DragEvent {
+	public fun <init> (DDDDDDLcodes/yousef/summon/events/DataTransfer;Ljava/lang/String;)V
+	public final fun component1 ()D
+	public final fun component2 ()D
+	public final fun component3 ()D
+	public final fun component4 ()D
+	public final fun component5 ()D
+	public final fun component6 ()D
+	public final fun component7 ()Lcodes/yousef/summon/events/DataTransfer;
+	public final fun component8 ()Ljava/lang/String;
+	public final fun copy (DDDDDDLcodes/yousef/summon/events/DataTransfer;Ljava/lang/String;)Lcodes/yousef/summon/events/DragEvent;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/events/DragEvent;DDDDDDLcodes/yousef/summon/events/DataTransfer;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/events/DragEvent;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getClientX ()D
+	public final fun getClientY ()D
+	public final fun getDataTransfer ()Lcodes/yousef/summon/events/DataTransfer;
+	public final fun getScreenX ()D
+	public final fun getScreenY ()D
+	public final fun getType ()Ljava/lang/String;
+	public final fun getX ()D
+	public final fun getY ()D
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/events/PointerEvent {
+	public fun <init> (DDDDDDLjava/lang/String;IIZZZZFLjava/lang/String;)V
+	public synthetic fun <init> (DDDDDDLjava/lang/String;IIZZZZFLjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()D
+	public final fun component10 ()Z
+	public final fun component11 ()Z
+	public final fun component12 ()Z
+	public final fun component13 ()Z
+	public final fun component14 ()F
+	public final fun component15 ()Ljava/lang/String;
+	public final fun component2 ()D
+	public final fun component3 ()D
+	public final fun component4 ()D
+	public final fun component5 ()D
+	public final fun component6 ()D
+	public final fun component7 ()Ljava/lang/String;
+	public final fun component8 ()I
+	public final fun component9 ()I
+	public final fun copy (DDDDDDLjava/lang/String;IIZZZZFLjava/lang/String;)Lcodes/yousef/summon/events/PointerEvent;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/events/PointerEvent;DDDDDDLjava/lang/String;IIZZZZFLjava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/events/PointerEvent;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAltKey ()Z
+	public final fun getButton ()I
+	public final fun getButtons ()I
+	public final fun getClientX ()D
+	public final fun getClientY ()D
+	public final fun getCtrlKey ()Z
+	public final fun getMetaKey ()Z
+	public final fun getPointerType ()Ljava/lang/String;
+	public final fun getPressure ()F
+	public final fun getScreenX ()D
+	public final fun getScreenY ()D
+	public final fun getShiftKey ()Z
+	public final fun getType ()Ljava/lang/String;
+	public final fun getX ()D
+	public final fun getY ()D
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class codes/yousef/summon/extensions/NumberExtensionsKt {
 	public static final fun getCh (Ljava/lang/Number;)Ljava/lang/String;
 	public static final fun getEm (Ljava/lang/Number;)Ljava/lang/String;
@@ -4524,6 +4877,36 @@ public abstract interface class codes/yousef/summon/i18n/TranslationProvider {
 
 public final class codes/yousef/summon/i18n/TranslationProviderKt {
 	public static final fun translationProvider ([Lkotlin/Pair;)Lcodes/yousef/summon/i18n/TranslationProvider;
+}
+
+public final class codes/yousef/summon/input/GestureDetector {
+	public fun <init> ()V
+	public final fun getDoubleTapTimeoutMillis ()J
+	public final fun getLongPressTimeoutMillis ()J
+	public final fun getOnDoubleTap ()Lkotlin/jvm/functions/Function0;
+	public final fun getOnDrag ()Lkotlin/jvm/functions/Function2;
+	public final fun getOnLongPress ()Lkotlin/jvm/functions/Function0;
+	public final fun getOnPinch ()Lkotlin/jvm/functions/Function1;
+	public final fun getOnRotate ()Lkotlin/jvm/functions/Function1;
+	public final fun getOnTap ()Lkotlin/jvm/functions/Function0;
+	public final fun getTouchSlop ()D
+	public final fun onPointerDown (Lcodes/yousef/summon/events/PointerEvent;)V
+	public final fun onPointerMove (Lcodes/yousef/summon/events/PointerEvent;)V
+	public final fun onPointerUp (Lcodes/yousef/summon/events/PointerEvent;)V
+	public final fun setDoubleTapTimeoutMillis (J)V
+	public final fun setLongPressTimeoutMillis (J)V
+	public final fun setOnDoubleTap (Lkotlin/jvm/functions/Function0;)V
+	public final fun setOnDrag (Lkotlin/jvm/functions/Function2;)V
+	public final fun setOnLongPress (Lkotlin/jvm/functions/Function0;)V
+	public final fun setOnPinch (Lkotlin/jvm/functions/Function1;)V
+	public final fun setOnRotate (Lkotlin/jvm/functions/Function1;)V
+	public final fun setOnTap (Lkotlin/jvm/functions/Function0;)V
+	public final fun setTouchSlop (D)V
+}
+
+public final class codes/yousef/summon/input/GestureDetectorKt {
+	public static final fun gestures (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Lcodes/yousef/summon/modifier/Modifier;
+	public static synthetic fun gestures$default (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
 }
 
 public final class codes/yousef/summon/integration/ktor/KtorIntegrationTestKt {
@@ -5187,13 +5570,6 @@ public final class codes/yousef/summon/modifier/AnimationFillMode : java/lang/En
 	public static fun values ()[Lcodes/yousef/summon/modifier/AnimationFillMode;
 }
 
-public final class codes/yousef/summon/modifier/AttributeModifiers {
-	public static final field INSTANCE Lcodes/yousef/summon/modifier/AttributeModifiers;
-	public final synthetic fun attribute (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun buttonType (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/ButtonType;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun getAttribute (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Ljava/lang/String;
-}
-
 public final class codes/yousef/summon/modifier/AutoMarginModifiersKt {
 	public static final fun marginAuto (Lcodes/yousef/summon/modifier/Modifier;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun marginHorizontalAuto (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/Number;)Lcodes/yousef/summon/modifier/Modifier;
@@ -5536,13 +5912,6 @@ public final class codes/yousef/summon/modifier/Display : java/lang/Enum {
 	public static fun values ()[Lcodes/yousef/summon/modifier/Display;
 }
 
-public final class codes/yousef/summon/modifier/EventModifiers {
-	public static final field INSTANCE Lcodes/yousef/summon/modifier/EventModifiers;
-	public final fun onClick (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;)Lcodes/yousef/summon/modifier/Modifier;
-	public final synthetic fun pointerEvents (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/PointerEvents;)Lcodes/yousef/summon/modifier/Modifier;
-	public final synthetic fun pointerEvents (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-}
-
 public final class codes/yousef/summon/modifier/FilterBuilder {
 	public final fun blur (Ljava/lang/Number;)V
 	public final fun brightness (Ljava/lang/Number;)V
@@ -5736,92 +6105,53 @@ public final class codes/yousef/summon/modifier/JustifySelf : java/lang/Enum {
 	public static fun values ()[Lcodes/yousef/summon/modifier/JustifySelf;
 }
 
-public final class codes/yousef/summon/modifier/LayoutModifierExtras {
-	public static final field INSTANCE Lcodes/yousef/summon/modifier/LayoutModifierExtras;
-	public final fun bottom (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun display (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun flexDirection (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun fontWeight (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun gridColumnGap (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun gridRowGap (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun gridTemplateColumns (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun left (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun overflow (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun position (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun right (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun top (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-}
-
-public final class codes/yousef/summon/modifier/LayoutModifiers {
-	public static final field INSTANCE Lcodes/yousef/summon/modifier/LayoutModifiers;
-	public final fun alignItems (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun aspectRatio (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/Number;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun aspectRatio (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/Number;Ljava/lang/Number;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun bottom (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun display (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun flex (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun flexDirection (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/FlexDirection;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun flexDirection (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun flexWrap (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/FlexWrap;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun flexWrap (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun gap (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun gridColumnGap (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun gridRowGap (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun gridTemplateColumns (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final synthetic fun height (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun inset (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun inset (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun inset (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun justifyContent (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun left (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun maxHeight (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final synthetic fun maxWidth (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun minHeight (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun minWidth (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun overflow (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun position (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun positionInset (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public static synthetic fun positionInset$default (Lcodes/yousef/summon/modifier/LayoutModifiers;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun right (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun top (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final synthetic fun width (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-}
-
 public final class codes/yousef/summon/modifier/LayoutModifiersKt {
 	public static final fun alignContent (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun alignItems (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun alignSelf (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun aspectRatio (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/Number;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun aspectRatio (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/Number;Ljava/lang/Number;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun bottom (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun centerAbsolute (Lcodes/yousef/summon/modifier/Modifier;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun centerHorizontally (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static synthetic fun centerHorizontally$default (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun circularLayout (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/RadialRadius;II)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun cursor (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/Cursor;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun display (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun fixedCenter (Lcodes/yousef/summon/modifier/Modifier;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun flex (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/Number;Ljava/lang/Number;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun flex (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun flexBasis (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun flexDirection (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun flexGrow (Lcodes/yousef/summon/modifier/Modifier;I)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun flexShrink (Lcodes/yousef/summon/modifier/Modifier;I)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun flexWrap (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/FlexWrap;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun flexWrap (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun floatingAnimation (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/AnimationDuration;Lcodes/yousef/summon/modifier/FloatIntensity;)Lcodes/yousef/summon/modifier/Modifier;
 	public static synthetic fun floatingAnimation$default (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/AnimationDuration;Lcodes/yousef/summon/modifier/FloatIntensity;ILjava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun gap (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun gridArea (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun gridColumn (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun gridColumnGap (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun gridGap (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun gridRow (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun gridRowGap (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun gridTemplateColumns (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun inset (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun inset (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun inset (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun justifyContent (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun justifyItems (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun justifySelf (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun left (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun margin (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public static final synthetic fun margin (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun margin (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun marginOf (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static synthetic fun marginOf$default (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun maxHeight (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun minHeight (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun minWidth (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun overflow (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun overflowX (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun overflowY (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun padding (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
@@ -5831,12 +6161,15 @@ public final class codes/yousef/summon/modifier/LayoutModifiersKt {
 	public static synthetic fun paddingOf$default (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun paddingRight (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun paddingTop (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun position (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun positionInset (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static synthetic fun positionInset$default (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun radialPosition (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/RadialAngle;Lcodes/yousef/summon/modifier/RadialRadius;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun relativeOffset (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/Number;Ljava/lang/Number;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun right (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun rotatingAnimation (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/RotationSpeed;Z)Lcodes/yousef/summon/modifier/Modifier;
 	public static synthetic fun rotatingAnimation$default (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/RotationSpeed;ZILjava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun top (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun visibility (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/Visibility;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun visibility (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun zIndex (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
@@ -5992,78 +6325,32 @@ public final class codes/yousef/summon/modifier/MediaQueryModifiersKt {
 	public static final fun mediaQuery (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/MediaQuery;Lkotlin/jvm/functions/Function1;)Lcodes/yousef/summon/modifier/Modifier;
 }
 
-public final class codes/yousef/summon/modifier/Modifier {
-	public fun <init> ()V
-	public fun <init> (Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/List;)V
-	public synthetic fun <init> (Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun absolutePosition (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public static synthetic fun absolutePosition$default (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun addClass (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun ariaAttribute (Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun attribute (Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun attributes (Ljava/util/Map;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun background (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun backgroundColor (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun border (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun borderRadius (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun className (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun color (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun component1 ()Ljava/util/Map;
-	public final fun component2 ()Ljava/util/Map;
-	public final fun component3 ()Ljava/util/Map;
-	public final fun component4 ()Ljava/util/List;
-	public final fun copy (Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/List;)Lcodes/yousef/summon/modifier/Modifier;
-	public static synthetic fun copy$default (Lcodes/yousef/summon/modifier/Modifier;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/List;ILjava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun cursor (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun dataAttribute (Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun dataAttributes (Ljava/util/Map;)Lcodes/yousef/summon/modifier/Modifier;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun fillMaxHeight ()Lcodes/yousef/summon/modifier/Modifier;
-	public final fun fillMaxSize ()Lcodes/yousef/summon/modifier/Modifier;
-	public final fun fillMaxWidth ()Lcodes/yousef/summon/modifier/Modifier;
-	public final fun fontSize (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun fontWeight (Ljava/lang/String;Ljava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
-	public static synthetic fun fontWeight$default (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/Object;ILjava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun getAttributes ()Ljava/util/Map;
-	public final fun getEventHandlers ()Ljava/util/Map;
-	public final fun getPseudoElements ()Ljava/util/List;
-	public final fun getStyles ()Ljava/util/Map;
-	public final fun hasStyle (Ljava/lang/String;Ljava/lang/String;)Z
-	public fun hashCode ()I
-	public final fun height (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun hover (Ljava/util/Map;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun hydrationCritical ()Lcodes/yousef/summon/modifier/Modifier;
-	public final fun hydrationDeferred ()Lcodes/yousef/summon/modifier/Modifier;
-	public final fun hydrationPriority (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun id (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun margin (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun margin (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun marginBottom (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun marginLeft (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun marginRight (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun marginTop (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun maxWidth (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun objectFit (Ljava/lang/String;Ljava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
-	public static synthetic fun objectFit$default (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/Object;ILjava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun opacity (F)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun padding (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun padding (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun pointerEvents (Lcodes/yousef/summon/modifier/PointerEvents;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun pointerEvents (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun role (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun shadow ()Lcodes/yousef/summon/modifier/Modifier;
-	public final fun shadow (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun size (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun size (Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun style (Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun tabIndex (I)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun then (Lcodes/yousef/summon/modifier/Modifier;)Lcodes/yousef/summon/modifier/Modifier;
+public abstract interface class codes/yousef/summon/modifier/Modifier {
+	public static final field Companion Lcodes/yousef/summon/modifier/Modifier$Companion;
+	public fun getAttributes ()Ljava/util/Map;
+	public fun getComplexEventHandlers ()Ljava/util/Map;
+	public fun getEventHandlers ()Ljava/util/Map;
+	public fun getPseudoElements ()Ljava/util/List;
+	public fun getStyles ()Ljava/util/Map;
+	public abstract fun then (Lcodes/yousef/summon/modifier/Modifier;)Lcodes/yousef/summon/modifier/Modifier;
+}
+
+public final class codes/yousef/summon/modifier/Modifier$Companion : codes/yousef/summon/modifier/Modifier {
+	public fun getAttributes ()Ljava/util/Map;
+	public fun getComplexEventHandlers ()Ljava/util/Map;
+	public fun getEventHandlers ()Ljava/util/Map;
+	public fun getPseudoElements ()Ljava/util/List;
+	public fun getStyles ()Ljava/util/Map;
+	public fun then (Lcodes/yousef/summon/modifier/Modifier;)Lcodes/yousef/summon/modifier/Modifier;
 	public fun toString ()Ljava/lang/String;
-	public final fun toStyleString ()Ljava/lang/String;
-	public final fun toStyleStringKebabCase ()Ljava/lang/String;
-	public final fun width (Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun withStyles (Ljava/util/Map;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun zIndex (I)Lcodes/yousef/summon/modifier/Modifier;
+}
+
+public final class codes/yousef/summon/modifier/Modifier$DefaultImpls {
+	public static fun getAttributes (Lcodes/yousef/summon/modifier/Modifier;)Ljava/util/Map;
+	public static fun getComplexEventHandlers (Lcodes/yousef/summon/modifier/Modifier;)Ljava/util/Map;
+	public static fun getEventHandlers (Lcodes/yousef/summon/modifier/Modifier;)Ljava/util/Map;
+	public static fun getPseudoElements (Lcodes/yousef/summon/modifier/Modifier;)Ljava/util/List;
+	public static fun getStyles (Lcodes/yousef/summon/modifier/Modifier;)Ljava/util/Map;
 }
 
 public final class codes/yousef/summon/modifier/ModifierExtensionsKt {
@@ -6102,10 +6389,109 @@ public final class codes/yousef/summon/modifier/ModifierExtras {
 	public final fun withAttributes (Lcodes/yousef/summon/modifier/Modifier;Ljava/util/Map;)Lcodes/yousef/summon/modifier/Modifier;
 }
 
+public final class codes/yousef/summon/modifier/ModifierImpl : codes/yousef/summon/modifier/Modifier {
+	public fun <init> ()V
+	public fun <init> (Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/util/Map;
+	public final fun component2 ()Ljava/util/Map;
+	public final fun component3 ()Ljava/util/Map;
+	public final fun component4 ()Ljava/util/Map;
+	public final fun component5 ()Ljava/util/List;
+	public final fun copy (Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/List;)Lcodes/yousef/summon/modifier/ModifierImpl;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/modifier/ModifierImpl;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/List;ILjava/lang/Object;)Lcodes/yousef/summon/modifier/ModifierImpl;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getAttributes ()Ljava/util/Map;
+	public fun getComplexEventHandlers ()Ljava/util/Map;
+	public fun getEventHandlers ()Ljava/util/Map;
+	public fun getPseudoElements ()Ljava/util/List;
+	public fun getStyles ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun then (Lcodes/yousef/summon/modifier/Modifier;)Lcodes/yousef/summon/modifier/Modifier;
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class codes/yousef/summon/modifier/ModifierKt {
-	public static final fun createEmptyModifier ()Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun Modifier (Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/List;)Lcodes/yousef/summon/modifier/Modifier;
+	public static synthetic fun Modifier$default (Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/List;ILjava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun absolutePosition (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static synthetic fun absolutePosition$default (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun addClass (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun ariaAttribute (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun attribute (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun attributes (Lcodes/yousef/summon/modifier/Modifier;Ljava/util/Map;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun background (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/core/style/Color;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun background (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun backgroundColor (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/core/style/Color;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun backgroundColor (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun border (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun borderRadius (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun className (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun color (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/core/style/Color;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun color (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun createModifierWithAttributes (Ljava/util/Map;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun createModifierWithStyles (Ljava/util/Map;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun cursor (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun dataAttribute (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun dataAttributes (Lcodes/yousef/summon/modifier/Modifier;Ljava/util/Map;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun fillMaxHeight (Lcodes/yousef/summon/modifier/Modifier;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun fillMaxSize (Lcodes/yousef/summon/modifier/Modifier;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun fillMaxWidth (Lcodes/yousef/summon/modifier/Modifier;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun fontSize (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun fontWeight (Lcodes/yousef/summon/modifier/Modifier;I)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun fontWeight (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/FontWeight;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun fontWeight (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
+	public static synthetic fun fontWeight$default (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/Object;ILjava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun hasStyle (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;)Z
+	public static final fun height (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun hover (Lcodes/yousef/summon/modifier/Modifier;Ljava/util/Map;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun hydrationCritical (Lcodes/yousef/summon/modifier/Modifier;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun hydrationDeferred (Lcodes/yousef/summon/modifier/Modifier;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun hydrationPriority (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun id (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun margin (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun marginBottom (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun marginLeft (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun marginRight (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun marginTop (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun maxWidth (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun objectFit (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/ObjectFit;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun objectFit (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
+	public static synthetic fun objectFit$default (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/Object;ILjava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun opacity (Lcodes/yousef/summon/modifier/Modifier;F)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun opacity (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun padding (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun padding (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun role (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun shadow (Lcodes/yousef/summon/modifier/Modifier;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun shadow (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun size (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun size (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun style (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun tabIndex (Lcodes/yousef/summon/modifier/Modifier;I)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun toStyleString (Lcodes/yousef/summon/modifier/Modifier;)Ljava/lang/String;
+	public static final fun toStyleStringKebabCase (Lcodes/yousef/summon/modifier/Modifier;)Ljava/lang/String;
+	public static final fun width (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun withStyles (Lcodes/yousef/summon/modifier/Modifier;Ljava/util/Map;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun zIndex (Lcodes/yousef/summon/modifier/Modifier;I)Lcodes/yousef/summon/modifier/Modifier;
+}
+
+public final class codes/yousef/summon/modifier/ModifierUtilsKt {
+	public static final fun buttonType (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/ButtonType;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun getAttribute (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/modifier/ObjectFit : java/lang/Enum {
+	public static final field Contain Lcodes/yousef/summon/modifier/ObjectFit;
+	public static final field Cover Lcodes/yousef/summon/modifier/ObjectFit;
+	public static final field Fill Lcodes/yousef/summon/modifier/ObjectFit;
+	public static final field None Lcodes/yousef/summon/modifier/ObjectFit;
+	public static final field ScaleDown Lcodes/yousef/summon/modifier/ObjectFit;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getValue ()Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Lcodes/yousef/summon/modifier/ObjectFit;
+	public static fun values ()[Lcodes/yousef/summon/modifier/ObjectFit;
 }
 
 public final class codes/yousef/summon/modifier/Overflow : java/lang/Enum {
@@ -6125,17 +6511,26 @@ public final class codes/yousef/summon/modifier/PointerEventModifiersKt {
 	public static final fun draggable (Lcodes/yousef/summon/modifier/Modifier;Z)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun enablePointerEvents (Lcodes/yousef/summon/modifier/Modifier;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun onClick (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun onClick (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun onContextMenu (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun onContextMenu (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun onDoubleClick (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun onDragEnd (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun onDragEnd (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun onDragOver (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun onDragOver (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun onDragStart (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun onDragStart (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun onDrop (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun onDrop (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun onMouseEnter (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun onMouseLeave (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun onMouseMove (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun onTouchEnd (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun onTouchMove (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun onTouchStart (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public static final synthetic fun pointerEvents (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/PointerEvents;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun pointerEvents (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/PointerEvents;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun pointerEvents (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 }
 
 public final class codes/yousef/summon/modifier/PointerEvents : java/lang/Enum {
@@ -6375,32 +6770,6 @@ public final class codes/yousef/summon/modifier/ShadowConfig$Companion {
 	public final fun innerGlow (Ljava/lang/Number;Lcodes/yousef/summon/core/style/Color;)Lcodes/yousef/summon/modifier/ShadowConfig;
 }
 
-public final class codes/yousef/summon/modifier/StylingModifierExtras {
-	public static final field INSTANCE Lcodes/yousef/summon/modifier/StylingModifierExtras;
-	public final fun fontStyle (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun textDecoration (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun transform (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-}
-
-public final class codes/yousef/summon/modifier/StylingModifiers {
-	public static final field INSTANCE Lcodes/yousef/summon/modifier/StylingModifiers;
-	public final fun backgroundColor (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/core/style/Color;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun backgroundColor (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final synthetic fun borderRadius (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun color (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/core/style/Color;)Lcodes/yousef/summon/modifier/Modifier;
-	public final synthetic fun color (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun fontStyle (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/FontStyle;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun fontStyle (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun fontWeight (Lcodes/yousef/summon/modifier/Modifier;I)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun fontWeight (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/FontWeight;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun fontWeight (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun lineHeight (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/Number;)Lcodes/yousef/summon/modifier/Modifier;
-	public final synthetic fun opacity (Lcodes/yousef/summon/modifier/Modifier;F)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun opacity (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun textDecoration (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-	public final fun transform (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
-}
-
 public final class codes/yousef/summon/modifier/StylingModifiersKt {
 	public static final fun animation (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Lcodes/yousef/summon/modifier/AnimationDuration;Ljava/lang/String;Lcodes/yousef/summon/modifier/AnimationDuration;Ljava/lang/String;Lcodes/yousef/summon/modifier/AnimationDirection;Lcodes/yousef/summon/modifier/AnimationFillMode;)Lcodes/yousef/summon/modifier/Modifier;
 	public static synthetic fun animation$default (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Lcodes/yousef/summon/modifier/AnimationDuration;Ljava/lang/String;Lcodes/yousef/summon/modifier/AnimationDuration;Ljava/lang/String;Lcodes/yousef/summon/modifier/AnimationDirection;Lcodes/yousef/summon/modifier/AnimationFillMode;ILjava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
@@ -6417,6 +6786,7 @@ public final class codes/yousef/summon/modifier/StylingModifiersKt {
 	public static synthetic fun multiFilter$default (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/Number;Ljava/lang/Number;Ljava/lang/Number;Ljava/lang/Number;ILjava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun perspective (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/Number;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun rotate3d (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/Number;Ljava/lang/Number;Ljava/lang/Number;Ljava/lang/Number;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun transform (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun transform (Lcodes/yousef/summon/modifier/Modifier;[Lkotlin/Pair;)Lcodes/yousef/summon/modifier/Modifier;
 }
 
@@ -6517,7 +6887,6 @@ public final class codes/yousef/summon/modifier/TransitionModifiersKt {
 	public static final fun nthChild (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/util/Map;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun onlyChild (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/Modifier;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun onlyChild (Lcodes/yousef/summon/modifier/Modifier;Ljava/util/Map;)Lcodes/yousef/summon/modifier/Modifier;
-	public static final synthetic fun pointerEvents (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun transition (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/TransitionProperty;Ljava/lang/Number;Lcodes/yousef/summon/modifier/TransitionTimingFunction;Ljava/lang/Number;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun transition (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/TransitionProperty;Ljava/lang/String;Lcodes/yousef/summon/modifier/TransitionTimingFunction;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun transition (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
@@ -7551,6 +7920,7 @@ public class codes/yousef/summon/runtime/PlatformRenderer {
 	public fun renderRadioButton (ZLkotlin/jvm/functions/Function1;Ljava/lang/String;ZLcodes/yousef/summon/modifier/Modifier;)V
 	public fun renderRangeSlider (Lkotlin/ranges/ClosedFloatingPointRange;Lkotlin/jvm/functions/Function1;Lkotlin/ranges/ClosedFloatingPointRange;IZLcodes/yousef/summon/modifier/Modifier;)V
 	public static synthetic fun renderRangeSlider$default (Lcodes/yousef/summon/runtime/PlatformRenderer;Lkotlin/ranges/ClosedFloatingPointRange;Lkotlin/jvm/functions/Function1;Lkotlin/ranges/ClosedFloatingPointRange;IZLcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
+	public fun renderRawHtml (Ljava/lang/String;)V
 	public fun renderResponsiveLayout (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
 	public fun renderRichMarkdown (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
 	public fun renderRow (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
@@ -9761,6 +10131,18 @@ public final class codes/yousef/summon/validation/Validator$DefaultImpls {
 
 public final class codes/yousef/summon/validation/ValidatorKt {
 	public static final fun validateBoolean (Lcodes/yousef/summon/validation/Validator;Z)Lcodes/yousef/summon/validation/ValidationResult;
+}
+
+public final class codes/yousef/summon/wasi/WasiExport {
+	public static final field INSTANCE Lcodes/yousef/summon/wasi/WasiExport;
+	public final fun getSerializedTree ()[B
+	public final fun handleEvent (Ljava/lang/String;Ljava/lang/String;[B)V
+	public final fun updateTree (Lcodes/yousef/summon/cbor/UiTree;)V
+}
+
+public final class codes/yousef/summon/wasi/WasiExportKt {
+	public static final fun summon_entry ()I
+	public static final fun summon_event (IIIIII)V
 }
 
 public final class codes/yousef/summon/web/ErrorBoundaryPlatformKt {

@@ -253,5 +253,5 @@ actual fun createRouter(builder: RouterBuilder.() -> Unit): Router {
     val notFoundComposable: (RouteParams) -> Unit = { params ->
         println("Default Not Found page for JVM Router called with params: $params. Needs Compose HTML implementation.")
     }
-    return JvmRouter(builderImpl.routes, builderImpl.notFoundPage ?: notFoundComposable)
+    return JvmRouter(builderImpl.routes, builderImpl.notFoundPage)
 } 

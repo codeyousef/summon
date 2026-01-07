@@ -20,7 +20,7 @@ Typography is fundamental to good user experience. TextUtils components provide:
 Semantic heading components that correspond to HTML heading elements.
 
 ```kotlin
-import code.yousef.summon.components.display.*
+import codes.yousef.summon.components.display.*
 
 @Composable
 fun HeadingExample() {

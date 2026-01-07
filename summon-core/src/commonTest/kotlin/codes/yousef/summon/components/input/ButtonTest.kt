@@ -1,6 +1,6 @@
 package codes.yousef.summon.components.input
 
-import codes.yousef.summon.modifier.*
+import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.runtime.CompositionLocal
 import codes.yousef.summon.runtime.LocalPlatformRenderer
 import codes.yousef.summon.runtime.MockPlatformRenderer
@@ -216,7 +216,7 @@ class ButtonTest {
             assertTrue(mockRenderer.renderButtonCalled, "renderButton should have been called")
             val modifier = mockRenderer.lastButtonModifierRendered
             assertNotNull(modifier, "Modifier should not be null")
-            assertEquals("token", modifier!!.attributes["data-copy"])
+            assertEquals("token", modifier.attributes["data-copy"])
             assertEquals("#copy", modifier.attributes["data-href"])
             assertNotNull(
                 mockRenderer.lastButtonOnClickRendered,

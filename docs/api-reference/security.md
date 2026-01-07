@@ -192,7 +192,7 @@ annotation class Public
 A component that conditionally renders content based on security requirements.
 
 ```kotlin
-import code.yousef.summon.components.auth.SecuredComponent
+import codes.yousef.summon.components.auth.SecuredComponent
 ```
 
 ```kotlin
@@ -230,7 +230,7 @@ object SecuredComponent {
 A component that handles user authentication.
 
 ```kotlin
-import code.yousef.summon.components.auth.LoginComponent
+import codes.yousef.summon.components.auth.LoginComponent
 ```
 
 ```kotlin

@@ -33,7 +33,7 @@ The base APIs for defining and managing effects.
 ### Function Definitions
 
 ```kotlin
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
 // Execute an effect after each successful composition
 @Composable
@@ -153,7 +153,7 @@ APIs for managing asynchronous side effects safely within the component lifecycl
 ### Function Definitions
 
 ```kotlin
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
 // Launch a coroutine scoped to the composition
 @Composable
@@ -274,7 +274,7 @@ Pre-built effects for common scenarios.
 ### Function Definitions
 
 ```kotlin
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
 // Effect for document title
 @Composable
@@ -461,7 +461,7 @@ APIs for composing and combining effects.
 ### Function Definitions
 
 ```kotlin
-package code.yousef.summon.effects
+package codes.yousef.summon.effects
 
 // Create a custom composable effect
 fun <T> createEffect(
@@ -623,7 +623,7 @@ Effects that utilize platform-specific APIs.
 ### JavaScript Platform
 
 ```kotlin
-package code.yousef.summon.effects.browser
+package codes.yousef.summon.effects.browser
 
 // Effect for browser history
 @Composable
@@ -673,7 +673,7 @@ fun useWebAnimation(
 ### JVM Platform
 
 ```kotlin
-package code.yousef.summon.effects.jvm
+package codes.yousef.summon.effects.jvm
 
 // Effect for file system watcher
 @Composable

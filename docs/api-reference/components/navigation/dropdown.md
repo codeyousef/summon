@@ -9,8 +9,8 @@ The Dropdown component provides a composable way to create dropdown menus with b
 ## Basic Usage
 
 ```kotlin
-import code.yousef.summon.components.navigation.Dropdown
-import code.yousef.summon.components.navigation.DropdownItem
+import codes.yousef.summon.components.navigation.Dropdown
+import codes.yousef.summon.components.navigation.DropdownItem
 
 Dropdown(
     trigger = { Text("Menu") }

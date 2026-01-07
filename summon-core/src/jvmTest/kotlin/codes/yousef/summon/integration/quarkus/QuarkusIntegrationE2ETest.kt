@@ -128,7 +128,7 @@ class QuarkusIntegrationE2ETest {
             test(port)
         } finally {
             val stopLatch = CountDownLatch(1)
-            activeServer?.close { stopLatch.countDown() }
+            activeServer.close { stopLatch.countDown() }
             stopLatch.await(5, TimeUnit.SECONDS)
         }
     }

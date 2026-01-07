@@ -74,14 +74,14 @@ class Navigator {
     @Suppress("UNCHECKED_CAST", "UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
     private val browserNavigator = window.asDynamic().navigator as BrowserNavigator
 
-    val language: String = browserNavigator.language ?: "en-US"
-    val userAgent: String = browserNavigator.userAgent ?: ""
-    val onLine: Boolean = browserNavigator.onLine ?: true
-    val platform: String = browserNavigator.platform ?: ""
-    val cookieEnabled: Boolean = browserNavigator.cookieEnabled ?: false
-    val hardwareConcurrency: Int = browserNavigator.hardwareConcurrency ?: 1
-    val maxTouchPoints: Int = browserNavigator.maxTouchPoints ?: 0
-    val pdfViewerEnabled: Boolean = browserNavigator.pdfViewerEnabled ?: false
+    val language: String = browserNavigator.language
+    val userAgent: String = browserNavigator.userAgent
+    val onLine: Boolean = browserNavigator.onLine
+    val platform: String = browserNavigator.platform
+    val cookieEnabled: Boolean = browserNavigator.cookieEnabled
+    val hardwareConcurrency: Int = browserNavigator.hardwareConcurrency
+    val maxTouchPoints: Int = browserNavigator.maxTouchPoints
+    val pdfViewerEnabled: Boolean = browserNavigator.pdfViewerEnabled
 
     /**
      * Check if the given MIME type is supported
@@ -380,7 +380,7 @@ fun CompositionScope.useResizeObserver(
 
         // Return cleanup function
         return@onMountWithCleanup {
-            disconnectObserver?.invoke()
+            disconnectObserver.invoke()
         }
     }
 

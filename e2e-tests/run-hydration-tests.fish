@@ -1,9 +1,13 @@
 #!/usr/bin/env fish
 # Local E2E test runner for hydration tests
 # Usage: ./run-hydration-tests.fish [--wasm]
+#
+# NOTE: This script expects a CLI-generated project to exist.
+# Generate one first with: summon new hydration-test --template js
 
 set -l ROOT_DIR (dirname (status -f))/..
 set -l TARGET "js"
+set -l TEST_PROJECT_DIR "$ROOT_DIR/e2e-tests/temp/hydration-test"
 
 # Parse arguments
 for arg in $argv
@@ -13,6 +17,9 @@ for arg in $argv
         case --help -h
             echo "Usage: ./run-hydration-tests.fish [--wasm]"
             echo "  --wasm, -w  Run WASM target instead of JS"
+            echo ""
+            echo "Note: Generate a test project first:"
+            echo "  summon new e2e-tests/temp/hydration-test --template js"
             exit 0
     end
 end
@@ -20,23 +27,31 @@ end
 echo "🧪 Running Hydration E2E Tests (Target: $TARGET)"
 echo "================================================"
 
+# Check if test project exists
+if not test -d "$TEST_PROJECT_DIR"
+    echo "❌ Test project not found at $TEST_PROJECT_DIR"
+    echo "Generate one first with:"
+    echo "  summon new e2e-tests/temp/hydration-test --template js"
+    exit 1
+end
+
 # Kill anything on port 8080
 echo "Cleaning up port 8080..."
 lsof -ti:8080 | xargs kill -9 2>/dev/null; or true
 
 # Build and start the server
 echo ""
-echo "Starting hydration-test example..."
+echo "Starting test project..."
 
 if test "$TARGET" = "wasm"
-    echo "WASM target not yet configured for hydration-test example"
+    echo "WASM target not yet configured"
     exit 1
 else
-    set -l GRADLE_CMD "./gradlew :examples:hydration-test:jsBrowserDevelopmentRun"
+    set -l GRADLE_CMD "./gradlew jsBrowserDevelopmentRun"
     echo "Running: $GRADLE_CMD"
     
     # Start server in background
-    cd $ROOT_DIR
+    cd $TEST_PROJECT_DIR
     $GRADLE_CMD &
     set -l SERVER_PID $last_pid
     

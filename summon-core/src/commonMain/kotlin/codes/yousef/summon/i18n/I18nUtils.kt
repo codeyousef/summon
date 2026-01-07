@@ -93,7 +93,7 @@ object I18nUtils {
     ): String {
         // Get the current language
         val language = LocalLanguage.current
-        val currentLanguage = (language as Function0<Language>).invoke()
+        val currentLanguage = language.invoke()
 
         // Format the number based on the language
         // This is a simplified implementation; in a real app, we would use
@@ -115,7 +115,7 @@ object I18nUtils {
     ): String {
         // Get the current language
         val language = LocalLanguage.current
-        val currentLanguage = (language as Function0<Language>).invoke()
+        val currentLanguage = language.invoke()
 
         // Format the date based on the language
         // This is a simplified implementation; in a real app, we would use

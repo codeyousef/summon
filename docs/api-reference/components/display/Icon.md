@@ -19,8 +19,8 @@ Icons are essential UI elements that provide visual cues and enhance user experi
 ### Simple Icon
 
 ```kotlin
-import code.yousef.summon.components.display.Icon
-import code.yousef.summon.components.display.IconType
+import codes.yousef.summon.components.display.Icon
+import codes.yousef.summon.components.display.IconType
 
 @Composable
 fun SimpleIconExample() {
@@ -36,7 +36,7 @@ fun SimpleIconExample() {
 ### Material Design Icon
 
 ```kotlin
-import code.yousef.summon.components.display.MaterialIcon
+import codes.yousef.summon.components.display.MaterialIcon
 
 @Composable
 fun MaterialIconExample() {
@@ -52,7 +52,7 @@ fun MaterialIconExample() {
 ### SVG Icon
 
 ```kotlin
-import code.yousef.summon.components.display.SvgIcon
+import codes.yousef.summon.components.display.SvgIcon
 
 @Composable
 fun SvgIconExample() {

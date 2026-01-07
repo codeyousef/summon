@@ -1,13 +1,12 @@
 package codes.yousef.summon.components.navigation
 
-import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.components.display.Text
-import codes.yousef.summon.modifier.*
+import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.runtime.PlatformRenderer
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * JVM-specific tests for HamburgerMenu component.
@@ -250,16 +249,14 @@ class HamburgerMenuSSRTest {
         // Parse the JSON
         val parsed = kotlinx.serialization.json.Json.parseToJsonElement(json)
         assertTrue(parsed is kotlinx.serialization.json.JsonObject, "data-action should be a JSON object")
-        
-        val jsonObj = parsed as kotlinx.serialization.json.JsonObject
-        
+
         // kotlinx.serialization uses "type" field for sealed class discriminator
-        val typeField = jsonObj["type"]
-        assertNotNull(typeField, "JSON should have 'type' field. Got: $jsonObj")
+        val typeField = parsed["type"]
+        assertNotNull(typeField, "JSON should have 'type' field. Got: $parsed")
         assertEquals("\"toggle\"", typeField.toString(), "type should be 'toggle'")
         
         // Should have "targetId" field
-        val targetIdField = jsonObj["targetId"]
+        val targetIdField = parsed["targetId"]
         assertNotNull(targetIdField, "JSON should have 'targetId' field")
         assertTrue(targetIdField.toString().contains("hamburger-menu-"),
             "targetId should contain 'hamburger-menu-'")

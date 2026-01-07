@@ -21,7 +21,7 @@ component provides:
 ### Simple Modal
 
 ```kotlin
-import code.yousef.summon.components.feedback.*
+import codes.yousef.summon.components.feedback.*
 
 @Composable
 fun SimpleModalExample() {

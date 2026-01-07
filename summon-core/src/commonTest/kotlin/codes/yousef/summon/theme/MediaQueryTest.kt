@@ -1,11 +1,9 @@
 package codes.yousef.summon.theme
 
 import codes.yousef.summon.modifier.*
-import codes.yousef.summon.modifier.lineHeight
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 class MediaQueryTest {
 
@@ -35,8 +33,8 @@ class MediaQueryTest {
 
         // Verify the media query is added with correct syntax
         val mediaQueryStyle = combinedModifier.styles["__media"]
-        assertTrue(mediaQueryStyle?.contains("@media (min-width: 768px)") == true)
-        assertTrue(mediaQueryStyle?.contains("width:200px") == true)
+        assertEquals(mediaQueryStyle?.contains("@media (min-width: 768px)"), true)
+        assertEquals(mediaQueryStyle?.contains("width:200px"), true)
     }
 
     @Test
@@ -55,8 +53,8 @@ class MediaQueryTest {
 
         // Verify the media query is added with correct syntax
         val mediaQueryStyle = combinedModifier.styles["__media"]
-        assertTrue(mediaQueryStyle?.contains("@media (max-width: 480px)") == true)
-        assertTrue(mediaQueryStyle?.contains("height:50px") == true)
+        assertEquals(mediaQueryStyle?.contains("@media (max-width: 480px)"), true)
+        assertEquals(mediaQueryStyle?.contains("height:50px"), true)
     }
 
     @Test
@@ -67,8 +65,8 @@ class MediaQueryTest {
 
         assertEquals("#000000", combinedModifier.styles["color"])
         val mediaQueryStyle = combinedModifier.styles["__media"]
-        assertTrue(mediaQueryStyle?.contains("@media (min-height: 600px)") == true)
-        assertTrue(mediaQueryStyle?.contains("color:#FFFFFF") == true)
+        assertEquals(mediaQueryStyle?.contains("@media (min-height: 600px)"), true)
+        assertEquals(mediaQueryStyle?.contains("color:#FFFFFF"), true)
     }
 
     @Test
@@ -79,8 +77,8 @@ class MediaQueryTest {
 
         assertEquals("#000000", combinedModifier.styles["background-color"])
         val mediaQueryStyle = combinedModifier.styles["__media"]
-        assertTrue(mediaQueryStyle?.contains("@media (max-height: 800px)") == true)
-        assertTrue(mediaQueryStyle?.contains("background-color:#FFFFFF") == true)
+        assertEquals(mediaQueryStyle?.contains("@media (max-height: 800px)"), true)
+        assertEquals(mediaQueryStyle?.contains("background-color:#FFFFFF"), true)
     }
 
     @Test
@@ -91,8 +89,8 @@ class MediaQueryTest {
 
         assertEquals("16px", combinedModifier.styles["font-size"])
         val mediaQueryStyle = combinedModifier.styles["__media"]
-        assertTrue(mediaQueryStyle?.contains("@media (min-width: 768px) and (max-width: 1024px)") == true)
-        assertTrue(mediaQueryStyle?.contains("font-size:20px") == true)
+        assertEquals(mediaQueryStyle?.contains("@media (min-width: 768px) and (max-width: 1024px)"), true)
+        assertEquals(mediaQueryStyle?.contains("font-size:20px"), true)
     }
 
     @Test
@@ -103,8 +101,8 @@ class MediaQueryTest {
 
         assertEquals("20px", combinedModifier.styles["padding"])
         val mediaQueryStyle = combinedModifier.styles["__media"]
-        assertTrue(mediaQueryStyle?.contains("@media (max-width: 599px)") == true)
-        assertTrue(mediaQueryStyle?.contains("padding:10px") == true)
+        assertEquals(mediaQueryStyle?.contains("@media (max-width: 599px)"), true)
+        assertEquals(mediaQueryStyle?.contains("padding:10px"), true)
     }
 
     @Test
@@ -115,8 +113,8 @@ class MediaQueryTest {
 
         assertEquals("20px", combinedModifier.styles["margin"])
         val mediaQueryStyle = combinedModifier.styles["__media"]
-        assertTrue(mediaQueryStyle?.contains("@media (min-width: 600px) and (max-width: 1279px)") == true)
-        assertTrue(mediaQueryStyle?.contains("margin:15px") == true)
+        assertEquals(mediaQueryStyle?.contains("@media (min-width: 600px) and (max-width: 1279px)"), true)
+        assertEquals(mediaQueryStyle?.contains("margin:15px"), true)
     }
 
     @Test
@@ -127,8 +125,8 @@ class MediaQueryTest {
 
         assertEquals("normal", combinedModifier.styles["font-weight"])
         val mediaQueryStyle = combinedModifier.styles["__media"]
-        assertTrue(mediaQueryStyle?.contains("@media (min-width: 1280px)") == true)
-        assertTrue(mediaQueryStyle?.contains("font-weight:bold") == true)
+        assertEquals(mediaQueryStyle?.contains("@media (min-width: 1280px)"), true)
+        assertEquals(mediaQueryStyle?.contains("font-weight:bold"), true)
     }
 
     @Test
@@ -138,14 +136,14 @@ class MediaQueryTest {
             .applyTo(Modifier().width("50%"))
 
         val portraitStyle = portraitModifier.styles["__media"]
-        assertTrue(portraitStyle?.contains("@media (orientation: portrait)") == true)
+        assertEquals(portraitStyle?.contains("@media (orientation: portrait)"), true)
 
         // Test landscape orientation
         val landscapeModifier = MediaQuery.orientation(false, Modifier().height("100vh"))
             .applyTo(Modifier().height("50vh"))
 
         val landscapeStyle = landscapeModifier.styles["__media"]
-        assertTrue(landscapeStyle?.contains("@media (orientation: landscape)") == true)
+        assertEquals(landscapeStyle?.contains("@media (orientation: landscape)"), true)
     }
 
     @Test
@@ -158,9 +156,9 @@ class MediaQueryTest {
         assertEquals("#000000", combinedModifier.styles["color"])
 
         val mediaQueryStyle = combinedModifier.styles["__media"]
-        assertTrue(mediaQueryStyle?.contains("@media (prefers-color-scheme: dark)") == true)
-        assertTrue(mediaQueryStyle?.contains("background-color:#000000") == true)
-        assertTrue(mediaQueryStyle?.contains("color:#FFFFFF") == true)
+        assertEquals(mediaQueryStyle?.contains("@media (prefers-color-scheme: dark)"), true)
+        assertEquals(mediaQueryStyle?.contains("background-color:#000000"), true)
+        assertEquals(mediaQueryStyle?.contains("color:#FFFFFF"), true)
     }
 
     @Test
@@ -170,7 +168,7 @@ class MediaQueryTest {
         val combinedModifier = lightModeModifier.applyTo(baseModifier)
 
         val mediaQueryStyle = combinedModifier.styles["__media"]
-        assertTrue(mediaQueryStyle?.contains("@media (prefers-color-scheme: light)") == true)
+        assertEquals(mediaQueryStyle?.contains("@media (prefers-color-scheme: light)"), true)
     }
 
     @Test
@@ -180,8 +178,8 @@ class MediaQueryTest {
         val combinedModifier = reducedMotionModifier.applyTo(baseModifier)
 
         val mediaQueryStyle = combinedModifier.styles["__media"]
-        assertTrue(mediaQueryStyle?.contains("@media (prefers-reduced-motion: reduce)") == true)
-        assertTrue(mediaQueryStyle?.contains("transition:none") == true)
+        assertEquals(mediaQueryStyle?.contains("@media (prefers-reduced-motion: reduce)"), true)
+        assertEquals(mediaQueryStyle?.contains("transition:none"), true)
     }
 
     @Test
@@ -208,10 +206,10 @@ class MediaQueryTest {
 
         // Check that it contains the expected media queries and styles
         // The actual format might be different from what we expected, so we'll just check for key substrings
-        assertTrue(mediaQueryStyle?.contains("min-width: 768px") == true, "Should contain min-width media query")
-        assertTrue(mediaQueryStyle?.contains("font-size") == true, "Should contain font-size style")
-        assertTrue(mediaQueryStyle?.contains("max-width: 1024px") == true, "Should contain max-width media query")
-        assertTrue(mediaQueryStyle?.contains("line-height") == true, "Should contain line-height style")
+        assertEquals(mediaQueryStyle.contains("min-width: 768px"), true, "Should contain min-width media query")
+        assertEquals(mediaQueryStyle.contains("font-size"), true, "Should contain font-size style")
+        assertEquals(mediaQueryStyle.contains("max-width: 1024px"), true, "Should contain max-width media query")
+        assertEquals(mediaQueryStyle.contains("line-height"), true, "Should contain line-height style")
     }
 
     @Test
@@ -227,8 +225,8 @@ class MediaQueryTest {
 
         // Verify the media query is added
         val mediaQueryStyle = responsiveModifier.styles["__media"]
-        assertTrue(mediaQueryStyle?.contains("@media (min-width: 768px)") == true)
-        assertTrue(mediaQueryStyle?.contains("width:50%") == true)
+        assertEquals(mediaQueryStyle?.contains("@media (min-width: 768px)"), true)
+        assertEquals(mediaQueryStyle?.contains("width:50%"), true)
     }
 
     @Test
@@ -251,13 +249,11 @@ class MediaQueryTest {
         assertNotNull(mediaQueryStyle, "Media query style should not be null")
 
         // The last media query should be for max-height
-        assertTrue(
-            mediaQueryStyle?.contains("@media (max-height: 800px)") == true,
+        assertEquals(
+            mediaQueryStyle.contains("@media (max-height: 800px)"),
+            true,
             "Should contain max-height media query"
         )
-        assertTrue(
-            mediaQueryStyle?.contains("height:90vh") == true,
-            "Should contain height style"
-        )
+        assertEquals(mediaQueryStyle.contains("height:90vh"), true, "Should contain height style")
     }
 }

@@ -6,12 +6,11 @@ import codes.yousef.summon.components.input.CodeEditor
 import codes.yousef.summon.components.layout.SplitPane
 import codes.yousef.summon.runtime.PlatformRenderer
 import kotlinx.browser.document
+import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLTextAreaElement
-import org.w3c.dom.HTMLCanvasElement
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.test.assertNotNull
 
 class AdvancedComponentsJsTest {
@@ -46,7 +45,7 @@ class AdvancedComponentsJsTest {
         val textarea = div.querySelector("textarea") as? HTMLTextAreaElement
         
         assertNotNull(textarea, "Should render a textarea")
-        assertEquals(code, textarea?.value, "Textarea value should match code")
+        assertEquals(code, textarea.value, "Textarea value should match code")
     }
 
     @Test
@@ -88,9 +87,9 @@ class AdvancedComponentsJsTest {
         assertNotNull(container, "Should render a container")
         
         // Check styles (note: style property names in JS are camelCase)
-        assertEquals("flex", container?.style?.display, "Display should be flex")
-        assertEquals("row", container?.style?.flexDirection, "Flex direction should be row")
-        
-        assertEquals(3, container?.children?.length, "Should have 3 children")
+        assertEquals("flex", container.style.display, "Display should be flex")
+        assertEquals("row", container.style.flexDirection, "Flex direction should be row")
+
+        assertEquals(3, container.children.length, "Should have 3 children")
     }
 }

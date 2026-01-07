@@ -21,7 +21,7 @@ system provides:
 ### Simple Text Alert
 
 ```kotlin
-import code.yousef.summon.components.feedback.*
+import codes.yousef.summon.components.feedback.*
 
 @Composable
 fun SimpleAlertExample() {

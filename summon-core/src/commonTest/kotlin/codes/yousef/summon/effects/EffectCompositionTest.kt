@@ -208,7 +208,6 @@ class EffectCompositionTest {
             intervalEffect(scope)
         } catch (e: Exception) {
             fail("Failed to invoke interval effect: ${e.message}")
-            null
         }
 
         // Verify compose was called and control was returned
@@ -217,10 +216,10 @@ class EffectCompositionTest {
         assertNotNull(control, "intervalEffect should return a control object")
 
         // Test control methods
-        control?.pause()
-        control?.resume()
-        control?.reset()
-        control?.setDelay(200)
+        control.pause()
+        control.resume()
+        control.reset()
+        control.setDelay(200)
 
         // Note: function won't be called because we're not executing the composable block
     }
@@ -241,7 +240,6 @@ class EffectCompositionTest {
             timeoutEffect(scope)
         } catch (e: Exception) {
             fail("Failed to invoke timeout effect: ${e.message}")
-            null
         }
 
         // Verify compose was called and control was returned
@@ -250,9 +248,9 @@ class EffectCompositionTest {
         assertNotNull(control, "timeoutEffect should return a control object")
 
         // Test control methods
-        control?.cancel()
-        control?.reset()
-        control?.setDelay(200)
+        control.cancel()
+        control.reset()
+        control.setDelay(200)
 
         // Note: function won't be called because we're not executing the composable block
     }

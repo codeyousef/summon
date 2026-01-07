@@ -91,7 +91,7 @@ Summon provides convenient extension properties for creating CSS values with pro
 ### Number Extensions
 
 ```kotlin
-// Extension properties in code.yousef.summon.extensions
+// Extension properties in codes.yousef.summon.extensions
 val Number.px: String      // Pixels: 16.px -> "16px"
 val Number.rem: String     // Root em: 1.5.rem -> "1.5rem"
 val Number.em: String      // Em units: 1.2.em -> "1.2em"
@@ -110,7 +110,7 @@ val Number.pc: String      // Picas: 6.pc -> "6pc"
 ### Usage Examples
 
 ```kotlin
-import code.yousef.summon.extensions.*
+import codes.yousef.summon.extensions.*
 
 Modifier()
     .width(100.percent)
@@ -200,7 +200,7 @@ fun cssMax(vararg values: CssValue): CssValue
 fun cssClamp(min: CssValue, preferred: CssValue, max: CssValue): CssValue
 ```
 
-Use the existing numeric extensions (e.g., `22.px`, `4.vw`, `48.px`) from `code.yousef.summon.extensions.*` to produce
+Use the existing numeric extensions (e.g., `22.px`, `4.vw`, `48.px`) from `codes.yousef.summon.extensions.*` to produce
 `CssValue` instances that can be passed to these helpers and then into modifiers like `fontSize`, `padding`, or `width`.
 
 ### Position Modifiers
@@ -1074,7 +1074,7 @@ Box(
 Use the predefined `Breakpoints` constants:
 
 ```kotlin
-import code.yousef.summon.modifier.Breakpoints
+import codes.yousef.summon.modifier.Breakpoints
 
 Box(
     modifier = Modifier()

@@ -28,20 +28,20 @@ class I18nConfigTest {
         // Verify English
         val english = languages.find { it.code == "en" }
         assertNotNull(english)
-        assertEquals("English", english?.name)
-        assertEquals(LayoutDirection.LTR, english?.direction)
+        assertEquals("English", english.name)
+        assertEquals(LayoutDirection.LTR, english.direction)
 
         // Verify French
         val french = languages.find { it.code == "fr" }
         assertNotNull(french)
-        assertEquals("French", french?.name)
-        assertEquals(LayoutDirection.LTR, french?.direction)
+        assertEquals("French", french.name)
+        assertEquals(LayoutDirection.LTR, french.direction)
 
         // Verify Arabic
         val arabic = languages.find { it.code == "ar" }
         assertNotNull(arabic)
-        assertEquals("Arabic", arabic?.name)
-        assertEquals(LayoutDirection.RTL, arabic?.direction)
+        assertEquals("Arabic", arabic.name)
+        assertEquals(LayoutDirection.RTL, arabic.direction)
     }
 
     @Test
@@ -56,7 +56,7 @@ class I18nConfigTest {
         // Verify the first language is the default
         val defaultLanguage = I18nConfig.defaultLanguage
         assertNotNull(defaultLanguage)
-        assertEquals("en", defaultLanguage?.code)
+        assertEquals("en", defaultLanguage.code)
     }
 
     @Test
@@ -72,7 +72,7 @@ class I18nConfigTest {
         // Verify the specified language is the default
         val defaultLanguage = I18nConfig.defaultLanguage
         assertNotNull(defaultLanguage)
-        assertEquals("fr", defaultLanguage?.code)
+        assertEquals("fr", defaultLanguage.code)
     }
 
     @Test
@@ -87,7 +87,7 @@ class I18nConfigTest {
         // Verify the first language is still the default
         val defaultLanguage = I18nConfig.defaultLanguage
         assertNotNull(defaultLanguage)
-        assertEquals("en", defaultLanguage?.code)
+        assertEquals("en", defaultLanguage.code)
     }
 
     @Test

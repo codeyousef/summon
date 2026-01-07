@@ -50,7 +50,7 @@ object GlobalEventListener {
      * Replay a captured event by dispatching it to the target element.
      */
     private fun replayEvent(capturedEvent: CapturedEvent) {
-        val element = document.getElementById(capturedEvent.targetId) as? Element ?: return
+        val element = document.getElementById(capturedEvent.targetId) ?: return
 
         if (enableLogging) {
             console.log("[Summon JS] Replaying ${capturedEvent.type} event for ${capturedEvent.targetId}")

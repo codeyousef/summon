@@ -33,9 +33,9 @@ fun LanguageProvider(
         // Restore the previous language and direction when this composable leaves the composition
         // We need to preserve the original function references
         @Suppress("UNCHECKED_CAST")
-        LocalLanguage.provides(prevLanguage as Function0<Language>)
+        LocalLanguage.provides(prevLanguage)
         @Suppress("UNCHECKED_CAST")
-        LocalLayoutDirection.provides(prevDirection as Function0<LayoutDirection>)
+        LocalLayoutDirection.provides(prevDirection)
     }
 }
 
@@ -50,7 +50,7 @@ fun stringResource(key: String): String {
     val languageProvider = LocalLanguage.current
 
     // Always invoke the function to get the actual value
-    val currentLanguage = (languageProvider as Function0<Language>).invoke()
+    val currentLanguage = languageProvider.invoke()
 
     val defaultLanguage = I18nConfig.defaultLanguage?.code
 

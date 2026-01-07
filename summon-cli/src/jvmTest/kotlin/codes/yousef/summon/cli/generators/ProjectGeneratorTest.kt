@@ -56,13 +56,13 @@ class ProjectGeneratorTest {
         )
 
         assertTrue(
-            content.contains("kotlin(\"multiplatform\") version \"2.2.21\"") &&
-                    content.contains("kotlin(\"plugin.serialization\") version \"2.2.21\""),
-            "Generated build file should target Kotlin 2.2.21"
+            content.contains("kotlin(\"multiplatform\") version \"2.3.0\"") &&
+                    content.contains("kotlin(\"plugin.serialization\") version \"2.3.0\""),
+            "Generated build file should target Kotlin 2.3.0"
         )
 
         assertTrue(
-            content.contains("org.jetbrains.kotlin:kotlin-stdlib-js:2.2.21"),
+            content.contains("org.jetbrains.kotlin:kotlin-stdlib-js:2.3.0"),
             "Generated JS template should include Kotlin stdlib for JS"
         )
     }
@@ -262,15 +262,15 @@ class ProjectGeneratorTest {
 
         val content = buildFile.readText()
         assertTrue(
-            content.contains("org.jetbrains.kotlin:kotlin-stdlib-common:2.2.21"),
+            content.contains("org.jetbrains.kotlin:kotlin-stdlib-common:2.3.0"),
             "Multiplatform template should include Kotlin stdlib-common"
         )
         assertTrue(
-            content.contains("org.jetbrains.kotlin:kotlin-stdlib:2.2.21"),
+            content.contains("org.jetbrains.kotlin:kotlin-stdlib:2.3.0"),
             "Multiplatform template should include Kotlin stdlib for JVM"
         )
         assertTrue(
-            content.contains("org.jetbrains.kotlin:kotlin-stdlib-js:2.2.21"),
+            content.contains("org.jetbrains.kotlin:kotlin-stdlib-js:2.3.0"),
             "Multiplatform template should include Kotlin stdlib for JS"
         )
     }

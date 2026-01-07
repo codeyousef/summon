@@ -19,7 +19,7 @@ Text input is fundamental to user interfaces. The Summon TextField component off
 ### Simple Text Field
 
 ```kotlin
-import code.yousef.summon.components.input.*
+import codes.yousef.summon.components.input.*
 
 @Composable
 fun SimpleTextFieldExample() {

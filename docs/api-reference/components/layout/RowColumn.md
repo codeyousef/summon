@@ -9,7 +9,7 @@ Arranges children in a horizontal sequence with control over spacing and alignme
 ### Basic Usage
 
 ```kotlin
-import code.yousef.summon.components.layout.*
+import codes.yousef.summon.components.layout.*
 
 @Composable
 fun SimpleRow() {

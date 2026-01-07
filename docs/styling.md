@@ -162,7 +162,7 @@ fun CenteredElement(): String {
     }
 }
 
-`cssMin(...)`, `cssMax(...)`, and `cssClamp(min, preferred, max)` are utility helpers that build the corresponding CSS functions for you, so you can express responsive sizes (e.g., `width(cssMin(1200.px, 92.vw))` or `padding("${cssClamp(22.px, 4.vw, 48.px)} 0")`) without hand-writing the function strings. Import `code.yousef.summon.extensions.*` to access the `.px`, `.vw`, and related unit helpers.
+`cssMin(...)`, `cssMax(...)`, and `cssClamp(min, preferred, max)` are utility helpers that build the corresponding CSS functions for you, so you can express responsive sizes (e.g., `width(cssMin(1200.px, 92.vw))` or `padding("${cssClamp(22.px, 4.vw, 48.px)} 0")`) without hand-writing the function strings. Import `codes.yousef.summon.extensions.*` to access the `.px`, `.vw`, and related unit helpers.
 ```
 
 ### Appearance Modifiers
@@ -340,7 +340,7 @@ The `backgroundLayers` DSL accepts any number of `radialGradient`, `linearGradie
     .mixBlendMode(BlendMode.Multiply)
     .backgroundBlendModes(BlendMode.Screen, BlendMode.Screen, BlendMode.Screen, BlendMode.Normal, BlendMode.Normal)
 
-`filter { ... }` and `backdropFilter { ... }` use the same builder under the hood, so you can mix blur, brightness, contrast, hue rotation, or drop-shadow steps with readable Kotlin while keeping the generated CSS in sync with the mock’s blur/saturate stack. Pair this with `backgroundBlendModes(...)` when layering aurora gradients over texture images so the blend order stays consistent with the mock, and use `Canvas`/`ScriptTag` from `code.yousef.summon.components.foundation` when you need raw shader hooks inside the same hero section.
+`filter { ... }` and `backdropFilter { ... }` use the same builder under the hood, so you can mix blur, brightness, contrast, hue rotation, or drop-shadow steps with readable Kotlin while keeping the generated CSS in sync with the mock’s blur/saturate stack. Pair this with `backgroundBlendModes(...)` when layering aurora gradients over texture images so the blend order stays consistent with the mock, and use `Canvas`/`ScriptTag` from `codes.yousef.summon.components.foundation` when you need raw shader hooks inside the same hero section.
 
     // Transitions
     .transition("background-color 0.3s ease")

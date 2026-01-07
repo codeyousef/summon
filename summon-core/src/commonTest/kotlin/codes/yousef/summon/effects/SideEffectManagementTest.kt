@@ -29,7 +29,7 @@ class SideEffectManagementTest {
         assertNotNull(job, "launchEffect should return a job")
 
         // Test job methods
-        job?.cancel()
+        job.cancel()
     }
 
     @Test
@@ -55,7 +55,7 @@ class SideEffectManagementTest {
         assertNotNull(job, "launchEffectWithDeps should return a job")
 
         // Test job methods
-        job?.cancel()
+        job.cancel()
     }
 
     @Test
@@ -123,7 +123,7 @@ class SideEffectManagementTest {
         assertNotNull(job, "updateStateAsync should return a job")
 
         // Test job methods
-        job?.cancel()
+        job.cancel()
 
         // Note: state won't be updated because we're not executing the composable block
         assertEquals("initial", state.value, "State should not be updated in test")

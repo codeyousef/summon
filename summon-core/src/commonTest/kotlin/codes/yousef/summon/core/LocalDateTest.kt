@@ -1,6 +1,7 @@
 package codes.yousef.summon.core
 
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.number
 import kotlin.test.*
 
 class LocalDateTest {
@@ -47,8 +48,8 @@ class LocalDateTest {
         // Valid cases
         val date = parseLocalDate("2023-04-15")
         assertEquals(2023, date.year, "Year should be parsed correctly")
-        assertEquals(4, date.monthNumber, "Month should be parsed correctly")
-        assertEquals(15, date.dayOfMonth, "Day should be parsed correctly")
+        assertEquals(4, date.month.number, "Month should be parsed correctly")
+        assertEquals(15, date.day, "Day should be parsed correctly")
 
         // Edge cases
         val edgeDate = parseLocalDate("0002-01-01")

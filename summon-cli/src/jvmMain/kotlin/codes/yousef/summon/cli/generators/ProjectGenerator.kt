@@ -67,7 +67,7 @@ class ProjectGenerator(private val template: ProjectTemplate) {
             "APP_TITLE" to TemplateHelpers.transformName(config.projectName, "pascalcase"),
             "APP_CLASS" to TemplateHelpers.transformName(config.projectName, "pascalcase") + "App",
             "SUMMON_VERSION" to readVersionFromProperties(),
-            "KOTLIN_VERSION" to "2.2.21",
+            "KOTLIN_VERSION" to "2.3.0",
             "INCLUDE_EXAMPLES" to if (config.includeExamples && !config.minimal) "true" else "false",
             "INCLUDE_AUTH" to if (config.includeAuth) "true" else "false",
             "INCLUDE_DOCKER" to if (config.includeDocker) "true" else "false",

@@ -1,6 +1,6 @@
 package codes.yousef.summon.util
 
-import codes.yousef.summon.modifier.*
+import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.runtime.MockPlatformRenderer
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -67,7 +67,7 @@ object TestAssertions {
         message: String? = null
     ) {
         assertNotNull(modifier, "Modifier should not be null")
-        val actualValue = modifier.attributes?.get(attributeName)
+        val actualValue = modifier.attributes[attributeName]
         assertEquals(
             expectedValue,
             actualValue,

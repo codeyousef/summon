@@ -3,6 +3,7 @@ package codes.yousef.summon.cli.commands
 import codes.yousef.summon.cli.generators.ProjectGenerator
 import codes.yousef.summon.cli.templates.ProjectTemplate
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.default
 import com.github.ajalt.clikt.parameters.options.default
@@ -160,7 +161,8 @@ class InitCommand(
             echo("  1) Standalone site")
             echo("  2) Full stack (Summon UI + backend)")
             echo("> ", trailingNewline = false)
-            when (inputProvider()?.trim()?.lowercase()) {
+            val input = inputProvider() ?: throw CliktError("Exiting: No input provided (EOF).")
+            when (input.trim().lowercase()) {
                 "1", "standalone", "s" -> return Mode.STANDALONE
                 "2", "fullstack", "f" -> return Mode.FULLSTACK
                 else -> echo("Please enter 1 or 2.")
@@ -175,7 +177,8 @@ class InitCommand(
             echo("  2) Ktor")
             echo("  3) Quarkus")
             echo("> ", trailingNewline = false)
-            when (inputProvider()?.trim()?.lowercase()) {
+            val input = inputProvider() ?: throw CliktError("Exiting: No input provided (EOF).")
+            when (input.trim().lowercase()) {
                 "1", "spring", "spring-boot", "s" -> return Backend.SPRING
                 "2", "ktor", "k" -> return Backend.KTOR
                 "3", "quarkus", "q" -> return Backend.QUARKUS

@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.2.2] - 2026-01-07
+
+### Changed
+
+- **Kotlin 2.3.0** - Updated Kotlin and Kotlin Multiplatform from 2.2.0 to 2.3.0
+- **AtomicFU 0.30.0-beta** - Updated from 0.29.0 to fix "Unsupported API dependency types in test source sets" warning
+  with Kotlin 2.3.0
+
+### Removed
+
+- **Examples Directory** - Removed the `examples/` directory; CLI-generated projects now serve as the canonical examples
+
+### Dependencies
+
+- **Aether** - Updated from 0.2.0.0 to 0.4.2.1
+- **kotlinx-datetime** - Updated from 0.6.2 to 0.7.1
+- **Kotlin Wrappers** - Updated from 2025.10.14 to 2025.12.11
+- **Chart.js** - Updated from 4.4.1 to 4.4.7
+- **markdown-it** - Updated from 14.0.0 to 14.1.0
+- **highlight.js** - Updated from 11.9.0 to 11.11.0
+- **Quarkus** - Updated from 3.15.7 to 3.20.4
+- **Ktor** - Updated from 3.3.1 to 3.3.3
+- **Spring Boot** - Updated from 3.5.7 to 3.5.9
+- **Spring Framework** - Updated from 6.2.12 to 6.2.14
+- **Reactor Core** - Updated from 3.7.12 to 3.7.14
+- **Reactor Kotlin Extensions** - Updated from 1.2.4 to 1.2.5
+- **GraalVM Native Image** - Updated from 0.11.2 to 0.11.3
+- **kaml** - Updated from 0.102.0 to 0.104.0
+- **commons-io** - Updated from 2.20.0 to 2.21.0
+- **Kotest** - Updated from 5.9.1 to 6.0.7
+- **jsoup** - Updated from 1.18.3 to 1.22.1
+- **Binary Compatibility Validator** - Updated from 0.16.3 to 0.17.0
+
 ## [0.6.2.1] - 2025-12-28
 
 ### Fixed

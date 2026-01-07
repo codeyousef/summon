@@ -1,6 +1,7 @@
 package codes.yousef.summon.i18n
 
-import codes.yousef.summon.modifier.*
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.style
 import codes.yousef.summon.runtime.Composable
 
 /**
@@ -16,7 +17,7 @@ object RtlUtils {
     @Composable
     fun isRtl(): Boolean {
         val direction = LocalLayoutDirection.current
-        val actualDirection = (direction as Function0<LayoutDirection>).invoke()
+        val actualDirection = direction.invoke()
         return actualDirection == LayoutDirection.RTL
     }
 
@@ -30,7 +31,7 @@ object RtlUtils {
     @Composable
     fun <T> directionalValue(ltrValue: T, rtlValue: T): T {
         val direction = LocalLayoutDirection.current
-        val actualDirection = (direction as Function0<LayoutDirection>).invoke()
+        val actualDirection = direction.invoke()
         return if (actualDirection == LayoutDirection.LTR) {
             ltrValue
         } else {
@@ -56,7 +57,7 @@ fun Modifier.directionalPadding(
     bottom: String
 ): Modifier {
     val direction = LocalLayoutDirection.current
-    val actualDirection = (direction as Function0<LayoutDirection>).invoke()
+    val actualDirection = direction.invoke()
     return if (actualDirection == LayoutDirection.LTR) {
         style("padding", "$top $end $bottom $start") // TRBL format
     } else {
@@ -81,7 +82,7 @@ fun Modifier.directionalMargin(
     bottom: String
 ): Modifier {
     val direction = LocalLayoutDirection.current
-    val actualDirection = (direction as Function0<LayoutDirection>).invoke()
+    val actualDirection = direction.invoke()
     return if (actualDirection == LayoutDirection.LTR) {
         style("margin", "$top $end $bottom $start") // TRBL format
     } else {
@@ -97,7 +98,7 @@ fun Modifier.directionalMargin(
 @Composable
 fun Modifier.mirrorInRtl(): Modifier {
     val direction = LocalLayoutDirection.current
-    val actualDirection = (direction as Function0<LayoutDirection>).invoke()
+    val actualDirection = direction.invoke()
     return if (actualDirection == LayoutDirection.RTL) {
         style("transform", "scaleX(-1)")
     } else {
@@ -113,7 +114,7 @@ fun Modifier.mirrorInRtl(): Modifier {
 @Composable
 fun Modifier.directionalRow(): Modifier {
     val direction = LocalLayoutDirection.current
-    val actualDirection = (direction as Function0<LayoutDirection>).invoke()
+    val actualDirection = direction.invoke()
     val value = if (actualDirection == LayoutDirection.LTR) "row" else "row-reverse"
     return style("display", "flex").style("flex-direction", value)
 } 

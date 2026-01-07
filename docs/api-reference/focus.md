@@ -17,7 +17,7 @@ The `FocusManager` class is responsible for handling focus control across compon
 ### Class Definition
 
 ```kotlin
-package code.yousef.summon.focus
+package codes.yousef.summon.focus
 
 object FocusManager {
     // Current focused element
@@ -61,7 +61,7 @@ The `KeyboardNavigation` class handles keyboard-based navigation through focusab
 ### Class Definition
 
 ```kotlin
-package code.yousef.summon.focus
+package codes.yousef.summon.focus
 
 class KeyboardNavigation {
     // Enable keyboard navigation for a container
@@ -126,7 +126,7 @@ Modifiers that control focus behavior of components.
 ### Modifier Functions
 
 ```kotlin
-package code.yousef.summon.modifier
+package codes.yousef.summon.modifier
 
 // Set tab index for keyboard navigation
 fun Modifier.tabIndex(index: Int): Modifier

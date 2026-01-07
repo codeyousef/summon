@@ -9,19 +9,19 @@ import codes.yousef.summon.components.input.FileInfo
 import codes.yousef.summon.components.navigation.Tab
 import codes.yousef.summon.core.FlowContentCompat
 import codes.yousef.summon.core.asFlowContentCompat
-import codes.yousef.summon.modifier.*
+import codes.yousef.summon.hydration.SummonTagConsumer
+import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.modifier.overflowX
 import codes.yousef.summon.modifier.overflowY
+import codes.yousef.summon.modifier.style
+import com.vladsch.flexmark.html.HtmlRenderer
+import com.vladsch.flexmark.parser.Parser
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 import java.util.*
 import kotlin.uuid.ExperimentalUuidApi
-import codes.yousef.summon.hydration.SummonTagConsumer
-import codes.yousef.summon.hydration.ServerStateEncoder
-import com.vladsch.flexmark.html.HtmlRenderer
-import com.vladsch.flexmark.parser.Parser
 
 // Interface defined in PlatformRenderer.kt commonMain
 // interface FormContent : FlowContent
@@ -221,12 +221,12 @@ actual open class PlatformRenderer {
             this.value = value
 
             // Check if name attribute was provided in modifier
-            val customName = modifier.attributes?.get("name")
+            val customName = modifier.attributes["name"]
             if (customName != null) {
                 // Use the provided name
                 name = customName
                 // If no id was provided, use the name as id
-                if (modifier.attributes?.get("id") == null) {
+                if (modifier.attributes["id"] == null) {
                     id = customName
                 }
             } else {
@@ -250,12 +250,12 @@ actual open class PlatformRenderer {
             applyModifier(modifier)
 
             // Check if name attribute was provided in modifier
-            val customName = modifier.attributes?.get("name")
+            val customName = modifier.attributes["name"]
             if (customName != null) {
                 // Use the provided name
                 name = customName
                 // If no id was provided, use the name as id
-                if (modifier.attributes?.get("id") == null) {
+                if (modifier.attributes["id"] == null) {
                     id = customName
                 }
             } else {
@@ -318,12 +318,12 @@ actual open class PlatformRenderer {
             this.readonly = readOnly
 
             // Check if name attribute was provided in modifier
-            val customName = modifier.attributes?.get("name")
+            val customName = modifier.attributes["name"]
             if (customName != null) {
                 // Use the provided name
                 name = customName
                 // If no id was provided, use the name as id
-                if (modifier.attributes?.get("id") == null) {
+                if (modifier.attributes["id"] == null) {
                     id = customName
                 }
             } else {
@@ -1995,7 +1995,7 @@ actual open class PlatformRenderer {
                         classes = setOf("selected")
                     }
                     attributes["data-tab-index"] = index.toString()
-                    +(tab.title ?: "Tab ${index + 1}")
+                    +tab.title
                 }
             }
         }

@@ -3,7 +3,7 @@ package codes.yousef.summon.effects
 import codes.yousef.summon.runtime.safeWasmConsoleError
 import codes.yousef.summon.runtime.safeWasmConsoleLog
 import codes.yousef.summon.runtime.safeWasmConsoleWarn
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 
 // Simple timeout storage for WASM implementation
 private var timeoutIdCounter = 0

@@ -22,7 +22,7 @@ The `Router` class is the main entry point for defining and managing routes in S
 ### Class Definition
 
 ```kotlin
-package code.yousef.summon.routing
+package codes.yousef.summon.routing
 
 class Router private constructor(
     private val routes: List<Route>,
@@ -139,7 +139,7 @@ The `Route` class represents a single route in the application.
 ### Class Definition
 
 ```kotlin
-package code.yousef.summon.routing
+package codes.yousef.summon.routing
 
 class Route(
     val path: String,
@@ -191,7 +191,7 @@ The `RouteParams` class holds the parameters extracted from the URL path.
 ### Class Definition
 
 ```kotlin
-package code.yousef.summon.routing
+package codes.yousef.summon.routing
 
 class RouteParams(val params: Map<String, String>) {
     companion object {
@@ -247,7 +247,7 @@ The `Link` component creates navigation links in the application.
 ### Component Definition
 
 ```kotlin
-package code.yousef.summon.routing
+package codes.yousef.summon.routing
 
 @Composable
 fun Link(
@@ -302,7 +302,7 @@ The file-based routing system provides automatic route discovery based on file p
 The `PageLoader` class handles automatic discovery and registration of page components.
 
 ```kotlin
-package code.yousef.summon.routing
+package codes.yousef.summon.routing
 
 object PageLoader {
     /**
@@ -328,7 +328,7 @@ object PageLoader {
 The `PageRegistry` interface provides registration of pages discovered at build time.
 
 ```kotlin
-package code.yousef.summon.routing
+package codes.yousef.summon.routing
 
 typealias PageFactory = @Composable (params: RouteParams) -> Unit
 
@@ -367,7 +367,7 @@ In a production environment, the page discovery is handled by a Gradle plugin co
 ```kotlin
 plugins {
     kotlin("multiplatform")
-    id("code.yousef.summon.page-discovery")
+    id("codes.yousef.summon.page-discovery")
 }
 
 // Configure the page discovery plugin
@@ -433,7 +433,7 @@ Summon provides platform-specific adapters for the router.
 ### Browser Adapter
 
 ```kotlin
-package code.yousef.summon.routing
+package codes.yousef.summon.routing
 
 class BrowserRouter(private val router: Router) {
     // Render to a DOM element
@@ -450,7 +450,7 @@ class BrowserRouter(private val router: Router) {
 ### Server Adapter
 
 ```kotlin
-package code.yousef.summon.routing
+package codes.yousef.summon.routing
 
 class ServerRouter(private val router: Router, private val path: String) {
     // Render to a string
@@ -506,7 +506,7 @@ Advanced configuration options for the router.
 ### RouterConfig
 
 ```kotlin
-package code.yousef.summon.routing
+package codes.yousef.summon.routing
 
 class RouterConfig {
     // Base path for all routes
@@ -533,7 +533,7 @@ enum class ScrollBehavior {
 ### Route State Management
 
 ```kotlin
-package code.yousef.summon.routing
+package codes.yousef.summon.routing
 
 class RouteState<T>(
     private val routePath: String,

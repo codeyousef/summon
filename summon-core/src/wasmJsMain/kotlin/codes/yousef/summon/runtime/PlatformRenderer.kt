@@ -7,7 +7,8 @@ import codes.yousef.summon.components.input.FileInfo
 import codes.yousef.summon.components.navigation.Tab
 import codes.yousef.summon.core.FlowContentCompat
 import codes.yousef.summon.core.createWasmFlowContentCompat
-import codes.yousef.summon.modifier.*
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.toStyleStringKebabCase
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 
@@ -266,7 +267,7 @@ actual open class PlatformRenderer actual constructor() {
     actual open fun renderTextField(value: String, onValueChange: (String) -> Unit, modifier: Modifier, type: String) {
         if (isStringRenderMode) {
             // HTML string building mode for SSR
-            val summonId = modifier.attributes?.get("data-summon-id") ?: "textfield-${onValueChange.hashCode()}"
+            val summonId = modifier.attributes["data-summon-id"] ?: "textfield-${onValueChange.hashCode()}"
             val modifierAttrs = buildModifierAttributes(modifier)
             val element = HtmlElement(
                 tagName = "input",
@@ -292,7 +293,7 @@ actual open class PlatformRenderer actual constructor() {
             // DOM rendering mode for client
             try {
                 // Check for hydration markers in modifier
-                val summonId = modifier.attributes?.get("data-summon-id") ?: "textfield-${onValueChange.hashCode()}"
+                val summonId = modifier.attributes["data-summon-id"] ?: "textfield-${onValueChange.hashCode()}"
 
                 // Create or reuse input element (returns new element or null if reused)
                 val newElement = createOrReuseElement("input", summonId)
@@ -683,7 +684,7 @@ actual open class PlatformRenderer actual constructor() {
     private fun renderRowWasmSafe(modifier: Modifier, content: @Composable () -> Unit) {
         try {
             // Check for hydration markers in modifier or use stable counter
-            val summonId = modifier.attributes?.get("data-summon-id") ?: "row-${++rowCounter}"
+            val summonId = modifier.attributes["data-summon-id"] ?: "row-${++rowCounter}"
 
             // Create or reuse row element (returns new element or null if reused)
             val newElement = createOrReuseElement("div", summonId)
@@ -813,7 +814,7 @@ actual open class PlatformRenderer actual constructor() {
     private fun renderColumnWasmSafe(modifier: Modifier, content: @Composable () -> Unit) {
         try {
             // Check for hydration markers in modifier or use stable counter
-            val summonId = modifier.attributes?.get("data-summon-id") ?: "column-${++columnCounter}"
+            val summonId = modifier.attributes["data-summon-id"] ?: "column-${++columnCounter}"
 
             // Create or reuse column element (returns new element or null if reused)
             val newElement = createOrReuseElement("div", summonId)
@@ -1328,16 +1329,13 @@ actual open class PlatformRenderer actual constructor() {
     private fun renderResponsiveLayoutWasmSafe(modifier: Modifier, content: @Composable () -> Unit) {
         try {
             // Check for hydration markers in modifier or use stable counter
-            val summonId = modifier.attributes?.get("data-summon-id") ?: "responsive-${++columnCounter}"
+            val summonId = modifier.attributes["data-summon-id"] ?: "responsive-${++columnCounter}"
 
             // Create or reuse element
             val newElement = createOrReuseElement("div", summonId)
-            val element = if (newElement != null) {
-                newElement
-            } else {
-                recompositionElements[summonId]
-                    ?: throw WasmDOMException("Failed to retrieve reused element: $summonId")
-            }
+            val element = newElement
+                ?: (recompositionElements[summonId]
+                    ?: throw WasmDOMException("Failed to retrieve reused element: $summonId"))
 
             // Inject styles if not present
             val styleId = "summon-responsive-styles"
@@ -2404,7 +2402,7 @@ actual open class PlatformRenderer actual constructor() {
         val attrs = mutableMapOf<String, String>()
 
         // Extract attributes from modifier if available
-        modifier.attributes?.forEach { (key, value) ->
+        modifier.attributes.forEach { (key, value) ->
             attrs[key] = value
         }
 

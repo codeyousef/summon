@@ -7,11 +7,12 @@ apply(from = "../version.gradle.kts")
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.atomicfu)
+    // alias(libs.plugins.atomicfu)
     alias(libs.plugins.binary.compatibility.validator)
     `maven-publish`
     signing
 }
+
 
 repositories {
     mavenCentral()
@@ -99,6 +100,8 @@ kotlin {
     wasmJs {
         compilerOptions {
             freeCompilerArgs.add("-opt-in=kotlin.js.ExperimentalWasmJsInterop")
+            // Handle duplicated unique names from atomicfu plugin
+            freeCompilerArgs.add("-Xklib-duplicated-unique-name-strategy=allow-first-with-warning")
         }
         browser {
             commonWebpackConfig {
@@ -118,9 +121,6 @@ kotlin {
         }
         nodejs {
             testTask {
-                useMocha {
-                    timeout = "30s"
-                }
                 val setupScript = project.layout.projectDirectory
                     .file("src/jsTest/resources/setup-happydom.cjs")
                     .asFile
@@ -153,13 +153,12 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.html)
                 implementation(libs.kotlinx.datetime)
-                // Add atomicfu as compileOnly to avoid conflicts
-                compileOnly(libs.atomicfu)
+                implementation(libs.atomicfu)
             }
         }
         val commonTest by getting {
             dependencies {
-                implementation(libs.kotlin.test)
+                implementation(kotlin("test"))
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.kotest.property)
             }
@@ -335,7 +334,7 @@ val summonHydrationOutputDir = layout.buildDirectory.dir("dist/js/productionExec
 val wasmOutputDir = layout.buildDirectory.dir("kotlin-webpack/wasmJs/productionExecutable")
 
 tasks.register<Copy>("copyHydrationBundles") {
-    dependsOn("jsBrowserDistribution", "wasmJsBrowserProductionWebpack")
+    dependsOn("jsBrowserDistribution", "wasmJsBrowserDistribution")
 
     val jsOutputFile = summonHydrationOutputDir.map { it.file("summon-hydration.js") }
     val jsMapFile = summonHydrationOutputDir.map { it.file("summon-hydration.js.map") }
@@ -930,6 +929,46 @@ tasks.withType<org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest>().co
         testLogging {
             events("passed", "skipped", "failed", "standardOut", "standardError")
             showStandardStreams = true
+        }
+    }
+}
+
+// Workaround for duplicate exports in generated WASM test wrapper
+tasks.named("wasmJsTestTestDevelopmentExecutableCompileSync") {
+    doLast {
+        val rootBuildDir = rootProject.layout.buildDirectory.get().asFile
+        val localBuildDir = layout.buildDirectory.get().asFile
+
+        val targetDirs = listOf(
+            rootBuildDir.resolve("wasm/packages"),
+            localBuildDir.resolve("wasm/packages"),
+            localBuildDir.resolve("compileSync/wasmJs/test/testDevelopmentExecutable/kotlin"),
+            localBuildDir.resolve("compileSync/wasmJs/test/developmentExecutable/kotlin")
+        )
+
+        targetDirs.forEach { dir ->
+            if (dir.exists()) {
+                dir.walkTopDown().forEach { file ->
+                    if (file.name == "summon-summon-core-test.mjs") {
+                        val content = file.readText()
+                        if (content.contains("startUnitTests")) {
+                            val lines = file.readLines().toMutableList()
+                            val startUnitTestsIndices = lines.mapIndexedNotNull { index, line ->
+                                if (line.trim() == "startUnitTests" || line.trim() == "startUnitTests,") index else null
+                            }
+
+                            if (startUnitTestsIndices.size > 1) {
+                                println("Fixing duplicate startUnitTests in ${file.absolutePath}")
+                                // Keep the first one, clear the rest
+                                for (i in 1 until startUnitTestsIndices.size) {
+                                    lines[startUnitTestsIndices[i]] = ""
+                                }
+                                file.writeText(lines.joinToString("\n"))
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

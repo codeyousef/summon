@@ -18,7 +18,7 @@ Images are fundamental visual elements in modern web applications. The Summon Im
 ### Simple Image
 
 ```kotlin
-import code.yousef.summon.components.display.Image
+import codes.yousef.summon.components.display.Image
 
 @Composable
 fun SimpleImageExample() {

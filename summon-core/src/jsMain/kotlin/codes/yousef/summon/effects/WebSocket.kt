@@ -2,7 +2,6 @@ package codes.yousef.summon.effects
 
 import kotlinx.browser.window
 import org.w3c.dom.CloseEvent
-import org.w3c.dom.MessageEvent
 import org.w3c.dom.WebSocket as DomWebSocket
 
 /**
@@ -46,9 +45,7 @@ actual class WebSocketClient {
             }
 
             ws.onmessage = { event ->
-                val messageEvent = event as MessageEvent
-                val data = messageEvent.data
-                when (data) {
+                when (val data = event.data) {
                     is String -> eventHandler?.invoke(WebSocketEvent.Message(data))
                     else -> {
                         // Handle binary data if needed

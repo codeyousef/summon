@@ -77,8 +77,6 @@ class PlatformTargetTest {
         @Suppress("SENSELESS_COMPARISON", "USELESS_IS_CHECK")
         val isServerTarget = when (serverTarget) {
             is PlatformTarget.JVM -> true
-            is PlatformTarget.JavaScript -> false
-            is PlatformTarget.WebAssembly -> false
         }
 
         assertTrue(isServerTarget, "JVM should be identified as server target")

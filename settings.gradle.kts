@@ -9,14 +9,5 @@ include(":summon-core")
 include(":summon-cli")
 include(":summon-aether")
 
-// Examples
-include(":examples:ssr-todo-app")
-include(":examples:wasm-seo-todo")
-include(":examples:hello-world-js")
-include(":examples:hello-world-wasm")
-include(":examples:hydration-test")
-include(":examples:ssr-hydration-test")
-include(":examples:portfolio-js")
-
 // Diagnostics suite
 include(":diagnostics")

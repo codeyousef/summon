@@ -9,8 +9,8 @@ The form validation system provides type-safe validators that can be composed to
 ## Basic Usage
 
 ```kotlin
-import code.yousef.summon.components.forms.Validator
-import code.yousef.summon.components.forms.validateValue
+import codes.yousef.summon.components.forms.Validator
+import codes.yousef.summon.components.forms.validateValue
 
 // Validate a single value
 val error = validateValue(

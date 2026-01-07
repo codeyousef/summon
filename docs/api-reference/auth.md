@@ -32,7 +32,7 @@ Authentication in Summon provides a flexible system for handling user identity v
 The primary class representing an authenticated session.
 
 ```kotlin
-package code.yousef.summon.security
+package codes.yousef.summon.security
 
 interface Authentication {
     val principal: Principal

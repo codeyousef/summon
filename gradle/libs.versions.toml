@@ -1,7 +1,7 @@
 [versions]
 # Kotlin
-kotlin = "2.2.21"
-aether = "0.2.0.0"
+kotlin = "2.3.0"
+aether = "0.4.2.1"
 
 # Kotlinx
 kotlinxCoroutines = "1.10.2"
@@ -9,50 +9,50 @@ kotlinxCoroutinesJs = "1.10.2"
 kotlinxCoroutinesJdk8 = "1.10.2"
 kotlinxSerialization = "1.9.0"
 kotlinxHtml = "0.12.0"
-kotlinxDatetime = "0.6.2"
-atomicfu = "0.29.0"
+kotlinxDatetime = "0.7.1"
+atomicfu = "0.30.0-beta"
 kotlinxBrowser = "0.5.0"
 
 # Kotlin Wrappers
-kotlinWrappersBase = "2025.10.14"
+kotlinWrappersBase = "2025.12.11"
 kotlinWrappersExtensions = "1.0.1-pre.823"
 kotlinReactDom = "2025.10.14-19.2.0"
 
 # NPM
 coreJs = "3.46.0"
 codemirror = "6.0.1"
-chartJs = "4.4.1"
-markdownIt = "14.0.0"
-highlightJs = "11.9.0"
+chartJs = "4.4.7"
+markdownIt = "14.1.0"
+highlightJs = "11.11.0"
 
 # Quarkus
-quarkus = "3.15.7"
-quarkusJvm = "3.15.7"
+quarkus = "3.20.4"
+quarkusJvm = "3.20.4"
 
 # Ktor
-ktor = "3.3.1"
+ktor = "3.3.3"
 
 # Spring Boot
-springBoot = "3.5.7"
-springBootJvm = "3.5.7"
-reactorKotlin = "1.2.4"
-reactorKotlinJvm = "1.2.4"
-springFramework = "6.2.12"
+springBoot = "3.5.9"
+springBootJvm = "3.5.9"
+springFramework = "6.2.14"
+reactorCore = "3.7.14"
+reactorKotlin = "1.2.5"
+reactorKotlinJvm = "1.2.5"
 blockhound = "1.0.8.RELEASE"
-reactorCore = "3.7.12"
 
 # CLI
 clikt = "5.0.3"
 shadowJar = "8.1.1"
-graalvm = "0.11.2"
-kaml = "0.102.0"
+graalvm = "0.11.3"
+kaml = "0.104.0"
 commonsCompress = "1.28.0"
-commonsIo = "2.20.0"
+commonsIo = "2.21.0"
 
 # Testing
 kotest = "5.9.1"
-jsoup = "1.18.1"
-binaryCompatibilityValidator = "0.16.3"
+jsoup = "1.22.1"
+binaryCompatibilityValidator = "0.17.0"
 flexmark = "0.64.8"
 
 [libraries]

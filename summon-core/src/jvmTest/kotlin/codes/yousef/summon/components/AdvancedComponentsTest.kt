@@ -4,7 +4,6 @@ import codes.yousef.summon.components.display.Chart
 import codes.yousef.summon.components.display.RichMarkdown
 import codes.yousef.summon.components.input.CodeEditor
 import codes.yousef.summon.components.layout.SplitPane
-import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.PlatformRenderer
 import org.jsoup.Jsoup
 import kotlin.test.Test
@@ -54,8 +53,8 @@ class AdvancedComponentsTest {
         
         assertTrue(pre != null, "Pre tag should exist")
         assertTrue(codeElement != null, "Code tag should exist")
-        assertTrue(codeElement?.className()?.contains("language-kotlin") == true, "Should have language class")
-        assertEquals(code, codeElement?.text(), "Code content should match")
+        assertEquals(codeElement.className().contains("language-kotlin"), true, "Should have language class")
+        assertEquals(code, codeElement.text(), "Code content should match")
         
         val container = doc.select("div[data-summon-component='code-editor']").first()
         assertTrue(container != null, "Container with data attribute should exist")
@@ -75,9 +74,9 @@ class AdvancedComponentsTest {
         val canvas = doc.select("canvas").first()
         
         assertTrue(canvas != null, "Canvas should exist")
-        assertEquals("chart", canvas?.attr("data-summon-component"))
-        assertEquals(type, canvas?.attr("data-chart-type"))
-        assertEquals(data, canvas?.attr("data-chart-data"))
+        assertEquals("chart", canvas.attr("data-summon-component"))
+        assertEquals(type, canvas.attr("data-chart-type"))
+        assertEquals(data, canvas.attr("data-chart-data"))
     }
 
     @Test
@@ -96,12 +95,12 @@ class AdvancedComponentsTest {
         val container = doc.select("div[data-summon-component='split-pane']").first()
         
         assertTrue(container != null, "Split pane container should exist")
-        assertEquals("vertical", container?.attr("data-orientation"))
-        
-        val firstPane = container?.select("div[data-pane='first']")?.first()
-        val divider = container?.select("div[data-pane='divider']")?.first()
-        val secondPane = container?.select("div[data-pane='second']")?.first()
-        
+        assertEquals("vertical", container.attr("data-orientation"))
+
+        val firstPane = container.select("div[data-pane='first']").first()
+        val divider = container.select("div[data-pane='divider']").first()
+        val secondPane = container.select("div[data-pane='second']").first()
+
         assertTrue(firstPane != null, "First pane should exist")
         assertTrue(divider != null, "Divider should exist")
         assertTrue(secondPane != null, "Second pane should exist")

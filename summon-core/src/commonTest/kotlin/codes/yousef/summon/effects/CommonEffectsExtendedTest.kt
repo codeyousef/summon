@@ -71,7 +71,6 @@ class CommonEffectsExtendedTest {
             scope.useLocation()
         } catch (e: Exception) {
             fail("Failed to invoke useLocation: ${e.message}")
-            null
         }
 
         // Verify compose was called and state was returned
@@ -80,9 +79,9 @@ class CommonEffectsExtendedTest {
         assertNotNull(locationState, "useLocation should return a state")
 
         // Verify initial state
-        assertEquals("/", locationState?.value?.pathname, "Initial pathname should be '/'")
-        assertEquals("", locationState?.value?.search, "Initial search should be empty")
-        assertEquals("", locationState?.value?.hash, "Initial hash should be empty")
+        assertEquals("/", locationState.value.pathname, "Initial pathname should be '/'")
+        assertEquals("", locationState.value.search, "Initial search should be empty")
+        assertEquals("", locationState.value.hash, "Initial hash should be empty")
     }
 
     @Test
@@ -96,7 +95,6 @@ class CommonEffectsExtendedTest {
             scope.useLocalStorage(testKey, initialValue) { it }
         } catch (e: Exception) {
             fail("Failed to invoke useLocalStorage: ${e.message}")
-            null
         }
 
         // Verify compose was called and state was returned
@@ -105,7 +103,7 @@ class CommonEffectsExtendedTest {
         assertNotNull(storageState, "useLocalStorage should return a state")
 
         // Verify initial state
-        assertEquals(initialValue, storageState?.value, "Initial value should be set")
+        assertEquals(initialValue, storageState.value, "Initial value should be set")
     }
 
     @Test
@@ -118,7 +116,6 @@ class CommonEffectsExtendedTest {
             scope.useMediaQuery(testQuery)
         } catch (e: Exception) {
             fail("Failed to invoke useMediaQuery: ${e.message}")
-            null
         }
 
         // Verify compose was called and state was returned
@@ -127,7 +124,7 @@ class CommonEffectsExtendedTest {
         assertNotNull(mediaQueryState, "useMediaQuery should return a state")
 
         // Verify initial state
-        assertFalse(mediaQueryState?.value ?: true, "Initial value should be false")
+        assertFalse(mediaQueryState.value, "Initial value should be false")
     }
 
     @Test
@@ -139,7 +136,6 @@ class CommonEffectsExtendedTest {
             scope.useWindowSize()
         } catch (e: Exception) {
             fail("Failed to invoke useWindowSize: ${e.message}")
-            null
         }
 
         // Verify compose was called and state was returned
@@ -148,7 +144,7 @@ class CommonEffectsExtendedTest {
         assertNotNull(windowSizeState, "useWindowSize should return a state")
 
         // Verify initial state
-        assertEquals(800, windowSizeState?.value?.width, "Initial width should be 800")
-        assertEquals(600, windowSizeState?.value?.height, "Initial height should be 600")
+        assertEquals(800, windowSizeState.value.width, "Initial width should be 800")
+        assertEquals(600, windowSizeState.value.height, "Initial height should be 600")
     }
 }

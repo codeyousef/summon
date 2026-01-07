@@ -5,7 +5,7 @@
 Pseudo-selector modifiers enable styling for interactive states and structural positions that can't be applied as inline
 styles. The framework automatically generates scoped CSS rules for these selectors.
 
-**Package**: `code.yousef.summon.modifier`  
+**Package**: `codes.yousef.summon.modifier`  
 **Since**: 1.0.0 (enhanced in 0.4.8.4)
 
 ---

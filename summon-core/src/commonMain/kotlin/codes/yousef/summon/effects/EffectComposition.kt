@@ -180,7 +180,7 @@ import codes.yousef.summon.runtime.Composable
 import codes.yousef.summon.runtime.DisposableEffect
 import codes.yousef.summon.runtime.LaunchedEffect
 import kotlinx.coroutines.*
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 
 /**

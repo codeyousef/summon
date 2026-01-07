@@ -1,7 +1,9 @@
 package codes.yousef.summon.components.input
 
 import codes.yousef.summon.annotation.Composable
-import codes.yousef.summon.modifier.*
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.attribute
+import codes.yousef.summon.modifier.id
 import codes.yousef.summon.runtime.SelectOption
 import codes.yousef.summon.runtime.getPlatformRenderer
 import codes.yousef.summon.state.SummonMutableState
@@ -75,7 +77,7 @@ fun <T> Select(
     var finalModifier = modifier
 
     // Check if the modifier already has an ID
-    val existingId = finalModifier.attributes?.get("id")
+    val existingId = finalModifier.attributes["id"]
 
     // Generate an ID for the select element if label is provided and no ID exists
     val selectId = if (label != null) {

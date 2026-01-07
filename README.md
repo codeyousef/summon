@@ -384,14 +384,14 @@ java -jar summon-cli-0.6.2.0.jar init my-wasm-app --mode=standalone
 
 ```kotlin
 // src/wasmJsMain/kotlin/Main.kt
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.input.Button
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.wasmMain
-import code.yousef.summon.state.mutableStateOf
-import code.yousef.summon.runtime.remember
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.components.input.Button
+import codes.yousef.summon.components.layout.Column
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.wasmMain
+import codes.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.runtime.remember
 
 @Composable
 fun App() {
@@ -513,13 +513,13 @@ Summon provides production-ready Server-Side Rendering capabilities for improved
 ### Basic SSR Usage
 
 ```kotlin
-import code.yousef.summon.annotation.Composable
-import code.yousef.summon.components.display.Text
-import code.yousef.summon.components.layout.Column
-import code.yousef.summon.modifier.Modifier
-import code.yousef.summon.runtime.PlatformRenderer
-import code.yousef.summon.runtime.remember
-import code.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.components.layout.Column
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.runtime.remember
+import codes.yousef.summon.state.mutableStateOf
 
 // Create a renderer instance
 val renderer = PlatformRenderer()
