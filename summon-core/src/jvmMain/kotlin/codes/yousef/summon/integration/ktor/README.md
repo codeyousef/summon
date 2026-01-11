@@ -19,15 +19,12 @@ In your Ktor application's `build.gradle.kts` file:
 ```kotlin
 dependencies {
     // Ktor dependencies
-    implementation("io.ktor:ktor-server-core:3.3.1")
-    implementation("io.ktor:ktor-server-netty:3.3.1")
-    implementation("io.ktor:ktor-server-html-builder:3.3.1")
-    
-    // Summon core
-    implementation("io.github.codeyousef:summon:0.4.7.0")
-    
-    // Summon Ktor integration
-    implementation("io.github.codeyousef:summon-ktor:0.4.7.0")
+    implementation("io.ktor:ktor-server-core:3.3.3")
+    implementation("io.ktor:ktor-server-netty:3.3.3")
+    implementation("io.ktor:ktor-server-html-builder:3.3.3")
+
+    // Summon core (includes Ktor integration)
+    implementation("codes.yousef:summon:0.6.2.2")
 }
 ```
 

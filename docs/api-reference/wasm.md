@@ -1,455 +1,310 @@
 # WebAssembly (WASM) API Reference
 
-This document provides comprehensive API reference for Summon's WebAssembly implementation, covering all WASM-specific
-functions, classes, and utilities.
+This document provides the API reference for Summon's WebAssembly implementation.
 
 ## Table of Contents
 
-- [Core WASM APIs](#core-wasm-apis)
-- [Platform Detection](#platform-detection)
-- [Performance APIs](#performance-apis)
-- [Browser Integration](#browser-integration)
-- [Memory Management](#memory-management)
-- [Error Handling](#error-handling)
+- [Entry Points](#entry-points)
+- [DOM API](#dom-api)
+- [Performance Monitoring](#performance-monitoring)
+- [Hydration](#hydration)
 - [Build Configuration](#build-configuration)
 
-## Core WASM APIs
+## Entry Points
 
-### `wasmMain`
+### `renderComposableRoot`
 
-The main entry point for WASM applications.
+The main entry point for WASM applications. Renders a composable function to a DOM element.
+
+**Location:** `codes.yousef.summon.WasmApi`
 
 ```kotlin
-fun wasmMain(
-    enableHydration: Boolean = true,
-    fallbackToJs: Boolean = true,
-    rootElementId: String = "root",
-    content: @Composable () -> Unit
+fun renderComposableRoot(
+    rootElementId: String,
+    composable: @Composable () -> Unit
 )
 ```
 
 **Parameters:**
 
-- `enableHydration`: Enable server-side rendering hydration
-- `fallbackToJs`: Automatically fallback to JavaScript if WASM fails
-- `rootElementId`: DOM element ID to mount the application
-- `content`: Root composable function
+- `rootElementId`: The DOM element ID where the app will be mounted
+- `composable`: The root composable function to render
 
 **Example:**
 
 ```kotlin
 fun main() {
-    wasmMain(
-        enableHydration = true,
-        fallbackToJs = true,
-        rootElementId = "app"
-    ) {
+    renderComposableRoot("app") {
         App()
     }
 }
 ```
 
-### `WasmRenderer`
+### `hydrateComposableRoot`
 
-Direct WASM rendering interface for advanced use cases.
+Hydrates server-rendered HTML with client-side interactivity. Use this when HTML has been pre-rendered by the server (
+SSR).
+
+**Location:** `codes.yousef.summon.WasmApi`
 
 ```kotlin
-class WasmRenderer {
-    fun renderToElement(
-        element: Element,
-        content: @Composable () -> Unit
-    )
-
-    fun renderToString(
-        content: @Composable () -> Unit
-    ): String
-
-    fun hydrate(
-        element: Element,
-        content: @Composable () -> Unit
-    )
-}
+fun hydrateComposableRoot(
+    rootElementId: String,
+    composable: @Composable () -> Unit
+)
 ```
 
-**Methods:**
+**Parameters:**
 
-- `renderToElement`: Render directly to a DOM element
-- `renderToString`: Server-side rendering to HTML string
-- `hydrate`: Hydrate server-rendered content with WASM interactivity
+- `rootElementId`: The DOM element ID containing server-rendered content
+- `composable`: The same composable function used for server rendering
 
 **Example:**
 
 ```kotlin
-val renderer = WasmRenderer()
-
-// Client-side rendering
-renderer.renderToElement(document.getElementById("root")!!) {
-    MyApp()
-}
-
-// Server-side rendering
-val html = renderer.renderToString { MyApp() }
-
-// Hydration
-renderer.hydrate(document.getElementById("root")!!) {
-    MyApp()
-}
-```
-
-## Platform Detection
-
-### `WasmPlatform`
-
-Platform detection utilities for WASM environments.
-
-```kotlin
-object WasmPlatform {
-    val isWasmSupported: Boolean
-    val wasmVersion: WasmVersion
-    val browserInfo: BrowserInfo
-    val performanceInfo: PerformanceInfo
-
-    fun detectCapabilities(): WasmCapabilities
-    fun isFeatureSupported(feature: WasmFeature): Boolean
-}
-```
-
-**Properties:**
-
-- `isWasmSupported`: True if current browser supports WASM
-- `wasmVersion`: Detected WASM version and capabilities
-- `browserInfo`: Browser name, version, and engine information
-- `performanceInfo`: Performance metrics and capabilities
-
-**Example:**
-
-```kotlin
-@Composable
-fun ConditionalComponent() {
-    if (WasmPlatform.isWasmSupported) {
-        HighPerformanceWasmComponent()
-    } else {
-        FallbackJsComponent()
+fun main() {
+    hydrateComposableRoot("app") {
+        App()
     }
 }
 ```
 
-### `WasmCapabilities`
+**Note:** If hydration fails, the function automatically falls back to client-side rendering.
 
-Detailed WASM capability detection.
+---
 
-```kotlin
-data class WasmCapabilities(
-    val hasThreadSupport: Boolean,
-    val hasSIMDSupport: Boolean,
-    val hasGCSupport: Boolean,
-    val hasExceptionHandling: Boolean,
-    val maxMemorySize: Long,
-    val supportedFeatures: Set<WasmFeature>
-)
-```
+## DOM API
 
-### `BrowserInfo`
+### `WasmDOMAPI`
 
-Browser detection and compatibility information.
+WASM-optimized DOM manipulation API using string-based element IDs.
+
+**Location:** `codes.yousef.summon.runtime.WasmDOMAPI`
 
 ```kotlin
-data class BrowserInfo(
-    val name: String,
-    val version: String,
-    val engine: String,
-    val isMobile: Boolean,
-    val supportLevel: WasmSupportLevel
-)
+class WasmDOMAPI : DOMAPIContract {
+    fun createElement(tagName: String): DOMElement
+    fun setTextContent(element: DOMElement, text: String)
+    fun setAttribute(element: DOMElement, name: String, value: String)
+    fun addClass(element: DOMElement, className: String)
+    fun removeClass(element: DOMElement, className: String)
+    fun appendChild(parent: DOMElement, child: DOMElement)
+    fun removeElement(element: DOMElement)
+    fun addEventListener(element: DOMElement, eventType: String, handler: (WasmDOMEvent) -> Unit)
+    fun removeEventListener(element: DOMElement, eventType: String, handler: (WasmDOMEvent) -> Unit)
 
-enum class WasmSupportLevel {
-    FULL,        // Complete WASM support
-    PARTIAL,     // Limited WASM support
-    NONE         // No WASM support
+    // WASM-specific optimizations
+    fun batchDOMOperations(operations: List<() -> Unit>)
+    fun measurePerformance(operation: String, block: () -> Unit): Long
+    fun getMemoryUsage(): WasmMemoryInfo
+    fun clearCache()
 }
 ```
 
-## Performance APIs
+### `WasmDOMElement`
 
-### `WasmPerformance`
-
-Performance monitoring and optimization utilities.
+WASM-specific DOM element implementation.
 
 ```kotlin
-object WasmPerformance {
-    fun measureExecutionTime(block: () -> Unit): Double
-    fun getMemoryUsage(): MemoryInfo
-    fun enableProfiling(enabled: Boolean)
-    fun getPerformanceMarks(): List<PerformanceMark>
+class WasmDOMElement(
+    val tagName: String,
+    val id: String,
+    val nativeElementId: String
+) : DOMElement {
+    val className: String
+    val textContent: String?
 
-    // Optimization hints
-    fun optimizeForLatency()
-    fun optimizeForThroughput()
-    fun optimizeForMemory()
+    fun getAttribute(name: String): String?
+    fun setAttribute(name: String, value: String)
+    fun removeAttribute(name: String)
+    fun appendChild(child: DOMElement)
+    fun removeChild(child: DOMElement)
+    fun querySelector(selector: String): DOMElement?
+    fun querySelectorAll(selector: String): List<DOMElement>
 }
 ```
 
-**Methods:**
+### `WasmMemoryInfo`
 
-- `measureExecutionTime`: Measure execution time in milliseconds
-- `getMemoryUsage`: Current memory usage statistics
-- `enableProfiling`: Enable/disable performance profiling
-- `getPerformanceMarks`: Retrieve performance markers
+Memory usage statistics for WASM DOM operations.
+
+```kotlin
+data class WasmMemoryInfo(
+    val totalElements: Int,
+    val totalEventHandlers: Int,
+    val cacheSize: Int,
+    val timestamp: Long
+)
+```
+
+---
+
+## Performance Monitoring
+
+### `WasmPerformanceMonitor`
+
+Comprehensive performance tracking for WASM applications.
+
+**Location:** `codes.yousef.summon.runtime.WasmPerformanceMonitor`
+
+```kotlin
+class WasmPerformanceMonitor {
+    // Measure operation performance
+    fun <T> measure(operationName: String, block: () -> T): T
+
+    // Manual timing
+    fun startOperation(operationName: String)
+    fun endOperation(operationName: String)
+
+    // Frame tracking
+    fun recordFrame()
+
+    // Custom metrics
+    fun recordMetric(name: String, value: Double, unit: String = "")
+    fun recordMemoryUsage(allocatedBytes: Long, freedBytes: Long = 0)
+
+    // Reports and stats
+    fun generateReport(): WasmPerformanceReport
+    fun getCurrentStats(): WasmPerformanceStats
+    fun getSlowestOperations(count: Int = 10): List<OperationSummary>
+
+    // Configuration
+    fun setEnabled(enabled: Boolean)
+    fun setMaxHistorySize(size: Int)
+    fun reset()
+}
+```
 
 **Example:**
 
 ```kotlin
-@Composable
-fun PerformanceMonitoredComponent() {
-    val executionTime = remember {
-        WasmPerformance.measureExecutionTime {
-            // Expensive computation
-            processLargeDataset()
-        }
-    }
+val monitor = WasmPerformanceMonitor()
 
-    Text("Computation took: ${executionTime}ms")
+// Measure an operation
+val result = monitor.measure("renderComponent") {
+    renderExpensiveComponent()
 }
+
+// Generate performance report
+val report = monitor.generateReport()
+println("Total operations: ${report.totalOperations}")
+println("Average frame rate: ${report.averageFrameRate}")
 ```
 
-### `MemoryInfo`
+### `WasmPerformanceStats`
 
-Memory usage statistics for WASM applications.
+Real-time performance statistics.
 
 ```kotlin
-data class MemoryInfo(
-    val usedHeapSize: Long,
-    val totalHeapSize: Long,
-    val heapSizeLimit: Long,
-    val wasmMemoryPages: Int,
-    val maxWasmMemoryPages: Int
+data class WasmPerformanceStats(
+    val currentFrameRate: Double,
+    val currentFrameTime: Long,
+    val activeOperations: List<String>,
+    val memoryUsage: WasmMemoryUsage,
+    val operationCount: Int,
+    val isMonitoring: Boolean
 )
 ```
 
-### `PerformanceMark`
+### `WasmPerformanceReport`
 
-Performance timing markers.
+Comprehensive performance report.
 
 ```kotlin
-data class PerformanceMark(
-    val name: String,
-    val timestamp: Double,
-    val duration: Double?,
-    val category: PerformanceCategory
+data class WasmPerformanceReport(
+    val totalOperations: Int,
+    val totalMeasurements: Int,
+    val totalTime: Long,
+    val averageFrameRate: Double,
+    val slowestOperations: List<Pair<String, Long>>,
+    val operationBreakdown: List<OperationSummary>,
+    val frameMetrics: FrameSummary,
+    val memoryMetrics: MemorySummary,
+    val errorCount: Int,
+    val reportTimestamp: Long
 )
-
-enum class PerformanceCategory {
-    INITIALIZATION,
-    RENDERING,
-    COMPUTATION,
-    NETWORK,
-    USER_INTERACTION
-}
 ```
 
-## Browser Integration
+---
 
-### `WasmBridge`
+## Hydration
 
-Bridge for communicating between WASM and JavaScript.
+### `GlobalEventListener`
+
+Document-level event handler for SSR hydration.
+
+**Location:** `codes.yousef.summon.hydration.GlobalEventListener`
 
 ```kotlin
-object WasmBridge {
-    fun callJsFunction(
-        functionName: String,
-        vararg args: Any
-    ): Any?
+object GlobalEventListener {
+    var enableLogging: Boolean
 
-    fun registerJsCallback(
-        name: String,
-        callback: (Array<Any>) -> Any?
-    )
-
-    fun importJsModule(moduleName: String): JsModule
+    fun init()
+    fun reset()
+    fun isElementHydrated(elementId: String): Boolean
+    fun markElementHydrated(elementId: String)
+    fun handleEvent(type: String, sid: String, event: Event, element: Element? = null)
 }
 ```
 
-**Methods:**
+**Features:**
 
-- `callJsFunction`: Call JavaScript functions from WASM
-- `registerJsCallback`: Register WASM callbacks for JavaScript
-- `importJsModule`: Import and use JavaScript modules
+- Handles document-level events for `data-action` based client-side interactions
+- Buffers events for non-hydrated components and replays them after hydration
+- Prevents duplicate initialization when both JS and WASM bundles load
 
 **Example:**
 
 ```kotlin
-// Call JavaScript function
-val result = WasmBridge.callJsFunction("console.log", "Hello from WASM!")
+// Initialize event handling (called automatically by hydrateComposableRoot)
+GlobalEventListener.init()
 
-// Register callback
-WasmBridge.registerJsCallback("onDataReceived") { args ->
-    val data = args[0] as String
-    processData(data)
-}
+// Enable debug logging
+GlobalEventListener.enableLogging = true
 
-// Import JS module
-val chartModule = WasmBridge.importJsModule("chart.js")
-```
-
-### `DomApi`
-
-WASM-optimized DOM manipulation APIs.
-
-```kotlin
-object DomApi {
-    fun getElementById(id: String): Element?
-    fun createElement(tagName: String): Element
-    fun querySelector(selector: String): Element?
-    fun querySelectorAll(selector: String): List<Element>
-
-    // Optimized batch operations
-    fun batchUpdates(block: () -> Unit)
-    fun createDocumentFragment(): DocumentFragment
+// Check hydration status
+if (GlobalEventListener.isElementHydrated("my-button")) {
+    // Element is ready for interaction
 }
 ```
 
-## Memory Management
+### `EventBuffer`
 
-### `WasmMemory`
+Buffers events for elements that haven't been hydrated yet.
 
-Memory management utilities for WASM applications.
-
-```kotlin
-object WasmMemory {
-    fun allocate(size: Int): MemoryBuffer
-    fun deallocate(buffer: MemoryBuffer)
-    fun resize(size: Int): Boolean
-    fun getUsage(): MemoryUsage
-
-    // Garbage collection hints
-    fun suggestGC()
-    fun enableAutoGC(enabled: Boolean)
-}
-```
-
-### `MemoryBuffer`
-
-Low-level memory buffer for WASM.
+**Location:** `codes.yousef.summon.hydration.EventBuffer`
 
 ```kotlin
-class MemoryBuffer(val size: Int) {
-    fun readBytes(offset: Int, length: Int): ByteArray
-    fun writeBytes(offset: Int, data: ByteArray)
-    fun readInt(offset: Int): Int
-    fun writeInt(offset: Int, value: Int)
+class EventBuffer {
+    fun captureEvent(event: CapturedEvent)
+    fun hasEventsFor(elementId: String): Boolean
+    fun eventCountFor(elementId: String): Int
+    fun replayEventsFor(elementId: String, handler: (CapturedEvent) -> Unit)
     fun clear()
-    fun dispose()
-}
-```
 
-### `MemoryUsage`
-
-Memory usage tracking and statistics.
-
-```kotlin
-data class MemoryUsage(
-    val allocated: Long,
-    val used: Long,
-    val free: Long,
-    val fragmentation: Double,
-    val gcCount: Int,
-    val gcTime: Double
-)
-```
-
-## Error Handling
-
-### `WasmError`
-
-WASM-specific error types and handling.
-
-```kotlin
-sealed class WasmError : Exception() {
-    class InitializationError(message: String) : WasmError()
-    class MemoryError(message: String) : WasmError()
-    class RuntimeError(message: String) : WasmError()
-    class BridgeError(message: String) : WasmError()
-}
-```
-
-### `ErrorBoundary`
-
-Error boundary component for WASM applications.
-
-```kotlin
-@Composable
-fun WasmErrorBoundary(
-    fallback: @Composable (WasmError) -> Unit = { DefaultErrorUI(it) },
-    onError: (WasmError) -> Unit = { },
-    content: @Composable () -> Unit
-)
-```
-
-**Example:**
-
-```kotlin
-@Composable
-fun App() {
-    WasmErrorBoundary(
-        fallback = { error ->
-            Column {
-                Text("WASM Error: ${error.message}")
-                Button(
-                    onClick = { window.location.reload() },
-                    label = "Reload"
-                )
-            }
-        },
-        onError = { error ->
-            // Log error to analytics
-            Analytics.logError("wasm_error", error)
-        }
-    ) {
-        MainApplication()
+    companion object {
+        val instance: EventBuffer
     }
 }
 ```
+
+### `ClientDispatcher`
+
+Dispatches client-side actions from hydrated elements.
+
+**Location:** `codes.yousef.summon.hydration.ClientDispatcher`
+
+```kotlin
+object ClientDispatcher {
+    fun dispatch(actionJson: String)
+}
+```
+
+---
 
 ## Build Configuration
 
-### `WasmConfig`
-
-Build-time configuration for WASM optimization.
-
-```kotlin
-data class WasmConfig(
-    val optimizationLevel: OptimizationLevel,
-    val enableSourceMaps: Boolean,
-    val enableProfiling: Boolean,
-    val memoryInitialSize: Int,
-    val memoryMaximumSize: Int,
-    val features: Set<WasmFeature>
-)
-
-enum class OptimizationLevel {
-    DEBUG,      // -O0: No optimization, fast compilation
-    BALANCED,   // -O2: Balanced optimization
-    AGGRESSIVE  // -O3: Maximum optimization
-}
-```
-
-### `WasmFeature`
-
-Available WASM features for configuration.
-
-```kotlin
-enum class WasmFeature {
-    THREADS,
-    SIMD,
-    GARBAGE_COLLECTION,
-    EXCEPTION_HANDLING,
-    REFERENCE_TYPES,
-    BULK_MEMORY,
-    SIGN_EXTENSION
-}
-```
-
-### Build Configuration Example
+### Gradle Configuration
 
 ```kotlin
 // build.gradle.kts
@@ -458,135 +313,55 @@ kotlin {
         moduleName = "my-app"
         browser {
             commonWebpackConfig {
-                // Development configuration
+                outputFileName = "my-app.js"
                 devtool = "source-map"
-                mode = "development"
-
-                // Production configuration for optimized builds
-                optimization {
-                    minimize = true
-                    splitChunks {
-                        chunks = "all"
-                        cacheGroups {
-                            default {
-                                minChunks = 2
-                                priority = -20
-                                reuseExistingChunk = true
-                            }
-                            vendor {
-                                test = "[\\/]node_modules[\\/]"
-                                priority = -10
-                                chunks = "all"
-                            }
-                        }
-                    }
-                }
             }
         }
         binaries.executable()
     }
 }
-```
 
-## Advanced APIs
-
-### `WasmWorker`
-
-Web Workers integration for WASM.
-
-```kotlin
-class WasmWorker(scriptUrl: String) {
-    fun postMessage(data: Any)
-    fun onMessage(callback: (Any) -> Unit)
-    fun terminate()
-
-    companion object {
-        fun isSupported(): Boolean
-        fun createWorker(wasmModule: WasmModule): WasmWorker
-    }
+dependencies {
+    implementation("codes.yousef:summon-wasm-js:0.6.2.2")
 }
 ```
 
-### `WasmStreaming`
+### Development Commands
 
-Streaming and progressive loading for WASM.
+```bash
+# Development build with hot reload
+./gradlew wasmJsBrowserDevelopmentRun
 
-```kotlin
-object WasmStreaming {
-    suspend fun loadModuleStreaming(url: String): WasmModule
-    suspend fun compileStreaming(source: ByteArray): WasmModule
-    fun instantiateStreaming(
-        module: WasmModule,
-        imports: Map<String, Any> = emptyMap()
-    ): WasmInstance
-}
+# Production build
+./gradlew wasmJsBrowserProductionWebpack
+
+# Run WASM tests
+./gradlew :summon-core:wasmJsNodeTest
 ```
 
-### `WasmInterop`
+### HTML Integration
 
-Advanced interoperability with JavaScript and Web APIs.
-
-```kotlin
-object WasmInterop {
-    fun exportFunction(name: String, function: Function<*>)
-    fun importFunction(name: String): Function<*>
-    fun createTypedArray(type: TypedArrayType, size: Int): TypedArray
-    fun shareMemory(buffer: MemoryBuffer): SharedArrayBuffer
-}
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>My WASM App</title>
+</head>
+<body>
+    <div id="app">Loading...</div>
+    <script src="my-app.js"></script>
+</body>
+</html>
 ```
 
-## Constants and Enumerations
+---
 
-### `WasmConstants`
+## Platform Detection
 
-Common constants used in WASM operations.
+The WASM target uses `PlatformRenderer` (same as JS target) rather than a separate `WasmRenderer`. Platform-specific
+behavior is handled internally through the Kotlin/WASM compiler's JavaScript interop.
 
-```kotlin
-object WasmConstants {
-    const val PAGE_SIZE = 65536 // 64KB
-    const val MAX_MEMORY_PAGES = 65536
-    const val STACK_SIZE_DEFAULT = 1048576 // 1MB
-    const val HEAP_SIZE_DEFAULT = 16777216 // 16MB
-}
-```
+---
 
-### `WasmVersion`
-
-WASM version and capability enumeration.
-
-```kotlin
-enum class WasmVersion(val version: String, val capabilities: Set<WasmFeature>) {
-    V1_0("1.0", setOf(/* basic features */)),
-    V2_0("2.0", setOf(/* extended features */)),
-    UNSUPPORTED("0.0", emptySet())
-}
-```
-
-## Migration and Compatibility
-
-### `WasmMigration`
-
-Utilities for migrating from JavaScript to WASM.
-
-```kotlin
-object WasmMigration {
-    fun migrateJsState(jsState: Map<String, Any>): Map<String, Any>
-    fun createCompatibilityLayer(): CompatibilityLayer
-    fun validateMigration(): MigrationResult
-}
-```
-
-### `CompatibilityLayer`
-
-Compatibility layer for gradual WASM adoption.
-
-```kotlin
-class CompatibilityLayer {
-    fun registerJsCompatFunction(name: String, impl: Function<*>)
-    fun enableLegacySupport(enabled: Boolean)
-    fun getCompatibilityReport(): CompatibilityReport
-}
-```
-
-This API reference covers all major WASM-specific functionality in Summon 0.5.2.1. For complete examples and integration
-guides, see the [WASM Guide](../wasm-guide.md).
+For complete examples and integration guides, see the [WASM Guide](../wasm-guide.md).

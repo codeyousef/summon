@@ -16,8 +16,8 @@ Setup example:
 
 ```kotlin
 dependencies {
-    implementation("io.github.codeyousef:summon:$summonVersion")
-    implementation("io.github.codeyousef:summon-quarkus:$summonVersion")
+    // Summon core (includes Quarkus integration)
+    implementation("codes.yousef:summon:0.6.2.2")
 
     implementation("io.quarkus:quarkus-rest")
     implementation("io.quarkus:quarkus-vertx-web")
@@ -71,10 +71,11 @@ Dependencies:
 
 ```kotlin
 dependencies {
-    implementation("io.ktor:ktor-server-core:3.3.1")
-    implementation("io.ktor:ktor-server-netty:3.3.1")
-    implementation("io.github.codeyousef:summon:$summonVersion")
-    implementation("io.github.codeyousef:summon-ktor:$summonVersion")
+    implementation("io.ktor:ktor-server-core:3.3.3")
+    implementation("io.ktor:ktor-server-netty:3.3.3")
+
+    // Summon core (includes Ktor integration)
+    implementation("codes.yousef:summon:0.6.2.2")
 }
 ```
 
@@ -112,8 +113,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 
-    implementation("io.github.codeyousef:summon:$summonVersion")
-    implementation("io.github.codeyousef:summon-spring-boot:$summonVersion")
+    // Summon core (includes Spring Boot integration)
+    implementation("codes.yousef:summon:0.6.2.2")
 }
 ```
 

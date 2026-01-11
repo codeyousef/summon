@@ -267,13 +267,16 @@
  * // build.gradle.kts
  * dependencies {
  *     // For multiplatform projects
- *     implementation("io.github.codeyousef:summon:0.3.2.1")
+ *     implementation("codes.yousef:summon:0.6.2.2")
  *
  *     // For JVM-only projects
- *     implementation("io.github.codeyousef:summon-jvm:0.3.2.1")
+ *     implementation("codes.yousef:summon-jvm:0.6.2.2")
  *
  *     // For JS-only projects
- *     implementation("io.github.codeyousef:summon-js:0.3.2.1")
+ *     implementation("codes.yousef:summon-js:0.6.2.2")
+ *
+ *     // For WebAssembly projects
+ *     implementation("codes.yousef:summon-wasm-js:0.6.2.2")
  * }
  * ```
  *

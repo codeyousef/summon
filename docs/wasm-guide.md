@@ -1,6 +1,6 @@
 # WebAssembly (WASM) Guide
 
-Summon 0.5.2.1 introduces comprehensive WebAssembly support, bringing near-native performance to web applications while
+Summon provides comprehensive WebAssembly support, bringing near-native performance to web applications while
 maintaining full compatibility with server-side rendering and JavaScript fallbacks.
 
 ## Table of Contents
@@ -39,9 +39,9 @@ implementation provides:
 
 ### Prerequisites
 
-- Kotlin 1.9.20 or later
+- Kotlin 2.3.0 or later
 - Gradle 8.0 or later
-- Node.js 16.0 or later (for development server)
+- Node.js 18.0 or later (for development server)
 - Modern browser with WASM support
 
 ### Quick Start
@@ -54,7 +54,7 @@ Create a new WASM project:
 # Or use the native executable directly
 
 # Create a new project (start from the standalone template)
-java -jar summon-cli-0.5.2.1.jar init my-wasm-app --mode=standalone
+java -jar summon-cli.jar init my-wasm-app --mode=standalone
 
 # Navigate to project
 cd my-wasm-app
@@ -142,28 +142,19 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                // New group ID (preferred)
-                implementation("codes.yousef:summon:0.5.2.1")
-                // Legacy (deprecated; supported only until 0.5.2.1)
-                // implementation("io.github.codeyousef:summon:0.5.2.1")
+                implementation("codes.yousef:summon:0.6.2.2")
             }
         }
 
         val wasmJsMain by getting {
             dependencies {
-                // New group ID (preferred)
-                implementation("codes.yousef:summon-wasm-js:0.5.2.1")
-                // Legacy (deprecated; supported only until 0.5.2.1)
-                // implementation("io.github.codeyousef:summon-wasm-js:0.5.2.1")
+                implementation("codes.yousef:summon-wasm-js:0.6.2.2")
             }
         }
 
         val jvmMain by getting {
             dependencies {
-                // New group ID (preferred)
-                implementation("codes.yousef:summon-jvm:0.5.2.1")
-                // Legacy (deprecated; supported only until 0.5.2.1)
-                // implementation("io.github.codeyousef:summon-jvm:0.5.2.1")
+                implementation("codes.yousef:summon-jvm:0.6.2.2")
             }
         }
     }
@@ -174,10 +165,10 @@ kotlin {
 
 ```kotlin
 // src/wasmJsMain/kotlin/Main.kt
-import codes.yousef.summon.runtime.wasmMain
+import codes.yousef.summon.renderComposableRoot
 
 fun main() {
-    wasmMain {
+    renderComposableRoot("root") {
         App()
     }
 }
@@ -581,8 +572,10 @@ fun SharedComponent() {
 
 ```kotlin
 // src/wasmJsMain/kotlin/Main.kt
+import codes.yousef.summon.renderComposableRoot
+
 fun main() {
-    wasmMain { App() }
+    renderComposableRoot("root") { App() }
 }
 ```
 

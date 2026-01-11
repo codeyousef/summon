@@ -21,19 +21,16 @@ In your Spring Boot application's `build.gradle.kts` file:
 dependencies {
     // Spring Boot dependencies
     implementation("org.springframework.boot:spring-boot-starter-web")
-    
+
     // Optional: Thymeleaf for template integration
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
-    
+
     // Optional: WebFlux for reactive endpoints
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
-    
-    // Summon core
-    implementation("io.github.codeyousef:summon:0.4.7.0")
-    
-    // Summon Spring Boot integration
-    implementation("io.github.codeyousef:summon-spring-boot:0.4.7.0")
+
+    // Summon core (includes Spring Boot integration)
+    implementation("codes.yousef:summon:0.6.2.2")
 }
 ```
 

@@ -20,8 +20,8 @@ Add the following dependencies to your `build.gradle.kts` file:
 
 ```kotlin
 dependencies {
-    implementation("io.github.codeyousef:summon:$summonVersion")
-    implementation("io.github.codeyousef:summon-quarkus:$summonVersion")
+    // Summon core (includes Quarkus integration)
+    implementation("codes.yousef:summon:0.6.2.2")
 
     // Quarkus dependencies
     implementation("io.quarkus:quarkus-rest")
@@ -37,7 +37,7 @@ Create a `SummonConfig.kt` file in your application:
 ```kotlin
 package com.example.application
 
-import code.yousef.summon.integration.quarkus.EnhancedQuarkusExtension
+import codes.yousef.summon.integration.quarkus.EnhancedQuarkusExtension
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Produces
 import jakarta.inject.Singleton
@@ -63,7 +63,7 @@ package com.example.application
 import code.yousef.summon.annotation.Composable
 import code.yousef.summon.components.display.Text
 import code.yousef.summon.components.layout.Box
-import code.yousef.summon.integration.quarkus.EnhancedQuarkusExtension
+import codes.yousef.summon.integration.quarkus.EnhancedQuarkusExtension
 import code.yousef.summon.modifier.Modifier
 import jakarta.inject.Inject
 import jakarta.ws.rs.GET
