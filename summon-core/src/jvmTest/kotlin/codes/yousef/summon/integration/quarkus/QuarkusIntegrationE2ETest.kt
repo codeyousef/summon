@@ -2,6 +2,7 @@ package codes.yousef.summon.integration.quarkus
 
 import codes.yousef.summon.components.display.Text
 import codes.yousef.summon.integration.quarkus.QuarkusRenderer.Companion.respondSummonHydrated
+import codes.yousef.summon.test.SlowTest
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpServer
 import io.vertx.core.http.HttpServerOptions
@@ -14,6 +15,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.test.*
 
+@SlowTest
 class QuarkusIntegrationE2ETest {
 
     private lateinit var vertx: Vertx

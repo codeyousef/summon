@@ -2855,6 +2855,8 @@ public final class codes/yousef/summon/components/input/TextAreaKt {
 }
 
 public final class codes/yousef/summon/components/input/TextFieldKt {
+	public static final fun BasicTextField (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;)V
+	public static synthetic fun BasicTextField$default (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)V
 	public static final fun StatefulTextField (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/components/input/TextFieldType;ZZZLjava/util/List;)V
 	public static synthetic fun StatefulTextField$default (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/components/input/TextFieldType;ZZZLjava/util/List;ILjava/lang/Object;)V
 	public static final fun TextField (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/components/input/TextFieldType;ZZZLjava/util/List;)V

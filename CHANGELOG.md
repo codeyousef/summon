@@ -2,6 +2,57 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.3.0] - 2026-01-12
+
+### Added
+
+- **BasicTextField Component** - New minimal text input field without validation state, safe for JS minification
+  scenarios where state capture in callbacks can cause issues
+- **@SlowTest Annotation** - New test annotation for marking slow tests (stress tests, performance tests) that are
+  excluded from default test runs
+
+### Fixed
+
+- **JS Minification Issues** - Fixed callback handling in `TextField` and `StatefulTextField` components that caused
+  runtime failures in production (minified) JS builds
+  - Refactored state updates to use local wrapper functions instead of capturing mutable state in inline lambdas
+  - Added `@JsName` annotations to ensure consistent function naming in minified builds
+- **PlatformRenderer Access** - Improved `getPlatformRenderer()` to prioritize global store lookup before
+  CompositionLocal, making it more reliable in minified JS contexts
+- **SSR renderToString Double-wrapping** - Fixed `ServerSideRenderUtils.renderPageToString` which was wrapping
+  already-complete HTML documents in another HTML document, causing content to not render properly
+
+### Changed
+
+- **TextField Components** - Added `@JsName` annotations to `TextField`, `StatefulTextField`, `BasicTextField`, and
+  `TextFieldType` for consistent JS interop
+- **PlatformRendererFacade** - Added `@JsName` annotations to all public methods (`renderText`, `renderButton`,
+  `renderTextField`, `renderDiv`, `renderRow`, `renderColumn`, `renderBlock`, `renderComposable`)
+- **PlatformRendererAccessor** - Added `@JsName` annotations to `getPlatformRenderer`, `setPlatformRenderer`, and
+  `clearPlatformRenderer` functions
+
+### Performance
+
+- **Build Time Optimization** - Significant improvements to build and test execution times:
+  - Enabled Gradle build cache by default for faster rebuilds
+  - Disabled `configureondemand` (not compatible with KMP JS/WASM targets - see KT-52074)
+  - Added ParallelGC to Kotlin daemon and Gradle JVM for faster garbage collection
+  - Enabled parallel test execution with `maxParallelForks` based on available CPU cores
+  - Added JVM test process reuse with `forkEvery = 100`
+  - Set `org.gradle.workers.max=4` for controlled parallel task execution
+  - Separated slow tests (stress/performance tests) from default test runs:
+    - `SSRPerformanceStressTest` - Stress tests with 100+ iterations
+    - `SSRErrorHandlingTest.testMemoryLeakPrevention` - GC-dependent tests
+    - `KtorIntegrationE2ETest` - Embedded server tests
+    - `QuarkusIntegrationE2ETest` - Embedded Vert.x server tests
+    - `SpringBootRendererHydrationTest` - Spring WebFlux tests
+    - `WebFluxRendererHydrationTest` - Reactor-based tests
+    - `SpringWebFluxRouterTest` - Spring router tests
+    - `CallbackHydrationTest` - Coroutine callback tests
+  - Added `slowTests` Gradle task for running excluded slow tests separately
+  - Updated CI workflow to use `--build-cache` and `--parallel` flags
+  - Expected time savings: 60-70% reduction in JVM test execution time
+
 ## [0.6.2.2] - 2026-01-07
 
 ### Changed

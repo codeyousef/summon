@@ -56,7 +56,16 @@ kotlin {
         }
         testRuns.named("test") {
             executionTask.configure {
-                useJUnitPlatform()
+                useJUnitPlatform {
+                    // Exclude slow tests from default run (stress tests, performance tests)
+                    excludeTags("slow")
+                }
+                // Enable parallel test execution for faster builds
+                maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
+                // Reuse test JVM processes
+                forkEvery = 100
+                // JVM args for tests - use ParallelGC for faster execution
+                jvmArgs("-Xmx1G", "-XX:+UseParallelGC")
             }
         }
     }
@@ -976,3 +985,28 @@ tasks.named("wasmJsTestTestDevelopmentExecutableCompileSync") {
 // Performance optimization: WASM optimization is handled by Kotlin compiler with DCE enabled
 // The default Kotlin 2.2.21 WASM optimizations are now enabled (DCE flags removed from compilerOptions)
 // Binaryen wasm-opt is applied automatically by the Kotlin Gradle plugin in production builds
+
+// Separate task for slow tests (stress tests, performance tests)
+// Run with: ./gradlew :summon-core:slowTests
+tasks.register<Test>("slowTests") {
+    description = "Runs slow tests (stress tests, performance tests) separately"
+    group = "verification"
+
+    testClassesDirs = project.extensions.getByType<org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension>()
+        .jvm()
+        .compilations["test"]
+        .output
+        .classesDirs
+    classpath = project.extensions.getByType<org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension>()
+        .jvm()
+        .compilations["test"]
+        .runtimeDependencyFiles + testClassesDirs
+
+    useJUnitPlatform {
+        includeTags("slow")
+    }
+    // Run slow tests sequentially to avoid resource contention
+    maxParallelForks = 1
+    jvmArgs("-Xmx2G", "-XX:+UseParallelGC")
+}
+

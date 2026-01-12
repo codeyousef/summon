@@ -1,0 +1,177 @@
+# Summon - Kotlin Multiplatform UI Framework
+
+## Project Overview
+
+Summon is a Kotlin Multiplatform UI framework for building web applications with Jetpack Compose-like declarative syntax. It targets browser (JS/WASM) and JVM (SSR) environments.
+
+- **Package namespace**: `codes.yousef.summon`
+- **Current version**: 0.6.3.0
+- **Kotlin version**: 2.3.0
+- **Status**: Alpha (APIs may change between releases)
+
+## Architecture
+
+### Module Structure
+```
+summon/
+├── summon-core/     # Main library (KMP: commonMain, jvmMain, jsMain, wasmJsMain, webMain)
+├── summon-cli/      # Project scaffolding CLI tool
+├── diagnostics/     # Stress tests and JMH benchmarks
+├── e2e-tests/       # Playwright end-to-end tests
+└── docs/            # Documentation
+```
+
+### Source Set Hierarchy
+```
+commonMain
+    └── webMain (shared JS + WASM code)
+            ├── jsMain (browser JS)
+            └── wasmJsMain (WebAssembly)
+```
+
+### Core Package Structure (`codes.yousef.summon`)
+- `components/` - UI components (display, input, layout, feedback, navigation, forms)
+- `state/` - Reactive state management (`mutableStateOf`, `remember`)
+- `modifier/` - Type-safe CSS styling API
+- `routing/` - File-based routing with Next.js-style patterns
+- `runtime/` - Platform-specific renderers and composition
+- `ssr/` - Server-side rendering and hydration
+- `effects/` - Side effects and lifecycle hooks
+- `animation/` - Keyframes, transitions, transforms
+- `theme/` - Theming with dark mode support
+- `i18n/` - Internationalization with RTL support
+- `security/` - JWT auth, RBAC, route guards
+
+## Coding Guidelines
+
+### General Principles
+1. **Prefer immutable data** - Use `val` over `var`, immutable collections where possible
+2. **Compose-style APIs** - Follow Jetpack Compose patterns for components and state
+3. **Type-safe styling** - Use Modifier API with type-safe enums, not raw CSS strings
+4. **Platform abstraction** - Keep platform-specific code in appropriate source sets
+
+### Component Pattern
+```kotlin
+@Composable
+fun MyComponent(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier()
+) {
+    val renderer = LocalPlatformRenderer.current
+    // Use renderer methods, not direct DOM manipulation
+}
+```
+
+### Modifier Pattern (Type-safe CSS)
+```kotlin
+Modifier()
+    .padding(16.px)
+    .backgroundColor(Color.Blue)
+    .borderRadius(8.px)
+    .display(Display.Flex)
+    .alignItems(AlignItems.Center)
+```
+
+### State Management
+```kotlin
+val counter = remember { mutableStateOf(0) }
+// Access: counter.value
+// Update: counter.value = newValue
+```
+
+### JS Interop Guidelines
+- Add `@JsName` annotations to public APIs for consistent naming in minified JS
+- Avoid capturing mutable state in lambdas passed to renderers (use wrapper functions)
+- Use `getPlatformRenderer()` for reliable renderer access in JS contexts
+
+## Build & Test Commands
+
+```bash
+# Build all
+./gradlew build
+
+# Run tests (excludes slow tests by default)
+./gradlew :summon-core:jvmTest
+./gradlew :summon-core:jsNodeTest
+./gradlew :summon-core:wasmJsNodeTest
+
+# Run slow tests (stress/performance)
+./gradlew :summon-core:slowTests
+
+# Publish locally
+./gradlew publishLocal
+```
+
+## Testing Conventions
+
+1. **Unit tests** - Fast tests in `src/{platform}Test/kotlin/`
+2. **Slow tests** - Mark with `@SlowTest` annotation (excluded from default runs)
+   - Stress tests (SSRPerformanceStressTest)
+   - Framework integration tests (Ktor, Spring, Quarkus E2E tests)
+   - GC-dependent tests
+   - Coroutine/concurrency tests
+3. **E2E tests** - Playwright tests in `e2e-tests/`
+4. **Benchmarks** - JMH benchmarks in `diagnostics/`
+
+### Test Requirements
+- All new public APIs need tests
+- Prefer property-based testing with Kotest for edge cases
+- JS tests use happy-dom environment
+- Browser tests are disabled in CI (headless)
+
+## Key Documentation
+
+- `CLAUDE.md` - Detailed guidance for Claude/AI assistants
+- `CHANGELOG.md` - Version history and migration notes
+- `docs/README.md` - Documentation index
+- `docs/quickstart.md` - Getting started guide
+- `docs/components.md` - Component API reference
+- `docs/api-reference/` - Detailed API documentation
+
+## Privacy & Boundaries
+
+### Sensitive Files (do not share contents)
+- `local.properties` - Local credentials
+- `private-key*.asc` - GPG signing keys
+- `*.log` files - Build/test logs with potential system info
+
+### Safe to Analyze
+- All source code in `src/`
+- Documentation in `docs/`
+- Build configuration files
+- Test files
+
+## Framework Integrations
+
+JVM module includes optional integrations (compile-time dependencies):
+- **Ktor** - Server routes, HTML responses
+- **Spring Boot** - WebFlux, Thymeleaf
+- **Quarkus** - Qute templates, REST endpoints
+
+## Common Pitfalls to Avoid
+
+1. **WASM cache staleness** - Run `./gradlew clean` if WASM builds behave unexpectedly
+2. **JS minification issues** - Always add `@JsName` to public functions/callbacks
+3. **State in lambdas** - Don't capture mutable state directly in renderer callbacks
+4. **Missing hydration** - SSR requires proper hydration setup for interactivity
+
+## Version Management
+
+Version is centralized in `version.properties`:
+```
+VERSION=0.6.3.0
+GROUP=codes.yousef
+```
+
+When updating version:
+1. Update `version.properties`
+2. Add entry to `CHANGELOG.md`
+3. Update relevant documentation
+
+## Getting Help
+
+- GitHub Issues: Report bugs and feature requests
+- Documentation: `docs/` directory
+- Examples: Generated via `summon-cli` tool
+

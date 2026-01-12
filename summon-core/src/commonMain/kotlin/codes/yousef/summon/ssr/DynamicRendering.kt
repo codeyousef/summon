@@ -29,7 +29,7 @@ data class RenderResult(val html: String, val headElements: List<String>)
  * @param T The type of the PlatformRenderer implementation.
  * @param renderer An instance of the PlatformRenderer.
  * @param rootComposable The composable function to render.
- * @return A RenderResult containing the HTML string and head elements.
+ * @return A RenderResult containing the HTML string (body content only) and head elements.
  */
 fun <T : PlatformRenderer> renderToString( // Use the canonical renderer type
     renderer: T,
@@ -38,10 +38,44 @@ fun <T : PlatformRenderer> renderToString( // Use the canonical renderer type
     val renderedHtml = renderer.renderComposableRoot {
         rootComposable()
     }
+
+    // Extract body content from the full HTML document
+    // The renderer returns full HTML with <html><head><body>...</body></html>
+    // We need just the body content for wrapping in custom documents
+    val bodyContent = extractBodyContent(renderedHtml)
+
     return RenderResult(
-        html = renderedHtml,
+        html = bodyContent,
         headElements = renderer.getHeadElements()
     )
+}
+
+/**
+ * Extracts the body content from a full HTML document.
+ * If no body tags are found, returns the original HTML.
+ */
+private fun extractBodyContent(html: String): String {
+    val bodyStartTag = "<body>"
+    val bodyEndTag = "</body>"
+    val bodyStartTagAlt = "<body " // body with attributes
+
+    val bodyStartIndex = html.indexOf(bodyStartTag).takeIf { it >= 0 }
+        ?: html.indexOf(bodyStartTagAlt).takeIf { it >= 0 }?.let {
+            // Find the closing > of the body tag with attributes
+            html.indexOf(">", it)
+        }
+        ?: return html // No body tag found, return as-is
+
+    val contentStart = if (html.indexOf(bodyStartTag) >= 0) {
+        html.indexOf(bodyStartTag) + bodyStartTag.length
+    } else {
+        bodyStartIndex + 1 // +1 for the > character
+    }
+
+    val bodyEndIndex = html.indexOf(bodyEndTag)
+    if (bodyEndIndex < 0) return html // No closing body tag
+
+    return html.substring(contentStart, bodyEndIndex).trim()
 }
 
 /**

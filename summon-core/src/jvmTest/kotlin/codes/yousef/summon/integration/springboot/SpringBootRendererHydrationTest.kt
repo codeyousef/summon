@@ -1,11 +1,13 @@
 package codes.yousef.summon.integration.springboot
 
 import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.test.SlowTest
 import org.springframework.http.HttpStatus
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@SlowTest
 class SpringBootRendererHydrationTest {
 
     private val renderer = SpringBootRenderer()

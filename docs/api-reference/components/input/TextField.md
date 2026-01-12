@@ -811,6 +811,65 @@ fun testTextFieldValidation() {
 6. **Accessibility**: Include proper labels and ARIA attributes
 7. **Performance**: Debounce expensive operations like API calls
 8. **Mobile Optimization**: Consider virtual keyboard types and input methods
+9. **JS Production Builds**: Use `BasicTextField` if experiencing callback issues in minified builds
+
+## JavaScript Minification Considerations
+
+When building for production with Kotlin/JS, the minification process can mangle function names and property accessors.
+The TextField components have been designed to work correctly in minified builds, but if you encounter issues:
+
+### Symptoms of Minification Issues
+
+- `TypeError: ... is not a function` errors in production but not development
+- State changes not triggering UI updates
+- Callbacks not being invoked when expected
+
+### Solutions
+
+1. **Use BasicTextField**: The `BasicTextField` component avoids internal state that could be affected by minification:
+
+```kotlin
+// Instead of
+TextField(
+    value = text,
+    onValueChange = { text = it },
+    validators = listOf(...
+)
+)
+
+// Use
+BasicTextField(
+    value = text,
+    onValueChange = { text = it }
+)
+// Handle validation externally
+```
+
+2. **Use getPlatformRenderer()**: When accessing the renderer directly, use `getPlatformRenderer()` which is annotated
+   with `@JsName` for consistent naming:
+
+```kotlin
+import codes.yousef.summon.runtime.getPlatformRenderer
+
+val renderer = getPlatformRenderer()
+renderer.renderTextField(value, onValueChange, modifier, type)
+```
+
+3. **Avoid Inline Lambdas with State**: If creating custom components, wrap state modifications in named local
+   functions:
+
+```kotlin
+// Avoid
+renderer.renderTextField(value, { newValue ->
+    myState.value = newValue  // .value access may be mangled
+})
+
+// Prefer
+fun handleChange(newValue: String) {
+    myState.value = newValue
+}
+renderer.renderTextField(value, ::handleChange)
+```
 
 The TextField component provides a robust foundation for text input across your Summon application, ensuring
 accessibility, validation, and excellent user experience.

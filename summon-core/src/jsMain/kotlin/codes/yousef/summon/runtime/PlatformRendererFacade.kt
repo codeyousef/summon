@@ -1,12 +1,15 @@
 package codes.yousef.summon.runtime
 
 import codes.yousef.summon.annotation.Composable
-import codes.yousef.summon.modifier.*
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.ModifierImpl
 
 /**
  * JavaScript-friendly facade for PlatformRenderer.
  * This class is exported to JavaScript and only exposes JavaScript-friendly methods.
  * It delegates to PlatformRenderer for the actual implementation.
+ *
+ * All methods are annotated with @JsName to ensure consistent naming in minified JS builds.
  */
 @OptIn(ExperimentalJsExport::class)
 @JsExport
@@ -17,6 +20,7 @@ class PlatformRendererFacade() {
     /**
      * Renders text with the given style string.
      */
+    @JsName("renderText")
     fun renderText(text: String, styleString: String = "") {
         val modifier = createModifierFromStyleString(styleString)
         impl.renderText(text, modifier)
@@ -25,6 +29,7 @@ class PlatformRendererFacade() {
     /**
      * Renders a button with the given click handler, style string, and content.
      */
+    @JsName("renderButton")
     fun renderButton(onClick: () -> Unit, styleString: String = "", content: @Composable () -> Unit) {
         val modifier = createModifierFromStyleString(styleString)
         impl.renderButton(onClick, modifier) {
@@ -35,6 +40,7 @@ class PlatformRendererFacade() {
     /**
      * Renders a text field with the given value, change handler, style string, and type.
      */
+    @JsName("renderTextField")
     fun renderTextField(
         value: String,
         onValueChange: (String) -> Unit,
@@ -48,6 +54,7 @@ class PlatformRendererFacade() {
     /**
      * Renders a div with the given style string and content.
      */
+    @JsName("renderDiv")
     fun renderDiv(styleString: String = "", content: @Composable () -> Unit) {
         val modifier = createModifierFromStyleString(styleString)
         impl.renderDiv(modifier) {
@@ -58,6 +65,7 @@ class PlatformRendererFacade() {
     /**
      * Renders a row with the given style string and content.
      */
+    @JsName("renderRow")
     fun renderRow(styleString: String = "", content: @Composable () -> Unit) {
         val modifier = createModifierFromStyleString(styleString)
         impl.renderRow(modifier) {
@@ -68,6 +76,7 @@ class PlatformRendererFacade() {
     /**
      * Renders a column with the given style string and content.
      */
+    @JsName("renderColumn")
     fun renderColumn(styleString: String = "", content: @Composable () -> Unit) {
         val modifier = createModifierFromStyleString(styleString)
         impl.renderColumn(modifier) {
@@ -78,6 +87,7 @@ class PlatformRendererFacade() {
     /**
      * Renders a block with the given style string and content.
      */
+    @JsName("renderBlock")
     fun renderBlock(styleString: String = "", content: @Composable () -> Unit) {
         val modifier = createModifierFromStyleString(styleString)
         impl.renderBlock(modifier) {
@@ -88,6 +98,7 @@ class PlatformRendererFacade() {
     /**
      * Renders a composable function.
      */
+    @JsName("renderComposable")
     fun renderComposable(composable: @Composable () -> Unit) {
         impl.renderComposable(composable)
     }

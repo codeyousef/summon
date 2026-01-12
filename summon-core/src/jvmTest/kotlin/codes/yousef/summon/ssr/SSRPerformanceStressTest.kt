@@ -5,10 +5,11 @@ import codes.yousef.summon.components.display.Text
 import codes.yousef.summon.components.input.Button
 import codes.yousef.summon.components.layout.Column
 import codes.yousef.summon.components.layout.Row
-import codes.yousef.summon.modifier.*
+import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.runtime.PlatformRenderer
 import codes.yousef.summon.runtime.remember
 import codes.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.test.SlowTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -17,6 +18,7 @@ import kotlin.test.assertTrue
 /**
  * Performance and stress tests for SSR to verify scalability and resource management
  */
+@SlowTest
 class SSRPerformanceStressTest {
 
     @Test

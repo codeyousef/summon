@@ -3,6 +3,7 @@ package codes.yousef.summon.integration.ktor
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.components.input.Button
 import codes.yousef.summon.runtime.*
+import codes.yousef.summon.test.SlowTest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -18,6 +19,7 @@ import kotlin.test.assertTrue
  * This test validates the fix for the critical SSR callback hydration issue
  * resolved in version 0.4.8.7.
  */
+@SlowTest
 class CallbackHydrationTest {
 
     @Test

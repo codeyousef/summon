@@ -1,10 +1,12 @@
 package codes.yousef.summon.integration.springboot
 
 import codes.yousef.summon.components.display.Text
+import codes.yousef.summon.test.SlowTest
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
+@SlowTest
 class WebFluxRendererHydrationTest {
 
     private val renderer = WebFluxRenderer()

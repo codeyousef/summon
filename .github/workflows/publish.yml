@@ -62,12 +62,18 @@ jobs:
             fi
           fi
 
-      - name: Run full test suite
+      - name: Run fast tests (parallelized)
         run: |
           # Clean JS test compilation to avoid cache corruption issues with K2
           ./gradlew --no-daemon :summon-core:cleanCompileTestKotlinJs || true
-          # Run tests without build cache for JS tests to avoid restoring corrupted K2 artifacts
-          ./gradlew --no-daemon --max-workers=4 --console=plain :summon-core:jvmTest :summon-core:wasmJsTest :summon-cli:jvmTest --stacktrace
+          # Run fast tests with build cache and parallel execution
+          # Slow tests (stress/performance tests) are excluded and run separately in nightly builds
+          ./gradlew --no-daemon --build-cache --max-workers=4 --console=plain \
+            :summon-core:jvmTest \
+            :summon-core:wasmJsTest \
+            :summon-cli:jvmTest \
+            --parallel --stacktrace
+          # JS tests without build cache to avoid restoring corrupted K2 artifacts
           ./gradlew --no-daemon --max-workers=4 --console=plain --no-build-cache :summon-core:jsTest --stacktrace
 
       - name: Upload summon-cli jvmTest report

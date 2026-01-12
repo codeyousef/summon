@@ -2,9 +2,10 @@ package codes.yousef.summon.integration.ktor
 
 import codes.yousef.summon.components.display.Text
 import codes.yousef.summon.integration.ktor.KtorRenderer.Companion.respondSummonHydrated
-import codes.yousef.summon.integration.ktor.KtorRenderer.Companion.summonStaticAssets
 import codes.yousef.summon.integration.ktor.KtorRenderer.Companion.summonCallbackHandler
+import codes.yousef.summon.integration.ktor.KtorRenderer.Companion.summonStaticAssets
 import codes.yousef.summon.runtime.CallbackRegistry
+import codes.yousef.summon.test.SlowTest
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -16,6 +17,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+@SlowTest
 class KtorIntegrationE2ETest {
 
     @Test

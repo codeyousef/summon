@@ -1,11 +1,13 @@
 package codes.yousef.summon.integration.springboot
 
+import codes.yousef.summon.test.SlowTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.server.ServerResponse
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
+@SlowTest
 class SpringWebFluxRouterTest {
 
     @Test

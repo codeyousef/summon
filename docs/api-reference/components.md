@@ -276,13 +276,70 @@ fun TextField(
     modifier: Modifier = Modifier(),
     placeholder: String? = null,
     label: String? = null,
-    type: String = "text",
-    disabled: Boolean = false,
-    required: Boolean = false,
-    maxLength: Int? = null,
-    pattern: String? = null,
-    errorMessage: String? = null,
-    helpText: String? = null
+    type: TextFieldType = TextFieldType.Text,
+    isError: Boolean = false,
+    isEnabled: Boolean = true,
+    isReadOnly: Boolean = false,
+    validators: List<Validator> = emptyList()
+)
+```
+
+#### Parameters
+
+| Parameter       | Type               | Default              | Description                              |
+|-----------------|--------------------|----------------------|------------------------------------------|
+| `value`         | `String`           | required             | The current text value                   |
+| `onValueChange` | `(String) -> Unit` | required             | Callback invoked when input changes      |
+| `modifier`      | `Modifier`         | `Modifier()`         | Styling and attributes                   |
+| `placeholder`   | `String?`          | `null`               | Placeholder text when empty              |
+| `label`         | `String?`          | `null`               | Label text for the field                 |
+| `type`          | `TextFieldType`    | `TextFieldType.Text` | Input type (Text, Password, Email, etc.) |
+| `isError`       | `Boolean`          | `false`              | Whether to show error state              |
+| `isEnabled`     | `Boolean`          | `true`               | Whether the field is enabled             |
+| `isReadOnly`    | `Boolean`          | `false`              | Whether the field is read-only           |
+| `validators`    | `List<Validator>`  | `emptyList()`        | Validators to apply                      |
+
+### BasicTextField
+
+A minimal text input field without validation state. Safe for JS minification scenarios where state capture in callbacks
+can cause issues.
+
+```kotlin
+@Composable
+fun BasicTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier(),
+    placeholder: String? = null,
+    type: String = "text"
+)
+```
+
+#### When to Use BasicTextField
+
+Use `BasicTextField` when:
+
+- You need a simple input without validation
+- You're experiencing issues with minified JS builds
+- You want direct pass-through to the renderer without internal state
+
+### StatefulTextField
+
+A stateful version that manages its own state internally.
+
+```kotlin
+@Composable
+fun StatefulTextField(
+    initialValue: String = "",
+    onValueChange: (String) -> Unit = {},
+    modifier: Modifier = Modifier(),
+    placeholder: String? = null,
+    label: String? = null,
+    type: TextFieldType = TextFieldType.Text,
+    isError: Boolean = false,
+    isEnabled: Boolean = true,
+    isReadOnly: Boolean = false,
+    validators: List<Validator> = emptyList()
 )
 ```
 
