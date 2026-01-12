@@ -1,7 +1,6 @@
 package codes.yousef.summon.ssr
 
 import codes.yousef.summon.annotation.Composable
-import codes.yousef.summon.runtime.getPlatformRenderer
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -403,13 +402,10 @@ object ServerSideRenderUtils {
 
         val context = RenderContext(initialState = initialData, enableHydration = includeHydrationScript)
 
-        // Get the platform renderer (create one if needed)
-        val platformRenderer = try {
-            getPlatformRenderer()
-        } catch (e: Exception) {
-            // If no renderer is set, create a new one
-            codes.yousef.summon.runtime.PlatformRenderer()
-        }
+        // Always create a fresh PlatformRenderer for SSR operations
+        // This ensures isolation between SSR calls and prevents state pollution
+        // from previous rendering operations
+        val platformRenderer = codes.yousef.summon.runtime.PlatformRenderer()
 
         // Use the global renderToString helper which handles renderComposableRoot correctly
         val renderResult = renderToString(platformRenderer, rootComposable)
