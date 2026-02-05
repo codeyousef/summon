@@ -23,7 +23,10 @@ seamlessly across JavaScript, WebAssembly (WASM), and JVM platforms.
 ### API Reference
 - [Core API](api-reference/core.md) - Core interfaces and classes
 - [Components API](api-reference/components.md) - All UI components reference
-- [Modifier API](api-reference/modifier.md) - Styling and layout modifiers
+- [HTML DSL API](api-reference/html-dsl.md) - **NEW (v0.7.0)**: HTML5 semantic elements DSL
+- [Desktop Features API](api-reference/desktop.md) - **NEW (v0.7.0)**: Multi-window and desktop features
+- [Modifier API](api-reference/modifier.md) - Styling and layout modifiers (includes new breakpoint shortcuts & scoped
+  selectors)
 - [State API](api-reference/state.md) - State management utilities
 - [Routing API](api-reference/routing.md) - Navigation and routing
 - [Effects API](api-reference/effects.md) - Side effects and lifecycle
@@ -38,7 +41,7 @@ seamlessly across JavaScript, WebAssembly (WASM), and JVM platforms.
 - [Accessibility API](api-reference/accessibility.md) - Accessibility features
 - [SEO API](api-reference/seo.md) - SEO features
 - [I18n API](api-reference/i18n-api.md) - Internationalization
-- [Visual Builder API](api-reference/builder.md) - **NEW**: Visual builder infrastructure
+- [Visual Builder API](api-reference/builder.md) - Visual builder infrastructure
 
 ### Lifecycle & Environment Integration
 - [Framework-Agnostic Lifecycle Integration](lifecycle-integration.md) - Lifecycle management across different UI frameworks
