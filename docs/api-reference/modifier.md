@@ -12,11 +12,13 @@ styling, layout, and behavior to components in a type-safe, composable way.
 - [CSS Enums](#css-enums)
 - [Accessibility Modifiers](#accessibility-modifiers)
 - [Interactive Modifiers](#interactive-modifiers)
-- [Pseudo-Selector Modifiers](#pseudo-selector-modifiers) ⭐ NEW
-- [CSS Variables](#css-variables) ⭐ NEW
-- [Media Queries](#media-queries) ⭐ NEW
-- [Scroll Modifiers](#scroll-modifiers) ⭐ NEW
-- [Media Element Modifiers](#media-element-modifiers) ⭐ NEW
+- [Pseudo-Selector Modifiers](#pseudo-selector-modifiers)
+- [CSS Variables](#css-variables)
+- [Media Queries](#media-queries)
+- [Breakpoint Shortcuts](#breakpoint-shortcuts) ⭐ NEW (v0.7.0)
+- [Scoped Style Selectors](#scoped-style-selectors) ⭐ NEW (v0.7.0)
+- [Scroll Modifiers](#scroll-modifiers)
+- [Media Element Modifiers](#media-element-modifiers)
 - [Advanced Modifiers](#advanced-modifiers)
 - [Theme Integration](#theme-integration)
 - [Best Practices](#best-practices)
@@ -1108,6 +1110,294 @@ modifier.mediaQuery(
     // Mobile or any device in portrait
 }
 ```
+
+---
+
+## Breakpoint Shortcuts
+
+Convenient shorthand modifiers for responsive breakpoints. Added in v0.7.0.
+
+**Package**: `codes.yousef.summon.modifier`
+
+### Mobile-First Breakpoints (min-width)
+
+Apply styles starting at a minimum viewport width and up.
+
+```kotlin
+fun Modifier.xs(builder: Modifier.() -> Modifier): Modifier   // 320px+
+fun Modifier.sm(builder: Modifier.() -> Modifier): Modifier   // 640px+
+fun Modifier.md(builder: Modifier.() -> Modifier): Modifier   // 768px+
+fun Modifier.lg(builder: Modifier.() -> Modifier): Modifier   // 1024px+
+fun Modifier.xl(builder: Modifier.() -> Modifier): Modifier   // 1280px+
+fun Modifier.xxl(builder: Modifier.() -> Modifier): Modifier  // 1536px+
+```
+
+**Example:**
+
+```kotlin
+// Mobile-first approach: base styles for mobile, override for larger screens
+Box(
+    modifier = Modifier()
+        .padding(8.px)           // Mobile default
+        .fontSize(14.px)
+        .sm { padding(12.px) }   // 640px+
+        .md {                    // 768px+
+            padding(16.px)
+            fontSize(16.px)
+        }
+        .lg { padding(24.px) }   // 1024px+
+        .xl { padding(32.px) }   // 1280px+
+)
+```
+
+### Desktop-First Breakpoints (max-width)
+
+Apply styles below a maximum viewport width.
+
+```kotlin
+fun Modifier.smDown(builder: Modifier.() -> Modifier): Modifier   // < 640px
+fun Modifier.mdDown(builder: Modifier.() -> Modifier): Modifier   // < 768px
+fun Modifier.lgDown(builder: Modifier.() -> Modifier): Modifier   // < 1024px
+fun Modifier.xlDown(builder: Modifier.() -> Modifier): Modifier   // < 1280px
+fun Modifier.xxlDown(builder: Modifier.() -> Modifier): Modifier  // < 1536px
+```
+
+**Example:**
+
+```kotlin
+// Desktop-first approach: base styles for desktop, override for smaller screens
+Box(
+    modifier = Modifier()
+        .display(Display.Block)
+        .width(960.px)
+        .lgDown { width(100.percent) }  // Full width below 1024px
+        .mdDown { display(Display.None) }  // Hide on tablets and below
+)
+```
+
+### Range Breakpoints (exact ranges)
+
+Apply styles only within a specific viewport range.
+
+```kotlin
+fun Modifier.smOnly(builder: Modifier.() -> Modifier): Modifier   // 640px - 767px
+fun Modifier.mdOnly(builder: Modifier.() -> Modifier): Modifier   // 768px - 1023px
+fun Modifier.lgOnly(builder: Modifier.() -> Modifier): Modifier   // 1024px - 1279px
+fun Modifier.xlOnly(builder: Modifier.() -> Modifier): Modifier   // 1280px - 1535px
+
+// Custom range
+fun Modifier.breakpointBetween(min: Int, max: Int, builder: Modifier.() -> Modifier): Modifier
+```
+
+**Example:**
+
+```kotlin
+// Target specific device classes
+Box(
+    modifier = Modifier()
+        .backgroundColor(Color.Blue)           // Default
+        .smOnly { backgroundColor(Color.Red) }  // Only small screens
+        .mdOnly { backgroundColor(Color.Green) }  // Only tablets
+        .lgOnly { backgroundColor(Color.Purple) }  // Only desktops
+        .breakpointBetween(400, 600) {          // Custom range
+            fontSize(13.px)
+        }
+)
+```
+
+### Breakpoint Constants
+
+```kotlin
+object Breakpoints {
+    val XS = 320    // Small mobile devices
+    val SM = 640    // Mobile devices
+    val MD = 768    // Tablets
+    val LG = 1024   // Small desktops
+    val XL = 1280   // Large desktops
+    val XXL = 1536  // Extra large screens
+}
+```
+
+### Comparison with mediaQuery
+
+The breakpoint shortcuts are syntactic sugar for common `mediaQuery` patterns:
+
+```kotlin
+// These are equivalent:
+Modifier().md { padding(16.px) }
+Modifier().mediaQuery(MediaQuery.MinWidth(Breakpoints.MD)) { padding(16.px) }
+
+// These are equivalent:
+Modifier().mdDown { display(Display.None) }
+Modifier().mediaQuery(MediaQuery.MaxWidth(Breakpoints.MD - 1)) { display(Display.None) }
+
+// These are equivalent:
+Modifier().mdOnly { color("red") }
+Modifier().breakpointBetween(Breakpoints.MD, Breakpoints.LG - 1) { color("red") }
+```
+
+---
+
+## Scoped Style Selectors
+
+CSS combinator selectors for styling nested content. Added in v0.7.0.
+
+**Package**: `codes.yousef.summon.modifier`
+
+### Descendant Selector
+
+Styles any matching element anywhere inside the component (CSS space combinator).
+
+```kotlin
+fun Modifier.descendant(selector: String, builder: Modifier.() -> Modifier): Modifier
+```
+
+**Example:**
+
+```kotlin
+// Style all paragraphs anywhere inside this box
+Box(
+    modifier = Modifier()
+        .descendant("p") { color("gray").lineHeight("1.6") }
+        .descendant(".highlight") { backgroundColor("yellow") }
+        .descendant("a") {
+            color("blue")
+            textDecoration("underline")
+        }
+) {
+    P { Text("This is gray") }
+    Div {
+        P { Text("This is also gray - nested") }
+        Span(modifier = Modifier().className("highlight")) {
+            Text("Highlighted!")
+        }
+    }
+}
+```
+
+### Child Selector
+
+Styles only direct children (CSS `>` combinator).
+
+```kotlin
+fun Modifier.child(selector: String, builder: Modifier.() -> Modifier): Modifier
+```
+
+**Example:**
+
+```kotlin
+// Style only direct paragraph children
+Box(
+    modifier = Modifier()
+        .child("p") { marginBottom(16.px) }
+) {
+    P { Text("Has margin - direct child") }
+    Div {
+        P { Text("No margin - not direct child") }
+    }
+}
+```
+
+### Adjacent Sibling Selector
+
+Styles the immediately following sibling (CSS `+` combinator).
+
+```kotlin
+fun Modifier.adjacentSibling(selector: String, builder: Modifier.() -> Modifier): Modifier
+```
+
+**Example:**
+
+```kotlin
+// Remove top margin from paragraph immediately after heading
+H2(
+    modifier = Modifier()
+        .adjacentSibling("p") { marginTop("0") }
+) {
+    Text("Section Title")
+}
+P { Text("This has no top margin") }
+P { Text("This has normal margin") }
+```
+
+### General Sibling Selector
+
+Styles all following siblings (CSS `~` combinator).
+
+```kotlin
+fun Modifier.generalSibling(selector: String, builder: Modifier.() -> Modifier): Modifier
+```
+
+**Example:**
+
+```kotlin
+// Style all paragraphs that follow this heading
+H2(
+    modifier = Modifier()
+        .generalSibling("p") { fontSize(14.px).textIndent("1em") }
+) {
+    Text("Section Title")
+}
+P { Text("14px with indent") }
+P { Text("Also 14px with indent") }
+Div { Text("Not affected - different element") }
+P { Text("Still 14px with indent") }
+```
+
+### Convenience Functions
+
+```kotlin
+// Common element selectors
+fun Modifier.paragraphStyle(builder: Modifier.() -> Modifier): Modifier  // descendant("p")
+fun Modifier.linkStyle(builder: Modifier.() -> Modifier): Modifier       // descendant("a")
+fun Modifier.listItemStyle(builder: Modifier.() -> Modifier): Modifier   // descendant("li")
+fun Modifier.headingStyle(builder: Modifier.() -> Modifier): Modifier    // descendant("h1-h6")
+
+// Class selectors
+fun Modifier.classStyle(className: String, builder: Modifier.() -> Modifier): Modifier
+
+// Position selectors
+fun Modifier.firstChildStyle(builder: Modifier.() -> Modifier): Modifier
+fun Modifier.lastChildStyle(builder: Modifier.() -> Modifier): Modifier
+```
+
+**Example:**
+
+```kotlin
+// Style all content within an article
+Article(
+    modifier = Modifier()
+        .paragraphStyle {
+            marginBottom(16.px)
+            lineHeight("1.6")
+        }
+        .linkStyle {
+            color("blue")
+            hover(Modifier().textDecoration("underline"))
+        }
+        .headingStyle {
+            fontWeight(FontWeight.Bold)
+            marginTop(24.px)
+        }
+        .firstChildStyle { marginTop("0") }
+        .lastChildStyle { marginBottom("0") }
+) {
+    H2 { Text("Article Title") }
+    P { Text("First paragraph...") }
+    P {
+        Text("With a ")
+        A(href = "/link") { Text("link") }
+        Text(" inside.")
+    }
+}
+```
+
+### Implementation Note
+
+Scoped styles are stored as data attributes and processed by platform renderers:
+
+- **JS/WASM**: StyleInjector generates CSS rules with unique class names
+- **JVM/SSR**: Generates inline `<style>` elements with scoped rules
 
 ---
 

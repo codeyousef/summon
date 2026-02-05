@@ -12,6 +12,8 @@ built with type-safe styling, accessibility features, and cross-platform compati
 - [Feedback Components](#feedback-components)
 - [Navigation Components](#navigation-components)
 - [Styling Components](#styling-components)
+- [HTML DSL Components](#html-dsl-components) ⭐ NEW (v0.7.0)
+- [Desktop Components](#desktop-components) ⭐ NEW (v0.7.0)
 - [Component Architecture](#component-architecture)
 
 ---
@@ -703,6 +705,109 @@ Apply global CSS styles to the document.
 fun GlobalStyle(
     css: String
 )
+```
+
+---
+
+## HTML DSL Components
+
+Complete HTML5 semantic elements for building accessible, SEO-friendly pages. Added in v0.7.0.
+
+**Package**: `codes.yousef.summon.components.html`
+
+For full documentation, see the [HTML DSL API Reference](html-dsl.md).
+
+### Overview
+
+The HTML DSL provides composable functions that render actual HTML5 semantic elements:
+
+| Category        | Elements                                                                                                                     |
+|-----------------|------------------------------------------------------------------------------------------------------------------------------|
+| **Structural**  | `Header`, `Nav`, `Main`, `Footer`, `Section`, `Article`, `Aside`, `Address`, `Hgroup`, `Search`                              |
+| **Text**        | `H1`-`H6`, `P`, `Blockquote`, `Pre`, `Code`, `Strong`, `Em`, `Small`, `Mark`, `Del`, `Ins`, `Sub`, `Sup`, `S`, `U`, `B`, `I` |
+| **Lists**       | `Ul`, `Ol`, `Li`, `Dl`, `Dt`, `Dd`, `Menu`                                                                                   |
+| **Tables**      | `Table`, `Thead`, `Tbody`, `Tfoot`, `Tr`, `Th`, `Td`, `Caption`, `Colgroup`, `Col`                                           |
+| **Interactive** | `Details`, `Summary`, `Dialog`                                                                                               |
+| **Inline**      | `A`, `Span`, `Time`, `Abbr`, `Cite`, `Q`, `Kbd`, `Samp`, `Var`, `Dfn`, `Data`, `Bdi`, `Bdo`, `Ruby`, `Rt`, `Rp`, `Wbr`, `Br` |
+| **Media**       | `Figure`, `Figcaption`, `Iframe`, `Embed`, `ObjectTag`, `Param`, `Source`, `Track`, `Audio`, `Meter`                         |
+
+### Quick Example
+
+```kotlin
+Article {
+    Header {
+        H1 { Text("Article Title") }
+        Time(datetime = "2026-02-05") { Text("February 5, 2026") }
+    }
+
+    Section {
+        H2 { Text("Introduction") }
+        P { Text("This is a semantic HTML article...") }
+
+        Blockquote(cite = "https://example.com") {
+            P { Text("A notable quote from an expert.") }
+        }
+    }
+
+    Details {
+        Summary { Text("Read more") }
+        P { Text("Hidden content revealed when expanded.") }
+    }
+
+    Footer {
+        Small { Text("Copyright 2026") }
+    }
+}
+```
+
+---
+
+## Desktop Components
+
+Desktop-like functionality for web applications. Added in v0.7.0.
+
+**Package**: `codes.yousef.summon.desktop`
+
+For full documentation, see the [Desktop Features API Reference](desktop.md).
+
+### Available Features
+
+| Feature              | Package          | Description                          |
+|----------------------|------------------|--------------------------------------|
+| **WindowManager**    | `.window`        | Open/manage browser windows and tabs |
+| **BroadcastChannel** | `.communication` | Cross-tab real-time messaging        |
+| **SyncedStorage**    | `.storage`       | Cross-tab reactive state persistence |
+| **FileDialog**       | `.dialog`        | Native file picker dialogs           |
+| **MenuBar**          | `.menu`          | Application menu bar component       |
+| **SystemTray**       | `.tray`          | Web notifications (tray icon stub)   |
+| **DragCoordinator**  | `.communication` | Cross-window drag and drop           |
+| **PictureInPicture** | `.pip`           | Floating PiP windows                 |
+
+### Quick Example
+
+```kotlin
+// Menu bar with keyboard shortcuts
+MenuBar {
+    menu("File") {
+        item("New", shortcut = KeyboardShortcut("N", ctrl = true)) { createNew() }
+        item("Open", shortcut = KeyboardShortcut("O", ctrl = true)) { openFile() }
+        separator()
+        item("Exit") { exit() }
+    }
+}
+
+// Cross-tab synced state
+@Composable
+fun ThemeSwitcher() {
+    val theme = rememberSyncedString("theme", "light")
+    Button(onClick = { theme.value = if (theme.value == "light") "dark" else "light" }) {
+        Text("Theme: ${theme.value}")
+    }
+}
+
+// Cross-tab messaging
+val channel = createBroadcastChannel("my-app")
+channel.postMessage("Hello from this tab!")
 ```
 
 ---

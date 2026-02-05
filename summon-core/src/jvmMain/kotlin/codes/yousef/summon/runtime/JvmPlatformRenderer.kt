@@ -1236,60 +1236,306 @@ actual open class PlatformRenderer {
     ) {
         val builder = requireBuilder()
 
+        // Helper to render content into a string for unsafe insertion
+        fun renderContentToString(): String {
+            val stringBuilder = StringBuilder()
+            val subRenderer = PlatformRenderer()
+            val html = subRenderer.renderComposableRoot {
+                val flowContent = builder.asFlowContentCompat()
+                flowContent.content()
+            }
+            // Extract just the body content, removing the wrapper
+            return html.substringAfter("<body>", "")
+                .substringBefore("</body>", html)
+                .trim()
+        }
+
+        // Build attributes string from modifier
+        fun buildAttributesString(): String {
+            val attrs = mutableListOf<String>()
+
+            // Add styles
+            if (modifier.styles.isNotEmpty()) {
+                val styleString = modifier.styles.entries.joinToString("; ") { (key, value) ->
+                    "${cssPropertyName(key)}: $value"
+                }
+                attrs.add("style=\"$styleString\"")
+            }
+
+            // Add regular attributes
+            modifier.attributes.forEach { (name, value) ->
+                attrs.add("$name=\"${escapeHtmlAttribute(value)}\"")
+            }
+
+            // Add hydration marker
+            val hydrationId = modifier.attributes["data-summon-id"]
+                ?: "summon-${UUID.randomUUID().toString().take(8)}"
+            if (!modifier.attributes.containsKey("data-summon-id")) {
+                attrs.add("data-summon-id=\"$hydrationId\"")
+            }
+
+            return if (attrs.isNotEmpty()) " ${attrs.joinToString(" ")}" else ""
+        }
+
         when (tagName.lowercase()) {
+            // ============================================
+            // Interactive Elements
+            // ============================================
             "button" -> {
                 builder.button {
                     applyModifier(modifier)
-                    // Ensure type="button" if not present to prevent form submission
                     if (!attributes.containsKey("type")) {
                         attributes["type"] = "button"
                     }
                     renderContent(content)
                 }
             }
-            "div" -> {
-                builder.div {
-                    applyModifier(modifier)
-                    renderContent(content)
-                }
-            }
-            "span" -> {
-                builder.span {
-                    applyModifier(modifier)
-                    renderContent(content)
-                }
-            }
-            "p" -> {
-                builder.p {
-                    applyModifier(modifier)
-                    renderContent(content)
-                }
-            }
-            "a" -> {
-                builder.a {
-                    applyModifier(modifier)
-                    renderContent(content)
-                }
-            }
-            else -> {
-                // Create a div container to hold our custom tag content
-                builder.div {
-                    // Apply the modifier to the div for now
-                    applyModifier(modifier)
 
-                    // Add a comment indicating this is a custom tag wrapper
-                    comment(" Custom tag '$tagName' wrapped in div. JS needed to transform DOM. ")
+            // ============================================
+            // Structural/Sectioning Elements
+            // ============================================
+            "div" -> builder.div { applyModifier(modifier); renderContent(content) }
+            "header" -> builder.header { applyModifier(modifier); renderContent(content) }
+            "nav" -> builder.nav { applyModifier(modifier); renderContent(content) }
+            "main" -> builder.main { applyModifier(modifier); renderContent(content) }
+            "footer" -> builder.footer { applyModifier(modifier); renderContent(content) }
+            "section" -> builder.section { applyModifier(modifier); renderContent(content) }
+            "article" -> builder.article { applyModifier(modifier); renderContent(content) }
+            "aside" -> builder.aside { applyModifier(modifier); renderContent(content) }
+            "address" -> builder.address { applyModifier(modifier); renderContent(content) }
+            "hgroup" -> builder.hGroup { applyModifier(modifier); renderContent(content) }
+            "search" -> {
+                // <search> is HTML5.2+, render with unsafe for broad support
+                renderGenericHtmlTag(builder, "search", modifier, content)
+            }
 
-                    // Add data attribute to help JS transform this element
-                    attributes["data-custom-tag"] = tagName
+            // ============================================
+            // Heading Elements
+            // ============================================
+            "h1" -> builder.h1 { applyModifier(modifier); renderContent(content) }
+            "h2" -> builder.h2 { applyModifier(modifier); renderContent(content) }
+            "h3" -> builder.h3 { applyModifier(modifier); renderContent(content) }
+            "h4" -> builder.h4 { applyModifier(modifier); renderContent(content) }
+            "h5" -> builder.h5 { applyModifier(modifier); renderContent(content) }
+            "h6" -> builder.h6 { applyModifier(modifier); renderContent(content) }
 
-                    // Render the content in the div
-                    renderContent(content)
+            // ============================================
+            // Text Content Elements
+            // ============================================
+            "p" -> builder.p { applyModifier(modifier); renderContent(content) }
+            "blockquote" -> builder.blockQuote { applyModifier(modifier); renderContent(content) }
+            "pre" -> builder.pre { applyModifier(modifier); renderContent(content) }
+            "code" -> builder.code { applyModifier(modifier); renderContent(content) }
+            "hr" -> builder.hr { applyModifier(modifier) }
+
+            // ============================================
+            // Inline Text Semantics
+            // ============================================
+            "span" -> builder.span { applyModifier(modifier); renderContent(content) }
+            "a" -> builder.a { applyModifier(modifier); renderContent(content) }
+            "strong" -> builder.strong { applyModifier(modifier); renderContent(content) }
+            "em" -> builder.em { applyModifier(modifier); renderContent(content) }
+            "small" -> builder.small { applyModifier(modifier); renderContent(content) }
+            "mark" -> builder.mark { applyModifier(modifier); renderContent(content) }
+            "del" -> builder.del { applyModifier(modifier); renderContent(content) }
+            "ins" -> builder.ins { applyModifier(modifier); renderContent(content) }
+            "sub" -> builder.sub { applyModifier(modifier); renderContent(content) }
+            "sup" -> builder.sup { applyModifier(modifier); renderContent(content) }
+            "s" -> builder.s { applyModifier(modifier); renderContent(content) }
+            "u" -> builder.u { applyModifier(modifier); renderContent(content) }
+            "b" -> builder.b { applyModifier(modifier); renderContent(content) }
+            "i" -> builder.i { applyModifier(modifier); renderContent(content) }
+            "abbr" -> builder.abbr { applyModifier(modifier); renderContent(content) }
+            "cite" -> builder.cite { applyModifier(modifier); renderContent(content) }
+            "q" -> builder.q { applyModifier(modifier); renderContent(content) }
+            "kbd" -> builder.kbd { applyModifier(modifier); renderContent(content) }
+            "samp" -> builder.samp { applyModifier(modifier); renderContent(content) }
+            "var" -> builder.htmlVar { applyModifier(modifier); renderContent(content) }
+            "dfn" -> builder.dfn { applyModifier(modifier); renderContent(content) }
+            "time" -> builder.time { applyModifier(modifier); renderContent(content) }
+            "bdi" -> builder.bdi { applyModifier(modifier); renderContent(content) }
+            "bdo" -> builder.bdo { applyModifier(modifier); renderContent(content) }
+            "br" -> builder.br { applyModifier(modifier) }
+
+            // Elements that need generic rendering due to kotlinx.html constraints
+            "data" -> renderGenericHtmlTag(builder, "data", modifier, content)
+            "ruby" -> renderGenericHtmlTag(builder, "ruby", modifier, content)
+            "rt" -> renderGenericHtmlTag(builder, "rt", modifier, content)
+            "rp" -> renderGenericHtmlTag(builder, "rp", modifier, content)
+            "wbr" -> renderGenericHtmlTag(builder, "wbr", modifier, content)
+
+            // ============================================
+            // List Elements
+            // ============================================
+            "ul" -> builder.ul { applyModifier(modifier); renderContent(content) }
+            "ol" -> builder.ol { applyModifier(modifier); renderContent(content) }
+            "dl" -> builder.dl { applyModifier(modifier); renderContent(content) }
+
+            // List items need generic rendering as they require specific parent context in kotlinx.html
+            "li" -> renderGenericHtmlTag(builder, "li", modifier, content)
+            "dt" -> renderGenericHtmlTag(builder, "dt", modifier, content)
+            "dd" -> renderGenericHtmlTag(builder, "dd", modifier, content)
+            "menu" -> renderGenericHtmlTag(builder, "menu", modifier, content)
+
+            // ============================================
+            // Table Elements
+            // ============================================
+            "table" -> builder.table { applyModifier(modifier); renderContent(content) }
+
+            // Table sections and cells need generic rendering due to parent context requirements
+            "caption" -> renderGenericHtmlTag(builder, "caption", modifier, content)
+            "colgroup" -> renderGenericHtmlTag(builder, "colgroup", modifier, content)
+            "col" -> renderGenericHtmlTag(builder, "col", modifier, content)
+            "thead" -> renderGenericHtmlTag(builder, "thead", modifier, content)
+            "tbody" -> renderGenericHtmlTag(builder, "tbody", modifier, content)
+            "tfoot" -> renderGenericHtmlTag(builder, "tfoot", modifier, content)
+            "tr" -> renderGenericHtmlTag(builder, "tr", modifier, content)
+            "th" -> renderGenericHtmlTag(builder, "th", modifier, content)
+            "td" -> renderGenericHtmlTag(builder, "td", modifier, content)
+
+            // ============================================
+            // Media Elements
+            // ============================================
+            "figure" -> builder.figure { applyModifier(modifier); renderContent(content) }
+            "figcaption" -> renderGenericHtmlTag(builder, "figcaption", modifier, content)
+            "iframe" -> builder.iframe { applyModifier(modifier); renderContent(content) }
+            "embed" -> builder.embed { applyModifier(modifier) }
+            "object" -> builder.htmlObject { applyModifier(modifier); renderContent(content) }
+            "param" -> renderGenericHtmlTag(builder, "param", modifier, content)
+            "source" -> renderGenericHtmlTag(builder, "source", modifier, content)
+            "track" -> renderGenericHtmlTag(builder, "track", modifier, content)
+            "audio" -> builder.audio { applyModifier(modifier); renderContent(content) }
+            "video" -> builder.video { applyModifier(modifier); renderContent(content) }
+            "picture" -> builder.picture { applyModifier(modifier); renderContent(content) }
+            "img" -> builder.img { applyModifier(modifier) }
+            "map" -> builder.map { applyModifier(modifier); renderContent(content) }
+            "area" -> renderGenericHtmlTag(builder, "area", modifier, content)
+            "meter" -> renderGenericHtmlTag(builder, "meter", modifier, content)
+            "progress" -> renderGenericHtmlTag(builder, "progress", modifier, content)
+
+            // ============================================
+            // Interactive Elements
+            // ============================================
+            "details" -> builder.details { applyModifier(modifier); renderContent(content) }
+            "summary" -> builder.summary { applyModifier(modifier); renderContent(content) }
+            "dialog" -> builder.dialog { applyModifier(modifier); renderContent(content) }
+
+            // ============================================
+            // Form Elements
+            // ============================================
+            "form" -> builder.form { applyModifier(modifier); renderContent(content) }
+            "input" -> builder.input { applyModifier(modifier) }
+            "textarea" -> builder.textArea { applyModifier(modifier); renderContent(content) }
+            "select" -> builder.select { applyModifier(modifier); renderContent(content) }
+            "option" -> renderGenericHtmlTag(builder, "option", modifier, content)
+            "optgroup" -> renderGenericHtmlTag(builder, "optgroup", modifier, content)
+            "label" -> builder.label { applyModifier(modifier); renderContent(content) }
+            "fieldset" -> builder.fieldSet { applyModifier(modifier); renderContent(content) }
+            "legend" -> renderGenericHtmlTag(builder, "legend", modifier, content)
+            "datalist" -> builder.dataList { applyModifier(modifier); renderContent(content) }
+            "output" -> builder.output { applyModifier(modifier); renderContent(content) }
+
+            // ============================================
+            // Fallback for any other tags
+            // ============================================
+            else -> renderGenericHtmlTag(builder, tagName, modifier, content)
+        }
+    }
+
+    /**
+     * Renders a generic HTML tag using unsafe raw HTML output.
+     * This is used for tags that kotlinx.html doesn't support directly at flow content level
+     * or that have parent context requirements (like li, td, etc).
+     */
+    private fun renderGenericHtmlTag(
+        builder: FlowContent,
+        tagName: String,
+        modifier: Modifier,
+        content: @Composable (FlowContentCompat.() -> Unit)
+    ) {
+        // Build opening tag with attributes
+        val attrs = buildGenericAttributes(modifier)
+        val openTag = "<$tagName$attrs>"
+        val closeTag = "</$tagName>"
+
+        // For void elements (self-closing), don't render content or close tag
+        val voidElements = setOf(
+            "area", "base", "br", "col", "embed", "hr", "img", "input",
+            "link", "meta", "param", "source", "track", "wbr"
+        )
+
+        // Render content to a string first
+        val contentHtml = if (tagName.lowercase() in voidElements) {
+            ""
+        } else {
+            val contentBuilder = StringBuilder()
+            // Use a sub-renderer to capture the content
+            try {
+                val savedBuilder = currentBuilder
+                // Create a temporary HTML builder to capture content
+                contentBuilder.appendHTML().div {
+                    currentBuilder = this
+                    val flowContentCompat = this.asFlowContentCompat()
+                    flowContentCompat.content()
                 }
-                // Add a comment about the limitation
-                builder.comment(" Note: Direct custom tag rendering requires JS DOM manipulation ")
+                currentBuilder = savedBuilder
+            } catch (e: Exception) {
+                // If content rendering fails, just use empty content
+            }
+            // Extract inner content from the wrapper div
+            val html = contentBuilder.toString()
+            html.substringAfter("<div>", "").substringBeforeLast("</div>", html)
+        }
+
+        // Use a span to access unsafe{} and output the raw HTML
+        builder.span {
+            // Make the span invisible/inline
+            attributes["style"] = "display: contents;"
+            if (tagName.lowercase() in voidElements) {
+                unsafe { raw("<$tagName$attrs>") }
+            } else {
+                unsafe { raw("$openTag$contentHtml$closeTag") }
             }
         }
+    }
+
+    /**
+     * Builds HTML attributes string from a Modifier for use in generic tag rendering.
+     */
+    private fun buildGenericAttributes(modifier: Modifier): String {
+        val attrs = mutableListOf<String>()
+
+        // Add styles
+        if (modifier.styles.isNotEmpty()) {
+            val styleString = modifier.styles.entries.joinToString("; ") { (key, value) ->
+                "${cssPropertyName(key)}: $value"
+            }
+            attrs.add("style=\"${escapeHtmlAttribute(styleString)}\"")
+        }
+
+        // Add regular attributes
+        modifier.attributes.forEach { (name, value) ->
+            attrs.add("$name=\"${escapeHtmlAttribute(value)}\"")
+        }
+
+        // Add hydration marker
+        if (!modifier.attributes.containsKey("data-summon-id")) {
+            val hydrationId = "summon-${UUID.randomUUID().toString().take(8)}"
+            attrs.add("data-summon-id=\"$hydrationId\"")
+        }
+
+        return if (attrs.isNotEmpty()) " ${attrs.joinToString(" ")}" else ""
+    }
+
+    /**
+     * Escapes special characters for use in HTML attribute values.
+     */
+    private fun escapeHtmlAttribute(value: String): String {
+        return value
+            .replace("&", "&amp;")
+            .replace("\"", "&quot;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
     }
 
     actual open fun renderCanvas(
@@ -2474,6 +2720,144 @@ actual open class PlatformRenderer {
                 attributes["data-pane"] = "second"
                 style = "flex: 1; overflow: auto;"
                 renderContent(second)
+            }
+        }
+    }
+
+    /**
+     * Renders a menu bar as a horizontal navigation component.
+     * On the server (JVM), this generates semantic HTML with dropdown menus.
+     */
+    actual open fun renderMenuBar(
+        menus: List<codes.yousef.summon.desktop.menu.Menu>,
+        modifier: Modifier
+    ) {
+        requireBuilder().nav {
+            applyModifier(
+                modifier.then(
+                    Modifier()
+                        .style("display", "flex")
+                        .style("gap", "0")
+                        .style("background-color", "#f8f9fa")
+                        .style("padding", "0 8px")
+                        .style("border-bottom", "1px solid #dee2e6")
+                )
+            )
+            attributes["data-summon-component"] = "menu-bar"
+            attributes["role"] = "menubar"
+
+            menus.forEach { menu ->
+                div {
+                    style = "position: relative;"
+                    classes = classes + "summon-menu"
+                    attributes["role"] = "none"
+
+                    // Menu button
+                    button {
+                        attributes["type"] = "button"
+                        attributes["role"] = "menuitem"
+                        attributes["aria-haspopup"] = "true"
+                        attributes["aria-expanded"] = "false"
+                        if (menu.disabled) {
+                            attributes["disabled"] = "disabled"
+                        }
+                        style = "padding: 8px 12px; background: none; border: none; cursor: pointer; font-size: 14px;"
+                        +menu.label
+                    }
+
+                    // Dropdown menu
+                    ul {
+                        classes = classes + "summon-menu-dropdown"
+                        attributes["role"] = "menu"
+                        style =
+                            "display: none; position: absolute; top: 100%; left: 0; min-width: 160px; background: white; border: 1px solid #dee2e6; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); padding: 4px 0; margin: 0; list-style: none; z-index: 1000;"
+
+                        menu.items.forEach { item ->
+                            renderMenuItem(this, item)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper to render a single menu item recursively.
+     */
+    private fun renderMenuItem(ul: UL, item: codes.yousef.summon.desktop.menu.MenuItem) {
+        ul.li {
+            attributes["role"] = "none"
+
+            if (item.isSeparator) {
+                hr {
+                    style = "margin: 4px 0; border: none; border-top: 1px solid #dee2e6;"
+                }
+            } else {
+                if (item.submenu != null) {
+                    // Submenu
+                    div {
+                        style = "position: relative;"
+
+                        button {
+                            attributes["type"] = "button"
+                            attributes["role"] = "menuitem"
+                            attributes["aria-haspopup"] = "true"
+                            attributes["aria-expanded"] = "false"
+                            if (item.disabled) {
+                                attributes["disabled"] = "disabled"
+                            }
+                            style =
+                                "display: flex; justify-content: space-between; width: 100%; padding: 8px 12px; background: none; border: none; cursor: pointer; text-align: left; font-size: 14px;"
+                            span { +item.label }
+                            span { +"▶" }
+                        }
+
+                        ul {
+                            classes = classes + "summon-submenu"
+                            attributes["role"] = "menu"
+                            style =
+                                "display: none; position: absolute; left: 100%; top: 0; min-width: 160px; background: white; border: 1px solid #dee2e6; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); padding: 4px 0; margin: 0; list-style: none; z-index: 1001;"
+
+                            item.submenu.forEach { subItem ->
+                                renderMenuItem(this, subItem)
+                            }
+                        }
+                    }
+                } else {
+                    // Regular item
+                    button {
+                        attributes["type"] = "button"
+                        attributes["role"] = "menuitem"
+                        if (item.disabled) {
+                            attributes["disabled"] = "disabled"
+                        }
+                        if (item.checked != null) {
+                            attributes["aria-checked"] = item.checked.toString()
+                        }
+                        style =
+                            "display: flex; justify-content: space-between; width: 100%; padding: 8px 12px; background: none; border: none; cursor: pointer; text-align: left; font-size: 14px;"
+
+                        span {
+                            if (item.checked == true) {
+                                +"✓ "
+                            }
+                            item.icon?.let {
+                                span {
+                                    style = "margin-right: 8px;"
+                                    +it
+                                }
+                            }
+                            +item.label
+                        }
+
+                        item.shortcut?.let { shortcut ->
+                            span {
+                                style = "margin-left: 24px; color: #6c757d; font-size: 12px;"
+                                +shortcut.toDisplayString()
+                            }
+                        }
+                    }
+                }
             }
         }
     }

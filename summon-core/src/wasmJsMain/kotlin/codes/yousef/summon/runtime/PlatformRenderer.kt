@@ -1399,7 +1399,96 @@ actual open class PlatformRenderer actual constructor() {
         modifier: Modifier,
         content: @Composable FlowContentCompat.() -> Unit
     ) {
-        wasmConsoleLog("PlatformRenderer renderHtmlTag - WASM stub")
+        // Generate deterministic ID
+        val key = modifier.attributes["key"]
+        val sid = generateNextId(tagName, key)
+
+        if (isStringRenderMode) {
+            // HTML string building mode for SSR
+            val modifierAttrs = buildModifierAttributes(modifier)
+            val element = HtmlElement(
+                tagName = tagName,
+                attributes = mutableMapOf(
+                    "class" to "summon-$tagName",
+                    "data-sid" to sid
+                ).apply {
+                    if (modifierAttrs.isNotEmpty()) {
+                        putAll(modifierAttrs)
+                    }
+                }
+            )
+
+            // Push element onto stack for nested content
+            htmlStack.add(element)
+            // Push ID for children
+            pushId(sid)
+            try {
+                // Render nested content
+                val contentScope = createFlowContentCompat()
+                content(contentScope)
+            } finally {
+                // Pop ID
+                popId()
+                // Pop element and add to parent or root
+                htmlStack.removeLastOrNull()
+                if (htmlStack.isNotEmpty()) {
+                    htmlStack.last().content.append(renderHtmlElement(element))
+                } else {
+                    htmlBuilder.append(renderHtmlElement(element))
+                }
+            }
+        } else {
+            // DOM rendering mode
+            try {
+                // Use generated SID
+                val summonId = sid
+
+                // Create or reuse element
+                val newElement = createOrReuseElement(tagName, summonId)
+                val isNewElement = newElement != null
+                val htmlElement = if (newElement != null) {
+                    newElement
+                } else {
+                    // Element is being reused - get it from the recomposition cache
+                    recompositionElements[summonId]
+                        ?: throw WasmDOMException("Failed to retrieve reused element: $summonId")
+                }
+
+                htmlElement.setAttribute("class", "summon-$tagName")
+                htmlElement.setAttribute("data-sid", sid)
+
+                // Apply modifier styles and attributes
+                applyModifierToElement(htmlElement, modifier)
+
+                // Push ID for children
+                pushId(sid)
+
+                // Set up content rendering context
+                withContainerContext(htmlElement) {
+                    val contentScope = createFlowContentCompat()
+                    content(contentScope)
+                }
+
+                // Pop ID
+                popId()
+
+                // Append to container
+                val elementId = DOMProvider.getNativeElementId(htmlElement)
+                if (isNewElement) {
+                    wasmConsoleLog("Appending NEW $tagName element $elementId to container")
+                } else {
+                    wasmConsoleLog("Appending/Registering REUSED $tagName element $elementId to container")
+                }
+                appendToCurrentContainer(htmlElement)
+
+            } catch (e: Exception) {
+                wasmConsoleError("Failed to render $tagName - ${e.message}")
+                // Ensure we pop if we pushed
+                if (idStack.isNotEmpty() && idStack.last() == sid) {
+                    popId()
+                }
+            }
+        }
     }
 
     actual open fun renderCanvas(
@@ -2502,6 +2591,133 @@ actual open class PlatformRenderer actual constructor() {
             // Ignore all errors including missing function errors
             // This is expected in test environments
         }
+    }
+
+    /**
+     * Renders a menu bar as a horizontal navigation component.
+     * In WASM, this generates HTML for SSR or uses innerHTML for client-side rendering.
+     */
+    actual open fun renderMenuBar(
+        menus: List<codes.yousef.summon.desktop.menu.Menu>,
+        modifier: Modifier
+    ) {
+        val menuBarStyles = buildString {
+            append("display: flex; ")
+            append("gap: 0; ")
+            append("background-color: #f8f9fa; ")
+            append("padding: 0 8px; ")
+            append("border-bottom: 1px solid #dee2e6;")
+        }
+
+        val modifierStyles = modifier.toStyleStringKebabCase()
+        val combinedStyles = if (modifierStyles.isNotEmpty()) "$modifierStyles; $menuBarStyles" else menuBarStyles
+
+        // Build HTML string for the menu bar
+        val htmlContent = buildString {
+            append("<nav data-summon-component=\"menu-bar\" role=\"menubar\" style=\"$combinedStyles\">")
+            menus.forEach { menu ->
+                append(renderMenuToHtml(menu))
+            }
+            append("</nav>")
+        }
+
+        if (isStringRenderMode) {
+            // String rendering mode for SSR
+            if (htmlStack.isNotEmpty()) {
+                htmlStack.last().content.append(htmlContent)
+            } else {
+                htmlBuilder.append(htmlContent)
+            }
+        } else {
+            // Client-side: use innerHTML approach via wrapper div
+            // Generate a unique ID for the wrapper
+            val wrapperSid = generateNextId("menu-bar-wrapper", null)
+
+            // Create a wrapper element and set innerHTML
+            val newElement = createOrReuseElement("div", wrapperSid)
+            if (newElement != null) {
+                val elementId = DOMProvider.getNativeElementId(newElement)
+                wasmSetElementInnerHTML(elementId, htmlContent)
+
+                // Track for proper DOM placement
+                currentCompositionElements.add(wrapperSid)
+                recompositionElements[wrapperSid] = newElement
+
+                // Placement handled by standard composition flow
+            }
+        }
+    }
+
+    /**
+     * Renders a menu to HTML string for SSR.
+     */
+    private fun renderMenuToHtml(menu: codes.yousef.summon.desktop.menu.Menu): String {
+        val sb = StringBuilder()
+        sb.append("<div class=\"summon-menu\" style=\"position: relative;\" role=\"none\">")
+
+        // Menu button
+        val disabled = if (menu.disabled) " disabled" else ""
+        sb.append("<button type=\"button\" role=\"menuitem\" aria-haspopup=\"true\" aria-expanded=\"false\"$disabled ")
+        sb.append("style=\"padding: 8px 12px; background: none; border: none; cursor: pointer; font-size: 14px;\">")
+        sb.append(escapeHtml(menu.label))
+        sb.append("</button>")
+
+        // Dropdown menu
+        sb.append("<ul class=\"summon-menu-dropdown\" role=\"menu\" style=\"display: none; position: absolute; top: 100%; left: 0; min-width: 160px; background: white; border: 1px solid #dee2e6; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); padding: 4px 0; margin: 0; list-style: none; z-index: 1000;\">")
+        menu.items.forEach { item ->
+            sb.append(renderMenuItemToHtml(item, 0))
+        }
+        sb.append("</ul>")
+        sb.append("</div>")
+        return sb.toString()
+    }
+
+    /**
+     * Renders a menu item to HTML string.
+     */
+    private fun renderMenuItemToHtml(item: codes.yousef.summon.desktop.menu.MenuItem, depth: Int): String {
+        val sb = StringBuilder()
+        sb.append("<li role=\"none\" style=\"list-style: none;\">")
+
+        if (item.isSeparator) {
+            sb.append("<hr style=\"margin: 4px 0; border: none; border-top: 1px solid #dee2e6;\">")
+        } else if (item.submenu != null) {
+            sb.append("<div style=\"position: relative;\">")
+            val disabled = if (item.disabled) " disabled" else ""
+            sb.append("<button type=\"button\" role=\"menuitem\" aria-haspopup=\"true\" aria-expanded=\"false\"$disabled ")
+            sb.append("style=\"display: flex; justify-content: space-between; width: 100%; padding: 8px 12px; background: none; border: none; cursor: pointer; text-align: left; font-size: 14px;\">")
+            sb.append("<span>${escapeHtml(item.label)}</span>")
+            sb.append("<span>▶</span>")
+            sb.append("</button>")
+
+            sb.append("<ul class=\"summon-submenu\" role=\"menu\" style=\"display: none; position: absolute; left: 100%; top: 0; min-width: 160px; background: white; border: 1px solid #dee2e6; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); padding: 4px 0; margin: 0; list-style: none; z-index: ${1001 + depth};\">")
+            item.submenu.forEach { subItem ->
+                sb.append(renderMenuItemToHtml(subItem, depth + 1))
+            }
+            sb.append("</ul>")
+            sb.append("</div>")
+        } else {
+            val disabled = if (item.disabled) " disabled" else ""
+            val ariaChecked = item.checked?.let { " aria-checked=\"$it\"" } ?: ""
+            sb.append("<button type=\"button\" role=\"menuitem\"$disabled$ariaChecked ")
+            sb.append("style=\"display: flex; justify-content: space-between; width: 100%; padding: 8px 12px; background: none; border: none; cursor: pointer; text-align: left; font-size: 14px;\">")
+
+            sb.append("<span>")
+            if (item.checked == true) sb.append("✓ ")
+            item.icon?.let { sb.append("$it ") }
+            sb.append(escapeHtml(item.label))
+            sb.append("</span>")
+
+            item.shortcut?.let { shortcut ->
+                sb.append("<span style=\"margin-left: 24px; color: #6c757d; font-size: 12px;\">")
+                sb.append(escapeHtml(shortcut.toDisplayString()))
+                sb.append("</span>")
+            }
+            sb.append("</button>")
+        }
+
+        sb.append("</li>")
+        return sb.toString()
     }
 }
 

@@ -1,0 +1,1025 @@
+# Summon - Kotlin Multiplatform UI Framework (Full Documentation)
+
+> Comprehensive documentation for LLM consumption. See also: llms.txt (condensed version)
+
+## Project Overview
+
+Summon is a Kotlin Multiplatform UI framework for building web applications with Jetpack Compose-like declarative syntax. It targets browser (JS/WASM) and JVM (SSR) environments.
+
+- **Package namespace**: `codes.yousef.summon`
+- **Current version**: 0.6.3.0
+- **Kotlin version**: 2.3.0
+- **Repository**: https://github.com/codeyousef/summon
+- **Status**: Alpha (APIs may change between releases)
+
+## Architecture
+
+### Module Structure
+```
+summon/
+├── summon-core/     # Main library (KMP: commonMain, jvmMain, jsMain, wasmJsMain, webMain)
+├── summon-cli/      # Project scaffolding CLI tool
+├── diagnostics/     # Stress tests and JMH benchmarks
+├── e2e-tests/       # Playwright end-to-end tests
+└── docs/            # Documentation
+```
+
+### Source Set Hierarchy
+```
+commonMain
+    └── webMain (shared JS + WASM code)
+            ├── jsMain (browser JS)
+            └── wasmJsMain (WebAssembly)
+```
+
+### Platform Implementations
+- **JVM (`jvmMain`)**: SSR via `PlatformRenderer`, integrations for Ktor, Spring Boot, Quarkus
+- **JS (`jsMain`)**: Browser DOM rendering via kotlinx.html and kotlin-browser
+- **WASM (`wasmJsMain`)**: WebAssembly rendering with kotlinx-browser for DOM APIs
+
+---
+
+## Core Package Structure (`codes.yousef.summon`)
+
+| Package | Description |
+|---------|-------------|
+| `components/` | UI components (display, input, layout, feedback, navigation, forms) |
+| `state/` | Reactive state management (`mutableStateOf`, `remember`) |
+| `modifier/` | Type-safe CSS styling API |
+| `routing/` | File-based routing with Next.js-style patterns |
+| `runtime/` | Platform-specific renderers and composition |
+| `ssr/` | Server-side rendering and hydration |
+| `effects/` | Side effects and lifecycle hooks |
+| `animation/` | Keyframes, transitions, transforms |
+| `theme/` | Theming with dark mode support |
+| `i18n/` | Internationalization with RTL support |
+| `security/` | JWT auth, RBAC, route guards |
+| `seo/` | Meta tags, OpenGraph, Twitter Cards |
+
+---
+
+## Components API Reference
+
+### Display Components
+**Location**: `codes.yousef.summon.components.display`
+
+#### Text
+```kotlin
+@Composable
+fun Text(
+    text: String,
+    modifier: Modifier = Modifier(),
+    overflow: String? = null,
+    lineHeight: String? = null,
+    textAlign: String? = null,
+    fontFamily: String? = null,
+    textDecoration: String? = null,
+    textTransform: String? = null,
+    letterSpacing: String? = null,
+    whiteSpace: String? = null,
+    wordBreak: String? = null,
+    wordSpacing: String? = null,
+    textShadow: String? = null,
+    maxLines: Int? = null,
+    role: String? = null,
+    ariaLabel: String? = null,
+    ariaDescribedBy: String? = null,
+    semantic: String? = null
+)
+
+@Composable
+fun Label(text: String, modifier: Modifier = Modifier(), forElement: String? = null)
+```
+
+#### Image
+```kotlin
+enum class ImageLoading { LAZY, EAGER, AUTO }
+enum class FetchPriority { HIGH, LOW, AUTO }
+enum class ImageDecoding { SYNC, ASYNC, AUTO }
+
+@Composable
+fun Image(
+    src: String,
+    alt: String,
+    modifier: Modifier = Modifier(),
+    contentDescription: String? = null,
+    loading: ImageLoading = ImageLoading.LAZY,
+    width: String? = null,
+    height: String? = null,
+    srcset: String? = null,
+    sizes: String? = null,
+    fetchPriority: FetchPriority? = null,
+    decoding: ImageDecoding? = null,
+    onLoad: (() -> Unit)? = null,
+    onError: (() -> Unit)? = null
+)
+
+data class ImageSource(
+    val srcset: String,
+    val type: String? = null,
+    val media: String? = null,
+    val sizes: String? = null
+)
+```
+
+#### Icon
+```kotlin
+enum class IconType { SVG, FONT, IMAGE }
+
+@Composable
+fun Icon(
+    name: String,
+    modifier: Modifier = Modifier(),
+    size: String? = null,
+    color: String? = null,
+    type: IconType = IconType.SVG,
+    fontFamily: String? = null,
+    svgContent: String? = null,
+    ariaLabel: String? = null,
+    onClick: (() -> Unit)? = null
+)
+
+object IconDefaults {
+    object Size {
+        const val SMALL = "16px"
+        const val MEDIUM = "24px"
+        const val LARGE = "32px"
+    }
+
+    // Built-in icons
+    @Composable fun Add(modifier: Modifier = Modifier())
+    @Composable fun Delete(modifier: Modifier = Modifier())
+    @Composable fun Edit(modifier: Modifier = Modifier())
+    @Composable fun Download(modifier: Modifier = Modifier())
+    @Composable fun Upload(modifier: Modifier = Modifier())
+    @Composable fun Info(modifier: Modifier = Modifier())
+    @Composable fun CheckCircle(modifier: Modifier = Modifier())
+    @Composable fun Warning(modifier: Modifier = Modifier())
+    @Composable fun Error(modifier: Modifier = Modifier())
+    @Composable fun Close(modifier: Modifier = Modifier())
+}
+
+@Composable
+fun MaterialIcon(name: String, modifier: Modifier = Modifier(), size: String, color: String? = null, onClick: (() -> Unit)? = null)
+
+@Composable
+fun FontAwesomeIcon(name: String, modifier: Modifier = Modifier(), size: String, color: String? = null, fontFamily: String, onClick: (() -> Unit)? = null)
+
+@Composable
+fun SvgIcon(svgContent: String, modifier: Modifier = Modifier(), size: String, color: String? = null, ariaLabel: String? = null, onClick: (() -> Unit)? = null)
+```
+
+#### Other Display Components
+- `Chart` - Chart display component
+- `Picture` - Picture element with responsive sources
+- `RichMarkdown` - Markdown to HTML rendering
+- `RichText` - Rich text with formatting support
+
+---
+
+### Input Components
+**Location**: `codes.yousef.summon.components.input`
+
+#### Button
+```kotlin
+enum class ButtonVariant {
+    PRIMARY, SECONDARY, TERTIARY, DANGER, SUCCESS, WARNING, INFO, LINK, GHOST
+}
+
+enum class IconPosition { START, END }
+
+@Composable
+fun Button(
+    onClick: (() -> Unit)? = null,
+    label: String,
+    modifier: Modifier = Modifier(),
+    variant: ButtonVariant = ButtonVariant.PRIMARY,
+    disabled: Boolean = false,
+    iconName: String? = null,
+    iconPosition: IconPosition = IconPosition.START,
+    dataAttributes: Map<String, String> = emptyMap(),
+    action: UiAction? = null
+)
+```
+
+#### TextField
+```kotlin
+enum class TextFieldType {
+    Text, Password, Email, Number, Tel, Url, Search, Date, Time
+}
+
+@Composable
+fun TextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier(),
+    label: String? = null,
+    placeholder: String? = null,
+    type: TextFieldType = TextFieldType.Text,
+    isError: Boolean = false,
+    isEnabled: Boolean = true,
+    isReadOnly: Boolean = false,
+    validators: List<Validator> = emptyList()
+)
+
+@Composable
+fun StatefulTextField(
+    initialValue: String = "",
+    onValueChange: (String) -> Unit = {},
+    modifier: Modifier = Modifier(),
+    label: String? = null,
+    placeholder: String? = null,
+    type: TextFieldType = TextFieldType.Text,
+    isError: Boolean = false,
+    isEnabled: Boolean = true,
+    isReadOnly: Boolean = false,
+    validators: List<Validator> = emptyList()
+)
+
+@Composable
+fun BasicTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier(),
+    placeholder: String? = null,
+    type: String = "text"
+)
+```
+
+#### Checkbox
+```kotlin
+@Composable
+fun Checkbox(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier(),
+    enabled: Boolean = true,
+    label: String? = null,
+    isIndeterminate: Boolean = false,
+    validators: List<Validator> = emptyList()
+)
+
+@Composable
+fun StatefulCheckbox(
+    initialChecked: Boolean = false,
+    onCheckedChange: (Boolean) -> Unit = {},
+    modifier: Modifier = Modifier(),
+    enabled: Boolean = true,
+    label: String? = null
+)
+```
+
+#### Other Input Components
+- `CodeEditor` - Code editor with syntax highlighting
+- `DatePicker` - Date selection component
+- `FileUpload` - File upload input
+- `Form` - Form container
+- `FormField` - Form field wrapper
+- `MarkdownEditor` - Markdown text editor
+- `RadioButton` - Radio button group
+- `RangeSlider` - Dual-handle range slider
+- `Slider` - Single-value slider
+- `Switch` - Toggle switch component
+- `TextArea` - Multi-line text input
+- `TimePicker` - Time selection component
+- `Select` - Dropdown selection component
+
+---
+
+### Layout Components
+**Location**: `codes.yousef.summon.components.layout`
+
+#### Row
+```kotlin
+@Composable
+fun Row(
+    modifier: Modifier = Modifier(),
+    content: @Composable FlowContent.() -> Unit
+)
+
+object Alignment {
+    enum class Vertical { Top, CenterVertically, Bottom }
+    enum class Horizontal { Start, CenterHorizontally, End }
+}
+
+object Arrangement {
+    enum class Horizontal { Start, End, Center, SpaceBetween, SpaceAround, SpaceEvenly }
+    enum class Vertical { Top, Bottom, Center, SpaceBetween, SpaceAround, SpaceEvenly }
+}
+```
+
+#### Column
+```kotlin
+@Composable
+fun Column(
+    modifier: Modifier = Modifier(),
+    content: @Composable () -> Unit
+)
+```
+
+#### Box
+```kotlin
+@Composable
+fun Box(
+    modifier: Modifier = Modifier(),
+    content: @Composable FlowContent.() -> Unit
+)
+```
+
+#### Grid
+```kotlin
+@Composable
+fun Grid(
+    columns: String = "1fr",
+    rows: String? = null,
+    gap: String = "0",
+    modifier: Modifier = Modifier(),
+    content: @Composable FlowContent.() -> Unit
+)
+```
+
+#### Card
+```kotlin
+@Composable
+fun Card(
+    modifier: Modifier = Modifier(),
+    elevation: String? = null,
+    onClick: (() -> Unit)? = null,
+    content: @Composable FlowContent.() -> Unit
+)
+```
+
+#### Scaffold
+```kotlin
+@Composable
+fun Scaffold(
+    modifier: Modifier = Modifier,
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
+    snackbarHost: @Composable () -> Unit = {},
+    floatingActionButton: @Composable () -> Unit = {},
+    backgroundColor: Color? = null,
+    content: @Composable (WindowInsets) -> Unit
+)
+```
+
+#### Other Layout Components
+- `AspectRatio` - Aspect ratio container
+- `Divider` - Visual divider/separator
+- `ExpansionPanel` - Collapsible panel
+- `LazyColumn` - Virtualized vertical list
+- `LazyRow` - Virtualized horizontal list
+- `Portal` - Portal rendering to external DOM node
+- `ResponsiveLayout` - Responsive container
+- `Spacer` - Fixed spacing element
+- `SplitPane` - Two-pane splitter
+
+---
+
+### Feedback Components
+**Location**: `codes.yousef.summon.components.feedback`
+
+#### Modal
+```kotlin
+enum class ModalVariant { DEFAULT, ALERT, CONFIRMATION, FULLSCREEN }
+enum class ModalSize { SMALL, MEDIUM, LARGE, EXTRA_LARGE }
+
+@Composable
+fun Modal(
+    isOpen: Boolean,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier(),
+    variant: ModalVariant = ModalVariant.DEFAULT,
+    size: ModalSize = ModalSize.MEDIUM,
+    dismissOnBackdropClick: Boolean = true,
+    showCloseButton: Boolean = true,
+    header: (@Composable () -> Unit)? = null,
+    footer: (@Composable () -> Unit)? = null,
+    content: @Composable () -> Unit
+)
+```
+
+#### Other Feedback Components
+- `Alert` - Alert message component
+- `Badge` - Badge/label component
+- `CircularProgress` - Circular progress indicator
+- `ContextMenu` - Context menu/right-click menu
+- `IndeterminateProgress` - Indeterminate progress bar
+- `LinearProgress` - Linear progress bar
+- `Loading` - Loading spinner component
+- `Progress` - Progress display component
+- `ProgressBar` - Progress bar with value
+- `Snackbar` - Snackbar notification
+- `Toast` - Toast notification
+- `Tooltip` - Tooltip popup
+
+---
+
+### Navigation Components
+**Location**: `codes.yousef.summon.components.navigation`
+
+#### Link
+```kotlin
+@Composable
+fun Link(
+    href: String,
+    modifier: Modifier = Modifier(),
+    target: String? = null,
+    rel: String? = null,
+    title: String? = null,
+    prefetch: Boolean = false,
+    onClick: (() -> Unit)? = null,
+    content: @Composable () -> Unit
+)
+```
+
+#### Other Navigation Components
+- `HamburgerMenu` - Hamburger menu component
+- `Dropdown` - Dropdown menu
+- `TabLayout` - Tab navigation
+
+---
+
+## Modifier API Reference
+**Location**: `codes.yousef.summon.modifier`
+
+### Core Modifier Class
+```kotlin
+class Modifier(
+    val styles: Map<String, String> = emptyMap(),
+    val attributes: Map<String, String> = emptyMap()
+) {
+    fun then(other: Modifier): Modifier
+    fun style(key: String, value: String): Modifier
+    fun attribute(key: String, value: String): Modifier
+}
+```
+
+### Modifier Categories
+
+#### Layout Modifiers
+```kotlin
+// Sizing
+fun Modifier.width(value: CssValue): Modifier
+fun Modifier.height(value: CssValue): Modifier
+fun Modifier.size(value: CssValue): Modifier
+fun Modifier.fillMaxWidth(): Modifier
+fun Modifier.fillMaxHeight(): Modifier
+fun Modifier.fillMaxSize(): Modifier
+fun Modifier.minWidth(value: CssValue): Modifier
+fun Modifier.maxWidth(value: CssValue): Modifier
+fun Modifier.minHeight(value: CssValue): Modifier
+fun Modifier.maxHeight(value: CssValue): Modifier
+
+// Spacing
+fun Modifier.padding(value: CssValue): Modifier
+fun Modifier.padding(vertical: CssValue, horizontal: CssValue): Modifier
+fun Modifier.padding(top: CssValue, right: CssValue, bottom: CssValue, left: CssValue): Modifier
+fun Modifier.margin(value: CssValue): Modifier
+fun Modifier.margin(vertical: CssValue, horizontal: CssValue): Modifier
+```
+
+#### Positioning Modifiers
+```kotlin
+fun Modifier.absolutePosition(top: CssValue?, right: CssValue?, bottom: CssValue?, left: CssValue?): Modifier
+fun Modifier.relativePosition(): Modifier
+fun Modifier.fixedPosition(): Modifier
+fun Modifier.stickyPosition(): Modifier
+fun Modifier.top(value: CssValue): Modifier
+fun Modifier.left(value: CssValue): Modifier
+fun Modifier.right(value: CssValue): Modifier
+fun Modifier.bottom(value: CssValue): Modifier
+fun Modifier.zIndex(value: Int): Modifier
+```
+
+#### Appearance Modifiers
+```kotlin
+fun Modifier.backgroundColor(color: Color): Modifier
+fun Modifier.color(color: Color): Modifier
+fun Modifier.borderRadius(value: CssValue): Modifier
+fun Modifier.opacity(value: Float): Modifier
+fun Modifier.border(width: CssValue, style: BorderStyle, color: Color): Modifier
+fun Modifier.shadow(offsetX: CssValue, offsetY: CssValue, blur: CssValue, color: Color): Modifier
+```
+
+#### Typography Modifiers
+```kotlin
+fun Modifier.fontSize(value: CssValue): Modifier
+fun Modifier.fontWeight(value: FontWeight): Modifier
+fun Modifier.fontFamily(value: String): Modifier
+fun Modifier.textAlign(value: TextAlign): Modifier
+fun Modifier.textDecoration(value: TextDecoration): Modifier
+fun Modifier.lineHeight(value: CssValue): Modifier
+fun Modifier.letterSpacing(value: CssValue): Modifier
+```
+
+#### Flexbox Modifiers
+```kotlin
+fun Modifier.displayFlex(): Modifier
+fun Modifier.flexDirection(value: FlexDirection): Modifier
+fun Modifier.alignItems(value: AlignItems): Modifier
+fun Modifier.justifyContent(value: JustifyContent): Modifier
+fun Modifier.gap(value: CssValue): Modifier
+fun Modifier.flexGrow(value: Float): Modifier
+fun Modifier.flexShrink(value: Float): Modifier
+fun Modifier.flexWrap(value: FlexWrap): Modifier
+```
+
+#### Grid Modifiers
+```kotlin
+fun Modifier.displayGrid(): Modifier
+fun Modifier.gridTemplateColumns(value: String): Modifier
+fun Modifier.gridTemplateRows(value: String): Modifier
+fun Modifier.gridArea(value: String): Modifier
+fun Modifier.gridAutoFlow(value: GridAutoFlow): Modifier
+fun Modifier.gridGap(value: CssValue): Modifier
+```
+
+#### Interaction Modifiers
+```kotlin
+fun Modifier.cursor(value: Cursor): Modifier
+fun Modifier.hover(styles: Modifier.() -> Modifier): Modifier
+fun Modifier.focus(styles: Modifier.() -> Modifier): Modifier
+fun Modifier.transition(property: String, duration: CssValue, timing: TimingFunction): Modifier
+fun Modifier.onClick(handler: () -> Unit): Modifier
+fun Modifier.action(action: UiAction): Modifier
+```
+
+#### Accessibility Modifiers
+```kotlin
+fun Modifier.role(value: String): Modifier
+fun Modifier.ariaLabel(value: String): Modifier
+fun Modifier.ariaDescribedBy(value: String): Modifier
+fun Modifier.tabIndex(value: Int): Modifier
+fun Modifier.ariaAttribute(name: String, value: String): Modifier
+```
+
+#### Transform Modifiers
+```kotlin
+fun Modifier.transform(value: String): Modifier
+fun Modifier.scale(x: Float, y: Float): Modifier
+fun Modifier.rotate(angle: CssValue): Modifier
+fun Modifier.skew(x: CssValue, y: CssValue): Modifier
+fun Modifier.translate(x: CssValue, y: CssValue): Modifier
+```
+
+---
+
+## State Management
+**Location**: `codes.yousef.summon.state`
+
+### Core State API
+```kotlin
+interface State<T> {
+    val value: T
+}
+
+interface SummonMutableState<T> : State<T> {
+    override var value: T
+}
+
+interface MutableState<T> : SummonMutableState<T> {
+    operator fun component1(): T
+    operator fun component2(): (T) -> Unit
+    fun addListener(listener: (T) -> Unit)
+    fun removeListener(listener: (T) -> Unit)
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): T
+    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T)
+}
+
+// Create mutable state
+fun <T> mutableStateOf(initialValue: T): MutableState<T>
+
+// Remember state across recompositions
+@Composable
+fun <T> remember(calculation: () -> T): T
+
+// Property delegation
+operator fun <T> State<T>.getValue(thisRef: Any?, property: KProperty<*>): T
+operator fun <T> SummonMutableState<T>.setValue(thisRef: Any?, property: KProperty<*>, value: T)
+```
+
+### Usage Examples
+```kotlin
+// Direct access
+val counter = remember { mutableStateOf(0) }
+counter.value = counter.value + 1
+
+// Property delegation
+var counter by remember { mutableStateOf(0) }
+counter++
+
+// Destructuring
+val (count, setCount) = remember { mutableStateOf(0) }
+setCount(count + 1)
+```
+
+### Additional State Features
+- `FlowBinding` - Integration with Kotlin Flows
+- `RememberSaveable` - State persistence
+- `SimpleDerivedState` - Computed/derived state
+- `StateFlowIntegration` - StateFlow interop
+- `ViewModel` - ViewModel pattern support
+- `UiState` - UI state holder pattern
+
+---
+
+## Routing
+**Location**: `codes.yousef.summon.routing`
+
+### Core Router API
+```kotlin
+expect interface Router {
+    fun navigate(path: String, pushState: Boolean = true)
+    @Composable
+    fun create(initialPath: String)
+    val currentPath: String
+}
+
+data class RouteDefinition(
+    val path: String,
+    val content: @Composable (RouteParams) -> Unit,
+    val title: String? = null,
+    val description: String? = null,
+    val canonicalUrl: String? = null
+)
+
+data class RouteParams(val params: Map<String, String>) {
+    companion object {
+        val current: RouteParams
+            @Composable get()
+    }
+    operator fun get(key: String): String?
+    fun getOrDefault(key: String, defaultValue: String): String
+    fun asMap(): Map<String, String>
+    fun getInt(key: String): Int?
+    fun getLong(key: String): Long?
+    fun getBoolean(key: String): Boolean?
+    fun getFloat(key: String): Float?
+    fun getDouble(key: String): Double?
+}
+
+@Composable
+fun RouterComponent(router: Router, initialPath: String, modifier: Modifier = Modifier())
+
+interface RouterBuilder {
+    fun route(path: String, content: @Composable (RouteParams) -> Unit)
+    fun setNotFound(content: @Composable (RouteParams) -> Unit)
+}
+```
+
+### Route Patterns
+```kotlin
+// Static route
+route("/about") { AboutPage() }
+
+// Dynamic parameter
+route("/users/[id]") { params ->
+    val userId = params.getInt("id")
+    UserPage(userId)
+}
+
+// Catch-all
+route("/docs/[...slug]") { params ->
+    val slug = params["slug"]
+    DocsPage(slug)
+}
+
+// Optional catch-all
+route("/posts/[[...slug]]") { params ->
+    val slug = params["slug"]
+    PostsPage(slug)
+}
+```
+
+### Routing Features
+- `DeepLinking` - Deep link handling
+- `FileBasedRouter` - File-based routing system
+- `RouteGuard` - Route protection/guards
+- `Redirect` - Route redirection
+- `NavLink` - Navigation link component
+
+---
+
+## Animation System
+**Location**: `codes.yousef.summon.animation`
+
+### Core Animation API
+```kotlin
+expect enum class AnimationStatus {
+    IDLE, RUNNING, PAUSED, STOPPED
+}
+
+expect object AnimationController {
+    fun pause()
+    fun resume()
+    fun cancel()
+    fun stop()
+    val status: AnimationStatus
+    val progress: Float
+}
+
+interface Animation {
+    fun getValue(fraction: Float): Float
+    val durationMs: Int
+    val repeating: Boolean
+    fun toCssAnimationString(): String
+    fun toCssKeyframes(keyframesName: String): String
+}
+
+class SpringAnimation(
+    val stiffness: Float = 150f,
+    val damping: Float = 12f,
+    override val durationMs: Int = 300,
+    override val repeating: Boolean = false
+) : Animation
+
+class TweenAnimation(
+    override val durationMs: Int = 300,
+    val easing: Easing = Easing.LINEAR,
+    override val repeating: Boolean = false
+) : Animation
+```
+
+### Easing Functions
+```kotlin
+enum class Easing {
+    LINEAR, EASE_IN, EASE_OUT, EASE_IN_OUT,
+    SINE_IN, SINE_OUT, SINE_IN_OUT,
+    QUAD_IN, QUAD_OUT, QUAD_IN_OUT,
+    CUBIC_IN, CUBIC_OUT, CUBIC_IN_OUT,
+    QUART_IN, QUART_OUT, QUART_IN_OUT,
+    QUINT_IN, QUINT_OUT, QUINT_IN_OUT,
+    EXPO_IN, EXPO_OUT, EXPO_IN_OUT,
+    CIRC_IN, CIRC_OUT, CIRC_IN_OUT,
+    BACK_IN, BACK_OUT, BACK_IN_OUT,
+    ELASTIC_IN, ELASTIC_OUT, ELASTIC_IN_OUT,
+    BOUNCE_IN, BOUNCE_OUT, BOUNCE_IN_OUT
+}
+```
+
+### Animation Components
+```kotlin
+@Composable
+fun AnimatedVisibility(
+    visible: Boolean,
+    enter: EnterTransition = fadeIn(),
+    exit: ExitTransition = fadeOut(),
+    content: @Composable () -> Unit
+)
+
+@Composable
+fun AnimatedContent(
+    targetState: T,
+    transitionSpec: AnimatedContentTransitionSpec<T>,
+    content: @Composable (T) -> Unit
+)
+```
+
+---
+
+## Theme System
+**Location**: `codes.yousef.summon.theme`
+
+### Core Theme API
+```kotlin
+object Theme {
+    object Themes {
+        val light: ThemeDefinition
+        val dark: ThemeDefinition
+    }
+    fun setTheme(theme: ThemeDefinition)
+    fun getCurrentTheme(): ThemeDefinition
+}
+
+data class ThemeDefinition(
+    val colors: ColorSystem,
+    val typography: Typography,
+    val spacing: Spacing,
+    val customTokens: Map<String, String> = emptyMap()
+)
+```
+
+### Theme-aware Modifiers
+```kotlin
+fun Modifier.themeBackgroundColor(semanticColor: String): Modifier
+fun Modifier.themePadding(semanticSpacing: String): Modifier
+fun Modifier.themeBorderRadius(semanticRadius: String): Modifier
+fun Modifier.themeElevation(semanticElevation: String): Modifier
+fun Modifier.themeTextStyle(semanticStyle: String): Modifier
+fun Modifier.themeColor(semanticColor: String): Modifier
+```
+
+### Theme Usage
+```kotlin
+// Apply theme
+Theme.setTheme(Theme.Themes.dark)
+
+// Use semantic tokens
+Modifier()
+    .themeBackgroundColor("surface")
+    .themePadding("md")
+    .themeColor("onSurface")
+```
+
+---
+
+## Effects System
+**Location**: `codes.yousef.summon.effects`
+
+### Lifecycle Effects
+```kotlin
+@Composable
+fun onMount(block: () -> Unit)
+
+@Composable
+fun onDispose(block: () -> Unit)
+
+@Composable
+fun onMountWithCleanup(block: () -> () -> Unit)
+
+@Composable
+fun effect(block: () -> Unit)
+
+@Composable
+fun effectWithDeps(vararg deps: Any?, block: () -> Unit)
+
+@Composable
+fun effectWithDepsAndCleanup(vararg deps: Any?, block: () -> () -> Unit)
+
+@Composable
+fun DisposableEffect(vararg deps: Any?, effect: () -> () -> Unit)
+```
+
+### Browser APIs
+- `ClipboardAPI` - Clipboard access
+- `Storage` - Local/session storage
+- `Time` - Timer/interval effects
+- `WebSocket` - WebSocket connections
+- `HttpClient` - HTTP client integration
+
+---
+
+## Server-Side Rendering (SSR)
+**Location**: `codes.yousef.summon.ssr`
+
+### SSR API
+```kotlin
+// Render composable to HTML string
+val renderer = PlatformRenderer()
+val html = renderer.renderComposableRoot { MyApp() }
+
+// With hydration support
+val html = renderer.renderComposableRoot(hydrate = true) { MyApp() }
+```
+
+### Framework Integrations
+
+#### Ktor
+```kotlin
+get("/") {
+    call.respondHtml {
+        body {
+            summonApp { MyApp() }
+        }
+    }
+}
+```
+
+#### Spring Boot
+```kotlin
+@GetMapping("/")
+fun index(): String {
+    return renderToHtml { MyApp() }
+}
+```
+
+#### Quarkus
+```kotlin
+@GET
+@Produces(MediaType.TEXT_HTML)
+fun index(): String {
+    return renderToHtml { MyApp() }
+}
+```
+
+---
+
+## Build Commands
+
+```bash
+# Build all modules
+./gradlew build
+
+# Build core library only
+./gradlew buildCore
+
+# Build CLI tool only
+./gradlew buildCli
+
+# Run all tests
+./gradlew allTests
+
+# Run JVM tests (excludes slow tests)
+./gradlew :summon-core:jvmTest
+
+# Run slow tests only
+./gradlew :summon-core:slowTests
+
+# Run JS tests
+./gradlew :summon-core:jsNodeTest
+
+# Run WASM tests
+./gradlew :summon-core:wasmJsNodeTest
+
+# Publish to local Maven
+./gradlew publishLocal
+
+# Development run (JS)
+./gradlew jsBrowserDevelopmentRun
+
+# Development run (WASM)
+./gradlew wasmJsBrowserDevelopmentRun
+
+# Production builds
+./gradlew jsBrowserProductionWebpack
+./gradlew wasmJsBrowserProductionWebpack
+
+# Run JMH benchmarks
+./gradlew :diagnostics:jmh
+```
+
+---
+
+## Coding Guidelines
+
+### General Principles
+1. **Prefer immutable data** - Use `val` over `var`, immutable collections
+2. **Compose-style APIs** - Follow Jetpack Compose patterns
+3. **Type-safe styling** - Use Modifier API with type-safe enums
+4. **Platform abstraction** - Keep platform-specific code in appropriate source sets
+
+### Component Pattern
+```kotlin
+@Composable
+fun MyComponent(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier()
+) {
+    val renderer = LocalPlatformRenderer.current
+    // Use renderer methods, not direct DOM manipulation
+}
+```
+
+### JS Interop Guidelines
+- Add `@JsName` annotations to public APIs for consistent naming
+- Avoid capturing mutable state in lambdas passed to renderers
+- Use `getPlatformRenderer()` for reliable renderer access in JS contexts
+
+---
+
+## Common Pitfalls
+
+1. **WASM cache staleness** - Run `./gradlew clean` if WASM builds behave unexpectedly
+2. **JS minification issues** - Always add `@JsName` to public functions/callbacks
+3. **State in lambdas** - Don't capture mutable state directly in renderer callbacks
+4. **Missing hydration** - SSR requires proper hydration setup for interactivity
+
+---
+
+## Version Management
+
+Version is centralized in `version.properties`:
+```
+VERSION=0.6.3.0
+GROUP=codes.yousef
+```
+
+When updating version:
+1. Update `version.properties`
+2. Add entry to `CHANGELOG.md`
+3. Update relevant documentation
+
+---
+
+## Privacy & Boundaries
+
+### Sensitive Files (do not share)
+- `local.properties` - Local credentials
+- `private-key*.asc` - GPG signing keys
+- `*.log` files - Build/test logs
+
+### Safe to Analyze
+- All source code in `src/`
+- Documentation in `docs/`
+- Build configuration files
+- Test files
+
+---
+
+## Getting Help
+
+- **GitHub Issues**: Report bugs and feature requests
+- **Documentation**: `docs/` directory
+- **Examples**: Generated via `summon-cli` tool

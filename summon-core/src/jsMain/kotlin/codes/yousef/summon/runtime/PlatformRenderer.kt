@@ -2614,4 +2614,270 @@ actual open class PlatformRenderer {
             content(createFlowContent("div"))
         }
     }
+
+    /**
+     * Renders a menu bar as a horizontal navigation component.
+     * Creates interactive dropdown menus with hover/click behavior.
+     */
+    actual open fun renderMenuBar(
+        menus: List<codes.yousef.summon.desktop.menu.Menu>,
+        modifier: Modifier
+    ) {
+        val menuBarModifier = modifier
+            .style("display", "flex")
+            .style("gap", "0")
+            .style("backgroundColor", "#f8f9fa")
+            .style("padding", "0 8px")
+            .style("borderBottom", "1px solid #dee2e6")
+
+        createElement("nav", menuBarModifier) {
+            val nav = elementStack.current
+            nav.setAttribute("data-summon-component", "menu-bar")
+            nav.setAttribute("role", "menubar")
+
+            menus.forEach { menu ->
+                val menuContainerModifier = Modifier()
+                    .style("position", "relative")
+
+                createElement("div", menuContainerModifier) {
+                    val menuContainer = elementStack.current
+                    menuContainer.classList.add("summon-menu")
+                    menuContainer.setAttribute("role", "none")
+
+                    // Menu button
+                    val buttonModifier = Modifier()
+                        .style("padding", "8px 12px")
+                        .style("background", "none")
+                        .style("border", "none")
+                        .style("cursor", "pointer")
+                        .style("fontSize", "14px")
+
+                    createElement("button", buttonModifier) {
+                        val button = elementStack.current
+                        button.setAttribute("type", "button")
+                        button.setAttribute("role", "menuitem")
+                        button.setAttribute("aria-haspopup", "true")
+                        button.setAttribute("aria-expanded", "false")
+                        if (menu.disabled) {
+                            button.setAttribute("disabled", "disabled")
+                        }
+                        button.textContent = menu.label
+
+                        // Toggle dropdown on click
+                        button.addEventListener("click", { event ->
+                            event.stopPropagation()
+                            val dropdown = menuContainer.querySelector(".summon-menu-dropdown") as? HTMLElement
+                            val isOpen = dropdown?.style?.display == "block"
+
+                            // Close all other dropdowns first
+                            document.querySelectorAll(".summon-menu-dropdown").let { dropdowns ->
+                                for (i in 0 until dropdowns.length) {
+                                    (dropdowns.item(i) as? HTMLElement)?.style?.display = "none"
+                                }
+                            }
+
+                            if (!isOpen && dropdown != null) {
+                                dropdown.style.display = "block"
+                                button.setAttribute("aria-expanded", "true")
+                            } else {
+                                button.setAttribute("aria-expanded", "false")
+                            }
+                        })
+                    }
+
+                    // Dropdown menu
+                    val dropdownModifier = Modifier()
+                        .style("display", "none")
+                        .style("position", "absolute")
+                        .style("top", "100%")
+                        .style("left", "0")
+                        .style("minWidth", "160px")
+                        .style("background", "white")
+                        .style("border", "1px solid #dee2e6")
+                        .style("borderRadius", "4px")
+                        .style("boxShadow", "0 2px 8px rgba(0,0,0,0.15)")
+                        .style("padding", "4px 0")
+                        .style("margin", "0")
+                        .style("listStyle", "none")
+                        .style("zIndex", "1000")
+
+                    createElement("ul", dropdownModifier) {
+                        val dropdown = elementStack.current
+                        dropdown.classList.add("summon-menu-dropdown")
+                        dropdown.setAttribute("role", "menu")
+
+                        menu.items.forEach { item ->
+                            renderMenuItemJs(item, 0)
+                        }
+                    }
+                }
+            }
+        }
+
+        // Add global click listener to close menus
+        document.addEventListener("click", { _ ->
+            document.querySelectorAll(".summon-menu-dropdown").let { dropdowns ->
+                for (i in 0 until dropdowns.length) {
+                    (dropdowns.item(i) as? HTMLElement)?.style?.display = "none"
+                }
+            }
+            document.querySelectorAll("[aria-expanded='true']").let { buttons ->
+                for (i in 0 until buttons.length) {
+                    (buttons.item(i) as? Element)?.setAttribute("aria-expanded", "false")
+                }
+            }
+        })
+    }
+
+    /**
+     * Helper to render a single menu item in JS/DOM.
+     */
+    private fun renderMenuItemJs(item: codes.yousef.summon.desktop.menu.MenuItem, depth: Int) {
+        createElement("li", Modifier().style("listStyle", "none")) {
+            val li = elementStack.current
+            li.setAttribute("role", "none")
+
+            if (item.isSeparator) {
+                createElement(
+                    "hr", Modifier()
+                        .style("margin", "4px 0")
+                        .style("border", "none")
+                        .style("borderTop", "1px solid #dee2e6")
+                )
+            } else if (item.submenu != null) {
+                // Submenu container
+                createElement("div", Modifier().style("position", "relative")) {
+                    val submenuContainer = elementStack.current
+
+                    // Submenu button
+                    val buttonModifier = Modifier()
+                        .style("display", "flex")
+                        .style("justifyContent", "space-between")
+                        .style("width", "100%")
+                        .style("padding", "8px 12px")
+                        .style("background", "none")
+                        .style("border", "none")
+                        .style("cursor", "pointer")
+                        .style("textAlign", "left")
+                        .style("fontSize", "14px")
+
+                    createElement("button", buttonModifier) {
+                        val button = elementStack.current
+                        button.setAttribute("type", "button")
+                        button.setAttribute("role", "menuitem")
+                        button.setAttribute("aria-haspopup", "true")
+                        button.setAttribute("aria-expanded", "false")
+                        if (item.disabled) {
+                            button.setAttribute("disabled", "disabled")
+                        }
+
+                        createElement("span", Modifier()) {
+                            elementStack.current.textContent = item.label
+                        }
+                        createElement("span", Modifier()) {
+                            elementStack.current.textContent = "▶"
+                        }
+
+                        // Show submenu on hover/click
+                        button.addEventListener("mouseenter", { _ ->
+                            val submenu = submenuContainer.querySelector(".summon-submenu") as? HTMLElement
+                            submenu?.style?.display = "block"
+                        })
+                    }
+
+                    // Submenu dropdown
+                    val submenuModifier = Modifier()
+                        .style("display", "none")
+                        .style("position", "absolute")
+                        .style("left", "100%")
+                        .style("top", "0")
+                        .style("minWidth", "160px")
+                        .style("background", "white")
+                        .style("border", "1px solid #dee2e6")
+                        .style("borderRadius", "4px")
+                        .style("boxShadow", "0 2px 8px rgba(0,0,0,0.15)")
+                        .style("padding", "4px 0")
+                        .style("margin", "0")
+                        .style("listStyle", "none")
+                        .style("zIndex", "${1001 + depth}")
+
+                    createElement("ul", submenuModifier) {
+                        val submenuDropdown = elementStack.current
+                        submenuDropdown.classList.add("summon-submenu")
+                        submenuDropdown.setAttribute("role", "menu")
+
+                        item.submenu.forEach { subItem ->
+                            renderMenuItemJs(subItem, depth + 1)
+                        }
+                    }
+
+                    // Hide submenu when leaving container
+                    submenuContainer.addEventListener("mouseleave", { _ ->
+                        val submenu = submenuContainer.querySelector(".summon-submenu") as? HTMLElement
+                        submenu?.style?.display = "none"
+                    })
+                }
+            } else {
+                // Regular item button
+                val buttonModifier = Modifier()
+                    .style("display", "flex")
+                    .style("justifyContent", "space-between")
+                    .style("width", "100%")
+                    .style("padding", "8px 12px")
+                    .style("background", "none")
+                    .style("border", "none")
+                    .style("cursor", "pointer")
+                    .style("textAlign", "left")
+                    .style("fontSize", "14px")
+
+                createElement("button", buttonModifier) {
+                    val button = elementStack.current
+                    button.setAttribute("type", "button")
+                    button.setAttribute("role", "menuitem")
+                    if (item.disabled) {
+                        button.setAttribute("disabled", "disabled")
+                    }
+                    if (item.checked != null) {
+                        button.setAttribute("aria-checked", item.checked.toString())
+                    }
+
+                    // Label with optional check mark and icon
+                    createElement("span", Modifier()) {
+                        val label = elementStack.current
+                        val prefix = buildString {
+                            if (item.checked == true) append("✓ ")
+                            item.icon?.let { append("$it ") }
+                        }
+                        label.textContent = prefix + item.label
+                    }
+
+                    // Shortcut display
+                    item.shortcut?.let { shortcut ->
+                        createElement(
+                            "span", Modifier()
+                                .style("marginLeft", "24px")
+                                .style("color", "#6c757d")
+                                .style("fontSize", "12px")
+                        ) {
+                            elementStack.current.textContent = shortcut.toDisplayString()
+                        }
+                    }
+
+                    // Click handler
+                    item.onClick?.let { onClick ->
+                        button.addEventListener("click", { event ->
+                            event.stopPropagation()
+                            onClick()
+                            // Close all menus after clicking an item
+                            document.querySelectorAll(".summon-menu-dropdown, .summon-submenu").let { dropdowns ->
+                                for (i in 0 until dropdowns.length) {
+                                    (dropdowns.item(i) as? HTMLElement)?.style?.display = "none"
+                                }
+                            }
+                        })
+                    }
+                }
+            }
+        }
+    }
 }

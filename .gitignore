@@ -48,8 +48,9 @@ Desktop.ini
 local.properties
 properties.local
 
-# Development tool directories
-.claude/
+# Development tool directories (exclude all except skills)
+.claude/*
+!.claude/skills/
 
 # Claude.ai configuration
 CLAUDE.md

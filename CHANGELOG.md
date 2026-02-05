@@ -2,6 +2,78 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0.0] - 2026-02-05
+
+### Added
+
+#### HTML DSL Components
+
+- **New `components/html/` Package** - Complete HTML5 semantic elements DSL
+  - `HtmlElements.kt` - Header, Nav, Main, Footer, Section, Article, Aside, Address, Hgroup, Search
+  - `TextElements.kt` - H1-H6, P, Blockquote, Pre, Code, Strong, Em, Small, Mark, Del, Ins, Sub, Sup, S, U, B, I
+  - `ListElements.kt` - Ul, Ol, Li, Dl, Dt, Dd, Menu
+  - `TableElements.kt` - Table, Thead, Tbody, Tfoot, Tr, Th, Td, Caption, Colgroup, Col
+  - `InlineElements.kt` - A, Span, Time, Abbr, Cite, Q, Kbd, Samp, Var, Dfn, Data, Bdi, Bdo, Ruby, Rt, Rp, Wbr, Br
+  - `MediaElements.kt` - Figure, Figcaption, Iframe, Embed, ObjectTag, Param, Source, Track, Audio, Meter
+  - `DetailsElements.kt` - Details, Summary, Dialog
+
+#### Modifier Enhancements
+
+- **Breakpoint Shortcut Modifiers** - Mobile-first responsive design helpers
+  - `xs()`, `sm()`, `md()`, `lg()`, `xl()`, `xxl()` - Min-width breakpoints
+  - `xsDown()`, `smDown()`, `mdDown()`, `lgDown()`, `xlDown()`, `xxlDown()` - Max-width breakpoints
+  - `smOnly()`, `mdOnly()`, `lgOnly()`, `xlOnly()` - Exact range breakpoints
+  - `breakpointBetween(min, max)` - Custom range breakpoints
+- **Scoped Style Selectors** - CSS combinator support
+  - `Modifier.descendant(selector)` - Descendant selector (space)
+  - `Modifier.child(selector)` - Child selector (>)
+  - `Modifier.adjacentSibling(selector)` - Adjacent sibling selector (+)
+  - `Modifier.generalSibling(selector)` - General sibling selector (~)
+
+#### Desktop/Multi-window Features
+
+- **SyncedStorage** - Cross-tab reactive storage using localStorage + storage events
+  - `createSyncedStorage()` - Create synchronized storage instance
+  - `rememberSynced()` - Composable for synced state
+- **BroadcastChannel** - Cross-window messaging API
+  - `createBroadcastChannel()` - Create messaging channel
+  - `SummonBroadcastChannel` - Cross-platform interface
+- **WindowManager** - Multi-window management
+  - `WindowManager.open()` - Open new windows/tabs
+  - `WindowManager.getScreenInfo()` - Screen dimensions and capabilities
+  - `WindowManager.currentWindowId` - Unique window identifier
+  - `WindowManager.moveTo()`, `resizeTo()`, `focus()` - Window manipulation
+- **File Dialogs** - File System Access API integration
+  - `showOpenFileDialog()` - Open file picker
+  - `showSaveFileDialog()` - Save file dialog
+  - `showDirectoryPicker()` - Directory selection
+  - `isFileSystemAccessSupported()` - Feature detection
+- **MenuBar** - Application menu bar component
+  - `MenuBar()` composable with DSL builder
+  - `MenuItem`, `Menu`, `KeyboardShortcut` data classes
+  - `menuBar { }` DSL for declarative menu definition
+- **SystemTray** - System tray support (no-op on web)
+  - `createTrayIcon()` - Create tray icon
+  - `showNotification()` - Web Notifications API fallback
+- **Cross-Window Drag and Drop** - DragCoordinator using BroadcastChannel
+  - `DragCoordinator` - Coordinate drag operations across windows
+  - `DragData`, `DragMessage` - Serializable drag payloads
+- **Picture-in-Picture** - Document PiP API support
+  - `requestPictureInPicture()` - Request PiP window
+  - `PictureInPictureContent()` - Render into PiP window
+  - `isPictureInPictureSupported()` - Feature detection
+
+### Changed
+
+- **JVM Renderer** - Expanded `renderHtmlTag` to support 70+ HTML5 elements
+- **WASM Renderer** - Implemented proper `renderHtmlTag` with full HTML5 support
+- **PlatformRenderer** - Added `renderMenuBar()` method
+
+### Deprecated
+
+- **SemanticHTML.kt** - All functions deprecated in favor of `components/html/` package
+  - `Header`, `Main`, `Nav`, `Article`, `Section`, `Aside`, `Footer`, `Heading`, `Figure`, `FigCaption`
+
 ## [0.6.3.0] - 2026-01-12
 
 ### Added

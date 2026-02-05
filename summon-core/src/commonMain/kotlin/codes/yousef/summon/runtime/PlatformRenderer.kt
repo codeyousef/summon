@@ -42,7 +42,7 @@ import codes.yousef.summon.components.feedback.ProgressType
 import codes.yousef.summon.components.input.FileInfo
 import codes.yousef.summon.components.navigation.Tab
 import codes.yousef.summon.core.FlowContentCompat
-import codes.yousef.summon.modifier.*
+import codes.yousef.summon.modifier.Modifier
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 
@@ -792,5 +792,19 @@ expect open class PlatformRenderer() {
         modifier: Modifier,
         first: @Composable () -> Unit,
         second: @Composable () -> Unit
+    )
+
+    /**
+     * Renders an application menu bar.
+     *
+     * On web platforms, this renders as a horizontal nav element with
+     * dropdown menus that open on hover/click.
+     *
+     * @param menus List of Menu objects to display
+     * @param modifier Styling modifier
+     */
+    open fun renderMenuBar(
+        menus: List<codes.yousef.summon.desktop.menu.Menu>,
+        modifier: Modifier
     )
 }

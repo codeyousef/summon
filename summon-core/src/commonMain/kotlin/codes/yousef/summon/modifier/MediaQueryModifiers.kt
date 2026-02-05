@@ -277,3 +277,250 @@ object Breakpoints {
     /** Extra large screens (1536px) */
     val XXL = 1536
 }
+
+// ============================================
+// Breakpoint Shortcut Modifiers (Mobile-First)
+// ============================================
+
+/**
+ * Applies styles for extra-small screens and up (320px+).
+ *
+ * Use this for the smallest mobile devices. This is rarely needed as base
+ * styles apply to all sizes - only use when you need to override something
+ * set by a larger breakpoint.
+ *
+ * @param builder DSL builder for styles to apply at this breakpoint
+ * @return A new [Modifier] with the breakpoint styles
+ *
+ * Example:
+ * ```kotlin
+ * Modifier()
+ *     .xs { fontSize("12px") }
+ *     .sm { fontSize("14px") }
+ * ```
+ */
+fun Modifier.xs(builder: Modifier.() -> Modifier): Modifier =
+    mediaQuery(MediaQuery.MinWidth(Breakpoints.XS), builder)
+
+/**
+ * Applies styles for small screens and up (640px+).
+ *
+ * Typically used for mobile devices in landscape or small tablets.
+ *
+ * @param builder DSL builder for styles to apply at this breakpoint
+ * @return A new [Modifier] with the breakpoint styles
+ *
+ * Example:
+ * ```kotlin
+ * Modifier()
+ *     .padding("8px")
+ *     .sm { padding("16px") }
+ * ```
+ */
+fun Modifier.sm(builder: Modifier.() -> Modifier): Modifier =
+    mediaQuery(MediaQuery.MinWidth(Breakpoints.SM), builder)
+
+/**
+ * Applies styles for medium screens and up (768px+).
+ *
+ * Typically used for tablets and small desktops.
+ *
+ * @param builder DSL builder for styles to apply at this breakpoint
+ * @return A new [Modifier] with the breakpoint styles
+ *
+ * Example:
+ * ```kotlin
+ * Modifier()
+ *     .flexDirection(FlexDirection.Column)
+ *     .md { flexDirection(FlexDirection.Row) }
+ * ```
+ */
+fun Modifier.md(builder: Modifier.() -> Modifier): Modifier =
+    mediaQuery(MediaQuery.MinWidth(Breakpoints.MD), builder)
+
+/**
+ * Applies styles for large screens and up (1024px+).
+ *
+ * Typically used for desktops and large tablets in landscape.
+ *
+ * @param builder DSL builder for styles to apply at this breakpoint
+ * @return A new [Modifier] with the breakpoint styles
+ *
+ * Example:
+ * ```kotlin
+ * Modifier()
+ *     .width("100%")
+ *     .lg { width("960px") }
+ * ```
+ */
+fun Modifier.lg(builder: Modifier.() -> Modifier): Modifier =
+    mediaQuery(MediaQuery.MinWidth(Breakpoints.LG), builder)
+
+/**
+ * Applies styles for extra-large screens and up (1280px+).
+ *
+ * Typically used for large desktop monitors.
+ *
+ * @param builder DSL builder for styles to apply at this breakpoint
+ * @return A new [Modifier] with the breakpoint styles
+ *
+ * Example:
+ * ```kotlin
+ * Modifier()
+ *     .maxWidth("1024px")
+ *     .xl { maxWidth("1200px") }
+ * ```
+ */
+fun Modifier.xl(builder: Modifier.() -> Modifier): Modifier =
+    mediaQuery(MediaQuery.MinWidth(Breakpoints.XL), builder)
+
+/**
+ * Applies styles for extra-extra-large screens and up (1536px+).
+ *
+ * Typically used for very large desktop monitors and TV screens.
+ *
+ * @param builder DSL builder for styles to apply at this breakpoint
+ * @return A new [Modifier] with the breakpoint styles
+ *
+ * Example:
+ * ```kotlin
+ * Modifier()
+ *     .fontSize("16px")
+ *     .xxl { fontSize("20px") }
+ * ```
+ */
+fun Modifier.xxl(builder: Modifier.() -> Modifier): Modifier =
+    mediaQuery(MediaQuery.MinWidth(Breakpoints.XXL), builder)
+
+// ============================================
+// Breakpoint Shortcut Modifiers (Desktop-First)
+// ============================================
+
+/**
+ * Applies styles for screens smaller than small breakpoint (< 640px).
+ *
+ * Desktop-first modifier for targeting mobile-only styles.
+ *
+ * @param builder DSL builder for styles to apply below this breakpoint
+ * @return A new [Modifier] with the breakpoint styles
+ *
+ * Example:
+ * ```kotlin
+ * Modifier()
+ *     .display(Display.Block)
+ *     .smDown { display(Display.None) }
+ * ```
+ */
+fun Modifier.smDown(builder: Modifier.() -> Modifier): Modifier =
+    mediaQuery(MediaQuery.MaxWidth(Breakpoints.SM - 1), builder)
+
+/**
+ * Applies styles for screens smaller than medium breakpoint (< 768px).
+ *
+ * Desktop-first modifier for targeting tablet-and-below styles.
+ *
+ * @param builder DSL builder for styles to apply below this breakpoint
+ * @return A new [Modifier] with the breakpoint styles
+ *
+ * Example:
+ * ```kotlin
+ * Modifier()
+ *     .flexDirection(FlexDirection.Row)
+ *     .mdDown { flexDirection(FlexDirection.Column) }
+ * ```
+ */
+fun Modifier.mdDown(builder: Modifier.() -> Modifier): Modifier =
+    mediaQuery(MediaQuery.MaxWidth(Breakpoints.MD - 1), builder)
+
+/**
+ * Applies styles for screens smaller than large breakpoint (< 1024px).
+ *
+ * Desktop-first modifier for targeting non-desktop styles.
+ *
+ * @param builder DSL builder for styles to apply below this breakpoint
+ * @return A new [Modifier] with the breakpoint styles
+ *
+ * Example:
+ * ```kotlin
+ * Modifier()
+ *     .width("960px")
+ *     .lgDown { width("100%") }
+ * ```
+ */
+fun Modifier.lgDown(builder: Modifier.() -> Modifier): Modifier =
+    mediaQuery(MediaQuery.MaxWidth(Breakpoints.LG - 1), builder)
+
+/**
+ * Applies styles for screens smaller than extra-large breakpoint (< 1280px).
+ *
+ * Desktop-first modifier for targeting everything below large desktops.
+ *
+ * @param builder DSL builder for styles to apply below this breakpoint
+ * @return A new [Modifier] with the breakpoint styles
+ */
+fun Modifier.xlDown(builder: Modifier.() -> Modifier): Modifier =
+    mediaQuery(MediaQuery.MaxWidth(Breakpoints.XL - 1), builder)
+
+/**
+ * Applies styles for screens smaller than extra-extra-large breakpoint (< 1536px).
+ *
+ * Desktop-first modifier for targeting everything below very large screens.
+ *
+ * @param builder DSL builder for styles to apply below this breakpoint
+ * @return A new [Modifier] with the breakpoint styles
+ */
+fun Modifier.xxlDown(builder: Modifier.() -> Modifier): Modifier =
+    mediaQuery(MediaQuery.MaxWidth(Breakpoints.XXL - 1), builder)
+
+// ============================================
+// Range-Based Breakpoint Modifiers
+// ============================================
+
+/**
+ * Applies styles only within a specific breakpoint range.
+ *
+ * Useful for targeting specific device classes without affecting larger or smaller screens.
+ *
+ * @param min Minimum width (inclusive)
+ * @param max Maximum width (inclusive)
+ * @param builder DSL builder for styles to apply within the range
+ * @return A new [Modifier] with the breakpoint styles
+ *
+ * Example:
+ * ```kotlin
+ * Modifier()
+ *     .breakpointBetween(Breakpoints.SM, Breakpoints.MD - 1) {
+ *         // Tablet-only styles
+ *         flexDirection(FlexDirection.Column)
+ *     }
+ * ```
+ */
+fun Modifier.breakpointBetween(min: Int, max: Int, builder: Modifier.() -> Modifier): Modifier =
+    mediaQuery(
+        MediaQuery.And(MediaQuery.MinWidth(min), MediaQuery.MaxWidth(max)),
+        builder
+    )
+
+/**
+ * Applies styles only for small screens (640px - 767px).
+ */
+fun Modifier.smOnly(builder: Modifier.() -> Modifier): Modifier =
+    breakpointBetween(Breakpoints.SM, Breakpoints.MD - 1, builder)
+
+/**
+ * Applies styles only for medium screens (768px - 1023px).
+ */
+fun Modifier.mdOnly(builder: Modifier.() -> Modifier): Modifier =
+    breakpointBetween(Breakpoints.MD, Breakpoints.LG - 1, builder)
+
+/**
+ * Applies styles only for large screens (1024px - 1279px).
+ */
+fun Modifier.lgOnly(builder: Modifier.() -> Modifier): Modifier =
+    breakpointBetween(Breakpoints.LG, Breakpoints.XL - 1, builder)
+
+/**
+ * Applies styles only for extra-large screens (1280px - 1535px).
+ */
+fun Modifier.xlOnly(builder: Modifier.() -> Modifier): Modifier =
+    breakpointBetween(Breakpoints.XL, Breakpoints.XXL - 1, builder)
