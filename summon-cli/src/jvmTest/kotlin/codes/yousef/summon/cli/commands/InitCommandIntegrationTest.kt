@@ -173,6 +173,7 @@ class InitCommandIntegrationTest {
         val toleratedFragments = listOf(
             "DeprecationWarning: The `punycode` module is deprecated",
             "warning workspace-aggregator",
+            "unmet peer dependency",
             "warning Ignored scripts due to flag",
             "Waiting for the other yarn instance",
             "rimraf@",
