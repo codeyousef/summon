@@ -700,7 +700,7 @@ actual open class PlatformRenderer {
 </head>
 <body>
     <!-- Server-rendered content with hydration markers -->
-    <div id="summon-app" data-ssr="true" data-hydration-ready="false" data-summon-hydration="root">
+    <div id="${SummonConstants.DEFAULT_ROOT_ELEMENT_ID}" data-ssr="true" data-hydration-ready="false" data-summon-hydration="root">
         $bodyContent
     </div>
 

@@ -32,11 +32,19 @@ interface ProjectConfig {
 
 const projects: ProjectConfig[] = [
     // Generated Projects
-    { 
-        name: 'gen-js', 
-        type: 'generated', 
+    {
+        name: 'gen-js',
+        type: 'generated',
         generatorType: 'js',
         command: './gradlew jsBrowserDevelopmentRun',
+        readyUrl: 'http://localhost:8080'
+    },
+    // Fullstack Ktor — tests the SSR + client JS hydration path (GH #35)
+    {
+        name: 'gen-ktor',
+        type: 'generated',
+        generatorType: 'ktor',
+        command: './gradlew :backend:run',
         readyUrl: 'http://localhost:8080'
     }
 ];

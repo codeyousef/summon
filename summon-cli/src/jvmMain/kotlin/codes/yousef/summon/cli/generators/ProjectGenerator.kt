@@ -58,7 +58,8 @@ class ProjectGenerator(private val template: ProjectTemplate) {
         val packagePath = config.packageName.replace(".", "/")
         val fullstackTemplates = setOf("quarkus", "spring-boot", "ktor")
         val isFullstack = config.templateType in fullstackTemplates
-        val rootElementId = if (isFullstack) "app" else "root"
+        // Must match SummonConstants.DEFAULT_ROOT_ELEMENT_ID ("summon-app") for fullstack templates
+        val rootElementId = if (isFullstack) "summon-app" else "root"
 
         return mapOf(
             "PROJECT_NAME" to config.projectName,
@@ -256,6 +257,7 @@ repositories {
 }
 
 kotlin {
+    jvmToolchain(17)
     jvm {
     }
     js(IR) {
@@ -1154,6 +1156,9 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
+import org.slf4j.LoggerFactory
+
+private val log = LoggerFactory.getLogger("${variables["PACKAGE_NAME"]}.Application")
 
 fun main() {
     embeddedServer(Netty, port = 8080, module = Application::summonModule).start(wait = true)
@@ -1162,9 +1167,18 @@ fun main() {
 fun Application.summonModule() {
     routing {
         get("/") {
-            val renderer = PlatformRenderer()
-            val hydrated = renderer.renderComposableRootWithHydration { App() }
-            call.respondText(injectAppBundle(hydrated), ContentType.Text.Html)
+            try {
+                val renderer = PlatformRenderer()
+                val hydrated = renderer.renderComposableRootWithHydration { App() }
+                call.respondText(injectAppBundle(hydrated), ContentType.Text.Html)
+            } catch (e: Throwable) {
+                log.error("SSR rendering failed", e)
+                call.respondText(
+                    "<!DOCTYPE html><html><body><h1>SSR Error</h1><pre>${'$'}{e.stackTraceToString()}</pre></body></html>",
+                    ContentType.Text.Html,
+                    HttpStatusCode.InternalServerError
+                )
+            }
         }
         get("/static/app.js") {
             val resource = Thread.currentThread().contextClassLoader.getResourceAsStream("static/app.js")
@@ -1284,11 +1298,19 @@ class SummonController {
 
     @GetMapping("/", produces = [MediaType.TEXT_HTML_VALUE])
     fun index(): ResponseEntity<String> {
-        val renderer = PlatformRenderer()
-        val body = injectAppBundle(renderer.renderComposableRootWithHydration { App() })
-        return ResponseEntity.ok()
-            .contentType(MediaType.TEXT_HTML)
-            .body(body)
+        return try {
+            val renderer = PlatformRenderer()
+            val body = injectAppBundle(renderer.renderComposableRootWithHydration { App() })
+            ResponseEntity.ok()
+                .contentType(MediaType.TEXT_HTML)
+                .body(body)
+        } catch (e: Throwable) {
+            val logger = org.slf4j.LoggerFactory.getLogger(SummonController::class.java)
+            logger.error("SSR rendering failed", e)
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .contentType(MediaType.TEXT_HTML)
+                .body("<!DOCTYPE html><html><body><h1>SSR Error</h1><pre>${'$'}{e.stackTraceToString()}</pre></body></html>")
+        }
     }
 
     @GetMapping("/static/app.js", produces = ["application/javascript"])
@@ -1390,9 +1412,18 @@ class SummonResource {
     @GET
     @Produces(MediaType.TEXT_HTML)
     fun index(): Response {
-        val renderer = PlatformRenderer()
-        val body = injectAppBundle(renderer.renderComposableRootWithHydration { App() })
-        return Response.ok(body, MediaType.TEXT_HTML).build()
+        return try {
+            val renderer = PlatformRenderer()
+            val body = injectAppBundle(renderer.renderComposableRootWithHydration { App() })
+            Response.ok(body, MediaType.TEXT_HTML).build()
+        } catch (e: Throwable) {
+            val logger = java.util.logging.Logger.getLogger(SummonResource::class.java.name)
+            logger.log(java.util.logging.Level.SEVERE, "SSR rendering failed", e)
+            Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity("<!DOCTYPE html><html><body><h1>SSR Error</h1><pre>${'$'}{e.stackTraceToString()}</pre></body></html>")
+                .type(MediaType.TEXT_HTML)
+                .build()
+        }
     }
 
     @GET

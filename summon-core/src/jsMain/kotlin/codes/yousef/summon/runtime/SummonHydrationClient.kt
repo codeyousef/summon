@@ -80,7 +80,7 @@ object SummonHydrationClient {
 
             // Discover SSR root for proper hydration
             val rootElement: Element? =
-                document.getElementById("summon-app")
+                document.getElementById(SummonConstants.DEFAULT_ROOT_ELEMENT_ID)
                     ?: document.querySelector("[data-summon-hydration=\"root\"]")
 
             if (rootElement != null) {
@@ -92,7 +92,7 @@ object SummonHydrationClient {
                     }'"
                 )
             } else {
-                SummonLogger.warn("No SSR root element found (id='summon-app' or [data-summon-hydration=\"root\"]). Hydration will still attach handlers to existing DOM but without a known root container.")
+                SummonLogger.warn("No SSR root element found (id='${SummonConstants.DEFAULT_ROOT_ELEMENT_ID}' or [data-summon-hydration=\"root\"]). Hydration will still attach handlers to existing DOM but without a known root container.")
             }
 
             // Note: GlobalEventListener handles all event binding via event delegation

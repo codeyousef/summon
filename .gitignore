@@ -159,6 +159,7 @@ examples/portfolio-js/kotlin-js-store/
 # Generated JS/WASM artifacts in source tree
 summon-core/src/jvmMain/resources/static/*.js
 !summon-core/src/jvmMain/resources/static/summon-bootloader.js
+summon-core/src/jvmMain/resources/static/*.js.map
 summon-core/src/jvmMain/resources/static/*.wasm
 summon-core/src/jvmMain/resources/static/static/
 
@@ -169,7 +170,6 @@ e2e-tests/.playwright/
 
 # Lighthouse performance reports
 lighthouse-reports/
-summon-core/src/jvmMain/resources/static/summon-hydration.wasm
 
 # Unpacked dependencies / Build artifacts in root
 /kotlinx/

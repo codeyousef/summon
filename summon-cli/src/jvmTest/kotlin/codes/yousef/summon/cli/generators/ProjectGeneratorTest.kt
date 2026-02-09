@@ -499,6 +499,56 @@ class ProjectGeneratorTest {
         )
     }
 
+    /**
+     * Regression test for GitHub issue #35: "Root element with ID app not found".
+     *
+     * For every fullstack template the client-side Main.kt must call
+     * renderComposableRoot with the same element ID that the server renderer
+     * emits (currently "summon-app"), and the generated index.html must declare
+     * a root element with the matching ID.
+     */
+    @Test
+    fun `fullstack templates use consistent root element ID across client and server`() {
+        val expectedRootId = "summon-app"
+        val fullstackTypes = listOf("ktor", "spring-boot", "quarkus")
+
+        for (type in fullstackTypes) {
+            val typeDir = File(tempDir, "root-id-$type")
+            typeDir.mkdirs()
+
+            val template = ProjectTemplate.fromType(type)
+            val generator = ProjectGenerator(template)
+
+            val config = ProjectGenerator.Config(
+                projectName = "test-$type",
+                packageName = "com.example.test",
+                targetDirectory = typeDir,
+                templateType = type,
+                minimal = false
+            )
+
+            generator.generate(config)
+
+            // Client-side Main.kt should use the expected root element ID
+            val jsMain = File(typeDir, "app/src/jsMain/kotlin/com/example/test/Main.kt")
+            assertTrue(jsMain.exists(), "$type: JS Main.kt should exist")
+            val jsContent = jsMain.readText()
+            assertTrue(
+                jsContent.contains("renderComposableRoot(\"$expectedRootId\")"),
+                "$type: JS Main.kt should call renderComposableRoot(\"$expectedRootId\") but was:\n$jsContent"
+            )
+
+            // Generated index.html root element should match
+            val indexHtml = File(typeDir, "app/src/jsMain/resources/index.html")
+            assertTrue(indexHtml.exists(), "$type: index.html should exist")
+            val htmlContent = indexHtml.readText()
+            assertTrue(
+                htmlContent.contains("id=\"$expectedRootId\""),
+                "$type: index.html should contain id=\"$expectedRootId\" but was:\n$htmlContent"
+            )
+        }
+    }
+
     @Test
     fun `fullstack quarkus template adds health test`() {
         val template = ProjectTemplate.fromType("quarkus")
@@ -539,5 +589,84 @@ class ProjectGeneratorTest {
             backendBuild.contains("SummonResourceTestKt"),
             "Unit test task should target the generated SummonResourceTestKt entry point"
         )
+    }
+
+    /**
+     * Regression test: the app module must target the same JVM toolchain as the
+     * backend so that `./gradlew :backend:run` can load App.kt classes at runtime.
+     *
+     * Without jvmToolchain(17) in the app module, a system JDK > 17 compiles the
+     * app to a higher class file version than the backend's JDK 17 can load,
+     * causing UnsupportedClassVersionError at runtime.
+     */
+    @Test
+    fun `fullstack app module targets JDK 17 toolchain to match backend`() {
+        val fullstackTypes = listOf("ktor", "spring-boot", "quarkus")
+
+        for (type in fullstackTypes) {
+            val typeDir = File(tempDir, "toolchain-$type")
+            typeDir.mkdirs()
+
+            val template = ProjectTemplate.fromType(type)
+            val generator = ProjectGenerator(template)
+            val config = ProjectGenerator.Config(
+                projectName = "test-$type",
+                packageName = "com.example.test",
+                targetDirectory = typeDir,
+                templateType = type,
+                minimal = false
+            )
+
+            generator.generate(config)
+
+            val appBuild = File(typeDir, "app/build.gradle.kts")
+            assertTrue(appBuild.exists(), "$type: app/build.gradle.kts should exist")
+            val content = appBuild.readText()
+            assertTrue(
+                content.contains("jvmToolchain(17)"),
+                "$type: app module must set jvmToolchain(17) to match backend but was:\n$content"
+            )
+        }
+    }
+
+    /**
+     * The SSR route in generated server templates must have error handling so
+     * that rendering failures produce a visible error page instead of a silent
+     * HTTP 500 with an empty body.
+     */
+    @Test
+    fun `fullstack server templates include SSR error handling`() {
+        val fullstackTypes = listOf("ktor", "spring-boot", "quarkus")
+
+        for (type in fullstackTypes) {
+            val typeDir = File(tempDir, "errhandling-$type")
+            typeDir.mkdirs()
+
+            val template = ProjectTemplate.fromType(type)
+            val generator = ProjectGenerator(template)
+            val config = ProjectGenerator.Config(
+                projectName = "test-$type",
+                packageName = "com.example.test",
+                targetDirectory = typeDir,
+                templateType = type,
+                minimal = false
+            )
+
+            generator.generate(config)
+
+            val serverDir = File(typeDir, "backend/src/main/kotlin/com/example/test")
+            val serverFiles = serverDir.listFiles()?.filter { it.extension == "kt" } ?: emptyList()
+            assertTrue(serverFiles.isNotEmpty(), "$type: should generate server file(s)")
+
+            val serverContent = serverFiles.joinToString("\n") { it.readText() }
+            assertTrue(
+                serverContent.contains("catch (e: Throwable)"),
+                "$type: SSR route should catch Throwable to surface errors"
+            )
+            assertTrue(
+                serverContent.contains("SSR Error"),
+                "$type: SSR error handler should return an error page"
+            )
+        }
     }
 }

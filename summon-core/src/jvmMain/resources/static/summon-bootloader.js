@@ -155,6 +155,7 @@
 
         loadHydrationScript: function() {
             var self = this;
+            // Keep in sync with SummonConstants.DEFAULT_ROOT_ELEMENT_ID in Kotlin
             var app = document.getElementById('summon-app');
             if (!app) return Promise.reject(new Error('summon-app not found'));
 
@@ -211,6 +212,7 @@
     // Error handling for hydration scripts
     window.addEventListener('error', function(event) {
         if (event.filename && (event.filename.indexOf('summon-hydration') !== -1 || event.filename.indexOf('wasm') !== -1)) {
+            // Keep in sync with SummonConstants.DEFAULT_ROOT_ELEMENT_ID in Kotlin
             var app = document.getElementById('summon-app');
             if (app && !app.hasAttribute('data-hydration-ready')) {
                 app.setAttribute('data-hydration-failed', 'true');

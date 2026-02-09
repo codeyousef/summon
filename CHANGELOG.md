@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0.1] - 2026-02-09
+
+### Fixed
+
+- **SSR 500 error in generated fullstack projects** - The app module was missing `jvmToolchain(17)`, causing
+  `UnsupportedClassVersionError` when `./gradlew :backend:run` loaded app classes compiled with a higher JDK
+- **Silent SSR failures** - Added error handling (`catch Throwable`) to the SSR route in all generated server
+  templates (Ktor, Spring Boot, Quarkus) so rendering errors produce a visible error page and log output instead of an
+  empty HTTP 500
+
 ## [0.7.0.0] - 2026-02-05
 
 ### Added
