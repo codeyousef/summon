@@ -464,7 +464,7 @@ class ProjectGeneratorTest {
         val jsBootstrap = File(tempDir, "app/src/jsMain/kotlin/com/example/full/Main.kt")
         assertTrue(jsBootstrap.exists(), "JS bootstrap should exist inside the app module")
         val jsContent = jsBootstrap.readText()
-        assertTrue(jsContent.contains("renderComposableRoot("), "JS bootstrap should use renderComposableRoot API")
+        assertTrue(jsContent.contains("hydrateComposableRoot("), "JS bootstrap should use hydrateComposableRoot API")
 
         val serverFile = File(tempDir, "backend/src/main/kotlin/com/example/full/Application.kt")
         assertTrue(serverFile.exists(), "Ktor server entrypoint should be generated in backend module")
@@ -534,8 +534,8 @@ class ProjectGeneratorTest {
             assertTrue(jsMain.exists(), "$type: JS Main.kt should exist")
             val jsContent = jsMain.readText()
             assertTrue(
-                jsContent.contains("renderComposableRoot(\"$expectedRootId\")"),
-                "$type: JS Main.kt should call renderComposableRoot(\"$expectedRootId\") but was:\n$jsContent"
+                jsContent.contains("hydrateComposableRoot(\"$expectedRootId\")"),
+                "$type: JS Main.kt should call hydrateComposableRoot(\"$expectedRootId\") but was:\n$jsContent"
             )
 
             // Generated index.html root element should match

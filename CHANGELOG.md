@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0.2] - 2026-02-10
+
+### Fixed
+
+- **Composable rendered twice in fullstack SSR projects** - The server-rendered HTML and the
+  client-side app both appeared on screen because the generated client `Main.kt` used
+  `renderComposableRoot` instead of `hydrateComposableRoot`, causing the JS app to append below
+  the static SSR content rather than replacing it
+- **`renderComposable` safety net** - Calling `renderComposableRoot` on an SSR container now
+  always clears existing content before rendering, preventing duplicate output even if
+  `hydrateComposableRoot` is not used
+
 ## [0.7.0.1] - 2026-02-09
 
 ### Fixed

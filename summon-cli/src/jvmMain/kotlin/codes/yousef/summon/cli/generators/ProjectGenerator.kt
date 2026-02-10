@@ -1020,10 +1020,10 @@ fun main() {
         return """
 package ${variables["PACKAGE_NAME"]}
 
-import codes.yousef.summon.renderComposableRoot
+import codes.yousef.summon.hydrateComposableRoot
 
 fun main() {
-    renderComposableRoot("${variables["ROOT_ELEMENT_ID"]}") {
+    hydrateComposableRoot("${variables["ROOT_ELEMENT_ID"]}") {
         App()
     }
 }

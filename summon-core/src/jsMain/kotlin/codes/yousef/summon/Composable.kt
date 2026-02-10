@@ -1,7 +1,10 @@
 package codes.yousef.summon
 
 import codes.yousef.summon.annotation.Composable
-import codes.yousef.summon.runtime.*
+import codes.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.runtime.RecomposerHolder
+import codes.yousef.summon.runtime.setPlatformRenderer
 import org.w3c.dom.HTMLElement
 
 /**
@@ -29,12 +32,11 @@ fun renderComposable(renderer: PlatformRenderer, composable: @Composable () -> U
             container.getAttribute("data-ssr") == "true"
 
     if (isSSRContainer) {
-        js("console.warn('renderComposable called on SSR container - this may break hydration. Use SummonHydrationClient instead.');")
-        // Don't clear the container in SSR mode - it contains server-rendered content
-    } else {
-        // Clear container only for client-side rendering
-        container.innerHTML = ""
+        js("console.warn('renderComposable called on SSR container - use hydrateComposableRoot for hydration. Clearing SSR content to avoid duplicates.');")
     }
+
+    // Always clear the container to prevent duplicate rendering
+    container.innerHTML = ""
 
     try {
         setPlatformRenderer(renderer)
