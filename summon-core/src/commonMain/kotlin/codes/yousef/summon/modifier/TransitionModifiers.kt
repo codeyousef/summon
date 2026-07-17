@@ -118,7 +118,22 @@ fun Modifier.focus(focusModifier: Modifier): Modifier =
 fun Modifier.focus(styles: Map<String, String>): Modifier {
     if (styles.isEmpty()) return this
     val focusString = styles.entries.joinToString(";") { "${it.key}:${it.value}" }
-    return attribute("data-focus-styles", focusString)
+    return withConditionalStyle(
+        StateStyleDefinition(ConditionalStyleState.FOCUS, styles)
+    ).attribute("data-focus-styles", focusString)
+}
+
+/** Applies styles when keyboard-style focus should be visibly indicated. */
+fun Modifier.focusVisible(focusVisibleModifier: Modifier): Modifier =
+    focusVisible(focusVisibleModifier.styles)
+
+/** Applies styles while the element matches the `:focus-visible` state. */
+fun Modifier.focusVisible(styles: Map<String, String>): Modifier {
+    if (styles.isEmpty()) return this
+    val serialized = styles.entries.joinToString(";") { "${it.key}:${it.value}" }
+    return withConditionalStyle(
+        StateStyleDefinition(ConditionalStyleState.FOCUS_VISIBLE, styles)
+    ).attribute("data-focus-visible-styles", serialized)
 }
 
 /**
@@ -139,7 +154,9 @@ fun Modifier.active(activeModifier: Modifier): Modifier =
 fun Modifier.active(styles: Map<String, String>): Modifier {
     if (styles.isEmpty()) return this
     val activeString = styles.entries.joinToString(";") { "${it.key}:${it.value}" }
-    return attribute("data-active-styles", activeString)
+    return withConditionalStyle(
+        StateStyleDefinition(ConditionalStyleState.ACTIVE, styles)
+    ).attribute("data-active-styles", activeString)
 }
 
 /**
@@ -160,7 +177,9 @@ fun Modifier.focusWithin(focusWithinModifier: Modifier): Modifier =
 fun Modifier.focusWithin(styles: Map<String, String>): Modifier {
     if (styles.isEmpty()) return this
     val focusWithinString = styles.entries.joinToString(";") { "${it.key}:${it.value}" }
-    return attribute("data-focus-within-styles", focusWithinString)
+    return withConditionalStyle(
+        StateStyleDefinition(ConditionalStyleState.FOCUS_WITHIN, styles)
+    ).attribute("data-focus-within-styles", focusWithinString)
 }
 
 /**
@@ -181,7 +200,9 @@ fun Modifier.firstChild(firstChildModifier: Modifier): Modifier =
 fun Modifier.firstChild(styles: Map<String, String>): Modifier {
     if (styles.isEmpty()) return this
     val firstChildString = styles.entries.joinToString(";") { "${it.key}:${it.value}" }
-    return attribute("data-first-child-styles", firstChildString)
+    return withConditionalStyle(
+        StateStyleDefinition(ConditionalStyleState.FIRST_CHILD, styles)
+    ).attribute("data-first-child-styles", firstChildString)
 }
 
 /**
@@ -202,7 +223,9 @@ fun Modifier.lastChild(lastChildModifier: Modifier): Modifier =
 fun Modifier.lastChild(styles: Map<String, String>): Modifier {
     if (styles.isEmpty()) return this
     val lastChildString = styles.entries.joinToString(";") { "${it.key}:${it.value}" }
-    return attribute("data-last-child-styles", lastChildString)
+    return withConditionalStyle(
+        StateStyleDefinition(ConditionalStyleState.LAST_CHILD, styles)
+    ).attribute("data-last-child-styles", lastChildString)
 }
 
 /**
@@ -225,7 +248,9 @@ fun Modifier.nthChild(n: String, nthChildModifier: Modifier): Modifier =
 fun Modifier.nthChild(n: String, styles: Map<String, String>): Modifier {
     if (styles.isEmpty()) return this
     val nthChildString = styles.entries.joinToString(";") { "${it.key}:${it.value}" }
-    return attribute("data-nth-child-styles", "$n:$nthChildString")
+    return withConditionalStyle(
+        StateStyleDefinition(ConditionalStyleState.NTH_CHILD, styles, n)
+    ).attribute("data-nth-child-styles", "$n:$nthChildString")
 }
 
 /**
@@ -246,7 +271,9 @@ fun Modifier.onlyChild(onlyChildModifier: Modifier): Modifier =
 fun Modifier.onlyChild(styles: Map<String, String>): Modifier {
     if (styles.isEmpty()) return this
     val onlyChildString = styles.entries.joinToString(";") { "${it.key}:${it.value}" }
-    return attribute("data-only-child-styles", onlyChildString)
+    return withConditionalStyle(
+        StateStyleDefinition(ConditionalStyleState.ONLY_CHILD, styles)
+    ).attribute("data-only-child-styles", onlyChildString)
 }
 
 /**
@@ -267,7 +294,9 @@ fun Modifier.visited(visitedModifier: Modifier): Modifier =
 fun Modifier.visited(styles: Map<String, String>): Modifier {
     if (styles.isEmpty()) return this
     val visitedString = styles.entries.joinToString(";") { "${it.key}:${it.value}" }
-    return attribute("data-visited-styles", visitedString)
+    return withConditionalStyle(
+        StateStyleDefinition(ConditionalStyleState.VISITED, styles)
+    ).attribute("data-visited-styles", visitedString)
 }
 
 /**
@@ -288,7 +317,9 @@ fun Modifier.disabledStyles(disabledModifier: Modifier): Modifier =
 fun Modifier.disabledStyles(styles: Map<String, String>): Modifier {
     if (styles.isEmpty()) return this
     val disabledString = styles.entries.joinToString(";") { "${it.key}:${it.value}" }
-    return attribute("data-disabled-styles", disabledString)
+    return withConditionalStyle(
+        StateStyleDefinition(ConditionalStyleState.DISABLED, styles)
+    ).attribute("data-disabled-styles", disabledString)
 }
 
 /**
@@ -309,5 +340,7 @@ fun Modifier.checkedStyles(checkedModifier: Modifier): Modifier =
 fun Modifier.checkedStyles(styles: Map<String, String>): Modifier {
     if (styles.isEmpty()) return this
     val checkedString = styles.entries.joinToString(";") { "${it.key}:${it.value}" }
-    return attribute("data-checked-styles", checkedString)
+    return withConditionalStyle(
+        StateStyleDefinition(ConditionalStyleState.CHECKED, styles)
+    ).attribute("data-checked-styles", checkedString)
 }

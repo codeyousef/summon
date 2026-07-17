@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0.3] - 2026-07-17
+
+### Added
+
+- **Typed stylesheet DSL** - Structured selectors, pseudo-classes, pseudo-elements, media queries,
+  keyframes, rule priorities, and animation values for declaring reusable styles without raw CSS
+- **Conditional modifier styles** - State, scoped-selector, and media-query styles now render on JVM
+  SSR and attach the required state hooks in browser runtimes
+- **Typed CSS modifiers** - Added APIs for text wrapping and overflow, outlines, logical insets,
+  scrollbar styling, grid tracks, color schemes, list styles, sizing, and text shadows
+- **Native form metadata** - Added search and date inputs, maximum-length and numeric-step constraints,
+  radio groups, and submit-button name, value, and form targeting
+
+### Changed
+
+- **JVM head rendering** - Custom head declarations now supersede matching defaults, declarations made
+  during composition are included in the final document, and repeated renders do not leak head state
+- **Typed rendering coverage** - Expanded typed background, border, accessibility, transition, grid, and
+  text helpers used by framework-only SSR applications
+
+### Fixed
+
+- **Head output escaping** - Titles, attributes, and raw-text end tags are escaped to prevent malformed
+  or prematurely terminated head elements
+- **Binary compatibility** - Preserved the existing JVM signatures for form fields and buttons while
+  exposing the new optional form metadata
+
 ## [0.7.0.2] - 2026-02-10
 
 ### Fixed

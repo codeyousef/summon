@@ -2,6 +2,12 @@ package codes.yousef.summon.modifier
 
 import kotlin.jvm.JvmName
 
+/** Controls whether a background scrolls with the page or stays anchored to the viewport. */
+enum class BackgroundAttachment(val value: String) {
+    Scroll("scroll"),
+    Fixed("fixed"),
+    Local("local")
+}
 
 /**
  * Background-related [Modifier] helpers extracted from the legacy `StylingModifiers` monolith.
@@ -37,6 +43,10 @@ fun Modifier.backgroundPosition(value: String): Modifier =
  */
 fun Modifier.backgroundRepeat(value: String): Modifier =
     style("background-repeat", value)
+
+/** Applies a typed CSS `background-attachment` declaration. */
+fun Modifier.backgroundAttachment(value: BackgroundAttachment): Modifier =
+    style("background-attachment", value.value)
 
 /**
  * Applies a CSS `background-clip` declaration using a raw string value.

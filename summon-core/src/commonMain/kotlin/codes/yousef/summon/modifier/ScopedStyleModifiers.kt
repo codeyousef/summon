@@ -129,8 +129,8 @@ enum class SelectorType(val combinator: String) {
 data class ScopedStyleDefinition(
     val selector: String,
     val selectorType: SelectorType,
-    val styles: Map<String, String>
-)
+    override val styles: Map<String, String>
+) : ConditionalStyleDefinition
 
 // ============================================
 // Scoped Style Modifier Functions
@@ -243,7 +243,9 @@ private fun Modifier.scopedStyle(
         "$existingScoped||$encoded"  // Use || as separator between definitions
     }
 
-    return attribute("data-scoped-styles", newScoped)
+    return withConditionalStyle(
+        ScopedStyleDefinition(selector, selectorType, scopedModifier.styles)
+    ).attribute("data-scoped-styles", newScoped)
 }
 
 // ============================================

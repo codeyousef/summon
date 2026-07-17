@@ -28,7 +28,14 @@ inline fun Modifier.applyIf(condition: Boolean, block: Modifier.() -> Modifier):
  * Creates a clone of this modifier
  */
 fun Modifier.clone(): Modifier {
-    return ModifierImpl(styles.toMap(), attributes.toMap(), eventHandlers.toMap(), complexEventHandlers.toMap(), pseudoElements.toList())
+    return ModifierImpl(
+        styles.toMap(),
+        attributes.toMap(),
+        eventHandlers.toMap(),
+        complexEventHandlers.toMap(),
+        pseudoElements.toList(),
+        conditionalStyles.toList()
+    )
 }
 
 /**

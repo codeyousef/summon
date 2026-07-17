@@ -19,14 +19,21 @@ object StyleInjector {
         return "$prefix-${js("Math.random().toString(36).substring(2, 10)") as String}"
     }
 
+    private fun important(value: String): String =
+        if (value.contains("!important", ignoreCase = true)) value else "$value !important"
+
     /**
      * Injects CSS for pseudo-selector styles and returns the class name
      */
     fun injectPseudoSelectorStyles(element: Element, pseudoSelector: String, styles: Map<String, String>): String {
-        val uniqueClass = generateUniqueClass("pseudo-$pseudoSelector")
+        // Pseudo selectors contain ':' and sometimes parentheses, which are not safe in an
+        // unescaped class name. Keep the generated class identifier syntax-neutral.
+        val uniqueClass = generateUniqueClass("pseudo")
         element.classList.add(uniqueClass)
 
-        val cssRules = styles.entries.joinToString("\n  ") { "${it.key}: ${it.value};" }
+        val cssRules = styles.entries.joinToString("\n  ") {
+            "${toKebabCase(it.key)}: ${important(it.value)};"
+        }
         val cssText = ".$uniqueClass$pseudoSelector {\n  $cssRules\n}"
 
         val styleId = "pseudo-$uniqueClass"
@@ -43,7 +50,9 @@ object StyleInjector {
         val uniqueClass = generateUniqueClass("media")
         element.classList.add(uniqueClass)
 
-        val cssRules = styles.entries.joinToString("\n    ") { "${it.key}: ${it.value};" }
+        val cssRules = styles.entries.joinToString("\n    ") {
+            "${toKebabCase(it.key)}: ${important(it.value)};"
+        }
         val cssText = "@media $mediaQuery {\n  .$uniqueClass {\n    $cssRules\n  }\n}"
 
         val styleId = "media-$uniqueClass"
@@ -127,7 +136,7 @@ object StyleInjector {
         }
 
         val cssRules = styles.entries.joinToString("\n    ") {
-            "${toKebabCase(it.key)}: ${it.value};"
+            "${toKebabCase(it.key)}: ${important(it.value)};"
         }
         val cssText = ".$uniqueClass$combinator$targetSelector {\n    $cssRules\n}"
 
@@ -180,4 +189,3 @@ object StyleInjector {
         }
     }
 }
-

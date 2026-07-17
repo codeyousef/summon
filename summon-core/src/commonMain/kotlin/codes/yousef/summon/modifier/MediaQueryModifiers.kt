@@ -252,7 +252,9 @@ fun Modifier.mediaQuery(query: MediaQuery, builder: Modifier.() -> Modifier): Mo
         "$existingQueries|$queryString{$stylesString}"
     }
 
-    return attribute("data-media-queries", newQueries)
+    return withConditionalStyle(
+        MediaStyleDefinition(query, mediaModifier.styles)
+    ).attribute("data-media-queries", newQueries)
 }
 
 /**

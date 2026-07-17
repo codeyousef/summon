@@ -192,6 +192,7 @@ import kotlin.js.JsName
  *
  * @property styles Map of CSS property names to values
  * @property attributes Map of HTML attribute names to values (renamed to `htmlAttributes` in JS)
+ * @property conditionalStyles Structured state, media, and scoped rules for platform renderers
  * @constructor Creates a new Modifier with the specified styles and attributes
  * @see codes.yousef.summon.runtime.PlatformRenderer
  * @see codes.yousef.summon.components
@@ -203,6 +204,7 @@ interface Modifier {
     val eventHandlers: Map<String, () -> Unit> get() = emptyMap()
     val complexEventHandlers: Map<String, (Any) -> Unit> get() = emptyMap()
     val pseudoElements: List<PseudoElementDefinition> get() = emptyList()
+    val conditionalStyles: List<ConditionalStyleDefinition> get() = emptyList()
 
     /**
      * Combines this modifier with another modifier.
@@ -227,7 +229,8 @@ data class ModifierImpl(
     override val attributes: Map<String, String> = emptyMap(),
     override val eventHandlers: Map<String, () -> Unit> = emptyMap(),
     override val complexEventHandlers: Map<String, (Any) -> Unit> = emptyMap(),
-    override val pseudoElements: List<PseudoElementDefinition> = emptyList()
+    override val pseudoElements: List<PseudoElementDefinition> = emptyList(),
+    override val conditionalStyles: List<ConditionalStyleDefinition> = emptyList()
 ) : Modifier {
     override infix fun then(other: Modifier): Modifier {
         return if (other === Modifier) this
@@ -238,7 +241,8 @@ data class ModifierImpl(
                 attributes = this.attributes + other.attributes,
                 eventHandlers = this.eventHandlers + other.eventHandlers,
                 complexEventHandlers = this.complexEventHandlers + other.complexEventHandlers,
-                pseudoElements = this.pseudoElements + other.pseudoElements
+                pseudoElements = this.pseudoElements + other.pseudoElements,
+                conditionalStyles = this.conditionalStyles + other.conditionalStyles
             )
         }
     }
@@ -251,6 +255,7 @@ data class ModifierImpl(
  * @param attributes Initial map of HTML attributes
  * @param eventHandlers Initial map of event handlers
  * @param pseudoElements Initial list of pseudo-element definitions
+ * @param conditionalStyles Initial list of structured conditional style definitions
  * @return A new ModifierImpl instance
  */
 @Suppress("FunctionName")
@@ -258,8 +263,9 @@ fun Modifier(
     styles: Map<String, String> = emptyMap(),
     attributes: Map<String, String> = emptyMap(),
     eventHandlers: Map<String, () -> Unit> = emptyMap(),
-    pseudoElements: List<PseudoElementDefinition> = emptyList()
-): Modifier = ModifierImpl(styles, attributes, eventHandlers, emptyMap(), pseudoElements)
+    pseudoElements: List<PseudoElementDefinition> = emptyList(),
+    conditionalStyles: List<ConditionalStyleDefinition> = emptyList()
+): Modifier = ModifierImpl(styles, attributes, eventHandlers, emptyMap(), pseudoElements, conditionalStyles)
 
 /**
  * Generic style method for adding any CSS property.
@@ -594,13 +600,18 @@ fun Modifier.attributes(attrs: Map<String, String>): Modifier =
 fun Modifier.hover(hoverStyles: Map<String, String>): Modifier {
     val currentAttributes = (this as? ModifierImpl)?.attributes ?: emptyMap()
     val currentHover = currentAttributes["data-hover-styles"]?.let { prev ->
-        prev.splitCompat(';').associate {
-            val parts = it.splitCompat(':')
-            parts[0].trim() to parts[1].trim()
-        } + hoverStyles
+        prev.splitCompat(';')
+            .filter { it.isNotBlank() }
+            .mapNotNull { rule ->
+                val parts = rule.splitCompat(':', limit = 2)
+                if (parts.size == 2) parts[0].trim() to parts[1].trim() else null
+            }
+            .toMap() + hoverStyles
     } ?: hoverStyles
     val hoverString = currentHover.entries.joinToString(";") { "${it.key}:${it.value}" }
-    return attribute("data-hover-styles", hoverString)
+    return withConditionalStyle(
+        StateStyleDefinition(ConditionalStyleState.HOVER, hoverStyles)
+    ).attribute("data-hover-styles", hoverString)
 }
 
 /**

@@ -335,6 +335,11 @@ actual open class PlatformRenderer {
                     StyleInjector.injectPseudoSelectorStyles(element, ":focus", styles)
                 }
 
+                key == "data-focus-visible-styles" -> {
+                    val styles = parseStyleString(value)
+                    StyleInjector.injectPseudoSelectorStyles(element, ":focus-visible", styles)
+                }
+
                 key == "data-active-styles" -> {
                     val styles = parseStyleString(value)
                     StyleInjector.injectPseudoSelectorStyles(element, ":active", styles)
@@ -356,7 +361,12 @@ actual open class PlatformRenderer {
                 }
 
                 key == "data-nth-child-styles" -> {
-                    val parts = value.split("|||")
+                    val parts = if (value.contains("|||")) {
+                        value.split("|||", limit = 2)
+                    } else {
+                        // The common modifier API historically encoded nth-child as "selector:styles".
+                        value.split(":", limit = 2)
+                    }
                     if (parts.size == 2) {
                         val selector = parts[0]
                         val styles = parseStyleString(parts[1])
@@ -394,6 +404,13 @@ actual open class PlatformRenderer {
                             StyleInjector.injectMediaQueryStyles(element, mediaQuery, styles)
                         }
                     }
+                }
+
+                key == "data-scoped-styles" -> {
+                    // Keep the compatibility attribute because processScopedStyles reads the
+                    // serialized definitions from the host element.
+                    element.setAttribute(key, value)
+                    StyleInjector.processScopedStyles(element)
                 }
 
                 else -> {
@@ -857,12 +874,9 @@ actual open class PlatformRenderer {
         modifier: Modifier,
         content: @Composable (FlowContentCompat.() -> Unit)
     ) {
-        val rowModifier = ModifierImpl(
-            modifier.styles + mapOf(
-                "display" to "flex",
-                "flexDirection" to "row"
-            )
-        )
+        val rowModifier = modifier
+            .style("display", "flex")
+            .style("flexDirection", "row")
         createElement("div", rowModifier) {
             content(createFlowContent("div"))
         }
@@ -1438,11 +1452,7 @@ actual open class PlatformRenderer {
         content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         // Create a block element (div with display: block)
-        val blockModifier = ModifierImpl(
-            modifier.styles + mapOf(
-                "display" to "block"
-            )
-        )
+        val blockModifier = modifier.style("display", "block")
 
         createElement("div", blockModifier) {
             content(createFlowContent("div"))
@@ -1454,11 +1464,7 @@ actual open class PlatformRenderer {
         content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         // Create an inline element (span with display: inline)
-        val inlineModifier = ModifierImpl(
-            modifier.styles + mapOf(
-                "display" to "inline"
-            )
-        )
+        val inlineModifier = modifier.style("display", "inline")
 
         createElement("span", inlineModifier) {
             content(createFlowContent("span"))

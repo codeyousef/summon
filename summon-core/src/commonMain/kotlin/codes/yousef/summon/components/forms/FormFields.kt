@@ -24,6 +24,8 @@ fun FormTextField(
     required: Boolean = false,
     type: FormTextFieldType = FormTextFieldType.Text,
     autoComplete: String? = null,
+    maxLength: Int? = null,
+    step: Number? = null,
     modifier: Modifier = Modifier(),
     fieldModifier: Modifier = Modifier(),
     id: String? = null
@@ -47,6 +49,17 @@ fun FormTextField(
         placeholder?.let { inputModifier = inputModifier.attribute("placeholder", it) }
         if (required) inputModifier = inputModifier.attribute("required", "true")
         autoComplete?.let { inputModifier = inputModifier.attribute("autocomplete", it) }
+        maxLength?.let {
+            require(it > 0) { "FormTextField maxLength must be greater than zero" }
+            inputModifier = inputModifier.attribute("maxlength", it.toString())
+        }
+        step?.let {
+            val numericStep = it.toDouble()
+            require(numericStep.isFinite() && numericStep > 0.0) {
+                "FormTextField step must be a finite number greater than zero"
+            }
+            inputModifier = inputModifier.attribute("step", it.toString())
+        }
         metadata.describedById?.let { inputModifier = inputModifier.ariaAttribute("describedby", it) }
         metadata.errorMessageId?.let { inputModifier = inputModifier.ariaAttribute("errormessage", it) }
 
@@ -57,6 +70,39 @@ fun FormTextField(
         )
     }
 }
+
+/** Retains the pre-limit JVM signature for already compiled 0.7.x consumers. */
+@Deprecated("Binary compatibility bridge", level = DeprecationLevel.HIDDEN)
+@Composable
+fun FormTextField(
+    name: String,
+    label: String,
+    defaultValue: String = "",
+    placeholder: String? = null,
+    description: String? = null,
+    validationMessage: String? = null,
+    required: Boolean = false,
+    type: FormTextFieldType = FormTextFieldType.Text,
+    autoComplete: String? = null,
+    modifier: Modifier = Modifier(),
+    fieldModifier: Modifier = Modifier(),
+    id: String? = null
+) = FormTextField(
+    name = name,
+    label = label,
+    defaultValue = defaultValue,
+    placeholder = placeholder,
+    description = description,
+    validationMessage = validationMessage,
+    required = required,
+    type = type,
+    autoComplete = autoComplete,
+    maxLength = null,
+    step = null,
+    modifier = modifier,
+    fieldModifier = fieldModifier,
+    id = id
+)
 
 /**
  * Multi-line text input rendered via `<textarea>`.
@@ -250,6 +296,62 @@ fun FormCheckbox(
 }
 
 /**
+ * A native, server-submitted radio group. Each option shares [name], so the browser submits the
+ * selected option without requiring hydration or a client callback.
+ */
+@Composable
+fun FormRadioGroup(
+    name: String,
+    label: String,
+    options: List<FormRadioOption>,
+    selectedValue: String? = null,
+    required: Boolean = false,
+    modifier: Modifier = Modifier(),
+    optionModifier: Modifier = Modifier(),
+    id: String? = null
+) {
+    require(options.isNotEmpty()) { "FormRadioGroup options must not be empty" }
+    require(options.map { it.value }.distinct().size == options.size) {
+        "FormRadioGroup option values must be unique"
+    }
+
+    val renderer = LocalPlatformRenderer.current
+    val groupId = rememberFieldId(name, id, "radio")
+
+    Column(modifier = FormDefaults.fieldContainerModifier().then(modifier)) {
+        Text(text = label, modifier = FormDefaults.labelModifier().id("$groupId-label"))
+        options.forEachIndexed { index, option ->
+            val optionId = "$groupId-$index"
+            Row(
+                modifier = optionModifier
+                    .style("align-items", "center")
+                    .style("gap", Spacing.xs)
+            ) {
+                var inputModifier = FormDefaults.checkboxInputModifier()
+                    .id(optionId)
+                    .attribute("name", name)
+                    .attribute("value", option.value)
+                    .ariaAttribute("labelledby", "$groupId-label")
+                if (required) inputModifier = inputModifier.attribute("required", "true")
+                if (option.disabled) inputModifier = inputModifier.attribute("disabled", "true")
+
+                renderer.renderNativeInput(
+                    type = "radio",
+                    modifier = inputModifier,
+                    value = option.value,
+                    isChecked = option.value == selectedValue
+                )
+                Label(
+                    text = option.label,
+                    modifier = FormDefaults.checkboxLabelModifier(),
+                    forElement = optionId
+                )
+            }
+        }
+    }
+}
+
+/**
  * Semantic button that triggers native form submission or reset behaviour.
  */
 @Composable
@@ -259,7 +361,10 @@ fun FormButton(
     variant: FormButtonVariant = FormButtonVariant.Primary,
     modifier: Modifier = Modifier(),
     fullWidth: Boolean = true,
-    ariaLabel: String? = null
+    ariaLabel: String? = null,
+    name: String? = null,
+    value: String? = null,
+    formId: String? = null
 ) {
     val renderer = LocalPlatformRenderer.current
     var buttonModifier = FormDefaults.buttonModifier(variant)
@@ -271,6 +376,9 @@ fun FormButton(
     if (!ariaLabel.isNullOrBlank()) {
         buttonModifier = buttonModifier.ariaAttribute("label", ariaLabel)
     }
+    name?.let { buttonModifier = buttonModifier.attribute("name", it) }
+    value?.let { buttonModifier = buttonModifier.attribute("value", it) }
+    formId?.let { buttonModifier = buttonModifier.attribute("form", it) }
 
     renderer.renderNativeButton(
         type = type.value,
@@ -279,3 +387,25 @@ fun FormButton(
         Text(text = text)
     }
 }
+
+/** Retains the pre-submit-metadata JVM signature for already compiled 0.7.x consumers. */
+@Deprecated("Binary compatibility bridge", level = DeprecationLevel.HIDDEN)
+@Composable
+fun FormButton(
+    text: String,
+    type: FormButtonType = FormButtonType.Submit,
+    variant: FormButtonVariant = FormButtonVariant.Primary,
+    modifier: Modifier = Modifier(),
+    fullWidth: Boolean = true,
+    ariaLabel: String? = null
+) = FormButton(
+    text = text,
+    type = type,
+    variant = variant,
+    modifier = modifier,
+    fullWidth = fullWidth,
+    ariaLabel = ariaLabel,
+    name = null,
+    value = null,
+    formId = null
+)

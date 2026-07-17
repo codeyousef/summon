@@ -49,7 +49,8 @@ private fun Modifier.withPseudoElement(
         host.attributes,
         host.eventHandlers,
         host.complexEventHandlers,
-        host.pseudoElements + definition
+        host.pseudoElements + definition,
+        host.conditionalStyles
     )
 }
 
