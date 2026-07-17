@@ -32,14 +32,23 @@ enum class FormTextFieldType(val htmlType: String) {
     Email("email"),
     Url("url"),
     Number("number"),
+    Date("date"),
     Password("password"),
-    Tel("tel")
+    Tel("tel"),
+    Search("search")
 }
 
 /**
  * Represents a selectable option for [FormSelect].
  */
 data class FormSelectOption(
+    val value: String,
+    val label: String,
+    val disabled: Boolean = false
+)
+
+/** Represents one native option in a server-submitted radio group. */
+data class FormRadioOption(
     val value: String,
     val label: String,
     val disabled: Boolean = false

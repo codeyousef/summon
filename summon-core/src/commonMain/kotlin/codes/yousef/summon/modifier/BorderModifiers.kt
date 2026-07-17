@@ -49,3 +49,11 @@ fun Modifier.border(
     radius?.let { result = result.borderRadius(it) }
     return result
 }
+
+/** Applies a complete border declaration to one physical side without affecting the others. */
+fun Modifier.border(
+    side: BorderSide,
+    width: Number,
+    style: BorderStyle,
+    color: String
+): Modifier = style("border-${side.value}", "${width.px} ${style.value} $color")

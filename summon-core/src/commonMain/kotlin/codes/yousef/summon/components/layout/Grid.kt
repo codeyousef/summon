@@ -223,7 +223,7 @@ fun Grid(
     areas?.let { gridStyles["grid-template-areas"] = it }
 
     // Create a new modifier that preserves all existing styles and attributes
-    val finalModifier = ModifierImpl(modifier.styles + gridStyles, modifier.attributes)
+    val finalModifier = modifier.withStyles(gridStyles)
 
     getPlatformRenderer().renderGrid(
         modifier = finalModifier,

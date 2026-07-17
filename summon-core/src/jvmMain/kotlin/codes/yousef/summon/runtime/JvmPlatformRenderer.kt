@@ -10,7 +10,12 @@ import codes.yousef.summon.components.navigation.Tab
 import codes.yousef.summon.core.FlowContentCompat
 import codes.yousef.summon.core.asFlowContentCompat
 import codes.yousef.summon.hydration.SummonTagConsumer
+import codes.yousef.summon.modifier.ConditionalStyleDefinition
+import codes.yousef.summon.modifier.ConditionalStyleState
+import codes.yousef.summon.modifier.MediaStyleDefinition
 import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.ScopedStyleDefinition
+import codes.yousef.summon.modifier.StateStyleDefinition
 import codes.yousef.summon.modifier.overflowX
 import codes.yousef.summon.modifier.overflowY
 import codes.yousef.summon.modifier.style
@@ -31,6 +36,9 @@ import kotlin.uuid.ExperimentalUuidApi
 actual open class PlatformRenderer {
 
     private val headElements = mutableListOf<String>()
+    private val lastRenderedHeadElements = mutableListOf<String>()
+    private val conditionalStyleRules = linkedSetOf<String>()
+    private var conditionalStyleHostCounter = 0
 
     // Fix 1: Remove ThreadLocal, use instance variable.
     private var currentBuilder: FlowContent? = null
@@ -49,6 +57,216 @@ actual open class PlatformRenderer {
         } else {
             key.replace(Regex("([a-z])([A-Z])"), "$1-$2").lowercase()
         }
+
+    private fun beginConditionalStyleRender() {
+        conditionalStyleRules.clear()
+        conditionalStyleHostCounter = 0
+    }
+
+    private fun endConditionalStyleRender() {
+        conditionalStyleRules.clear()
+        conditionalStyleHostCounter = 0
+    }
+
+    private fun headElementSnapshot(): List<String> =
+        synchronized(headElements) { headElements.toList() }
+
+    private fun clearPendingHeadElements() {
+        synchronized(headElements) { headElements.clear() }
+    }
+
+    private fun rememberRenderedHeadElements(elements: List<String>) {
+        synchronized(lastRenderedHeadElements) {
+            lastRenderedHeadElements.clear()
+            lastRenderedHeadElements.addAll(elements)
+        }
+    }
+
+    private fun List<String>.containsTag(tagName: String): Boolean {
+        val tag = Regex("""<\s*${Regex.escape(tagName)}(?:\s|>)""", RegexOption.IGNORE_CASE)
+        return any(tag::containsMatchIn)
+    }
+
+    private fun List<String>.containsMetaAttribute(attribute: String, value: String): Boolean {
+        val meta = Regex(
+            """<\s*meta\b[^>]*\b${Regex.escape(attribute)}\s*=\s*([\"'])${Regex.escape(value)}\1""",
+            RegexOption.IGNORE_CASE
+        )
+        return any(meta::containsMatchIn)
+    }
+
+    private fun List<String>.containsCharsetMeta(): Boolean {
+        val meta = Regex("""<\s*meta\b[^>]*\bcharset\s*=""", RegexOption.IGNORE_CASE)
+        return any(meta::containsMatchIn)
+    }
+
+    private fun defaultAwareHeadElements(customElements: List<String>): List<String> = buildList {
+        if (!customElements.containsCharsetMeta()) {
+            add("<meta charset=\"UTF-8\">")
+        }
+        if (!customElements.containsMetaAttribute("name", "viewport")) {
+            add("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">")
+        }
+        if (!customElements.containsTag("title")) {
+            add("<title>Summon App</title>")
+        }
+        if (!customElements.containsMetaAttribute("name", "description")) {
+            add("<meta name=\"description\" content=\"Summon Framework Application\">")
+        }
+        if (!customElements.containsMetaAttribute("name", "robots")) {
+            add("<meta name=\"robots\" content=\"index, follow\">")
+        }
+        if (!customElements.containsMetaAttribute("property", "og:type")) {
+            add("<meta property=\"og:type\" content=\"website\">")
+        }
+        if (
+            !customElements.containsMetaAttribute("property", "og:title") &&
+            !customElements.containsTag("title")
+        ) {
+            add("<meta property=\"og:title\" content=\"Summon App\">")
+        }
+        addAll(customElements)
+    }
+
+    private fun escapeHtmlAttribute(value: String): String = buildString(value.length) {
+        value.forEach { character ->
+            when (character) {
+                '&' -> append("&amp;")
+                '<' -> append("&lt;")
+                '>' -> append("&gt;")
+                '"' -> append("&quot;")
+                '\'' -> append("&#39;")
+                else -> append(character)
+            }
+        }
+    }
+
+    private fun injectHeadElements(document: String, elements: List<String>): String {
+        if (elements.isEmpty()) return document
+        val headEnd = document.indexOf("</head>")
+        if (headEnd < 0) return document
+        return document.substring(0, headEnd) + elements.joinToString("\n") + document.substring(headEnd)
+    }
+
+    private fun removeSupersededDefaultHeadElements(
+        document: String,
+        customElements: List<String>
+    ): String {
+        var updated = document
+        if (customElements.containsCharsetMeta()) {
+            updated = updated.replace("<meta charset=\"UTF-8\">", "")
+        }
+        if (customElements.containsMetaAttribute("name", "viewport")) {
+            updated = updated.replace(
+                "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">",
+                ""
+            )
+        }
+        if (customElements.containsTag("title")) {
+            updated = updated.replace("<title>Summon App</title>", "")
+        }
+        if (customElements.containsMetaAttribute("name", "description")) {
+            updated = updated.replace(
+                "<meta name=\"description\" content=\"Summon Framework Application\">",
+                ""
+            )
+        }
+        if (customElements.containsMetaAttribute("name", "robots")) {
+            updated = updated.replace("<meta name=\"robots\" content=\"index, follow\">", "")
+        }
+        if (customElements.containsMetaAttribute("property", "og:type")) {
+            updated = updated.replace("<meta property=\"og:type\" content=\"website\">", "")
+        }
+        if (
+            customElements.containsMetaAttribute("property", "og:title") ||
+            customElements.containsTag("title")
+        ) {
+            updated = updated.replace("<meta property=\"og:title\" content=\"Summon App\">", "")
+        }
+        return updated
+    }
+
+    private fun stateSelector(definition: StateStyleDefinition): String =
+        when (definition.state) {
+            ConditionalStyleState.HOVER -> ":hover"
+            ConditionalStyleState.FOCUS -> ":focus"
+            ConditionalStyleState.FOCUS_VISIBLE -> ":focus-visible"
+            ConditionalStyleState.ACTIVE -> ":active"
+            ConditionalStyleState.FOCUS_WITHIN -> ":focus-within"
+            ConditionalStyleState.FIRST_CHILD -> ":first-child"
+            ConditionalStyleState.LAST_CHILD -> ":last-child"
+            ConditionalStyleState.NTH_CHILD -> ":nth-child(${definition.argument})"
+            ConditionalStyleState.ONLY_CHILD -> ":only-child"
+            ConditionalStyleState.VISITED -> ":visited"
+            ConditionalStyleState.DISABLED -> ":disabled"
+            ConditionalStyleState.CHECKED -> ":checked"
+        }
+
+    private fun cssDeclarations(styles: Map<String, String>, indent: String): String =
+        styles.entries.joinToString("\n") { (property, value) ->
+            val importantValue = if (value.contains("!important", ignoreCase = true)) {
+                value
+            } else {
+                "$value !important"
+            }
+            "$indent${cssPropertyName(property)}: $importantValue;"
+        }
+
+    private fun renderConditionalStyleRule(
+        hostSelector: String,
+        definition: ConditionalStyleDefinition
+    ): String = when (definition) {
+        is StateStyleDefinition -> buildString {
+            append(hostSelector)
+            append(stateSelector(definition))
+            append(" {\n")
+            append(cssDeclarations(definition.styles, "  "))
+            append("\n}")
+        }
+
+        is MediaStyleDefinition -> buildString {
+            append("@media ")
+            append(definition.query)
+            append(" {\n  ")
+            append(hostSelector)
+            append(" {\n")
+            append(cssDeclarations(definition.styles, "    "))
+            append("\n  }\n}")
+        }
+
+        is ScopedStyleDefinition -> buildString {
+            append(hostSelector)
+            append(definition.selectorType.combinator)
+            append(definition.selector)
+            append(" {\n")
+            append(cssDeclarations(definition.styles, "  "))
+            append("\n}")
+        }
+    }
+
+    private fun registerConditionalStyles(
+        hostId: String,
+        definitions: List<ConditionalStyleDefinition>
+    ) {
+        val hostSelector = "[data-summon-style-id=\"$hostId\"]"
+        definitions
+            .filter { it.styles.isNotEmpty() }
+            .mapTo(conditionalStyleRules) { renderConditionalStyleRule(hostSelector, it) }
+    }
+
+    private fun injectConditionalStyleSheet(document: String): String {
+        if (conditionalStyleRules.isEmpty()) return document
+
+        val headEnd = document.indexOf("</head>")
+        if (headEnd < 0) return document
+
+        val styleElement = buildString {
+            append("<style data-summon-conditional-styles=\"true\">\n")
+            append(conditionalStyleRules.joinToString("\n"))
+            append("\n</style>")
+        }
+        return document.substring(0, headEnd) + styleElement + document.substring(headEnd)
+    }
 
     // Apply Modifier - handles both styles and attributes
     // This extension function applies to any FlowOrMetaDataContent
@@ -102,6 +320,12 @@ actual open class PlatformRenderer {
                         }
                     }
                 }
+            }
+
+            if (modifier.conditionalStyles.isNotEmpty()) {
+                val styleHostId = "summon-style-${conditionalStyleHostCounter++}"
+                this.attributes["data-summon-style-id"] = styleHostId
+                registerConditionalStyles(styleHostId, modifier.conditionalStyles)
             }
         }
 
@@ -343,7 +567,12 @@ actual open class PlatformRenderer {
     }
 
     actual open fun getHeadElements(): List<String> {
-        return headElements.toList()
+        val pending = headElementSnapshot()
+        return if (pending.isNotEmpty()) {
+            pending
+        } else {
+            synchronized(lastRenderedHeadElements) { lastRenderedHeadElements.toList() }
+        }
     }
 
     actual open fun renderHeadElements(builder: codes.yousef.summon.seo.HeadScope.() -> Unit) {
@@ -379,15 +608,16 @@ actual open class PlatformRenderer {
     }
 
     actual open fun renderComposableRoot(composable: @Composable (() -> Unit)): String {
+        beginConditionalStyleRender()
+        val initialHeadElements = headElementSnapshot()
         CallbackRegistry.beginRender()
         val result = StringBuilder()
         try {
             result.appendHTML(prettyPrint = false).html {
                 head {
-                    meta(charset = "UTF-8")
-                    meta(name = "viewport", content = "width=device-width, initial-scale=1.0")
-                    title("Summon App")
-                    synchronized(headElements) { headElements.forEach { unsafe { raw(it) } } }
+                    defaultAwareHeadElements(initialHeadElements).forEach { element ->
+                        unsafe { raw(element) }
+                    }
                 }
                 body {
                     currentBuilder = this // Set context
@@ -398,13 +628,24 @@ actual open class PlatformRenderer {
                     }
                 }
             }
+            val completeHeadElements = headElementSnapshot()
+            rememberRenderedHeadElements(completeHeadElements)
+            val lateHeadElements = completeHeadElements.drop(initialHeadElements.size)
+            val defaultAwareDocument = removeSupersededDefaultHeadElements(
+                result.toString(),
+                lateHeadElements
+            )
+            return injectConditionalStyleSheet(
+                injectHeadElements(defaultAwareDocument, lateHeadElements)
+            )
         } finally {
             if (currentBuilder != null) { // Double-check clearance on exception
                 currentBuilder = null
             }
             CallbackRegistry.abandonRenderContext()
+            endConditionalStyleRender()
+            clearPendingHeadElements()
         }
-        return result.toString()
     }
 
     private val BOOTLOADER_SCRIPT = """
@@ -561,6 +802,7 @@ actual open class PlatformRenderer {
         dir: String = "ltr",
         composable: @Composable () -> Unit
     ): String {
+        beginConditionalStyleRender()
         val debugEnabled = System.getProperty("summon.debug.callbacks", "false").toBoolean()
         
         if (debugEnabled) {
@@ -591,7 +833,10 @@ actual open class PlatformRenderer {
             }
             
             val hydrationData = generateHydrationData(callbackIds)
-            val fullDoc = createHydratedDocument(bodyContent, hydrationData, state, lang, dir)
+            rememberRenderedHeadElements(headElementSnapshot())
+            val fullDoc = injectConditionalStyleSheet(
+                createHydratedDocument(bodyContent, hydrationData, state, lang, dir)
+            )
             
             if (debugEnabled) {
                 // Extract callback IDs from the HTML for verification
@@ -604,6 +849,8 @@ actual open class PlatformRenderer {
             fullDoc
         } finally {
             CallbackRegistry.abandonRenderContext()
+            endConditionalStyleRender()
+            clearPendingHeadElements()
         }
     }
 
@@ -676,61 +923,38 @@ actual open class PlatformRenderer {
         }
 
         val bootloader = """<script>$BOOTLOADER_SCRIPT</script>"""
+        val documentHead = defaultAwareHeadElements(headElementSnapshot()).joinToString("\n    ")
+        val documentLanguage = escapeHtmlAttribute(lang)
+        val documentDirection = escapeHtmlAttribute(dir)
 
         return """<!DOCTYPE html>
-<html lang="$lang" dir="$dir">
+<html lang="$documentLanguage" dir="$documentDirection">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Summon App</title>
-
-    <!-- SEO-critical metadata is preserved for search engines -->
-    <meta name="description" content="Summon Framework Application">
-    <meta name="robots" content="index, follow">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Summon App">
-
+    $documentHead
     $bootloader
     $stateScript
-
-    ${headElements.joinToString("\n    ")}
-
-    <!-- Preload hydration resources for better performance -->
     <link rel="preload" href="/summon-hydration.js" as="script">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
 </head>
 <body>
-    <!-- Server-rendered content with hydration markers -->
     <div id="${SummonConstants.DEFAULT_ROOT_ELEMENT_ID}" data-ssr="true" data-hydration-ready="false" data-summon-hydration="root">
         $bodyContent
     </div>
-
-    <!-- Hydration data for Summon components -->
     <script type="application/json" id="summon-hydration-data">
         $hydrationData
     </script>
-
-    <!-- Progressive enhancement: Forms work without JS -->
-                <noscript>
-                    <style>
-                        [data-onclick-action], [data-onchange-action] {
-                            /* Ensure form elements are visible and functional without JS */
-                            opacity: 1 !important;
-                            pointer-events: auto !important;
-                        }
-                    </style>
-                </noscript>
-
-                <!-- Phase 5: Performance optimization meta tags and resource hints -->
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-                <!-- Preconnect to optimize external resources -->
-                <link rel="preconnect" href="https://fonts.gstatic.com">
-                <link rel="dns-prefetch" href="//fonts.googleapis.com">
-
-                <!-- Minimal bootloader - external script loaded with defer for TBT optimization -->
-                <script src="/summon-bootloader.js" defer></script>
-            </body>
-            </html>
+    <noscript>
+        <style>
+            [data-onclick-action], [data-onchange-action] {
+                opacity: 1 !important;
+                pointer-events: auto !important;
+            }
+        </style>
+    </noscript>
+    <script src="/summon-bootloader.js" defer></script>
+</body>
+</html>
         """.trimIndent()
     }
 
@@ -1525,17 +1749,6 @@ actual open class PlatformRenderer {
         }
 
         return if (attrs.isNotEmpty()) " ${attrs.joinToString(" ")}" else ""
-    }
-
-    /**
-     * Escapes special characters for use in HTML attribute values.
-     */
-    private fun escapeHtmlAttribute(value: String): String {
-        return value
-            .replace("&", "&amp;")
-            .replace("\"", "&quot;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
     }
 
     actual open fun renderCanvas(

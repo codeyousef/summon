@@ -90,7 +90,7 @@ interface HeadScope {
  */
 class DefaultHeadScope(private val onElement: (String) -> Unit) : HeadScope {
     override fun title(text: String) {
-        onElement("<title>$text</title>")
+        onElement("<title>${escapeText(text)}</title>")
     }
 
     override fun meta(
@@ -101,11 +101,11 @@ class DefaultHeadScope(private val onElement: (String) -> Unit) : HeadScope {
         httpEquiv: String?
     ) {
         val attributes = buildString {
-            charset?.let { append(" charset=\"$it\"") }
-            name?.let { append(" name=\"$it\"") }
-            property?.let { append(" property=\"$it\"") }
-            content?.let { append(" content=\"$it\"") }
-            httpEquiv?.let { append(" http-equiv=\"$it\"") }
+            charset?.let { appendAttribute("charset", it) }
+            name?.let { appendAttribute("name", it) }
+            property?.let { appendAttribute("property", it) }
+            content?.let { appendAttribute("content", it) }
+            httpEquiv?.let { appendAttribute("http-equiv", it) }
         }
         if (attributes.isNotEmpty()) {
             onElement("<meta$attributes>")
@@ -121,12 +121,12 @@ class DefaultHeadScope(private val onElement: (String) -> Unit) : HeadScope {
         media: String?
     ) {
         val attributes = buildString {
-            append(" rel=\"$rel\"")
-            append(" href=\"$href\"")
-            type?.let { append(" type=\"$it\"") }
-            sizes?.let { append(" sizes=\"$it\"") }
-            crossorigin?.let { append(" crossorigin=\"$it\"") }
-            media?.let { append(" media=\"$it\"") }
+            appendAttribute("rel", rel)
+            appendAttribute("href", href)
+            type?.let { appendAttribute("type", it) }
+            sizes?.let { appendAttribute("sizes", it) }
+            crossorigin?.let { appendAttribute("crossorigin", it) }
+            media?.let { appendAttribute("media", it) }
         }
         onElement("<link$attributes>")
     }
@@ -141,16 +141,16 @@ class DefaultHeadScope(private val onElement: (String) -> Unit) : HeadScope {
     ) {
         val attributes = buildString {
             if (type != "text/javascript") {
-                append(" type=\"$type\"")
+                appendAttribute("type", type)
             }
-            src?.let { append(" src=\"$it\"") }
+            src?.let { appendAttribute("src", it) }
             if (async) append(" async")
             if (defer) append(" defer")
-            crossorigin?.let { append(" crossorigin=\"$it\"") }
+            crossorigin?.let { appendAttribute("crossorigin", it) }
         }
 
         if (content != null) {
-            onElement("<script$attributes>$content</script>")
+            onElement("<script$attributes>${escapeRawTextEndTag(content, "script")}</script>")
         } else {
             onElement("<script$attributes></script>")
         }
@@ -158,18 +158,57 @@ class DefaultHeadScope(private val onElement: (String) -> Unit) : HeadScope {
 
     override fun style(content: String, media: String?) {
         val attributes = buildString {
-            media?.let { append(" media=\"$it\"") }
+            media?.let { appendAttribute("media", it) }
         }
-        onElement("<style$attributes>$content</style>")
+        onElement("<style$attributes>${escapeRawTextEndTag(content, "style")}</style>")
     }
 
     override fun base(href: String?, target: String?) {
         val attributes = buildString {
-            href?.let { append(" href=\"$it\"") }
-            target?.let { append(" target=\"$it\"") }
+            href?.let { appendAttribute("href", it) }
+            target?.let { appendAttribute("target", it) }
         }
         if (attributes.isNotEmpty()) {
             onElement("<base$attributes>")
         }
     }
+
+    private fun StringBuilder.appendAttribute(name: String, value: String) {
+        append(' ')
+        append(name)
+        append("=\"")
+        append(escapeAttribute(value))
+        append('"')
+    }
+
+    private fun escapeText(value: String): String = buildString(value.length) {
+        value.forEach { character ->
+            append(
+                when (character) {
+                    '&' -> "&amp;"
+                    '<' -> "&lt;"
+                    '>' -> "&gt;"
+                    else -> character
+                }
+            )
+        }
+    }
+
+    private fun escapeAttribute(value: String): String = buildString(value.length) {
+        value.forEach { character ->
+            append(
+                when (character) {
+                    '&' -> "&amp;"
+                    '<' -> "&lt;"
+                    '>' -> "&gt;"
+                    '"' -> "&quot;"
+                    '\'' -> "&#39;"
+                    else -> character
+                }
+            )
+        }
+    }
+
+    private fun escapeRawTextEndTag(value: String, tagName: String): String =
+        value.replace("</$tagName", "<\\/$tagName", ignoreCase = true)
 }

@@ -187,7 +187,7 @@ fun SuccessText(text: String, modifier: Modifier = Modifier()) {
 fun EmphasizedText(text: String, modifier: Modifier = Modifier()) {
     Text(
         text = text,
-        modifier = ModifierImpl(modifier.styles + ("font-style" to "italic")),
+        modifier = modifier.style("font-style", "italic"),
         fontFamily = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
     )
 }
@@ -215,12 +215,13 @@ fun StrongText(text: String, modifier: Modifier = Modifier()) {
 fun QuoteText(text: String, modifier: Modifier = Modifier()) {
     Text(
         text = text,
-        modifier = ModifierImpl(
-            modifier.styles +
-                    ("border-left" to "4px solid #e0e0e0") +
-                    ("padding-left" to "1em") +
-                    ("font-style" to "italic") +
-                    ("margin" to "1em 0")
+        modifier = modifier.withStyles(
+            mapOfCompat(
+                "border-left" to "4px solid #e0e0e0",
+                "padding-left" to "1em",
+                "font-style" to "italic",
+                "margin" to "1em 0",
+            )
         ),
         fontFamily = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         lineHeight = "1.5"
@@ -252,13 +253,14 @@ fun TruncatedText(text: String, maxLines: Int, modifier: Modifier = Modifier()) 
 fun KeyboardText(text: String, modifier: Modifier = Modifier()) {
     Text(
         text = text,
-        modifier = ModifierImpl(
-            modifier.styles +
-                    ("background-color" to "#f5f5f5") +
-                    ("padding" to "0.2em 0.4em") +
-                    ("border" to "1px solid #d0d0d0") +
-                    ("border-radius" to "3px") +
-                    ("font-size" to "0.9em")
+        modifier = modifier.withStyles(
+            mapOfCompat(
+                "background-color" to "#f5f5f5",
+                "padding" to "0.2em 0.4em",
+                "border" to "1px solid #d0d0d0",
+                "border-radius" to "3px",
+                "font-size" to "0.9em",
+            )
         ),
         fontFamily = "SFMono-Regular, Consolas, monospace",
         lineHeight = "1.4"
@@ -281,14 +283,15 @@ fun BadgeText(
 ) {
     Text(
         text = text,
-        modifier = ModifierImpl(
-            modifier.styles +
-                    ("background-color" to color) +
-                    ("color" to textColor) +
-                    ("padding" to "0.25em 0.6em") +
-                    ("border-radius" to "1em") +
-                    ("font-size" to "0.85em") +
-                    ("display" to "inline-block")
+        modifier = modifier.withStyles(
+            mapOfCompat(
+                "background-color" to color,
+                "color" to textColor,
+                "padding" to "0.25em 0.6em",
+                "border-radius" to "1em",
+                "font-size" to "0.85em",
+                "display" to "inline-block",
+            )
         ),
         fontFamily = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         lineHeight = "1.4"
