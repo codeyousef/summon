@@ -102,6 +102,13 @@ class TypedCssModifiersTest {
     }
 
     @Test
+    fun outlineStyleKeywordUsesTypedValue() {
+        val modifier = Modifier().outline(OutlineStyle.None)
+
+        assertEquals("none", modifier.styles["outline"])
+    }
+
+    @Test
     fun gridTrackHelpersBuildResponsiveTemplates() {
         val responsive = gridAutoFit(
             gridMinMax(gridTrack("280px"), gridFraction()),

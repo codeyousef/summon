@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0.4] - 2026-07-18
+
+### Added
+
+- **Typed outline keywords** - `Modifier.outline(OutlineStyle)` applies outline keywords such as
+  `OutlineStyle.None` without extracting their raw string values
+
 ## [0.7.0.3] - 2026-07-17
 
 ### Added

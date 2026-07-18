@@ -260,6 +260,9 @@ fun Modifier.scrollbarWidth(
 /** Applies an arbitrary CSS outline shorthand. */
 fun Modifier.outline(value: String): Modifier = style("outline", value)
 
+/** Applies a type-safe CSS outline style keyword. */
+fun Modifier.outline(style: OutlineStyle): Modifier = outline(style.value)
+
 /** Applies a structured outline declaration. */
 fun Modifier.outline(width: String, style: OutlineStyle, color: String): Modifier =
     outline("$width ${style.value} $color")
