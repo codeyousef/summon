@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://raw.githubusercontent.com/codeyousef/summon/main/assets/logo.png" alt="Summon logo" width="200" />
   <br>
-  <a href="https://x.com/DeepIssueMassaj">x.com/@DeepIssueMassaj</a>
+  <a href="https://x.com/DeepIssueMassaj">https://x.com/Yousefenius</a>
 </p>
 
 # Summon
