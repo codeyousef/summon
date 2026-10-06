@@ -4,6 +4,7 @@ plugins {
 repositories { mavenCentral() }
 dependencyLocking { lockAllConfigurations() }
 kotlin {
+    jvmToolchain(21)
     jvm {
         compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) }
     }
@@ -20,6 +21,10 @@ kotlin {
         commonMain.dependencies {
             implementation("codes.yousef:summon:0.7.0.4")
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+        }
+        jvmMain.dependencies {
+            implementation("codes.yousef:summon-aether:0.7.0.4")
+            implementation("codes.yousef.aether:aether-core:0.4.2.1")
         }
         commonTest.dependencies { implementation(kotlin("test")) }
     }

@@ -18,6 +18,9 @@ All notable changes to this project will be documented in this file.
 - **Source consumer browser verification** - A locked JVM/JS/WASM fixture and pinned Playwright
   container exercise rendering, controlled inputs, keyed identity, logout, and effect cleanup
   across Chromium, Firefox, and WebKit.
+- **Pinned source-consumer contract** - The locked JVM/JS/WASM fixture now pins its
+  toolchain and dependency identities, exercises real browser routing, and renders its
+  public JVM shell through the Summon Aether adapter without adding Aether to browser graphs.
 
 ### Changed
 
@@ -37,6 +40,8 @@ All notable changes to this project will be documented in this file.
   subscription per rendered node across recomposition. Conditional removal, replacement,
   failed or canceled mounting, and root disposal detach the subscription; retired callbacks
   are inert and cannot mutate detached DOM.
+- **Reactive JS navigation** - Programmatic router navigation now updates the mounted
+  route state while preserving browser history, so route content recomposes immediately.
 - **Conditional input and route state** - TextField internals use isolated groups; route content
   is scoped by route path and parameters. Named caches belong to their containing group and
   disappear with it. Restartable and composer key helpers retain equality keys instead of hashes.

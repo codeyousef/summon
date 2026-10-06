@@ -1,14 +1,68 @@
 package codes.yousef.summon.fixture
+
+import codes.yousef.aether.core.Attributes
+import codes.yousef.aether.core.Cookie
+import codes.yousef.aether.core.Cookies
+import codes.yousef.aether.core.Exchange
+import codes.yousef.aether.core.Headers
+import codes.yousef.aether.core.HttpMethod
+import codes.yousef.aether.core.Request
+import codes.yousef.aether.core.Response
+import codes.yousef.summon.aether.respondSummon
 import codes.yousef.summon.components.display.Text
-import codes.yousef.summon.runtime.PlatformRenderer
-import codes.yousef.summon.runtime.clearPlatformRenderer
-import codes.yousef.summon.runtime.setPlatformRenderer
-fun main() {
-    val renderer = PlatformRenderer()
-    setPlatformRenderer(renderer)
-    try {
-        println(renderer.renderComposableRoot { Text("Public shell: sign in to unlock") })
-    } finally {
-        clearPlatformRenderer()
+import kotlinx.coroutines.runBlocking
+
+fun main() = runBlocking {
+    val exchange = CapturingExchange()
+    exchange.respondSummon { Text("Public shell: sign in to unlock") }
+    check(exchange.response.statusCode == 200)
+    check(exchange.response.body.contains("Public shell: sign in to unlock"))
+    println(exchange.response.body)
+}
+
+private class CapturingExchange : Exchange {
+    override val request: Request = object : Request {
+        override val method = HttpMethod.GET
+        override val uri = "/"
+        override val path = "/"
+        override val query = ""
+        override val headers = Headers(emptyMap())
+        override val cookies = Cookies(emptyMap())
+        override suspend fun bodyBytes(): ByteArray = byteArrayOf()
+        override suspend fun bodyText(): String = ""
+        override fun queryParameters(): Map<String, List<String>> = emptyMap()
+        override fun queryParameter(name: String): String? = null
+    }
+    override val response = CapturingResponse()
+    override val attributes = Attributes()
+}
+
+private class CapturingResponse : Response {
+    override var statusCode: Int = 0
+    override var statusMessage: String? = null
+    override val headers = Headers.HeadersBuilder()
+    override val cookies = mutableListOf<Cookie>()
+    val body = StringBuilder()
+
+    override suspend fun write(data: ByteArray) {
+        body.append(data.decodeToString())
+    }
+
+    override suspend fun write(text: String) {
+        body.append(text)
+    }
+
+    override suspend fun end() = Unit
+
+    override fun setHeader(name: String, value: String) {
+        headers.set(name, value)
+    }
+
+    override fun addHeader(name: String, value: String) {
+        headers.add(name, value)
+    }
+
+    override fun setCookie(cookie: Cookie) {
+        cookies.add(cookie)
     }
 }

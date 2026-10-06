@@ -1,9 +1,14 @@
 # Private suite source consumer fixture
 
-This separate Gradle consumer resolves `codes.yousef:summon:0.7.0.4` to this
-checkout's `summon-core` through explicit composite-build substitution. It uses
-Kotlin 2.3.0, coroutines 1.10.2 and JVM target 17, matching the audited source.
-It contains only synthetic text, never production accounts or credentials.
+This separate Gradle consumer resolves `codes.yousef:summon:0.7.0.4` and
+`codes.yousef:summon-aether:0.7.0.4` to this checkout's source projects through
+explicit composite-build substitution. It resolves the published
+`codes.yousef.aether:aether-core:0.4.2.1` JVM artifact from Maven Central.
+The audited source baselines are Summon `b967d88badd5b15162b6facf8915b5aaec6a451c`
+and Aether `e1a3be4f00013fd0285ee5c16b782e5109ff42dd`; record the tested dirty-tree
+diff or successor commit with verification output. Kotlin 2.3.0, coroutines
+1.10.2, JDK 21, and JVM bytecode target 17 are pinned here. The fixture contains
+only synthetic text, never production accounts or credentials.
 
 From the Summon repository root:
 
@@ -22,16 +27,21 @@ BASE_URL=http://127.0.0.1:8877 ./node_modules/.bin/playwright test --config=play
 The dedicated configuration runs Chromium, Firefox and WebKit sequentially.
 WebKit coverage does not replace the roadmap's real Safari release check.
 The fixture checks real Text, Button, controlled TextField, state recomposition,
-flow binding, keyed node identity/order, logout disposal, effect key/removal cleanup
-mount-only/dependency-aware effects, independent synthetic roots, explicit root replacement/disposal,
-100 mount cycles, detached callback cleanup, failed-mount cleanup/context restoration, nullable/named remembered caches, and JS microtask scheduling/disposal. It does not yet qualify routing, all lifecycle adapters,
-Aether SSR integration, encryption, real account isolation or native clients.
+flow binding, browser routing, keyed node identity/order, logout disposal,
+effect key/removal cleanup, mount-only/dependency-aware effects, independent
+synthetic roots, explicit root replacement/disposal, 100 mount cycles, detached
+callback cleanup, failed-mount cleanup/context restoration, nullable/named
+remembered caches, and JS microtask scheduling/disposal. Its JVM smoke path
+serves the public shell through the Summon Aether adapter and a synthetic Aether
+exchange. It does not qualify lifecycle adapters beyond those listed,
+encryption, real account isolation, real Aether providers, or native clients.
 Those requirements remain incomplete in the PRD.
 
 After building both distributions, the default configuration starts and stops
-its own two loopback servers and runs 60 shared target/browser cases plus six
-JS-specific microtask cases. The six WASM microtask rows are explicitly skipped
-because MicrotaskScheduler is a JS-specific API. Use Node 22
+its own two loopback servers and runs 126 target/browser rows: 117 execute and
+nine are explicitly skipped. The three WASM router rows remain unsupported
+because browser routing is not yet implemented for WASM; six WASM microtask
+rows remain unsupported because `MicrotaskScheduler` is JS-specific. Use Node 22
 or 24 for browser installation; the host Node 26 installer stalled during
 archive extraction in the development environment.
 

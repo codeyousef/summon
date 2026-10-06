@@ -195,6 +195,19 @@ test('JS microtask mounts cancel queued and late work on disposal', async ({ pag
   await first.getByRole('button', { name: 'Increment', exact: true }).click();
   await expect(first.getByTestId('counter')).toHaveText('Count: 1');
 });
+
+test('source consumer mounts and navigates the real browser router', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.startsWith('wasm-'), 'WASM browser history qualification belongs to SU-03');
+  await page.goto('/?router=true');
+  await expect(page.getByTestId('route-value')).toHaveText('Fixture route');
+  await page.getByRole('button', { name: 'Open fixture item', exact: true }).click();
+  await expect(page).toHaveURL(/\/fixture\/item\/42$/);
+  await expect(page.getByTestId('route-value')).toHaveText('Fixture item 42');
+  await page.getByRole('button', { name: 'Return to fixture route', exact: true }).click();
+  await expect(page).toHaveURL(/\/fixture$/);
+  await expect(page.getByTestId('route-value')).toHaveText('Fixture route');
+});
+
 test('responsive listeners are owned across recomposition, failure, replacement and disposal', async ({ page }) => {
   await page.addInitScript(() => {
     const browserWindow = window as ResizeProbeWindow;

@@ -61,17 +61,6 @@ class InitCommandIntegrationTest {
                     warningModeFail = scenario.warningModeFail
                 )
 
-                // Allow OOM/memory-related failures as they're environment-dependent
-                val isMemoryFailure = gradleResult.exitCode != 0 && (
-                        gradleResult.output.contains("garbage collector is thrashing", ignoreCase = true) ||
-                                gradleResult.output.contains("org.gradle.jvmargs", ignoreCase = true) ||
-                                gradleResult.output.contains("max heap space", ignoreCase = true)
-                        )
-
-                if (isMemoryFailure) {
-                    println("⚠️ Skipping ${scenario.projectName} due to memory constraints")
-                    return@forEach // Skip this scenario entirely
-                }
 
                 val failureMessage = buildString {
                     appendLine("Gradle command failed for ${scenario.projectName}")
@@ -119,7 +108,15 @@ class InitCommandIntegrationTest {
     }
 
     private fun runGradle(projectDir: File, tasks: List<String>, warningModeFail: Boolean): GradleResult {
-        val command = mutableListOf("./gradlew", "--no-daemon", "--console=plain")
+        val command = mutableListOf(
+            "./gradlew",
+            "--no-daemon",
+            "--max-workers=1",
+            "-Dorg.gradle.parallel=false",
+            "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=768m -XX:ActiveProcessorCount=2",
+            "-Pkotlin.compiler.execution.strategy=in-process",
+            "--console=plain"
+        )
         command += if (warningModeFail) "--warning-mode=fail" else "--warning-mode=all"
         command.addAll(tasks)
 
@@ -129,6 +126,7 @@ class InitCommandIntegrationTest {
             .apply {
                 environment()["CI"] = "true"
                 environment().compute("NODE_OPTIONS") { _, _ -> "--no-warnings" }
+                environment()["JAVA_TOOL_OPTIONS"] = "-XX:ActiveProcessorCount=2"
             }
             .start()
 
@@ -149,11 +147,11 @@ class InitCommandIntegrationTest {
         }
         readerThread.start()
         
-        val finished = process.waitFor(10, java.util.concurrent.TimeUnit.MINUTES)
+        val finished = process.waitFor(20, java.util.concurrent.TimeUnit.MINUTES)
         if (!finished) {
             process.destroyForcibly()
             readerThread.join(1000)
-            throw RuntimeException("Gradle task timed out after 10 minutes. Output so far:\n$outputBuilder")
+            throw RuntimeException("Gradle task timed out after 20 minutes. Output so far:\n$outputBuilder")
         }
         
         readerThread.join()

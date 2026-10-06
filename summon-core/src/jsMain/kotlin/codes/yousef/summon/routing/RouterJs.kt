@@ -4,6 +4,7 @@ import codes.yousef.summon.runtime.Composable
 import codes.yousef.summon.runtime.DisposableEffect
 import codes.yousef.summon.runtime.LaunchedEffect
 import codes.yousef.summon.runtime.rememberMutableStateOf
+import codes.yousef.summon.state.SummonMutableState
 import kotlinx.browser.window
 import kotlin.js.js
 
@@ -153,6 +154,7 @@ internal class RouterJs(
 
     private val history = BrowserHistory()
     private var _currentPath = window.location.pathname + window.location.search
+    private var renderedRoute: SummonMutableState<String>? = null
 
     // Implement the currentPath property from the Router interface
     override val currentPath: String
@@ -162,6 +164,7 @@ internal class RouterJs(
     override fun create(initialPath: String) {
         // Remember the current route state
         val currentRoute = rememberMutableStateOf(initialPath)
+        renderedRoute = currentRoute
 
         // Set up effect to listen for browser history changes
         DisposableEffect(Unit) {
@@ -178,6 +181,9 @@ internal class RouterJs(
             // Cleanup function to remove the listener
             return@DisposableEffect {
                 window.removeEventListener("popstate", listener)
+                if (renderedRoute === currentRoute) {
+                    renderedRoute = null
+                }
             }
         }
 
@@ -205,6 +211,7 @@ internal class RouterJs(
     override fun navigate(path: String, pushState: Boolean) {
         // Update the current path
         _currentPath = path
+        renderedRoute?.value = path
 
         // Handle browser history if needed
         if (pushState) {
