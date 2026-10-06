@@ -105,6 +105,7 @@ class Recomposer {
     private var scheduler: RecompositionScheduler = createDefaultScheduler()
     private var isScheduled = false
     private var compositionRoot: (@Composable () -> Unit)? = null
+    private var disposed = false
 
     /**
      * Sets the recomposition scheduler for this recomposer instance.
@@ -161,6 +162,7 @@ class Recomposer {
      * @since 1.0.0
      */
     fun setCompositionRoot(root: @Composable () -> Unit) {
+        check(!disposed) { "Cannot set a root on a disposed recomposer" }
         this.compositionRoot = root
     }
 
@@ -169,6 +171,7 @@ class Recomposer {
      * @return A new Composer instance.
      */
     fun createComposer(): Composer {
+        check(!disposed) { "Cannot create a composer on a disposed recomposer" }
         val composer = RecomposerBackedComposer(this)
         allComposers.add(composer)
         return composer
@@ -188,15 +191,16 @@ class Recomposer {
      * @param composer The composer that needs to be recomposed.
      */
     fun scheduleRecomposition(composer: Composer) {
-        if (composer !in allComposers) return
+        if (disposed || composer !in allComposers) return
         // Thread safety handled in platform-specific ways
         addToPendingRecompositions(composer)
 
         // Schedule processing if not already scheduled
         if (!isScheduled) {
             isScheduled = true
-            scheduler.scheduleRecomposition {
+            scheduler.scheduleRecomposition work@{
                 isScheduled = false
+                if (disposed) return@work
                 compositionRoot?.let { root ->
                     processRecompositions(root)
                 }
@@ -218,6 +222,27 @@ class Recomposer {
                 composer.recompose(compositionRoot)
             }
         }
+    }
+
+    /**
+     * Permanently releases this recomposer's roots, dependencies and queued work.
+     * All cleanup runs even if one composer fails; repeated disposal has no effect.
+     */
+    fun dispose() {
+        if (disposed) return
+        disposed = true
+        activeComposer = null
+        compositionRoot = null
+        isScheduled = false
+        var failure: Throwable? = null
+        try { scheduler.cancelPendingRecomposition() } catch (error: Throwable) { failure = error }
+        getAndClearPendingRecompositions()
+        allComposers.toList().forEach { composer ->
+            try { composer.dispose() } catch (error: Throwable) {
+                if (failure == null) failure = error else failure.addSuppressed(error)
+            }
+        }
+        failure?.let { throw it }
     }
 
     /**
@@ -266,14 +291,23 @@ class Recomposer {
      * Sets the active composer.
      * This is called by CompositionLocal when setting the current composer.
      */
+    internal fun ownsComposer(composer: Composer): Boolean = composer in allComposers
+
     fun setActiveComposer(composer: Composer?) {
-        activeComposer = composer
+        activeComposer = if (disposed) null else composer
     }
 
     /**
      * Checks if a composer is a RecomposerBackedComposer.
      */
     internal companion object {
+        fun enqueueSideEffect(composer: Composer, effect: () -> Unit): Boolean {
+            if (composer !is RecomposerBackedComposer) return false
+            check(!composer.disposed) { "Cannot add an effect to a disposed composition" }
+            composer.postCommitEffects.add(effect)
+            return true
+        }
+
         fun isComposerImpl(composer: Composer): Boolean {
             return composer is RecomposerBackedComposer
         }
@@ -289,6 +323,7 @@ class Recomposer {
     private class RecomposerBackedComposer(private val recomposer: Recomposer) : Composer {
         override val inserting: Boolean = true
 
+        private val renderer = PlatformRendererStore.get()
         private val slots = mutableMapOf<Int, Any?>()
         private var slotIndex = 0
         private val stateReads = mutableSetOf<Any>()
@@ -296,7 +331,9 @@ class Recomposer {
         private val groupStack = mutableListOf<Any?>()
         private var currentNodeIndex = 0
         private val disposables = mutableListOf<() -> Unit>()
-        private var disposed = false
+        var disposed = false
+            private set
+        val postCommitEffects = mutableListOf<() -> Unit>()
         private val visitedSlots = mutableSetOf<Int>()
 
         /**
@@ -330,37 +367,38 @@ class Recomposer {
          * Performs the actual composition by invoking the composable root.
          */
         private fun compose(compositionRoot: @Composable () -> Unit) {
-            // Set this composer as the active composer using CompositionLocal
-            // This ensures that remember {} and other composables can access the composer
-            RecomposerHolder.withRecomposer(recomposer) {
-                CompositionLocal.provideComposer(this) {
-                    try {
-                        // Notify platform renderer about recomposition start
-                        // Use PlatformRendererStore.get() instead of LocalPlatformRenderer.current
-                        // because the CompositionLocal might not be provided yet at this point
-                        PlatformRendererStore.get()?.startRecomposition()
-
-                        // Start a new composition group
-                        startGroup("recomposition")
-
-                        // Invoke the composable root
-                        compositionRoot()
-
-                        // End the composition group
-                        endGroup()
-                        disposeRemovedSlotResources()
-                    } catch (e: Exception) {
-                        try { dispose() } catch (cleanupError: Throwable) { e.addSuppressed(cleanupError) }
-                        println("Summon composition failed")
-                        throw e
-                    } finally {
-                        // Notify platform renderer about recomposition end
-                        // Use PlatformRendererStore.get() instead of LocalPlatformRenderer.current
-                        // because the CompositionLocal might not be provided yet at this point
-                        PlatformRendererStore.get()?.endRecomposition()
+            withPlatformRenderer(renderer) {
+                RecomposerHolder.withRecomposer(recomposer) {
+                    CompositionLocal.provideComposer(this) {
+                        try {
+                            PlatformRendererStore.get()?.startRecomposition()
+                            try {
+                                startGroup("recomposition")
+                                compositionRoot()
+                                endGroup()
+                                disposeRemovedSlotResources()
+                            } finally {
+                                PlatformRendererStore.get()?.endRecomposition()
+                            }
+                            runPostCommitEffects()
+                        } catch (error: Throwable) {
+                            try { dispose() } catch (cleanupError: Throwable) { error.addSuppressed(cleanupError) }
+                            println("Summon composition failed")
+                            throw error
+                        }
                     }
                 }
             }
+        }
+
+        private fun runPostCommitEffects() {
+            val effects = postCommitEffects.toList()
+            postCommitEffects.clear()
+            // Effect reads are not new render dependencies, and effects cannot
+            // allocate remembered slots after the composition has committed.
+            val previous = CompositionLocal.currentComposer
+            CompositionLocal.setCurrentComposer(null)
+            try { effects.forEach { it() } } finally { CompositionLocal.setCurrentComposer(previous) }
         }
 
         override fun startNode() {
@@ -495,6 +533,7 @@ class Recomposer {
             val resources = slots.values.filterIsInstance<CompositionResource>()
             slots.clear()
             visitedSlots.clear()
+            postCommitEffects.clear()
             nodeStack.clear()
             groupStack.clear()
             val cleanup = disposables.toList()
@@ -525,18 +564,23 @@ class Recomposer {
 
         override fun <T> compose(composable: @Composable () -> T): T {
             check(!disposed) { "Cannot compose a disposed composition" }
-            // Use CompositionLocal to manage the composer
-            return RecomposerHolder.withRecomposer(recomposer) {
-                CompositionLocal.provideComposer(this) {
-                    startCompose()
-                    try {
-                        composable()
-                    } finally {
-                        endCompose()
-                }
+            return withPlatformRenderer(renderer) {
+                RecomposerHolder.withRecomposer(recomposer) {
+                    CompositionLocal.provideComposer(this) {
+                        try {
+                            startCompose()
+                            val result = try { composable() } finally { endCompose() }
+                            runPostCommitEffects()
+                            result
+                        } catch (error: Throwable) {
+                            try { dispose() } catch (cleanupError: Throwable) { error.addSuppressed(cleanupError) }
+                            throw error
+                        }
+                    }
                 }
             }
         }
+
     }
 
     /**

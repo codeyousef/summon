@@ -224,9 +224,9 @@ fun wasmRemoveChildById(parentId: String, childId: String): Boolean {
 fun wasmRemoveElementById(elementId: String): Boolean {
     return try {
         val element = getElement(elementId)
-        if (element != null && element.parentNode != null) {
+        if (element != null) {
             element.parentNode?.removeChild(element)
-            elementStore.remove(elementId)
+            elementStore.entries.filter { it.value === element }.map { it.key }.forEach { elementStore.remove(it) }
             true
         } else {
             false

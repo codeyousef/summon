@@ -95,7 +95,9 @@ object CompositionLocal {
      *
      * @since 1.0.0
      */
-    private var _currentComposer: Composer? = null
+    private var _currentComposer: Composer?
+        get() = RuntimeContextStore.get().composer
+        set(value) { RuntimeContextStore.get().composer = value }
 
     /**
      * Gets the current composer instance that is actively executing composition.
@@ -154,7 +156,8 @@ object CompositionLocal {
         _currentComposer = composer
 
         // Also update the recomposer
-        if (composer != null && Recomposer.isComposerImpl(composer)) {
+        if (composer != null && Recomposer.isComposerImpl(composer) &&
+            RecomposerHolder.recomposer.ownsComposer(composer)) {
             RecomposerHolder.recomposer.setActiveComposer(Recomposer.asComposerImpl(composer))
         } else {
             RecomposerHolder.recomposer.setActiveComposer(null)
@@ -471,8 +474,12 @@ interface CompositionLocalProvider<T> {
 private class CompositionLocalProviderImpl<T>(private val defaultValue: T) : CompositionLocalProvider<T> {
     private var value: T = defaultValue
 
+    @Suppress("UNCHECKED_CAST")
     override val current: T
-        get() = value
+        get() {
+            val values = RuntimeContextStore.get().localValues
+            return if (values.containsKey(this)) values[this] as T else value
+        }
 
     override fun provides(value: T): CompositionLocalProvider<T> {
         this.value = value
@@ -486,8 +493,13 @@ private class CompositionLocalProviderImpl<T>(private val defaultValue: T) : Com
 private class StaticCompositionLocalProviderImpl<T> : CompositionLocalProvider<T> {
     private var value: T? = null
 
+    @Suppress("UNCHECKED_CAST")
     override val current: T
-        get() = value ?: throw IllegalStateException("CompositionLocal not provided")
+        get() {
+            val values = RuntimeContextStore.get().localValues
+            return if (values.containsKey(this)) values[this] as T
+            else value ?: throw IllegalStateException("CompositionLocal not provided")
+        }
 
     override fun provides(value: T): CompositionLocalProvider<T> {
         this.value = value

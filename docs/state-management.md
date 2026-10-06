@@ -868,3 +868,52 @@ failures emit a generic diagnostic without printing exception messages or privat
 Composition disposal detaches state dependencies before cleanup runs, so cleanup writes and
 queued callbacks cannot revive a disposed composer. Callers still own their application data
 and must clear private render models when locking or changing accounts.
+
+
+The built-in recomposer queues `SideEffect` callbacks until a successful composition completes;
+a failed composition discards them. Callback reads do not establish render dependencies.
+`onMount` runs once until removal and re-entry, and dependency-aware helpers compare dependency
+values structurally. Effect and `remember` calls each consume a separate sequential slot.
+Custom `Composer` implementations remain responsible for their own commit scheduling.
+
+## Owning a browser root
+
+Use the common mount API in JS or WASM application entry points:
+
+```kotlin
+import codes.yousef.summon.mountComposableRoot
+import codes.yousef.summon.components.display.Text
+
+fun main() {
+    val mount = mountComposableRoot("root") {
+        Text("An independently reactive root")
+    }
+    // When the host removes this view:
+    // mount.dispose()
+}
+```
+
+The requested HTML element must exist. The returned `MountedComposition` owns its recomposer,
+renderer and default scheduler. Calling `dispose()` marks it disposed, detaches subscriptions,
+cancels queued rendering, releases effects and removes owned DOM nodes/listeners. Repeated
+calls do nothing. Cleanup continues if an individual callback fails, then rethrows the failure.
+Disposal releases the handle's application/renderer references and preserves neighboring roots.
+An exception from the root body also disposes the mount, including on later recomposition. Mounting again in the same element first disposes the
+previous owner. Replacing that element recursively during mount or cleanup throws before a
+new owner is installed.
+
+A custom `RecompositionScheduler` passed to `mountComposableRoot` must belong exclusively to
+that mount. The JS-only `MicrotaskScheduler` can be supplied this way; changing the legacy
+`RecomposerHolder` scheduler does not configure independent browser mounts.
+
+Existing `renderComposableRoot` calls remain compatible and now use independent ownership.
+Its JS fallback element lookup remains available; the new mount API requires the exact element.
+For explicit teardown, prefer the handle-returning API. JVM DOM mounting throws
+`UnsupportedOperationException`; JVM applications should use the server renderer for HTML.
+Synchronous nested composition restores its caller's composer, renderer and recomposer on
+success and failure. JVM synchronous context is thread-local; this does not establish coroutine
+context propagation for SSR work that switches dispatchers.
+
+Dispose application-owned subscriptions with the view, for example by registering a
+`DisposableEffect(session)` that returns `session::dispose`. Disposal does not erase retained
+application data or automatically observe external DOM removal. The host must call it.

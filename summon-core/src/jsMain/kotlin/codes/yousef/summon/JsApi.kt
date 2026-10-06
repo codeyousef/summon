@@ -20,17 +20,8 @@ import org.w3c.dom.HTMLElement
  * renderer use different IDs (see GitHub issue #35).
  */
 fun renderComposableRoot(rootElementId: String, composable: @Composable () -> Unit) {
-    val rootElement = findRootElement(rootElementId)
-        
-    val renderer = PlatformRenderer()
-    setPlatformRenderer(renderer)
-    LocalPlatformRenderer.provides(renderer)
-    
-    // Initialize global event listener for data-action handling
     GlobalEventListener.init()
-    
-    // Use the proper renderComposable function that sets up recomposition
-    renderComposable(renderer, composable, rootElement)
+    mountInto(PlatformRenderer(), findRootElement(rootElementId), null, composable)
 }
 
 /**
@@ -85,4 +76,15 @@ private fun findRootElement(requestedId: String): HTMLElement {
         "Root element with ID '$requestedId' not found. " +
                 "Ensure your HTML contains <div id=\"${SummonConstants.DEFAULT_ROOT_ELEMENT_ID}\"></div>."
     )
+}
+
+actual fun mountComposableRoot(
+    rootElementId: String,
+    scheduler: codes.yousef.summon.runtime.RecompositionScheduler?,
+    composable: @Composable () -> Unit
+): MountedComposition {
+    val container = document.getElementById(rootElementId) as? HTMLElement
+        ?: throw IllegalArgumentException("Root element not found: $rootElementId")
+    GlobalEventListener.init()
+    return mountInto(PlatformRenderer(), container, scheduler, composable)
 }

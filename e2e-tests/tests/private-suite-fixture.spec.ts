@@ -84,3 +84,104 @@ test('JS microtask scheduling preserves reentrant owned effect updates', async (
   await page.getByRole('button', { name: 'Increment', exact: true }).click();
   await expect(page.getByTestId('counter')).toHaveText('Count: 1');
 });
+
+
+test('independent roots retain their own state, callbacks and account views', async ({ page }) => {
+  await page.goto('/?roots=two');
+  const first = page.locator('#root');
+  const second = page.locator('#second-root');
+  await expect(first.getByTestId('account-value')).toHaveText('Synthetic account A');
+  await expect(second.getByTestId('account-value')).toHaveText('Synthetic account B');
+  await first.getByRole('button', { name: 'Increment', exact: true }).click();
+  await expect(first.getByTestId('counter')).toHaveText('Count: 1');
+  await expect(second.getByTestId('counter')).toHaveText('Count: 0');
+  await second.getByRole('button', { name: 'Increment', exact: true }).click();
+  await expect(second.getByTestId('counter')).toHaveText('Count: 1');
+  await expect(first.getByTestId('counter')).toHaveText('Count: 1');
+  await first.getByTestId('controlled-input').fill('Synthetic edited A');
+  await expect(first.getByTestId('account-value')).toHaveText('Synthetic edited A');
+  await expect(second.getByTestId('account-value')).toHaveText('Synthetic account B');
+  await first.getByRole('button', { name: 'Logout', exact: true }).click();
+  await expect(first.getByTestId('locked')).toHaveText('Locked');
+  await expect(second.getByTestId('locked')).toHaveCount(0);
+  await expect(second.getByTestId('controlled-input')).toHaveValue('Synthetic account B');
+  await second.getByRole('button', { name: 'Increment', exact: true }).click();
+  await expect(second.getByTestId('counter')).toHaveText('Count: 2');
+});
+
+
+test('effect helpers retain mount and dependencies and commit after render', async ({ page }) => {
+  await expect(page.getByTestId('helper-stats')).toHaveText('Mounts: 1; Setups: 1; Cleanups: 0; Side errors: 0; remembered after effects');
+  for (let step = 1; step <= 5; step++) {
+    await page.getByRole('button', { name: 'Increment', exact: true }).click();
+    await expect(page.getByTestId('counter')).toHaveText(`Count: ${step}`);
+    await expect(page.getByTestId('helper-stats')).toHaveText('Mounts: 1; Setups: 1; Cleanups: 0; Side errors: 0; remembered after effects');
+  }
+  await page.getByRole('button', { name: 'Change effect key', exact: true }).click();
+  await expect(page.getByTestId('helper-stats')).toHaveText('Mounts: 1; Setups: 2; Cleanups: 1; Side errors: 0; remembered after effects');
+});
+
+test('root disposal cancels queued work and callbacks and survives 100 mount cycles', async ({ page }) => {
+  await page.goto('/?lifecycle=true');
+  const first = page.locator('#root');
+  const second = page.locator('#second-root');
+  const controls = page.locator('#controls');
+  const oldButton = await first.getByRole('button', { name: 'Increment', exact: true }).elementHandle();
+  await controls.getByRole('button', { name: 'Queue update and dispose', exact: true }).click();
+  await expect(first.locator('*')).toHaveCount(0);
+  await oldButton!.evaluate(node => (node as HTMLElement).click());
+  await controls.getByRole('button', { name: 'Refresh lifecycle stats', exact: true }).click();
+  await expect(controls.getByTestId('root-stats')).toHaveText('Cycles: 0; Effects: 0; Collectors: 0; Last count: 10');
+  await controls.getByRole('button', { name: 'Emit retired results', exact: true }).click();
+  await expect(first.locator('*')).toHaveCount(0);
+  await controls.getByRole('button', { name: 'Run 100 mount cycles', exact: true }).click();
+  await expect(controls.getByTestId('root-stats')).toHaveText('Cycles: 100; Effects: 0; Collectors: 0; Last count: 1');
+  await expect(first.locator('*')).toHaveCount(0);
+  await expect(second.getByTestId('controlled-input')).toHaveValue('Synthetic account B');
+  await second.getByRole('button', { name: 'Increment', exact: true }).click();
+  await expect(second.getByTestId('counter')).toHaveText('Count: 1');
+  await controls.getByRole('button', { name: 'Replace first root', exact: true }).click();
+  await expect(first.getByTestId('counter')).toHaveText('Count: 0');
+  await first.getByRole('button', { name: 'Increment', exact: true }).click();
+  await expect(first.getByTestId('counter')).toHaveText('Count: 1');
+  await controls.getByRole('button', { name: 'Replace first root', exact: true }).click();
+  await expect(first.getByTestId('counter')).toHaveText('Count: 0');
+  await expect(first.getByTestId('active-effects')).toHaveText('Active effects: 1');
+  await expect(second.getByTestId('counter')).toHaveText('Count: 1');
+});
+
+
+test('failed mounts release partial DOM and effects and restore neighboring roots', async ({ page }) => {
+  await page.goto('/?lifecycle=true');
+  const first = page.locator('#root');
+  const second = page.locator('#second-root');
+  const controls = page.locator('#controls');
+  const neighbor = await second.getByTestId('counter').elementHandle();
+  await controls.getByRole('button', { name: 'Fail first mount', exact: true }).click();
+  await expect(controls.getByTestId('failed-mounts')).toHaveText('Failed mounts: 1');
+  await expect(controls.getByTestId('root-stats')).toHaveText('Cycles: 0; Effects: 0; Collectors: 0; Last count: 0');
+  await expect(first.locator('*')).toHaveCount(0);
+  expect(await neighbor!.evaluate(node => node === document.querySelector('#second-root [data-testid="counter"]'))).toBe(true);
+  await second.getByRole('button', { name: 'Increment', exact: true }).click();
+  await expect(second.getByTestId('counter')).toHaveText('Count: 1');
+  await controls.getByRole('button', { name: 'Replace first root', exact: true }).click();
+  await expect(first.getByTestId('counter')).toHaveText('Count: 0');
+  await first.getByRole('button', { name: 'Increment', exact: true }).click();
+  await expect(first.getByTestId('counter')).toHaveText('Count: 1');
+  await expect(second.getByTestId('counter')).toHaveText('Count: 1');
+});
+
+test('JS microtask mounts cancel queued and late work on disposal', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.startsWith('wasm-'), 'MicrotaskScheduler is a JS-specific API');
+  await page.goto('/?lifecycle=true&scheduler=microtask');
+  const first = page.locator('#root');
+  const controls = page.locator('#controls');
+  await controls.getByRole('button', { name: 'Queue update and dispose', exact: true }).click();
+  await expect(first.locator('*')).toHaveCount(0);
+  await expect(controls.getByTestId('root-stats')).toHaveText('Cycles: 0; Effects: 0; Collectors: 0; Last count: 10');
+  await controls.getByRole('button', { name: 'Emit retired results', exact: true }).click();
+  await expect(first.locator('*')).toHaveCount(0);
+  await controls.getByRole('button', { name: 'Replace first root', exact: true }).click();
+  await first.getByRole('button', { name: 'Increment', exact: true }).click();
+  await expect(first.getByTestId('counter')).toHaveText('Count: 1');
+});

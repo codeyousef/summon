@@ -105,6 +105,16 @@ public final class codes/yousef/summon/ModifierJvmKt {
 	public static final fun applyStyles (Lcodes/yousef/summon/modifier/Modifier;Lkotlinx/html/CommonAttributeGroupFacade;)Lkotlin/Pair;
 }
 
+public abstract interface class codes/yousef/summon/MountedComposition {
+	public abstract fun dispose ()V
+	public abstract fun isDisposed ()Z
+}
+
+public final class codes/yousef/summon/MountedCompositionKt {
+	public static final fun mountComposableRoot (Ljava/lang/String;Lcodes/yousef/summon/runtime/RecompositionScheduler;Lkotlin/jvm/functions/Function0;)Lcodes/yousef/summon/MountedComposition;
+	public static synthetic fun mountComposableRoot$default (Ljava/lang/String;Lcodes/yousef/summon/runtime/RecompositionScheduler;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Lcodes/yousef/summon/MountedComposition;
+}
+
 public final class codes/yousef/summon/StateJvmKt {
 	public static final fun createObserver (Lcodes/yousef/summon/state/SummonMutableState;)Lcodes/yousef/summon/StateObserver;
 	public static final fun persistToFile (Lcodes/yousef/summon/state/SummonMutableState;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
@@ -9119,6 +9129,7 @@ public final class codes/yousef/summon/runtime/HydrationPhase : java/lang/Enum {
 
 public final class codes/yousef/summon/runtime/ImmediateScheduler : codes/yousef/summon/runtime/RecompositionScheduler {
 	public fun <init> ()V
+	public fun cancelPendingRecomposition ()V
 	public fun scheduleRecomposition (Lkotlin/jvm/functions/Function0;)V
 }
 
@@ -9165,6 +9176,7 @@ public final class codes/yousef/summon/runtime/JvmRecomposerKt {
 
 public final class codes/yousef/summon/runtime/JvmRecompositionScheduler : codes/yousef/summon/runtime/RecompositionScheduler {
 	public fun <init> ()V
+	public fun cancelPendingRecomposition ()V
 	public fun scheduleRecomposition (Lkotlin/jvm/functions/Function0;)V
 }
 
@@ -9408,6 +9420,7 @@ public final class codes/yousef/summon/runtime/Recomposer {
 	public fun <init> ()V
 	public final fun composeInitial (Lkotlin/jvm/functions/Function0;)V
 	public final fun createComposer ()Lcodes/yousef/summon/runtime/Composer;
+	public final fun dispose ()V
 	public final fun isComposing ()Z
 	public final fun processRecompositions (Lkotlin/jvm/functions/Function0;)V
 	public final fun recordRead (Ljava/lang/Object;)V
@@ -9427,7 +9440,12 @@ public final class codes/yousef/summon/runtime/RecomposerHolder {
 }
 
 public abstract interface class codes/yousef/summon/runtime/RecompositionScheduler {
+	public fun cancelPendingRecomposition ()V
 	public abstract fun scheduleRecomposition (Lkotlin/jvm/functions/Function0;)V
+}
+
+public final class codes/yousef/summon/runtime/RecompositionScheduler$DefaultImpls {
+	public static fun cancelPendingRecomposition (Lcodes/yousef/summon/runtime/RecompositionScheduler;)V
 }
 
 public final class codes/yousef/summon/runtime/RememberKt {
@@ -9487,6 +9505,7 @@ public final class codes/yousef/summon/runtime/SummonLogger {
 
 public final class codes/yousef/summon/runtime/ThreadPoolScheduler : codes/yousef/summon/runtime/RecompositionScheduler {
 	public fun <init> ()V
+	public fun cancelPendingRecomposition ()V
 	public fun scheduleRecomposition (Lkotlin/jvm/functions/Function0;)V
 	public final fun shutdown ()V
 }

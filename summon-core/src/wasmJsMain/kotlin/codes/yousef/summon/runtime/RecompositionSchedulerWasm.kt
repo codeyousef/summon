@@ -9,6 +9,11 @@ import kotlinx.browser.window
 class WasmRecompositionScheduler : RecompositionScheduler {
     private var animationFrameId: Int? = null
 
+    override fun cancelPendingRecomposition() {
+        animationFrameId?.let { kotlinx.browser.window.cancelAnimationFrame(it) }
+        animationFrameId = null
+    }
+
     override fun scheduleRecomposition(work: () -> Unit) {
         animationFrameId?.let { window.cancelAnimationFrame(it) }
         // Pass the Kotlin callback directly through the supported DOM binding. The

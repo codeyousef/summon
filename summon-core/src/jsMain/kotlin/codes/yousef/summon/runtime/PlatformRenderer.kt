@@ -309,6 +309,21 @@ actual open class PlatformRenderer {
         }
     }
 
+    internal fun releaseMountedElements() {
+        (elementCache.values.toList() + listenerRegistry.keys.toList()).distinct().forEach { element ->
+            clearEventListeners(element)
+            element.parentNode?.removeChild(element)
+        }
+        elementCache.clear()
+        listenerRegistry.clear()
+        usedElements.clear()
+        parentChildrenMap.clear()
+        compositionChildrenMap.clear()
+        keyToParentMap.clear()
+        parentKeyStack.clear()
+        isRecomposing = false
+    }
+
     private fun cssPropertyName(key: String): String =
         if (key.contains('-')) {
             key

@@ -238,10 +238,9 @@ fun CompositionScope.effect(effect: () -> Unit) {
 @Composable
 fun CompositionScope.onMount(effect: () -> Unit) {
     compose {
-        // Using SideEffect instead of LaunchedEffect for synchronous execution in tests
-        // while maintaining the same behavior in production
-        SideEffect {
+        DisposableEffect(Unit) {
             effect()
+            return@DisposableEffect {}
         }
     }
 }
@@ -270,7 +269,7 @@ fun CompositionScope.onDispose(effect: () -> Unit) {
 @Composable
 fun CompositionScope.effectWithDeps(vararg dependencies: Any?, effect: () -> Unit) {
     compose {
-        LaunchedEffect(dependencies) {
+        LaunchedEffect(dependencies.toList()) {
             effect()
         }
     }
@@ -302,7 +301,7 @@ fun CompositionScope.effectWithDepsAndCleanup(
     effect: () -> (() -> Unit)?
 ) {
     compose {
-        DisposableEffect(dependencies) {
+        DisposableEffect(dependencies.toList()) {
             effect() ?: {}
         }
     }

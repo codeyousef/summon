@@ -118,15 +118,18 @@ fun LaunchedEffect(key: Any? = null, block: suspend () -> Unit) {
     val composer = requireNotNull(CompositionLocal.currentComposer) {
         "LaunchedEffect requires an active composition"
     }
-    composer.nextSlot()
     val previous = composer.getSlot() as? EffectState
-    if (previous != null && previous.type == EffectType.LAUNCHED && previous.key == key) return
+    if (previous != null && previous.type == EffectType.LAUNCHED && previous.key == key) {
+        composer.nextSlot()
+        return
+    }
     previous?.dispose()
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default + CoroutineExceptionHandler { _, _ ->
         println("Summon launched effect failed")
     })
     val state = EffectState(key, EffectType.LAUNCHED) { scope.cancel() }
     composer.setSlot(state)
+    composer.nextSlot()
     if (!Recomposer.isComposerImpl(composer)) composer.registerDisposable(state::dispose)
     scope.launch { block() }
 
@@ -145,12 +148,15 @@ fun DisposableEffect(key: Any? = null, effect: () -> (() -> Unit)) {
     val composer = requireNotNull(CompositionLocal.currentComposer) {
         "DisposableEffect requires an active composition"
     }
-    composer.nextSlot()
     val previous = composer.getSlot() as? EffectState
-    if (previous != null && previous.type == EffectType.DISPOSABLE && previous.key == key) return
+    if (previous != null && previous.type == EffectType.DISPOSABLE && previous.key == key) {
+        composer.nextSlot()
+        return
+    }
     previous?.dispose()
     val state = EffectState(key, EffectType.DISPOSABLE, effect())
     composer.setSlot(state)
+    composer.nextSlot()
     if (!Recomposer.isComposerImpl(composer)) composer.registerDisposable(state::dispose)
 
 }
@@ -161,12 +167,9 @@ fun DisposableEffect(key: Any? = null, effect: () -> (() -> Unit)) {
  */
 @Composable
 fun SideEffect(effect: () -> Unit) {
-    val composer = CompositionLocal.currentComposer
+    val composer = CompositionLocal.currentComposer ?: return
+    if (!Recomposer.enqueueSideEffect(composer, effect) && composer.inserting) effect()
 
-    // Execute the effect on every composition
-    if (composer?.inserting == true) {
-        effect()
-    }
 }
 
 /**

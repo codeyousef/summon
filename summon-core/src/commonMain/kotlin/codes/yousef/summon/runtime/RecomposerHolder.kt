@@ -8,7 +8,9 @@ object RecomposerHolder {
     /**
      * The global Recomposer instance.
      */
-    private var _recomposer: Recomposer? = null
+    private var _recomposer: Recomposer?
+        get() = RuntimeContextStore.get().recomposer
+        set(value) { RuntimeContextStore.get().recomposer = value }
 
     val recomposer: Recomposer
         get() = _recomposer ?: Recomposer().also { _recomposer = it }

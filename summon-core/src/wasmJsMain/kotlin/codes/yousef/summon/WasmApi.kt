@@ -36,3 +36,49 @@ fun hydrateComposableRoot(rootElementId: String, composable: @Composable () -> U
         renderComposableRoot(rootElementId, composable)
     }
 }
+
+private val mountedRoots = mutableMapOf<String, MountedComposition>()
+private val mountingRoots = mutableSetOf<String>()
+private val mountedRenderers = mutableSetOf<PlatformRenderer>()
+
+actual fun mountComposableRoot(
+    rootElementId: String,
+    scheduler: RecompositionScheduler?,
+    composable: @Composable () -> Unit
+): MountedComposition {
+    GlobalEventListener.init()
+    return mountWasmRoot(PlatformRenderer(), rootElementId, scheduler, composable)
+}
+
+internal fun mountWasmRoot(
+    renderer: PlatformRenderer,
+    rootElementId: String,
+    scheduler: RecompositionScheduler?,
+    composable: @Composable () -> Unit
+): MountedComposition {
+    val nativeId = wasmGetElementById(rootElementId)
+        ?: throw IllegalArgumentException("Root element not found: $rootElementId")
+    check(mountingRoots.add(nativeId)) { "Cannot replace a root during its mounting or cleanup" }
+    try {
+        mountedRoots.remove(nativeId)?.dispose()
+        check(mountedRenderers.add(renderer)) { "A renderer cannot own multiple browser roots" }
+        var disposalGuard = false
+        var owner: MountedComposition? = null
+        try {
+            owner = createOwnedComposition(renderer, scheduler, release = {
+                try { renderer.releaseMountedElements() } finally {
+                    mountedRenderers.remove(renderer)
+                    if (disposalGuard) mountingRoots.remove(nativeId)
+                }
+            }, beforeDispose = {
+                if (mountedRoots[nativeId] === owner) mountedRoots.remove(nativeId)
+                disposalGuard = mountingRoots.add(nativeId)
+            }, root = renderer.mountedRoot(rootElementId, composable))
+            mountedRoots[nativeId] = owner
+            return owner
+        } catch (error: Throwable) {
+            mountedRenderers.remove(renderer)
+            throw error
+        }
+    } finally { mountingRoots.remove(nativeId) }
+}

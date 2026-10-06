@@ -15,22 +15,5 @@ import org.w3c.dom.HTMLElement
  * @param container The DOM element to render into
  */
 fun PlatformRenderer.renderComposable(content: @Composable () -> Unit, container: HTMLElement) {
-    // Clear the container first to avoid appending to existing content
-    container.innerHTML = ""
-
-    // Set up the container as the current parent for rendering
-    // Use window.currentParent to access the global variable set by Initialize.kt
-    js("var previousParent = window.currentParent;")
-    js("window.currentParent = container;")
-
-    try {
-        // Render the composable content into the container
-        renderComposable(content)
-    } catch (e: Exception) {
-        // Log any errors that occur during rendering
-        js("console.error('Error rendering composable to container: ', e);")
-    } finally {
-        // Restore the previous parent
-        js("window.currentParent = previousParent;")
-    }
-} 
+    codes.yousef.summon.renderComposable(this, content, container)
+}

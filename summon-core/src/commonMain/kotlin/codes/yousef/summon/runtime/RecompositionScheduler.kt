@@ -11,6 +11,9 @@ interface RecompositionScheduler {
      * on the next frame or microtask.
      */
     fun scheduleRecomposition(work: () -> Unit)
+
+    /** Detaches queued work when its owning root is disposed. */
+    fun cancelPendingRecomposition() {}
 }
 
 /**

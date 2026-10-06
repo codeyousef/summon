@@ -2070,85 +2070,41 @@ actual open class PlatformRenderer actual constructor() {
      * This is the main entry point for WASM applications.
      */
     fun mountComposableRoot(rootElementId: String, composable: @Composable () -> Unit) {
-        try {
-            wasmConsoleLog("Mounting composable root to element: $rootElementId")
+        codes.yousef.summon.mountWasmRoot(this, rootElementId, null, composable)
+    }
 
-            // Find the root element by ID
-            val elementId = wasmGetElementById(rootElementId)
-                ?: throw WasmDOMException("Root element not found: $rootElementId")
-
-            // Create a DOM element wrapper
-            val rootElement = DOMProvider.createElementFromNative(elementId)
-
-            // Set as root container
+    internal fun mountedRoot(rootElementId: String, composable: @Composable () -> Unit): @Composable () -> Unit {
+        val elementId = wasmGetElementById(rootElementId)
+            ?: throw WasmDOMException("Root element not found: $rootElementId")
+        val rootElement = DOMProvider.createElementFromNative(elementId)
+        setRootContainer(rootElement)
+        wasmSetElementInnerHTML(elementId, "")
+        isInitialMount = false
+        isHydrating = false
+        mainRootElement = rootElement
+        return {
+            previousCompositionElements.clear()
+            previousCompositionElements.addAll(currentCompositionElements)
+            currentCompositionElements.clear()
             setRootContainer(rootElement)
-
-            // Only clear content on initial mount, not on recomposition
-            if (isInitialMount) {
-                wasmSetElementInnerHTML(elementId, "")
-                isInitialMount = false
-            }
-
-            // Ensure we're NOT in hydration mode for fresh rendering
-            isHydrating = false
-
-            wasmConsoleLog("Hydration mode set to: $isHydrating")
-
-            // Make sure the platform renderer is set globally
-            setPlatformRenderer(this)
-
-            // Provide the LocalPlatformRenderer value for the composition
-            LocalPlatformRenderer.provides(this)
-
-            // Get the Recomposer and create a Composer for this composition
-            val recomposer = RecomposerHolder.current()
-
-            // Store the container for the initial and subsequent root passes.
-            mainRootElement = rootElement
-
-            // Create a wrapped composable that includes the container context
-            val wrappedComposable: @Composable () -> Unit = {
-                // Reset ID counters for stable ID generation across recompositions
-                // This ensures elements rendered in the same order get the same IDs
-                rowCounter = 0
-                columnCounter = 0
-
-                // Clear placement tracking for new recomposition pass
-                placedElements.clear()
-
-                // Swap element sets for proper tracking
-                previousCompositionElements.clear()
-                previousCompositionElements.addAll(currentCompositionElements)
-                currentCompositionElements.clear()
-
-                // Set the root container for recomposition
-                setRootContainer(mainRootElement!!)
-
-                // Render within the container context
-                withContainerContext(mainRootElement!!) {
-                    composable()
-                }
-
-                // Remove elements that are no longer in the composition
-                val elementsToRemove = previousCompositionElements - currentCompositionElements
-                for (elementId in elementsToRemove) {
-                    wasmConsoleLog("Removing unused element: $elementId")
-                    removeElementFromDom(elementId)
-                }
-            }
-
-            // Store the wrapped composable as the composition root for recomposition
-            recomposer.setCompositionRoot(wrappedComposable)
-
-            // Initial and subsequent passes must use the same composer group/slot
-            // layout. The wrapped root already owns child reconciliation.
-            recomposer.composeInitial(wrappedComposable)
-
-            wasmConsoleLog("Composable root mounted successfully with proper composition context")
-        } catch (e: Exception) {
-            wasmConsoleError("Failed to mount composable root: ${e.message}")
-            throw e
+            withContainerContext(rootElement) { composable() }
+            (previousCompositionElements - currentCompositionElements).forEach { removeElementFromDom(it) }
         }
+    }
+
+    internal fun releaseMountedElements() {
+        (recompositionElements.keys + existingElements.keys).toList().forEach { removeElementFromDom(it) }
+        recompositionElements.clear()
+        existingElements.clear()
+        currentCompositionElements.clear()
+        previousCompositionElements.clear()
+        eventHandlerIds.clear()
+        attachedEventListeners.clear()
+        placedElements.clear()
+        containerStack.clear()
+        rootContainer = null
+        mainRootElement = null
+        resetElementCounters()
     }
 
     // ================================================================================================

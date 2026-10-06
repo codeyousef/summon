@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **Disposable browser roots** - `mountComposableRoot` returns a `MountedComposition` handle.
+  Each JS/WASM root owns its recomposer, renderer and scheduling; replacement releases the old
+  mount, and disposal cancels queued work and removes owned DOM callbacks and nodes.
 - **Owned flow bindings** - `bindStateFlow`, `bindMutableStateFlow`, and `bindSharedFlow`
   expose explicitly disposable subscriptions under a caller-supplied coroutine scope. Read-only
   bindings prevent reverse writes; mutable bindings suppress equal-value feedback.
@@ -34,9 +37,13 @@ All notable changes to this project will be documented in this file.
   before invoking it, preserving work queued by effect cleanup or other composition callbacks.
   Microtasks use Kotlin field access rather than JavaScript names affected by IR mangling.
 - **Composition teardown** - Disposed composers reject queued and late work, remove stale state
-  dependencies, and run all cleanup callbacks once even when one callback fails.
+  dependencies, and run all cleanup callbacks once even when one callback fails. Failed root
+  bodies dispose mounted ownership, and disposed handles release application/renderer references.
 - **Effect teardown** - Key replacement and conditional removal dispose slot-owned resources;
   suspended launched effects are canceled and replaced cleanup callbacks are not invoked twice.
+- **Effect helper semantics** - `onMount` runs once until removal and re-entry;
+  dependency-aware helpers compare values structurally. Effects and `remember` use distinct
+  sequential slots, and the recomposer commits `SideEffect` callbacks only after success.
 
 ## [0.7.0.4] - 2026-07-18
 

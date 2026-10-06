@@ -8,18 +8,24 @@ import codes.yousef.summon.components.layout.Column
 import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.modifier.attribute
 import codes.yousef.summon.runtime.DisposableEffect
+import codes.yousef.summon.runtime.SideEffect
+import codes.yousef.summon.runtime.remember
+import codes.yousef.summon.effects.CompositionScope
+import codes.yousef.summon.effects.onMount
+import codes.yousef.summon.effects.effectWithDepsAndCleanup
 import codes.yousef.summon.state.bindMutableStateFlow
 import codes.yousef.summon.state.mutableStateOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /** Synthetic fixture data only. This is not the application's encryption or login layer. */
-class FixtureSession {
+class FixtureSession(initialAccount: String = "Synthetic account A") {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    val source = MutableStateFlow("Synthetic account A")
+    val source = MutableStateFlow(initialAccount)
     val binding = bindMutableStateFlow(source, scope)
     val count = mutableStateOf(0)
     val loggedIn = mutableStateOf(true)
@@ -29,16 +35,40 @@ class FixtureSession {
     val disposedEffects = mutableStateOf(0)
     val items = mutableStateOf(listOf("one", "two", "three"))
 
-    fun logout() {
-        loggedIn.value = false
+    val activeCollectors: Int get() = scope.coroutineContext[Job]!!.children.count { it.isActive }
+    var helperMounts = 0
+    var helperSetups = 0
+    var helperCleanups = 0
+    var sideOrderErrors = 0
+
+    fun dispose() {
         binding.dispose()
         scope.cancel()
+    }
+
+    fun logout() {
+        loggedIn.value = false
+        dispose()
     }
 }
 
 @Composable
 fun FixtureApp(session: FixtureSession) {
+    DisposableEffect(session) { { session.dispose() } }
+    val effects = object : CompositionScope {
+        override fun compose(block: @Composable () -> Unit) = block()
+    }
+    effects.onMount { session.helperMounts++ }
+    effects.effectWithDepsAndCleanup(session.effectKey.value, "stable") {
+        session.helperSetups++
+        return@effectWithDepsAndCleanup { session.helperCleanups++ }
+    }
+    val remembered = remember { "remembered after effects" }
+    var renderFinished = false
+    SideEffect { if (!renderFinished) session.sideOrderErrors++ }
     Column {
+        Text("Mounts: ${session.helperMounts}; Setups: ${session.helperSetups}; Cleanups: ${session.helperCleanups}; Side errors: ${session.sideOrderErrors}; $remembered",
+            Modifier().attribute("data-testid", "helper-stats"))
         Text("Summon source consumer", Modifier().attribute("data-testid", "fixture-title"))
         Text("Count: ${session.count.value}", Modifier().attribute("data-testid", "counter"))
         Button(onClick = { session.count.value++ }, label = "Increment")
@@ -73,4 +103,5 @@ fun FixtureApp(session: FixtureSession) {
             }
         }
     }
+    renderFinished = true
 }

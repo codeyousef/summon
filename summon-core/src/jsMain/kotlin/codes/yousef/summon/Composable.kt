@@ -1,64 +1,48 @@
 package codes.yousef.summon
 
 import codes.yousef.summon.annotation.Composable
-import codes.yousef.summon.runtime.LocalPlatformRenderer
 import codes.yousef.summon.runtime.PlatformRenderer
-import codes.yousef.summon.runtime.RecomposerHolder
-import codes.yousef.summon.runtime.setPlatformRenderer
+import codes.yousef.summon.runtime.RecompositionScheduler
+import codes.yousef.summon.runtime.createOwnedComposition
 import org.w3c.dom.HTMLElement
 
-/**
- * Global reference to the root container for recomposition management
- */
-private var globalRootContainer: HTMLElement? = null
+private val mountedRoots = mutableMapOf<HTMLElement, MountedComposition>()
+private val mountingRoots = mutableSetOf<HTMLElement>()
+private val mountedRenderers = mutableSetOf<PlatformRenderer>()
 
-/**
- * Renders a composable to a DOM element.
- *
- * This is a top-level function that's used by RenderUtils.renderComposable
- * to render a composable to a DOM element.
- *
- * For SSR hydration, this should NOT be called. Instead, use SummonHydrationClient.
- *
- * @param renderer The platform renderer to use
- * @param composable The composable to render
- * @param container The DOM element to render into
- */
+/** Compatibility entry point. The container owns its mount until replaced or explicitly disposed. */
 fun renderComposable(renderer: PlatformRenderer, composable: @Composable () -> Unit, container: HTMLElement) {
-    globalRootContainer = container
+    mountInto(renderer, container, null, composable)
+}
 
-    // Check if this is an SSR container with existing content
-    val isSSRContainer = container.getAttribute("data-summon-hydration") == "root" ||
-            container.getAttribute("data-ssr") == "true"
-
-    if (isSSRContainer) {
-        js("console.warn('renderComposable called on SSR container - use hydrateComposableRoot for hydration. Clearing SSR content to avoid duplicates.');")
-    }
-
-    // Always clear the container to prevent duplicate rendering
-    container.innerHTML = ""
-
+internal fun mountInto(
+    renderer: PlatformRenderer,
+    container: HTMLElement,
+    scheduler: RecompositionScheduler?,
+    composable: @Composable () -> Unit
+): MountedComposition {
+    check(mountingRoots.add(container)) { "Cannot replace a root during its mounting or cleanup" }
     try {
-        setPlatformRenderer(renderer)
-        val recomposer = RecomposerHolder.current()
-        
-        // Define the root composable that sets up the environment
-        val root: @Composable () -> Unit = {
-            LocalPlatformRenderer.provides(renderer)
-            renderer.startRecomposition()
-            renderer.renderInto(container) {
-                composable()
-            }
-            renderer.endRecomposition()
+        mountedRoots.remove(container)?.dispose()
+        check(mountedRenderers.add(renderer)) { "A renderer cannot own multiple browser roots" }
+        container.innerHTML = ""
+        var disposalGuard = false
+        var owner: MountedComposition? = null
+        try {
+            owner = createOwnedComposition(renderer, scheduler, release = {
+                try { renderer.releaseMountedElements() } finally {
+                    mountedRenderers.remove(renderer)
+                    if (disposalGuard) mountingRoots.remove(container)
+                }
+            }, beforeDispose = {
+                if (mountedRoots[container] === owner) mountedRoots.remove(container)
+                disposalGuard = mountingRoots.add(container)
+            }) { renderer.renderInto(container, composable) }
+            mountedRoots[container] = owner
+            return owner
+        } catch (error: Throwable) {
+            mountedRenderers.remove(renderer)
+            throw error
         }
-
-        recomposer.setCompositionRoot(root)
-        
-        // Use composeInitial to ensure the initial composition follows the same
-        // structure (startGroup/endGroup) as subsequent recompositions.
-        recomposer.composeInitial(root)
-    } catch (e: Exception) {
-        js("console.error('Error rendering composable to container: ', e);")
-        js("console.error('Stack trace: ', e.stack);")
-    }
+    } finally { mountingRoots.remove(container) }
 }
