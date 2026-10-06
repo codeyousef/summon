@@ -2,6 +2,45 @@
 
 This document provides detailed information about the routing APIs in the Summon library.
 
+## Current 0.8.0 API
+
+```kotlin
+expect interface Router {
+    fun navigate(path: String, pushState: Boolean = true)
+    @Composable fun create(initialPath: String)
+    val currentPath: String
+}
+
+interface RouterBuilder {
+    fun route(path: String, content: @Composable (RouteParams) -> Unit)
+    fun guardedRoute(
+        path: String,
+        vararg guards: RouteGuard,
+        content: @Composable (RouteParams) -> Unit
+    )
+    fun setNotFound(content: @Composable (RouteParams) -> Unit)
+    fun setGuardFallback(content: @Composable (GuardResult) -> Unit)
+}
+
+fun createRouter(builder: RouterBuilder.() -> Unit): Router
+fun Router.navigationControl(): NavigationControl
+```
+
+`navigate` is for validated same-origin paths only and rejects queries, fragments, external URLs,
+malformed percent escapes, encoded separators, and traversal. `InternalRoutePath.parse` exposes
+the same validation for application boundaries. Parameters support `:name` and legacy `{name}`
+syntax and are decoded after validation.
+
+`GuardResult` has `Allow`, `Loading`, `Locked`, `FeatureDisabled`, `PermissionDenied`, `Redirect`,
+and `Deny`. Guards prevent content mounting but do not grant server authorization.
+
+`NavigationControl` exposes an optional `NavigationInterceptor`, `pendingPath`,
+`continuePending()`, and `cancelPending()` for dirty-form confirmation. The application must
+encrypt/persist a draft before continuing; the router stores no draft content.
+
+The historical aspirational API listings below are retained for migration context. They are not
+the current callable surface.
+
 ## Table of Contents
 
 - [Router](#router)

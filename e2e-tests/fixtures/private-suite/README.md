@@ -27,28 +27,29 @@ BASE_URL=http://127.0.0.1:8877 ./node_modules/.bin/playwright test --config=play
 The dedicated configuration runs Chromium, Firefox and WebKit sequentially.
 WebKit coverage does not replace the roadmap's real Safari release check.
 The fixture checks real Text, Button, controlled TextField, state recomposition,
-flow binding, browser routing, keyed node identity/order/focus/selection,
-latest-model callbacks through stable event wrappers, stale asynchronous result
-rejection, safe unavailable states, lifecycle pause/resume/destroy behavior,
-stable owner-local coroutine scopes, 100 lifecycle-owner cycles with zero host
-listener leaks, logout disposal, effect key/removal cleanup,
-mount-only/dependency-aware effects, independent synthetic roots, explicit root
-replacement/disposal, 100 mount cycles, 100 route swaps with stable node,
-listener, and effect counts, detached callback cleanup, failed-mount
-cleanup/context restoration, nullable/named remembered caches, and JS microtask
-scheduling/disposal. Its JVM smoke path serves the public shell through the
-Summon Aether adapter and a synthetic Aether exchange. It does not qualify
-lifecycle adapters beyond those listed, encryption, real account isolation,
-real Aether providers, or native clients. Those requirements remain incomplete
-in the PRD.
+flow binding, JS/WASM browser routing, guarded private deep links, history,
+malformed-path rejection, dirty encrypted-draft decisions, keyed node
+identity/order/focus/selection, latest-model callbacks through stable event
+wrappers, stale asynchronous result rejection, safe unavailable states,
+lifecycle pause/resume/destroy behavior, stable owner-local coroutine scopes,
+100 lifecycle-owner cycles with zero host listener leaks, logout disposal,
+effect key/removal cleanup, mount-only/dependency-aware effects, independent
+synthetic roots and tabs, explicit root replacement/disposal, 100 mount cycles,
+100 route swaps with stable node/listener/effect counts, detached callback
+cleanup, failed-mount cleanup/context restoration, nullable/named remembered
+caches, and JS microtask scheduling/disposal. Its JVM smoke path serves the
+public shell through the Summon Aether adapter and a synthetic Aether exchange.
+It does not qualify encryption, real account isolation, real Aether providers,
+native clients, or real Safari. Those requirements remain incomplete in the PRD.
 
 After building both distributions, the default configuration starts and stops
-its own two loopback servers and runs 150 target/browser rows: 141 execute and
-nine are explicitly skipped. The three WASM router rows remain unsupported
-because browser routing is not yet implemented for WASM; six WASM microtask
-rows remain unsupported because `MicrotaskScheduler` is JS-specific. Use Node 22
-or 24 for browser installation; the host Node 26 installer stalled during
-archive extraction in the development environment.
+two loopback public-shell fallback servers and runs 168 target/browser rows:
+161 execute and seven are explicit skips: six JS-specific microtask rows on
+WASM, plus the two-tab WASM-WebKit row because Playwright WebKit crashes when
+the bounded container instantiates its second WASM tab. JS and WASM single-tab
+browser routing execute on Chromium, Firefox, and automated WebKit. Use Node 22 or 24
+for browser installation; the host Node 26 installer stalled during archive
+extraction in the development environment.
 
 ```bash
 cd e2e-tests

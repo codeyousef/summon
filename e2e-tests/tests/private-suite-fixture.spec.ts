@@ -402,8 +402,7 @@ test('JS microtask mounts cancel queued and late work on disposal', async ({ pag
   await expect(first.getByTestId('counter')).toHaveText('Count: 1');
 });
 
-test('source consumer mounts and navigates the real browser router', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name.startsWith('wasm-'), 'WASM browser history qualification belongs to SU-03');
+test('source consumer mounts and navigates the real browser router', async ({ page }) => {
   await page.goto('/?router=true');
   await expect(page.getByTestId('route-value')).toHaveText('Fixture route');
   await page.getByRole('button', { name: 'Open fixture item', exact: true }).click();
@@ -412,6 +411,116 @@ test('source consumer mounts and navigates the real browser router', async ({ pa
   await page.getByRole('button', { name: 'Return to fixture route', exact: true }).click();
   await expect(page).toHaveURL(/\/fixture$/);
   await expect(page.getByTestId('route-value')).toHaveText('Fixture route');
+});
+
+test('private route families deep-link through the public shell and remain locked until authorized', async ({ page }) => {
+  const routes: Array<[string, string]> = [
+    ['/mail', '/mail'],
+    ['/mail/thread/opaque-1', '/mail/thread/:id:opaque-1'],
+    ['/mail/compose', '/mail/compose'],
+    ['/calendar', '/calendar'],
+    ['/calendar/event/event-1', '/calendar/event/:id:event-1'],
+    ['/aliases', '/aliases'],
+    ['/aliases/alias-1', '/aliases/:id:alias-1'],
+    ['/security', '/security'],
+    ['/security/devices', '/security/devices'],
+    ['/security/recovery', '/security/recovery'],
+    ['/drive/folder/object', '/drive/*'],
+    ['/attention', '/attention'],
+    ['/connectors/source', '/connectors/*'],
+    ['/feed', '/feed'],
+    ['/people/opaque-handle', '/people/:handle:opaque-handle'],
+    ['/communities/community-1', '/communities/:id:community-1'],
+  ];
+  for (const [path, rendered] of routes) {
+    await page.goto(`${path}?privateRouting=true`);
+    await expect(page).toHaveTitle('Summon source fixture');
+    await expect(page.getByTestId('route-state')).toHaveText('locked');
+    await expect(page.getByTestId('route-effects')).toHaveText('0');
+    await expect(page.getByTestId('route-mounts')).toHaveText('0');
+    await page.getByRole('button', { name: 'Unlock routes', exact: true }).click();
+    await expect(page.getByTestId('route-state')).toHaveText(rendered);
+    await expect(page.getByTestId('route-effects')).toHaveText('1');
+  }
+});
+
+test('guards, history, malformed paths and encrypted draft decisions preserve private teardown', async ({ page }) => {
+  await page.goto('/mail?privateRouting=true');
+  await expect(page.getByTestId('route-state')).toHaveText('locked');
+  await page.getByRole('button', { name: 'Unlock routes', exact: true }).click();
+  await expect(page.getByTestId('route-state')).toHaveText('/mail');
+
+  await page.getByRole('button', { name: 'Open calendar', exact: true }).click();
+  await expect(page).toHaveURL(/\/calendar$/);
+  await page.goBack();
+  await expect(page.getByTestId('route-state')).toHaveText('/mail');
+  await page.goForward();
+  await expect(page.getByTestId('route-state')).toHaveText('/calendar');
+
+  await page.getByRole('button', { name: 'Disable route', exact: true }).click();
+  await expect(page.getByTestId('route-state')).toHaveText('feature unavailable');
+  await expect(page.getByTestId('route-effects')).toHaveText('0');
+  await page.getByRole('button', { name: 'Deny route', exact: true }).click();
+  await expect(page.getByTestId('route-state')).toHaveText('permission denied');
+  await expect(page.getByTestId('route-effects')).toHaveText('0');
+
+  await page.getByRole('button', { name: 'Unlock routes', exact: true }).click();
+  await page.getByRole('button', { name: 'Open composer', exact: true }).click();
+  await page.getByRole('button', { name: 'Edit encrypted draft', exact: true }).click();
+  await page.getByRole('button', { name: 'Leave composer', exact: true }).click();
+  await expect(page.getByTestId('pending-route')).toHaveText('/mail');
+  await expect(page.getByTestId('route-state')).toHaveText('/mail/compose');
+  await page.getByRole('button', { name: 'Cancel transition', exact: true }).click();
+  await expect(page.getByTestId('pending-route')).toHaveText('none');
+  await page.getByRole('button', { name: 'Leave composer', exact: true }).click();
+  await page.getByRole('button', { name: 'Keep encrypted draft', exact: true }).click();
+  await expect(page.getByTestId('encrypted-draft-saved')).toHaveText('true');
+  await expect(page.getByTestId('route-state')).toHaveText('/mail');
+
+  await page.evaluate(() => {
+    history.pushState(null, '', '/mail/%GG');
+    dispatchEvent(new PopStateEvent('popstate'));
+  });
+  await expect(page.getByTestId('route-state')).toHaveText('Safe not found');
+  await expect(page.getByTestId('route-effects')).toHaveText('0');
+
+  await page.getByRole('button', { name: 'Open mail', exact: true }).click();
+  await page.getByRole('button', { name: 'Open calendar', exact: true }).click();
+  await page.getByRole('button', { name: 'Lock routes', exact: true }).click();
+  await page.goBack();
+  await expect(page.getByTestId('route-state')).toHaveText('locked');
+  await expect(page.getByTestId('route-effects')).toHaveText('0');
+});
+
+test('router disposal removes popstate and tabs keep independent authorization', async ({ page, context }, testInfo) => {
+  test.skip(testInfo.project.name === 'wasm-webkit', 'Playwright WebKit crashes when this bounded container instantiates a second WASM tab');
+  await page.addInitScript(() => {
+    const nativeAdd = window.addEventListener.bind(window);
+    const nativeRemove = window.removeEventListener.bind(window);
+    const state = { adds: 0, removes: 0 };
+    (window as Window & { __popstateProbe: typeof state }).__popstateProbe = state;
+    window.addEventListener = ((type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions) => {
+      if (type === 'popstate') state.adds++;
+      return nativeAdd(type, listener, options);
+    }) as typeof window.addEventListener;
+    window.removeEventListener = ((type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions) => {
+      if (type === 'popstate') state.removes++;
+      return nativeRemove(type, listener, options);
+    }) as typeof window.removeEventListener;
+  });
+  await page.goto('/mail?privateRouting=true');
+  await expect.poll(() => page.evaluate(() => (window as Window & { __popstateProbe: { adds: number } }).__popstateProbe.adds)).toBe(1);
+  await page.getByRole('button', { name: 'Toggle router mount', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => (window as Window & { __popstateProbe: { removes: number } }).__popstateProbe.removes)).toBe(1);
+  await page.getByRole('button', { name: 'Toggle router mount', exact: true }).click();
+
+  const second = await context.newPage();
+  await second.goto('/mail?privateRouting=true');
+  await page.getByRole('button', { name: 'Unlock routes', exact: true }).click();
+  await expect(page.getByTestId('route-state')).toHaveText('/mail');
+  expect(await second.getByTestId('route-state').textContent()).not.toBe('/mail');
+  await expect(second.getByTestId('route-effects')).toHaveText('0');
+  await second.close();
 });
 
 test('responsive listeners are owned across recomposition, failure, replacement and disposal', async ({ page }) => {

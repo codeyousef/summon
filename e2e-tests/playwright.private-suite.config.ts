@@ -22,11 +22,11 @@ export default defineConfig({
   use: { headless: true, trace: 'retain-on-failure' },
   webServer: externalURL ? undefined : [
     {
-      command: 'python3 -m http.server 8877 --bind 127.0.0.1 --directory fixtures/private-suite/build/dist/js/productionExecutable',
+      command: 'python3 fixtures/private-suite/spa_server.py --port 8877 --directory fixtures/private-suite/build/dist/js/productionExecutable',
       url: 'http://127.0.0.1:8877', reuseExistingServer: false, timeout: 10_000,
     },
     {
-      command: 'python3 -m http.server 8878 --bind 127.0.0.1 --directory fixtures/private-suite/build/dist/wasmJs/productionExecutable',
+      command: 'python3 fixtures/private-suite/spa_server.py --port 8878 --directory fixtures/private-suite/build/dist/wasmJs/productionExecutable',
       url: 'http://127.0.0.1:8878', reuseExistingServer: false, timeout: 10_000,
     },
   ],

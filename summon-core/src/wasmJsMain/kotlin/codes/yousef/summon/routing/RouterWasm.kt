@@ -1,8 +1,11 @@
 package codes.yousef.summon.routing
 
 import codes.yousef.summon.runtime.Composable
-import codes.yousef.summon.runtime.wasmConsoleLog
-
+import codes.yousef.summon.runtime.DisposableEffect
+import codes.yousef.summon.runtime.LaunchedEffect
+import codes.yousef.summon.runtime.rememberMutableStateOf
+import codes.yousef.summon.state.SummonMutableState
+import kotlinx.browser.window
 /**
  * WASM implementation of the RouterContext object
  */
@@ -50,125 +53,113 @@ actual interface Router {
     actual val currentPath: String
 }
 
+private fun browserBootPath(initialPath: String): String {
+    val browserPath = window.location.pathname
+    return if (browserPath == "/" || !browserPath.startsWith('/')) initialPath else browserPath
+}
+
 /**
  * WASM implementation of the FileBasedRouter.
  */
-actual class FileBasedRouter actual constructor() : Router {
+actual class FileBasedRouter actual constructor() : Router, NavigationControl {
     private val registry = DefaultPageRegistry()
-    private var _currentPath = "/"
-    private var currentRouteParams = RouteParams(emptyMap())
+    private var _currentPath = window.location.pathname
+    private var renderedRoute: SummonMutableState<String>? = null
+    private var pendingPushState = true
+
+    override var interceptor: NavigationInterceptor? = null
+    override var pendingPath: String? = null
+        private set
 
     actual override val currentPath: String
         get() = _currentPath
 
     init {
-        // Load pages automatically when created
         loadPages()
     }
 
     actual fun loadPages() {
-        wasmConsoleLog("FileBasedRouter loadPages - WASM stub")
-        // TODO: Implement page loading for WASM
-        // For now, register a simple default page
         PageLoader.registerPages(registry)
     }
 
     actual override fun navigate(path: String, pushState: Boolean) {
-        wasmConsoleLog("FileBasedRouter navigate to: $path - WASM stub")
-        navigateInternal(path)
+        val safePath = requireNotNull(InternalRoutePath.parse(path)) {
+            "Router navigation accepts same-origin paths without query strings or fragments"
+        }
+        if (interceptor?.beforeNavigate(_currentPath, safePath.encodedPath) == NavigationDecision.CANCEL) {
+            pendingPath = safePath.encodedPath
+            pendingPushState = pushState
+            return
+        }
+        performNavigation(safePath, pushState)
     }
 
-    private fun navigateInternal(path: String) {
-        _currentPath = path
+    override fun continuePending() {
+        val safePath = pendingPath?.let(InternalRoutePath::parse) ?: return
+        val pushState = pendingPushState
+        pendingPath = null
+        performNavigation(safePath, pushState)
+    }
 
-        // Find matching route and extract parameters
-        val routeMatch = findMatchingRoute(path)
-        currentRouteParams = RouteParams(routeMatch?.params ?: mapOf("path" to path))
+    override fun cancelPending() {
+        pendingPath = null
+    }
+
+    private fun performNavigation(path: InternalRoutePath, pushState: Boolean) {
+        _currentPath = path.encodedPath
+        renderedRoute?.value = path.encodedPath
+        if (pushState) {
+            window.history.pushState(null, "", path.encodedPath)
+        } else {
+            window.history.replaceState(null, "", path.encodedPath)
+        }
     }
 
     private fun findMatchingRoute(path: String): RouteMatchResult? {
-        val pages = registry.getPages()
-
-        // Check each registered route for a match
-        return pages.entries.firstOrNull { (routePath, _) ->
-            val paramMap = matchRoute(routePath, path)
-            paramMap != null
-        }?.let { (routePath, pageFactory) ->
-            val params = matchRoute(routePath, path) ?: emptyMap()
-            RouteMatchResult(RouteDefinition(routePath, pageFactory), params)
+        val internalPath = InternalRoutePath.parse(path) ?: return null
+        for ((routePath, pageFactory) in registry.getPages()) {
+            val params = matchInternalRoute(routePath, internalPath)
+            if (params != null) return RouteMatchResult(RouteDefinition(routePath, pageFactory), params)
         }
-    }
-
-    /**
-     * Match a route pattern against a path, extracting parameters.
-     */
-    private fun matchRoute(pattern: String, path: String): Map<String, String>? {
-        // Split pattern and path into segments
-        val patternSegments = pattern.trim('/').split('/')
-        val pathSegments = path.trim('/').split('/')
-
-        // Quick check for catchall routes
-        if (patternSegments.lastOrNull() == "*") {
-            val paramName = patternSegments.last().removePrefix("*")
-            val params = mutableMapOf<String, String>()
-            // Capture everything after the prefix as a single parameter
-            val prefixSegments = patternSegments.dropLast(1)
-            if (pathSegments.size >= prefixSegments.size) {
-                val prefixPath = prefixSegments.joinToString("/")
-                val paramValue = pathSegments.drop(prefixSegments.size).joinToString("/")
-                params[paramName] = paramValue
-                return params
-            }
-            return null
-        }
-
-        // If segment counts don't match (and not a catchall), it's not a match
-        if (patternSegments.size != pathSegments.size) {
-            return null
-        }
-
-        val params = mutableMapOf<String, String>()
-
-        // Match each segment
-        for (i in patternSegments.indices) {
-            val patternSegment = patternSegments[i]
-            val pathSegment = pathSegments[i]
-
-            if (patternSegment.startsWith(":")) {
-                // Parameter segment
-                val paramName = patternSegment.drop(1)
-                params[paramName] = pathSegment
-            } else if (patternSegment != pathSegment) {
-                // Static segment doesn't match
-                return null
-            }
-        }
-
-        return params
+        return null
     }
 
     @Composable
     actual override fun create(initialPath: String) {
-        wasmConsoleLog("FileBasedRouter create with path: $initialPath - WASM stub")
-
-        // Initialize with correct path if provided
-        if (initialPath != _currentPath) {
-            navigateInternal(initialPath)
+        val bootPath = browserBootPath(initialPath)
+        val currentRoute = rememberMutableStateOf(bootPath)
+        renderedRoute = currentRoute
+        DisposableEffect(Unit) {
+            val listener: (org.w3c.dom.events.Event) -> Unit = {
+                val target = InternalRoutePath.parse(window.location.pathname)
+                if (target == null) {
+                    _currentPath = "/"
+                    currentRoute.value = ""
+                } else if (interceptor?.beforeNavigate(_currentPath, target.encodedPath) == NavigationDecision.CANCEL) {
+                    pendingPath = target.encodedPath
+                    pendingPushState = false
+                    window.history.pushState(null, "", _currentPath)
+                } else {
+                    _currentPath = target.encodedPath
+                    currentRoute.value = target.encodedPath
+                }
+            }
+            window.addEventListener("popstate", listener)
+            return@DisposableEffect {
+                window.removeEventListener("popstate", listener)
+                if (renderedRoute === currentRoute) renderedRoute = null
+            }
         }
-
-        // Find the component to render
-        val route = findMatchingRoute(_currentPath)
-        val content = route?.route?.content ?: registry.getNotFoundPage() ?: { NotFoundPage() }
-
-        // Call the content with the current route parameters
-        content(currentRouteParams)
-    }
-
-    @Composable
-    private fun NotFoundPage() {
-        // Simple not found page as a fallback
-        val path = currentRouteParams["path"] ?: "Unknown"
-        codes.yousef.summon.components.display.Text("Page not found: $path")
+        LaunchedEffect(currentRoute.value) {
+            _currentPath = InternalRoutePath.parse(currentRoute.value)?.encodedPath ?: "/"
+        }
+        val route = findMatchingRoute(currentRoute.value)
+        if (route == null) {
+            (registry.getNotFoundPage()
+                ?: { codes.yousef.summon.components.display.Text("Page not found") })(RouteParams(emptyMap()))
+        } else {
+            RouteContentHandler(route)
+        }
     }
 }
 
@@ -195,7 +186,7 @@ actual fun createFileBasedServerRouter(path: String): Router {
 actual fun createRouter(builder: RouterBuilder.() -> Unit): Router {
     val routerBuilder = RouterBuilderImpl()
     routerBuilder.apply(builder)
-    return WasmDSLRouter(routerBuilder.routes, routerBuilder.notFoundPage)
+    return WasmDSLRouter(routerBuilder.routes, routerBuilder.notFoundPage, routerBuilder.guardFallbackPage)
 }
 
 /**
@@ -203,92 +194,110 @@ actual fun createRouter(builder: RouterBuilder.() -> Unit): Router {
  */
 internal class WasmDSLRouter(
     private val routes: List<RouteDefinition>,
-    private val notFoundPage: @Composable (RouteParams) -> Unit
-) : Router {
+    private val notFoundPage: @Composable (RouteParams) -> Unit,
+    private val guardFallback: @Composable (GuardResult) -> Unit
+) : Router, NavigationControl {
 
-    private var _currentPath = "/"
-    private var currentRouteParams = RouteParams(emptyMap())
+    private var _currentPath = window.location.pathname
+    private var renderedRoute: SummonMutableState<String>? = null
+    override var interceptor: NavigationInterceptor? = null
+    override var pendingPath: String? = null
+        private set
+    private var pendingPushState: Boolean = true
 
     override val currentPath: String
         get() = _currentPath
 
     override fun navigate(path: String, pushState: Boolean) {
-        wasmConsoleLog("WasmDSLRouter navigate to: $path (pushState: $pushState) - WASM stub")
-        _currentPath = path
+        val safePath = requireNotNull(InternalRoutePath.parse(path)) {
+            "Router navigation accepts same-origin paths without query strings or fragments"
+        }
+        if (interceptor?.beforeNavigate(_currentPath, safePath.encodedPath) == NavigationDecision.CANCEL) {
+            pendingPath = safePath.encodedPath
+            pendingPushState = pushState
+            return
+        }
+        performNavigation(safePath, pushState)
+    }
 
-        // Find matching route
-        val matchResult = findMatchingRoute(path)
-        currentRouteParams = RouteParams(matchResult?.params ?: mapOf("path" to path))
+    override fun continuePending() {
+        val safePath = pendingPath?.let(InternalRoutePath::parse) ?: return
+        val pushState = pendingPushState
+        pendingPath = null
+        performNavigation(safePath, pushState)
+    }
+
+    override fun cancelPending() {
+        pendingPath = null
+    }
+
+    private fun performNavigation(path: InternalRoutePath, pushState: Boolean) {
+        _currentPath = path.encodedPath
+        renderedRoute?.value = path.encodedPath
+        if (pushState) {
+            window.history.pushState(null, "", path.encodedPath)
+        } else {
+            window.history.replaceState(null, "", path.encodedPath)
+        }
     }
 
     @Composable
     override fun create(initialPath: String) {
-        wasmConsoleLog("WasmDSLRouter create with initialPath: $initialPath - WASM stub")
+        val bootPath = browserBootPath(initialPath)
+        val currentRoute = rememberMutableStateOf(bootPath)
+        renderedRoute = currentRoute
 
-        // Initialize with the initial path
-        if (initialPath != _currentPath) {
-            navigate(initialPath, false)
+        DisposableEffect(Unit) {
+            val listener: (org.w3c.dom.events.Event) -> Unit = {
+                val target = InternalRoutePath.parse(window.location.pathname)
+                if (target == null) {
+                    _currentPath = "/"
+                    currentRoute.value = ""
+                } else if (interceptor?.beforeNavigate(_currentPath, target.encodedPath) == NavigationDecision.CANCEL) {
+                    pendingPath = target.encodedPath
+                    pendingPushState = false
+                    window.history.pushState(null, "", _currentPath)
+                } else {
+                    _currentPath = target.encodedPath
+                    currentRoute.value = target.encodedPath
+                }
+            }
+            window.addEventListener("popstate", listener)
+            return@DisposableEffect {
+                window.removeEventListener("popstate", listener)
+                if (renderedRoute === currentRoute) renderedRoute = null
+            }
         }
 
-        // Find matching route and render content
-        val matchResult = findMatchingRoute(_currentPath)
-
-        if (matchResult != null) {
-            // Render the matched route's content
-            val (route, params) = matchResult
-            route.content(RouteParams(params))
-        } else {
-            // Render the not found page
-            notFoundPage(currentRouteParams)
+        LaunchedEffect(currentRoute.value) {
+            _currentPath = InternalRoutePath.parse(currentRoute.value)?.encodedPath ?: "/"
+        }
+        val matchResult = findMatchingRoute(currentRoute.value)
+        if (matchResult == null) {
+            notFoundPage(RouteParams(emptyMap()))
+            return
+        }
+        val params = RouteParams(matchResult.params)
+        when (val guardResult = matchResult.route.evaluateGuards(params)) {
+            GuardResult.Allow -> RouteContentHandler(matchResult)
+            is GuardResult.Redirect -> {
+                val redirect = InternalRoutePath.parse(guardResult.path)
+                if (redirect == null) guardFallback(GuardResult.Deny) else {
+                    navigate(redirect.encodedPath, false)
+                    guardFallback(GuardResult.Loading)
+                }
+            }
+            else -> guardFallback(guardResult)
         }
     }
 
     private fun findMatchingRoute(path: String): RouteMatchResult? {
+        val internalPath = InternalRoutePath.parse(path) ?: return null
         for (route in routes) {
-            val params = tryMatchRoute(route.path, path)
-            if (params != null) {
-                return RouteMatchResult(route, params)
-            }
+            val params = matchInternalRoute(route.path, internalPath)
+            if (params != null) return RouteMatchResult(route, params)
         }
         return null
     }
 
-    private fun tryMatchRoute(pattern: String, path: String): Map<String, String>? {
-        // Handle exact matches first
-        if (pattern == path) {
-            return emptyMap()
-        }
-
-        // Handle dynamic parameters
-        val patternParts = pattern.split("/").filter { it.isNotEmpty() }
-        val pathParts = path.split("/").filter { it.isNotEmpty() }
-
-        if (patternParts.size != pathParts.size) {
-            return null
-        }
-
-        val params = mutableMapOf<String, String>()
-
-        for (i in patternParts.indices) {
-            val patternPart = patternParts[i]
-            val pathPart = pathParts[i]
-
-            when {
-                patternPart.startsWith(":") -> {
-                    val paramName = patternPart.substring(1)
-                    params[paramName] = pathPart
-                }
-
-                patternPart == "*" -> {
-                    // Accept any value
-                }
-
-                patternPart != pathPart -> {
-                    return null
-                }
-            }
-        }
-
-        return params
-    }
 }

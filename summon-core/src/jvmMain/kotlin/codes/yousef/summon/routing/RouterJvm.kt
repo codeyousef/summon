@@ -2,6 +2,7 @@
 
 package codes.yousef.summon.routing
 
+import codes.yousef.summon.components.display.Text
 import codes.yousef.summon.runtime.Composable
 import kotlinx.html.TagConsumer
 import kotlinx.html.a
@@ -171,12 +172,17 @@ actual interface Router {
     actual val currentPath: String
 }
 
-// Basic JVM Router implementation (needs more logic for actual use)
-class JvmRouter(private val routes: List<RouteDefinition>, private val notFound: @Composable (RouteParams) -> Unit) :
-    Router {
+class JvmRouter(
+    private val routes: List<RouteDefinition>,
+    private val notFound: @Composable (RouteParams) -> Unit,
+    private val guardFallback: @Composable (GuardResult) -> Unit = { result -> Text(result.safeReason) }
+) : Router, NavigationControl {
 
     // Store the current path and params
     private var _currentPath: String = ""
+    override var interceptor: NavigationInterceptor? = null
+    override var pendingPath: String? = null
+        private set
     private var currentParams: Map<String, String> = emptyMap()
 
     // Implement the currentPath property from the Router interface
@@ -187,15 +193,29 @@ class JvmRouter(private val routes: List<RouteDefinition>, private val notFound:
      * Navigate to a different route
      */
     override fun navigate(path: String, pushState: Boolean) {
-        // On JVM, we don't need pushState functionality
-        val match = findMatchingRoute(path)
-        if (match != null) {
-            _currentPath = path
-            currentParams = match.params
-        } else {
-            _currentPath = path
-            currentParams = mapOf("path" to path)
+        val safePath = requireNotNull(InternalRoutePath.parse(path)) {
+            "Router navigation accepts same-origin paths without query strings or fragments"
         }
+        if (interceptor?.beforeNavigate(_currentPath, safePath.encodedPath) == NavigationDecision.CANCEL) {
+            pendingPath = safePath.encodedPath
+            return
+        }
+        performNavigation(safePath)
+    }
+
+    override fun continuePending() {
+        val safePath = pendingPath?.let(InternalRoutePath::parse) ?: return
+        pendingPath = null
+        performNavigation(safePath)
+    }
+
+    override fun cancelPending() {
+        pendingPath = null
+    }
+
+    private fun performNavigation(path: InternalRoutePath) {
+        _currentPath = path.encodedPath
+        currentParams = findMatchingRoute(path)?.params ?: emptyMap()
     }
 
     @Composable
@@ -204,41 +224,30 @@ class JvmRouter(private val routes: List<RouteDefinition>, private val notFound:
         navigate(initialPath, false)
 
         // Find the route for the current path
-        val match = findMatchingRoute(_currentPath)
-
-        if (match != null) {
-            // Render the matching route content
-            match.route.content(RouteParams(match.params))
-        } else {
-            // Render the not found page
-            notFound(RouteParams(currentParams))
+        val match = findMatchingRoute(InternalRoutePath.parse(_currentPath))
+        if (match == null) {
+            notFound(RouteParams(emptyMap()))
+            return
+        }
+        val params = RouteParams(match.params)
+        when (val guardResult = match.route.evaluateGuards(params)) {
+            GuardResult.Allow -> RouteContentHandler(match)
+            is GuardResult.Redirect -> {
+                val redirect = InternalRoutePath.parse(guardResult.path)
+                if (redirect == null) guardFallback(GuardResult.Deny) else {
+                    navigate(redirect.encodedPath, false)
+                    guardFallback(GuardResult.Loading)
+                }
+            }
+            else -> guardFallback(guardResult)
         }
     }
 
-    private fun findMatchingRoute(path: String): RouteMatchResult? {
-        val exactMatch = routes.firstOrNull { it.path == path }
-        if (exactMatch != null) return RouteMatchResult(exactMatch, emptyMap())
-
+    private fun findMatchingRoute(path: InternalRoutePath?): RouteMatchResult? {
+        path ?: return null
         for (route in routes) {
-            val routeParts = route.path.split("/").filter { it.isNotEmpty() }
-            val pathParts = path.split("/").filter { it.isNotEmpty() }
-
-            if (routeParts.size == pathParts.size) {
-                val params = mutableMapOf<String, String>()
-                var match = true
-                for (i in routeParts.indices) {
-                    if (routeParts[i].startsWith("{") && routeParts[i].endsWith("}")) {
-                        val paramName = routeParts[i].removeSurrounding("{", "}")
-                        params[paramName] = pathParts[i]
-                    } else if (routeParts[i] != pathParts[i]) {
-                        match = false
-                        break
-                    }
-                }
-                if (match) {
-                    return RouteMatchResult(route, params)
-                }
-            }
+            val params = matchInternalRoute(route.path, path)
+            if (params != null) return RouteMatchResult(route, params)
         }
         return null
     }
@@ -250,8 +259,5 @@ class JvmRouter(private val routes: List<RouteDefinition>, private val notFound:
 actual fun createRouter(builder: RouterBuilder.() -> Unit): Router {
     val builderImpl = RouterBuilderImpl()
     builderImpl.builder()
-    val notFoundComposable: (RouteParams) -> Unit = { params ->
-        println("Default Not Found page for JVM Router called with params: $params. Needs Compose HTML implementation.")
-    }
-    return JvmRouter(builderImpl.routes, builderImpl.notFoundPage)
-} 
+    return JvmRouter(builderImpl.routes, builderImpl.notFoundPage, builderImpl.guardFallbackPage)
+}

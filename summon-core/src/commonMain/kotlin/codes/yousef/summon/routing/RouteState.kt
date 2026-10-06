@@ -80,11 +80,11 @@ class RouteState<T>(
     }
 
     /**
-     * Checks if the current path matches the route path pattern.
+     * Checks an exact route pattern match. Prefix matching would let `/aliases-malicious` reuse
+     * state owned by `/aliases`.
      */
     private fun matchesRoutePath(currentPath: String): Boolean {
-        // This is a simple implementation
-        // A more advanced implementation would handle path parameters
-        return currentPath.startsWith(routePath)
+        val internalPath = InternalRoutePath.parse(currentPath) ?: return false
+        return matchInternalRoute(routePath, internalPath) != null
     }
 } 

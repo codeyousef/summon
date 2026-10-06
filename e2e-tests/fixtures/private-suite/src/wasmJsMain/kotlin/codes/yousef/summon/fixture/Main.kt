@@ -1,6 +1,7 @@
 package codes.yousef.summon.fixture
 import codes.yousef.summon.renderComposableRoot
 import codes.yousef.summon.mountComposableRoot
+import codes.yousef.summon.runtime.wasmGetLocationPathname
 import codes.yousef.summon.runtime.wasmGetLocationSearch
 fun main() {
     if ((wasmGetLocationSearch() ?: "").contains("ownership=true")) {
@@ -10,6 +11,11 @@ fun main() {
     }
     if ((wasmGetLocationSearch() ?: "").contains("identity=true")) {
         val fixture = StableRenderingFixture()
+        mountComposableRoot("root") { fixture.Content() }
+        return
+    }
+    if ((wasmGetLocationSearch() ?: "").contains("privateRouting=true")) {
+        val fixture = PrivateRoutingFixture(wasmGetLocationPathname() ?: "/")
         mountComposableRoot("root") { fixture.Content() }
         return
     }

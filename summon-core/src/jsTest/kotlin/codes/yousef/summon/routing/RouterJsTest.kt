@@ -1,6 +1,7 @@
 package codes.yousef.summon.routing
 
 import codes.yousef.summon.runtime.Composable
+import codes.yousef.summon.util.runComposableTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -62,7 +63,7 @@ class RouterJsTest {
         lastRouteParams = null
 
         // Create with home path
-        router.create("/")
+        runComposableTest { router.create("/") }
 
         // Should render home content
         assertEquals("Home", lastRendered)
@@ -79,11 +80,11 @@ class RouterJsTest {
         lastRouteParams = null
 
         // Create with non-existent path
-        router.create("/nonexistent")
+        runComposableTest { router.create("/nonexistent") }
 
         // Should render not found content
-        assertEquals("NotFound: /nonexistent", lastRendered)
+        assertEquals("NotFound: null", lastRendered)
         assertNotNull(lastRouteParams)
-        assertEquals(mapOf("path" to "/nonexistent"), lastRouteParams?.asMap())
+        assertEquals(emptyMap(), lastRouteParams?.asMap())
     }
 }

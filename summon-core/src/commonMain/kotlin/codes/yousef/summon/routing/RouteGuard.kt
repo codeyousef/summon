@@ -15,23 +15,35 @@ interface RouteGuard {
 }
 
 /**
- * Result of a route guard check.
+ * Result of a client-side presentation guard. Guards prevent private UI from mounting, but they
+ * never replace server-side authorization.
  */
 sealed class GuardResult {
-    /**
-     * Allow access to the route.
-     */
-    object Allow : GuardResult()
+    data object Allow : GuardResult()
+    data object Loading : GuardResult()
+    data object Locked : GuardResult()
+    data object FeatureDisabled : GuardResult()
+    data object PermissionDenied : GuardResult()
+    data class Redirect(val path: String) : GuardResult()
+    data object Deny : GuardResult()
 
-    /**
-     * Redirect to another route.
-     * @param path The path to redirect to
-     */
-    class Redirect(val path: String) : GuardResult()
+    val safeReason: String
+        get() = when (this) {
+            Allow -> "allowed"
+            Loading -> "loading"
+            Locked -> "locked"
+            FeatureDisabled -> "feature unavailable"
+            PermissionDenied, Deny -> "permission denied"
+            is Redirect -> "redirecting"
+        }
+}
 
-    /**
-     * Deny access to the route.
-     * This will typically show a not-found or unauthorized page.
-     */
-    object Deny : GuardResult()
-} 
+internal fun RouteDefinition.evaluateGuards(params: RouteParams): GuardResult {
+    if (guards.isEmpty()) return GuardResult.Allow
+    val route = Route(path) { routeParams -> { content(routeParams) } }
+    for (guard in guards) {
+        val result = guard.canActivate(route, params)
+        if (result != GuardResult.Allow) return result
+    }
+    return GuardResult.Allow
+}

@@ -18,6 +18,9 @@ All notable changes to this project will be documented in this file.
 - **Lifecycle-owned coroutine scopes** - Each lifecycle owner lazily retains one scope, supports
   caller-supplied parent contexts, cancels at `DESTROYED`, and exposes active-only work that
   cancels on pause/stop and restarts on resume.
+- **Private-route browser contract** - JS and WASM routers share validated same-origin path
+  parsing, decoded opaque parameters, explicit loading/locked/feature/permission guard states,
+  composition-owned popstate listeners, and encrypted-draft navigation interception.
 - **Source consumer browser verification** - A locked JVM/JS/WASM fixture and pinned Playwright
   container exercise rendering, controlled inputs, keyed identity, logout, and effect cleanup
   across Chromium, Firefox, and WebKit.
@@ -54,6 +57,9 @@ All notable changes to this project will be documented in this file.
   are inert and cannot mutate detached DOM.
 - **Reactive JS navigation** - Programmatic router navigation now updates the mounted
   route state while preserving browser history, so route content recomposes immediately.
+- **Deep-link and history safety** - Browser and file-based routers reject external, query,
+  fragment, traversal, malformed-escape and encoded-separator navigation; safe not-found paths
+  no longer echo raw input, and file-based browser listeners dispose with their composition.
 - **Conditional input and route state** - TextField internals use isolated groups; route content
   is scoped by route path and parameters. Named caches belong to their containing group and
   disappear with it. Restartable and composer key helpers retain equality keys instead of hashes.

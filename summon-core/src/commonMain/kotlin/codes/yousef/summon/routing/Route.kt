@@ -15,15 +15,14 @@ data class Route(
 ) {
     /**
      * Extracts parameter names from the route pattern.
-     * Parameters are defined as ":paramName" in the pattern.
+     * Parameters may use ":paramName" or legacy "{paramName}" syntax.
      *
      * @return List of parameter names in this route
      */
-    fun getParameterNames(): List<String> {
-        return PARAM_REGEX.findAll(pattern)
-            .map { it.groupValues[1] }
+    fun getParameterNames(): List<String> =
+        PARAM_REGEX.findAll(pattern)
+            .map { match -> match.groupValues.drop(1).first { it.isNotEmpty() } }
             .toList()
-    }
 
     /**
      * Checks if a given path matches this route's pattern.
@@ -32,13 +31,8 @@ data class Route(
      * @return True if the path matches this route's pattern
      */
     fun matches(path: String): Boolean {
-        // Convert route pattern to regex
-        val regexPattern = pattern
-            .replace("/", "\\/")
-            .replace(PARAM_REGEX) { "([^\\/]+)" }
-
-        val regex = Regex("^$regexPattern$")
-        return regex.matches(path)
+        val internalPath = InternalRoutePath.parse(path) ?: return false
+        return matchInternalRoute(pattern, internalPath) != null
     }
 
     /**
@@ -48,32 +42,12 @@ data class Route(
      * @return RouteParams containing extracted parameters or null if no match
      */
     fun extractParams(path: String): RouteParams? {
-        if (!matches(path)) {
-            return null
-        }
-
-        val paramNames = getParameterNames()
-        if (paramNames.isEmpty()) {
-            return RouteParams(emptyMap<String, String>())
-        }
-
-        // Convert route pattern to regex with capturing groups
-        val regexPattern = pattern
-            .replace("/", "\\/")
-            .replace(PARAM_REGEX) { "([^\\/]+)" }
-
-        val regex = Regex("^$regexPattern$")
-        val matchResult = regex.find(path) ?: return null
-
-        // Extract parameter values from match groups
-        val paramValues = matchResult.groupValues.drop(1) // First group is the entire match
-
-        // Create map of parameter names to values
-        val params = paramNames.zip(paramValues).toMap()
+        val internalPath = InternalRoutePath.parse(path) ?: return null
+        val params = matchInternalRoute(pattern, internalPath) ?: return null
         return RouteParams(params)
     }
 
     companion object {
-        private val PARAM_REGEX = Regex(":([\\w-]+)")
+        private val PARAM_REGEX = Regex("(?::([\\w-]+)|\\{([\\w-]+)\\})")
     }
 } 

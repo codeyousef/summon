@@ -13,18 +13,35 @@ import codes.yousef.summon.components.display.Text
 import kotlinx.coroutines.runBlocking
 
 fun main() = runBlocking {
-    val exchange = CapturingExchange()
-    exchange.respondSummon { Text("Public shell: sign in to unlock") }
-    check(exchange.response.statusCode == 200)
-    check(exchange.response.body.contains("Public shell: sign in to unlock"))
-    println(exchange.response.body)
+    val deepLinks = listOf(
+        "/mail",
+        "/mail/thread/opaque-1",
+        "/mail/compose",
+        "/calendar",
+        "/calendar/event/event-1",
+        "/aliases",
+        "/aliases/alias-1",
+        "/security",
+        "/security/devices",
+        "/security/recovery"
+    )
+    var renderedShell = ""
+    for (path in deepLinks) {
+        val exchange = CapturingExchange(path)
+        exchange.respondSummon { Text("Public shell: sign in to unlock") }
+        check(exchange.response.statusCode == 200)
+        check(exchange.response.body.contains("Public shell: sign in to unlock"))
+        check(!exchange.response.body.contains("opaque-1"))
+        renderedShell = exchange.response.body.toString()
+    }
+    println(renderedShell)
 }
 
-private class CapturingExchange : Exchange {
+private class CapturingExchange(path: String) : Exchange {
     override val request: Request = object : Request {
         override val method = HttpMethod.GET
-        override val uri = "/"
-        override val path = "/"
+        override val uri = path
+        override val path = path
         override val query = ""
         override val headers = Headers(emptyMap())
         override val cookies = Cookies(emptyMap())

@@ -2,7 +2,6 @@ package codes.yousef.summon.routing
 
 import codes.yousef.summon.runtime.Composable
 import codes.yousef.summon.runtime.LaunchedEffect
-import codes.yousef.summon.runtime.LocalPlatformRenderer
 import codes.yousef.summon.runtime.remember
 
 /**
@@ -34,19 +33,12 @@ fun Redirect(
     // and the condition is met
     LaunchedEffect(redirectParams) {
         if (redirectParams.condition) {
-            // Log the redirect
-            println("Redirecting to '${redirectParams.to}' (Permanent: ${redirectParams.permanent})")
-
             // Use the router instance to perform navigation if available
             router?.navigate(redirectParams.to, pushState = !redirectParams.permanent)
 
             // Call the onRedirect callback if provided
             onRedirect?.invoke()
 
-            // For permanent redirects, we might want to update metadata for SEO
-            if (redirectParams.permanent) {
-                updateRedirectMetadata(redirectParams.to)
-            }
         }
     }
 
@@ -78,14 +70,13 @@ fun redirectTo(
     router: Router? = null
 ): Boolean {
     // Get the router instance
-    val routerInstance = router ?: getDefaultRouter()
+    val routerInstance = router ?: getDefaultRouter() ?: return false
 
     // Perform the redirect
     return try {
-        routerInstance?.navigate(to, pushState = !permanent)
+        routerInstance.navigate(to, pushState = !permanent)
         true
-    } catch (e: Exception) {
-        println("Error during redirect: ${e.message}")
+    } catch (_: IllegalArgumentException) {
         false
     }
 }
@@ -120,25 +111,4 @@ fun redirectIf(
 private fun getDefaultRouter(): Router? {
     // Get the current router from RouterContext
     return RouterContext.current
-}
-
-/**
- * Update metadata for SEO when performing a permanent redirect.
- * This is used to inform search engines about the redirect.
- */
-private fun updateRedirectMetadata(to: String) {
-    // Get the platform renderer to add head elements
-    val renderer = LocalPlatformRenderer.current
-
-    // Add canonical link to the target URL
-    renderer.addHeadElement("<link rel=\"canonical\" href=\"$to\">")
-
-    // Add meta refresh tag for browsers that don't support JavaScript
-    renderer.addHeadElement("<meta http-equiv=\"refresh\" content=\"0;url=$to\">")
-
-    // Add 301 status code meta tag for SEO
-    renderer.addHeadElement("<meta name=\"robots\" content=\"noindex\">")
-
-    // Log the action
-    println("Updated redirect metadata for SEO: $to")
 }

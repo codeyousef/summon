@@ -83,9 +83,9 @@ class RouterJvmTest {
         assertEquals("/nonexistent", router.currentPath)
 
         router.create(router.currentPath)
-        assertEquals("NotFound: /nonexistent", lastRendered)
+        assertEquals("NotFound: null", lastRendered)
         assertNotNull(lastRouteParams)
-        assertEquals(mapOf("path" to "/nonexistent"), lastRouteParams?.asMap())
+        assertEquals(emptyMap(), lastRouteParams?.asMap())
     }
 
     @Test

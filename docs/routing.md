@@ -2,6 +2,65 @@
 
 Summon provides flexible routing patterns that work across platforms, allowing you to create navigation in both browser and JVM applications using the standalone implementation.
 
+## Browser routing contract (0.8.0)
+
+Use `createRouter` and `RouterComponent` for path-based JS/WASM routing:
+
+```kotlin
+val accessGuard = object : RouteGuard {
+    override fun canActivate(route: Route, params: RouteParams): GuardResult =
+        if (sessionUnlocked) GuardResult.Allow else GuardResult.Locked
+}
+
+val router = createRouter {
+    route("/mail") { MailList() }
+    guardedRoute("/mail/thread/:id", accessGuard) { params ->
+        MailThread(params["id"]!!)
+    }
+    setGuardFallback { state -> LockedOrDeniedPage(state) }
+    setNotFound { SafeNotFoundPage() }
+}
+
+@Composable
+fun App() = RouterComponent(router, initialPath = browserPathname)
+```
+
+`Router.navigate` accepts only an absolute same-origin path. Full URLs, protocol-relative URLs,
+query strings, fragments, control characters, malformed percent escapes, encoded separators,
+and `.`/`..` traversal segments are rejected without echoing the input. Route parameters are
+percent-decoded only after validation. Use a separate, explicit link or browser API for outbound
+navigation.
+
+`GuardResult` distinguishes `Loading`, `Locked`, `FeatureDisabled`, `PermissionDenied`, `Deny`,
+`Redirect`, and `Allow`. A non-`Allow` result never mounts route content. Guards control client
+presentation only; the server must still authorize every request.
+
+Browser `popstate` listeners belong to the router composition and are removed when it leaves the
+composition. Route content is keyed by path and parameters, so old effects are disposed during a
+transition. JS and WASM implement the same browser-history behavior.
+
+For unsaved work, install a navigation interceptor:
+
+```kotlin
+val navigation = router.navigationControl()
+navigation.interceptor = NavigationInterceptor { _, _ ->
+    if (draftDirty) NavigationDecision.CANCEL else NavigationDecision.PROCEED
+}
+
+// After the user chooses “keep encrypted draft”:
+persistEncryptedDraft()
+navigation.continuePending()
+
+// If the user keeps editing:
+navigation.cancelPending()
+```
+
+The router retains only the pending destination. Draft encryption and persistence remain the
+application's responsibility. Private body, search, credential, and draft text must never be used
+as a route, query, fragment, title, or diagnostic.
+
+The older standalone/hash examples below are legacy alternatives, not the private-route contract.
+
 ## Overview
 
 Routing in the standalone Summon implementation is achieved through:

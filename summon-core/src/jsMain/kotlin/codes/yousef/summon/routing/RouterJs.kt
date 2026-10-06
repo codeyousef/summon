@@ -90,7 +90,7 @@ fun createBrowserRouter(
     notFoundComponent?.let { routerBuilder.setNotFound(it) }
 
     // Create router
-    val router = RouterJs(routerBuilder.routes, routerBuilder.notFoundPage)
+    val router = RouterJs(routerBuilder.routes, routerBuilder.notFoundPage, routerBuilder.guardFallbackPage)
     setupRouterForBrowser(router)
     return router
 }
@@ -102,7 +102,7 @@ fun createBrowserRouter(init: RouterBuilder.() -> Unit): Router {
     val routerBuilder = RouterBuilderImpl()
     routerBuilder.apply(init)
 
-    val router = RouterJs(routerBuilder.routes, routerBuilder.notFoundPage)
+    val router = RouterJs(routerBuilder.routes, routerBuilder.notFoundPage, routerBuilder.guardFallbackPage)
     setupRouterForBrowser(router)
     return router
 }
@@ -112,10 +112,13 @@ fun createBrowserRouter(init: RouterBuilder.() -> Unit): Router {
  * This is called automatically by the Router.navigate method.
  */
 fun Router.updateBrowserUrl(path: String, pushState: Boolean) {
+    val safePath = requireNotNull(InternalRoutePath.parse(path)) {
+        "Browser history accepts same-origin paths without query strings or fragments"
+    }
     if (pushState) {
-        window.history.pushState(null, "", path)
+        window.history.pushState(null, "", safePath.encodedPath)
     } else {
-        window.history.replaceState(null, "", path)
+        window.history.replaceState(null, "", safePath.encodedPath)
     }
 }
 
@@ -124,24 +127,26 @@ fun Router.updateBrowserUrl(path: String, pushState: Boolean) {
  */
 fun Router.navigateAndUpdateBrowser(path: String, pushState: Boolean = true) {
     navigate(path, pushState)
-    updateBrowserUrl(path, pushState)
+}
+
+internal fun browserBootPath(initialPath: String): String {
+    val browserPath = window.location.pathname
+    return if (browserPath == "/" || !browserPath.startsWith('/')) initialPath else browserPath
 }
 
 /**
  * Browser History implementation
  */
 class BrowserHistory {
-    fun push(path: String) {
-        window.history.pushState(null, "", path)
+    fun push(path: InternalRoutePath) {
+        window.history.pushState(null, "", path.encodedPath)
     }
 
-    fun replace(path: String) {
-        window.history.replaceState(null, "", path)
+    fun replace(path: InternalRoutePath) {
+        window.history.replaceState(null, "", path.encodedPath)
     }
 
-    fun getCurrentPath(): String {
-        return window.location.pathname + window.location.search
-    }
+    fun getCurrentPath(): String = window.location.pathname
 }
 
 /**
@@ -149,12 +154,17 @@ class BrowserHistory {
  */
 internal class RouterJs(
     private val routes: List<RouteDefinition>,
-    private val notFoundPage: @Composable (RouteParams) -> Unit
-) : Router {
+    private val notFoundPage: @Composable (RouteParams) -> Unit,
+    private val guardFallback: @Composable (GuardResult) -> Unit
+) : Router, NavigationControl {
 
     private val history = BrowserHistory()
-    private var _currentPath = window.location.pathname + window.location.search
+    private var _currentPath = window.location.pathname
     private var renderedRoute: SummonMutableState<String>? = null
+    override var interceptor: NavigationInterceptor? = null
+    override var pendingPath: String? = null
+        private set
+    private var pendingPushState: Boolean = true
 
     // Implement the currentPath property from the Router interface
     override val currentPath: String
@@ -162,17 +172,26 @@ internal class RouterJs(
 
     @Composable
     override fun create(initialPath: String) {
-        // Remember the current route state
-        val currentRoute = rememberMutableStateOf(initialPath)
+        val bootPath = browserBootPath(initialPath)
+        val currentRoute = rememberMutableStateOf(bootPath)
         renderedRoute = currentRoute
 
         // Set up effect to listen for browser history changes
         DisposableEffect(Unit) {
             // Create a popstate event listener
             val listener: (dynamic) -> Unit = { _ ->
-                val newPath = window.location.pathname + window.location.search
-                _currentPath = newPath
-                currentRoute.value = newPath
+                val target = InternalRoutePath.parse(window.location.pathname)
+                if (target == null) {
+                    _currentPath = "/"
+                    currentRoute.value = ""
+                } else if (interceptor?.beforeNavigate(_currentPath, target.encodedPath) == NavigationDecision.CANCEL) {
+                    pendingPath = target.encodedPath
+                    pendingPushState = false
+                    window.history.pushState(null, "", _currentPath)
+                } else {
+                    _currentPath = target.encodedPath
+                    currentRoute.value = target.encodedPath
+                }
             }
 
             // Add the event listener
@@ -187,97 +206,72 @@ internal class RouterJs(
             }
         }
 
-        // Update internal state when route changes
         LaunchedEffect(currentRoute.value) {
-            _currentPath = currentRoute.value
+            _currentPath = InternalRoutePath.parse(currentRoute.value)?.encodedPath ?: "/"
         }
 
-        // Find matching route for the current path
         val matchResult = findMatchingRoute(currentRoute.value)
-
         if (matchResult != null) {
-            // Render the matched route's content
             val (route, params) = matchResult
-            // Use a different approach to provide route params
-            route.content(params)
+            when (val guardResult = route.evaluateGuards(RouteParams(params))) {
+                GuardResult.Allow -> RouteContentHandler(matchResult)
+                is GuardResult.Redirect -> {
+                    val redirect = InternalRoutePath.parse(guardResult.path)
+                    if (redirect == null) {
+                        guardFallback(GuardResult.Deny)
+                    } else {
+                        navigate(redirect.encodedPath, false)
+                        guardFallback(GuardResult.Loading)
+                    }
+                }
+                else -> guardFallback(guardResult)
+            }
         } else {
-            // Render the not found page
-            val params = RouteParams(mapOf("path" to currentRoute.value))
-            // Use a different approach to provide route params
-            notFoundPage(params)
+            notFoundPage(RouteParams(emptyMap()))
         }
     }
 
     override fun navigate(path: String, pushState: Boolean) {
-        // Update the current path
-        _currentPath = path
-        renderedRoute?.value = path
-
-        // Handle browser history if needed
-        if (pushState) {
-            history.push(path)
-        } else {
-            history.replace(path)
+        val safePath = requireNotNull(InternalRoutePath.parse(path)) {
+            "Router navigation accepts same-origin paths without query strings or fragments"
         }
+        if (interceptor?.beforeNavigate(_currentPath, safePath.encodedPath) == NavigationDecision.CANCEL) {
+            pendingPath = safePath.encodedPath
+            pendingPushState = pushState
+            return
+        }
+        performNavigation(safePath, pushState)
+    }
+
+    override fun continuePending() {
+        val safePath = pendingPath?.let(InternalRoutePath::parse) ?: return
+        val pushState = pendingPushState
+        pendingPath = null
+        performNavigation(safePath, pushState)
+    }
+
+    override fun cancelPending() {
+        pendingPath = null
+    }
+
+    private fun performNavigation(path: InternalRoutePath, pushState: Boolean) {
+        _currentPath = path.encodedPath
+        renderedRoute?.value = path.encodedPath
+        if (pushState) history.push(path) else history.replace(path)
     }
 
     /**
      * Find the matching route for a given path.
      */
-    private fun findMatchingRoute(path: String): Pair<RouteDefinition, RouteParams>? {
+    private fun findMatchingRoute(path: String): RouteMatchResult? {
+        val internalPath = InternalRoutePath.parse(path) ?: return null
         for (route in routes) {
-            val params = tryMatchRoute(route.path, path)
-            if (params != null) {
-                return Pair(route, RouteParams(params))
-            }
+            val params = matchInternalRoute(route.path, internalPath)
+            if (params != null) return RouteMatchResult(route, params)
         }
         return null
     }
 
-    /**
-     * Try to match a route path pattern against an actual path.
-     * Returns a map of parameters if match is successful, null otherwise.
-     */
-    private fun tryMatchRoute(pattern: String, path: String): Map<String, String>? {
-        // Handle exact matches first
-        if (pattern == path) {
-            return emptyMap()
-        }
-
-        // Handle dynamic parameters (e.g., /user/:id)
-        val patternParts = pattern.split("/").filter { it.isNotEmpty() }
-        val pathParts = path.split("/").filter { it.isNotEmpty() }
-
-        // Different number of segments means no match
-        if (patternParts.size != pathParts.size) {
-            return null
-        }
-
-        val params = mutableMapOf<String, String>()
-
-        for (i in patternParts.indices) {
-            val patternPart = patternParts[i]
-            val pathPart = pathParts[i]
-
-            when {
-                // Dynamic parameter
-                patternPart.startsWith(":") -> {
-                    val paramName = patternPart.substring(1)
-                    params[paramName] = pathPart
-                }
-                // Wildcard
-                patternPart == "*" -> {
-                    // Accept any value
-                }
-                // Exact match required
-                patternPart != pathPart -> {
-                    return null
-                }
-            }
-        }
-
-        return params
-    }
 }
 
 /**
@@ -286,5 +280,5 @@ internal class RouterJs(
 actual fun createRouter(builder: RouterBuilder.() -> Unit): Router {
     val routerBuilder = RouterBuilderImpl()
     routerBuilder.apply(builder)
-    return RouterJs(routerBuilder.routes, routerBuilder.notFoundPage)
+    return RouterJs(routerBuilder.routes, routerBuilder.notFoundPage, routerBuilder.guardFallbackPage)
 }

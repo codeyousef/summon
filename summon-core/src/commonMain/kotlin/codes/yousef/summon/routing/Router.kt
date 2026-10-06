@@ -40,7 +40,8 @@ data class RouteDefinition(
     val content: @Composable (RouteParams) -> Unit,
     val title: String? = null,
     val description: String? = null,
-    val canonicalUrl: String? = null
+    val canonicalUrl: String? = null,
+    val guards: List<RouteGuard> = emptyList()
 )
 
 /**
@@ -172,17 +173,35 @@ fun RouterComponent(
 
 interface RouterBuilder {
     fun route(path: String, content: @Composable (RouteParams) -> Unit)
+    fun guardedRoute(
+        path: String,
+        vararg guards: RouteGuard,
+        content: @Composable (RouteParams) -> Unit
+    )
     fun setNotFound(content: @Composable (RouteParams) -> Unit)
+    fun setGuardFallback(content: @Composable (GuardResult) -> Unit)
 }
 
 // Internal implementation for the builder
 internal class RouterBuilderImpl : RouterBuilder {
     val routes = mutableListOf<RouteDefinition>()
     var notFoundPage: @Composable (RouteParams) -> Unit =
-        { params -> Text("Default Not Found - Path: ${params.get("path")}") }
+        { Text("Page not found") }
+    var guardFallbackPage: @Composable (GuardResult) -> Unit =
+        { result -> Text(result.safeReason) }
 
     override fun route(path: String, content: @Composable (RouteParams) -> Unit) {
+        require(InternalRoutePath.parse(path) != null) { "Route pattern must be an internal path" }
         routes.add(RouteDefinition(path, content))
+    }
+
+    override fun guardedRoute(
+        path: String,
+        vararg guards: RouteGuard,
+        content: @Composable (RouteParams) -> Unit
+    ) {
+        require(InternalRoutePath.parse(path) != null) { "Route pattern must be an internal path" }
+        routes.add(RouteDefinition(path, content, guards = guards.toList()))
     }
 
     fun route(
@@ -192,11 +211,16 @@ internal class RouterBuilderImpl : RouterBuilder {
         description: String? = null,
         canonicalUrl: String? = null
     ) {
+        require(InternalRoutePath.parse(path) != null) { "Route pattern must be an internal path" }
         routes.add(RouteDefinition(path, content, title, description, canonicalUrl))
     }
 
     override fun setNotFound(content: @Composable (RouteParams) -> Unit) {
         notFoundPage = content
+    }
+
+    override fun setGuardFallback(content: @Composable (GuardResult) -> Unit) {
+        guardFallbackPage = content
     }
 }
 

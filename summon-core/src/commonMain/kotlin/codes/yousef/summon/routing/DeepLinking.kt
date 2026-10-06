@@ -274,65 +274,11 @@ class DeepLinking private constructor() {
  */
 object DeepLinkManager {
     fun handleDeepLink(url: String): RouteMatchResult? {
-        // Get the current router from RouterContext
-        val currentRouter = RouterContext.current
-        if (currentRouter == null) {
-            println("DeepLinkManager: No router found in context")
-            return null
-        }
-
-        // Parse URL and extract parameters
+        val currentRouter = RouterContext.current ?: return null
         val deepLinkInfo = DeepLinking.parseUrl(url)
-
-        // Log navigation attempt
-        println("DeepLinkManager: Handling URL '${deepLinkInfo.path}'")
-
-        // Extract path parameters from the URL
-        val pathParams = extractPathParameters(deepLinkInfo.path)
-
-        // Combine path parameters with query parameters
-        val allParams = pathParams.toMutableMap()
-        allParams.putAll(deepLinkInfo.queryParams)
-
-        // Navigate using the router
-        currentRouter.navigate(deepLinkInfo.path)
-
-        // Since we don't have direct access to the route definitions,
-        // we can't create a complete RouteMatchResult with the actual route
-        // In a real implementation with access to the router's routes,
-        // we would find the matching route and create a proper RouteMatchResult
-
-        println("DeepLinkManager: Extracted parameters: $allParams")
+        val safePath = InternalRoutePath.parse(deepLinkInfo.path) ?: return null
+        currentRouter.navigate(safePath.encodedPath)
         return null
-    }
-
-    /**
-     * Extract path parameters from a URL path
-     *
-     * @param path The URL path
-     * @return Map of parameter names to values
-     */
-    private fun extractPathParameters(path: String): Map<String, String> {
-        val params = mutableMapOf<String, String>()
-
-        // Split the path into segments
-        val segments = path.trim('/').splitCompat('/')
-
-        // Look for segments that might be parameters
-        // In a real implementation, we would match against route patterns
-        segments.forEachIndexed { index, segment ->
-            if (segment.startsWith(':')) {
-                // This is a parameter in the format :paramName
-                val paramName = segment.substring(1)
-                params[paramName] = segment
-            } else if (segment.matches(Regex("\\{.*\\}"))) {
-                // This is a parameter in the format {paramName}
-                val paramName = segment.removeSurrounding("{", "}")
-                params[paramName] = segment
-            }
-        }
-
-        return params
     }
 }
 
@@ -353,28 +299,20 @@ fun RouteContentHandler(matchResult: RouteMatchResult) {
  * Generates a URL for a given route and parameters.
  */
 fun generateUrl(routePath: String, params: Map<String, String>, queryParams: Map<String, String> = emptyMap()): String {
-    // Replace path parameters
-    var url = routePath
-    val unusedParams = params.toMutableMap()
-
-    // Replace path parameters in the URL
+    var path = routePath
     params.forEach { (key, value) ->
-        val placeholder = "{$key}"
-        if (url.contains(placeholder)) {
-            url = url.replace(placeholder, value)
-            unusedParams.remove(key)
-        }
+        val encoded = DeepLinking.getInstance().encodeURIComponent(value)
+        path = path.replace("{$key}", encoded).replace(":$key", encoded)
     }
+    require(InternalRoutePath.parse(path) != null) { "Generated route is not a safe internal path" }
+    if (queryParams.isEmpty()) return path
 
-    // Add query parameters for any remaining params and explicit queryParams
-    val allQueryParams = unusedParams + queryParams
-    if (allQueryParams.isNotEmpty()) {
-        url += "?" + allQueryParams.entries.joinToString("&") { (key, value) ->
-            "$key=${DeepLinking.getInstance().encodeURIComponent(value)}"
-        }
+    val query = queryParams.entries.joinToString("&") { (key, value) ->
+        val encodedKey = DeepLinking.getInstance().encodeURIComponent(key)
+        val encodedValue = DeepLinking.getInstance().encodeURIComponent(value)
+        "$encodedKey=$encodedValue"
     }
-
-    return url
+    return "$path?$query"
 }
 
 /**
