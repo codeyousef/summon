@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import type { Page } from '@playwright/test';
 
 type ResizeProbe = {
   adds: number;
@@ -9,6 +10,55 @@ type ResizeProbe = {
 };
 
 type ResizeProbeWindow = Window & { __summonResizeProbe: ResizeProbe };
+
+type ListenerProbe = {
+  adds: number;
+  removes: number;
+  active: Array<{
+    target: EventTarget;
+    type: string;
+    listener: EventListenerOrEventListenerObject;
+  }>;
+};
+
+type ListenerProbeWindow = Window & { __summonListenerProbe: ListenerProbe };
+
+async function installElementListenerProbe(page: Page) {
+  await page.addInitScript(() => {
+    const nativeAdd = EventTarget.prototype.addEventListener;
+    const nativeRemove = EventTarget.prototype.removeEventListener;
+    const probe: ListenerProbe = { adds: 0, removes: 0, active: [] };
+    (window as ListenerProbeWindow).__summonListenerProbe = probe;
+
+    EventTarget.prototype.addEventListener = function(
+      type: string,
+      listener: EventListenerOrEventListenerObject | null,
+      options?: boolean | AddEventListenerOptions
+    ) {
+      if (this instanceof Element && listener != null) {
+        probe.adds++;
+        probe.active.push({ target: this, type, listener });
+      }
+      return nativeAdd.call(this, type, listener, options);
+    };
+    EventTarget.prototype.removeEventListener = function(
+      type: string,
+      listener: EventListenerOrEventListenerObject | null,
+      options?: boolean | EventListenerOptions
+    ) {
+      if (this instanceof Element && listener != null) {
+        const index = probe.active.findIndex(
+          entry => entry.target === this && entry.type === type && entry.listener === listener
+        );
+        if (index >= 0) {
+          probe.active.splice(index, 1);
+          probe.removes++;
+        }
+      }
+      return nativeRemove.call(this, type, listener, options);
+    };
+  });
+}
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -36,6 +86,83 @@ test('controlled flow input updates without losing value', async ({ page }) => {
   await expect(input).toHaveValue('Synthetic edited value!');
   await expect(page.getByTestId('account-value')).toHaveText('Synthetic edited value!');
   await expect(input).toBeFocused();
+});
+
+test('event wrappers use the latest model and remain stable through 100 route swaps', async ({ page }) => {
+  await installElementListenerProbe(page);
+  await page.goto('/?identity=true');
+  await expect(page.getByTestId('identity-title')).toHaveText('Stable rendering fixture');
+  await expect(page.getByTestId('route-effect-stats')).toHaveText('Active: 1; Disposed: 0');
+
+  const callbackButton = await page.getByRole('button', { name: 'Invoke current callback', exact: true }).elementHandle();
+  const initialProbe = await page.evaluate(() => {
+    const probe = (window as ListenerProbeWindow).__summonListenerProbe;
+    return { adds: probe.adds, removes: probe.removes, active: probe.active.length };
+  });
+  const initialNodeCount = await page.locator('#root *').count();
+
+  await page.getByRole('button', { name: 'Change callback model', exact: true }).dispatchEvent('click');
+  expect(await callbackButton!.evaluate(node => node === document.querySelector('[data-summon-handler-click][key=\"invoke-current-callback\"]'))).toBe(true);
+  await callbackButton!.evaluate(node => (node as HTMLElement).click());
+  await expect(page.getByTestId('callback-result')).toHaveText('model-B');
+
+  const swapRoute = page.getByRole('button', { name: 'Swap route', exact: true });
+  for (let swap = 0; swap < 100; swap++) {
+    await swapRoute.dispatchEvent('click');
+    await expect(page.getByTestId('identity-route')).toHaveText(`Route ${swap % 2 === 0 ? 'B' : 'A'}`);
+  }
+  await expect(page.locator('#root *')).toHaveCount(initialNodeCount);
+  await expect(page.getByTestId('private-route-content')).toHaveText('Private route A');
+  await expect(page.getByTestId('private-route-content')).toHaveCount(1);
+  await expect(page.getByTestId('route-effect-stats')).toHaveText('Active: 1; Disposed: 100');
+
+  const finalProbe = await page.evaluate(() => {
+    const probe = (window as ListenerProbeWindow).__summonListenerProbe;
+    return { adds: probe.adds, removes: probe.removes, active: probe.active.length };
+  });
+  expect(finalProbe).toEqual(initialProbe);
+});
+
+test('stale asynchronous render results cannot replace a newer route model', async ({ page }) => {
+  await page.goto('/?identity=true');
+  await expect(page.getByTestId('request-result')).toHaveText('Unavailable');
+  await page.getByRole('button', { name: 'Start old request', exact: true }).click();
+  await page.getByRole('button', { name: 'Swap route', exact: true }).click();
+  await expect(page.getByTestId('identity-route')).toHaveText('Route B');
+  await page.getByRole('button', { name: 'Start new request', exact: true }).click();
+  await page.getByRole('button', { name: 'Complete old request', exact: true }).click();
+  await expect(page.getByTestId('request-result')).toHaveText('Unavailable');
+  await page.getByRole('button', { name: 'Complete new request', exact: true }).click();
+  await expect(page.getByTestId('request-result')).toHaveText('new B');
+  await page.getByRole('button', { name: 'Fail new request', exact: true }).click();
+  await expect(page.getByTestId('request-result')).toHaveText('Unavailable');
+});
+
+test('keyed reorder retains focused selection and deleted callbacks are detached', async ({ page }) => {
+  await installElementListenerProbe(page);
+  await page.goto('/?identity=true');
+  const input = page.getByTestId('identity-input-two');
+  const originalInput = await input.elementHandle();
+  const retiredButton = await page.getByTestId('identity-button-two').elementHandle();
+  await input.focus();
+  await input.evaluate((node: HTMLInputElement) => node.setSelectionRange(1, 2));
+  await page.getByRole('button', { name: 'Reverse identity items', exact: true }).dispatchEvent('click');
+  expect(await originalInput!.evaluate(node => node === document.querySelector('[data-testid=\"identity-input-two\"]'))).toBe(true);
+  await expect(input).toBeFocused();
+  expect(await input.evaluate((node: HTMLInputElement) => [node.selectionStart, node.selectionEnd])).toEqual([1, 2]);
+
+  const removalsBeforeDelete = await page.evaluate(
+    () => (window as ListenerProbeWindow).__summonListenerProbe.removes
+  );
+  await page.getByRole('button', { name: 'Delete identity item two', exact: true }).dispatchEvent('click');
+  await expect(page.getByTestId('identity-input-two')).toHaveCount(0);
+  await expect(page.getByTestId('identity-button-two')).toHaveCount(0);
+  await retiredButton!.evaluate(node => (node as HTMLElement).click());
+  await expect(page.getByTestId('item-callbacks')).toHaveText('Item callbacks: 0');
+  const removalsAfterDelete = await page.evaluate(
+    () => (window as ListenerProbeWindow).__summonListenerProbe.removes
+  );
+  expect(removalsAfterDelete).toBeGreaterThanOrEqual(removalsBeforeDelete + 2);
 });
 
 test('logout removes account UI and late flow results cannot repaint it', async ({ page }) => {

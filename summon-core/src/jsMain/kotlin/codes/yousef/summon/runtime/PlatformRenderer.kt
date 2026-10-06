@@ -19,6 +19,7 @@ import kotlinx.datetime.LocalTime
 import kotlinx.html.*
 import org.w3c.dom.*
 import org.w3c.dom.events.EventListener
+import org.w3c.dom.events.EventTarget
 import org.w3c.dom.events.Event as DomEvent
 
 /**
@@ -44,8 +45,20 @@ actual open class PlatformRenderer {
     private val parentChildrenMap = mutableMapOf<Element, MutableList<String>>()
     private val compositionChildrenMap = mutableMapOf<Element, MutableList<String>>()
     private val keyToParentMap = mutableMapOf<String, Element>()
-    private val listenerRegistry = mutableMapOf<Element, MutableMap<String, EventListener>>()
+    private class EventSubscription(var handler: (DomEvent) -> Unit) {
+        val listener = EventListener { event -> handler(event) }
+    }
+    private data class GlobalEventSubscription(
+        val target: EventTarget,
+        val eventType: String,
+        val subscription: EventSubscription
+    )
+    private val listenerRegistry = mutableMapOf<Element, MutableMap<String, EventSubscription>>()
+    private val globalListenerRegistry = mutableMapOf<Element, MutableMap<String, GlobalEventSubscription>>()
     private var handlerCounter = 0
+    private var focusedElementBeforeRecomposition: HTMLElement? = null
+    private var selectionStartBeforeRecomposition: Int? = null
+    private var selectionEndBeforeRecomposition: Int? = null
     private class ResponsiveSubscription(
         val listener: EventListener,
         var active: Boolean = true
@@ -80,6 +93,17 @@ actual open class PlatformRenderer {
      * Starts a recomposition cycle. Call this before recomposing to track which elements are used.
      */
     actual open fun startRecomposition() {
+        focusedElementBeforeRecomposition = document.activeElement as? HTMLElement
+        selectionStartBeforeRecomposition = when (val focused = focusedElementBeforeRecomposition) {
+            is HTMLInputElement -> focused.selectionStart
+            is HTMLTextAreaElement -> focused.selectionStart
+            else -> null
+        }
+        selectionEndBeforeRecomposition = when (val focused = focusedElementBeforeRecomposition) {
+            is HTMLInputElement -> focused.selectionEnd
+            is HTMLTextAreaElement -> focused.selectionEnd
+            else -> null
+        }
         isRecomposing = true
         usedElements.clear()
         elementCounter = 0  // Reset counter to ensure consistent keys across recompositions
@@ -117,6 +141,22 @@ actual open class PlatformRenderer {
                 }
                 parentChildrenMap[parent] = keys.toMutableList()
             }
+            focusedElementBeforeRecomposition?.let { focused ->
+                if (document.contains(focused)) {
+                    focused.focus()
+                    val start = selectionStartBeforeRecomposition
+                    val end = selectionEndBeforeRecomposition
+                    if (start != null && end != null) {
+                        when (focused) {
+                            is HTMLInputElement -> focused.setSelectionRange(start, end)
+                            is HTMLTextAreaElement -> focused.setSelectionRange(start, end)
+                        }
+                    }
+                }
+            }
+            focusedElementBeforeRecomposition = null
+            selectionStartBeforeRecomposition = null
+            selectionEndBeforeRecomposition = null
             compositionChildrenMap.clear()
             isRecomposing = false
         }
@@ -294,21 +334,55 @@ actual open class PlatformRenderer {
         handler: (DomEvent) -> Unit
     ) {
         val listeners = listenerRegistry.getOrPut(element) { mutableMapOf() }
-        listeners[eventType]?.let { existing ->
-            element.removeEventListener(eventType, existing)
+        val existing = listeners[eventType]
+        if (existing != null) {
+            existing.handler = handler
+            return
         }
-        val listener = EventListener { event -> handler(event) }
-        element.addEventListener(eventType, listener)
-        listeners[eventType] = listener
+        val subscription = EventSubscription(handler)
+        element.addEventListener(eventType, subscription.listener)
+        listeners[eventType] = subscription
         element.setAttribute("data-summon-handler-$eventType", generateHandlerId(eventType))
     }
 
+    private fun removeEventListener(element: Element, eventType: String) {
+        val listeners = listenerRegistry[element] ?: return
+        val subscription = listeners.remove(eventType) ?: return
+        element.removeEventListener(eventType, subscription.listener)
+        element.removeAttribute("data-summon-handler-$eventType")
+        if (listeners.isEmpty()) listenerRegistry.remove(element)
+    }
+
+    private fun registerGlobalEventListener(
+        owner: Element,
+        target: EventTarget,
+        eventType: String,
+        handler: (DomEvent) -> Unit
+    ) {
+        val key = "$eventType@${target.hashCode()}"
+        val subscriptions = globalListenerRegistry.getOrPut(owner) { mutableMapOf() }
+        val existing = subscriptions[key]
+        if (existing != null) {
+            existing.subscription.handler = handler
+            return
+        }
+        val subscription = EventSubscription(handler)
+        target.addEventListener(eventType, subscription.listener)
+        subscriptions[key] = GlobalEventSubscription(target, eventType, subscription)
+    }
+
+    private fun removeGlobalEventListeners(owner: Element) {
+        globalListenerRegistry.remove(owner)?.values?.forEach { global ->
+            global.target.removeEventListener(global.eventType, global.subscription.listener)
+        }
+    }
+
     private fun clearEventListeners(element: Element) {
-        val listeners = listenerRegistry.remove(element)
-        listeners?.forEach { (eventType, listener) ->
-            element.removeEventListener(eventType, listener)
+        listenerRegistry.remove(element)?.forEach { (eventType, subscription) ->
+            element.removeEventListener(eventType, subscription.listener)
             element.removeAttribute("data-summon-handler-$eventType")
         }
+        removeGlobalEventListeners(element)
         responsiveSubscriptions.remove(element)?.let { subscription ->
             subscription.active = false
             window.removeEventListener("resize", subscription.listener)
@@ -322,12 +396,15 @@ actual open class PlatformRenderer {
     }
 
     internal fun releaseMountedElements() {
-        (elementCache.values.toList() + listenerRegistry.keys.toList()).distinct().forEach { element ->
-            clearEventListeners(element)
-            element.parentNode?.removeChild(element)
-        }
+        (elementCache.values.toList() + listenerRegistry.keys.toList() + globalListenerRegistry.keys.toList())
+            .distinct()
+            .forEach { element ->
+                clearEventListeners(element)
+                element.parentNode?.removeChild(element)
+            }
         elementCache.clear()
         listenerRegistry.clear()
+        globalListenerRegistry.clear()
         usedElements.clear()
         parentChildrenMap.clear()
         compositionChildrenMap.clear()
@@ -536,14 +613,16 @@ actual open class PlatformRenderer {
             if (!hasType) {
                 element.setAttribute("type", "button")
             }
-
             val isDisabled = modifier.attributes.containsKey("disabled")
+
             if (!isDisabled) {
                 registerEventListener(element, "click") { event ->
                     event.preventDefault()
                     event.stopPropagation()
                     onClick()
                 }
+            } else {
+                removeEventListener(element, "click")
             }
         }) {
             // Call the content directly without FlowContent
@@ -858,7 +937,7 @@ actual open class PlatformRenderer {
         }
 
         override fun onTagEvent(tag: Tag, event: String, value: (DomEvent) -> Unit) {
-            elementStack.current.addEventListener(event, value)
+            registerEventListener(elementStack.current, event, value)
         }
 
         override fun onTagContent(content: CharSequence) {
@@ -2160,29 +2239,25 @@ actual open class PlatformRenderer {
             }
 
         createElement("div", overlayModifier, { overlayElement ->
-            // Handle backdrop click
             if (dismissOnBackdropClick) {
-                overlayElement.addEventListener("click", { event ->
-                    // Only dismiss if clicking the overlay itself, not the modal content
+                registerEventListener(overlayElement, "click") { event ->
                     if (event.target == overlayElement) {
                         onDismiss()
                     }
-                })
+                }
+            } else {
+                removeEventListener(overlayElement, "click")
             }
-
-            // Handle ESC key
-            val escKeyHandler = { event: dynamic ->
-                if (event.keyCode == 27) { // ESC key
+            registerGlobalEventListener(overlayElement, document, "keydown") { event ->
+                if (event.asDynamic().keyCode == 27) {
                     onDismiss()
                 }
             }
-            js("document.addEventListener('keydown', escKeyHandler)")
         }) {
             createElement("div", modalModifier, { modalElement ->
-                // Prevent event bubbling
-                modalElement.addEventListener("click", { event ->
+                registerEventListener(modalElement, "click") { event ->
                     event.stopPropagation()
-                })
+                }
             }) {
                 // Modal header
                 header?.let { headerContent ->
@@ -2206,7 +2281,7 @@ actual open class PlatformRenderer {
 
                             createElement("button", closeButtonModifier, { closeButton ->
                                 closeButton.textContent = "×"
-                                closeButton.addEventListener("click", { onDismiss() })
+                                registerEventListener(closeButton, "click") { onDismiss() }
                             })
                         }
                     }
@@ -2685,7 +2760,7 @@ actual open class PlatformRenderer {
             .style("padding", "0 8px")
             .style("borderBottom", "1px solid #dee2e6")
 
-        createElement("nav", menuBarModifier) {
+        val menuBar = createElement("nav", menuBarModifier) {
             val nav = elementStack.current
             nav.setAttribute("data-summon-component", "menu-bar")
             nav.setAttribute("role", "menubar")
@@ -2719,12 +2794,11 @@ actual open class PlatformRenderer {
                         button.textContent = menu.label
 
                         // Toggle dropdown on click
-                        button.addEventListener("click", { event ->
+                        registerEventListener(button, "click") { event ->
                             event.stopPropagation()
                             val dropdown = menuContainer.querySelector(".summon-menu-dropdown") as? HTMLElement
                             val isOpen = dropdown?.style?.display == "block"
 
-                            // Close all other dropdowns first
                             document.querySelectorAll(".summon-menu-dropdown").let { dropdowns ->
                                 for (i in 0 until dropdowns.length) {
                                     (dropdowns.item(i) as? HTMLElement)?.style?.display = "none"
@@ -2737,7 +2811,7 @@ actual open class PlatformRenderer {
                             } else {
                                 button.setAttribute("aria-expanded", "false")
                             }
-                        })
+                        }
                     }
 
                     // Dropdown menu
@@ -2769,8 +2843,7 @@ actual open class PlatformRenderer {
             }
         }
 
-        // Add global click listener to close menus
-        document.addEventListener("click", { _ ->
+        registerGlobalEventListener(menuBar, document, "click") {
             document.querySelectorAll(".summon-menu-dropdown").let { dropdowns ->
                 for (i in 0 until dropdowns.length) {
                     (dropdowns.item(i) as? HTMLElement)?.style?.display = "none"
@@ -2781,7 +2854,7 @@ actual open class PlatformRenderer {
                     (buttons.item(i) as? Element)?.setAttribute("aria-expanded", "false")
                 }
             }
-        })
+        }
     }
 
     /**
@@ -2833,11 +2906,10 @@ actual open class PlatformRenderer {
                             elementStack.current.textContent = "▶"
                         }
 
-                        // Show submenu on hover/click
-                        button.addEventListener("mouseenter", { _ ->
+                        registerEventListener(button, "mouseenter") {
                             val submenu = submenuContainer.querySelector(".summon-submenu") as? HTMLElement
                             submenu?.style?.display = "block"
-                        })
+                        }
                     }
 
                     // Submenu dropdown
@@ -2866,11 +2938,10 @@ actual open class PlatformRenderer {
                         }
                     }
 
-                    // Hide submenu when leaving container
-                    submenuContainer.addEventListener("mouseleave", { _ ->
+                    registerEventListener(submenuContainer, "mouseleave") {
                         val submenu = submenuContainer.querySelector(".summon-submenu") as? HTMLElement
                         submenu?.style?.display = "none"
-                    })
+                    }
                 }
             } else {
                 // Regular item button
@@ -2918,18 +2989,19 @@ actual open class PlatformRenderer {
                         }
                     }
 
-                    // Click handler
-                    item.onClick?.let { onClick ->
-                        button.addEventListener("click", { event ->
+                    val onClick = item.onClick
+                    if (onClick != null) {
+                        registerEventListener(button, "click") { event ->
                             event.stopPropagation()
                             onClick()
-                            // Close all menus after clicking an item
                             document.querySelectorAll(".summon-menu-dropdown, .summon-submenu").let { dropdowns ->
                                 for (i in 0 until dropdowns.length) {
                                     (dropdowns.item(i) as? HTMLElement)?.style?.display = "none"
                                 }
                             }
-                        })
+                        }
+                    } else {
+                        removeEventListener(button, "click")
                     }
                 }
             }

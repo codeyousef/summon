@@ -1481,6 +1481,47 @@ fun wasmGetElementBoundingHeight(elementId: String): Double {
 
 
 
+fun wasmGetActiveElementId(): String? {
+    return try {
+        document.activeElement?.let { storeElement(it) }
+    } catch (e: Throwable) {
+        if (e is CancellationException) throw e
+        null
+    }
+}
+
+fun wasmGetInputSelectionStart(elementId: String): Int? {
+    return try {
+        (getElement(elementId) as? HTMLInputElement)?.selectionStart
+    } catch (e: Throwable) {
+        if (e is CancellationException) throw e
+        null
+    }
+}
+
+fun wasmGetInputSelectionEnd(elementId: String): Int? {
+    return try {
+        (getElement(elementId) as? HTMLInputElement)?.selectionEnd
+    } catch (e: Throwable) {
+        if (e is CancellationException) throw e
+        null
+    }
+}
+
+fun wasmRestoreElementFocus(elementId: String, selectionStart: Int?, selectionEnd: Int?) {
+    try {
+        val node = getElement(elementId)
+        if (node is HTMLElement && document.contains(node)) {
+            node.focus()
+            if (node is HTMLInputElement && selectionStart != null && selectionEnd != null) {
+                node.setSelectionRange(selectionStart, selectionEnd)
+            }
+        }
+    } catch (e: Throwable) {
+        if (e is CancellationException) throw e
+    }
+}
+
 fun wasmFocusElement(elementId: String) {
     try {
         val node = getElement(elementId)

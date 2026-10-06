@@ -21,6 +21,9 @@ actual open class PlatformRenderer actual constructor() {
     // Store the composer and root element for recomposition
     private var mainRootElement: DOMElement? = null
     private var isInitialMount = true
+    private var focusedElementBeforeRecomposition: String? = null
+    private var selectionStartBeforeRecomposition: Int? = null
+    private var selectionEndBeforeRecomposition: Int? = null
 
     // DOM reconciliation tracking
     private val currentCompositionElements = mutableSetOf<String>()
@@ -1565,10 +1568,26 @@ actual open class PlatformRenderer actual constructor() {
     }
 
     actual open fun startRecomposition() {
+        focusedElementBeforeRecomposition = wasmGetActiveElementId()
+        focusedElementBeforeRecomposition?.let { focused ->
+            selectionStartBeforeRecomposition = wasmGetInputSelectionStart(focused)
+            selectionEndBeforeRecomposition = wasmGetInputSelectionEnd(focused)
+        }
         resetElementCounters()
     }
 
-    actual open fun endRecomposition() {}
+    actual open fun endRecomposition() {
+        focusedElementBeforeRecomposition?.let { focused ->
+            wasmRestoreElementFocus(
+                elementId = focused,
+                selectionStart = selectionStartBeforeRecomposition,
+                selectionEnd = selectionEndBeforeRecomposition
+            )
+        }
+        focusedElementBeforeRecomposition = null
+        selectionStartBeforeRecomposition = null
+        selectionEndBeforeRecomposition = null
+    }
 
     // Hydration-specific state
     private var isHydrating = false
@@ -2168,20 +2187,7 @@ actual open class PlatformRenderer actual constructor() {
         handler: () -> Unit,
         listenerKey: String = "$elementId-$eventType"
     ) {
-        eventHandlerIds[listenerKey]?.let { existingId ->
-            try {
-                wasmRemoveEventHandler(elementId, eventType, existingId)
-            } catch (ignoredError: Throwable) {
-                if (ignoredError is CancellationException) throw ignoredError
-                // ignore errors removing stale handlers
-            }
-            eventHandlerIds.remove(listenerKey)
-            attachedEventListeners.remove(listenerKey)
-        }
-
-        val handlerId = generateEventHandlerId(listenerKey)
-
-        registerWasmEventCallback(handlerId) {
+        val latestHandler = {
             try {
                 handler()
             } catch (e: Exception) {
@@ -2189,6 +2195,13 @@ actual open class PlatformRenderer actual constructor() {
                 diagnostics.failure()
             }
         }
+        eventHandlerIds[listenerKey]?.let { existingId ->
+            registerWasmEventCallback(existingId, latestHandler)
+            return
+        }
+
+        val handlerId = generateEventHandlerId(listenerKey)
+        registerWasmEventCallback(handlerId, latestHandler)
 
         val success = wasmAddEventHandler(elementId, eventType, handlerId)
         if (success) {

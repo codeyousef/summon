@@ -36,6 +36,9 @@ All notable changes to this project will be documented in this file.
   balanced container/identity scopes and propagate failures to mounted ownership for teardown.
   Required DOM writes check failure results. Renderer diagnostics use bounded generic messages
   instead of values, element keys, hydration payloads or exception messages; cancellation propagates.
+- **Stable browser event identity** - JS and WASM retain DOM listener wrappers while replacing
+  their latest callbacks, detach local and document listeners with the owning node, and restore
+  surviving controlled-input focus and selection after keyed sibling reordering.
 - **Responsive listener ownership** - JS and WASM responsive layouts retain one resize
   subscription per rendered node across recomposition. Conditional removal, replacement,
   failed or canceled mounting, and root disposal detach the subscription; retired callbacks
