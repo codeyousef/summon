@@ -11,6 +11,10 @@ import kotlinx.coroutines.launch
  * @param stateFlow The MutableStateFlow to connect to
  * @return A SummonMutableState that reflects and updates the StateFlow
  */
+@Deprecated(
+    message = "Unowned collection leaks. Use bindMutableStateFlow(stateFlow, scope) and dispose the binding.",
+    level = DeprecationLevel.ERROR
+)
 fun <T> stateFromStateFlow(stateFlow: MutableStateFlow<T>): SummonMutableState<T> {
     val state = mutableStateOf(stateFlow.value)
 
@@ -35,6 +39,10 @@ fun <T> stateFromStateFlow(stateFlow: MutableStateFlow<T>): SummonMutableState<T
  * @param stateFlow The StateFlow to connect to
  * @return A SummonMutableState that reflects the StateFlow (changes to the State won't affect the Flow)
  */
+@Deprecated(
+    message = "Unowned collection leaks. Use bindStateFlow(stateFlow, scope) and dispose the binding.",
+    level = DeprecationLevel.ERROR
+)
 fun <T> stateFromReadOnlyStateFlow(stateFlow: StateFlow<T>): SummonMutableState<T> {
     val state = mutableStateOf(stateFlow.value)
 
@@ -53,6 +61,10 @@ fun <T> stateFromReadOnlyStateFlow(stateFlow: StateFlow<T>): SummonMutableState<
  * @param initialValue The initial value of the state
  * @return A SummonMutableState that reflects values from the SharedFlow
  */
+@Deprecated(
+    message = "Unowned collection leaks. Use bindSharedFlow(sharedFlow, initialValue, scope) and dispose the binding.",
+    level = DeprecationLevel.ERROR
+)
 fun <T> stateFromSharedFlow(
     sharedFlow: SharedFlow<T>,
     initialValue: T
@@ -74,6 +86,10 @@ fun <T> stateFromSharedFlow(
  * @param extraBufferCapacity Additional buffer capacity for the flow
  * @return A MutableSharedFlow that emits when the state changes
  */
+@Deprecated(
+    message = "This bridge installs an unowned listener. Keep state in a caller-owned flow binding instead.",
+    level = DeprecationLevel.ERROR
+)
 fun <T> SummonMutableState<T>.toSharedFlow(
     replay: Int = 1,
     extraBufferCapacity: Int = 0
@@ -104,18 +120,32 @@ fun <T> SummonMutableState<T>.toSharedFlow(
 /**
  * Extension property to convert a SummonMutableState to a StateFlow
  */
+@Deprecated(
+    message = "This getter installs an unowned listener per access. Keep state in a caller-owned flow binding instead.",
+    level = DeprecationLevel.ERROR
+)
+@Suppress("DEPRECATION_ERROR")
 val <T> SummonMutableState<T>.asStateFlow: StateFlow<T>
     get() = this.toStateFlow().asStateFlow()
 
 /**
  * Extension property to convert a SummonMutableState to a SharedFlow
  */
+@Deprecated(
+    message = "This getter installs an unowned listener per access. Keep state in a caller-owned flow binding instead.",
+    level = DeprecationLevel.ERROR
+)
+@Suppress("DEPRECATION_ERROR")
 val <T> SummonMutableState<T>.asSharedFlow: SharedFlow<T>
     get() = this.toSharedFlow().asSharedFlow()
 
 /**
  * Extension function to convert a SummonMutableState to a StateFlow
  */
+@Deprecated(
+    message = "This bridge installs an unowned listener. Keep state in a caller-owned flow binding instead.",
+    level = DeprecationLevel.ERROR
+)
 fun <T> SummonMutableState<T>.toStateFlow(): MutableStateFlow<T> {
     val stateFlow = MutableStateFlow(value)
 

@@ -1,8 +1,10 @@
 package codes.yousef.summon.lifecycle
 
-import codes.yousef.summon.runtime.safeWasmConsoleLog
-import codes.yousef.summon.runtime.safeWasmConsoleWarn
+import kotlinx.browser.window
+import org.w3c.dom.events.Event
 
+@JsFun("() => document.visibilityState")
+private external fun documentVisibilityState(): String
 actual enum class LifecycleState {
     INITIALIZED,
     CREATED,
@@ -22,113 +24,127 @@ actual interface LifecycleObserver {
     actual fun onDestroy()
 }
 
-/**
- * WASM-specific implementation of LifecycleOwner.
- * Provides lifecycle management for WASM test environment.
- */
+/** Browser lifecycle owner for WASM with stable host listeners and deterministic replay. */
 actual class LifecycleOwner {
     private val observers = mutableListOf<LifecycleObserver>()
+    private var ownedScope: LifecycleCoroutineScope? = null
+    private var hostListenersAttached = false
+    private val visibilityListener: (Event) -> Unit = { handleVisibilityChange() }
+    private val pageHideListener: (Event) -> Unit = { destroy() }
 
     actual var currentState: LifecycleState = LifecycleState.INITIALIZED
         set(value) {
-            if (field != value) {
-                safeWasmConsoleLog("LifecycleOwner.currentState transitioning: ${field} -> $value")
-                field = value
+            if (field == LifecycleState.DESTROYED) return
+            if (field == value) return
+            field = value
+            try {
                 notifyObservers(value)
+            } finally {
+                if (value == LifecycleState.DESTROYED) releaseHostListeners()
             }
         }
 
     init {
-        // Initialize lifecycle state progression for WASM test environment
-        setState(LifecycleState.CREATED)
-        setState(LifecycleState.STARTED)
-        setState(LifecycleState.RESUMED)
+        currentState = LifecycleState.CREATED
+        currentState = LifecycleState.STARTED
+        currentState = LifecycleState.RESUMED
+        window.addEventListener("visibilitychange", visibilityListener)
+        window.addEventListener("pagehide", pageHideListener)
+        window.addEventListener("beforeunload", pageHideListener)
+        hostListenersAttached = true
     }
 
-    private fun setState(newState: LifecycleState) {
-        if (newState != currentState) {
-            currentState = newState
+    private fun handleVisibilityChange() {
+        if (currentState == LifecycleState.DESTROYED) return
+        if (documentVisibilityState() == "hidden") {
+            currentState = LifecycleState.PAUSED
+            currentState = LifecycleState.STOPPED
+        } else {
+            currentState = LifecycleState.STARTED
+            currentState = LifecycleState.RESUMED
         }
     }
 
-    private fun notifyObservers(newState: LifecycleState) {
-        try {
-            // Create a copy to avoid concurrent modification
-            val observersCopy = ArrayList(observers)
+    private fun destroy() {
+        if (currentState == LifecycleState.DESTROYED) return
+        if (currentState != LifecycleState.STOPPED) currentState = LifecycleState.STOPPED
+        currentState = LifecycleState.DESTROYED
+    }
 
-            observersCopy.forEach { observer ->
-                try {
-                    when (newState) {
-                        LifecycleState.CREATED -> observer.onCreate()
-                        LifecycleState.STARTED -> observer.onStart()
-                        LifecycleState.RESUMED -> observer.onResume()
-                        LifecycleState.PAUSED -> observer.onPause()
-                        LifecycleState.STOPPED -> observer.onStop()
-                        LifecycleState.DESTROYED -> observer.onDestroy()
-                        else -> { /* No action for INITIALIZED */
-                        }
-                    }
-                } catch (e: Exception) {
-                    safeWasmConsoleWarn("Error notifying lifecycle observer: ${e.message}")
-                }
+    private fun releaseHostListeners() {
+        if (!hostListenersAttached) return
+        hostListenersAttached = false
+        window.removeEventListener("visibilitychange", visibilityListener)
+        window.removeEventListener("pagehide", pageHideListener)
+        window.removeEventListener("beforeunload", pageHideListener)
+    }
+
+    private fun notifyObservers(state: LifecycleState) {
+        var failure: Throwable? = null
+        ArrayList(observers).forEach { observer ->
+            try {
+                notifyObserver(observer, state)
+            } catch (error: Throwable) {
+                if (failure == null) failure = error
             }
-        } catch (e: Exception) {
-            safeWasmConsoleWarn("Error during lifecycle notification: ${e.message}")
         }
+        failure?.let { throw it }
     }
 
     actual fun addObserver(observer: LifecycleObserver) {
+        if (observers.contains(observer)) return
+        observers.add(observer)
         try {
-            if (!observers.contains(observer)) {
-                safeWasmConsoleLog("Adding lifecycle observer")
-                observers.add(observer)
-
-                // Notify new observer of current state
-                if (currentState >= LifecycleState.CREATED) {
-                    when (currentState) {
-                        LifecycleState.RESUMED -> {
-                            observer.onCreate()
-                            observer.onStart()
-                            observer.onResume()
-                        }
-
-                        LifecycleState.STARTED -> {
-                            observer.onCreate()
-                            observer.onStart()
-                        }
-
-                        LifecycleState.CREATED -> {
-                            observer.onCreate()
-                        }
-
-                        else -> { /* No action needed */
-                        }
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            safeWasmConsoleWarn("Failed to add lifecycle observer: ${e.message}")
+            replayCurrentState(observer)
+        } catch (error: Throwable) {
+            observers.remove(observer)
+            throw error
         }
     }
 
     actual fun removeObserver(observer: LifecycleObserver) {
-        try {
-            safeWasmConsoleLog("Removing lifecycle observer")
-            observers.remove(observer)
-        } catch (e: Exception) {
-            safeWasmConsoleWarn("Failed to remove lifecycle observer: ${e.message}")
+        observers.remove(observer)
+    }
+    actual internal fun lifecycleScopeOrCreate(
+        factory: () -> LifecycleCoroutineScope
+    ): LifecycleCoroutineScope = ownedScope ?: factory().also { ownedScope = it }
+
+    actual internal fun clearLifecycleScope(scope: LifecycleCoroutineScope) {
+        if (ownedScope === scope) ownedScope = null
+    }
+
+    private fun replayCurrentState(observer: LifecycleObserver) {
+        when (currentState) {
+            LifecycleState.INITIALIZED -> Unit
+            LifecycleState.CREATED -> observer.onCreate()
+            LifecycleState.STARTED -> {
+                observer.onCreate()
+                observer.onStart()
+            }
+            LifecycleState.RESUMED -> {
+                observer.onCreate()
+                observer.onStart()
+                observer.onResume()
+            }
+            LifecycleState.PAUSED -> observer.onPause()
+            LifecycleState.STOPPED -> observer.onStop()
+            LifecycleState.DESTROYED -> observer.onDestroy()
+        }
+    }
+
+    private fun notifyObserver(observer: LifecycleObserver, state: LifecycleState) {
+        when (state) {
+            LifecycleState.INITIALIZED -> Unit
+            LifecycleState.CREATED -> observer.onCreate()
+            LifecycleState.STARTED -> observer.onStart()
+            LifecycleState.RESUMED -> observer.onResume()
+            LifecycleState.PAUSED -> observer.onPause()
+            LifecycleState.STOPPED -> observer.onStop()
+            LifecycleState.DESTROYED -> observer.onDestroy()
         }
     }
 }
 
-// Provide a single instance for the WASM environment
 private val wasmLifecycleOwnerInstance = LifecycleOwner()
 
-/**
- * Gets the current WASM-specific lifecycle owner.
- * Returns a proper instance instead of null to support tests.
- */
-actual fun currentLifecycleOwner(): LifecycleOwner? {
-    safeWasmConsoleLog("Getting current WASM lifecycle owner")
-    return wasmLifecycleOwnerInstance
-}
+actual fun currentLifecycleOwner(): LifecycleOwner? = wasmLifecycleOwnerInstance

@@ -1,83 +1,95 @@
 package codes.yousef.summon.lifecycle
 
-// Expect declarations are in this same package (commonMain/kotlin/code/yousef/summon/lifecycle)
-// So, direct usage of LifecycleState, LifecycleObserver, LifecycleOwner will refer to them.
 import java.util.concurrent.CopyOnWriteArrayList
 
-/**
- * JVM actual implementation of LifecycleOwner.
- * This class provides a basic lifecycle management for JVM environments,
- * simulating state transitions and notifying observers.
- */
+/** JVM lifecycle owner. Assigning [currentState] dispatches the matching lifecycle event. */
 actual class LifecycleOwner {
-    private val observers = CopyOnWriteArrayList<LifecycleObserver>() // Thread-safe list
+    private val observers = CopyOnWriteArrayList<LifecycleObserver>()
+    private var ownedScope: LifecycleCoroutineScope? = null
+
     actual var currentState: LifecycleState = LifecycleState.INITIALIZED
+        set(value) {
+            if (field == LifecycleState.DESTROYED) return
+            if (field == value) return
+            field = value
+            notifyObservers(value)
+        }
 
     init {
-        // Simulate lifecycle progression on JVM (basic)
-        setState(LifecycleState.CREATED)
-        setState(LifecycleState.STARTED)
-        setState(LifecycleState.RESUMED)
-        // JVM apps don't typically pause/resume like mobile/web,
-        // but we need the states. Add shutdown hook for destroy.
-        // Note: This shutdown hook might not cover all JVM exit scenarios.
-        Runtime.getRuntime().addShutdownHook(Thread {
-            setState(LifecycleState.PAUSED) // Simulate PAUSED before STOPPED
-            setState(LifecycleState.STOPPED)
-            setState(LifecycleState.DESTROYED)
-        })
+        currentState = LifecycleState.CREATED
+        currentState = LifecycleState.STARTED
+        currentState = LifecycleState.RESUMED
     }
 
-    private fun setState(newState: LifecycleState) {
-        // Ensure states are progressed in order and not reverted (simplistic check)
-        if (newState < currentState && newState != LifecycleState.INITIALIZED) {
-            // This simple check might need refinement for more complex lifecycle scenarios
-            // For now, allowing progression or reset to INITIALIZED
-            // println("Warning: Attempting to move lifecycle state backwards from $currentState to $newState")
-            // return // Or handle as an error, or allow specific reversions
-        }
-        if (newState == currentState) return
-
-        currentState = newState
-        notifyObservers(newState)
-    }
-
-    private fun notifyObservers(newState: LifecycleState) {
-        // Update current state first
-        currentState = newState
+    private fun notifyObservers(state: LifecycleState) {
+        var failure: Throwable? = null
         observers.forEach { observer ->
-            when (newState) {
-                LifecycleState.CREATED -> observer.onCreate()
-                LifecycleState.STARTED -> observer.onStart()
-                LifecycleState.RESUMED -> observer.onResume()
-                LifecycleState.PAUSED -> observer.onPause()
-                LifecycleState.STOPPED -> observer.onStop()
-                LifecycleState.DESTROYED -> observer.onDestroy()
-                LifecycleState.INITIALIZED -> {} // No callback for INITIALIZED
+            try {
+                notifyObserver(observer, state)
+            } catch (error: Throwable) {
+                if (failure == null) failure = error
             }
         }
+        failure?.let { throw it }
     }
 
     actual fun addObserver(observer: LifecycleObserver) {
-        if (observers.addIfAbsent(observer)) {
-            // If the lifecycle is already created or started, immediately notify the new observer.
-            // Notify all states up to current state
-            if (currentState >= LifecycleState.CREATED) observer.onCreate()
-            if (currentState >= LifecycleState.STARTED) observer.onStart()
-            if (currentState >= LifecycleState.RESUMED) observer.onResume()
+        if (!observers.addIfAbsent(observer)) return
+        try {
+            replayCurrentState(observer)
+        } catch (error: Throwable) {
+            observers.remove(observer)
+            throw error
         }
     }
 
     actual fun removeObserver(observer: LifecycleObserver) {
         observers.remove(observer)
     }
+    @Synchronized
+    actual internal fun lifecycleScopeOrCreate(
+        factory: () -> LifecycleCoroutineScope
+    ): LifecycleCoroutineScope = ownedScope ?: factory().also { ownedScope = it }
+
+    @Synchronized
+    actual internal fun clearLifecycleScope(scope: LifecycleCoroutineScope) {
+        if (ownedScope === scope) ownedScope = null
+    }
+
+    private fun replayCurrentState(observer: LifecycleObserver) {
+        when (currentState) {
+            LifecycleState.INITIALIZED -> Unit
+            LifecycleState.CREATED -> observer.onCreate()
+            LifecycleState.STARTED -> {
+                observer.onCreate()
+                observer.onStart()
+            }
+            LifecycleState.RESUMED -> {
+                observer.onCreate()
+                observer.onStart()
+                observer.onResume()
+            }
+            LifecycleState.PAUSED -> observer.onPause()
+            LifecycleState.STOPPED -> observer.onStop()
+            LifecycleState.DESTROYED -> observer.onDestroy()
+        }
+    }
+
+    private fun notifyObserver(observer: LifecycleObserver, state: LifecycleState) {
+        when (state) {
+            LifecycleState.INITIALIZED -> Unit
+            LifecycleState.CREATED -> observer.onCreate()
+            LifecycleState.STARTED -> observer.onStart()
+            LifecycleState.RESUMED -> observer.onResume()
+            LifecycleState.PAUSED -> observer.onPause()
+            LifecycleState.STOPPED -> observer.onStop()
+            LifecycleState.DESTROYED -> observer.onDestroy()
+        }
+    }
 }
 
 private val lifecycleOwnerInstance = LifecycleOwner()
 
-/**
- * Provides the JVM actual implementation for the expect fun currentLifecycleOwner.
- */
 actual fun currentLifecycleOwner(): LifecycleOwner? = lifecycleOwnerInstance
 
 // Redundant 'actual enum class LifecycleState', 'actual interface LifecycleObserver',

@@ -23,10 +23,19 @@ expect interface LifecycleObserver {
     fun onDestroy()
 }
 
+/**
+ * Owns lifecycle observers and one lazily created [LifecycleCoroutineScope].
+ *
+ * Assigning [currentState] dispatches the corresponding event. Browser owners also map document
+ * visibility and page teardown to lifecycle transitions. Set [LifecycleState.DESTROYED] when a
+ * manually created owner is retired.
+ */
 expect class LifecycleOwner {
     var currentState: LifecycleState
     fun addObserver(observer: LifecycleObserver)
     fun removeObserver(observer: LifecycleObserver)
+    internal fun lifecycleScopeOrCreate(factory: () -> LifecycleCoroutineScope): LifecycleCoroutineScope
+    internal fun clearLifecycleScope(scope: LifecycleCoroutineScope)
 }
 
 /**

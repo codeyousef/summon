@@ -3,8 +3,8 @@ package codes.yousef.summon.i18n
 import codes.yousef.summon.state.mutableStateOf
 import kotlinx.browser.document
 import kotlinx.browser.window
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.await
 import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLElement
@@ -83,15 +83,16 @@ object JsI18nImplementation {
     }
 
     /**
-     * Load language resources from the specified base path
+     * Loads language resources in the caller-owned [scope].
      *
-     * @param basePath The base path for language JSON files (e.g., "/i18n/")
-     * @param onComplete Callback to be executed when all resources are loaded
+     * Canceling the scope cancels pending fetches and suppresses [onComplete]. The returned [Job]
+     * can be canceled independently when the owning screen or account is removed.
      */
-    @OptIn(DelicateCoroutinesApi::class)
-    fun loadLanguageResources(basePath: String = "/i18n/", onComplete: (() -> Unit)? = null) {
-
-        GlobalScope.launch {
+    fun loadLanguageResources(
+        scope: CoroutineScope,
+        basePath: String = "/i18n/",
+        onComplete: (() -> Unit)? = null
+    ): Job = scope.launch {
             I18nConfig.supportedLanguages.forEach { language ->
                 try {
                     val url = basePath + language.code + ".json"
@@ -115,7 +116,6 @@ object JsI18nImplementation {
 
             // Call the onComplete callback if provided
             onComplete?.invoke()
-        }
     }
 
     /**

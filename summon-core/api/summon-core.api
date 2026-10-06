@@ -61,6 +61,7 @@ public final class codes/yousef/summon/LifecycleAwareComponent : codes/yousef/su
 	public fun <init> (Lcodes/yousef/summon/lifecycle/LifecycleOwner;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;)V
 	public synthetic fun <init> (Lcodes/yousef/summon/lifecycle/LifecycleOwner;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun compose (Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun dispose ()V
 	public fun onLifecycleStateChanged (Lcodes/yousef/summon/lifecycle/LifecycleState;)V
 }
 
@@ -6551,6 +6552,17 @@ public final class codes/yousef/summon/integration/springboot/WebFluxTestControl
 
 public final class codes/yousef/summon/lifecycle/JvmLifecycleKt {
 	public static final fun currentLifecycleOwner ()Lcodes/yousef/summon/lifecycle/LifecycleOwner;
+}
+
+public abstract interface class codes/yousef/summon/lifecycle/LifecycleCoroutineScope : kotlinx/coroutines/CoroutineScope {
+	public abstract fun dispose ()V
+	public abstract fun getLifecycleOwner ()Lcodes/yousef/summon/lifecycle/LifecycleOwner;
+	public abstract fun isDisposed ()Z
+}
+
+public final class codes/yousef/summon/lifecycle/LifecycleCoroutineScopeKt {
+	public static final fun getLifecycleScope (Lcodes/yousef/summon/lifecycle/LifecycleOwner;)Lcodes/yousef/summon/lifecycle/LifecycleCoroutineScope;
+	public static final fun lifecycleScope (Lcodes/yousef/summon/lifecycle/LifecycleOwner;Lkotlin/coroutines/CoroutineContext;)Lcodes/yousef/summon/lifecycle/LifecycleCoroutineScope;
 }
 
 public abstract interface class codes/yousef/summon/lifecycle/LifecycleObserver {

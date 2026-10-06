@@ -41,19 +41,21 @@ component.dispose()
 ### Using with Coroutines
 
 ```kotlin
-// Get a coroutine scope tied to the lifecycle
-val scope = lifecycleCoroutineScope()
+val owner = requireNotNull(currentLifecycleOwner())
+val scope = owner.lifecycleScope
 
-// Launch a coroutine that's cancelled when the lifecycle owner is destroyed
+// This job is canceled when the owner reaches DESTROYED.
 scope.launch {
-    // Long-running operation
+    // Owner-local work
 }
 
-// Or use the whenActive helper
-whenActive(key = "uniqueKey") {
-    // This block is only executed when the lifecycle is in STARTED or RESUMED state
-    // and is automatically cancelled when it becomes inactive
+// STARTED/RESUMED runs the block; PAUSED/STOPPED cancels it.
+val activeWork = whenActive(owner, key = "uniqueKey") {
+    // Active-only work
 }
+
+// Explicit component removal also cancels active work exactly once.
+activeWork?.dispose()
 ```
 
 ## JVM Framework Integration

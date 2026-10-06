@@ -1,13 +1,16 @@
 package codes.yousef.summon
 
+import codes.yousef.summon.lifecycle.LifecycleCoroutineScope
 import codes.yousef.summon.lifecycle.LifecycleObserver
 import codes.yousef.summon.lifecycle.LifecycleOwner
 import codes.yousef.summon.lifecycle.LifecycleState
 import codes.yousef.summon.lifecycle.currentLifecycleOwner
+import codes.yousef.summon.lifecycle.lifecycleScope
 import codes.yousef.summon.runtime.Composable
 import codes.yousef.summon.runtime.DisposableEffect
+import kotlinx.atomicfu.locks.ReentrantLock
+import kotlinx.atomicfu.locks.withLock
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -39,24 +42,52 @@ class LifecycleAwareComponent(
     private val onStop: (() -> Unit)? = null,
     private val onDestroy: (() -> Unit)? = null
 ) : LifecycleAware, @Suppress("DEPRECATION") codes.yousef.summon.core.Composable {
+    private val lock = ReentrantLock()
+    private var disposed = false
+    private val observer = object : LifecycleObserver {
+        override fun onCreate() = onLifecycleStateChanged(LifecycleState.CREATED)
+        override fun onStart() = onLifecycleStateChanged(LifecycleState.STARTED)
+        override fun onResume() = onLifecycleStateChanged(LifecycleState.RESUMED)
+        override fun onPause() = onLifecycleStateChanged(LifecycleState.PAUSED)
+        override fun onStop() = onLifecycleStateChanged(LifecycleState.STOPPED)
+        override fun onDestroy() = onLifecycleStateChanged(LifecycleState.DESTROYED)
+    }
+
+    init {
+        lifecycleOwner.addObserver(observer)
+    }
+
+    private fun invokeWhileOwned(callback: (() -> Unit)?) {
+        if (lock.withLock { !disposed }) callback?.invoke()
+    }
 
     override fun onLifecycleStateChanged(state: LifecycleState) {
         when (state) {
-            LifecycleState.CREATED -> onCreate?.invoke()
-            LifecycleState.STARTED -> onStart?.invoke()
-            LifecycleState.RESUMED -> onResume?.invoke()
-            LifecycleState.PAUSED -> onPause?.invoke()
-            LifecycleState.STOPPED -> onStop?.invoke()
-            LifecycleState.DESTROYED -> onDestroy?.invoke()
-            else -> { /* Handle INITIALIZED if necessary */
-            }
+            LifecycleState.CREATED -> invokeWhileOwned(onCreate)
+            LifecycleState.STARTED -> invokeWhileOwned(onStart)
+            LifecycleState.RESUMED -> invokeWhileOwned(onResume)
+            LifecycleState.PAUSED -> invokeWhileOwned(onPause)
+            LifecycleState.STOPPED -> invokeWhileOwned(onStop)
+            LifecycleState.DESTROYED -> dispose()
+            LifecycleState.INITIALIZED -> Unit
+            else -> Unit
         }
     }
 
-    override fun <T> compose(receiver: T): T {
-        // This component doesn't render anything; it just hooks into the lifecycle
-        return receiver
+    /** Removes the observer and invokes destroy cleanup exactly once. */
+    fun dispose() {
+        val shouldDispose = lock.withLock {
+            if (disposed) false else {
+                disposed = true
+                true
+            }
+        }
+        if (!shouldDispose) return
+        lifecycleOwner.removeObserver(observer)
+        onDestroy?.invoke()
     }
+
+    override fun <T> compose(receiver: T): T = receiver
 }
 
 /**
@@ -171,42 +202,44 @@ class LifecycleAwareComponentBuilder {
  * @param block The suspend function to execute as a side effect
  * @return A LifecycleAwareComponent that can be disposed, or null if no owner is available.
  */
+@Suppress("UNUSED_PARAMETER")
 fun whenActive(
     lifecycleOwnerInput: LifecycleOwner? = currentLifecycleOwner(),
     key: Any,
     block: suspend CoroutineScope.() -> Unit
 ): LifecycleAwareComponent? {
     val lifecycleOwner = lifecycleOwnerInput ?: return null
-
-    var currentKey: Any = key
+    val scope: LifecycleCoroutineScope = lifecycleOwner.lifecycleScope
+    val lock = ReentrantLock()
     var activeJob: Job? = null
-    val coroutineScope = CoroutineScope(Dispatchers.Main)
 
-    return lifecycleAware(lifecycleOwner) {
-        val executeEffect = {
-            if (activeJob == null || key != currentKey) {
-                activeJob?.cancel()
-                currentKey = key
-                activeJob = coroutineScope.launch(block = block)
+    fun executeEffect() {
+        if (scope.isDisposed) return
+        lock.withLock {
+            if (activeJob?.isActive == true) return
+            val job = scope.launch(block = block)
+            activeJob = job
+            job.invokeOnCompletion {
+                lock.withLock {
+                    if (activeJob === job) activeJob = null
+                }
             }
         }
+    }
 
-        val cancelEffect = {
-            activeJob?.cancel()
-            activeJob = null
+    fun cancelEffect() {
+        val job = lock.withLock {
+            activeJob.also { activeJob = null }
         }
+        job?.cancel()
+    }
 
-        onStart {
-            executeEffect()
-        }
-
-        onPause {
-            cancelEffect()
-        }
-
-        onDestroy {
-            cancelEffect()
-        }
+    return lifecycleAware(lifecycleOwner) {
+        onStart(::executeEffect)
+        onResume(::executeEffect)
+        onPause(::cancelEffect)
+        onStop(::cancelEffect)
+        onDestroy(::cancelEffect)
     }
 }
 
@@ -272,7 +305,7 @@ fun LifecycleEffect(
     lifecycleOwner ?: return
 
     // Use DisposableEffect to register and unregister the observer
-    DisposableEffect(key) {
+    DisposableEffect(lifecycleOwner to key) {
         // Create a lifecycle observer
         val observer = object : LifecycleObserver {
             override fun onCreate() {
@@ -300,55 +333,8 @@ fun LifecycleEffect(
             }
         }
 
-        // Register the observer
         lifecycleOwner.addObserver(observer)
-
-        // Immediately trigger callbacks based on current state
-        when (lifecycleOwner.currentState) {
-            LifecycleState.CREATED -> {
-                onCreate?.invoke()
-            }
-
-            LifecycleState.STARTED -> {
-                onCreate?.invoke()
-                onStart?.invoke()
-            }
-
-            LifecycleState.RESUMED -> {
-                onCreate?.invoke()
-                onStart?.invoke()
-                onResume?.invoke()
-            }
-
-            LifecycleState.PAUSED -> {
-                onCreate?.invoke()
-                onStart?.invoke()
-                onResume?.invoke()
-                onPause?.invoke()
-            }
-
-            LifecycleState.STOPPED -> {
-                onCreate?.invoke()
-                onStart?.invoke()
-                onResume?.invoke()
-                onPause?.invoke()
-                onStop?.invoke()
-            }
-
-            LifecycleState.DESTROYED -> {
-                onCreate?.invoke()
-                onStart?.invoke()
-                onResume?.invoke()
-                onPause?.invoke()
-                onStop?.invoke()
-                onDestroy?.invoke()
-            }
-
-            else -> {} // INITIALIZED state doesn't trigger any callbacks
-        }
-
-        // Return a dispose function to clean up
-        {
+        return@DisposableEffect {
             lifecycleOwner.removeObserver(observer)
         }
     }

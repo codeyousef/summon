@@ -290,6 +290,21 @@ fun CounterControls() {
 
 The `collectAsState` function converts a `StateFlow` into a state object that can be used in components and causes recomposition when the flow's value changes.
 
+Outside composition, use an explicit owner:
+
+```kotlin
+val binding = bindStateFlow(appState.counter, screenScope)
+val count = binding.state
+
+// Screen removal, route-key change, logout, or owner teardown:
+binding.dispose()
+```
+
+`bindMutableStateFlow` is the two-way variant and suppresses equal-value feedback.
+`bindSharedFlow` requires an explicit initial value. The legacy `stateFrom*`, `to*Flow`, and
+`as*Flow` bridges are compile-time errors because they install collectors or listeners without
+an owner.
+
 ## State Containers
 
 For more structured state management, use a state container:

@@ -1,9 +1,10 @@
 package codes.yousef.summon.state
 
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -53,6 +54,31 @@ class OwnedFlowBindingTest {
         assertEquals(3, flow.value)
         runCurrent()
         assertEquals(0, flow.subscriptionCount.value)
+    }
+
+    @Test
+    fun equalTwoWayWritesDoNotCreateFeedbackEmissions() = runTest {
+        val flow = MutableStateFlow(1)
+        var emissions = 0
+        val collector = backgroundScope.launch {
+            flow.collect { emissions++ }
+        }
+        val binding = bindMutableStateFlow(flow, backgroundScope)
+        runCurrent()
+        assertEquals(1, emissions)
+
+        binding.state.value = 1
+        runCurrent()
+        assertEquals(1, emissions)
+        binding.state.value = 2
+        runCurrent()
+        assertEquals(2, emissions)
+        flow.value = 2
+        runCurrent()
+        assertEquals(2, emissions)
+
+        binding.dispose()
+        collector.cancel()
     }
 
     @Test

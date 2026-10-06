@@ -4,6 +4,11 @@ import codes.yousef.summon.runtime.MicrotaskScheduler
 import codes.yousef.summon.mountComposableRoot
 import kotlinx.browser.window
 fun main() {
+    if (window.location.search.contains("ownership=true")) {
+        val fixture = LifecycleOwnershipFixture()
+        mountComposableRoot("root") { fixture.Content() }
+        return
+    }
     if (window.location.search.contains("identity=true")) {
         val fixture = StableRenderingFixture()
         mountComposableRoot("root") { fixture.Content() }

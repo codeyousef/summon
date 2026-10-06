@@ -114,12 +114,10 @@ In Node.js environments, the lifecycle connects to process events:
 // Example of Node.js integration
 class MyNodeService {
     init {
-        // This will work in Node.js environments
-        val lifecycleOwner = currentLifecycleOwner()
-        
-        // Use lifecycleCoroutineScope for background work
-        lifecycleCoroutineScope(lifecycleOwner).launch {
-            // This coroutine will be cancelled when the process exits
+        val lifecycleOwner = requireNotNull(currentLifecycleOwner())
+
+        lifecycleOwner.lifecycleScope.launch {
+            // This coroutine is canceled when the owner reaches DESTROYED
         }
         
         // Register cleanup on shutdown

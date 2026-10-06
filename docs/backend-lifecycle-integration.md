@@ -68,12 +68,10 @@ The JVM implementation automatically detects and integrates with popular backend
 class MySpringComponent {
     @PostConstruct
     fun init() {
-        // Get lifecycle owner
-        val lifecycleOwner = currentLifecycleOwner()
-        
-        // Register with lifecycle
-        lifecycleCoroutineScope(lifecycleOwner).launch {
-            // This coroutine will be cancelled when the application shuts down
+        val lifecycleOwner = requireNotNull(currentLifecycleOwner())
+
+        lifecycleOwner.lifecycleScope.launch {
+            // This coroutine is canceled when the owner reaches DESTROYED
         }
     }
 }
@@ -84,19 +82,14 @@ class MySpringComponent {
 ```kotlin
 // Example of Ktor integration
 fun Application.module() {
-    // Get lifecycle owner
-    val lifecycleOwner = currentLifecycleOwner()
-    
-    // Register shutdown hook for cleanup
+    val lifecycleOwner = requireNotNull(currentLifecycleOwner())
+
     environment.monitor.subscribe(ApplicationStopping) {
-        // This will be called when Ktor is stopping
-        println("Ktor application shutting down")
+        lifecycleOwner.currentState = LifecycleState.DESTROYED
     }
-    
-    // Start background work that respects lifecycle
-    whenActive(lifecycleOwner) {
-        // This block is only executed when the lifecycle is active
-        // and is automatically cancelled when it becomes inactive
+
+    val activeWork = whenActive(lifecycleOwner, key = "ktor-application") {
+        // Canceled while inactive and restarted when active
     }
 }
 ```
@@ -126,11 +119,9 @@ class MyQuarkusService {
 class MyMicronautService {
     @PostConstruct
     fun init() {
-        // Get lifecycle owner
-        val lifecycleOwner = currentLifecycleOwner() 
-        
-        // Use lifecycleCoroutineScope for background work
-        lifecycleCoroutineScope(lifecycleOwner).launch {
+        val lifecycleOwner = requireNotNull(currentLifecycleOwner())
+
+        lifecycleOwner.lifecycleScope.launch {
             // This coroutine is tied to the application lifecycle
         }
     }

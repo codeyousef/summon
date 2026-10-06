@@ -61,12 +61,17 @@ Example translation file (en.json):
 For JavaScript/browser applications:
 
 ```kotlin
-// Initialize i18n system
-JsI18nImplementation.init()
-
-// Load translations from resources
-JsI18nImplementation.loadLanguageResources("/i18n/")
+fun initializeI18n(scope: CoroutineScope) {
+    JsI18nImplementation.init()
+    JsI18nImplementation.loadLanguageResources(
+        scope = scope,
+        basePath = "/i18n/"
+    )
+}
 ```
+
+The caller owns `scope`; cancel it when the application, account, or screen that requested the
+translations is removed.
 
 ### 4. Set Up Language Provider
 

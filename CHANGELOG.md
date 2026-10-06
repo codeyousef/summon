@@ -15,6 +15,9 @@ All notable changes to this project will be documented in this file.
 - **Owned flow bindings** - `bindStateFlow`, `bindMutableStateFlow`, and `bindSharedFlow`
   expose explicitly disposable subscriptions under a caller-supplied coroutine scope. Read-only
   bindings prevent reverse writes; mutable bindings suppress equal-value feedback.
+- **Lifecycle-owned coroutine scopes** - Each lifecycle owner lazily retains one scope, supports
+  caller-supplied parent contexts, cancels at `DESTROYED`, and exposes active-only work that
+  cancels on pause/stop and restarts on resume.
 - **Source consumer browser verification** - A locked JVM/JS/WASM fixture and pinned Playwright
   container exercise rendering, controlled inputs, keyed identity, logout, and effect cleanup
   across Chromium, Firefox, and WebKit.
@@ -24,6 +27,9 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- **Explicit asynchronous ownership** - Browser i18n resource loading now requires a caller-owned
+  coroutine scope and returns its job. Unowned StateFlow/SharedFlow conversion helpers are
+  compile-time deprecated in favor of disposable bindings.
 - **State dependency ownership** - State reads subscribe the owning composer to updates, with
   dependency removal detaching subscriptions instead of depending on the latest global root.
 - **Runtime effect ownership** - Effects require an active composition. Expected failures belong
@@ -36,6 +42,9 @@ All notable changes to this project will be documented in this file.
   balanced container/identity scopes and propagate failures to mounted ownership for teardown.
   Required DOM writes check failure results. Renderer diagnostics use bounded generic messages
   instead of values, element keys, hydration payloads or exception messages; cancellation propagates.
+- **Lifecycle event dispatch** - JS lifecycle observers now receive real transitions, all
+  platforms replay current state consistently, observer failures do not skip neighboring cleanup,
+  and browser lifecycle listeners use removable stable identities.
 - **Stable browser event identity** - JS and WASM retain DOM listener wrappers while replacing
   their latest callbacks, detach local and document listeners with the owning node, and restore
   surviving controlled-input focus and selection after keyed sibling reordering.

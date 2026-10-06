@@ -256,5 +256,5 @@ JavaScript-specific implementation for loading i18n translation files.
 
 **Methods:**
 - `init()`: Initialize i18n for the JS platform
-- `loadLanguageResources(basePath: String = "/i18n/")`: Load language resources from the specified base path
+- `loadLanguageResources(scope: CoroutineScope, basePath: String = "/i18n/", onComplete: (() -> Unit)? = null): Job`: Load language resources in a caller-owned scope
 - `getCurrentLanguage(): Language`: Get the current language for JS platform 

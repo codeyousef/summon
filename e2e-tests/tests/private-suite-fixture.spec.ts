@@ -23,6 +23,15 @@ type ListenerProbe = {
 
 type ListenerProbeWindow = Window & { __summonListenerProbe: ListenerProbe };
 
+type LifecycleListenerProbe = {
+  adds: number;
+  removes: number;
+  active: Array<{ type: string; listener: EventListenerOrEventListenerObject }>;
+  retired: Array<{ type: string; listener: EventListenerOrEventListenerObject }>;
+};
+
+type LifecycleProbeWindow = Window & { __summonLifecycleProbe: LifecycleListenerProbe };
+
 async function installElementListenerProbe(page: Page) {
   await page.addInitScript(() => {
     const nativeAdd = EventTarget.prototype.addEventListener;
@@ -163,6 +172,76 @@ test('keyed reorder retains focused selection and deleted callbacks are detached
     () => (window as ListenerProbeWindow).__summonListenerProbe.removes
   );
   expect(removalsAfterDelete).toBeGreaterThanOrEqual(removalsBeforeDelete + 2);
+});
+
+test('lifecycle work pauses, resumes and destroys without host listener leaks', async ({ page }) => {
+  await page.addInitScript(() => {
+    const nativeAdd = window.addEventListener.bind(window);
+    const nativeRemove = window.removeEventListener.bind(window);
+    const trackedTypes: Record<string, true> = {
+      visibilitychange: true,
+      pagehide: true,
+      beforeunload: true,
+    };
+    const probe: LifecycleListenerProbe = { adds: 0, removes: 0, active: [], retired: [] };
+    (window as LifecycleProbeWindow).__summonLifecycleProbe = probe;
+    Object.defineProperty(window, 'addEventListener', {
+      configurable: true,
+      value(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions) {
+        if (trackedTypes[type]) {
+          probe.adds++;
+          probe.active.push({ type, listener });
+        }
+        return nativeAdd(type, listener, options);
+      },
+    });
+    Object.defineProperty(window, 'removeEventListener', {
+      configurable: true,
+      value(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions) {
+        if (trackedTypes[type]) {
+          const index = probe.active.findIndex(entry => entry.type === type && entry.listener === listener);
+          if (index >= 0) probe.active.splice(index, 1);
+          probe.retired.push({ type, listener });
+          probe.removes++;
+        }
+        return nativeRemove(type, listener, options);
+      },
+    });
+  });
+  await page.goto('/?ownership=true');
+  const stats = page.getByTestId('lifecycle-ownership-stats');
+  await expect(stats).toHaveText('Starts: 1; Cleanups: 0; Disposed: false; Cycles: 0');
+  await expect(page.getByTestId('lifecycle-scope-identity')).toHaveText('Stable scope: true');
+  expect(await page.evaluate(() => {
+    const probe = (window as LifecycleProbeWindow).__summonLifecycleProbe;
+    return { adds: probe.adds, removes: probe.removes, active: probe.active.length };
+  })).toEqual({ adds: 3, removes: 0, active: 3 });
+
+  await page.getByRole('button', { name: 'Pause owned lifecycle', exact: true }).click();
+  await expect(stats).toHaveText('Starts: 1; Cleanups: 1; Disposed: false; Cycles: 0');
+  await page.getByRole('button', { name: 'Resume owned lifecycle', exact: true }).click();
+  await expect(stats).toHaveText('Starts: 2; Cleanups: 1; Disposed: false; Cycles: 0');
+  await page.getByRole('button', { name: 'Destroy owned lifecycle', exact: true }).click();
+  await expect(stats).toHaveText('Starts: 2; Cleanups: 2; Disposed: true; Cycles: 0');
+  expect(await page.evaluate(() => {
+    const probe = (window as LifecycleProbeWindow).__summonLifecycleProbe;
+    return { adds: probe.adds, removes: probe.removes, active: probe.active.length };
+  })).toEqual({ adds: 3, removes: 3, active: 0 });
+
+  await page.evaluate(() => {
+    const entry = (window as LifecycleProbeWindow).__summonLifecycleProbe.retired
+      .find(candidate => candidate.type === 'visibilitychange')!;
+    if (typeof entry.listener === 'function') entry.listener(new Event('visibilitychange'));
+    else entry.listener.handleEvent(new Event('visibilitychange'));
+  });
+  await expect(stats).toHaveText('Starts: 2; Cleanups: 2; Disposed: true; Cycles: 0');
+
+  await page.getByRole('button', { name: 'Run 100 lifecycle cycles', exact: true }).click();
+  await expect(stats).toHaveText('Starts: 2; Cleanups: 2; Disposed: true; Cycles: 100');
+  expect(await page.evaluate(() => {
+    const probe = (window as LifecycleProbeWindow).__summonLifecycleProbe;
+    return { adds: probe.adds, removes: probe.removes, active: probe.active.length };
+  })).toEqual({ adds: 303, removes: 303, active: 0 });
 });
 
 test('logout removes account UI and late flow results cannot repaint it', async ({ page }) => {
