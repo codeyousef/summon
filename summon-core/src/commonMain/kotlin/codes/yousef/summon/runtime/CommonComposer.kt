@@ -8,9 +8,8 @@ import codes.yousef.summon.annotation.Composable
 class CommonComposer : Composer {
     override val inserting: Boolean = true
 
-    private val slots = mutableMapOf<Int, Any?>()
-    private val namedValues = mutableMapOf<Any, Any?>()
-    private var slotIndex = 0
+    private val slots = CompositionSlots()
+    private var compositionDepth = 0
 
     override fun startCompose() {
         startNode()
@@ -21,11 +20,24 @@ class CommonComposer : Composer {
     }
 
     override fun <T> compose(composable: @Composable () -> T): T {
-        startCompose()
-        try {
-            return composable()
-        } finally {
-            endCompose()
+        val outermost = compositionDepth == 0
+        if (outermost) slots.beginPass()
+        compositionDepth++
+        return CompositionLocal.provideComposer(this) {
+            startCompose()
+            try {
+                val result = composable()
+                if (outermost) slots.endPass()
+                result
+            } catch (error: Throwable) {
+                if (outermost) {
+                    try { slots.dispose() } catch (cleanupError: Throwable) { error.addSuppressed(cleanupError) }
+                }
+                throw error
+            } finally {
+                endCompose()
+                compositionDepth--
+            }
         }
     }
 
@@ -38,11 +50,11 @@ class CommonComposer : Composer {
     }
 
     override fun startGroup(key: Any?) {
-        // Simple implementation
+        slots.startGroup(key)
     }
 
     override fun endGroup() {
-        // Simple implementation
+        slots.endGroup()
     }
 
     override fun changed(value: Any?): Boolean {
@@ -55,15 +67,15 @@ class CommonComposer : Composer {
     }
 
     override fun nextSlot() {
-        slotIndex++
+        slots.nextSlot()
     }
 
     override fun getSlot(): Any? {
-        return slots[slotIndex]
+        return slots.getSlot()
     }
 
     override fun setSlot(value: Any?) {
-        slots[slotIndex] = value
+        slots.setSlot(value)
     }
 
     override fun recordRead(state: Any) {
@@ -87,17 +99,16 @@ class CommonComposer : Composer {
     }
 
     override fun rememberedValue(key: Any): Any? {
-        return namedValues[key]
+        return slots.rememberedValue(key)
     }
 
     override fun updateRememberedValue(key: Any, value: Any?) {
-        namedValues[key] = value
+        slots.updateRememberedValue(key, value)
     }
 
     override fun dispose() {
         // Simple implementation
-        slots.clear()
-        namedValues.clear()
+        slots.dispose()
     }
 }
 
@@ -127,4 +138,4 @@ object ComposerContext {
             currentComposer = previous
         }
     }
-} 
+}

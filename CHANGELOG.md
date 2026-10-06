@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **Keyed composition groups** - `key(vararg keys) { ... }` preserves remembered state and
+  effects across sibling insertion and reordering, rejects duplicate explicit sibling keys,
+  and releases removed groups. Group-local slot cursors isolate conditional child state.
 - **Disposable browser roots** - `mountComposableRoot` returns a `MountedComposition` handle.
   Each JS/WASM root owns its recomposer, renderer and scheduling; replacement releases the old
   mount, and disposal cancels queued work and removes owned DOM callbacks and nodes.
@@ -26,6 +29,9 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **Conditional input and route state** - TextField internals use isolated groups; route content
+  is scoped by route path and parameters. Named caches belong to their containing group and
+  disappear with it. Restartable and composer key helpers retain equality keys instead of hashes.
 - **Remembered state lifetime** - Nullable values remain cached until keys change or the slot
   leaves composition. Omitted remembered slots are removed, and named composer keys use a
   separate equality-keyed cache so hash collisions cannot replace positional state or effects.

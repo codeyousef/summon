@@ -342,8 +342,9 @@ object DeepLinkManager {
  */
 @Composable
 fun RouteContentHandler(matchResult: RouteMatchResult) {
-    // Invoke the route's content function with the extracted parameters
-    matchResult.route.content(RouteParams(matchResult.params))
+    codes.yousef.summon.runtime.key("Summon.RouteContent", matchResult.route.path, matchResult.params.toMap()) {
+        matchResult.route.content(RouteParams(matchResult.params))
+    }
 }
 
 // --- Additional Deep Linking Utilities (Keep/Adapt) ---

@@ -30,7 +30,7 @@ annotation class Immutable
  */
 fun Composer.startRestartableGroup(key: String) {
     // Start a new group that can be restarted independently
-    startGroup(key.hashCode())
+    startGroup(key)
 }
 
 fun Composer.endRestartableGroup() {
@@ -41,7 +41,7 @@ fun Composer.endRestartableGroup() {
  * Create a unique key for the current composition.
  */
 fun Composer.key(key: Any?, block: () -> Unit) {
-    startGroup(key.hashCode())
+    startGroup(ExplicitCompositionKey(listOf(key)))
     try {
         block()
     } finally {

@@ -9,6 +9,7 @@ import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.modifier.attribute
 import codes.yousef.summon.runtime.DisposableEffect
 import codes.yousef.summon.runtime.SideEffect
+import codes.yousef.summon.runtime.key
 import codes.yousef.summon.runtime.remember
 import codes.yousef.summon.effects.CompositionScope
 import codes.yousef.summon.effects.onMount
@@ -24,6 +25,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 /** Synthetic fixture data only. This is not the application's encryption or login layer. */
 class FixtureSession(initialAccount: String = "Synthetic account A") {
+    val accountIdentity = initialAccount
+    var probeCalculations = 0
+    val itemCalculations = mutableMapOf<String, Int>()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     val source = MutableStateFlow(initialAccount)
     val binding = bindMutableStateFlow(source, scope)
@@ -77,10 +81,18 @@ fun FixtureApp(session: FixtureSession) {
         Button(onClick = { session.effectEnabled.value = !session.effectEnabled.value }, label = "Toggle owned effect")
         Button(onClick = { session.effectKey.value++ }, label = "Change effect key")
         session.items.value.forEach { item ->
-            Text("Item $item", Modifier().attribute("key", item).attribute("data-testid", "key-item-$item"))
+            key("item", item) {
+                val generation = remember {
+                    (session.itemCalculations[item] ?: 0).plus(1).also { session.itemCalculations[item] = it }
+                }
+                Text("Item $item", Modifier().attribute("key", item).attribute("data-testid", "key-item-$item"))
+                Text("$item:$generation", Modifier().attribute("key", "state-$item").attribute("data-testid", "state-item-$item"))
+            }
         }
         Button(onClick = { session.items.value = session.items.value.reversed() }, label = "Reverse items")
-        if (session.loggedIn.value) {
+        Button(onClick = { session.items.value = session.items.value.filter { it != "two" } }, label = "Remove second item")
+        Button(onClick = { session.items.value = listOf("two") + session.items.value.filter { it != "two" } }, label = "Insert second item")
+        if (session.loggedIn.value) key("account", session.accountIdentity) {
             Text(session.binding.state.value, Modifier().attribute("data-testid", "account-value"))
             TextField(
                 value = session.binding.state.value,
@@ -93,7 +105,7 @@ fun FixtureApp(session: FixtureSession) {
             Text("Locked", Modifier().attribute("data-testid", "locked"))
             Button(onClick = { session.source.value = "Late account A result" }, label = "Emit late result")
         }
-        if (session.loggedIn.value && session.effectEnabled.value) {
+        if (session.loggedIn.value && session.effectEnabled.value) key("owned-effect", session.accountIdentity) {
             DisposableEffect(session.effectKey.value) {
                 session.activeEffects.value++
                 return@DisposableEffect {
@@ -101,6 +113,10 @@ fun FixtureApp(session: FixtureSession) {
                     session.disposedEffects.value++
                 }
             }
+        }
+        key("trailing-probe", session.accountIdentity) {
+            val probe = remember { "generation-${++session.probeCalculations}" }
+            Text(probe, Modifier().attribute("data-testid", "group-probe"))
         }
     }
     renderFinished = true

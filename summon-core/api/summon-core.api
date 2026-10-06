@@ -9184,6 +9184,10 @@ public final class codes/yousef/summon/runtime/JvmRecompositionSchedulerKt {
 	public static final fun createDefaultScheduler ()Lcodes/yousef/summon/runtime/RecompositionScheduler;
 }
 
+public final class codes/yousef/summon/runtime/KeyKt {
+	public static final fun key ([Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+}
+
 public final class codes/yousef/summon/runtime/MetricEntry {
 	public fun <init> (Ljava/lang/String;DDLcodes/yousef/summon/runtime/HydrationPhase;Ljava/util/Map;)V
 	public synthetic fun <init> (Ljava/lang/String;DDLcodes/yousef/summon/runtime/HydrationPhase;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V

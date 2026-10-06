@@ -7,6 +7,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
 import codes.yousef.summon.runtime.getPlatformRenderer
 import codes.yousef.summon.runtime.mutableStateOf
 import codes.yousef.summon.runtime.remember
+import codes.yousef.summon.runtime.compositionGroup
 import codes.yousef.summon.validation.Validator
 import kotlin.js.JsName
 
@@ -37,7 +38,7 @@ fun TextField(
     isEnabled: Boolean = true,
     isReadOnly: Boolean = false,
     validators: List<Validator> = emptyList()
-) {
+) = compositionGroup("Summon.TextField") {
     val renderer = LocalPlatformRenderer.current
     val validationErrors = remember { mutableStateOf(emptyList<String>()) }
 
@@ -125,7 +126,7 @@ fun StatefulTextField(
     isEnabled: Boolean = true,
     isReadOnly: Boolean = false,
     validators: List<Validator> = emptyList()
-) {
+) = compositionGroup("Summon.StatefulTextField") {
     // Create state to store the text value
     val textState = remember { mutableStateOf(initialValue) }
 
@@ -201,4 +202,4 @@ enum class TextFieldType {
     Search,
     Date,
     Time
-} 
+}

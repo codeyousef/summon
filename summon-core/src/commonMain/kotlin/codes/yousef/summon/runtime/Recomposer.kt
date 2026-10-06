@@ -324,18 +324,15 @@ class Recomposer {
         override val inserting: Boolean = true
 
         private val renderer = PlatformRendererStore.get()
-        private val slots = mutableMapOf<Int, Any?>()
-        private val namedValues = mutableMapOf<Any, Any?>()
-        private var slotIndex = 0
+        private val slots = CompositionSlots()
+        private var compositionDepth = 0
         private val stateReads = mutableSetOf<Any>()
         private val nodeStack = mutableListOf<Int>()
-        private val groupStack = mutableListOf<Any?>()
         private var currentNodeIndex = 0
         private val disposables = mutableListOf<() -> Unit>()
         var disposed = false
             private set
         val postCommitEffects = mutableListOf<() -> Unit>()
-        private val visitedSlots = mutableSetOf<Int>()
 
         /**
          * Checks if this composer depends on the given state.
@@ -356,9 +353,8 @@ class Recomposer {
             stateReads.clear()
 
             // Reset indices for the new composition
-            slotIndex = 0
+            slots.beginPass()
             currentNodeIndex = 0
-            visitedSlots.clear()
 
             // Perform the actual recomposition
             compose(compositionRoot)
@@ -368,28 +364,30 @@ class Recomposer {
          * Performs the actual composition by invoking the composable root.
          */
         private fun compose(compositionRoot: @Composable () -> Unit) {
-            withPlatformRenderer(renderer) {
-                RecomposerHolder.withRecomposer(recomposer) {
-                    CompositionLocal.provideComposer(this) {
-                        try {
-                            PlatformRendererStore.get()?.startRecomposition()
+            compositionDepth++
+            try {
+                withPlatformRenderer(renderer) {
+                    RecomposerHolder.withRecomposer(recomposer) {
+                        CompositionLocal.provideComposer(this) {
                             try {
-                                startGroup("recomposition")
-                                compositionRoot()
-                                endGroup()
-                                pruneRemovedSlots()
-                            } finally {
-                                PlatformRendererStore.get()?.endRecomposition()
+                                PlatformRendererStore.get()?.startRecomposition()
+                                try {
+                                    startGroup("recomposition")
+                                    try { compositionRoot() } finally { endGroup() }
+                                    slots.endPass()
+                                } finally {
+                                    PlatformRendererStore.get()?.endRecomposition()
+                                }
+                                runPostCommitEffects()
+                            } catch (error: Throwable) {
+                                try { dispose() } catch (cleanupError: Throwable) { error.addSuppressed(cleanupError) }
+                                println("Summon composition failed")
+                                throw error
                             }
-                            runPostCommitEffects()
-                        } catch (error: Throwable) {
-                            try { dispose() } catch (cleanupError: Throwable) { error.addSuppressed(cleanupError) }
-                            println("Summon composition failed")
-                            throw error
                         }
                     }
                 }
-            }
+            } finally { compositionDepth-- }
         }
 
         private fun runPostCommitEffects() {
@@ -412,19 +410,8 @@ class Recomposer {
             }
         }
 
-        override fun startGroup(key: Any?) {
-            groupStack.add(key)
-            // Store the key in the slot to maintain alignment
-            setSlot(key)
-            slotIndex++
-        }
-
-        override fun endGroup() {
-            if (groupStack.isNotEmpty()) {
-                groupStack.removeAt(groupStack.size - 1)
-            }
-        }
-
+        override fun startGroup(key: Any?) = slots.startGroup(key)
+        override fun endGroup() = slots.endGroup()
 
         override fun changed(value: Any?): Boolean {
             val slotValue = getSlot()
@@ -439,24 +426,9 @@ class Recomposer {
             setSlot(value)
         }
 
-        override fun nextSlot() {
-            slotIndex++
-        }
-
-        override fun getSlot(): Any? {
-            visitedSlots.add(slotIndex)
-            return slots[slotIndex]
-        }
-
-        override fun setSlot(value: Any?) {
-            visitedSlots.add(slotIndex)
-            val previous = slots[slotIndex]
-            if (previous !== value && previous is CompositionResource) {
-                slots.remove(slotIndex)
-                previous.dispose()
-            }
-            slots[slotIndex] = value
-        }
+        override fun nextSlot() = slots.nextSlot()
+        override fun getSlot(): Any? = slots.getSlot()
+        override fun setSlot(value: Any?) = slots.setSlot(value)
 
         override fun recordRead(state: Any) {
             // Track that this state was read in this composition
@@ -483,38 +455,8 @@ class Recomposer {
             reportChanged()
         }
 
-        override fun rememberedValue(key: Any): Any? {
-            return namedValues[key]
-        }
-
-        override fun updateRememberedValue(key: Any, value: Any?) {
-            val previous = namedValues[key]
-            if (previous !== value && previous is CompositionResource) {
-                namedValues.remove(key)
-                previous.dispose()
-            }
-            namedValues[key] = value
-        }
-
-        private fun pruneRemovedSlots() {
-            val removed = slots.filter { (index, _) ->
-                index !in visitedSlots
-            }
-            removed.keys.forEach { slots.remove(it) }
-            disposeResources(removed.values.filterIsInstance<CompositionResource>())
-        }
-
-        private fun disposeResources(resources: List<CompositionResource>) {
-            var failure: Throwable? = null
-            resources.forEach { resource ->
-                try {
-                    resource.dispose()
-                } catch (error: Throwable) {
-                    if (failure == null) failure = error else failure.addSuppressed(error)
-                }
-            }
-            failure?.let { throw it }
-        }
+        override fun rememberedValue(key: Any): Any? = slots.rememberedValue(key)
+        override fun updateRememberedValue(key: Any, value: Any?) = slots.updateRememberedValue(key, value)
 
         private fun clearDependencies() {
             stateReads.forEach { state ->
@@ -536,18 +478,13 @@ class Recomposer {
             recomposer.allComposers.remove(this)
             recomposer.pendingRecompositions.remove(this)
             clearDependencies()
-            val resources = (slots.values + namedValues.values).filterIsInstance<CompositionResource>()
-            slots.clear()
-            namedValues.clear()
-            visitedSlots.clear()
             postCommitEffects.clear()
             nodeStack.clear()
-            groupStack.clear()
             val cleanup = disposables.toList()
             disposables.clear()
             var failure: Throwable? = null
             try {
-                disposeResources(resources)
+                slots.dispose()
             } catch (error: Throwable) {
                 failure = error
             }
@@ -571,21 +508,29 @@ class Recomposer {
 
         override fun <T> compose(composable: @Composable () -> T): T {
             check(!disposed) { "Cannot compose a disposed composition" }
-            return withPlatformRenderer(renderer) {
-                RecomposerHolder.withRecomposer(recomposer) {
-                    CompositionLocal.provideComposer(this) {
-                        try {
-                            startCompose()
-                            val result = try { composable() } finally { endCompose() }
-                            runPostCommitEffects()
-                            result
-                        } catch (error: Throwable) {
-                            try { dispose() } catch (cleanupError: Throwable) { error.addSuppressed(cleanupError) }
-                            throw error
+            val outermost = compositionDepth == 0
+            if (outermost) slots.beginPass()
+            compositionDepth++
+            try {
+                return withPlatformRenderer(renderer) {
+                    RecomposerHolder.withRecomposer(recomposer) {
+                        CompositionLocal.provideComposer(this) {
+                            try {
+                                startCompose()
+                                val result = try { composable() } finally { endCompose() }
+                                if (outermost) {
+                                    slots.endPass()
+                                    runPostCommitEffects()
+                                }
+                                result
+                            } catch (error: Throwable) {
+                                try { dispose() } catch (cleanupError: Throwable) { error.addSuppressed(cleanupError) }
+                                throw error
+                            }
                         }
                     }
                 }
-            }
+            } finally { compositionDepth-- }
         }
 
     }

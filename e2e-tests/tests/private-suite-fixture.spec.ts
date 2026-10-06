@@ -205,3 +205,30 @@ test('remember retains nullable values and named keys and forgets removed slots'
   await expect(page.getByTestId('remembered-probe')).toHaveText('generation-2');
   await expect(page.getByTestId('remember-stats')).toHaveText('Null: 1; Keyed null: 2; Named: first/second/numeric');
 });
+
+
+test('composition keys retain item state and trailing state through conditional logout', async ({ page }) => {
+  await expect(page.getByTestId('group-probe')).toHaveText('generation-1');
+  await expect(page.getByTestId('state-item-two')).toHaveText('two:1');
+  await page.getByTestId('controlled-input').fill('Synthetic grouped value');
+  await expect(page.getByTestId('controlled-input')).toHaveValue('Synthetic grouped value');
+  await expect(page.getByTestId('controlled-input')).toBeFocused();
+  await page.getByRole('button', { name: 'Reverse items', exact: true }).click();
+  await expect(page.getByTestId('state-item-one')).toHaveText('one:1');
+  await expect(page.getByTestId('state-item-two')).toHaveText('two:1');
+  await page.getByRole('button', { name: 'Remove second item', exact: true }).click();
+  await expect(page.getByTestId('state-item-two')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Insert second item', exact: true }).click();
+  await expect(page.getByTestId('state-item-two')).toHaveText('two:2');
+  await expect(page.getByTestId('state-item-one')).toHaveText('one:1');
+  await page.getByRole('button', { name: 'Toggle owned effect', exact: true }).click();
+  await expect(page.getByTestId('active-effects')).toHaveText('Active effects: 0');
+  await expect(page.getByTestId('group-probe')).toHaveText('generation-1');
+  await page.getByRole('button', { name: 'Logout', exact: true }).click();
+  await expect(page.getByTestId('locked')).toHaveText('Locked');
+  await expect(page.getByTestId('controlled-input')).toHaveCount(0);
+  await expect(page.getByTestId('group-probe')).toHaveText('generation-1');
+  await page.getByRole('button', { name: 'Increment', exact: true }).click();
+  await expect(page.getByTestId('counter')).toHaveText('Count: 1');
+  await expect(page.getByTestId('group-probe')).toHaveText('generation-1');
+});

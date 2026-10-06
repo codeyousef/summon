@@ -929,11 +929,13 @@ its owning root rather than retaining a partially updated cache.
 
 `Composer.rememberedValue(key)` and `updateRememberedValue(key, value)` use a separate map keyed
 by equality; distinct keys with equal hashes cannot replace each other or a positional slot.
-Use keys with stable equality and hash codes. These named cache entries remain until replacement
-or composer disposal.
+Use keys with stable equality and hash codes. These named cache entries belong to the containing
+group and remain until replacement, group removal, or composer disposal.
 
 Ordinary remember slots are still positional within the composition's group layout. Keep call
 order stable; these fixes do not provide automatic call-site identity when conditional branches
 shift later remember calls, or preserve remembered item state across list reorders. Those require
-qualified keyed composition groups/compiler support. DOM node keys alone do not supply that state
-identity. Prefer a stable owner/view model for private item state while that support is pending.
+explicit keyed composition groups or future compiler support. Wrap each dynamic list item and
+conditional branch in `key(...) { ... }` to preserve its own slots and effects. DOM node keys alone
+do not supply remembered identity. See [composition keys](composition-keys.md) for the exact
+key, duplicate, lifetime and account/route migration contract and a runnable source fixture.
