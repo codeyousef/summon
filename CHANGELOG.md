@@ -29,6 +29,10 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **WASM render failures and diagnostics** - Row, Column, Box and Div invoke content under
+  balanced container/identity scopes and propagate failures to mounted ownership for teardown.
+  Required DOM writes check failure results. Renderer diagnostics use bounded generic messages
+  instead of values, element keys, hydration payloads or exception messages; cancellation propagates.
 - **Conditional input and route state** - TextField internals use isolated groups; route content
   is scoped by route path and parameters. Named caches belong to their containing group and
   disappear with it. Restartable and composer key helpers retain equality keys instead of hashes.

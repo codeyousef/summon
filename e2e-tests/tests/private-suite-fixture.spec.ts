@@ -232,3 +232,68 @@ test('composition keys retain item state and trailing state through conditional 
   await expect(page.getByTestId('counter')).toHaveText('Count: 1');
   await expect(page.getByTestId('group-probe')).toHaveText('generation-1');
 });
+
+
+for (const layout of ['Column', 'Row', 'Box', 'Div']) {
+  test(`nested ${layout} failure releases its root and keeps neighboring ownership`, async ({ page }) => {
+    const diagnostics: string[] = [];
+    page.on('console', message => diagnostics.push(message.text()));
+    page.on('pageerror', error => diagnostics.push(error.message));
+    await page.goto('/?failures=true');
+    const first = page.locator('#root');
+    const second = page.locator('#second-root');
+    const controls = page.locator('#controls');
+    const neighbor = await second.getByTestId('counter').elementHandle();
+    await controls.getByRole('button', { name: `Fail ${layout}`, exact: true }).click();
+    await expect(controls.getByTestId('failure-stats')).toHaveText('Failures: 1; Cancellations: 0; Active: 0; Collectors: 0; Cleanups: 2');
+    await expect(first.locator('*')).toHaveCount(0);
+    expect(await neighbor!.evaluate(node => node === document.querySelector('#second-root [data-testid="counter"]'))).toBe(true);
+    await second.getByRole('button', { name: 'Increment', exact: true }).click();
+    await expect(second.getByTestId('counter')).toHaveText('Count: 1');
+    await controls.getByRole('button', { name: 'Mount healthy layout', exact: true }).click();
+    await expect(first.getByTestId('healthy-layout')).toHaveText(`Healthy ${layout}`);
+    await expect(first.getByTestId('failure-input')).toHaveValue('PRIVATE_RENDER_VALUE_SENTINEL');
+    await first.getByTestId('failure-input').fill('PRIVATE_RENDER_EDIT_SENTINEL');
+    await expect(first.getByTestId('failure-input')).toHaveValue('PRIVATE_RENDER_EDIT_SENTINEL');
+    await expect(first.getByTestId('failure-input')).toBeFocused();
+    await controls.getByRole('button', { name: 'Dispose healthy layout', exact: true }).click();
+    await expect(first.locator('*')).toHaveCount(0);
+    await expect(controls.getByTestId('failure-stats')).toHaveText('Failures: 1; Cancellations: 0; Active: 0; Collectors: 0; Cleanups: 4');
+    expect(diagnostics.filter(message => message.includes('PRIVATE_RENDER_'))).toEqual([]);
+    expect(diagnostics.filter(message => message === 'Summon renderer operation failed').length).toBeLessThanOrEqual(1);
+  });
+}
+
+test('nested cancellation propagates after cleanup without private diagnostic payloads', async ({ page }) => {
+  const diagnostics: string[] = [];
+  page.on('console', message => diagnostics.push(message.text()));
+  page.on('pageerror', error => diagnostics.push(error.message));
+  await page.goto('/?failures=true');
+  await page.getByRole('button', { name: 'Cancel Column', exact: true }).click();
+  await expect(page.getByTestId('failure-stats')).toHaveText('Failures: 0; Cancellations: 1; Active: 0; Collectors: 0; Cleanups: 2');
+  await expect(page.locator('#root *')).toHaveCount(0);
+  expect(diagnostics.filter(message => message.includes('PRIVATE_RENDER_'))).toEqual([]);
+});
+
+
+test('native input write failure cannot produce a successful private view', async ({ page }) => {
+  const diagnostics: string[] = [];
+  page.on('console', message => diagnostics.push(message.text()));
+  page.on('pageerror', error => diagnostics.push(error.message));
+  await page.goto('/?failures=true');
+  await page.evaluate(() => {
+    const original = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!;
+    Object.defineProperty(HTMLInputElement.prototype, 'value', {
+      ...original,
+      set(value: string) {
+        if (value === 'PRIVATE_RENDER_VALUE_SENTINEL') throw new Error('PRIVATE_RENDER_NATIVE_ERROR_SENTINEL');
+        original.set!.call(this, value);
+      }
+    });
+  });
+  await page.getByRole('button', { name: 'Mount healthy layout', exact: true }).click();
+  await expect(page.getByTestId('failure-stats')).toHaveText('Failures: 1; Cancellations: 0; Active: 0; Collectors: 0; Cleanups: 2');
+  await expect(page.locator('#root *')).toHaveCount(0);
+  await expect(page.locator('#second-root').getByTestId('controlled-input')).toHaveValue('Synthetic account B');
+  expect(diagnostics.filter(message => message.includes('PRIVATE_RENDER_'))).toEqual([]);
+});

@@ -1,11 +1,14 @@
 package codes.yousef.summon.runtime
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.*
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventListener
 
+
+private val domDiagnostics = RendererDiagnostics { console.error(it) }
 
 // Element storage - maps element IDs to actual DOM elements
 private val elementStore = mutableMapOf<String, Node>()
@@ -54,7 +57,7 @@ fun wasmClearElementStore() {
 // Helper to store element and return its ID
 private fun storeElement(node: Node): String {
     var nodeId: String? = null
-    
+
     if (node is Element) {
         nodeId = node.id
     }
@@ -65,7 +68,7 @@ private fun storeElement(node: Node): String {
             node.id = nodeId
         }
     }
-    
+
     elementStore[nodeId] = node
     return nodeId
 }
@@ -77,7 +80,8 @@ fun wasmCreateElementById(tagName: String): String {
         val element = document.createElement(tagName)
         storeElement(element)
     } catch (e: Throwable) {
-        console.error("[Summon WASM] createElement failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         ""
     }
 }
@@ -97,7 +101,8 @@ fun wasmSetElementAttribute(elementId: String, name: String, value: String): Boo
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] setAttribute failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -111,7 +116,8 @@ fun wasmGetElementAttribute(elementId: String, name: String): String? {
             null
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] getAttribute failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         null
     }
 }
@@ -126,7 +132,8 @@ fun wasmRemoveElementAttribute(elementId: String, name: String): Boolean {
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] removeAttribute failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -142,7 +149,8 @@ fun wasmSetElementTextContent(elementId: String, text: String): Boolean {
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] setTextContent failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -152,7 +160,8 @@ fun wasmGetElementTextContent(elementId: String): String? {
         val node = getElement(elementId)
         node?.textContent
     } catch (e: Throwable) {
-        console.error("[Summon WASM] getTextContent failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         null
     }
 }
@@ -167,7 +176,8 @@ fun wasmSetElementInnerHTML(elementId: String, html: String): Boolean {
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] setInnerHTML failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -178,11 +188,12 @@ fun wasmGetElementInnerHTML(elementId: String): String? {
         if (node is Element) {
             node.innerHTML
         } else {
-            console.error("[Summon WASM] getInnerHTML: node $elementId is not an Element")
+            domDiagnostics.failure()
             null
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] getInnerHTML failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         null
     }
 }
@@ -196,11 +207,12 @@ fun wasmAppendChildById(parentId: String, childId: String): Boolean {
             parent.appendChild(child)
             true
         } else {
-            console.error("[Summon WASM] appendChild failed: parent=$parent (id=$parentId), child=$child (id=$childId)")
+            domDiagnostics.failure()
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] appendChild failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -216,7 +228,8 @@ fun wasmRemoveChildById(parentId: String, childId: String): Boolean {
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] removeChild failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -232,7 +245,8 @@ fun wasmRemoveElementById(elementId: String): Boolean {
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] removeElement failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -250,7 +264,7 @@ fun wasmClickElement(elementId: String): Boolean {
     return try {
         val element = getElement(elementId)
         if (element == null) {
-            console.error("[Summon WASM] clickElement failed: Element with ID $elementId not found in store")
+            domDiagnostics.failure()
             return false
         }
 
@@ -260,16 +274,18 @@ fun wasmClickElement(elementId: String): Boolean {
                 element.click()
                 return true
             } catch (e: Throwable) {
-                console.warn("[Summon WASM] native click failed, falling back to jsClick: ${e.message}")
+                if (e is CancellationException) throw e
+                domDiagnostics.failure()
             }
         }
-        
+
         // Fallback to jsClick
         try {
             jsClick(element)
             return true
         } catch (e: Throwable) {
-            console.error("[Summon WASM] clickElement failed: ${e.message}")
+            if (e is CancellationException) throw e
+            domDiagnostics.failure()
             // Fallback to native click if jsClick fails (unlikely)
             if (element is HTMLElement) {
                 element.click()
@@ -279,7 +295,8 @@ fun wasmClickElement(elementId: String): Boolean {
             }
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] clickElement failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -300,7 +317,8 @@ fun wasmAddClassToElement(elementId: String, className: String): Boolean {
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] addClass failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -320,7 +338,8 @@ fun wasmRemoveClassFromElement(elementId: String, className: String): Boolean {
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] removeClass failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -334,7 +353,8 @@ fun wasmElementHasClass(elementId: String, className: String): Boolean {
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] hasClass failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -348,7 +368,8 @@ fun wasmGetElementClassName(elementId: String): String? {
             null
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] getClassName failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         null
     }
 }
@@ -363,7 +384,8 @@ fun wasmGetElementTagName(elementId: String): String? {
             null
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] getTagName failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         null
     }
 }
@@ -377,7 +399,8 @@ fun wasmGetElementParent(elementId: String): String? {
             null
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] getElementParent failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         null
     }
 }
@@ -393,7 +416,8 @@ fun wasmGetElementId(elementId: String): String? {
 
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] getId failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         null
     }
 }
@@ -416,7 +440,8 @@ fun wasmSetElementId(elementId: String, newId: String): Boolean {
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] setId failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -440,7 +465,8 @@ fun wasmGetElementChildren(elementId: String): String {
             ""
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] getChildren failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         ""
     }
 }
@@ -464,7 +490,7 @@ fun wasmAddEventListenerById(elementId: String, eventType: String, handlerId: St
             val value = getInputValue(targetNode) ?: ""
             val checked = getInputChecked(targetNode)
 
-            
+
             entry.lastEvent = LastEvent(
                 type = event.type,
                 targetId = elementId,
@@ -472,20 +498,22 @@ fun wasmAddEventListenerById(elementId: String, eventType: String, handlerId: St
                 checked = checked,
                 event = event
             )
-            
+
             val callback = eventCallbacks[handlerId]
             if (callback != null) {
                 try {
                     callback()
                 } catch (err: Throwable) {
-                    console.error("[Summon WASM] Event callback failed: $err")
+                    if (err is CancellationException) throw err
+                    domDiagnostics.failure()
 
                 }
             } else {
                 try {
                     CallbackRegistry.executeCallback(handlerId)
                 } catch (err: Throwable) {
-                    console.error("[Summon WASM] CallbackRegistry execution failed: $err")
+                    if (err is CancellationException) throw err
+                    domDiagnostics.failure()
 
                 }
             }
@@ -495,7 +523,8 @@ fun wasmAddEventListenerById(elementId: String, eventType: String, handlerId: St
         element.addEventListener(eventType, listener)
         return true
     } catch (e: Throwable) {
-        console.error("[Summon WASM] addEventListener failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         return false
     }
 }
@@ -511,7 +540,8 @@ fun wasmRemoveEventListenerById(elementId: String, eventType: String, handlerId:
         eventCallbacks.remove(handlerId)
         true
     } catch (e: Throwable) {
-        console.error("[Summon WASM] removeEventListener failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         eventHandlers.remove(handlerId)
         eventCallbacks.remove(handlerId)
         false
@@ -564,7 +594,8 @@ fun wasmQuerySelectorGetId(selector: String): String? {
         val element = document.querySelector(selector)
         if (element != null) storeElement(element) else null
     } catch (e: Throwable) {
-        console.error("[Summon WASM] querySelector failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         null
     }
 }
@@ -578,7 +609,8 @@ fun wasmQuerySelectorAllGetIds(selector: String): String {
         }
         ids.joinToString(",")
     } catch (e: Throwable) {
-        console.error("[Summon WASM] querySelectorAll failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         ""
     }
 }
@@ -589,7 +621,8 @@ fun wasmGetElementValue(elementId: String): String? {
         val element = getElement(elementId)
         getInputValue(element)
     } catch (e: Throwable) {
-        console.error("[Summon WASM] getValue failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         null
     }
 }
@@ -605,7 +638,8 @@ fun wasmSetElementValue(elementId: String, value: String): Boolean {
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] setValue failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -615,7 +649,8 @@ fun wasmGetElementChecked(elementId: String): Boolean {
         val element = getElement(elementId)
         getInputChecked(element)
     } catch (e: Throwable) {
-        console.error("[Summon WASM] getChecked failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -631,7 +666,8 @@ fun wasmSetElementChecked(elementId: String, checked: Boolean): Boolean {
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] setChecked failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -641,7 +677,8 @@ fun wasmGetElementDisabled(elementId: String): Boolean {
         val element = getElement(elementId)
         getInputDisabled(element)
     } catch (e: Throwable) {
-        console.error("[Summon WASM] getDisabled failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -657,7 +694,8 @@ fun wasmSetElementDisabled(elementId: String, disabled: Boolean): Boolean {
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] setDisabled failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -672,7 +710,8 @@ fun wasmGetSelectedIndex(elementId: String): Int {
             -1
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] getSelectedIndex failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         -1
     }
 }
@@ -687,7 +726,8 @@ fun wasmSetSelectedIndex(elementId: String, index: Int): Boolean {
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] setSelectedIndex failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -714,7 +754,8 @@ fun wasmInsertHTMLIntoHead(html: String): Boolean {
         document.head?.insertAdjacentHTML("beforeend", html)
         true
     } catch (e: Throwable) {
-        console.error("[Summon WASM] insertHTMLIntoHead failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -729,7 +770,8 @@ fun wasmInsertAdjacentHTML(elementId: String, position: String, html: String): B
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] insertAdjacentHTML failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -743,7 +785,8 @@ fun wasmGetOuterHTML(elementId: String): String? {
             null
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] getOuterHTML failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         null
     }
 }
@@ -840,7 +883,8 @@ fun wasmScrollElementIntoView(elementId: String, behavior: String): Boolean {
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] scrollIntoView failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -864,7 +908,8 @@ fun wasmGetComputedStyleProperty(elementId: String, property: String): String? {
             null
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] getComputedStyle failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         null
     }
 }
@@ -879,7 +924,8 @@ fun wasmApplyStyleProperty(elementId: String, property: String, value: String): 
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] applyStyleProperty failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -893,7 +939,8 @@ fun wasmGetElementStyle(elementId: String, property: String): String? {
             null
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] getElementStyle failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         null
     }
 }
@@ -908,7 +955,8 @@ fun wasmSetElementStyle(elementId: String, cssText: String): Boolean {
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] setElementStyle failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -979,12 +1027,14 @@ fun wasmCreateElementWithOptions(tagName: String, options: String): String {
             try {
                 applyOptions(element, options)
             } catch (e: Throwable) {
+                if (e is CancellationException) throw e
                 // Ignore parse errors
             }
         }
         storeElement(element)
     } catch (e: Throwable) {
-        console.error("[Summon WASM] createElementWithOptions failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         ""
     }
 }
@@ -1002,6 +1052,7 @@ private fun applyOptions(element: JsAny, options: String) {
         }
 
     } catch (e: Throwable) {
+        if (e is CancellationException) throw e
         // Ignore
     }
 }
@@ -1019,7 +1070,8 @@ fun wasmCloneElement(sourceElementId: String, deep: Boolean): String? {
             null
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] cloneElement failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         null
     }
 }
@@ -1052,7 +1104,8 @@ fun registerWasmAnimationFrameCallback(frameId: Int, callback: () -> Unit) {
         try {
             callback()
         } catch (e: Throwable) {
-            console.error("[Summon WASM] Animation frame callback failed:" + ": " + e.message)
+            if (e is CancellationException) throw e
+            domDiagnostics.failure()
         } finally {
             animationFrameCallbacks.remove(frameId)
         }
@@ -1079,7 +1132,8 @@ fun wasmGetElementsByTagName(tagName: String): String {
         }
         ids.joinToString(",")
     } catch (e: Throwable) {
-        console.error("[Summon WASM] getElementsByTagName failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         ""
     }
 }
@@ -1093,7 +1147,8 @@ fun wasmGetElementsByClassName(className: String): String {
         }
         ids.joinToString(",")
     } catch (e: Throwable) {
-        console.error("[Summon WASM] getElementsByClassName failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         ""
     }
 }
@@ -1108,7 +1163,8 @@ fun wasmIsElementVisible(elementId: String): Boolean {
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] isElementVisible failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -1123,7 +1179,8 @@ fun wasmGetElementPosition(elementId: String): String {
             "0,0,0,0"
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] getElementPosition failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         "0,0,0,0"
     }
 }
@@ -1143,7 +1200,8 @@ fun wasmSetElementPosition(elementId: String, x: Double, y: Double, width: Doubl
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] setElementPosition failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -1159,7 +1217,8 @@ fun wasmReplaceElement(oldElementId: String, newElementId: String): Boolean {
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] replaceElement failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -1180,7 +1239,8 @@ fun wasmMoveElement(elementId: String, newParentId: String, beforeElementId: Str
             false
         }
     } catch (e: Throwable) {
-        console.error("[Summon WASM] moveElement failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }
@@ -1216,6 +1276,7 @@ fun wasmLogElementTree(rootElementId: String): Boolean {
             false
         }
     } catch (e: Throwable) {
+        if (e is CancellationException) throw e
         false
     }
 }
@@ -1277,7 +1338,7 @@ fun wasmGetCurrentTime(): Long = getTimestampJS().toDouble().toLong()
 
 
 fun wasmLogError(message: String) {
-    console.error(message)
+    domDiagnostics.failure()
 }
 
 fun wasmLogWarning(message: String) {
@@ -1285,11 +1346,11 @@ fun wasmLogWarning(message: String) {
 }
 
 fun wasmReportError(message: String, stackTrace: String, metadata: String) {
-    console.error("Report Error: $message\nStack: $stackTrace\nMetadata: $metadata")
+    domDiagnostics.failure()
 }
 
 fun wasmReportError(reportData: String) {
-    console.error("Report Error: $reportData")
+    domDiagnostics.failure()
 }
 
 fun wasmDelay(ms: Int) {
@@ -1298,11 +1359,11 @@ fun wasmDelay(ms: Int) {
 
 fun wasmSetupGlobalErrorHandling() {
     window.addEventListener("error") { event ->
-        console.error("Global error: $event")
+        domDiagnostics.failure()
 
     }
     window.addEventListener("unhandledrejection") { event ->
-        console.error("Unhandled rejection: $event")
+        domDiagnostics.failure()
 
     }
 }
@@ -1439,7 +1500,8 @@ fun wasmCreateTextNode(text: String): String {
         val node = document.createTextNode(text)
         storeElement(node)
     } catch (e: Throwable) {
-        console.error("[Summon WASM] createTextNode failed:" + ": " + e.message)
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         ""
     }
 }
@@ -1533,6 +1595,7 @@ fun wasmHasLocalStorage(): Boolean {
         window.localStorage
         true
     } catch (e: Throwable) {
+        if (e is CancellationException) throw e
         false
     }
 }
@@ -1542,6 +1605,7 @@ fun wasmHasSessionStorage(): Boolean {
         window.sessionStorage
         true
     } catch (e: Throwable) {
+        if (e is CancellationException) throw e
         false
     }
 }
@@ -1558,6 +1622,7 @@ fun wasmHasDynamicImport(): Boolean = try {
     checkDynamicImportSupport()
     true
 } catch (e: Throwable) {
+    if (e is CancellationException) throw e
     false
 }
 
@@ -1592,7 +1657,7 @@ private fun setInputChecked(node: Node?, checked: Boolean) {
 }
 
 private fun getInputDisabled(node: Node?): Boolean {
-    return (node as? HTMLInputElement)?.disabled 
+    return (node as? HTMLInputElement)?.disabled
         ?: (node as? HTMLButtonElement)?.disabled
         ?: (node as? HTMLSelectElement)?.disabled
         ?: (node as? HTMLTextAreaElement)?.disabled
@@ -1652,7 +1717,8 @@ fun wasmExecuteCallback(callbackId: String): Boolean {
         CallbackRegistry.executeCallback(callbackId)
         true
     } catch (e: Throwable) {
-        console.error("[Summon WASM] wasmExecuteCallback failed: ${e.message}")
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
         false
     }
 }

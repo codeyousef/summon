@@ -3,6 +3,13 @@ import codes.yousef.summon.renderComposableRoot
 import codes.yousef.summon.mountComposableRoot
 import codes.yousef.summon.runtime.wasmGetLocationSearch
 fun main() {
+    if ((wasmGetLocationSearch() ?: "").contains("failures=true")) {
+        val fixture = RenderFailureFixture { content -> mountComposableRoot("root", composable = content) }
+        val second = FixtureSession("Synthetic account B")
+        mountComposableRoot("second-root") { FixtureApp(second) }
+        mountComposableRoot("controls") { fixture.Controls() }
+        return
+    }
     if ((wasmGetLocationSearch() ?: "").contains("remember=true")) {
         val fixture = RememberFixture()
         mountComposableRoot("root") { fixture.Content() }

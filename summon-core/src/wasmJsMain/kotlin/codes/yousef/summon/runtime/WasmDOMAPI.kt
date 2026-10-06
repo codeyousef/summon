@@ -305,23 +305,23 @@ class WasmDOMElement(
     }
 
     override fun setAttribute(name: String, value: String) {
-        wasmSetElementAttribute(nativeElementId, name, value)
+        check(wasmSetElementAttribute(nativeElementId, name, value)) { "Cannot update an element attribute" }
     }
 
     override fun removeAttribute(name: String) {
-        wasmRemoveElementAttribute(nativeElementId, name)
+        check(wasmRemoveElementAttribute(nativeElementId, name)) { "Cannot remove an element attribute" }
     }
 
     override fun appendChild(child: DOMElement) {
         val wasmChild = child as? WasmDOMElement
             ?: throw WasmDOMException("Invalid child element type")
-        wasmAppendChildById(nativeElementId, wasmChild.nativeElementId)
+        check(wasmAppendChildById(nativeElementId, wasmChild.nativeElementId)) { "Cannot append an element" }
     }
 
     override fun removeChild(child: DOMElement) {
         val wasmChild = child as? WasmDOMElement
             ?: throw WasmDOMException("Invalid child element type")
-        wasmRemoveChildById(nativeElementId, wasmChild.nativeElementId)
+        check(wasmRemoveChildById(nativeElementId, wasmChild.nativeElementId)) { "Cannot remove an element" }
     }
 
     override fun addEventListener(type: String, listener: (event: Any) -> Unit) {

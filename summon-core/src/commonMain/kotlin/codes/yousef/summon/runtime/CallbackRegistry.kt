@@ -1,6 +1,7 @@
 package codes.yousef.summon.runtime
 
 import kotlin.random.Random
+import kotlinx.coroutines.CancellationException
 
 internal expect fun callbackContextKey(): Long
 internal expect class CallbackRegistryLock()
@@ -16,6 +17,7 @@ internal expect fun <T> withCallbackRegistryLock(lock: CallbackRegistryLock, blo
  * so concurrent requests do not interfere with one another.
  */
 object CallbackRegistry {
+    private val diagnostics = RendererDiagnostics { SummonLogger.error(it) }
     private const val DEFAULT_TTL_MS: Long = 5 * 60 * 1000 // 5 minutes
     private val lock = CallbackRegistryLock()
     private val registeredCallbacks = mutableMapOf<String, CallbackEntry>()
@@ -68,11 +70,12 @@ object CallbackRegistry {
                 entry.callback.invoke()
                 true
             } catch (e: Exception) {
-                SummonLogger.error("Error executing callback $callbackId: ${e.message}")
+                if (e is CancellationException) throw e
+                diagnostics.failure()
                 false
             }
         } else {
-            SummonLogger.warn("Callback not found: $callbackId")
+            diagnostics.failure()
             false
         }
     }

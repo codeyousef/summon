@@ -26,6 +26,7 @@ import org.w3c.dom.events.Event as DomEvent
  * This class is not exported to JavaScript and contains all the non-exportable types.
  */
 actual open class PlatformRenderer {
+    private val diagnostics = RendererDiagnostics { console.error(it) }
     // Element stack for managing parent-child relationships
     private val elementStack = ElementStack()
 
@@ -603,10 +604,8 @@ actual open class PlatformRenderer {
             }
 
             registerEventListener(element, "change") { event ->
-                console.log("Select changed!")
                 val selectElement = event.target.asDynamic()
                 val selectedIndex = selectElement.selectedIndex as Int
-                console.log("Selected index: $selectedIndex")
                 if (selectedIndex >= 0 && selectedIndex < options.size) {
                     onSelectedChange(options[selectedIndex].value)
                 } else {
@@ -642,7 +641,7 @@ actual open class PlatformRenderer {
                         val date = LocalDate(year, month, day)
                         onValueChange(date)
                     } catch (e: Exception) {
-                        console.error("Error parsing date: $e")
+                        diagnostics.failure()
                         onValueChange(null)
                     }
                 } else {
@@ -705,10 +704,10 @@ actual open class PlatformRenderer {
     actual open fun renderComposableRoot(composable: @Composable () -> Unit): String {
         // Create a detached root element for rendering if not using a specific container
         val rootElement = document.createElement("div")
-        
+
         // Provide this renderer to the composition local so child composables can access it
         LocalPlatformRenderer.provides(this)
-        
+
         // Temporarily set this as the current element for rendering
         elementStack.withElement(rootElement) {
             composable()
@@ -764,7 +763,7 @@ actual open class PlatformRenderer {
                 recomposer.composeInitial(composable)
             }
         } else {
-            console.error("Could not find element with ID: $rootElementId for hydration")
+            diagnostics.failure()
         }
     }
 
@@ -978,7 +977,6 @@ actual open class PlatformRenderer {
         label: String?,
         modifier: Modifier
     ) {
-        console.log("Rendering checkbox: checked=$checked, enabled=$enabled, label=$label")
 
         // Ensure checkbox is visible with explicit styles
         val checkboxModifier = modifier
@@ -992,7 +990,6 @@ actual open class PlatformRenderer {
             element.asDynamic().checked = checked
             if (!enabled) element.setAttribute("disabled", "disabled")
             registerEventListener(element, "change") { event ->
-                console.log("Checkbox changed!")
                 val inputElement = event.target.asDynamic()
                 onCheckedChange(inputElement.checked as Boolean)
             }
@@ -1250,7 +1247,7 @@ actual open class PlatformRenderer {
                         val second = if (parts.size > 2) parts[2].toInt() else 0
                         onValueChange(LocalTime(hour, minute, second))
                     } catch (e: Exception) {
-                        console.error("Error parsing time: $e")
+                        diagnostics.failure()
                         onValueChange(null)
                     }
                 } else {
@@ -1614,12 +1611,12 @@ actual open class PlatformRenderer {
                     else -> "XLARGE"
                 }
                 element.setAttribute("data-screen-size", size)
-                
+
                 // Update classes for styling hooks
                 element.classList.remove("small-screen", "medium-screen", "large-screen", "xlarge-screen")
                 element.classList.add("${size.lowercase()}-screen")
             }
-            
+
             kotlinx.browser.window.addEventListener("resize", { updateLayout() })
             // Initial update
             updateLayout()
@@ -2368,7 +2365,7 @@ actual open class PlatformRenderer {
                 0% { transform: rotate(0deg); }
                 100% { transform: rotate(360deg); }
             }
-            
+
             @keyframes summon-dot-pulse {
                 0%, 80%, 100% {
                     transform: scale(0);
@@ -2379,12 +2376,12 @@ actual open class PlatformRenderer {
                     opacity: 1;
                 }
             }
-            
+
             @keyframes summon-linear-progress {
                 0% { left: -100%; }
                 100% { left: 100%; }
             }
-            
+
             @keyframes summon-circular-progress {
                 0% { transform: rotate(0deg); }
                 100% { transform: rotate(360deg); }
@@ -2513,7 +2510,7 @@ actual open class PlatformRenderer {
                     opacity: 1;
                 }
             }
-            
+
             @keyframes summon-toast-slide-out {
                 from {
                     transform: translateX(0);
@@ -2549,7 +2546,7 @@ actual open class PlatformRenderer {
                 val html = md.render(markdown)
                 element.innerHTML = html as String
             } catch (e: Throwable) {
-                console.error("Failed to render markdown", e)
+                diagnostics.failure()
                 element.textContent = markdown
             }
         })
@@ -2570,7 +2567,7 @@ actual open class PlatformRenderer {
             }
             // Also set textContent for outerHTML serialization (used in tests)
             element.textContent = value
-            
+
             if (readOnly) textarea.setAttribute("readonly", "true")
 
             registerEventListener(element, "input") { event ->
@@ -2606,7 +2603,7 @@ actual open class PlatformRenderer {
                 val chartInstance = js("new Chart(canvas, config)")
                 element.asDynamic()._chart = chartInstance
             } catch (e: Throwable) {
-                console.error("Failed to render chart", e)
+                diagnostics.failure()
             }
         })
     }

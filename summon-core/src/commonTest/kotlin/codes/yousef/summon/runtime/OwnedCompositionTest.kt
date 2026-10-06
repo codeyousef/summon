@@ -4,6 +4,20 @@ import codes.yousef.summon.state.mutableStateOf
 import kotlin.test.*
 
 class OwnedCompositionTest {
+    @Test fun canceledMountReleasesOwnershipBeforePropagatingOriginalCancellation() {
+        val cancellation = kotlinx.coroutines.CancellationException("Synthetic private render failure")
+        var released = 0
+        var cleaned = 0
+        assertSame(cancellation, assertFailsWith<kotlinx.coroutines.CancellationException> {
+            createOwnedComposition(PlatformRenderer(), QueuedScheduler(), release = { released++ }) {
+                DisposableEffect(Unit) { { cleaned++ } }
+                throw cancellation
+            }
+        })
+        assertEquals(1, released)
+        assertEquals(1, cleaned)
+        assertNull(CompositionLocal.currentComposer)
+    }
     private class QueuedScheduler : RecompositionScheduler {
         var work: (() -> Unit)? = null
         var canceled = 0

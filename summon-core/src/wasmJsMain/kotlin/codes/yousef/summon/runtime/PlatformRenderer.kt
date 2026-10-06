@@ -9,11 +9,13 @@ import codes.yousef.summon.core.FlowContentCompat
 import codes.yousef.summon.core.createWasmFlowContentCompat
 import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.modifier.toStyleStringKebabCase
+import kotlinx.coroutines.CancellationException
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 
 // Since PlatformRenderer has many methods, providing stub implementations for WASM
 actual open class PlatformRenderer actual constructor() {
+    private val diagnostics = RendererDiagnostics { wasmConsoleError(it) }
     // Store the composer and root element for recomposition
     private var mainRootElement: DOMElement? = null
     private var isInitialMount = true
@@ -96,26 +98,26 @@ actual open class PlatformRenderer actual constructor() {
 
                 // Set text content using DOM API
                 val elementId = DOMProvider.getNativeElementId(textElement)
-                wasmSetElementTextContent(elementId, text)
+                check(wasmSetElementTextContent(elementId, text)) { "Cannot update rendered text" }
 
                 // Apply modifier styles and attributes
                 applyModifierToElement(textElement, modifier)
 
                 // Always append to container to ensure it's registered in the current composition
                 // appendToCurrentContainer handles reused elements efficiently (skips if already in correct parent)
-                wasmConsoleLog("Appending/Registering Text element $elementId to container")
                 appendToCurrentContainer(textElement)
 
             } catch (e: Exception) {
-                wasmConsoleError("Failed to render text: $text - ${e.message}")
+                if (e is CancellationException) throw e
+                diagnostics.failure()
+                throw e
                 // Fallback to console log for now
-                wasmConsoleLog("PlatformRenderer renderText: $text - WASM fallback")
             }
         }
     }
 
     actual open fun renderLabel(text: String, modifier: Modifier, forElement: String?) {
-        wasmConsoleLog("PlatformRenderer renderLabel: $text - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderRawHtml(html: String) {
@@ -139,7 +141,7 @@ actual open class PlatformRenderer actual constructor() {
                     recompositionElements[summonId]
                         ?: throw WasmDOMException("Failed to retrieve reused element: $summonId")
                 }
-                
+
                 div.setAttribute("innerHTML", html)
                 // Note: Wasm DOM API might not expose innerHTML directly on Element.
                 // If setAttribute doesn't work, we might need a JS interop helper.
@@ -151,10 +153,12 @@ actual open class PlatformRenderer actual constructor() {
                 // Cast to JsAny to use with the helper
                 @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
                 setInnerHTML(div as JsAny, html)
-                
+
                 appendToCurrentContainer(div)
             } catch (e: Exception) {
-                wasmConsoleError("Failed to render raw html: ${e.message}")
+                if (e is CancellationException) throw e
+                diagnostics.failure()
+                throw e
             }
         }
     }
@@ -206,7 +210,6 @@ actual open class PlatformRenderer actual constructor() {
         } else {
             // DOM rendering mode for client
             try {
-                wasmConsoleLog("renderButton called, onClick = $onClick")
                 // Use generated SID
                 val summonId = sid
 
@@ -227,9 +230,7 @@ actual open class PlatformRenderer actual constructor() {
 
                 // Set up click event handler with hydration support
                 val wrappedOnClick = {
-                    wasmConsoleLog("Button onClick wrapper called")
                     onClick()
-                    wasmConsoleLog("Button onClick completed")
                 }
                 attachEventListenerWithHydration(buttonElement, "click", wrappedOnClick)
 
@@ -240,25 +241,21 @@ actual open class PlatformRenderer actual constructor() {
                 pushId(sid)
 
                 // Set up content rendering context
-                withContainerContext(buttonElement) {
-                    val contentScope = createFlowContentCompat()
-                    content(contentScope)
-                }
-
-                // Pop ID
-                popId()
+                try {
+                    withContainerContext(buttonElement) {
+                        val contentScope = createFlowContentCompat()
+                        content(contentScope)
+                    }
+                } finally { popId() }
 
                 // Always append to container to ensure it's registered in the current composition
                 val elementId = DOMProvider.getNativeElementId(buttonElement)
-                wasmConsoleLog("Appending/Registering Button element $elementId to container")
                 appendToCurrentContainer(buttonElement)
 
             } catch (e: Exception) {
-                wasmConsoleError("Failed to render button: ${e.message}")
-                // Ensure we pop if we pushed
-                if (idStack.last() == sid) {
-                    popId()
-                }
+                if (e is CancellationException) throw e
+                diagnostics.failure()
+                throw e
             }
         }
     }
@@ -312,7 +309,7 @@ actual open class PlatformRenderer actual constructor() {
                 val elementId = DOMProvider.getNativeElementId(inputElement)
                 val currentValue = wasmGetElementValue(elementId) ?: ""
                 if (currentValue != value) {
-                    wasmSetElementValue(elementId, value)
+                    check(wasmSetElementValue(elementId, value)) { "Cannot update rendered input" }
                 }
 
                 // Set up value change event handler with hydration support
@@ -321,7 +318,8 @@ actual open class PlatformRenderer actual constructor() {
                         val newValue = wasmGetElementValue(elementId) ?: ""
                         onValueChange(newValue)
                     } catch (e: Exception) {
-                        wasmConsoleError("TextField value change handler failed: ${e.message}")
+                        if (e is CancellationException) throw e
+                        diagnostics.failure()
                     }
                 }
 
@@ -329,12 +327,12 @@ actual open class PlatformRenderer actual constructor() {
                 applyModifierToElement(inputElement, modifier)
 
                 // Always append to container to ensure it's registered in the current composition
-                wasmConsoleLog("Appending/Registering TextField element $elementId to container")
                 appendToCurrentContainer(inputElement)
 
             } catch (e: Exception) {
-                wasmConsoleError("Failed to render text field: $value - ${e.message}")
-                wasmConsoleLog("PlatformRenderer renderTextField: $value - WASM fallback")
+                if (e is CancellationException) throw e
+                diagnostics.failure()
+                throw e
             }
         }
     }
@@ -345,7 +343,7 @@ actual open class PlatformRenderer actual constructor() {
         options: List<SelectOption<T>>,
         modifier: Modifier
     ) {
-        wasmConsoleLog("PlatformRenderer renderSelect - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderDatePicker(
@@ -356,7 +354,7 @@ actual open class PlatformRenderer actual constructor() {
         max: LocalDate?,
         modifier: Modifier
     ) {
-        wasmConsoleLog("PlatformRenderer renderDatePicker - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderTextArea(
@@ -369,7 +367,7 @@ actual open class PlatformRenderer actual constructor() {
         placeholder: String?,
         modifier: Modifier
     ) {
-        wasmConsoleLog("PlatformRenderer renderTextArea: $value - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun addHeadElement(content: String) {
@@ -383,11 +381,10 @@ actual open class PlatformRenderer actual constructor() {
                     val tempId = DOMProvider.getNativeElementId(tempDiv)
                     wasmSetElementInnerHTML(tempId, content)
                     // Note: This is simplified - in production you'd parse and append properly
-                    safeWasmConsoleLog("Added head element: $content")
                 }
             } catch (e: Throwable) {
+                if (e is CancellationException) throw e
                 // Ignore errors - expected in test environment
-                safeWasmConsoleLog("Could not add head element in DOM mode: ${e.message}")
             }
         }
     }
@@ -405,7 +402,6 @@ actual open class PlatformRenderer actual constructor() {
 
     actual open fun renderComposableRoot(composable: @Composable () -> Unit): String {
         try {
-            safeWasmConsoleLog("PlatformRenderer renderComposableRoot - WASM implementation")
 
             // Switch to string rendering mode
             isStringRenderMode = true
@@ -426,8 +422,9 @@ actual open class PlatformRenderer actual constructor() {
                 // Execute the composable content in string mode
                 composable()
             } catch (e: Exception) {
-                safeWasmConsoleError("Error executing composable: ${e.message}")
-                return "<div class=\"summon-error\">Composition error: ${escapeHtml(e.message ?: "Unknown")}</div>"
+                if (e is CancellationException) throw e
+                diagnostics.failure()
+                return "<div class=\"summon-error\">Composition error</div>"
             } finally {
                 // Pop root element and build final HTML
                 htmlStack.clear()
@@ -443,8 +440,9 @@ actual open class PlatformRenderer actual constructor() {
                 "<div class=\"summon-root\"><!-- Empty composition --></div>"
             }
         } catch (e: Exception) {
-            safeWasmConsoleError("renderComposableRoot failed: ${e.message}")
-            return "<div class=\"summon-error\">Render error: ${escapeHtml(e.message ?: "Unknown")}</div>"
+            if (e is CancellationException) throw e
+            diagnostics.failure()
+            return "<div class=\"summon-error\">Render error</div>"
         } finally {
             isStringRenderMode = false
         }
@@ -456,7 +454,6 @@ actual open class PlatformRenderer actual constructor() {
 
     actual open fun renderComposableRootWithHydration(state: Any?, composable: @Composable () -> Unit): String {
         try {
-            safeWasmConsoleLog("PlatformRenderer renderComposableRootWithHydration - WASM implementation")
 
             // Switch to string rendering mode with hydration markers
             isStringRenderMode = true
@@ -488,6 +485,7 @@ actual open class PlatformRenderer actual constructor() {
             val timestamp = try {
                 wasmPerformanceNow().toLong()
             } catch (e: Throwable) {
+                if (e is CancellationException) throw e
                 // Use fallback timestamp if wasmPerformanceNow is not available (test environment)
                 // Just use a static value for tests
                 1234567890L
@@ -499,8 +497,9 @@ actual open class PlatformRenderer actual constructor() {
                 // Execute the composable content in string mode with hydration
                 composable()
             } catch (e: Exception) {
-                safeWasmConsoleError("Error executing composable with hydration: ${e.message}")
-                return "<div class=\"summon-error\" data-summon-hydration=\"error\">Composition error: ${escapeHtml(e.message ?: "Unknown")}</div>"
+                if (e is CancellationException) throw e
+                diagnostics.failure()
+                return "<div class=\"summon-error\" data-summon-hydration=\"error\">Composition error</div>"
             } finally {
                 // Pop root element and build final HTML
                 htmlStack.clear()
@@ -516,8 +515,9 @@ actual open class PlatformRenderer actual constructor() {
                 "<div class=\"summon-root\" data-summon-hydration=\"enabled\"><!-- Empty composition --></div>"
             }
         } catch (e: Exception) {
-            safeWasmConsoleError("renderComposableRootWithHydration failed: ${e.message}")
-            return "<div class=\"summon-error\" data-summon-hydration=\"error\">Render error: ${escapeHtml(e.message ?: "Unknown")}</div>"
+            if (e is CancellationException) throw e
+            diagnostics.failure()
+            return "<div class=\"summon-error\" data-summon-hydration=\"error\">Render error</div>"
         } finally {
             isStringRenderMode = false
         }
@@ -525,7 +525,6 @@ actual open class PlatformRenderer actual constructor() {
 
     actual open fun hydrateComposableRoot(rootElementId: String, composable: @Composable () -> Unit) {
         try {
-            safeWasmConsoleLog("Starting WASM hydration for root element: $rootElementId")
 
             // Switch to DOM mode and enable hydration
             isStringRenderMode = false
@@ -539,22 +538,21 @@ actual open class PlatformRenderer actual constructor() {
             val rootElementNativeId = try {
                 val id = wasmGetElementById(rootElementId)
                 if (id != null) {
-                    safeWasmConsoleLog("Found root element for hydration: $rootElementId")
                     id
                 } else {
-                    safeWasmConsoleWarn("Root element $rootElementId not found, creating fallback")
                     // Create a fallback element
                     try {
                         val fallback = DOMProvider.document.createElement("div")
                         fallback.setAttribute("id", rootElementId)
                         DOMProvider.getNativeElementId(fallback)
                     } catch (createError: Throwable) {
+                        if (createError is CancellationException) throw createError
                         // Can't create fallback, use dummy ID
                         "test-notfound-$rootElementId"
                     }
                 }
             } catch (e: Throwable) {
-                safeWasmConsoleWarn("Could not get root element: ${e.message}, using fallback")
+                if (e is CancellationException) throw e
                 // Create a fallback element in test environment
                 try {
                     val fallback = DOMProvider.document.createElement("div")
@@ -562,10 +560,12 @@ actual open class PlatformRenderer actual constructor() {
                     try {
                         DOMProvider.getNativeElementId(fallback)
                     } catch (idError: Throwable) {
+                        if (idError is CancellationException) throw idError
                         // Can't get native ID, use fallback
                         "test-fallback-$rootElementId"
                     }
                 } catch (fallbackError: Throwable) {
+                    if (fallbackError is CancellationException) throw fallbackError
                     // Even fallback failed (test environment), use dummy ID
                     "test-root-$rootElementId"
                 }
@@ -575,7 +575,7 @@ actual open class PlatformRenderer actual constructor() {
             val rootElement = try {
                 DOMProvider.createElementFromNative(rootElementNativeId)
             } catch (e: Exception) {
-                safeWasmConsoleWarn("Could not wrap root element: ${e.message}")
+                if (e is CancellationException) throw e
                 DOMProvider.document.createElement("div")
             }
 
@@ -606,23 +606,23 @@ actual open class PlatformRenderer actual constructor() {
                 // Mark hydration as complete
                 markHydrationComplete(rootElementNativeId)
 
-                safeWasmConsoleLog("Hydration completed successfully for $rootElementId")
             } catch (e: Exception) {
-                safeWasmConsoleError("Error during hydration: ${e.message}")
+                if (e is CancellationException) throw e
+                diagnostics.failure()
                 // Don't throw - hydration should be graceful
                 // Fall back to client-side rendering
-                safeWasmConsoleLog("Falling back to client-side rendering")
                 renderComposableInElement(rootElementId, composable)
             }
         } catch (e: Exception) {
-            safeWasmConsoleError("hydrateComposableRoot failed gracefully: ${e.message}")
+            if (e is CancellationException) throw e
+            diagnostics.failure()
             // Don't throw - hydration failures should not break the app
             // Try to render fresh content as fallback
             try {
-                safeWasmConsoleLog("Attempting fallback client-side render")
                 renderComposableInElement(rootElementId, composable)
             } catch (fallbackError: Exception) {
-                safeWasmConsoleError("Fallback rendering also failed: ${fallbackError.message}")
+                if (fallbackError is CancellationException) throw fallbackError
+                diagnostics.failure()
             }
         } finally {
             isHydrating = false
@@ -636,7 +636,7 @@ actual open class PlatformRenderer actual constructor() {
 
 
     actual open fun renderComposable(composable: @Composable () -> Unit) {
-        wasmConsoleLog("PlatformRenderer renderComposable - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderRow(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
@@ -681,92 +681,7 @@ actual open class PlatformRenderer actual constructor() {
     }
 
     private fun renderRowWasmSafe(modifier: Modifier, content: @Composable () -> Unit) {
-        try {
-            // Check for hydration markers in modifier or use stable counter
-            val summonId = modifier.attributes["data-summon-id"] ?: "row-${++rowCounter}"
-
-            // Create or reuse row element (returns new element or null if reused)
-            val newElement = createOrReuseElement("div", summonId)
-            val isNewElement = newElement != null
-            val rowElement = if (newElement != null) {
-                newElement
-            } else {
-                // Element is being reused - get it from the recomposition cache
-                recompositionElements[summonId]
-                    ?: throw WasmDOMException("Failed to retrieve reused element: $summonId")
-            }
-
-            // Step 1: Set class attribute
-            try {
-                wasmConsoleLog("Row Step 1: Setting class attribute for $summonId")
-                rowElement.setAttribute("class", "summon-row")
-                wasmConsoleLog("Row Step 1: SUCCESS - Class attribute set")
-            } catch (e: Exception) {
-                wasmConsoleError("Row Step 1: FAILED - setAttribute: ${e.message}")
-                throw e
-            }
-
-            // Step 2: Get native element ID
-            val elementId = try {
-                wasmConsoleLog("Row Step 2: Getting native element ID for $summonId")
-                val id = DOMProvider.getNativeElementId(rowElement)
-                wasmConsoleLog("Row Step 2: SUCCESS - Got element ID: $id")
-                id
-            } catch (e: Exception) {
-                wasmConsoleError("Row Step 2: FAILED - getNativeElementId: ${e.message}")
-                throw e
-            }
-
-            // Step 3: Apply flexbox layout
-            try {
-                wasmConsoleLog("Row Step 3: Applying flexbox layout for $elementId")
-                applyFlexboxLayout(elementId, "row")
-                wasmConsoleLog("Row Step 3: SUCCESS - Flexbox layout applied")
-            } catch (e: Exception) {
-                wasmConsoleError("Row Step 3: FAILED - applyFlexboxLayout: ${e.message}")
-                throw e
-            }
-
-            // Step 4: Apply modifier styles
-            try {
-                wasmConsoleLog("Row Step 4: Applying modifier to element $elementId")
-                applyModifierToElement(rowElement, modifier)
-                wasmConsoleLog("Row Step 4: SUCCESS - Modifier applied")
-            } catch (e: Exception) {
-                wasmConsoleError("Row Step 4: FAILED - applyModifierToElement: ${e.message}")
-                throw e
-            }
-
-            // Step 5: Set up content rendering context
-            try {
-                wasmConsoleLog("Row Step 5: Setting up container context for $elementId")
-                withContainerContext(rowElement) {
-                    wasmConsoleLog("Row Step 5a: Inside container context")
-                    wasmConsoleLog("Row Step 5b: Executing content block directly (no extension receiver)")
-                    // Direct invocation without extension receiver to avoid WASM cast issues
-                    content()
-                    wasmConsoleLog("Row Step 5c: Content block completed successfully")
-                }
-                wasmConsoleLog("Row Step 5: SUCCESS - Container context completed")
-            } catch (e: Exception) {
-                wasmConsoleError("Row Step 5: FAILED - withContainerContext: ${e.message}")
-                throw e
-            }
-
-            // Step 6: Append to container (always, to register in composition)
-            try {
-                wasmConsoleLog("Row Step 6: Appending/Registering Row element $elementId to container")
-                appendToCurrentContainer(rowElement)
-                wasmConsoleLog("Row Step 6: SUCCESS - Element appended/registered")
-            } catch (e: Exception) {
-                wasmConsoleError("Row Step 6: FAILED - appendToCurrentContainer: ${e.message}")
-                throw e
-            }
-
-        } catch (e: Exception) {
-            wasmConsoleError("Failed to render row - ${e.message}")
-            wasmConsoleLog("PlatformRenderer renderRow - WASM fallback")
-        }
+        renderContainerDom("row", "summon-row", modifier, "row", content)
     }
 
     actual open fun renderColumn(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
@@ -811,92 +726,7 @@ actual open class PlatformRenderer actual constructor() {
     }
 
     private fun renderColumnWasmSafe(modifier: Modifier, content: @Composable () -> Unit) {
-        try {
-            // Check for hydration markers in modifier or use stable counter
-            val summonId = modifier.attributes["data-summon-id"] ?: "column-${++columnCounter}"
-
-            // Create or reuse column element (returns new element or null if reused)
-            val newElement = createOrReuseElement("div", summonId)
-            val isNewElement = newElement != null
-            val columnElement = if (newElement != null) {
-                newElement
-            } else {
-                // Element is being reused - get it from the recomposition cache
-                recompositionElements[summonId]
-                    ?: throw WasmDOMException("Failed to retrieve reused element: $summonId")
-            }
-
-            // Step 1: Set class attribute
-            try {
-                wasmConsoleLog("Column Step 1: Setting class attribute for $summonId")
-                columnElement.setAttribute("class", "summon-column")
-                wasmConsoleLog("Column Step 1: SUCCESS - Class attribute set")
-            } catch (e: Exception) {
-                wasmConsoleError("Column Step 1: FAILED - setAttribute: ${e.message}")
-                throw e
-            }
-
-            // Step 2: Get native element ID
-            val elementId = try {
-                wasmConsoleLog("Column Step 2: Getting native element ID for $summonId")
-                val id = DOMProvider.getNativeElementId(columnElement)
-                wasmConsoleLog("Column Step 2: SUCCESS - Got element ID: $id")
-                id
-            } catch (e: Exception) {
-                wasmConsoleError("Column Step 2: FAILED - getNativeElementId: ${e.message}")
-                throw e
-            }
-
-            // Step 3: Apply flexbox layout
-            try {
-                wasmConsoleLog("Column Step 3: Applying flexbox layout for $elementId")
-                applyFlexboxLayout(elementId, "column")
-                wasmConsoleLog("Column Step 3: SUCCESS - Flexbox layout applied")
-            } catch (e: Exception) {
-                wasmConsoleError("Column Step 3: FAILED - applyFlexboxLayout: ${e.message}")
-                throw e
-            }
-
-            // Step 4: Apply modifier styles
-            try {
-                wasmConsoleLog("Column Step 4: Applying modifier to element $elementId")
-                applyModifierToElement(columnElement, modifier)
-                wasmConsoleLog("Column Step 4: SUCCESS - Modifier applied")
-            } catch (e: Exception) {
-                wasmConsoleError("Column Step 4: FAILED - applyModifierToElement: ${e.message}")
-                throw e
-            }
-
-            // Step 5: Set up content rendering context
-            try {
-                wasmConsoleLog("Column Step 5: Setting up container context for $elementId")
-                withContainerContext(columnElement) {
-                    wasmConsoleLog("Column Step 5a: Inside container context")
-                    wasmConsoleLog("Column Step 5b: Executing content block directly (no extension receiver)")
-                    // Direct invocation without extension receiver to avoid WASM cast issues
-                    content()
-                    wasmConsoleLog("Column Step 5c: Content block completed successfully")
-                }
-                wasmConsoleLog("Column Step 5: SUCCESS - Container context completed")
-            } catch (e: Exception) {
-                wasmConsoleError("Column Step 5: FAILED - withContainerContext: ${e.message}")
-                throw e
-            }
-
-            // Step 6: Append to container (always, to register in composition)
-            try {
-                wasmConsoleLog("Column Step 6: Appending/Registering Column element $elementId to container")
-                appendToCurrentContainer(columnElement)
-                wasmConsoleLog("Column Step 6: SUCCESS - Element appended/registered")
-            } catch (e: Exception) {
-                wasmConsoleError("Column Step 6: FAILED - appendToCurrentContainer: ${e.message}")
-                throw e
-            }
-
-        } catch (e: Exception) {
-            wasmConsoleError("Failed to render column - ${e.message}")
-            wasmConsoleLog("PlatformRenderer renderColumn - WASM fallback")
-        }
+        renderContainerDom("column", "summon-column", modifier, "column", content)
     }
 
     actual open fun renderBox(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
@@ -930,15 +760,15 @@ actual open class PlatformRenderer actual constructor() {
                 }
             }
         } else {
-            // DOM mode - stub for now
-            wasmConsoleLog("PlatformRenderer renderBox - WASM DOM mode stub")
-            // Could implement similar to renderRow/Column if needed
+            renderContainerDom("box", "summon-box", modifier) {
+                createWasmFlowContentCompat().content()
+            }
         }
     }
 
     // Additional required methods - stub implementations
     actual open fun renderImage(src: String, alt: String?, modifier: Modifier) {
-        wasmConsoleLog("PlatformRenderer renderImage: $src - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderIcon(
@@ -948,7 +778,7 @@ actual open class PlatformRenderer actual constructor() {
         svgContent: String?,
         type: IconType
     ) {
-        wasmConsoleLog("PlatformRenderer renderIcon: $name - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderAlertContainer(
@@ -956,11 +786,11 @@ actual open class PlatformRenderer actual constructor() {
         modifier: Modifier,
         content: @Composable FlowContentCompat.() -> Unit
     ) {
-        wasmConsoleLog("PlatformRenderer renderAlertContainer - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderBadge(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
-        wasmConsoleLog("PlatformRenderer renderBadge - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderCheckbox(
@@ -969,7 +799,7 @@ actual open class PlatformRenderer actual constructor() {
         enabled: Boolean,
         modifier: Modifier
     ) {
-        wasmConsoleLog("PlatformRenderer renderCheckbox: $checked - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderCheckbox(
@@ -979,11 +809,11 @@ actual open class PlatformRenderer actual constructor() {
         label: String?,
         modifier: Modifier
     ) {
-        wasmConsoleLog("PlatformRenderer renderCheckbox with label: $checked - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderProgress(value: Float?, type: ProgressType, modifier: Modifier) {
-        wasmConsoleLog("PlatformRenderer renderProgress: $value - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderFileUpload(
@@ -994,8 +824,8 @@ actual open class PlatformRenderer actual constructor() {
         capture: String?,
         modifier: Modifier
     ): () -> Unit {
-        wasmConsoleLog("PlatformRenderer renderFileUpload - WASM stub")
-        return { wasmConsoleLog("File upload callback - WASM stub") }
+        diagnostics.unsupported()
+        return { diagnostics.unsupported() }
     }
 
     actual open fun renderForm(
@@ -1003,7 +833,7 @@ actual open class PlatformRenderer actual constructor() {
         modifier: Modifier,
         content: @Composable FlowContentCompat.() -> Unit
     ) {
-        wasmConsoleLog("PlatformRenderer renderForm - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderFormField(
@@ -1014,7 +844,7 @@ actual open class PlatformRenderer actual constructor() {
         errorMessageId: String?,
         content: @Composable FlowContentCompat.() -> Unit
     ) {
-        wasmConsoleLog("PlatformRenderer renderFormField - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderNativeInput(
@@ -1023,21 +853,21 @@ actual open class PlatformRenderer actual constructor() {
         value: String?,
         isChecked: Boolean?
     ) {
-        wasmConsoleLog("PlatformRenderer renderNativeInput($type) - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderNativeTextarea(
         modifier: Modifier,
         value: String?
     ) {
-        wasmConsoleLog("PlatformRenderer renderNativeTextarea - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderNativeSelect(
         modifier: Modifier,
         options: List<NativeSelectOption>
     ) {
-        wasmConsoleLog("PlatformRenderer renderNativeSelect(${options.size}) - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderNativeButton(
@@ -1045,11 +875,11 @@ actual open class PlatformRenderer actual constructor() {
         modifier: Modifier,
         content: @Composable FlowContentCompat.() -> Unit
     ) {
-        wasmConsoleLog("PlatformRenderer renderNativeButton($type) - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderRadioButton(selected: Boolean, onClick: () -> Unit, enabled: Boolean, modifier: Modifier) {
-        wasmConsoleLog("PlatformRenderer renderRadioButton: $selected - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderRadioButton(
@@ -1059,11 +889,11 @@ actual open class PlatformRenderer actual constructor() {
         enabled: Boolean,
         modifier: Modifier
     ) {
-        wasmConsoleLog("PlatformRenderer renderRadioButton with label: $checked - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderSpacer(modifier: Modifier) {
-        wasmConsoleLog("PlatformRenderer renderSpacer - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderRangeSlider(
@@ -1074,7 +904,7 @@ actual open class PlatformRenderer actual constructor() {
         enabled: Boolean,
         modifier: Modifier
     ) {
-        wasmConsoleLog("PlatformRenderer renderRangeSlider - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderSlider(
@@ -1085,7 +915,7 @@ actual open class PlatformRenderer actual constructor() {
         enabled: Boolean,
         modifier: Modifier
     ) {
-        wasmConsoleLog("PlatformRenderer renderSlider: $value - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderSwitch(
@@ -1094,7 +924,7 @@ actual open class PlatformRenderer actual constructor() {
         enabled: Boolean,
         modifier: Modifier
     ) {
-        wasmConsoleLog("PlatformRenderer renderSwitch: $checked - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderTimePicker(
@@ -1104,7 +934,7 @@ actual open class PlatformRenderer actual constructor() {
         is24Hour: Boolean,
         modifier: Modifier
     ) {
-        wasmConsoleLog("PlatformRenderer renderTimePicker - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderAspectRatio(
@@ -1112,24 +942,24 @@ actual open class PlatformRenderer actual constructor() {
         modifier: Modifier,
         content: @Composable FlowContentCompat.() -> Unit
     ) {
-        wasmConsoleLog("PlatformRenderer renderAspectRatio: $ratio - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderCard(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
-        wasmConsoleLog("PlatformRenderer renderCard - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderCard(modifier: Modifier, elevation: Int, content: @Composable () -> Unit) {
-        wasmConsoleLog("PlatformRenderer renderCard with elevation: $elevation - WASM stub")
+        diagnostics.unsupported()
     }
 
     // Additional missing methods
     actual open fun renderLink(href: String, modifier: Modifier) {
-        wasmConsoleLog("PlatformRenderer renderLink - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderLink(modifier: Modifier, href: String, content: @Composable () -> Unit) {
-        wasmConsoleLog("PlatformRenderer renderLink - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderEnhancedLink(
@@ -1141,7 +971,7 @@ actual open class PlatformRenderer actual constructor() {
         modifier: Modifier,
         fallbackText: String?
     ) {
-        wasmConsoleLog("PlatformRenderer renderEnhancedLink - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderEnhancedLink(
@@ -1153,7 +983,7 @@ actual open class PlatformRenderer actual constructor() {
         modifier: Modifier,
         content: @Composable () -> Unit
     ) {
-        wasmConsoleLog("PlatformRenderer renderEnhancedLink with content - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderTabLayout(
@@ -1162,11 +992,11 @@ actual open class PlatformRenderer actual constructor() {
         onTabSelected: (Int) -> Unit,
         modifier: Modifier
     ) {
-        wasmConsoleLog("PlatformRenderer renderTabLayout - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderTabLayout(modifier: Modifier, content: @Composable () -> Unit) {
-        wasmConsoleLog("PlatformRenderer renderTabLayout - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderTabLayout(
@@ -1176,113 +1006,84 @@ actual open class PlatformRenderer actual constructor() {
         modifier: Modifier,
         content: () -> Unit
     ) {
-        wasmConsoleLog("PlatformRenderer renderTabLayout - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderAnimatedVisibility(visible: Boolean, modifier: Modifier) {
-        wasmConsoleLog("PlatformRenderer renderAnimatedVisibility - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderAnimatedVisibility(modifier: Modifier, content: @Composable () -> Unit) {
-        wasmConsoleLog("PlatformRenderer renderAnimatedVisibility - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderAnimatedContent(modifier: Modifier) {
-        wasmConsoleLog("PlatformRenderer renderAnimatedContent - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderAnimatedContent(modifier: Modifier, content: @Composable () -> Unit) {
-        wasmConsoleLog("PlatformRenderer renderAnimatedContent - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderBlock(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
-        wasmConsoleLog("PlatformRenderer renderBlock - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderInline(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
-        wasmConsoleLog("PlatformRenderer renderInline - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderDiv(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
-        // Generate deterministic ID
-        val key = modifier.attributes["key"]
-        val sid = generateNextId("div", key)
+        renderContainerDom("div", "summon-div", modifier) { createWasmFlowContentCompat().content() }
+    }
 
+    private fun renderContainerDom(
+        identityTag: String,
+        className: String,
+        modifier: Modifier,
+        direction: String? = null,
+        content: @Composable () -> Unit
+    ) {
+        val sid = modifier.attributes["data-summon-id"] ?: generateNextId(identityTag, modifier.attributes["key"])
         try {
-            // Use generated SID
-            val summonId = sid
-
-            // Create or reuse div element
-            val newElement = createOrReuseElement("div", summonId)
-            val isNewElement = newElement != null
-            val divElement = if (newElement != null) {
-                newElement
-            } else {
-                // Element is being reused - get it from the recomposition cache
-                recompositionElements[summonId]
-                    ?: throw WasmDOMException("Failed to retrieve reused element: $summonId")
-            }
-
-            divElement.setAttribute("class", "summon-div")
-            divElement.setAttribute("data-sid", sid)
-
-            // Apply modifier styles and attributes
-            applyModifierToElement(divElement, modifier)
-
-            // Push ID for children
+            val element = createOrReuseElement("div", sid) ?: recompositionElements[sid]
+                ?: throw WasmDOMException("Cannot retrieve a composition element")
+            element.setAttribute("class", className)
+            element.setAttribute("data-sid", sid)
+            if (direction != null) applyFlexboxLayout(DOMProvider.getNativeElementId(element), direction)
+            applyModifierToElement(element, modifier)
             pushId(sid)
-
-            // Set up content rendering context
-            withContainerContext(divElement) {
-                val contentScope = createFlowContentCompat()
-                content(contentScope)
-            }
-
-            // Pop ID
-            popId()
-
-            // Always append to container to ensure it's registered in the current composition
-            // appendToCurrentContainer handles reused elements efficiently (skips if already in correct parent)
-            val elementId = DOMProvider.getNativeElementId(divElement)
-            if (isNewElement) {
-                wasmConsoleLog("Appending NEW Div element $elementId to container")
-            } else {
-                wasmConsoleLog("Appending/Registering REUSED Div element $elementId to container")
-            }
-            appendToCurrentContainer(divElement)
-
-        } catch (e: Exception) {
-            wasmConsoleError("Failed to render div - ${e.message}")
-            wasmConsoleLog("PlatformRenderer renderDiv - WASM fallback")
-            // Ensure we pop if we pushed
-            if (idStack.last() == sid) {
-                popId()
-            }
+            try { withContainerContext(element, content) } finally { popId() }
+            appendToCurrentContainer(element)
+        } catch (error: Throwable) {
+            if (error is CancellationException) throw error
+            diagnostics.failure()
+            throw error
         }
     }
 
     actual open fun renderSpan(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
-        wasmConsoleLog("PlatformRenderer renderSpan - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderDivider(modifier: Modifier) {
-        wasmConsoleLog("PlatformRenderer renderDivider - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderExpansionPanel(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
-        wasmConsoleLog("PlatformRenderer renderExpansionPanel - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderGrid(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
-        wasmConsoleLog("PlatformRenderer renderGrid - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderLazyColumn(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
-        wasmConsoleLog("PlatformRenderer renderLazyColumn - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderLazyRow(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
-        wasmConsoleLog("PlatformRenderer renderLazyRow - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderResponsiveLayout(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
@@ -1342,14 +1143,14 @@ actual open class PlatformRenderer actual constructor() {
             if (existingStyle == null) {
                 val style = DOMProvider.document.createElement("style")
                 style.setAttribute("id", styleId)
-                
+
                 val css = """
                     [data-screen-size="SMALL"] .small-content { display: block !important; }
                     [data-screen-size="MEDIUM"] .medium-content { display: block !important; }
                     [data-screen-size="LARGE"] .large-content { display: block !important; }
                     [data-screen-size="XLARGE"] .xlarge-content { display: block !important; }
                 """.trimIndent()
-                
+
                 wasmSetElementTextContent(DOMProvider.getNativeElementId(style), css)
                 DOMProvider.document.head?.appendChild(style)
             }
@@ -1364,7 +1165,7 @@ actual open class PlatformRenderer actual constructor() {
                     else -> "XLARGE"
                 }
                 element.setAttribute("data-screen-size", size)
-                
+
                 val elementId = DOMProvider.getNativeElementId(element)
                 wasmRemoveClassFromElement(elementId, "small-screen medium-screen large-screen xlarge-screen")
                 wasmAddClassToElement(elementId, "${size.lowercase()}-screen")
@@ -1372,7 +1173,7 @@ actual open class PlatformRenderer actual constructor() {
 
             // Initial update
             updateLayout()
-            
+
             // Add resize listener
             // Note: This listener is not currently cleaned up on element removal
             DOMProvider.window.addEventListener("resize") { updateLayout() }
@@ -1389,7 +1190,9 @@ actual open class PlatformRenderer actual constructor() {
             appendToCurrentContainer(element)
 
         } catch (e: Exception) {
-            wasmConsoleError("Failed to render responsive layout - ${e.message}")
+            if (e is CancellationException) throw e
+            diagnostics.failure()
+            throw e
         }
     }
 
@@ -1463,29 +1266,24 @@ actual open class PlatformRenderer actual constructor() {
                 pushId(sid)
 
                 // Set up content rendering context
-                withContainerContext(htmlElement) {
-                    val contentScope = createFlowContentCompat()
-                    content(contentScope)
-                }
-
-                // Pop ID
-                popId()
+                try {
+                    withContainerContext(htmlElement) {
+                        val contentScope = createFlowContentCompat()
+                        content(contentScope)
+                    }
+                } finally { popId() }
 
                 // Append to container
                 val elementId = DOMProvider.getNativeElementId(htmlElement)
                 if (isNewElement) {
-                    wasmConsoleLog("Appending NEW $tagName element $elementId to container")
                 } else {
-                    wasmConsoleLog("Appending/Registering REUSED $tagName element $elementId to container")
                 }
                 appendToCurrentContainer(htmlElement)
 
             } catch (e: Exception) {
-                wasmConsoleError("Failed to render $tagName - ${e.message}")
-                // Ensure we pop if we pushed
-                if (idStack.isNotEmpty() && idStack.last() == sid) {
-                    popId()
-                }
+                if (e is CancellationException) throw e
+                diagnostics.failure()
+                throw e
             }
         }
     }
@@ -1496,7 +1294,7 @@ actual open class PlatformRenderer actual constructor() {
         height: Int?,
         content: @Composable FlowContentCompat.() -> Unit
     ) {
-        wasmConsoleLog("PlatformRenderer renderCanvas - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderScriptTag(
@@ -1507,11 +1305,11 @@ actual open class PlatformRenderer actual constructor() {
         modifier: Modifier,
         inlineContent: String?
     ) {
-        wasmConsoleLog("PlatformRenderer renderScriptTag - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderSnackbar(message: String, actionLabel: String?, onAction: (() -> Unit)?) {
-        wasmConsoleLog("PlatformRenderer renderSnackbar - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderDropdownMenu(
@@ -1520,11 +1318,11 @@ actual open class PlatformRenderer actual constructor() {
         modifier: Modifier,
         content: @Composable () -> Unit
     ) {
-        wasmConsoleLog("PlatformRenderer renderDropdownMenu - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderTooltip(text: String, modifier: Modifier, content: @Composable () -> Unit) {
-        wasmConsoleLog("PlatformRenderer renderTooltip - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderModal(
@@ -1534,7 +1332,7 @@ actual open class PlatformRenderer actual constructor() {
         content: @Composable () -> Unit,
         actions: @Composable (() -> Unit)?
     ) {
-        wasmConsoleLog("PlatformRenderer renderModal - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderModal(
@@ -1548,27 +1346,27 @@ actual open class PlatformRenderer actual constructor() {
         footer: @Composable (() -> Unit)?,
         content: @Composable () -> Unit
     ) {
-        wasmConsoleLog("PlatformRenderer renderModal complex - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderScreen(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
-        wasmConsoleLog("PlatformRenderer renderScreen - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderHtml(htmlContent: String, modifier: Modifier) {
-        wasmConsoleLog("PlatformRenderer renderHtml - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderHtml(htmlContent: String, modifier: Modifier, sanitize: Boolean) {
-        wasmConsoleLog("PlatformRenderer renderHtml - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderGlobalStyle(css: String) {
-        wasmConsoleLog("PlatformRenderer renderGlobalStyle - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderSurface(modifier: Modifier, elevation: Int, content: @Composable () -> Unit) {
-        wasmConsoleLog("PlatformRenderer renderSurface - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderSwipeToDismiss(
@@ -1577,7 +1375,7 @@ actual open class PlatformRenderer actual constructor() {
         modifier: Modifier,
         content: @Composable () -> Unit
     ) {
-        wasmConsoleLog("PlatformRenderer renderSwipeToDismiss - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderVerticalPager(
@@ -1586,7 +1384,7 @@ actual open class PlatformRenderer actual constructor() {
         modifier: Modifier,
         content: @Composable (Int) -> Unit
     ) {
-        wasmConsoleLog("PlatformRenderer renderVerticalPager - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderHorizontalPager(
@@ -1595,11 +1393,11 @@ actual open class PlatformRenderer actual constructor() {
         modifier: Modifier,
         content: @Composable (Int) -> Unit
     ) {
-        wasmConsoleLog("PlatformRenderer renderHorizontalPager - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderAspectRatioContainer(ratio: Float, modifier: Modifier, content: @Composable () -> Unit) {
-        wasmConsoleLog("PlatformRenderer renderAspectRatioContainer - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderFilePicker(
@@ -1610,7 +1408,7 @@ actual open class PlatformRenderer actual constructor() {
         modifier: Modifier,
         actions: @Composable (() -> Unit)?
     ) {
-        wasmConsoleLog("PlatformRenderer renderFilePicker - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderAlert(
@@ -1621,15 +1419,15 @@ actual open class PlatformRenderer actual constructor() {
         icon: @Composable (() -> Unit)?,
         actions: @Composable (() -> Unit)?
     ) {
-        wasmConsoleLog("PlatformRenderer renderAlert - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderLinearProgressIndicator(progress: Float?, modifier: Modifier, type: ProgressType) {
-        wasmConsoleLog("PlatformRenderer renderLinearProgressIndicator - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderCircularProgressIndicator(progress: Float?, modifier: Modifier, type: ProgressType) {
-        wasmConsoleLog("PlatformRenderer renderCircularProgressIndicator - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderModalBottomSheet(
@@ -1637,7 +1435,7 @@ actual open class PlatformRenderer actual constructor() {
         modifier: Modifier,
         content: @Composable () -> Unit
     ) {
-        wasmConsoleLog("PlatformRenderer renderModalBottomSheet - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderAlertDialog(
@@ -1649,11 +1447,11 @@ actual open class PlatformRenderer actual constructor() {
         title: @Composable (() -> Unit)?,
         text: @Composable (() -> Unit)?
     ) {
-        wasmConsoleLog("PlatformRenderer renderAlertDialog - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderBoxContainer(modifier: Modifier, content: @Composable () -> Unit) {
-        wasmConsoleLog("PlatformRenderer renderBoxContainer - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderLoading(
@@ -1663,15 +1461,15 @@ actual open class PlatformRenderer actual constructor() {
         text: String?,
         textModifier: Modifier
     ) {
-        wasmConsoleLog("PlatformRenderer renderLoading - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderToast(toast: ToastData, onDismiss: () -> Unit, modifier: Modifier) {
-        wasmConsoleLog("PlatformRenderer renderToast - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderRichMarkdown(markdown: String, modifier: Modifier) {
-        wasmConsoleLog("PlatformRenderer renderRichMarkdown - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderCodeEditor(
@@ -1681,7 +1479,7 @@ actual open class PlatformRenderer actual constructor() {
         readOnly: Boolean,
         modifier: Modifier
     ) {
-        wasmConsoleLog("PlatformRenderer renderCodeEditor - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderChart(
@@ -1690,7 +1488,7 @@ actual open class PlatformRenderer actual constructor() {
         optionsJson: String?,
         modifier: Modifier
     ) {
-        wasmConsoleLog("PlatformRenderer renderChart - WASM stub")
+        diagnostics.unsupported()
     }
 
     actual open fun renderSplitPane(
@@ -1699,7 +1497,7 @@ actual open class PlatformRenderer actual constructor() {
         first: @Composable () -> Unit,
         second: @Composable () -> Unit
     ) {
-        wasmConsoleLog("PlatformRenderer renderSplitPane - WASM stub")
+        diagnostics.unsupported()
     }
 
     // Deterministic ID generation
@@ -1753,7 +1551,6 @@ actual open class PlatformRenderer actual constructor() {
         childCounters.clear()
         childCounters.add(mutableMapOf())
         placedElements.clear()
-        wasmConsoleLog("Reset element counters for recomposition")
     }
 
     actual open fun startRecomposition() {
@@ -1771,7 +1568,6 @@ actual open class PlatformRenderer actual constructor() {
      */
     fun setHydrationMode(enabled: Boolean) {
         isHydrating = enabled
-        safeWasmConsoleLog("Hydration mode manually set to: $enabled")
     }
 
     /**
@@ -1785,21 +1581,19 @@ actual open class PlatformRenderer actual constructor() {
                 val rootElement = DOMProvider.createElementFromNative(elementId)
                 scanForHydrationMarkers(rootElement)
                 isHydrating = true
-                
+
                 // Load server state
                 val stateJson = wasmGetSummonState()
                 if (stateJson != null) {
-                    safeWasmConsoleLog("Hydration: Loaded server state")
                     // In a full implementation, we would parse this JSON into serverState
                     // serverState = Json.decodeFromString(stateJson)
                 }
-                
-                safeWasmConsoleLog("Prepared for hydration: scanned markers and enabled hydration mode")
+
             } else {
-                safeWasmConsoleWarn("Could not prepare for hydration: root element $rootElementId not found")
             }
         } catch (e: Throwable) {
-            safeWasmConsoleError("Error preparing for hydration: ${e.message}")
+            if (e is CancellationException) throw e
+            diagnostics.failure()
         }
     }
 
@@ -1809,7 +1603,6 @@ actual open class PlatformRenderer actual constructor() {
     fun finalizeHydration() {
         reattachEventListeners()
         isHydrating = false
-        safeWasmConsoleLog("Hydration finalized: event listeners reattached")
     }
 
     private val existingElements = mutableMapOf<String, DOMElement>() // data-summon-id -> element
@@ -1836,17 +1629,17 @@ actual open class PlatformRenderer actual constructor() {
             val elementId = DOMProvider.getNativeElementId(element)
             val styleText = modifier.toStyleStringKebabCase()
             if (styleText.isNotEmpty()) {
-                wasmSetElementStyle(elementId, styleText)
+                check(wasmSetElementStyle(elementId, styleText)) { "Cannot apply rendered style" }
             }
 
             modifier.attributes.forEach { (name, value) ->
                 when (name.lowercase()) {
                     "disabled" -> {
-                        wasmSetElementDisabled(elementId, true)
-                        wasmSetElementAttribute(elementId, name, value)
+                        check(wasmSetElementDisabled(elementId, true)) { "Cannot update input availability" }
+                        check(wasmSetElementAttribute(elementId, name, value)) { "Cannot apply rendered attribute" }
                     }
 
-                    else -> wasmSetElementAttribute(elementId, name, value)
+                    else -> check(wasmSetElementAttribute(elementId, name, value)) { "Cannot apply rendered attribute" }
                 }
             }
 
@@ -1862,7 +1655,9 @@ actual open class PlatformRenderer actual constructor() {
             wasmAddClassToElement(elementId, "summon-component")
 
         } catch (e: Exception) {
-            wasmConsoleError("Failed to apply modifier: ${e.message}")
+            if (e is CancellationException) throw e
+            diagnostics.failure()
+            throw e
         }
     }
 
@@ -1880,10 +1675,12 @@ actual open class PlatformRenderer actual constructor() {
 
             val currentStyle = wasmGetElementAttribute(elementId, "style") ?: ""
             val newStyle = "$currentStyle $flexStyles"
-            wasmSetElementAttribute(elementId, "style", newStyle)
+            check(wasmSetElementAttribute(elementId, "style", newStyle)) { "Cannot apply layout style" }
 
         } catch (e: Exception) {
-            wasmConsoleError("Failed to apply flexbox layout: ${e.message}")
+            if (e is CancellationException) throw e
+            diagnostics.failure()
+            throw e
         }
     }
 
@@ -1898,8 +1695,8 @@ actual open class PlatformRenderer actual constructor() {
             block()
         } finally {
             val expectedChildren = containerChildrenStack.removeLastOrNull() ?: mutableListOf()
-            reconcileContainerChildren(containerId, expectedChildren)
-            containerStack.removeLastOrNull()
+            try { reconcileContainerChildren(containerId, expectedChildren) }
+            finally { containerStack.removeLastOrNull() }
         }
     }
 
@@ -1915,7 +1712,6 @@ actual open class PlatformRenderer actual constructor() {
 
                 // Check if element is already placed in this recomposition pass
                 if (placedElements.contains(elementId)) {
-                    wasmConsoleLog("Element $elementId already placed in this recomposition, skipping")
                     return // Skip - already placed
                 }
 
@@ -1924,23 +1720,23 @@ actual open class PlatformRenderer actual constructor() {
                 if (parent == containerId) {
                     // Element is already in the right container - don't move it
                     recordElementPlacement(elementId)
-                    wasmConsoleLog("Element $elementId already in correct container $containerId, marking as placed")
                     return
                 }
 
                 // Element needs to be appended/moved
-                wasmConsoleLog("Appending element $elementId to container $containerId")
                 // Use WASM external function directly to avoid type casting issues
-                wasmAppendChildById(containerId, elementId)
+                check(wasmAppendChildById(containerId, elementId)) { "Cannot append rendered element" }
                 recordElementPlacement(elementId)
             } else {
                 // If no container context, append to document body
                 val bodyId = wasmGetElementById("body") ?: "body"
-                wasmAppendChildById(bodyId, elementId)
+                check(wasmAppendChildById(bodyId, elementId)) { "Cannot append rendered element" }
                 recordElementPlacement(elementId)
             }
         } catch (e: Exception) {
-            wasmConsoleError("Failed to append to container: ${e.message}")
+            if (e is CancellationException) throw e
+            diagnostics.failure()
+            throw e
         }
     }
 
@@ -1958,7 +1754,8 @@ actual open class PlatformRenderer actual constructor() {
             .split(',')
             .map { it.trim() }
             .filter { it.isNotEmpty() }
-    } catch (_: Throwable) {
+    } catch (ignoredError: Throwable) {
+        if (ignoredError is CancellationException) throw ignoredError
         emptyList()
     }
 
@@ -1998,7 +1795,8 @@ actual open class PlatformRenderer actual constructor() {
             val eventType = key.substringAfterLast('-')
             try {
                 wasmRemoveEventHandler(elementId, eventType, handlerId)
-            } catch (_: Throwable) {
+            } catch (ignoredError: Throwable) {
+                if (ignoredError is CancellationException) throw ignoredError
                 // ignore removal errors
             }
             attachedEventListeners.remove(key)
@@ -2058,10 +1856,10 @@ actual open class PlatformRenderer actual constructor() {
                 }
 
             setRootContainer(rootElement)
-            wasmConsoleLog("WASM PlatformRenderer initialized with root: $rootElementId")
 
         } catch (e: Exception) {
-            wasmConsoleError("Failed to initialize WASM renderer: ${e.message}")
+            if (e is CancellationException) throw e
+            diagnostics.failure()
         }
     }
 
@@ -2120,12 +1918,11 @@ actual open class PlatformRenderer actual constructor() {
             return if (scriptElement != null) {
                 wasmGetElementTextContent(scriptElement) ?: ""
             } else {
-                safeWasmConsoleWarn("Hydration data script not found")
                 ""
             }
         } catch (e: Throwable) {
+            if (e is CancellationException) throw e
             // Expected in test environment where external functions don't exist
-            safeWasmConsoleWarn("Could not read hydration data in test environment")
             return ""
         }
     }
@@ -2138,8 +1935,8 @@ actual open class PlatformRenderer actual constructor() {
             val rootElementId = try {
                 DOMProvider.getNativeElementId(rootElement)
             } catch (e: Throwable) {
+                if (e is CancellationException) throw e
                 // In test environment, DOMProvider might not work
-                safeWasmConsoleWarn("Could not get native element ID in test environment")
                 return
             }
 
@@ -2147,6 +1944,7 @@ actual open class PlatformRenderer actual constructor() {
             val elementsWithMarkers = try {
                 wasmQuerySelectorAllGetIds("[data-summon-id]")
             } catch (e: Throwable) {
+                if (e is CancellationException) throw e
                 // External function not available in test
                 ""
             }
@@ -2164,15 +1962,16 @@ actual open class PlatformRenderer actual constructor() {
                         val summonId = wasmGetElementAttribute(elementId, "data-summon-id")
                         if (summonId != null) {
                             existingElements[summonId] = element
-                            safeWasmConsoleLog("Found existing element: $summonId -> $elementId")
                         }
                     }
                 } catch (e: Throwable) {
+                    if (e is CancellationException) throw e
                     // Ignore individual element errors
                 }
             }
         } catch (e: Throwable) {
-            safeWasmConsoleError("Failed to scan for hydration markers: ${e.message}")
+            if (e is CancellationException) throw e
+            diagnostics.failure()
         }
     }
 
@@ -2183,13 +1982,13 @@ actual open class PlatformRenderer actual constructor() {
         try {
             // Parse JSON hydration data (simplified parsing for now)
             // In a full implementation, this would use a proper JSON parser
-            wasmConsoleLog("Restoring server state from: $hydrationDataJson")
 
             // For now, just log that we're ready to restore state
             // TODO: Implement actual JSON parsing and state restoration
             serverState = emptyMap()
         } catch (e: Exception) {
-            wasmConsoleError("Failed to restore server state: ${e.message}")
+            if (e is CancellationException) throw e
+            diagnostics.failure()
         }
     }
 
@@ -2198,21 +1997,19 @@ actual open class PlatformRenderer actual constructor() {
      */
     private fun reattachEventListeners() {
         try {
-            safeWasmConsoleLog("Reattaching ${pendingEventListeners.size} event listeners")
 
             for (listenerInfo in pendingEventListeners) {
                 runCatching {
                     attachEventListenerInternal(listenerInfo.elementId, listenerInfo.eventType, listenerInfo.handler)
                 }.onSuccess {
-                    safeWasmConsoleLog("Reattached ${listenerInfo.eventType} listener to ${listenerInfo.elementId}")
                 }.onFailure { error ->
-                    safeWasmConsoleWarn("Failed to reattach ${listenerInfo.eventType} listener to ${listenerInfo.elementId}: ${error.message}")
                 }
             }
 
             pendingEventListeners.clear()
         } catch (e: Throwable) {
-            safeWasmConsoleError("Failed to reattach event listeners: ${e.message}")
+            if (e is CancellationException) throw e
+            diagnostics.failure()
         }
     }
 
@@ -2230,9 +2027,9 @@ actual open class PlatformRenderer actual constructor() {
             pendingEventListeners.clear()
             attachedEventListeners.clear()
 
-            safeWasmConsoleLog("Hydration marked as complete for: $rootElementId")
         } catch (e: Throwable) {
-            safeWasmConsoleError("Failed to mark hydration complete: ${e.message}")
+            if (e is CancellationException) throw e
+            diagnostics.failure()
         }
     }
 
@@ -2243,7 +2040,6 @@ actual open class PlatformRenderer actual constructor() {
     private fun createOrReuseElement(tagName: String, summonId: String? = null): DOMElement? {
         // Generate a summonId if not provided
         val effectiveSummonId = summonId ?: "$tagName-${wasmPerformanceNow().toLong()}"
-        wasmConsoleLog("createOrReuseElement: Starting for $tagName with ID $effectiveSummonId")
 
         // Track element in current composition
         currentCompositionElements.add(effectiveSummonId)
@@ -2255,25 +2051,22 @@ actual open class PlatformRenderer actual constructor() {
                 try {
                     // Validate the reused element type
                     val elementType = reusedElement::class.simpleName ?: "Unknown"
-                    wasmConsoleLog("createOrReuseElement: Found cached element type: $elementType")
 
                     // Validate the element by trying to get its native ID
                     DOMProvider.getNativeElementId(reusedElement)
-                    wasmConsoleLog("createOrReuseElement: Reusing valid recomposition element: $effectiveSummonId")
                     return null // Return null to indicate element is reused and already in DOM
                 } catch (e: Exception) {
+                    if (e is CancellationException) throw e
                     // CRITICAL FIX: When validation fails, immediately create new element
-                    wasmConsoleError("createOrReuseElement: Validation failed for cached element: ${e.message}")
+                    diagnostics.failure()
                     // Remove the invalid element from cache
                     recompositionElements.remove(effectiveSummonId)
-                    wasmConsoleLog("createOrReuseElement: Removed invalid element from cache, creating fresh element now")
                     // IMMEDIATE FIX: Don't check other caches, create fresh element right away
                     // This prevents the "bad cast" error by ensuring we always have a valid element
                     return createFreshElement(tagName, effectiveSummonId)
                 }
             }
         } else {
-            wasmConsoleLog("createOrReuseElement: No element found in recomposition cache for: $effectiveSummonId")
         }
 
         // Priority 2: Check hydration cache if hydrating
@@ -2282,19 +2075,17 @@ actual open class PlatformRenderer actual constructor() {
             if (existingElement != null) {
                 try {
                     val elementType = existingElement::class.simpleName ?: "Unknown"
-                    wasmConsoleLog("createOrReuseElement: Found hydration element type: $elementType")
 
                     // Validate the element by trying to get its native ID
                     DOMProvider.getNativeElementId(existingElement)
-                    wasmConsoleLog("createOrReuseElement: Reusing valid hydration element: $effectiveSummonId")
                     // Move to recomposition cache for future use
                     recompositionElements[effectiveSummonId] = existingElement
                     return null // Return null to indicate element is reused and already in DOM
                 } catch (e: Exception) {
+                    if (e is CancellationException) throw e
                     // CRITICAL FIX: When validation fails, immediately create new element
-                    wasmConsoleError("createOrReuseElement: Validation failed for hydration element: ${e.message}")
+                    diagnostics.failure()
                     existingElements.remove(effectiveSummonId)
-                    wasmConsoleLog("createOrReuseElement: Removed invalid hydration element, creating fresh element now")
                     // IMMEDIATE FIX: Create fresh element right away
                     return createFreshElement(tagName, effectiveSummonId)
                 }
@@ -2311,30 +2102,27 @@ actual open class PlatformRenderer actual constructor() {
      */
     private fun createFreshElement(tagName: String, effectiveSummonId: String): DOMElement {
         try {
-            wasmConsoleLog("createFreshElement: Creating new $tagName element with ID $effectiveSummonId")
             val newElement = DOMProvider.document.createElement(tagName)
 
             // Validate the newly created element
             val newElementType = newElement::class.simpleName ?: "Unknown"
-            wasmConsoleLog("createFreshElement: Created element type: $newElementType")
 
             // Validate the newly created element by trying to get its native ID
             try {
                 DOMProvider.getNativeElementId(newElement)
-                wasmConsoleLog("createFreshElement: New element validation successful")
             } catch (typeError: IllegalArgumentException) {
-                wasmConsoleError("createFreshElement: CRITICAL ERROR - DOMProvider.document.createElement returned wrong type: $newElementType")
-                wasmConsoleError("createFreshElement: Type validation failed: $typeError")
+                diagnostics.failure()
+                diagnostics.failure()
                 throw WasmDOMException("Element creation failed - wrong type returned: $newElementType")
             }
 
             // Cache the new element for future recompositions
             recompositionElements[effectiveSummonId] = newElement
-            wasmConsoleLog("createFreshElement: Created and cached new element: $effectiveSummonId")
 
             return newElement // Return the new element to be appended to DOM
         } catch (e: Exception) {
-            wasmConsoleError("createFreshElement: FAILED to create element: ${e.message}")
+            if (e is CancellationException) throw e
+            diagnostics.failure()
             throw e
         }
     }
@@ -2345,12 +2133,10 @@ actual open class PlatformRenderer actual constructor() {
     private fun attachEventListenerWithHydration(element: DOMElement, eventType: String, handler: () -> Unit) {
         val elementId = DOMProvider.getNativeElementId(element)
         val listenerKey = "$elementId-$eventType"
-        wasmConsoleLog("attachEventListenerWithHydration called: eventType=$eventType, elementId=$elementId, isHydrating=$isHydrating")
 
         if (isHydrating) {
             // During hydration, queue event listeners for later reattachment
             pendingEventListeners.add(EventListenerInfo(elementId, eventType, handler))
-            wasmConsoleLog("Queued event listener for hydration: $eventType on $elementId")
         } else {
             attachEventListenerInternal(elementId, eventType, handler, listenerKey)
         }
@@ -2365,7 +2151,8 @@ actual open class PlatformRenderer actual constructor() {
         eventHandlerIds[listenerKey]?.let { existingId ->
             try {
                 wasmRemoveEventHandler(elementId, eventType, existingId)
-            } catch (_: Throwable) {
+            } catch (ignoredError: Throwable) {
+                if (ignoredError is CancellationException) throw ignoredError
                 // ignore errors removing stale handlers
             }
             eventHandlerIds.remove(listenerKey)
@@ -2376,23 +2163,22 @@ actual open class PlatformRenderer actual constructor() {
 
         registerWasmEventCallback(handlerId) {
             try {
-                wasmConsoleLog("Executing registered callback $handlerId for $listenerKey")
                 handler()
             } catch (e: Exception) {
-                wasmConsoleError("Event handler failed: ${e.message}")
+                if (e is CancellationException) throw e
+                diagnostics.failure()
             }
         }
 
         val success = wasmAddEventHandler(elementId, eventType, handlerId)
         if (success) {
-            wasmConsoleLog("Successfully registered $eventType handler for $elementId with ID: $handlerId")
             eventHandlerIds[listenerKey] = handlerId
             attachedEventListeners.add(listenerKey)
             runCatching {
                 wasmSetElementAttribute(elementId, "data-summon-handler-$eventType", handlerId)
             }
         } else {
-            wasmConsoleError("Failed to register $eventType handler for $elementId")
+            diagnostics.failure()
             eventHandlerIds.remove(listenerKey)
         }
     }
@@ -2402,7 +2188,6 @@ actual open class PlatformRenderer actual constructor() {
      */
     private fun renderComposableInElement(rootElementId: String, composable: @Composable () -> Unit) {
         try {
-            wasmConsoleLog("Fallback rendering for element: $rootElementId")
 
             val rootElement = DOMProvider.document.getElementById(rootElementId)
             if (rootElement != null) {
@@ -2418,7 +2203,8 @@ actual open class PlatformRenderer actual constructor() {
                 }
             }
         } catch (e: Exception) {
-            wasmConsoleError("Fallback rendering failed: ${e.message}")
+            if (e is CancellationException) throw e
+            diagnostics.failure()
         }
     }
 
@@ -2433,15 +2219,7 @@ actual open class PlatformRenderer actual constructor() {
      * Basic composer implementation for WASM.
      */
     private class BasicComposer {
-        fun compose(content: @Composable () -> Unit) {
-            try {
-                // Execute the composable content
-                // In a full implementation, this would set up proper composition context
-                content()
-            } catch (e: Exception) {
-                wasmConsoleError("Composition failed: ${e.message}")
-            }
-        }
+        fun compose(content: @Composable () -> Unit) = content()
     }
 
     // ================================================================================================
@@ -2521,40 +2299,6 @@ actual open class PlatformRenderer actual constructor() {
             .replace("'", "&#39;")
             .replace("<", "&lt;")
             .replace(">", "&gt;")
-    }
-
-    /**
-     * Safe console logging methods that handle exceptions and missing functions.
-     * These are truly safe - they won't throw even if the external function doesn't exist.
-     */
-    private fun safeWasmConsoleLog(message: String) {
-        try {
-            // Try to call the external function
-            wasmConsoleLog(message)
-        } catch (e: Throwable) {
-            // Ignore all errors including missing function errors
-            // This is expected in test environments
-        }
-    }
-
-    private fun safeWasmConsoleError(message: String) {
-        try {
-            // Try to call the external function
-            wasmConsoleError(message)
-        } catch (e: Throwable) {
-            // Ignore all errors including missing function errors
-            // This is expected in test environments
-        }
-    }
-
-    private fun safeWasmConsoleWarn(message: String) {
-        try {
-            // Try to call the external function
-            wasmConsoleWarn(message)
-        } catch (e: Throwable) {
-            // Ignore all errors including missing function errors
-            // This is expected in test environments
-        }
     }
 
     /**
