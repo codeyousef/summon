@@ -82,7 +82,6 @@
  */
 package codes.yousef.summon.state
 
-import codes.yousef.summon.runtime.RecomposerHolder
 import kotlin.reflect.KProperty
 
 /**
@@ -197,19 +196,14 @@ class MutableStateImpl<T>(initialValue: T) : MutableState<T> {
 
     override var value: T = initialValue
         get() {
-            // Only record read if we're in a composition context
-            val recomposer = RecomposerHolder.current()
-            if (recomposer.isComposing()) {
-                recomposer.recordRead(this)
-            }
+            codes.yousef.summon.runtime.CompositionLocal.currentComposer?.recordRead(this)
             return field
         }
         set(newValue) {
             if (field != newValue) {
                 field = newValue
                 notifyListeners()
-                // Notify the recomposer that this state has changed
-                RecomposerHolder.current().recordStateWrite(this)
+
             }
         }
 
@@ -240,7 +234,8 @@ class MutableStateImpl<T>(initialValue: T) : MutableState<T> {
     }
 
     private fun notifyListeners() {
-        listeners.forEach { it(value) }
+        val currentValue = value
+        listeners.toList().forEach { it(currentValue) }
     }
 }
 

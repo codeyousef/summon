@@ -40,6 +40,7 @@ actual open class PlatformRenderer {
     private var currentParentKey = "root"
     private val parentKeyStack = mutableListOf<String>()
     private val parentChildrenMap = mutableMapOf<Element, MutableList<String>>()
+    private val compositionChildrenMap = mutableMapOf<Element, MutableList<String>>()
     private val keyToParentMap = mutableMapOf<String, Element>()
     private val listenerRegistry = mutableMapOf<Element, MutableMap<String, EventListener>>()
     private var handlerCounter = 0
@@ -76,6 +77,7 @@ actual open class PlatformRenderer {
         elementCounter = 0  // Reset counter to ensure consistent keys across recompositions
         currentParentKey = "root"  // Reset parent key
         parentKeyStack.clear()
+        compositionChildrenMap.clear()
         // Don't clear parentChildrenMap or keyToParentMap - we need them to track existing elements
     }
 
@@ -89,10 +91,25 @@ actual open class PlatformRenderer {
             unusedKeys.forEach { key ->
                 val element = elementCache[key]
                 if (element != null) {
+                    clearEventListeners(element)
                     element.parentNode?.removeChild(element)
                     elementCache.remove(key)
+                    keyToParentMap.remove(key)
+                    parentChildrenMap.remove(element)
                 }
             }
+            // Preserve keyed nodes and the requested sibling order. Leave nodes
+            // already in place connected so unrelated input focus is preserved.
+            compositionChildrenMap.forEach { (parent, keys) ->
+                val children = keys.mapNotNull { elementCache[it] }
+                    .filterNot { PortalManager.isPortaled(it) }
+                children.forEachIndexed { index, child ->
+                    val before = parent.children.item(index)
+                    if (before != child) parent.insertBefore(child, before)
+                }
+                parentChildrenMap[parent] = keys.toMutableList()
+            }
+            compositionChildrenMap.clear()
             isRecomposing = false
         }
     }
@@ -100,9 +117,13 @@ actual open class PlatformRenderer {
     /**
      * Generates a stable key for an element based on its type and position
      */
-    private fun generateElementKey(tagName: String): String {
-        val key = "$currentParentKey:$tagName:${elementCounter++}"
-        return key
+    private fun generateElementKey(tagName: String, explicitKey: String?): String {
+        val index = elementCounter++
+        return if (explicitKey != null) {
+            "$currentParentKey:$tagName:key:${explicitKey.length}:$explicitKey"
+        } else {
+            "$currentParentKey:$tagName:$index"
+        }
     }
 
     /**
@@ -160,7 +181,8 @@ actual open class PlatformRenderer {
         content: (@Composable () -> Unit)? = null
     ): Element {
         // Generate a key for this element
-        val elementKey = generateElementKey(tagName)
+        val elementKey = generateElementKey(tagName, modifier.attributes["key"])
+        check(elementKey !in usedElements) { "Duplicate sibling rendering key" }
 
         val parent = elementStack.current
 
@@ -218,6 +240,7 @@ actual open class PlatformRenderer {
 
         // Track this element as a child of its parent
         if (isRecomposing) {
+            compositionChildrenMap.getOrPut(parent) { mutableListOf() }.add(elementKey)
             val parentChildren = parentChildrenMap.getOrPut(parent) { mutableListOf() }
             if (!parentChildren.contains(elementKey)) {
                 parentChildren.add(elementKey)
@@ -273,8 +296,8 @@ actual open class PlatformRenderer {
     }
 
     private fun clearEventListeners(element: Element) {
-        val listeners = listenerRegistry.remove(element) ?: return
-        listeners.forEach { (eventType, listener) ->
+        val listeners = listenerRegistry.remove(element)
+        listeners?.forEach { (eventType, listener) ->
             element.removeEventListener(eventType, listener)
             element.removeAttribute("data-summon-handler-$eventType")
         }

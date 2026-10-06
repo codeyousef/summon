@@ -1,6 +1,7 @@
 package codes.yousef.summon.runtime
 
 import kotlinx.browser.window
+import kotlin.js.Promise
 
 /**
  * JavaScript implementation of the RecompositionScheduler.
@@ -17,9 +18,10 @@ class JsRecompositionScheduler : RecompositionScheduler {
         // Schedule new work
         scheduledWork = work
         animationFrameId = window.requestAnimationFrame {
-            scheduledWork?.invoke()
+            val next = scheduledWork
             scheduledWork = null
             animationFrameId = null
+            next?.invoke()
         }
     }
 }
@@ -34,19 +36,13 @@ class MicrotaskScheduler : RecompositionScheduler {
     override fun scheduleRecomposition(work: () -> Unit) {
         if (scheduledWork == null) {
             scheduledWork = work
-            // Use Promise.resolve().then() to schedule a microtask
-            js(
-                """
-                var that = this;
-                Promise.resolve().then(function() { 
-                    var work = that.scheduledWork;
-                    if (work) {
-                        work();
-                        that.scheduledWork = null;
-                    }
-                })
-            """
-            )
+            // Capture Kotlin fields directly; raw JS property names are unstable
+            // under IR mangling. Clear before execution so reentrant work survives.
+            Promise.resolve(Unit).then {
+                val next = scheduledWork
+                scheduledWork = null
+                next?.invoke()
+            }
         }
     }
 }

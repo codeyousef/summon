@@ -832,4 +832,39 @@ ProgressBar(
     progress = diskSpace.used / diskSpace.total,
     label = "Disk Usage"
 )
-``` 
+```
+## Owned coroutine Flow bindings
+
+Use explicit bindings when presentation state is supplied by coroutine flows. Unlike the legacy
+convenience conversions, these APIs do not create an unowned collection scope. Pass the
+component's UI-dispatched scope and dispose the binding on route removal or logout.
+
+```kotlin
+val binding = bindStateFlow(viewModel.uiState, componentScope)
+// Read binding.state.value in composition.
+// On component disposal:
+binding.dispose()
+```
+
+`bindMutableStateFlow` supports edits in both directions, suppressing equal-value feedback.
+`bindSharedFlow` requires an explicit initial value. Disposing is idempotent, prevents further
+source collection and reverse writes, and does not cancel unrelated work in the caller's scope.
+Parent cancellation also stops the binding. No canceled scope is silently replaced.
+
+The binding does not persist private values, authorize access, or establish a durable job.
+After lock/logout, the application must also clear its private render models; merely canceling
+a subscription does not erase the last value or claim perfect memory zeroization.
+
+
+## Runtime effect cleanup
+
+`DisposableEffect(key)` releases its previous cleanup before a replacement key is installed,
+when its slot leaves composition, and when its composer is disposed. Each cleanup runs once.
+`LaunchedEffect(key)` cancels its coroutine on those same transitions. Both require an active
+composition; calling either outside one fails before creating a resource.
+
+Handle expected errors inside a launched effect and rethrow `CancellationException`. Unhandled
+failures emit a generic diagnostic without printing exception messages or private payloads.
+Composition disposal detaches state dependencies before cleanup runs, so cleanup writes and
+queued callbacks cannot revive a disposed composer. Callers still own their application data
+and must clear private render models when locking or changing accounts.

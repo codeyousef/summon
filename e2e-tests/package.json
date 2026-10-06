@@ -14,14 +14,15 @@
     "test:perf": "BASE_URL=http://localhost:8080 npx playwright test --config=playwright.perf.config.ts",
     "test:perf:vitals": "BASE_URL=http://localhost:8080 npx playwright test --config=playwright.perf.config.ts tests/performance/core-web-vitals.spec.ts",
     "test:perf:hydration": "BASE_URL=http://localhost:8080 npx playwright test --config=playwright.perf.config.ts tests/performance/hydration-metrics.spec.ts",
-    "test:perf:tbt": "BASE_URL=http://localhost:8080 npx playwright test --config=playwright.perf.config.ts tests/performance/tbt-tti.spec.ts"
+    "test:perf:tbt": "BASE_URL=http://localhost:8080 npx playwright test --config=playwright.perf.config.ts tests/performance/tbt-tti.spec.ts",
+    "test:private-suite": "playwright test --config=playwright.private-suite.config.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@playwright/test": "^1.56.1",
+    "@playwright/test": "1.56.1",
     "@types/node": "^24.10.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",

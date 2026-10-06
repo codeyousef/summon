@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.0] - Unreleased
+
+### Added
+
+- **Owned flow bindings** - `bindStateFlow`, `bindMutableStateFlow`, and `bindSharedFlow`
+  expose explicitly disposable subscriptions under a caller-supplied coroutine scope. Read-only
+  bindings prevent reverse writes; mutable bindings suppress equal-value feedback.
+- **Source consumer browser verification** - A locked JVM/JS/WASM fixture and pinned Playwright
+  container exercise rendering, controlled inputs, keyed identity, logout, and effect cleanup
+  across Chromium, Firefox, and WebKit.
+
+### Changed
+
+- **State dependency ownership** - State reads subscribe the owning composer to updates, with
+  dependency removal detaching subscriptions instead of depending on the latest global root.
+- **Runtime effect ownership** - Effects require an active composition. Expected failures belong
+  in the effect's error handling; unhandled launched-effect failures emit a generic diagnostic
+  without exception payloads.
+
+### Fixed
+
+- **Flow collection registry races** - Scope lookup and cancellation serialize registry access,
+  replace externally canceled scopes, and detach entries before invoking cancellation callbacks.
+- **JS keyed rendering** - Explicit sibling keys preserve node identity and requested order;
+  removing nodes releases renderer-owned event and style references.
+- **WASM reactive rendering** - Animation frames invoke scheduled work, initial and subsequent
+  passes share the same composition layout, and unchanged children stay connected to preserve
+  controlled-input focus.
+- **Reentrant JS scheduling** - Animation-frame and microtask schedulers clear completed work
+  before invoking it, preserving work queued by effect cleanup or other composition callbacks.
+  Microtasks use Kotlin field access rather than JavaScript names affected by IR mangling.
+- **Composition teardown** - Disposed composers reject queued and late work, remove stale state
+  dependencies, and run all cleanup callbacks once even when one callback fails.
+- **Effect teardown** - Key replacement and conditional removal dispose slot-owned resources;
+  suspended launched effects are canceled and replaced cleanup callbacks are not invoked twice.
+
 ## [0.7.0.4] - 2026-07-18
 
 ### Added

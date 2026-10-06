@@ -15,7 +15,6 @@ import kotlinx.datetime.LocalTime
 // Since PlatformRenderer has many methods, providing stub implementations for WASM
 actual open class PlatformRenderer actual constructor() {
     // Store the composer and root element for recomposition
-    private var mainComposer: Composer? = null
     private var mainRootElement: DOMElement? = null
     private var isInitialMount = true
 
@@ -1749,6 +1748,11 @@ actual open class PlatformRenderer actual constructor() {
     fun resetElementCounters() {
         rowCounter = 0
         columnCounter = 0
+        idStack.clear()
+        idStack.add("root")
+        childCounters.clear()
+        childCounters.add(mutableMapOf())
+        placedElements.clear()
         wasmConsoleLog("Reset element counters for recomposition")
     }
 
@@ -1968,9 +1972,21 @@ actual open class PlatformRenderer actual constructor() {
             wasmRemoveElementById(childId)
         }
 
-        expectedChildren.forEach { childId ->
-            if (childId.isNotBlank()) {
-                wasmAppendChildById(id, childId)
+        // Moving a focused input, even within the same parent, can drop focus and
+        // selection. Leave already ordered children connected and move only nodes
+        // whose actual position differs from the required composition order.
+        val orderedChildren = safeGetElementChildren(id).toMutableList()
+        expectedChildren.forEachIndexed { index, childId ->
+            if (orderedChildren.getOrNull(index) != childId) {
+                val before = orderedChildren.getOrNull(index)
+                val moved = if (before != null) {
+                    wasmInsertBeforeById(id, childId, before)
+                } else {
+                    wasmAppendChildById(id, childId)
+                }
+                check(moved) { "Unable to reconcile rendered child" }
+                orderedChildren.remove(childId)
+                orderedChildren.add(index, childId)
             }
         }
     }
@@ -2086,10 +2102,8 @@ actual open class PlatformRenderer actual constructor() {
 
             // Get the Recomposer and create a Composer for this composition
             val recomposer = RecomposerHolder.current()
-            val composer = recomposer.createComposer()
 
-            // Store for recomposition
-            mainComposer = composer
+            // Store the container for the initial and subsequent root passes.
             mainRootElement = rootElement
 
             // Create a wrapped composable that includes the container context
@@ -2126,15 +2140,9 @@ actual open class PlatformRenderer actual constructor() {
             // Store the wrapped composable as the composition root for recomposition
             recomposer.setCompositionRoot(wrappedComposable)
 
-            // Render the composable tree with proper composition context
-            // Note: wrappedComposable handles withContainerContext internally, so we don't need it here
-            // to avoid double reconciliation which would clear the children
-            CompositionLocal.provideComposer(composer) {
-                // Start the composition
-                composer.startGroup("root")
-                wrappedComposable()
-                composer.endGroup()
-            }
+            // Initial and subsequent passes must use the same composer group/slot
+            // layout. The wrapped root already owns child reconciliation.
+            recomposer.composeInitial(wrappedComposable)
 
             wasmConsoleLog("Composable root mounted successfully with proper composition context")
         } catch (e: Exception) {

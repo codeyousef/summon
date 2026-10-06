@@ -1,0 +1,65 @@
+name: Private suite framework verification
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-consumer-and-lifecycle:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: e2e-tests/package-lock.json
+      - name: Verify owned bindings and concurrent registry
+        run: >-
+          ./gradlew --no-daemon --max-workers=1
+          -Dorg.gradle.parallel=false
+          '-Dorg.gradle.jvmargs=-Xmx3G -XX:MaxMetaspaceSize=1G'
+          :summon-core:jvmTest
+          --tests codes.yousef.summon.state.OwnedFlowBindingTest
+          --tests codes.yousef.summon.state.FlowBindingTest
+          --tests codes.yousef.summon.state.FlowCollectionRegistryConcurrencyTest
+          --tests codes.yousef.summon.runtime.RecomposerLifecycleTest
+          --tests codes.yousef.summon.runtime.EffectLifecycleTest
+          -x :summon-core:copyHydrationBundles
+      - name: Build current source consumer for JVM, JS and WASM
+        run: >-
+          ./gradlew -p e2e-tests/fixtures/private-suite
+          --no-daemon --max-workers=1 -Dorg.gradle.parallel=false
+          '-Dorg.gradle.jvmargs=-Xmx3G -XX:MaxMetaspaceSize=1G'
+          renderPublicShell jsBrowserDistribution wasmJsBrowserDistribution
+          -x :summon:summon-core:copyHydrationBundles
+      - name: Install locked browser test packages
+        run: npm ci --ignore-scripts
+        working-directory: e2e-tests
+      - name: Run JS and WASM in Chromium, Firefox and WebKit
+        run: ./e2e-tests/run-private-suite-container.sh
+      - name: Verify public API snapshot
+        run: >-
+          ./gradlew --no-daemon --max-workers=1
+          -Dorg.gradle.parallel=false
+          '-Dorg.gradle.jvmargs=-Xmx3G -XX:MaxMetaspaceSize=1G'
+          :summon-core:apiCheck -x :summon-core:copyHydrationBundles
+      - name: Preserve failure evidence and test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: private-suite-framework-verification
+          if-no-files-found: warn
+          path: |
+            .gradle/private-suite/browser-artifacts/matrix
+            summon-core/build/reports/tests/jvmTest

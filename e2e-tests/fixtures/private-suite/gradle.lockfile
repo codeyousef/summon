@@ -1,0 +1,33 @@
+# This is a Gradle generated file for dependency locking.
+# Manual edits can break the build and are not advised.
+# This file is expected to be part of source control.
+org.jetbrains.kotlin:kotlin-build-tools-api:2.3.0=kotlinBuildToolsApiClasspath
+org.jetbrains.kotlin:kotlin-build-tools-compat:2.3.0=kotlinBuildToolsApiClasspath
+org.jetbrains.kotlin:kotlin-build-tools-impl:2.3.0=kotlinBuildToolsApiClasspath
+org.jetbrains.kotlin:kotlin-compiler-embeddable:2.3.0=kotlinBuildToolsApiClasspath,kotlinCompilerClasspath
+org.jetbrains.kotlin:kotlin-compiler-runner:2.3.0=kotlinBuildToolsApiClasspath
+org.jetbrains.kotlin:kotlin-daemon-client:2.3.0=kotlinBuildToolsApiClasspath
+org.jetbrains.kotlin:kotlin-daemon-embeddable:2.3.0=kotlinBuildToolsApiClasspath,kotlinCompilerClasspath
+org.jetbrains.kotlin:kotlin-dom-api-compat:2.3.0=jsCompileClasspath
+org.jetbrains.kotlin:kotlin-reflect:1.6.10=kotlinBuildToolsApiClasspath,kotlinCompilerClasspath
+org.jetbrains.kotlin:kotlin-script-runtime:2.3.0=kotlinBuildToolsApiClasspath,kotlinCompilerClasspath,kotlinCompilerPluginClasspathJsMain,kotlinCompilerPluginClasspathJvmMain,kotlinCompilerPluginClasspathWasmJsMain
+org.jetbrains.kotlin:kotlin-scripting-common:2.3.0=kotlinCompilerPluginClasspathJsMain,kotlinCompilerPluginClasspathJvmMain,kotlinCompilerPluginClasspathWasmJsMain
+org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:2.3.0=kotlinCompilerPluginClasspathJsMain,kotlinCompilerPluginClasspathJvmMain,kotlinCompilerPluginClasspathWasmJsMain
+org.jetbrains.kotlin:kotlin-scripting-compiler-impl-embeddable:2.3.0=kotlinCompilerPluginClasspathJsMain,kotlinCompilerPluginClasspathJvmMain,kotlinCompilerPluginClasspathWasmJsMain
+org.jetbrains.kotlin:kotlin-scripting-jvm:2.3.0=kotlinCompilerPluginClasspathJsMain,kotlinCompilerPluginClasspathJvmMain,kotlinCompilerPluginClasspathWasmJsMain
+org.jetbrains.kotlin:kotlin-stdlib-js:2.3.0=jsCompileClasspath
+org.jetbrains.kotlin:kotlin-stdlib-wasm-js:2.3.0=wasmJsCompileClasspath
+org.jetbrains.kotlin:kotlin-stdlib:2.3.0=jsCompileClasspath,jvmCompileClasspath,kotlinBuildToolsApiClasspath,kotlinCompilerClasspath,kotlinCompilerPluginClasspathJsMain,kotlinCompilerPluginClasspathJvmMain,kotlinCompilerPluginClasspathWasmJsMain,wasmJsCompileClasspath
+org.jetbrains.kotlin:kotlin-tooling-core:2.3.0=kotlinBuildToolsApiClasspath
+org.jetbrains.kotlinx:atomicfu-js:0.26.1=jsCompileClasspath
+org.jetbrains.kotlinx:atomicfu-wasm-js:0.26.1=wasmJsCompileClasspath
+org.jetbrains.kotlinx:atomicfu:0.26.1=jsCompileClasspath,wasmJsCompileClasspath
+org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.10.2=jvmCompileClasspath
+org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.10.2=jsCompileClasspath
+org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2=jvmCompileClasspath
+org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.0=kotlinBuildToolsApiClasspath,kotlinCompilerClasspath
+org.jetbrains.kotlinx:kotlinx-coroutines-core-wasm-js:1.10.2=wasmJsCompileClasspath
+org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2=jsCompileClasspath,jvmCompileClasspath,wasmJsCompileClasspath
+org.jetbrains:annotations:13.0=kotlinBuildToolsApiClasspath,kotlinCompilerClasspath,kotlinCompilerPluginClasspathJsMain,kotlinCompilerPluginClasspathJvmMain,kotlinCompilerPluginClasspathWasmJsMain
+org.jetbrains:annotations:23.0.0=jvmCompileClasspath
+empty=kotlinScriptDefExtensions

@@ -8355,6 +8355,7 @@ public final class codes/yousef/summon/modifier/TypedCssModifiersKt {
 	public static final fun listStyle (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun listStyleType (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/ListStyleType;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun listStyleType (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun outline (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/OutlineStyle;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun outline (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/Number;Lcodes/yousef/summon/modifier/OutlineStyle;Lcodes/yousef/summon/core/style/Color;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun outline (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/Number;Lcodes/yousef/summon/modifier/OutlineStyle;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun outline (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
@@ -10775,6 +10776,11 @@ public final class codes/yousef/summon/ssr/TwitterCardMetadata {
 	public final fun getTitle ()Ljava/lang/String;
 }
 
+public abstract interface class codes/yousef/summon/state/FlowBinding {
+	public abstract fun dispose ()V
+	public abstract fun getState ()Lcodes/yousef/summon/state/State;
+}
+
 public final class codes/yousef/summon/state/FlowBindingKt {
 	public static final fun cancelComponentFlows (Ljava/lang/String;)V
 	public static final fun componentFlowToState (Lkotlinx/coroutines/flow/Flow;Ljava/lang/Object;Ljava/lang/String;)Lcodes/yousef/summon/state/SummonMutableState;
@@ -10788,6 +10794,10 @@ public final class codes/yousef/summon/state/FlowCollectionRegistry {
 	public final fun cancelAll ()V
 	public final fun cancelScope (Ljava/lang/String;)V
 	public final fun getScope (Ljava/lang/String;)Lkotlinx/coroutines/CoroutineScope;
+}
+
+public abstract interface class codes/yousef/summon/state/MutableFlowBinding : codes/yousef/summon/state/FlowBinding {
+	public abstract fun getState ()Lcodes/yousef/summon/state/SummonMutableState;
 }
 
 public abstract interface class codes/yousef/summon/state/MutableState : codes/yousef/summon/state/SummonMutableState {
@@ -10809,6 +10819,12 @@ public final class codes/yousef/summon/state/MutableStateImpl : codes/yousef/sum
 	public fun removeListener (Lkotlin/jvm/functions/Function1;)V
 	public fun setValue (Ljava/lang/Object;)V
 	public fun setValue (Ljava/lang/Object;Lkotlin/reflect/KProperty;Ljava/lang/Object;)V
+}
+
+public final class codes/yousef/summon/state/OwnedFlowBindingKt {
+	public static final fun bindMutableStateFlow (Lkotlinx/coroutines/flow/MutableStateFlow;Lkotlinx/coroutines/CoroutineScope;)Lcodes/yousef/summon/state/MutableFlowBinding;
+	public static final fun bindSharedFlow (Lkotlinx/coroutines/flow/SharedFlow;Ljava/lang/Object;Lkotlinx/coroutines/CoroutineScope;)Lcodes/yousef/summon/state/FlowBinding;
+	public static final fun bindStateFlow (Lkotlinx/coroutines/flow/StateFlow;Lkotlinx/coroutines/CoroutineScope;)Lcodes/yousef/summon/state/FlowBinding;
 }
 
 public abstract interface class codes/yousef/summon/state/ProduceStateScope {

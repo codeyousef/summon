@@ -17,7 +17,7 @@ import kotlinx.coroutines.*
  * - **Enter Composition**: Coroutine is launched with the provided block
  * - **Key Change**: Previous coroutine is cancelled, new one launched
  * - **Leave Composition**: Coroutine is cancelled and cleaned up
- * - **Exception Handling**: Exceptions are caught and logged without crashing
+ * - **Exception Handling**: Cancellation propagates normally; failures emit a generic diagnostic
  *
  * ## Key-Based Re-execution
  *
@@ -83,15 +83,18 @@ import kotlinx.coroutines.*
  *
  * ## Error Handling
  *
- * Exceptions in the block are automatically caught and logged to prevent
- * crashes. For custom error handling, wrap your code in try-catch:
+ * Handle expected failures inside the block. Unhandled failures reach the coroutine
+ * exception handler emits a generic diagnostic without exception payloads.
+ * Rethrow CancellationException when catching exceptions:
  *
  * ```kotlin
  * LaunchedEffect(key) {
  *     try {
  *         riskyOperation()
+ *     } catch (e: CancellationException) {
+ *         throw e
  *     } catch (e: Exception) {
- *         errorState.value = e.message
+ *         errorState.value = "Operation unavailable"
  *     }
  * }
  * ```
@@ -112,44 +115,21 @@ import kotlinx.coroutines.*
  */
 @Composable
 fun LaunchedEffect(key: Any? = null, block: suspend () -> Unit) {
-    val composer = CompositionLocal.currentComposer
-
-    // Get the current slot for this effect
-    composer?.nextSlot()
-    val effectState = composer?.getSlot() as? EffectState
-
-    if (effectState == null || hasKeyChanged(effectState.key, key)) {
-        // Clean up previous effect if any
-        if (effectState?.cleanup != null) {
-            (effectState.cleanup as Job).cancel()
-        }
-
-        // Create a coroutine scope for this effect
-        val coroutineScope = CoroutineScope(Dispatchers.Default)
-
-        // Launch the coroutine
-        val job = coroutineScope.launch {
-            try {
-                block()
-            } catch (e: Exception) {
-                // Log the exception but don't crash the app
-                println("Exception in LaunchedEffect: ${e.message}")
-                e.printStackTrace()
-            }
-        }
-
-        // Create a new effect state with the job for cleanup
-        val newState = EffectState(key, EffectType.LAUNCHED, job)
-
-        // Store in the slot
-        composer?.setSlot(newState)
-
-        // Register cleanup to cancel the coroutine when the effect is disposed
-        composer?.registerDisposable {
-            job.cancel()
-            coroutineScope.cancel()
-        }
+    val composer = requireNotNull(CompositionLocal.currentComposer) {
+        "LaunchedEffect requires an active composition"
     }
+    composer.nextSlot()
+    val previous = composer.getSlot() as? EffectState
+    if (previous != null && previous.type == EffectType.LAUNCHED && previous.key == key) return
+    previous?.dispose()
+    val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default + CoroutineExceptionHandler { _, _ ->
+        println("Summon launched effect failed")
+    })
+    val state = EffectState(key, EffectType.LAUNCHED) { scope.cancel() }
+    composer.setSlot(state)
+    if (!Recomposer.isComposerImpl(composer)) composer.registerDisposable(state::dispose)
+    scope.launch { block() }
+
 }
 
 /**
@@ -162,30 +142,17 @@ fun LaunchedEffect(key: Any? = null, block: suspend () -> Unit) {
  */
 @Composable
 fun DisposableEffect(key: Any? = null, effect: () -> (() -> Unit)) {
-    val composer = CompositionLocal.currentComposer
-
-    // Get the current slot for this effect
-    composer?.nextSlot()
-    val effectState = composer?.getSlot() as? EffectState
-
-    if (effectState == null || hasKeyChanged(effectState.key, key)) {
-        // Clean up previous effect if any
-        if (effectState?.cleanup != null) {
-            (effectState.cleanup as () -> Unit).invoke()
-        }
-
-        // Call the effect function to get the cleanup function
-        val cleanup = effect()
-
-        // Create a new effect state with the cleanup function
-        val newState = EffectState(key, EffectType.DISPOSABLE, cleanup)
-
-        // Store in the slot
-        composer?.setSlot(newState)
-
-        // Register the cleanup with the composer
-        composer?.registerDisposable(cleanup)
+    val composer = requireNotNull(CompositionLocal.currentComposer) {
+        "DisposableEffect requires an active composition"
     }
+    composer.nextSlot()
+    val previous = composer.getSlot() as? EffectState
+    if (previous != null && previous.type == EffectType.DISPOSABLE && previous.key == key) return
+    previous?.dispose()
+    val state = EffectState(key, EffectType.DISPOSABLE, effect())
+    composer.setSlot(state)
+    if (!Recomposer.isComposerImpl(composer)) composer.registerDisposable(state::dispose)
+
 }
 
 /**
@@ -213,15 +180,16 @@ private enum class EffectType {
 /**
  * State object for tracking effects.
  */
-private data class EffectState(
+private class EffectState(
     val key: Any?,
     val type: EffectType,
-    val cleanup: Any?
-)
+    cleanup: () -> Unit
+) : CompositionResource {
+    private var cleanup: (() -> Unit)? = cleanup
 
-/**
- * Check if the key has changed.
- */
-private fun hasKeyChanged(oldKey: Any?, newKey: Any?): Boolean {
-    return oldKey != newKey
-} 
+    override fun dispose() {
+        val action = cleanup ?: return
+        cleanup = null
+        action()
+    }
+}

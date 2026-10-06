@@ -27,6 +27,13 @@ object RecomposerHolder {
         _recomposer = instance
     }
 
+    /** Installs a root's recomposer only while its synchronous composition executes. */
+    internal fun <T> withRecomposer(instance: Recomposer, block: () -> T): T {
+        val previous = _recomposer
+        _recomposer = instance
+        return try { block() } finally { _recomposer = previous }
+    }
+
     /**
      * Sets the scheduler for the current recomposer.
      * This is primarily for testing purposes.
