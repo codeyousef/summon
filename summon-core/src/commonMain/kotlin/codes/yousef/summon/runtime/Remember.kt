@@ -83,28 +83,21 @@ import codes.yousef.summon.state.mutableStateOf
  * @see rememberMutableStateOf for state creation
  * @since 1.0.0
  */
+// Explicit occupancy keeps a remembered null distinct from an unused slot.
+private class RememberedValue(val value: Any?)
+private class RememberedKeys(val values: List<Any?>)
+
 @Composable
+@Suppress("UNCHECKED_CAST")
 fun <T> remember(calculation: () -> T): T {
     val composer = CompositionLocal.currentComposer ?: return calculation()
-
-    // Check if we already have a value
-    val existing = composer.getSlot() as? T
-    
-    // println("Remember: slotIndex=${(composer as? codes.yousef.summon.runtime.Recomposer.RecomposerBackedComposer)?.slotIndex}, existing=$existing") // Cannot access private slotIndex
-
-    val result = if (existing != null) {
-        // Return the existing value
-        existing
-    } else {
-        // Calculate and store a new value
+    val existing = composer.getSlot() as? RememberedValue
+    val result = if (existing != null) existing.value as T else {
         val value = calculation()
-        composer.setSlot(value)
+        composer.setSlot(RememberedValue(value))
         value
     }
-
-    // Move to next slot
     composer.nextSlot()
-
     return result
 }
 
@@ -116,38 +109,21 @@ fun <T> remember(calculation: () -> T): T {
  * @return The remembered value, recalculated when keys change
  */
 @Composable
+@Suppress("UNCHECKED_CAST")
 fun <T> remember(vararg keys: Any?, calculation: () -> T): T {
     val composer = CompositionLocal.currentComposer ?: return calculation()
-
-    // Check if we have stored keys
-    val storedInputs = composer.getSlot() as? Array<*>
-
-    // See if keys have changed
-    val inputsChanged = storedInputs == null || !keys.contentEquals(storedInputs)
-
-    if (inputsChanged) {
-        composer.setSlot(keys)
-    }
-
-    // Move to next slot for value
+    val inputs = keys.toList()
+    val storedInputs = composer.getSlot() as? RememberedKeys
+    val inputsChanged = storedInputs == null || inputs != storedInputs.values
+    if (inputsChanged) composer.setSlot(RememberedKeys(inputs))
     composer.nextSlot()
-
-    // Check if we already have a value
-    val existing = composer.getSlot() as? T
-
-    val result = if (!inputsChanged && existing != null) {
-        // Return the existing value
-        existing
-    } else {
-        // Calculate and store a new value
+    val existing = composer.getSlot() as? RememberedValue
+    val result = if (!inputsChanged && existing != null) existing.value as T else {
         val value = calculation()
-        composer.setSlot(value)
+        composer.setSlot(RememberedValue(value))
         value
     }
-
-    // Move to next slot
     composer.nextSlot()
-
     return result
 }
 

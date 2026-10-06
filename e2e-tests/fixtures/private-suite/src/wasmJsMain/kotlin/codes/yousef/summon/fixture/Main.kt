@@ -3,6 +3,11 @@ import codes.yousef.summon.renderComposableRoot
 import codes.yousef.summon.mountComposableRoot
 import codes.yousef.summon.runtime.wasmGetLocationSearch
 fun main() {
+    if ((wasmGetLocationSearch() ?: "").contains("remember=true")) {
+        val fixture = RememberFixture()
+        mountComposableRoot("root") { fixture.Content() }
+        return
+    }
     if ((wasmGetLocationSearch() ?: "").contains("lifecycle=true")) {
         val fixture = RootLifecycleFixture { session, fail ->
             mountComposableRoot("root") {

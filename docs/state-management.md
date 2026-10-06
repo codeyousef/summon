@@ -917,3 +917,23 @@ context propagation for SSR work that switches dispatchers.
 Dispose application-owned subscriptions with the view, for example by registering a
 `DisposableEffect(session)` that returns `session::dispose`. Disposal does not erase retained
 application data or automatically observe external DOM removal. The host must call it.
+
+
+## Remembered value lifetime
+
+`remember { null }` caches a valid null result. The keyed overload compares an immutable snapshot
+of its argument list using Kotlin equality and recalculates when those values change. Remembered
+slots omitted from a successful pass are dropped; a removed trailing remember initializes again
+when it returns. The composer clears all its caches when disposed. A failed composition disposes
+its owning root rather than retaining a partially updated cache.
+
+`Composer.rememberedValue(key)` and `updateRememberedValue(key, value)` use a separate map keyed
+by equality; distinct keys with equal hashes cannot replace each other or a positional slot.
+Use keys with stable equality and hash codes. These named cache entries remain until replacement
+or composer disposal.
+
+Ordinary remember slots are still positional within the composition's group layout. Keep call
+order stable; these fixes do not provide automatic call-site identity when conditional branches
+shift later remember calls, or preserve remembered item state across list reorders. Those require
+qualified keyed composition groups/compiler support. DOM node keys alone do not supply that state
+identity. Prefer a stable owner/view model for private item state while that support is pending.

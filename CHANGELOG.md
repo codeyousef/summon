@@ -26,6 +26,9 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **Remembered state lifetime** - Nullable values remain cached until keys change or the slot
+  leaves composition. Omitted remembered slots are removed, and named composer keys use a
+  separate equality-keyed cache so hash collisions cannot replace positional state or effects.
 - **Flow collection registry races** - Scope lookup and cancellation serialize registry access,
   replace externally canceled scopes, and detach entries before invoking cancellation callbacks.
 - **JS keyed rendering** - Explicit sibling keys preserve node identity and requested order;

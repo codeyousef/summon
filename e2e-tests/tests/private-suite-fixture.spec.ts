@@ -185,3 +185,23 @@ test('JS microtask mounts cancel queued and late work on disposal', async ({ pag
   await first.getByRole('button', { name: 'Increment', exact: true }).click();
   await expect(first.getByTestId('counter')).toHaveText('Count: 1');
 });
+
+
+test('remember retains nullable values and named keys and forgets removed slots', async ({ page }) => {
+  await page.goto('/?remember=true');
+  await expect(page.getByTestId('remember-stats')).toHaveText('Null: 1; Keyed null: 1; Named: first/second/numeric');
+  await expect(page.getByTestId('remembered-probe')).toHaveText('generation-1');
+  for (let count = 1; count <= 5; count++) {
+    await page.getByRole('button', { name: 'Increment', exact: true }).click();
+    await expect(page.getByTestId('counter')).toHaveText(`Count: ${count}`);
+    await expect(page.getByTestId('remember-stats')).toHaveText('Null: 1; Keyed null: 1; Named: first/second/numeric');
+    await expect(page.getByTestId('remembered-probe')).toHaveText('generation-1');
+  }
+  await page.getByRole('button', { name: 'Change effect key', exact: true }).click();
+  await expect(page.getByTestId('remember-stats')).toHaveText('Null: 1; Keyed null: 2; Named: first/second/numeric');
+  await page.getByRole('button', { name: 'Toggle remembered probe', exact: true }).click();
+  await expect(page.getByTestId('remembered-probe')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Toggle remembered probe', exact: true }).click();
+  await expect(page.getByTestId('remembered-probe')).toHaveText('generation-2');
+  await expect(page.getByTestId('remember-stats')).toHaveText('Null: 1; Keyed null: 2; Named: first/second/numeric');
+});

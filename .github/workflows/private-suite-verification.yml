@@ -35,6 +35,8 @@ jobs:
           --tests codes.yousef.summon.state.FlowCollectionRegistryConcurrencyTest
           --tests codes.yousef.summon.runtime.RecomposerLifecycleTest
           --tests codes.yousef.summon.runtime.EffectLifecycleTest
+          --tests codes.yousef.summon.runtime.RememberLifetimeTest
+          --tests codes.yousef.summon.runtime.RememberTest
           --tests codes.yousef.summon.runtime.EffectHelperLifecycleTest
           --tests codes.yousef.summon.runtime.OwnedCompositionTest
           --tests codes.yousef.summon.runtime.RuntimeContextIsolationTest

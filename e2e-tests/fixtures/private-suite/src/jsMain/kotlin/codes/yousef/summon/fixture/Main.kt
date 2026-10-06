@@ -4,6 +4,11 @@ import codes.yousef.summon.runtime.MicrotaskScheduler
 import codes.yousef.summon.mountComposableRoot
 import kotlinx.browser.window
 fun main() {
+    if (window.location.search.contains("remember=true")) {
+        val fixture = RememberFixture()
+        mountComposableRoot("root") { fixture.Content() }
+        return
+    }
     if (window.location.search.contains("lifecycle=true")) {
         val fixture = RootLifecycleFixture { session, fail ->
             mountComposableRoot("root", if (window.location.search.contains("scheduler=microtask")) MicrotaskScheduler() else null) {

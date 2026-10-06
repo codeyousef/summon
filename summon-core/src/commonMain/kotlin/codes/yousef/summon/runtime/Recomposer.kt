@@ -287,12 +287,12 @@ class Recomposer {
      */
     fun isComposing(): Boolean = activeComposer != null
 
+    internal fun ownsComposer(composer: Composer): Boolean = composer in allComposers
+
     /**
      * Sets the active composer.
      * This is called by CompositionLocal when setting the current composer.
      */
-    internal fun ownsComposer(composer: Composer): Boolean = composer in allComposers
-
     fun setActiveComposer(composer: Composer?) {
         activeComposer = if (disposed) null else composer
     }
@@ -325,6 +325,7 @@ class Recomposer {
 
         private val renderer = PlatformRendererStore.get()
         private val slots = mutableMapOf<Int, Any?>()
+        private val namedValues = mutableMapOf<Any, Any?>()
         private var slotIndex = 0
         private val stateReads = mutableSetOf<Any>()
         private val nodeStack = mutableListOf<Int>()
@@ -376,7 +377,7 @@ class Recomposer {
                                 startGroup("recomposition")
                                 compositionRoot()
                                 endGroup()
-                                disposeRemovedSlotResources()
+                                pruneRemovedSlots()
                             } finally {
                                 PlatformRendererStore.get()?.endRecomposition()
                             }
@@ -483,16 +484,21 @@ class Recomposer {
         }
 
         override fun rememberedValue(key: Any): Any? {
-            return slots[key.hashCode()]
+            return namedValues[key]
         }
 
         override fun updateRememberedValue(key: Any, value: Any?) {
-            slots[key.hashCode()] = value
+            val previous = namedValues[key]
+            if (previous !== value && previous is CompositionResource) {
+                namedValues.remove(key)
+                previous.dispose()
+            }
+            namedValues[key] = value
         }
 
-        private fun disposeRemovedSlotResources() {
-            val removed = slots.filter { (index, value) ->
-                index !in visitedSlots && value is CompositionResource
+        private fun pruneRemovedSlots() {
+            val removed = slots.filter { (index, _) ->
+                index !in visitedSlots
             }
             removed.keys.forEach { slots.remove(it) }
             disposeResources(removed.values.filterIsInstance<CompositionResource>())
@@ -530,8 +536,9 @@ class Recomposer {
             recomposer.allComposers.remove(this)
             recomposer.pendingRecompositions.remove(this)
             clearDependencies()
-            val resources = slots.values.filterIsInstance<CompositionResource>()
+            val resources = (slots.values + namedValues.values).filterIsInstance<CompositionResource>()
             slots.clear()
+            namedValues.clear()
             visitedSlots.clear()
             postCommitEffects.clear()
             nodeStack.clear()

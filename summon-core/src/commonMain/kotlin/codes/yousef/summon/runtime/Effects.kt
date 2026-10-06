@@ -83,8 +83,8 @@ import kotlinx.coroutines.*
  *
  * ## Error Handling
  *
- * Handle expected failures inside the block. Unhandled failures reach the coroutine
- * exception handler emits a generic diagnostic without exception payloads.
+ * Handle expected failures inside the block. Unhandled failures reach a coroutine
+ * exception handler that emits a generic diagnostic without exception payloads.
  * Rethrow CancellationException when catching exceptions:
  *
  * ```kotlin

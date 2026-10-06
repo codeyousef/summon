@@ -9,6 +9,7 @@ class CommonComposer : Composer {
     override val inserting: Boolean = true
 
     private val slots = mutableMapOf<Int, Any?>()
+    private val namedValues = mutableMapOf<Any, Any?>()
     private var slotIndex = 0
 
     override fun startCompose() {
@@ -86,16 +87,17 @@ class CommonComposer : Composer {
     }
 
     override fun rememberedValue(key: Any): Any? {
-        return slots[key.hashCode()]
+        return namedValues[key]
     }
 
     override fun updateRememberedValue(key: Any, value: Any?) {
-        slots[key.hashCode()] = value
+        namedValues[key] = value
     }
 
     override fun dispose() {
         // Simple implementation
         slots.clear()
+        namedValues.clear()
     }
 }
 

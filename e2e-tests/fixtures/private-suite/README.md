@@ -24,12 +24,12 @@ WebKit coverage does not replace the roadmap's real Safari release check.
 The fixture checks real Text, Button, controlled TextField, state recomposition,
 flow binding, keyed node identity/order, logout disposal, effect key/removal cleanup
 mount-only/dependency-aware effects, independent synthetic roots, explicit root replacement/disposal,
-100 mount cycles, detached callback cleanup, failed-mount cleanup/context restoration, and JS microtask scheduling/disposal. It does not yet qualify routing, all lifecycle adapters,
+100 mount cycles, detached callback cleanup, failed-mount cleanup/context restoration, nullable/named remembered caches, and JS microtask scheduling/disposal. It does not yet qualify routing, all lifecycle adapters,
 Aether SSR integration, encryption, real account isolation or native clients.
 Those requirements remain incomplete in the PRD.
 
 After building both distributions, the default configuration starts and stops
-its own two loopback servers and runs 54 shared target/browser cases plus six
+its own two loopback servers and runs 60 shared target/browser cases plus six
 JS-specific microtask cases. The six WASM microtask rows are explicitly skipped
 because MicrotaskScheduler is a JS-specific API. Use Node 22
 or 24 for browser installation; the host Node 26 installer stalled during
