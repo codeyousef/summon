@@ -28,32 +28,17 @@ class MarkdownEditorTest {
     }
 
     @Test
-    fun rendersPreviewWhenEnabled() {
+    fun previewNeverUsesTheTrustedHtmlSink() {
         val renderer = MockPlatformRenderer()
 
         runComposableTest(renderer) {
             MarkdownEditor(
-                value = "# Title",
+                value = "# Title <img src=x onerror=alert(1)>",
                 onValueChange = {},
                 showPreview = true
             )
         }
 
-        assertTrue(renderer.renderHtmlCalled, "Preview should render HTML when enabled")
-    }
-
-    @Test
-    fun skipsPreviewWhenDisabled() {
-        val renderer = MockPlatformRenderer()
-
-        runComposableTest(renderer) {
-            MarkdownEditor(
-                value = "# Title",
-                onValueChange = {},
-                showPreview = false
-            )
-        }
-
-        assertFalse(renderer.renderHtmlCalled, "Preview should not render when disabled")
+        assertFalse(renderer.renderHtmlCalled, "Untrusted Markdown preview must not use the HTML sink")
     }
 }

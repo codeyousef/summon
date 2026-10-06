@@ -21,6 +21,11 @@ All notable changes to this project will be documented in this file.
 - **Private-route browser contract** - JS and WASM routers share validated same-origin path
   parsing, decoded opaque parameters, explicit loading/locked/feature/permission guard states,
   composition-owned popstate listeners, and encrypted-draft navigation interception.
+- **Safe untrusted documents** - `SafeDocument` renders a bounded closed node tree without
+  interpreting markup, allows only approved normalized HTTPS links and revocable local CID
+  object URLs, and always carries a plaintext fallback. Raw HTML, SVG, and CSS now require
+  explicit `TrustedHtml`, `TrustedSvg`, or `TrustedCss` author-code values; misleading regex
+  HTML/CSS sanitizer APIs were removed.
 - **Source consumer browser verification** - A locked JVM/JS/WASM fixture and pinned Playwright
   container exercise rendering, controlled inputs, keyed identity, logout, and effect cleanup
   across Chromium, Firefox, and WebKit.

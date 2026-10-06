@@ -71,7 +71,7 @@ async function installElementListenerProbe(page: Page) {
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByTestId('fixture-title')).toHaveText('Summon source consumer');
+  await expect(page.getByTestId('fixture-title')).toHaveText('Summon source consumer', { timeout: 15_000 });
 });
 
 test('one callback per click and one rendered counter after recomposition', async ({ page }) => {
@@ -402,6 +402,28 @@ test('JS microtask mounts cancel queued and late work on disposal', async ({ pag
   await expect(first.getByTestId('counter')).toHaveText('Count: 1');
 });
 
+test('safe document trees keep hostile content inert and release local CID capabilities', async ({ page }) => {
+  const unauthorizedRequests: string[] = [];
+  page.on('request', request => {
+    if (request.url().includes('tracker.invalid')) unauthorizedRequests.push(request.url());
+  });
+  await page.goto('/?safeContent=true');
+  const document = page.getByTestId('safe-document');
+  await expect(document).toContainText('RTL שלום');
+  await expect(document).toContainText('<img src=https://tracker.invalid/pixel');
+  await expect(document.locator('script, iframe, form, input, style, svg, math, object, embed')).toHaveCount(0);
+  await expect(document.locator('img')).toHaveCount(1);
+  await expect(document.getByAltText('Authorized local CID image')).toHaveAttribute('src', /^blob:/);
+  const link = document.getByRole('link');
+  await expect(link).toHaveAttribute('href', 'https://example.com/final');
+  await expect(link).toContainText('example.com');
+  expect(await page.evaluate(() => '__summonXss' in globalThis ? globalThis.__summonXss : undefined)).toBeUndefined();
+  expect(unauthorizedRequests).toEqual([]);
+  await page.getByRole('button', { name: 'Remove CID image', exact: true }).click();
+  await expect(document.locator('img')).toHaveCount(0);
+  await expect(page.getByTestId('cid-releases')).toHaveText('CID releases: 1');
+});
+
 test('source consumer mounts and navigates the real browser router', async ({ page }) => {
   await page.goto('/?router=true');
   await expect(page.getByTestId('route-value')).toHaveText('Fixture route');
@@ -524,6 +546,7 @@ test('router disposal removes popstate and tabs keep independent authorization',
 });
 
 test('responsive listeners are owned across recomposition, failure, replacement and disposal', async ({ page }) => {
+  test.setTimeout(60_000);
   await page.addInitScript(() => {
     const browserWindow = window as ResizeProbeWindow;
     const nativeAdd = window.addEventListener.bind(window);
@@ -589,6 +612,7 @@ test('responsive listeners are owned across recomposition, failure, replacement 
   })).toEqual({ adds: 1, removes: 0, active: 1 });
 
   await page.setViewportSize({ width: 500, height: 720 });
+  await expect(layout).toHaveAttribute('data-screen-size', 'SMALL');
   await layout.evaluate(node => {
     const probe = (window as ResizeProbeWindow).__summonResizeProbe;
     probe.writes.set(node, 0);

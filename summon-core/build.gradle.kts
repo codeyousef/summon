@@ -209,7 +209,6 @@ kotlin {
 
                 implementation(libs.kotlinx.html.jvm)
                 implementation(libs.kotlinx.serialization.json.jvm)
-                implementation(libs.flexmark.all)
             }
         }
         val jvmTest by getting {
@@ -242,8 +241,6 @@ kotlin {
                 implementation(npm("core-js", libs.versions.coreJs.get()))
                 implementation(npm("codemirror", libs.versions.codemirror.get()))
                 implementation(npm("chart.js", libs.versions.chartJs.get()))
-                implementation(npm("markdown-it", libs.versions.markdownIt.get()))
-                implementation(npm("highlight.js", libs.versions.highlightJs.get()))
                 // Performance optimization: TerserPlugin for JS minification
                 implementation(devNpm("terser-webpack-plugin", "5.3.10"))
                 implementation(libs.kotlinx.coroutines.core.js)

@@ -1,7 +1,7 @@
 # GlobalStyle Components
 
-The GlobalStyle components provide a way to inject global CSS styles, keyframe animations, and CSS variables into your
-Summon application.
+The GlobalStyle components inject application-authored CSS styles, keyframe animations, and CSS variables into your
+Summon application. Raw global CSS requires an explicit `TrustedCss.fromAuthorCode(...)` trust decision; never use it for user, message, storage, or network data.
 
 ## Components
 
@@ -12,21 +12,21 @@ Injects global CSS styles into the document head.
 ```kotlin
 @Composable
 fun GlobalStyle(
-    css: String,
+    css: TrustedCss,
     modifier: Modifier = Modifier()
 )
 ```
 
 **Parameters:**
 
-- `css` - The CSS content to inject
+- `css` - CSS explicitly trusted as application author code
 - `modifier` - The modifier to apply to this component
 
 **Example:**
 
 ```kotlin
 GlobalStyle(
-    """
+    TrustedCss.fromAuthorCode("""
     body {
         margin: 0;
         padding: 0;
@@ -37,7 +37,7 @@ GlobalStyle(
         max-width: 1200px;
         margin: 0 auto;
     }
-"""
+    """)
 )
 ```
 
@@ -253,12 +253,12 @@ Use media queries for responsive layouts:
 fun ResponsiveStyles() {
     // Mobile first approach
     GlobalStyle(
-        """
+        TrustedCss.fromAuthorCode("""
         .container {
             padding: 1rem;
             max-width: 100%;
         }
-    """
+        """)
     )
 
     // Tablet
@@ -352,7 +352,7 @@ fun App() {
         // CSS variables from theme are automatically injected
 
         GlobalStyle(
-            """
+            TrustedCss.fromAuthorCode("""
             .button-primary {
                 background: var(--primary);
                 border-radius: var(--radius);
@@ -362,7 +362,7 @@ fun App() {
             .button-primary:hover {
                 filter: brightness(1.1);
             }
-        """
+            """)
         )
 
         GlobalKeyframes(

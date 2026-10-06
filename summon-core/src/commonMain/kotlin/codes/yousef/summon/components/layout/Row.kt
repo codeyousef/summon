@@ -408,7 +408,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * // Companion CSS
  * @Composable
  * fun RowStyles() {
- *     GlobalStyle("""
+ *     GlobalStyle(TrustedCss.fromAuthorCode("""
  *         .custom-row {
  *             background: linear-gradient(to right, #667eea, #764ba2);
  *             border-radius: 0.5rem;
@@ -426,7 +426,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  *                 --row-gap: 0.5rem;
  *             }
  *         }
- *     """)
+ *     """))
  * }
  * ```
  *

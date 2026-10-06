@@ -2,11 +2,15 @@ package codes.yousef.summon.runtime
 
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.components.display.IconType
+import codes.yousef.summon.components.foundation.TrustedCss
+import codes.yousef.summon.components.foundation.TrustedHtml
+import codes.yousef.summon.components.foundation.TrustedSvg
 import codes.yousef.summon.components.feedback.*
 import codes.yousef.summon.components.input.FileInfo
 import codes.yousef.summon.components.navigation.Tab
 import codes.yousef.summon.core.FlowContentCompat
 import codes.yousef.summon.core.createWasmFlowContentCompat
+import codes.yousef.summon.modifier.attribute
 import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.modifier.toStyleStringKebabCase
 import kotlinx.browser.window
@@ -131,40 +135,22 @@ actual open class PlatformRenderer actual constructor() {
         diagnostics.unsupported()
     }
 
-    actual open fun renderRawHtml(html: String) {
+    actual open fun renderRawHtml(html: TrustedHtml) {
         if (isStringRenderMode) {
-            // HTML string building mode for SSR
-            // We wrap raw HTML in a div to fit into the HtmlElement structure
             val element = HtmlElement(
                 tagName = "div",
                 attributes = mutableMapOf("data-raw-html" to "true")
             )
-            element.content.append(html)
+            element.content.append(html.value)
             htmlStack.add(element)
         } else {
-            // DOM rendering mode for client
             try {
-                val summonId = "raw-html-${html.hashCode()}"
+                val summonId = "raw-html-${html.value.hashCode()}"
                 val newElement = createOrReuseElement("div", summonId)
-                val div = if (newElement != null) {
-                    newElement
-                } else {
-                    recompositionElements[summonId]
-                        ?: throw WasmDOMException("Failed to retrieve reused element: $summonId")
-                }
-
-                div.setAttribute("innerHTML", html)
-                // Note: Wasm DOM API might not expose innerHTML directly on Element.
-                // If setAttribute doesn't work, we might need a JS interop helper.
-                // For now, let's try setting it via JS interop if available or just textContent as fallback if needed,
-                // but innerHTML is standard. If Element doesn't have it in Kotlin/Wasm, we need a cast or helper.
-                // Assuming Element is org.w3c.dom.Element, it doesn't have innerHTML.
-                // We need to cast to HTMLElement or use a helper.
-                // Since we don't have easy casting here without checking imports, let's use a helper function.
-                // Cast to JsAny to use with the helper
+                val div = newElement ?: recompositionElements[summonId]
+                    ?: throw WasmDOMException("Failed to retrieve reused element")
                 @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
-                setInnerHTML(div as JsAny, html)
-
+                setInnerHTML(div as JsAny, html.value)
                 appendToCurrentContainer(div)
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
@@ -692,7 +678,7 @@ actual open class PlatformRenderer actual constructor() {
     }
 
     private fun renderRowWasmSafe(modifier: Modifier, content: @Composable () -> Unit) {
-        renderContainerDom("row", "summon-row", modifier, "row", content)
+        renderContainerDom("row", "summon-row", modifier, "row", content = content)
     }
 
     actual open fun renderColumn(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
@@ -737,7 +723,7 @@ actual open class PlatformRenderer actual constructor() {
     }
 
     private fun renderColumnWasmSafe(modifier: Modifier, content: @Composable () -> Unit) {
-        renderContainerDom("column", "summon-column", modifier, "column", content)
+        renderContainerDom("column", "summon-column", modifier, "column", content = content)
     }
 
     actual open fun renderBox(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
@@ -779,14 +765,15 @@ actual open class PlatformRenderer actual constructor() {
 
     // Additional required methods - stub implementations
     actual open fun renderImage(src: String, alt: String?, modifier: Modifier) {
-        diagnostics.unsupported()
+        val imageModifier = modifier.attribute("src", src).attribute("alt", alt ?: "")
+        renderContainerDom("image", "summon-image", imageModifier, elementTag = "img") {}
     }
 
     actual open fun renderIcon(
         name: String,
         modifier: Modifier,
         onClick: (() -> Unit)?,
-        svgContent: String?,
+        svgContent: TrustedSvg?,
         type: IconType
     ) {
         diagnostics.unsupported()
@@ -966,11 +953,11 @@ actual open class PlatformRenderer actual constructor() {
 
     // Additional missing methods
     actual open fun renderLink(href: String, modifier: Modifier) {
-        diagnostics.unsupported()
+        renderContainerDom("link", "summon-link", modifier.attribute("href", href), elementTag = "a") {}
     }
 
     actual open fun renderLink(modifier: Modifier, href: String, content: @Composable () -> Unit) {
-        diagnostics.unsupported()
+        renderContainerDom("link", "summon-link", modifier.attribute("href", href), elementTag = "a", content = content)
     }
 
     actual open fun renderEnhancedLink(
@@ -982,7 +969,10 @@ actual open class PlatformRenderer actual constructor() {
         modifier: Modifier,
         fallbackText: String?
     ) {
-        diagnostics.unsupported()
+        val linkModifier = linkModifier(modifier, href, target, title, ariaLabel, ariaDescribedBy)
+        renderContainerDom("link", "summon-link", linkModifier, elementTag = "a") {
+            if (fallbackText != null) renderText(fallbackText, Modifier())
+        }
     }
 
     actual open fun renderEnhancedLink(
@@ -994,7 +984,24 @@ actual open class PlatformRenderer actual constructor() {
         modifier: Modifier,
         content: @Composable () -> Unit
     ) {
-        diagnostics.unsupported()
+        val linkModifier = linkModifier(modifier, href, target, title, ariaLabel, ariaDescribedBy)
+        renderContainerDom("link", "summon-link", linkModifier, elementTag = "a", content = content)
+    }
+
+    private fun linkModifier(
+        modifier: Modifier,
+        href: String,
+        target: String?,
+        title: String?,
+        ariaLabel: String?,
+        ariaDescribedBy: String?
+    ): Modifier {
+        var result = modifier.attribute("href", href)
+        if (target != null) result = result.attribute("target", target)
+        if (title != null) result = result.attribute("title", title)
+        if (ariaLabel != null) result = result.attribute("aria-label", ariaLabel)
+        if (ariaDescribedBy != null) result = result.attribute("aria-describedby", ariaDescribedBy)
+        return result
     }
 
     actual open fun renderTabLayout(
@@ -1041,7 +1048,9 @@ actual open class PlatformRenderer actual constructor() {
     }
 
     actual open fun renderInline(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
-        diagnostics.unsupported()
+        renderContainerDom("inline", "summon-inline", modifier, elementTag = "span") {
+            createWasmFlowContentCompat().content()
+        }
     }
 
     actual open fun renderDiv(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
@@ -1053,11 +1062,12 @@ actual open class PlatformRenderer actual constructor() {
         className: String,
         modifier: Modifier,
         direction: String? = null,
+        elementTag: String = "div",
         content: @Composable () -> Unit
     ) {
         val sid = modifier.attributes["data-summon-id"] ?: generateNextId(identityTag, modifier.attributes["key"])
         try {
-            val element = createOrReuseElement("div", sid) ?: recompositionElements[sid]
+            val element = createOrReuseElement(elementTag, sid) ?: recompositionElements[sid]
                 ?: throw WasmDOMException("Cannot retrieve a composition element")
             element.setAttribute("class", className)
             element.setAttribute("data-sid", sid)
@@ -1074,7 +1084,9 @@ actual open class PlatformRenderer actual constructor() {
     }
 
     actual open fun renderSpan(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
-        diagnostics.unsupported()
+        renderContainerDom("span", "summon-span", modifier, elementTag = "span") {
+            createWasmFlowContentCompat().content()
+        }
     }
 
     actual open fun renderDivider(modifier: Modifier) {
@@ -1367,15 +1379,11 @@ actual open class PlatformRenderer actual constructor() {
         diagnostics.unsupported()
     }
 
-    actual open fun renderHtml(htmlContent: String, modifier: Modifier) {
+    actual open fun renderHtml(htmlContent: TrustedHtml, modifier: Modifier) {
         diagnostics.unsupported()
     }
 
-    actual open fun renderHtml(htmlContent: String, modifier: Modifier, sanitize: Boolean) {
-        diagnostics.unsupported()
-    }
-
-    actual open fun renderGlobalStyle(css: String) {
+    actual open fun renderGlobalStyle(css: TrustedCss) {
         diagnostics.unsupported()
     }
 
@@ -1483,7 +1491,7 @@ actual open class PlatformRenderer actual constructor() {
     }
 
     actual open fun renderRichMarkdown(markdown: String, modifier: Modifier) {
-        diagnostics.unsupported()
+        renderText(markdown, modifier)
     }
 
     actual open fun renderCodeEditor(

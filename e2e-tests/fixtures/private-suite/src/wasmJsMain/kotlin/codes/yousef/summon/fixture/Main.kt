@@ -14,6 +14,11 @@ fun main() {
         mountComposableRoot("root") { fixture.Content() }
         return
     }
+    if ((wasmGetLocationSearch() ?: "").contains("safeContent=true")) {
+        val fixture = SafeContentFixture()
+        mountComposableRoot("root") { fixture.Content() }
+        return
+    }
     if ((wasmGetLocationSearch() ?: "").contains("privateRouting=true")) {
         val fixture = PrivateRoutingFixture(wasmGetLocationPathname() ?: "/")
         mountComposableRoot("root") { fixture.Content() }

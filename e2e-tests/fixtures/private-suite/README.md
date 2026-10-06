@@ -43,8 +43,8 @@ It does not qualify encryption, real account isolation, real Aether providers,
 native clients, or real Safari. Those requirements remain incomplete in the PRD.
 
 After building both distributions, the default configuration starts and stops
-two loopback public-shell fallback servers and runs 168 target/browser rows:
-161 execute and seven are explicit skips: six JS-specific microtask rows on
+two loopback public-shell fallback servers and runs 174 target/browser rows:
+167 execute and seven are explicit skips: six JS-specific microtask rows on
 WASM, plus the two-tab WASM-WebKit row because Playwright WebKit crashes when
 the bounded container instantiates its second WASM tab. JS and WASM single-tab
 browser routing execute on Chromium, Firefox, and automated WebKit. Use Node 22 or 24

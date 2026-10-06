@@ -364,7 +364,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * // Companion CSS
  * @Composable
  * fun BoxStyles() {
- *     GlobalStyle("""
+ *     GlobalStyle(TrustedCss.fromAuthorCode("""
  *         .custom-container {
  *             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
  *             backdrop-filter: blur(10px);
@@ -388,7 +388,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  *                 font-size: 1rem;
  *             }
  *         }
- *     """)
+ *     """))
  * }
  * ```
  *

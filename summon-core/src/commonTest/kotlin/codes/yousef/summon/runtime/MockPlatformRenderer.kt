@@ -2,6 +2,9 @@ package codes.yousef.summon.runtime
 
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.components.display.IconType
+import codes.yousef.summon.components.foundation.TrustedCss
+import codes.yousef.summon.components.foundation.TrustedHtml
+import codes.yousef.summon.components.foundation.TrustedSvg
 import codes.yousef.summon.components.feedback.AlertVariant
 import codes.yousef.summon.components.feedback.ProgressType
 import codes.yousef.summon.components.input.FileInfo
@@ -267,7 +270,6 @@ open class MockPlatformRenderer : PlatformRenderer() {
     var renderHtmlCalled = false
     var lastHtmlContentRendered: String? = null
     var lastHtmlModifierRendered: Modifier? = null
-    var lastHtmlSanitizeEnabledRendered: Boolean? = null
     var renderCanvasCalled = false
     var lastCanvasModifier: Modifier? = null
     var lastCanvasWidth: Int? = null
@@ -517,7 +519,6 @@ open class MockPlatformRenderer : PlatformRenderer() {
         renderHtmlCalled = false
         lastHtmlContentRendered = null
         lastHtmlModifierRendered = null
-        lastHtmlSanitizeEnabledRendered = null
         renderCanvasCalled = false
         lastCanvasModifier = null
         lastCanvasWidth = null
@@ -659,14 +660,14 @@ open class MockPlatformRenderer : PlatformRenderer() {
         name: String,
         modifier: Modifier,
         onClick: (() -> Unit)?,
-        svgContent: String?,
+        svgContent: TrustedSvg?,
         type: IconType
     ) {
         renderIconCalled = true
         lastIconNameRendered = name
         lastIconModifierRendered = modifier
         lastIconOnClickRendered = onClick
-        lastIconSvgContentRendered = svgContent
+        lastIconSvgContentRendered = svgContent?.value
         lastIconTypeRendered = type
     }
 
@@ -1039,7 +1040,11 @@ open class MockPlatformRenderer : PlatformRenderer() {
 
     override fun renderScreen(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {}
 
-    override fun renderHtml(htmlContent: String, modifier: Modifier) {}
+    override fun renderHtml(htmlContent: TrustedHtml, modifier: Modifier) {
+        renderHtmlCalled = true
+        lastHtmlContentRendered = htmlContent.value
+        lastHtmlModifierRendered = modifier
+    }
 
     override fun renderSurface(modifier: Modifier, elevation: Int, content: @Composable () -> Unit) {}
 
@@ -1132,18 +1137,12 @@ open class MockPlatformRenderer : PlatformRenderer() {
     override fun renderBoxContainer(modifier: Modifier, content: @Composable () -> Unit) {}
 
     // Mock implementations for new render methods
-    override fun renderGlobalStyle(css: String) {
+    override fun renderGlobalStyle(css: TrustedCss) {
         renderGlobalStyleCalled = true
-        lastGlobalStyleCssRendered = css
+        lastGlobalStyleCssRendered = css.value
         globalStyleCallCount++
     }
 
-    override fun renderHtml(htmlContent: String, modifier: Modifier, sanitize: Boolean) {
-        renderHtmlCalled = true
-        lastHtmlContentRendered = htmlContent
-        lastHtmlModifierRendered = modifier
-        lastHtmlSanitizeEnabledRendered = sanitize
-    }
 
     override fun renderCanvas(
         modifier: Modifier,

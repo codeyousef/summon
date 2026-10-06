@@ -134,7 +134,7 @@ fun Icon(
     color: String? = null,
     type: IconType = IconType.SVG,
     fontFamily: String? = null,
-    svgContent: String? = null,
+    svgContent: TrustedSvg? = null,
     ariaLabel: String? = null,
     onClick: (() -> Unit)? = null
 )
@@ -166,14 +166,17 @@ fun MaterialIcon(name: String, modifier: Modifier = Modifier(), size: String, co
 fun FontAwesomeIcon(name: String, modifier: Modifier = Modifier(), size: String, color: String? = null, fontFamily: String, onClick: (() -> Unit)? = null)
 
 @Composable
-fun SvgIcon(svgContent: String, modifier: Modifier = Modifier(), size: String, color: String? = null, ariaLabel: String? = null, onClick: (() -> Unit)? = null)
+fun SvgIcon(svgContent: TrustedSvg, modifier: Modifier = Modifier(), size: String, color: String? = null, ariaLabel: String? = null, onClick: (() -> Unit)? = null)
 ```
 
 #### Other Display Components
 - `Chart` - Chart display component
 - `Picture` - Picture element with responsive sources
-- `RichMarkdown` - Markdown to HTML rendering
-- `RichText` - Rich text with formatting support
+- `RichMarkdown` - Untrusted Markdown source rendered as plaintext
+- `RichText(String)` - Untrusted plaintext; markup is never interpreted
+- `RichText(SafeDocument)` - Bounded formatted untrusted content with approved HTTPS links and local CID capabilities
+- `TrustedHtml`, `TrustedSvg`, `TrustedCss` - Explicit application-author-code capabilities; never construct from users, messages, storage, network responses, or URL parameters
+- `GlobalStyle(TrustedCss)` and `CssInjector.injectTrustedCss` - Raw CSS sinks; untrusted CSS is unsupported
 
 ---
 

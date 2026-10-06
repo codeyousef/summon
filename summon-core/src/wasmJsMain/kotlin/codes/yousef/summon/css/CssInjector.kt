@@ -1,5 +1,7 @@
 package codes.yousef.summon.css
 
+import codes.yousef.summon.components.foundation.TrustedCss
+
 import kotlinx.browser.document
 import org.w3c.dom.HTMLStyleElement
 
@@ -12,10 +14,10 @@ actual object CssInjector {
     /**
      * Injects or updates a CSS style block with the given ID.
      */
-    actual fun injectUserCss(id: String, css: String): Boolean {
+    actual fun injectTrustedCss(id: String, css: TrustedCss): Boolean {
+        if (!isValidCssBlockId(id)) return false
         return try {
-            val sanitizedCss = CssSanitizer.sanitize(css)
-            val styleId = "summon-user-css-$id"
+            val styleId = "summon-trusted-css-$id"
             
             var styleElement = document.getElementById(styleId) as? HTMLStyleElement
             
@@ -28,7 +30,7 @@ actual object CssInjector {
             }
             
             // Update the content
-            styleElement.textContent = sanitizedCss
+            styleElement.textContent = css.value
             true
         } catch (e: Exception) {
             println("Failed to inject CSS for id '$id': ${e.message}")
@@ -39,9 +41,10 @@ actual object CssInjector {
     /**
      * Removes a previously injected style block.
      */
-    actual fun removeUserCss(id: String): Boolean {
+    actual fun removeTrustedCss(id: String): Boolean {
+        if (!isValidCssBlockId(id)) return false
         return try {
-            val styleId = "summon-user-css-$id"
+            val styleId = "summon-trusted-css-$id"
             val styleElement = document.getElementById(styleId)
             
             if (styleElement != null) {
@@ -59,9 +62,10 @@ actual object CssInjector {
     /**
      * Gets the current content of a style block.
      */
-    actual fun getUserCss(id: String): String? {
+    actual fun getTrustedCss(id: String): String? {
+        if (!isValidCssBlockId(id)) return null
         return try {
-            val styleId = "summon-user-css-$id"
+            val styleId = "summon-trusted-css-$id"
             val styleElement = document.getElementById(styleId) as? HTMLStyleElement
             styleElement?.textContent
         } catch (e: Exception) {
@@ -72,8 +76,9 @@ actual object CssInjector {
     /**
      * Checks if a style block with the given ID exists.
      */
-    actual fun hasUserCss(id: String): Boolean {
-        val styleId = "summon-user-css-$id"
+    actual fun hasTrustedCss(id: String): Boolean {
+        if (!isValidCssBlockId(id)) return false
+        val styleId = "summon-trusted-css-$id"
         return document.getElementById(styleId) != null
     }
 }

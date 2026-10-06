@@ -1,116 +1,48 @@
 package codes.yousef.summon.components.display
 
 import codes.yousef.summon.annotation.Composable
-import codes.yousef.summon.core.splitCompat
-import codes.yousef.summon.modifier.*
+import codes.yousef.summon.components.foundation.TrustedHtml
+import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.runtime.LocalPlatformRenderer
 
-/**
- * Renders rich HTML content with optional sanitization for XSS protection.
- *
- * @param htmlContent The HTML content to render
- * @param modifier The modifier to apply to this component
- * @param sanitize Whether to sanitize the HTML content (default: true)
- */
+/** Renders untrusted text as a text node. Markup in [text] is never interpreted. */
 @Composable
 fun RichText(
-    htmlContent: String,
-    modifier: Modifier = Modifier(),
-    sanitize: Boolean = true
-) {
-    val renderer = LocalPlatformRenderer.current
-    renderer.renderHtml(htmlContent, modifier, sanitize)
-}
-
-/**
- * Renders trusted HTML content with minimal sanitization.
- * Use this for content you control and trust.
- *
- * @param htmlContent The trusted HTML content to render
- * @param modifier The modifier to apply to this component
- */
-@Composable
-fun Html(
-    htmlContent: String,
+    text: String,
     modifier: Modifier = Modifier()
 ) {
-    val renderer = LocalPlatformRenderer.current
-    renderer.renderHtml(htmlContent, modifier, sanitize = false)
+    SafeDocumentContent(SafeDocument.plaintext(text), modifier)
+}
+
+/** Renders a validated, bounded document tree for untrusted formatted content. */
+@Composable
+fun RichText(
+    document: SafeDocument,
+    modifier: Modifier = Modifier(),
+    cidResolver: CidResolver? = null
+) {
+    SafeDocumentContent(document, modifier, cidResolver)
+}
+
+/** Renders HTML that application code has explicitly marked as trusted. */
+@Composable
+fun Html(
+    htmlContent: TrustedHtml,
+    modifier: Modifier = Modifier()
+) {
+    LocalPlatformRenderer.current.renderHtml(htmlContent, modifier)
 }
 
 /**
- * Renders Markdown content by converting it to safe HTML.
+ * Renders Markdown source as plaintext.
  *
- * @param markdownContent The Markdown content to render
- * @param modifier The modifier to apply to this component
+ * Summon intentionally does not convert untrusted Markdown through an HTML string. Applications
+ * that need formatting should parse it into [SafeDocument] with a reviewed bounded parser.
  */
 @Composable
 fun Markdown(
     markdownContent: String,
     modifier: Modifier = Modifier()
 ) {
-    val htmlContent = convertMarkdownToHtml(markdownContent)
-    RichText(htmlContent, modifier, sanitize = true)
-}
-
-/**
- * Simple markdown to HTML converter.
- * This is a basic implementation that handles common markdown features.
- */
-private fun convertMarkdownToHtml(markdown: String): String {
-    var html = markdown
-
-    // Headers
-    html = html.replace(Regex("^# (.+)$", RegexOption.MULTILINE), "<h1>$1</h1>")
-    html = html.replace(Regex("^## (.+)$", RegexOption.MULTILINE), "<h2>$1</h2>")
-    html = html.replace(Regex("^### (.+)$", RegexOption.MULTILINE), "<h3>$1</h3>")
-    html = html.replace(Regex("^#### (.+)$", RegexOption.MULTILINE), "<h4>$1</h4>")
-    html = html.replace(Regex("^##### (.+)$", RegexOption.MULTILINE), "<h5>$1</h5>")
-    html = html.replace(Regex("^###### (.+)$", RegexOption.MULTILINE), "<h6>$1</h6>")
-
-    // Bold and italic
-    html = html.replace(Regex("\\*\\*(.+?)\\*\\*"), "<strong>$1</strong>")
-    html = html.replace(Regex("\\*(.+?)\\*"), "<em>$1</em>")
-
-    // Links
-    html = html.replace(Regex("\\[(.+?)\\]\\((.+?)\\)"), "<a href=\"$2\">$1</a>")
-
-    // Lists
-    html = html.replace(Regex("^- (.+)$", RegexOption.MULTILINE), "<li>$1</li>")
-    // Match list items including newlines - use [\s\S] as a workaround for DOT_MATCHES_ALL
-    html = html.replace(Regex("(<li>[\\s\\S]*?</li>)")) { matchResult ->
-        "<ul>${matchResult.value}</ul>"
-    }
-
-    // Paragraphs
-    val lines = html.splitCompat("\n")
-    val paragraphs = mutableListOf<String>()
-    var currentParagraph = ""
-
-    for (line in lines) {
-        val trimmedLine = line.trim()
-        if (trimmedLine.isEmpty()) {
-            if (currentParagraph.isNotEmpty()) {
-                paragraphs.add("<p>$currentParagraph</p>")
-                currentParagraph = ""
-            }
-        } else if (!trimmedLine.startsWith("<")) {
-            if (currentParagraph.isNotEmpty()) {
-                currentParagraph += " "
-            }
-            currentParagraph += trimmedLine
-        } else {
-            if (currentParagraph.isNotEmpty()) {
-                paragraphs.add("<p>$currentParagraph</p>")
-                currentParagraph = ""
-            }
-            paragraphs.add(trimmedLine)
-        }
-    }
-
-    if (currentParagraph.isNotEmpty()) {
-        paragraphs.add("<p>$currentParagraph</p>")
-    }
-
-    return paragraphs.joinToString("\n")
+    RichText(markdownContent, modifier)
 }

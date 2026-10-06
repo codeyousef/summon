@@ -1,5 +1,7 @@
 package codes.yousef.summon.css
 
+import codes.yousef.summon.components.foundation.TrustedCss
+
 /**
  * JVM implementation of CssInjector.
  *
@@ -15,10 +17,10 @@ actual object CssInjector {
      * On JVM, the CSS is stored in memory and can be retrieved
      * for SSR via [getAllCss] or [generateStyleBlocks].
      */
-    actual fun injectUserCss(id: String, css: String): Boolean {
+    actual fun injectTrustedCss(id: String, css: TrustedCss): Boolean {
+        if (!isValidCssBlockId(id)) return false
         return try {
-            val sanitizedCss = CssSanitizer.sanitize(css)
-            styleBlocks[id] = sanitizedCss
+            styleBlocks[id] = css.value
             true
         } catch (e: Exception) {
             false
@@ -28,21 +30,24 @@ actual object CssInjector {
     /**
      * Removes a stored style block.
      */
-    actual fun removeUserCss(id: String): Boolean {
+    actual fun removeTrustedCss(id: String): Boolean {
+        if (!isValidCssBlockId(id)) return false
         return styleBlocks.remove(id) != null
     }
     
     /**
      * Gets the content of a stored style block.
      */
-    actual fun getUserCss(id: String): String? {
+    actual fun getTrustedCss(id: String): String? {
+        if (!isValidCssBlockId(id)) return null
         return styleBlocks[id]
     }
     
     /**
      * Checks if a style block with the given ID is stored.
      */
-    actual fun hasUserCss(id: String): Boolean {
+    actual fun hasTrustedCss(id: String): Boolean {
+        if (!isValidCssBlockId(id)) return false
         return styleBlocks.containsKey(id)
     }
     
@@ -62,7 +67,7 @@ actual object CssInjector {
      */
     fun generateStyleBlocks(): String {
         return styleBlocks.entries.joinToString("\n") { (id, css) ->
-            """<style id="summon-user-css-$id" data-summon-css="$id">$css</style>"""
+            """<style id="summon-trusted-css-$id" data-summon-css="$id">$css</style>"""
         }
     }
     

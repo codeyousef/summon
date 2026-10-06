@@ -596,7 +596,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * // Companion CSS
  * @Composable
  * fun ColumnStyles() {
- *     GlobalStyle("""
+ *     GlobalStyle(TrustedCss.fromAuthorCode("""
  *         .custom-column {
  *             background: linear-gradient(to bottom, #f8fafc, #e2e8f0);
  *             border-radius: 0.75rem;
@@ -621,7 +621,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  *                 --column-padding: 3rem;
  *             }
  *         }
- *     """)
+ *     """))
  * }
  * ```
  *

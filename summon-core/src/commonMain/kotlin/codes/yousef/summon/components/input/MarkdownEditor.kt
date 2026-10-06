@@ -14,7 +14,7 @@ import codes.yousef.summon.theme.Spacing
  * @param onValueChange Callback invoked when user edits the content
  * @param modifier Modifier applied to the wrapping column
  * @param placeholder Optional placeholder shown inside the text area
- * @param showPreview Whether to show the rendered Markdown preview
+ * @param showPreview Whether to show a plaintext-safe Markdown source preview
  * @param rows Optional number of visible rows for the text area
  * @param previewHeading Optional heading rendered above the preview when present
  * @param textAreaModifier Modifier applied to the text area

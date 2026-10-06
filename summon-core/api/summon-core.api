@@ -1606,6 +1606,20 @@ public final class codes/yousef/summon/components/display/ChartKt {
 	public static synthetic fun Chart$default (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
 }
 
+public final class codes/yousef/summon/components/display/CidReference {
+	public static final field Companion Lcodes/yousef/summon/components/display/CidReference$Companion;
+	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getContentId ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/display/CidReference$Companion {
+	public final fun parse (Ljava/lang/String;)Lcodes/yousef/summon/components/display/CidReference;
+}
+
+public abstract interface class codes/yousef/summon/components/display/CidResolver {
+	public abstract fun resolve (Lcodes/yousef/summon/components/display/CidReference;)Lcodes/yousef/summon/components/display/LocalObjectUrl;
+}
+
 public final class codes/yousef/summon/components/display/FetchPriority : java/lang/Enum {
 	public static final field AUTO Lcodes/yousef/summon/components/display/FetchPriority;
 	public static final field HIGH Lcodes/yousef/summon/components/display/FetchPriority;
@@ -1650,12 +1664,12 @@ public final class codes/yousef/summon/components/display/IconDefaults$Size {
 public final class codes/yousef/summon/components/display/IconKt {
 	public static final fun FontAwesomeIcon (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
 	public static synthetic fun FontAwesomeIcon$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
-	public static final fun Icon (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/components/display/IconType;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
-	public static synthetic fun Icon$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/components/display/IconType;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+	public static final fun Icon-xN6-sGM (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/components/display/IconType;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
+	public static synthetic fun Icon-xN6-sGM$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/components/display/IconType;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
 	public static final fun MaterialIcon (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
 	public static synthetic fun MaterialIcon$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
-	public static final fun SvgIcon (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
-	public static synthetic fun SvgIcon$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+	public static final fun SvgIcon-1A9CLXk (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
+	public static synthetic fun SvgIcon-1A9CLXk$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
 }
 
 public final class codes/yousef/summon/components/display/IconType : java/lang/Enum {
@@ -1710,6 +1724,17 @@ public final class codes/yousef/summon/components/display/ImageSource {
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class codes/yousef/summon/components/display/LocalObjectUrl {
+	public static final field Companion Lcodes/yousef/summon/components/display/LocalObjectUrl$Companion;
+	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getValue ()Ljava/lang/String;
+	public final fun release ()V
+}
+
+public final class codes/yousef/summon/components/display/LocalObjectUrl$Companion {
+	public final fun create (Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Lcodes/yousef/summon/components/display/LocalObjectUrl;
+}
+
 public final class codes/yousef/summon/components/display/PictureKt {
 	public static final fun Picture (Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/components/display/ImageLoading;Lcodes/yousef/summon/components/display/FetchPriority;Lcodes/yousef/summon/components/display/ImageDecoding;)V
 	public static synthetic fun Picture$default (Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/components/display/ImageLoading;Lcodes/yousef/summon/components/display/FetchPriority;Lcodes/yousef/summon/components/display/ImageDecoding;ILjava/lang/Object;)V
@@ -1723,12 +1748,121 @@ public final class codes/yousef/summon/components/display/RichMarkdownKt {
 }
 
 public final class codes/yousef/summon/components/display/RichTextKt {
-	public static final fun Html (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
-	public static synthetic fun Html$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
+	public static final fun Html-sWTs-x0 (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
+	public static synthetic fun Html-sWTs-x0$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
 	public static final fun Markdown (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
 	public static synthetic fun Markdown$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
-	public static final fun RichText (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Z)V
-	public static synthetic fun RichText$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ZILjava/lang/Object;)V
+	public static final fun RichText (Lcodes/yousef/summon/components/display/SafeDocument;Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/components/display/CidResolver;)V
+	public static final fun RichText (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
+	public static synthetic fun RichText$default (Lcodes/yousef/summon/components/display/SafeDocument;Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/components/display/CidResolver;ILjava/lang/Object;)V
+	public static synthetic fun RichText$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
+}
+
+public final class codes/yousef/summon/components/display/SafeContainerKind : java/lang/Enum {
+	public static final field CODE Lcodes/yousef/summon/components/display/SafeContainerKind;
+	public static final field EMPHASIS Lcodes/yousef/summon/components/display/SafeContainerKind;
+	public static final field HEADING Lcodes/yousef/summon/components/display/SafeContainerKind;
+	public static final field LIST_ITEM Lcodes/yousef/summon/components/display/SafeContainerKind;
+	public static final field ORDERED_LIST Lcodes/yousef/summon/components/display/SafeContainerKind;
+	public static final field PARAGRAPH Lcodes/yousef/summon/components/display/SafeContainerKind;
+	public static final field QUOTE Lcodes/yousef/summon/components/display/SafeContainerKind;
+	public static final field STRONG Lcodes/yousef/summon/components/display/SafeContainerKind;
+	public static final field UNORDERED_LIST Lcodes/yousef/summon/components/display/SafeContainerKind;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcodes/yousef/summon/components/display/SafeContainerKind;
+	public static fun values ()[Lcodes/yousef/summon/components/display/SafeContainerKind;
+}
+
+public final class codes/yousef/summon/components/display/SafeDocument {
+	public static final field Companion Lcodes/yousef/summon/components/display/SafeDocument$Companion;
+	public static final field POLICY_VERSION Ljava/lang/String;
+	public synthetic fun <init> (Ljava/util/List;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getNodes ()Ljava/util/List;
+	public final fun getPlaintextFallback ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/display/SafeDocument$Companion {
+	public final fun create (Ljava/util/List;Ljava/lang/String;)Lcodes/yousef/summon/components/display/SafeDocument;
+	public final fun plaintext (Ljava/lang/String;)Lcodes/yousef/summon/components/display/SafeDocument;
+}
+
+public final class codes/yousef/summon/components/display/SafeDocumentKt {
+	public static final fun SafeDocumentContent (Lcodes/yousef/summon/components/display/SafeDocument;Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/components/display/CidResolver;)V
+	public static synthetic fun SafeDocumentContent$default (Lcodes/yousef/summon/components/display/SafeDocument;Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/components/display/CidResolver;ILjava/lang/Object;)V
+}
+
+public abstract interface class codes/yousef/summon/components/display/SafeDocumentNode {
+}
+
+public final class codes/yousef/summon/components/display/SafeDocumentNode$CidImage : codes/yousef/summon/components/display/SafeDocumentNode {
+	public fun <init> (Lcodes/yousef/summon/components/display/CidReference;Ljava/lang/String;)V
+	public final fun component1 ()Lcodes/yousef/summon/components/display/CidReference;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Lcodes/yousef/summon/components/display/CidReference;Ljava/lang/String;)Lcodes/yousef/summon/components/display/SafeDocumentNode$CidImage;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/components/display/SafeDocumentNode$CidImage;Lcodes/yousef/summon/components/display/CidReference;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/components/display/SafeDocumentNode$CidImage;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAlt ()Ljava/lang/String;
+	public final fun getReference ()Lcodes/yousef/summon/components/display/CidReference;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/display/SafeDocumentNode$Container : codes/yousef/summon/components/display/SafeDocumentNode {
+	public fun <init> (Lcodes/yousef/summon/components/display/SafeContainerKind;Ljava/util/List;I)V
+	public synthetic fun <init> (Lcodes/yousef/summon/components/display/SafeContainerKind;Ljava/util/List;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcodes/yousef/summon/components/display/SafeContainerKind;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()I
+	public final fun copy (Lcodes/yousef/summon/components/display/SafeContainerKind;Ljava/util/List;I)Lcodes/yousef/summon/components/display/SafeDocumentNode$Container;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/components/display/SafeDocumentNode$Container;Lcodes/yousef/summon/components/display/SafeContainerKind;Ljava/util/List;IILjava/lang/Object;)Lcodes/yousef/summon/components/display/SafeDocumentNode$Container;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getChildren ()Ljava/util/List;
+	public final fun getHeadingLevel ()I
+	public final fun getKind ()Lcodes/yousef/summon/components/display/SafeContainerKind;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/display/SafeDocumentNode$LineBreak : codes/yousef/summon/components/display/SafeDocumentNode {
+	public static final field INSTANCE Lcodes/yousef/summon/components/display/SafeDocumentNode$LineBreak;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/display/SafeDocumentNode$Link : codes/yousef/summon/components/display/SafeDocumentNode {
+	public fun <init> (Lcodes/yousef/summon/components/display/SafeOutboundLink;Ljava/util/List;)V
+	public final fun component1 ()Lcodes/yousef/summon/components/display/SafeOutboundLink;
+	public final fun component2 ()Ljava/util/List;
+	public final fun copy (Lcodes/yousef/summon/components/display/SafeOutboundLink;Ljava/util/List;)Lcodes/yousef/summon/components/display/SafeDocumentNode$Link;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/components/display/SafeDocumentNode$Link;Lcodes/yousef/summon/components/display/SafeOutboundLink;Ljava/util/List;ILjava/lang/Object;)Lcodes/yousef/summon/components/display/SafeDocumentNode$Link;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getLabel ()Ljava/util/List;
+	public final fun getTarget ()Lcodes/yousef/summon/components/display/SafeOutboundLink;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/display/SafeDocumentNode$Text : codes/yousef/summon/components/display/SafeDocumentNode {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lcodes/yousef/summon/components/display/SafeDocumentNode$Text;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/components/display/SafeDocumentNode$Text;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/components/display/SafeDocumentNode$Text;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/display/SafeOutboundLink {
+	public static final field Companion Lcodes/yousef/summon/components/display/SafeOutboundLink$Companion;
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getDisplayHost ()Ljava/lang/String;
+	public final fun getHref ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/display/SafeOutboundLink$Companion {
+	public final fun parse (Ljava/lang/String;Ljava/util/Set;)Lcodes/yousef/summon/components/display/SafeOutboundLink;
 }
 
 public final class codes/yousef/summon/components/display/TextComponent {
@@ -2672,10 +2806,10 @@ public final class codes/yousef/summon/components/foundation/EnhancedThemeConfig
 public final class codes/yousef/summon/components/foundation/HtmlPrimitivesKt {
 	public static final fun Canvas (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun Canvas$default (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
-	public static final fun RawHtml (Lcodes/yousef/summon/modifier/Modifier;ZLkotlin/jvm/functions/Function1;)V
-	public static final fun RawHtml (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Z)V
-	public static synthetic fun RawHtml$default (Lcodes/yousef/summon/modifier/Modifier;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
-	public static synthetic fun RawHtml$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ZILjava/lang/Object;)V
+	public static final fun RawHtml (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun RawHtml$default (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public static final fun RawHtml-sWTs-x0 (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
+	public static synthetic fun RawHtml-sWTs-x0$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
 	public static final fun ScriptTag (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ZZLjava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;)V
 	public static synthetic fun ScriptTag$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ZZLjava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;ILjava/lang/Object;)V
 }
@@ -2702,6 +2836,60 @@ public final class codes/yousef/summon/components/foundation/ThemeProviderKt {
 	public static final fun themeColor (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun themeSpacing (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun useTheme ()Lcodes/yousef/summon/components/foundation/EnhancedThemeConfig;
+}
+
+public final class codes/yousef/summon/components/foundation/TrustedCss {
+	public static final field Companion Lcodes/yousef/summon/components/foundation/TrustedCss$Companion;
+	public static final synthetic fun box-impl (Ljava/lang/String;)Lcodes/yousef/summon/components/foundation/TrustedCss;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/foundation/TrustedCss$Companion {
+	public final fun fromAuthorCode-GHX1Gt0 (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/foundation/TrustedHtml {
+	public static final field Companion Lcodes/yousef/summon/components/foundation/TrustedHtml$Companion;
+	public static final synthetic fun box-impl (Ljava/lang/String;)Lcodes/yousef/summon/components/foundation/TrustedHtml;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/foundation/TrustedHtml$Companion {
+	public final fun fromAuthorCode-G3g9TZc (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/foundation/TrustedSvg {
+	public static final field Companion Lcodes/yousef/summon/components/foundation/TrustedSvg$Companion;
+	public static final synthetic fun box-impl (Ljava/lang/String;)Lcodes/yousef/summon/components/foundation/TrustedSvg;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/foundation/TrustedSvg$Companion {
+	public final fun fromAuthorCode-sYIrm_w (Ljava/lang/String;)Ljava/lang/String;
 }
 
 public final class codes/yousef/summon/components/html/DetailsElementsKt {
@@ -3515,8 +3703,8 @@ public final class codes/yousef/summon/components/styles/GlobalStyleKt {
 	public static synthetic fun CssVariables$default (Ljava/util/Map;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
 	public static final fun GlobalKeyframes (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
 	public static synthetic fun GlobalKeyframes$default (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
-	public static final fun GlobalStyle (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
-	public static synthetic fun GlobalStyle$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
+	public static final fun GlobalStyle-CtXVR24 (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
+	public static synthetic fun GlobalStyle-CtXVR24$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
 	public static final fun GradientUtilities (Ljava/util/Map;Lcodes/yousef/summon/modifier/Modifier;)V
 	public static synthetic fun GradientUtilities$default (Ljava/util/Map;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
 	public static final fun MediaQuery (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
@@ -4492,16 +4680,10 @@ public final class codes/yousef/summon/css/CssInjector {
 	public final fun clear ()V
 	public final fun generateStyleBlocks ()Ljava/lang/String;
 	public final fun getAllCss ()Ljava/util/Map;
-	public final fun getUserCss (Ljava/lang/String;)Ljava/lang/String;
-	public final fun hasUserCss (Ljava/lang/String;)Z
-	public final fun injectUserCss (Ljava/lang/String;Ljava/lang/String;)Z
-	public final fun removeUserCss (Ljava/lang/String;)Z
-}
-
-public final class codes/yousef/summon/css/CssSanitizer {
-	public static final field INSTANCE Lcodes/yousef/summon/css/CssSanitizer;
-	public final fun sanitize (Ljava/lang/String;)Ljava/lang/String;
-	public final fun validate (Ljava/lang/String;)Ljava/util/List;
+	public final fun getTrustedCss (Ljava/lang/String;)Ljava/lang/String;
+	public final fun hasTrustedCss (Ljava/lang/String;)Z
+	public final fun injectTrustedCss-i822HYM (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun removeTrustedCss (Ljava/lang/String;)Z
 }
 
 public final class codes/yousef/summon/desktop/communication/BroadcastChannelJvm {
@@ -6424,7 +6606,7 @@ public final class codes/yousef/summon/integration/quarkus/renderer/EnhancedJvmP
 	public fun renderForm (Lkotlin/jvm/functions/Function0;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
 	public fun renderFormField (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;ZZLjava/lang/String;Lkotlin/jvm/functions/Function1;)V
 	public fun renderHtmlTag (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
-	public fun renderIcon (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;Ljava/lang/String;Lcodes/yousef/summon/components/display/IconType;)V
+	public fun renderIcon-riA9_kk (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;Ljava/lang/String;Lcodes/yousef/summon/components/display/IconType;)V
 	public fun renderImage (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
 	public fun renderLabel (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)V
 	public fun renderLink (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
@@ -9448,14 +9630,13 @@ public class codes/yousef/summon/runtime/PlatformRenderer {
 	public static synthetic fun renderForm$default (Lcodes/yousef/summon/runtime/PlatformRenderer;Lkotlin/jvm/functions/Function0;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public fun renderFormField (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;ZZLjava/lang/String;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun renderFormField$default (Lcodes/yousef/summon/runtime/PlatformRenderer;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;ZZLjava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
-	public fun renderGlobalStyle (Ljava/lang/String;)V
+	public fun renderGlobalStyle-KgjQ93M (Ljava/lang/String;)V
 	public fun renderGrid (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
 	public fun renderHeadElements (Lkotlin/jvm/functions/Function1;)V
 	public fun renderHorizontalPager (ILjava/lang/Object;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
-	public fun renderHtml (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
-	public fun renderHtml (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Z)V
+	public fun renderHtml-sWTs-x0 (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
 	public fun renderHtmlTag (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
-	public fun renderIcon (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;Ljava/lang/String;Lcodes/yousef/summon/components/display/IconType;)V
+	public fun renderIcon-riA9_kk (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function0;Ljava/lang/String;Lcodes/yousef/summon/components/display/IconType;)V
 	public fun renderImage (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
 	public fun renderInline (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
 	public fun renderLabel (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)V
@@ -9482,7 +9663,7 @@ public class codes/yousef/summon/runtime/PlatformRenderer {
 	public fun renderRadioButton (ZLkotlin/jvm/functions/Function1;Ljava/lang/String;ZLcodes/yousef/summon/modifier/Modifier;)V
 	public fun renderRangeSlider (Lkotlin/ranges/ClosedFloatingPointRange;Lkotlin/jvm/functions/Function1;Lkotlin/ranges/ClosedFloatingPointRange;IZLcodes/yousef/summon/modifier/Modifier;)V
 	public static synthetic fun renderRangeSlider$default (Lcodes/yousef/summon/runtime/PlatformRenderer;Lkotlin/ranges/ClosedFloatingPointRange;Lkotlin/jvm/functions/Function1;Lkotlin/ranges/ClosedFloatingPointRange;IZLcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
-	public fun renderRawHtml (Ljava/lang/String;)V
+	public fun renderRawHtml-Mx4bOlU (Ljava/lang/String;)V
 	public fun renderResponsiveLayout (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
 	public fun renderRichMarkdown (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
 	public fun renderRow (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V

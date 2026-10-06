@@ -40,7 +40,7 @@ fun ThemeProvider(
     // Inject CSS variables if design tokens are provided
     theme.designTokens?.let { tokens ->
         val cssVariables = ":root { ${tokens.map { (key, value) -> "$key: $value;" }.joinToString(" ")} }"
-        GlobalStyle(cssVariables)
+        GlobalStyle(TrustedCss.fromAuthorCode(cssVariables))
     }
 
     // Set the theme in the existing Theme system for backward compatibility

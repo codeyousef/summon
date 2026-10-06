@@ -3,6 +3,9 @@ package codes.yousef.summon.runtime
 // Import extension functions for Element
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.components.display.IconType
+import codes.yousef.summon.components.foundation.TrustedCss
+import codes.yousef.summon.components.foundation.TrustedHtml
+import codes.yousef.summon.components.foundation.TrustedSvg
 import codes.yousef.summon.components.feedback.AlertVariant
 import codes.yousef.summon.components.feedback.ProgressType
 import codes.yousef.summon.components.input.FileInfo
@@ -594,10 +597,10 @@ actual open class PlatformRenderer {
         })
     }
 
-    actual open fun renderRawHtml(html: String) {
+    actual open fun renderRawHtml(html: TrustedHtml) {
         val parent = elementStack.current
         val temp = kotlinx.browser.document.createElement("div")
-        temp.innerHTML = html
+        temp.innerHTML = html.value
         while (temp.firstChild != null) {
             parent.appendChild(temp.firstChild!!)
         }
@@ -1025,7 +1028,7 @@ actual open class PlatformRenderer {
         name: String,
         modifier: Modifier,
         onClick: (() -> Unit)?,
-        svgContent: String?,
+        svgContent: TrustedSvg?,
         type: IconType
     ) {
         createElement("i", modifier, setup = { element ->
@@ -1034,7 +1037,7 @@ actual open class PlatformRenderer {
                     element.textContent = name
                 }
                 IconType.SVG -> {
-                    svgContent?.let { element.innerHTML = it }
+                    svgContent?.let { element.innerHTML = it.value }
                 }
                 else -> {}
             }
@@ -1409,9 +1412,9 @@ actual open class PlatformRenderer {
         }
     }
 
-    actual open fun renderHtml(htmlContent: String, modifier: Modifier) {
+    actual open fun renderHtml(htmlContent: TrustedHtml, modifier: Modifier) {
         createElement("div", modifier, setup = { element ->
-            (element as? HTMLElement)?.innerHTML = htmlContent
+            (element as? HTMLElement)?.innerHTML = htmlContent.value
         })
     }
 
@@ -2149,34 +2152,12 @@ actual open class PlatformRenderer {
         }
     }
 
-    actual open fun renderHtml(htmlContent: String, modifier: Modifier, sanitize: Boolean) {
-        val safeContent = if (sanitize) sanitizeHtml(htmlContent) else htmlContent
-        val element = createElement("div", modifier)
-        element.innerHTML = safeContent
-    }
-
-    actual open fun renderGlobalStyle(css: String) {
-        val head = kotlinx.browser.document.head
+    actual open fun renderGlobalStyle(css: TrustedCss) {
         val style = kotlinx.browser.document.createElement("style")
-        style.textContent = css
-        head?.appendChild(style)
+        style.textContent = css.value
+        kotlinx.browser.document.head?.appendChild(style)
     }
 
-    private fun sanitizeHtml(htmlContent: String): String {
-        // Basic HTML sanitization for client-side
-        var sanitized = htmlContent
-
-        // Remove script tags
-        sanitized = sanitized.replace(Regex("<script[^>]*>.*?</script>", RegexOption.IGNORE_CASE), "")
-
-        // Remove dangerous event handlers
-        sanitized = sanitized.replace(Regex("\\s(on\\w+)=[\"'][^\"']*[\"']", RegexOption.IGNORE_CASE), "")
-
-        // Remove javascript: URLs
-        sanitized = sanitized.replace(Regex("\\shref=[\"']javascript:[^\"']*[\"']", RegexOption.IGNORE_CASE), "")
-
-        return sanitized
-    }
 
     actual open fun renderModal(
         onDismiss: () -> Unit,
@@ -2617,27 +2598,7 @@ actual open class PlatformRenderer {
 
     actual open fun renderRichMarkdown(markdown: String, modifier: Modifier) {
         createElement("div", modifier, setup = { element ->
-            try {
-                val MarkdownIt = js("require('markdown-it')")
-                val hljs = js("require('highlight.js')")
-
-                val md = MarkdownIt(js("""{
-                    highlight: function (str, lang) {
-                        if (lang && hljs.getLanguage(lang)) {
-                            try {
-                                return hljs.highlight(str, { language: lang }).value;
-                            } catch (__) {}
-                        }
-                        return ''; // use external default escaping
-                    }
-                }"""))
-
-                val html = md.render(markdown)
-                element.innerHTML = html as String
-            } catch (e: Throwable) {
-                diagnostics.failure()
-                element.textContent = markdown
-            }
+            element.textContent = markdown
         })
     }
 

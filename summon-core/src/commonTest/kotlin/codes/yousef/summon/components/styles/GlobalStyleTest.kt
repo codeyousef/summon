@@ -1,5 +1,6 @@
 package codes.yousef.summon.components.styles
 
+import codes.yousef.summon.components.foundation.TrustedCss
 import codes.yousef.summon.runtime.MockPlatformRenderer
 import codes.yousef.summon.util.runComposableTest
 import kotlin.test.Test
@@ -13,7 +14,7 @@ class GlobalStyleTest {
     fun testGlobalStyleWithBasicCSS() {
         val mockRenderer = MockPlatformRenderer()
         runComposableTest(mockRenderer) {
-            GlobalStyle("body { margin: 0; padding: 0; }")
+            GlobalStyle(TrustedCss.fromAuthorCode("body { margin: 0; padding: 0; }"))
         }
 
         assertTrue(mockRenderer.renderGlobalStyleCalled)
@@ -25,13 +26,15 @@ class GlobalStyleTest {
         val mockRenderer = MockPlatformRenderer()
         runComposableTest(mockRenderer) {
             GlobalStyle(
-                """
-                @keyframes fadeIn {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                }
-                .fade { animation: fadeIn 0.3s ease-in-out; }
-            """.trimIndent()
+                TrustedCss.fromAuthorCode(
+                    """
+                    @keyframes fadeIn {
+                        from { opacity: 0; }
+                        to { opacity: 1; }
+                    }
+                    .fade { animation: fadeIn 0.3s ease-in-out; }
+                    """.trimIndent()
+                )
             )
         }
 
@@ -105,8 +108,8 @@ class GlobalStyleTest {
     fun testMultipleGlobalStyles() {
         val mockRenderer = MockPlatformRenderer()
         runComposableTest(mockRenderer) {
-            GlobalStyle("body { margin: 0; }")
-            GlobalStyle(".container { max-width: 1200px; }")
+            GlobalStyle(TrustedCss.fromAuthorCode("body { margin: 0; }"))
+            GlobalStyle(TrustedCss.fromAuthorCode(".container { max-width: 1200px; }"))
             GlobalKeyframes("spin", "from { transform: rotate(0deg); } to { transform: rotate(360deg); }")
         }
 

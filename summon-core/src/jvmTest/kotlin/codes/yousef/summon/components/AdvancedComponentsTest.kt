@@ -8,30 +8,25 @@ import codes.yousef.summon.runtime.PlatformRenderer
 import org.jsoup.Jsoup
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class AdvancedComponentsTest {
 
     @Test
-    fun testRichMarkdownSSR() {
+    fun richMarkdownSsrTreatsSourceAsPlaintext() {
         val renderer = PlatformRenderer()
-        val markdown = "# Hello\n**World**"
-        
+        val markdown = "# Hello\n<script>globalThis.xss=1</script>\n**World**"
+
         val html = renderer.renderComposableRoot {
             RichMarkdown(markdown)
         }
-        
-        val doc = Jsoup.parse(html)
-        // The root div created by renderComposableRoot
-        val root = doc.select("div[data-summon-hydration='root']").first() ?: doc.body()
-        
-        // Find the div that contains the markdown content
-        // Since renderRichMarkdown creates a div, we look for that.
-        // It might be nested.
-        
-        // Flexmark renders # Hello as <h1>Hello</h1>
-        assertTrue(html.contains("<h1>Hello</h1>"), "Should contain h1 tag")
-        assertTrue(html.contains("<strong>World</strong>"), "Should contain strong tag")
+
+        assertTrue(html.contains("# Hello"))
+        assertTrue(html.contains("&lt;script&gt;globalThis.xss=1&lt;/script&gt;"))
+        assertTrue(html.contains("**World**"))
+        assertFalse(html.contains("<h1>"))
+        assertFalse(html.contains("<script>"))
     }
 
     @Test

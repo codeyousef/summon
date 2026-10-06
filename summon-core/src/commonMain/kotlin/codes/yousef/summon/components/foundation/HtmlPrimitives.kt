@@ -87,32 +87,28 @@ class RawHtmlScope internal constructor() {
         builder.append(value)
     }
 
-    internal fun build(): String = builder.toString()
+    internal fun build(): TrustedHtml = TrustedHtml.fromAuthorCode(builder.toString())
 }
 
 /**
- * Emits trusted HTML without sanitization using a lightweight builder DSL.
+ * Emits trusted author-code HTML using a lightweight builder DSL.
+ *
+ * Values derived from users, messages, storage, or network responses must not enter this scope.
  */
 @Composable
 fun RawHtml(
     modifier: Modifier = Modifier(),
-    sanitize: Boolean = false,
     content: RawHtmlScope.() -> Unit
 ) {
-    val scope = RawHtmlScope().apply(content)
-    val renderer = LocalPlatformRenderer.current
-    renderer.renderHtml(scope.build(), modifier, sanitize)
+    val html = RawHtmlScope().apply(content).build()
+    LocalPlatformRenderer.current.renderHtml(html, modifier)
 }
 
-/**
- * Emits trusted HTML from a pre-built string.
- */
+/** Emits HTML that application code has explicitly marked as trusted. */
 @Composable
 fun RawHtml(
-    html: String,
-    modifier: Modifier = Modifier(),
-    sanitize: Boolean = false
+    html: TrustedHtml,
+    modifier: Modifier = Modifier()
 ) {
-    val renderer = LocalPlatformRenderer.current
-    renderer.renderHtml(html, modifier, sanitize)
+    LocalPlatformRenderer.current.renderHtml(html, modifier)
 }

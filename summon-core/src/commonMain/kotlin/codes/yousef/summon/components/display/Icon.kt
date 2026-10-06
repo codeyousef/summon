@@ -1,6 +1,7 @@
 package codes.yousef.summon.components.display
 
 import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.foundation.TrustedSvg
 import codes.yousef.summon.modifier.*
 import codes.yousef.summon.modifier.ariaLabel
 import codes.yousef.summon.modifier.fontFamily
@@ -27,7 +28,7 @@ enum class IconType {
  * @param type The type of icon (SVG, FONT, or IMAGE). Determines rendering strategy.
  * @param fontFamily The font family for font icons. Should ideally be controlled via modifier.
  * @param ariaLabel Accessible label for screen readers. Should ideally be controlled via modifier.
- * @param svgContent The raw SVG content for SVG icons.
+ * @param svgContent Inline SVG explicitly trusted as application author code.
  * @param onClick Optional callback to be invoked when the icon is clicked (Requires JS handling).
  */
 @Composable
@@ -39,7 +40,7 @@ fun Icon(
     // --- Parameters influencing rendering strategy ---
     type: IconType = IconType.SVG, // Might not be needed if rendering is unified
     fontFamily: String? = null, // Prefer setting via modifier.fontFamily
-    svgContent: String? = null, // For inline SVG rendering
+    svgContent: TrustedSvg? = null,
     // --- Accessibility & Interaction ---
     ariaLabel: String? = null, // Prefer setting via modifier.accessibility
     onClick: (() -> Unit)? = null // JS only for now
@@ -162,27 +163,24 @@ fun FontAwesomeIcon(
     )
 }
 
-/**
- * Creates an SVG icon from raw SVG content.
- * Note: `renderIcon` needs to support handling raw SVG content.
- */
+/** Creates an SVG icon from markup explicitly trusted as application author code. */
 @Composable
 fun SvgIcon(
-    svgContent: String,
+    svgContent: TrustedSvg,
     modifier: Modifier = Modifier(),
     size: String = IconDefaults.Size.MEDIUM,
-    color: String? = null, // Renderer needs to apply this to the SVG
+    color: String? = null,
     ariaLabel: String? = null,
     onClick: (() -> Unit)? = null
 ) {
     Icon(
-        name = ariaLabel ?: "svg-icon", // Use label for name fallback
+        name = ariaLabel ?: "svg-icon",
         modifier = modifier,
         size = size,
         color = color,
         type = IconType.SVG,
-        svgContent = svgContent, // Pass SVG content
+        svgContent = svgContent,
         ariaLabel = ariaLabel,
         onClick = onClick
     )
-} 
+}

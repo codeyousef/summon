@@ -53,7 +53,7 @@ fun PostEditor(body: String, onBodyChange: (String) -> Unit) {
 ## Preview Behavior
 
 - The preview is rendered only when `showPreview` is `true` *and* the editor content is non-blank.
-- Preview output is sanitized through the existing `Markdown` component, so untrusted input remains safe.
+- The preview renders Markdown source as plaintext; applications may parse reviewed input into `SafeDocument` for formatting.
 - Pass `previewHeading = null` if you want a preview without any heading text.
 
 ## Integration Notes

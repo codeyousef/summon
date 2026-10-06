@@ -14,6 +14,11 @@ fun main() {
         mountComposableRoot("root") { fixture.Content() }
         return
     }
+    if (window.location.search.contains("safeContent=true")) {
+        val fixture = SafeContentFixture()
+        mountComposableRoot("root") { fixture.Content() }
+        return
+    }
     if (window.location.search.contains("privateRouting=true")) {
         val fixture = PrivateRoutingFixture(window.location.pathname)
         mountComposableRoot("root") { fixture.Content() }

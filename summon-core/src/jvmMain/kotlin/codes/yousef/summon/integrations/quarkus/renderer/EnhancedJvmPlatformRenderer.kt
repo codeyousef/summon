@@ -2,6 +2,7 @@ package codes.yousef.summon.integration.quarkus.renderer
 
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.components.display.IconType
+import codes.yousef.summon.components.foundation.TrustedSvg
 import codes.yousef.summon.components.feedback.AlertVariant
 import codes.yousef.summon.components.input.FileInfo
 import codes.yousef.summon.core.FlowContentCompat
@@ -172,7 +173,7 @@ class EnhancedJvmPlatformRenderer : PlatformRenderer() {
         name: String,
         modifier: Modifier,
         onClick: (() -> Unit)?,
-        svgContent: String?,
+        svgContent: TrustedSvg?,
         type: IconType
     ) {
         super.renderIcon(name, processModifier(modifier), onClick, svgContent, type)

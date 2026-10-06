@@ -5,10 +5,9 @@ import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
- * Renders Markdown content using a rich text editor/viewer.
+ * Renders untrusted Markdown source as plaintext.
  *
- * @param markdown The Markdown content to render
- * @param modifier The modifier to apply to this component
+ * Parse reviewed formatted content into [SafeDocument] when formatting is required.
  */
 @Composable
 fun RichMarkdown(

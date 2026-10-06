@@ -1,6 +1,7 @@
 package codes.yousef.summon.components.styles
 
 import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.foundation.TrustedCss
 import codes.yousef.summon.core.mapOfCompat
 import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.LocalPlatformRenderer
@@ -41,7 +42,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * ```kotlin
  * @Composable
  * fun App() {
- *     GlobalStyle(css = """
+ *     GlobalStyle(css = TrustedCss.fromAuthorCode("""
  *         * {
  *             margin: 0;
  *             padding: 0;
@@ -60,7 +61,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  *             font-weight: 600;
  *             line-height: 1.2;
  *         }
- *     """)
+ *     """))
  *
  *     AppContent()
  * }
@@ -87,7 +88,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  *         )
  *     )
  *
- *     GlobalStyle(css = """
+ *     GlobalStyle(css = TrustedCss.fromAuthorCode("""
  *         .btn-primary {
  *             background-color: var(--color-primary);
  *             color: white;
@@ -101,7 +102,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  *         .btn-primary:hover {
  *             background-color: color-mix(in srgb, var(--color-primary) 85%, black);
  *         }
- *     """)
+ *     """))
  *
  *     AppContent()
  * }
@@ -130,7 +131,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  *         )
  *     )
  *
- *     GlobalStyle(css = """
+ *     GlobalStyle(css = TrustedCss.fromAuthorCode("""
  *         .theme-toggle {
  *             background: var(--color-surface);
  *             color: var(--color-text);
@@ -145,7 +146,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  *                 color-scheme: dark;
  *             }
  *         }
- *     """)
+ *     """))
  *
  *     AppContent()
  * }
@@ -171,7 +172,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  *         """
  *     )
  *
- *     GlobalStyle(css = """
+ *     GlobalStyle(css = TrustedCss.fromAuthorCode("""
  *         .fade-in {
  *             animation: fadeIn 0.5s ease-out;
  *         }
@@ -188,13 +189,13 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  *             from { transform: rotate(0deg); }
  *             to { transform: rotate(360deg); }
  *         }
- *     """)
+ *     """))
  *
  *     AppContent()
  * }
  * ```
  *
- * @param css The CSS content to inject
+ * @param css CSS explicitly trusted as application author code; never pass user or network data
  * @param modifier The modifier to apply to this component
  *
  * @see CssVariables for CSS custom properties
@@ -211,7 +212,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  */
 @Composable
 fun GlobalStyle(
-    css: String,
+    css: TrustedCss,
     modifier: Modifier = Modifier()
 ) {
     val renderer = LocalPlatformRenderer.current
@@ -232,7 +233,7 @@ fun GlobalKeyframes(
     modifier: Modifier = Modifier()
 ) {
     val css = "@keyframes $name { $keyframes }"
-    GlobalStyle(css, modifier)
+    GlobalStyle(TrustedCss.fromAuthorCode(css), modifier)
 }
 
 /**
@@ -247,7 +248,7 @@ fun CssVariables(
     modifier: Modifier = Modifier()
 ) {
     val css = ":root { ${variables.map { (key, value) -> "$key: $value;" }.joinToString(" ")} }"
-    GlobalStyle(css, modifier)
+    GlobalStyle(TrustedCss.fromAuthorCode(css), modifier)
 }
 
 /**
@@ -264,7 +265,7 @@ fun MediaQuery(
     modifier: Modifier = Modifier()
 ) {
     val wrappedCss = "$query { $css }"
-    GlobalStyle(wrappedCss, modifier)
+    GlobalStyle(TrustedCss.fromAuthorCode(wrappedCss), modifier)
 }
 
 /**
@@ -321,7 +322,7 @@ fun ThemeProvider(
             append("}")
         }
 
-        GlobalStyle(darkThemeCss, modifier)
+        GlobalStyle(TrustedCss.fromAuthorCode(darkThemeCss), modifier)
     }
 }
 
@@ -344,7 +345,7 @@ fun GradientUtilities(
         }
     }
 
-    GlobalStyle(css, modifier)
+    GlobalStyle(TrustedCss.fromAuthorCode(css), modifier)
 }
 
 /**

@@ -186,7 +186,7 @@ fun ResponsiveTheme() {
 
     ThemeProvider(theme = theme) {
         GlobalStyle(
-            """
+            TrustedCss.fromAuthorCode("""
             .container {
                 width: 100%;
                 padding: 0 var(--space-4);
@@ -203,7 +203,7 @@ fun ResponsiveTheme() {
             @media (min-width: var(--breakpoint-lg)) {
                 .container { max-width: 1024px; }
             }
-        """
+            """)
         )
 
         YourApp()
@@ -245,7 +245,7 @@ fun TypographyTheme() {
 
     ThemeProvider(theme = theme) {
         GlobalStyle(
-            """
+            TrustedCss.fromAuthorCode("""
             body {
                 font-family: var(--font-family);
                 line-height: var(--line-height-normal);
@@ -263,7 +263,7 @@ fun TypographyTheme() {
             .font-medium { font-weight: var(--font-weight-medium); }
             .font-semibold { font-weight: var(--font-weight-semibold); }
             .font-bold { font-weight: var(--font-weight-bold); }
-        """
+            """)
         )
 
         YourApp()
@@ -312,13 +312,13 @@ fun DarkModeTheme() {
 
     ThemeProvider(theme = currentTheme) {
         GlobalStyle(
-            """
+            TrustedCss.fromAuthorCode("""
             body {
                 background-color: var(--color-background);
                 color: var(--color-text);
                 transition: background-color 0.2s ease, color 0.2s ease;
             }
-        """
+            """)
         )
 
         YourApp()
@@ -433,7 +433,7 @@ fun ThemedApp() {
         // Design tokens are automatically injected as CSS variables
 
         GlobalStyle(
-            """
+            TrustedCss.fromAuthorCode("""
             .btn {
                 background: var(--primary);
                 border-radius: var(--radius);
@@ -451,7 +451,7 @@ fun ThemedApp() {
             .btn-secondary {
                 background: var(--secondary);
             }
-        """
+            """)
         )
 
         // Use themed styles
@@ -555,7 +555,7 @@ fun ResponsiveComponent() {
         )
     ) {
         GlobalStyle(
-            """
+            TrustedCss.fromAuthorCode("""
             .responsive-text {
                 font-size: 1rem;
             }
@@ -565,7 +565,7 @@ fun ResponsiveComponent() {
                     font-size: 1.25rem;
                 }
             }
-        """
+            """)
         )
 
         Text(

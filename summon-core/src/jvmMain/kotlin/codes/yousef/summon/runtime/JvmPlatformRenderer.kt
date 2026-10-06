@@ -3,6 +3,9 @@ package codes.yousef.summon.runtime
 // Missing imports for runtime components
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.components.display.IconType
+import codes.yousef.summon.components.foundation.TrustedCss
+import codes.yousef.summon.components.foundation.TrustedHtml
+import codes.yousef.summon.components.foundation.TrustedSvg
 import codes.yousef.summon.components.feedback.AlertVariant
 import codes.yousef.summon.components.feedback.ProgressType
 import codes.yousef.summon.components.input.FileInfo
@@ -19,8 +22,6 @@ import codes.yousef.summon.modifier.StateStyleDefinition
 import codes.yousef.summon.modifier.overflowX
 import codes.yousef.summon.modifier.overflowY
 import codes.yousef.summon.modifier.style
-import com.vladsch.flexmark.html.HtmlRenderer
-import com.vladsch.flexmark.parser.Parser
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.html.*
@@ -403,9 +404,9 @@ actual open class PlatformRenderer {
         }
     }
 
-    actual open fun renderRawHtml(html: String) {
+    actual open fun renderRawHtml(html: TrustedHtml) {
         requireBuilder().consumer.onTagContentUnsafe {
-            +html
+            +html.value
         }
     }
 
@@ -1144,7 +1145,7 @@ actual open class PlatformRenderer {
         name: String,
         modifier: Modifier,
         onClick: (() -> Unit)?,
-        svgContent: String?,
+        svgContent: TrustedSvg?,
         type: IconType
     ) {
         requireBuilder().span {
@@ -1156,7 +1157,7 @@ actual open class PlatformRenderer {
                 if ("cursor" !in currentStyle) attributes["style"] = "$currentStyle;cursor:pointer;".trimStart(';')
             }
             if (svgContent != null) {
-                unsafe { raw(svgContent) }
+                unsafe { raw(svgContent.value) }
             } else {
                 // Handle Font Icons
                 val classes = modifier.attributes["class"] ?: ""
@@ -1976,10 +1977,10 @@ actual open class PlatformRenderer {
         }
     }
 
-    actual open fun renderHtml(htmlContent: String, modifier: Modifier) {
-        requireBuilder().div { // Wrapper div to apply modifier
+    actual open fun renderHtml(htmlContent: TrustedHtml, modifier: Modifier) {
+        requireBuilder().div {
             applyModifier(modifier)
-            unsafe { raw(htmlContent) }
+            unsafe { raw(htmlContent.value) }
         }
     }
 
@@ -2541,44 +2542,10 @@ actual open class PlatformRenderer {
         }
     }
 
-    actual open fun renderHtml(htmlContent: String, modifier: Modifier, sanitize: Boolean) {
-        val safeContent = if (sanitize) sanitizeHtml(htmlContent) else htmlContent
-        requireBuilder().div {
-            applyModifier(modifier)
-            unsafe {
-                +safeContent
-            }
-        }
+    actual open fun renderGlobalStyle(css: TrustedCss) {
+        addHeadElement("<style>${css.value}</style>")
     }
 
-    actual open fun renderGlobalStyle(css: String) {
-        addHeadElement("<style>$css</style>")
-    }
-
-    private fun sanitizeHtml(htmlContent: String): String {
-        // Basic HTML sanitization - remove dangerous elements and attributes
-        var sanitized = htmlContent
-
-        // Remove script tags
-        sanitized = sanitized.replace(
-            Regex(
-                "<script[^>]*>.*?</script>",
-                setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)
-            ), ""
-        )
-
-        // Remove dangerous attributes
-        sanitized = sanitized.replace(Regex("\\s(on\\w+)=[\"'][^\"']*[\"']", RegexOption.IGNORE_CASE), "")
-        sanitized = sanitized.replace(Regex("\\shref=[\"']javascript:[^\"']*[\"']", RegexOption.IGNORE_CASE), "")
-
-        // Remove dangerous tags but keep content
-        val dangerousTags = listOf("object", "embed", "applet", "iframe", "form", "input", "button")
-        for (tag in dangerousTags) {
-            sanitized = sanitized.replace(Regex("</?$tag[^>]*>", RegexOption.IGNORE_CASE), "")
-        }
-
-        return sanitized
-    }
 
     actual open fun renderLoading(
         modifier: Modifier,
@@ -2855,14 +2822,9 @@ actual open class PlatformRenderer {
     }
 
     actual open fun renderRichMarkdown(markdown: String, modifier: Modifier) {
-        val parser = Parser.builder().build()
-        val renderer = HtmlRenderer.builder().build()
-        val document = parser.parse(markdown)
-        val html = renderer.render(document)
-
         requireBuilder().div {
             applyModifier(modifier)
-            unsafe { raw(html) }
+            +markdown
         }
     }
 

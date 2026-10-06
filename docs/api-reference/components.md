@@ -215,14 +215,18 @@ fun Image(
 
 ### RichText
 
-Display rich formatted text content.
+Render untrusted strings as text or a bounded `SafeDocument` tree. Raw HTML requires
+`TrustedHtml.fromAuthorCode`; see the [safe content contract](components/display/RichText.md).
 
 ```kotlin
 @Composable
+fun RichText(text: String, modifier: Modifier = Modifier())
+
+@Composable
 fun RichText(
-    content: String,
+    document: SafeDocument,
     modifier: Modifier = Modifier(),
-    sanitize: Boolean = true
+    cidResolver: CidResolver? = null
 )
 ```
 
@@ -698,12 +702,13 @@ Components that manage global CSS and animation styling concerns live under `cod
 
 ### GlobalStyle
 
-Apply global CSS styles to the document.
+Apply application-authored global CSS styles to the document. Construct `TrustedCss` only from
+source-controlled CSS; untrusted CSS is unsupported.
 
 ```kotlin
 @Composable
 fun GlobalStyle(
-    css: String
+    css: TrustedCss
 )
 ```
 

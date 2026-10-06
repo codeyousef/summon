@@ -1,6 +1,7 @@
 package codes.yousef.summon.components.display
 
 import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.foundation.TrustedSvg
 import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.Composer
 import codes.yousef.summon.runtime.CompositionLocal
@@ -290,8 +291,9 @@ class IconTest {
             val provider = LocalPlatformRenderer.provides(mockRenderer)
 
             // Sample SVG content
-            val svgContent =
+            val svgContent = TrustedSvg.fromAuthorCode(
                 "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2L2 22h20L12 2z'/></svg>"
+            )
 
             // Call the SvgIcon component
             SvgIcon(
@@ -309,7 +311,7 @@ class IconTest {
             assertEquals(IconType.SVG, mockRenderer.lastIconTypeRendered, "Icon type should be SVG")
 
             // Verify the SVG content
-            assertEquals(svgContent, mockRenderer.lastIconSvgContentRendered, "SVG content should match")
+            assertEquals(svgContent.value, mockRenderer.lastIconSvgContentRendered, "SVG content should match")
 
             // Verify the modifier
             assertNotNull(mockRenderer.lastIconModifierRendered, "Modifier should not be null")

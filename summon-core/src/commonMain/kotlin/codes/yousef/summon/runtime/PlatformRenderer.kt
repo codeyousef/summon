@@ -41,6 +41,9 @@ import codes.yousef.summon.components.feedback.AlertVariant
 import codes.yousef.summon.components.feedback.ProgressType
 import codes.yousef.summon.components.input.FileInfo
 import codes.yousef.summon.components.navigation.Tab
+import codes.yousef.summon.components.foundation.TrustedCss
+import codes.yousef.summon.components.foundation.TrustedHtml
+import codes.yousef.summon.components.foundation.TrustedSvg
 import codes.yousef.summon.core.FlowContentCompat
 import codes.yousef.summon.modifier.Modifier
 import kotlinx.datetime.LocalDate
@@ -196,11 +199,11 @@ expect open class PlatformRenderer() {
     open fun renderLabel(text: String, modifier: Modifier, forElement: String? = null)
 
     /**
-     * Renders raw HTML content directly.
+     * Renders HTML explicitly trusted by application source code.
      *
-     * @param html The raw HTML string to render
+     * Untrusted content must use the SafeDocument API.
      */
-    open fun renderRawHtml(html: String)
+    open fun renderRawHtml(html: TrustedHtml)
 
     // --- Interactive Component Renderers ---
 
@@ -364,7 +367,7 @@ expect open class PlatformRenderer() {
         name: String,
         modifier: Modifier,
         onClick: (() -> Unit)?,
-        svgContent: String?,
+        svgContent: TrustedSvg?,
         type: IconType
     )
 
@@ -639,13 +642,11 @@ expect open class PlatformRenderer() {
     )
 
     open fun renderScreen(modifier: Modifier, content: @Composable (FlowContentCompat.() -> Unit))
-    open fun renderHtml(htmlContent: String, modifier: Modifier)
+    /** Renders HTML explicitly trusted by application source code. */
+    open fun renderHtml(htmlContent: TrustedHtml, modifier: Modifier)
 
-    /** Renders HTML content with optional sanitization */
-    open fun renderHtml(htmlContent: String, modifier: Modifier, sanitize: Boolean)
-
-    /** Injects global CSS styles into the document head */
-    open fun renderGlobalStyle(css: String)
+    /** Injects CSS explicitly trusted by application source code into the document head. */
+    open fun renderGlobalStyle(css: TrustedCss)
 
     open fun renderSurface(modifier: Modifier, elevation: Int, content: @Composable (() -> Unit))
     open fun renderSwipeToDismiss(
@@ -750,10 +751,9 @@ expect open class PlatformRenderer() {
     open fun endRecomposition()
 
     /**
-     * Renders Markdown content using a rich text editor/viewer.
+     * Renders untrusted Markdown source as plaintext.
      *
-     * - **Browser**: Uses markdown-it for rendering
-     * - **Server**: Uses Flexmark-java for rendering
+     * Formatted untrusted content must use SafeDocument.
      */
     open fun renderRichMarkdown(markdown: String, modifier: Modifier)
 

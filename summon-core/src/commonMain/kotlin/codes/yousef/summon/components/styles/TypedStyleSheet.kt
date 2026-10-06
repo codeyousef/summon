@@ -1,6 +1,7 @@
 package codes.yousef.summon.components.styles
 
 import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.components.foundation.TrustedCss
 import codes.yousef.summon.modifier.AnimationDirection
 import codes.yousef.summon.modifier.AnimationDuration
 import codes.yousef.summon.modifier.AnimationFillMode
@@ -400,7 +401,7 @@ enum class StyleRulePriority {
 @Composable
 fun TypedStyleSheet(block: TypedStyleSheetScope.() -> Unit) {
     val css = TypedStyleSheetScope().apply(block).render()
-    if (css.isNotEmpty()) GlobalStyle(css)
+    if (css.isNotEmpty()) GlobalStyle(TrustedCss.fromAuthorCode(css))
 }
 
 fun Modifier.animation(

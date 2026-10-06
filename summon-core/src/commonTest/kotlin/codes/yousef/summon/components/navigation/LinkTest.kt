@@ -170,7 +170,7 @@ class LinkTest {
             name: String,
             modifier: Modifier,
             onClick: (() -> Unit)?,
-            svgContent: String?,
+            svgContent: codes.yousef.summon.components.foundation.TrustedSvg?,
             type: IconType
         ) {
         }

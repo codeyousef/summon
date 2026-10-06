@@ -587,9 +587,9 @@ fun sanitizeErrorMessage(error: String): String {
 - [ ] Add refresh token rotation
 - [ ] Use secure, httpOnly cookies for sensitive tokens
 
-### ✅ Input Validation & Sanitization
+### ✅ Input Validation & Safe Rendering
 - [ ] Validate all user inputs
-- [ ] Sanitize data before displaying
+- [ ] Render untrusted content as text or a reviewed `SafeDocument`; never rely on regex sanitization
 - [ ] Use parameterized queries for database access
 - [ ] Implement rate limiting for login attempts
 - [ ] Add CAPTCHA for repeated failed attempts
