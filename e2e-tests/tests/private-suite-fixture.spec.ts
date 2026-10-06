@@ -1,5 +1,15 @@
 import { test, expect } from '@playwright/test';
 
+type ResizeProbe = {
+  adds: number;
+  removes: number;
+  active: EventListenerOrEventListenerObject[];
+  retired: EventListenerOrEventListenerObject[];
+  writes: WeakMap<Element, number>;
+};
+
+type ResizeProbeWindow = Window & { __summonResizeProbe: ResizeProbe };
+
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
   await expect(page.getByTestId('fixture-title')).toHaveText('Summon source consumer');
@@ -185,6 +195,145 @@ test('JS microtask mounts cancel queued and late work on disposal', async ({ pag
   await first.getByRole('button', { name: 'Increment', exact: true }).click();
   await expect(first.getByTestId('counter')).toHaveText('Count: 1');
 });
+test('responsive listeners are owned across recomposition, failure, replacement and disposal', async ({ page }) => {
+  await page.addInitScript(() => {
+    const browserWindow = window as ResizeProbeWindow;
+    const nativeAdd = window.addEventListener.bind(window);
+    const nativeRemove = window.removeEventListener.bind(window);
+    const nativeSetAttribute = Element.prototype.setAttribute;
+    const probe = {
+      adds: 0,
+      removes: 0,
+      active: [] as EventListenerOrEventListenerObject[],
+      retired: [] as EventListenerOrEventListenerObject[],
+      writes: new WeakMap<Element, number>(),
+    };
+    browserWindow.__summonResizeProbe = probe;
+    Object.defineProperty(browserWindow, 'addEventListener', {
+      configurable: true,
+      value(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions) {
+        if (type === 'resize') {
+          probe.adds++;
+          if (!probe.active.includes(listener)) probe.active.push(listener);
+        }
+        return nativeAdd(type, listener, options);
+      },
+    });
+    Object.defineProperty(browserWindow, 'removeEventListener', {
+      configurable: true,
+      value(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions) {
+        if (type === 'resize') {
+          probe.removes++;
+          const index = probe.active.indexOf(listener);
+          if (index >= 0) probe.active.splice(index, 1);
+          probe.retired.push(listener);
+        }
+        return nativeRemove(type, listener, options);
+      },
+    });
+    Element.prototype.setAttribute = function(name: string, value: string) {
+      if (name === 'data-screen-size') {
+        probe.writes.set(this, (probe.writes.get(this) ?? 0) + 1);
+      }
+      return nativeSetAttribute.call(this, name, value);
+    };
+  });
+  await page.goto('/?responsive=true');
+
+  const first = page.locator('#root');
+  const second = page.locator('#second-root');
+  const controls = page.locator('#controls');
+  const layout = first.getByTestId('responsive-layout');
+  await expect(layout).toHaveCount(1);
+  await expect(second.getByTestId('controlled-input')).toHaveValue('Synthetic account B');
+  expect(await page.evaluate(() => {
+    const probe = (window as ResizeProbeWindow).__summonResizeProbe;
+    return { adds: probe.adds, removes: probe.removes, active: probe.active.length };
+  })).toEqual({ adds: 1, removes: 0, active: 1 });
+
+  for (let revision = 1; revision <= 20; revision++) {
+    await controls.getByRole('button', { name: 'Recompose responsive root', exact: true }).click();
+    await expect(first.getByTestId('responsive-revision')).toHaveText(`Responsive revision: ${revision}`);
+  }
+  expect(await page.evaluate(() => {
+    const probe = (window as ResizeProbeWindow).__summonResizeProbe;
+    return { adds: probe.adds, removes: probe.removes, active: probe.active.length };
+  })).toEqual({ adds: 1, removes: 0, active: 1 });
+
+  await page.setViewportSize({ width: 500, height: 720 });
+  await layout.evaluate(node => {
+    const probe = (window as ResizeProbeWindow).__summonResizeProbe;
+    probe.writes.set(node, 0);
+    node.setAttribute('data-screen-size', 'STALE');
+    probe.writes.set(node, 0);
+  });
+  await page.evaluate(() => window.dispatchEvent(new Event('resize')));
+  await expect(layout).toHaveAttribute('data-screen-size', 'SMALL');
+  expect(await layout.evaluate(node => (window as ResizeProbeWindow).__summonResizeProbe.writes.get(node))).toBe(1);
+
+  const retiredAfterRemoval = await layout.elementHandle();
+  await controls.getByRole('button', { name: 'Toggle responsive layout', exact: true }).click();
+  await expect(layout).toHaveCount(0);
+  expect(await page.evaluate(() => {
+    const probe = (window as ResizeProbeWindow).__summonResizeProbe;
+    return { adds: probe.adds, removes: probe.removes, active: probe.active.length };
+  })).toEqual({ adds: 1, removes: 1, active: 0 });
+  await retiredAfterRemoval!.evaluate(node => node.setAttribute('data-screen-size', 'RETIRED'));
+  await page.evaluate(() => {
+    const listener = (window as ResizeProbeWindow).__summonResizeProbe.retired[0];
+    if (typeof listener === 'function') listener.call(window, new Event('resize'));
+    else listener.handleEvent(new Event('resize'));
+  });
+  expect(await retiredAfterRemoval!.getAttribute('data-screen-size')).toBe('RETIRED');
+
+  await controls.getByRole('button', { name: 'Toggle responsive layout', exact: true }).click();
+  await expect(layout).toHaveAttribute('data-screen-size', 'SMALL');
+  const replacedLayout = await layout.elementHandle();
+  const neighbor = await second.getByTestId('counter').elementHandle();
+  await controls.getByRole('button', { name: 'Replace responsive root', exact: true }).click();
+  await expect(layout).toHaveCount(1);
+  expect(await page.evaluate(() => {
+    const probe = (window as ResizeProbeWindow).__summonResizeProbe;
+    return { adds: probe.adds, removes: probe.removes, active: probe.active.length };
+  })).toEqual({ adds: 3, removes: 2, active: 1 });
+  await replacedLayout!.evaluate(node => node.setAttribute('data-screen-size', 'REPLACED'));
+  await page.evaluate(() => {
+    const probe = (window as ResizeProbeWindow).__summonResizeProbe;
+    const listener = probe.retired[probe.retired.length - 1];
+    if (typeof listener === 'function') listener.call(window, new Event('resize'));
+    else listener.handleEvent(new Event('resize'));
+  });
+  expect(await replacedLayout!.getAttribute('data-screen-size')).toBe('REPLACED');
+  expect(await neighbor!.evaluate(node => node === document.querySelector('#second-root [data-testid="counter"]'))).toBe(true);
+
+  await controls.getByRole('button', { name: 'Fail responsive mount', exact: true }).click();
+  await expect(first.locator('*')).toHaveCount(0);
+  await expect(controls.getByTestId('responsive-stats')).toHaveText('Cycles: 0; Failed mounts: 1; Cancellations: 0');
+  expect(await page.evaluate(() => (window as ResizeProbeWindow).__summonResizeProbe.active.length)).toBe(0);
+  await second.getByRole('button', { name: 'Increment', exact: true }).click();
+  await expect(second.getByTestId('counter')).toHaveText('Count: 1');
+
+  await controls.getByRole('button', { name: 'Cancel responsive mount', exact: true }).click();
+  await expect(controls.getByTestId('responsive-stats')).toHaveText('Cycles: 0; Failed mounts: 1; Cancellations: 1');
+  expect(await page.evaluate(() => (window as ResizeProbeWindow).__summonResizeProbe.active.length)).toBe(0);
+  await controls.getByRole('button', { name: 'Replace responsive root', exact: true }).click();
+  await expect(layout).toHaveCount(1);
+  expect(await page.evaluate(() => (window as ResizeProbeWindow).__summonResizeProbe.active.length)).toBe(1);
+
+  await controls.getByRole('button', { name: 'Run 100 responsive cycles', exact: true }).click();
+  await expect(controls.getByTestId('responsive-stats')).toHaveText('Cycles: 100; Failed mounts: 1; Cancellations: 1');
+  await expect(first.locator('*')).toHaveCount(0);
+  expect(await page.evaluate(() => {
+    const probe = (window as ResizeProbeWindow).__summonResizeProbe;
+    return { adds: probe.adds, removes: probe.removes, active: probe.active.length };
+  })).toEqual(expect.objectContaining({ active: 0 }));
+  expect(await page.evaluate(() => {
+    const probe = (window as ResizeProbeWindow).__summonResizeProbe;
+    return probe.adds === probe.removes;
+  })).toBe(true);
+  await expect(second.getByTestId('counter')).toHaveText('Count: 1');
+});
+
 
 
 test('remember retains nullable values and named keys and forgets removed slots', async ({ page }) => {

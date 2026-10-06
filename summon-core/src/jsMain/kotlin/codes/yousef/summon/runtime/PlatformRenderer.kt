@@ -13,6 +13,7 @@ import codes.yousef.summon.js.console
 import codes.yousef.summon.modifier.*
 import codes.yousef.summon.modifier.ModifierExtras.withAttribute
 import kotlinx.browser.document
+import kotlinx.browser.window
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.html.*
@@ -45,6 +46,12 @@ actual open class PlatformRenderer {
     private val keyToParentMap = mutableMapOf<String, Element>()
     private val listenerRegistry = mutableMapOf<Element, MutableMap<String, EventListener>>()
     private var handlerCounter = 0
+    private class ResponsiveSubscription(
+        val listener: EventListener,
+        var active: Boolean = true
+    )
+
+    private val responsiveSubscriptions = mutableMapOf<Element, ResponsiveSubscription>()
 
     private class ElementStack {
         private val stack = mutableListOf<Element>()
@@ -301,6 +308,10 @@ actual open class PlatformRenderer {
         listeners?.forEach { (eventType, listener) ->
             element.removeEventListener(eventType, listener)
             element.removeAttribute("data-summon-handler-$eventType")
+        }
+        responsiveSubscriptions.remove(element)?.let { subscription ->
+            subscription.active = false
+            window.removeEventListener("resize", subscription.listener)
         }
         // Also clean up any injected styles for this element
         StyleInjector.cleanupElementStyles(element)
@@ -1588,7 +1599,7 @@ actual open class PlatformRenderer {
         content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         createElement("div", modifier, setup = { element ->
-            // Inject styles if not present
+            // SU-05 owns the eventual strict-CSP stylesheet replacement.
             if (document.getElementById("summon-responsive-styles") == null) {
                 val style = document.createElement("style")
                 style.id = "summon-responsive-styles"
@@ -1601,24 +1612,27 @@ actual open class PlatformRenderer {
                 document.head?.appendChild(style)
             }
 
-            // Add logic to detect screen size and update attributes
             fun updateLayout() {
-                val width = kotlinx.browser.window.innerWidth
                 val size = when {
-                    width < 600 -> "SMALL"
-                    width < 960 -> "MEDIUM"
-                    width < 1280 -> "LARGE"
+                    window.innerWidth < 600 -> "SMALL"
+                    window.innerWidth < 960 -> "MEDIUM"
+                    window.innerWidth < 1280 -> "LARGE"
                     else -> "XLARGE"
                 }
                 element.setAttribute("data-screen-size", size)
-
-                // Update classes for styling hooks
                 element.classList.remove("small-screen", "medium-screen", "large-screen", "xlarge-screen")
                 element.classList.add("${size.lowercase()}-screen")
             }
 
-            kotlinx.browser.window.addEventListener("resize", { updateLayout() })
-            // Initial update
+            if (responsiveSubscriptions[element] == null) {
+                lateinit var subscription: ResponsiveSubscription
+                val listener = EventListener {
+                    if (subscription.active) updateLayout()
+                }
+                subscription = ResponsiveSubscription(listener)
+                window.addEventListener("resize", listener)
+                responsiveSubscriptions[element] = subscription
+            }
             updateLayout()
         }) {
             content(createFlowContent("div"))

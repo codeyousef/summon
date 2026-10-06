@@ -9,9 +9,11 @@ import codes.yousef.summon.core.FlowContentCompat
 import codes.yousef.summon.core.createWasmFlowContentCompat
 import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.modifier.toStyleStringKebabCase
+import kotlinx.browser.window
 import kotlinx.coroutines.CancellationException
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
+import org.w3c.dom.events.Event
 
 // Since PlatformRenderer has many methods, providing stub implementations for WASM
 actual open class PlatformRenderer actual constructor() {
@@ -31,6 +33,12 @@ actual open class PlatformRenderer actual constructor() {
     // Event handler tracking
     private val eventHandlerIds = mutableMapOf<String, String>() // "${elementId}-${eventType}" -> handlerId
     private var eventHandlerCounter = 0
+    private class ResponsiveSubscription(
+        val listener: (Event) -> Unit,
+        var active: Boolean = true
+    )
+
+    private val responsiveSubscriptions = mutableMapOf<String, ResponsiveSubscription>()
 
     // HTML building for server-side rendering
     private val htmlBuilder = StringBuilder()
@@ -1155,13 +1163,11 @@ actual open class PlatformRenderer actual constructor() {
                 DOMProvider.document.head?.appendChild(style)
             }
 
-            // Logic to update layout
             fun updateLayout() {
-                val width = DOMProvider.window.innerWidth
                 val size = when {
-                    width < 600 -> "SMALL"
-                    width < 960 -> "MEDIUM"
-                    width < 1280 -> "LARGE"
+                    window.innerWidth < 600 -> "SMALL"
+                    window.innerWidth < 960 -> "MEDIUM"
+                    window.innerWidth < 1280 -> "LARGE"
                     else -> "XLARGE"
                 }
                 element.setAttribute("data-screen-size", size)
@@ -1171,12 +1177,17 @@ actual open class PlatformRenderer actual constructor() {
                 wasmAddClassToElement(elementId, "${size.lowercase()}-screen")
             }
 
-            // Initial update
+            val elementId = DOMProvider.getNativeElementId(element)
+            if (responsiveSubscriptions[elementId] == null) {
+                lateinit var subscription: ResponsiveSubscription
+                val listener: (Event) -> Unit = {
+                    if (subscription.active) updateLayout()
+                }
+                subscription = ResponsiveSubscription(listener)
+                window.addEventListener("resize", listener)
+                responsiveSubscriptions[elementId] = subscription
+            }
             updateLayout()
-
-            // Add resize listener
-            // Note: This listener is not currently cleaned up on element removal
-            DOMProvider.window.addEventListener("resize") { updateLayout() }
 
             // Apply modifier
             applyModifierToElement(element, modifier)
@@ -1788,7 +1799,15 @@ actual open class PlatformRenderer actual constructor() {
         }
     }
 
+    private fun cleanupResponsiveSubscription(elementId: String) {
+        responsiveSubscriptions.remove(elementId)?.let { subscription ->
+            subscription.active = false
+            window.removeEventListener("resize", subscription.listener)
+        }
+    }
+
     private fun cleanupEventHandlersForElement(elementId: String) {
+        cleanupResponsiveSubscription(elementId)
         val keys = eventHandlerIds.keys.filter { it.startsWith("$elementId-") }
         for (key in keys) {
             val handlerId = eventHandlerIds.remove(key) ?: continue
@@ -1891,6 +1910,7 @@ actual open class PlatformRenderer actual constructor() {
     }
 
     internal fun releaseMountedElements() {
+        responsiveSubscriptions.keys.toList().forEach(::cleanupResponsiveSubscription)
         (recompositionElements.keys + existingElements.keys).toList().forEach { removeElementFromDom(it) }
         recompositionElements.clear()
         existingElements.clear()

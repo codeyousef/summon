@@ -4,6 +4,18 @@ import codes.yousef.summon.runtime.MicrotaskScheduler
 import codes.yousef.summon.mountComposableRoot
 import kotlinx.browser.window
 fun main() {
+    if (window.location.search.contains("responsive=true")) {
+        val fixture = ResponsiveLifecycleFixture { session, fail ->
+            mountComposableRoot("root") {
+                ResponsiveContent(session, fail)
+            }
+        }
+        fixture.replace()
+        val second = FixtureSession("Synthetic account B")
+        mountComposableRoot("second-root") { FixtureApp(second) }
+        mountComposableRoot("controls") { fixture.Controls() }
+        return
+    }
     if (window.location.search.contains("failures=true")) {
         val fixture = RenderFailureFixture { content -> mountComposableRoot("root", composable = content) }
         val second = FixtureSession("Synthetic account B")
