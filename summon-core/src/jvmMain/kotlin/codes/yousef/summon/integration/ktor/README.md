@@ -118,9 +118,10 @@ routing {
 }
 ```
 
-> **Thread-safety tip:** The route helpers (`respondSummonHydrated`, `summonRouter`, streaming APIs) create and dispose
-> a `PlatformRenderer` per request. If you instantiate `KtorRenderer` manually, call `setPlatformRenderer(renderer)`
-> before rendering and `clearPlatformRenderer()` in a `finally` block to prevent cross-request leaks.
+> **Thread-safety:** Route, hydration, router, and streaming helpers install a request-owned
+> `RenderingContextElement`, which propagates the renderer and callback namespace across coroutine
+> dispatcher hops and restores prior thread state. For synchronous manual rendering, pair
+> `setPlatformRenderer(renderer)` with `clearPlatformRenderer()` in a `finally` block.
 
 #### Method 4: Hybrid Approach with Traditional Ktor HTML DSL
 

@@ -24,13 +24,13 @@ data class CallbackRenderContext(
 object CallbackRegistry {
     private val diagnostics = RendererDiagnostics { SummonLogger.error(it) }
     private const val DEFAULT_TTL_MS: Long = 5 * 60 * 1000 // 5 minutes
+    private const val MAX_REGISTERED_CALLBACKS = 4_096
+    private const val MAX_CALLBACKS_PER_RENDER = 1_024
     private val lock = CallbackRegistryLock()
     private val registeredCallbacks = mutableMapOf<String, CallbackEntry>()
     private val renderContexts = mutableMapOf<Long, RenderRegistration>()
-
-    // Store per-context counters instead of global counter to avoid mismatch
-    private val contextCounters = mutableMapOf<Long, Long>()
     private var callbackCounter = 0L
+
 
     /**
      * Registers a callback and returns a unique ID that can be used in HTML attributes.
@@ -41,9 +41,15 @@ object CallbackRegistry {
     fun registerCallback(callback: () -> Unit): String {
         return withLock {
             purgeExpiredLocked()
-            val id = nextCallbackIdLocked()
+            check(registeredCallbacks.size < MAX_REGISTERED_CALLBACKS) {
+                "Callback registry capacity exceeded"
+            }
             val contextKey = callbackContextKey()
             val renderContext = renderContexts[contextKey]
+            check(renderContext == null || renderContext.callbackIds.size < MAX_CALLBACKS_PER_RENDER) {
+                "Render callback capacity exceeded"
+            }
+            val id = nextCallbackIdLocked()
             registeredCallbacks[id] = CallbackEntry(callback, currentTimeMillis(), renderContext?.capability)
             val wasAdded = renderContext?.callbackIds?.add(id)
             if (isCallbackDebugEnabled()) {
@@ -108,7 +114,6 @@ object CallbackRegistry {
     fun finishRenderAndCollectCallbacks(): CallbackRenderContext = withLock {
         val contextKey = callbackContextKey()
         val context = renderContexts.remove(contextKey)
-        contextCounters.remove(contextKey)
         val result = CallbackRenderContext(
             callbackIds = context?.callbackIds?.toSet() ?: emptySet(),
             capability = context?.capability.orEmpty()
@@ -126,8 +131,6 @@ object CallbackRegistry {
         withLock {
             registeredCallbacks.clear()
             renderContexts.clear()
-            callbackCounter = 0
-            contextCounters.clear()
         }
     }
 
@@ -156,7 +159,6 @@ object CallbackRegistry {
             capability = generateCallbackCapability(),
             callbackIds = mutableSetOf()
         )
-        contextCounters[contextKey] = 0L
         if (isCallbackDebugEnabled()) {
             SummonLogger.log("[CallbackRegistry] beginRender for context $contextKey (total contexts: ${renderContexts.size})")
         }
@@ -168,8 +170,8 @@ object CallbackRegistry {
      */
     fun abandonRenderContext() = withLock {
         val contextKey = callbackContextKey()
-        renderContexts.remove(contextKey)
-        contextCounters.remove(contextKey)
+        val context = renderContexts.remove(contextKey)
+        context?.callbackIds?.forEach(registeredCallbacks::remove)
     }
 
     private fun <T> withLock(block: () -> T): T = withCallbackRegistryLock(lock, block)
@@ -187,15 +189,12 @@ object CallbackRegistry {
     }
 
     private fun nextCallbackIdLocked(): String {
-        val contextKey = callbackContextKey()
-        val counter = if (contextCounters.containsKey(contextKey)) {
-            val current = contextCounters[contextKey]!!
-            contextCounters[contextKey] = current + 1
-            current + 1
-        } else {
-            ++callbackCounter
-        }
-        return "cb-${counter.toString(16)}"
+        var id: String
+        do {
+            callbackCounter = if (callbackCounter == Long.MAX_VALUE) 1 else callbackCounter + 1
+            id = "cb-${callbackCounter.toString(16)}"
+        } while (registeredCallbacks.containsKey(id))
+        return id
     }
 
     private fun constantTimeEquals(expected: String, actual: String): Boolean {

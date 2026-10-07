@@ -3,6 +3,7 @@ package codes.yousef.summon.integration.ktor
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.runtime.CallbackRegistry
 import codes.yousef.summon.runtime.PlatformRenderer
+import codes.yousef.summon.runtime.RenderingContextElement
 import codes.yousef.summon.runtime.clearPlatformRenderer
 import codes.yousef.summon.runtime.setPlatformRenderer
 import io.ktor.http.*
@@ -11,6 +12,7 @@ import io.ktor.server.html.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.withContext
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import java.io.ByteArrayOutputStream
@@ -62,9 +64,7 @@ class KtorRenderer {
      */
     suspend fun renderHtml(call: ApplicationCall, content: @Composable () -> Unit) {
         val renderer = PlatformRenderer()
-        setPlatformRenderer(renderer)
-
-        try {
+        withContext(RenderingContextElement(renderer)) {
             call.respondHtml {
                 head {
                     meta(charset = "UTF-8")
@@ -75,8 +75,6 @@ class KtorRenderer {
                     content()
                 }
             }
-        } finally {
-            clearPlatformRenderer()
         }
     }
 
@@ -89,9 +87,7 @@ class KtorRenderer {
      */
     suspend fun renderStream(call: ApplicationCall, content: @Composable () -> Unit) {
         val renderer = PlatformRenderer()
-        setPlatformRenderer(renderer)
-
-        try {
+        withContext(RenderingContextElement(renderer)) {
             call.respondTextWriter(contentType = ContentType.Text.Html) {
                 append("<!DOCTYPE html><html><head>")
                 append("<meta charset=\"UTF-8\">")
@@ -106,8 +102,6 @@ class KtorRenderer {
                 append("</body></html>")
                 flush()
             }
-        } finally {
-            clearPlatformRenderer()
         }
     }
 
@@ -132,9 +126,7 @@ class KtorRenderer {
             route(path, method) {
                 handle {
                     val renderer = PlatformRenderer()
-                    setPlatformRenderer(renderer)
-
-                    try {
+                    withContext(RenderingContextElement(renderer)) {
                         call.respondHtml(status) {
                             head {
                                 meta(charset = "UTF-8")
@@ -145,8 +137,6 @@ class KtorRenderer {
                                 content()
                             }
                         }
-                    } finally {
-                        clearPlatformRenderer()
                     }
                 }
             }
@@ -166,9 +156,7 @@ class KtorRenderer {
             content: @Composable () -> Unit
         ) {
             val renderer = PlatformRenderer()
-            setPlatformRenderer(renderer)
-
-            try {
+            withContext(RenderingContextElement(renderer)) {
                 respondHtml(status) {
                     head {
                         meta(charset = "UTF-8")
@@ -179,8 +167,6 @@ class KtorRenderer {
                         content()
                     }
                 }
-            } finally {
-                clearPlatformRenderer()
             }
         }
 
@@ -204,25 +190,14 @@ class KtorRenderer {
             content: @Composable () -> Unit
         ) {
             val renderer = PlatformRenderer()
-            setPlatformRenderer(renderer)
-
-            // Create stable callback context for this request to ensure callbacks
-            // registered during rendering can be reliably collected even if the
-            // coroutine switches threads (common in Ktor with thread pools)
-            val callbackContext = codes.yousef.summon.runtime.CallbackContextElement()
-
-            try {
-                val document = kotlinx.coroutines.withContext(callbackContext) {
-                    renderer.renderPrivateShell(lang = lang, dir = dir, composable = content)
-                }
-                response.headers.append(
-                    "Content-Security-Policy",
-                    document.contentSecurityPolicy
-                )
-                respondText(document.html, ContentType.Text.Html.withCharset(Charsets.UTF_8), status)
-            } finally {
-                clearPlatformRenderer()
+            val document = withContext(RenderingContextElement(renderer)) {
+                renderer.renderPrivateShell(lang = lang, dir = dir, composable = content)
             }
+            response.headers.append(
+                "Content-Security-Policy",
+                document.contentSecurityPolicy
+            )
+            respondText(document.html, ContentType.Text.Html.withCharset(Charsets.UTF_8), status)
         }
 
         /**

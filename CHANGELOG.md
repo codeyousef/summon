@@ -71,6 +71,10 @@ All notable changes to this project will be documented in this file.
   announcements, and stale asynchronous form-validation results cannot replace newer state.
   Native date inputs now have JS/WASM/SSR parity, accessible names, bounded ranges and
   timezone-independent `LocalDate` values.
+- **Request-owned SSR rendering** - JVM coroutine integrations and the Summon Aether adapter
+  now propagate each request's renderer and callback namespace across dispatcher hops, restore
+  thread state on failure or cancellation, and revoke abandoned callbacks. Callback IDs are
+  process-unique and both per-render and process-wide callback storage are bounded.
 
 ### Changed
 

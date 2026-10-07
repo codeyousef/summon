@@ -2,14 +2,14 @@ package codes.yousef.summon.integration.ktor
 
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.runtime.PlatformRenderer
-import codes.yousef.summon.runtime.clearPlatformRenderer
-import codes.yousef.summon.runtime.setPlatformRenderer
+import codes.yousef.summon.runtime.RenderingContextElement
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 import kotlinx.html.div
 import kotlinx.html.stream.createHTML
 
@@ -38,32 +38,27 @@ object KtorStreamingSupport {
         content: @Composable () -> Unit
     ): Flow<String> = flow {
         val renderer = PlatformRenderer()
-        setPlatformRenderer(renderer)
+        val header = buildString {
+            append("<!DOCTYPE html>\n<html>\n<head>\n")
+            append("  <meta charset=\"UTF-8\">\n")
+            append("  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n")
+            append("  <title>$title</title>\n")
+            append("</head>\n<body>\n")
+        }
 
-        try {
-            val header = buildString {
-                append("<!DOCTYPE html>\n<html>\n<head>\n")
-                append("  <meta charset=\"UTF-8\">\n")
-                append("  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n")
-                append("  <title>$title</title>\n")
-                append("</head>\n<body>\n")
-            }
+        emit(header)
 
-            emit(header)
-
-            val htmlContent = createHTML().div {
+        val htmlContent = withContext(RenderingContextElement(renderer)) {
+            createHTML().div {
                 content()
             }
-
-            val chunks = htmlContent.chunked(chunkSize)
-            for (chunk in chunks) {
-                emit(chunk)
-            }
-
-            emit("\n</body>\n</html>")
-        } finally {
-            clearPlatformRenderer()
         }
+
+        for (chunk in htmlContent.chunked(chunkSize)) {
+            emit(chunk)
+        }
+
+        emit("\n</body>\n</html>")
     }
 
     /**

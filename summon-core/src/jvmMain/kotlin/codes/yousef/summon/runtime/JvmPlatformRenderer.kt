@@ -49,10 +49,6 @@ actual open class PlatformRenderer {
     // Fix 1: Remove ThreadLocal, use instance variable.
     private var currentBuilder: FlowContent? = null
 
-    // Initialize renderer - register this instance globally
-    init {
-        setPlatformRenderer(this)
-    }
 
     actual open fun startRecomposition() {}
     actual open fun endRecomposition() {}

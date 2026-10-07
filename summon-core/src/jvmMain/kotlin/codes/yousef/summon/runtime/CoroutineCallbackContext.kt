@@ -11,6 +11,14 @@ import kotlin.coroutines.CoroutineContext
  * resumption on different threads.
  */
 private val callbackContextThreadLocal = ThreadLocal<Long>()
+private val callbackContextCounter = java.util.concurrent.atomic.AtomicLong()
+
+private fun nextCallbackContextId(): Long = callbackContextCounter.incrementAndGet()
+
+private data class RenderingThreadState(
+    val renderer: PlatformRenderer?,
+    val callbackContextId: Long?
+)
 
 /**
  * Coroutine context element that preserves callback context across thread switches.
@@ -20,20 +28,15 @@ private val callbackContextThreadLocal = ThreadLocal<Long>()
  * for SSR hydration to work correctly, as callbacks registered during rendering must match
  * the callback IDs in the hydration data sent to the client.
  * 
- * Usage:
- * ```kotlin
- * withContext(CallbackContextElement()) {
- *     // All callbacks registered here will share the same context ID
- *     // even if the coroutine switches threads
- * }
- * ```
- * 
- * This is automatically used by `respondSummonHydrated` in the Ktor integration.
+ * Prefer [RenderingContextElement] for request rendering because it propagates
+ * the renderer and callback namespace as one unit. This lower-level element is
+ * available for callback-only coroutine work.
  */
-class CallbackContextElement(
-    private val contextId: Long = System.nanoTime()
+class CallbackContextElement private constructor(
+    private val contextId: Long
 ) : ThreadContextElement<Long?> {
     companion object Key : CoroutineContext.Key<CallbackContextElement>
+    constructor() : this(nextCallbackContextId())
 
     override val key: CoroutineContext.Key<*> get() = Key
 
@@ -54,6 +57,40 @@ class CallbackContextElement(
             callbackContextThreadLocal.set(oldState)
         } else {
             callbackContextThreadLocal.remove()
+        }
+    }
+}
+
+/**
+ * Propagates a request-owned renderer and callback namespace together across
+ * coroutine dispatcher hops, restoring the caller's thread state on every exit.
+ */
+class RenderingContextElement private constructor(
+    private val renderer: PlatformRenderer,
+    private val contextId: Long
+) : ThreadContextElement<Any?> {
+    companion object Key : CoroutineContext.Key<RenderingContextElement>
+    constructor(renderer: PlatformRenderer) : this(renderer, nextCallbackContextId())
+
+    override val key: CoroutineContext.Key<*> get() = Key
+
+    override fun updateThreadContext(context: CoroutineContext): Any? {
+        val oldState = RenderingThreadState(
+            renderer = PlatformRendererStore.get(),
+            callbackContextId = callbackContextThreadLocal.get()
+        )
+        PlatformRendererStore.set(renderer)
+        callbackContextThreadLocal.set(contextId)
+        return oldState
+    }
+
+    override fun restoreThreadContext(context: CoroutineContext, oldState: Any?) {
+        val previous = oldState as RenderingThreadState
+        PlatformRendererStore.set(previous.renderer)
+        if (previous.callbackContextId == null) {
+            callbackContextThreadLocal.remove()
+        } else {
+            callbackContextThreadLocal.set(previous.callbackContextId)
         }
     }
 }

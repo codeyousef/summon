@@ -3,8 +3,6 @@ package codes.yousef.summon.aether
 import codes.yousef.aether.core.Exchange
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.runtime.PlatformRenderer
-import codes.yousef.summon.runtime.clearPlatformRenderer
-import codes.yousef.summon.runtime.setPlatformRenderer
 import codes.yousef.summon.seo.HeadScope
 
 /**
@@ -20,19 +18,16 @@ suspend fun Exchange.respondSummon(
     content: @Composable () -> Unit
 ) {
     val renderer = PlatformRenderer()
-    setPlatformRenderer(renderer)
-    
-    try {
-        val html = withRenderingContext {
-             renderer.renderComposableRoot {
-                renderer.renderHeadElements(head)
-                content()
-            }
+    val html = withRenderingContext(renderer) {
+        renderer.renderComposableRoot {
+            renderer.renderHeadElements(head)
+            content()
         }
-        respondHtml(status, html)
-    } finally {
-        clearPlatformRenderer()
     }
+    respondHtml(status, html)
 }
 
-internal expect suspend fun <T> withRenderingContext(block: suspend () -> T): T
+internal expect suspend fun <T> withRenderingContext(
+    renderer: PlatformRenderer,
+    block: suspend () -> T
+): T

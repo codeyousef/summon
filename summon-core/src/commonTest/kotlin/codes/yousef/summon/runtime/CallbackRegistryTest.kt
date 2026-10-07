@@ -57,4 +57,25 @@ class CallbackRegistryTest {
         assertTrue(CallbackRegistry.executeRemoteCallback(callbackId, context.capability))
         assertEquals(1, count)
     }
+
+    @Test
+    fun abandonedRenderRevokesCallbacks() {
+        CallbackRegistry.beginRender()
+        val callbackId = CallbackRegistry.registerCallback { }
+        CallbackRegistry.abandonRenderContext()
+
+        assertFalse(CallbackRegistry.hasCallback(callbackId))
+    }
+
+    @Test
+    fun renderCallbackCapacityIsBounded() {
+        CallbackRegistry.beginRender()
+        repeat(1_024) {
+            CallbackRegistry.registerCallback { }
+        }
+
+        assertFailsWith<IllegalStateException> {
+            CallbackRegistry.registerCallback { }
+        }
+    }
 }

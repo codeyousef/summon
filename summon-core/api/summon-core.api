@@ -9906,8 +9906,6 @@ public final class codes/yousef/summon/routing/pages/users/_id_Kt {
 public final class codes/yousef/summon/runtime/CallbackContextElement : kotlinx/coroutines/ThreadContextElement {
 	public static final field Key Lcodes/yousef/summon/runtime/CallbackContextElement$Key;
 	public fun <init> ()V
-	public fun <init> (J)V
-	public synthetic fun <init> (JILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun fold (Ljava/lang/Object;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
 	public fun get (Lkotlin/coroutines/CoroutineContext$Key;)Lkotlin/coroutines/CoroutineContext$Element;
 	public fun getKey ()Lkotlin/coroutines/CoroutineContext$Key;
@@ -9924,7 +9922,7 @@ public final class codes/yousef/summon/runtime/CallbackContextElement$Key : kotl
 
 public final class codes/yousef/summon/runtime/CallbackRegistry {
 	public static final field INSTANCE Lcodes/yousef/summon/runtime/CallbackRegistry;
-	public final fun abandonRenderContext ()Ljava/lang/Long;
+	public final fun abandonRenderContext ()Lkotlin/Unit;
 	public final fun beginRender ()V
 	public final fun clear ()V
 	public final fun executeRemoteCallback (Ljava/lang/String;Ljava/lang/String;)Z
@@ -10448,6 +10446,21 @@ public final class codes/yousef/summon/runtime/RememberKt {
 	public static final fun remember (Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 	public static final fun remember ([Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 	public static final fun rememberMutableStateOf (Ljava/lang/Object;)Lcodes/yousef/summon/state/SummonMutableState;
+}
+
+public final class codes/yousef/summon/runtime/RenderingContextElement : kotlinx/coroutines/ThreadContextElement {
+	public static final field Key Lcodes/yousef/summon/runtime/RenderingContextElement$Key;
+	public fun <init> (Lcodes/yousef/summon/runtime/PlatformRenderer;)V
+	public fun fold (Ljava/lang/Object;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
+	public fun get (Lkotlin/coroutines/CoroutineContext$Key;)Lkotlin/coroutines/CoroutineContext$Element;
+	public fun getKey ()Lkotlin/coroutines/CoroutineContext$Key;
+	public fun minusKey (Lkotlin/coroutines/CoroutineContext$Key;)Lkotlin/coroutines/CoroutineContext;
+	public fun plus (Lkotlin/coroutines/CoroutineContext;)Lkotlin/coroutines/CoroutineContext;
+	public fun restoreThreadContext (Lkotlin/coroutines/CoroutineContext;Ljava/lang/Object;)V
+	public fun updateThreadContext (Lkotlin/coroutines/CoroutineContext;)Ljava/lang/Object;
+}
+
+public final class codes/yousef/summon/runtime/RenderingContextElement$Key : kotlin/coroutines/CoroutineContext$Key {
 }
 
 public final class codes/yousef/summon/runtime/SelectOption {

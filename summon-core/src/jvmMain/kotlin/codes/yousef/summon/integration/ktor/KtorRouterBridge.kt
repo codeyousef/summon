@@ -2,14 +2,14 @@ package codes.yousef.summon.integration.ktor
 
 import codes.yousef.summon.routing.*
 import codes.yousef.summon.runtime.PlatformRenderer
-import codes.yousef.summon.runtime.clearPlatformRenderer
-import codes.yousef.summon.runtime.setPlatformRenderer
+import codes.yousef.summon.runtime.RenderingContextElement
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.routing.Route
+import kotlinx.coroutines.withContext
 
 private val defaultNotFoundHandler: suspend ApplicationCall.() -> Unit = {
     respond(HttpStatusCode.NotFound)
@@ -45,10 +45,9 @@ fun Routing.summonRouter(
         }
 
         val renderer = PlatformRenderer()
-        setPlatformRenderer(renderer)
         val router = createFileBasedServerRouter(requestPath)
 
-        val html = try {
+        val html = withContext(RenderingContextElement(renderer)) {
             if (enableHydration) {
                 renderer.renderComposableRootWithHydration {
                     RouterComponent(router, requestPath)
@@ -58,8 +57,6 @@ fun Routing.summonRouter(
                     RouterComponent(router, requestPath)
                 }
             }
-        } finally {
-            clearPlatformRenderer()
         }
 
         val status = if (hasRoute) HttpStatusCode.OK else HttpStatusCode.NotFound
