@@ -34,6 +34,7 @@ This monorepo contains:
 
 - **`summon-core/`** - The main Summon library
 - **`summon-cli/`** - Command-line tool for project generation 
+- **`summon-devtools/`** - Opt-in debug component inspection and development tooling
 - **`diagnostics/`** - Stress tests, leak detectors, and JMH benchmarks
 - **`docs/`** - Documentation and guides
 

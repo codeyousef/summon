@@ -25,7 +25,7 @@ browser_status=$?
 if [[ $browser_status -eq 0 ]]; then
   PLAYWRIGHT_JSON_OUTPUT_FILE="$artifact_dir/results.json" \
     node node_modules/playwright/cli.js test \
-      --config=playwright.private-suite.config.ts \
+      --config="${SUMMON_PLAYWRIGHT_CONFIG:-playwright.private-suite.config.ts}" \
       --reporter=line,json \
       --output="$artifact_dir/results" "$@"
   test_status=$?

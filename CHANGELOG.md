@@ -79,6 +79,11 @@ All notable changes to this project will be documented in this file.
   dependencies instead of succeeding while disabled. The pinned source-consumer matrix supports
   separate production and development profiles and records per-project JSON results, exact browser
   versions, source/image/lock identity, logs, traces and container cgroup high-water metrics.
+- **Opt-in component inspector** - The separate `summon-devtools` artifact observes actual
+  JS/WASM renderer DOM trees with stable root-local identities, isolated roots, typed PUBLIC
+  fields, default-redacted fields, validated live edits, keyboard navigation and CSP-safe
+  highlighting. Owned overlays and sessions remove listeners, frames, styles and retained DOM
+  references on disposal; production source-consumer bundles exclude the artifact.
 
 ### Changed
 

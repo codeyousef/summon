@@ -17,7 +17,8 @@
     "test:perf:tbt": "BASE_URL=http://localhost:8080 npx playwright test --config=playwright.perf.config.ts tests/performance/tbt-tti.spec.ts",
     "test:private-suite": "playwright test --config=playwright.private-suite.config.ts",
     "test:private-suite:container": "./run-private-suite-container.sh",
-    "test:private-suite:development": "SUMMON_BROWSER_PROFILE=development ./run-private-suite-container.sh"
+    "test:private-suite:development": "SUMMON_BROWSER_PROFILE=development ./run-private-suite-container.sh",
+    "test:devtools:container": "./run-devtools-container.sh"
   },
   "keywords": [],
   "author": "",

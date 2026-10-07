@@ -8,6 +8,7 @@ rootProject.name = "summon"
 include(":summon-core")
 include(":summon-cli")
 include(":summon-aether")
+include(":summon-devtools")
 
 // Diagnostics suite
 include(":diagnostics")
