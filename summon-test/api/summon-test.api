@@ -1,10 +1,12 @@
 public final class codes/yousef/summon/test/ComponentHarness : java/lang/AutoCloseable {
 	public static final field Companion Lcodes/yousef/summon/test/ComponentHarness$Companion;
 	public static final field DEFAULT_IDLE_TIMEOUT_MS J
+	public static final field MAX_SEMANTIC_SNAPSHOT_CHARS I
 	public static final field MAX_TREE_DESCRIPTION_CHARS I
 	public final fun assertNoNodeWithTag (Ljava/lang/String;)Lcodes/yousef/summon/test/ComponentHarness;
 	public final fun assertNoNodeWithText (Ljava/lang/String;Z)Lcodes/yousef/summon/test/ComponentHarness;
 	public static synthetic fun assertNoNodeWithText$default (Lcodes/yousef/summon/test/ComponentHarness;Ljava/lang/String;ZILjava/lang/Object;)Lcodes/yousef/summon/test/ComponentHarness;
+	public final fun assertSemanticSnapshot (Ljava/lang/String;)Lcodes/yousef/summon/test/ComponentHarness;
 	public final fun awaitIdle (J)Lcodes/yousef/summon/test/ComponentHarness;
 	public static synthetic fun awaitIdle$default (Lcodes/yousef/summon/test/ComponentHarness;JILjava/lang/Object;)Lcodes/yousef/summon/test/ComponentHarness;
 	public fun close ()V
@@ -12,6 +14,7 @@ public final class codes/yousef/summon/test/ComponentHarness : java/lang/AutoClo
 	public final fun onNodeWithTag (Ljava/lang/String;)Lcodes/yousef/summon/test/SemanticNodeHandle;
 	public final fun onNodeWithText (Ljava/lang/String;Z)Lcodes/yousef/summon/test/SemanticNodeHandle;
 	public static synthetic fun onNodeWithText$default (Lcodes/yousef/summon/test/ComponentHarness;Ljava/lang/String;ZILjava/lang/Object;)Lcodes/yousef/summon/test/SemanticNodeHandle;
+	public final fun semanticSnapshot ()Ljava/lang/String;
 }
 
 public final class codes/yousef/summon/test/ComponentHarness$Companion {
@@ -39,6 +42,11 @@ public final class codes/yousef/summon/test/HarnessScheduler$Companion {
 
 public final class codes/yousef/summon/test/JvmComponentHarnessKt {
 	public static final fun mountJvmComponentHarness (Lkotlin/jvm/functions/Function0;)Lcodes/yousef/summon/test/ComponentHarness;
+}
+
+public final class codes/yousef/summon/test/SemanticGoldensKt {
+	public static final fun updateSemanticGolden (Lcodes/yousef/summon/test/ComponentHarness;Ljava/io/File;)Lcodes/yousef/summon/test/ComponentHarness;
+	public static final fun verifySemanticGolden (Lcodes/yousef/summon/test/ComponentHarness;Ljava/io/File;)Lcodes/yousef/summon/test/ComponentHarness;
 }
 
 public final class codes/yousef/summon/test/SemanticNodeHandle {

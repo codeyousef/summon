@@ -7,6 +7,8 @@ import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.modifier.attribute
 import codes.yousef.summon.modifier.style
 import codes.yousef.summon.runtime.CallbackRegistry
+import java.io.File
+import kotlin.io.path.createTempDirectory
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -47,6 +49,9 @@ class JvmComponentHarnessTest {
                 )
             }
         }) { harness ->
+            val snapshot = harness.semanticSnapshot()
+            assertTrue(snapshot.contains("\"role\":\"button\""))
+            assertTrue(snapshot.contains("\"name\":\"Increment\""))
             val oldCount = harness.onNodeWithTag("count")
             harness.onNodeWithTag("increment").assertEnabled().performClick()
             assertEquals(1, count)
@@ -108,6 +113,69 @@ class JvmComponentHarnessTest {
             assertFailsWith<UnsupportedOperationException> {
                 harness.onNodeWithTag("text").performScrollTo()
             }
+        }
+    }
+
+    @Test
+    fun semanticSnapshotMatchesCommittedUnicodeRtlAndHiddenGoldenRepeatedly() {
+        val expected = requireNotNull(javaClass.getResourceAsStream("/goldens/semantic-arabic.snap"))
+            .bufferedReader(Charsets.UTF_8)
+            .use { it.readText() }
+        withComponentHarness(mountJvmComponentHarness {
+            Column(Modifier().attribute("dir", "rtl").testTag("fixture")) {
+                Text("مرحبا | line 1\nline 2", Modifier().testTag("arabic"))
+                Column(Modifier().attribute("hidden", "hidden")) {
+                    Text("Hidden text", Modifier().testTag("hidden"))
+                }
+            }
+        }) { harness ->
+            harness.assertSemanticSnapshot(expected)
+            harness.assertSemanticSnapshot(expected)
+            assertTrue(harness.semanticSnapshot().contains("\"text\":\"مرحبا | line 1\\nline 2\""))
+            assertTrue(harness.semanticSnapshot().contains("\"visible\":false"))
+        }
+    }
+
+    @Test
+    fun verificationNeverWritesAndReportsSemanticPathForIntentionalChange() {
+        val directory = createTempDirectory("summon-semantic-golden").toFile()
+        try {
+            val golden = File(directory, "fixture.snap")
+            withComponentHarness(mountJvmComponentHarness {
+                Text("Expected", Modifier().testTag("value"))
+            }) { it.updateSemanticGolden(golden) }
+            val original = golden.readBytes()
+
+            withComponentHarness(mountJvmComponentHarness {
+                Text("Changed", Modifier().testTag("value"))
+            }) { harness ->
+                val failure = assertFailsWith<AssertionError> { harness.verifySemanticGolden(golden) }
+                assertTrue(failure.message.orEmpty().contains("Semantic snapshot differs at path 0"))
+                assertTrue(failure.message.orEmpty().contains("- "))
+                assertTrue(failure.message.orEmpty().contains("+ "))
+            }
+            assertTrue(original.contentEquals(golden.readBytes()))
+        } finally {
+            directory.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun missingGoldenFailsAndExplicitUpdateChangesOnlyRequestedFixture() {
+        val directory = createTempDirectory("summon-semantic-update").toFile()
+        try {
+            val requested = File(directory, "requested.snap")
+            val neighbor = File(directory, "neighbor.snap").apply { writeText("neighbor", Charsets.UTF_8) }
+            withComponentHarness(mountJvmComponentHarness {
+                Text("Snapshot", Modifier().testTag("value"))
+            }) { harness ->
+                assertFailsWith<AssertionError> { harness.verifySemanticGolden(requested) }
+                harness.updateSemanticGolden(requested)
+                harness.verifySemanticGolden(requested)
+            }
+            assertEquals("neighbor", neighbor.readText(Charsets.UTF_8))
+        } finally {
+            directory.deleteRecursively()
         }
     }
 }

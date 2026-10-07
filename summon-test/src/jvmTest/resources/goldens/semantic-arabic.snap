@@ -1,0 +1,6 @@
+summon-semantic-snapshot:v1
+{"path":"0","role":"generic","name":"مرحبا | line 1 line 2 Hidden text","tag":null,"visible":true,"disabled":false,"inert":false,"text":"","states":{}}
+{"path":"0/0","role":"generic","name":"مرحبا | line 1 line 2 Hidden text","tag":"fixture","visible":true,"disabled":false,"inert":false,"text":"","states":{}}
+{"path":"0/0/0","role":"generic","name":"مرحبا | line 1 line 2","tag":"arabic","visible":true,"disabled":false,"inert":false,"text":"مرحبا | line 1\nline 2","states":{}}
+{"path":"0/0/1","role":"generic","name":"Hidden text","tag":null,"visible":false,"disabled":false,"inert":false,"text":"","states":{}}
+{"path":"0/0/1/0","role":"generic","name":"Hidden text","tag":"hidden","visible":false,"disabled":false,"inert":false,"text":"Hidden text","states":{}}

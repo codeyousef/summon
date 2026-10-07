@@ -92,8 +92,10 @@ All notable changes to this project will be documented in this file.
 - **Semantic component test harness** - The separate `summon-test` artifact mounts one owned root
   on JVM SSR or real JS/WASM DOM renderers, provides strict text/tag finders, live visibility,
   enabled and typed-state assertions, real browser interactions, stale-handle detection, bounded
-  idle diagnostics and failure-safe disposal. CLI library and multiplatform templates include
-  runnable JVM and browser examples.
+  idle diagnostics and failure-safe disposal. Deterministic semantic snapshots preserve
+  Unicode/whitespace and provide path-aware diffs; explicit scoped updates and pinned per-engine
+  Playwright image goldens keep ordinary verification read-only. CLI library and multiplatform
+  templates include runnable JVM and browser examples.
 
 ### Changed
 

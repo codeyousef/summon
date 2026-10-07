@@ -29,6 +29,25 @@ fun Modifier.testState(name: String, value: Any): Modifier {
 const val TEST_TAG_ATTRIBUTE: String = "data-summon-test-tag"
 const val TEST_STATE_PREFIX: String = "data-summon-test-state-"
 
+internal fun semanticRole(elementName: String, explicitRole: String?, inputType: String?): String =
+    explicitRole?.takeIf { it.isNotBlank() } ?: when (elementName.lowercase()) {
+        "button" -> "button"
+        "a" -> "link"
+        "img" -> "img"
+        "textarea" -> "textbox"
+        "input" -> when (inputType?.lowercase()) {
+            "button", "submit", "reset" -> "button"
+            "checkbox" -> "checkbox"
+            "radio" -> "radio"
+            "range" -> "slider"
+            else -> "textbox"
+        }
+        "select" -> "combobox"
+        "ul", "ol" -> "list"
+        "li" -> "listitem"
+        else -> "generic"
+    }
+
 internal data class SemanticSnapshot(
     val identity: Long,
     val parentIdentity: Long?,
@@ -37,6 +56,8 @@ internal data class SemanticSnapshot(
     val tag: String?,
     val connected: Boolean,
     val displayed: Boolean,
+    val role: String,
+    val name: String,
     val inert: Boolean,
     val enabled: Boolean,
     val states: Map<String, String>
@@ -106,6 +127,7 @@ class ComponentHarness internal constructor(private var adapter: SemanticHarness
     companion object {
         const val DEFAULT_IDLE_TIMEOUT_MS: Long = 1_000
         const val MAX_TREE_DESCRIPTION_CHARS: Int = 8_192
+        const val MAX_SEMANTIC_SNAPSHOT_CHARS: Int = 1_048_576
     }
 
     private var disposed = false
@@ -136,6 +158,54 @@ class ComponentHarness internal constructor(private var adapter: SemanticHarness
 
     fun awaitIdle(timeoutMillis: Long = DEFAULT_IDLE_TIMEOUT_MS): ComponentHarness {
         adapter().scheduler.drain(timeoutMillis)
+        return this
+    }
+
+    /**
+     * Serializes the live semantic tree using a versioned deterministic format. Runtime identities,
+     * callback implementations, timestamps and renderer-generated IDs are intentionally excluded.
+     */
+    fun semanticSnapshot(): String {
+        val nodes = snapshots()
+        val byParent = nodes.groupBy { it.parentIdentity }
+        val snapshot = buildString {
+            appendLine("summon-semantic-snapshot:v1")
+            fun appendNode(node: SemanticSnapshot, path: String) {
+                append('{')
+                appendJsonField("path", path)
+                append(',')
+                appendJsonField("role", node.role)
+                append(',')
+                appendJsonField("name", node.name)
+                append(',')
+                appendJsonField("tag", node.tag)
+                append(",\"visible\":").append(node.connected && node.displayed && !node.inert)
+                append(",\"disabled\":").append(!node.enabled)
+                append(",\"inert\":").append(node.inert)
+                append(",\"text\":")
+                appendJsonString(node.text)
+                append(",\"states\":{")
+                node.states.entries.sortedBy { it.key }.forEachIndexed { index, (name, value) ->
+                    if (index > 0) append(',')
+                    appendJsonField(name, value)
+                }
+                appendLine("}}")
+                byParent[node.identity].orEmpty().forEachIndexed { index, child ->
+                    appendNode(child, "$path/$index")
+                }
+            }
+            byParent[null].orEmpty().forEachIndexed { index, node -> appendNode(node, index.toString()) }
+        }
+        if (snapshot.length > MAX_SEMANTIC_SNAPSHOT_CHARS) {
+            throw AssertionError("Semantic snapshot exceeds $MAX_SEMANTIC_SNAPSHOT_CHARS characters")
+        }
+        return snapshot
+    }
+
+    /** Compares the live tree with [expected] without creating or modifying a golden. */
+    fun assertSemanticSnapshot(expected: String): ComponentHarness {
+        val actual = semanticSnapshot()
+        if (actual != expected) throw AssertionError(semanticDiff(expected, actual))
         return this
     }
 
@@ -186,6 +256,26 @@ class ComponentHarness internal constructor(private var adapter: SemanticHarness
         }
     }
 
+    private fun semanticDiff(expected: String, actual: String): String {
+        val expectedLines = expected.lines()
+        val actualLines = actual.lines()
+        val first = (0 until maxOf(expectedLines.size, actualLines.size)).firstOrNull { index ->
+            expectedLines.getOrNull(index) != actualLines.getOrNull(index)
+        } ?: 0
+        val actualPath = actualLines.getOrNull(first)?.substringAfter("\"path\":\"", "")?.substringBefore('"')
+        val expectedPath = expectedLines.getOrNull(first)?.substringAfter("\"path\":\"", "")?.substringBefore('"')
+        val path = actualPath?.takeIf { it.isNotEmpty() } ?: expectedPath?.takeIf { it.isNotEmpty() } ?: "<header>"
+        val from = maxOf(0, first - 2)
+        val to = minOf(maxOf(expectedLines.size, actualLines.size), first + 3)
+        return buildString {
+            appendLine("Semantic snapshot differs at path $path (line ${first + 1})")
+            for (index in from until to) {
+                expectedLines.getOrNull(index)?.let { append("- ").appendLine(it) }
+                actualLines.getOrNull(index)?.let { append("+ ").appendLine(it) }
+            }
+        }.take(MAX_TREE_DESCRIPTION_CHARS)
+    }
+
     private fun unique(label: String, predicate: (SemanticSnapshot) -> Boolean): SemanticNodeHandle {
         val matches = snapshots().filter(predicate)
         if (matches.size != 1) fail("Expected exactly one node matching $label, found ${matches.size}")
@@ -200,6 +290,33 @@ class ComponentHarness internal constructor(private var adapter: SemanticHarness
     private fun adapter(): SemanticHarnessAdapter = adapter ?: error("Component harness is disposed")
 
     private fun fail(message: String): Nothing = throw AssertionError("$message\nSemantic tree:\n${describe()}")
+    private fun StringBuilder.appendJsonField(name: String, value: String?) {
+        appendJsonString(name)
+        append(':')
+        if (value == null) append("null") else appendJsonString(value)
+    }
+
+    private fun StringBuilder.appendJsonString(value: String) {
+        append('"')
+        value.forEach { character ->
+            when (character) {
+                '"' -> append("\\\"")
+                '\\' -> append("\\\\")
+                '\b' -> append("\\b")
+                '\u000C' -> append("\\f")
+                '\n' -> append("\\n")
+                '\r' -> append("\\r")
+                '\t' -> append("\\t")
+                else -> if (character.code < 0x20) {
+                    append("\\u").append(character.code.toString(16).padStart(4, '0'))
+                } else {
+                    append(character)
+                }
+            }
+        }
+        append('"')
+    }
+
 }
 
 /** Identity-bearing semantic handle. Any operation after detach, replacement, or disposal fails. */

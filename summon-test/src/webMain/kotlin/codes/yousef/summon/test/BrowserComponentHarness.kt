@@ -50,6 +50,14 @@ private class BrowserSemanticAdapter(
                 tag = element.getAttribute(TEST_TAG_ATTRIBUTE),
                 connected = element.isConnected,
                 displayed = element.isActuallyDisplayed(ownedRoot),
+                role = semanticRole(
+                    elementName = element.tagName,
+                    explicitRole = element.getAttribute("role"),
+                    inputType = element.getAttribute("type")
+                ),
+                name = element.getAttribute("aria-label")
+                    ?: element.getAttribute("alt")
+                    ?: element.textContent.orEmpty().trim(),
                 inert = inert,
                 enabled = !inert && !element.hasDisabledAncestor(ownedRoot),
                 states = element.testStates()
@@ -133,7 +141,7 @@ private class BrowserSemanticAdapter(
                 child = child.nextSibling
             }
         }
-        return text.trim()
+        return text
     }
 
     private fun Element.isActuallyDisplayed(boundary: Element): Boolean {

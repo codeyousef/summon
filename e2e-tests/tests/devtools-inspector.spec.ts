@@ -126,7 +126,7 @@ test('one hundred panel lifetimes release panels, styles, highlights and keyboar
   await expect(page.locator('[data-summon-inspector-panel]')).toHaveCount(0);
 });
 
-test('production source-consumer bundles exclude the devtools artifact and overlay strings', async ({}, testInfo) => {
+test('production source-consumer bundles exclude developer and test artifacts', async ({}, testInfo) => {
   test.skip(testInfo.project.name !== 'js-chromium', 'One byte-level production bundle inspection is sufficient');
   const distribution = path.resolve(__dirname, '../fixtures/private-suite/build/dist');
   const files: string[] = [];
@@ -138,7 +138,13 @@ test('production source-consumer bundles exclude the devtools artifact and overl
     }
   };
   visit(distribution);
-  const forbidden = ['Summon Inspector', 'data-summon-inspector-panel', 'summon-devtools'];
+  const forbidden = [
+    'Summon Inspector',
+    'data-summon-inspector-panel',
+    'summon-devtools',
+    'summon-semantic-snapshot:v1',
+    'summon-test',
+  ];
   for (const file of files) {
     const contents = fs.readFileSync(file);
     for (const marker of forbidden) {

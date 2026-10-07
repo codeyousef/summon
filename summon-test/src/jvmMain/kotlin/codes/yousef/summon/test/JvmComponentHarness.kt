@@ -50,10 +50,18 @@ private class JvmSemanticAdapter(
                 identity = identity,
                 parentIdentity = parentIdentity,
                 elementName = element.tagName(),
-                text = element.ownText().trim(),
+                text = element.textNodes().joinToString(separator = "") { it.wholeText },
                 tag = element.attrOrNull(TEST_TAG_ATTRIBUTE),
                 connected = true,
                 displayed = element.isDisplayed(root),
+                role = semanticRole(
+                    elementName = element.tagName(),
+                    explicitRole = element.attrOrNull("role"),
+                    inputType = element.attrOrNull("type")
+                ),
+                name = element.attrOrNull("aria-label")
+                    ?: element.attrOrNull("alt")
+                    ?: element.text().trim(),
                 inert = inert,
                 enabled = !inert && element.ancestorsAndSelf(root).none {
                     it.hasAttr("disabled") || it.attr("aria-disabled") == "true"

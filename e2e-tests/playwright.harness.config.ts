@@ -33,11 +33,11 @@ export default defineConfig({
     },
   ],
   projects: [
-    { name: 'js-chromium', use: { ...devices['Desktop Chrome'], baseURL: 'http://127.0.0.1:4173' } },
-    { name: 'js-firefox', use: { ...devices['Desktop Firefox'], baseURL: 'http://127.0.0.1:4173' } },
-    { name: 'js-webkit', use: { ...devices['Desktop Safari'], baseURL: 'http://127.0.0.1:4173' } },
-    { name: 'wasm-chromium', use: { ...devices['Desktop Chrome'], baseURL: 'http://127.0.0.1:4174' } },
-    { name: 'wasm-firefox', use: { ...devices['Desktop Firefox'], baseURL: 'http://127.0.0.1:4174' } },
-    { name: 'wasm-webkit', use: { ...devices['Desktop Safari'], baseURL: 'http://127.0.0.1:4174' } },
+    { name: 'js-chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1, baseURL: 'http://127.0.0.1:4173' } },
+    { name: 'js-firefox', use: { ...devices['Desktop Firefox'], viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1, baseURL: 'http://127.0.0.1:4173' } },
+    { name: 'js-webkit', use: { ...devices['Desktop Safari'], viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1, baseURL: 'http://127.0.0.1:4173' } },
+    { name: 'wasm-chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1, baseURL: 'http://127.0.0.1:4174' } },
+    { name: 'wasm-firefox', use: { ...devices['Desktop Firefox'], viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1, baseURL: 'http://127.0.0.1:4174' } },
+    { name: 'wasm-webkit', use: { ...devices['Desktop Safari'], viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1, baseURL: 'http://127.0.0.1:4174' } },
   ],
 });
