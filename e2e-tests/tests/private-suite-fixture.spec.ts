@@ -1385,6 +1385,8 @@ test('native input write failure cannot produce a successful private view', asyn
   page.on('console', message => diagnostics.push(message.text()));
   page.on('pageerror', error => diagnostics.push(error.message));
   await page.goto('/?failures=true');
+  const mountHealthy = page.getByRole('button', { name: 'Mount healthy layout', exact: true });
+  await expect(mountHealthy).toBeVisible();
   await page.evaluate(() => {
     const original = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!;
     Object.defineProperty(HTMLInputElement.prototype, 'value', {
@@ -1395,7 +1397,7 @@ test('native input write failure cannot produce a successful private view', asyn
       }
     });
   });
-  await page.getByRole('button', { name: 'Mount healthy layout', exact: true }).click();
+  await mountHealthy.click();
   await expect(page.getByTestId('failure-stats')).toHaveText('Failures: 1; Cancellations: 0; Active: 0; Collectors: 0; Cleanups: 2');
   await expect(page.locator('#root *')).toHaveCount(0);
   await expect(page.locator('#second-root').getByTestId('controlled-input')).toHaveValue('Synthetic account B');
