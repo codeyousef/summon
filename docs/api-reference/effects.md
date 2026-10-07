@@ -852,145 +852,107 @@ fun DesktopComponent() {
 
 ## Network and Communication Effects
 
-### WebSocket
+### Bounded HTTP transport
 
-Cross-platform WebSocket implementation with auto-reconnection and lifecycle management.
+`HttpClient` is a reusable cross-platform client. Every request and response has a byte cap; request
+limits count UTF-8 bytes, and browser responses are streamed into bounded buffers even when
+`Content-Length` is absent or incorrect. Timeout and coroutine cancellation abort browser fetches.
+Errors expose only typed status and bounded metadata, never response-body text.
 
 ```kotlin
-// WebSocket configuration
-data class WebSocketConfig(
-    val url: String,
-    val protocols: List<String> = emptyList(),
-    val autoReconnect: Boolean = false,
-    val reconnectDelay: Long = 5000,
-    val maxReconnectAttempts: Int = -1, // -1 for unlimited
-    val onOpen: ((WebSocketClient) -> Unit)? = null,
-    val onMessage: ((String) -> Unit)? = null,
-    val onClose: ((code: Short, reason: String) -> Unit)? = null,
-    val onError: ((Throwable) -> Unit)? = null
+val general = createHttpClient(
+    HttpClientConfig(
+        baseUrl = "https://api.example.test",
+        maxRequestBytes = 1_048_576,
+        maxResponseBytes = 4_194_304,
+        timeout = 30_000
+    )
 )
 
-// Create WebSocket client
-expect class WebSocketClient {
-    fun connect(config: WebSocketConfig)
-    fun send(message: String)
-    fun close(code: Short = 1000, reason: String = "")
-    fun isConnected(): Boolean
-}
-
-// Factory function
-expect fun createWebSocketClient(): WebSocketClient
+val response = general.execute(
+    HttpRequest(
+        url = "/items",
+        method = HttpMethod.GET,
+        responseByteLimit = 262_144
+    )
+)
 ```
 
-**Usage:**
+Use the explicit suite profile for private same-origin JSON APIs. It accepts only root-relative
+paths, rejects redirects, uses same-origin credentials, and requires a caller-approved CSRF token
+for unsafe methods. A retryable unsafe operation also requires a bounded operation ID, transmitted
+as `Idempotency-Key`.
 
 ```kotlin
-@Composable
-fun ChatComponent() {
-    val webSocketClient = remember { mutableStateOf<WebSocketClient?>(null) }
-    val messages = remember { mutableStateOf(listOf<String>()) }
-    
-    LaunchedEffect(Unit) {
-        val client = createWebSocketClient()
-        client.connect(WebSocketConfig(
-            url = "ws://localhost:8080/chat",
-            autoReconnect = true,
-            onMessage = { message ->
-                messages.value = messages.value + message
-            },
-            onError = { error ->
-                console.error("WebSocket error: ${error.message}")
-            }
-        ))
-        webSocketClient.value = client
-    }
-    
-    DisposableEffect(Unit) {
-        onDispose {
-            webSocketClient.value?.close()
-        }
-    }
-}
-```
-
-### HTTP Client
-
-Cross-platform HTTP client with comprehensive request/response handling.
-
-```kotlin
-// HTTP Request and Response
-data class HttpRequest(
-    val url: String,
-    val method: HttpMethod = HttpMethod.GET,
-    val headers: Map<String, String> = emptyMap(),
-    val body: String? = null
+val suite = createSuiteJsonHttpClient(
+    csrfTokenProvider = CsrfTokenProvider { currentCsrfToken() }
 )
 
-data class HttpResponse(
-    val status: Int,
-    val statusText: String,
-    val headers: Map<String, String>,
-    val body: String
+val response = suite.execute(
+    HttpRequest(
+        url = "/api/records",
+        method = HttpMethod.POST,
+        headers = mapOf("Content-Type" to "application/json"),
+        body = payload,
+        retryPolicy = HttpRetryPolicy.OPERATION_ID,
+        operationId = operationId
+    )
+)
+```
+
+`JsonHttpClient` extensions verify a JSON media type before decoding and support empty `204`
+responses. `HttpError.ClientError` and `HttpError.ServerError` preserve status, safe error code,
+request ID, and `Retry-After`; their messages omit the response body.
+
+Authorized object downloads use `CiphertextObjectTransport`, not the JSON client. It accepts HTTPS
+URLs only, omits browser credentials, rejects redirects, enforces expiry and bounded byte ranges,
+and returns ciphertext bytes without a plaintext fallback.
+
+```kotlin
+val bytes = createCiphertextObjectTransport().get(
+    CiphertextObjectRequest(
+        url = authorizedObjectUrl,
+        expiresAtEpochMillis = expiresAt,
+        rangeStart = 0,
+        rangeEndInclusive = 1_048_575,
+        maxBytes = 1_048_576
+    )
+)
+```
+
+### Owned live signals
+
+`WebSocketClient` is bound to a caller-owned `CoroutineScope`. Scope cancellation or `dispose()`
+removes browser listeners, clears reconnect and ping timers, closes the socket, invalidates old
+connection generations, and prevents stale events from reaching a later account.
+
+```kotlin
+val signals = createWebSocket(
+    WebSocketConfig(
+        url = "wss://app.example.test/signals",
+        autoReconnect = true,
+        maxMessageBytes = 65_536,
+        maxQueuedEvents = 64,
+        pauseWhenOffline = true,
+        pauseWhenHidden = true,
+        payloadPolicy = WebSocketPayloadPolicy.OPAQUE_HINT
+    ),
+    scope = accountScope
 )
 
-enum class HttpMethod {
-    GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS
-}
-
-// HTTP Client interface
-expect class HttpClient {
-    suspend fun execute(request: HttpRequest): HttpResponse
-    suspend fun get(url: String, headers: Map<String, String> = emptyMap()): HttpResponse
-    suspend fun post(url: String, body: String, headers: Map<String, String> = emptyMap()): HttpResponse
-    suspend fun put(url: String, body: String, headers: Map<String, String> = emptyMap()): HttpResponse
-    suspend fun delete(url: String, headers: Map<String, String> = emptyMap()): HttpResponse
-}
-
-// Factory function
-expect fun createHttpClient(): HttpClient
-```
-
-**Extension functions for JSON and forms:**
-
-```kotlin
-// JSON extensions
-suspend fun HttpClient.getJson(url: String): HttpResponse =
-    get(url, mapOf("Accept" to "application/json"))
-
-suspend fun HttpClient.postJson(url: String, json: String): HttpResponse =
-    post(url, json, mapOf("Content-Type" to "application/json"))
-
-// Form data extensions
-suspend fun HttpClient.postForm(url: String, formData: Map<String, String>): HttpResponse {
-    val body = formData.entries.joinToString("&") { "${it.key}=${it.value}" }
-    return post(url, body, mapOf("Content-Type" to "application/x-www-form-urlencoded"))
-}
-```
-
-**Usage:**
-
-```kotlin
-@Composable
-fun DataComponent() {
-    val data = remember { mutableStateOf<String?>(null) }
-    val isLoading = remember { mutableStateOf(false) }
-    val httpClient = remember { createHttpClient() }
-    
-    LaunchedEffect(Unit) {
-        isLoading.value = true
-        try {
-            val response = httpClient.getJson("/api/data")
-            if (response.status == 200) {
-                data.value = response.body
-            }
-        } catch (e: Exception) {
-            console.error("HTTP request failed: ${e.message}")
-        } finally {
-            isLoading.value = false
-        }
+signals.onEvent { event ->
+    when (event) {
+        is WebSocketEvent.Hint -> syncFromDurableCursor()
+        is WebSocketEvent.Error -> showConnectionState(event.code)
+        else -> Unit
     }
 }
 ```
+
+Opaque hints are wake signals only. They do not contain records or cursors; durable cursor recovery
+belongs to the application's sync domain. Incoming messages and pending events are bounded.
+Reconnect uses bounded exponential backoff and pauses while offline or hidden. Call `pause()` for a
+temporary suspension, `resume()` when policy permits, and `dispose()` on logout or revocation.
 
 ### Storage
 

@@ -1,90 +1,75 @@
 package codes.yousef.summon.effects
 
-/**
- * WebSocket connection state
- */
+import kotlinx.coroutines.CoroutineScope
+
 enum class WebSocketState {
     CONNECTING,
     OPEN,
+    PAUSED,
     CLOSING,
     CLOSED
 }
 
-/**
- * WebSocket event types
- */
-sealed class WebSocketEvent {
-    object Connected : WebSocketEvent()
-    data class Message(val data: String) : WebSocketEvent()
-    data class Error(val error: String) : WebSocketEvent()
-    object Disconnected : WebSocketEvent()
+enum class WebSocketErrorCode {
+    CONNECTION,
+    NOT_CONNECTED,
+    MESSAGE_TOO_LARGE,
+    QUEUE_OVERFLOW,
+    INVALID_HINT
 }
 
-/**
- * Cross-platform WebSocket client interface
- */
+sealed class WebSocketEvent {
+    data object Connected : WebSocketEvent()
+    data class Message(val data: String) : WebSocketEvent()
+    data class Hint(val opaqueId: String) : WebSocketEvent()
+    data class Error(val code: WebSocketErrorCode) : WebSocketEvent()
+    data object Disconnected : WebSocketEvent()
+}
+
+enum class WebSocketPayloadPolicy {
+    GENERAL,
+    OPAQUE_HINT
+}
+
 expect class WebSocketClient {
-    /**
-     * Connect to a WebSocket server
-     * @param url The WebSocket URL to connect to
-     * @param protocols Optional list of sub-protocols
-     */
     fun connect(url: String, protocols: List<String> = emptyList())
-
-    /**
-     * Send a text message
-     * @param message The message to send
-     */
     fun send(message: String)
-
-    /**
-     * Send binary data
-     * @param data The binary data to send
-     */
     fun send(data: ByteArray)
-
-    /**
-     * Close the WebSocket connection
-     * @param code Close code (default: 1000 - normal closure)
-     * @param reason Optional reason for closing
-     */
+    fun pause()
+    fun resume()
     fun close(code: Int = 1000, reason: String = "")
-
-    /**
-     * Get the current connection state
-     */
+    fun dispose()
     val state: WebSocketState
-
-    /**
-     * Check if the connection is open
-     */
     val isConnected: Boolean
-
-    /**
-     * Set event handlers
-     */
     fun onEvent(handler: (WebSocketEvent) -> Unit)
 }
 
-/**
- * WebSocket configuration options
- */
 data class WebSocketConfig(
     val url: String,
     val protocols: List<String> = emptyList(),
     val autoReconnect: Boolean = false,
-    val reconnectDelay: Long = 5000, // milliseconds
-    val maxReconnectAttempts: Int = 3,
-    val pingInterval: Long = 30000, // milliseconds
-    val pongTimeout: Long = 5000 // milliseconds
-)
+    val reconnectDelay: Long = 1_000,
+    val maxReconnectDelay: Long = 30_000,
+    val maxReconnectAttempts: Int = 8,
+    val pingInterval: Long = 30_000,
+    val pongTimeout: Long = 5_000,
+    val maxMessageBytes: Int = 65_536,
+    val maxQueuedEvents: Int = 64,
+    val pauseWhenOffline: Boolean = true,
+    val pauseWhenHidden: Boolean = true,
+    val payloadPolicy: WebSocketPayloadPolicy = WebSocketPayloadPolicy.GENERAL
+) {
+    init {
+        require(url.startsWith("wss://") || url.startsWith("ws://")) { "WebSocket URL must use ws or wss" }
+        require(reconnectDelay > 0 && maxReconnectDelay >= reconnectDelay) { "Invalid reconnect delay" }
+        require(maxReconnectAttempts >= 0) { "Reconnect attempt count cannot be negative" }
+        require(pingInterval >= 0 && pongTimeout >= 0) { "Ping intervals cannot be negative" }
+        require(maxMessageBytes > 0) { "Message byte limit must be positive" }
+        require(maxQueuedEvents > 0) { "Event queue limit must be positive" }
+    }
+}
 
-/**
- * Create a WebSocket client with configuration
- */
-expect fun createWebSocket(config: WebSocketConfig): WebSocketClient
+expect fun createWebSocket(config: WebSocketConfig, scope: CoroutineScope): WebSocketClient
 
-/**
- * Simple WebSocket client factory
- */
-fun createWebSocket(url: String): WebSocketClient = createWebSocket(WebSocketConfig(url))
+fun createWebSocket(url: String, scope: CoroutineScope): WebSocketClient =
+    createWebSocket(WebSocketConfig(url), scope)

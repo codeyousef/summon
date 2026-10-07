@@ -1,158 +1,254 @@
 package codes.yousef.summon.effects
 
+import kotlinx.browser.document
 import kotlinx.browser.window
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import org.khronos.webgl.Int8Array
 import org.w3c.dom.CloseEvent
+import org.w3c.dom.Document
+import org.w3c.dom.events.Event
 import org.w3c.dom.WebSocket as DomWebSocket
+import kotlin.math.min
 
-/**
- * JavaScript WebSocket client implementation
- */
+private val Document.visibilityState: String
+    get() = asDynamic().visibilityState as String
+
 actual class WebSocketClient {
     private var webSocket: DomWebSocket? = null
     private var eventHandler: ((WebSocketEvent) -> Unit)? = null
-    private var config: WebSocketConfig? = null
+    private lateinit var config: WebSocketConfig
+    private lateinit var scope: CoroutineScope
+    private lateinit var events: Channel<WebSocketEvent>
     private var reconnectAttempts = 0
     private var reconnectTimer: Int? = null
     private var pingTimer: Int? = null
+    private var generation = 0L
+    private var paused = false
+    private var disposed = false
+
+    private val onlineListener: (Event) -> Unit = { if (paused && config.pauseWhenOffline) resume() }
+    private val offlineListener: (Event) -> Unit = { if (config.pauseWhenOffline) pause() }
+    private val visibilityListener: (Event) -> Unit = {
+        if (config.pauseWhenHidden) {
+            if (document.visibilityState == "hidden") pause() else resume()
+        }
+    }
+
+    internal fun initialize(config: WebSocketConfig, scope: CoroutineScope) {
+        this.config = config
+        this.scope = scope
+        this.events = Channel(config.maxQueuedEvents)
+        scope.launch {
+            while (isActive) {
+                val event = events.receive()
+                while (isActive && eventHandler == null) delay(1)
+                eventHandler?.invoke(event)
+            }
+        }
+        scope.coroutineContext[kotlinx.coroutines.Job]?.invokeOnCompletion { dispose() }
+        window.addEventListener("online", onlineListener)
+        window.addEventListener("offline", offlineListener)
+        document.addEventListener("visibilitychange", visibilityListener)
+        open()
+    }
 
     actual fun connect(url: String, protocols: List<String>) {
-        connect(WebSocketConfig(url, protocols))
+        check(::config.isInitialized) { "WebSocket client is not initialized" }
+        config = config.copy(url = url, protocols = protocols)
+        paused = false
+        generation++
+        cancelTimers()
+        closeSocket(1000, "")
+        open()
     }
 
-    fun connect(config: WebSocketConfig) {
-        this.config = config
-        close() // Close any existing connection
-
+    private fun open() {
+        if (disposed || paused || !scope.isActive) return
+        if (config.pauseWhenOffline && !window.navigator.onLine) {
+            paused = true
+            return
+        }
+        if (config.pauseWhenHidden && document.visibilityState == "hidden") {
+            paused = true
+            return
+        }
+        val connectionGeneration = generation
         try {
-            webSocket = if (config.protocols.isNotEmpty()) {
-                DomWebSocket(config.url, config.protocols.toTypedArray())
-            } else {
+            val socket = if (config.protocols.isEmpty()) {
                 DomWebSocket(config.url)
+            } else {
+                DomWebSocket(config.url, config.protocols.toTypedArray())
             }
-
-            setupEventListeners()
-        } catch (e: Exception) {
-            eventHandler?.invoke(WebSocketEvent.Error("Failed to create WebSocket: ${e.message}"))
-        }
-    }
-
-    private fun setupEventListeners() {
-        webSocket?.let { ws ->
-            ws.onopen = { event ->
-                reconnectAttempts = 0
-                startPingTimer()
-                eventHandler?.invoke(WebSocketEvent.Connected)
+            webSocket = socket
+            socket.onopen = {
+                if (connectionGeneration == generation && !disposed) {
+                    reconnectAttempts = 0
+                    startPingTimer(connectionGeneration)
+                    emit(WebSocketEvent.Connected)
+                }
             }
-
-            ws.onmessage = { event ->
-                when (val data = event.data) {
-                    is String -> eventHandler?.invoke(WebSocketEvent.Message(data))
-                    else -> {
-                        // Handle binary data if needed
-                        eventHandler?.invoke(WebSocketEvent.Message(data.toString()))
+            socket.onmessage = { event ->
+                if (connectionGeneration == generation && !disposed) {
+                    val message = event.data as? String
+                    if (message == null || message.encodeToByteArray().size > config.maxMessageBytes) {
+                        emit(WebSocketEvent.Error(WebSocketErrorCode.MESSAGE_TOO_LARGE))
+                    } else if (config.payloadPolicy == WebSocketPayloadPolicy.OPAQUE_HINT) {
+                        if (message.length <= 256 && message.all { it.isLetterOrDigit() || it in "._:-" }) {
+                            emit(WebSocketEvent.Hint(message))
+                        } else {
+                            emit(WebSocketEvent.Error(WebSocketErrorCode.INVALID_HINT))
+                        }
+                    } else {
+                        emit(WebSocketEvent.Message(message))
                     }
                 }
             }
-
-            ws.onerror = { event ->
-                eventHandler?.invoke(WebSocketEvent.Error("WebSocket error occurred"))
-            }
-
-            ws.onclose = { event ->
-                val closeEvent = event as CloseEvent
-                stopPingTimer()
-                eventHandler?.invoke(WebSocketEvent.Disconnected)
-
-                // Auto-reconnect if enabled and not a normal closure
-                if (config?.autoReconnect == true && closeEvent.code.toInt() != 1000 &&
-                    reconnectAttempts < (config?.maxReconnectAttempts ?: 3)
-                ) {
-                    scheduleReconnect()
+            socket.onerror = {
+                if (connectionGeneration == generation && !disposed) {
+                    emit(WebSocketEvent.Error(WebSocketErrorCode.CONNECTION))
                 }
             }
+            socket.onclose = { rawEvent ->
+                if (connectionGeneration == generation && !disposed) {
+                    stopPingTimer()
+                    webSocket = null
+                    emit(WebSocketEvent.Disconnected)
+                    val closeEvent = rawEvent as CloseEvent
+                    if (!paused && config.autoReconnect && closeEvent.code.toInt() != 1000) {
+                        scheduleReconnect(connectionGeneration)
+                    }
+                }
+            }
+        } catch (_: Throwable) {
+            emit(WebSocketEvent.Error(WebSocketErrorCode.CONNECTION))
+            if (config.autoReconnect) scheduleReconnect(connectionGeneration)
         }
     }
 
-    private fun scheduleReconnect() {
+    private fun emit(event: WebSocketEvent) {
+        if (!events.trySend(event).isSuccess) {
+            eventHandler?.invoke(WebSocketEvent.Error(WebSocketErrorCode.QUEUE_OVERFLOW))
+        }
+    }
+
+    private fun scheduleReconnect(connectionGeneration: Long) {
+        if (reconnectAttempts >= config.maxReconnectAttempts || disposed || paused) return
         reconnectAttempts++
-        val delay = config?.reconnectDelay ?: 5000
-
+        val multiplier = 1L shl min(reconnectAttempts - 1, 20)
+        val delayMillis = min(config.maxReconnectDelay, config.reconnectDelay * multiplier)
+        reconnectTimer?.let(window::clearTimeout)
         reconnectTimer = window.setTimeout({
-            config?.let { connect(it) }
-        }, delay.toInt())
+            reconnectTimer = null
+            if (connectionGeneration == generation && !disposed && !paused) open()
+        }, delayMillis.coerceAtMost(Int.MAX_VALUE.toLong()).toInt())
     }
 
-    private fun startPingTimer() {
-        config?.let { cfg ->
-            if (cfg.pingInterval > 0) {
-                pingTimer = window.setInterval({
-                    if (isConnected) {
-                        send("ping") // Send ping message
-                    }
-                }, cfg.pingInterval.toInt())
-            }
-        }
+    private fun startPingTimer(connectionGeneration: Long) {
+        if (config.pingInterval <= 0) return
+        pingTimer = window.setInterval({
+            if (connectionGeneration == generation && isConnected) webSocket?.send("ping")
+        }, config.pingInterval.coerceAtMost(Int.MAX_VALUE.toLong()).toInt())
     }
 
     private fun stopPingTimer() {
-        pingTimer?.let { window.clearInterval(it) }
+        pingTimer?.let(window::clearInterval)
         pingTimer = null
     }
 
+    private fun cancelTimers() {
+        reconnectTimer?.let(window::clearTimeout)
+        reconnectTimer = null
+        stopPingTimer()
+    }
+
     actual fun send(message: String) {
-        webSocket?.let { ws ->
-            if (ws.readyState == DomWebSocket.OPEN) {
-                ws.send(message)
-            } else {
-                eventHandler?.invoke(WebSocketEvent.Error("WebSocket is not connected"))
-            }
-        } ?: eventHandler?.invoke(WebSocketEvent.Error("WebSocket not initialized"))
+        if (message.encodeToByteArray().size > config.maxMessageBytes) {
+            emit(WebSocketEvent.Error(WebSocketErrorCode.MESSAGE_TOO_LARGE))
+        } else if (isConnected) {
+            webSocket?.send(message)
+        } else {
+            emit(WebSocketEvent.Error(WebSocketErrorCode.NOT_CONNECTED))
+        }
     }
 
     actual fun send(data: ByteArray) {
-        webSocket?.let { ws ->
-            if (ws.readyState == DomWebSocket.OPEN) {
-                // Convert ByteArray to ArrayBuffer for JS
-                // Convert ByteArray to base64 string for transmission
-                val dataString = data.joinToString("") { (it.toInt() and 0xFF).toString(16).padStart(2, '0') }
-                ws.send(dataString)
-            } else {
-                eventHandler?.invoke(WebSocketEvent.Error("WebSocket is not connected"))
-            }
-        } ?: eventHandler?.invoke(WebSocketEvent.Error("WebSocket not initialized"))
+        if (data.size > config.maxMessageBytes) {
+            emit(WebSocketEvent.Error(WebSocketErrorCode.MESSAGE_TOO_LARGE))
+        } else if (isConnected) {
+            val bytes = Int8Array(data.size)
+            data.forEachIndexed { index, byte -> bytes.asDynamic()[index] = byte }
+            webSocket?.send(bytes.buffer)
+        } else {
+            emit(WebSocketEvent.Error(WebSocketErrorCode.NOT_CONNECTED))
+        }
+    }
+
+    actual fun pause() {
+        if (disposed || paused) return
+        paused = true
+        generation++
+        cancelTimers()
+        closeSocket(1000, "")
+    }
+
+    actual fun resume() {
+        if (disposed || !paused || !scope.isActive) return
+        if (config.pauseWhenOffline && !window.navigator.onLine) return
+        if (config.pauseWhenHidden && document.visibilityState == "hidden") return
+        paused = false
+        generation++
+        open()
     }
 
     actual fun close(code: Int, reason: String) {
-        reconnectTimer?.let { window.clearTimeout(it) }
-        stopPingTimer()
-        webSocket?.close(code.toShort(), reason)
+        generation++
+        paused = false
+        cancelTimers()
+        closeSocket(code, reason)
+    }
+
+    private fun closeSocket(code: Int, reason: String) {
+        val socket = webSocket
         webSocket = null
+        if (socket != null && socket.readyState < DomWebSocket.CLOSING) socket.close(code.toShort(), reason)
+    }
+
+    actual fun dispose() {
+        if (disposed) return
+        disposed = true
+        generation++
+        cancelTimers()
+        closeSocket(1000, "")
+        window.removeEventListener("online", onlineListener)
+        window.removeEventListener("offline", offlineListener)
+        document.removeEventListener("visibilitychange", visibilityListener)
+        if (::events.isInitialized) events.close()
+        eventHandler = null
     }
 
     actual val state: WebSocketState
-        get() = webSocket?.let { ws ->
-            when (ws.readyState) {
+        get() = if (paused) {
+            WebSocketState.PAUSED
+        } else {
+            when (webSocket?.readyState) {
                 DomWebSocket.CONNECTING -> WebSocketState.CONNECTING
                 DomWebSocket.OPEN -> WebSocketState.OPEN
                 DomWebSocket.CLOSING -> WebSocketState.CLOSING
-                DomWebSocket.CLOSED -> WebSocketState.CLOSED
                 else -> WebSocketState.CLOSED
             }
-        } ?: WebSocketState.CLOSED
+        }
 
     actual val isConnected: Boolean
-        get() = webSocket?.readyState == DomWebSocket.OPEN
+        get() = !disposed && !paused && webSocket?.readyState == DomWebSocket.OPEN
 
     actual fun onEvent(handler: (WebSocketEvent) -> Unit) {
-        this.eventHandler = handler
+        eventHandler = handler
     }
 }
 
-/**
- * Create a WebSocket client with configuration
- */
-actual fun createWebSocket(config: WebSocketConfig): WebSocketClient {
-    val client = WebSocketClient()
-    client.connect(config)
-    return client
-}
+actual fun createWebSocket(config: WebSocketConfig, scope: CoroutineScope): WebSocketClient =
+    WebSocketClient().also { it.initialize(config, scope) }

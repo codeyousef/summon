@@ -98,6 +98,12 @@ fun main() {
         mountComposableRoot("controls") { fixture.Controls() }
         return
     }
+    if (window.location.search.contains("transport=true")) {
+        val scheme = if (window.location.protocol == "https:") "wss" else "ws"
+        val fixture = TransportFixture("$scheme://${window.location.host}/signals")
+        mountComposableRoot("root") { fixture.Content() }
+        return
+    }
     if (window.location.search.contains("csp=true")) {
         val fixture = CspInteractionFixture()
         mountComposableRoot("root") { fixture.Content() }

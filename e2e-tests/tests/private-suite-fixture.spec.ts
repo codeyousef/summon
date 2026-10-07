@@ -109,6 +109,46 @@ test('production fixture sends strict first-party CSP', async ({ page }) => {
   await expect(page.getByTestId('counter')).toHaveText('Count: 1');
 });
 
+test('bounded transport aborts, preserves safe status metadata, and owns live signals', async ({ page }) => {
+  await page.goto('/?transport=true');
+  await expect(page.getByTestId('transport-title')).toHaveText('Transport qualification');
+  await page.getByRole('button', { name: 'Run transport probes', exact: true }).click();
+  const result = page.getByTestId('transport-result');
+  await expect(result).toContainText('\"transport\":\"ok\"');
+  await expect(result).toContainText('409:status-409:request-transport-01:2000');
+  await expect(result).toContainText('429:status-429:request-transport-01:2000');
+  await expect(result).toContainText('503:status-503:request-transport-01:2000');
+  await expect(result).toContainText('timeout');
+  await expect(result).toContainText('oversize');
+  await expect(result).toContainText('\"operation\":\"synthetic-operation-01\"');
+  await expect(result).toContainText('\"csrf\":\"synthetic-csrf\"');
+  await expect(result).toContainText('redirect-guarded');
+  await expect(result).not.toContainText('must-not-appear-in-error');
+
+  await expect.poll(async () => {
+    const response = await page.request.get('/transport/metrics');
+    return Number((await response.json()).slow_aborts);
+  }).toBeGreaterThan(0);
+  const metricsResponse = await page.request.get('/transport/metrics');
+  expect((await metricsResponse.json()).cross_origin_hits).toBe(0);
+
+  await page.getByRole('button', { name: 'Start signals', exact: true }).click();
+  const signals = page.getByTestId('signal-result');
+  await expect.poll(async () => {
+    const text = await signals.textContent();
+    return Number(/connections=(\d+)/.exec(text ?? '')?.[1] ?? 0);
+  }).toBeGreaterThanOrEqual(2);
+  await expect.poll(async () => {
+    const text = await signals.textContent();
+    return Number(/hints=(\d+)/.exec(text ?? '')?.[1] ?? 0);
+  }).toBeGreaterThan(1);
+
+  await page.getByRole('button', { name: 'Dispose transport', exact: true }).click();
+  await expect(signals).toHaveText('disposed');
+  await page.waitForTimeout(2_200);
+  await expect(signals).toHaveText('disposed');
+});
+
 test('hydration state closing-script text remains inert', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name.startsWith('wasm-'), 'JS hydration client owns public-state parsing');
   await page.goto('/?hydrationAdversarial=true');

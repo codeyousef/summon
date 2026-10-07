@@ -3,6 +3,10 @@ import codes.yousef.summon.renderComposableRoot
 import codes.yousef.summon.mountComposableRoot
 import codes.yousef.summon.runtime.wasmGetLocationPathname
 import codes.yousef.summon.runtime.wasmGetLocationSearch
+@OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
+@JsFun("() => (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/signals'")
+private external fun transportSignalUrl(): String
+
 fun main() {
     if ((wasmGetLocationSearch() ?: "").contains("ownership=true")) {
         val fixture = LifecycleOwnershipFixture()
@@ -64,6 +68,11 @@ fun main() {
         val second = FixtureSession("Synthetic account B")
         renderComposableRoot("second-root") { FixtureApp(second) }
         mountComposableRoot("controls") { fixture.Controls() }
+        return
+    }
+    if ((wasmGetLocationSearch() ?: "").contains("transport=true")) {
+        val fixture = TransportFixture(transportSignalUrl())
+        mountComposableRoot("root") { fixture.Content() }
         return
     }
     if ((wasmGetLocationSearch() ?: "").contains("csp=true")) {

@@ -40,6 +40,13 @@ All notable changes to this project will be documented in this file.
 - **Context-bound SSR callbacks** - Rendered callback IDs are one-shot capabilities bound to an
   opaque render context. Ktor, Spring and Quarkus callback endpoints reject missing, stale or
   cross-context capabilities without consuming the valid callback.
+- **Bounded private transport** - HTTP requests enforce UTF-8 request caps and streaming response
+  caps across JVM, JS and WASM. The suite JSON profile is same-origin, redirect-denying,
+  CSRF-authorized and operation-ID aware; ciphertext object downloads use a separate
+  credential-free, expiring, range-bounded transport.
+- **Owned live signals** - WebSocket clients bind queues, callbacks, timers and browser lifecycle
+  listeners to a caller scope. Messages and pending events are bounded, offline/hidden connections
+  pause, reconnect backoff is capped, and opaque hints cannot revive a disposed account generation.
 
 ### Changed
 
