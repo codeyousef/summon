@@ -149,6 +149,133 @@ test('bounded transport aborts, preserves safe status metadata, and owns live si
   await expect(signals).toHaveText('disposed');
 });
 
+test('opaque browser persistence is atomic, bounded, coordinated, and worker-owned', async ({ page }, testInfo) => {
+  await page.goto('/?persistence=true');
+  await expect(page.getByTestId('persistence-title')).toHaveText('Browser persistence qualification');
+  await page.getByRole('button', { name: 'Run persistence probes', exact: true }).click();
+  await expect(page.getByTestId('persistence-status')).toHaveText(
+    'ready:atomic=true;bounded=true;worker=true',
+    { timeout: 15_000 },
+  );
+  await page.evaluate(() => {
+    const storePrototype = IDBObjectStore.prototype as any;
+    const nativePut = storePrototype.put;
+    storePrototype.put = function(value: unknown, key?: IDBValidKey) {
+      if (key === 'quota-a') {
+        storePrototype.put = nativePut;
+        throw new DOMException('', 'QuotaExceededError');
+      }
+      return nativePut.call(this, value, key);
+    };
+    const databasePrototype = IDBDatabase.prototype as any;
+    const nativeTransaction = databasePrototype.transaction;
+    databasePrototype.transaction = function(storeNames: string | string[], mode?: IDBTransactionMode) {
+      if (mode === 'readonly') {
+        databasePrototype.transaction = nativeTransaction;
+        throw new DOMException('', 'InvalidStateError');
+      }
+      return nativeTransaction.call(this, storeNames, mode);
+    };
+  });
+  await page.getByRole('button', { name: 'Probe visible storage failures', exact: true }).click();
+  await expect(page.getByTestId('persistence-status')).toHaveText('errors:quota=true;evicted=true');
+
+
+  const second = await page.context().newPage();
+  const wasmTarget = testInfo.project.name.startsWith('wasm-');
+  if (wasmTarget) {
+    await second.goto('/blank');
+    await second.evaluate(() => {
+      (window as unknown as { __suiteChannel: BroadcastChannel }).__suiteChannel =
+        new BroadcastChannel('summon-opaque-suite-fixture');
+    });
+  } else {
+    await second.goto('/?persistence=true');
+    await expect(second.getByTestId('persistence-title')).toHaveText('Browser persistence qualification');
+    await second.getByRole('button', { name: 'Run persistence probes', exact: true }).click();
+    await expect(second.getByTestId('persistence-status')).toHaveText(
+      'ready:atomic=true;bounded=true;worker=true',
+      { timeout: 15_000 },
+    );
+  }
+
+  await page.evaluate(async () => {
+    const database = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open('summon-suite-fixture', 1);
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve(request.result);
+    });
+    database.onversionchange = () => undefined;
+    (window as unknown as { __blockingDatabase: IDBDatabase }).__blockingDatabase = database;
+  });
+
+  const upgradePage = wasmTarget ? page : second;
+  await upgradePage.getByRole('button', { name: 'Upgrade persistence schema', exact: true }).click();
+  await expect(upgradePage.getByTestId('persistence-status')).toHaveText('upgrade-blocked');
+  await expect(upgradePage.getByTestId('persistence-migration')).toHaveText('blocked:1->2');
+  await page.evaluate(async () => {
+    (window as unknown as { __blockingDatabase: IDBDatabase }).__blockingDatabase.close();
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.open('summon-suite-fixture', 2);
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        request.result.close();
+        resolve();
+      };
+    });
+  });
+  await upgradePage.getByRole('button', { name: 'Upgrade persistence schema', exact: true }).click();
+  await expect(upgradePage.getByTestId('persistence-status')).toHaveText('upgraded');
+  await expect(upgradePage.getByTestId('persistence-migration')).toHaveText('ready:2');
+
+  await page.getByRole('button', { name: 'Start delayed worker', exact: true }).click();
+  await expect(page.getByTestId('persistence-status')).toHaveText('worker-pending');
+  if (wasmTarget) {
+    await second.evaluate(() => {
+      (window as unknown as { __suiteChannel: BroadcastChannel }).__suiteChannel.postMessage('LOGOUT:lock-1');
+    });
+  } else {
+    await second.getByRole('button', { name: 'Broadcast logout', exact: true }).click();
+    await expect(second.getByTestId('persistence-status')).toContainText('locked:lock-');
+  }
+  await expect(page.getByTestId('persistence-status')).toContainText('locked:lock-');
+  await page.waitForTimeout(1_000);
+  await expect(page.getByTestId('persistence-status')).toContainText('locked:lock-');
+
+  const persisted = await page.evaluate(async () => {
+    const values = await new Promise<unknown[]>((resolve, reject) => {
+      const request = indexedDB.open('summon-suite-fixture', 2);
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        const database = request.result;
+        const transaction = database.transaction('opaque-records', 'readonly');
+        const all = transaction.objectStore('opaque-records').getAll();
+        all.onerror = () => reject(all.error);
+        all.onsuccess = () => {
+          database.close();
+          resolve(all.result);
+        };
+      };
+    });
+    const bytes = values.map(value => Array.from(new Uint8Array(value as ArrayBufferLike)));
+    const local = Array.from({ length: localStorage.length }, (_, index) => [
+      localStorage.key(index),
+      localStorage.getItem(localStorage.key(index)!),
+    ]);
+    const session = Array.from({ length: sessionStorage.length }, (_, index) => [
+      sessionStorage.key(index),
+      sessionStorage.getItem(sessionStorage.key(index)!),
+    ]);
+    return { bytes, local, session, cacheNames: await caches.keys() };
+  });
+  expect(persisted.bytes).toEqual(expect.arrayContaining([[145, 2, 167, 68], [194, 51, 23], [229, 97, 8]]));
+  expect(JSON.stringify(persisted)).not.toContain('Synthetic secret marker');
+  expect(persisted.local).toEqual([]);
+  expect(persisted.session).toEqual([]);
+  expect(persisted.cacheNames).toEqual([]);
+  await second.close();
+});
+
 test('hydration state closing-script text remains inert', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name.startsWith('wasm-'), 'JS hydration client owns public-state parsing');
   await page.goto('/?hydrationAdversarial=true');

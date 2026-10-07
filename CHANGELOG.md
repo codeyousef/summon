@@ -47,6 +47,12 @@ All notable changes to this project will be documented in this file.
 - **Owned live signals** - WebSocket clients bind queues, callbacks, timers and browser lifecycle
   listeners to a caller scope. Messages and pending events are bounded, offline/hidden connections
   pause, reconnect backoff is capped, and opaque hints cannot revive a disposed account generation.
+- **Opaque browser persistence** - JS and WASM expose bounded binary IndexedDB records with
+  atomic multi-record commits, explicit migration and typed quota/eviction/blocked states, while
+  JVM reports the capability unavailable instead of substituting volatile memory.
+- **Owned browser workers and tab coordination** - Same-origin workers use bounded correlated
+  binary requests with cancellation/disposal, and cross-tab lock, invalidation, logout and upgrade
+  messages accept only fixed event types with bounded opaque identifiers.
 
 ### Changed
 

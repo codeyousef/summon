@@ -27,6 +27,16 @@ class ShellFallbackHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         request_path = urlsplit(self.path).path
+        if request_path == "/blank":
+            payload = b"<!doctype html><html><body></body></html>"
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(payload)))
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("Content-Security-Policy", "default-src 'none'; script-src 'none'")
+            self.end_headers()
+            self.wfile.write(payload)
+            return
         if request_path == "/signals" and self.headers.get("Upgrade", "").lower() == "websocket":
             self._serve_signals()
             return

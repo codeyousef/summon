@@ -70,6 +70,11 @@ fun main() {
         mountComposableRoot("controls") { fixture.Controls() }
         return
     }
+    if ((wasmGetLocationSearch() ?: "").contains("persistence=true")) {
+        val fixture = PersistenceFixture()
+        mountComposableRoot("root") { fixture.Content() }
+        return
+    }
     if ((wasmGetLocationSearch() ?: "").contains("transport=true")) {
         val fixture = TransportFixture(transportSignalUrl())
         mountComposableRoot("root") { fixture.Content() }

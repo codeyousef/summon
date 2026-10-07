@@ -5278,6 +5278,158 @@ public final class codes/yousef/summon/desktop/window/WindowReference$DefaultImp
 	public static synthetic fun postMessage$default (Lcodes/yousef/summon/desktop/window/WindowReference;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)V
 }
 
+public abstract class codes/yousef/summon/effects/BrowserCapabilityError : java/lang/Exception {
+	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class codes/yousef/summon/effects/BrowserCapabilityError$Aborted : codes/yousef/summon/effects/BrowserCapabilityError {
+	public fun <init> ()V
+}
+
+public final class codes/yousef/summon/effects/BrowserCapabilityError$Closed : codes/yousef/summon/effects/BrowserCapabilityError {
+	public fun <init> ()V
+}
+
+public final class codes/yousef/summon/effects/BrowserCapabilityError$DataEvicted : codes/yousef/summon/effects/BrowserCapabilityError {
+	public fun <init> ()V
+}
+
+public final class codes/yousef/summon/effects/BrowserCapabilityError$InvalidKey : codes/yousef/summon/effects/BrowserCapabilityError {
+	public fun <init> ()V
+}
+
+public final class codes/yousef/summon/effects/BrowserCapabilityError$OperationFailed : codes/yousef/summon/effects/BrowserCapabilityError {
+	public fun <init> ()V
+}
+
+public final class codes/yousef/summon/effects/BrowserCapabilityError$ProtocolError : codes/yousef/summon/effects/BrowserCapabilityError {
+	public fun <init> ()V
+}
+
+public final class codes/yousef/summon/effects/BrowserCapabilityError$QuotaExceeded : codes/yousef/summon/effects/BrowserCapabilityError {
+	public fun <init> ()V
+}
+
+public final class codes/yousef/summon/effects/BrowserCapabilityError$RecordTooLarge : codes/yousef/summon/effects/BrowserCapabilityError {
+	public fun <init> (I)V
+	public final fun getLimitBytes ()I
+}
+
+public final class codes/yousef/summon/effects/BrowserCapabilityError$TooManyRequests : codes/yousef/summon/effects/BrowserCapabilityError {
+	public fun <init> (I)V
+	public final fun getLimit ()I
+}
+
+public final class codes/yousef/summon/effects/BrowserCapabilityError$TransactionTooLarge : codes/yousef/summon/effects/BrowserCapabilityError {
+	public fun <init> (I)V
+	public final fun getLimitBytes ()I
+}
+
+public final class codes/yousef/summon/effects/BrowserCapabilityError$Unavailable : codes/yousef/summon/effects/BrowserCapabilityError {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun getCapability ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/effects/BrowserCapabilityError$UpgradeBlocked : codes/yousef/summon/effects/BrowserCapabilityError {
+	public fun <init> ()V
+}
+
+public final class codes/yousef/summon/effects/BrowserCapabilityError$VersionMismatch : codes/yousef/summon/effects/BrowserCapabilityError {
+	public fun <init> ()V
+}
+
+public abstract class codes/yousef/summon/effects/BrowserMigrationEvent {
+}
+
+public final class codes/yousef/summon/effects/BrowserMigrationEvent$Blocked : codes/yousef/summon/effects/BrowserMigrationEvent {
+	public fun <init> (II)V
+	public final fun component1 ()I
+	public final fun component2 ()I
+	public final fun copy (II)Lcodes/yousef/summon/effects/BrowserMigrationEvent$Blocked;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/effects/BrowserMigrationEvent$Blocked;IIILjava/lang/Object;)Lcodes/yousef/summon/effects/BrowserMigrationEvent$Blocked;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getNewVersion ()I
+	public final fun getOldVersion ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/effects/BrowserMigrationEvent$Ready : codes/yousef/summon/effects/BrowserMigrationEvent {
+	public fun <init> (I)V
+	public final fun component1 ()I
+	public final fun copy (I)Lcodes/yousef/summon/effects/BrowserMigrationEvent$Ready;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/effects/BrowserMigrationEvent$Ready;IILjava/lang/Object;)Lcodes/yousef/summon/effects/BrowserMigrationEvent$Ready;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getVersion ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/effects/BrowserMigrationEvent$Upgrade : codes/yousef/summon/effects/BrowserMigrationEvent {
+	public fun <init> (II)V
+	public final fun component1 ()I
+	public final fun component2 ()I
+	public final fun copy (II)Lcodes/yousef/summon/effects/BrowserMigrationEvent$Upgrade;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/effects/BrowserMigrationEvent$Upgrade;IIILjava/lang/Object;)Lcodes/yousef/summon/effects/BrowserMigrationEvent$Upgrade;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getNewVersion ()I
+	public final fun getOldVersion ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/effects/BrowserPersistenceJvm {
+	public static final fun createBrowserRecordStore (Lcodes/yousef/summon/effects/BrowserRecordStoreConfig;Lkotlin/jvm/functions/Function1;)Lcodes/yousef/summon/effects/BrowserRecordStore;
+	public static synthetic fun createBrowserRecordStore$default (Lcodes/yousef/summon/effects/BrowserRecordStoreConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcodes/yousef/summon/effects/BrowserRecordStore;
+	public static final fun createBrowserWorker (Ljava/lang/String;II)Lcodes/yousef/summon/effects/BrowserWorker;
+	public static synthetic fun createBrowserWorker$default (Ljava/lang/String;IIILjava/lang/Object;)Lcodes/yousef/summon/effects/BrowserWorker;
+}
+
+public abstract interface class codes/yousef/summon/effects/BrowserRecordStore {
+	public abstract fun beginTransaction ()Lcodes/yousef/summon/effects/BrowserRecordTransaction;
+	public abstract fun close ()V
+	public abstract fun open (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun read (Ljava/lang/String;ILkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun read$default (Lcodes/yousef/summon/effects/BrowserRecordStore;Ljava/lang/String;ILkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class codes/yousef/summon/effects/BrowserRecordStore$DefaultImpls {
+	public static synthetic fun read$default (Lcodes/yousef/summon/effects/BrowserRecordStore;Ljava/lang/String;ILkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class codes/yousef/summon/effects/BrowserRecordStoreConfig {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;III)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;IIIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()I
+	public final fun component4 ()I
+	public final fun component5 ()I
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;III)Lcodes/yousef/summon/effects/BrowserRecordStoreConfig;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/effects/BrowserRecordStoreConfig;Ljava/lang/String;Ljava/lang/String;IIIILjava/lang/Object;)Lcodes/yousef/summon/effects/BrowserRecordStoreConfig;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDatabaseName ()Ljava/lang/String;
+	public final fun getMaxRecordBytes ()I
+	public final fun getMaxTransactionBytes ()I
+	public final fun getSchemaVersion ()I
+	public final fun getStoreName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class codes/yousef/summon/effects/BrowserRecordTransaction {
+	public abstract fun abort ()V
+	public abstract fun commit (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun delete (Ljava/lang/String;)V
+	public abstract fun put (Ljava/lang/String;[B)V
+}
+
+public abstract interface class codes/yousef/summon/effects/BrowserWorker : java/lang/AutoCloseable {
+	public abstract fun cancel (Ljava/lang/String;)V
+	public abstract fun close ()V
+	public abstract fun request (Ljava/lang/String;[BLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
 public final class codes/yousef/summon/effects/CiphertextObjectRequest {
 	public fun <init> (Ljava/lang/String;JJLjava/lang/Long;I)V
 	public synthetic fun <init> (Ljava/lang/String;JJLjava/lang/Long;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -5627,6 +5779,36 @@ public final class codes/yousef/summon/effects/Location {
 public final class codes/yousef/summon/effects/MouseEvent {
 	public fun <init> (Ljava/lang/Object;)V
 	public final fun getTarget ()Ljava/lang/Object;
+}
+
+public final class codes/yousef/summon/effects/OpaqueTabChannel {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun close ()V
+	public final fun onEvent (Lkotlin/jvm/functions/Function1;)Lkotlin/jvm/functions/Function0;
+	public final fun post (Lcodes/yousef/summon/effects/OpaqueTabEvent;)V
+}
+
+public final class codes/yousef/summon/effects/OpaqueTabEvent {
+	public fun <init> (Lcodes/yousef/summon/effects/OpaqueTabEventType;Ljava/lang/String;)V
+	public final fun component1 ()Lcodes/yousef/summon/effects/OpaqueTabEventType;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Lcodes/yousef/summon/effects/OpaqueTabEventType;Ljava/lang/String;)Lcodes/yousef/summon/effects/OpaqueTabEvent;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/effects/OpaqueTabEvent;Lcodes/yousef/summon/effects/OpaqueTabEventType;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/effects/OpaqueTabEvent;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getOpaqueId ()Ljava/lang/String;
+	public final fun getType ()Lcodes/yousef/summon/effects/OpaqueTabEventType;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/effects/OpaqueTabEventType : java/lang/Enum {
+	public static final field INVALIDATE Lcodes/yousef/summon/effects/OpaqueTabEventType;
+	public static final field LOCK Lcodes/yousef/summon/effects/OpaqueTabEventType;
+	public static final field LOGOUT Lcodes/yousef/summon/effects/OpaqueTabEventType;
+	public static final field UPGRADE Lcodes/yousef/summon/effects/OpaqueTabEventType;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcodes/yousef/summon/effects/OpaqueTabEventType;
+	public static fun values ()[Lcodes/yousef/summon/effects/OpaqueTabEventType;
 }
 
 public final class codes/yousef/summon/effects/SideEffectManagementKt {

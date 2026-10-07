@@ -954,95 +954,90 @@ belongs to the application's sync domain. Incoming messages and pending events a
 Reconnect uses bounded exponential backoff and pauses while offline or hidden. Call `pause()` for a
 temporary suspension, `resume()` when policy permits, and `dispose()` on logout or revocation.
 
-### Storage
+### Storage and browser capabilities
 
-Cross-platform storage abstraction for local, session, and memory storage.
+`Storage` and `TypedStorage` are synchronous preference APIs for local, session, or memory
+strings. Browser local/session storage may fall back to process memory when unavailable. Do not
+use these APIs for durable jobs, ciphertext records, keys, tokens, or decrypted private data.
 
 ```kotlin
-enum class StorageType {
-    LOCAL, SESSION, MEMORY
-}
+val preferences = createLocalStorage()
+preferences.setItem("theme", "dark")
 
-// Storage interface
-expect class Storage {
-    fun setItem(key: String, value: String)
-    fun getItem(key: String): String?
-    fun removeItem(key: String)
-    fun clear()
-    fun getKeys(): Set<String>
-    fun size(): Int
-}
-
-// Factory functions
-expect fun createLocalStorage(): Storage
-expect fun createSessionStorage(): Storage
-expect fun createMemoryStorage(): Storage
-
-// Typed storage wrapper
-class TypedStorage<T>(
-    private val storage: Storage,
-    private val serializer: (T) -> String,
-    private val deserializer: (String) -> T?
-) {
-    fun set(key: String, value: T) {
-        storage.setItem(key, serializer(value))
-    }
-    
-    fun get(key: String): T? {
-        val stringValue = storage.getItem(key) ?: return null
-        return deserializer(stringValue)
-    }
-    
-    fun remove(key: String) = storage.removeItem(key)
-    fun clear() = storage.clear()
-}
+val typed = TypedStorage(preferences, "preferences.")
+typed.setBoolean("compact", true)
 ```
 
-**Usage:**
+`BrowserRecordStore` is the asynchronous browser durability seam. JS and WASM use IndexedDB.
+JVM reports `BrowserCapabilityError.Unavailable`; it never substitutes an in-memory store for a
+durable request. Values are opaque bytes. Summon does not encrypt, decrypt, index, or manage keys.
 
 ```kotlin
-@Composable
-fun UserPreferencesComponent() {
-    val localStorage = remember { createLocalStorage() }
-    val theme = remember { mutableStateOf("light") }
-    
-    // Load theme preference on startup
-    LaunchedEffect(Unit) {
-        val savedTheme = localStorage.getItem("theme") ?: "light"
-        theme.value = savedTheme
-    }
-    
-    // Save theme when it changes
-    LaunchedEffect(theme.value) {
-        localStorage.setItem("theme", theme.value)
-    }
-    
-    Button(
-        onClick = {
-            theme.value = if (theme.value == "light") "dark" else "light"
-        },
-        label = "Toggle Theme (Current: ${theme.value})"
+val store = createBrowserRecordStore(
+    BrowserRecordStoreConfig(
+        databaseName = "suite-ciphertext",
+        storeName = "records",
+        schemaVersion = 3,
+        maxRecordBytes = 4 * 1024 * 1024,
+        maxTransactionBytes = 16 * 1024 * 1024
     )
+) { event ->
+    when (event) {
+        is BrowserMigrationEvent.Upgrade -> migrateEncryptedSchema(event.oldVersion, event.newVersion)
+        is BrowserMigrationEvent.Blocked -> showCloseOtherTabs()
+        is BrowserMigrationEvent.Ready -> showLocalCapabilityReady()
+    }
 }
 
-// Typed storage example
-@Composable
-fun TypedStorageExample() {
-    val userStorage = remember {
-        TypedStorage(
-            storage = createLocalStorage(),
-            serializer = { user: User -> Json.encodeToString(user) },
-            deserializer = { json -> try { Json.decodeFromString<User>(json) } catch (e: Exception) { null } }
-        )
-    }
-    
-    val currentUser = remember { mutableStateOf<User?>(null) }
-    
-    LaunchedEffect(Unit) {
-        currentUser.value = userStorage.get("currentUser")
-    }
-}
+store.open()
+val transaction = store.beginTransaction()
+transaction.put("record.42", encryptedRecord)
+transaction.put("operation.42", encryptedOperation)
+transaction.put("cursor.account", encryptedCursor)
+transaction.commit() // all staged keys commit, or none do
+
+val record = store.read("record.42", maxBytes = 512 * 1024)
+store.close()
 ```
+
+Record and transaction byte limits are checked before IndexedDB writes. Reads are bounded.
+Quota, eviction/invalid state, blocked upgrades, version mismatches, aborts, and closure use typed
+`BrowserCapabilityError` subclasses. Closing a store aborts active native transactions and rejects
+new work.
+
+`OpaqueTabChannel` exposes only fixed lock, invalidation, logout, and upgrade events with bounded
+opaque identifiers:
+
+```kotlin
+val channel = OpaqueTabChannel("account-coordination")
+val unsubscribe = channel.onEvent { event ->
+    if (event.type == OpaqueTabEventType.LOGOUT) disposePrivateAccount(event.opaqueId)
+}
+channel.post(OpaqueTabEvent(OpaqueTabEventType.INVALIDATE, "generation.17"))
+
+unsubscribe()
+channel.close()
+```
+
+`BrowserWorker` accepts bounded byte messages with unique opaque correlation IDs. Worker scripts
+must be same-origin root-relative resources. Cancellation sends a protocol cancellation and drops
+late responses; `close()` terminates the worker and rejects pending calls.
+
+```kotlin
+val worker = createBrowserWorker(
+    scriptPath = "/workers/private-index.js",
+    maxMessageBytes = 2 * 1024 * 1024,
+    maxPendingRequests = 8
+)
+val encryptedResult = worker.request("request.17", encryptedPayload)
+worker.cancel("request.18")
+worker.close()
+```
+
+The worker protocol carries `{ kind, id, payload }`: `request` messages contain a `Uint8Array`;
+successful replies use `response` with the same ID; `cancel` invalidates that ID. Workers remain
+application code and must enforce their own compartment and schema. Summon does not grant server
+authority, cache private responses, or treat browser offline storage as permanent backup.
 
 ---
 
