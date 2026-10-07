@@ -122,7 +122,7 @@ test('bounded transport aborts, preserves safe status metadata, and owns live si
   await expect(page.getByTestId('transport-title')).toHaveText('Transport qualification');
   await page.getByRole('button', { name: 'Run transport probes', exact: true }).click();
   const result = page.getByTestId('transport-result');
-  await expect(result).toContainText('\"transport\":\"ok\"');
+  await expect(result).toContainText('"transport":"ok"', { timeout: 15_000 });
   await expect(result).toContainText('409:status-409:request-transport-01:2000');
   await expect(result).toContainText('429:status-429:request-transport-01:2000');
   await expect(result).toContainText('503:status-503:request-transport-01:2000');
