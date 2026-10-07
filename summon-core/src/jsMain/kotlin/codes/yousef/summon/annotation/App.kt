@@ -6,7 +6,7 @@ package codes.yousef.summon.annotation
  *
  * The method should take a `content: @Composable () -> Unit` parameter.
  *
- * If no method is annotated `@App` then a reasonable default will be used ([SummonApp] at a bare minimum).
+ * If no method is annotated `@App`, the runtime uses its default application root.
  * Of course, your own custom app method can compose this function if it wishes to:
  *
  * ```

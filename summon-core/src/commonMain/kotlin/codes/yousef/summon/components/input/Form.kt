@@ -9,8 +9,11 @@ import codes.yousef.summon.runtime.getPlatformRenderer
  * Base interface for form fields
  */
 interface FormField {
+    /** Optional visible field label. */
     val label: String?
+    /** Current serialized field value. */
     val value: String
+    /** Validates current state and returns whether it passed. */
     fun validate(): Boolean
 }
 

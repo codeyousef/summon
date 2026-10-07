@@ -115,13 +115,18 @@ The `ServerSideRenderUtils` class provides convenient methods for common SSR sce
 ```kotlin
 import codes.yousef.summon.security.PublicHydrationState
 import codes.yousef.summon.ssr.ServerSideRenderUtils
+import codes.yousef.summon.ssr.SeoMetadata
 
 val html = ServerSideRenderUtils.renderPageToString(
     rootComposable = { MyApp() },
     publicState = PublicHydrationState(
         """{"theme":"dark","language":"en"}"""
     ),
-    includeHydrationScript = true
+    includeHydrationScript = true,
+    seoMetadata = SeoMetadata(
+        title = "Summon",
+        description = "A server-rendered Summon application"
+    )
 )
 ```
 

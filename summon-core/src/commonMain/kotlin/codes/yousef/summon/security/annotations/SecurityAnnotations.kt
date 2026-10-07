@@ -8,21 +8,29 @@ package codes.yousef.summon.security.annotations
 annotation class RequiresAuthentication
 
 /**
- * Annotation to mark a route or component as requiring specific roles
+ * Annotation to mark a route or component as requiring specific roles.
+ *
+ * @property roles Roles accepted by the protected declaration.
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class RequiresRoles(vararg val roles: String)
 
 /**
- * Annotation to mark a route or component as requiring specific permissions
+ * Annotation to mark a route or component as requiring specific permissions.
+ *
+ * @property permissions Permissions required by the protected declaration.
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class RequiresPermissions(vararg val permissions: String)
 
 /**
- * Comprehensive annotation that combines authentication, roles, and permissions requirements.
+ * Combines authentication, role, and permission requirements.
+ *
+ * @property requiresAuthentication Whether an authenticated principal is required.
+ * @property roles Roles accepted by the protected declaration.
+ * @property permissions Permissions required by the protected declaration.
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
@@ -37,4 +45,4 @@ annotation class RequiresAccess(
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class Public 
+annotation class Public

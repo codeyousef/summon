@@ -9,6 +9,11 @@ import org.w3c.dom.Storage
  */
 actual object BrowserCapabilities {
 
+    /**
+     * Executes the detect operation.
+     *
+     * @return The resulting value.
+     */
     actual fun detect(): BrowserSupport {
         val browserInfo = detectBrowser()
         val wasmSupport = FeatureDetection.detectWasmSupport()
@@ -27,6 +32,12 @@ actual object BrowserCapabilities {
         )
     }
 
+    /**
+     * Returns whether this value has feature.
+     *
+     * @param feature The feature value.
+     * @return The resulting value.
+     */
     actual fun hasFeature(feature: BrowserFeature): Boolean {
         return when (feature) {
             BrowserFeature.MODERN_JS -> FeatureDetection.hasModernJSSupport()
@@ -51,6 +62,11 @@ actual object BrowserCapabilities {
         }
     }
 
+    /**
+     * Returns optimal strategy.
+     *
+     * @return The resulting value.
+     */
     actual fun getOptimalStrategy(): RenderingStrategy {
         val support = detect()
 
@@ -72,6 +88,11 @@ actual object BrowserCapabilities {
         }
     }
 
+    /**
+     * Executes the should use WASM operation.
+     *
+     * @return The resulting value.
+     */
     actual fun shouldUseWasm(): Boolean {
         val support = detect()
 
@@ -249,6 +270,13 @@ actual object BrowserCapabilities {
  */
 class JSErrorBoundary : ErrorBoundary {
 
+    /**
+     * Executes the handle error operation.
+     *
+     * @param error The error value.
+     * @param context The context value.
+     * @return The resulting value.
+     */
     override fun handleError(error: Throwable, context: String): ErrorAction {
         console.error("Error in $context:", error)
 
@@ -273,6 +301,13 @@ class JSErrorBoundary : ErrorBoundary {
         }
     }
 
+    /**
+     * Executes the report error operation.
+     *
+     * @param error The error value.
+     * @param context The context value.
+     * @param metadata The metadata value.
+     */
     override fun reportError(error: Throwable, context: String, metadata: Map<String, Any>) {
         val errorReport = buildMap {
             put("error", error.message ?: "Unknown error")
@@ -290,6 +325,12 @@ class JSErrorBoundary : ErrorBoundary {
         // reportToService(errorReport)
     }
 
+    /**
+     * Returns whether this value can recover.
+     *
+     * @param error The error value.
+     * @return The resulting value.
+     */
     override fun canRecover(error: Throwable): Boolean {
         return when (error) {
             is RuntimeException -> when {
@@ -323,12 +364,25 @@ private fun isSecurityError(message: String?): Boolean {
  */
 class JSPerformanceMonitor : PerformanceMonitor {
 
+    /**
+     * Executes the mark operation.
+     *
+     * @param name Human-readable name.
+     */
     override fun mark(name: String) {
         if (js("'performance' in window && 'mark' in performance") as Boolean) {
             js("performance.mark(name)")
         }
     }
 
+    /**
+     * Measures this value.
+     *
+     * @param name Human-readable name.
+     * @param startMark The start mark value.
+     * @param endMark The end mark value.
+     * @return The resulting value.
+     */
     override fun measure(name: String, startMark: String, endMark: String?): Double {
         if (js("'performance' in window && 'measure' in performance") as Boolean) {
             val measureResult = if (endMark != null) {
@@ -366,6 +420,11 @@ class JSPerformanceMonitor : PerformanceMonitor {
         return 0.0
     }
 
+    /**
+     * Returns memory usage.
+     *
+     * @return The resulting value.
+     */
     override fun getMemoryUsage(): MemoryInfo {
         if (js("'performance' in window && 'memory' in performance") as Boolean) {
             val memory = js("performance.memory")
@@ -383,6 +442,11 @@ class JSPerformanceMonitor : PerformanceMonitor {
         return MemoryInfo()
     }
 
+    /**
+     * Returns rendering metrics.
+     *
+     * @return The resulting value.
+     */
     override fun getRenderingMetrics(): RenderingMetrics {
         val navigation = js("performance.navigation || {}")
         val timing = js("performance.timing || {}")
@@ -398,6 +462,11 @@ class JSPerformanceMonitor : PerformanceMonitor {
         )
     }
 
+    /**
+     * Executes the report metrics operation.
+     *
+     * @param metrics The metrics value.
+     */
     override fun reportMetrics(metrics: Map<String, Any>) {
         console.info("Performance Metrics:", metrics)
 
@@ -487,6 +556,11 @@ class JSPerformanceMonitor : PerformanceMonitor {
  */
 object JSFeatureDetection {
 
+    /**
+     * Executes the detect WASM support operation.
+     *
+     * @return The resulting value.
+     */
     fun detectWasmSupport(): WasmVersion {
         return try {
             if (hasBasicWasm()) {
@@ -533,10 +607,20 @@ object JSFeatureDetection {
         return js("typeof WebAssembly.Memory !== 'undefined'") as Boolean
     }
 
+    /**
+     * Returns whether this value has module support.
+     *
+     * @return The resulting value.
+     */
     fun hasModuleSupport(): Boolean {
         return js("'noModule' in HTMLScriptElement.prototype") as Boolean
     }
 
+    /**
+     * Returns whether this value has modern JS support.
+     *
+     * @return The resulting value.
+     */
     fun hasModernJSSupport(): Boolean {
         return hasAsyncAwait() && hasArrowFunctions() && hasPromises()
     }

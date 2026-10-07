@@ -8,6 +8,7 @@ import org.w3c.dom.Window
  */
 actual object WindowManager {
 
+    /** The property declaration value. */
     actual val currentWindowId: String? by lazy {
         try {
             // Try to get existing ID from sessionStorage
@@ -26,6 +27,14 @@ actual object WindowManager {
         }
     }
 
+    /**
+     * Opens the operation.
+     *
+     * @param url Target URL.
+     * @param target The target value.
+     * @param options The options value.
+     * @return The resulting value.
+     */
     actual fun open(
         url: String,
         target: String,
@@ -36,6 +45,11 @@ actual object WindowManager {
         return openedWindow?.let { JsWindowReference(it) }
     }
 
+    /**
+     * Returns screen info.
+     *
+     * @return The resulting value.
+     */
     actual fun getScreenInfo(): ScreenInfo {
         val screen = window.screen
         return ScreenInfo(
@@ -49,24 +63,47 @@ actual object WindowManager {
         )
     }
 
+    /**
+     * Returns current window bounds.
+     *
+     * @return The resulting value.
+     */
     actual fun getCurrentWindowBounds(): Pair<Pair<Int, Int>, Pair<Int, Int>> {
         val position = Pair(window.screenX, window.screenY)
         val size = Pair(window.outerWidth, window.outerHeight)
         return Pair(position, size)
     }
 
+    /**
+     * Executes the move to operation.
+     *
+     * @param x The x value.
+     * @param y The y value.
+     */
     actual fun moveTo(x: Int, y: Int) {
         window.moveTo(x, y)
     }
 
+    /**
+     * Executes the resize to operation.
+     *
+     * @param width The width value.
+     * @param height The height value.
+     */
     actual fun resizeTo(width: Int, height: Int) {
         window.resizeTo(width, height)
     }
 
+    /** Moves focus to this element. */
     actual fun focus() {
         window.focus()
     }
 
+    /**
+     * Executes the are popups likely blocked operation.
+     *
+     * @return The resulting value.
+     */
     actual fun arePopupsLikelyBlocked(): Boolean {
         // Try to open a small popup and check if it was blocked
         val testWindow = window.open("", "_blank", "width=1,height=1")

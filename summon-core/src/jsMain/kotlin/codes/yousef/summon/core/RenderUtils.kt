@@ -14,6 +14,13 @@ actual object RenderUtils {
     private val parentStack = ArrayDeque<HTMLElement>()
     internal var currentParent: HTMLElement = document.body ?: error("document.body is null")
 
+    /**
+     * Renders composable.
+     *
+     * @param container The container value.
+     * @param composable The composable value.
+     * @return The resulting value.
+     */
     actual fun renderComposable(container: Any, composable: @Composable () -> Unit): Renderer<Any> {
         val htmlContainer = container as? HTMLElement
             ?: throw IllegalArgumentException("Container must be an HTMLElement for JS target")
@@ -41,10 +48,23 @@ actual object RenderUtils {
         }
     }
 
+    /**
+     * Renders to string.
+     *
+     * @param composable The composable value.
+     * @return The resulting value.
+     */
     actual fun renderToString(composable: @Composable () -> Unit): String {
         return renderer.renderComposableRoot(composable)
     }
 
+    /**
+     * Executes the hydrate operation.
+     *
+     * @param container The container value.
+     * @param composable The composable value.
+     * @return The resulting value.
+     */
     actual fun hydrate(container: Any, composable: @Composable () -> Unit): Renderer<Any> {
         val htmlContainer = container as? HTMLElement
             ?: throw IllegalArgumentException("Container must be an HTMLElement for JS target")
@@ -71,6 +91,12 @@ actual object RenderUtils {
         }
     }
 
+    /**
+     * Renders to file.
+     *
+     * @param composable The composable value.
+     * @param file The file value.
+     */
     actual fun renderToFile(composable: @Composable () -> Unit, file: Any) {
         console.warn("renderToFile is not supported in JavaScript target")
     }

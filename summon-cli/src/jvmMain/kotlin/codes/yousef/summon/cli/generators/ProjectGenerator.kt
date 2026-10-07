@@ -8,6 +8,8 @@ import java.io.File
 
 /**
  * Generates Summon projects from templates
+
+ * @property template The template value.
  */
 class ProjectGenerator(private val template: ProjectTemplate) {
 
@@ -16,6 +18,19 @@ class ProjectGenerator(private val template: ProjectTemplate) {
         ?.takeIf { it.isNotBlank() }
         ?: System.getenv("SUMMON_DEV_INCLUDE_BUILD")?.takeIf { it.isNotBlank() }
 
+    /**
+     * Validated project-generation inputs.
+     *
+     * @property projectName generated project name
+     * @property packageName Kotlin base package
+     * @property targetDirectory destination directory
+     * @property templateType built-in template identifier
+     * @property includeExamples whether optional examples are generated
+     * @property includeAuth whether optional authentication files are generated
+     * @property includeDocker whether optional container files are generated
+     * @property minimal whether optional nonessential content is omitted
+     * @property overwrite whether existing destination files may be replaced
+     */
     data class Config(
         val projectName: String,
         val packageName: String,
@@ -654,7 +669,7 @@ kotlin {
         }
         binaries.executable()
     }
-    
+
     sourceSets {
         val jsMain by getting {
             dependencies {
@@ -717,7 +732,7 @@ kotlin {
     js(IR) {
         browser()
     }
-    
+
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -801,7 +816,7 @@ kotlin {
         }
         binaries.executable()
     }
-    
+
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -1001,7 +1016,7 @@ import codes.yousef.summon.renderComposableRoot
 @Composable
 fun App() {
     val counter = remember { mutableStateOf(0) }
-    
+
     Column(
         modifier = Modifier().padding("16px")
     ) {
@@ -1009,16 +1024,16 @@ fun App() {
             text = "Welcome to ${variables["APP_TITLE"]}!",
             modifier = Modifier().padding(bottom = "16px", left = "0px", right = "0px", top = "0px")
         )
-        
+
         BasicText(
             text = "Count: ${'$'}{counter.value}",
             modifier = Modifier().padding(bottom = "16px", left = "0px", right = "0px", top = "0px")
         )
-        
+
         Button(
-            onClick = { 
+            onClick = {
                 println("Button clicked! Current count: ${'$'}{counter.value}")
-                counter.value++ 
+                counter.value++
                 println("New count: ${'$'}{counter.value}")
             },
             label = "Click me!"
@@ -1655,7 +1670,7 @@ fun MyApp() {
                 text = "Welcome to Summon!",
                 style = MaterialTheme.typography.h1
             )
-            
+
             Button(
                 onClick = { /* Handle click */ },
                 label = "Get Started",
@@ -1689,7 +1704,7 @@ fun UserCard(user: User, onClick: () -> Unit) {
                     .size(48)
                     .clip(CircleShape)
             )
-            
+
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -1716,18 +1731,18 @@ fun UserCard(user: User, onClick: () -> Unit) {
 @Composable
 fun Counter() {
     var counter by remember { mutableStateOf(0) }
-    
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Count: ${'$'}counter")
-        
+
         Row {
             Button(
                 onClick = { ${'$'}counter-- },
                 label = "-"
             )
-            
+
             Button(
                 onClick = { ${'$'}counter++ },
                 label = "+",
@@ -1871,16 +1886,16 @@ fun ButtonExamples() {
             text = "Button Examples",
             modifier = Modifier().padding(bottom = "16px", left = "0px", right = "0px", top = "0px")
         )
-        
+
         Button(
             onClick = { println("Primary clicked") },
             label = "Primary Button",
             modifier = Modifier().padding(bottom = "8px", left = "0px", right = "0px", top = "0px")
         )
-        
+
         Button(
             onClick = { println("Secondary clicked") },
-            label = "Secondary Button", 
+            label = "Secondary Button",
             modifier = Modifier().padding(bottom = "8px", left = "0px", right = "0px", top = "0px")
         )
     }

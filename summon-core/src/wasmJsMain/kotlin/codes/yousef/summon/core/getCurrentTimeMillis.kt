@@ -2,7 +2,7 @@ package codes.yousef.summon.core
 
 /**
  * WebAssembly implementation of getCurrentTimeMillis.
- * Returns a fixed timestamp for testing purposes since performance.now() is not available in Node.js test environment.
+ * Returns a fixed timestamp for testing purposes since performance.now() is not available in Node.JS test environment.
  */
 actual fun getCurrentTimeMillis(): Long {
     // Return a fixed timestamp for testing

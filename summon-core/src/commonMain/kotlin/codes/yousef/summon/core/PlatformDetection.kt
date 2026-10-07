@@ -205,20 +205,24 @@ object PlatformDetection {
     /**
      * Validates platform requirements for Summon framework.
      */
-    fun validatePlatformRequirements(): List<String> {
-        val issues = mutableListOf<String>()
+    fun validatePlatformRequirements(): List<String> =
+        validatePlatformRequirements(currentTarget, browserInfo, hasSSRCapabilities())
 
-        when (currentTarget) {
+    internal fun validatePlatformRequirements(
+        target: PlatformTarget,
+        browser: BrowserInfo?,
+        hasSsrCapabilities: Boolean
+    ): List<String> {
+        val issues = mutableListOf<String>()
+        when (target) {
             is PlatformTarget.JVM -> {
-                // JVM requirements
-                if (!hasSSRCapabilities()) {
+                if (!hasSsrCapabilities) {
                     issues.add("JVM target requires SSR capabilities")
                 }
             }
 
             is PlatformTarget.JavaScript -> {
-                // JavaScript requirements
-                browserInfo?.let { info ->
+                browser?.let { info ->
                     if (!info.moduleSupported) {
                         issues.add("ES6 modules are required for JavaScript target")
                     }
@@ -229,8 +233,7 @@ object PlatformDetection {
             }
 
             is PlatformTarget.WebAssembly -> {
-                // WebAssembly requirements
-                browserInfo?.let { info ->
+                browser?.let { info ->
                     if (!info.wasmSupported) {
                         issues.add("WebAssembly support is required for WASM target")
                     }
@@ -240,7 +243,6 @@ object PlatformDetection {
                 } ?: issues.add("Browser information not available for WASM target")
             }
         }
-
         return issues
     }
 

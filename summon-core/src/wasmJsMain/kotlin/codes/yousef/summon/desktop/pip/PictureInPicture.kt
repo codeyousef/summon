@@ -13,12 +13,25 @@ actual fun isPictureInPictureSupported(): Boolean {
     return false
 }
 
+/**
+ * Executes the request picture in picture operation.
+ *
+ * @param options The options value.
+ * @return The resulting value.
+ */
 actual suspend fun requestPictureInPicture(
     options: PipOptions
 ): PipResult {
     return PipResult.NotSupported
 }
 
+/**
+ * Renders picture in picture content.
+ *
+ * @param window The window value.
+ * @param modifier Styles and attributes applied to the rendered element.
+ * @param content Composable content emitted by this API.
+ */
 @Composable
 actual fun PictureInPictureContent(
     window: PipWindow,

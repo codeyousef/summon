@@ -63,7 +63,7 @@ package codes.yousef.summon.animation
  * @param durationMs The duration of the animation in milliseconds. Must be positive.
  * @throws IllegalArgumentException if [durationMs] is negative
  * @see AnimationController for controller lifecycle
- * @see stopAnimation for stopping animations
+ * @see AnimationController for stopping and restarting animations
  * @since 1.0.0
  */
 expect fun AnimationController.startAnimation(durationMs: Int)
@@ -117,7 +117,7 @@ expect fun AnimationController.startAnimation(durationMs: Int)
  * @param timeMillis The time to delay in milliseconds. Must be non-negative.
  * @throws IllegalArgumentException if [timeMillis] is negative
  * @see kotlinx.coroutines.delay for coroutine delay semantics
- * @see LaunchedEffect for composable-scoped delays
+ * Use `LaunchedEffect` for composition-scoped delays.
  * @since 1.0.0
  */
 expect suspend fun delay(timeMillis: Long)

@@ -48,16 +48,23 @@ class LazyListState {
     private var lastItemCount = 0
     private var scrollCommandRevision = 0
 
+    /** Current requested scroll offset in pixels. */
     val scrollPosition: Float get() = _scrollPosition.value
+    /** Expected unmeasured item extent in pixels. */
     val itemSize: Float get() = _itemSize.value
+    /** Rows composed before and after the visible range. */
     val overscrollItems: Int get() = _overscrollItems.value
+    /** Current viewport extent in pixels. */
     val containerSize: Float get() = _containerSize.value
+    /** Whether accessibility metadata exposes total row count. */
     val exposeItemCountToAccessibility: Boolean get() = _exposeItemCount.value
     internal val scrollRevision: Int get() = scrollCommandRevision
 
+    /** Computes the visible and overscan indices for [containerSize] and [totalItems]. */
     fun getVisibleItemRange(containerSize: Float, totalItems: Int): IntRange =
         layout(containerSize, totalItems).range
 
+    /** Requests finite [newPosition], clamped to known content bounds. */
     fun updateScrollPosition(newPosition: Float) {
         require(newPosition.isFinite()) { "Lazy list scroll position must be finite" }
         val maxScroll = if (lastItemCount == 0) {
@@ -68,6 +75,7 @@ class LazyListState {
         requestScrollPosition(newPosition.coerceIn(0f, maxScroll))
     }
 
+    /** Sets the positive finite fallback row [size]. */
     fun setItemSize(size: Float) {
         require(size.isFinite() && size > 0f) { "Lazy list item size must be finite and positive" }
         if (_itemSize.value != size) {
@@ -78,16 +86,19 @@ class LazyListState {
         }
     }
 
+    /** Sets the non-negative overscan row [count]. */
     fun setOverscrollItems(count: Int) {
         require(count >= 0) { "Lazy list overscan must be non-negative" }
         _overscrollItems.value = count
     }
 
+    /** Sets the finite non-negative viewport [size]. */
     fun setContainerSize(size: Float) {
         require(size.isFinite() && size >= 0f) { "Lazy list viewport size must be finite and non-negative" }
         _containerSize.value = size
     }
 
+    /** Controls whether total item count is emitted for assistive technology. */
     fun setExposeItemCountToAccessibility(expose: Boolean) {
         _exposeItemCount.value = expose
     }
@@ -110,6 +121,7 @@ class LazyListState {
         }
     }
 
+    /** Returns stable renderer metadata for [totalItems]. */
     fun getDataAttributes(totalItems: Int): Map<String, String> {
         val formattedItemSize = if (itemSize == itemSize.toInt().toFloat()) {
             "${itemSize.toInt()}.0"

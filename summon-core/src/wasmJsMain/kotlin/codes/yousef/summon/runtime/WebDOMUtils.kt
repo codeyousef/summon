@@ -13,6 +13,13 @@ actual fun scrollIntoViewPlatform(nativeElementId: String, behavior: String) {
     wasmScrollIntoView(nativeElementId, behavior)
 }
 
+/**
+ * Returns computed style platform.
+ *
+ * @param nativeElementId The native element id value.
+ * @param property The property value.
+ * @return The resulting value.
+ */
 actual fun getComputedStylePlatform(nativeElementId: String, property: String): String? {
     return wasmGetComputedStyle(nativeElementId, property)
 }
@@ -21,14 +28,28 @@ actual fun getComputedStylePlatform(nativeElementId: String, property: String): 
  * WASM implementation of DOMProvider.
  */
 actual object DOMProvider {
+    /** The property declaration value. */
     actual val window: DOMWindow = WasmWindowWrapper()
+    /** The property declaration value. */
     actual val document: DOMDocument = WasmDocumentWrapper()
 
+    /**
+     * Creates element from native.
+     *
+     * @param nativeElement The native element value.
+     * @return The resulting value.
+     */
     actual fun createElementFromNative(nativeElement: Any): DOMElement {
         // In WASM, we work with element IDs as strings
         return WasmDOMElementWrapper(nativeElement as String)
     }
 
+    /**
+     * Returns native element.
+     *
+     * @param element The element value.
+     * @return The resulting value.
+     */
     actual fun getNativeElement(element: DOMElement): Any {
         return when (element) {
             is WasmDOMElementWrapper -> element.elementId
@@ -36,6 +57,12 @@ actual object DOMProvider {
         }
     }
 
+    /**
+     * Returns native element ID.
+     *
+     * @param element The element value.
+     * @return The resulting value.
+     */
     actual fun getNativeElementId(element: DOMElement): String {
         return when (element) {
             is WasmDOMElementWrapper -> {

@@ -36,16 +36,18 @@ fun Span(
 }
 
 /**
- * Data class holding parameters for the Div component.
- * This remains unchanged as it's a type declaration, not an instantiation with .create().
+ * Compatibility parameters for a division.
+ *
+ * @property modifier typed styles and attributes
  */
 data class DivData(
     val modifier: Modifier
 )
 
 /**
- * Data class holding parameters for the Span component.
- * This remains unchanged as it's a type declaration, not an instantiation with .create().
+ * Compatibility parameters for an inline span.
+ *
+ * @property modifier typed styles and attributes
  */
 data class SpanData(
     val modifier: Modifier

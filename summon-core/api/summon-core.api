@@ -1414,6 +1414,7 @@ public final class codes/yousef/summon/cbor/UiTree$Companion {
 public final class codes/yousef/summon/cbor/UiTreeSerializer {
 	public static final field INSTANCE Lcodes/yousef/summon/cbor/UiTreeSerializer;
 	public final fun deserialize ([B)Lcodes/yousef/summon/cbor/UiTree;
+	public final fun deserializePatches ([B)Ljava/util/List;
 	public final fun serialize (Lcodes/yousef/summon/cbor/UiTree;)[B
 	public final fun serializePatches (Ljava/util/List;)[B
 }
@@ -4805,7 +4806,6 @@ public final class codes/yousef/summon/core/rendering/ComponentRenderData {
 }
 
 public final class codes/yousef/summon/core/rendering/RenderingPatternsKt {
-	public static final fun extractEventHandlers (Lcodes/yousef/summon/modifier/Modifier;)Ljava/util/Map;
 	public static final fun getNormalizedStyleString (Lcodes/yousef/summon/modifier/Modifier;)Ljava/lang/String;
 	public static final fun withRenderData (Lcodes/yousef/summon/modifier/Modifier;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;)Lcodes/yousef/summon/core/rendering/ComponentRenderData;
 	public static synthetic fun withRenderData$default (Lcodes/yousef/summon/modifier/Modifier;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;ILjava/lang/Object;)Lcodes/yousef/summon/core/rendering/ComponentRenderData;
@@ -5904,7 +5904,7 @@ public final class codes/yousef/summon/effects/HttpClientJvm {
 	public static final fun createHttpClient (Lcodes/yousef/summon/effects/HttpClientConfig;)Lcodes/yousef/summon/effects/HttpClient;
 	public static synthetic fun createHttpClient$default (Lcodes/yousef/summon/effects/HttpClientConfig;ILjava/lang/Object;)Lcodes/yousef/summon/effects/HttpClient;
 	public static final fun encodeURIComponent (Ljava/lang/String;)Ljava/lang/String;
-	public static final fun toJson (Ljava/lang/Object;)Ljava/lang/String;
+	public static final fun getHttpJson ()Lkotlinx/serialization/json/Json;
 }
 
 public final class codes/yousef/summon/effects/HttpClientKt {
@@ -6181,8 +6181,6 @@ public final class codes/yousef/summon/effects/StorageJvm {
 	public static final fun createLocalStorage ()Lcodes/yousef/summon/effects/Storage;
 	public static final fun createMemoryStorage ()Lcodes/yousef/summon/effects/Storage;
 	public static final fun createSessionStorage ()Lcodes/yousef/summon/effects/Storage;
-	public static final fun deserializeFromJson (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
-	public static final fun serializeToJson (Ljava/lang/Object;)Ljava/lang/String;
 }
 
 public final class codes/yousef/summon/effects/StorageKt {
@@ -6231,7 +6229,6 @@ public final class codes/yousef/summon/effects/TypedStorage {
 	public final fun getInt (Ljava/lang/String;)Ljava/lang/Integer;
 	public final fun getLong (Ljava/lang/String;)Ljava/lang/Long;
 	public final fun getString (Ljava/lang/String;)Ljava/lang/String;
-	public final fun getTypedItem (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
 	public final fun keys ()Ljava/util/List;
 	public final fun removeItem (Ljava/lang/String;)V
 	public final fun setBoolean (Ljava/lang/String;Z)V
@@ -6240,7 +6237,6 @@ public final class codes/yousef/summon/effects/TypedStorage {
 	public final fun setInt (Ljava/lang/String;I)V
 	public final fun setLong (Ljava/lang/String;J)V
 	public final fun setString (Ljava/lang/String;Ljava/lang/String;)V
-	public final fun setTypedItem (Ljava/lang/String;Ljava/lang/Object;)V
 }
 
 public final class codes/yousef/summon/effects/WebSocketClient {
@@ -6991,7 +6987,7 @@ public final class codes/yousef/summon/integration/quarkus/EnhancedQuarkusExtens
 
 public final class codes/yousef/summon/integration/quarkus/EnhancedQuarkusExtension$EnhancedSummonRenderer {
 	public fun <init> ()V
-	public final fun renderTemplate (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public final fun renderTemplate-aaqfpMg (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 	public final fun renderToString (Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
 }
 
@@ -7032,11 +7028,10 @@ public final class codes/yousef/summon/integration/quarkus/QuarkusExtension {
 
 public final class codes/yousef/summon/integration/quarkus/QuarkusExtension$SummonRenderer {
 	public fun <init> ()V
-	public final fun renderButton (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-	public static synthetic fun renderButton$default (Lcodes/yousef/summon/integration/quarkus/QuarkusExtension$SummonRenderer;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
-	public final fun renderHeading (ILjava/lang/String;)Ljava/lang/String;
-	public final fun renderParagraph (Ljava/lang/String;)Ljava/lang/String;
-	public final fun renderTemplate (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public final fun renderButton-G3g9TZc (Ljava/lang/String;)Ljava/lang/String;
+	public final fun renderHeading-H75rlAU (ILjava/lang/String;)Ljava/lang/String;
+	public final fun renderParagraph-G3g9TZc (Ljava/lang/String;)Ljava/lang/String;
+	public final fun renderTemplate-aaqfpMg (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 }
 
 public final class codes/yousef/summon/integration/quarkus/QuarkusRenderer {
@@ -7316,9 +7311,9 @@ public final class codes/yousef/summon/integration/quarkus/renderer/EnhancedJvmP
 
 public final class codes/yousef/summon/integration/quarkus/renderer/HtmxAwareRenderer {
 	public fun <init> ()V
-	public final fun RawHtml (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
-	public static synthetic fun RawHtml$default (Lcodes/yousef/summon/integration/quarkus/renderer/HtmxAwareRenderer;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
-	public final fun renderTemplate (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public final fun RawHtml-sWTs-x0 (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
+	public static synthetic fun RawHtml-sWTs-x0$default (Lcodes/yousef/summon/integration/quarkus/renderer/HtmxAwareRenderer;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
+	public final fun renderTemplate-aaqfpMg (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 	public final fun renderToString (Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
 }
 
@@ -9405,8 +9400,6 @@ public final class codes/yousef/summon/routing/DeepLinking {
 	public static synthetic fun createDeepLink$default (Lcodes/yousef/summon/routing/DeepLinking;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
 	public final fun decodeURIComponent (Ljava/lang/String;)Ljava/lang/String;
 	public final fun encodeURIComponent (Ljava/lang/String;)Ljava/lang/String;
-	public final fun generateMetaTags (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public static synthetic fun generateMetaTags$default (Lcodes/yousef/summon/routing/DeepLinking;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)V
 	public final fun parseDeepLink (Ljava/lang/String;)Lcodes/yousef/summon/routing/DeepLinking$DeepLinkInfo;
 }
 
@@ -9414,8 +9407,6 @@ public final class codes/yousef/summon/routing/DeepLinking$Companion {
 	public final fun createUrl (Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;)Ljava/lang/String;
 	public static synthetic fun createUrl$default (Lcodes/yousef/summon/routing/DeepLinking$Companion;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
 	public final fun getInstance ()Lcodes/yousef/summon/routing/DeepLinking;
-	public final fun metaTags (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public static synthetic fun metaTags$default (Lcodes/yousef/summon/routing/DeepLinking$Companion;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)V
 	public final fun parseUrl (Ljava/lang/String;)Lcodes/yousef/summon/routing/DeepLinking$DeepLinkInfo;
 }
 
@@ -9526,36 +9517,6 @@ public final class codes/yousef/summon/routing/GuardResult$Redirect : codes/yous
 	public static synthetic fun copy$default (Lcodes/yousef/summon/routing/GuardResult$Redirect;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/routing/GuardResult$Redirect;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getPath ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final class codes/yousef/summon/routing/History {
-	public static final field Companion Lcodes/yousef/summon/routing/History$Companion;
-	public final fun back ()Z
-	public final fun current ()Lcodes/yousef/summon/routing/History$HistoryEntry;
-	public final fun forward ()Z
-	public final fun go (I)Z
-	public final fun length ()I
-	public final fun push (Ljava/lang/String;Ljava/util/Map;)V
-	public static synthetic fun push$default (Lcodes/yousef/summon/routing/History;Ljava/lang/String;Ljava/util/Map;ILjava/lang/Object;)V
-	public final fun replace (Ljava/lang/String;Ljava/util/Map;)V
-	public static synthetic fun replace$default (Lcodes/yousef/summon/routing/History;Ljava/lang/String;Ljava/util/Map;ILjava/lang/Object;)V
-}
-
-public final class codes/yousef/summon/routing/History$Companion {
-	public final fun getInstance ()Lcodes/yousef/summon/routing/History;
-}
-
-public final class codes/yousef/summon/routing/History$HistoryEntry {
-	public fun <init> (Ljava/lang/String;Ljava/util/Map;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/util/Map;
-	public final fun copy (Ljava/lang/String;Ljava/util/Map;)Lcodes/yousef/summon/routing/History$HistoryEntry;
-	public static synthetic fun copy$default (Lcodes/yousef/summon/routing/History$HistoryEntry;Ljava/lang/String;Ljava/util/Map;ILjava/lang/Object;)Lcodes/yousef/summon/routing/History$HistoryEntry;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getPath ()Ljava/lang/String;
-	public final fun getState ()Ljava/util/Map;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -9860,21 +9821,6 @@ public final class codes/yousef/summon/routing/ServerNavLink {
 	public final fun getClassName ()Ljava/lang/String;
 	public final fun getText ()Ljava/lang/String;
 	public final fun getTo ()Ljava/lang/String;
-}
-
-public final class codes/yousef/summon/routing/generator/PageDiscoveryPlugin {
-	public static final field INSTANCE Lcodes/yousef/summon/routing/generator/PageDiscoveryPlugin;
-	public final fun apply ()V
-	public final fun getClassName (Ljava/lang/String;)Ljava/lang/String;
-	public final fun getPackageName (Ljava/lang/String;)Ljava/lang/String;
-}
-
-public final class codes/yousef/summon/routing/generator/PageLoaderGenerator {
-	public static final field INSTANCE Lcodes/yousef/summon/routing/generator/PageLoaderGenerator;
-	public final fun generateAndWriteCode (Ljava/lang/String;Ljava/util/List;)V
-	public static synthetic fun generateAndWriteCode$default (Lcodes/yousef/summon/routing/generator/PageLoaderGenerator;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)V
-	public final fun generatePageLoaderCode (Ljava/util/List;)Ljava/lang/String;
-	public static synthetic fun generatePageLoaderCode$default (Lcodes/yousef/summon/routing/generator/PageLoaderGenerator;Ljava/util/List;ILjava/lang/Object;)Ljava/lang/String;
 }
 
 public final class codes/yousef/summon/routing/pages/AboutKt {
@@ -11427,52 +11373,6 @@ public final class codes/yousef/summon/seo/routes/CanonicalLinksKt {
 	public static final fun SimpleCanonicalLink (Ljava/lang/String;)V
 }
 
-public final class codes/yousef/summon/seo/routes/MetaTagsKt {
-	public static final fun MetaTags (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
-	public static synthetic fun MetaTags$default (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILjava/lang/Object;)V
-	public static final fun StandardMetaTags (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public static synthetic fun StandardMetaTags$default (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)V
-}
-
-public final class codes/yousef/summon/seo/routes/OpenGraphTagsKt {
-	public static final fun OgDescription (Ljava/lang/String;)V
-	public static final fun OgImage (Ljava/lang/String;)V
-	public static final fun OgSiteName (Ljava/lang/String;)V
-	public static final fun OgTitle (Ljava/lang/String;)V
-	public static final fun OgType (Ljava/lang/String;)V
-	public static final fun OgUrl (Ljava/lang/String;)V
-	public static final fun OpenGraphArticle (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public static synthetic fun OpenGraphArticle$default (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)V
-	public static final fun OpenGraphProduct (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public static synthetic fun OpenGraphProduct$default (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)V
-	public static final fun OpenGraphTag (Ljava/lang/String;Ljava/lang/String;)V
-	public static final fun OpenGraphTags (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
-	public static synthetic fun OpenGraphTags$default (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILjava/lang/Object;)V
-}
-
-public final class codes/yousef/summon/seo/routes/SemanticHTMLKt {
-	public static final fun Article (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
-	public static synthetic fun Article$default (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
-	public static final fun Aside (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
-	public static synthetic fun Aside$default (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
-	public static final fun FigCaption (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
-	public static synthetic fun FigCaption$default (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
-	public static final fun Figure (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
-	public static synthetic fun Figure$default (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
-	public static final fun Footer (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
-	public static synthetic fun Footer$default (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
-	public static final fun Header (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
-	public static synthetic fun Header$default (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
-	public static final fun Heading (ILjava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
-	public static synthetic fun Heading$default (ILjava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
-	public static final fun Main (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
-	public static synthetic fun Main$default (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
-	public static final fun Nav (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
-	public static synthetic fun Nav$default (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
-	public static final fun Section (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
-	public static synthetic fun Section$default (Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
-}
-
 public final class codes/yousef/summon/seo/routes/SitemapGeneration {
 	public static final field Companion Lcodes/yousef/summon/seo/routes/SitemapGeneration$Companion;
 	public fun <init> ()V
@@ -11543,33 +11443,6 @@ public final class codes/yousef/summon/seo/routes/StructuredDataKt {
 	public static synthetic fun ProductStructuredData$default (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)V
 	public static final fun StructuredData (Lkotlinx/serialization/json/JsonElement;)V
 	public static final fun WebPageStructuredData (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-}
-
-public final class codes/yousef/summon/seo/routes/TwitterCardType : java/lang/Enum {
-	public static final field APP Lcodes/yousef/summon/seo/routes/TwitterCardType;
-	public static final field PLAYER Lcodes/yousef/summon/seo/routes/TwitterCardType;
-	public static final field SUMMARY Lcodes/yousef/summon/seo/routes/TwitterCardType;
-	public static final field SUMMARY_LARGE_IMAGE Lcodes/yousef/summon/seo/routes/TwitterCardType;
-	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public final fun getValue ()Ljava/lang/String;
-	public static fun valueOf (Ljava/lang/String;)Lcodes/yousef/summon/seo/routes/TwitterCardType;
-	public static fun values ()[Lcodes/yousef/summon/seo/routes/TwitterCardType;
-}
-
-public final class codes/yousef/summon/seo/routes/TwitterCardsKt {
-	public static final fun TwitterArticleCard (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public static synthetic fun TwitterArticleCard$default (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)V
-	public static final fun TwitterCard (Ljava/lang/String;)V
-	public static final fun TwitterCardTag (Ljava/lang/String;Ljava/lang/String;)V
-	public static final fun TwitterCards (Lcodes/yousef/summon/seo/routes/TwitterCardType;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
-	public static synthetic fun TwitterCards$default (Lcodes/yousef/summon/seo/routes/TwitterCardType;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILjava/lang/Object;)V
-	public static final fun TwitterCreator (Ljava/lang/String;)V
-	public static final fun TwitterDescription (Ljava/lang/String;)V
-	public static final fun TwitterImage (Ljava/lang/String;)V
-	public static final fun TwitterProductCard (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public static synthetic fun TwitterProductCard$default (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)V
-	public static final fun TwitterSite (Ljava/lang/String;)V
-	public static final fun TwitterTitle (Ljava/lang/String;)V
 }
 
 public final class codes/yousef/summon/ssr/CacheHeaders {
@@ -11725,8 +11598,8 @@ public final class codes/yousef/summon/ssr/SerializationUtils {
 
 public final class codes/yousef/summon/ssr/ServerSideRenderUtils {
 	public static final field INSTANCE Lcodes/yousef/summon/ssr/ServerSideRenderUtils;
-	public final fun renderPageToString (Lkotlin/jvm/functions/Function0;Lcodes/yousef/summon/security/PublicHydrationState;Z)Ljava/lang/String;
-	public static synthetic fun renderPageToString$default (Lcodes/yousef/summon/ssr/ServerSideRenderUtils;Lkotlin/jvm/functions/Function0;Lcodes/yousef/summon/security/PublicHydrationState;ZILjava/lang/Object;)Ljava/lang/String;
+	public final fun renderPageToString (Lkotlin/jvm/functions/Function0;Lcodes/yousef/summon/security/PublicHydrationState;ZLcodes/yousef/summon/ssr/SeoMetadata;)Ljava/lang/String;
+	public static synthetic fun renderPageToString$default (Lcodes/yousef/summon/ssr/ServerSideRenderUtils;Lkotlin/jvm/functions/Function0;Lcodes/yousef/summon/security/PublicHydrationState;ZLcodes/yousef/summon/ssr/SeoMetadata;ILjava/lang/Object;)Ljava/lang/String;
 }
 
 public abstract interface class codes/yousef/summon/ssr/ServerSideRenderer {

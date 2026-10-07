@@ -22,7 +22,7 @@ object SecurityContext {
     /**
      * Sets the current authentication
      */
-    private fun setAuthentication(authentication: Authentication?) {
+    internal fun setAuthentication(authentication: Authentication?) {
         SecurityContextHolder.set(authentication)
     }
 
@@ -65,4 +65,4 @@ object SecurityContext {
             setAuthentication(previous)
         }
     }
-} 
+}

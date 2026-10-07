@@ -9,6 +9,11 @@ import kotlin.time.Clock
 private var timeoutIdCounter = 0
 private val timeoutCallbacks = mutableMapOf<Int, () -> Unit>()
 
+/**
+ * Executes the current time millis operation.
+ *
+ * @return The resulting value.
+ */
 actual fun currentTimeMillis(): Long {
     return try {
         // Use kotlinx-datetime for consistent time across platforms
@@ -20,6 +25,13 @@ actual fun currentTimeMillis(): Long {
     }
 }
 
+/**
+ * Sets timeout.
+ *
+ * @param delayMs The delay ms value.
+ * @param callback The callback value.
+ * @return The resulting value.
+ */
 actual fun setTimeout(delayMs: Int, callback: () -> Unit): Int {
     return try {
         val timeoutId = ++timeoutIdCounter
@@ -42,6 +54,11 @@ actual fun setTimeout(delayMs: Int, callback: () -> Unit): Int {
     }
 }
 
+/**
+ * Clears timeout.
+ *
+ * @param id Stable identifier.
+ */
 actual fun clearTimeout(id: Int) {
     try {
         safeWasmConsoleLog("Clearing timeout with ID: $id")

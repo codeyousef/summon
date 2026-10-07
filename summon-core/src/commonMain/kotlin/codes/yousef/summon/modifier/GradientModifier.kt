@@ -214,21 +214,51 @@ fun Modifier.glassMorphism(
  * Common gradient presets for quick use.
  */
 object GradientPresets {
+    /**
+     * Executes the modern primary operation.
+     *
+     * @return The resulting value.
+     */
     fun Modifier.modernPrimary(): Modifier =
         gradientBackground("linear-gradient(135deg, #667eea 0%, #764ba2 100%)")
 
+    /**
+     * Executes the modern secondary operation.
+     *
+     * @return The resulting value.
+     */
     fun Modifier.modernSecondary(): Modifier =
         gradientBackground("linear-gradient(135deg, #f093fb 0%, #f5576c 100%)")
 
+    /**
+     * Executes the ocean blue operation.
+     *
+     * @return The resulting value.
+     */
     fun Modifier.oceanBlue(): Modifier =
         gradientBackground("linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)")
 
+    /**
+     * Executes the warm sunset operation.
+     *
+     * @return The resulting value.
+     */
     fun Modifier.warmSunset(): Modifier =
         gradientBackground("linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)")
 
+    /**
+     * Executes the soft pink operation.
+     *
+     * @return The resulting value.
+     */
     fun Modifier.softPink(): Modifier =
         gradientBackground("linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)")
 
+    /**
+     * Executes the dark mode gradient operation.
+     *
+     * @return The resulting value.
+     */
     fun Modifier.darkModeGradient(): Modifier =
         gradientBackground("linear-gradient(135deg, #4a5568 0%, #2d3748 100%)")
 }

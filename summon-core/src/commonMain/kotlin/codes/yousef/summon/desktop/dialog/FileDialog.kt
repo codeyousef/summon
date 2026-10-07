@@ -11,6 +11,11 @@ import codes.yousef.summon.components.input.FileInfo
 
 /**
  * Options for file open dialogs.
+
+ * @property types The types value.
+ * @property multiple The multiple value.
+ * @property title The title value.
+ * @property startIn The start in value.
  */
 data class FileDialogOptions(
     /** List of accepted file types (e.g., listOf(".txt", ".md")) */
@@ -25,6 +30,11 @@ data class FileDialogOptions(
 
 /**
  * Options for file save dialogs.
+
+ * @property suggestedName The suggested name value.
+ * @property types The types value.
+ * @property title The title value.
+ * @property startIn The start in value.
  */
 data class SaveDialogOptions(
     /** Suggested file name */
@@ -39,6 +49,9 @@ data class SaveDialogOptions(
 
 /**
  * File type filter for dialogs.
+
+ * @property description The description value.
+ * @property accept The accept value.
  */
 data class FileTypeFilter(
     /** Description shown in the dialog (e.g., "Text files") */
@@ -49,6 +62,9 @@ data class FileTypeFilter(
 
 /**
  * Result from a save dialog.
+
+ * @property name Human-readable name.
+ * @property write The write value.
  */
 data class SaveDialogResult(
     /** The file handle for writing */
@@ -92,8 +108,20 @@ expect suspend fun showSaveFileDialog(options: SaveDialogOptions = SaveDialogOpt
  * Represents a handle to a directory.
  */
 interface DirectoryHandle {
+    /** The property declaration value. */
     val name: String
+    /**
+     * Returns file.
+     *
+     * @param name Human-readable name.
+     * @return The resulting value.
+     */
     suspend fun getFile(name: String): FileInfo?
+    /**
+     * Executes the list files operation.
+     *
+     * @return The resulting value.
+     */
     suspend fun listFiles(): List<String>
 }
 

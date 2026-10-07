@@ -10,9 +10,13 @@ import codes.yousef.summon.theme.MediaQuery
  * Uses MediaQuery.Breakpoints for consistency across the framework.
  */
 enum class ScreenSize {
-    SMALL,  // Mobile phones (< 600px)
-    MEDIUM, // Tablets (600px - 959px)
-    LARGE,  // Desktop (960px - 1279px)
+    /** The small screen size option. */
+    SMALL,
+    /** The medium screen size option. */
+    MEDIUM,
+    /** The large screen size option. */
+    LARGE,
+    /** The xlarge screen size option. */
     XLARGE  // Large desktop (>= 1280px)
 }
 
@@ -21,13 +25,19 @@ enum class ScreenSize {
  */
 @Deprecated("Use MediaQuery.Breakpoints instead", ReplaceWith("MediaQuery.Breakpoints"))
 object ResponsiveBreakpoints {
+    /** The property declaration value. */
     @Deprecated("Use MediaQuery.Breakpoints.sm instead", ReplaceWith("MediaQuery.Breakpoints.sm"))
+    /** Deprecated 600-pixel breakpoint. */
     const val SMALL_BREAKPOINT = 600
 
+    /** The property declaration value. */
     @Deprecated("Use MediaQuery.Breakpoints.md instead", ReplaceWith("MediaQuery.Breakpoints.md"))
+    /** Deprecated 960-pixel breakpoint. */
     const val MEDIUM_BREAKPOINT = 960
 
+    /** The property declaration value. */
     @Deprecated("Use MediaQuery.Breakpoints.lg instead", ReplaceWith("MediaQuery.Breakpoints.lg"))
+    /** Deprecated 1280-pixel breakpoint. */
     const val LARGE_BREAKPOINT = 1280
 }
 

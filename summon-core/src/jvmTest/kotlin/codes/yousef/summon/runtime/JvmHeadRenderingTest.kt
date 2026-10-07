@@ -65,4 +65,27 @@ class JvmHeadRenderingTest {
         assertContains(html, "dir=\"ltr&lt;unsafe\"")
         assertFalse(html.contains("data-hostile=\"true\""))
     }
+    @Test
+    fun completeCustomHeadSuppressesEveryMatchingDefaultCaseInsensitively() {
+        val renderer = PlatformRenderer()
+        listOf(
+            "<META CHARSET='UTF-8'>",
+            "<META NAME='viewport' content='custom'>",
+            "<TITLE>Custom</TITLE>",
+            "<META NAME='description' content='custom'>",
+            "<META NAME='robots' content='none'>",
+            "<META PROPERTY='og:type' content='article'>",
+            "<META PROPERTY='og:title' content='Custom'>",
+        ).forEach(renderer::addHeadElement)
+
+        val html = renderer.renderComposableRoot { Text("body") }
+        assertEquals(1, Regex("charset=", RegexOption.IGNORE_CASE).findAll(html).count())
+        assertEquals(1, Regex("name=['\"]viewport", RegexOption.IGNORE_CASE).findAll(html).count())
+        assertEquals(1, Regex("<title", RegexOption.IGNORE_CASE).findAll(html).count())
+        assertEquals(1, Regex("name=['\"]robots", RegexOption.IGNORE_CASE).findAll(html).count())
+        assertEquals(1, Regex("property=['\"]og:type", RegexOption.IGNORE_CASE).findAll(html).count())
+        assertEquals(1, Regex("property=['\"]og:title", RegexOption.IGNORE_CASE).findAll(html).count())
+        assertFalse(html.contains("Summon Framework Application"))
+    }
+
 }

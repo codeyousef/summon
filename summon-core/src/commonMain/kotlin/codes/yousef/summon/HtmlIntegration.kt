@@ -4,7 +4,7 @@ package codes.yousef.summon
 
 /**
  * Expect declaration to check if a generic receiver is capable of handling HTML tags.
- * Actual implementations will determine this based on platform capabilities (e.g., kotlinx.html.TagConsumer).
+ * Actual implementations will determine this based on platform capabilities (e.g., kotlinx.HTML.TagConsumer).
  *
  * @param receiver The receiver object to check.
  * @return True if the receiver can handle HTML tags, false otherwise.

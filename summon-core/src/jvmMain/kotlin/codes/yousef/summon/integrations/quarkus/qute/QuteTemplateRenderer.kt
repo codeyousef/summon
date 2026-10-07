@@ -1,9 +1,9 @@
 package codes.yousef.summon.integration.quarkus.qute
 
 import codes.yousef.summon.annotation.Composable
-import codes.yousef.summon.components.layout.Box
-import codes.yousef.summon.integration.quarkus.htmx.htmlAttribute
+import codes.yousef.summon.components.foundation.TrustedHtml
 import codes.yousef.summon.modifier.*
+import codes.yousef.summon.runtime.LocalPlatformRenderer
 import io.quarkus.qute.Template
 
 /**
@@ -11,6 +11,7 @@ import io.quarkus.qute.Template
  * This class provides utilities for rendering Qute templates and integrating them with Summon components.
  */
 class QuteTemplateRenderer {
+    /** Provides qute template renderer factory and constant members. */
     companion object {
         /**
          * Renders a Qute template with the given data and returns the HTML as a string.
@@ -60,13 +61,10 @@ fun QuteTemplate(
     data: Map<String, Any>,
     modifier: Modifier = Modifier()
 ) {
-    // Render the template
-    val html = QuteTemplateRenderer.renderTemplate(template, data)
-
-    // Use the htmlAttribute extension function to add the raw HTML content
-    // This will be processed by the enhanced JvmPlatformRenderer
-    Box(modifier.htmlAttribute("__raw_html", html)) {
-        // Empty content as the HTML is provided via the __raw_html attribute
+    val html = TrustedHtml.fromAuthorCode(QuteTemplateRenderer.renderTemplate(template, data))
+    val renderer = LocalPlatformRenderer.current
+    renderer.renderBox(modifier) {
+        renderer.renderRawHtml(html)
     }
 }
 
@@ -103,12 +101,10 @@ fun QuteTemplateWithId(
     data: Map<String, Any>,
     modifier: Modifier = Modifier()
 ) {
-    // Render the template
-    val html = QuteTemplateRenderer.renderTemplate(template, data)
-
-    // Use the htmlAttribute extension function to add the raw HTML content and ID
-    Box(modifier.htmlAttribute("id", id).htmlAttribute("__raw_html", html)) {
-        // Empty content as the HTML is provided via the __raw_html attribute
+    val html = TrustedHtml.fromAuthorCode(QuteTemplateRenderer.renderTemplate(template, data))
+    val renderer = LocalPlatformRenderer.current
+    renderer.renderBox(modifier.attribute("id", id)) {
+        renderer.renderRawHtml(html)
     }
 }
 

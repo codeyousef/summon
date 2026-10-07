@@ -194,6 +194,7 @@ class CompositionContext private constructor(
      */
     val renderer: Renderer<*>
 ) {
+    /** Current context access and root-context creation. */
     companion object {
         private val threadLocal = ThreadLocalHolder<CompositionContext>()
 
@@ -327,4 +328,4 @@ expect object RenderUtils {
 class SummonRenderException(
     message: String,
     cause: Throwable? = null
-) : RuntimeException(message, cause) 
+) : RuntimeException(message, cause)

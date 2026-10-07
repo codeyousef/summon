@@ -73,9 +73,6 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * @see Row for horizontal layouts
  * @see Box for positioned layouts
  *
- * @sample SpacerSamples.fixedSpacing
- * @sample SpacerSamples.flexibleSpacing
- * @sample SpacerSamples.responsiveSpacing
  *
  * @since 1.0.0
  */

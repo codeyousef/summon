@@ -2,10 +2,17 @@ package codes.yousef.summon.modifier
 
 import kotlin.jvm.JvmName
 
-/** Controls whether a background scrolls with the page or stays anchored to the viewport. */
+/**
+ * Controls whether a background scrolls with the page or stays anchored to the viewport.
+ *
+ * @property value Value to process.
+ */
 enum class BackgroundAttachment(val value: String) {
+    /** The scroll background attachment option. */
     Scroll("scroll"),
+    /** The fixed background attachment option. */
     Fixed("fixed"),
+    /** The local background attachment option. */
     Local("local")
 }
 
@@ -90,6 +97,14 @@ fun Modifier.backgroundClipText(includeWebkitPrefix: Boolean = true): Modifier {
 }
 
 
+/**
+ * Executes the radial gradient operation.
+ *
+ * @param shape The shape value.
+ * @param colors The colors value.
+ * @param position The position value.
+ * @return The resulting value.
+ */
 fun Modifier.radialGradient(
     shape: String = "circle",
     colors: List<String>,
@@ -108,6 +123,14 @@ fun Modifier.radialGradient(
  * @return A new Modifier with the radial gradient background
  */
 @JvmName("radialGradientWithEnums")
+/**
+ * Executes the radial gradient operation.
+ *
+ * @param shape The shape value.
+ * @param colors The colors value.
+ * @param position The position value.
+ * @return The resulting value.
+ */
 fun Modifier.radialGradient(
     shape: RadialGradientShape = RadialGradientShape.Circle,
     colors: List<String>,
@@ -154,6 +177,17 @@ fun Modifier.radialGradient(
  * @return A new Modifier with the radial gradient background
  */
 @JvmName("radialGradientWithEnumsSimplified")
+/**
+ * Executes the radial gradient operation.
+ *
+ * @param innerColor The inner color value.
+ * @param outerColor The outer color value.
+ * @param innerPosition The inner position value.
+ * @param outerPosition The outer position value.
+ * @param shape The shape value.
+ * @param position The position value.
+ * @return The resulting value.
+ */
 fun Modifier.radialGradient(
     innerColor: String,
     outerColor: String,
@@ -181,6 +215,17 @@ fun Modifier.radialGradient(
  * @return A new Modifier with the radial gradient background
  */
 @JvmName("radialGradientWithNumberPositions")
+/**
+ * Executes the radial gradient operation.
+ *
+ * @param innerColor The inner color value.
+ * @param outerColor The outer color value.
+ * @param innerPosition The inner position value.
+ * @param outerPosition The outer position value.
+ * @param shape The shape value.
+ * @param position The position value.
+ * @return The resulting value.
+ */
 fun Modifier.radialGradient(
     innerColor: String,
     outerColor: String,
@@ -211,6 +256,17 @@ fun Modifier.radialGradient(
  * @return A new Modifier with the radial gradient background
  */
 @JvmName("radialGradientWithEnumsAndNumberPositions")
+/**
+ * Executes the radial gradient operation.
+ *
+ * @param innerColor The inner color value.
+ * @param outerColor The outer color value.
+ * @param innerPosition The inner position value.
+ * @param outerPosition The outer position value.
+ * @param shape The shape value.
+ * @param position The position value.
+ * @return The resulting value.
+ */
 fun Modifier.radialGradient(
     innerColor: String,
     outerColor: String,
@@ -238,6 +294,14 @@ fun Modifier.radialGradient(
  * @return A new Modifier with the radial gradient background
  */
 @JvmName("radialGradientWithColorStops")
+/**
+ * Executes the radial gradient operation.
+ *
+ * @param shape The shape value.
+ * @param colorStops The color stops value.
+ * @param position The position value.
+ * @return The resulting value.
+ */
 fun Modifier.radialGradient(
     shape: String = "circle",
     colorStops: List<Pair<codes.yousef.summon.core.style.Color, String>>,
@@ -256,6 +320,14 @@ fun Modifier.radialGradient(
  * @return A new Modifier with the radial gradient background
  */
 @JvmName("radialGradientWithColorStopsAndEnums")
+/**
+ * Executes the radial gradient operation.
+ *
+ * @param shape The shape value.
+ * @param colorStops The color stops value.
+ * @param position The position value.
+ * @return The resulting value.
+ */
 fun Modifier.radialGradient(
     shape: RadialGradientShape = RadialGradientShape.Circle,
     colorStops: List<Pair<codes.yousef.summon.core.style.Color, String>>,
@@ -274,6 +346,14 @@ fun Modifier.radialGradient(
  * @return A new Modifier with the radial gradient background
  */
 @JvmName("radialGradientWithColorStopsAndNumberPositions")
+/**
+ * Executes the radial gradient operation.
+ *
+ * @param shape The shape value.
+ * @param colorStops The color stops value.
+ * @param position The position value.
+ * @return The resulting value.
+ */
 fun Modifier.radialGradient(
     shape: String = "circle",
     colorStops: List<Pair<codes.yousef.summon.core.style.Color, Number>>,
@@ -292,6 +372,14 @@ fun Modifier.radialGradient(
  * @return A new Modifier with the radial gradient background
  */
 @JvmName("radialGradientWithColorStopsEnumsAndNumberPositions")
+/**
+ * Executes the radial gradient operation.
+ *
+ * @param shape The shape value.
+ * @param colorStops The color stops value.
+ * @param position The position value.
+ * @return The resulting value.
+ */
 fun Modifier.radialGradient(
     shape: RadialGradientShape = RadialGradientShape.Circle,
     colorStops: List<Pair<codes.yousef.summon.core.style.Color, Number>>,
@@ -313,6 +401,17 @@ fun Modifier.radialGradient(
  * @return A new Modifier with the radial gradient background
  */
 @JvmName("radialGradientWithColorObjects")
+/**
+ * Executes the radial gradient operation.
+ *
+ * @param innerColor The inner color value.
+ * @param outerColor The outer color value.
+ * @param innerPosition The inner position value.
+ * @param outerPosition The outer position value.
+ * @param shape The shape value.
+ * @param position The position value.
+ * @return The resulting value.
+ */
 fun Modifier.radialGradient(
     innerColor: codes.yousef.summon.core.style.Color,
     outerColor: codes.yousef.summon.core.style.Color,
@@ -340,6 +439,17 @@ fun Modifier.radialGradient(
  * @return A new Modifier with the radial gradient background
  */
 @JvmName("radialGradientWithColorObjectsAndEnums")
+/**
+ * Executes the radial gradient operation.
+ *
+ * @param innerColor The inner color value.
+ * @param outerColor The outer color value.
+ * @param innerPosition The inner position value.
+ * @param outerPosition The outer position value.
+ * @param shape The shape value.
+ * @param position The position value.
+ * @return The resulting value.
+ */
 fun Modifier.radialGradient(
     innerColor: codes.yousef.summon.core.style.Color,
     outerColor: codes.yousef.summon.core.style.Color,
@@ -367,6 +477,17 @@ fun Modifier.radialGradient(
  * @return A new Modifier with the radial gradient background
  */
 @JvmName("radialGradientWithColorObjectsAndNumberPositions")
+/**
+ * Executes the radial gradient operation.
+ *
+ * @param innerColor The inner color value.
+ * @param outerColor The outer color value.
+ * @param innerPosition The inner position value.
+ * @param outerPosition The outer position value.
+ * @param shape The shape value.
+ * @param position The position value.
+ * @return The resulting value.
+ */
 fun Modifier.radialGradient(
     innerColor: codes.yousef.summon.core.style.Color,
     outerColor: codes.yousef.summon.core.style.Color,
@@ -397,6 +518,17 @@ fun Modifier.radialGradient(
  * @return A new Modifier with the radial gradient background
  */
 @JvmName("radialGradientWithColorObjectsEnumsAndNumberPositions")
+/**
+ * Executes the radial gradient operation.
+ *
+ * @param innerColor The inner color value.
+ * @param outerColor The outer color value.
+ * @param innerPosition The inner position value.
+ * @param outerPosition The outer position value.
+ * @param shape The shape value.
+ * @param position The position value.
+ * @return The resulting value.
+ */
 fun Modifier.radialGradient(
     innerColor: codes.yousef.summon.core.style.Color,
     outerColor: codes.yousef.summon.core.style.Color,
@@ -461,6 +593,13 @@ fun Modifier.linearGradient(
  * @return A new Modifier with the linear gradient background
  */
 @JvmName("linearGradientWithColorStops")
+/**
+ * Executes the linear gradient operation.
+ *
+ * @param direction The direction value.
+ * @param colorStops The color stops value.
+ * @return The resulting value.
+ */
 fun Modifier.linearGradient(
     direction: String = "to right",
     colorStops: List<Pair<codes.yousef.summon.core.style.Color, String>>
@@ -480,6 +619,16 @@ fun Modifier.linearGradient(
  * @return A new Modifier with the linear gradient background
  */
 @JvmName("linearGradientWithColorObjects")
+/**
+ * Executes the linear gradient operation.
+ *
+ * @param startColor The start color value.
+ * @param endColor The end color value.
+ * @param startPosition The start position value.
+ * @param endPosition The end position value.
+ * @param direction The direction value.
+ * @return The resulting value.
+ */
 fun Modifier.linearGradient(
     startColor: codes.yousef.summon.core.style.Color,
     endColor: codes.yousef.summon.core.style.Color,
@@ -504,6 +653,16 @@ fun Modifier.linearGradient(
  * @return A new Modifier with the linear gradient background
  */
 @JvmName("linearGradientWithDirectionFirst")
+/**
+ * Executes the linear gradient operation.
+ *
+ * @param gradientDirection The gradient direction value.
+ * @param startColor The start color value.
+ * @param endColor The end color value.
+ * @param startPosition The start position value.
+ * @param endPosition The end position value.
+ * @return The resulting value.
+ */
 fun Modifier.linearGradient(
     gradientDirection: String,
     startColor: codes.yousef.summon.core.style.Color,

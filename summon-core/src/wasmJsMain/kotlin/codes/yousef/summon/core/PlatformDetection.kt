@@ -13,6 +13,11 @@ import codes.yousef.summon.runtime.*
 
 actual fun detectPlatformTarget(): PlatformTarget = PlatformTarget.WebAssembly
 
+/**
+ * Executes the detect browser info operation.
+ *
+ * @return The resulting value.
+ */
 actual fun detectBrowserInfo(): BrowserInfo? {
     return try {
         val userAgent = getUserAgent() ?: return null
@@ -46,8 +51,18 @@ actual fun detectBrowserInfo(): BrowserInfo? {
     }
 }
 
+/**
+ * Returns whether WASM supported.
+ *
+ * @return The resulting value.
+ */
 actual fun isWasmSupported(): Boolean = true // Always true in WASM context
 
+/**
+ * Returns whether WASM simd supported.
+ *
+ * @return The resulting value.
+ */
 actual fun isWasmSIMDSupported(): Boolean {
     return try {
         wasmHasWasmSIMD()
@@ -56,6 +71,11 @@ actual fun isWasmSIMDSupported(): Boolean {
     }
 }
 
+/**
+ * Returns whether WASM threads supported.
+ *
+ * @return The resulting value.
+ */
 actual fun isWasmThreadsSupported(): Boolean {
     return try {
         wasmHasWasmThreads()
@@ -64,6 +84,11 @@ actual fun isWasmThreadsSupported(): Boolean {
     }
 }
 
+/**
+ * Returns whether module supported.
+ *
+ * @return The resulting value.
+ */
 actual fun isModuleSupported(): Boolean {
     return try {
         wasmHasModuleSupport()
@@ -72,6 +97,11 @@ actual fun isModuleSupported(): Boolean {
     }
 }
 
+/**
+ * Returns whether dynamic import supported.
+ *
+ * @return The resulting value.
+ */
 actual fun isDynamicImportSupported(): Boolean {
     return try {
         wasmHasDynamicImport()
@@ -80,6 +110,11 @@ actual fun isDynamicImportSupported(): Boolean {
     }
 }
 
+/**
+ * Returns whether web workers supported.
+ *
+ * @return The resulting value.
+ */
 actual fun isWebWorkersSupported(): Boolean {
     return try {
         wasmHasWebWorkers()
@@ -88,10 +123,25 @@ actual fun isWebWorkersSupported(): Boolean {
     }
 }
 
+/**
+ * Returns whether this value has DOM capabilities.
+ *
+ * @return The resulting value.
+ */
 actual fun hasDOMCapabilities(): Boolean = true
 
+/**
+ * Returns whether this value has ssr capabilities.
+ *
+ * @return The resulting value.
+ */
 actual fun hasSSRCapabilities(): Boolean = false
 
+/**
+ * Returns user agent.
+ *
+ * @return The resulting value.
+ */
 actual fun getUserAgent(): String? {
     return try {
         wasmGetUserAgent()
@@ -100,6 +150,11 @@ actual fun getUserAgent(): String? {
     }
 }
 
+/**
+ * Returns current URL.
+ *
+ * @return The resulting value.
+ */
 actual fun getCurrentURL(): String? {
     return try {
         wasmGetLocationHref()
@@ -108,6 +163,11 @@ actual fun getCurrentURL(): String? {
     }
 }
 
+/**
+ * Returns whether mobile device.
+ *
+ * @return The resulting value.
+ */
 actual fun isMobileDevice(): Boolean {
     return try {
         val userAgent = getUserAgent() ?: return false
@@ -117,6 +177,11 @@ actual fun isMobileDevice(): Boolean {
     }
 }
 
+/**
+ * Returns whether touch supported.
+ *
+ * @return The resulting value.
+ */
 actual fun isTouchSupported(): Boolean {
     return try {
         wasmHasTouchSupport()
@@ -125,6 +190,11 @@ actual fun isTouchSupported(): Boolean {
     }
 }
 
+/**
+ * Returns screen width.
+ *
+ * @return The resulting value.
+ */
 actual fun getScreenWidth(): Int {
     return try {
         wasmGetScreenWidth()
@@ -133,6 +203,11 @@ actual fun getScreenWidth(): Int {
     }
 }
 
+/**
+ * Returns screen height.
+ *
+ * @return The resulting value.
+ */
 actual fun getScreenHeight(): Int {
     return try {
         wasmGetScreenHeight()
@@ -141,6 +216,11 @@ actual fun getScreenHeight(): Int {
     }
 }
 
+/**
+ * Returns device pixel ratio.
+ *
+ * @return The resulting value.
+ */
 actual fun getDevicePixelRatio(): Double {
     return try {
         wasmGetDevicePixelRatio()

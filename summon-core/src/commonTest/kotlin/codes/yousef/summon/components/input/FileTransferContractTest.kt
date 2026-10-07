@@ -27,6 +27,22 @@ class FileTransferContractTest {
         assertFailsWith<FileReadException.LimitExceeded> {
             validateFileRange(fileSize = 10, offset = 4, length = 3, policy = policy, consumedBytes = 4)
         }
+        listOf(
+            { validateFileRange(fileSize = -1, offset = 0, length = 0, policy = policy) },
+            { validateFileRange(fileSize = 10, offset = 0, length = -1, policy = policy) },
+            { validateFileRange(fileSize = 10, offset = 0, length = 1, policy = policy, consumedBytes = -1) }
+        ).forEach { invalid ->
+            assertFailsWith<FileReadException.InvalidRange> { invalid() }
+        }
+        assertFailsWith<FileReadException.LimitExceeded> {
+            validateFileRange(
+                fileSize = 10,
+                offset = 0,
+                length = 1,
+                policy = FileReadPolicy(maxChunkBytes = 1, maxTotalBytes = Long.MAX_VALUE),
+                consumedBytes = Long.MAX_VALUE
+            )
+        }
     }
 
     @Test

@@ -2,7 +2,7 @@ package codes.yousef.summon.core
 
 /**
  * Cross-platform abstraction for HTML content containers.
- * This replaces the JVM-specific kotlinx.html.FlowContent to enable WASM support.
+ * This replaces the JVM-specific kotlinx.HTML.FlowContent to enable WASM support.
  */
 abstract class FlowContentCompat {
     // This will be implemented by platform-specific renderers

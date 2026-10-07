@@ -706,7 +706,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * ## Migration Guide
  *
  * ### From CSS Flexbox
- * ```css
+ * ```CSS
  * /* CSS */
  * .column {
  *   display: flex;
@@ -770,10 +770,6 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * @see Grid for two-dimensional layouts
  * @see Spacer for adding spacing between elements
  *
- * @sample ColumnSamples.basicStack
- * @sample ColumnSamples.centeredContent
- * @sample ColumnSamples.spaceBetween
- * @sample ColumnSamples.responsiveLayout
  *
  * @since 1.0.0
  */

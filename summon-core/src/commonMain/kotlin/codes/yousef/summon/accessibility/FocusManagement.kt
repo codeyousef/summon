@@ -225,10 +225,11 @@ fun makeFocusable(
         .attribute("data-focusable", "true") // Mark as focusable
 }
 
+/** Generates a ten-character alphanumeric element identifier. */
 fun generateRandomId(): String {
     val charPool = ('a'..'z') + ('A'..'Z') + ('0'..'9')
     return (1..10)
         .map { kotlin.random.Random.nextInt(0, charPool.size) }
         .map(charPool::get)
         .joinToString("")
-} 
+}

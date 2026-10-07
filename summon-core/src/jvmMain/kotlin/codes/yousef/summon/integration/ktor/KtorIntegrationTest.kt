@@ -10,12 +10,14 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 
+/** Executes the main operation. */
 fun main() {
     embeddedServer(Netty, port = 8080) {
         configureKtorIntegrationTest()
     }.start(wait = true)
 }
 
+/** Executes the configure ktor integration test operation. */
 fun Application.configureKtorIntegrationTest() {
     val renderer = KtorRenderer()
 
@@ -42,6 +44,7 @@ fun Application.configureKtorIntegrationTest() {
     }
 }
 
+/** Renders ktor test component. */
 @Composable
 fun KtorTestComponent() {
     Column {

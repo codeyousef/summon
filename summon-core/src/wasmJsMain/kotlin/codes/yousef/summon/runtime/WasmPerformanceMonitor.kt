@@ -349,6 +349,8 @@ class WasmPerformanceMonitor {
 
 /**
  * Metrics for a specific operation.
+
+ * @property name Human-readable name.
  */
 class OperationMetrics(val name: String) {
     private var _totalTime = 0L
@@ -357,15 +359,27 @@ class OperationMetrics(val name: String) {
     private var _minTime = Long.MAX_VALUE
     private var _maxTime = 0L
 
+    /** The property declaration value. */
     val customMetrics = mutableMapOf<String, Double>()
 
+    /** The property declaration value. */
     val totalTime: Long get() = _totalTime
+    /** The property declaration value. */
     val callCount: Int get() = _callCount
+    /** The property declaration value. */
     val errorCount: Int get() = _errorCount
+    /** The property declaration value. */
     val minTime: Long get() = if (_minTime == Long.MAX_VALUE) 0L else _minTime
+    /** The property declaration value. */
     val maxTime: Long get() = _maxTime
+    /** The property declaration value. */
     val averageTime: Long get() = if (_callCount > 0) _totalTime / _callCount else 0L
 
+    /**
+     * Executes the record call operation.
+     *
+     * @param duration Duration in milliseconds.
+     */
     fun recordCall(duration: Long) {
         _totalTime += duration
         _callCount++
@@ -373,10 +387,16 @@ class OperationMetrics(val name: String) {
         _maxTime = maxOf(_maxTime, duration)
     }
 
+    /** Executes the record error operation. */
     fun recordError() {
         _errorCount++
     }
 
+    /**
+     * Converts this value to summary.
+     *
+     * @return The resulting value.
+     */
     fun toSummary(): OperationSummary {
         return OperationSummary(
             name = name,
@@ -392,6 +412,11 @@ class OperationMetrics(val name: String) {
 
 /**
  * Performance data structures.
+
+ * @property operation The operation value.
+ * @property duration Duration in milliseconds.
+ * @property timestamp The timestamp value.
+ * @property success The success value.
  */
 data class TimingEntry(
     val operation: String,
@@ -400,6 +425,14 @@ data class TimingEntry(
     val success: Boolean
 )
 
+/**
+ * Represents frame metrics.
+ *
+ * @property frameNumber The frame number value.
+ * @property duration Duration in milliseconds.
+ * @property frameRate The frame rate value.
+ * @property timestamp The timestamp value.
+ */
 data class FrameMetrics(
     val frameNumber: Int,
     val duration: Long,
@@ -407,6 +440,16 @@ data class FrameMetrics(
     val timestamp: Long
 )
 
+/**
+ * Represents WASM performance stats.
+ *
+ * @property currentFrameRate The current frame rate value.
+ * @property currentFrameTime The current frame time value.
+ * @property activeOperations The active operations value.
+ * @property memoryUsage The memory usage value.
+ * @property operationCount The operation count value.
+ * @property isMonitoring The is monitoring value.
+ */
 data class WasmPerformanceStats(
     val currentFrameRate: Double,
     val currentFrameTime: Long,
@@ -416,6 +459,17 @@ data class WasmPerformanceStats(
     val isMonitoring: Boolean
 )
 
+/**
+ * Represents operation summary.
+ *
+ * @property name Human-readable name.
+ * @property callCount The call count value.
+ * @property totalTime The total time value.
+ * @property averageTime The average time value.
+ * @property minTime The min time value.
+ * @property maxTime The max time value.
+ * @property errorCount The error count value.
+ */
 data class OperationSummary(
     val name: String,
     val callCount: Int,
@@ -426,6 +480,16 @@ data class OperationSummary(
     val errorCount: Int
 )
 
+/**
+ * Represents frame summary.
+ *
+ * @property averageFrameRate The average frame rate value.
+ * @property minFrameRate The min frame rate value.
+ * @property maxFrameRate The max frame rate value.
+ * @property averageFrameTime The average frame time value.
+ * @property frameCount The frame count value.
+ * @property droppedFrames The dropped frames value.
+ */
 data class FrameSummary(
     val averageFrameRate: Double,
     val minFrameRate: Double,
@@ -435,6 +499,14 @@ data class FrameSummary(
     val droppedFrames: Int
 )
 
+/**
+ * Represents memory summary.
+ *
+ * @property totalAllocated The total allocated value.
+ * @property currentUsage The current usage value.
+ * @property peakUsage The peak usage value.
+ * @property gcCollections The gc collections value.
+ */
 data class MemorySummary(
     val totalAllocated: Double,
     val currentUsage: Double,
@@ -442,6 +514,20 @@ data class MemorySummary(
     val gcCollections: Int
 )
 
+/**
+ * Represents WASM performance report.
+ *
+ * @property totalOperations The total operations value.
+ * @property totalMeasurements The total measurements value.
+ * @property totalTime The total time value.
+ * @property averageFrameRate The average frame rate value.
+ * @property slowestOperations The slowest operations value.
+ * @property operationBreakdown The operation breakdown value.
+ * @property frameMetrics The frame metrics value.
+ * @property memoryMetrics The memory metrics value.
+ * @property errorCount The error count value.
+ * @property reportTimestamp The report timestamp value.
+ */
 data class WasmPerformanceReport(
     val totalOperations: Int,
     val totalMeasurements: Int,

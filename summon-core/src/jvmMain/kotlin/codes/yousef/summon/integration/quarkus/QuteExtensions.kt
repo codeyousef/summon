@@ -2,12 +2,7 @@ package codes.yousef.summon.integration.quarkus
 
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.runtime.PlatformRenderer
-import codes.yousef.summon.runtime.setPlatformRenderer
 import io.quarkus.qute.TemplateExtension
-import kotlinx.html.body
-import kotlinx.html.div
-import kotlinx.html.html
-import kotlinx.html.stream.appendHTML
 
 /**
  * Extensions for integrating Summon with Quarkus Qute templates.
@@ -53,20 +48,7 @@ object SummonQuteExtensions {
         // Get the composable function for these props
         val composable = componentFactory(props)
 
-        // Initialize the renderer
-        val renderer = PlatformRenderer()
-        setPlatformRenderer(renderer)
-
-        // Render to string
-        return buildString {
-            appendHTML().html {
-                body {
-                    div {
-                        composable()
-                    }
-                }
-            }
-        }
+        return PlatformRenderer().renderComposableRoot(composable)
     }
 }
 

@@ -182,6 +182,7 @@ class EventBuffer private constructor() {
         }
     }
 
+    /** Provides event buffer factory and constant members. */
     companion object {
         /**
          * Singleton instance of the EventBuffer.

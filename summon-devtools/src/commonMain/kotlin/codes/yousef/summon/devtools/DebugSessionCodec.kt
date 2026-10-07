@@ -19,7 +19,9 @@ import kotlinx.serialization.json.put
 
 /** Strict, non-executable JSON interchange for [StateTimeline]. */
 object DebugSessionCodec {
+    /** The property declaration value. */
     const val FORMAT_VERSION: Int = 1
+    /** The property declaration value. */
     const val MAX_JSON_UTF8_BYTES: Int = 1_048_576
 
     private val json = Json {
@@ -28,6 +30,12 @@ object DebugSessionCodec {
         explicitNulls = false
     }
 
+    /**
+     * Executes the encode operation.
+     *
+     * @param plan The plan value.
+     * @return The resulting value.
+     */
     fun encode(plan: DebugSessionPlan): String {
         val document = buildJsonObject {
             put("formatVersion", FORMAT_VERSION)

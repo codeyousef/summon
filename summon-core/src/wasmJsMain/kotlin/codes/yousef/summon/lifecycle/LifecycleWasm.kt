@@ -5,22 +5,37 @@ import org.w3c.dom.events.Event
 
 @JsFun("() => document.visibilityState")
 private external fun documentVisibilityState(): String
+/** Supported lifecycle state values. */
 actual enum class LifecycleState {
+    /** The initialized lifecycle state option. */
     INITIALIZED,
+    /** The created lifecycle state option. */
     CREATED,
+    /** The started lifecycle state option. */
     STARTED,
+    /** The resumed lifecycle state option. */
     RESUMED,
+    /** The paused lifecycle state option. */
     PAUSED,
+    /** The stopped lifecycle state option. */
     STOPPED,
+    /** The destroyed lifecycle state option. */
     DESTROYED
 }
 
+/** Contract for lifecycle observer. */
 actual interface LifecycleObserver {
+    /** Handles create. */
     actual fun onCreate()
+    /** Handles start. */
     actual fun onStart()
+    /** Handles resume. */
     actual fun onResume()
+    /** Handles pause. */
     actual fun onPause()
+    /** Handles stop. */
     actual fun onStop()
+    /** Handles destroy. */
     actual fun onDestroy()
 }
 
@@ -32,6 +47,7 @@ actual class LifecycleOwner {
     private val visibilityListener: (Event) -> Unit = { handleVisibilityChange() }
     private val pageHideListener: (Event) -> Unit = { destroy() }
 
+    /** The property declaration value. */
     actual var currentState: LifecycleState = LifecycleState.INITIALIZED
         set(value) {
             if (field == LifecycleState.DESTROYED) return
@@ -91,6 +107,11 @@ actual class LifecycleOwner {
         failure?.let { throw it }
     }
 
+    /**
+     * Adds observer.
+     *
+     * @param observer The observer value.
+     */
     actual fun addObserver(observer: LifecycleObserver) {
         if (observers.contains(observer)) return
         observers.add(observer)
@@ -102,6 +123,11 @@ actual class LifecycleOwner {
         }
     }
 
+    /**
+     * Removes observer.
+     *
+     * @param observer The observer value.
+     */
     actual fun removeObserver(observer: LifecycleObserver) {
         observers.remove(observer)
     }
@@ -147,4 +173,9 @@ actual class LifecycleOwner {
 
 private val wasmLifecycleOwnerInstance = LifecycleOwner()
 
+/**
+ * Executes the current lifecycle owner operation.
+ *
+ * @return The resulting value.
+ */
 actual fun currentLifecycleOwner(): LifecycleOwner? = wasmLifecycleOwnerInstance

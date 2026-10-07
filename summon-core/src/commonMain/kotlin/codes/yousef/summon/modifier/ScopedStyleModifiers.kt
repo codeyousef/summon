@@ -88,6 +88,8 @@ package codes.yousef.summon.modifier
 
 /**
  * Types of CSS selector combinators for scoped styles.
+
+ * @property combinator The combinator value.
  */
 enum class SelectorType(val combinator: String) {
     /**

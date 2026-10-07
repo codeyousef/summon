@@ -6,15 +6,47 @@ import codes.yousef.summon.runtime.wasmConsoleError
  * External declarations for localStorage and storage events in WASM.
  */
 @JsName("localStorage")
+/** Provides wasm local storage operations. */
 external object WasmLocalStorage {
+    /**
+     * Returns item.
+     *
+     * @param key Lookup key.
+     * @return The resulting value.
+     */
     fun getItem(key: String): String?
+    /**
+     * Sets item.
+     *
+     * @param key Lookup key.
+     * @param value Value to process.
+     */
     fun setItem(key: String, value: String)
+    /**
+     * Removes item.
+     *
+     * @param key Lookup key.
+     */
     fun removeItem(key: String)
 }
 
+/** Provides WASM window operations. */
 @JsName("window")
+/** Provides wasm window operations. */
 external object WasmWindow {
+    /**
+     * Adds event listener.
+     *
+     * @param type The type value.
+     * @param callback The callback value.
+     */
     fun addEventListener(type: String, callback: (JsAny) -> Unit)
+    /**
+     * Removes event listener.
+     *
+     * @param type The type value.
+     * @param callback The callback value.
+     */
     fun removeEventListener(type: String, callback: (JsAny) -> Unit)
 }
 
@@ -22,8 +54,11 @@ external object WasmWindow {
  * External interface for StorageEvent.
  */
 external interface WasmStorageEvent : JsAny {
+    /** The property declaration value. */
     val key: String?
+    /** The property declaration value. */
     val newValue: String?
+    /** The property declaration value. */
     val oldValue: String?
 }
 
@@ -50,32 +85,22 @@ private class WasmSyncedStorage<T>(
 ) : SyncedStorage<T> {
 
     private val listeners = mutableListOf<(T) -> Unit>()
-    private var storageCallback: ((JsAny) -> Unit)? = null
-
-    init {
+    private var storageListenerAttached = false
+    private val storageCallback: (JsAny) -> Unit = { event ->
         try {
-            // Set up storage event listener for cross-tab sync
-            storageCallback = { event: JsAny ->
-                try {
-                    val storageEvent = event.unsafeCast<WasmStorageEvent>()
-                    if (storageEvent.key == key) {
-                        val newValue = storageEvent.newValue?.let {
-                            try {
-                                deserializer(it)
-                            } catch (e: Exception) {
-                                wasmConsoleError("Failed to deserialize in storage event: ${e.message}")
-                                defaultValue
-                            }
-                        } ?: defaultValue
-                        notifyListeners(newValue)
+            val storageEvent = event.unsafeCast<WasmStorageEvent>()
+            if (storageEvent.key == key) {
+                val newValue = storageEvent.newValue?.let {
+                    try {
+                        deserializer(it)
+                    } catch (_: Exception) {
+                        defaultValue
                     }
-                } catch (e: Exception) {
-                    wasmConsoleError("Error handling storage event: ${e.message}")
-                }
+                } ?: defaultValue
+                notifyListeners(newValue)
             }
-            WasmWindow.addEventListener("storage", storageCallback!!)
-        } catch (e: Exception) {
-            wasmConsoleError("Failed to set up storage listener: ${e.message}")
+        } catch (_: Exception) {
+            wasmConsoleError("Synced storage event handling failed")
         }
     }
 
@@ -86,15 +111,15 @@ private class WasmSyncedStorage<T>(
                 if (stored != null) {
                     try {
                         deserializer(stored)
-                    } catch (e: Exception) {
-                        wasmConsoleError("Failed to deserialize stored value for key '$key': ${e.message}")
+                    } catch (_: Exception) {
+                        wasmConsoleError("Synced storage deserialization failed")
                         defaultValue
                     }
                 } else {
                     defaultValue
                 }
-            } catch (e: Exception) {
-                wasmConsoleError("Failed to get item from localStorage: ${e.message}")
+            } catch (_: Exception) {
+                wasmConsoleError("Synced storage read failed")
                 defaultValue
             }
         }
@@ -104,8 +129,8 @@ private class WasmSyncedStorage<T>(
                 WasmLocalStorage.setItem(key, serialized)
                 // Storage event doesn't fire in the same tab, so manually notify
                 notifyListeners(newValue)
-            } catch (e: Exception) {
-                wasmConsoleError("Failed to set value for key '$key': ${e.message}")
+            } catch (_: Exception) {
+                wasmConsoleError("Synced storage write failed")
             }
         }
 
@@ -113,8 +138,8 @@ private class WasmSyncedStorage<T>(
         try {
             WasmLocalStorage.removeItem(key)
             notifyListeners(defaultValue)
-        } catch (e: Exception) {
-            wasmConsoleError("Failed to remove item from localStorage: ${e.message}")
+        } catch (_: Exception) {
+            wasmConsoleError("Synced storage removal failed")
         }
     }
 
@@ -127,34 +152,40 @@ private class WasmSyncedStorage<T>(
     }
 
     override fun addChangeListener(listener: (T) -> Unit): () -> Unit {
+        if (!storageListenerAttached) {
+            try {
+                WasmWindow.addEventListener("storage", storageCallback)
+                storageListenerAttached = true
+            } catch (_: Exception) {
+                wasmConsoleError("Synced storage listener registration failed")
+            }
+        }
         listeners.add(listener)
+        var subscribed = true
         return {
-            listeners.remove(listener)
+            if (subscribed) {
+                subscribed = false
+                listeners.remove(listener)
+                if (listeners.isEmpty() && storageListenerAttached) {
+                    try {
+                        WasmWindow.removeEventListener("storage", storageCallback)
+                    } catch (_: Exception) {
+                        wasmConsoleError("Synced storage listener removal failed")
+                    }
+                    storageListenerAttached = false
+                }
+            }
         }
     }
 
     private fun notifyListeners(newValue: T) {
-        listeners.forEach { listener ->
+        listeners.toList().forEach { listener ->
             try {
                 listener(newValue)
-            } catch (e: Exception) {
-                wasmConsoleError("Error in SyncedStorage listener: ${e.message}")
+            } catch (_: Exception) {
+                wasmConsoleError("Synced storage observer failed")
             }
         }
     }
 
-    /**
-     * Cleanup function to remove the storage event listener.
-     */
-    fun dispose() {
-        storageCallback?.let { callback ->
-            try {
-                WasmWindow.removeEventListener("storage", callback)
-            } catch (e: Exception) {
-                wasmConsoleError("Failed to remove storage listener: ${e.message}")
-            }
-        }
-        storageCallback = null
-        listeners.clear()
-    }
 }

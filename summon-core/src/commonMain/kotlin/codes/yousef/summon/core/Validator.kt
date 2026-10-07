@@ -27,16 +27,26 @@ interface Validator {
 
 /**
  * Required field validator that ensures a value is not empty.
+
+ * @property errorMessage The error message value.
  */
 @Suppress("DEPRECATION")
 class RequiredValidator(
     override val errorMessage: String = ValidationMessages.REQUIRED_FIELD
 ) : Validator {
+    /**
+     * Validates the supplied value.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     override fun validate(value: String): Boolean = value.isNotBlank()
 }
 
 /**
  * Email validator that ensures a value matches an email pattern.
+
+ * @property errorMessage The error message value.
  */
 @Suppress("DEPRECATION")
 class EmailValidator(
@@ -44,6 +54,12 @@ class EmailValidator(
 ) : Validator {
     private val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
 
+    /**
+     * Validates the supplied value.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     override fun validate(value: String): Boolean {
         return value.isEmpty() || value.matches(emailRegex)
     }
@@ -51,45 +67,81 @@ class EmailValidator(
 
 /**
  * Minimum length validator.
+
+ * @property minLength The min length value.
+ * @property errorMessage The error message value.
  */
 @Suppress("DEPRECATION")
 class MinLengthValidator(
     private val minLength: Int,
     override val errorMessage: String = ValidationMessages.minLength(minLength)
 ) : Validator {
+    /**
+     * Validates the supplied value.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     override fun validate(value: String): Boolean = value.length >= minLength
 }
 
 /**
  * Maximum length validator.
+
+ * @property maxLength The max length value.
+ * @property errorMessage The error message value.
  */
 @Suppress("DEPRECATION")
 class MaxLengthValidator(
     private val maxLength: Int,
     override val errorMessage: String = ValidationMessages.maxLength(maxLength)
 ) : Validator {
+    /**
+     * Validates the supplied value.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     override fun validate(value: String): Boolean = value.length <= maxLength
 }
 
 /**
  * Pattern validator that ensures a value matches a regex pattern.
+
+ * @property pattern The pattern value.
+ * @property errorMessage The error message value.
  */
 @Suppress("DEPRECATION")
 class PatternValidator(
     private val pattern: Regex,
     override val errorMessage: String = ValidationMessages.INVALID_FORMAT
 ) : Validator {
+    /**
+     * Validates the supplied value.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     override fun validate(value: String): Boolean = value.isEmpty() || value.matches(pattern)
 }
 
 /**
  * Custom validator that uses a provided validation function.
+
+ * @property validateFn The validate fn value.
+ * @property errorMessage The error message value.
  */
 @Suppress("DEPRECATION")
 class CustomValidator(
     private val validateFn: (String) -> Boolean,
     override val errorMessage: String
 ) : Validator {
+    /**
+     * Validates the supplied value.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     override fun validate(value: String): Boolean = validateFn(value)
 }
 
@@ -99,6 +151,12 @@ class CustomValidator(
  * @return True if validation passed, false otherwise
  */
 @Suppress("DEPRECATION")
+/**
+ * Validates boolean.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun Validator.validateBoolean(value: Boolean): Boolean {
     return validate(value.toString())
-} 
+}

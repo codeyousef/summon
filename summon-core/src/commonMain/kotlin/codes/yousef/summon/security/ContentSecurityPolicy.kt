@@ -3,6 +3,8 @@ package codes.yousef.summon.security
 /**
  * Explicitly audited public state that may be embedded in SSR output.
  * Private vault/session state must never be represented by this type.
+
+ * @property json The json value.
  */
 data class PublicHydrationState(val json: String) {
     init {
@@ -14,6 +16,9 @@ data class PublicHydrationState(val json: String) {
 /**
  * A rendered HTML document and the exact CSP header that must accompany it.
  * Keeping both values together prevents nonce/header drift at integration boundaries.
+
+ * @property html The html value.
+ * @property contentSecurityPolicy The content security policy value.
  */
 data class CspDocument(
     val html: String,
@@ -22,6 +27,12 @@ data class CspDocument(
 
 /** Strict first-party policy for locked/private application shells. */
 object PrivateShellContentSecurityPolicy {
+    /**
+     * Executes the header value operation.
+     *
+     * @param styleNonce The style nonce value.
+     * @return The resulting value.
+     */
     fun headerValue(styleNonce: String): String {
         require(isValidNonce(styleNonce)) { "CSP nonce must be 32 bytes encoded as base64url" }
         return listOf(
@@ -45,6 +56,12 @@ object PrivateShellContentSecurityPolicy {
         ).joinToString("; ")
     }
 
+    /**
+     * Returns whether valid nonce.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     fun isValidNonce(value: String): Boolean =
         value.length == 43 && value.all { it.isLetterOrDigit() || it == '-' || it == '_' }
 }

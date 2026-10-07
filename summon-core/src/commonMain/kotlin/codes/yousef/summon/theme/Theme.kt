@@ -246,6 +246,22 @@ object Theme {
     /**
      * Represents a text style with common properties.
      * Uses String? for nullable CSS values.
+
+     * @property fontFamily The font family value.
+     * @property fontSize The font size value.
+     * @property fontWeight The font weight value.
+     * @property fontStyle The font style value.
+     * @property color The color value.
+     * @property textDecoration The text decoration value.
+     * @property lineHeight The line height value.
+     * @property letterSpacing The letter spacing value.
+     * @property fontWeightEnum The font weight enum value.
+     * @property fontSizeNumber The font size number value.
+     * @property fontSizeUnit The font size unit value.
+     * @property lineHeightNumber The line height number value.
+     * @property letterSpacingNumber The letter spacing number value.
+     * @property letterSpacingUnit The letter spacing unit value.
+     * @property colorValue The color value value.
      */
     data class TextStyle(
         // String-based properties for backward compatibility
@@ -267,6 +283,7 @@ object Theme {
         val colorValue: Color? = null
         // Add other relevant CSS text properties as needed
     ) {
+        /** Provides text style factory and constant members. */
         companion object {
             /**
              * Creates a TextStyle with typed properties, automatically setting string equivalents
@@ -314,6 +331,22 @@ object Theme {
 
     /**
      * Typed theme typography configuration
+
+     * @property h1 The h1 value.
+     * @property h2 The h2 value.
+     * @property h3 The h3 value.
+     * @property h4 The h4 value.
+     * @property h5 The h5 value.
+     * @property h6 The h6 value.
+     * @property subtitle The subtitle value.
+     * @property body The body value.
+     * @property bodyLarge The body large value.
+     * @property bodySmall The body small value.
+     * @property caption The caption value.
+     * @property button The button value.
+     * @property overline The overline value.
+     * @property link The link value.
+     * @property code The code value.
      */
     data class TypographyTheme(
         // Using the new create method with typed properties
@@ -388,6 +421,13 @@ object Theme {
 
     /**
      * Typed theme spacing configuration
+
+     * @property xs The xs value.
+     * @property sm The sm value.
+     * @property md The md value.
+     * @property lg The lg value.
+     * @property xl The xl value.
+     * @property xxl The xxl value.
      */
     data class SpacingTheme(
         val xs: String = Spacing.xs,
@@ -400,6 +440,14 @@ object Theme {
 
     /**
      * Typed theme border radius configuration
+
+     * @property none The none value.
+     * @property sm The sm value.
+     * @property md The md value.
+     * @property lg The lg value.
+     * @property xl The xl value.
+     * @property pill The pill value.
+     * @property circle The circle value.
      */
     data class BorderRadiusTheme(
         val none: String = "0",
@@ -413,6 +461,14 @@ object Theme {
 
     /**
      * Typed theme elevation configuration
+
+     * @property none The none value.
+     * @property xs The xs value.
+     * @property sm The sm value.
+     * @property md The md value.
+     * @property lg The lg value.
+     * @property xl The xl value.
+     * @property xxl The xxl value.
      */
     data class ElevationTheme(
         val none: String = "none",
@@ -426,6 +482,17 @@ object Theme {
 
     /**
      * Represents a complete theme configuration
+
+     * @property colorPalette The color palette value.
+     * @property typography The typography value.
+     * @property spacing The spacing value.
+     * @property borderRadius The border radius value.
+     * @property elevation The elevation value.
+     * @property customValues The custom values value.
+     * @property typographyTheme The typography theme value.
+     * @property spacingTheme The spacing theme value.
+     * @property borderRadiusTheme The border radius theme value.
+     * @property elevationTheme The elevation theme value.
      */
     data class ThemeConfig(
         val colorPalette: ColorSystem.ColorPalette = ColorSystem.default,
@@ -870,6 +937,20 @@ fun Modifier.themeMargin(
 }
 
 // --- Theme Data Classes ---
+/**
+ * Represents colors.
+ *
+ * @property primary The primary value.
+ * @property secondary The secondary value.
+ * @property background The background value.
+ * @property surface The surface value.
+ * @property error The error value.
+ * @property onPrimary Callback invoked when primary.
+ * @property onSecondary Callback invoked when secondary.
+ * @property onBackground Callback invoked when background.
+ * @property onSurface Callback invoked when surface.
+ * @property onError Callback invoked when error.
+ */
 data class Colors(
     val primary: String,
     val secondary: String,
@@ -884,18 +965,31 @@ data class Colors(
     // Add more colors as needed (variants, states)
 )
 
+/**
+ * Represents theme typography.
+ *
+ * @property h1 The h1 value.
+ * @property body1 The body1 value.
+ */
 data class ThemeTypography(
     // Placeholder properties - Define actual styles later
     val h1: String = "font-size: 2em; font-weight: bold;", // Example inline style
     val body1: String = "font-size: 1em;"
 )
 
+/**
+ * Represents shapes.
+ *
+ * @property small The small value.
+ * @property medium The medium value.
+ */
 data class Shapes(
     val small: Float = 4f,
     val medium: Float = 8f
 )
 
 // --- Default Theme Values ---
+/** The property declaration value. */
 val LightColors = Colors(
     primary = "#6200EE",
     secondary = "#03DAC6",
@@ -909,5 +1003,7 @@ val LightColors = Colors(
     onError = "#FFFFFF"
 )
 
+/** The property declaration value. */
 val DefaultTypography = ThemeTypography()
-val DefaultShapes = Shapes() 
+/** The property declaration value. */
+val DefaultShapes = Shapes()

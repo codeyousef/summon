@@ -124,6 +124,65 @@ class InitCommandTest {
         assertNull(executor.lastConfig, "Generator should not run on invalid backend input")
     }
 
+    @Test
+    fun `prompt aliases retry invalid input and EOF fails without generation`() {
+        val root = createTempDirectory("init-command-prompts").toFile().also(tempRoots::add)
+        val standalone = RecordingExecutor()
+        val standaloneInputs = InputSequence(listOf("invalid", "s"))
+        InitCommand(::stubTemplate, { standalone }, standaloneInputs::next).parse(
+            arrayOf("site", "--dir", File(root, "site").absolutePath)
+        )
+        assertEquals("js", standalone.lastConfig?.templateType)
+
+        val ktor = RecordingExecutor()
+        val fullstackInputs = InputSequence(listOf("f", "invalid", "k"))
+        InitCommand(::stubTemplate, { ktor }, fullstackInputs::next).parse(
+            arrayOf("server", "--dir", File(root, "server").absolutePath)
+        )
+        assertEquals("ktor", ktor.lastConfig?.templateType)
+
+        val eof = RecordingExecutor()
+        assertFailsWith<com.github.ajalt.clikt.core.CliktError> {
+            InitCommand(::stubTemplate, { eof }) { null }.parse(
+                arrayOf("eof", "--dir", File(root, "eof").absolutePath)
+            )
+        }
+        assertNull(eof.lastConfig)
+    }
+
+    @Test
+    fun `target validation rejects files and nonempty directories unless forced`() {
+        val root = createTempDirectory("init-command-targets").toFile().also(tempRoots::add)
+        val file = File(root, "file").apply { writeText("occupied") }
+        val fileExecutor = RecordingExecutor()
+        InitCommand(::stubTemplate, { fileExecutor }) { "standalone" }.parse(
+            arrayOf("file-project", "--mode=standalone", "--dir", file.absolutePath)
+        )
+        assertNull(fileExecutor.lastConfig)
+
+        val occupied = File(root, "occupied").apply {
+            mkdirs()
+            resolve("existing.txt").writeText("occupied")
+        }
+        val rejected = RecordingExecutor()
+        InitCommand(::stubTemplate, { rejected }) { "standalone" }.parse(
+            arrayOf("occupied-project", "--mode=standalone", "--dir", occupied.absolutePath)
+        )
+        assertNull(rejected.lastConfig)
+
+        val forced = RecordingExecutor()
+        InitCommand(::stubTemplate, { forced }) { "standalone" }.parse(
+            arrayOf("occupied-project", "--mode=standalone", "--dir", occupied.absolutePath, "--force")
+        )
+        assertEquals(true, forced.lastConfig?.overwrite)
+
+        val here = RecordingExecutor()
+        InitCommand(::stubTemplate, { here }) { "standalone" }.parse(
+            arrayOf("here-project", "--mode=standalone", "--here", "--force")
+        )
+        assertEquals(File(".").absoluteFile, here.lastConfig?.targetDirectory)
+    }
+
     private fun stubTemplate(type: String): ProjectTemplate = ProjectTemplate(
         name = type,
         description = "$type template",

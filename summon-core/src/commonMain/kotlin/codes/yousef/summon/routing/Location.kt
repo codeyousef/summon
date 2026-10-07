@@ -63,6 +63,7 @@ data class Location(
      */
     fun withState(newState: Map<String, Any>?): Location = copy(state = newState)
 
+    /** Provides location factory and constant members. */
     companion object {
         /**
          * Parse a URL string into a Location object.

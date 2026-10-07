@@ -13,18 +13,33 @@ private external fun wasmIsProductionEnvironment(): Boolean
 actual object SummonLogger {
     private val isProduction: Boolean = wasmIsProductionEnvironment()
 
+    /**
+     * Executes the log operation.
+     *
+     * @param message Message content.
+     */
     actual fun log(message: String) {
         if (!isProduction) {
             wasmConsoleLog("[SUMMON] $message")
         }
     }
 
+    /**
+     * Executes the warn operation.
+     *
+     * @param message Message content.
+     */
     actual fun warn(message: String) {
         if (!isProduction) {
             wasmConsoleWarn("[SUMMON] $message")
         }
     }
 
+    /**
+     * Executes the error operation.
+     *
+     * @param message Message content.
+     */
     actual fun error(message: String) {
         // Always log errors, even in production
         wasmConsoleError("[SUMMON] $message")

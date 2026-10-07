@@ -1,10 +1,12 @@
 package codes.yousef.summon.routing
 
 import codes.yousef.summon.runtime.Composable
+import kotlinx.html.stream.createHTML
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertSame
 
 class RouterJvmTest {
 
@@ -188,4 +190,22 @@ class RouterJvmTest {
         removeRouterForSession("session3")
         RouterContext.current = null // Clean up context
     }
+    @Test
+    fun serverNavLinkRendersActiveOptionalClassesAndPassesThroughNonConsumers() {
+        val active = RouterContext.withRouter(MockRouter("/target")) {
+            val consumer: Any = createHTML()
+            ServerNavLink("/target", "Target", "nav", "selected").compose(consumer)
+        }
+        assertEquals("<a href=\"/target\" class=\"nav selected\">Target</a>", active)
+
+        val plain = RouterContext.withRouter(MockRouter("/other")) {
+            val consumer: Any = createHTML()
+            ServerNavLink("/target", "Target").compose(consumer)
+        }
+        assertEquals("<a href=\"/target\">Target</a>", plain)
+
+        val marker = Any()
+        assertSame(marker, ServerNavLink("/", "Home").compose(marker))
+    }
+
 } 

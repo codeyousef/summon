@@ -22,6 +22,8 @@ import java.util.zip.GZIPOutputStream
  * - io.quarkus:quarkus-core
  * - io.quarkus:quarkus-vertx-web
  * - io.quarkus:quarkus-kotlin
+
+ * @property response The response value.
  */
 class QuarkusRenderer(private val response: HttpServerResponse) {
     private val renderer = PlatformRenderer()
@@ -39,6 +41,7 @@ class QuarkusRenderer(private val response: HttpServerResponse) {
     ) {
         setPlatformRenderer(renderer)
         val html = try {
+            val componentHtml = renderer.renderComposableRoot(content)
             buildString {
                 appendHTML().html {
                     head {
@@ -47,7 +50,7 @@ class QuarkusRenderer(private val response: HttpServerResponse) {
                         title(title)
                     }
                     body {
-                        content()
+                        unsafe { +componentHtml }
                     }
                 }
             }
@@ -84,6 +87,7 @@ class QuarkusRenderer(private val response: HttpServerResponse) {
         responseBuilder.end(html)
     }
 
+    /** Provides quarkus renderer factory and constant members. */
     companion object {
         /**
          * Extension function for RoutingContext to easily create a QuarkusRenderer.
@@ -112,7 +116,7 @@ class QuarkusRenderer(private val response: HttpServerResponse) {
         ) {
             QuarkusRenderer(response()).renderHydrated(statusCode, content)
         }
-        
+
         /**
          * Convenience alias for [respondSummonHydrated].
          * Renders a Summon page with full hydration support.
@@ -121,16 +125,16 @@ class QuarkusRenderer(private val response: HttpServerResponse) {
             statusCode: Int = 200,
             content: @Composable () -> Unit
         ) = respondSummonHydrated(statusCode, content)
-        
+
         /**
          * Registers routes to serve Summon hydration assets from the library JAR.
-         * 
+         *
          * Assets are served at:
-         * - `/summon-hydration.js` - JavaScript hydration client (for JS mode)
-         * - `/summon-hydration.wasm` - WebAssembly module (stable name)
-         * - `/summon-hydration.wasm.js` - WASM loader script
-         * - `/{hash}.wasm` - Hashed WASM files (webpack generates these with content hashes)
-         * 
+         * - `/summon-hydration.JS` - JavaScript hydration client (for JS mode)
+         * - `/summon-hydration.WASM` - WebAssembly module (stable name)
+         * - `/summon-hydration.WASM.JS` - WASM loader script
+         * - `/{hash}.WASM` - Hashed WASM files (webpack generates these with content hashes)
+         *
          * Usage:
          * ```kotlin
          * router.summonStaticAssets()
@@ -166,12 +170,12 @@ class QuarkusRenderer(private val response: HttpServerResponse) {
                 ctx.respondSummonAsset("summon-hydration.wasm.js", "application/javascript")
             }
         }
-        
+
         /**
          * Registers the callback handler route for hydration callbacks.
-         * 
+         *
          * Endpoint: `POST /summon/callback/:callbackId`
-         * 
+         *
          * Usage:
          * ```kotlin
          * router.summonCallbackHandler()
@@ -200,7 +204,7 @@ class QuarkusRenderer(private val response: HttpServerResponse) {
                 }
             }
         }
-        
+
         // Cache for compressed assets
         private val compressedAssetCache = ConcurrentHashMap<String, ByteArray>()
         private val rawAssetCache = ConcurrentHashMap<String, ByteArray>()

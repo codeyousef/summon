@@ -32,9 +32,19 @@ import java.lang.reflect.Type
  */
 @Provider
 @Produces(MediaType.TEXT_HTML)
+/** Represents summon message body writer. */
 @ApplicationScoped
 class SummonMessageBodyWriter : MessageBodyWriter<Any> {
 
+    /**
+     * Returns whether writeable.
+     *
+     * @param type The type value.
+     * @param genericType The generic type value.
+     * @param annotations The annotations value.
+     * @param mediaType The media type value.
+     * @return The resulting value.
+     */
     override fun isWriteable(
         type: Class<*>?,
         genericType: Type?,
@@ -46,6 +56,17 @@ class SummonMessageBodyWriter : MessageBodyWriter<Any> {
         }
     }
 
+    /**
+     * Executes the write to operation.
+     *
+     * @param component The component value.
+     * @param type The type value.
+     * @param genericType The generic type value.
+     * @param annotations The annotations value.
+     * @param mediaType The media type value.
+     * @param httpHeaders The http headers value.
+     * @param entityStream The entity stream value.
+     */
     override fun writeTo(
         component: Any,
         type: Class<*>?,
@@ -64,6 +85,16 @@ class SummonMessageBodyWriter : MessageBodyWriter<Any> {
         }
     }
 
+    /**
+     * Returns size.
+     *
+     * @param component The component value.
+     * @param type The type value.
+     * @param genericType The generic type value.
+     * @param annotations The annotations value.
+     * @param mediaType The media type value.
+     * @return The resulting value.
+     */
     override fun getSize(
         component: Any?,
         type: Class<*>?,
@@ -125,4 +156,4 @@ object ResteasyIntegration {
                 .build()
         }
     }
-} 
+}

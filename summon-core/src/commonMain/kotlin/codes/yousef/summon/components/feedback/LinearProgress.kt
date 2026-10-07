@@ -60,7 +60,6 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  *
  * @see Progress for full-featured progress component
  * @see CircularProgress for circular progress indicators
- * @sample codes.yousef.summon.samples.feedback.ProgressSamples.linearProgressExample
  * @since 1.0.0
  */
 @Composable

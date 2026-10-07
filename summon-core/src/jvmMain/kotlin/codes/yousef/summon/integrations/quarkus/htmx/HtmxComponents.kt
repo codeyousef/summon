@@ -44,11 +44,9 @@ fun HtmxButton(
         else -> modifier.htmxGet(endpoint, target, swap, trigger)
     }
 
-    // Apply additional HTMX attributes if provided
-    val finalModifier = htmxModifier.apply {
-        if (indicator != null) htmx("indicator", indicator)
-        if (confirm != null) htmx("confirm", confirm)
-    }
+    var finalModifier = htmxModifier
+    if (indicator != null) finalModifier = finalModifier.htmx("indicator", indicator)
+    if (confirm != null) finalModifier = finalModifier.htmx("confirm", confirm)
 
     // Render the button with HTMX attributes
     Button(

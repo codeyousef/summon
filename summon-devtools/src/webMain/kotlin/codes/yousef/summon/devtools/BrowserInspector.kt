@@ -171,7 +171,11 @@ private class DomInspectorTreeSource(
     }
 }
 
-/** Owned, keyboard-accessible browser panel for one [InspectorSession]. */
+/**
+ * Owned, keyboard-accessible browser panel for one [InspectorSession].
+ *
+ * @property session The session value.
+ */
 class BrowserInspectorOverlay(
     private val session: InspectorSession,
     styleNonce: String? = null
@@ -244,6 +248,7 @@ class BrowserInspectorOverlay(
         scheduleTimelineFrame()
     }
 
+    /** Disposes the operation. */
     fun dispose() {
         if (disposed) return
         disposed = true

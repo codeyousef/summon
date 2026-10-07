@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse
  * Currently disabled - can be enabled by uncommenting the @WebServlet annotation.
  */
 // @WebServlet(name = "SummonServlet", urlPatterns = ["/servlet/*"])
+/** Represents summon servlet. */
 class SummonServlet : HttpServlet() {
 
     /**
@@ -359,9 +360,9 @@ class SummonServlet : HttpServlet() {
                             <li class="nav-item"><a class="nav-link" href="/chat">Chat</a></li>
                         </ul>
                     </nav>
-                    
+
                     <h1>Dashboard Page</h1>
-                    
+
                     <div class="card">
                         <h2>Servlet-Rendered Dashboard</h2>
                         <p>This dashboard is served directly from the SummonServlet class.</p>
@@ -453,9 +454,9 @@ class SummonServlet : HttpServlet() {
                             <li class="nav-item"><a class="nav-link" href="/chat">Chat</a></li>
                         </ul>
                     </nav>
-                    
+
                     <h1>Theme Page</h1>
-                    
+
                     <div class="card">
                         <h2>Servlet-Rendered Theme</h2>
                         <p>This theme page is served directly from the SummonServlet class.</p>
@@ -547,9 +548,9 @@ class SummonServlet : HttpServlet() {
                             <li class="nav-item"><a class="nav-link" href="/chat">Chat</a></li>
                         </ul>
                     </nav>
-                    
+
                     <h1>Chat Page</h1>
-                    
+
                     <div class="card">
                         <h2>Servlet-Rendered Chat</h2>
                         <p>This chat page is served directly from the SummonServlet class.</p>

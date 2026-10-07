@@ -101,9 +101,9 @@
  *     items(listItems) { item ->
  *         ListItem(
  *             modifier = Modifier()
- *                 .onClick("selectItem('${item.id}')")
- *                 .onMouseEnter("highlightItem('${item.id}')")
- *                 .onMouseLeave("unhighlightItem('${item.id}')")
+ *                 .onClick("selectItem('${item.ID}')")
+ *                 .onMouseEnter("highlightItem('${item.ID}')")
+ *                 .onMouseLeave("unhighlightItem('${item.ID}')")
  *         )
  *     }
  * }
@@ -141,7 +141,7 @@
  * .onClick("if (event.ctrlKey) { handleCtrlClick(); } else { handleClick(); }")
  *
  * // Complex expressions
- * .onDragStart("event.dataTransfer.setData('text/plain', '${item.id}')")
+ * .onDragStart("event.dataTransfer.setData('text/plain', '${item.ID}')")
  * ```
  *
  * ## Performance Features
@@ -437,4 +437,4 @@ private fun Modifier.complexEventHandler(event: String, handler: (Any) -> Unit):
     when (this) {
         is ModifierImpl -> copy(complexEventHandlers = complexEventHandlers + (event to handler))
         else -> ModifierImpl(complexEventHandlers = mapOf(event to handler))
-    } 
+    }

@@ -1,8 +1,8 @@
 package codes.yousef.summon.runtime
 
 /**
- * Safe wrapper for wasmConsoleLog that works in both browser and Node.js environments.
- * In Node.js test environments where wasmConsoleLog might not be available, this function
+ * Safe wrapper for wasmConsoleLog that works in both browser and Node.JS environments.
+ * In Node.JS test environments where wasmConsoleLog might not be available, this function
  * catches any errors and silently continues.
  */
 internal fun safeWasmConsoleLog(message: String) {
@@ -18,7 +18,7 @@ internal fun safeWasmConsoleLog(message: String) {
 }
 
 /**
- * Safe wrapper for wasmConsoleWarn that works in both browser and Node.js environments.
+ * Safe wrapper for wasmConsoleWarn that works in both browser and Node.JS environments.
  */
 internal fun safeWasmConsoleWarn(message: String) {
     try {
@@ -29,7 +29,7 @@ internal fun safeWasmConsoleWarn(message: String) {
 }
 
 /**
- * Safe wrapper for wasmConsoleError that works in both browser and Node.js environments.
+ * Safe wrapper for wasmConsoleError that works in both browser and Node.JS environments.
  */
 internal fun safeWasmConsoleError(message: String) {
     try {

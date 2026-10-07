@@ -5,6 +5,7 @@ import codes.yousef.summon.runtime.RecompositionScheduler
 
 /** Owns a mounted browser root. Dispose when its container leaves the application. */
 interface MountedComposition {
+    /** Whether this owner has completed disposal. */
     val isDisposed: Boolean
     /** Cancels queued rendering and releases state, effects, DOM nodes and callbacks once. */
     fun dispose()

@@ -35,6 +35,16 @@ expect interface Router {
 
 // --- Router Definition and Matching (Defined ONCE) ---
 
+/**
+ * Represents route definition.
+ *
+ * @property path Target path.
+ * @property content Composable content emitted by this API.
+ * @property title The title value.
+ * @property description The description value.
+ * @property canonicalUrl The canonical url value.
+ * @property guards The guards value.
+ */
 data class RouteDefinition(
     val path: String,
     val content: @Composable (RouteParams) -> Unit,
@@ -46,8 +56,11 @@ data class RouteDefinition(
 
 /**
  * Container for route parameters extracted from the URL path.
+
+ * @property params The params value.
  */
 data class RouteParams(val params: Map<String, String>) {
+    /** Provides route params factory and constant members. */
     companion object {
         /**
          * Gets the current route parameters.
@@ -112,6 +125,12 @@ private val localRouteParams = CompositionLocal.compositionLocalOf<RouteParams?>
  */
 val LocalRouteParams = localRouteParams
 
+/**
+ * Represents route match result.
+ *
+ * @property route The route value.
+ * @property params The params value.
+ */
 data class RouteMatchResult(
     val route: RouteDefinition,
     val params: Map<String, String>
@@ -121,6 +140,7 @@ data class RouteMatchResult(
 private val localRouter = CompositionLocal.compositionLocalOf<Router?>(null)
 
 // Helper property to access the current router
+/** The property declaration value. */
 val LocalRouter: Router?
     @Composable
     get() = localRouter.current
@@ -155,7 +175,7 @@ fun RouterComponent(
             // through the LocalRouter property
             localRouter.provides(router)
 
-            // Delegate the actual content rendering to the 
+            // Delegate the actual content rendering to the
             // platform-specific Router implementation
             router.create(initialPath)
 
@@ -171,14 +191,38 @@ fun RouterComponent(
 
 // --- Router Builder DSL (Remains similar, but uses the interface) ---
 
+/** Contract for router builder. */
 interface RouterBuilder {
+    /**
+     * Executes the route operation.
+     *
+     * @param path Target path.
+     * @param content Composable content emitted by this API.
+     */
     fun route(path: String, content: @Composable (RouteParams) -> Unit)
+    /**
+     * Executes the guarded route operation.
+     *
+     * @param path Target path.
+     * @param guards The guards value.
+     * @param content Composable content emitted by this API.
+     */
     fun guardedRoute(
         path: String,
         vararg guards: RouteGuard,
         content: @Composable (RouteParams) -> Unit
     )
+    /**
+     * Sets not found.
+     *
+     * @param content Composable content emitted by this API.
+     */
     fun setNotFound(content: @Composable (RouteParams) -> Unit)
+    /**
+     * Sets guard fallback.
+     *
+     * @param content Composable content emitted by this API.
+     */
     fun setGuardFallback(content: @Composable (GuardResult) -> Unit)
 }
 
@@ -225,4 +269,10 @@ internal class RouterBuilderImpl : RouterBuilder {
 }
 
 // Helper function to create a router using the DSL
-expect fun createRouter(builder: RouterBuilder.() -> Unit): Router 
+/**
+ * Creates router.
+ *
+ * @param builder The builder value.
+ * @return The resulting value.
+ */
+expect fun createRouter(builder: RouterBuilder.() -> Unit): Router

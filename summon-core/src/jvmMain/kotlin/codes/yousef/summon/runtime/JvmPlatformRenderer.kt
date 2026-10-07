@@ -564,10 +564,12 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Adds trusted markup to the current document head. */
     actual open fun addHeadElement(content: String) {
         headElements.add(content)
     }
 
+    /** Returns the head markup registered for the current render. */
     actual open fun getHeadElements(): List<String> {
         val pending = headElementSnapshot()
         return if (pending.isNotEmpty()) {
@@ -609,6 +611,7 @@ actual open class PlatformRenderer {
             ?: error("renderComposable called without an active FlowContent builder. Ensure it's within renderComposableRoot or a parent Composable.")
     }
 
+    /** Renders composable content as a complete root. */
     actual open fun renderComposableRoot(composable: @Composable (() -> Unit)): String {
         beginConditionalStyleRender()
         val initialHeadElements = headElementSnapshot()
@@ -673,6 +676,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders a root with client hydration metadata. */
     actual open fun renderComposableRootWithHydration(composable: @Composable () -> Unit): String {
         return renderComposableRootWithHydration(null, "en", "ltr", composable)
     }
@@ -693,6 +697,7 @@ actual open class PlatformRenderer {
         return renderComposableRootWithHydration(null, lang, dir, composable)
     }
 
+    /** Renders a root with client hydration metadata. */
     actual open fun renderComposableRootWithHydration(state: Any?, composable: @Composable () -> Unit): String {
         return renderComposableRootWithHydration(state, "en", "ltr", composable)
     }
@@ -714,28 +719,28 @@ actual open class PlatformRenderer {
     ): String {
         beginConditionalStyleRender()
         val debugEnabled = System.getProperty("summon.debug.callbacks", "false").toBoolean()
-        
+
         if (debugEnabled) {
             val contextKeyBefore = callbackContextKey()
             System.err.println("[Summon][SSR] Starting render with context key: $contextKeyBefore")
         }
-        
+
         CallbackRegistry.beginRender()
-        
+
         if (debugEnabled) {
             val contextKeyAfterBegin = callbackContextKey()
             System.err.println("[Summon][SSR] After beginRender, context key: $contextKeyAfterBegin")
         }
-        
+
         return try {
             val bodyContent = renderComposableContent(composable)
-            
+
             if (debugEnabled) {
                 System.err.println("[Summon][SSR] Body content rendered (${bodyContent.length} chars)")
                 val contextKeyBeforeCollect = callbackContextKey()
                 System.err.println("[Summon][SSR] Before collecting callbacks, context key: $contextKeyBeforeCollect")
             }
-            
+
             val callbackContext = CallbackRegistry.finishRenderAndCollectCallbacks()
 
             if (debugEnabled) {
@@ -747,11 +752,11 @@ actual open class PlatformRenderer {
             val fullDoc = injectConditionalStyleSheet(
                 createHydratedDocument(bodyContent, hydrationData, state, lang, dir)
             )
-            
+
             if (debugEnabled) {
                 System.err.println("[Summon][SSR] Hydration document created")
             }
-            
+
             fullDoc
         } finally {
             CallbackRegistry.abandonRenderContext()
@@ -840,6 +845,7 @@ actual open class PlatformRenderer {
         """.trimIndent()
     }
 
+    /** Hydrates an existing browser root. */
     actual open fun hydrateComposableRoot(rootElementId: String, composable: @Composable () -> Unit) {
         // Hydration on JVM/server-side doesn't make sense in the same way as client-side
         // This is typically a no-op for server-side rendering
@@ -848,6 +854,7 @@ actual open class PlatformRenderer {
         System.err.println("Warning: hydrateComposableRoot called on JVM platform. This is typically a client-side operation.")
     }
 
+    /** Renders modal. */
     actual open fun renderModal(
         onDismiss: () -> Unit,
         modifier: Modifier,
@@ -988,6 +995,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders row. */
     actual open fun renderRow(
         modifier: Modifier,
         content: @Composable (FlowContentCompat.() -> Unit)
@@ -999,6 +1007,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders column. */
     actual open fun renderColumn(
         modifier: Modifier,
         content: @Composable (FlowContentCompat.() -> Unit)
@@ -1010,6 +1019,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders box. */
     actual open fun renderBox(
         modifier: Modifier,
         content: @Composable (FlowContentCompat.() -> Unit)
@@ -1020,6 +1030,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders box container. */
     actual open fun renderBoxContainer(modifier: Modifier, content: @Composable () -> Unit) {
         requireBuilder().div {
             applyModifier(modifier.then(Modifier().style("display", "block"))) // Typically a div
@@ -1046,7 +1057,6 @@ actual open class PlatformRenderer {
             applyModifier(modifier)
             if (onClick != null) {
                 attributes["data-onclick-action"] = "true"
-                comment(" JS Hook needed for onClick ")
                 val currentStyle = attributes["style"] ?: ""
                 if ("cursor" !in currentStyle) attributes["style"] = "$currentStyle;cursor:pointer;".trimStart(';')
             }
@@ -1091,6 +1101,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders checkbox. */
     actual open fun renderCheckbox(
         checked: Boolean,
         onCheckedChange: (Boolean) -> Unit,
@@ -1224,7 +1235,6 @@ actual open class PlatformRenderer {
             if (capture != null) attributes["capture"] = capture
             id = inputId
             name = id
-            comment(" onFilesSelected handler needed (JS) ")
             attributes["data-onchange-action"] = "true"
         }
         return { System.err.println("Programmatic file upload trigger not available server-side.") }
@@ -1354,47 +1364,6 @@ actual open class PlatformRenderer {
         content: @Composable (FlowContentCompat.() -> Unit)
     ) {
         val builder = requireBuilder()
-
-        // Helper to render content into a string for unsafe insertion
-        fun renderContentToString(): String {
-            val stringBuilder = StringBuilder()
-            val subRenderer = PlatformRenderer()
-            val html = subRenderer.renderComposableRoot {
-                val flowContent = builder.asFlowContentCompat()
-                flowContent.content()
-            }
-            // Extract just the body content, removing the wrapper
-            return html.substringAfter("<body>", "")
-                .substringBefore("</body>", html)
-                .trim()
-        }
-
-        // Build attributes string from modifier
-        fun buildAttributesString(): String {
-            val attrs = mutableListOf<String>()
-
-            // Add styles
-            if (modifier.styles.isNotEmpty()) {
-                val styleString = modifier.styles.entries.joinToString("; ") { (key, value) ->
-                    "${cssPropertyName(key)}: $value"
-                }
-                attrs.add("style=\"$styleString\"")
-            }
-
-            // Add regular attributes
-            modifier.attributes.forEach { (name, value) ->
-                attrs.add("$name=\"${escapeHtmlAttribute(value)}\"")
-            }
-
-            // Add hydration marker
-            val hydrationId = modifier.attributes["data-summon-id"]
-                ?: "summon-${UUID.randomUUID().toString().take(8)}"
-            if (!modifier.attributes.containsKey("data-summon-id")) {
-                attrs.add("data-summon-id=\"$hydrationId\"")
-            }
-
-            return if (attrs.isNotEmpty()) " ${attrs.joinToString(" ")}" else ""
-        }
 
         when (tagName.lowercase()) {
             // ============================================
@@ -1563,7 +1532,7 @@ actual open class PlatformRenderer {
 
     /**
      * Renders a generic HTML tag using unsafe raw HTML output.
-     * This is used for tags that kotlinx.html doesn't support directly at flow content level
+     * This is used for tags that kotlinx.HTML doesn't support directly at flow content level
      * or that have parent context requirements (like li, td, etc).
      */
     private fun renderGenericHtmlTag(
@@ -1678,6 +1647,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders span. */
     actual open fun renderSpan(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         requireBuilder().span {
             applyModifier(modifier)
@@ -1766,7 +1736,7 @@ actual open class PlatformRenderer {
         requireBuilder().div {
             applyModifier(modifier)
             comment(" ResponsiveLayout: Ensure CSS handles different screen sizes ")
-            
+
             style {
                 activeStyleNonce?.let { attributes["nonce"] = it }
                 unsafe {
@@ -1784,6 +1754,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders snackbar. */
     actual open fun renderSnackbar(message: String, actionLabel: String?, onAction: (() -> Unit)?) {
         // JVM: Simple text representation, or a div styled to look like a snackbar.
         // Actual snackbar behavior (timing, dismissal) is typically JS-driven.
@@ -1805,6 +1776,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders dropdown menu. */
     actual open fun renderDropdownMenu(
         expanded: Boolean,
         onDismissRequest: () -> Unit,
@@ -1819,13 +1791,13 @@ actual open class PlatformRenderer {
                             .style("background-color", "white").style("z-index", "100")
                     )
                 )
-                comment(" DropdownMenu: JS for positioning and dismissal (onDismissRequest) needed ")
-                attributes["data-onclick-dismiss"] = "true" // Example for JS hook
+                attributes["data-onclick-dismiss"] = "true"
                 renderContent(content)
             }
         }
     }
 
+    /** Renders tooltip. */
     actual open fun renderTooltip(text: String, modifier: Modifier, content: @Composable (() -> Unit)) {
         requireBuilder().div {
             applyModifier(modifier.then(Modifier().style("position", "relative")))
@@ -1835,6 +1807,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders modal. */
     actual open fun renderModal(
         visible: Boolean,
         onDismissRequest: () -> Unit,
@@ -1864,6 +1837,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders screen. */
     actual open fun renderScreen(modifier: Modifier, content: @Composable (FlowContentCompat.() -> Unit)) {
         requireBuilder().div {
             applyModifier(modifier.then(Modifier().style("width", "100%").style("height", "100vh")))
@@ -1878,6 +1852,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders surface. */
     actual open fun renderSurface(modifier: Modifier, elevation: Int, content: @Composable (() -> Unit)) {
         // Elevation can be simulated with box-shadow
         val elevationStyle = when (elevation) {
@@ -1895,6 +1870,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders swipe to dismiss. */
     actual open fun renderSwipeToDismiss(
         state: Any, // State object, likely for JS interop
         background: @Composable (() -> Unit),
@@ -1915,6 +1891,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders vertical pager. */
     actual open fun renderVerticalPager(
         count: Int,
         state: Any,
@@ -1930,6 +1907,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders horizontal pager. */
     actual open fun renderHorizontalPager(
         count: Int,
         state: Any,
@@ -1945,6 +1923,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders aspect ratio container. */
     actual open fun renderAspectRatioContainer(ratio: Float, modifier: Modifier, content: @Composable (() -> Unit)) {
         requireBuilder().div {
             // CSS trick for aspect ratio box
@@ -1962,6 +1941,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders file picker. */
     actual open fun renderFilePicker(
         onFilesSelected: (List<FileInfo>) -> Unit,
         enabled: Boolean,
@@ -1975,20 +1955,14 @@ actual open class PlatformRenderer {
             this.multiple = multiple
             if (accept != null) this.accept = accept
             this.disabled = !enabled
-            // JS needed to handle onFilesSelected and map to FileInfo
-            comment(" FilePicker: JS needed for onFilesSelected callback and FileInfo creation ")
             attributes["data-onfilesselected-action"] = "true"
-            // 'actions' would typically be the content of a button that triggers this input if it's hidden
-            // For a direct input, 'actions' might not be directly applicable this way.
-            // If 'actions' represents the button text/content for a styled picker:
             if (actions != null) {
-                comment(" FilePicker 'actions' provided, but direct input shown. Consider custom styling with a label/button. ")
-                // This actual implementation shows a raw file input. To use `actions` as the clickable element,
-                // this input would need to be hidden and triggered by a button rendered via `actions`.
+                comment(" FilePicker custom action content requires a browser trigger ")
             }
         }
     }
 
+    /** Renders alert. */
     actual open fun renderAlert(
         message: String,
         variant: AlertVariant,
@@ -2005,14 +1979,17 @@ actual open class PlatformRenderer {
             AlertVariant.NEUTRAL -> "#f5f5f5"
         }
         requireBuilder().div {
-            style =
-                "padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px; background-color: $alertColor;"
             applyModifier(modifier)
+            attributes["style"] = (attributes["style"] ?: "") +
+                "padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px; background-color: $alertColor;"
             if (icon != null) {
                 span { style = "margin-right: 10px;"; renderContent(icon) }
             }
             if (title != null) {
-                strong { +title; style = "display: block; margin-bottom: 5px;" }
+                strong {
+                    style = "display: block; margin-bottom: 5px;"
+                    +title
+                }
             }
             +message
             if (actions != null) {
@@ -2021,11 +1998,13 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders card. */
     actual open fun renderCard(modifier: Modifier, elevation: Int, content: @Composable (() -> Unit)) {
         // Re-use renderSurface for card appearance
         renderSurface(modifier.then(Modifier().style("border", "1px solid #ddd")), elevation, content)
     }
 
+    /** Renders linear progress indicator. */
     actual open fun renderLinearProgressIndicator(progress: Float?, modifier: Modifier, type: ProgressType) {
         requireBuilder().progress {
             applyModifier(modifier)
@@ -2039,6 +2018,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders circular progress indicator. */
     actual open fun renderCircularProgressIndicator(progress: Float?, modifier: Modifier, type: ProgressType) {
         // HTML doesn't have a native circular progress. Simulate with text or requires SVG/JS.
         requireBuilder().div {
@@ -2052,6 +2032,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders modal bottom sheet. */
     actual open fun renderModalBottomSheet(
         onDismissRequest: () -> Unit,
         modifier: Modifier,
@@ -2064,15 +2045,16 @@ actual open class PlatformRenderer {
             attributes["data-onclick-dismiss-modal-sheet"] = "true"
 
             div { // Sheet content
-                style =
-                    "background-color: white; padding: 20px; border-top-left-radius: 8px; border-top-right-radius: 8px; width: 100%; max-width: 600px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);"
                 applyModifier(modifier)
+                attributes["style"] = (attributes["style"] ?: "") +
+                    "background-color: white; padding: 20px; border-top-left-radius: 8px; border-top-right-radius: 8px; width: 100%; max-width: 600px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);"
                 renderContent(content)
             }
             comment(" ModalBottomSheet: JS for onDismissRequest and animations needed ")
         }
     }
 
+    /** Renders alert dialog. */
     actual open fun renderAlertDialog(
         onDismissRequest: () -> Unit,
         confirmButton: @Composable (() -> Unit),
@@ -2087,9 +2069,9 @@ actual open class PlatformRenderer {
                 "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 2500;"
 
             div { // Dialog box
-                style =
-                    "background-color: white; padding: 25px; border-radius: 8px; min-width: 280px; max-width: 560px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);"
                 applyModifier(modifier)
+                attributes["style"] = (attributes["style"] ?: "") +
+                    "background-color: white; padding: 25px; border-radius: 8px; min-width: 280px; max-width: 560px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);"
                 if (icon != null) {
                     div { style = "text-align: center; margin-bottom: 15px;"; renderContent(icon) }
                 }
@@ -2111,6 +2093,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders radio button. */
     actual open fun renderRadioButton(
         checked: Boolean,
         onCheckedChange: (Boolean) -> Unit,
@@ -2134,13 +2117,14 @@ actual open class PlatformRenderer {
             if (label != null) {
                 label {
                     htmlFor = radioId
-                    +label
                     style = "margin-left: 8px;"
+                    +label
                 }
             }
         }
     }
 
+    /** Renders checkbox. */
     actual open fun renderCheckbox(
         checked: Boolean,
         onCheckedChange: (Boolean) -> Unit,
@@ -2161,8 +2145,8 @@ actual open class PlatformRenderer {
             if (label != null) {
                 label {
                     htmlFor = checkboxId
-                    +label
                     style = "margin-left: 8px;"
+                    +label
                 }
             }
         }
@@ -2255,6 +2239,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders radio button. */
     actual open fun renderRadioButton(
         selected: Boolean,
         onClick: () -> Unit,
@@ -2287,6 +2272,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders card. */
     actual open fun renderCard(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         renderCard(modifier, 1) {
             requireBuilder().renderContent(content)
@@ -2415,6 +2401,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders block. */
     actual open fun renderBlock(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         requireBuilder().div {
             applyModifier(modifier.then(Modifier().style("display", "block")))
@@ -2422,6 +2409,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders inline. */
     actual open fun renderInline(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         requireBuilder().span {
             applyModifier(modifier.then(Modifier().style("display", "inline")))
@@ -2429,6 +2417,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders div. */
     actual open fun renderDiv(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         requireBuilder().div {
             applyModifier(modifier)
@@ -2573,7 +2562,7 @@ actual open class PlatformRenderer {
                 0% { transform: rotate(0deg); }
                 100% { transform: rotate(360deg); }
             }
-            
+
             @keyframes summon-dot-pulse {
                 0%, 80%, 100% {
                     transform: scale(0);
@@ -2584,12 +2573,12 @@ actual open class PlatformRenderer {
                     opacity: 1;
                 }
             }
-            
+
             @keyframes summon-linear-progress {
                 0% { left: -100%; }
                 100% { left: 100%; }
             }
-            
+
             @keyframes summon-circular-progress {
                 0% { transform: rotate(0deg); }
                 100% { transform: rotate(360deg); }
@@ -2658,10 +2647,10 @@ actual open class PlatformRenderer {
                             cursor: pointer;
                             transition: background-color 0.2s;
                         """.trimIndent()
-                        +action.label
                         val callbackId = CallbackRegistry.registerCallback(action.onClick)
                         attributes["data-onclick-id"] = callbackId
                         attributes["data-onclick-action"] = "true"
+                        +action.label
                     }
                 }
 
@@ -2685,10 +2674,10 @@ actual open class PlatformRenderer {
                             opacity: 0.7;
                             transition: opacity 0.2s;
                         """.trimIndent()
-                        +"×"
                         val callbackId = CallbackRegistry.registerCallback(onDismiss)
                         attributes["data-onclick-id"] = callbackId
                         attributes["data-onclick-action"] = "true"
+                        +"×"
                     }
                 }
             }
@@ -2708,7 +2697,7 @@ actual open class PlatformRenderer {
                     opacity: 1;
                 }
             }
-            
+
             @keyframes summon-toast-slide-out {
                 from {
                     transform: translateX(0);
@@ -2742,7 +2731,7 @@ actual open class PlatformRenderer {
             applyModifier(modifier)
             attributes["data-summon-component"] = "code-editor"
             attributes["data-language"] = language
-            
+
             // SSR Fallback: Render as read-only code block
             pre {
                 code {

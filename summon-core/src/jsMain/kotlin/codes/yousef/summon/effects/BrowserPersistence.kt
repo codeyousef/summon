@@ -7,6 +7,13 @@ import org.khronos.webgl.Uint8Array
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
+/**
+ * Creates browser record store.
+ *
+ * @param config The config value.
+ * @param onMigration Callback invoked when migration.
+ * @return The resulting value.
+ */
 actual fun createBrowserRecordStore(
     config: BrowserRecordStoreConfig,
     onMigration: (BrowserMigrationEvent) -> Unit
@@ -233,6 +240,14 @@ private external class Worker(scriptPath: String, options: dynamic) {
     fun terminate()
 }
 
+/**
+ * Creates browser worker.
+ *
+ * @param scriptPath The script path value.
+ * @param maxMessageBytes The max message bytes value.
+ * @param maxPendingRequests The max pending requests value.
+ * @return The resulting value.
+ */
 actual fun createBrowserWorker(
     scriptPath: String,
     maxMessageBytes: Int,

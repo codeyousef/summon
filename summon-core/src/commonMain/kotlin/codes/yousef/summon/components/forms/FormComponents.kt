@@ -12,7 +12,9 @@ import codes.yousef.summon.runtime.getPlatformRenderer
  * @property value Serialized HTTP method value rendered on the `<form>` element.
  */
 enum class FormMethod(val value: String) {
+    /** The get form method option. */
     Get("get"),
+    /** The post form method option. */
     Post("post")
 }
 
@@ -22,16 +24,19 @@ enum class FormMethod(val value: String) {
  * @property value Value assigned to the `enctype` attribute when rendering the `<form>`.
  */
 enum class FormEncType(val value: String) {
+    /** The URL encoded form enc type option. */
     UrlEncoded("application/x-www-form-urlencoded"),
+    /** The multipart form enc type option. */
     Multipart("multipart/form-data"),
+    /** The text plain form enc type option. */
     TextPlain("text/plain")
 }
 
 /**
- * Represents a hidden input that should be emitted automatically for a form.
+ * Hidden input emitted with a form.
  *
-+ * @property name Field name submitted with the request.
- * @property value Field value submitted with the request.
+ * @property name field name submitted with the request
+ * @property value field value submitted with the request
  */
 data class FormHiddenField(
     val name: String,

@@ -154,7 +154,12 @@ class TemplateEngine {
 }
 
 /**
- * Context object for advanced template processing
+ * Inputs for advanced template processing.
+ *
+ * @property variables scalar substitutions
+ * @property flags conditional switches
+ * @property arrays values used by repeated template sections
+ * @property partials named reusable template fragments
  */
 data class TemplateContext(
     val variables: Map<String, String> = emptyMap(),

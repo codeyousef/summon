@@ -4,7 +4,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 
-// Listener type for lifecycle events
+/** Listener notified of backend lifecycle transitions. */
 typealias LifecycleListener = (BackendIntegrations.LifecycleEvent) -> Unit
 
 /**
@@ -13,10 +13,15 @@ typealias LifecycleListener = (BackendIntegrations.LifecycleEvent) -> Unit
  */
 object BackendIntegrations {
     // Lifecycle event types
+    /** Backend lifecycle events shared by supported integrations. */
     enum class LifecycleEvent {
+        /** The startup lifecycle event option. */
         STARTUP,
+        /** The shutdown lifecycle event option. */
         SHUTDOWN,
+        /** The pause lifecycle event option. */
         PAUSE,
+        /** The resume lifecycle event option. */
         RESUME
     }
 

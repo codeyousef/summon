@@ -46,6 +46,7 @@ fun <T> produceState(
  * Scope for producing state values.
  */
 interface ProduceStateScope<T> {
+    /** The property declaration value. */
     var value: T
 }
 

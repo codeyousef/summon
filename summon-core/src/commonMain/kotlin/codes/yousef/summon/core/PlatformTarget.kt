@@ -20,6 +20,7 @@ sealed class PlatformTarget {
      * - No DOM access
      */
     object JVM : PlatformTarget() {
+        /** Stable diagnostic name. */
         override fun toString(): String = "PlatformTarget.JVM"
     }
 
@@ -33,6 +34,7 @@ sealed class PlatformTarget {
      * - No server-side rendering
      */
     object JavaScript : PlatformTarget() {
+        /** Stable diagnostic name. */
         override fun toString(): String = "PlatformTarget.JavaScript"
     }
 
@@ -47,6 +49,7 @@ sealed class PlatformTarget {
      * - No server-side rendering
      */
     object WebAssembly : PlatformTarget() {
+        /** Stable diagnostic name. */
         override fun toString(): String = "PlatformTarget.WebAssembly"
     }
 

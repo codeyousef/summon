@@ -144,6 +144,7 @@ import kotlin.time.Duration.Companion.milliseconds
  * @since 1.0.0
  */
 data class Offset(val x: Double, val y: Double) {
+    /** Common offsets used by slide animations. */
     companion object {
         /** An offset representing no displacement (0, 0). */
         val ZERO = Offset(0.0, 0.0)
@@ -171,11 +172,14 @@ fun Modifier.animateIn(
     initialOffset: Offset,
     targetOffset: Offset,
     duration: Int
-): Modifier {
-    // A simple implementation that just returns the original modifier with animation attributes
-    return this.attribute("style", "animation: fade-in ${duration}ms ease-out;")
-        .attribute("class", "animated-element")
-}
+): Modifier = attribute(
+    "style",
+    "opacity: $targetAlpha; transform: translate(${targetOffset.x}px, ${targetOffset.y}px); " +
+        "transition: opacity ${duration}ms ease-out, transform ${duration}ms ease-out;"
+)
+    .attribute("class", "animated-element")
+    .attribute("data-animation-initial-alpha", initialAlpha.toString())
+    .attribute("data-animation-initial-offset", "${initialOffset.x},${initialOffset.y}")
 
 /**
  * Creates a text component that animates in when first displayed.
@@ -222,12 +226,14 @@ fun animatedText(
  * Creates an infinite animation that can be used for repeating effects.
  */
 interface InfiniteAnimation {
+    /** Interpolates a repeating floating-point animation. */
     fun animateFloat(
         initialValue: Float,
         targetValue: Float,
         animation: TweenAnimation
     ): Float
 
+    /** Interpolates a repeating integer animation. */
     fun animateInt(
         initialValue: Int,
         targetValue: Int,
@@ -252,11 +258,14 @@ fun pulseAnimation(
     modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 ) {
-    // Simplified implementation that just renders the content without animation
-    // Until we implement the proper animation system
-    Column(
-        modifier = modifier
-    ) {
+    val pulseModifier = modifier
+        .attribute("data-pulse-min-scale", minScale.toString())
+        .attribute("data-pulse-max-scale", maxScale.toString())
+        .attribute(
+            "style",
+            "animation: general-pulse ${pulseInterval}ms infinite ease-in-out; transform-origin: center;"
+        )
+    Column(modifier = pulseModifier) {
         content()
     }
 }
@@ -278,27 +287,34 @@ fun <T> staggeredAnimation(
     modifier: Modifier = Modifier(),
     itemContent: @Composable (T) -> Unit
 ) {
-    // Simplified implementation that just renders the items without animation
-    Column(
-        modifier = modifier
-    ) {
-        items.forEach { item ->
-            itemContent(item)
+    Column(modifier = modifier) {
+        items.forEachIndexed { index, item ->
+            Column(
+                modifier = Modifier()
+                    .attribute("data-enter", enterTransition.name.lowercase())
+                    .attribute("style", "animation-delay: ${index * staggerDelay}ms;")
+            ) {
+                itemContent(item)
+            }
         }
     }
 }
 
 /**
- * A utility function that wraps a component with an entry animation.
- * Currently a placeholder that returns the original modifier without animation.
+ * Wraps content in the framework's default entrance animation.
  */
 @Composable
 fun animateIn(
     modifier: Modifier = Modifier(),
     content: @Composable () -> Unit
 ) {
-    // Placeholder: currently no animation applied
-    content()
+    Column(
+        modifier = modifier
+            .attribute("data-enter", EnterTransition.FADE_IN.name.lowercase())
+            .attribute("style", "animation: summon-fade-in 300ms ease-in-out both;")
+    ) {
+        content()
+    }
 }
 
 /**
@@ -390,12 +406,10 @@ fun typingText(
     val visibleCharacters = mutableStateOf(0)
 
     // Use LaunchedEffect to animate the typing
-    LaunchedEffect(text) {
-        // Gradually show characters
+    LaunchedEffect(text to typingSpeed) {
         for (i in 1..text.length) {
+            delay(typingSpeed.inWholeMilliseconds)
             visibleCharacters.value = i
-            // Note: We can't use delay here as it's not available in a direct way
-            // This is a simplified implementation
         }
     }
 

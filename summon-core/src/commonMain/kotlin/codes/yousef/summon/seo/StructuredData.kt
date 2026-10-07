@@ -29,33 +29,75 @@ sealed class StructuredDataSchema {
 class JsonLDBuilder {
     private val properties = mutableListOf<String>()
 
+    /**
+     * Executes the put operation.
+     *
+     * @param key Lookup key.
+     * @param value Value to process.
+     */
     fun put(key: String, value: String) {
         properties.add("\"$key\": \"${value.escapeJson()}\"")
     }
 
+    /**
+     * Executes the put operation.
+     *
+     * @param key Lookup key.
+     * @param value Value to process.
+     */
     fun put(key: String, value: Int) {
         properties.add("\"$key\": $value")
     }
 
+    /**
+     * Executes the put operation.
+     *
+     * @param key Lookup key.
+     * @param value Value to process.
+     */
     fun put(key: String, value: Double) {
         properties.add("\"$key\": $value")
     }
 
+    /**
+     * Executes the put operation.
+     *
+     * @param key Lookup key.
+     * @param value Value to process.
+     */
     fun put(key: String, value: Boolean) {
         properties.add("\"$key\": $value")
     }
 
+    /**
+     * Executes the put object operation.
+     *
+     * @param key Lookup key.
+     * @param obj The obj value.
+     */
     fun putObject(key: String, obj: JsonLDBuilder.() -> Unit) {
         val innerBuilder = JsonLDBuilder()
         innerBuilder.obj()
         properties.add("\"$key\": ${innerBuilder.build()}")
     }
 
+    /**
+     * Executes the put array operation.
+     *
+     * @param key Lookup key.
+     * @param items The items value.
+     */
     fun putArray(key: String, items: List<String>) {
         val jsonArray = items.joinToString(", ") { "\"${it.escapeJson()}\"" }
         properties.add("\"$key\": [$jsonArray]")
     }
 
+    /**
+     * Executes the put object array operation.
+     *
+     * @param key Lookup key.
+     * @param items The items value.
+     */
     fun putObjectArray(key: String, items: List<JsonLDBuilder.() -> Unit>) {
         val jsonArray = items.joinToString(", ") { item ->
             val innerBuilder = JsonLDBuilder()
@@ -65,6 +107,11 @@ class JsonLDBuilder {
         properties.add("\"$key\": [$jsonArray]")
     }
 
+    /**
+     * Builds the operation.
+     *
+     * @return The resulting value.
+     */
     fun build(): String = "{ ${properties.joinToString(", ")} }"
 
     private fun String.escapeJson(): String = this
@@ -107,6 +154,13 @@ fun StructuredData(vararg schemas: StructuredDataSchema) {
 
 /**
  * WebSite schema for the main website.
+
+ * @property name Human-readable name.
+ * @property url Target URL.
+ * @property description The description value.
+ * @property potentialAction The potential action value.
+ * @property publisher The publisher value.
+ * @property inLanguage The in language value.
  */
 data class WebSiteSchema(
     val name: String,
@@ -116,6 +170,7 @@ data class WebSiteSchema(
     val publisher: OrganizationSchema? = null,
     val inLanguage: String? = null
 ) : StructuredDataSchema() {
+    /** Converts this value to JSON ld. */
     override fun toJsonLD() = buildJsonLD {
         put("@context", "https://schema.org")
         put("@type", "WebSite")
@@ -142,6 +197,12 @@ data class WebSiteSchema(
         }
     }
 
+    /**
+     * Represents search action.
+     *
+     * @property target The target value.
+     * @property queryInput The query input value.
+     */
     data class SearchAction(
         val target: String,
         val queryInput: String = "required name=search_term_string"
@@ -150,6 +211,15 @@ data class WebSiteSchema(
 
 /**
  * WebApplication schema for web apps.
+
+ * @property name Human-readable name.
+ * @property description The description value.
+ * @property url Target URL.
+ * @property applicationCategory The application category value.
+ * @property operatingSystem The operating system value.
+ * @property offers The offers value.
+ * @property aggregateRating The aggregate rating value.
+ * @property author The author value.
  */
 data class WebApplicationSchema(
     val name: String,
@@ -161,6 +231,7 @@ data class WebApplicationSchema(
     val aggregateRating: AggregateRating? = null,
     val author: OrganizationSchema? = null
 ) : StructuredDataSchema() {
+    /** Converts this value to JSON ld. */
     override fun toJsonLD() = buildJsonLD {
         put("@context", "https://schema.org")
         put("@type", "WebApplication")
@@ -198,12 +269,27 @@ data class WebApplicationSchema(
         }
     }
 
+    /**
+     * Represents offer.
+     *
+     * @property price The price value.
+     * @property priceCurrency The price currency value.
+     * @property availability The availability value.
+     */
     data class Offer(
         val price: String,
         val priceCurrency: String,
         val availability: String? = "https://schema.org/InStock"
     )
 
+    /**
+     * Represents aggregate rating.
+     *
+     * @property ratingValue The rating value value.
+     * @property ratingCount The rating count value.
+     * @property bestRating The best rating value.
+     * @property worstRating The worst rating value.
+     */
     data class AggregateRating(
         val ratingValue: Double,
         val ratingCount: Int,
@@ -214,6 +300,16 @@ data class WebApplicationSchema(
 
 /**
  * Organization schema for companies/organizations.
+
+ * @property name Human-readable name.
+ * @property url Target URL.
+ * @property logo The logo value.
+ * @property description The description value.
+ * @property email The email value.
+ * @property telephone The telephone value.
+ * @property address The address value.
+ * @property sameAs The same as value.
+ * @property contactPoints The contact points value.
  */
 data class OrganizationSchema(
     val name: String,
@@ -226,6 +322,7 @@ data class OrganizationSchema(
     val sameAs: List<String>? = null,
     val contactPoints: List<ContactPoint>? = null
 ) : StructuredDataSchema() {
+    /** Converts this value to JSON ld. */
     override fun toJsonLD() = buildJsonLD {
         put("@context", "https://schema.org")
         put("@type", "Organization")
@@ -263,6 +360,15 @@ data class OrganizationSchema(
         }
     }
 
+    /**
+     * Represents postal address.
+     *
+     * @property streetAddress The street address value.
+     * @property addressLocality The address locality value.
+     * @property addressRegion The address region value.
+     * @property postalCode The postal code value.
+     * @property addressCountry The address country value.
+     */
     data class PostalAddress(
         val streetAddress: String? = null,
         val addressLocality: String? = null,
@@ -271,6 +377,15 @@ data class OrganizationSchema(
         val addressCountry: String? = null
     )
 
+    /**
+     * Represents contact point.
+     *
+     * @property contactType The contact type value.
+     * @property telephone The telephone value.
+     * @property email The email value.
+     * @property areaServed The area served value.
+     * @property availableLanguage The available language value.
+     */
     data class ContactPoint(
         val contactType: String,
         val telephone: String? = null,
@@ -282,6 +397,18 @@ data class OrganizationSchema(
 
 /**
  * Article schema for blog posts and articles.
+
+ * @property headline The headline value.
+ * @property description The description value.
+ * @property author The author value.
+ * @property datePublished The date published value.
+ * @property dateModified The date modified value.
+ * @property image The image value.
+ * @property publisher The publisher value.
+ * @property mainEntityOfPage The main entity of page value.
+ * @property keywords The keywords value.
+ * @property articleSection The article section value.
+ * @property wordCount The word count value.
  */
 data class ArticleSchema(
     val headline: String,
@@ -296,6 +423,7 @@ data class ArticleSchema(
     val articleSection: String? = null,
     val wordCount: Int? = null
 ) : StructuredDataSchema() {
+    /** Converts this value to JSON ld. */
     override fun toJsonLD() = buildJsonLD {
         put("@context", "https://schema.org")
         put("@type", "Article")
@@ -325,6 +453,12 @@ data class ArticleSchema(
         }
     }
 
+    /**
+     * Represents person.
+     *
+     * @property name Human-readable name.
+     * @property url Target URL.
+     */
     data class Person(
         val name: String,
         val url: String? = null
@@ -333,6 +467,16 @@ data class ArticleSchema(
 
 /**
  * Product schema for e-commerce products.
+
+ * @property name Human-readable name.
+ * @property description The description value.
+ * @property image The image value.
+ * @property brand The brand value.
+ * @property sku The sku value.
+ * @property gtin The gtin value.
+ * @property offers The offers value.
+ * @property aggregateRating The aggregate rating value.
+ * @property review The review value.
  */
 data class ProductSchema(
     val name: String,
@@ -345,6 +489,7 @@ data class ProductSchema(
     val aggregateRating: Rating? = null,
     val review: List<Review>? = null
 ) : StructuredDataSchema() {
+    /** Converts this value to JSON ld. */
     override fun toJsonLD() = buildJsonLD {
         put("@context", "https://schema.org")
         put("@type", "Product")
@@ -396,6 +541,15 @@ data class ProductSchema(
         }
     }
 
+    /**
+     * Represents offer detail.
+     *
+     * @property price The price value.
+     * @property priceCurrency The price currency value.
+     * @property availability The availability value.
+     * @property seller The seller value.
+     * @property validUntil The valid until value.
+     */
     data class OfferDetail(
         val price: Double,
         val priceCurrency: String,
@@ -404,11 +558,25 @@ data class ProductSchema(
         val validUntil: String? = null
     )
 
+    /**
+     * Represents rating.
+     *
+     * @property ratingValue The rating value value.
+     * @property reviewCount The review count value.
+     */
     data class Rating(
         val ratingValue: Double,
         val reviewCount: Int
     )
 
+    /**
+     * Represents review.
+     *
+     * @property author The author value.
+     * @property datePublished The date published value.
+     * @property rating The rating value.
+     * @property reviewBody The review body value.
+     */
     data class Review(
         val author: String,
         val datePublished: String,
@@ -419,10 +587,13 @@ data class ProductSchema(
 
 /**
  * BreadcrumbList schema for navigation breadcrumbs.
+
+ * @property items The items value.
  */
 data class BreadcrumbListSchema(
     val items: List<BreadcrumbItem>
 ) : StructuredDataSchema() {
+    /** Converts this value to JSON ld. */
     override fun toJsonLD() = buildJsonLD {
         put("@context", "https://schema.org")
         put("@type", "BreadcrumbList")
@@ -437,6 +608,12 @@ data class BreadcrumbListSchema(
         })
     }
 
+    /**
+     * Represents breadcrumb item.
+     *
+     * @property name Human-readable name.
+     * @property url Target URL.
+     */
     data class BreadcrumbItem(
         val name: String,
         val url: String
@@ -445,10 +622,13 @@ data class BreadcrumbListSchema(
 
 /**
  * FAQPage schema for FAQ sections.
+
+ * @property questions The questions value.
  */
 data class FAQPageSchema(
     val questions: List<QuestionAnswer>
 ) : StructuredDataSchema() {
+    /** Converts this value to JSON ld. */
     override fun toJsonLD() = buildJsonLD {
         put("@context", "https://schema.org")
         put("@type", "FAQPage")
@@ -465,6 +645,12 @@ data class FAQPageSchema(
         })
     }
 
+    /**
+     * Represents question answer.
+     *
+     * @property question The question value.
+     * @property answer The answer value.
+     */
     data class QuestionAnswer(
         val question: String,
         val answer: String

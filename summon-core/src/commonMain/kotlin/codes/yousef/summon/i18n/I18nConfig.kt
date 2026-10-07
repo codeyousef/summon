@@ -7,8 +7,10 @@ import codes.yousef.summon.runtime.CompositionLocal
  */
 object I18nConfig {
     private val _supportedLanguages = mutableListOf<Language>()
+    /** The property declaration value. */
     val supportedLanguages: List<Language> get() = _supportedLanguages.toList()
 
+    /** The null value. */
     var defaultLanguage: Language? = null
         private set
 
@@ -38,7 +40,9 @@ object I18nConfig {
  * Builder class for i18n configuration DSL
  */
 class I18nConfigBuilder {
+    /** The property declaration value. */
     val languages = mutableListOf<Language>()
+    /** The null value. */
     var defaultLanguage: Language? = null
 
     /**
@@ -78,4 +82,4 @@ val LocalLanguage = CompositionLocal.compositionLocalOf {
 /**
  * CompositionLocal to provide the current layout direction
  */
-val LocalLayoutDirection = CompositionLocal.compositionLocalOf { LayoutDirection.LTR } 
+val LocalLayoutDirection = CompositionLocal.compositionLocalOf { LayoutDirection.LTR }

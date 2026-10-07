@@ -1,7 +1,7 @@
 package codes.yousef.summon.seo.routes
 
 import codes.yousef.summon.annotation.Composable
-import codes.yousef.summon.core.splitCompat
+import kotlinx.serialization.json.*
 
 /**
  * The StructuredData object provides utilities for generating JSON-LD structured data
@@ -100,31 +100,30 @@ object StructuredData {
         publisher: String,
         publisherLogo: String
     ) {
-        val jsonLd = """
-        {
-            "@context": "https://schema.org",
-            "@type": "Article",
-            "headline": "$headline",
-            "author": {
-                "@type": "Person",
-                "name": "$author"
-            },
-            "datePublished": "$datePublished",
-            "dateModified": "$dateModified",
-            "image": "$image",
-            "url": "$url",
-            "description": "$description",
-            "publisher": {
-                "@type": "Organization",
-                "name": "$publisher",
-                "logo": {
-                    "@type": "ImageObject",
-                    "url": "$publisherLogo"
+        StructuredData(
+            kotlinx.serialization.json.buildJsonObject {
+                put("@context", "https://schema.org")
+                put("@type", "Article")
+                put("headline", headline)
+                putJsonObject("author") {
+                    put("@type", "Person")
+                    put("name", author)
+                }
+                put("datePublished", datePublished)
+                put("dateModified", dateModified)
+                put("image", image)
+                put("url", url)
+                put("description", description)
+                putJsonObject("publisher") {
+                    put("@type", "Organization")
+                    put("name", publisher)
+                    putJsonObject("logo") {
+                        put("@type", "ImageObject")
+                        put("url", publisherLogo)
+                    }
                 }
             }
-        }
-        """
-        JsonLdStructuredData(jsonLd)
+        )
     }
 
     /**
@@ -153,49 +152,37 @@ object StructuredData {
         priceRange: String? = null,
         openingHours: Map<String, String> = emptyMap()
     ) {
-        val streetAddress = address["streetAddress"] ?: ""
-        val addressLocality = address["addressLocality"] ?: ""
-        val addressRegion = address["addressRegion"] ?: ""
-        val postalCode = address["postalCode"] ?: ""
-        val addressCountry = address["addressCountry"] ?: ""
-
-        val hoursSpecification = if (openingHours.isNotEmpty()) {
-            openingHours.entries.joinToString(",") { (day, hours) ->
-                """
-                {
-                    "@type": "OpeningHoursSpecification",
-                    "dayOfWeek": "$day",
-                    "opens": "${hours.splitCompat("-")[0].trim()}",
-                    "closes": "${hours.splitCompat("-").getOrElse(1) { "17:00" }.trim()}"
-                }
-                """
+        val data = kotlinx.serialization.json.buildJsonObject {
+            put("@context", "https://schema.org")
+            put("@type", "LocalBusiness")
+            put("name", name)
+            put("url", url)
+            put("description", description)
+            putJsonObject("address") {
+                put("@type", "PostalAddress")
+                put("streetAddress", address["streetAddress"] ?: "")
+                put("addressLocality", address["addressLocality"] ?: "")
+                put("addressRegion", address["addressRegion"] ?: "")
+                put("postalCode", address["postalCode"] ?: "")
+                put("addressCountry", address["addressCountry"] ?: "")
             }
-        } else {
-            ""
+            put("telephone", telephone)
+            logo?.let { put("logo", it) }
+            image?.let { put("image", it) }
+            priceRange?.let { put("priceRange", it) }
+            if (openingHours.isNotEmpty()) {
+                putJsonArray("openingHoursSpecification") {
+                    openingHours.forEach { (day, hours) ->
+                        addJsonObject {
+                            put("@type", "OpeningHoursSpecification")
+                            put("dayOfWeek", day)
+                            put("opens", hours.substringBefore('-').trim())
+                            put("closes", hours.substringAfter('-', "17:00").trim())
+                        }
+                    }
+                }
+            }
         }
-
-        val jsonLd = """
-        {
-            "@context": "https://schema.org",
-            "@type": "LocalBusiness",
-            "name": "$name",
-            "url": "$url",
-            "description": "$description",
-            "address": {
-                "@type": "PostalAddress",
-                "streetAddress": "$streetAddress",
-                "addressLocality": "$addressLocality",
-                "addressRegion": "$addressRegion",
-                "postalCode": "$postalCode",
-                "addressCountry": "$addressCountry"
-            },
-            "telephone": "$telephone"
-            ${if (logo != null) """, "logo": "$logo"""" else ""}
-            ${if (image != null) """, "image": "$image"""" else ""}
-            ${if (priceRange != null) """, "priceRange": "$priceRange"""" else ""}
-            ${if (openingHours.isNotEmpty()) """, "openingHoursSpecification": [$hoursSpecification]""" else ""}
-        }
-        """
-        JsonLdStructuredData(jsonLd)
+        StructuredData(data)
     }
 } 

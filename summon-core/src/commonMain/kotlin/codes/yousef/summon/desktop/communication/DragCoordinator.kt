@@ -13,6 +13,12 @@ import kotlinx.serialization.json.Json
 
 /**
  * Represents data being dragged between windows.
+
+ * @property dragId The drag id value.
+ * @property dataType The data type value.
+ * @property payload The payload value.
+ * @property sourceWindow The source window value.
+ * @property metadata The metadata value.
  */
 @Serializable
 data class DragData(
@@ -33,19 +39,39 @@ data class DragData(
  */
 @Serializable
 sealed class DragMessage {
-    /** Announces that a drag operation has started */
+    /**
+     * Drag-start announcement.
+     *
+     * @property data bounded drag metadata and payload
+     */
     @Serializable
     data class DragStart(val data: DragData) : DragMessage()
 
-    /** Updates the drag position (for visual feedback) */
+    /**
+     * Drag-position update.
+     *
+     * @property dragId operation identity
+     * @property x horizontal viewport coordinate
+     * @property y vertical viewport coordinate
+     */
     @Serializable
     data class DragMove(val dragId: String, val x: Double, val y: Double) : DragMessage()
 
-    /** Announces that a drag operation has ended */
+    /**
+     * Drag-end announcement.
+     *
+     * @property dragId operation identity
+     * @property cancelled whether no drop completed
+     */
     @Serializable
     data class DragEnd(val dragId: String, val cancelled: Boolean) : DragMessage()
 
-    /** Announces that a drop was accepted */
+    /**
+     * Accepted-drop announcement.
+     *
+     * @property dragId operation identity
+     * @property targetWindow accepting window identity
+     */
     @Serializable
     data class DropAccepted(val dragId: String, val targetWindow: String) : DragMessage()
 }

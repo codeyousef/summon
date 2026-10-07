@@ -7,7 +7,7 @@ import runtime.currentLifecycleOwner
 
 /**
  * Example integrations with common JS environments.
- * This provides hooks for browser, Node.js, and other JS environments.
+ * This provides hooks for browser, Node.JS, and other JS environments.
  */
 object JsEnvironmentIntegrations {
 
@@ -58,7 +58,7 @@ object JsEnvironmentIntegrations {
     }
 
     /**
-     * Setup integration with a Node.js environment
+     * Setup integration with a Node.JS environment
      */
     fun setupNodeIntegration() {
         try {
@@ -100,26 +100,26 @@ object JsEnvironmentIntegrations {
         setupNodeIntegration()
         setupWebWorkerIntegration()
     }
-    
+
     /**
      * Check if we're in a browser environment
      */
     private fun isBrowserEnvironment(): Boolean {
         return js("typeof window !== 'undefined'").unsafeCast<Boolean>()
     }
-    
+
     /**
-     * Check if we're in a Node.js environment
+     * Check if we're in a Node.JS environment
      */
     private fun isNodeEnvironment(): Boolean {
         return js("typeof process !== 'undefined' && process.versions && process.versions.node").unsafeCast<Boolean>()
     }
-    
+
     /**
      * Check if we're in a Web Worker environment
      */
     private fun isWebWorkerEnvironment(): Boolean {
         return js("typeof self !== 'undefined' && typeof window === 'undefined' && typeof self.importScripts === 'function'").unsafeCast<Boolean>()
     }
-} 
-*/ 
+}
+*/

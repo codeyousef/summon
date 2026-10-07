@@ -9,8 +9,8 @@ import codes.yousef.summon.runtime.Composable
 
 /**
  * User profile page component that demonstrates dynamic routing.
- * This file uses the [id] pattern in its name to create a dynamic route.
- * The actual URL would be /users/:id where :id is a parameter.
+ * This file uses the `[id]` pattern in its name to create a dynamic route.
+ * The actual URL would be /users/:ID where :ID is a parameter.
  */
 @Composable
 fun UserProfilePage(userId: String? = null) {

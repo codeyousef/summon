@@ -9,9 +9,13 @@ import codes.yousef.summon.state.State
  * Animation content transition type.
  */
 enum class ContentTransitionType {
-    FADE,     // Fade between old and new content
-    SLIDE,    // Slide between old and new content
-    SCALE,    // Scale between old and new content
+    /** The fade content transition type option. */
+    FADE,
+    /** The slide content transition type option. */
+    SLIDE,
+    /** The scale content transition type option. */
+    SCALE,
+    /** The crossfade content transition type option. */
     CROSSFADE // Crossfade between old and new content (smooth blend)
 }
 
@@ -19,9 +23,13 @@ enum class ContentTransitionType {
  * Direction for content transitions
  */
 enum class ContentDirection {
+    /** The left to right content direction option. */
     LEFT_TO_RIGHT,
+    /** The right to left content direction option. */
     RIGHT_TO_LEFT,
+    /** The top to bottom content direction option. */
     TOP_TO_BOTTOM,
+    /** The bottom to top content direction option. */
     BOTTOM_TO_TOP
 }
 
@@ -48,42 +56,24 @@ fun <T> AnimatedContent(
 ) {
     val renderer = LocalPlatformRenderer.current
 
-    // Apply animation-specific styling to the modifier
-    val animatedModifier = modifier.apply {
-        // Add CSS transition properties based on the animation parameters
-        val cssTransition = when (transitionType) {
-            ContentTransitionType.FADE -> "opacity ${duration}ms ${easing.toCssString()}"
-            ContentTransitionType.SLIDE -> {
-                val property = when (direction) {
-                    ContentDirection.LEFT_TO_RIGHT, ContentDirection.RIGHT_TO_LEFT -> "transform"
-                    ContentDirection.TOP_TO_BOTTOM, ContentDirection.BOTTOM_TO_TOP -> "transform"
-                }
-                "$property ${duration}ms ${easing.toCssString()}"
+    val cssTransition = when (transitionType) {
+        ContentTransitionType.FADE -> "opacity ${duration}ms ${easing.toCssString()}"
+        ContentTransitionType.SLIDE -> "transform ${duration}ms ${easing.toCssString()}"
+        ContentTransitionType.SCALE -> "transform ${duration}ms ${easing.toCssString()}"
+        ContentTransitionType.CROSSFADE -> "opacity ${duration}ms ${easing.toCssString()}"
+    }
+    var animatedModifier = modifier.style("transition", cssTransition)
+    animatedModifier = when (transitionType) {
+        ContentTransitionType.FADE -> animatedModifier.style("opacity", "1")
+        ContentTransitionType.SLIDE -> {
+            val transform = when (direction) {
+                ContentDirection.LEFT_TO_RIGHT, ContentDirection.RIGHT_TO_LEFT -> "translateX(0)"
+                ContentDirection.TOP_TO_BOTTOM, ContentDirection.BOTTOM_TO_TOP -> "translateY(0)"
             }
-
-            ContentTransitionType.SCALE -> "transform ${duration}ms ${easing.toCssString()}"
-            ContentTransitionType.CROSSFADE -> "opacity ${duration}ms ${easing.toCssString()}"
+            animatedModifier.style("transform", transform)
         }
-
-        // Add the transition CSS property to the modifier
-        this.style("transition", cssTransition)
-
-        // Add initial styling based on transition type
-        when (transitionType) {
-            ContentTransitionType.FADE -> this.style("opacity", "1")
-            ContentTransitionType.SLIDE -> {
-                val transform = when (direction) {
-                    ContentDirection.LEFT_TO_RIGHT -> "translateX(0)"
-                    ContentDirection.RIGHT_TO_LEFT -> "translateX(0)"
-                    ContentDirection.TOP_TO_BOTTOM -> "translateY(0)"
-                    ContentDirection.BOTTOM_TO_TOP -> "translateY(0)"
-                }
-                this.style("transform", transform)
-            }
-
-            ContentTransitionType.SCALE -> this.style("transform", "scale(1)")
-            ContentTransitionType.CROSSFADE -> this.style("opacity", "1")
-        }
+        ContentTransitionType.SCALE -> animatedModifier.style("transform", "scale(1)")
+        ContentTransitionType.CROSSFADE -> animatedModifier.style("opacity", "1")
     }
 
     // Use renderAnimatedContent with the enhanced modifier
@@ -141,4 +131,4 @@ fun <T> crossfade(
         modifier = modifier,
         content = content
     )
-} 
+}

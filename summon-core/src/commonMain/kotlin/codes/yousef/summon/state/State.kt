@@ -177,13 +177,47 @@ interface SummonMutableState<T> : State<T> {
  * Extended mutable state interface with component functions and listeners.
  */
 interface MutableState<T> : SummonMutableState<T> {
+    /**
+     * Executes the component1 operation.
+     *
+     * @return The resulting value.
+     */
     operator fun component1(): T
+    /**
+     * Executes the component2 operation.
+     *
+     * @return The resulting value.
+     */
     operator fun component2(): (T) -> Unit
 
+    /**
+     * Adds listener.
+     *
+     * @param listener The listener value.
+     */
     fun addListener(listener: (T) -> Unit)
+    /**
+     * Removes listener.
+     *
+     * @param listener The listener value.
+     */
     fun removeListener(listener: (T) -> Unit)
 
+    /**
+     * Returns value.
+     *
+     * @param thisRef The this ref value.
+     * @param property The property value.
+     * @return The resulting value.
+     */
     operator fun getValue(thisRef: Any?, property: KProperty<*>): T
+    /**
+     * Sets value.
+     *
+     * @param thisRef The this ref value.
+     * @param property The property value.
+     * @param value Value to process.
+     */
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T)
 }
 
@@ -194,6 +228,7 @@ interface MutableState<T> : SummonMutableState<T> {
 class MutableStateImpl<T>(initialValue: T) : MutableState<T> {
     private val listeners = mutableListOf<(T) -> Unit>()
 
+    /** The initial value value. */
     override var value: T = initialValue
         get() {
             codes.yousef.summon.runtime.CompositionLocal.currentComposer?.recordRead(this)
@@ -207,12 +242,36 @@ class MutableStateImpl<T>(initialValue: T) : MutableState<T> {
             }
         }
 
+    /**
+     * Executes the component1 operation.
+     *
+     * @return The resulting value.
+     */
     override fun component1(): T = value
 
+    /**
+     * Executes the component2 operation.
+     *
+     * @return The resulting value.
+     */
     override fun component2(): (T) -> Unit = { value = it }
 
+    /**
+     * Returns value.
+     *
+     * @param thisRef The this ref value.
+     * @param property The property value.
+     * @return The resulting value.
+     */
     override fun getValue(thisRef: Any?, property: KProperty<*>): T = value
 
+    /**
+     * Sets value.
+     *
+     * @param thisRef The this ref value.
+     * @param property The property value.
+     * @param value Value to process.
+     */
     override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
         this.value = value
     }

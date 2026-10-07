@@ -32,16 +32,28 @@ internal var matchMedia: (String) -> Any = { _ -> object {} }
  * Represents a set of keyboard modifier keys
  */
 enum class KeyModifier {
-    CTRL, ALT, SHIFT, META
+    /** The ctrl key modifier option. */
+    CTRL,
+    /** The alt key modifier option. */
+    ALT,
+    /** The shift key modifier option. */
+    SHIFT,
+    /** The meta key modifier option. */
+    META
 }
 
 /**
  * Simplified keyboard event
+
+ * @property key Lookup key.
+ * @property modifiers The modifiers value.
  */
 class KeyboardEvent(val key: String, val modifiers: Set<KeyModifier>)
 
 /**
  * Simplified mouse event
+
+ * @property target The target value.
  */
 class MouseEvent(val target: Any?)
 
@@ -106,9 +118,17 @@ fun CompositionScope.useKeyboardShortcut(
  * Control interface for interval timer
  */
 interface IntervalControl {
+    /** Pauses the operation. */
     fun pause()
+    /** Resumes the operation. */
     fun resume()
+    /** Resets the operation. */
     fun reset()
+    /**
+     * Sets delay.
+     *
+     * @param delayMs The delay ms value.
+     */
     fun setDelay(delayMs: Int)
 }
 
@@ -135,8 +155,15 @@ fun CompositionScope.useInterval(
  * Control interface for timeout
  */
 interface TimeoutControl {
+    /** Cancels the operation. */
     fun cancel()
+    /** Resets the operation. */
     fun reset()
+    /**
+     * Sets delay.
+     *
+     * @param delayMs The delay ms value.
+     */
     fun setDelay(delayMs: Int)
 }
 
@@ -187,6 +214,9 @@ fun CompositionScope.useClickOutside(
 
 /**
  * Window size information
+
+ * @property width The width value.
+ * @property height The height value.
  */
 data class WindowSize(
     val width: Int,
@@ -195,6 +225,10 @@ data class WindowSize(
 
 /**
  * Location information
+
+ * @property pathname The pathname value.
+ * @property search The search value.
+ * @property hash The hash value.
  */
 data class Location(
     val pathname: String,

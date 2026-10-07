@@ -16,7 +16,7 @@ object SerializationUtils {
             append("{")
             state.entries.forEachIndexed { index, (key, value) ->
                 if (index > 0) append(",")
-                append("\"$key\":")
+                append("\"${escapeJsonString(key)}\":")
                 append(serializeValue(value))
             }
             append("}")
@@ -36,7 +36,7 @@ object SerializationUtils {
                     append("{")
                     value.entries.forEachIndexed { index, entry ->
                         if (index > 0) append(",")
-                        append("\"${entry.key}\":")
+                        append("\"${escapeJsonString(entry.key.toString())}\":")
                         append(serializeValue(entry.value))
                     }
                     append("}")
@@ -61,14 +61,25 @@ object SerializationUtils {
     /**
      * Escape a string for JSON
      */
-    fun escapeJsonString(value: String): String {
-        return value
-            .replace("\\", "\\\\")
-            .replace("\"", "\\\"")
-            .replace("\n", "\\n")
-            .replace("\r", "\\r")
-            .replace("\t", "\\t")
-            .replace("\b", "\\b")
-            .replace("\u000C", "\\f")
+    fun escapeJsonString(value: String): String = buildString(value.length) {
+        value.forEach { character ->
+            when (character) {
+                '\\' -> append("\\\\")
+                '"' -> append("\\\"")
+                '\n' -> append("\\n")
+                '\r' -> append("\\r")
+                '\t' -> append("\\t")
+                '\b' -> append("\\b")
+                '\u000C' -> append("\\f")
+                '<' -> append("\\u003c")
+                '\u2028' -> append("\\u2028")
+                '\u2029' -> append("\\u2029")
+                else -> if (character.code < 0x20) {
+                    append("\\u").append(character.code.toString(16).padStart(4, '0'))
+                } else {
+                    append(character)
+                }
+            }
+        }
     }
 }

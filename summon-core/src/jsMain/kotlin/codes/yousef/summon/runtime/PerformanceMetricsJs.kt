@@ -13,6 +13,7 @@ actual object PerformanceMetrics {
     private var hydrationStartTime: Double = 0.0
     private var hydrationComplete: Boolean = false
 
+    /** Executes the check and initialize operation. */
     actual fun checkAndInitialize() {
         val enabled = js("window.__SUMMON_PERF_ENABLED__ === true") as Boolean
         PerformanceConfig.enabled = enabled
@@ -26,6 +27,12 @@ actual object PerformanceMetrics {
         }
     }
 
+    /**
+     * Executes the mark start operation.
+     *
+     * @param name Human-readable name.
+     * @param phase The phase value.
+     */
     actual fun markStart(name: String, phase: HydrationPhase) {
         if (!PerformanceConfig.enabled) return
 
@@ -40,6 +47,12 @@ actual object PerformanceMetrics {
         }
     }
 
+    /**
+     * Executes the mark end operation.
+     *
+     * @param name Human-readable name.
+     * @return The resulting value.
+     */
     actual fun markEnd(name: String): Double {
         if (!PerformanceConfig.enabled) return 0.0
 
@@ -68,6 +81,14 @@ actual object PerformanceMetrics {
         return duration
     }
 
+    /**
+     * Measures this value.
+     *
+     * @param name Human-readable name.
+     * @param phase The phase value.
+     * @param block Operation to execute.
+     * @return The resulting value.
+     */
     actual fun <T> measure(name: String, phase: HydrationPhase, block: () -> T): T {
         if (!PerformanceConfig.enabled) return block()
 
@@ -79,6 +100,13 @@ actual object PerformanceMetrics {
         }
     }
 
+    /**
+     * Executes the record metric operation.
+     *
+     * @param name Human-readable name.
+     * @param value Value to process.
+     * @param unit The unit value.
+     */
     actual fun recordMetric(name: String, value: Double, unit: String) {
         if (!PerformanceConfig.enabled) return
 
@@ -92,11 +120,27 @@ actual object PerformanceMetrics {
         addMetric(entry)
     }
 
+    /**
+     * Returns metrics.
+     *
+     * @return The resulting value.
+     */
     actual fun getMetrics(): List<MetricEntry> = metrics.toList()
 
+    /**
+     * Returns metrics by phase.
+     *
+     * @param phase The phase value.
+     * @return The resulting value.
+     */
     actual fun getMetricsByPhase(phase: HydrationPhase): List<MetricEntry> =
         metrics.filter { it.phase == phase }
 
+    /**
+     * Returns report.
+     *
+     * @return The resulting value.
+     */
     actual fun getReport(): HydrationPerformanceReport {
         val totalTime = if (hydrationComplete) {
             metrics.lastOrNull { it.name == "hydration-complete" }?.let {
@@ -136,6 +180,7 @@ actual object PerformanceMetrics {
         )
     }
 
+    /** Executes the mark hydration complete operation. */
     actual fun markHydrationComplete() {
         if (!PerformanceConfig.enabled) return
 
@@ -174,6 +219,7 @@ actual object PerformanceMetrics {
         }
     }
 
+    /** Resets the operation. */
     actual fun reset() {
         metrics.clear()
         activeMarks.clear()
@@ -181,6 +227,11 @@ actual object PerformanceMetrics {
         hydrationComplete = false
     }
 
+    /**
+     * Returns whether enabled.
+     *
+     * @return The resulting value.
+     */
     actual fun isEnabled(): Boolean = PerformanceConfig.enabled
 
     private fun addMetric(entry: MetricEntry) {

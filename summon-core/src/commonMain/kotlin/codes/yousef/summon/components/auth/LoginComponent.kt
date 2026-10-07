@@ -7,6 +7,9 @@ import codes.yousef.summon.security.service.SecurityService
 
 /**
  * A component that handles user login
+
+ * @property securityService The security service value.
+ * @property router The router value.
  */
 class LoginComponent(
     private val securityService: SecurityService,
@@ -40,7 +43,13 @@ class LoginComponent(
      * Result of a login attempt
      */
     sealed class LoginResult {
+        /** Authentication succeeded. */
         object Success : LoginResult()
+/**
+ * Authentication failed.
+ *
+ * @property error failure retained for the caller
+ */
         data class Failure(val error: Throwable) : LoginResult()
     }
 }
@@ -53,4 +62,4 @@ fun createLoginComponent(
     router: Router
 ): LoginComponent {
     return LoginComponent(securityService, router)
-} 
+}

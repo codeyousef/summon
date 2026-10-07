@@ -29,18 +29,18 @@ private class JsSyncedStorage<T>(
 ) : SyncedStorage<T> {
 
     private val listeners = mutableListOf<(T) -> Unit>()
-    private var storageListener: ((Event) -> Unit)? = null
-
-    init {
-        // Set up storage event listener for cross-tab sync
-        storageListener = { event: Event ->
-            val storageEvent = event as? StorageEvent
-            if (storageEvent?.key == key) {
-                val newValue = storageEvent.newValue?.let { deserializer(it) } ?: defaultValue
-                notifyListeners(newValue)
-            }
+    private val storageListener: (Event) -> Unit = { event ->
+        val storageEvent = event as? StorageEvent
+        if (storageEvent?.key == key) {
+            val newValue = storageEvent.newValue?.let {
+                try {
+                    deserializer(it)
+                } catch (_: Exception) {
+                    defaultValue
+                }
+            } ?: defaultValue
+            notifyListeners(newValue)
         }
-        window.addEventListener("storage", storageListener!!)
     }
 
     override var value: T
@@ -49,8 +49,7 @@ private class JsSyncedStorage<T>(
             return if (stored != null) {
                 try {
                     deserializer(stored)
-                } catch (e: Exception) {
-                    console.error("Failed to deserialize stored value for key '$key': ${e.message}")
+                } catch (_: Exception) {
                     defaultValue
                 }
             } else {
@@ -61,10 +60,9 @@ private class JsSyncedStorage<T>(
             try {
                 val serialized = serializer(newValue)
                 localStorage.setItem(key, serialized)
-                // Storage event doesn't fire in the same tab, so manually notify
                 notifyListeners(newValue)
-            } catch (e: Exception) {
-                console.error("Failed to serialize value for key '$key': ${e.message}")
+            } catch (_: Exception) {
+                // Storage capability and serialization failures leave the prior value unchanged.
             }
         }
 
@@ -78,31 +76,26 @@ private class JsSyncedStorage<T>(
     }
 
     override fun addChangeListener(listener: (T) -> Unit): () -> Unit {
+        if (listeners.isEmpty()) window.addEventListener("storage", storageListener)
         listeners.add(listener)
+        var subscribed = true
         return {
-            listeners.remove(listener)
-        }
-    }
-
-    private fun notifyListeners(newValue: T) {
-        listeners.forEach { listener ->
-            try {
-                listener(newValue)
-            } catch (e: Exception) {
-                console.error("Error in SyncedStorage listener: ${e.message}")
+            if (subscribed) {
+                subscribed = false
+                listeners.remove(listener)
+                if (listeners.isEmpty()) window.removeEventListener("storage", storageListener)
             }
         }
     }
 
-    /**
-     * Cleanup function to remove the storage event listener.
-     * Should be called when the storage is no longer needed.
-     */
-    fun dispose() {
-        storageListener?.let { listener ->
-            window.removeEventListener("storage", listener)
+    private fun notifyListeners(newValue: T) {
+        listeners.toList().forEach { listener ->
+            try {
+                listener(newValue)
+            } catch (_: Exception) {
+                // A failing observer must not prevent delivery to other owners.
+            }
         }
-        storageListener = null
-        listeners.clear()
     }
+
 }

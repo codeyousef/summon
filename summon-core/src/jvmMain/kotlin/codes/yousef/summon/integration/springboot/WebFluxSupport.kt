@@ -2,14 +2,17 @@ package codes.yousef.summon.integration.springboot
 
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.routing.*
+import codes.yousef.summon.integration.ensureRouterLeadingSlash
+import codes.yousef.summon.integration.hasRouterRouteFor
+import codes.yousef.summon.integration.normalizeRouterBasePath
 import codes.yousef.summon.runtime.PlatformRenderer
 import codes.yousef.summon.runtime.clearPlatformRenderer
 import codes.yousef.summon.runtime.setPlatformRenderer
+import codes.yousef.summon.ssr.escapeSsrHtml
+import codes.yousef.summon.ssr.renderToString
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactor.asFlux
-import kotlinx.html.div
-import kotlinx.html.stream.appendHTML
 import org.reactivestreams.Publisher
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -85,17 +88,13 @@ object WebFluxSupport {
                 append("<!DOCTYPE html>\n<html>\n<head>\n")
                 append("  <meta charset=\"UTF-8\">\n")
                 append("  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n")
-                append("  <title>$title</title>\n")
+                append("  <title>${escapeSsrHtml(title)}</title>\n")
                 append("</head>\n<body>\n")
             }
 
             emit(header)
 
-            val htmlContent = buildString {
-                appendHTML().div {
-                    content()
-                }
-            }
+            val htmlContent = "<div>${renderToString(renderer, content).html}</div>"
 
             val chunks = htmlContent.chunked(chunkSize)
             for (chunk in chunks) {
@@ -116,7 +115,7 @@ object WebFluxSupport {
         enableHydration: Boolean = true,
         notFound: (ServerRequest) -> Mono<ServerResponse> = defaultNotFoundHandler
     ): RouterFunction<ServerResponse> {
-        val normalizedBasePath = basePath.normalizeBasePath()
+        val normalizedBasePath = basePath.normalizeRouterBasePath()
         val registry: PageRegistry by lazy(LazyThreadSafetyMode.PUBLICATION) {
             DefaultPageRegistry().apply {
                 PageLoader.registerPages(this)
@@ -142,7 +141,7 @@ object WebFluxSupport {
         notFound: (ServerRequest) -> Mono<ServerResponse>
     ): Mono<ServerResponse> {
         val requestPath = request.resolveRouterPath(basePath)
-        val hasRoute = registry.hasRouteFor(requestPath)
+        val hasRoute = registry.hasRouterRouteFor(requestPath)
         val hasSummonNotFound = registry.getNotFoundPage() != null
 
         if (!hasRoute && (!hasSummonNotFound || notFound !== defaultNotFoundHandler)) {
@@ -174,70 +173,13 @@ object WebFluxSupport {
     }
 }
 
-private fun String.normalizeBasePath(): String {
-    if (isBlank() || this == "/") {
-        return "/"
-    }
-
-    val withLeadingSlash = if (startsWith('/')) this else "/$this"
-    return withLeadingSlash.trimEnd('/').ifBlank { "/" }
-}
 
 private fun ServerRequest.resolveRouterPath(basePath: String): String {
     val fullPath = this.path()
     if (basePath == "/") {
-        return fullPath.ensureLeadingSlash().ifBlank { "/" }
+        return fullPath.ensureRouterLeadingSlash().ifBlank { "/" }
     }
 
     val relative = fullPath.removePrefix(basePath).ifBlank { "/" }
-    return relative.ensureLeadingSlash()
-}
-
-private fun String.ensureLeadingSlash(): String = when {
-    isBlank() -> "/"
-    startsWith('/') -> this
-    else -> "/$this"
-}
-
-private fun PageRegistry.hasRouteFor(path: String): Boolean {
-    val normalizedPath = path.ensureLeadingSlash()
-    val routes = getPages()
-    if (routes.isEmpty()) return false
-
-    return routes.keys.any { pattern -> patternMatches(pattern, normalizedPath) }
-}
-
-private fun patternMatches(pattern: String, path: String): Boolean {
-    val normalizedPattern = pattern.ensureLeadingSlash()
-    if (normalizedPattern == path) return true
-
-    val patternSegments = normalizedPattern.trim('/').takeIf { it.isNotEmpty() }?.split('/') ?: emptyList()
-    val pathSegments = path.trim('/').takeIf { it.isNotEmpty() }?.split('/') ?: emptyList()
-
-    if (patternSegments.isEmpty()) {
-        return pathSegments.isEmpty()
-    }
-
-    val catchAll = patternSegments.lastOrNull() == "*"
-    if (!catchAll && patternSegments.size != pathSegments.size) {
-        return false
-    }
-
-    if (catchAll && pathSegments.size < patternSegments.size - 1) {
-        return false
-    }
-
-    patternSegments.forEachIndexed { index, segment ->
-        if (segment == "*") {
-            return true
-        }
-        val candidate = pathSegments.getOrNull(index) ?: return false
-        if (!segment.startsWith(":")) {
-            if (segment != candidate) {
-                return false
-            }
-        }
-    }
-
-    return !catchAll && patternSegments.size == pathSegments.size || catchAll
+    return relative.ensureRouterLeadingSlash()
 }

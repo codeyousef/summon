@@ -481,7 +481,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * ## Migration Guide
  *
  * ### From CSS/HTML
- * ```html
+ * ```HTML
  * <!-- HTML/CSS -->
  * <div class="container">
  *   <div class="overlay">Content</div>
@@ -568,10 +568,6 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * @see AspectRatio for proportional containers
  * @see Card for elevated containers
  *
- * @sample BoxSamples.basicContainer
- * @sample BoxSamples.centeredContent
- * @sample BoxSamples.absolutePositioning
- * @sample BoxSamples.scrollableArea
  *
  * @since 1.0.0
  */

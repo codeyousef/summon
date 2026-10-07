@@ -73,4 +73,31 @@ class HtmlPrimitivesTest {
         }
         assertEquals(false, renderer.renderScriptTagCalled)
     }
+
+    @Test
+    fun blankOptionalAttributesAreOmittedAndUnsafeScriptVariantsFailClosed() {
+        val renderer = MockPlatformRenderer()
+        runComposableTest(renderer) {
+            Canvas(id = " ", ariaLabel = "", role = null)
+            ScriptTag(src = "/plain.js", id = "", type = "text/javascript")
+            ScriptTag(src = "/module.js", type = "module")
+            ScriptTag(src = "/application.js", type = "application/javascript")
+        }
+        assertEquals(null, renderer.lastCanvasModifier?.attributes?.get("id"))
+        assertEquals(null, renderer.lastCanvasModifier?.attributes?.get("aria-label"))
+
+        listOf(
+            "//cdn.test/app.js",
+            "\\\\server\\app.js",
+            "/bad\nname.js"
+        ).forEach { src ->
+            assertFailsWith<IllegalArgumentException> {
+                runComposableTest(renderer) { ScriptTag(src = src) }
+            }
+        }
+        assertFailsWith<IllegalArgumentException> {
+            runComposableTest(renderer) { ScriptTag(src = "/app.js", type = "text/plain") }
+        }
+    }
+
 }

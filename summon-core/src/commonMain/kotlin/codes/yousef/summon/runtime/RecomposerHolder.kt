@@ -12,6 +12,7 @@ object RecomposerHolder {
         get() = RuntimeContextStore.get().recomposer
         set(value) { RuntimeContextStore.get().recomposer = value }
 
+    /** The property declaration value. */
     val recomposer: Recomposer
         get() = _recomposer ?: Recomposer().also { _recomposer = it }
 

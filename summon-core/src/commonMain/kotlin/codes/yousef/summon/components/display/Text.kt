@@ -129,7 +129,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * ## Accessibility Guidelines
  *
  * ### ARIA Roles
- * - Use `role="heading"` for headings with appropriate `aria-level`
+ * - Use `role="heading"` for headings with appropriate `ARIA-level`
  * - Use `role="article"` for standalone content
  * - Use `role="note"` for supplementary information
  *
@@ -153,7 +153,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  *
  * ## Performance Considerations
  *
- * - Use [BasicText] for simple text without advanced features
+ * - Use [codes.yousef.summon.components.foundation.BasicText] for simple text without advanced features
  * - Prefer CSS classes over inline styles for repeated patterns
  * - Consider text length impact on rendering performance
  * - Use `maxLines` to prevent layout issues with dynamic content
@@ -245,10 +245,28 @@ fun Text(
 }
 
 /**
- * Backward compatibility class for existing code that expects a Text class instance
- * rather than using the @Composable function directly.
+ * Compatibility value object for code that cannot call the composable [Text] function directly.
  *
- * @deprecated Use the @Composable Text function instead for new code
+ * @property text visible text
+ * @property modifier typed styles and attributes
+ * @property overflow CSS overflow behavior
+ * @property lineHeight CSS line height
+ * @property textAlign CSS text alignment
+ * @property fontFamily CSS font family
+ * @property textDecoration CSS text decoration
+ * @property textTransform CSS text transformation
+ * @property letterSpacing CSS letter spacing
+ * @property whiteSpace CSS whitespace behavior
+ * @property wordBreak CSS word-breaking behavior
+ * @property wordSpacing CSS word spacing
+ * @property textShadow CSS text shadow
+ * @property maxLines maximum rendered lines
+ * @property role accessibility role
+ * @property ariaLabel accessible name
+ * @property ariaDescribedBy ID of the accessible description
+ * @property semantic framework semantic marker
+ *
+ * @deprecated Use the composable [Text] function.
  */
 data class TextComponent(
     val text: String,

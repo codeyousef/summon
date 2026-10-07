@@ -7,6 +7,11 @@ import codes.yousef.summon.runtime.setPlatformRenderer
 
 /**
  * Metadata for HTML pages
+
+ * @property title The title value.
+ * @property description The description value.
+ * @property includeDocType The include doc type value.
+ * @property customHeadElements The custom head elements value.
  */
 data class PageMetadata(
     val title: String? = null,

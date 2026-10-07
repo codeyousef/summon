@@ -12,8 +12,11 @@ import codes.yousef.summon.theme.Spacing
  * @property value Exact value applied to the `type` attribute.
  */
 enum class FormButtonType(val value: String) {
+    /** The submit form button type option. */
     Submit("submit"),
+    /** The reset form button type option. */
     Reset("reset"),
+    /** The button form button type option. */
     Button("button")
 }
 
@@ -21,25 +24,44 @@ enum class FormButtonType(val value: String) {
  * Variants control the visual tone of [FormButton].
  */
 enum class FormButtonVariant {
-    Primary, Secondary, Danger
+    /** The primary form button variant option. */
+    Primary,
+    /** The secondary form button variant option. */
+    Secondary,
+    /** The danger form button variant option. */
+    Danger
 }
 
 /**
- * Supported text field types rendered via `<input type="...">`.
+ * Supported native text-field type.
+ *
+ * @property htmlType HTML `type` attribute
  */
 enum class FormTextFieldType(val htmlType: String) {
+    /** The text form text field type option. */
     Text("text"),
+    /** The email form text field type option. */
     Email("email"),
+    /** The URL form text field type option. */
     Url("url"),
+    /** The number form text field type option. */
     Number("number"),
+    /** The date form text field type option. */
     Date("date"),
+    /** The password form text field type option. */
     Password("password"),
+    /** The tel form text field type option. */
     Tel("tel"),
+    /** The search form text field type option. */
     Search("search")
 }
 
 /**
- * Represents a selectable option for [FormSelect].
+ * Select option.
+ *
+ * @property value submitted value
+ * @property label visible label
+ * @property disabled whether selection is disabled
  */
 data class FormSelectOption(
     val value: String,
@@ -47,7 +69,13 @@ data class FormSelectOption(
     val disabled: Boolean = false
 )
 
-/** Represents one native option in a server-submitted radio group. */
+/**
+ * Native radio-group option.
+ *
+ * @property value submitted value
+ * @property label visible label
+ * @property disabled whether selection is disabled
+ */
 data class FormRadioOption(
     val value: String,
     val label: String,
@@ -63,6 +91,7 @@ object FormDefaults {
     private const val LINE_HEIGHT = "1.5"
     private val focusColor get() = ColorHelpers.primary
 
+    /** Standard field-container styling. */
     fun fieldContainerModifier(): Modifier =
         Modifier()
             .style("display", "flex")
@@ -70,27 +99,32 @@ object FormDefaults {
             .style("gap", Spacing.sm)
             .style("margin-bottom", Spacing.md)
 
+    /** Standard field-label styling. */
     fun labelModifier(): Modifier =
         Modifier()
             .style("font-weight", "600")
             .style("color", ColorHelpers.onSurface)
 
+    /** Standard required-indicator styling. */
     fun requiredIndicatorModifier(): Modifier =
         Modifier()
             .style("color", ColorHelpers.error)
             .style("margin-left", "4px")
             .ariaAttribute("hidden", "true")
 
+    /** Standard supporting-text styling. */
     fun supportingTextModifier(): Modifier =
         Modifier()
             .style("color", ColorHelpers.onSurfaceVariant)
             .style("font-size", "0.9rem")
 
+    /** Standard validation-message styling. */
     fun validationTextModifier(): Modifier =
         Modifier()
             .style("color", ColorHelpers.error)
             .style("font-size", "0.9rem")
 
+    /** Standard text-input styling. */
     fun textInputModifier(): Modifier =
         Modifier()
             .width("100%")
@@ -105,6 +139,7 @@ object FormDefaults {
             .style("outline-color", focusColor)
             .style("outline-offset", "3px")
 
+    /** Standard checkbox-control styling. */
     fun checkboxInputModifier(): Modifier =
         Modifier()
             .style("width", "20px")
@@ -116,11 +151,13 @@ object FormDefaults {
             .style("outline-color", focusColor)
             .style("outline-offset", "3px")
 
+    /** Standard checkbox-label styling. */
     fun checkboxLabelModifier(): Modifier =
         Modifier()
             .style("font-weight", "500")
             .style("color", ColorHelpers.onSurface)
 
+    /** Standard button styling for [variant]. */
     fun buttonModifier(variant: FormButtonVariant): Modifier {
         val background = when (variant) {
             FormButtonVariant.Primary -> ColorHelpers.primary

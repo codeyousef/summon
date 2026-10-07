@@ -38,7 +38,6 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  *
  * @see Progress for full-featured progress component
  * @see LinearProgress for linear progress bars
- * @sample codes.yousef.summon.samples.feedback.ProgressSamples.circularProgressExample
  * @since 1.0.0
  */
 @Composable

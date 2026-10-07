@@ -11,17 +11,29 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 
+/** Represents spring boot integration test app. */
 @SpringBootApplication
 class SpringBootIntegrationTestApp
 
+/**
+ * Executes the main operation.
+ *
+ * @param args The args value.
+ */
 fun main(args: Array<String>) {
     runApplication<SpringBootIntegrationTestApp>(*args)
 }
 
+/** Represents spring boot test controller. */
 @Controller
 class SpringBootTestController {
     private val renderer = SpringBootRenderer()
 
+    /**
+     * Executes the index operation.
+     *
+     * @param response The response value.
+     */
     @GetMapping("/", produces = [MediaType.TEXT_HTML_VALUE])
     fun index(response: HttpServletResponse) {
         renderer.renderHtml(response) {
@@ -29,6 +41,11 @@ class SpringBootTestController {
         }
     }
 
+    /**
+     * Executes the stream operation.
+     *
+     * @param response The response value.
+     */
     @GetMapping("/stream", produces = [MediaType.TEXT_HTML_VALUE])
     fun stream(response: HttpServletResponse) {
         renderer.renderStream(response) {
@@ -37,6 +54,7 @@ class SpringBootTestController {
     }
 }
 
+/** Renders spring boot test component. */
 @Composable
 fun SpringBootTestComponent() {
     Column {

@@ -89,13 +89,8 @@ object StyleSheet {
  * @param styleName The name of the style to apply
  * @return A new modifier with the style applied
  */
-fun Modifier.applyStyle(styleName: String): Modifier {
-    // Get the style from the registry
-    val styleToApply = StyleSheet.getStyle(styleName)
-    // Create a new modifier with the combined styles
-    // This is a simplified implementation
-    return Modifier()
-}
+fun Modifier.applyStyle(styleName: String): Modifier =
+    then(StyleSheet.getStyle(styleName))
 
 /**
  * Apply multiple registered styles to a modifier
@@ -152,4 +147,4 @@ fun createStyleSheet(builder: StyleBuilder.() -> Unit) {
     val styleBuilder = StyleBuilder()
     styleBuilder.builder()
     styleBuilder.registerAll()
-} 
+}

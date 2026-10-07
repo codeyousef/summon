@@ -5,6 +5,8 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * Types of Twitter Cards available.
+
+ * @property value Value to process.
  */
 enum class TwitterCardType(val value: String) {
     /** Default card with title, description, and small image */

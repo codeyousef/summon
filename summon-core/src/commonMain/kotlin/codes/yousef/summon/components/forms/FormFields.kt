@@ -61,7 +61,9 @@ fun FormTextField(
             inputModifier = inputModifier.attribute("step", it.toString())
         }
         metadata.describedById?.let { inputModifier = inputModifier.ariaAttribute("describedby", it) }
-        metadata.errorMessageId?.let { inputModifier = inputModifier.ariaAttribute("errormessage", it) }
+        metadata.errorMessageId?.let {
+            inputModifier = inputModifier.ariaAttribute("errormessage", it).ariaAttribute("invalid", "true")
+        }
 
         renderer.renderNativeInput(
             type = type.htmlType,
@@ -141,7 +143,9 @@ fun FormTextArea(
         maxLength?.let { textAreaModifier = textAreaModifier.attribute("maxlength", it.toString()) }
         if (required) textAreaModifier = textAreaModifier.attribute("required", "true")
         metadata.describedById?.let { textAreaModifier = textAreaModifier.ariaAttribute("describedby", it) }
-        metadata.errorMessageId?.let { textAreaModifier = textAreaModifier.ariaAttribute("errormessage", it) }
+        metadata.errorMessageId?.let {
+            textAreaModifier = textAreaModifier.ariaAttribute("errormessage", it).ariaAttribute("invalid", "true")
+        }
 
         renderer.renderNativeTextarea(
             modifier = textAreaModifier,
@@ -209,7 +213,9 @@ fun FormSelect(
 
         if (required) selectModifier = selectModifier.attribute("required", "true")
         metadata.describedById?.let { selectModifier = selectModifier.ariaAttribute("describedby", it) }
-        metadata.errorMessageId?.let { selectModifier = selectModifier.ariaAttribute("errormessage", it) }
+        metadata.errorMessageId?.let {
+            selectModifier = selectModifier.ariaAttribute("errormessage", it).ariaAttribute("invalid", "true")
+        }
 
         renderer.renderNativeSelect(
             modifier = selectModifier,
@@ -256,7 +262,9 @@ fun FormCheckbox(
 
             if (required) inputModifier = inputModifier.attribute("required", "true")
             descriptionId?.let { inputModifier = inputModifier.ariaAttribute("describedby", it) }
-            errorId?.let { inputModifier = inputModifier.ariaAttribute("errormessage", it) }
+            errorId?.let {
+                inputModifier = inputModifier.ariaAttribute("errormessage", it).ariaAttribute("invalid", "true")
+            }
 
             renderer.renderNativeInput(
                 type = "checkbox",

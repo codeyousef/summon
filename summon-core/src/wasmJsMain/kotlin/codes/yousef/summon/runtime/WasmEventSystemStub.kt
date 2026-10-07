@@ -5,11 +5,19 @@ import codes.yousef.summon.core.DOMEvent
 /**
  * Minimal WASM Event System stub to enable compilation.
  * This is a simplified implementation that provides basic functionality
- * while avoiding WASM-incompatible features like js() calls and dynamic types.
+ * while avoiding WASM-incompatible features like JS() calls and dynamic types.
  */
 class WasmEventSystem : EventSystemContract {
 
     // Minimal implementation to satisfy the contract
+    /**
+     * Registers handler.
+     *
+     * @param element The element value.
+     * @param event The event value.
+     * @param handler The handler value.
+     * @return The resulting value.
+     */
     override fun <T : DOMEvent> registerHandler(
         element: DOMElement,
         event: EventType<T>,
@@ -30,6 +38,7 @@ class WasmEventSystem : EventSystemContract {
  * Event registration stub.
  */
 interface EventRegistration {
+    /** Unregisters the operation. */
     fun unregister()
 }
 
@@ -37,6 +46,7 @@ interface EventRegistration {
  * Event type stub.
  */
 interface EventType<T : DOMEvent> {
+    /** The property declaration value. */
     val name: String
 }
 
@@ -44,6 +54,14 @@ interface EventType<T : DOMEvent> {
  * Event system contract.
  */
 interface EventSystemContract {
+    /**
+     * Registers handler.
+     *
+     * @param element The element value.
+     * @param event The event value.
+     * @param handler The handler value.
+     * @return The resulting value.
+     */
     fun <T : DOMEvent> registerHandler(
         element: DOMElement,
         event: EventType<T>,

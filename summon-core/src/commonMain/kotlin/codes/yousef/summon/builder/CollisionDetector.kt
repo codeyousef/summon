@@ -17,20 +17,20 @@ package codes.yousef.summon.builder
  * ```kotlin
  * // Register drop zones
  * CollisionDetector.registerDropZone(DropZone(
- *     id = "container-1",
+ *     ID = "container-1",
  *     rect = Rect(x = 0.0, y = 0.0, width = 200.0, height = 400.0)
  * ))
  *
  * // During drag move
  * val hitZone = CollisionDetector.findDropTarget(mouseX, mouseY)
  * if (hitZone != null) {
- *     CollisionDetector.highlightZone(hitZone.id)
+ *     CollisionDetector.highlightZone(hitZone.ID)
  * }
  *
  * // On drop
  * val targetZone = CollisionDetector.findDropTarget(dropX, dropY)
  * if (targetZone != null) {
- *     PropertyBridge.moveComponent(draggedId, targetZone.id)
+ *     PropertyBridge.moveComponent(draggedId, targetZone.ID)
  * }
  * ```
  *
@@ -39,12 +39,12 @@ package codes.yousef.summon.builder
 object CollisionDetector {
     private val dropZones = mutableMapOf<String, DropZone>()
     private var currentHighlight: String? = null
-    
+
     /**
      * Callback for applying visual feedback to a drop zone.
      */
     var onHighlight: ((zoneId: String?, add: Boolean) -> Unit)? = null
-    
+
     /**
      * Checks if a point is inside a rectangle.
      *
@@ -54,10 +54,10 @@ object CollisionDetector {
      * @return true if the point is inside the rectangle
      */
     fun pointInRect(x: Double, y: Double, rect: Rect): Boolean {
-        return x >= rect.x && x < rect.x + rect.width && 
+        return x >= rect.x && x < rect.x + rect.width &&
                y >= rect.y && y < rect.y + rect.height
     }
-    
+
     /**
      * Registers a drop zone for collision detection.
      *
@@ -66,7 +66,7 @@ object CollisionDetector {
     fun registerDropZone(zone: DropZone) {
         dropZones[zone.id] = zone
     }
-    
+
     /**
      * Unregisters a drop zone.
      *
@@ -78,7 +78,7 @@ object CollisionDetector {
             clearHighlight()
         }
     }
-    
+
     /**
      * Updates the rect of a registered drop zone.
      *
@@ -90,7 +90,7 @@ object CollisionDetector {
             dropZones[id] = zone.copy(rect = rect)
         }
     }
-    
+
     /**
      * Finds the drop zone containing the given point.
      *
@@ -106,12 +106,12 @@ object CollisionDetector {
             zone.enabled && pointInRect(x, y, zone.rect)
         }
     }
-    
+
     /**
      * Alias for findDropTarget for compatibility.
      */
     fun findDropZone(x: Double, y: Double): DropZone? = findDropTarget(x, y)
-    
+
     /**
      * Finds all drop zones containing the given point.
      *
@@ -127,7 +127,7 @@ object CollisionDetector {
             .filter { zone -> zone.enabled && pointInRect(x, y, zone.rect) }
             .sortedBy { it.rect.width * it.rect.height }
     }
-    
+
     /**
      * Highlights a drop zone (adds visual feedback).
      *
@@ -140,7 +140,7 @@ object CollisionDetector {
             onHighlight?.invoke(zoneId, true)
         }
     }
-    
+
     /**
      * Clears any current highlight.
      */
@@ -150,12 +150,12 @@ object CollisionDetector {
         }
         currentHighlight = null
     }
-    
+
     /**
      * Gets the currently highlighted zone ID.
      */
     fun getHighlightedZone(): String? = currentHighlight
-    
+
     /**
      * Clears all registered drop zones.
      */
@@ -163,12 +163,12 @@ object CollisionDetector {
         clearHighlight()
         dropZones.clear()
     }
-    
+
     /**
      * Alias for clearDropZones.
      */
     fun clearAll() = clearDropZones()
-    
+
     /**
      * Returns all registered drop zone IDs.
      */
@@ -176,7 +176,12 @@ object CollisionDetector {
 }
 
 /**
- * Represents a bounding rectangle.
+ * Bounding rectangle.
+ *
+ * @property x left coordinate
+ * @property y top coordinate
+ * @property width horizontal extent
+ * @property height vertical extent
  */
 data class Rect(
     val x: Double,
@@ -184,16 +189,18 @@ data class Rect(
     val width: Double,
     val height: Double
 ) {
+    /** Coordinate of the right edge. */
     val right: Double get() = x + width
+    /** Coordinate of the bottom edge. */
     val bottom: Double get() = y + height
-    
+
     /**
      * Checks if a point is inside this rectangle.
      */
     fun contains(px: Double, py: Double): Boolean {
         return px >= x && px < right && py >= y && py < bottom
     }
-    
+
     /**
      * Returns the area of this rectangle.
      */

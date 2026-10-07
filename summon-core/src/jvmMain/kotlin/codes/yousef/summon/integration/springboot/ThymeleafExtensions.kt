@@ -23,6 +23,11 @@ import org.thymeleaf.expression.IExpressionObjectFactory
 class SummonThymeleafDialect : AbstractDialect("summon"), IExpressionObjectDialect {
     private val expressionObjectFactory = SummonExpressionObjectFactory()
 
+    /**
+     * Returns expression object factory.
+     *
+     * @return The resulting value.
+     */
     override fun getExpressionObjectFactory(): IExpressionObjectFactory = expressionObjectFactory
 }
 
@@ -32,14 +37,32 @@ class SummonThymeleafDialect : AbstractDialect("summon"), IExpressionObjectDiale
 class SummonExpressionObjectFactory : IExpressionObjectFactory {
     private val expressionObjectNames = setOf("summon")
 
+    /**
+     * Returns all expression object names.
+     *
+     * @return The resulting value.
+     */
     override fun getAllExpressionObjectNames(): Set<String> = expressionObjectNames
 
+    /**
+     * Builds object.
+     *
+     * @param context The context value.
+     * @param expressionObjectName The expression object name value.
+     * @return The resulting value.
+     */
     override fun buildObject(context: IExpressionContext, expressionObjectName: String): Any? {
         return if (expressionObjectName == "summon") {
             SummonExpressionObject()
         } else null
     }
 
+    /**
+     * Returns whether cacheable.
+     *
+     * @param expressionObjectName The expression object name value.
+     * @return The resulting value.
+     */
     override fun isCacheable(expressionObjectName: String): Boolean = true
 }
 
@@ -92,6 +115,7 @@ class SummonExpressionObject {
         }
     }
 
+    /** Provides summon expression object factory and constant members. */
     companion object {
         /**
          * Singleton instance for global registration
@@ -108,4 +132,4 @@ class SummonExpressionObject {
             INSTANCE.registerComponent(name, factory)
         }
     }
-} 
+}

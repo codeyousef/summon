@@ -67,7 +67,17 @@ expect class Storage {
  * Storage factory functions
  */
 expect fun createLocalStorage(): Storage
+/**
+ * Creates session storage.
+ *
+ * @return The resulting value.
+ */
 expect fun createSessionStorage(): Storage
+/**
+ * Creates memory storage.
+ *
+ * @return The resulting value.
+ */
 expect fun createMemoryStorage(): Storage
 
 /**
@@ -81,25 +91,27 @@ fun getStorage(type: StorageType): Storage = when (type) {
 
 /**
  * Typed storage wrapper for working with structured data
+
+ * @property storage The storage value.
+ * @property keyPrefix The key prefix value.
  */
 class TypedStorage(private val storage: Storage, private val keyPrefix: String = "") {
 
     /**
      * Store a typed value (uses JSON serialization)
      */
-    fun <T> setTypedItem(key: String, value: T) {
-        val json = serializeToJson(value)
-        storage.setItem(prefixedKey(key), json)
+    inline fun <reified T> setTypedItem(key: String, value: T) {
+        setString(key, serializeToJson(value))
     }
 
     /**
      * Retrieve a typed value (uses JSON deserialization)
      */
-    fun <T> getTypedItem(key: String, clazz: Any): T? {
-        val json = storage.getItem(prefixedKey(key)) ?: return null
+    inline fun <reified T> getTypedItem(key: String): T? {
+        val json = getString(key) ?: return null
         return try {
-            deserializeFromJson<T>(json, clazz)
-        } catch (e: Exception) {
+            deserializeFromJson<T>(json)
+        } catch (_: Exception) {
             null
         }
     }
@@ -228,8 +240,14 @@ class TypedStorage(private val storage: Storage, private val keyPrefix: String =
 /**
  * Platform-specific JSON serialization functions
  */
-expect fun <T> serializeToJson(value: T): String
-expect fun <T> deserializeFromJson(json: String, clazz: Any): T
+expect inline fun <reified T> serializeToJson(value: T): String
+/**
+ * Executes the deserialize from JSON operation.
+ *
+ * @param json The json value.
+ * @return The resulting value.
+ */
+expect inline fun <reified T> deserializeFromJson(json: String): T
 
 /**
  * Storage utility functions
@@ -295,6 +313,11 @@ object StorageUtils {
 
 /**
  * Storage information data class
+
+ * @property type The type value.
+ * @property itemCount The item count value.
+ * @property approximateSize The approximate size value.
+ * @property keys The keys value.
  */
 data class StorageInfo(
     val type: StorageType,

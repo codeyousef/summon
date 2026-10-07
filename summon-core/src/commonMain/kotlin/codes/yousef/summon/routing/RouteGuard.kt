@@ -19,14 +19,26 @@ interface RouteGuard {
  * never replace server-side authorization.
  */
 sealed class GuardResult {
+    /** Provides allow operations. */
     data object Allow : GuardResult()
+    /** Provides loading operations. */
     data object Loading : GuardResult()
+    /** Provides locked operations. */
     data object Locked : GuardResult()
+    /** Provides feature disabled operations. */
     data object FeatureDisabled : GuardResult()
+    /** Provides permission denied operations. */
     data object PermissionDenied : GuardResult()
+    /**
+     * Represents redirect.
+     *
+     * @property path Target path.
+     */
     data class Redirect(val path: String) : GuardResult()
+    /** Provides deny operations. */
     data object Deny : GuardResult()
 
+    /** The property declaration value. */
     val safeReason: String
         get() = when (this) {
             Allow -> "allowed"

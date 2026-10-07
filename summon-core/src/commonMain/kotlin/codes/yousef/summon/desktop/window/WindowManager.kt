@@ -17,7 +17,7 @@
  *
  * ```kotlin
  * val window = WindowManager.open(
- *     url = "/settings",
+ *     URL = "/settings",
  *     options = WindowOptions(
  *         width = 800,
  *         height = 600,
@@ -52,6 +52,18 @@ package codes.yousef.summon.desktop.window
 
 /**
  * Configuration options for opening a new window.
+
+ * @property width The width value.
+ * @property height The height value.
+ * @property left The left value.
+ * @property top The top value.
+ * @property title The title value.
+ * @property menubar The menubar value.
+ * @property toolbar The toolbar value.
+ * @property location The location value.
+ * @property status The status value.
+ * @property resizable The resizable value.
+ * @property scrollbars The scrollbars value.
  */
 data class WindowOptions(
     /** Width of the window in pixels */
@@ -80,6 +92,14 @@ data class WindowOptions(
 
 /**
  * Represents information about the user's screen.
+
+ * @property width The width value.
+ * @property height The height value.
+ * @property availWidth The avail width value.
+ * @property availHeight The avail height value.
+ * @property colorDepth The color depth value.
+ * @property pixelDepth The pixel depth value.
+ * @property devicePixelRatio The device pixel ratio value.
  */
 data class ScreenInfo(
     /** Total screen width in pixels */

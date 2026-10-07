@@ -8,12 +8,19 @@ import codes.yousef.summon.runtime.Composable
  * This reduces the complexity of calling code when there are many parameters.
  */
 class AlertBuilder {
+    /** Alert body text. */
     var message: String = ""
+    /** Optional alert heading. */
     var title: String? = null
+    /** Semantic visual variant. */
     var variant: AlertVariant = AlertVariant.INFO
+    /** Optional dismissal callback. */
     var onDismiss: (() -> Unit)? = null
+    /** Optional leading icon content. */
     var icon: (@Composable () -> Unit)? = null
+    /** Optional action content. */
     var actions: (@Composable () -> Unit)? = null
+    /** Modifier applied to the alert root. */
     var modifier: Modifier = Modifier()
 
     /**

@@ -12,8 +12,11 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * Icon type to distinguish between different icon sources
  */
 enum class IconType {
-    SVG,    // SVG vector icons
-    FONT,   // Font icons (e.g., Font Awesome, Material Icons)
+    /** The svg icon type option. */
+    SVG,
+    /** The font icon type option. */
+    FONT,
+    /** The image icon type option. */
     IMAGE   // Image-based icons (fallback option)
 }
 
@@ -75,43 +78,58 @@ fun Icon(
 
 // --- Predefined Icons and Helper Functions (Adapted to call the Composable) ---
 
+/** Common icon components and size values. */
 object IconDefaults {
     // Size presets
+    /** Standard icon CSS sizes. */
     object Size {
+        /** Compact icon size. */
         const val SMALL = "16px"
+        /** Default icon size. */
         const val MEDIUM = "24px"
+        /** Prominent icon size. */
         const val LARGE = "32px"
     }
 
     // Common icons - Now call the @Composable function
+    /** Renders the standard add icon. */
     @Composable
     fun Add(modifier: Modifier = Modifier()) = Icon("add", modifier)
 
+    /** Renders the standard delete icon. */
     @Composable
     fun Delete(modifier: Modifier = Modifier()) = Icon("delete", modifier)
 
+    /** Renders the standard edit icon. */
     @Composable
     fun Edit(modifier: Modifier = Modifier()) = Icon("edit", modifier)
 
+    /** Renders the standard download icon. */
     @Composable
     fun Download(modifier: Modifier = Modifier()) = Icon("download", modifier)
 
+    /** Renders the standard upload icon. */
     @Composable
     fun Upload(modifier: Modifier = Modifier()) = Icon("upload", modifier)
 
     // Add common status icons (using Material Icon names as examples)
+    /** Renders an informational status icon. */
     @Composable
     fun Info(modifier: Modifier = Modifier()) = MaterialIcon("info", modifier)
 
+    /** Renders a success status icon. */
     @Composable
     fun CheckCircle(modifier: Modifier = Modifier()) = MaterialIcon("check_circle", modifier)
 
+    /** Renders a warning status icon. */
     @Composable
     fun Warning(modifier: Modifier = Modifier()) = MaterialIcon("warning", modifier)
 
+    /** Renders an error status icon. */
     @Composable
     fun Error(modifier: Modifier = Modifier()) = MaterialIcon("error", modifier)
 
+    /** Renders a close or dismiss icon. */
     @Composable
     fun Close(modifier: Modifier = Modifier()) = MaterialIcon("close", modifier) // Useful for dismiss
 }

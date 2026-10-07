@@ -9,7 +9,7 @@ import io.quarkus.qute.TemplateExtension
  * Extension that provides custom tags for Qute templates to work with Summon components.
  *
  * Usage:
- * ```html
+ * ```HTML
  * {component.render}
  * ```
  *
@@ -76,4 +76,4 @@ object QuteTagExtension {
 
         return RawString(wrapped)
     }
-} 
+}

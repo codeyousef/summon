@@ -118,24 +118,58 @@ object SummonErrorBoundary {
  * Result type for error boundary operations.
  */
 sealed class ErrorBoundaryResult<T> {
+    /**
+     * Represents success.
+     *
+     * @property value Value to process.
+     */
     data class Success<T>(val value: T) : ErrorBoundaryResult<T>()
+    /**
+     * Represents error.
+     *
+     * @property error The error value.
+     * @property action The action value.
+     */
     data class Error<T>(val error: Throwable, val action: ErrorAction) : ErrorBoundaryResult<T>()
 
+    /**
+     * Returns or null.
+     *
+     * @return The resulting value.
+     */
     fun getOrNull(): T? = when (this) {
         is Success -> value
         is Error -> null
     }
 
+    /**
+     * Returns or else.
+     *
+     * @param default The default value.
+     * @return The resulting value.
+     */
     fun getOrElse(default: T): T = when (this) {
         is Success -> value
         is Error -> default
     }
 
+    /**
+     * Handles success.
+     *
+     * @param action The action value.
+     * @return The resulting value.
+     */
     fun onSuccess(action: (T) -> Unit): ErrorBoundaryResult<T> {
         if (this is Success) action(value)
         return this
     }
 
+    /**
+     * Handles error.
+     *
+     * @param action The action value.
+     * @return The resulting value.
+     */
     fun onError(action: (Throwable, ErrorAction) -> Unit): ErrorBoundaryResult<T> {
         if (this is Error) action(error, this.action)
         return this
@@ -225,6 +259,12 @@ object FallbackManager {
 
 /**
  * Configuration for progressive enhancement.
+
+ * @property plan The plan value.
+ * @property polyfills The polyfills value.
+ * @property optimizations The optimizations value.
+ * @property workarounds The workarounds value.
+ * @property fallbackStrategy The fallback strategy value.
  */
 data class EnhancementConfiguration(
     val plan: EnhancementPlan,
@@ -373,9 +413,13 @@ object PerformanceDegradationHandler {
  * Actions to take when performance degrades.
  */
 enum class DegradationAction {
+    /** The none degradation action option. */
     None,
+    /** The reduce memory usage degradation action option. */
     ReduceMemoryUsage,
+    /** The reduce visual complexity degradation action option. */
     ReduceVisualComplexity,
+    /** The optimize rendering degradation action option. */
     OptimizeRendering
 }
 

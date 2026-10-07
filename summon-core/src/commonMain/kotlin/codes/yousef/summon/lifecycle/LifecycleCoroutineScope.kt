@@ -13,7 +13,9 @@ import kotlin.coroutines.CoroutineContext
  * reaches [LifecycleState.DESTROYED]. Disposing it does not destroy the lifecycle owner.
  */
 interface LifecycleCoroutineScope : CoroutineScope {
+    /** The property declaration value. */
     val lifecycleOwner: LifecycleOwner
+    /** The property declaration value. */
     val isDisposed: Boolean
 
     /** Cancels this scope. Repeated calls have no effect. */

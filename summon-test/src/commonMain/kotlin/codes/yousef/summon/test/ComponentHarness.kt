@@ -26,7 +26,9 @@ fun Modifier.testState(name: String, value: Any): Modifier {
     return attribute("$TEST_STATE_PREFIX$name", encoded)
 }
 
+/** HTML attribute written by [Modifier.testTag]. */
 const val TEST_TAG_ATTRIBUTE: String = "data-summon-test-tag"
+/** HTML attribute prefix written by [Modifier.testState]. */
 const val TEST_STATE_PREFIX: String = "data-summon-test-state-"
 
 internal fun semanticRole(elementName: String, explicitRole: String?, inputType: String?): String =
@@ -74,21 +76,26 @@ internal interface SemanticHarnessAdapter {
 
 /** Deterministic, owner-scoped scheduler used by component harnesses. */
 class HarnessScheduler : RecompositionScheduler {
+    /** Provides harness scheduler factory and constant members. */
     companion object {
+        /** Maximum queued recomposition callbacks before a harness rejects runaway work. */
         const val DEFAULT_MAX_PENDING_WORK: Int = 10_000
     }
 
     private val pending = ArrayDeque<() -> Unit>()
     private var closed = false
 
+    /** Number of recomposition callbacks waiting to run. */
     val pendingWorkCount: Int get() = pending.size
 
+    /** Queues [work] for deterministic execution by the owning harness. */
     override fun scheduleRecomposition(work: () -> Unit) {
         check(!closed) { "Harness scheduler is disposed" }
         check(pending.size < DEFAULT_MAX_PENDING_WORK) { "Harness pending-work capacity exceeded" }
         pending.addLast(work)
     }
 
+    /** Cancels pending recomposition. */
     override fun cancelPendingRecomposition() {
         pending.clear()
     }
@@ -122,16 +129,23 @@ class HarnessScheduler : RecompositionScheduler {
 /**
  * Owns one rendered component root and its scheduler. Use [withComponentHarness] so failures in
  * setup, actions, or assertions still dispose the mounted root.
+
+ * @property adapter The adapter value.
  */
 class ComponentHarness internal constructor(private var adapter: SemanticHarnessAdapter?) : AutoCloseable {
+    /** Provides component harness factory and constant members. */
     companion object {
+        /** Default upper bound for waiting until the harness becomes idle. */
         const val DEFAULT_IDLE_TIMEOUT_MS: Long = 1_000
+        /** Maximum diagnostic tree description size. */
         const val MAX_TREE_DESCRIPTION_CHARS: Int = 8_192
+        /** Maximum serialized semantic snapshot size. */
         const val MAX_SEMANTIC_SNAPSHOT_CHARS: Int = 1_048_576
     }
 
     private var disposed = false
 
+    /** Returns the unique live node whose text matches [text]. */
     fun onNodeWithText(text: String, substring: Boolean = false): SemanticNodeHandle {
         require(text.isNotEmpty()) { "Text matcher must not be empty" }
         return unique("text '$text'") { node ->
@@ -139,31 +153,39 @@ class ComponentHarness internal constructor(private var adapter: SemanticHarness
         }
     }
 
+    /** Returns the unique live node carrying [tag]. */
     fun onNodeWithTag(tag: String): SemanticNodeHandle {
         require(tag.isNotEmpty()) { "Tag matcher must not be empty" }
         return unique("tag '$tag'") { it.tag == tag }
     }
 
+    /** Asserts that no live node has text matching [text]. */
     fun assertNoNodeWithText(text: String, substring: Boolean = false): ComponentHarness {
         val matches = snapshots().filter { if (substring) it.text.contains(text) else it.text == text }
         if (matches.isNotEmpty()) fail("Expected no node with text '$text', found ${matches.size}")
         return this
     }
 
+    /** Asserts that no live node carries [tag]. */
     fun assertNoNodeWithTag(tag: String): ComponentHarness {
         val matches = snapshots().filter { it.tag == tag }
         if (matches.isNotEmpty()) fail("Expected no node with tag '$tag', found ${matches.size}")
         return this
     }
 
+    /** Runs scheduled work until idle or throws after [timeoutMillis]. */
     fun awaitIdle(timeoutMillis: Long = DEFAULT_IDLE_TIMEOUT_MS): ComponentHarness {
         adapter().scheduler.drain(timeoutMillis)
         return this
     }
 
     /**
-     * Serializes the live semantic tree using a versioned deterministic format. Runtime identities,
-     * callback implementations, timestamps and renderer-generated IDs are intentionally excluded.
+     * Serializes the live semantic tree using a versioned deterministic format.
+     *
+     * Runtime identities, callback implementations, timestamps, and renderer-generated IDs are
+     * intentionally excluded. Output is bounded by [MAX_SEMANTIC_SNAPSHOT_CHARS].
+     *
+     * @throws AssertionError when the bounded snapshot limit is exceeded
      */
     fun semanticSnapshot(): String {
         val nodes = snapshots()
@@ -209,8 +231,10 @@ class ComponentHarness internal constructor(private var adapter: SemanticHarness
         return this
     }
 
+    /** Closes the operation. */
     override fun close() = dispose()
 
+    /** Disposes the operation. */
     fun dispose() {
         if (disposed) return
         disposed = true
@@ -319,21 +343,29 @@ class ComponentHarness internal constructor(private var adapter: SemanticHarness
 
 }
 
-/** Identity-bearing semantic handle. Any operation after detach, replacement, or disposal fails. */
+/**
+ * Identity-bearing semantic handle. Any operation after detach, replacement, or disposal fails.
+ *
+ * @property harness owning component harness
+ * @property identity stable semantic-node identity
+ */
 class SemanticNodeHandle internal constructor(
     private val harness: ComponentHarness,
     private val identity: Long
 ) {
+    /** Asserts that this handle still resolves to a live node. */
     fun assertExists(): SemanticNodeHandle {
         harness.requireLive(identity)
         return this
     }
 
+    /** Asserts that this handle no longer resolves to a live node. */
     fun assertDoesNotExist(): SemanticNodeHandle {
         if (harness.resolve(identity) != null) throw AssertionError("Expected semantic node to be detached")
         return this
     }
 
+    /** Asserts that the node is connected, visible, and not inert. */
     fun assertIsDisplayed(): SemanticNodeHandle {
         val node = harness.requireLive(identity)
         if (!node.displayed || node.inert || !node.connected) {
@@ -342,36 +374,45 @@ class SemanticNodeHandle internal constructor(
         return this
     }
 
+    /** Asserts that the node's complete text equals [expected]. */
     fun assertTextEquals(expected: String): SemanticNodeHandle {
         val actual = harness.requireLive(identity).text
         if (actual != expected) throw AssertionError("Expected text '$expected', found '$actual'")
         return this
     }
 
+    /** Asserts that the node is enabled and not inert. */
     fun assertEnabled(): SemanticNodeHandle {
         val node = harness.requireLive(identity)
         if (!node.enabled || node.inert) throw AssertionError("Expected node to be enabled")
         return this
     }
 
+    /** Asserts the named string state equals [expected]. */
     fun assertState(name: String, expected: String): SemanticNodeHandle = assertStateEncoded(name, expected)
+    /** Asserts the named Boolean state equals [expected]. */
     fun assertState(name: String, expected: Boolean): SemanticNodeHandle = assertStateEncoded(name, expected.toString())
+    /** Asserts the named integral state equals [expected]. */
     fun assertState(name: String, expected: Long): SemanticNodeHandle = assertStateEncoded(name, expected.toString())
+    /** Asserts the named finite floating-point state equals [expected]. */
     fun assertState(name: String, expected: Double): SemanticNodeHandle {
         require(expected.isFinite()) { "Expected state must be finite" }
         return assertStateEncoded(name, expected.toString())
     }
 
+    /** Clicks the live node and drains resulting recompositions. */
     fun performClick(): SemanticNodeHandle {
         harness.perform(identity) { click(identity) }
         return this
     }
 
+    /** Replaces editable content with [value] and drains resulting recompositions. */
     fun performTextInput(value: String): SemanticNodeHandle {
         harness.perform(identity) { textInput(identity, value) }
         return this
     }
 
+    /** Scrolls the live node into view and drains resulting recompositions. */
     fun performScrollTo(): SemanticNodeHandle {
         harness.perform(identity) { scrollTo(identity) }
         return this
@@ -385,7 +426,11 @@ class SemanticNodeHandle internal constructor(
     }
 }
 
-/** Runs [block] and always disposes [harness], including when setup, actions, or assertions fail. */
+/**
+ * Runs [block] and always disposes [harness], including when setup, an action, or an assertion
+ * fails.
+ *
+ */
 inline fun <T> withComponentHarness(harness: ComponentHarness, block: (ComponentHarness) -> T): T =
     try {
         block(harness)

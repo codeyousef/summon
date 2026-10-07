@@ -14,6 +14,12 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * Represents a keyboard shortcut for a menu item.
+
+ * @property key Lookup key.
+ * @property ctrl The ctrl value.
+ * @property shift The shift value.
+ * @property alt The alt value.
+ * @property meta The meta value.
  */
 data class KeyboardShortcut(
     /** The main key (e.g., "S", "N", "F1") */
@@ -43,6 +49,15 @@ data class KeyboardShortcut(
 
 /**
  * Represents a single menu item.
+
+ * @property label The label value.
+ * @property onClick Callback invoked when click.
+ * @property disabled The disabled value.
+ * @property shortcut The shortcut value.
+ * @property icon The icon value.
+ * @property submenu The submenu value.
+ * @property isSeparator The is separator value.
+ * @property checked The checked value.
  */
 data class MenuItem(
     /** Display label for the menu item */
@@ -62,6 +77,7 @@ data class MenuItem(
     /** Whether this item is checked (for toggle items) */
     val checked: Boolean? = null
 ) {
+    /** Provides menu item factory and constant members. */
     companion object {
         /**
          * Creates a separator menu item.
@@ -75,6 +91,10 @@ data class MenuItem(
 
 /**
  * Represents a top-level menu in the menu bar.
+
+ * @property label The label value.
+ * @property items The items value.
+ * @property disabled The disabled value.
  */
 data class Menu(
     /** Display label for the menu */

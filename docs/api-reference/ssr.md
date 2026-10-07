@@ -68,7 +68,8 @@ object ServerSideRenderUtils {
     fun renderPageToString(
         rootComposable: @Composable () -> Unit,
         publicState: PublicHydrationState? = null,
-        includeHydrationScript: Boolean = true
+        includeHydrationScript: Boolean = true,
+        seoMetadata: SeoMetadata = SeoMetadata()
     ): String
 
     fun renderWithSEO(
@@ -80,13 +81,14 @@ object ServerSideRenderUtils {
 
 #### Methods
 
-- `renderPageToString(rootComposable, publicState, includeHydrationScript): String`
+- `renderPageToString(rootComposable, publicState, includeHydrationScript, seoMetadata): String`
   - **Parameters**:
     - `rootComposable` - The root composable to render
     - `publicState` - Bounded ASCII JSON explicitly approved for client exposure; never vault or session data
     - `includeHydrationScript` - Whether to include inert hydration data and the external first-party bundle
+    - `seoMetadata` - Escaped title, description, canonical URL, social cards, and custom head metadata
   - **Returns**: Complete HTML page string with proper document structure
-  - **Use Case**: High-level page rendering with optional strict-CSP hydration
+  - **Use Case**: High-level page rendering with optional strict-CSP hydration and SEO metadata
 
 - `renderWithSEO(rootComposable, seoMetadata): String`
   - **Parameters**:

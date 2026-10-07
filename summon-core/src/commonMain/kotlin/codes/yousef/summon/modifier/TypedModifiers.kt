@@ -36,6 +36,13 @@ fun Modifier.fontStyle(value: FontStyle, component: TextComponent? = null): Modi
  * Only applicable to text components.
  */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+/**
+ * Executes the font weight operation.
+ *
+ * @param value Value to process.
+ * @param component The component value.
+ * @return The resulting value.
+ */
 @Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
 fun Modifier.fontWeight(value: String, component: TextComponent? = null): Modifier =
     style("font-weight", value)
@@ -139,6 +146,13 @@ fun Modifier.textTransform(value: TextTransform, component: TextComponent? = nul
  * Only applicable to media components.
  */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+/**
+ * Executes the object fit operation.
+ *
+ * @param value Value to process.
+ * @param component The component value.
+ * @return The resulting value.
+ */
 @Deprecated("Extension shadowed by member function", level = DeprecationLevel.HIDDEN)
 fun Modifier.objectFit(value: String, component: MediaComponent? = null): Modifier =
     style("object-fit", value)

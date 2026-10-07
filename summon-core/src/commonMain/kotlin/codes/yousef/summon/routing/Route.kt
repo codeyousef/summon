@@ -47,7 +47,8 @@ data class Route(
         return RouteParams(params)
     }
 
+    /** Provides route factory and constant members. */
     companion object {
         private val PARAM_REGEX = Regex("(?::([\\w-]+)|\\{([\\w-]+)\\})")
     }
-} 
+}

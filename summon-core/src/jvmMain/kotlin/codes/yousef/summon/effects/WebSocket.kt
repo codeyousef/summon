@@ -38,9 +38,9 @@ actual class WebSocketClient {
         this.scope = scope
         events = Channel(config.maxQueuedEvents)
         scope.launch {
-            while (isActive) {
-                val event = events.receive()
+            for (event in events) {
                 while (isActive && eventHandler == null) delay(1)
+                if (!isActive) break
                 eventHandler?.invoke(event)
             }
         }

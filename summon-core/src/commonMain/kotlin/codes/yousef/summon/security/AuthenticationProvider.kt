@@ -29,6 +29,11 @@ interface AuthenticationProvider {
 
 /**
  * Basic implementation of Authentication that can be used by providers
+
+ * @property credentials The credentials value.
+ * @property principal The principal value.
+ * @property isAuthenticated The is authenticated value.
+ * @property details The details value.
  */
 data class SimpleAuthentication(
     override val credentials: Credentials,
@@ -41,11 +46,20 @@ data class SimpleAuthentication(
  * JWT-based authentication provider for frontend applications.
  * This provider handles JWT tokens received from the backend but does not perform
  * token signing or verification, which should be done on the backend.
+
+ * @property apiBaseUrl The api base url value.
+ * @property tokenExpiration The token expiration value.
  */
 class JwtAuthenticationProvider(
     private val apiBaseUrl: String,
     private val tokenExpiration: Long = 3600L // 1 hour in seconds
 ) : AuthenticationProvider {
+    /**
+     * Executes the authenticate operation.
+     *
+     * @param credentials The credentials value.
+     * @return The resulting value.
+     */
     override suspend fun authenticate(credentials: Credentials): AuthenticationResult {
         return when (credentials) {
             is UsernamePasswordCredentials -> {
@@ -91,6 +105,12 @@ class JwtAuthenticationProvider(
         }
     }
 
+    /**
+     * Executes the refresh operation.
+     *
+     * @param authentication The authentication value.
+     * @return The resulting value.
+     */
     override suspend fun refresh(authentication: Authentication): AuthenticationResult {
         return when (val credentials = authentication.credentials) {
             is JwtCredentials -> {
@@ -126,6 +146,11 @@ class JwtAuthenticationProvider(
         }
     }
 
+    /**
+     * Executes the invalidate operation.
+     *
+     * @param authentication The authentication value.
+     */
     override suspend fun invalidate(authentication: Authentication) {
         // In a frontend context, we just need to clear the token
         // The backend should handle token invalidation
@@ -260,9 +285,13 @@ class JwtAuthenticationProvider(
 
 /**
  * Response from the backend containing token information
+
+ * @property token The token value.
+ * @property refreshToken The refresh token value.
+ * @property expiresIn The expires in value.
  */
 data class TokenResponse(
     val token: String,
     val refreshToken: String? = null,
     val expiresIn: Long? = null
-) 
+)

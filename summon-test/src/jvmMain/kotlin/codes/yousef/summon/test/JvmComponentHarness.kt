@@ -13,8 +13,11 @@ import org.jsoup.nodes.Element
 
 /**
  * Mounts a simulated JVM component root using the actual SSR renderer and callback registry.
+ *
  * This adapter qualifies semantic rendering and callback ownership, not browser focus, DOM events,
- * storage, CSP, scrolling, or hydration.
+ * storage, CSP, scrolling, or hydration. Dispose the returned owner, preferably through
+ * [withComponentHarness].
+ *
  */
 fun mountJvmComponentHarness(content: @Composable () -> Unit): ComponentHarness {
     val adapter = JvmSemanticAdapter(content)

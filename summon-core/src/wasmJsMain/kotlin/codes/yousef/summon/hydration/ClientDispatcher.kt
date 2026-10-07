@@ -34,6 +34,11 @@ object ClientDispatcher {
      */
     var syncMode = false
 
+    /**
+     * Executes the dispatch operation.
+     *
+     * @param actionJson The action json value.
+     */
     fun dispatch(actionJson: String) {
         try {
             val action = json.decodeFromString<UiAction>(actionJson)
@@ -43,6 +48,11 @@ object ClientDispatcher {
         }
     }
 
+    /**
+     * Executes the dispatch operation.
+     *
+     * @param action The action value.
+     */
     fun dispatch(action: UiAction) {
         when (action) {
             is UiAction.Navigate -> {
@@ -59,7 +69,7 @@ object ClientDispatcher {
 
     /**
      * Toggles the visibility of an element and updates related accessibility attributes.
-     * For hamburger menus, also updates the icon and aria-expanded state of the trigger button.
+     * For hamburger menus, also updates the icon and ARIA-expanded state of the trigger button.
      * For disclosure toggles, updates the +/- icon.
      *
      * Uses DOMBatcher to batch read and write operations separately,

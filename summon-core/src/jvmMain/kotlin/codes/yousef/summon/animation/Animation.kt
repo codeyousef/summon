@@ -7,9 +7,13 @@ import kotlin.concurrent.thread
  * Represents the status of an animation.
  */
 actual enum class AnimationStatus {
-    IDLE,    // Animation has not started or has been reset.
-    RUNNING, // Animation is currently playing.
-    PAUSED,  // Animation is paused.
+    /** The idle animation status option. */
+    IDLE,
+    /** The running animation status option. */
+    RUNNING,
+    /** The paused animation status option. */
+    PAUSED,
+    /** The stopped animation status option. */
     STOPPED  // Animation has finished or been explicitly stopped.
 }
 
@@ -86,27 +90,28 @@ actual object AnimationController {
         // Create and start animation thread
         animationThread = thread(start = true, isDaemon = true) {
             try {
-                while (currentStatus.get() == AnimationStatus.RUNNING) {
-                    val currentTime = System.currentTimeMillis()
-                    val elapsedTime = currentTime - startTime
-
-                    if (elapsedTime >= animationDuration) {
-                        // Animation complete
-                        currentProgress.set(1f)
-                        currentStatus.set(AnimationStatus.STOPPED)
-                        break
-                    } else if (currentStatus.get() == AnimationStatus.RUNNING) {
-                        // Update progress
-                        val newProgress = (elapsedTime.toFloat() / animationDuration).coerceIn(0f, 1f)
-                        currentProgress.set(newProgress)
+                while (true) {
+                    when (currentStatus.get()) {
+                        AnimationStatus.RUNNING -> {
+                            val currentTime = System.currentTimeMillis()
+                            val elapsedTime = currentTime - startTime
+                            if (elapsedTime >= animationDuration) {
+                                currentProgress.set(1f)
+                                currentStatus.set(AnimationStatus.STOPPED)
+                                break
+                            }
+                            val newProgress = (elapsedTime.toFloat() / animationDuration).coerceIn(0f, 1f)
+                            currentProgress.set(newProgress)
+                        }
+                        AnimationStatus.PAUSED -> Unit
+                        AnimationStatus.IDLE, AnimationStatus.STOPPED -> break
                     }
-
-                    // Small delay to avoid excessive CPU usage
-                    Thread.sleep(16) // ~60fps
+                    Thread.sleep(16)
                 }
-            } catch (e: InterruptedException) {
-                // Thread was interrupted, stop animation
-                currentStatus.set(AnimationStatus.STOPPED)
+            } catch (_: InterruptedException) {
+                if (currentStatus.get() == AnimationStatus.RUNNING || currentStatus.get() == AnimationStatus.PAUSED) {
+                    currentStatus.set(AnimationStatus.STOPPED)
+                }
             }
         }
     }
@@ -118,4 +123,4 @@ actual object AnimationController {
         animationThread?.interrupt()
         animationThread = null
     }
-} 
+}

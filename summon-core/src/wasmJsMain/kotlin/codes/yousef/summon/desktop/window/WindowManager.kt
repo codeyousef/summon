@@ -6,54 +6,179 @@ import codes.yousef.summon.runtime.wasmConsoleError
  * External declarations for Window APIs in WASM.
  */
 @JsName("window")
+/** Provides wasm window object operations. */
 external object WasmWindowObject : JsAny {
+    /**
+     * Opens the operation.
+     *
+     * @param url Target URL.
+     * @param target The target value.
+     * @param features The features value.
+     * @return The resulting value.
+     */
     fun open(url: String, target: String, features: String): JsAny?
+    /** Moves focus to this element. */
     fun focus()
+    /**
+     * Executes the move to operation.
+     *
+     * @param x The x value.
+     * @param y The y value.
+     */
     fun moveTo(x: Int, y: Int)
+    /**
+     * Executes the resize to operation.
+     *
+     * @param width The width value.
+     * @param height The height value.
+     */
     fun resizeTo(width: Int, height: Int)
+    /** The property declaration value. */
     val screenX: Int
+    /** The property declaration value. */
     val screenY: Int
+    /** The property declaration value. */
     val outerWidth: Int
+    /** The property declaration value. */
     val outerHeight: Int
+    /** The property declaration value. */
     val devicePixelRatio: Double
+    /** The property declaration value. */
     val screen: WasmScreen
 }
 
+/** Contract for WASM screen. */
 external interface WasmScreen : JsAny {
+    /** The property declaration value. */
     val width: Int
+    /** The property declaration value. */
     val height: Int
+    /** The property declaration value. */
     val availWidth: Int
+    /** The property declaration value. */
     val availHeight: Int
+    /** The property declaration value. */
     val colorDepth: Int
+    /** The property declaration value. */
     val pixelDepth: Int
 }
 
+/** Contract for WASM opened window. */
 external interface WasmOpenedWindow : JsAny {
+    /** Closes the operation. */
     fun close()
+    /** Moves focus to this element. */
     fun focus()
+    /** The property declaration value. */
     val closed: Boolean
+    /**
+     * Executes the post message operation.
+     *
+     * @param message Message content.
+     * @param targetOrigin The target origin value.
+     */
     fun postMessage(message: JsAny?, targetOrigin: String)
 }
 
+/**
+ * Returns window href.
+ *
+ * @param window The window value.
+ * @return The resulting value.
+ */
 @JsFun("(w) => w.location ? w.location.href : null")
+/**
+ * Returns window href.
+ *
+ * @param window The window value.
+ * @return The resulting value.
+ */
 external fun getWindowHref(window: JsAny): String?
 
+/**
+ * Sets window href.
+ *
+ * @param window The window value.
+ * @param url Target URL.
+ */
 @JsFun("(w, url) => { if (w.location) w.location.href = url; }")
+/**
+ * Sets window href.
+ *
+ * @param window The window value.
+ * @param url Target URL.
+ */
 external fun setWindowHref(window: JsAny, url: String)
 
+/**
+ * Executes the str to JS operation.
+ *
+ * @param str The str value.
+ * @return The resulting value.
+ */
 @JsFun("(str) => str")
+/**
+ * Executes the str to js operation.
+ *
+ * @param str The str value.
+ * @return The resulting value.
+ */
 external fun strToJs(str: String): JsAny
 
+/**
+ * Returns session storage item.
+ *
+ * @param key Lookup key.
+ * @return The resulting value.
+ */
 @JsFun("(key) => window.sessionStorage ? window.sessionStorage.getItem(key) : null")
+/**
+ * Returns session storage item.
+ *
+ * @param key Lookup key.
+ * @return The resulting value.
+ */
 external fun getSessionStorageItem(key: String): String?
 
+/**
+ * Sets session storage item.
+ *
+ * @param key Lookup key.
+ * @param value Value to process.
+ */
 @JsFun("(key, value) => { if (window.sessionStorage) window.sessionStorage.setItem(key, value); }")
+/**
+ * Sets session storage item.
+ *
+ * @param key Lookup key.
+ * @param value Value to process.
+ */
 external fun setSessionStorageItem(key: String, value: String)
 
+/**
+ * Executes the JS date now operation.
+ *
+ * @return The resulting value.
+ */
 @JsFun("() => Date.now()")
+/**
+ * Executes the js date now operation.
+ *
+ * @return The resulting value.
+ */
 external fun jsDateNow(): Double
 
+/**
+ * Executes the JS math random operation.
+ *
+ * @return The resulting value.
+ */
 @JsFun("() => Math.random()")
+/**
+ * Executes the js math random operation.
+ *
+ * @return The resulting value.
+ */
 external fun jsMathRandom(): Double
 
 /**
@@ -63,6 +188,7 @@ actual object WindowManager {
 
     private var _windowId: String? = null
 
+    /** The property declaration value. */
     actual val currentWindowId: String?
         get() {
             if (_windowId != null) return _windowId
@@ -82,6 +208,14 @@ actual object WindowManager {
             }
         }
 
+    /**
+     * Opens the operation.
+     *
+     * @param url Target URL.
+     * @param target The target value.
+     * @param options The options value.
+     * @return The resulting value.
+     */
     actual fun open(
         url: String,
         target: String,
@@ -97,6 +231,11 @@ actual object WindowManager {
         }
     }
 
+    /**
+     * Returns screen info.
+     *
+     * @return The resulting value.
+     */
     actual fun getScreenInfo(): ScreenInfo {
         return try {
             val screen = WasmWindowObject.screen
@@ -115,6 +254,11 @@ actual object WindowManager {
         }
     }
 
+    /**
+     * Returns current window bounds.
+     *
+     * @return The resulting value.
+     */
     actual fun getCurrentWindowBounds(): Pair<Pair<Int, Int>, Pair<Int, Int>> {
         return try {
             val position = Pair(WasmWindowObject.screenX, WasmWindowObject.screenY)
@@ -125,6 +269,12 @@ actual object WindowManager {
         }
     }
 
+    /**
+     * Executes the move to operation.
+     *
+     * @param x The x value.
+     * @param y The y value.
+     */
     actual fun moveTo(x: Int, y: Int) {
         try {
             WasmWindowObject.moveTo(x, y)
@@ -133,6 +283,12 @@ actual object WindowManager {
         }
     }
 
+    /**
+     * Executes the resize to operation.
+     *
+     * @param width The width value.
+     * @param height The height value.
+     */
     actual fun resizeTo(width: Int, height: Int) {
         try {
             WasmWindowObject.resizeTo(width, height)
@@ -141,6 +297,7 @@ actual object WindowManager {
         }
     }
 
+    /** Moves focus to this element. */
     actual fun focus() {
         try {
             WasmWindowObject.focus()
@@ -149,6 +306,11 @@ actual object WindowManager {
         }
     }
 
+    /**
+     * Executes the are popups likely blocked operation.
+     *
+     * @return The resulting value.
+     */
     actual fun arePopupsLikelyBlocked(): Boolean {
         return try {
             val testWindow = WasmWindowObject.open("", "_blank", "width=1,height=1")

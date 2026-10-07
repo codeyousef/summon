@@ -9,7 +9,19 @@ import org.w3c.dom.HTMLStyleElement
 import org.w3c.dom.events.Event
 import org.w3c.dom.url.URL
 
-/** Explicit debug-only configuration. Source maps are trusted inputs tied to [buildId]. */
+/**
+ * Explicit debug-only configuration.
+ *
+ * [sourceMaps] must be trusted same-origin assets tied exactly to [buildId]. [links] is opt-in and
+ * produces no source link unless its revision, origin, workspace root, and protocol all validate.
+ * The overlay is supported only by browser JS/Wasm source sets.
+
+ * @property buildId The build id value.
+ * @property sourceMaps The source maps value.
+ * @property textPolicy The text policy value.
+ * @property links The links value.
+ * @property styleNonce The style nonce value.
+ */
 data class BrowserErrorOverlayConfig(
     val buildId: String,
     val sourceMaps: List<VerifiedSourceMapAsset> = emptyList(),
@@ -20,7 +32,10 @@ data class BrowserErrorOverlayConfig(
 
 /**
  * Installs removable `error` and `unhandledrejection` listeners and a CSP-compatible development
- * overlay. The host event is observed but never canceled. Dispose before releasing the debug root.
+ * overlay. The host event is observed but never canceled. Dispose the returned owner before
+ * releasing the debug root.
+ *
+ * @throws IllegalArgumentException if a source-map URL is cross-origin or embeds credentials
  */
 fun installBrowserErrorOverlay(config: BrowserErrorOverlayConfig): BrowserErrorOverlay {
     config.sourceMaps.forEach { asset ->
@@ -34,12 +49,18 @@ fun installBrowserErrorOverlay(config: BrowserErrorOverlayConfig): BrowserErrorO
     return BrowserErrorOverlay(config, VerifiedSourceMapCatalog.parse(config.buildId, config.sourceMaps))
 }
 
-/** Owned development error panel returned by [installBrowserErrorOverlay]. */
+/**
+ * Owned development error panel returned by [installBrowserErrorOverlay].
+ *
+ * @property config The config value.
+ */
 class BrowserErrorOverlay internal constructor(
     private val config: BrowserErrorOverlayConfig,
     catalog: VerifiedSourceMapCatalog
 ) : InspectorDisposable {
+    /** Provides browser error overlay factory and constant members. */
     companion object {
+        /** The property declaration value. */
         const val MAX_ERRORS: Int = 50
     }
 
@@ -109,6 +130,7 @@ class BrowserErrorOverlay internal constructor(
         reportSynthetic(DevelopmentErrorCategory.ERROR_BOUNDARY, publicText, error.stackTraceToString())
     }
 
+    /** Removes listeners and DOM nodes and clears retained errors and source-map data. Idempotent. */
     override fun dispose() {
         if (disposed) return
         disposed = true

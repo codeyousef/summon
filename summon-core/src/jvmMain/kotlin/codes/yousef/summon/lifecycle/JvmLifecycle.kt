@@ -7,6 +7,7 @@ actual class LifecycleOwner {
     private val observers = CopyOnWriteArrayList<LifecycleObserver>()
     private var ownedScope: LifecycleCoroutineScope? = null
 
+    /** The property declaration value. */
     actual var currentState: LifecycleState = LifecycleState.INITIALIZED
         set(value) {
             if (field == LifecycleState.DESTROYED) return
@@ -33,6 +34,11 @@ actual class LifecycleOwner {
         failure?.let { throw it }
     }
 
+    /**
+     * Adds observer.
+     *
+     * @param observer The observer value.
+     */
     actual fun addObserver(observer: LifecycleObserver) {
         if (!observers.addIfAbsent(observer)) return
         try {
@@ -43,6 +49,11 @@ actual class LifecycleOwner {
         }
     }
 
+    /**
+     * Removes observer.
+     *
+     * @param observer The observer value.
+     */
     actual fun removeObserver(observer: LifecycleObserver) {
         observers.remove(observer)
     }
@@ -90,6 +101,11 @@ actual class LifecycleOwner {
 
 private val lifecycleOwnerInstance = LifecycleOwner()
 
+/**
+ * Executes the current lifecycle owner operation.
+ *
+ * @return The resulting value.
+ */
 actual fun currentLifecycleOwner(): LifecycleOwner? = lifecycleOwnerInstance
 
 // Redundant 'actual enum class LifecycleState', 'actual interface LifecycleObserver',

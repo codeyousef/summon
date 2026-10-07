@@ -9,11 +9,25 @@ import codes.yousef.summon.runtime.ComposableDsl
  * Providers may expose capability states as rows without substituting stale or unauthorized data.
  */
 sealed interface LazyListItemResult<out T> {
+    /**
+     * Available item data.
+     *
+     * @property value resolved row value
+     */
     data class Data<T>(val value: T) : LazyListItemResult<T>
+    /** Item is loading. */
     data object Loading : LazyListItemResult<Nothing>
+    /** Item is absent. */
     data object Empty : LazyListItemResult<Nothing>
+    /** Item is encrypted or otherwise locked. */
     data object Locked : LazyListItemResult<Nothing>
+    /** Caller lacks permission to read the item. */
     data object PermissionDenied : LazyListItemResult<Nothing>
+    /**
+     * Item failed to load.
+     *
+     * @property code stable non-sensitive error code
+     */
     data class Error(val code: String? = null) : LazyListItemResult<Nothing>
 }
 
@@ -24,14 +38,18 @@ sealed interface LazyListItemResult<out T> {
  * around those requests and return an explicit [LazyListItemResult] while data is unavailable.
  */
 interface LazyListDataProvider<T> {
+    /** Total addressable row count. */
     val itemCount: Int
+    /** Stable identity for [index]. */
     fun key(index: Int): Any = index
+    /** Returns the current result for [index]. */
     fun itemAt(index: Int): LazyListItemResult<T>
 }
 
 /** Defines virtualized [LazyColumn] and [LazyRow] content. */
 @ComposableDsl
 interface LazyListScope {
+    /** Adds one optional-keyed row. */
     fun item(key: Any? = null, content: @Composable () -> Unit)
 
     /**
@@ -43,12 +61,14 @@ interface LazyListScope {
         itemContent: @Composable (index: Int) -> Unit
     )
 
+    /** Adds rows from [items], optionally keyed by item value. */
     fun <T> items(
         items: List<T>,
         key: ((item: T) -> Any)? = null,
         itemContent: @Composable (item: T) -> Unit
     )
 
+    /** Adds indexed rows from [items], optionally keyed by index and value. */
     fun <T> itemsIndexed(
         items: List<T>,
         key: ((index: Int, item: T) -> Any)? = null,
@@ -63,8 +83,11 @@ interface LazyListScope {
         itemContent: @Composable (index: Int, item: LazyListItemResult<T>) -> Unit
     )
 
+    /** Adds a sticky header row. */
     fun stickyHeader(key: Any? = null, content: @Composable () -> Unit)
+    /** Adds a section-divider row. */
     fun sectionDivider(key: Any? = null, content: @Composable () -> Unit)
+    /** Adds non-negative horizontal or vertical space. */
     fun spacing(height: Float = 0f, width: Float = 0f)
 }
 

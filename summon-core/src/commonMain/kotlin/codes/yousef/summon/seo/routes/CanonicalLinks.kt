@@ -4,6 +4,7 @@ import codes.yousef.summon.runtime.Composable
 import codes.yousef.summon.runtime.CompositionLocal
 import codes.yousef.summon.runtime.LocalPlatformRenderer
 import codes.yousef.summon.runtime.SideEffect
+import codes.yousef.summon.ssr.escapeSsrHtml
 
 /**
  * CanonicalLinks component for managing canonical URLs
@@ -24,16 +25,18 @@ fun CanonicalLinks(
         val renderer = LocalPlatformRenderer.current
 
         // Add canonical URL link
-        renderer.addHeadElement("<link rel=\"canonical\" href=\"$url\">")
+        renderer.addHeadElement("<link rel=\"canonical\" href=\"${escapeSsrHtml(url)}\">")
 
         // Add alternate language links
         alternateLanguages.forEach { (lang, href) ->
-            renderer.addHeadElement("<link rel=\"alternate\" hreflang=\"$lang\" href=\"$href\">")
+            renderer.addHeadElement(
+                "<link rel=\"alternate\" hreflang=\"${escapeSsrHtml(lang)}\" href=\"${escapeSsrHtml(href)}\">"
+            )
         }
 
         // Add AMP link if available
         ampUrl?.let {
-            renderer.addHeadElement("<link rel=\"amphtml\" href=\"$it\">")
+            renderer.addHeadElement("<link rel=\"amphtml\" href=\"${escapeSsrHtml(it)}\">")
         }
     }
 }
@@ -90,8 +93,8 @@ fun CanonicalLink(href: String) {
     val renderer = LocalPlatformRenderer.current
 
     SideEffect {
-        renderer.addHeadElement("<link rel=\"canonical\" href=\"$href\">")
+        renderer.addHeadElement("<link rel=\"canonical\" href=\"${escapeSsrHtml(href)}\">")
     }
 
     // Renders no UI.
-} 
+}

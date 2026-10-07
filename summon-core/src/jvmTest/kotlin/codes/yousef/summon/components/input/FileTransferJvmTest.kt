@@ -94,6 +94,57 @@ class FileTransferJvmTest {
     }
 
     @Test
+    fun transferRejectsInvalidCheckpointsAndBoundsBeforeConsumingSource() = runTest {
+        val path = Files.createTempFile("summon-invalid-transfer-", ".bin")
+        try {
+            Files.write(path, byteArrayOf(1, 2, 3, 4))
+            val native = path.toFile()
+            val file = FileInfo("opaque", native.length(), "application/octet-stream", native)
+            val policy = FileReadPolicy(maxChunkBytes = 2, maxTotalBytes = 4)
+
+            assertFailsWith<IllegalArgumentException> { FileTransferCheckpoint(file.sourceVersion, -1) }
+            assertFailsWith<IllegalArgumentException> {
+                transferFileInChunks(file, policy, plaintextChunkBytes = 0) { }
+            }
+            assertFailsWith<IllegalArgumentException> {
+                transferFileInChunks(file, policy, plaintextChunkBytes = 3) { }
+            }
+            assertFailsWith<IllegalArgumentException> {
+                transferFileInChunks(file, policy, storagePartTargetBytes = 0) { }
+            }
+            assertFailsWith<FileReadException.SourceChanged> {
+                transferFileInChunks(
+                    file,
+                    policy,
+                    checkpoint = FileTransferCheckpoint(FileSourceVersion(99, 99), 0),
+                    plaintextChunkBytes = 2
+                ) { }
+            }
+            assertFailsWith<FileReadException.InvalidRange> {
+                transferFileInChunks(
+                    file,
+                    policy,
+                    checkpoint = FileTransferCheckpoint(file.sourceVersion, 5),
+                    plaintextChunkBytes = 2
+                ) { }
+            }
+            assertFailsWith<FileReadException.LimitExceeded> {
+                transferFileInChunks(
+                    file,
+                    FileReadPolicy(maxChunkBytes = 2, maxTotalBytes = 3),
+                    plaintextChunkBytes = 2
+                ) { }
+            }
+
+            val reader = BoundedFileReader(file, policy)
+            reader.close()
+            assertFailsWith<IllegalStateException> { reader.read(0, 1) }
+        } finally {
+            Files.deleteIfExists(path)
+        }
+    }
+
+    @Test
     fun controllerRejectsBeforeReadAndKeepsActionableStatesVisible() {
         val controller = FileUploadController(maxFileBytes = 5, maxOperationBytes = 7)
         controller.select(

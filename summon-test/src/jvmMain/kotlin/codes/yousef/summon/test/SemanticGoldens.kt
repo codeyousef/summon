@@ -9,8 +9,12 @@ import java.nio.file.StandardCopyOption
 private const val MAX_GOLDEN_BYTES = 1_048_576L
 
 /**
- * Verifies this harness against an existing UTF-8 semantic golden. A missing or changed golden is
- * a failure; this function never creates or modifies files.
+ * Verifies this harness against an existing UTF-8 semantic [goldenFile].
+ *
+ * A missing, oversized, or changed golden is a failure; this function never creates or modifies
+ * files.
+ *
+ * @throws AssertionError when the golden is missing, oversized, or differs from the live tree
  */
 fun ComponentHarness.verifySemanticGolden(goldenFile: File): ComponentHarness {
     if (!goldenFile.isFile) throw AssertionError("Semantic golden is missing: ${goldenFile.path}")
@@ -21,8 +25,13 @@ fun ComponentHarness.verifySemanticGolden(goldenFile: File): ComponentHarness {
 }
 
 /**
- * Explicitly replaces only [goldenFile] with this harness's deterministic UTF-8 snapshot.
+ * Explicitly atomically replaces only [goldenFile] with this harness's deterministic UTF-8
+ * snapshot.
+ *
  * Normal verification must use [verifySemanticGolden] so failures cannot rewrite baselines.
+ *
+ * @throws IllegalArgumentException when the snapshot exceeds the golden size bound
+ * @throws IllegalStateException when the destination directory cannot be created
  */
 fun ComponentHarness.updateSemanticGolden(goldenFile: File): ComponentHarness {
     val snapshot = semanticSnapshot()

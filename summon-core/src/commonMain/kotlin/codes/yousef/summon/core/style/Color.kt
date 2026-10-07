@@ -3,7 +3,9 @@ package codes.yousef.summon.core.style
 import codes.yousef.summon.core.error.ValidationException
 
 /**
- * Represents an RGBA color
+ * Immutable RGBA color.
+ *
+ * @property value packed `RRGGBBAA` bits
  */
 class Color(val value: UInt) {
     /**
@@ -79,20 +81,24 @@ class Color(val value: UInt) {
         return toRgbaString()
     }
 
+    /** Compares packed RGBA values. */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Color) return false
         return value == other.value
     }
 
+    /** Hashes the packed RGBA value. */
     override fun hashCode(): Int {
         return value.hashCode()
     }
 
+    /** Returns the CSS `rgba(...)` representation. */
     override fun toString(): String {
         return toRgbaString()
     }
 
+    /** Color factories and named palettes. */
     companion object {
         /**
          * Helper object for creating colors from RGB values
@@ -175,133 +181,137 @@ class Color(val value: UInt) {
         }
 
         // Common color constants
-        val BLACK = rgb(0, 0, 0)
-        val WHITE = rgb(255, 255, 255)
-        val RED = rgb(255, 0, 0)
-        val GREEN = rgb(0, 255, 0)
-        val BLUE = rgb(0, 0, 255)
-        val YELLOW = rgb(255, 255, 0)
-        val CYAN = rgb(0, 255, 255)
-        val MAGENTA = rgb(255, 0, 255)
-        val TRANSPARENT = rgba(0, 0, 0, 0)
+        /** Named color token. */ val BLACK = rgb(0, 0, 0)
+        /** Named color token. */ val WHITE = rgb(255, 255, 255)
+        /** Named color token. */ val RED = rgb(255, 0, 0)
+        /** Named color token. */ val GREEN = rgb(0, 255, 0)
+        /** Named color token. */ val BLUE = rgb(0, 0, 255)
+        /** Named color token. */ val YELLOW = rgb(255, 255, 0)
+        /** Named color token. */ val CYAN = rgb(0, 255, 255)
+        /** Named color token. */ val MAGENTA = rgb(255, 0, 255)
+        /** Named color token. */ val TRANSPARENT = rgba(0, 0, 0, 0)
 
         // Additional basic colors
-        val GRAY = rgb(128, 128, 128)
-        val LIGHT_GRAY = rgb(211, 211, 211)
-        val DARK_GRAY = rgb(169, 169, 169)
-        val ORANGE = rgb(255, 165, 0)
-        val PINK = rgb(255, 192, 203)
-        val PURPLE = rgb(128, 0, 128)
-        val BROWN = rgb(165, 42, 42)
-        val NAVY = rgb(0, 0, 128)
-        val TEAL = rgb(0, 128, 128)
-        val OLIVE = rgb(128, 128, 0)
-        val MAROON = rgb(128, 0, 0)
-        val LIME = rgb(0, 255, 0)
-        val INDIGO = rgb(75, 0, 130)
-        val VIOLET = rgb(238, 130, 238)
-        val SILVER = rgb(192, 192, 192)
-        val GOLD = rgb(255, 215, 0)
+        /** Named color token. */ val GRAY = rgb(128, 128, 128)
+        /** Named color token. */ val LIGHT_GRAY = rgb(211, 211, 211)
+        /** Named color token. */ val DARK_GRAY = rgb(169, 169, 169)
+        /** Named color token. */ val ORANGE = rgb(255, 165, 0)
+        /** Named color token. */ val PINK = rgb(255, 192, 203)
+        /** Named color token. */ val PURPLE = rgb(128, 0, 128)
+        /** Named color token. */ val BROWN = rgb(165, 42, 42)
+        /** Named color token. */ val NAVY = rgb(0, 0, 128)
+        /** Named color token. */ val TEAL = rgb(0, 128, 128)
+        /** Named color token. */ val OLIVE = rgb(128, 128, 0)
+        /** Named color token. */ val MAROON = rgb(128, 0, 0)
+        /** Named color token. */ val LIME = rgb(0, 255, 0)
+        /** Named color token. */ val INDIGO = rgb(75, 0, 130)
+        /** Named color token. */ val VIOLET = rgb(238, 130, 238)
+        /** Named color token. */ val SILVER = rgb(192, 192, 192)
+        /** Named color token. */ val GOLD = rgb(255, 215, 0)
 
         // Material Design colors
-        val PRIMARY = fromHex("#2196F3") // Blue 500
-        val PRIMARY_LIGHT = fromHex("#BBDEFB") // Blue 100
-        val PRIMARY_DARK = fromHex("#1976D2") // Blue 700
-        val SECONDARY = fromHex("#FF4081") // Pink A200
-        val ERROR = fromHex("#F44336") // Red 500
-        val WARNING = fromHex("#FFC107") // Amber 500
-        val INFO = fromHex("#2196F3") // Blue 500
-        val SUCCESS = fromHex("#4CAF50") // Green 500
+        /** Named color token. */ val PRIMARY = fromHex("#2196F3") // Blue 500
+        /** Named color token. */ val PRIMARY_LIGHT = fromHex("#BBDEFB") // Blue 100
+        /** Named color token. */ val PRIMARY_DARK = fromHex("#1976D2") // Blue 700
+        /** Named color token. */ val SECONDARY = fromHex("#FF4081") // Pink A200
+        /** Named color token. */ val ERROR = fromHex("#F44336") // Red 500
+        /** Named color token. */ val WARNING = fromHex("#FFC107") // Amber 500
+        /** Named color token. */ val INFO = fromHex("#2196F3") // Blue 500
+        /** Named color token. */ val SUCCESS = fromHex("#4CAF50") // Green 500
 
         // Material Design 3 colors
+        /** Material Design 3 reference palette. */
         object Material3 {
-            val PRIMARY = fromHex("#6750A4")
-            val ON_PRIMARY = fromHex("#FFFFFF")
-            val PRIMARY_CONTAINER = fromHex("#EADDFF")
-            val ON_PRIMARY_CONTAINER = fromHex("#21005D")
-            val SECONDARY = fromHex("#625B71")
-            val ON_SECONDARY = fromHex("#FFFFFF")
-            val SECONDARY_CONTAINER = fromHex("#E8DEF8")
-            val ON_SECONDARY_CONTAINER = fromHex("#1D192B")
-            val TERTIARY = fromHex("#7D5260")
-            val ON_TERTIARY = fromHex("#FFFFFF")
-            val TERTIARY_CONTAINER = fromHex("#FFD8E4")
-            val ON_TERTIARY_CONTAINER = fromHex("#31111D")
-            val ERROR = fromHex("#B3261E")
-            val ON_ERROR = fromHex("#FFFFFF")
-            val ERROR_CONTAINER = fromHex("#F9DEDC")
-            val ON_ERROR_CONTAINER = fromHex("#410E0B")
-            val BACKGROUND = fromHex("#FFFBFE")
-            val ON_BACKGROUND = fromHex("#1C1B1F")
-            val SURFACE = fromHex("#FFFBFE")
-            val ON_SURFACE = fromHex("#1C1B1F")
-            val SURFACE_VARIANT = fromHex("#E7E0EC")
-            val ON_SURFACE_VARIANT = fromHex("#49454F")
-            val OUTLINE = fromHex("#79747E")
-            val OUTLINE_VARIANT = fromHex("#CAC4D0")
-            val SCRIM = fromHex("#000000")
+            /** Named color token. */ val PRIMARY = fromHex("#6750A4")
+            /** Named color token. */ val ON_PRIMARY = fromHex("#FFFFFF")
+            /** Named color token. */ val PRIMARY_CONTAINER = fromHex("#EADDFF")
+            /** Named color token. */ val ON_PRIMARY_CONTAINER = fromHex("#21005D")
+            /** Named color token. */ val SECONDARY = fromHex("#625B71")
+            /** Named color token. */ val ON_SECONDARY = fromHex("#FFFFFF")
+            /** Named color token. */ val SECONDARY_CONTAINER = fromHex("#E8DEF8")
+            /** Named color token. */ val ON_SECONDARY_CONTAINER = fromHex("#1D192B")
+            /** Named color token. */ val TERTIARY = fromHex("#7D5260")
+            /** Named color token. */ val ON_TERTIARY = fromHex("#FFFFFF")
+            /** Named color token. */ val TERTIARY_CONTAINER = fromHex("#FFD8E4")
+            /** Named color token. */ val ON_TERTIARY_CONTAINER = fromHex("#31111D")
+            /** Named color token. */ val ERROR = fromHex("#B3261E")
+            /** Named color token. */ val ON_ERROR = fromHex("#FFFFFF")
+            /** Named color token. */ val ERROR_CONTAINER = fromHex("#F9DEDC")
+            /** Named color token. */ val ON_ERROR_CONTAINER = fromHex("#410E0B")
+            /** Named color token. */ val BACKGROUND = fromHex("#FFFBFE")
+            /** Named color token. */ val ON_BACKGROUND = fromHex("#1C1B1F")
+            /** Named color token. */ val SURFACE = fromHex("#FFFBFE")
+            /** Named color token. */ val ON_SURFACE = fromHex("#1C1B1F")
+            /** Named color token. */ val SURFACE_VARIANT = fromHex("#E7E0EC")
+            /** Named color token. */ val ON_SURFACE_VARIANT = fromHex("#49454F")
+            /** Named color token. */ val OUTLINE = fromHex("#79747E")
+            /** Named color token. */ val OUTLINE_VARIANT = fromHex("#CAC4D0")
+            /** Named color token. */ val SCRIM = fromHex("#000000")
         }
 
         // Catppuccin colors
+        /** Catppuccin reference palettes. */
         object Catppuccin {
             // Latte (Light) theme
+            /** Light Catppuccin palette. */
             object Latte {
-                val ROSEWATER = fromHex("#DC8A78")
-                val FLAMINGO = fromHex("#DD7878")
-                val PINK = fromHex("#EA76CB")
-                val MAUVE = fromHex("#8839EF")
-                val RED = fromHex("#D20F39")
-                val MAROON = fromHex("#E64553")
-                val PEACH = fromHex("#FE640B")
-                val YELLOW = fromHex("#DF8E1D")
-                val GREEN = fromHex("#40A02B")
-                val TEAL = fromHex("#179299")
-                val SKY = fromHex("#04A5E5")
-                val SAPPHIRE = fromHex("#209FB5")
-                val BLUE = fromHex("#1E66F5")
-                val LAVENDER = fromHex("#7287FD")
-                val TEXT = fromHex("#4C4F69")
-                val SUBTEXT1 = fromHex("#5C5F77")
-                val SUBTEXT0 = fromHex("#6C6F85")
-                val OVERLAY2 = fromHex("#7C7F93")
-                val OVERLAY1 = fromHex("#8C8FA1")
-                val OVERLAY0 = fromHex("#9CA0B0")
-                val SURFACE2 = fromHex("#ACB0BE")
-                val SURFACE1 = fromHex("#BCC0CC")
-                val SURFACE0 = fromHex("#CCD0DA")
-                val BASE = fromHex("#EFF1F5")
-                val MANTLE = fromHex("#E6E9EF")
-                val CRUST = fromHex("#DCE0E8")
+                /** Named color token. */ val ROSEWATER = fromHex("#DC8A78")
+                /** Named color token. */ val FLAMINGO = fromHex("#DD7878")
+                /** Named color token. */ val PINK = fromHex("#EA76CB")
+                /** Named color token. */ val MAUVE = fromHex("#8839EF")
+                /** Named color token. */ val RED = fromHex("#D20F39")
+                /** Named color token. */ val MAROON = fromHex("#E64553")
+                /** Named color token. */ val PEACH = fromHex("#FE640B")
+                /** Named color token. */ val YELLOW = fromHex("#DF8E1D")
+                /** Named color token. */ val GREEN = fromHex("#40A02B")
+                /** Named color token. */ val TEAL = fromHex("#179299")
+                /** Named color token. */ val SKY = fromHex("#04A5E5")
+                /** Named color token. */ val SAPPHIRE = fromHex("#209FB5")
+                /** Named color token. */ val BLUE = fromHex("#1E66F5")
+                /** Named color token. */ val LAVENDER = fromHex("#7287FD")
+                /** Named color token. */ val TEXT = fromHex("#4C4F69")
+                /** Named color token. */ val SUBTEXT1 = fromHex("#5C5F77")
+                /** Named color token. */ val SUBTEXT0 = fromHex("#6C6F85")
+                /** Named color token. */ val OVERLAY2 = fromHex("#7C7F93")
+                /** Named color token. */ val OVERLAY1 = fromHex("#8C8FA1")
+                /** Named color token. */ val OVERLAY0 = fromHex("#9CA0B0")
+                /** Named color token. */ val SURFACE2 = fromHex("#ACB0BE")
+                /** Named color token. */ val SURFACE1 = fromHex("#BCC0CC")
+                /** Named color token. */ val SURFACE0 = fromHex("#CCD0DA")
+                /** Named color token. */ val BASE = fromHex("#EFF1F5")
+                /** Named color token. */ val MANTLE = fromHex("#E6E9EF")
+                /** Named color token. */ val CRUST = fromHex("#DCE0E8")
             }
 
             // Mocha (Dark) theme
+            /** Dark Catppuccin palette. */
             object Mocha {
-                val ROSEWATER = fromHex("#F5E0DC")
-                val FLAMINGO = fromHex("#F2CDCD")
-                val PINK = fromHex("#F5C2E7")
-                val MAUVE = fromHex("#CBA6F7")
-                val RED = fromHex("#F38BA8")
-                val MAROON = fromHex("#EBA0AC")
-                val PEACH = fromHex("#FAB387")
-                val YELLOW = fromHex("#F9E2AF")
-                val GREEN = fromHex("#A6E3A1")
-                val TEAL = fromHex("#94E2D5")
-                val SKY = fromHex("#89DCEB")
-                val SAPPHIRE = fromHex("#74C7EC")
-                val BLUE = fromHex("#89B4FA")
-                val LAVENDER = fromHex("#B4BEFE")
-                val TEXT = fromHex("#CDD6F4")
-                val SUBTEXT1 = fromHex("#BAC2DE")
-                val SUBTEXT0 = fromHex("#A6ADC8")
-                val OVERLAY2 = fromHex("#9399B2")
-                val OVERLAY1 = fromHex("#7F849C")
-                val OVERLAY0 = fromHex("#6C7086")
-                val SURFACE2 = fromHex("#585B70")
-                val SURFACE1 = fromHex("#45475A")
-                val SURFACE0 = fromHex("#313244")
-                val BASE = fromHex("#1E1E2E")
-                val MANTLE = fromHex("#181825")
-                val CRUST = fromHex("#11111B")
+                /** Named color token. */ val ROSEWATER = fromHex("#F5E0DC")
+                /** Named color token. */ val FLAMINGO = fromHex("#F2CDCD")
+                /** Named color token. */ val PINK = fromHex("#F5C2E7")
+                /** Named color token. */ val MAUVE = fromHex("#CBA6F7")
+                /** Named color token. */ val RED = fromHex("#F38BA8")
+                /** Named color token. */ val MAROON = fromHex("#EBA0AC")
+                /** Named color token. */ val PEACH = fromHex("#FAB387")
+                /** Named color token. */ val YELLOW = fromHex("#F9E2AF")
+                /** Named color token. */ val GREEN = fromHex("#A6E3A1")
+                /** Named color token. */ val TEAL = fromHex("#94E2D5")
+                /** Named color token. */ val SKY = fromHex("#89DCEB")
+                /** Named color token. */ val SAPPHIRE = fromHex("#74C7EC")
+                /** Named color token. */ val BLUE = fromHex("#89B4FA")
+                /** Named color token. */ val LAVENDER = fromHex("#B4BEFE")
+                /** Named color token. */ val TEXT = fromHex("#CDD6F4")
+                /** Named color token. */ val SUBTEXT1 = fromHex("#BAC2DE")
+                /** Named color token. */ val SUBTEXT0 = fromHex("#A6ADC8")
+                /** Named color token. */ val OVERLAY2 = fromHex("#9399B2")
+                /** Named color token. */ val OVERLAY1 = fromHex("#7F849C")
+                /** Named color token. */ val OVERLAY0 = fromHex("#6C7086")
+                /** Named color token. */ val SURFACE2 = fromHex("#585B70")
+                /** Named color token. */ val SURFACE1 = fromHex("#45475A")
+                /** Named color token. */ val SURFACE0 = fromHex("#313244")
+                /** Named color token. */ val BASE = fromHex("#1E1E2E")
+                /** Named color token. */ val MANTLE = fromHex("#181825")
+                /** Named color token. */ val CRUST = fromHex("#11111B")
             }
         }
     }

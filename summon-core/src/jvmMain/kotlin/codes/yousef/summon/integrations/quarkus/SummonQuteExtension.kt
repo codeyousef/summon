@@ -1,10 +1,10 @@
 package codes.yousef.summon.integration.quarkus
 
-import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.runtime.PlatformRenderer
 import io.quarkus.qute.EngineBuilder
 import io.quarkus.qute.EvalContext
 import io.quarkus.qute.NamespaceResolver
-import io.quarkus.qute.ValueResolver
+import io.quarkus.qute.RawString
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import java.util.function.Consumer
@@ -32,7 +32,7 @@ import java.util.function.Supplier
  *
  * 2. In your Qute template, use Summon components:
  *
- * ```html
+ * ```HTML
  * {#let myComponent=summon:component(com.example.MyComponent.create())}
  *   {myComponent}
  * {/let}
@@ -41,107 +41,87 @@ import java.util.function.Supplier
 class SummonQuteExtension : Consumer<EngineBuilder> {
     private var config = Config()
 
-    /**
-     * Render a component to HTML string
-     */
-    private fun renderToString(component: Any): String {
-        // Create a simple HTML representation
-        return "<div class=\"summon-component\">Component: ${component::class.simpleName}</div>"
+    private fun renderToString(component: Any): String = when (component) {
+        is String -> QuteComponentRegistry.renderComponent(component)
+        is Function0<*> -> PlatformRenderer().renderComposableRoot { component.invoke() }
+        else -> throw IllegalArgumentException(
+            "Summon Qute components must be a registered component name or a composable function"
+        )
     }
 
+    /**
+     * Executes the accept operation.
+     *
+     * @param builder The builder value.
+     */
     override fun accept(builder: EngineBuilder) {
-        // First, register the 'summon' namespace
-        builder.addNamespaceResolver(NamespaceResolver.builder("summon").build())
+        builder.addNamespaceResolver(
+            NamespaceResolver.builder("summon")
+                .resolveAsync(::resolveNamespace)
+                .build()
+        )
+    }
 
-        // Now register a resolver for our specific functions within the summon namespace
-        builder.addValueResolver(object : ValueResolver {
-            override fun getPriority(): Int = 10
-
-            override fun appliesTo(context: EvalContext): Boolean {
-                // This resolver applies to operations on the 'summon' namespace
-                return context.base != null &&
-                        context.base.toString() == "summon" &&
-                        (context.name == "component" || context.name == "isComponent" ||
-                                context.name == "withContainer")
-            }
-
-            override fun resolve(context: EvalContext): CompletionStage<Any?> {
-                try {
-                    // Handle the component renderer method
-                    if (context.name == "component") {
-                        val args = context.params
-                        if (args.isEmpty()) {
-                            return CompletableFuture.completedFuture(null)
-                        }
-
-                        if (args[0] !is Any) {
-                            return CompletableFuture.completedFuture(null)
-                        }
-
-                        val component = args[0]
-                        val html = renderToString(component)
-
-                        // Apply configuration options
-                        val processedHtml = if (config.includeComments) {
-                            "<!-- BEGIN SUMMON COMPONENT -->\n$html\n<!-- END SUMMON COMPONENT -->"
-                        } else {
-                            html
-                        }
-
-                        return CompletableFuture.completedFuture(processedHtml)
-                    }
-
-                    // Handle the isComponent check method
-                    if (context.name == "isComponent") {
-                        val args = context.params
-                        if (args.isEmpty()) {
-                            return CompletableFuture.completedFuture(false)
-                        }
-
-                        // Check if the class is annotated with @Composable
-                        val isComponent = args[0] != null && args[0]::class.java.annotations.any {
-                            it.annotationClass == Composable::class
-                        }
-
-                        return CompletableFuture.completedFuture(isComponent)
-                    }
-
-                    // Handle the withContainer helper method
-                    if (context.name == "withContainer") {
-                        val args = context.params
-                        if (args.isEmpty()) {
-                            return CompletableFuture.completedFuture(null)
-                        }
-
-                        val component = args[0]
-                        val html = renderToString(component)
-
-                        // Get optional ID from args
-                        val id = if (args.size > 1 && true) " id=\"${args[1]}\"" else ""
-                        val className =
-                            if (args.size > 2 && true) " class=\"${args[2]}\"" else " class=\"summon-component\""
-
-                        val wrapped = "<div$id$className>$html</div>"
-                        return CompletableFuture.completedFuture(wrapped)
-                    }
-
-                    // Unknown function in the summon namespace
-                    return CompletableFuture.completedFuture(null)
-                } catch (e: Exception) {
-                    // Log the error and return a descriptive error message
-                    println("Error in SummonQuteExtension: ${e.message}")
-                    e.printStackTrace()
-                    return CompletableFuture.completedFuture(null)
+    private fun resolveNamespace(context: EvalContext): CompletionStage<Any?> {
+        val evaluated = context.params.map { context.evaluate(it).toCompletableFuture() }
+        return CompletableFuture.allOf(*evaluated.toTypedArray()).thenApply {
+            val args = evaluated.map { it.join() }
+            when (context.name) {
+                "component" -> args.firstOrNull()?.let { component ->
+                    RawString(withConfiguredBoundary(renderToString(component)))
                 }
+
+                "isComponent" -> {
+                    val component = args.firstOrNull()
+                    component is Function0<*> ||
+                        (component is String && QuteComponentRegistry.contains(component))
+                }
+
+                "withContainer" -> args.firstOrNull()?.let { component ->
+                    val id = args.getOrNull(1)?.toString()?.let {
+                        " id=\"${escapeHtmlAttribute(it)}\""
+                    }.orEmpty()
+                    val className = args.getOrNull(2)?.toString() ?: "summon-component"
+                    RawString(
+                        "<div$id class=\"${escapeHtmlAttribute(className)}\">" +
+                            withConfiguredBoundary(renderToString(component)) +
+                            "</div>"
+                    )
+                }
+
+                else -> null
             }
-        })
+        }
+    }
+
+    private fun withConfiguredBoundary(html: String): String =
+        if (config.includeComments) {
+            "<!-- BEGIN SUMMON COMPONENT -->\n$html\n<!-- END SUMMON COMPONENT -->"
+        } else {
+            html
+        }
+
+    private fun escapeHtmlAttribute(value: String): String = buildString(value.length) {
+        value.forEach { character ->
+            append(
+                when (character) {
+                    '&' -> "&amp;"
+                    '"' -> "&quot;"
+                    '<' -> "&lt;"
+                    '>' -> "&gt;"
+                    else -> character
+                }
+            )
+        }
     }
 
     /**
      * Provides additional configuration options for customizing Summon rendering in Qute templates.
      */
     class Config {
+        /** The true value. */
         var usePrettyPrinting: Boolean = true
+        /** The false value. */
         var includeComments: Boolean = false
 
         /**
@@ -161,6 +141,7 @@ class SummonQuteExtension : Consumer<EngineBuilder> {
         }
     }
 
+    /** Provides summon qute extension factory and constant members. */
     companion object {
         /**
          * Creates a Summon Qute extension with the given configuration.
@@ -186,4 +167,4 @@ class SummonQuteExtension : Consumer<EngineBuilder> {
             return Supplier { renderComponent(component) }
         }
     }
-} 
+}

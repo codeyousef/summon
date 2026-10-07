@@ -11,6 +11,12 @@ import org.w3c.dom.events.Event
  */
 
 @JsName("scrollIntoView")
+/**
+ * Executes the scroll into view platform operation.
+ *
+ * @param nativeElementId The native element id value.
+ * @param behavior The behavior value.
+ */
 actual fun scrollIntoViewPlatform(nativeElementId: String, behavior: String) {
     js(
         """
@@ -22,7 +28,21 @@ actual fun scrollIntoViewPlatform(nativeElementId: String, behavior: String) {
     )
 }
 
+/**
+ * Returns computed style platform.
+ *
+ * @param nativeElementId The native element id value.
+ * @param property The property value.
+ * @return The resulting value.
+ */
 @JsName("getComputedStyle")
+/**
+ * Returns computed style platform.
+ *
+ * @param nativeElementId The native element id value.
+ * @param property The property value.
+ * @return The resulting value.
+ */
 actual fun getComputedStylePlatform(nativeElementId: String, property: String): String? {
     return js(
         """
@@ -40,13 +60,27 @@ actual fun getComputedStylePlatform(nativeElementId: String, property: String): 
  * JavaScript implementation of DOMProvider.
  */
 actual object DOMProvider {
+    /** The property declaration value. */
     actual val window: DOMWindow = JSWindowWrapper()
+    /** The property declaration value. */
     actual val document: DOMDocument = JSDocumentWrapper()
 
+    /**
+     * Creates element from native.
+     *
+     * @param nativeElement The native element value.
+     * @return The resulting value.
+     */
     actual fun createElementFromNative(nativeElement: Any): DOMElement {
         return JSDOMElementWrapper(nativeElement as Element)
     }
 
+    /**
+     * Returns native element.
+     *
+     * @param element The element value.
+     * @return The resulting value.
+     */
     actual fun getNativeElement(element: DOMElement): Any {
         return when (element) {
             is JSDOMElementWrapper -> element.element
@@ -54,6 +88,12 @@ actual object DOMProvider {
         }
     }
 
+    /**
+     * Returns native element ID.
+     *
+     * @param element The element value.
+     * @return The resulting value.
+     */
     actual fun getNativeElementId(element: DOMElement): String {
         return when (element) {
             is JSDOMElementWrapper -> element.element.id
@@ -358,22 +398,47 @@ private class JSHistoryWrapper : DOMHistory {
  * Console implementation for JS.
  */
 actual object console {
+    /**
+     * Executes the log operation.
+     *
+     * @param message Message content.
+     */
     actual fun log(message: Any?) {
         js("console.log(message)")
     }
 
+    /**
+     * Executes the warn operation.
+     *
+     * @param message Message content.
+     */
     actual fun warn(message: Any?) {
         js("console.warn(message)")
     }
 
+    /**
+     * Executes the error operation.
+     *
+     * @param message Message content.
+     */
     actual fun error(message: Any?) {
         js("console.error(message)")
     }
 
+    /**
+     * Executes the info operation.
+     *
+     * @param message Message content.
+     */
     actual fun info(message: Any?) {
         js("console.info(message)")
     }
 
+    /**
+     * Executes the debug operation.
+     *
+     * @param message Message content.
+     */
     actual fun debug(message: Any?) {
         js("console.debug(message)")
     }

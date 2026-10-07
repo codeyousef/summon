@@ -31,7 +31,6 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * @see Progress for determinate progress indicators
  * @see LinearProgress for linear progress with values
  * @see CircularProgress for circular progress with values
- * @sample codes.yousef.summon.samples.feedback.ProgressSamples.indeterminateExample
  * @since 1.0.0
  */
 @Composable

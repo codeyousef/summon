@@ -32,6 +32,9 @@ interface Credentials
 
 /**
  * Username and password credentials
+
+ * @property username The username value.
+ * @property password The password value.
  */
 data class UsernamePasswordCredentials(
     val username: String,
@@ -40,6 +43,8 @@ data class UsernamePasswordCredentials(
 
 /**
  * JWT token credentials
+
+ * @property token The token value.
  */
 data class JwtCredentials(
     val token: String
@@ -47,6 +52,11 @@ data class JwtCredentials(
 
 /**
  * OAuth2 credentials
+
+ * @property accessToken The access token value.
+ * @property refreshToken The refresh token value.
+ * @property tokenType The token type value.
+ * @property expiresIn The expires in value.
  */
 data class OAuth2Credentials(
     val accessToken: String,
@@ -59,6 +69,16 @@ data class OAuth2Credentials(
  * Result of an authentication attempt
  */
 sealed class AuthenticationResult {
+    /**
+     * Represents success.
+     *
+     * @property authentication The authentication value.
+     */
     data class Success(val authentication: Authentication) : AuthenticationResult()
+    /**
+     * Represents failure.
+     *
+     * @property error The error value.
+     */
     data class Failure(val error: Throwable) : AuthenticationResult()
-} 
+}

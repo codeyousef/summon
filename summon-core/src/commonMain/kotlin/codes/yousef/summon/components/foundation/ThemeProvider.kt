@@ -7,7 +7,17 @@ import codes.yousef.summon.theme.Theme
 import codes.yousef.summon.modifier.*
 
 /**
- * Enhanced theme configuration that extends the base theme with additional design tokens.
+ * Theme configuration with optional design-token families.
+ *
+ * @property primaryColor primary foreground or control color
+ * @property secondaryColor secondary foreground or control color
+ * @property backgroundColor page background
+ * @property textColor default text color
+ * @property borderColor default border color
+ * @property isDarkMode optional explicit dark-mode state
+ * @property designTokens CSS custom properties
+ * @property breakpoints named responsive breakpoints
+ * @property typography named typography tokens
  */
 data class EnhancedThemeConfig(
     val primaryColor: String = "#007bff",
@@ -78,12 +88,14 @@ fun codes.yousef.summon.modifier.Modifier.themeColor(colorName: String): codes.y
     }
 }
 
+/** Applies the active theme's border color. */
 @Composable
 fun codes.yousef.summon.modifier.Modifier.themeBorder(): codes.yousef.summon.modifier.Modifier {
     val theme = useTheme()
     return this.style("border", "1px solid ${theme.borderColor}")
 }
 
+/** Applies padding from the named theme spacing variable [size]. */
 @Composable
 fun codes.yousef.summon.modifier.Modifier.themeSpacing(size: String): codes.yousef.summon.modifier.Modifier {
     return this.style("padding", "var(--spacing-$size)")

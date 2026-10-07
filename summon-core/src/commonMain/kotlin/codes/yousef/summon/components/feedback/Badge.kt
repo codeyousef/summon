@@ -12,12 +12,19 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * Badge types for different semantic meanings
  */
 enum class BadgeType {
-    PRIMARY,    // Primary color badge
-    SECONDARY,  // Secondary color badge
-    SUCCESS,    // Success indicator
-    WARNING,    // Warning indicator
-    ERROR,      // Error indicator
-    INFO,       // Information indicator
+    /** The primary badge type option. */
+    PRIMARY,
+    /** The secondary badge type option. */
+    SECONDARY,
+    /** The success badge type option. */
+    SUCCESS,
+    /** The warning badge type option. */
+    WARNING,
+    /** The error badge type option. */
+    ERROR,
+    /** The info badge type option. */
+    INFO,
+    /** The neutral badge type option. */
     NEUTRAL     // Neutral badge without specific semantic meaning
 }
 
@@ -25,9 +32,13 @@ enum class BadgeType {
  * Badge shapes for different visual styles
  */
 enum class BadgeShape {
-    SQUARE,     // Square badge with minor border radius
-    ROUNDED,    // Rounded badge
-    PILL,       // Pill-shaped badge (fully rounded)
+    /** The square badge shape option. */
+    SQUARE,
+    /** The rounded badge shape option. */
+    ROUNDED,
+    /** The pill badge shape option. */
+    PILL,
+    /** The dot badge shape option. */
     DOT         // Dot badge (small circular indicator)
 }
 

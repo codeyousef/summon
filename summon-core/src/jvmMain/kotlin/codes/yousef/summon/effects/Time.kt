@@ -12,6 +12,13 @@ private val idGenerator = AtomicInteger(0)
  */
 actual fun currentTimeMillis(): Long = System.currentTimeMillis()
 
+/**
+ * Sets timeout.
+ *
+ * @param delayMs The delay ms value.
+ * @param callback The callback value.
+ * @return The resulting value.
+ */
 actual fun setTimeout(delayMs: Int, callback: () -> Unit): Int {
     val id = idGenerator.incrementAndGet()
     val timer = Timer(true) // Daemon timer
@@ -26,6 +33,11 @@ actual fun setTimeout(delayMs: Int, callback: () -> Unit): Int {
     return id
 }
 
+/**
+ * Clears timeout.
+ *
+ * @param id Stable identifier.
+ */
 actual fun clearTimeout(id: Int) {
     timers[id]?.let { timer ->
         timer.cancel()

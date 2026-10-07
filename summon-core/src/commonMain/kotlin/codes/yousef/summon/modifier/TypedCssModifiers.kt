@@ -5,94 +5,209 @@ import codes.yousef.summon.core.style.Color
 import codes.yousef.summon.extensions.px
 import codes.yousef.summon.i18n.LayoutDirection
 
-/** Controls how words may be broken when text would otherwise overflow. */
+/**
+ * Controls how words may be broken when text would otherwise overflow.
+ *
+ * @property value Value to process.
+ */
 enum class WordBreak(val value: String) {
+    /** The normal word break option. */
     Normal("normal"),
+    /** The break all word break option. */
     BreakAll("break-all"),
+    /** The keep all word break option. */
     KeepAll("keep-all"),
+    /** The break word word break option. */
     BreakWord("break-word");
 
+    /**
+     * Converts this value to string.
+     *
+     * @return The resulting value.
+     */
     override fun toString(): String = value
 }
 
-/** Controls whether otherwise unbreakable text may wrap. */
+/**
+ * Controls whether otherwise unbreakable text may wrap.
+ *
+ * @property value Value to process.
+ */
 enum class OverflowWrap(val value: String) {
+    /** The normal overflow wrap option. */
     Normal("normal"),
+    /** The break word overflow wrap option. */
     BreakWord("break-word"),
+    /** The anywhere overflow wrap option. */
     Anywhere("anywhere");
 
+    /**
+     * Converts this value to string.
+     *
+     * @return The resulting value.
+     */
     override fun toString(): String = value
 }
 
-/** Controls how clipped inline content is represented. */
+/**
+ * Controls how clipped inline content is represented.
+ *
+ * @property value Value to process.
+ */
 enum class TextOverflow(val value: String) {
+    /** The clip text overflow option. */
     Clip("clip"),
+    /** The ellipsis text overflow option. */
     Ellipsis("ellipsis");
 
+    /**
+     * Converts this value to string.
+     *
+     * @return The resulting value.
+     */
     override fun toString(): String = value
 }
 
-/** Selects the box model used to calculate an element's dimensions. */
+/**
+ * Selects the box model used to calculate an element's dimensions.
+ *
+ * @property value Value to process.
+ */
 enum class BoxSizing(val value: String) {
+    /** The content box box sizing option. */
     ContentBox("content-box"),
+    /** The border box box sizing option. */
     BorderBox("border-box");
 
+    /**
+     * Converts this value to string.
+     *
+     * @return The resulting value.
+     */
     override fun toString(): String = value
 }
 
-/** Declares the color schemes in which an element can be comfortably rendered. */
+/**
+ * Declares the color schemes in which an element can be comfortably rendered.
+ *
+ * @property value Value to process.
+ */
 enum class ColorScheme(val value: String) {
+    /** The normal color scheme option. */
     Normal("normal"),
+    /** The light color scheme option. */
     Light("light"),
+    /** The dark color scheme option. */
     Dark("dark"),
+    /** The light dark color scheme option. */
     LightDark("light dark"),
+    /** The dark light color scheme option. */
     DarkLight("dark light"),
+    /** The only light color scheme option. */
     OnlyLight("only light"),
+    /** The only dark color scheme option. */
     OnlyDark("only dark");
 
+    /**
+     * Converts this value to string.
+     *
+     * @return The resulting value.
+     */
     override fun toString(): String = value
 }
 
-/** Common marker styles accepted by the CSS list-style-type property. */
+/**
+ * Common marker styles accepted by the CSS list-style-type property.
+ *
+ * @property value Value to process.
+ */
 enum class ListStyleType(val value: String) {
+    /** The none list style type option. */
     None("none"),
+    /** The disc list style type option. */
     Disc("disc"),
+    /** The circle list style type option. */
     Circle("circle"),
+    /** The square list style type option. */
     Square("square"),
+    /** The decimal list style type option. */
     Decimal("decimal"),
+    /** The decimal leading zero list style type option. */
     DecimalLeadingZero("decimal-leading-zero"),
+    /** The lower alpha list style type option. */
     LowerAlpha("lower-alpha"),
+    /** The upper alpha list style type option. */
     UpperAlpha("upper-alpha"),
+    /** The lower roman list style type option. */
     LowerRoman("lower-roman"),
+    /** The upper roman list style type option. */
     UpperRoman("upper-roman"),
+    /** The disclosure open list style type option. */
     DisclosureOpen("disclosure-open"),
+    /** The disclosure closed list style type option. */
     DisclosureClosed("disclosure-closed");
 
+    /**
+     * Converts this value to string.
+     *
+     * @return The resulting value.
+     */
     override fun toString(): String = value
 }
 
-/** Standard values accepted by the CSS scrollbar-width property. */
+/**
+ * Standard values accepted by the CSS scrollbar-width property.
+ *
+ * @property value Value to process.
+ */
 enum class ScrollbarWidth(val value: String) {
+    /** The auto scrollbar width option. */
     Auto("auto"),
+    /** The thin scrollbar width option. */
     Thin("thin"),
+    /** The none scrollbar width option. */
     None("none");
 
+    /**
+     * Converts this value to string.
+     *
+     * @return The resulting value.
+     */
     override fun toString(): String = value
 }
 
-/** Standard line styles accepted by CSS outlines. */
+/**
+ * Standard line styles accepted by CSS outlines.
+ *
+ * @property value Value to process.
+ */
 enum class OutlineStyle(val value: String) {
+    /** The auto outline style option. */
     Auto("auto"),
+    /** The none outline style option. */
     None("none"),
+    /** The dotted outline style option. */
     Dotted("dotted"),
+    /** The dashed outline style option. */
     Dashed("dashed"),
+    /** The solid outline style option. */
     Solid("solid"),
+    /** The double outline style option. */
     Double("double"),
+    /** The groove outline style option. */
     Groove("groove"),
+    /** The ridge outline style option. */
     Ridge("ridge"),
+    /** The inset outline style option. */
     Inset("inset"),
+    /** The outset outline style option. */
     Outset("outset");
 
+    /**
+     * Converts this value to string.
+     *
+     * @return The resulting value.
+     */
     override fun toString(): String = value
 }
 
@@ -105,6 +220,11 @@ fun Modifier.direction(value: LayoutDirection): Modifier =
  *
  * Use [pixels] when all offsets are pixel values, or construct a value directly
  * when CSS units such as `rem`, `em`, or `calc(...)` are required.
+
+ * @property offsetX The offset x value.
+ * @property offsetY The offset y value.
+ * @property blurRadius The blur radius value.
+ * @property color The color value.
  */
 data class TextShadow(
     val offsetX: String,
@@ -126,6 +246,7 @@ data class TextShadow(
         color?.let(::add)
     }.joinToString(" ")
 
+    /** Provides text shadow factory and constant members. */
     companion object {
         /** Creates a text shadow whose dimensions are expressed in pixels. */
         fun pixels(
@@ -286,6 +407,8 @@ fun Modifier.outlineOffset(value: Number): Modifier = outlineOffset(value.px)
  *
  * Prefer the factory helpers below to raw strings when building repeated or
  * min/max track lists.
+
+ * @property value Value to process.
  */
 data class GridTrack(val value: String) {
     init {

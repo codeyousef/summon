@@ -5,7 +5,12 @@ import kotlinx.browser.window
 import org.w3c.dom.HTMLElement
 
 /**
- * Data class to hold Tooltip-related extension properties for JS implementation
+ * Browser tooltip timing and placement.
+ *
+ * @property showDelay delay before display in milliseconds
+ * @property hideDelay delay before hiding in milliseconds
+ * @property showOnClick whether activation toggles visibility
+ * @property placement preferred tooltip side
  */
 data class TooltipJsExtension(
     val showDelay: Int = 0,
@@ -84,4 +89,4 @@ fun setupTooltipJsHandlers(tooltipId: String, contentId: String, tooltipExt: Too
             true
         }
     }
-} 
+}

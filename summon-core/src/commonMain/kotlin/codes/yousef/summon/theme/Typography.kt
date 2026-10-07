@@ -5,6 +5,7 @@ package codes.yousef.summon.theme
  */
 class Typography {
     // Headings
+    /** The property declaration value. */
     val h1: TextStyle = TextStyle(
         fontFamily = "sans-serif",
         fontWeight = "Light",
@@ -13,6 +14,7 @@ class Typography {
         lineHeight = "112px"
     )
 
+    /** The property declaration value. */
     val h2: TextStyle = TextStyle(
         fontFamily = "sans-serif",
         fontWeight = "Light",
@@ -21,6 +23,7 @@ class Typography {
         lineHeight = "72px"
     )
 
+    /** The property declaration value. */
     val h3: TextStyle = TextStyle(
         fontFamily = "sans-serif",
         fontWeight = "Normal",
@@ -29,6 +32,7 @@ class Typography {
         lineHeight = "56px"
     )
 
+    /** The property declaration value. */
     val h4: TextStyle = TextStyle(
         fontFamily = "sans-serif",
         fontWeight = "Normal",
@@ -37,6 +41,7 @@ class Typography {
         lineHeight = "40px"
     )
 
+    /** The property declaration value. */
     val h5: TextStyle = TextStyle(
         fontFamily = "sans-serif",
         fontWeight = "Normal",
@@ -45,6 +50,7 @@ class Typography {
         lineHeight = "32px"
     )
 
+    /** The property declaration value. */
     val h6: TextStyle = TextStyle(
         fontFamily = "sans-serif",
         fontWeight = "Medium",
@@ -54,6 +60,7 @@ class Typography {
     )
 
     // Subtitles
+    /** The property declaration value. */
     val subtitle1: TextStyle = TextStyle(
         fontFamily = "sans-serif",
         fontWeight = "Normal",
@@ -62,6 +69,7 @@ class Typography {
         lineHeight = "24px"
     )
 
+    /** The property declaration value. */
     val subtitle2: TextStyle = TextStyle(
         fontFamily = "sans-serif",
         fontWeight = "Medium",
@@ -71,6 +79,7 @@ class Typography {
     )
 
     // Body text
+    /** The property declaration value. */
     val body1: TextStyle = TextStyle(
         fontFamily = "sans-serif",
         fontWeight = "Normal",
@@ -79,6 +88,7 @@ class Typography {
         lineHeight = "24px"
     )
 
+    /** The property declaration value. */
     val body2: TextStyle = TextStyle(
         fontFamily = "sans-serif",
         fontWeight = "Normal",
@@ -88,6 +98,7 @@ class Typography {
     )
 
     // Button text
+    /** The property declaration value. */
     val button: TextStyle = TextStyle(
         fontFamily = "sans-serif",
         fontWeight = "Medium",
@@ -97,6 +108,7 @@ class Typography {
     )
 
     // Caption
+    /** The property declaration value. */
     val caption: TextStyle = TextStyle(
         fontFamily = "sans-serif",
         fontWeight = "Normal",
@@ -106,6 +118,7 @@ class Typography {
     )
 
     // Overline
+    /** The property declaration value. */
     val overline: TextStyle = TextStyle(
         fontFamily = "sans-serif",
         fontWeight = "Normal",

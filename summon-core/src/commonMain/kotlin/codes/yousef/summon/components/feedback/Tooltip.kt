@@ -206,9 +206,6 @@ enum class TooltipPlacement {
  * @param trigger The composable content that triggers the tooltip when interacted with.
  *
  * @see TooltipPlacement for positioning options
- * @sample codes.yousef.summon.samples.feedback.TooltipSamples.basicUsage
- * @sample codes.yousef.summon.samples.feedback.TooltipSamples.formFieldHelp
- * @sample codes.yousef.summon.samples.feedback.TooltipSamples.richContent
  * @since 1.0.0
  */
 @Composable
@@ -339,4 +336,4 @@ internal fun getTriggerAttributes(
     attributes["data-tooltip-hide-delay"] = hideDelay.toString()
 
     return attributes
-} 
+}

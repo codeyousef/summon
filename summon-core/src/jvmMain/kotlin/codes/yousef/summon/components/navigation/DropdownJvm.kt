@@ -3,6 +3,7 @@ package codes.yousef.summon.components.navigation
 import codes.yousef.summon.action.UiAction
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.components.layout.Box
+import codes.yousef.summon.components.foundation.TrustedCss
 import codes.yousef.summon.core.FlowContent
 import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.LocalPlatformRenderer
@@ -29,7 +30,7 @@ actual fun Dropdown(
     content: @Composable FlowContent.() -> Unit
 ) {
     val renderer = LocalPlatformRenderer.current
-    
+
     // Generate unique ID for this dropdown instance.
     // We use remember to ensure stability across recompositions when a composer is available.
     val menuId = remember { generateDropdownId() }
@@ -39,20 +40,19 @@ actual fun Dropdown(
     val toggleAction: UiAction = UiAction.ToggleVisibility(menuId)
     val actionJson = Json.encodeToString(UiAction.serializer(), toggleAction)
 
-    // Container modifier - for hover behavior, we still need inline JS since UiAction
-    // doesn't have hover-specific actions yet. For click-only, we use data-action.
+    if (triggerBehavior == DropdownTrigger.HOVER || triggerBehavior == DropdownTrigger.BOTH) {
+        renderer.renderGlobalStyle(
+            TrustedCss.fromAuthorCode(
+                "#$menuId:hover, [data-dropdown-container=\"true\"]:hover #$menuId { display: block; }"
+            )
+        )
+    }
+
     val containerModifier = modifier
         .style("position", "relative")
         .style("display", "inline-block")
         .ariaHasPopup(true)
         .dataAttribute("dropdown-container", "true")
-        .apply {
-            if (triggerBehavior == DropdownTrigger.HOVER || triggerBehavior == DropdownTrigger.BOTH) {
-                // Hover behavior still uses inline JS since there's no UiAction for hover events
-                onMouseEnter("document.getElementById('$menuId').style.display='block'")
-                onMouseLeave("document.getElementById('$menuId').style.display='none'")
-            }
-        }
 
     renderer.renderBlock(containerModifier) {
         // Trigger element
@@ -76,38 +76,34 @@ actual fun Dropdown(
         }
 
         // Dropdown menu
-        Box(
-            modifier = Modifier()
-                .id(menuId)
-                .dataAttribute("dropdown-menu", "true")
-                .style("position", "absolute")
-                .style("top", "100%")
-                .style("display", "none")
-                .style("z-index", "1000")
-                .style("min-width", "200px")
-                .style("margin-top", "4px")
-                .style("background-color", "white")
-                .style("border", "1px solid #ddd")
-                .style("border-radius", "4px")
-                .style("box-shadow", "0 2px 8px rgba(0,0,0,0.15)")
-                .apply {
-                    when (alignment) {
-                        DropdownAlignment.LEFT -> style("left", "0")
-                        DropdownAlignment.RIGHT -> style("right", "0")
-                        DropdownAlignment.CENTER -> {
-                            style("left", "50%")
-                            style("transform", "translateX(-50%)")
-                        }
-                    }
-                    if (closeOnItemClick) {
-                        // For close on item click, we can use data-action as well
-                        val closeAction: UiAction = UiAction.ToggleVisibility(menuId)
-                        val closeActionJson = Json.encodeToString(UiAction.serializer(), closeAction)
-                        attribute("data-action", closeActionJson)
-                    }
-                }
-                .role("menu")
-        ) {
+        var menuModifier = Modifier()
+            .id(menuId)
+            .dataAttribute("dropdown-menu", "true")
+            .style("position", "absolute")
+            .style("top", "100%")
+            .style("display", "none")
+            .style("z-index", "1000")
+            .style("min-width", "200px")
+            .style("margin-top", "4px")
+            .style("background-color", "white")
+            .style("border", "1px solid #ddd")
+            .style("border-radius", "4px")
+            .style("box-shadow", "0 2px 8px rgba(0,0,0,0.15)")
+        menuModifier = when (alignment) {
+            DropdownAlignment.LEFT -> menuModifier.style("left", "0")
+            DropdownAlignment.RIGHT -> menuModifier.style("right", "0")
+            DropdownAlignment.CENTER -> menuModifier
+                .style("left", "50%")
+                .style("transform", "translateX(-50%)")
+        }
+        if (closeOnItemClick) {
+            val closeAction: UiAction = UiAction.ToggleVisibility(menuId)
+            menuModifier = menuModifier.attribute(
+                "data-action",
+                Json.encodeToString(UiAction.serializer(), closeAction)
+            )
+        }
+        Box(modifier = menuModifier.role("menu")) {
             content()
         }
     }

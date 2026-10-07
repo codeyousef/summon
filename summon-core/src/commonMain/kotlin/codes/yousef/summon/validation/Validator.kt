@@ -184,10 +184,18 @@ interface Validator {
 
 /**
  * Required field validator that ensures a value is not empty.
+
+ * @property errorMessage The error message value.
  */
 class RequiredValidator(
     override val errorMessage: String = ValidationMessages.REQUIRED_FIELD
 ) : Validator {
+    /**
+     * Validates the supplied value.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     override fun validate(value: String): ValidationResult {
         val isValid = value.trim().isNotEmpty()
         return ValidationResult(isValid, if (!isValid) errorMessage else null)
@@ -196,12 +204,20 @@ class RequiredValidator(
 
 /**
  * Email validator that ensures a value matches an email pattern.
+
+ * @property errorMessage The error message value.
  */
 class EmailValidator(
     override val errorMessage: String = ValidationMessages.INVALID_EMAIL
 ) : Validator {
     private val emailRegex = kotlin.text.Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
 
+    /**
+     * Validates the supplied value.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     override fun validate(value: String): ValidationResult {
         val isValid = value.isEmpty() || emailRegex.matches(value)
         return ValidationResult(isValid, if (!isValid) errorMessage else null)
@@ -210,11 +226,20 @@ class EmailValidator(
 
 /**
  * Minimum length validator.
+
+ * @property minLength The min length value.
+ * @property errorMessage The error message value.
  */
 class MinLengthValidator(
     private val minLength: Int,
     override val errorMessage: String = ValidationMessages.minLength(minLength)
 ) : Validator {
+    /**
+     * Validates the supplied value.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     override fun validate(value: String): ValidationResult {
         val isValid = value.length >= minLength
         return ValidationResult(isValid, if (!isValid) errorMessage else null)
@@ -223,11 +248,20 @@ class MinLengthValidator(
 
 /**
  * Maximum length validator.
+
+ * @property maxLength The max length value.
+ * @property errorMessage The error message value.
  */
 class MaxLengthValidator(
     private val maxLength: Int,
     override val errorMessage: String = ValidationMessages.maxLength(maxLength)
 ) : Validator {
+    /**
+     * Validates the supplied value.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     override fun validate(value: String): ValidationResult {
         val isValid = value.length <= maxLength
         return ValidationResult(isValid, if (!isValid) errorMessage else null)
@@ -236,11 +270,20 @@ class MaxLengthValidator(
 
 /**
  * Pattern validator that ensures a value matches a regex pattern.
+
+ * @property pattern The pattern value.
+ * @property errorMessage The error message value.
  */
 class PatternValidator(
     private val pattern: kotlin.text.Regex,
     override val errorMessage: String = ValidationMessages.INVALID_FORMAT
 ) : Validator {
+    /**
+     * Validates the supplied value.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     override fun validate(value: String): ValidationResult {
         val isValid = value.isEmpty() || pattern.matches(value)
         return ValidationResult(isValid, if (!isValid) errorMessage else null)
@@ -249,11 +292,20 @@ class PatternValidator(
 
 /**
  * Custom validator that uses a provided validation function.
+
+ * @property validateFn The validate fn value.
+ * @property errorMessage The error message value.
  */
 class CustomValidator(
     private val validateFn: (String) -> Boolean,
     override val errorMessage: String
 ) : Validator {
+    /**
+     * Validates the supplied value.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     override fun validate(value: String): ValidationResult {
         val isValid = validateFn(value)
         return ValidationResult(isValid, if (!isValid) errorMessage else null)

@@ -11,7 +11,10 @@ import codes.yousef.summon.state.mutableStateOf
 import codes.yousef.summon.validation.Validator
 
 /**
- * Class that manages select state and validation.
+ * Select state and validation.
+ *
+ * @property selectedValue controlled selected option
+ * @property validators validators applied to the serialized selected value
  */
 class SelectState<T>(
     val selectedValue: SummonMutableState<T?>,

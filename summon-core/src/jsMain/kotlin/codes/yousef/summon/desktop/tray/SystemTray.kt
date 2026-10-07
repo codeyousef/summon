@@ -29,6 +29,15 @@ private class JsTrayIcon(
     }
 }
 
+/**
+ * Creates tray icon.
+ *
+ * @param tooltip The tooltip value.
+ * @param iconUrl The icon url value.
+ * @param onClick Callback invoked when click.
+ * @param menuItems The menu items value.
+ * @return The resulting value.
+ */
 actual fun createTrayIcon(
     tooltip: String,
     iconUrl: String?,
@@ -39,6 +48,11 @@ actual fun createTrayIcon(
     return null
 }
 
+/**
+ * Returns whether system tray supported.
+ *
+ * @return The resulting value.
+ */
 actual fun isSystemTraySupported(): Boolean = false
 
 /**

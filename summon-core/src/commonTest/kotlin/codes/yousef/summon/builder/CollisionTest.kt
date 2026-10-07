@@ -176,4 +176,41 @@ class CollisionTest {
         assertNull(CollisionDetector.findDropTarget(25.0, 25.0))
         assertEquals("movable", CollisionDetector.findDropTarget(225.0, 225.0)?.id)
     }
+    @Test
+    fun nestedDisabledAndHighlightLifecycleRemainDeterministic() {
+        CollisionDetector.clearAll()
+        val highlights = mutableListOf<Pair<String?, Boolean>>()
+        CollisionDetector.onHighlight = { id, add -> highlights += id to add }
+        val outer = DropZone("outer", Rect(0.0, 0.0, 100.0, 100.0), acceptTypes = setOf("text"))
+        val inner = DropZone("inner", Rect(10.0, 10.0, 10.0, 10.0))
+        val disabled = DropZone("disabled", Rect(10.0, 10.0, 10.0, 10.0), enabled = false)
+        CollisionDetector.registerDropZone(outer)
+        CollisionDetector.registerDropZone(inner)
+        CollisionDetector.registerDropZone(disabled)
+
+        assertEquals(listOf("inner", "outer"), CollisionDetector.findAllDropZones(15.0, 15.0).map { it.id })
+        assertEquals("inner", CollisionDetector.findDropZone(15.0, 15.0)?.id)
+        assertTrue(outer.acceptsType("text"))
+        assertFalse(outer.acceptsType("image"))
+        assertTrue(inner.acceptsType("image"))
+        assertEquals(100.0, inner.rect.area())
+        assertTrue(inner.rect.contains(10.0, 10.0))
+        assertFalse(inner.rect.contains(20.0, 15.0))
+
+        CollisionDetector.highlightZone("outer")
+        CollisionDetector.highlightZone("outer")
+        CollisionDetector.highlightZone("inner")
+        assertEquals("inner", CollisionDetector.getHighlightedZone())
+        CollisionDetector.unregisterDropZone("inner")
+        assertNull(CollisionDetector.getHighlightedZone())
+        assertEquals(
+            listOf<Pair<String?, Boolean>>("outer" to true, "outer" to false, "inner" to true, "inner" to false),
+            highlights,
+        )
+        CollisionDetector.updateDropZone("missing", Rect(0.0, 0.0, 1.0, 1.0))
+        CollisionDetector.clearHighlight()
+        CollisionDetector.onHighlight = null
+        CollisionDetector.clearAll()
+    }
+
 }

@@ -48,4 +48,55 @@ class HeadScopeTest {
             elements[1]
         )
     }
+
+    @Test
+    fun emitsEveryOptionalHeadAttributeAndOmitsEmptyVoidElements() {
+        val elements = mutableListOf<String>()
+        val head = DefaultHeadScope(elements::add)
+
+        head.meta()
+        head.base()
+        assertEquals(emptyList(), elements)
+
+        head.meta(
+            name = "refresh",
+            property = "og:title",
+            content = "content",
+            charset = "utf-8",
+            httpEquiv = "refresh"
+        )
+        head.link(
+            rel = "icon",
+            href = "/icon.svg",
+            type = "image/svg+xml",
+            sizes = "any",
+            crossorigin = "anonymous",
+            media = "(prefers-color-scheme: dark)"
+        )
+        head.script(
+            src = "/app.mjs",
+            type = "module",
+            async = true,
+            defer = true,
+            crossorigin = "anonymous"
+        )
+        head.style("body {}", media = "screen")
+        head.base(href = "https://example.test/", target = "_blank")
+
+        assertEquals(
+            """<meta charset="utf-8" name="refresh" property="og:title" content="content" http-equiv="refresh">""",
+            elements[0]
+        )
+        assertEquals(
+            """<link rel="icon" href="/icon.svg" type="image/svg+xml" sizes="any" crossorigin="anonymous" media="(prefers-color-scheme: dark)">""",
+            elements[1]
+        )
+        assertEquals(
+            """<script type="module" src="/app.mjs" async defer crossorigin="anonymous"></script>""",
+            elements[2]
+        )
+        assertEquals("""<style media="screen">body {}</style>""", elements[3])
+        assertEquals("""<base href="https://example.test/" target="_blank">""", elements[4])
+    }
+
 }

@@ -11,6 +11,9 @@ annotation class InitSummon
 
 /**
  * Various classes useful for methods that are called when a page is first loaded.
+
+ * @property config The config value.
+ * @property router The router value.
  */
 class InitSummonContext(val config: MutableSummonConfig, val router: Router)
 
@@ -27,7 +30,9 @@ fun initSummon(router: Router, init: (InitSummonContext) -> Unit) {
  * Configuration for Summon applications.
  */
 interface SummonConfig {
+    /** Provides summon config factory and constant members. */
     companion object {
+        /** The property declaration value. */
         val Instance: SummonConfig get() = MutableSummonConfigInstance
     }
 }

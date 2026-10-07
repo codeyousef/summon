@@ -6,7 +6,12 @@ import kotlinx.html.span
 import kotlinx.html.style
 
 /**
- * Data class to hold Text-related properties for JVM rendering
+ * Text values consumed by the JVM renderer.
+ *
+ * @property text visible text
+ * @property modifier typed styles and attributes
+ * @property additionalStyles renderer-specific CSS properties
+ * @property accessibilityAttributes explicit accessibility attributes
  */
 data class TextJvmExtension(
     val text: String,
@@ -42,4 +47,4 @@ fun <T> renderTextJvm(consumer: TagConsumer<T>, textExt: TextJvmExtension): TagC
         +textExt.text
     }
     return consumer
-} 
+}

@@ -12,45 +12,134 @@ import codes.yousef.summon.core.getCurrentTimeMillis
  */
 
 /**
- * Platform-specific implementations for DOM operations that use js() calls.
+ * Platform-specific implementations for DOM operations that use JS() calls.
  * For JS target: nativeElementId can be the actual element
  * For WASM target: nativeElementId should be the element's string ID
  */
 expect fun scrollIntoViewPlatform(nativeElementId: String, behavior: String)
+/**
+ * Returns computed style platform.
+ *
+ * @param nativeElementId The native element id value.
+ * @param property The property value.
+ * @return The resulting value.
+ */
 expect fun getComputedStylePlatform(nativeElementId: String, property: String): String?
 
 /**
  * Represents a DOM element abstraction for web platforms.
  */
 interface DOMElement {
+    /** The property declaration value. */
     val id: String
+    /** The property declaration value. */
     val tagName: String
+    /** The property declaration value. */
     val className: String
+    /** The property declaration value. */
     val textContent: String?
 
+    /**
+     * Sets attribute.
+     *
+     * @param name Human-readable name.
+     * @param value Value to process.
+     */
     fun setAttribute(name: String, value: String)
+    /**
+     * Returns attribute.
+     *
+     * @param name Human-readable name.
+     * @return The resulting value.
+     */
     fun getAttribute(name: String): String?
+    /**
+     * Removes attribute.
+     *
+     * @param name Human-readable name.
+     */
     fun removeAttribute(name: String)
+    /**
+     * Returns whether this value has attribute.
+     *
+     * @param name Human-readable name.
+     * @return The resulting value.
+     */
     fun hasAttribute(name: String): Boolean
 
+    /**
+     * Executes the append child operation.
+     *
+     * @param child The child value.
+     */
     fun appendChild(child: DOMElement)
+    /**
+     * Removes child.
+     *
+     * @param child The child value.
+     */
     fun removeChild(child: DOMElement)
+    /**
+     * Executes the insert before operation.
+     *
+     * @param newChild The new child value.
+     * @param referenceChild The reference child value.
+     */
     fun insertBefore(newChild: DOMElement, referenceChild: DOMElement?)
 
+    /**
+     * Adds event listener.
+     *
+     * @param type The type value.
+     * @param listener The listener value.
+     */
     fun addEventListener(type: String, listener: (event: Any) -> Unit)
+    /**
+     * Removes event listener.
+     *
+     * @param type The type value.
+     * @param listener The listener value.
+     */
     fun removeEventListener(type: String, listener: (event: Any) -> Unit)
 
+    /**
+     * Executes the query selector operation.
+     *
+     * @param selector The selector value.
+     * @return The resulting value.
+     */
     fun querySelector(selector: String): DOMElement?
+    /**
+     * Executes the query selector all operation.
+     *
+     * @param selector The selector value.
+     * @return The resulting value.
+     */
     fun querySelectorAll(selector: String): List<DOMElement>
 
+    /**
+     * Returns bounding client rect.
+     *
+     * @return The resulting value.
+     */
     fun getBoundingClientRect(): DOMRect
+    /** Moves focus to this element. */
     fun focus()
+    /** Removes focus from this element. */
     fun blur()
+    /** Activates this element. */
     fun click()
 }
 
 /**
  * Represents element bounds and positioning.
+
+ * @property left The left value.
+ * @property top The top value.
+ * @property right The right value.
+ * @property bottom The bottom value.
+ * @property width The width value.
+ * @property height The height value.
  */
 data class DOMRect(
     val left: Double,
@@ -65,10 +154,15 @@ data class DOMRect(
  * Common DOM element properties for form inputs.
  */
 interface DOMInput : DOMElement {
+    /** The property declaration value. */
     var value: String
+    /** The property declaration value. */
     var disabled: Boolean
+    /** The property declaration value. */
     var checked: Boolean
+    /** The property declaration value. */
     var selected: Boolean
+    /** The property declaration value. */
     var placeholder: String
 }
 
@@ -76,17 +170,62 @@ interface DOMInput : DOMElement {
  * Document abstraction for DOM operations.
  */
 interface DOMDocument {
+    /** The property declaration value. */
     val body: DOMElement?
+    /** The property declaration value. */
     val head: DOMElement?
+    /** The property declaration value. */
     val documentElement: DOMElement?
 
+    /**
+     * Creates element.
+     *
+     * @param tagName The tag name value.
+     * @return The resulting value.
+     */
     fun createElement(tagName: String): DOMElement
+    /**
+     * Creates text node.
+     *
+     * @param text The text value.
+     * @return The resulting value.
+     */
     fun createTextNode(text: String): DOMElement
+    /**
+     * Returns element by ID.
+     *
+     * @param id Stable identifier.
+     * @return The resulting value.
+     */
     fun getElementById(id: String): DOMElement?
+    /**
+     * Executes the query selector operation.
+     *
+     * @param selector The selector value.
+     * @return The resulting value.
+     */
     fun querySelector(selector: String): DOMElement?
+    /**
+     * Executes the query selector all operation.
+     *
+     * @param selector The selector value.
+     * @return The resulting value.
+     */
     fun querySelectorAll(selector: String): List<DOMElement>
 
+    /**
+     * Adds event listener.
+     *
+     * @param type The type value.
+     * @param listener The listener value.
+     */
     fun addEventListener(type: String, listener: (event: Any) -> Unit)
+    /**
+     * Removes event listener.
+     *
+     * @param type The type value.
+     * @param listener The listener value.
+     */
     fun removeEventListener(type: String, listener: (event: Any) -> Unit)
 }
 
@@ -94,28 +233,100 @@ interface DOMDocument {
  * Window abstraction for browser APIs.
  */
 interface DOMWindow {
+    /** The property declaration value. */
     val document: DOMDocument
+    /** The property declaration value. */
     val location: DOMLocation
+    /** The property declaration value. */
     val history: DOMHistory
 
+    /** The property declaration value. */
     var innerWidth: Int
+    /** The property declaration value. */
     var innerHeight: Int
+    /** The property declaration value. */
     var outerWidth: Int
+    /** The property declaration value. */
     var outerHeight: Int
 
+    /**
+     * Executes the alert operation.
+     *
+     * @param message Message content.
+     */
     fun alert(message: String)
+    /**
+     * Executes the confirm operation.
+     *
+     * @param message Message content.
+     * @return The resulting value.
+     */
     fun confirm(message: String): Boolean
+    /**
+     * Executes the prompt operation.
+     *
+     * @param message Message content.
+     * @param defaultValue The default value value.
+     * @return The resulting value.
+     */
     fun prompt(message: String, defaultValue: String = ""): String?
 
+    /**
+     * Sets timeout.
+     *
+     * @param callback The callback value.
+     * @param delay Delay in milliseconds.
+     * @return The resulting value.
+     */
     fun setTimeout(callback: () -> Unit, delay: Int): Int
+    /**
+     * Clears timeout.
+     *
+     * @param timeoutId The timeout id value.
+     */
     fun clearTimeout(timeoutId: Int)
+    /**
+     * Sets interval.
+     *
+     * @param callback The callback value.
+     * @param delay Delay in milliseconds.
+     * @return The resulting value.
+     */
     fun setInterval(callback: () -> Unit, delay: Int): Int
+    /**
+     * Clears interval.
+     *
+     * @param intervalId The interval id value.
+     */
     fun clearInterval(intervalId: Int)
 
+    /**
+     * Executes the request animation frame operation.
+     *
+     * @param callback The callback value.
+     * @return The resulting value.
+     */
     fun requestAnimationFrame(callback: () -> Unit): Int
+    /**
+     * Cancels animation frame.
+     *
+     * @param requestId The request id value.
+     */
     fun cancelAnimationFrame(requestId: Int)
 
+    /**
+     * Adds event listener.
+     *
+     * @param type The type value.
+     * @param listener The listener value.
+     */
     fun addEventListener(type: String, listener: (event: Any) -> Unit)
+    /**
+     * Removes event listener.
+     *
+     * @param type The type value.
+     * @param listener The listener value.
+     */
     fun removeEventListener(type: String, listener: (event: Any) -> Unit)
 }
 
@@ -123,17 +334,36 @@ interface DOMWindow {
  * Location API abstraction.
  */
 interface DOMLocation {
+    /** The property declaration value. */
     var href: String
+    /** The property declaration value. */
     var protocol: String
+    /** The property declaration value. */
     var host: String
+    /** The property declaration value. */
     var hostname: String
+    /** The property declaration value. */
     var port: String
+    /** The property declaration value. */
     var pathname: String
+    /** The property declaration value. */
     var search: String
+    /** The property declaration value. */
     var hash: String
 
+    /**
+     * Executes the assign operation.
+     *
+     * @param url Target URL.
+     */
     fun assign(url: String)
+    /**
+     * Executes the replace operation.
+     *
+     * @param url Target URL.
+     */
     fun replace(url: String)
+    /** Executes the reload operation. */
     fun reload()
 }
 
@@ -141,13 +371,36 @@ interface DOMLocation {
  * History API abstraction.
  */
 interface DOMHistory {
+    /** The property declaration value. */
     val length: Int
+    /** The property declaration value. */
     val state: Any?
 
+    /** Executes the back operation. */
     fun back()
+    /** Executes the forward operation. */
     fun forward()
+    /**
+     * Executes the go operation.
+     *
+     * @param delta The delta value.
+     */
     fun go(delta: Int)
+    /**
+     * Executes the push state operation.
+     *
+     * @param state The state value.
+     * @param title The title value.
+     * @param url Target URL.
+     */
     fun pushState(state: Any?, title: String?, url: String?)
+    /**
+     * Executes the replace state operation.
+     *
+     * @param state The state value.
+     * @param title The title value.
+     * @param url Target URL.
+     */
     fun replaceState(state: Any?, title: String?, url: String?)
 }
 
@@ -156,11 +409,31 @@ interface DOMHistory {
  * Implementations provide access to the actual DOM APIs.
  */
 expect object DOMProvider {
+    /** The property declaration value. */
     val window: DOMWindow
+    /** The property declaration value. */
     val document: DOMDocument
 
+    /**
+     * Creates element from native.
+     *
+     * @param nativeElement The native element value.
+     * @return The resulting value.
+     */
     fun createElementFromNative(nativeElement: Any): DOMElement
+    /**
+     * Returns native element.
+     *
+     * @param element The element value.
+     * @return The resulting value.
+     */
     fun getNativeElement(element: DOMElement): Any
+    /**
+     * Returns native element ID.
+     *
+     * @param element The element value.
+     * @return The resulting value.
+     */
     fun getNativeElementId(element: DOMElement): String
 }
 
@@ -346,9 +619,34 @@ object WebDOMUtils {
  * Console abstraction for logging across platforms.
  */
 expect object console {
+    /**
+     * Executes the log operation.
+     *
+     * @param message Message content.
+     */
     fun log(message: Any?)
+    /**
+     * Executes the warn operation.
+     *
+     * @param message Message content.
+     */
     fun warn(message: Any?)
+    /**
+     * Executes the error operation.
+     *
+     * @param message Message content.
+     */
     fun error(message: Any?)
+    /**
+     * Executes the info operation.
+     *
+     * @param message Message content.
+     */
     fun info(message: Any?)
+    /**
+     * Executes the debug operation.
+     *
+     * @param message Message content.
+     */
     fun debug(message: Any?)
 }

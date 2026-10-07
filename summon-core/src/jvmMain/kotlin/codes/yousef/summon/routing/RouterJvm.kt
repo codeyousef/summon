@@ -109,6 +109,12 @@ class ServerNavLink(
     val className: String = "",
     val activeClassName: String = "active"
 ) {
+    /**
+     * Composes the supplied content.
+     *
+     * @param receiver The receiver value.
+     * @return The resulting value.
+     */
     fun <T> compose(receiver: T): T {
         if (receiver is TagConsumer<*>) {
             @Suppress("UNCHECKED_CAST")
@@ -172,6 +178,13 @@ actual interface Router {
     actual val currentPath: String
 }
 
+/**
+ * Represents JVM router.
+ *
+ * @property routes The routes value.
+ * @property notFound The not found value.
+ * @property guardFallback The guard fallback value.
+ */
 class JvmRouter(
     private val routes: List<RouteDefinition>,
     private val notFound: @Composable (RouteParams) -> Unit,
@@ -180,12 +193,15 @@ class JvmRouter(
 
     // Store the current path and params
     private var _currentPath: String = ""
+    /** The null value. */
     override var interceptor: NavigationInterceptor? = null
+    /** The null value. */
     override var pendingPath: String? = null
         private set
     private var currentParams: Map<String, String> = emptyMap()
 
     // Implement the currentPath property from the Router interface
+    /** The property declaration value. */
     override val currentPath: String
         get() = _currentPath
 
@@ -203,12 +219,14 @@ class JvmRouter(
         performNavigation(safePath)
     }
 
+    /** Executes the continue pending operation. */
     override fun continuePending() {
         val safePath = pendingPath?.let(InternalRoutePath::parse) ?: return
         pendingPath = null
         performNavigation(safePath)
     }
 
+    /** Cancels pending. */
     override fun cancelPending() {
         pendingPath = null
     }
@@ -218,6 +236,11 @@ class JvmRouter(
         currentParams = findMatchingRoute(path)?.params ?: emptyMap()
     }
 
+    /**
+     * Creates the operation.
+     *
+     * @param initialPath The initial path value.
+     */
     @Composable
     override fun create(initialPath: String) {
         // Set the initial path and find matching route

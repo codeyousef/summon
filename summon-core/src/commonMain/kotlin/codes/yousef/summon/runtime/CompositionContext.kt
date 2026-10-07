@@ -43,6 +43,7 @@ class CompositionContextImpl private constructor() {
         CompositionLocal.setCurrentComposer(null)
     }
 
+    /** Provides composition context impl factory and constant members. */
     companion object {
         /**
          * Creates a new composition and composes the content.
@@ -56,4 +57,4 @@ class CompositionContextImpl private constructor() {
             return context
         }
     }
-} 
+}

@@ -8,7 +8,12 @@ import kotlinx.html.span
 import kotlinx.html.style
 
 /**
- * Data class to hold Text-related properties for JS rendering
+ * Text values consumed by the browser renderer.
+ *
+ * @property text visible text
+ * @property modifier typed styles and attributes
+ * @property additionalStyles renderer-specific CSS properties
+ * @property accessibilityAttributes explicit accessibility attributes
  */
 data class TextJsExtension(
     val text: String,
@@ -35,4 +40,4 @@ fun <T> renderTextJs(consumer: TagConsumer<T>, textExt: TextJsExtension): TagCon
         +textExt.text
     }
     return consumer
-} 
+}

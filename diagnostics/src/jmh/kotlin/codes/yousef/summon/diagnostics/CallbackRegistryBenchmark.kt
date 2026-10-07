@@ -51,15 +51,15 @@ open class CallbackRegistryBenchmark {
     fun registerCallback(): String {
         return CallbackRegistry.registerCallback { counter++ }
     }
-
     /**
-     * Measure callback invocation by ID.
+     * Measure secure one-shot callback invocation by ID and render capability.
      */
     @Benchmark
-    fun executeCallback() {
-        // Re-register since executeCallback removes the callback
+    fun executeRemoteCallback() {
+        CallbackRegistry.beginRender()
         val id = CallbackRegistry.registerCallback { counter++ }
-        CallbackRegistry.executeCallback(id)
+        val context = CallbackRegistry.finishRenderAndCollectCallbacks()
+        CallbackRegistry.executeRemoteCallback(id, context.capability)
     }
 
     /**
@@ -72,12 +72,14 @@ open class CallbackRegistryBenchmark {
     }
 
     /**
-     * Measure full cycle: register, execute (which removes).
+     * Measure the public secure cycle: render registration, collection, and execution.
      */
     @Benchmark
-    fun fullCallbackCycle() {
+    fun fullRemoteCallbackCycle() {
+        CallbackRegistry.beginRender()
         val id = CallbackRegistry.registerCallback { counter++ }
-        CallbackRegistry.executeCallback(id)
+        val context = CallbackRegistry.finishRenderAndCollectCallbacks()
+        CallbackRegistry.executeRemoteCallback(id, context.capability)
     }
 
     /**
@@ -91,16 +93,17 @@ open class CallbackRegistryBenchmark {
     }
 
     /**
-     * Measure batch execution.
+     * Measure batch execution through one render capability.
      */
     @Benchmark
-    fun executeBatch10Callbacks() {
-        // Register and execute 10 callbacks
+    fun executeBatch10RemoteCallbacks() {
+        CallbackRegistry.beginRender()
         val ids = (0 until 10).map {
             CallbackRegistry.registerCallback { counter++ }
         }
+        val context = CallbackRegistry.finishRenderAndCollectCallbacks()
         ids.forEach { id ->
-            CallbackRegistry.executeCallback(id)
+            CallbackRegistry.executeRemoteCallback(id, context.capability)
         }
     }
 }

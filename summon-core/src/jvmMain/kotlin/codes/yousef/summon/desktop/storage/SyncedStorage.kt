@@ -40,25 +40,6 @@ private class JvmSyncedStorage<T>(
         private val lock = Any()
     }
 
-    private val localListeners = mutableListOf<(T) -> Unit>()
-
-    init {
-        // Register for global notifications
-        synchronized(lock) {
-            listeners.getOrPut(key) { mutableListOf() }.add { serializedValue ->
-                val newValue = if (serializedValue != null) {
-                    try {
-                        deserializer(serializedValue)
-                    } catch (e: Exception) {
-                        defaultValue
-                    }
-                } else {
-                    defaultValue
-                }
-                notifyLocalListeners(newValue)
-            }
-        }
-    }
 
     override var value: T
         get() {
@@ -76,27 +57,24 @@ private class JvmSyncedStorage<T>(
             }
         }
         set(newValue) {
-            synchronized(lock) {
-                try {
-                    val serialized = serializer(newValue)
-                    store[key] = serialized
-                    // Notify all listeners (including other instances with the same key)
-                    listeners[key]?.forEach { listener ->
-                        listener(serialized)
-                    }
-                } catch (e: Exception) {
-                    // Log error in production
-                }
+            val serialized = try {
+                serializer(newValue)
+            } catch (_: Exception) {
+                return
             }
+            val subscriptions = synchronized(lock) {
+                store[key] = serialized
+                listeners[key]?.toList().orEmpty()
+            }
+            subscriptions.forEach { it(serialized) }
         }
 
     override fun clear() {
-        synchronized(lock) {
+        val subscriptions = synchronized(lock) {
             store.remove(key)
-            listeners[key]?.forEach { listener ->
-                listener(null)
-            }
+            listeners[key]?.toList().orEmpty()
         }
+        subscriptions.forEach { it(null) }
     }
 
     override fun exists(): Boolean {
@@ -106,18 +84,31 @@ private class JvmSyncedStorage<T>(
     }
 
     override fun addChangeListener(listener: (T) -> Unit): () -> Unit {
-        localListeners.add(listener)
-        return {
-            localListeners.remove(listener)
-        }
-    }
-
-    private fun notifyLocalListeners(newValue: T) {
-        localListeners.forEach { listener ->
+        val subscription: (String?) -> Unit = { serializedValue ->
+            val newValue = if (serializedValue != null) {
+                try {
+                    deserializer(serializedValue)
+                } catch (_: Exception) {
+                    defaultValue
+                }
+            } else {
+                defaultValue
+            }
             try {
                 listener(newValue)
-            } catch (e: Exception) {
-                // Swallow exceptions in listeners
+            } catch (_: Exception) {
+                // A failing observer must not prevent delivery to other owners.
+            }
+        }
+        synchronized(lock) {
+            listeners.getOrPut(key) { mutableListOf() }.add(subscription)
+        }
+        return {
+            synchronized(lock) {
+                listeners[key]?.let { subscriptions ->
+                    subscriptions.remove(subscription)
+                    if (subscriptions.isEmpty()) listeners.remove(key)
+                }
             }
         }
     }

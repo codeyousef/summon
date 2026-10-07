@@ -93,3 +93,60 @@ disablement; capture waits for `document.fonts.ready` and the explicit harness r
 # Prove changed and missing images fail while preserving baseline bytes
 ./e2e-tests/verify-harness-visual-failures-container.sh
 ```
+
+## Merged JVM coverage gate
+
+Kover 0.9.8 instruments the JVM tests for `summon-core`, `summon-cli`, `summon-aether`,
+`summon-devtools`, `summon-test`, and `diagnostics`. Run the same gate used by required CI:
+
+```bash
+./gradlew :coverageCheck -x :summon-core:copyHydrationBundles
+```
+
+The gate generates `build/reports/kover/html/index.html`,
+`build/reports/kover/report.xml`, and `build/reports/kover/modules.txt`, then rejects a missing or
+empty report, a report with no classes or branches, or merged branch coverage below 80%. The
+module manifest is part of the report artifact and records every merged JVM module and the
+current exclusion policy.
+
+Kover does not instrument Kotlin/JS or Kotlin/Wasm. Their browser results remain separate matrix
+evidence and must not be described as part of the merged JVM percentage.
+
+The CLI's generated-project integration tests launch nested Gradle toolchains. Under the Kover
+agent they still generate every project shape and assert the emitted contracts, but omit only the
+nested compilation because recursive toolchain instrumentation can deadlock or time out. Run the
+complete generated-project builds without Kover through `:summon-cli:jvmTest`.
+
+The controlled fixture intentionally leaves branches uncovered. This command must exit nonzero:
+
+```bash
+./gradlew -p e2e-tests/fixtures/coverage-gate-failure koverVerify
+```
+
+## Versioned API reference
+
+Dokka 2.2.0 generates the aggregate reference for `summon-core`, `summon-cli`,
+`summon-devtools`, `summon-test`, `diagnostics`, and the internal Aether compatibility module:
+
+```bash
+./gradlew :dokkaGenerate
+```
+
+The current release is written to `build/docs/api/<version>/`. Dokka compiles sample links from
+each module's matching test source set and rejects undocumented public declarations, broken links,
+or malformed KDoc by default. New public APIs, especially lifecycle- and privacy-sensitive
+additions, require explicit ownership, disposal, exception, and platform contracts. Source
+declarations default to the exact `v<version>` Git tag; CI sets `SUMMON_DOCS_SOURCE_REF` to its
+immutable commit SHA while qualifying unreleased changes. The versioning plugin reads only real,
+preserved outputs under `docs/api-versions`; generation never deletes that directory or publishes.
+
+Sample functions are ordinary compiled tests. They exercise owned flow disposal, inspector
+privacy and disposal, time-travel teardown, semantic snapshots, browser error-overlay teardown,
+and the JVM/browser component harnesses. Run their source sets directly before generating docs:
+
+```bash
+./gradlew :summon-core:jvmTest :summon-devtools:jvmTest :summon-test:jvmTest \
+  :summon-devtools:jsNodeTest :summon-test:jsNodeTest
+```
+
+Publication or GitHub Pages deployment is a separate, explicitly authorized operation.

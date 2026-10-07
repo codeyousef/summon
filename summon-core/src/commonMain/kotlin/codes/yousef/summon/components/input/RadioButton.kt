@@ -25,7 +25,6 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * @param onClick Callback invoked when this radio button is clicked. Should typically update the external state.
  * @param modifier Modifier applied to the radio button layout (often includes label).
  * @param enabled Controls the enabled state. When `false`, interaction is disabled.
- * @param label Optional composable lambda for displaying a label beside the radio button.
  */
 @Composable
 fun RadioButton(
@@ -161,7 +160,9 @@ fun RadioButton(
  * Defines the position of the label relative to the input component.
  */
 enum class LabelPosition {
-    START, // Label appears before the input
+    /** The start label position option. */
+    START,
+    /** The end label position option. */
     END    // Label appears after the input
 }
 

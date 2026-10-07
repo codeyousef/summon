@@ -10,15 +10,30 @@ import kotlin.js.Promise
  * External declaration for the browser's clipboard API
  */
 external interface ClipboardNavigator {
+    /** The property declaration value. */
     val clipboard: ClipboardAPI?
 }
 
+/** Contract for clipboard API. */
 external interface ClipboardAPI {
+    /**
+     * Executes the read text operation.
+     *
+     * @return The resulting value.
+     */
     fun readText(): Promise<String>
+    /**
+     * Executes the write text operation.
+     *
+     * @param text The text value.
+     * @return The resulting value.
+     */
     fun writeText(text: String): Promise<dynamic>
 }
 
+/** The property declaration value. */
 @JsName("navigator")
+/** The property declaration value. */
 external val clipboardNavigator: ClipboardNavigator
 
 /**
@@ -28,6 +43,11 @@ class JsClipboardAPI : ClipboardAPI {
 
     private var lastClipboardContent: String? = null
 
+    /**
+     * Executes the read text operation.
+     *
+     * @return The resulting value.
+     */
     override fun readText(): String {
         // Clipboard API is async, but our interface is sync
         // For now, return cached value or empty string
@@ -35,6 +55,11 @@ class JsClipboardAPI : ClipboardAPI {
         return lastClipboardContent ?: ""
     }
 
+    /**
+     * Executes the write text operation.
+     *
+     * @param text The text value.
+     */
     override fun writeText(text: String) {
         // Check if clipboard API is available
         if (isClipboardAvailable()) {
@@ -51,16 +76,27 @@ class JsClipboardAPI : ClipboardAPI {
         }
     }
 
+    /**
+     * Returns whether this value has text.
+     *
+     * @return The resulting value.
+     */
     override fun hasText(): Boolean {
         return lastClipboardContent?.isNotEmpty() == true
     }
 
+    /** Clears the operation. */
     override fun clear() {
         writeText("")
         lastClipboardContent = null
     }
 
     // JS-specific implementation could include additional methods
+    /**
+     * Executes the write HTML operation.
+     *
+     * @param html The html value.
+     */
     fun writeHtml(html: String) {
         // Implementation for writing HTML to clipboard
         // This would require using ClipboardItem API
@@ -126,7 +162,18 @@ fun CompositionScope.useClipboard(): ClipboardAPI {
 }
 
 // JS Console logging utility
+/** Provides console operations. */
 external object console {
+    /**
+     * Executes the log operation.
+     *
+     * @param message Message content.
+     */
     fun log(message: String)
+    /**
+     * Executes the error operation.
+     *
+     * @param message Message content.
+     */
     fun error(message: String)
-} 
+}

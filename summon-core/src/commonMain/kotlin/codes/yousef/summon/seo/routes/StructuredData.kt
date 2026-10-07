@@ -25,12 +25,13 @@ fun JsonLdStructuredData(jsonLdString: String) {
     // Renders no UI.
 }
 
-// Helper to escape HTML entities (basic example)
+// Script contents use JSON escapes rather than HTML entities, which are not decoded in raw-text
+// script elements. Escaping these characters prevents a value from closing the script element.
 private fun escapeHtmlEntities(str: String): String {
     return str
-        .replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
+        .replace("&", "\\u0026")
+        .replace("<", "\\u003C")
+        .replace(">", "\\u003E")
 }
 
 /**
@@ -158,4 +159,4 @@ fun ProductStructuredData(
     )
 
     StructuredData(data)
-} 
+}

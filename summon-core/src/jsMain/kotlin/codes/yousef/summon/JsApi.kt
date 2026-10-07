@@ -33,12 +33,12 @@ fun hydrateComposableRoot(rootElementId: String, composable: @Composable () -> U
     val renderer = PlatformRenderer()
     setPlatformRenderer(renderer)
     LocalPlatformRenderer.provides(renderer)
-    
+
     // Initialize global event listener for data-action handling
     // This is crucial for HamburgerMenu and other components that use
     // client-side only actions via data-action attribute
     GlobalEventListener.init()
-    
+
     renderer.hydrateComposableRoot(rootElementId, composable)
 }
 
@@ -78,6 +78,14 @@ private fun findRootElement(requestedId: String): HTMLElement {
     )
 }
 
+/**
+ * Executes the mount composable root operation.
+ *
+ * @param rootElementId The root element id value.
+ * @param scheduler The scheduler value.
+ * @param composable The composable value.
+ * @return The resulting value.
+ */
 actual fun mountComposableRoot(
     rootElementId: String,
     scheduler: codes.yousef.summon.runtime.RecompositionScheduler?,

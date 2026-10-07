@@ -31,6 +31,8 @@ interface Principal {
 /**
  * Represents a role in the system.
  * Roles can be hierarchical and can be assigned permissions.
+
+ * @property name Human-readable name.
  */
 @JvmInline
 value class Role(val name: String)
@@ -38,6 +40,8 @@ value class Role(val name: String)
 /**
  * Represents a permission in the system.
  * Permissions are granular access rights that can be assigned to roles.
+
+ * @property name Human-readable name.
  */
 @JvmInline
-value class Permission(val name: String) 
+value class Permission(val name: String)

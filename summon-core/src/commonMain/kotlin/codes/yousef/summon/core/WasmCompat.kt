@@ -26,23 +26,19 @@ fun String.toLowerCaseCompat(): String {
  * Works around missing String.splitCompat() in WASM.
  */
 fun String.splitCompat(delimiter: String): List<String> {
+    require(delimiter.isNotEmpty()) { "Delimiter must not be empty" }
     val result = mutableListOf<String>()
     var currentIndex = 0
 
-    while (currentIndex < this.length) {
-        val nextIndex = this.indexOf(delimiter, currentIndex)
+    while (true) {
+        val nextIndex = indexOf(delimiter, currentIndex)
         if (nextIndex == -1) {
-            // Add the rest of the string
-            result.add(this.substring(currentIndex))
-            break
-        } else {
-            // Add the part before delimiter
-            result.add(this.substring(currentIndex, nextIndex))
-            currentIndex = nextIndex + delimiter.length
+            result.add(substring(currentIndex))
+            return result
         }
+        result.add(substring(currentIndex, nextIndex))
+        currentIndex = nextIndex + delimiter.length
     }
-
-    return result
 }
 
 /**
@@ -50,31 +46,18 @@ fun String.splitCompat(delimiter: String): List<String> {
  * Works around missing String.split() with limit in WASM.
  */
 fun String.splitCompat(delimiter: String, limit: Int): List<String> {
+    require(delimiter.isNotEmpty()) { "Delimiter must not be empty" }
     if (limit <= 0) return splitCompat(delimiter)
 
     val result = mutableListOf<String>()
     var currentIndex = 0
-    var count = 0
-
-    while (currentIndex < this.length && count < limit - 1) {
-        val nextIndex = this.indexOf(delimiter, currentIndex)
-        if (nextIndex == -1) {
-            // Add the rest of the string
-            result.add(this.substring(currentIndex))
-            return result
-        } else {
-            // Add the part before delimiter
-            result.add(this.substring(currentIndex, nextIndex))
-            currentIndex = nextIndex + delimiter.length
-            count++
-        }
+    while (result.size < limit - 1) {
+        val nextIndex = indexOf(delimiter, currentIndex)
+        if (nextIndex == -1) break
+        result.add(substring(currentIndex, nextIndex))
+        currentIndex = nextIndex + delimiter.length
     }
-
-    // Add remaining part as last element if we hit the limit
-    if (currentIndex < this.length) {
-        result.add(this.substring(currentIndex))
-    }
-
+    result.add(substring(currentIndex))
     return result
 }
 
@@ -118,21 +101,25 @@ fun <A, B> pairOf(first: A, second: B): Pair<A, B> = Pair(first, second)
 class StringBuilderCompat {
     private val parts = mutableListOf<String>()
 
+    /** Appends [value] without intermediate concatenation. */
     fun append(value: String): StringBuilderCompat {
         parts.add(value)
         return this
     }
 
+    /** Appends [value] without intermediate concatenation. */
     fun append(value: Char): StringBuilderCompat {
         parts.add(value.toString())
         return this
     }
 
+    /** Appends the string representation of [value], or `null`. */
     fun append(value: Any?): StringBuilderCompat {
         parts.add(value?.toString() ?: "null")
         return this
     }
 
+    /** Joins all appended values. */
     override fun toString(): String {
         return parts.joinToString("")
     }
@@ -144,12 +131,11 @@ class StringBuilderCompat {
  */
 fun String.trimIndentCompat(): String {
     val lines = this.splitCompat("\n")
-    if (lines.isEmpty()) return this
 
     // Find minimum indentation (excluding empty lines)
     var minIndent = Int.MAX_VALUE
     for (line in lines) {
-        if (line.isNotEmpty()) {
+        if (line.isNotBlank()) {
             var indent = 0
             for (ch in line) {
                 if (ch == ' ' || ch == '\t') {
@@ -171,10 +157,10 @@ fun String.trimIndentCompat(): String {
     // Remove the minimum indentation from each line
     val result = mutableListOf<String>()
     for (line in lines) {
-        if (line.length > minIndent) {
-            result.add(line.substring(minIndent))
-        } else if (line.isEmpty()) {
+        if (line.isBlank()) {
             result.add("")
+        } else if (line.length > minIndent) {
+            result.add(line.substring(minIndent))
         } else {
             result.add(line)
         }
@@ -187,6 +173,7 @@ fun String.trimIndentCompat(): String {
  * Math utilities for WASM.
  */
 object MathCompat {
+    /** Approximates $e^x$ with twenty Taylor-series terms. */
     fun exp(x: Double): Double {
         // Simple Taylor series approximation for e^x
         var sum = 1.0
@@ -198,18 +185,28 @@ object MathCompat {
         return sum
     }
 
+    /** Float variant of [exp]. */
     fun exp(x: Float): Float = exp(x.toDouble()).toFloat()
 
+    /** Absolute value of [x]. */
     fun abs(x: Double): Double = if (x < 0.0) -x else x
+    /** Absolute value of [x]. */
     fun abs(x: Float): Float = if (x < 0.0f) -x else x
+    /** Absolute value of [x]. */
     fun abs(x: Int): Int = if (x < 0) -x else x
 
+    /** Greater of [a] and [b]. */
     fun max(a: Double, b: Double): Double = if (a > b) a else b
+    /** Greater of [a] and [b]. */
     fun max(a: Float, b: Float): Float = if (a > b) a else b
+    /** Greater of [a] and [b]. */
     fun max(a: Int, b: Int): Int = if (a > b) a else b
 
+    /** Lesser of [a] and [b]. */
     fun min(a: Double, b: Double): Double = if (a < b) a else b
+    /** Lesser of [a] and [b]. */
     fun min(a: Float, b: Float): Float = if (a < b) a else b
+    /** Lesser of [a] and [b]. */
     fun min(a: Int, b: Int): Int = if (a < b) a else b
 }
 
@@ -222,6 +219,7 @@ fun <T> List<T>.forEachCompat(action: (T) -> Unit) {
     }
 }
 
+/** Returns at most the first [n] values. */
 fun <T> List<T>.takeCompat(n: Int): List<T> {
     val result = mutableListOf<T>()
     var count = 0
@@ -233,6 +231,7 @@ fun <T> List<T>.takeCompat(n: Int): List<T> {
     return result
 }
 
+/** Returns values after the first [n]. */
 fun <T> List<T>.dropCompat(n: Int): List<T> {
     val result = mutableListOf<T>()
     var count = 0
@@ -245,6 +244,7 @@ fun <T> List<T>.dropCompat(n: Int): List<T> {
     return result
 }
 
+/** Maps every value with [transform]. */
 fun <T, R> List<T>.mapCompat(transform: (T) -> R): List<R> {
     val result = mutableListOf<R>()
     for (element in this) {
@@ -253,6 +253,7 @@ fun <T, R> List<T>.mapCompat(transform: (T) -> R): List<R> {
     return result
 }
 
+/** Retains values accepted by [predicate]. */
 fun <T> List<T>.filterCompat(predicate: (T) -> Boolean): List<T> {
     val result = mutableListOf<T>()
     for (element in this) {
@@ -263,19 +264,28 @@ fun <T> List<T>.filterCompat(predicate: (T) -> Boolean): List<T> {
     return result
 }
 
-/**
- * Time utilities for WASM.
- */
+/** Millisecond-based duration helpers used by common code. */
 object TimeCompat {
-    // Simple duration representation in milliseconds
+    /**
+     * Duration represented in milliseconds.
+     *
+     * @property milliseconds signed duration value
+     */
     data class DurationCompat(val milliseconds: Long) {
+        /** Converts this duration to fractional seconds. */
         fun toSeconds(): Double = milliseconds / 1000.0
+        /** Converts this duration to fractional minutes. */
         fun toMinutes(): Double = milliseconds / 60000.0
+        /** Converts this duration to fractional hours. */
         fun toHours(): Double = milliseconds / 3600000.0
     }
 
+    /** Creates a duration from [value] milliseconds. */
     fun milliseconds(value: Long): DurationCompat = DurationCompat(value)
+    /** Creates a duration from [value] seconds. */
     fun seconds(value: Long): DurationCompat = DurationCompat(value * 1000)
+    /** Creates a duration from [value] minutes. */
     fun minutes(value: Long): DurationCompat = DurationCompat(value * 60000)
+    /** Creates a duration from [value] hours. */
     fun hours(value: Long): DurationCompat = DurationCompat(value * 3600000)
 }

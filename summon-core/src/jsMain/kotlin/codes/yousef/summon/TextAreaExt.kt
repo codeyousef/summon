@@ -7,7 +7,12 @@ import org.w3c.dom.HTMLTextAreaElement
 import org.w3c.dom.events.Event
 
 /**
- * Data class to hold TextArea-related extension properties for JS implementation
+ * Browser text-area state and validation behavior.
+ *
+ * @property state controlled text state
+ * @property onValueChange callback for accepted input
+ * @property validators ordered validation functions
+ * @property validate explicit validation callback
  */
 data class TextAreaJsExtension(
     val state: SummonMutableState<String>,
@@ -40,4 +45,4 @@ fun setupJsTextAreaHandler(fieldId: String, textAreaExt: TextAreaJsExtension) {
         // Prevent default to avoid form submission
         event.preventDefault()
     }
-} 
+}

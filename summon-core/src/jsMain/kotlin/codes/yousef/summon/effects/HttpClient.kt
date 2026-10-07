@@ -12,7 +12,18 @@ import org.w3c.fetch.Response
 import kotlin.js.Date
 import kotlin.js.Promise
 
+/**
+ * Represents HTTP client.
+ *
+ * @property config The config value.
+ */
 actual class HttpClient(private val config: HttpClientConfig) {
+    /**
+     * Executes the execute operation.
+     *
+     * @param request The request value.
+     * @return The resulting value.
+     */
     actual suspend fun execute(request: HttpRequest): HttpResponse {
         val (_, responseLimit) = request.validateFor(config)
         val url = resolveUrl(request.url)
@@ -103,18 +114,56 @@ actual class HttpClient(private val config: HttpClientConfig) {
             url
         }
 
+    /**
+     * Returns the operation.
+     *
+     * @param url Target URL.
+     * @param headers The headers value.
+     * @return The resulting value.
+     */
     actual suspend fun get(url: String, headers: Map<String, String>): HttpResponse =
         execute(HttpRequest(url, HttpMethod.GET, headers))
 
+    /**
+     * Executes the post operation.
+     *
+     * @param url Target URL.
+     * @param body The body value.
+     * @param headers The headers value.
+     * @return The resulting value.
+     */
     actual suspend fun post(url: String, body: String, headers: Map<String, String>): HttpResponse =
         execute(HttpRequest(url, HttpMethod.POST, headers, body))
 
+    /**
+     * Executes the put operation.
+     *
+     * @param url Target URL.
+     * @param body The body value.
+     * @param headers The headers value.
+     * @return The resulting value.
+     */
     actual suspend fun put(url: String, body: String, headers: Map<String, String>): HttpResponse =
         execute(HttpRequest(url, HttpMethod.PUT, headers, body))
 
+    /**
+     * Executes the delete operation.
+     *
+     * @param url Target URL.
+     * @param headers The headers value.
+     * @return The resulting value.
+     */
     actual suspend fun delete(url: String, headers: Map<String, String>): HttpResponse =
         execute(HttpRequest(url, HttpMethod.DELETE, headers))
 
+    /**
+     * Executes the patch operation.
+     *
+     * @param url Target URL.
+     * @param body The body value.
+     * @param headers The headers value.
+     * @return The resulting value.
+     */
     actual suspend fun patch(url: String, body: String, headers: Map<String, String>): HttpResponse =
         execute(HttpRequest(url, HttpMethod.PATCH, headers, body))
 }
@@ -184,9 +233,22 @@ private suspend fun readBoundedBytes(response: Response, limit: Int): ByteArray 
     return result
 }
 
+/**
+ * Creates HTTP client.
+ *
+ * @param config The config value.
+ * @return The resulting value.
+ */
 actual fun createHttpClient(config: HttpClientConfig): HttpClient = HttpClient(config)
 
+/** Represents ciphertext object transport. */
 actual class CiphertextObjectTransport {
+    /**
+     * Returns the operation.
+     *
+     * @param request The request value.
+     * @return The resulting value.
+     */
     actual suspend fun get(request: CiphertextObjectRequest): ByteArray {
         if (Date.now().toLong() >= request.expiresAtEpochMillis) {
             throw HttpError.InvalidRequest("object_url_expired")
@@ -223,11 +285,34 @@ actual class CiphertextObjectTransport {
     }
 }
 
+/**
+ * Creates ciphertext object transport.
+ *
+ * @return The resulting value.
+ */
 actual fun createCiphertextObjectTransport(): CiphertextObjectTransport = CiphertextObjectTransport()
 
-actual fun toJson(obj: Any): String = JSON.stringify(obj)
+/**
+ * Converts this value to JSON.
+ *
+ * @param obj The obj value.
+ * @return The resulting value.
+ */
+actual inline fun <reified T> toJson(obj: T): String = JSON.stringify(obj)
 
+/**
+ * Parses JSON.
+ *
+ * @param json The json value.
+ * @return The resulting value.
+ */
 actual inline fun <reified T> parseJson(json: String): T = JSON.parse(json)
 
+/**
+ * Executes the encode uri component operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 actual fun encodeURIComponent(value: String): String =
     js("encodeURIComponent")(value).unsafeCast<String>()

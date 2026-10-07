@@ -11,6 +11,11 @@ package codes.yousef.summon.core
 
 actual fun detectPlatformTarget(): PlatformTarget = PlatformTarget.JavaScript
 
+/**
+ * Executes the detect browser info operation.
+ *
+ * @return The resulting value.
+ */
 actual fun detectBrowserInfo(): BrowserInfo? {
     return try {
         val userAgent = getUserAgent() ?: return null
@@ -44,6 +49,11 @@ actual fun detectBrowserInfo(): BrowserInfo? {
     }
 }
 
+/**
+ * Returns whether WASM supported.
+ *
+ * @return The resulting value.
+ */
 actual fun isWasmSupported(): Boolean {
     return try {
         js("typeof WebAssembly === 'object' && typeof WebAssembly.instantiate === 'function'") as Boolean
@@ -52,6 +62,11 @@ actual fun isWasmSupported(): Boolean {
     }
 }
 
+/**
+ * Returns whether WASM simd supported.
+ *
+ * @return The resulting value.
+ */
 actual fun isWasmSIMDSupported(): Boolean {
     return try {
         // Check for WASM SIMD support
@@ -77,6 +92,11 @@ actual fun isWasmSIMDSupported(): Boolean {
     }
 }
 
+/**
+ * Returns whether WASM threads supported.
+ *
+ * @return The resulting value.
+ */
 actual fun isWasmThreadsSupported(): Boolean {
     return try {
         js("typeof SharedArrayBuffer === 'function' && typeof Atomics === 'object'") as Boolean
@@ -85,6 +105,11 @@ actual fun isWasmThreadsSupported(): Boolean {
     }
 }
 
+/**
+ * Returns whether module supported.
+ *
+ * @return The resulting value.
+ */
 actual fun isModuleSupported(): Boolean {
     return try {
         js("'noModule' in document.createElement('script')") as Boolean
@@ -93,10 +118,20 @@ actual fun isModuleSupported(): Boolean {
     }
 }
 
+/**
+ * Returns whether dynamic import supported.
+ *
+ * @return The resulting value.
+ */
 actual fun isDynamicImportSupported(): Boolean {
     return false // Simple stub - avoid JS syntax issues with import keyword
 }
 
+/**
+ * Returns whether web workers supported.
+ *
+ * @return The resulting value.
+ */
 actual fun isWebWorkersSupported(): Boolean {
     return try {
         js("typeof Worker === 'function'") as Boolean
@@ -105,10 +140,25 @@ actual fun isWebWorkersSupported(): Boolean {
     }
 }
 
+/**
+ * Returns whether this value has DOM capabilities.
+ *
+ * @return The resulting value.
+ */
 actual fun hasDOMCapabilities(): Boolean = true
 
+/**
+ * Returns whether this value has ssr capabilities.
+ *
+ * @return The resulting value.
+ */
 actual fun hasSSRCapabilities(): Boolean = false
 
+/**
+ * Returns user agent.
+ *
+ * @return The resulting value.
+ */
 actual fun getUserAgent(): String? {
     return try {
         js("navigator.userAgent") as? String
@@ -117,6 +167,11 @@ actual fun getUserAgent(): String? {
     }
 }
 
+/**
+ * Returns current URL.
+ *
+ * @return The resulting value.
+ */
 actual fun getCurrentURL(): String? {
     return try {
         js("window.location.href") as? String
@@ -125,6 +180,11 @@ actual fun getCurrentURL(): String? {
     }
 }
 
+/**
+ * Returns whether mobile device.
+ *
+ * @return The resulting value.
+ */
 actual fun isMobileDevice(): Boolean {
     return try {
         val userAgent = getUserAgent() ?: return false
@@ -135,6 +195,11 @@ actual fun isMobileDevice(): Boolean {
     }
 }
 
+/**
+ * Returns whether touch supported.
+ *
+ * @return The resulting value.
+ */
 actual fun isTouchSupported(): Boolean {
     return try {
         js("'ontouchstart' in window || navigator.maxTouchPoints > 0") as Boolean
@@ -143,6 +208,11 @@ actual fun isTouchSupported(): Boolean {
     }
 }
 
+/**
+ * Returns screen width.
+ *
+ * @return The resulting value.
+ */
 actual fun getScreenWidth(): Int {
     return try {
         js("window.screen.width") as? Int ?: -1
@@ -151,6 +221,11 @@ actual fun getScreenWidth(): Int {
     }
 }
 
+/**
+ * Returns screen height.
+ *
+ * @return The resulting value.
+ */
 actual fun getScreenHeight(): Int {
     return try {
         js("window.screen.height") as? Int ?: -1
@@ -159,6 +234,11 @@ actual fun getScreenHeight(): Int {
     }
 }
 
+/**
+ * Returns device pixel ratio.
+ *
+ * @return The resulting value.
+ */
 actual fun getDevicePixelRatio(): Double {
     return try {
         js("window.devicePixelRatio || 1.0") as? Double ?: 1.0

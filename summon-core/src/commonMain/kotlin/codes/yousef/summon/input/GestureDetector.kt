@@ -1,5 +1,6 @@
 package codes.yousef.summon.input
 
+import codes.yousef.summon.core.getCurrentTimeMillis
 import codes.yousef.summon.events.PointerEvent
 import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.modifier.ModifierImpl
@@ -13,8 +14,11 @@ import kotlin.math.sqrt
  */
 class GestureDetector {
     // Configuration
+    /** The property declaration value. */
     var longPressTimeoutMillis: Long = 500
+    /** The property declaration value. */
     var doubleTapTimeoutMillis: Long = 300
+    /** The property declaration value. */
     var touchSlop: Double = 10.0
 
     // State
@@ -23,7 +27,7 @@ class GestureDetector {
     private var startX: Double = 0.0
     private var startY: Double = 0.0
     private var isDragging: Boolean = false
-    
+
     // Multi-touch state
     private var initialPinchDistance: Double = 0.0
     private var initialRotationAngle: Double = 0.0
@@ -31,23 +35,39 @@ class GestureDetector {
     private var isRotating: Boolean = false
 
     // Callbacks
+    /** The null value. */
     var onTap: (() -> Unit)? = null
+    /** The null value. */
     var onDoubleTap: (() -> Unit)? = null
+    /** The null value. */
     var onLongPress: (() -> Unit)? = null
+    /** The null value. */
     var onDrag: ((deltaX: Double, deltaY: Double) -> Unit)? = null
+    /** The null value. */
     var onPinch: ((scale: Double) -> Unit)? = null
+    /** The null value. */
     var onRotate: ((angle: Double) -> Unit)? = null
 
+    /**
+     * Handles pointer down.
+     *
+     * @param event The event value.
+     */
     fun onPointerDown(event: PointerEvent) {
-        downTime = getCurrentTime() // Platform specific time needed
+        downTime = getCurrentTimeMillis()
         startX = event.clientX
         startY = event.clientY
         isDragging = false
-        
+
         // Check for multi-touch
         // In a real implementation, we would track multiple pointers
     }
 
+    /**
+     * Handles pointer move.
+     *
+     * @param event The event value.
+     */
     fun onPointerMove(event: PointerEvent) {
         if (!isDragging) {
             val dx = abs(event.clientX - startX)
@@ -67,10 +87,18 @@ class GestureDetector {
         }
     }
 
+    /**
+     * Handles pointer up.
+     *
+     * @param event The event value.
+     */
     fun onPointerUp(event: PointerEvent) {
-        val upTime = getCurrentTime()
+        val upTime = getCurrentTimeMillis()
         if (!isDragging) {
-            if (upTime - lastTapTime < doubleTapTimeoutMillis) {
+            if (upTime - downTime >= longPressTimeoutMillis) {
+                onLongPress?.invoke()
+                lastTapTime = 0
+            } else if (lastTapTime != 0L && upTime - lastTapTime <= doubleTapTimeoutMillis) {
                 onDoubleTap?.invoke()
                 lastTapTime = 0
             } else {
@@ -80,9 +108,6 @@ class GestureDetector {
         }
         isDragging = false
     }
-    
-    // Placeholder for platform time
-    private fun getCurrentTime(): Long = 0L // System.currentTimeMillis()
 }
 
 /**
@@ -96,13 +121,22 @@ fun Modifier.gestures(
     onPinch: ((scale: Double) -> Unit)? = null,
     onRotate: ((angle: Double) -> Unit)? = null
 ): Modifier {
-    // In a real implementation, this would attach the GestureDetector logic
-    // to the underlying event handlers (touchstart, touchmove, touchend, etc.)
-    // For now, we just store the callbacks in a way the runtime could use.
-    
-    // This is a simplification. Real gesture detection requires stateful processing
-    // of a stream of events, which is hard to express purely in a stateless Modifier factory.
-    // Usually, this is handled by a Composable that remembers the detector state.
-    
-    return this // Placeholder
+    val detector = GestureDetector().also {
+        it.onTap = onTap
+        it.onDoubleTap = onDoubleTap
+        it.onLongPress = onLongPress
+        it.onDrag = onDrag
+        it.onPinch = onPinch
+        it.onRotate = onRotate
+    }
+    val handlers = mapOf<String, (Any) -> Unit>(
+        "pointerdown" to { detector.onPointerDown(it as PointerEvent) },
+        "pointermove" to { detector.onPointerMove(it as PointerEvent) },
+        "pointerup" to { detector.onPointerUp(it as PointerEvent) },
+        "pointercancel" to { detector.onPointerUp(it as PointerEvent) }
+    )
+    return when (this) {
+        is ModifierImpl -> copy(complexEventHandlers = complexEventHandlers + handlers)
+        else -> ModifierImpl(complexEventHandlers = handlers)
+    }
 }

@@ -7,7 +7,9 @@ import kotlinx.browser.document
  * Note: Not extending Event to avoid WASM compilation issues
  */
 external class CustomEvent(type: String, eventInitDict: dynamic = definedExternally) {
+    /** The property declaration value. */
     val detail: dynamic
+    /** The property declaration value. */
     val type: String
 }
 

@@ -17,8 +17,8 @@ package codes.yousef.summon.ssr
  * ```kotlin
  * // Bundle a simple site
  * val bundle = SiteBundler.bundleSite(
- *     html = renderedHtml,
- *     css = compiledCss
+ *     HTML = renderedHtml,
+ *     CSS = compiledCss
  * )
  *
  * // Write to file
@@ -27,9 +27,9 @@ package codes.yousef.summon.ssr
  * // Bundle with additional assets
  * val bundle = SiteBundler.bundleSite(
  *     files = mapOf(
- *         "index.html" to htmlContent.encodeToByteArray(),
- *         "styles/main.css" to cssContent.encodeToByteArray(),
- *         "scripts/app.js" to jsContent.encodeToByteArray()
+ *         "index.HTML" to htmlContent.encodeToByteArray(),
+ *         "styles/main.CSS" to cssContent.encodeToByteArray(),
+ *         "scripts/app.JS" to jsContent.encodeToByteArray()
  *     )
  * )
  * ```
@@ -41,15 +41,15 @@ expect object SiteBundler {
      * Bundles HTML and CSS into a zip archive.
      *
      * Creates a zip containing:
-     * - `index.html` with the provided HTML content
-     * - `style.css` with the provided CSS content
+     * - `index.HTML` with the provided HTML content
+     * - `style.CSS` with the provided CSS content
      *
      * @param html The HTML content for index.html
      * @param css The CSS content for style.css
      * @return ByteArray containing the zip archive
      */
     fun bundleSite(html: String, css: String): ByteArray
-    
+
     /**
      * Bundles multiple files into a zip archive.
      *

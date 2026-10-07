@@ -15,11 +15,11 @@
 > **Action Required:**
 > Update your dependencies from:
 > ```kotlin
-> implementation("io.github.codeyousef:summon:0.6.2.2")  // Old - deprecated
+> implementation("io.github.codeyousef:summon:0.5.0.0")  // Old group
 > ```
 > To:
 > ```kotlin
-> implementation("codes.yousef:summon:0.6.2.2")  // New - use this!
+> implementation("codes.yousef:summon:0.7.0.4")  // Current group and release
 > ```
 >
 > See [Migration Guide](#group-id-migration) below for details.
@@ -211,11 +211,11 @@ The Summon CLI helps you quickly scaffold new projects and generate components.
 Download the latest JAR from [GitHub Releases](https://github.com/codeyousef/summon/releases):
 
 ```bash
-# Download summon-cli-0.6.2.0.jar
+# Download summon-cli-0.7.0.4.jar
 
 # Run commands directly
-java -jar summon-cli-0.6.2.0.jar init my-app
-java -jar summon-cli-0.6.2.0.jar --help
+java -jar summon-cli-0.7.0.4.jar init my-app
+java -jar summon-cli-0.7.0.4.jar --help
 ```
 
 #### Option 2: Build from Source
@@ -224,18 +224,18 @@ java -jar summon-cli-0.6.2.0.jar --help
 git clone https://github.com/codeyousef/summon.git
 cd summon
 ./gradlew :summon-cli:shadowJar
-java -jar summon-cli/build/libs/summon-cli-0.6.2.0.jar init my-app
+java -jar summon-cli/build/libs/summon-cli-0.7.0.4.jar init my-app
 ```
 
 #### Quick Start
 
 ```bash
 # Let Summon CLI prompt for stack + backend
-java -jar summon-cli-0.6.2.0.jar init portal
+java -jar summon-cli-0.7.0.4.jar init portal
 
 # Or skip the prompts entirely
-java -jar summon-cli-0.6.2.0.jar init landing --mode=standalone --here
-java -jar summon-cli-0.6.2.0.jar init portal --mode=fullstack --backend=ktor
+java -jar summon-cli-0.7.0.4.jar init landing --mode=standalone --here
+java -jar summon-cli-0.7.0.4.jar init portal --mode=fullstack --backend=ktor
 ```
 
 # After generation (examples)
@@ -269,16 +269,16 @@ dependencies {
     // ⚠️ NEW GROUP ID - Use codes.yousef (not io.github.codeyousef)
 
     // For JVM projects (Ktor, Spring Boot, Quarkus)
-    implementation("codes.yousef:summon-jvm:0.6.2.0")
+    implementation("codes.yousef:summon-jvm:0.7.0.4")
 
     // For JavaScript/Browser projects
-    implementation("codes.yousef:summon-js:0.6.2.0")
+    implementation("codes.yousef:summon-js:0.7.0.4")
 
     // For WebAssembly projects
-    implementation("codes.yousef:summon-wasm-js:0.6.2.0")
+    implementation("codes.yousef:summon-wasm-js:0.7.0.4")
 
     // For Kotlin Multiplatform projects (includes all targets)
-    implementation("codes.yousef:summon:0.6.2.0")
+    implementation("codes.yousef:summon:0.7.0.4")
 }
 ```
 
@@ -325,7 +325,7 @@ To:
 ```kotlin
 // ✅ NEW - Use this
 dependencies {
-    implementation("codes.yousef:summon:0.6.2.0")
+    implementation("codes.yousef:summon:0.7.0.4")
 }
 ```
 
@@ -379,7 +379,7 @@ Create a new project with the Summon CLI, then enable the WASM target using the 
 
 ```bash
 # Download the CLI JAR from releases first, then run:
-java -jar summon-cli-0.6.2.0.jar init my-wasm-app --mode=standalone
+java -jar summon-cli-0.7.0.4.jar init my-wasm-app --mode=standalone
 ```
 
 ### Basic WASM Application
@@ -456,7 +456,7 @@ kotlin {
 }
 
 dependencies {
-  implementation("codes.yousef:summon-wasm-js:0.6.2.0")
+  implementation("codes.yousef:summon-wasm-js:0.7.0.4")
 }
 ```
 
@@ -555,13 +555,18 @@ val html = renderer.renderComposableRoot {
 ### Advanced SSR with SEO and Hydration
 
 ```kotlin
-import code.yousef.summon.ssr.*
+import codes.yousef.summon.security.PublicHydrationState
+import codes.yousef.summon.ssr.*
 
 // High-level utility for complete page rendering
 val html = ServerSideRenderUtils.renderPageToString(
     rootComposable = { MyApp() },
-    initialData = mapOf("userId" to "123", "theme" to "dark"),
-    includeHydrationScript = true
+    publicState = PublicHydrationState("""{"theme":"dark"}"""),
+    includeHydrationScript = true,
+    seoMetadata = SeoMetadata(
+        title = "My Awesome App",
+        description = "A server-rendered Kotlin app built with Summon"
+    )
 )
 
 // With custom SEO metadata
@@ -603,6 +608,13 @@ SSR works seamlessly with popular JVM frameworks:
 - **Quarkus**: Combine with Qute templates and reactive endpoints
 
 See our [integration guides](docs/integration-guides.md) for detailed framework-specific examples.
+
+### API reference
+
+Generate the warning-clean, versioned API reference with `./gradlew :dokkaGenerate`. Output is
+written beneath `build/docs/api/<version>/`; generation does not publish or delete preserved
+previous releases. See [testing and documentation](docs/testing.md#versioned-api-reference) for
+sample compilation, source-link, and versioning guarantees.
 
 For maintainers: Publishing instructions are available at docs/private/publishing.md.
 - [WebAssembly Specification](https://webassembly.github.io/spec/)

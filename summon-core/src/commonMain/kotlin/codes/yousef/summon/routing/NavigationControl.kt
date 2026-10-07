@@ -2,7 +2,9 @@ package codes.yousef.summon.routing
 
 /** Decision returned before an internal route transition. */
 enum class NavigationDecision {
+    /** The proceed navigation decision option. */
     PROCEED,
+    /** The cancel navigation decision option. */
     CANCEL
 }
 
@@ -12,13 +14,25 @@ enum class NavigationDecision {
  * [NavigationControl.continuePending], or keep editing and call [NavigationControl.cancelPending].
  */
 fun interface NavigationInterceptor {
+    /**
+     * Executes the before navigate operation.
+     *
+     * @param from The from value.
+     * @param to The to value.
+     * @return The resulting value.
+     */
     fun beforeNavigate(from: String, to: String): NavigationDecision
 }
 
+/** Contract for navigation control. */
 interface NavigationControl {
+    /** The property declaration value. */
     var interceptor: NavigationInterceptor?
+    /** The property declaration value. */
     val pendingPath: String?
+    /** Executes the continue pending operation. */
     fun continuePending()
+    /** Cancels pending. */
     fun cancelPending()
 }
 

@@ -64,8 +64,19 @@ private fun hasDocumentPipApi(): Boolean {
     }
 }
 
+/**
+ * Returns whether picture in picture supported.
+ *
+ * @return The resulting value.
+ */
 actual fun isPictureInPictureSupported(): Boolean = hasDocumentPipApi()
 
+/**
+ * Executes the request picture in picture operation.
+ *
+ * @param options The options value.
+ * @return The resulting value.
+ */
 actual suspend fun requestPictureInPicture(
     options: PipOptions
 ): PipResult {
@@ -130,6 +141,13 @@ private fun copyStyleSheets(pipDocument: dynamic) {
     }
 }
 
+/**
+ * Renders picture in picture content.
+ *
+ * @param window The window value.
+ * @param modifier Styles and attributes applied to the rendered element.
+ * @param content Composable content emitted by this API.
+ */
 @Composable
 actual fun PictureInPictureContent(
     window: PipWindow,

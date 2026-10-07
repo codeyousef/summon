@@ -13,6 +13,14 @@ actual class HydrationManager {
     private val componentIdCounter = AtomicLong(0)
     private val registeredComponents = mutableMapOf<String, HydrationInfo>()
 
+    /**
+     * Registers component.
+     *
+     * @param elementId The element id value.
+     * @param componentType The component type value.
+     * @param initialState The initial state value.
+     * @param composable The composable value.
+     */
     actual fun registerComponent(
         elementId: String,
         componentType: String,
@@ -22,26 +30,48 @@ actual class HydrationManager {
         registeredComponents[elementId] = HydrationInfo(elementId, componentType, initialState, composable)
     }
 
+    /** Executes the hydrate all operation. */
     actual fun hydrateAll() {
         // No-op on server side - hydration happens client-side
     }
 
+    /**
+     * Executes the hydrate component operation.
+     *
+     * @param elementId The element id value.
+     * @return The resulting value.
+     */
     actual fun hydrateComponent(elementId: String): Boolean {
         // On server side, just check if component is registered
         return registeredComponents.containsKey(elementId)
     }
 
+    /**
+     * Executes the restore state operation.
+     *
+     * @param componentId The component id value.
+     * @param stateKey The state key value.
+     * @param initialValue The initial value value.
+     * @return The resulting value.
+     */
     actual fun <T> restoreState(componentId: String, stateKey: String, initialValue: T): MutableState<T> {
         // On server side, just return a regular mutableStateOf
         // The client-side implementation will handle actual state restoration
         return mutableStateOf(initialValue)
     }
 
+    /**
+     * Executes the generate component ID operation.
+     *
+     * @param componentType The component type value.
+     * @return The resulting value.
+     */
     actual fun generateComponentId(componentType: String): String {
         val id = componentIdCounter.incrementAndGet()
         return "${componentType}-${id}"
     }
 
+    /** Clears the operation. */
     actual fun clear() {
         registeredComponents.clear()
         componentIdCounter.set(0)

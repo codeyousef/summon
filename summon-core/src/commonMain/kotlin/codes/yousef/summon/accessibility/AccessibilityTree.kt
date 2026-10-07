@@ -43,7 +43,7 @@
  *     role = Role.BUTTON,
  *     label = "Submit form",
  *     state = mapOfCompat(State.DISABLED to false),
- *     properties = mapOfCompat("aria-describedby" to "help-text")
+ *     properties = mapOfCompat("ARIA-describedby" to "help-text")
  * )
  * ```
  *
@@ -121,27 +121,49 @@ object AccessibilityUtils {
      * @since 1.0.0
      */
     enum class NodeRole {
+        /** The button node role option. */
         BUTTON,
+        /** The checkbox node role option. */
         CHECKBOX,
+        /** The combobox node role option. */
         COMBOBOX,
+        /** The dialog node role option. */
         DIALOG,
+        /** The grid node role option. */
         GRID,
+        /** The heading node role option. */
         HEADING,
+        /** The link node role option. */
         LINK,
+        /** The listbox node role option. */
         LISTBOX,
+        /** The menu node role option. */
         MENU,
+        /** The menuitem node role option. */
         MENUITEM,
+        /** The navigation node role option. */
         NAVIGATION,
+        /** The progressbar node role option. */
         PROGRESSBAR,
+        /** The radiogroup node role option. */
         RADIOGROUP,
+        /** The region node role option. */
         REGION,
+        /** The search node role option. */
         SEARCH,
+        /** The slider node role option. */
         SLIDER,
+        /** The switch node role option. */
         SWITCH,
+        /** The tab node role option. */
         TAB,
+        /** The tablist node role option. */
         TABLIST,
+        /** The tabpanel node role option. */
         TABPANEL,
+        /** The textbox node role option. */
         TEXTBOX,
+        /** The tooltip node role option. */
         TOOLTIP
     }
 
@@ -218,7 +240,7 @@ object AccessibilityUtils {
      *
      * Accessible labels provide textual descriptions of UI elements that might not
      * have visible text or need additional context for assistive technology users.
-     * The label is applied as an `aria-label` attribute.
+     * The label is applied as an `ARIA-label` attribute.
      *
      * ## When to Use Labels
      *
@@ -285,6 +307,7 @@ object AccessibilityUtils {
 }
 
 // Extension function to make the API more intuitive in Kotlin
+/** Returns this modifier's ARIA, role, tab-order, and disabled attributes. */
 fun Modifier.inspectAccessibility(): Map<String, String> {
     return AccessibilityUtils.inspectAccessibility(this)
 }
@@ -316,8 +339,8 @@ fun Modifier.inspectAccessibility(): Map<String, String> {
  *         State.INVALID to false
  *     ),
  *     properties = mapOfCompat(
- *         "aria-describedby" to "email-help",
- *         "aria-autocomplete" to "email"
+ *         "ARIA-describedby" to "email-help",
+ *         "ARIA-autocomplete" to "email"
  *     )
  * )
  *
@@ -722,6 +745,12 @@ fun AccessibilityNode.findAllNodes(predicate: (AccessibilityNode) -> Boolean): L
     return result
 }
 
+/**
+ * Renders a semantic container.
+ *
+ * [mergeDescendants] and [clearAndSetSemantics] are reserved semantic-policy inputs; renderer
+ * implementations currently preserve the supplied [modifier] and [content].
+ */
 @Composable
 fun Semantics(
     modifier: Modifier = Modifier(),
@@ -781,8 +810,9 @@ private fun Modifier.applyAccessibilityAttributes(node: AccessibilityNode): Modi
 }
 
 /**
- * Wrapper class for an accessibility tree structure.
- * Provides a root node that represents the entire tree.
+ * Accessibility tree structure.
+ *
+ * @property rootNode root of the semantic accessibility hierarchy
  */
 data class AccessibilityTree(
     val rootNode: AccessibilityNode

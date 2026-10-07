@@ -1,6 +1,9 @@
 package codes.yousef.summon.integration.ktor
 
 import codes.yousef.summon.routing.*
+import codes.yousef.summon.integration.ensureRouterLeadingSlash
+import codes.yousef.summon.integration.hasRouterRouteFor
+import codes.yousef.summon.integration.normalizeRouterBasePath
 import codes.yousef.summon.runtime.PlatformRenderer
 import codes.yousef.summon.runtime.RenderingContextElement
 import io.ktor.http.*
@@ -27,7 +30,7 @@ fun Routing.summonRouter(
     enableHydration: Boolean = true,
     notFound: suspend ApplicationCall.() -> Unit = defaultNotFoundHandler
 ) {
-    val normalizedBasePath = basePath.normalizeBasePath()
+    val normalizedBasePath = basePath.normalizeRouterBasePath()
     val registry: PageRegistry by lazy(LazyThreadSafetyMode.PUBLICATION) {
         DefaultPageRegistry().apply {
             PageLoader.registerPages(this)
@@ -36,7 +39,7 @@ fun Routing.summonRouter(
 
     val handler: suspend ApplicationCall.() -> Unit = handler@{
         val requestPath = resolveRouterPath(normalizedBasePath)
-        val hasRoute = registry.hasRouteFor(requestPath)
+        val hasRoute = registry.hasRouterRouteFor(requestPath)
         val hasSummonNotFound = registry.getNotFoundPage() != null
 
         if (!hasRoute && (!hasSummonNotFound || notFound !== defaultNotFoundHandler)) {
@@ -81,70 +84,13 @@ fun Routing.summonRouter(
     }
 }
 
-private fun String.normalizeBasePath(): String {
-    if (isBlank() || this == "/") {
-        return "/"
-    }
-
-    val withLeadingSlash = if (startsWith('/')) this else "/$this"
-    return withLeadingSlash.trimEnd('/').ifBlank { "/" }
-}
 
 private fun ApplicationCall.resolveRouterPath(basePath: String): String {
     val fullPath = request.path()
     if (basePath == "/") {
-        return fullPath.ensureLeadingSlash().ifBlank { "/" }
+        return fullPath.ensureRouterLeadingSlash().ifBlank { "/" }
     }
 
     val relative = fullPath.removePrefix(basePath).ifBlank { "/" }
-    return relative.ensureLeadingSlash()
-}
-
-private fun String.ensureLeadingSlash(): String = when {
-    isBlank() -> "/"
-    startsWith('/') -> this
-    else -> "/$this"
-}
-
-private fun PageRegistry.hasRouteFor(path: String): Boolean {
-    val normalizedPath = path.ensureLeadingSlash()
-    val routes = getPages()
-    if (routes.isEmpty()) return false
-
-    return routes.keys.any { pattern -> patternMatches(pattern, normalizedPath) }
-}
-
-private fun patternMatches(pattern: String, path: String): Boolean {
-    val normalizedPattern = pattern.ensureLeadingSlash()
-    if (normalizedPattern == path) return true
-
-    val patternSegments = normalizedPattern.trim('/').takeIf { it.isNotEmpty() }?.split('/') ?: emptyList()
-    val pathSegments = path.trim('/').takeIf { it.isNotEmpty() }?.split('/') ?: emptyList()
-
-    if (patternSegments.isEmpty()) {
-        return pathSegments.isEmpty()
-    }
-
-    val catchAll = patternSegments.lastOrNull() == "*"
-    if (!catchAll && patternSegments.size != pathSegments.size) {
-        return false
-    }
-
-    if (catchAll && pathSegments.size < patternSegments.size - 1) {
-        return false
-    }
-
-    patternSegments.forEachIndexed { index, segment ->
-        if (segment == "*") {
-            return true
-        }
-        val candidate = pathSegments.getOrNull(index) ?: return false
-        if (!segment.startsWith(":")) {
-            if (segment != candidate) {
-                return false
-            }
-        }
-    }
-
-    return !catchAll && patternSegments.size == pathSegments.size || catchAll
+    return relative.ensureRouterLeadingSlash()
 }

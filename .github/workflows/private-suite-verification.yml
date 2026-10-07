@@ -59,6 +59,26 @@ jobs:
           -Dorg.gradle.parallel=false
           '-Dorg.gradle.jvmargs=-Xmx3G -XX:MaxMetaspaceSize=1G'
           :summon-core:apiCheck -x :summon-core:copyHydrationBundles
+      - name: Verify versioned API documentation
+        env:
+          JAVA_TOOL_OPTIONS: >-
+            -Dkotlinx.coroutines.io.parallelism=2
+            -Dkotlinx.coroutines.scheduler.core.pool.size=2
+            -Dkotlinx.coroutines.scheduler.max.pool.size=4
+          SUMMON_DOCS_SOURCE_REF: ${{ github.sha }}
+        run: >-
+          ./gradlew :dokkaGenerate --no-daemon --max-workers=1
+          -Dorg.gradle.parallel=false
+          '-Dorg.gradle.jvmargs=-Xmx4G -XX:MaxMetaspaceSize=1G'
+          -Pkotlin.compiler.execution.strategy=in-process
+          -x :summon-core:copyHydrationBundles
+      - name: Verify merged JVM branch coverage
+        run: >-
+          ./gradlew :coverageCheck --no-daemon --max-workers=1
+          -Dorg.gradle.parallel=false
+          '-Dorg.gradle.jvmargs=-Xmx3G -XX:MaxMetaspaceSize=1G'
+          -Pkotlin.compiler.execution.strategy=in-process
+          -x :summon-core:copyHydrationBundles
       - name: Preserve failure evidence and test reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -67,4 +87,6 @@ jobs:
           if-no-files-found: warn
           path: |
             .gradle/private-suite/browser-artifacts/matrix
+            build/reports/kover
             summon-core/build/reports/tests/jvmTest
+            build/docs/api

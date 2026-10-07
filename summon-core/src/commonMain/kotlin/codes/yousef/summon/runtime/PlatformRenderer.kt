@@ -105,7 +105,7 @@ data class NativeSelectOption(
  *
  * Most rendering functions operate within a platform-specific context:
  * - **JS Platform**: Direct DOM manipulation context
- * - **JVM Platform**: HTML generation context (typically kotlinx.html.FlowContent)
+ * - **JVM Platform**: HTML generation context (typically kotlinx.HTML.FlowContent)
  *
  * ## State Management Integration
  *
@@ -134,7 +134,7 @@ data class NativeSelectOption(
  * setPlatformRenderer(renderer)
  *
  * // Render a complete page
- * val html = renderer.renderComposableRoot {
+ * val HTML = renderer.renderComposableRoot {
  *     ThemeProvider {
  *         Column(modifier = Modifier().padding("16px")) {
  *             Text("Welcome to Summon!")
@@ -170,7 +170,7 @@ expect open class PlatformRenderer() {
     /**
      * Renders text content with the specified styling.
      *
-     * This is the fundamental text rendering method used by [Text] components
+     * This is the fundamental text rendering method used by text components
      * and other text-based UI elements. The implementation varies by platform:
      *
      * - **Browser**: Creates a text node or span element
@@ -322,7 +322,9 @@ expect open class PlatformRenderer() {
     )
 
     // --- Head Management ---
+    /** Adds trusted markup to the current document head. */
     open fun addHeadElement(content: String)
+    /** Returns the head markup registered for the current render. */
     open fun getHeadElements(): List<String>
 
     /**
@@ -339,13 +341,17 @@ expect open class PlatformRenderer() {
     open fun renderHeadElements(builder: codes.yousef.summon.seo.HeadScope.() -> Unit)
 
     // --- Composition Root ---
+    /** Renders composable content as a complete root. */
     open fun renderComposableRoot(composable: @Composable () -> Unit): String
 
     // --- Hydration Support ---
+    /** Renders a root with client hydration metadata. */
     open fun renderComposableRootWithHydration(composable: @Composable () -> Unit): String
 
+    /** Renders a root with client hydration metadata. */
     open fun renderComposableRootWithHydration(state: Any?, composable: @Composable () -> Unit): String
 
+    /** Hydrates an existing browser root. */
     open fun hydrateComposableRoot(rootElementId: String, composable: @Composable () -> Unit)
 
     /**
@@ -355,8 +361,11 @@ expect open class PlatformRenderer() {
     open fun renderComposable(composable: @Composable () -> Unit)
 
     // --- Layout Components ---
+    /** Renders row. */
     open fun renderRow(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
+    /** Renders column. */
     open fun renderColumn(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
+    /** Renders box. */
     open fun renderBox(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
 
     /** Renders an image */
@@ -598,9 +607,13 @@ expect open class PlatformRenderer() {
     open fun renderAnimatedContent(modifier: Modifier, content: @Composable () -> Unit)
 
     // --- Basic HTML Element Renderers ---
+    /** Renders block. */
     open fun renderBlock(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
+    /** Renders inline. */
     open fun renderInline(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
+    /** Renders div. */
     open fun renderDiv(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
+    /** Renders span. */
     open fun renderSpan(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
 
     /** Renders a divider element (e.g., <hr>) */
@@ -671,7 +684,9 @@ expect open class PlatformRenderer() {
 
     /** Renders an arbitrary HTML tag with the given name, modifier, and content */
     open fun renderHtmlTag(tagName: String, modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
+    /** Renders snackbar. */
     open fun renderSnackbar(message: String, actionLabel: String?, onAction: (() -> Unit)?)
+    /** Renders dropdown menu. */
     open fun renderDropdownMenu(
         expanded: Boolean,
         onDismissRequest: () -> Unit,
@@ -679,7 +694,9 @@ expect open class PlatformRenderer() {
         content: @Composable (() -> Unit)
     )
 
+    /** Renders tooltip. */
     open fun renderTooltip(text: String, modifier: Modifier, content: @Composable (() -> Unit))
+    /** Renders modal. */
     open fun renderModal(
         visible: Boolean,
         onDismissRequest: () -> Unit,
@@ -688,6 +705,7 @@ expect open class PlatformRenderer() {
         actions: @Composable (() -> Unit)?
     )
 
+    /** Renders screen. */
     open fun renderScreen(modifier: Modifier, content: @Composable (FlowContentCompat.() -> Unit))
     /** Renders HTML explicitly trusted by application source code. */
     open fun renderHtml(htmlContent: TrustedHtml, modifier: Modifier)
@@ -695,7 +713,9 @@ expect open class PlatformRenderer() {
     /** Injects CSS explicitly trusted by application source code into the document head. */
     open fun renderGlobalStyle(css: TrustedCss)
 
+    /** Renders surface. */
     open fun renderSurface(modifier: Modifier, elevation: Int, content: @Composable (() -> Unit))
+    /** Renders swipe to dismiss. */
     open fun renderSwipeToDismiss(
         state: Any,
         background: @Composable (() -> Unit),
@@ -703,9 +723,13 @@ expect open class PlatformRenderer() {
         content: @Composable (() -> Unit)
     )
 
+    /** Renders vertical pager. */
     open fun renderVerticalPager(count: Int, state: Any, modifier: Modifier, content: @Composable ((Int) -> Unit))
+    /** Renders horizontal pager. */
     open fun renderHorizontalPager(count: Int, state: Any, modifier: Modifier, content: @Composable ((Int) -> Unit))
+    /** Renders aspect ratio container. */
     open fun renderAspectRatioContainer(ratio: Float, modifier: Modifier, content: @Composable (() -> Unit))
+    /** Renders file picker. */
     open fun renderFilePicker(
         onFilesSelected: (List<FileInfo>) -> Unit,
         enabled: Boolean,
@@ -715,6 +739,7 @@ expect open class PlatformRenderer() {
         actions: @Composable (() -> Unit)?
     )
 
+    /** Renders alert. */
     open fun renderAlert(
         message: String,
         variant: AlertVariant,
@@ -724,10 +749,15 @@ expect open class PlatformRenderer() {
         actions: @Composable (() -> Unit)?
     )
 
+    /** Renders card. */
     open fun renderCard(modifier: Modifier, elevation: Int, content: @Composable (() -> Unit))
+    /** Renders linear progress indicator. */
     open fun renderLinearProgressIndicator(progress: Float?, modifier: Modifier, type: ProgressType)
+    /** Renders circular progress indicator. */
     open fun renderCircularProgressIndicator(progress: Float?, modifier: Modifier, type: ProgressType)
+    /** Renders modal bottom sheet. */
     open fun renderModalBottomSheet(onDismissRequest: () -> Unit, modifier: Modifier, content: @Composable (() -> Unit))
+    /** Renders alert dialog. */
     open fun renderAlertDialog(
         onDismissRequest: () -> Unit,
         confirmButton: @Composable (() -> Unit),
@@ -738,6 +768,7 @@ expect open class PlatformRenderer() {
         text: @Composable (() -> Unit)?
     )
 
+    /** Renders radio button. */
     open fun renderRadioButton(
         checked: Boolean,
         onCheckedChange: (Boolean) -> Unit,
@@ -746,6 +777,7 @@ expect open class PlatformRenderer() {
         modifier: Modifier
     )
 
+    /** Renders checkbox. */
     open fun renderCheckbox(
         checked: Boolean,
         onCheckedChange: (Boolean) -> Unit,
@@ -754,6 +786,7 @@ expect open class PlatformRenderer() {
         modifier: Modifier
     )
 
+    /** Renders box container. */
     open fun renderBoxContainer(modifier: Modifier, content: @Composable (() -> Unit))
 
     /** Renders a modal dialog overlay */
@@ -821,7 +854,7 @@ expect open class PlatformRenderer() {
     /**
      * Renders a chart using a charting library.
      *
-     * - **Browser**: Uses Chart.js
+     * - **Browser**: Uses Chart.JS
      * - **Server**: Renders a placeholder or static image (if supported)
      */
     open fun renderChart(

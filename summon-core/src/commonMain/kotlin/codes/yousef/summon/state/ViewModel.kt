@@ -33,6 +33,7 @@ abstract class ViewModel {
         states.clear()
     }
 
+    /** Provides view model factory and constant members. */
     companion object Factory {
         // Map of ViewModel instances
         private val viewModels = mutableMapOf<KClass<out ViewModel>, ViewModel>()
@@ -124,4 +125,4 @@ inline fun <reified T : ViewModel> componentViewModel(
 ): T {
     val key = "${T::class.simpleName}:$identifier"
     return viewModel(key, factory)
-} 
+}

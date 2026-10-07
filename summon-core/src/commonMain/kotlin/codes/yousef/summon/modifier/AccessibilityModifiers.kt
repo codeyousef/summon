@@ -161,7 +161,7 @@ fun Modifier.removeAttribute(name: String): Modifier {
 // role(String) removed - exists as member function in Modifier class
 
 /**
- * Creates a Modifier with the aria-label attribute set.
+ * Creates a Modifier with the ARIA-label attribute set.
  *
  * @param value The ARIA label text
  * @return A new Modifier with the aria-label attribute
@@ -170,72 +170,72 @@ fun Modifier.ariaLabel(value: String): Modifier =
     attribute("aria-label", value)
 
 /**
- * Sets the aria-labelledby attribute
+ * Sets the ARIA-labelledby attribute
  */
 fun Modifier.ariaLabelledBy(value: String): Modifier = attribute("aria-labelledby", value)
 
 /**
- * Sets the aria-describedby attribute
+ * Sets the ARIA-describedby attribute
  */
 fun Modifier.ariaDescribedBy(value: String): Modifier = attribute("aria-describedby", value)
 
 /**
- * Sets the aria-hidden attribute
+ * Sets the ARIA-hidden attribute
  */
 fun Modifier.ariaHidden(value: Boolean): Modifier = attribute("aria-hidden", value.toString())
 
 /**
- * Sets the aria-expanded attribute
+ * Sets the ARIA-expanded attribute
  */
 fun Modifier.ariaExpanded(value: Boolean): Modifier = attribute("aria-expanded", value.toString())
 
 /**
- * Sets the aria-pressed attribute
+ * Sets the ARIA-pressed attribute
  */
 fun Modifier.ariaPressed(value: Boolean): Modifier = attribute("aria-pressed", value.toString())
 
 /**
- * Sets the aria-checked attribute
+ * Sets the ARIA-checked attribute
  */
 fun Modifier.ariaChecked(value: Boolean): Modifier = attribute("aria-checked", value.toString())
 
 /**
- * Sets the aria-checked attribute with a custom value (for "mixed" state)
+ * Sets the ARIA-checked attribute with a custom value (for "mixed" state)
  */
 fun Modifier.ariaChecked(value: String): Modifier = attribute("aria-checked", value)
 
 /**
- * Sets the aria-selected attribute
+ * Sets the ARIA-selected attribute
  */
 fun Modifier.ariaSelected(value: Boolean): Modifier = attribute("aria-selected", value.toString())
 
 /**
- * Sets the aria-disabled attribute
+ * Sets the ARIA-disabled attribute
  */
 fun Modifier.ariaDisabled(value: Boolean): Modifier = attribute("aria-disabled", value.toString())
 
 /**
- * Sets the aria-invalid attribute
+ * Sets the ARIA-invalid attribute
  */
 fun Modifier.ariaInvalid(value: Boolean): Modifier = attribute("aria-invalid", value.toString())
 
 /**
- * Sets the aria-invalid attribute with a custom value (like "grammar")
+ * Sets the ARIA-invalid attribute with a custom value (like "grammar")
  */
 fun Modifier.ariaInvalid(value: String): Modifier = attribute("aria-invalid", value)
 
 /**
- * Sets the aria-required attribute
+ * Sets the ARIA-required attribute
  */
 fun Modifier.ariaRequired(value: Boolean): Modifier = attribute("aria-required", value.toString())
 
 /**
- * Sets the aria-current attribute
+ * Sets the ARIA-current attribute
  */
 fun Modifier.ariaCurrent(value: String): Modifier = attribute("aria-current", value)
 
 /**
- * Creates a Modifier with the aria-live attribute set to "assertive".
+ * Creates a Modifier with the ARIA-live attribute set to "assertive".
  *
  * @return A new Modifier with the aria-live attribute
  */
@@ -260,7 +260,7 @@ fun Modifier.hasStyle(name: String): Boolean = styles.containsKey(name)
 fun Modifier.hasAttribute(name: String): Boolean = attributes.containsKey(name)
 
 /**
- * Adds an aria-controls attribute to the element.
+ * Adds an ARIA-controls attribute to the element.
  * This attribute indicates which element is controlled by the current element.
  *
  * @param id The ID of the controlled element.
@@ -268,7 +268,7 @@ fun Modifier.hasAttribute(name: String): Boolean = attributes.containsKey(name)
 fun Modifier.ariaControls(id: String): Modifier = attribute("aria-controls", id)
 
 /**
- * Adds an aria-haspopup attribute to the element.
+ * Adds an ARIA-haspopup attribute to the element.
  * This attribute indicates whether the element has a popup context menu or dialog.
  *
  * @param value True if the element has a popup.
@@ -276,7 +276,7 @@ fun Modifier.ariaControls(id: String): Modifier = attribute("aria-controls", id)
 fun Modifier.ariaHasPopup(value: Boolean = true): Modifier = attribute("aria-haspopup", value.toString())
 
 /**
- * Adds an aria-busy attribute to the element.
+ * Adds an ARIA-busy attribute to the element.
  * This attribute indicates that an element is being modified and assistive technologies may want
  * to wait until the modifications are complete before exposing them to the user.
  *
@@ -298,7 +298,7 @@ fun Modifier.tabbable(): Modifier = tabIndex(0)
 
 /**
  * Marks an element as disabled and not focusable.
- * Adds both the disabled attribute and aria-disabled.
+ * Adds both the disabled attribute and ARIA-disabled.
  */
 fun Modifier.disabled(): Modifier =
     attribute("disabled", "")
@@ -309,4 +309,4 @@ fun Modifier.disabled(): Modifier =
  * Marks an element for autofocus.
  * The element will be focused when it's rendered.
  */
-fun Modifier.autoFocus(): Modifier = attribute("autofocus", "") 
+fun Modifier.autoFocus(): Modifier = attribute("autofocus", "")

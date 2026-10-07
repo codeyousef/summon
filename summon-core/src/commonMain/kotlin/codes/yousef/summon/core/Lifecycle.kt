@@ -32,6 +32,14 @@ interface LifecycleAware {
  *
  * In the context of Summon, this can manage different phases of static site generation and client-side hydration.
  * NOTE: Updated to use the expect LifecycleOwner interface.
+
+ * @property lifecycleOwner The lifecycle owner value.
+ * @property onCreate Callback invoked when create.
+ * @property onStart Callback invoked when start.
+ * @property onResume Callback invoked when resume.
+ * @property onPause Callback invoked when pause.
+ * @property onStop Callback invoked when stop.
+ * @property onDestroy Callback invoked when destroy.
  */
 class LifecycleAwareComponent(
     private val lifecycleOwner: LifecycleOwner,
@@ -61,6 +69,11 @@ class LifecycleAwareComponent(
         if (lock.withLock { !disposed }) callback?.invoke()
     }
 
+    /**
+     * Handles lifecycle state changed.
+     *
+     * @param state The state value.
+     */
     override fun onLifecycleStateChanged(state: LifecycleState) {
         when (state) {
             LifecycleState.CREATED -> invokeWhileOwned(onCreate)
@@ -87,6 +100,12 @@ class LifecycleAwareComponent(
         onDestroy?.invoke()
     }
 
+    /**
+     * Composes the supplied content.
+     *
+     * @param receiver The receiver value.
+     * @return The resulting value.
+     */
     override fun <T> compose(receiver: T): T = receiver
 }
 
@@ -109,7 +128,7 @@ class LifecycleAwareComponent(
  * }
  * ```
  *
- * @param lifecycleOwner The lifecycle owner to observe (expect interface)
+ * @param lifecycleOwnerInput Lifecycle owner to observe; defaults to the current owner
  * @param builder Lambda to configure lifecycle callbacks
  * @return A LifecycleAwareComponent
  * NOTE: This function might need removal or significant refactoring if LifecycleAwareComponent changes.
@@ -140,11 +159,17 @@ fun lifecycleAware(
  * Builder class for configuring lifecycle callbacks.
  */
 class LifecycleAwareComponentBuilder {
+    /** Callback invoked when the component enters CREATED. */
     var onCreateCallback: (() -> Unit)? = null
+    /** Callback invoked when the component enters STARTED. */
     var onStartCallback: (() -> Unit)? = null
+    /** Callback invoked when the component enters RESUMED. */
     var onResumeCallback: (() -> Unit)? = null
+    /** Callback invoked when the component enters PAUSED. */
     var onPauseCallback: (() -> Unit)? = null
+    /** Callback invoked when the component enters STOPPED. */
     var onStopCallback: (() -> Unit)? = null
+    /** Callback invoked when the component enters DESTROYED. */
     var onDestroyCallback: (() -> Unit)? = null
 
     /**
@@ -197,12 +222,20 @@ class LifecycleAwareComponentBuilder {
  *
  * This is similar to LaunchedEffect but integrated with the lifecycle.
  *
- * @param lifecycleOwner The lifecycle owner to observe. Defaults to the current owner.
+ * @param lifecycleOwnerInput Lifecycle owner to observe; defaults to the current owner
  * @param key A key that determines when the effect should be restarted
  * @param block The suspend function to execute as a side effect
  * @return A LifecycleAwareComponent that can be disposed, or null if no owner is available.
  */
 @Suppress("UNUSED_PARAMETER")
+/**
+ * Executes the when active operation.
+ *
+ * @param lifecycleOwnerInput The lifecycle owner input value.
+ * @param key Lookup key.
+ * @param block Operation to execute.
+ * @return The resulting value.
+ */
 fun whenActive(
     lifecycleOwnerInput: LifecycleOwner? = currentLifecycleOwner(),
     key: Any,
@@ -243,7 +276,7 @@ fun whenActive(
     }
 }
 
-// --- Potentially keep or refactor CoroutineScope integration --- 
+// --- Potentially keep or refactor CoroutineScope integration ---
 // Need to evaluate if this is still the right approach
 // Commenting out for now as it causes issues with nullable LifecycleOwner
 /*

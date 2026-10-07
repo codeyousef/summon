@@ -7,18 +7,33 @@ package codes.yousef.summon.runtime
 actual object SummonLogger {
     private val isProduction: Boolean = js("window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'") as Boolean
 
+    /**
+     * Executes the log operation.
+     *
+     * @param message Message content.
+     */
     actual fun log(message: String) {
         if (!isProduction) {
             js("console.log('[SUMMON] ' + message)")
         }
     }
 
+    /**
+     * Executes the warn operation.
+     *
+     * @param message Message content.
+     */
     actual fun warn(message: String) {
         if (!isProduction) {
             js("console.warn('[SUMMON] ' + message)")
         }
     }
 
+    /**
+     * Executes the error operation.
+     *
+     * @param message Message content.
+     */
     actual fun error(message: String) {
         // Always log errors, even in production
         js("console.error('[SUMMON] ' + message)")

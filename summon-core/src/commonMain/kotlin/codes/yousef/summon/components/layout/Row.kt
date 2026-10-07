@@ -474,7 +474,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * ## Migration Guide
  *
  * ### From CSS Flexbox
- * ```css
+ * ```CSS
  * /* CSS */
  * .row {
  *   display: flex;
@@ -509,10 +509,6 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * @see Grid for two-dimensional layouts
  * @see Spacer for adding spacing between elements
  *
- * @sample RowSamples.basicStack
- * @sample RowSamples.buttonGroup
- * @sample RowSamples.navigationBar
- * @sample RowSamples.responsiveLayout
  *
  * @since 1.0.0
  */
@@ -533,12 +529,50 @@ fun Row(
     renderer.renderRow(rowModifier, content)
 }
 
+/** Cross-axis alignment choices. */
 object Alignment {
-    enum class Vertical { Top, CenterVertically, Bottom }
-    enum class Horizontal { Start, CenterHorizontally, End }
+    /** Vertical alignment in a horizontal container. */
+    enum class Vertical { /** The top vertical option. */
+                          Top,
+                          /** The center vertically vertical option. */
+                          CenterVertically,
+                          /** The bottom vertical option. */
+                          Bottom }
+    /** Horizontal alignment in a vertical container. */
+    enum class Horizontal { /** The start horizontal option. */
+                            Start,
+                            /** The center horizontally horizontal option. */
+                            CenterHorizontally,
+                            /** The end horizontal option. */
+                            End }
 }
 
+/** Main-axis distribution choices. */
 object Arrangement {
-    enum class Horizontal { Start, End, Center, SpaceBetween, SpaceAround, SpaceEvenly }
-    enum class Vertical { Top, Bottom, Center, SpaceBetween, SpaceAround, SpaceEvenly }
-} 
+    /** Horizontal distribution in a row. */
+    enum class Horizontal { /** The start horizontal option. */
+                            Start,
+                            /** The end horizontal option. */
+                            End,
+                            /** The center horizontal option. */
+                            Center,
+                            /** The space between horizontal option. */
+                            SpaceBetween,
+                            /** The space around horizontal option. */
+                            SpaceAround,
+                            /** The space evenly horizontal option. */
+                            SpaceEvenly }
+    /** Vertical distribution in a column. */
+    enum class Vertical { /** The top vertical option. */
+                          Top,
+                          /** The bottom vertical option. */
+                          Bottom,
+                          /** The center vertical option. */
+                          Center,
+                          /** The space between vertical option. */
+                          SpaceBetween,
+                          /** The space around vertical option. */
+                          SpaceAround,
+                          /** The space evenly vertical option. */
+                          SpaceEvenly }
+}

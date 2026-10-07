@@ -3,7 +3,9 @@ package codes.yousef.summon.cli.commands
 import com.github.ajalt.clikt.core.parse
 import codes.yousef.summon.cli.generators.ProjectGenerator
 import codes.yousef.summon.cli.templates.ProjectTemplate
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.PrintStream
 import java.time.Duration
 import java.time.Instant
 import kotlin.io.path.createTempDirectory
@@ -57,6 +59,7 @@ class InitCommandIntegrationTest {
                 generateProject(scenario, targetDir)
                 generatedProjects += targetDir
 
+
                 val gradleResult = runGradle(
                     projectDir = targetDir,
                     tasks = scenario.gradleTasks,
@@ -105,15 +108,17 @@ class InitCommandIntegrationTest {
         System.setProperty("summon.dev.includeBuild", repoRoot.absolutePath)
         val targetDir = createTempDirectory("summon-cli-harness-it").toFile()
         try {
-            ProjectGenerator(ProjectTemplate.fromType("library")).generate(
-                ProjectGenerator.Config(
-                    projectName = "harness-library",
-                    packageName = "com.example.harness",
-                    targetDirectory = targetDir,
-                    templateType = "library",
-                    minimal = false
+            withoutStandardOutput {
+                ProjectGenerator(ProjectTemplate.fromType("library")).generate(
+                    ProjectGenerator.Config(
+                        projectName = "harness-library",
+                        packageName = "com.example.harness",
+                        targetDirectory = targetDir,
+                        templateType = "library",
+                        minimal = false
+                    )
                 )
-            )
+            }
             val result = runGradle(
                 projectDir = targetDir,
                 tasks = listOf("kotlinUpgradeYarnLock", "jvmTest", "compileTestKotlinJs"),
@@ -134,6 +139,7 @@ class InitCommandIntegrationTest {
         }
     }
 
+
     private fun generateProject(scenario: TemplateScenario, targetDir: File) {
         val args = scenario.initArgs.toMutableList().apply {
             add(0, scenario.projectName)
@@ -141,8 +147,21 @@ class InitCommandIntegrationTest {
             add(targetDir.absolutePath)
         }
 
-        InitCommand().parse(args.toTypedArray())
+        withoutStandardOutput {
+            InitCommand().parse(args.toTypedArray())
+        }
     }
+
+    private inline fun <T> withoutStandardOutput(block: () -> T): T {
+        val original = System.out
+        return try {
+            System.setOut(PrintStream(ByteArrayOutputStream()))
+            block()
+        } finally {
+            System.setOut(original)
+        }
+    }
+
 
     private fun runGradle(projectDir: File, tasks: List<String>, warningModeFail: Boolean): GradleResult {
         val command = mutableListOf(
@@ -168,7 +187,7 @@ class InitCommandIntegrationTest {
             .start()
 
         val start = Instant.now()
-        
+
         // Use a separate thread to read output to prevent blocking if buffer fills up
         val outputBuilder = StringBuilder()
         val readerThread = Thread {
@@ -183,14 +202,14 @@ class InitCommandIntegrationTest {
             }
         }
         readerThread.start()
-        
+
         val finished = process.waitFor(20, java.util.concurrent.TimeUnit.MINUTES)
         if (!finished) {
             process.destroyForcibly()
             readerThread.join(1000)
             throw RuntimeException("Gradle task timed out after 20 minutes. Output so far:\n$outputBuilder")
         }
-        
+
         readerThread.join()
         val output = outputBuilder.toString()
         val exitCode = process.exitValue()

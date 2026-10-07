@@ -144,7 +144,7 @@ data class ToastAction(
  * ```kotlin
  * // Simple toast notification
  * val toastData = ToastData(
- *     id = "success-1",
+ *     ID = "success-1",
  *     message = "File saved successfully!",
  *     variant = ToastVariant.SUCCESS
  * )
@@ -158,7 +158,7 @@ data class ToastAction(
  * ## Toast with Action
  * ```kotlin
  * val toastWithAction = ToastData(
- *     id = "undo-1",
+ *     ID = "undo-1",
  *     message = "Item deleted",
  *     variant = ToastVariant.INFO,
  *     duration = 5000,
@@ -220,8 +220,6 @@ data class ToastAction(
  * @see ToastManager for programmatic toast management
  * @see ToastContainer for managing multiple toasts
  * @see ToastProvider for app-wide toast functionality
- * @sample codes.yousef.summon.samples.feedback.ToastSamples.basicUsage
- * @sample codes.yousef.summon.samples.feedback.ToastSamples.toastWithAction
  * @since 1.0.0
  */
 @Composable
@@ -316,8 +314,10 @@ fun ToastContainer(
 /**
  * Toast notification manager with a bounded visible queue.
  *
- * When the queue reaches [maxVisibleToasts], adding a toast evicts the oldest
- * announcement so bursty status updates cannot create an unbounded live region.
+ * When the queue reaches [maxVisibleToasts], adding a toast evicts the oldest announcement so
+ * bursty status updates cannot create an unbounded live region.
+ *
+ * @property maxVisibleToasts positive queue capacity
  */
 class ToastManager(val maxVisibleToasts: Int = 5) {
     init {
@@ -325,6 +325,7 @@ class ToastManager(val maxVisibleToasts: Int = 5) {
     }
 
     private val _toasts = mutableStateOf<List<ToastData>>(emptyList())
+    /** Current bounded toast queue. */
     val toasts: List<ToastData> get() = _toasts.value
 
     /**
@@ -370,14 +371,17 @@ class ToastManager(val maxVisibleToasts: Int = 5) {
         showToast(message, ToastVariant.INFO, duration)
     }
 
+    /** Shows a success notification. */
     fun showSuccess(message: String, duration: Long = 4000) {
         showToast(message, ToastVariant.SUCCESS, duration)
     }
 
+    /** Shows a warning notification. */
     fun showWarning(message: String, duration: Long = 6000) {
         showToast(message, ToastVariant.WARNING, duration)
     }
 
+    /** Shows an error notification. */
     fun showError(message: String, duration: Long = 8000) {
         showToast(message, ToastVariant.ERROR, duration)
     }
@@ -386,6 +390,7 @@ class ToastManager(val maxVisibleToasts: Int = 5) {
         return "toast-${++idCounter}-${(0..999).random()}"
     }
 
+    /** Process-wide monotonic ID state. */
     companion object {
         private var idCounter = 0
     }

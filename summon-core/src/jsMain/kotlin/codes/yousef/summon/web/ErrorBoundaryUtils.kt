@@ -50,6 +50,11 @@ actual fun enableStaticFormFallbacksPlatform() {
     }
 }
 
+/**
+ * Clears WASM cache platform.
+ *
+ * @return The resulting value.
+ */
 actual fun clearWasmCachePlatform(): Boolean {
     return try {
         // Clear any cached WASM modules
@@ -73,6 +78,11 @@ actual fun clearWasmCachePlatform(): Boolean {
     }
 }
 
+/**
+ * Executes the verify JS fallback platform operation.
+ *
+ * @return The resulting value.
+ */
 actual fun verifyJSFallbackPlatform(): Boolean {
     return try {
         // Verify that JavaScript fallback is available
@@ -87,6 +97,11 @@ actual fun verifyJSFallbackPlatform(): Boolean {
     }
 }
 
+/**
+ * Clears module cache platform.
+ *
+ * @return The resulting value.
+ */
 actual fun clearModuleCachePlatform(): Boolean {
     return try {
         // Clear ES module cache
@@ -115,6 +130,11 @@ actual fun clearModuleCachePlatform(): Boolean {
     }
 }
 
+/**
+ * Loads compatibility shims platform.
+ *
+ * @return The resulting value.
+ */
 actual fun loadCompatibilityShimsPlatform(): Boolean {
     return try {
         // Load polyfills for missing features
@@ -143,6 +163,11 @@ actual fun loadCompatibilityShimsPlatform(): Boolean {
     }
 }
 
+/**
+ * Executes the check network connectivity platform operation.
+ *
+ * @return The resulting value.
+ */
 actual fun checkNetworkConnectivityPlatform(): Boolean {
     return try {
         // Check navigator.onLine
@@ -171,6 +196,11 @@ actual fun checkNetworkConnectivityPlatform(): Boolean {
     }
 }
 
+/**
+ * Executes the retry network operation platform operation.
+ *
+ * @return The resulting value.
+ */
 actual fun retryNetworkOperationPlatform(): Boolean {
     return try {
         // Retry any failed network operations
@@ -200,6 +230,11 @@ actual fun retryNetworkOperationPlatform(): Boolean {
     }
 }
 
+/**
+ * Enables offline mode platform.
+ *
+ * @return The resulting value.
+ */
 actual fun enableOfflineModePlatform(): Boolean {
     return try {
         // Enable offline mode by using cached resources
@@ -234,6 +269,11 @@ actual fun enableOfflineModePlatform(): Boolean {
     }
 }
 
+/**
+ * Clears all caches platform.
+ *
+ * @return The resulting value.
+ */
 actual fun clearAllCachesPlatform(): Boolean {
     return try {
         js(
@@ -270,6 +310,11 @@ actual fun clearAllCachesPlatform(): Boolean {
     }
 }
 
+/**
+ * Resets to known state platform.
+ *
+ * @return The resulting value.
+ */
 actual fun resetToKnownStatePlatform(): Boolean {
     return try {
         // Reset application to a known good state
@@ -308,6 +353,11 @@ actual fun resetToKnownStatePlatform(): Boolean {
     }
 }
 
+/**
+ * Executes the verify basic functionality platform operation.
+ *
+ * @return The resulting value.
+ */
 actual fun verifyBasicFunctionalityPlatform(): Boolean {
     return try {
         // Verify that basic functionality is working
@@ -370,6 +420,13 @@ class JSEnhancedErrorBoundary : ErrorBoundary {
     private var consecutiveErrors = 0
     private var lastErrorTime = 0L
 
+    /**
+     * Executes the handle error operation.
+     *
+     * @param error The error value.
+     * @param context The context value.
+     * @return The resulting value.
+     */
     override fun handleError(error: Throwable, context: String): ErrorAction {
         val currentTime = js("Date.now()") as Long
         val errorRecord = ErrorRecord(error, context, currentTime)
@@ -412,6 +469,13 @@ class JSEnhancedErrorBoundary : ErrorBoundary {
         }
     }
 
+    /**
+     * Executes the report error operation.
+     *
+     * @param error The error value.
+     * @param context The context value.
+     * @param metadata The metadata value.
+     */
     override fun reportError(error: Throwable, context: String, metadata: Map<String, Any>) {
         val errorReport = buildMap {
             put("error", error.message ?: "Unknown error")
@@ -457,6 +521,12 @@ class JSEnhancedErrorBoundary : ErrorBoundary {
         }
     }
 
+    /**
+     * Returns whether this value can recover.
+     *
+     * @param error The error value.
+     * @return The resulting value.
+     */
     override fun canRecover(error: Throwable): Boolean {
         return when (error) {
             is RuntimeException -> when {
@@ -488,6 +558,10 @@ class JSEnhancedErrorBoundary : ErrorBoundary {
 
 /**
  * Record of an error occurrence.
+
+ * @property error The error value.
+ * @property context The context value.
+ * @property timestamp The timestamp value.
  */
 data class ErrorRecord(
     val error: Throwable,

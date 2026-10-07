@@ -11,6 +11,11 @@ class JvmRecompositionScheduler : RecompositionScheduler {
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var scheduledJob: Job? = null
 
+    /**
+     * Executes the schedule recomposition operation.
+     *
+     * @param work The work value.
+     */
     override fun scheduleRecomposition(work: () -> Unit) {
         // Cancel any previously scheduled work
         scheduledJob?.cancel()
@@ -35,10 +40,16 @@ class ThreadPoolScheduler : RecompositionScheduler {
         }
     }
 
+    /**
+     * Executes the schedule recomposition operation.
+     *
+     * @param work The work value.
+     */
     override fun scheduleRecomposition(work: () -> Unit) {
         executor.execute(work)
     }
 
+    /** Executes the shutdown operation. */
     fun shutdown() {
         executor.shutdown()
     }

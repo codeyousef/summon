@@ -5,6 +5,10 @@ package codes.yousef.summon.runtime
 import codes.yousef.summon.state.SummonMutableState
 import codes.yousef.summon.state.mutableStateOf
 
+// Explicit occupancy keeps a remembered null distinct from an unused slot.
+private class RememberedValue(val value: Any?)
+private class RememberedKeys(val values: List<Any?>)
+
 /**
  * Remembers a value across recompositions.
  *
@@ -14,9 +18,9 @@ import codes.yousef.summon.state.mutableStateOf
  *
  * ## Behavior
  *
- * - **First Composition**: [calculation] is executed and the result is stored
+ * - **First Composition**: `calculation` is executed and the result is stored
  * - **Subsequent Recompositions**: Stored value is returned without recalculation
- * - **Key Changes**: When keys change, [calculation] is re-executed
+ * - **Key Changes**: When keys change, `calculation` is re-executed
  * - **Disposal**: Stored values are cleaned up when composition is disposed
  *
  * ## Use Cases
@@ -83,12 +87,14 @@ import codes.yousef.summon.state.mutableStateOf
  * @see rememberMutableStateOf for state creation
  * @since 1.0.0
  */
-// Explicit occupancy keeps a remembered null distinct from an unused slot.
-private class RememberedValue(val value: Any?)
-private class RememberedKeys(val values: List<Any?>)
-
 @Composable
 @Suppress("UNCHECKED_CAST")
+/**
+ * Executes the remember operation.
+ *
+ * @param calculation The calculation value.
+ * @return The resulting value.
+ */
 fun <T> remember(calculation: () -> T): T {
     val composer = CompositionLocal.currentComposer ?: return calculation()
     val existing = composer.getSlot() as? RememberedValue
@@ -110,6 +116,13 @@ fun <T> remember(calculation: () -> T): T {
  */
 @Composable
 @Suppress("UNCHECKED_CAST")
+/**
+ * Executes the remember operation.
+ *
+ * @param keys The keys value.
+ * @param calculation The calculation value.
+ * @return The resulting value.
+ */
 fun <T> remember(vararg keys: Any?, calculation: () -> T): T {
     val composer = CompositionLocal.currentComposer ?: return calculation()
     val inputs = keys.toList()
@@ -162,7 +175,7 @@ fun <T> derivedStateOf(calculation: () -> T): SummonMutableState<T> {
 /**
  * Creates and remembers a derivation of some [SummonMutableState] with explicit dependencies.
  *
- * @param vararg dependencies Objects that will trigger recalculation when they change
+ * @param dependencies Objects that trigger recalculation when they change
  * @param calculation The function to derive a state from the dependencies.
  * @return A [SummonMutableState] that updates when any dependency changes.
  */

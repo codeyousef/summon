@@ -3,6 +3,7 @@ package codes.yousef.summon.builder
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 /**
@@ -172,4 +173,22 @@ class UndoTest {
         history.redo()
         assertEquals(AppState(2, "Second"), history.current())
     }
+    @Test
+    fun capacityEvictsOldEntriesAndRejectsInvalidLimits() {
+        assertFailsWith<IllegalArgumentException> { HistoryManager<String>(0) }
+        val history = HistoryManager<String>(2)
+        history.push("one")
+        history.push("two")
+        history.push("three")
+        assertEquals(2, history.size())
+        assertTrue(history.undo())
+        assertEquals("two", history.current())
+        assertFalse(history.undo())
+        assertFailsWith<IllegalArgumentException> { history.maxHistorySize = -1 }
+        history.clear()
+        assertFailsWith<NoSuchElementException> { history.current() }
+        assertFalse(history.undo())
+        assertFalse(history.redo())
+    }
+
 }

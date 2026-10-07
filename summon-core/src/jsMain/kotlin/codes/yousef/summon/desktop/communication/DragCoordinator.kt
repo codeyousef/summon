@@ -22,17 +22,35 @@ actual class DragCoordinator actual constructor(channelName: String) {
         }
     }
 
+    /**
+     * Starts drag.
+     *
+     * @param data The data value.
+     */
     actual fun startDrag(data: DragData) {
         currentDragId = data.dragId
         val message = DragMessage.DragStart(data)
         channel.postMessage(message.serialize())
     }
 
+    /**
+     * Updates drag position.
+     *
+     * @param dragId The drag id value.
+     * @param x The x value.
+     * @param y The y value.
+     */
     actual fun updateDragPosition(dragId: String, x: Double, y: Double) {
         val message = DragMessage.DragMove(dragId, x, y)
         channel.postMessage(message.serialize())
     }
 
+    /**
+     * Executes the end drag operation.
+     *
+     * @param dragId The drag id value.
+     * @param cancelled The cancelled value.
+     */
     actual fun endDrag(dragId: String, cancelled: Boolean) {
         val message = DragMessage.DragEnd(dragId, cancelled)
         channel.postMessage(message.serialize())
@@ -41,20 +59,36 @@ actual class DragCoordinator actual constructor(channelName: String) {
         }
     }
 
+    /**
+     * Executes the accept drop operation.
+     *
+     * @param dragId The drag id value.
+     */
     actual fun acceptDrop(dragId: String) {
         val windowId = WindowManager.currentWindowId ?: "unknown"
         val message = DragMessage.DropAccepted(dragId, windowId)
         channel.postMessage(message.serialize())
     }
 
+    /**
+     * Adds listener.
+     *
+     * @param listener The listener value.
+     */
     actual fun addListener(listener: DragEventListener) {
         listeners.add(listener)
     }
 
+    /**
+     * Removes listener.
+     *
+     * @param listener The listener value.
+     */
     actual fun removeListener(listener: DragEventListener) {
         listeners.remove(listener)
     }
 
+    /** Closes the operation. */
     actual fun close() {
         unsubscribe?.invoke()
         channel.close()

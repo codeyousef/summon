@@ -322,7 +322,7 @@ kotlin {
 }
 
 dependencies {
-    implementation("codes.yousef:summon-wasm-js:0.6.2.2")
+    implementation("codes.yousef:summon-wasm-js:0.7.0.4")
 }
 ```
 

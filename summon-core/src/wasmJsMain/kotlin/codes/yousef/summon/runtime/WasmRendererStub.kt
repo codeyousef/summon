@@ -6,15 +6,32 @@ package codes.yousef.summon.runtime
  */
 class WasmRenderer {
 
+    /**
+     * Renders the operation.
+     *
+     * @param content Composable content emitted by this API.
+     * @return The resulting value.
+     */
     fun render(content: String): String {
         return "<div>$content</div>"
     }
 
+    /**
+     * Renders to string.
+     *
+     * @param block Operation to execute.
+     * @return The resulting value.
+     */
     fun renderToString(block: () -> Unit): String {
         // Simplified rendering
         return "<html><body>Rendered content</body></html>"
     }
 
+    /**
+     * Returns memory usage.
+     *
+     * @return The resulting value.
+     */
     fun getMemoryUsage(): WasmMemoryUsage {
         return WasmMemoryUsage(
             totalElements = 0,

@@ -43,6 +43,7 @@ object ThemeManager {
  * Interface representing a theme configuration with various styling components.
  */
 interface ThemeConfiguration {
+    /** The property declaration value. */
     val typography: Typography
     // Other theme components like colors, shapes, etc. can be added here
 }
@@ -51,5 +52,6 @@ interface ThemeConfiguration {
  * Default implementation of ThemeConfiguration.
  */
 class DefaultThemeConfiguration : ThemeConfiguration {
+    /** The property declaration value. */
     override val typography: Typography = Typography()
-} 
+}

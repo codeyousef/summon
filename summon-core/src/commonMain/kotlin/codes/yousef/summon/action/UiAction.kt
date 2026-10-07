@@ -9,15 +9,21 @@ import kotlinx.serialization.json.JsonElement
  */
 @Serializable
 sealed class UiAction {
-    /**
-     * Navigates to a new URL.
-     */
+/**
+ * Navigates to `url`.
+ *
+ * @property url navigation destination
+ */
     @Serializable
     @SerialName("nav")
     data class Navigate(val url: String) : UiAction()
 
     /**
-     * Executes a Remote Procedure Call (RPC) on the server.
+     * Executes a server RPC.
+     *
+     * @property endpoint server endpoint identifier
+     * @property payload serialized request payload
+     * @property optimisticUpdate optional client update applied before the response
      */
     @Serializable
     @SerialName("rpc")
@@ -27,10 +33,11 @@ sealed class UiAction {
         val optimisticUpdate: JsonElement? = null
     ) : UiAction()
 
-    /**
-     * Toggles the visibility of a DOM element on the client side.
-     * This avoids a server round-trip for simple UI interactions like menus.
-     */
+/**
+ * Toggles a DOM element without a server round-trip.
+ *
+ * @property targetId target DOM element identifier
+ */
     @Serializable
     @SerialName("toggle")
     data class ToggleVisibility(val targetId: String) : UiAction()

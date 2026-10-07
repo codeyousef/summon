@@ -26,6 +26,14 @@ actual class HydrationManager actual constructor() {
      */
     var enableLogging = false
 
+    /**
+     * Registers component.
+     *
+     * @param elementId The element id value.
+     * @param componentType The component type value.
+     * @param initialState The initial state value.
+     * @param composable The composable value.
+     */
     actual fun registerComponent(
         elementId: String,
         componentType: String,
@@ -136,6 +144,12 @@ actual class HydrationManager actual constructor() {
         }
     }
 
+    /**
+     * Executes the hydrate component operation.
+     *
+     * @param elementId The element id value.
+     * @return The resulting value.
+     */
     actual fun hydrateComponent(elementId: String): Boolean {
         safeLog("Hydrating component: $elementId")
 
@@ -188,6 +202,14 @@ actual class HydrationManager actual constructor() {
         }
     }
 
+    /**
+     * Executes the restore state operation.
+     *
+     * @param componentId The component id value.
+     * @param stateKey The state key value.
+     * @param initialValue The initial value value.
+     * @return The resulting value.
+     */
     actual fun <T> restoreState(componentId: String, stateKey: String, initialValue: T): MutableState<T> {
         safeLog("Restoring state: $componentId.$stateKey")
 
@@ -219,12 +241,19 @@ actual class HydrationManager actual constructor() {
         return mutableState
     }
 
+    /**
+     * Executes the generate component ID operation.
+     *
+     * @param componentType The component type value.
+     * @return The resulting value.
+     */
     actual fun generateComponentId(componentType: String): String {
         val id = "${componentType}_wasm_${++componentIdCounter}_${getCurrentTimestamp()}"
         safeLog("Generated component ID: $id")
         return id
     }
 
+    /** Clears the operation. */
     actual fun clear() {
         safeLog("Clearing hydration manager")
 

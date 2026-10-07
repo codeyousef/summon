@@ -266,12 +266,8 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * @see Box for basic containers
  * @see Column for vertical card layouts
  * @see Row for horizontal card arrangements
- * @see Button for interactive card actions
+ * @see codes.yousef.summon.components.input.Button for interactive card actions
  *
- * @sample CardSamples.simpleCard
- * @sample CardSamples.productCard
- * @sample CardSamples.interactiveCard
- * @sample CardSamples.elevatedCard
  *
  * @since 1.0.0
  */

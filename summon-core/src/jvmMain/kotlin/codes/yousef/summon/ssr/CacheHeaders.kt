@@ -15,7 +15,7 @@ object CacheHeaders {
 
     /**
      * Cache-Control header value for immutable static assets.
-     * Use for files with content hashes in their names (e.g., `abc123.wasm`).
+     * Use for files with content hashes in their names (e.g., `abc123.WASM`).
      *
      * - `public`: Allow caching by shared caches (CDNs, proxies)
      * - `max-age=31536000`: Cache for 1 year (365 days)
@@ -25,7 +25,7 @@ object CacheHeaders {
 
     /**
      * Cache-Control header value for versioned static assets.
-     * Use for files with stable names but versioned content (e.g., `summon-hydration.js`).
+     * Use for files with stable names but versioned content (e.g., `summon-hydration.JS`).
      *
      * - `public`: Allow caching by shared caches
      * - `max-age=86400`: Cache for 1 day (24 hours)
@@ -75,9 +75,13 @@ object CacheHeaders {
      * Common HTTP header names used for caching.
      */
     object Headers {
+        /** The property declaration value. */
         const val CACHE_CONTROL = "Cache-Control"
+        /** The property declaration value. */
         const val ETAG = "ETag"
+        /** The property declaration value. */
         const val LAST_MODIFIED = "Last-Modified"
+        /** The property declaration value. */
         const val VARY = "Vary"
     }
 }

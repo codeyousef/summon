@@ -5,22 +5,39 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
 
 /**
  * OpenGraph protocol types for different content categories.
+
+ * @property value Value to process.
  */
 enum class OGType(val value: String) {
+    /** The website og type option. */
     Website("website"),
+    /** The article og type option. */
     Article("article"),
+    /** The book og type option. */
     Book("book"),
+    /** The profile og type option. */
     Profile("profile"),
+    /** The video og type option. */
     Video("video"),
+    /** The video movie og type option. */
     VideoMovie("video.movie"),
+    /** The video episode og type option. */
     VideoEpisode("video.episode"),
+    /** The video tv show og type option. */
     VideoTVShow("video.tv_show"),
+    /** The video other og type option. */
     VideoOther("video.other"),
+    /** The music og type option. */
     Music("music"),
+    /** The music song og type option. */
     MusicSong("music.song"),
+    /** The music album og type option. */
     MusicAlbum("music.album"),
+    /** The music playlist og type option. */
     MusicPlaylist("music.playlist"),
+    /** The music radio station og type option. */
     MusicRadioStation("music.radio_station"),
+    /** The product og type option. */
     Product("product")
 }
 
@@ -91,7 +108,7 @@ fun OpenGraphTags(
 
         // Custom properties
         customProperties.forEach { (property, value) ->
-            meta(property = "og:$property", content = value)
+            meta(property = if (':' in property) property else "og:$property", content = value)
         }
     }
 }
@@ -170,20 +187,31 @@ fun ProductOpenGraphTags(
 
 /**
  * Product availability status for OpenGraph.
+
+ * @property value Value to process.
  */
 enum class ProductAvailability(val value: String) {
+    /** The in stock product availability option. */
     InStock("instock"),
+    /** The out of stock product availability option. */
     OutOfStock("oos"),
+    /** The discontinued product availability option. */
     Discontinued("discontinued"),
+    /** The pending product availability option. */
     Pending("pending")
 }
 
 /**
  * Product condition for OpenGraph.
+
+ * @property value Value to process.
  */
 enum class ProductCondition(val value: String) {
+    /** The new product condition option. */
     New("new"),
+    /** The refurbished product condition option. */
     Refurbished("refurbished"),
+    /** The used product condition option. */
     Used("used")
 }
 
@@ -287,8 +315,12 @@ fun MusicOpenGraphTags(
  * Types of music content for OpenGraph.
  */
 enum class MusicType {
+    /** The song music type option. */
     Song,
+    /** The album music type option. */
     Album,
+    /** The playlist music type option. */
     Playlist,
+    /** The radio station music type option. */
     RadioStation
 }

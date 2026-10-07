@@ -180,6 +180,14 @@ object SummonHydrationClient {
 
 /**
  * Bounded, versioned hydration metadata. Unknown fields are rejected.
+
+ * @property version The version value.
+ * @property callbacks The callbacks value.
+ * @property callbackContext The callback context value.
+ * @property timestamp The timestamp value.
+ * @property renderer The renderer value.
+ * @property hydrationMarkers The hydration markers value.
+ * @property seoCompatible The seo compatible value.
  */
 @Serializable
 data class HydrationData(

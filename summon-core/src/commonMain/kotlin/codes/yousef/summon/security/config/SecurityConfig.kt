@@ -5,6 +5,15 @@ import codes.yousef.summon.security.JwtAuthenticationProvider
 
 /**
  * Configuration class for security settings.
+
+ * @property authenticationProvider The authentication provider value.
+ * @property loginUrl The login url value.
+ * @property defaultSuccessUrl The default success url value.
+ * @property logoutUrl The logout url value.
+ * @property requireHttps The require https value.
+ * @property sessionTimeout The session timeout value.
+ * @property corsConfig The cors config value.
+ * @property csrfConfig The csrf config value.
  */
 data class SecurityConfig(
     /**
@@ -50,6 +59,12 @@ data class SecurityConfig(
 
 /**
  * Configuration for CORS settings.
+
+ * @property allowedOrigins The allowed origins value.
+ * @property allowedMethods The allowed methods value.
+ * @property allowedHeaders The allowed headers value.
+ * @property allowCredentials The allow credentials value.
+ * @property maxAge The max age value.
  */
 data class CorsConfig(
     /**
@@ -80,6 +95,10 @@ data class CorsConfig(
 
 /**
  * Configuration for CSRF settings.
+
+ * @property enabled Whether the behavior is enabled.
+ * @property tokenHeaderName The token header name value.
+ * @property tokenCookieName The token cookie name value.
  */
 data class CsrfConfig(
     /**
@@ -111,46 +130,99 @@ class SecurityConfigBuilder {
     private var corsConfig: CorsConfig = CorsConfig()
     private var csrfConfig: CsrfConfig = CsrfConfig()
 
+    /**
+     * Executes the authentication provider operation.
+     *
+     * @param provider The provider value.
+     * @return The resulting value.
+     */
     fun authenticationProvider(provider: AuthenticationProvider): SecurityConfigBuilder {
         this.authenticationProvider = provider
         return this
     }
 
+    /**
+     * Executes the login URL operation.
+     *
+     * @param url Target URL.
+     * @return The resulting value.
+     */
     fun loginUrl(url: String): SecurityConfigBuilder {
         this.loginUrl = url
         return this
     }
 
+    /**
+     * Executes the default success URL operation.
+     *
+     * @param url Target URL.
+     * @return The resulting value.
+     */
     fun defaultSuccessUrl(url: String): SecurityConfigBuilder {
         this.defaultSuccessUrl = url
         return this
     }
 
+    /**
+     * Executes the logout URL operation.
+     *
+     * @param url Target URL.
+     * @return The resulting value.
+     */
     fun logoutUrl(url: String): SecurityConfigBuilder {
         this.logoutUrl = url
         return this
     }
 
+    /**
+     * Executes the require HTTPS operation.
+     *
+     * @param required The required value.
+     * @return The resulting value.
+     */
     fun requireHttps(required: Boolean): SecurityConfigBuilder {
         this.requireHttps = required
         return this
     }
 
+    /**
+     * Executes the session timeout operation.
+     *
+     * @param timeout Timeout in milliseconds.
+     * @return The resulting value.
+     */
     fun sessionTimeout(timeout: Long): SecurityConfigBuilder {
         this.sessionTimeout = timeout
         return this
     }
 
+    /**
+     * Executes the cors config operation.
+     *
+     * @param config The config value.
+     * @return The resulting value.
+     */
     fun corsConfig(config: CorsConfig): SecurityConfigBuilder {
         this.corsConfig = config
         return this
     }
 
+    /**
+     * Executes the CSRF config operation.
+     *
+     * @param config The config value.
+     * @return The resulting value.
+     */
     fun csrfConfig(config: CsrfConfig): SecurityConfigBuilder {
         this.csrfConfig = config
         return this
     }
 
+    /**
+     * Builds the operation.
+     *
+     * @return The resulting value.
+     */
     fun build(): SecurityConfig {
         requireNotNull(authenticationProvider) { "Authentication provider is required for security configuration" }
 
@@ -184,4 +256,4 @@ fun createJwtAuthenticationProvider(
     tokenExpiration: Long = 3600L
 ): JwtAuthenticationProvider {
     return JwtAuthenticationProvider(apiBaseUrl, tokenExpiration)
-} 
+}

@@ -6,15 +6,36 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 /** Category exposed by the development overlay without retaining an arbitrary rejected value. */
-enum class DevelopmentErrorCategory { SCRIPT_ERROR, UNHANDLED_REJECTION, ERROR_BOUNDARY }
+enum class DevelopmentErrorCategory { /** The script error development error category option. */
+                                      SCRIPT_ERROR,
+                                      /** The unhandled rejection development error category option. */
+                                      UNHANDLED_REJECTION,
+                                      /** The error boundary development error category option. */
+                                      ERROR_BOUNDARY }
 
 /** Controls whether explicitly synthetic public text may be shown instead of a generic category. */
-enum class DevelopmentErrorTextPolicy { GENERIC_ONLY, SYNTHETIC_PUBLIC }
+enum class DevelopmentErrorTextPolicy { /** The generic only development error text policy option. */
+                                        GENERIC_ONLY,
+                                        /** The synthetic public development error text policy option. */
+                                        SYNTHETIC_PUBLIC }
 
-/** One validated generated-code frame from a browser stack. Positions are one-based. */
+/**
+ * One validated generated-code frame from a browser stack. Positions are one-based.
+ *
+ * @property assetUrl The asset url value.
+ * @property line The line value.
+ * @property column The column value.
+ */
 data class GeneratedSourceLocation(val assetUrl: String, val line: Int, val column: Int)
 
-/** One verified original-source position resolved from the exact configured build map. */
+/**
+ * One verified original-source position resolved from the exact configured build map.
+ *
+ * @property source The source value.
+ * @property line The line value.
+ * @property column The column value.
+ * @property buildId The build id value.
+ */
 data class MappedSourceLocation(
     val source: String,
     val line: Int,
@@ -22,27 +43,51 @@ data class MappedSourceLocation(
     val buildId: String
 )
 
-/** Generated and optional verified original positions for one error frame. */
+/**
+ * Generated and optional verified original positions for one error frame.
+ *
+ * @property generated The generated value.
+ * @property mapped The mapped value.
+ */
 data class DevelopmentErrorFrame(
     val generated: GeneratedSourceLocation,
     val mapped: MappedSourceLocation?
 )
 
-/** Bounded, display-safe error retained by the development overlay. */
+/**
+ * Bounded, display-safe error retained by the development overlay.
+ *
+ * @property category The category value.
+ * @property text The text value.
+ * @property frames The frames value.
+ */
 data class DevelopmentError(
     val category: DevelopmentErrorCategory,
     val text: String,
     val frames: List<DevelopmentErrorFrame>
 )
 
-/** A source map supplied by trusted debug-build configuration for one exact generated asset/build. */
+/**
+ * A source map supplied by trusted debug-build configuration for one exact generated asset/build.
+ *
+ * @property generatedAssetUrl The generated asset url value.
+ * @property buildId The build id value.
+ * @property json The json value.
+ */
 data class VerifiedSourceMapAsset(
     val generatedAssetUrl: String,
     val buildId: String,
     val json: String
 )
 
-/** Validated source-link policy. No link is produced when a path or identity is not allowed. */
+/**
+ * Validated source-link policy. No link is produced when a path or identity is not allowed.
+ *
+ * @property editorProtocol The editor protocol value.
+ * @property workspaceRoot The workspace root value.
+ * @property viewerOrigin The viewer origin value.
+ * @property sourceRevision The source revision value.
+ */
 data class DevelopmentSourceLinkPolicy(
     val editorProtocol: String?,
     val workspaceRoot: String?,
@@ -52,7 +97,9 @@ data class DevelopmentSourceLinkPolicy(
 
 /** Pure parser for bounded browser stack strings. Invalid frames are ignored, never fetched. */
 object DevelopmentStackParser {
+    /** The property declaration value. */
     const val MAX_FRAMES: Int = 100
+    /** The property declaration value. */
     const val MAX_TEXT_UTF8_BYTES: Int = 16_384
     private val location = Regex("(https?://[^\\s)]+):(\\d{1,8}):(\\d{1,8})")
 
@@ -84,15 +131,30 @@ object DevelopmentStackParser {
     }
 }
 
-/** Bounded Source Map v3 catalog. It never performs I/O; only explicitly supplied maps are used. */
+/**
+ * Bounded Source Map v3 catalog. It never performs I/O; only explicitly supplied maps are used.
+ *
+ * @property buildId The build id value.
+ * @property maps The maps value.
+ */
 class VerifiedSourceMapCatalog private constructor(
     private val buildId: String,
     private val maps: Map<String, ParsedSourceMap>
 ) {
+    /** Provides verified source map catalog factory and constant members. */
     companion object {
+        /** The property declaration value. */
         const val MAX_SOURCE_MAP_UTF8_BYTES: Int = 4 * 1_048_576
+        /** The property declaration value. */
         const val MAX_SOURCE_COUNT: Int = 10_000
 
+        /**
+         * Parses the operation.
+         *
+         * @param buildId The build id value.
+         * @param assets The assets value.
+         * @return The resulting value.
+         */
         fun parse(buildId: String, assets: List<VerifiedSourceMapAsset>): VerifiedSourceMapCatalog {
             requireIdentity(buildId, "buildId")
             require(assets.size <= 128) { "Too many configured source maps" }
@@ -116,12 +178,24 @@ class VerifiedSourceMapCatalog private constructor(
         }
     }
 
+    /**
+     * Executes the map operation.
+     *
+     * @param location The location value.
+     * @return The resulting value.
+     */
     fun map(location: GeneratedSourceLocation): MappedSourceLocation? {
         val mapped = maps[location.assetUrl]?.map(location.line, location.column) ?: return null
         return MappedSourceLocation(mapped.source, mapped.line, mapped.column, buildId)
     }
 }
 
+/**
+ * Executes the editor link operation.
+ *
+ * @param location The location value.
+ * @return The resulting value.
+ */
 fun DevelopmentSourceLinkPolicy.editorLink(location: MappedSourceLocation): String? {
     if (location.buildId != sourceRevision) return null
     val protocol = editorProtocol ?: return null
@@ -140,6 +214,12 @@ fun DevelopmentSourceLinkPolicy.editorLink(location: MappedSourceLocation): Stri
     return "$protocol://file${percentEncodePath("$root/$source")}:${location.line}:${location.column}"
 }
 
+/**
+ * Executes the viewer link operation.
+ *
+ * @param location The location value.
+ * @return The resulting value.
+ */
 fun DevelopmentSourceLinkPolicy.viewerLink(location: MappedSourceLocation): String? {
     if (location.buildId != sourceRevision) return null
     val origin = normalizeViewerOrigin(viewerOrigin) ?: return null

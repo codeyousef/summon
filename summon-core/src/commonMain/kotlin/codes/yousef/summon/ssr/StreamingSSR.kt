@@ -2,7 +2,6 @@ package codes.yousef.summon.ssr
 
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.runtime.PlatformRenderer
-import codes.yousef.summon.runtime.getPlatformRenderer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.html.link
@@ -12,10 +11,14 @@ import kotlinx.html.stream.appendHTML
 /**
  * Implementation of streaming server-side rendering for Summon components
  * This allows rendering large pages as a stream of HTML chunks
+
+ * @property hydrationSupport The hydration support value.
+ * @property platformRenderer The platform renderer value.
+ * @property chunkSize The chunk size value.
  */
 class StreamingRenderer(
     private val hydrationSupport: HydrationSupport = StandardHydrationSupport(),
-    private val platformRenderer: PlatformRenderer = getPlatformRenderer(),
+    private val platformRenderer: PlatformRenderer = PlatformRenderer(),
     private val chunkSize: Int = 4096
 ) : StreamingServerSideRenderer {
     /**
@@ -156,7 +159,7 @@ class StreamingRenderer(
                 $twitterCardTags
                 $structuredDataScript
                 ${generateCanonicalLink(seo.canonical)}
-                <title>${seo.title}</title>
+                <title>${escapeSsrHtml(seo.title)}</title>
                 <link rel="stylesheet" href="/summon.css">
             </head>
         """.trimIndent()
@@ -341,7 +344,7 @@ object StreamingSSR {
      */
     fun createRenderer(
         hydrationSupport: HydrationSupport = StandardHydrationSupport(),
-        platformRenderer: PlatformRenderer = getPlatformRenderer(),
+        platformRenderer: PlatformRenderer = PlatformRenderer(),
         chunkSize: Int = 4096
     ): StreamingRenderer {
         return StreamingRenderer(hydrationSupport, platformRenderer, chunkSize)

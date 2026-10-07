@@ -135,7 +135,7 @@ fun DropdownItem(
 ) {
     val renderer = LocalPlatformRenderer.current
 
-    val itemModifier = modifier
+    var itemModifier = modifier
         .style("display", "block")
         .style("padding", "8px 16px")
         .style("color", if (enabled) "#333" else "#999")
@@ -147,11 +147,9 @@ fun DropdownItem(
                 .style("background-color", if (enabled) "#f5f5f5" else "transparent")
         )
         .role("menuitem")
-        .apply {
-            if (!enabled) {
-                ariaDisabled(true)
-            }
-        }
+    if (!enabled) {
+        itemModifier = itemModifier.ariaDisabled(true)
+    }
 
     // Use proper link rendering for href items, block rendering for click-only items
     if (href != null && enabled) {
@@ -167,7 +165,7 @@ fun DropdownItem(
     } else {
         // Render as a div for click-only items
         val blockModifier = if (onClick != null && enabled) {
-            itemModifier.onClick("event.stopPropagation(); ${createClickHandler(onClick)}")
+            itemModifier.onClick(onClick)
         } else {
             itemModifier
         }
@@ -175,15 +173,6 @@ fun DropdownItem(
             renderer.renderText(label, Modifier())
         })
     }
-}
-
-/**
- * Helper to create a click handler string (placeholder for actual implementation).
- */
-private fun createClickHandler(onClick: () -> Unit): String {
-    // In a real implementation, this would register the handler and return a JS call
-    // For now, we return a placeholder
-    return "handleDropdownItemClick()"
 }
 
 /**

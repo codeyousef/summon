@@ -40,17 +40,17 @@ object PropertyBridge {
      * Linked to JsonTreeHistoryManager for persistence.
      */
     val currentTree: SummonMutableState<List<JsonBlock>> = mutableStateOf(emptyList())
-    
+
     /**
      * Simple property storage for components (for testing and simple use cases).
      */
     private val propertyStore = mutableMapOf<String, MutableMap<String, Any?>>()
-    
+
     /**
      * Callback invoked when properties are updated.
      */
     var onPropertyChange: ((componentId: String, propName: String, newValue: Any?) -> Unit)? = null
-    
+
     /**
      * Binds a property value for a component.
      *
@@ -62,7 +62,7 @@ object PropertyBridge {
         val props = propertyStore.getOrPut(componentId) { mutableMapOf() }
         props[propName] = value
     }
-    
+
     /**
      * Updates a single property on a component.
      *
@@ -81,16 +81,16 @@ object PropertyBridge {
         // Also try updating in tree
         val tree = currentTree.value.toMutableList()
         val result = updatePropertyInTree(tree, componentId, propName, value)
-        
+
         if (result.success) {
             currentTree.value = tree
             JsonTreeHistoryManager.push(tree)
             onPropertyChange?.invoke(componentId, propName, value)
         }
-        
+
         return result.success
     }
-    
+
     /**
      * Updates multiple properties on a component at once.
      *
@@ -107,7 +107,7 @@ object PropertyBridge {
         }
         return anyUpdated
     }
-    
+
     /**
      * Gets a property value from a component.
      *
@@ -121,7 +121,7 @@ object PropertyBridge {
         // Then check tree
         return findComponentById(currentTree.value, componentId)?.props?.get(propName)
     }
-    
+
     /**
      * Gets all properties for a component.
      *
@@ -129,11 +129,11 @@ object PropertyBridge {
      * @return Map of all properties (empty if component not found)
      */
     fun getAllProperties(componentId: String): Map<String, Any?> {
-        return propertyStore[componentId]?.toMap() 
-            ?: findComponentById(currentTree.value, componentId)?.props 
+        return propertyStore[componentId]?.toMap()
+            ?: findComponentById(currentTree.value, componentId)?.props
             ?: emptyMap()
     }
-    
+
     /**
      * Removes a property from a component.
      *
@@ -143,7 +143,7 @@ object PropertyBridge {
     fun removeProperty(componentId: String, propName: String) {
         propertyStore[componentId]?.remove(propName)
     }
-    
+
     /**
      * Removes all properties for a component.
      *
@@ -152,7 +152,7 @@ object PropertyBridge {
     fun removeAllProperties(componentId: String) {
         propertyStore.remove(componentId)
     }
-    
+
     /**
      * Clears all stored properties.
      */
@@ -160,7 +160,7 @@ object PropertyBridge {
         propertyStore.clear()
         currentTree.value = emptyList()
     }
-    
+
     /**
      * Adds a new child to a container component.
      *
@@ -172,15 +172,15 @@ object PropertyBridge {
     fun addChild(parentId: String, child: JsonBlock, index: Int = -1): Boolean {
         val tree = currentTree.value.toMutableList()
         val success = addChildToTree(tree, parentId, child, index)
-        
+
         if (success) {
             currentTree.value = tree
             JsonTreeHistoryManager.push(tree)
         }
-        
+
         return success
     }
-    
+
     /**
      * Removes a component from the tree.
      *
@@ -190,15 +190,15 @@ object PropertyBridge {
     fun removeComponent(componentId: String): Boolean {
         val tree = currentTree.value.toMutableList()
         val success = removeFromTree(tree, componentId)
-        
+
         if (success) {
             currentTree.value = tree
             JsonTreeHistoryManager.push(tree)
         }
-        
+
         return success
     }
-    
+
     /**
      * Moves a component to a new parent or position.
      *
@@ -208,27 +208,29 @@ object PropertyBridge {
      * @return true if the move was successful
      */
     fun moveComponent(componentId: String, newParentId: String, index: Int = -1): Boolean {
-        val component = findComponentById(currentTree.value, componentId) ?: return false
-        
+        val tree = currentTree.value
+        val component = findComponentById(tree, componentId) ?: return false
+        if (componentId == newParentId || findComponentById(component.children, newParentId) != null) return false
+        if (findComponentById(tree, newParentId) == null) return false
+
         if (!removeComponent(componentId)) return false
-        
         return addChild(newParentId, component, index)
     }
-    
+
     /**
      * Initializes the tree from JsonTreeHistoryManager.
      */
     fun syncFromHistory() {
         currentTree.value = JsonTreeHistoryManager.getCurrentState()
     }
-    
+
     // --- Private Helpers ---
-    
+
     private data class UpdateResult(
         val success: Boolean,
         val oldValue: Any? = null
     )
-    
+
     private fun updatePropertyInTree(
         blocks: MutableList<JsonBlock>,
         componentId: String,
@@ -238,7 +240,7 @@ object PropertyBridge {
         for (i in blocks.indices) {
             val block = blocks[i]
             val nodeId = block.props["__nodeId"] as? String
-            
+
             if (nodeId == componentId) {
                 val oldValue = block.props[propName]
                 val newProps = block.props.toMutableMap()
@@ -250,7 +252,7 @@ object PropertyBridge {
                 blocks[i] = block.copy(props = newProps)
                 return UpdateResult(success = true, oldValue = oldValue)
             }
-            
+
             // Recursively check children
             if (block.children.isNotEmpty()) {
                 val mutableChildren = block.children.toMutableList()
@@ -261,17 +263,17 @@ object PropertyBridge {
                 }
             }
         }
-        
+
         return UpdateResult(success = false)
     }
-    
+
     private fun findComponentById(blocks: List<JsonBlock>, componentId: String): JsonBlock? {
         for (block in blocks) {
             val nodeId = block.props["__nodeId"] as? String
             if (nodeId == componentId) {
                 return block
             }
-            
+
             if (block.children.isNotEmpty()) {
                 val found = findComponentById(block.children, componentId)
                 if (found != null) return found
@@ -279,7 +281,7 @@ object PropertyBridge {
         }
         return null
     }
-    
+
     private fun addChildToTree(
         blocks: MutableList<JsonBlock>,
         parentId: String,
@@ -289,7 +291,7 @@ object PropertyBridge {
         for (i in blocks.indices) {
             val block = blocks[i]
             val nodeId = block.props["__nodeId"] as? String
-            
+
             if (nodeId == parentId) {
                 val mutableChildren = block.children.toMutableList()
                 if (index < 0 || index >= mutableChildren.size) {
@@ -300,7 +302,7 @@ object PropertyBridge {
                 blocks[i] = block.copy(children = mutableChildren)
                 return true
             }
-            
+
             if (block.children.isNotEmpty()) {
                 val mutableChildren = block.children.toMutableList()
                 if (addChildToTree(mutableChildren, parentId, child, index)) {
@@ -311,19 +313,19 @@ object PropertyBridge {
         }
         return false
     }
-    
+
     private fun removeFromTree(blocks: MutableList<JsonBlock>, componentId: String): Boolean {
         val iterator = blocks.iterator()
         while (iterator.hasNext()) {
             val block = iterator.next()
             val nodeId = block.props["__nodeId"] as? String
-            
+
             if (nodeId == componentId) {
                 iterator.remove()
                 return true
             }
         }
-        
+
         for (i in blocks.indices) {
             val block = blocks[i]
             if (block.children.isNotEmpty()) {
@@ -334,7 +336,7 @@ object PropertyBridge {
                 }
             }
         }
-        
+
         return false
     }
 }

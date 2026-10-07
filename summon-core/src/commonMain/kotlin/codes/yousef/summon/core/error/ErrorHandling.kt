@@ -71,7 +71,7 @@
  *
  * // Multiple validations
  * val allValid = ErrorHandler.validateAll(
- *     url.isNotBlank() to "URL is required",
+ *     URL.isNotBlank() to "URL is required",
  *     timeout > 0 to "Timeout must be positive",
  *     retries in 0..10 to "Retries must be between 0 and 10"
  * )
@@ -91,7 +91,7 @@
  * ```kotlin
  * fun loadConfiguration(): Config {
  *     return ErrorHandler.runCatching {
- *         loadFromFile("config.json")
+ *         loadFromFile("config.JSON")
  *     }.getOrElse {
  *         loadDefaultConfiguration()
  *     }
@@ -233,7 +233,9 @@ class ComponentNotFoundException(
 ) : SummonException("Component not found: $componentName", cause)
 
 /**
- * Exception thrown when validation fails.
+ * Validation failure.
+ *
+ * @property errors individual rejection messages
  */
 class ValidationException(
     message: String,
@@ -254,27 +256,43 @@ class RenderException(
  * Provides a type-safe way to handle errors without exceptions.
  */
 sealed class SummonResult<T, E> {
+    /**
+     * Successful operation result.
+     *
+     * @property value produced value
+     */
     data class Success<T, E>(val value: T) : SummonResult<T, E>()
+    /**
+     * Failed operation result.
+     *
+     * @property error typed failure value
+     */
     data class Failure<T, E>(val error: E) : SummonResult<T, E>()
 
+    /** Whether this result contains a value. */
     fun isSuccess(): Boolean = this is Success
+    /** Whether this result contains an error. */
     fun isFailure(): Boolean = this is Failure
 
+    /** Returns the success value, or `null`. */
     fun getOrNull(): T? = when (this) {
         is Success -> value
         is Failure -> null
     }
 
+    /** Returns the failure value, or `null`. */
     fun getErrorOrNull(): E? = when (this) {
         is Success -> null
         is Failure -> error
     }
 
+    /** Returns the value or invokes [default]. */
     inline fun getOrElse(default: () -> T): T = when (this) {
         is Success -> value
         is Failure -> default()
     }
 
+    /** Returns the value or throws a [SummonException]. */
     fun getOrThrow(): T = when (this) {
         is Success -> value
         is Failure -> throw SummonException("Operation failed: $error")
@@ -339,15 +357,24 @@ object ErrorHandler {
     /**
      * Standard error messages
      */
+    /** Stable framework error messages without payload data. */
     object Messages {
+        /** Missing renderer message. */
         const val RENDERER_NOT_PROVIDED = "No PlatformRenderer provided in the current composition"
+        /** Invalid configuration message. */
         const val INVALID_CONFIGURATION = "Invalid configuration provided"
+        /** Uninitialized component message. */
         const val COMPONENT_NOT_INITIALIZED = "Component has not been initialized"
+        /** Unsupported platform operation message. */
         const val OPERATION_NOT_SUPPORTED = "Operation not supported on this platform"
+        /** Validation failure message. */
         const val VALIDATION_FAILED = "Validation failed"
 
+        /** Formats a missing component [name]. */
         fun componentNotFound(name: String) = "Component not found: $name"
+        /** Formats invalid [value] for [name]. */
         fun invalidValue(name: String, value: Any?) = "Invalid value for $name: $value"
+        /** Formats an out-of-range [value] and inclusive bounds. */
         fun outOfRange(name: String, value: Number, min: Number, max: Number) =
             "$name must be between $min and $max, but was $value"
     }

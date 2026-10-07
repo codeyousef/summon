@@ -321,79 +321,6 @@ fun conditionalEffect(
     }
 }
 
-/**
- * Timer for debouncing/throttling.
- */
-private class EffectTimer<T>(
-    private val delayMs: Int,
-    private val operation: (T) -> Unit
-) {
-    private var timeoutId: Job? = null
-    private var lastValue: T? = null
-    private var lastFireTime: Long = 0
-    private val coroutineScope = CoroutineScope(Dispatchers.Default)
-
-    fun debounce(value: T) {
-        // Cancel any pending execution
-        cancelTimeout()
-
-        // Store the latest value
-        lastValue = value
-
-        // Schedule a new execution after delay
-        timeoutId = scheduleFutureExecution {
-            val valueToUse = lastValue
-            if (valueToUse != null) {
-                operation(valueToUse)
-            }
-        }
-    }
-
-    fun throttle(value: T) {
-        val now = Clock.System.now().toEpochMilliseconds()
-
-        // Store the latest value
-        lastValue = value
-
-        // If enough time has passed since last execution, run immediately
-        if (now > lastFireTime + delayMs) {
-            cancelTimeout()
-            operation(value)
-            lastFireTime = now
-        } else if (timeoutId == null) {
-            // Schedule execution for after the throttle period
-            timeoutId = scheduleFutureExecution {
-                val valueToUse = lastValue
-                if (valueToUse != null) {
-                    operation(valueToUse)
-                    lastFireTime = Clock.System.now().toEpochMilliseconds()
-                }
-            }
-        }
-    }
-
-    fun cancel() {
-        cancelTimeout()
-        coroutineScope.cancel()
-    }
-
-    private fun cancelTimeout() {
-        timeoutId?.cancel()
-        timeoutId = null
-    }
-
-    private fun scheduleFutureExecution(action: () -> Unit): Job {
-        return coroutineScope.launch {
-            delay(delayMs.milliseconds)
-            try {
-                action()
-            } catch (e: Exception) {
-                println("Exception in EffectTimer: ${e.message}")
-                e.printStackTrace()
-            }
-        }
-    }
-}
 
 /**
  * Create a debounced effect
@@ -445,15 +372,6 @@ fun <T> throttledEffect(
     }
 }
 
-/**
- * Remember function for effects implementation.
- * This is a temporary implementation until we integrate with the actual framework.
- */
-@Composable
-private fun <T> remember(calculation: () -> T): T {
-    // In actual implementation, this would use the framework's remember function
-    return calculation()
-}
 
 /**
  * Create an interval effect that runs at specified intervals

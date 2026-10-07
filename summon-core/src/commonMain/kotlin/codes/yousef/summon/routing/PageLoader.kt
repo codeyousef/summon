@@ -27,11 +27,9 @@ object PageLoader {
     }
 
     /**
-     * Scan for pages in the codebase.
-     * This function is provided for debugging purposes only.
-     * The actual scanning is done at build time by the PageLoaderGenerator.
+     * Returns the built-in page manifest for diagnostics.
      *
-     * @return List of file paths that would be found by scanning the pages directory
+     * @return page paths registered by [GeneratedPageLoader]
      */
     fun scanPagesDirectory(): List<String> {
         // This would be generated at build time
@@ -46,13 +44,12 @@ object PageLoader {
     }
 
     /**
-     * Maps a file path to its corresponding route path using Next.js conventions.
-     * This function is primarily used at build time by the PageLoaderGenerator.
+     * Maps a page manifest path to its route path using Next.JS conventions.
      *
-     * @param filePath The file path relative to the project root
+     * @param filePath The page path in a manifest
      * @return The route path this file represents
      */
     fun filePathToRoutePath(filePath: String): String {
         return DefaultPageRegistry().normalizePath(filePath)
     }
-} 
+}

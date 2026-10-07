@@ -4,6 +4,15 @@ import java.io.File
 import java.io.IOException
 import java.io.RandomAccessFile
 
+/**
+ * JVM file metadata with an optional native read capability.
+ *
+ * @property name source file name
+ * @property size declared source size in bytes
+ * @property type reported media type
+ * @property file optional native source; absent sources cannot be read
+ * @property lastModifiedMillis source modification timestamp
+ */
 actual data class FileInfo(
     actual val name: String,
     actual val size: Long,
@@ -11,6 +20,7 @@ actual data class FileInfo(
     val file: File? = null,
     actual val lastModifiedMillis: Long = file?.lastModified() ?: 0L
 ) {
+    /** The property declaration value. */
     actual val sourceVersion: FileSourceVersion
         get() = FileSourceVersion(file?.length() ?: size, file?.lastModified() ?: lastModifiedMillis)
 

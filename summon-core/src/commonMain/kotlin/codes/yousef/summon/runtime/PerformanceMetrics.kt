@@ -26,19 +26,34 @@ object PerformanceConfig {
 
 /**
  * Phases of the hydration lifecycle for metric categorization.
+
+ * @property displayName The display name value.
  */
 enum class HydrationPhase(val displayName: String) {
+    /** The script load hydration phase option. */
     SCRIPT_LOAD("Script Load"),
+    /** The DOM ready hydration phase option. */
     DOM_READY("DOM Ready"),
+    /** The initialization hydration phase option. */
     INITIALIZATION("Initialization"),
+    /** The event system hydration phase option. */
     EVENT_SYSTEM("Event System"),
+    /** The component hydration hydration phase option. */
     COMPONENT_HYDRATION("Component Hydration"),
+    /** The event replay hydration phase option. */
     EVENT_REPLAY("Event Replay"),
+    /** The complete hydration phase option. */
     COMPLETE("Complete")
 }
 
 /**
  * A single metric entry capturing timing information.
+
+ * @property name Human-readable name.
+ * @property startTime The start time value.
+ * @property duration Duration in milliseconds.
+ * @property phase The phase value.
+ * @property metadata The metadata value.
  */
 data class MetricEntry(
     val name: String,
@@ -50,6 +65,13 @@ data class MetricEntry(
 
 /**
  * Summary of metrics for a specific operation type.
+
+ * @property name Human-readable name.
+ * @property count The count value.
+ * @property totalTime The total time value.
+ * @property averageTime The average time value.
+ * @property minTime The min time value.
+ * @property maxTime The max time value.
  */
 data class MetricSummary(
     val name: String,
@@ -62,6 +84,12 @@ data class MetricSummary(
 
 /**
  * Complete hydration performance report.
+
+ * @property totalHydrationTime The total hydration time value.
+ * @property phases The phases value.
+ * @property metrics The metrics value.
+ * @property summaries The summaries value.
+ * @property timestamp The timestamp value.
  */
 data class HydrationPerformanceReport(
     val totalHydrationTime: Double,

@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.Flow
  * builder.append("<div>")
  * builder.append("Hello, World!")
  * builder.append("</div>")
- * val html = builder.finalize()
+ * val HTML = builder.finalize()
  * ```
  *
  * ## Implementation Notes
@@ -61,10 +61,20 @@ interface HtmlBuilder {
 class SimpleHtmlBuilder : HtmlBuilder {
     private val builder = StringBuilder()
 
+    /**
+     * Executes the append operation.
+     *
+     * @param content Composable content emitted by this API.
+     */
     override fun append(content: String) {
         builder.append(content)
     }
 
+    /**
+     * Executes the finalize operation.
+     *
+     * @return The resulting value.
+     */
     override fun finalize(): String {
         return builder.toString()
     }
@@ -106,7 +116,7 @@ fun createHTML(): HtmlBuilder {
  * ### Basic Page Rendering
  * ```kotlin
  * val renderer = createServerSideRenderer()
- * val html = renderer.render(
+ * val HTML = renderer.render(
  *     composable = { HomePage() },
  *     context = RenderContext(
  *         seoMetadata = SeoMetadata(
@@ -121,7 +131,7 @@ fun createHTML(): HtmlBuilder {
  * ```kotlin
  * val userState = mapOfCompat("userId" to "123", "userName" to "John")
  *
- * val html = renderer.render(
+ * val HTML = renderer.render(
  *     composable = { UserProfile() },
  *     context = RenderContext(
  *         enableHydration = true,
@@ -139,18 +149,18 @@ fun createHTML(): HtmlBuilder {
  * // Ktor integration
  * fun Routing.pages() {
  *     get("/") {
- *         val html = renderer.render({ HomePage() })
- *         call.respondText(html, ContentType.Text.Html)
+ *         val HTML = renderer.render({ HomePage() })
+ *         call.respondText(HTML, ContentType.Text.Html)
  *     }
  * }
  *
  * // Spring Boot integration
  * @GetMapping("/")
  * fun home(): ResponseEntity<String> {
- *     val html = renderer.render({ HomePage() })
+ *     val HTML = renderer.render({ HomePage() })
  *     return ResponseEntity.ok()
  *         .contentType(MediaType.TEXT_HTML)
- *         .body(html)
+ *         .body(HTML)
  * }
  * ```
  *
@@ -227,7 +237,7 @@ interface ServerSideRenderer {
      * @param composable Root composable function to render
      * @param context Rendering configuration and metadata
      * @return Complete HTML document ready for client delivery
-     * @throws RenderingException if critical rendering errors occur
+     * Rendering failures are propagated to the caller.
      * @see RenderContext for configuration options
      * @see StreamingServerSideRenderer for streaming alternative
      * @since 1.0.0
@@ -237,6 +247,14 @@ interface ServerSideRenderer {
 
 /**
  * Context object for rendering with additional metadata
+
+ * @property enableHydration The enable hydration value.
+ * @property hydrationIdPrefix The hydration id prefix value.
+ * @property metadata The metadata value.
+ * @property debug The debug value.
+ * @property seoMetadata The seo metadata value.
+ * @property publicState The public state value.
+ * @property headElements The head elements value.
  */
 class RenderContext(
     /**
@@ -277,6 +295,16 @@ class RenderContext(
 
 /**
  * SEO-related metadata for rendering
+
+ * @property title The title value.
+ * @property description The description value.
+ * @property keywords The keywords value.
+ * @property canonical The canonical value.
+ * @property openGraph The open graph value.
+ * @property twitterCard The twitter card value.
+ * @property structuredData The structured data value.
+ * @property robots The robots value.
+ * @property customMetaTags The custom meta tags value.
  */
 class SeoMetadata(
     val title: String = "",
@@ -292,6 +320,13 @@ class SeoMetadata(
 
 /**
  * OpenGraph metadata for social sharing
+
+ * @property title The title value.
+ * @property description The description value.
+ * @property type The type value.
+ * @property url Target URL.
+ * @property image The image value.
+ * @property siteName The site name value.
  */
 class OpenGraphMetadata(
     val title: String = "",
@@ -304,6 +339,13 @@ class OpenGraphMetadata(
 
 /**
  * Twitter card metadata for Twitter sharing
+
+ * @property card The card value.
+ * @property site The site value.
+ * @property creator The creator value.
+ * @property title The title value.
+ * @property description The description value.
+ * @property image The image value.
  */
 class TwitterCardMetadata(
     val card: String = "summary",
@@ -391,14 +433,20 @@ object ServerSideRenderUtils {
      * @param rootComposable The root composable function of the page/application.
      * @param publicState Explicitly public state permitted in the HTML response.
      * @param includeHydrationScript Whether to include inert hydration data.
+     * @param seoMetadata Escaped metadata emitted into the document head.
      * @return The fully rendered HTML string.
      */
     fun renderPageToString(
         rootComposable: @Composable () -> Unit,
         publicState: PublicHydrationState? = null,
-        includeHydrationScript: Boolean = true
+        includeHydrationScript: Boolean = true,
+        seoMetadata: SeoMetadata = SeoMetadata(),
     ): String {
-        val context = RenderContext(publicState = publicState, enableHydration = includeHydrationScript)
+        val context = RenderContext(
+            publicState = publicState,
+            enableHydration = includeHydrationScript,
+            seoMetadata = seoMetadata,
+        )
 
         // Always create a fresh PlatformRenderer for SSR operations
         // This ensures isolation between SSR calls and prevents state pollution
@@ -422,33 +470,35 @@ object ServerSideRenderUtils {
 
         // 5. Construct the final HTML document with SEO metadata from context
         // Extract basic SEO metadata
-        val titleValue = context.seoMetadata.title.ifEmpty { "SSR Page" }
-        val descriptionValue = context.seoMetadata.description
-        val canonicalValue = context.seoMetadata.canonical
+        val titleValue = escapeSsrHtml(context.seoMetadata.title.ifEmpty { "SSR Page" })
+        val descriptionValue = escapeSsrHtml(context.seoMetadata.description)
+        val canonicalValue = escapeSsrHtml(context.seoMetadata.canonical)
 
         // Get additional SEO metadata
-        val keywordsValue = context.seoMetadata.keywords.joinToString(", ")
-        val robotsValue = context.seoMetadata.robots
+        val keywordsValue = escapeSsrHtml(context.seoMetadata.keywords.joinToString(", "))
+        val robotsValue = escapeSsrHtml(context.seoMetadata.robots)
 
         // Get OpenGraph metadata
-        val ogTitle = context.seoMetadata.openGraph.title.ifEmpty { titleValue }
-        val ogDescription = context.seoMetadata.openGraph.description.ifEmpty { descriptionValue }
-        val ogType = context.seoMetadata.openGraph.type
-        val ogUrl = context.seoMetadata.openGraph.url.ifEmpty { canonicalValue }
-        val ogImage = context.seoMetadata.openGraph.image
+        val ogTitle = escapeSsrHtml(context.seoMetadata.openGraph.title.ifEmpty { context.seoMetadata.title.ifEmpty { "SSR Page" } })
+        val ogDescription = escapeSsrHtml(context.seoMetadata.openGraph.description.ifEmpty { context.seoMetadata.description })
+        val ogType = escapeSsrHtml(context.seoMetadata.openGraph.type)
+        val ogUrl = escapeSsrHtml(context.seoMetadata.openGraph.url.ifEmpty { context.seoMetadata.canonical })
+        val ogImage = escapeSsrHtml(context.seoMetadata.openGraph.image)
 
         // Get Twitter Card metadata
-        val twitterCard = context.seoMetadata.twitterCard.card
-        val twitterSite = context.seoMetadata.twitterCard.site
-        val twitterCreator = context.seoMetadata.twitterCard.creator
+        val twitterCard = escapeSsrHtml(context.seoMetadata.twitterCard.card)
+        val twitterSite = escapeSsrHtml(context.seoMetadata.twitterCard.site)
+        val twitterCreator = escapeSsrHtml(context.seoMetadata.twitterCard.creator)
 
         // Collect custom meta tags
         val customMetaTags = context.seoMetadata.customMetaTags.entries
             .joinToString("\n    ") { (key, value) ->
+                val safeKey = escapeSsrHtml(key)
+                val safeValue = escapeSsrHtml(value)
                 if (key.startsWith("og:") || key.startsWith("twitter:")) {
-                    "<meta property=\"$key\" content=\"$value\">"
+                    "<meta property=\"$safeKey\" content=\"$safeValue\">"
                 } else {
-                    "<meta name=\"$key\" content=\"$value\">"
+                    "<meta name=\"$safeKey\" content=\"$safeValue\">"
                 }
             }
 
@@ -498,6 +548,32 @@ object ServerSideRenderUtils {
         return """<script id="summon-public-state" type="application/json">$stateJson</script>"""
     }
 
+}
+
+internal fun escapeSsrHtml(value: String): String {
+    var firstEscaped = -1
+    for (index in value.indices) {
+        if (value[index] == '&' || value[index] == '<' || value[index] == '>' ||
+            value[index] == '"' || value[index] == '\''
+        ) {
+            firstEscaped = index
+            break
+        }
+    }
+    if (firstEscaped < 0) return value
+    return buildString(value.length + 16) {
+        append(value, 0, firstEscaped)
+        for (index in firstEscaped until value.length) {
+            when (val character = value[index]) {
+                '&' -> append("&amp;")
+                '<' -> append("&lt;")
+                '>' -> append("&gt;")
+                '"' -> append("&quot;")
+                '\'' -> append("&#39;")
+                else -> append(character)
+            }
+        }
+    }
 }
 
 internal fun scriptSafeJson(json: String): String {

@@ -4,7 +4,11 @@ import kotlinx.browser.document
 import org.w3c.dom.HTMLAnchorElement
 
 /**
- * Data class to hold Link-related extension properties for JS implementation
+ * Browser link behavior.
+ *
+ * @property onClick optional activation callback
+ * @property href destination URL
+ * @property target optional browsing-context target
  */
 data class LinkJsExtension(
     val onClick: (() -> Unit)? = null,
@@ -31,4 +35,4 @@ fun setupJsClickHandler(linkId: String, linkExt: LinkJsExtension) {
             true
         }
     }
-} 
+}

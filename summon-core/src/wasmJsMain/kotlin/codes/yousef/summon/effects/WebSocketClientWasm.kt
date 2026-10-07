@@ -169,6 +169,7 @@ private external fun wasmCreateSocket(
     callback: (Int, String) -> Unit
 ): JsAny
 
+/** Represents web socket client. */
 actual class WebSocketClient {
     private lateinit var config: WebSocketConfig
     private lateinit var scope: CoroutineScope
@@ -228,11 +229,22 @@ actual class WebSocketClient {
         }
     }
 
+    /**
+     * Executes the connect operation.
+     *
+     * @param url Target URL.
+     * @param protocols The protocols value.
+     */
     actual fun connect(url: String, protocols: List<String>) {
         config = config.copy(url = url, protocols = protocols)
         wasmSocketConnect(handle, url, protocols.joinToString("\u001f"))
     }
 
+    /**
+     * Sends the supplied value.
+     *
+     * @param message Message content.
+     */
     actual fun send(message: String) {
         if (message.encodeToByteArray().size > config.maxMessageBytes) {
             receive(2, "message-too-large")
@@ -241,6 +253,11 @@ actual class WebSocketClient {
         }
     }
 
+    /**
+     * Sends the supplied value.
+     *
+     * @param data The data value.
+     */
     actual fun send(data: ByteArray) {
         if (data.size > config.maxMessageBytes) {
             receive(2, "message-too-large")
@@ -253,12 +270,21 @@ actual class WebSocketClient {
         }
     }
 
+    /** Pauses the operation. */
     actual fun pause() = wasmSocketPause(handle)
 
+    /** Resumes the operation. */
     actual fun resume() = wasmSocketResume(handle)
 
+    /**
+     * Closes the operation.
+     *
+     * @param code The code value.
+     * @param reason The reason value.
+     */
     actual fun close(code: Int, reason: String) = wasmSocketClose(handle, code, reason)
 
+    /** Disposes the operation. */
     actual fun dispose() {
         if (disposed) return
         disposed = true
@@ -267,6 +293,7 @@ actual class WebSocketClient {
         eventHandler = null
     }
 
+    /** The property declaration value. */
     actual val state: WebSocketState
         get() = when (wasmSocketState(handle)) {
             0 -> WebSocketState.CONNECTING
@@ -276,14 +303,27 @@ actual class WebSocketClient {
             else -> WebSocketState.CLOSED
         }
 
+    /** The property declaration value. */
     actual val isConnected: Boolean
         get() = !disposed && wasmSocketState(handle) == 1
 
+    /**
+     * Handles event.
+     *
+     * @param handler The handler value.
+     */
     actual fun onEvent(handler: (WebSocketEvent) -> Unit) {
         eventHandler = handler
     }
 }
 
+/**
+ * Creates web socket.
+ *
+ * @param config The config value.
+ * @param scope Coroutine or composition scope.
+ * @return The resulting value.
+ */
 actual fun createWebSocket(config: WebSocketConfig, scope: CoroutineScope): WebSocketClient =
     WebSocketClient().also { it.initialize(config, scope) }
 

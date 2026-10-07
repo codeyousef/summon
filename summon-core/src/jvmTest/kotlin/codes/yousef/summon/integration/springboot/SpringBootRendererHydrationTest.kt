@@ -5,6 +5,7 @@ import codes.yousef.summon.test.SlowTest
 import org.springframework.http.HttpStatus
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @SlowTest
@@ -22,9 +23,9 @@ class SpringBootRendererHydrationTest {
         val body = response.body ?: error("Response body expected")
         assertTrue(body.contains("id=\"summon-hydration-data\""))
         assertTrue(body.contains("Hello Spring Boot"))
-        val csp = response.headers.getFirst("Content-Security-Policy")
-        assertTrue(csp?.contains("default-src 'none'") == true)
-        assertTrue(csp?.contains("script-src 'self'") == true)
+        val csp = assertNotNull(response.headers.getFirst("Content-Security-Policy"))
+        assertTrue(csp.contains("default-src 'none'"))
+        assertTrue(csp.contains("script-src 'self'"))
     }
 }
 

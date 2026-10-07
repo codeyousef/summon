@@ -9,7 +9,14 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * Data class representing a Snackbar message to be displayed
+ * Snackbar queued by [SnackbarHostState].
+ *
+ * @property message visible announcement
+ * @property variant semantic visual variant
+ * @property action optional action label
+ * @property onAction optional action callback
+ * @property duration visible duration
+ * @property id stable queue identity
  */
 data class SnackbarData(
     val message: String,
@@ -25,6 +32,7 @@ data class SnackbarData(
  */
 class SnackbarHostState {
     private val _snackbars = mutableStateOf<List<SnackbarData>>(emptyList())
+    /** Current snackbar queue. */
     val snackbars: List<SnackbarData>
         get() = _snackbars.value
 

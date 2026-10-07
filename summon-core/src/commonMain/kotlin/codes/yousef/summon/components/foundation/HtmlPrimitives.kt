@@ -82,15 +82,17 @@ fun ScriptTag(
 }
 
 /**
- * Simple builder scope that mimics kotlinx.html's unaryPlus for raw output.
+ * Simple builder scope that mimics kotlinx.HTML's unaryPlus for raw output.
  */
 class RawHtmlScope internal constructor() {
     private val builder = StringBuilder()
 
+    /** Appends this trusted author-code fragment. */
     operator fun String.unaryPlus() {
         builder.append(this)
     }
 
+    /** Appends trusted author-code [value]. */
     fun append(value: String) {
         builder.append(value)
     }

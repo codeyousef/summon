@@ -102,6 +102,16 @@ All notable changes to this project will be documented in this file.
   Unicode/whitespace and provide path-aware diffs; explicit scoped updates and pinned per-engine
   Playwright image goldens keep ordinary verification read-only. CLI library and multiplatform
   templates include runnable JVM and browser examples.
+- **Merged JVM branch coverage gate** - Pinned Kover instrumentation now merges core, CLI,
+  internal Aether integration, diagnostics, devtools and component-test modules into root HTML/XML
+  reports, verifies report integrity and enforces 80% branch coverage from the root `check`
+  lifecycle. The artifact records included modules and keeps JS/WASM browser evidence explicitly
+  separate; a controlled below-threshold fixture proves the gate exits nonzero.
+- **Versioned API documentation** - Pinned Dokka 2.2.0 generates warning-clean aggregate HTML for
+  all public Kotlin modules under a release-specific output directory, resolves source links
+  against the matching release tag or immutable CI commit, compiles lifecycle/privacy samples
+  from test source sets, and preserves only actually available prior-version outputs. Private
+  verification builds and uploads the static reference; generation has no publication side effect.
 
 ### Changed
 
@@ -119,6 +129,48 @@ All notable changes to this project will be documented in this file.
   handlers were removed.
 
 ### Fixed
+
+- **Legacy SSR trust boundaries** - Dynamic, static, streaming and Quarkus renderers now escape
+  untrusted metadata, require `TrustedHtml` for deliberate markup, preserve ordinary modifier
+  attributes and reject malformed or active HTML attribute names. Standalone SSR utilities use
+  isolated renderers instead of requiring ambient composition state.
+- **JVM transport cleanup** - Typed JSON request bodies retain their serializer, nested HTTP
+  timeout failures map consistently, CSRF rejection occurs before request construction, and
+  disposed WebSocket event loops finish without leaking closed-channel failures.
+- **JVM toast callback rendering** - Action and dismiss callback attributes are now emitted before
+  button content, preventing `kotlinx.html` delayed-consumer failures for interactive SSR toasts.
+- **OpenGraph namespaces** - Specialized article, product, video and music properties retain their
+  protocol namespaces instead of being incorrectly rewritten under `og:`.
+- **JVM animation resume** - Paused animation workers remain owned and resumable instead of
+  exiting their loop, and interruption no longer overwrites a completed cancellation state.
+- **WebFlux composable streaming** - Reactive flow/Flux/Publisher rendering now enters a real
+  renderer composition and escapes page titles instead of invoking composables against an
+  uninitialized renderer or emitting active title markup.
+- **Ktor and Quarkus composable rendering** - Static framework renderers now enter a real
+  `PlatformRenderer` composition before embedding the trusted rendered fragment, instead of
+  invoking composables directly against an uninitialized composition local.
+- **Quarkus Qute rendering** - Registered names, property factories and composable functions now
+  render through `PlatformRenderer` instead of placeholder class labels. Namespace arguments are
+  evaluated asynchronously, rendered markup remains raw, and container attributes are escaped.
+- **CLI version integrity** - The CLI reads packaged or repository `version.properties` metadata
+  and fails on missing/blank versions instead of silently generating projects against `0.6.0`.
+- **Standalone SSR SEO metadata** - `ServerSideRenderUtils.renderPageToString` now accepts
+  `SeoMetadata`, escapes every head value and custom tag name, and emits OpenGraph/Twitter custom
+  tags with property semantics.
+- **Reusable stylesheet composition** - `Modifier.applyStyle` now composes the registered
+  modifier instead of discarding both the receiver and the named style.
+- **Owned synchronized storage subscriptions** - `rememberSynced` now disposes its cross-instance
+  listener with the composition. JVM stores register removable per-subscriber adapters, deliver
+  outside the shared lock, and isolate serializer, deserializer and observer failures.
+- **Strict-CSP JVM dropdowns** - Hover dropdowns now use renderer-owned stylesheet rules instead
+  of inline DOM scripts while click and close actions remain delegated typed actions.
+- **Framework asset and protocol validation fixes** - Spring servlet assets normalize `/static/`
+  paths correctly; browser persistence identifiers are restricted to protocol-safe ASCII; progress
+  models reject non-positive maxima; history stacks reject invalid capacities.
+- **SEO route output safety** - Canonical and sitemap attributes now escape untrusted values, and
+  JSON-LD uses parseable JSON Unicode escapes that cannot terminate its raw-text script element.
+- **JVM dropdown alignment** - Immutable alignment and close-action modifiers are now retained,
+  restoring left, right and centered menus while preserving strict-CSP delegated behavior.
 
 - **WASM render failures and diagnostics** - Row, Column, Box and Div invoke content under
   balanced container/identity scopes and propagate failures to mounted ownership for teardown.
@@ -166,6 +218,14 @@ All notable changes to this project will be documented in this file.
 - **Effect helper semantics** - `onMount` runs once until removal and re-entry;
   dependency-aware helpers compare values structurally. Effects and `remember` use distinct
   sequential slots, and the recomposer commits `SideEffect` callbacks only after success.
+
+- **Contract hardening and dead-code removal** - UI-tree interchange now emits deterministic
+  binary CBOR rather than UTF-8 JSON, typed browser storage uses real multiplatform JSON
+  serialization, file-storage key encoding is collision-free, controlled disclosure callbacks
+  report the requested next state, and placeholder event extraction plus obsolete routing and
+  SEO facades were removed. Expanded JVM contracts exercise forms, modifiers, routing, i18n,
+  state persistence, storage, security, safe documents, semantic HTML, SSR serialization,
+  project templates, component-test assertions and development timeline replay.
 
 ## [0.7.0.4] - 2026-07-18
 

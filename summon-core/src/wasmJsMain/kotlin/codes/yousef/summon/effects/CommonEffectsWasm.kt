@@ -3,6 +3,7 @@ package codes.yousef.summon.effects
 import codes.yousef.summon.runtime.safeWasmConsoleLog
 import codes.yousef.summon.runtime.safeWasmConsoleWarn
 
+/** Represents element ref. */
 actual class ElementRef actual constructor() {
     init {
         safeWasmConsoleLog("ElementRef created - WASM implementation")

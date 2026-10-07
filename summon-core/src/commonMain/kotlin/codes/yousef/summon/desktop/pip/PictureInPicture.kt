@@ -13,6 +13,10 @@ import codes.yousef.summon.modifier.Modifier
 
 /**
  * Options for creating a Picture-in-Picture window.
+
+ * @property width The width value.
+ * @property height The height value.
+ * @property copyStyleSheets The copy style sheets value.
  */
 data class PipOptions(
     /** Initial width of the PiP window */
@@ -47,7 +51,11 @@ interface PipWindow {
  * Result of requesting a PiP window.
  */
 sealed class PipResult {
-    /** PiP window was created successfully */
+    /**
+     * PiP window was created successfully
+     *
+     * @property window The window value.
+     */
     data class Success(val window: PipWindow) : PipResult()
 
     /** PiP is not supported on this platform */
@@ -56,7 +64,11 @@ sealed class PipResult {
     /** User denied the PiP request */
     object UserDenied : PipResult()
 
-    /** An error occurred */
+    /**
+     * An error occurred
+     *
+     * @property message Message content.
+     */
     data class Error(val message: String) : PipResult()
 }
 

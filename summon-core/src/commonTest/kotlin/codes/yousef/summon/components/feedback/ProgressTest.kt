@@ -295,6 +295,12 @@ class ProgressTest {
     }
 
     @Test
+    fun rejectsNonPositiveMaximums() {
+        assertFailsWith<IllegalArgumentException> { Progress(maxValue = 0) }
+        assertFailsWith<IllegalArgumentException> { Progress(maxValue = -1) }
+    }
+
+    @Test
     fun testIsIndeterminate() {
         // Test with null value
         val progress1 = Progress(value = null)

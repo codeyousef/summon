@@ -30,6 +30,11 @@ package codes.yousef.summon.hydration
  *     handleClick(event)
  * }
  * ```
+
+ * @property type The type value.
+ * @property targetId The target id value.
+ * @property timestamp The timestamp value.
+ * @property data The data value.
  */
 data class CapturedEvent(
     /**
@@ -68,6 +73,7 @@ data class CapturedEvent(
         return (currentTime - timestamp) > maxAgeMs
     }
 
+    /** Provides captured event factory and constant members. */
     companion object {
         /**
          * Default maximum age for captured events (5 seconds).
@@ -79,23 +85,36 @@ data class CapturedEvent(
          * Event type constants for consistency.
          */
         const val TYPE_CLICK = "click"
+        /** The property declaration value. */
         const val TYPE_INPUT = "input"
+        /** The property declaration value. */
         const val TYPE_CHANGE = "change"
+        /** The property declaration value. */
         const val TYPE_SUBMIT = "submit"
+        /** The property declaration value. */
         const val TYPE_FOCUS = "focus"
+        /** The property declaration value. */
         const val TYPE_BLUR = "blur"
 
         /**
          * Data keys for event-specific information.
          */
         const val DATA_CLIENT_X = "clientX"
+        /** The property declaration value. */
         const val DATA_CLIENT_Y = "clientY"
+        /** The property declaration value. */
         const val DATA_VALUE = "value"
+        /** The property declaration value. */
         const val DATA_CHECKED = "checked"
+        /** The property declaration value. */
         const val DATA_BUTTON = "button"
+        /** The property declaration value. */
         const val DATA_SHIFT_KEY = "shiftKey"
+        /** The property declaration value. */
         const val DATA_CTRL_KEY = "ctrlKey"
+        /** The property declaration value. */
         const val DATA_ALT_KEY = "altKey"
+        /** The property declaration value. */
         const val DATA_META_KEY = "metaKey"
     }
 }

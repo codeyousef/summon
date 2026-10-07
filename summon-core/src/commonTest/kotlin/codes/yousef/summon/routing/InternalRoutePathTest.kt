@@ -54,6 +54,28 @@ class InternalRoutePathTest {
     }
 
     @Test
+    fun enforcesByteBoundsUtf8AndPatternStructureAtEveryBoundary() {
+        assertNotNull(InternalRoutePath.parse("/"))
+        assertNotNull(InternalRoutePath.parse("/${"a".repeat(256)}"))
+        assertNull(InternalRoutePath.parse("/${"a".repeat(257)}"))
+        assertNull(InternalRoutePath.parse("/${"a".repeat(2_048)}"))
+        assertNull(InternalRoutePath.parse("/mail/\u007fprivate"))
+        assertNull(InternalRoutePath.parse("/mail/%A"))
+        assertNull(InternalRoutePath.parse("/mail/%FF"))
+
+        val path = assertNotNull(InternalRoutePath.parse("/users/alice/files/document"))
+        assertEquals(mapOf("name" to "alice"), matchInternalRoute("/users/{name}/files/*", path))
+        assertNull(matchInternalRoute("not-a-path", path))
+        assertNull(matchInternalRoute("/users/*/files", path))
+        assertNull(matchInternalRoute("/users/:name", path))
+        assertNull(matchInternalRoute("/users/bob/files/*", path))
+        assertEquals(
+            emptyMap(),
+            matchInternalRoute("/users/:/files/*", assertNotNull(InternalRoutePath.parse("/users/:/files/document")))
+        )
+    }
+
+    @Test
     fun routeMatchingDoesNotTreatPrefixesAsAuthorizedRoutes() {
         val aliases = Route("/aliases") { { } }
         assertTrue(aliases.matches("/aliases"))

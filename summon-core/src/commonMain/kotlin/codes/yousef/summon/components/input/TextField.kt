@@ -26,6 +26,20 @@ import kotlin.js.JsName
  * @param validators List of validators to apply to the input (optional)
  */
 @JsName("TextField")
+/**
+ * Renders text field.
+ *
+ * @param value Value to process.
+ * @param onValueChange Callback invoked when value change.
+ * @param modifier Styles and attributes applied to the rendered element.
+ * @param label The label value.
+ * @param placeholder The placeholder value.
+ * @param type The type value.
+ * @param isError The is error value.
+ * @param isEnabled The is enabled value.
+ * @param isReadOnly The is read only value.
+ * @param validators The validators value.
+ */
 @Composable
 fun TextField(
     value: String,
@@ -105,6 +119,20 @@ fun TextField(
  * @param validators List of validators to apply to the input (optional)
  */
 @JsName("StatefulTextField")
+/**
+ * Renders stateful text field.
+ *
+ * @param initialValue The initial value value.
+ * @param onValueChange Callback invoked when value change.
+ * @param modifier Styles and attributes applied to the rendered element.
+ * @param label The label value.
+ * @param placeholder The placeholder value.
+ * @param type The type value.
+ * @param isError The is error value.
+ * @param isEnabled The is enabled value.
+ * @param isReadOnly The is read only value.
+ * @param validators The validators value.
+ */
 @Composable
 fun StatefulTextField(
     initialValue: String = "",
@@ -157,6 +185,15 @@ fun StatefulTextField(
  * @param type The type of input (text, password, email, etc.)
  */
 @JsName("BasicTextField")
+/**
+ * Renders basic text field.
+ *
+ * @param value Value to process.
+ * @param onValueChange Callback invoked when value change.
+ * @param modifier Styles and attributes applied to the rendered element.
+ * @param placeholder The placeholder value.
+ * @param type The type value.
+ */
 @Composable
 fun BasicTextField(
     value: String,
@@ -183,14 +220,24 @@ fun BasicTextField(
  * Types of text input fields.
  */
 @JsName("TextFieldType")
+/** Supported text field type values. */
 enum class TextFieldType {
+    /** The text text field type option. */
     Text,
+    /** The password text field type option. */
     Password,
+    /** The email text field type option. */
     Email,
+    /** The number text field type option. */
     Number,
+    /** The tel text field type option. */
     Tel,
+    /** The URL text field type option. */
     Url,
+    /** The search text field type option. */
     Search,
+    /** The date text field type option. */
     Date,
+    /** The time text field type option. */
     Time
 }

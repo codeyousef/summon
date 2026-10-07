@@ -1,7 +1,7 @@
 package codes.yousef.summon.integration.quarkus
 
 import codes.yousef.summon.annotation.Composable
-import codes.yousef.summon.integration.quarkus.htmx.htmlAttribute
+import codes.yousef.summon.components.foundation.TrustedHtml
 import codes.yousef.summon.integration.quarkus.qute.QuteTemplateRenderer
 import codes.yousef.summon.integration.quarkus.renderer.HtmxAwareRenderer
 import codes.yousef.summon.modifier.*
@@ -20,6 +20,7 @@ import org.jboss.logging.Logger
 object EnhancedQuarkusExtension {
 
     // Constants
+    /** The property declaration value. */
     const val FEATURE = "summon-enhanced"
     private val logger = Logger.getLogger(EnhancedQuarkusExtension::class.java)
 
@@ -50,15 +51,9 @@ object EnhancedQuarkusExtension {
          * @param content The HTML content to include in the template
          * @return The rendered HTML as a string
          */
-        fun renderTemplate(title: String, content: String): String {
-            logger.info("Rendering template with title: $title")
-            logger.info("Content length: ${content.length} characters")
-
-            // Use the HtmxAwareRenderer to render the template
-            val result = htmxAwareRenderer.renderTemplate(title, content)
-
-            logger.info("Finished rendering template, result length: ${result.length} characters")
-            return result
+        fun renderTemplate(title: String, content: TrustedHtml): String {
+            logger.info("Rendering trusted author template")
+            return htmxAwareRenderer.renderTemplate(title, content)
         }
     }
 
@@ -96,13 +91,9 @@ fun EnhancedQuteTemplate(
     data: Map<String, Any>,
     modifier: Modifier = Modifier()
 ) {
-    // Use the QuteTemplateRenderer to render the template
-    val html = QuteTemplateRenderer.renderTemplate(template, data)
-
-    // Get the current platform renderer
+    val html = TrustedHtml.fromAuthorCode(QuteTemplateRenderer.renderTemplate(template, data))
     val renderer = LocalPlatformRenderer.current
-
-    // Render a Box with the raw HTML content
-    // Use htmlAttribute instead of style to ensure proper processing by HtmxAwareRenderer
-    renderer.renderBox(modifier.htmlAttribute("__raw_html", html)) { }
+    renderer.renderBox(modifier) {
+        renderer.renderRawHtml(html)
+    }
 }

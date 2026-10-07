@@ -26,6 +26,7 @@ class SummonCli : CliktCommand(
         versionOption(VersionReader.readVersion())
     }
 
+    /** Prints root help when no subcommand is selected. */
     override fun run() {
         if (verbose == "true") {
             echo("Verbose mode enabled")
@@ -36,13 +37,13 @@ class SummonCli : CliktCommand(
             echo(
                 """
                 Welcome to Summon CLI!
-                
-                Summon is a Kotlin Multiplatform UI framework that brings Jetpack Compose-style 
+
+                Summon is a Kotlin Multiplatform UI framework that brings Jetpack Compose-style
                 declarative UI to browser and JVM environments.
-                
+
                 📦 If you downloaded the JAR file:
                    java -jar summon-cli-$version.jar init <name>
-                
+
                 Quick start:
                   1. Pick a project folder: --here, --dir <path>, or default subdirectory
                   2. Run `java -jar summon-cli-$version.jar init <name>`

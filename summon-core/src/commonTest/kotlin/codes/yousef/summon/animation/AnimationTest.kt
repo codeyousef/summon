@@ -159,11 +159,44 @@ class AnimationTest {
 
     @Test
     fun testEasingToCssString() {
-        assertEquals("linear", Easing.LINEAR.toCssString())
-        assertEquals("cubic-bezier(0.4, 0, 1, 1)", Easing.EASE_IN.toCssString())
-        assertEquals("cubic-bezier(0, 0, 0.2, 1)", Easing.EASE_OUT.toCssString())
-        assertEquals("cubic-bezier(0.4, 0, 0.2, 1)", Easing.EASE_IN_OUT.toCssString())
-        assertEquals("cubic-bezier(0.12, 0, 0.39, 0)", Easing.SINE_IN.toCssString())
-        // Add more checks if specific bezier curves are critical
+        val expected = mapOf(
+            Easing.LINEAR to "linear",
+            Easing.EASE_IN to "cubic-bezier(0.4, 0, 1, 1)",
+            Easing.EASE_OUT to "cubic-bezier(0, 0, 0.2, 1)",
+            Easing.EASE_IN_OUT to "cubic-bezier(0.4, 0, 0.2, 1)",
+            Easing.SINE_IN to "cubic-bezier(0.12, 0, 0.39, 0)",
+            Easing.SINE_OUT to "cubic-bezier(0.61, 1, 0.88, 1)",
+            Easing.SINE_IN_OUT to "cubic-bezier(0.37, 0, 0.63, 1)",
+            Easing.QUAD_IN to "cubic-bezier(0.11, 0, 0.5, 0)",
+            Easing.QUAD_OUT to "cubic-bezier(0.5, 1, 0.89, 1)",
+            Easing.QUAD_IN_OUT to "cubic-bezier(0.45, 0, 0.55, 1)",
+            Easing.CUBIC_IN to "cubic-bezier(0.32, 0, 0.67, 0)",
+            Easing.CUBIC_OUT to "cubic-bezier(0.33, 1, 0.68, 1)",
+            Easing.CUBIC_IN_OUT to "cubic-bezier(0.65, 0, 0.35, 1)",
+            Easing.QUART_IN to "cubic-bezier(0.5, 0, 0.75, 0)",
+            Easing.QUART_OUT to "cubic-bezier(0.25, 1, 0.5, 1)",
+            Easing.QUART_IN_OUT to "cubic-bezier(0.76, 0, 0.24, 1)",
+            Easing.QUINT_IN to "cubic-bezier(0.64, 0, 0.78, 0)",
+            Easing.QUINT_OUT to "cubic-bezier(0.22, 1, 0.36, 1)",
+            Easing.QUINT_IN_OUT to "cubic-bezier(0.83, 0, 0.17, 1)",
+            Easing.EXPO_IN to "cubic-bezier(0.7, 0, 0.84, 0)",
+            Easing.EXPO_OUT to "cubic-bezier(0.16, 1, 0.3, 1)",
+            Easing.EXPO_IN_OUT to "cubic-bezier(0.87, 0, 0.13, 1)",
+            Easing.CIRC_IN to "cubic-bezier(0.55, 0, 1, 0.45)",
+            Easing.CIRC_OUT to "cubic-bezier(0, 0.55, 0.45, 1)",
+            Easing.CIRC_IN_OUT to "cubic-bezier(0.85, 0, 0.15, 1)",
+            Easing.BACK_IN to "cubic-bezier(0.36, 0, 0.66, -0.56)",
+            Easing.BACK_OUT to "cubic-bezier(0.34, 1.56, 0.64, 1)",
+            Easing.BACK_IN_OUT to "cubic-bezier(0.68, -0.6, 0.32, 1.6)",
+            Easing.ELASTIC_IN to "cubic-bezier(0.7, 0, 0.3, 1)",
+            Easing.ELASTIC_OUT to "cubic-bezier(0.3, 1, 0.7, 1)",
+            Easing.ELASTIC_IN_OUT to "cubic-bezier(0.9, 0.1, 0.1, 0.9)",
+            Easing.BOUNCE_IN to "cubic-bezier(0.5, 0, 1, 1)",
+            Easing.BOUNCE_OUT to "cubic-bezier(0, 0, 0.5, 1)",
+            Easing.BOUNCE_IN_OUT to "cubic-bezier(0.5, 0, 0.5, 1)"
+        )
+        Easing.entries.forEach { easing ->
+            assertEquals(expected.getValue(easing), easing.toCssString(), easing.name)
+        }
     }
 } 

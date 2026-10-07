@@ -16,10 +16,10 @@ actual fun triggerLanguageChange(language: Language) {
         "ja" -> Locale.JAPANESE
         "ko" -> Locale.KOREAN
         "zh" -> Locale.CHINESE
-        "es" -> Locale("es")
-        "ar" -> Locale("ar")
-        "ru" -> Locale("ru")
-        else -> Locale(language.code)
+        "es" -> Locale.forLanguageTag("es")
+        "ar" -> Locale.forLanguageTag("ar")
+        "ru" -> Locale.forLanguageTag("ru")
+        else -> Locale.forLanguageTag(language.code)
     }
 
     // Set the default locale

@@ -10,8 +10,12 @@ import codes.yousef.summon.modifier.*
  */
 
 /**
- * Common data structure for component rendering that includes standard properties
- * most components need.
+ * Common renderer inputs.
+ *
+ * @property modifier base typed styles and attributes
+ * @property additionalStyles renderer-specific styles
+ * @property accessibilityAttributes ARIA and semantic attributes
+ * @property customAttributes additional caller-defined attributes
  */
 data class ComponentRenderData(
     val modifier: Modifier,
@@ -121,19 +125,6 @@ object RenderingUtils {
     }
 }
 
-/**
- * Extension functions for common modifier operations.
- */
-
-/**
- * Extracts event handlers from a modifier.
- * This is a placeholder for platform-specific event handler extraction.
- */
-fun Modifier.extractEventHandlers(): Map<String, Any> {
-    // This would be implemented differently on each platform
-    // For now, return empty map as a placeholder
-    return emptyMap()
-}
 
 /**
  * Gets a normalized style string that can be used across platforms.

@@ -11,12 +11,18 @@ class JsRecompositionScheduler : RecompositionScheduler {
     private var scheduledWork: (() -> Unit)? = null
     private var animationFrameId: Int? = null
 
+    /** Cancels pending recomposition. */
     override fun cancelPendingRecomposition() {
         animationFrameId?.let { window.cancelAnimationFrame(it) }
         animationFrameId = null
         scheduledWork = null
     }
 
+    /**
+     * Executes the schedule recomposition operation.
+     *
+     * @param work The work value.
+     */
     override fun scheduleRecomposition(work: () -> Unit) {
         // Cancel any previously scheduled work
         animationFrameId?.let { window.cancelAnimationFrame(it) }
@@ -40,11 +46,17 @@ class MicrotaskScheduler : RecompositionScheduler {
     private var scheduledWork: (() -> Unit)? = null
     private var generation = 0L
 
+    /** Cancels pending recomposition. */
     override fun cancelPendingRecomposition() {
         generation++
         scheduledWork = null
     }
 
+    /**
+     * Executes the schedule recomposition operation.
+     *
+     * @param work The work value.
+     */
     override fun scheduleRecomposition(work: () -> Unit) {
         if (scheduledWork == null) {
             scheduledWork = work

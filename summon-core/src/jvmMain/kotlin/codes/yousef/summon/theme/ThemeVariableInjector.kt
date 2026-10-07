@@ -12,7 +12,7 @@ package codes.yousef.summon.theme
  */
 actual object ThemeVariableInjector {
     private val variables = mutableMapOf<String, String>()
-    
+
     /**
      * Stores theme CSS variables for later rendering.
      *
@@ -25,7 +25,7 @@ actual object ThemeVariableInjector {
         this.variables.clear()
         this.variables.putAll(variables)
     }
-    
+
     /**
      * Gets a stored CSS variable value.
      *
@@ -35,7 +35,7 @@ actual object ThemeVariableInjector {
     actual fun getVariable(name: String): String {
         return variables[name] ?: ""
     }
-    
+
     /**
      * Removes a CSS variable from the stored collection.
      *
@@ -44,21 +44,21 @@ actual object ThemeVariableInjector {
     actual fun removeVariable(name: String) {
         variables.remove(name)
     }
-    
+
     /**
      * Clears all stored theme CSS variables.
      */
     actual fun clearVariables() {
         variables.clear()
     }
-    
+
     /**
      * Generates a CSS block containing all stored variables.
      *
      * Returns a `<style>` block suitable for inclusion in `<head>`:
      *
-     * ```html
-     * <style id="summon-theme-variables">
+     * ```HTML
+     * <style ID="summon-theme-variables">
      *   :root {
      *     --colors-primary-main: #1976d2;
      *     --spacing-md: 16px;
@@ -71,11 +71,11 @@ actual object ThemeVariableInjector {
      */
     fun generateCssBlock(): String {
         if (variables.isEmpty()) return ""
-        
+
         val cssVars = variables.entries.joinToString("\n    ") { (name, value) ->
             "$name: $value;"
         }
-        
+
         return """
             |<style id="summon-theme-variables">
             |  :root {
@@ -84,7 +84,7 @@ actual object ThemeVariableInjector {
             |</style>
         """.trimMargin()
     }
-    
+
     /**
      * Generates just the CSS content (without `<style>` tags).
      *
@@ -92,14 +92,14 @@ actual object ThemeVariableInjector {
      */
     fun generateCssContent(): String {
         if (variables.isEmpty()) return ""
-        
+
         val cssVars = variables.entries.joinToString("\n  ") { (name, value) ->
             "$name: $value;"
         }
-        
+
         return ":root {\n  $cssVars\n}"
     }
-    
+
     /**
      * Returns a copy of all stored variables.
      *

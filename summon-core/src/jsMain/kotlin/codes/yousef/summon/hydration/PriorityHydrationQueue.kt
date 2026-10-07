@@ -334,6 +334,7 @@ class PriorityHydrationQueue private constructor() {
         observedElementIds.clear()
     }
 
+    /** Provides priority hydration queue factory and constant members. */
     companion object {
         /**
          * Singleton instance.

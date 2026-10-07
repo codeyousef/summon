@@ -6,7 +6,11 @@ import kotlinx.browser.document
 import org.w3c.dom.HTMLElement
 
 /**
- * Data class to hold Badge-related extension properties for JS implementation
+ * Browser badge behavior.
+ *
+ * @property type semantic badge type
+ * @property shape badge geometry
+ * @property onClick optional activation callback
  */
 data class BadgeJsExtension(
     val type: BadgeType = BadgeType.PRIMARY,

@@ -37,6 +37,11 @@ actual interface Router {
  * External JS function interface
  */
 @JsName("js")
+/**
+ * Executes the JS operation.
+ *
+ * @param code The code value.
+ */
 external fun js(code: String): dynamic
 
 /**
@@ -49,6 +54,11 @@ private var globalRouter: Router? = null
  * Exposes navigation functions to JavaScript.
  */
 @JsName("setupRouterForBrowser")
+/**
+ * Sets up router for browser.
+ *
+ * @param router The router value.
+ */
 fun setupRouterForBrowser(router: Router) {
     // Store in global variable
     globalRouter = router
@@ -65,6 +75,12 @@ fun setupRouterForBrowser(router: Router) {
  * This function is called from JavaScript.
  */
 @JsName("summonRouterNavigate")
+/**
+ * Executes the summon router navigate operation.
+ *
+ * @param path Target path.
+ * @param pushState The push state value.
+ */
 fun summonRouterNavigate(path: String, pushState: Boolean = true) {
     globalRouter?.navigate(path, pushState)
 }
@@ -73,6 +89,13 @@ fun summonRouterNavigate(path: String, pushState: Boolean = true) {
  * Creates a router with browser navigation support.
  */
 @JsName("createBrowserRouter")
+/**
+ * Creates browser router.
+ *
+ * @param routes The routes value.
+ * @param notFoundComponent The not found component value.
+ * @return The resulting value.
+ */
 fun createBrowserRouter(
     vararg routes: String,
     notFoundComponent: (@Composable (RouteParams) -> Unit)? = null
@@ -138,14 +161,29 @@ internal fun browserBootPath(initialPath: String): String {
  * Browser History implementation
  */
 class BrowserHistory {
+    /**
+     * Executes the push operation.
+     *
+     * @param path Target path.
+     */
     fun push(path: InternalRoutePath) {
         window.history.pushState(null, "", path.encodedPath)
     }
 
+    /**
+     * Executes the replace operation.
+     *
+     * @param path Target path.
+     */
     fun replace(path: InternalRoutePath) {
         window.history.replaceState(null, "", path.encodedPath)
     }
 
+    /**
+     * Returns current path.
+     *
+     * @return The resulting value.
+     */
     fun getCurrentPath(): String = window.location.pathname
 }
 

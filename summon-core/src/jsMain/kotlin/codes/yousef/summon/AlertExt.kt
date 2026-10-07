@@ -5,7 +5,11 @@ import kotlinx.browser.document
 import org.w3c.dom.HTMLElement
 
 /**
- * Data class to hold Alert-related extension properties for JS implementation
+ * Browser alert behavior.
+ *
+ * @property variant visual alert variant
+ * @property onAction optional primary action
+ * @property onDismiss optional dismissal action
  */
 data class AlertJsExtension(
     val variant: AlertVariant = AlertVariant.INFO,
@@ -85,4 +89,4 @@ fun setupJsDismissHandler(dismissId: String, alertId: String, alertExt: AlertJsE
             event.stopPropagation()
         }
     }
-} 
+}

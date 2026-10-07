@@ -8,8 +8,11 @@ import codes.yousef.summon.runtime.wasmConsoleWarn
  */
 @JsName("BroadcastChannel")
 external class WasmBroadcastChannel(name: String) : JsAny {
+    /** Browser channel name. */
     val name: String
+    /** Publishes [message] to other channel instances. */
     fun postMessage(message: JsAny?)
+    /** Closes this channel and releases native listeners. */
     fun close()
 }
 
@@ -17,6 +20,7 @@ external class WasmBroadcastChannel(name: String) : JsAny {
  * External interface for MessageEvent in WASM.
  */
 external interface WasmMessageEvent : JsAny {
+    /** Message payload supplied by the browser channel. */
     val data: JsAny?
 }
 

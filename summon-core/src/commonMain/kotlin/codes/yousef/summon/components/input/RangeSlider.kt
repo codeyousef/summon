@@ -88,18 +88,23 @@ fun StatefulRangeSlider(
 }
 
 /**
- * Utility class to manage a mutable range of Float values.
- * Can be used with remember { mutableStateOf(FloatRange(0.25f, 0.75f)) }
+ * Closed floating-point range value.
+ *
+ * @property start inclusive lower endpoint
+ * @property endInclusive inclusive upper endpoint
  */
 data class FloatRange(
     override val start: Float,
     override val endInclusive: Float
 ) : ClosedFloatingPointRange<Float> {
 
+    /** Returns whether [value] belongs to this range. */
     override fun contains(value: Float): Boolean = value in start..endInclusive
 
+    /** Returns whether the lower endpoint exceeds the upper endpoint. */
     override fun isEmpty(): Boolean = start > endInclusive
 
+    /** Ordering operation used by [ClosedFloatingPointRange]. */
     override fun lessThanOrEquals(a: Float, b: Float): Boolean = a <= b
 }
 

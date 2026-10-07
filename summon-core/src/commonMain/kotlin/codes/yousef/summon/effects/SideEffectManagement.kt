@@ -9,6 +9,7 @@ import codes.yousef.summon.state.SummonMutableState
  * A dummy job interface for API compatibility.
  */
 interface JobLike {
+    /** Cancels the operation. */
     fun cancel()
 }
 
@@ -16,6 +17,7 @@ interface JobLike {
  * A simple job implementation.
  */
 class SimpleJob : JobLike {
+    /** Cancels the operation. */
     override fun cancel() {
         // No-op implementation
     }

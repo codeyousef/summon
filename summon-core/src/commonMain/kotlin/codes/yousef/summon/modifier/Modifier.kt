@@ -147,7 +147,7 @@ import kotlin.js.JsName
  * // Create modifier from JavaScript
  * const modifier = new summon.modifier.Modifier(
  *     { "color": "blue", "padding": "10px" },
- *     { "id": "my-element" }
+ *     { "ID": "my-element" }
  * );
  *
  * // Use factory functions
@@ -199,11 +199,17 @@ import kotlin.js.JsName
  * @since 1.0.0
  */
 interface Modifier {
+    /** The property declaration value. */
     val styles: Map<String, String> get() = emptyMap()
+    /** The property declaration value. */
     val attributes: Map<String, String> get() = emptyMap()
+    /** The property declaration value. */
     val eventHandlers: Map<String, () -> Unit> get() = emptyMap()
+    /** The property declaration value. */
     val complexEventHandlers: Map<String, (Any) -> Unit> get() = emptyMap()
+    /** The property declaration value. */
     val pseudoElements: List<PseudoElementDefinition> get() = emptyList()
+    /** The property declaration value. */
     val conditionalStyles: List<ConditionalStyleDefinition> get() = emptyList()
 
     /**
@@ -215,14 +221,29 @@ interface Modifier {
      */
     infix fun then(other: Modifier): Modifier
 
+    /** Provides modifier factory and constant members. */
     companion object : Modifier {
+        /**
+         * Executes the then operation.
+         *
+         * @param other The other value.
+         * @return The resulting value.
+         */
         override infix fun then(other: Modifier): Modifier = other
+        /** Converts this value to string. */
         override fun toString() = "Modifier"
     }
 }
 
 /**
  * Internal implementation of Modifier that holds the actual state.
+
+ * @property styles The styles value.
+ * @property attributes The attributes value.
+ * @property eventHandlers The event handlers value.
+ * @property complexEventHandlers The complex event handlers value.
+ * @property pseudoElements The pseudo elements value.
+ * @property conditionalStyles The conditional styles value.
  */
 data class ModifierImpl(
     override val styles: Map<String, String> = emptyMap(),
@@ -232,6 +253,12 @@ data class ModifierImpl(
     override val pseudoElements: List<PseudoElementDefinition> = emptyList(),
     override val conditionalStyles: List<ConditionalStyleDefinition> = emptyList()
 ) : Modifier {
+    /**
+     * Executes the then operation.
+     *
+     * @param other The other value.
+     * @return The resulting value.
+     */
     override infix fun then(other: Modifier): Modifier {
         return if (other === Modifier) this
         else if (other !is ModifierImpl) this
@@ -259,6 +286,16 @@ data class ModifierImpl(
  * @return A new ModifierImpl instance
  */
 @Suppress("FunctionName")
+/**
+ * Renders modifier.
+ *
+ * @param styles The styles value.
+ * @param attributes The attributes value.
+ * @param eventHandlers The event handlers value.
+ * @param pseudoElements The pseudo elements value.
+ * @param conditionalStyles The conditional styles value.
+ * @return The resulting value.
+ */
 fun Modifier(
     styles: Map<String, String> = emptyMap(),
     attributes: Map<String, String> = emptyMap(),
@@ -331,6 +368,12 @@ fun Modifier.backgroundColor(color: codes.yousef.summon.core.style.Color): Modif
  * @return A new Modifier with the padding style.
  */
 @JsName("paddingUniform")
+/**
+ * Executes the padding operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun Modifier.padding(value: String): Modifier =
     style("padding", value)
 
@@ -356,6 +399,15 @@ fun Modifier.attribute(name: String, value: String): Modifier =
  * @return A new Modifier with the specified padding styles.
  */
 @JsName("paddingSides")
+/**
+ * Executes the padding operation.
+ *
+ * @param top The top value.
+ * @param right The right value.
+ * @param bottom The bottom value.
+ * @param left The left value.
+ * @return The resulting value.
+ */
 fun Modifier.padding(top: String, right: String, bottom: String, left: String): Modifier =
     style("padding", "$top $right $bottom $left")
 
@@ -390,6 +442,13 @@ fun Modifier.height(value: String): Modifier =
  * @return A new Modifier with both width and height styles.
  */
 @JsName("sizeDetailed")
+/**
+ * Executes the size operation.
+ *
+ * @param width The width value.
+ * @param height The height value.
+ * @return The resulting value.
+ */
 fun Modifier.size(width: String, height: String): Modifier =
     this.width(width).height(height)
 
@@ -399,6 +458,12 @@ fun Modifier.size(width: String, height: String): Modifier =
  * @return A new Modifier with equal width and height styles.
  */
 @JsName("sizeUniform")
+/**
+ * Executes the size operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun Modifier.size(value: String): Modifier =
     size(value, value)
 
@@ -475,6 +540,12 @@ fun Modifier.fontWeight(value: FontWeight): Modifier =
  * @return A new Modifier with the margin style.
  */
 @JsName("marginUniform")
+/**
+ * Executes the margin operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun Modifier.margin(value: String): Modifier =
     style("margin", value)
 
@@ -530,6 +601,15 @@ fun Modifier.fillMaxHeight(): Modifier =
  * @return A new Modifier with the box-shadow style.
  */
 @JsName("shadowDetailed")
+/**
+ * Executes the shadow operation.
+ *
+ * @param offsetX The offset x value.
+ * @param offsetY The offset y value.
+ * @param blurRadius The blur radius value.
+ * @param color The color value.
+ * @return The resulting value.
+ */
 fun Modifier.shadow(offsetX: String, offsetY: String, blurRadius: String, color: String): Modifier =
     style("box-shadow", "$offsetX $offsetY $blurRadius $color")
 
@@ -538,6 +618,11 @@ fun Modifier.shadow(offsetX: String, offsetY: String, blurRadius: String, color:
  * @return A new Modifier with a default box-shadow style.
  */
 @JsName("shadowDefault")
+/**
+ * Executes the shadow operation.
+ *
+ * @return The resulting value.
+ */
 fun Modifier.shadow(): Modifier =
     shadow("0px", "2px", "4px", "rgba(0,0,0,0.1)")
 
@@ -586,6 +671,12 @@ fun Modifier.opacity(value: String): Modifier =
  * @return A new Modifier with the added attributes.
  */
 @JsName("withAttributes")
+/**
+ * Executes the attributes operation.
+ *
+ * @param attrs The attrs value.
+ * @return The resulting value.
+ */
 fun Modifier.attributes(attrs: Map<String, String>): Modifier =
     when (this) {
         is ModifierImpl -> copy(attributes = attributes + attrs)
@@ -656,7 +747,7 @@ fun Modifier.hasStyle(key: String, value: String): Boolean {
 // --- Common HTML Attributes as methods ---
 
 /**
- * Sets the `id` attribute of the element.
+ * Sets the `ID` attribute of the element.
  * @param value The ID value.
  * @return A new Modifier with the id attribute.
  */
@@ -715,7 +806,7 @@ fun Modifier.dataAttributes(values: Map<String, String>): Modifier {
 }
 
 /**
- * Sets an `aria-*` attribute of the element for accessibility.
+ * Sets an `ARIA-*` attribute of the element for accessibility.
  * @param name The name of the ARIA attribute (without the "aria-" prefix).
  * @param value The value of the ARIA attribute.
  * @return A new Modifier with the ARIA attribute.

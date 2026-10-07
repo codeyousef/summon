@@ -68,7 +68,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  *     Column(modifier = Modifier().gap(Spacing.SM)) {
  *         ExternalLink(
  *             text = "Visit GitHub",
- *             href = "https://github.com/company/repo",
+ *             href = "HTTPS://github.com/company/repo",
  *             modifier = Modifier()
  *                 .color(Color.BLUE_600)
  *                 .textDecoration("underline")
@@ -79,7 +79,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  *
  *         ExternalLink(
  *             text = "External Documentation",
- *             href = "https://docs.example.com",
+ *             href = "HTTPS://docs.example.com",
  *             noFollow = true
  *         )
  *     }
@@ -178,6 +178,13 @@ enum class LinkNavigationMode {
     Client
 }
 
+/**
+ * Renders a semantic link with explicit native or client-owned navigation.
+ *
+ * External or `_blank` links receive `noopener noreferrer`; [isNoFollow] adds `nofollow`.
+ * Client navigation suppresses the native destination and exposes [href] through data attributes
+ * for the mounted runtime.
+ */
 @Composable
 fun Link(
     href: String,
@@ -196,7 +203,7 @@ fun Link(
     content: @Composable () -> Unit
 ) {
     val composer = CompositionLocal.currentComposer
-    // --- Calculate Final Rel Attribute --- 
+    // --- Calculate Final Rel Attribute ---
     val finalRelValues = mutableListOf<String>()
     rel?.let { finalRelValues.addAll(it.splitCompat(" ").filter { it.isNotBlank() }) }
     if (target == "_blank" || isExternal) {
@@ -207,7 +214,7 @@ fun Link(
         finalRelValues.add("nofollow")
     }
     val finalRel = finalRelValues.joinToString(" ").ifEmpty { null }
-    // --- End Rel Attribute Calculation --- 
+    // --- End Rel Attribute Calculation ---
 
     // Apply rel attribute via Modifier as it needs special calculation
     var finalModifier = if (finalRel != null) {
@@ -292,7 +299,7 @@ fun AnchorLink(
     }
 }
 
-// --- Helper Functions (Updated) --- 
+// --- Helper Functions (Updated) ---
 
 /**
  * Creates an external link composable with appropriate attributes for SEO and security.

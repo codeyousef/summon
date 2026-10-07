@@ -10,6 +10,15 @@ import codes.yousef.summon.extensions.px
 fun Modifier.boxShadow(value: String): Modifier =
     style("box-shadow", value)
 
+/**
+ * Executes the box shadow operation.
+ *
+ * @param horizontalOffset The horizontal offset value.
+ * @param verticalOffset The vertical offset value.
+ * @param blurRadius The blur radius value.
+ * @param color The color value.
+ * @return The resulting value.
+ */
 fun Modifier.boxShadow(
     horizontalOffset: Number,
     verticalOffset: Number,
@@ -20,6 +29,15 @@ fun Modifier.boxShadow(
     return boxShadow(shadow)
 }
 
+/**
+ * Executes the box shadow operation.
+ *
+ * @param horizontalOffset The horizontal offset value.
+ * @param verticalOffset The vertical offset value.
+ * @param blurRadius The blur radius value.
+ * @param color The color value.
+ * @return The resulting value.
+ */
 fun Modifier.boxShadow(
     horizontalOffset: String,
     verticalOffset: String,
@@ -30,6 +48,16 @@ fun Modifier.boxShadow(
     return boxShadow(shadow)
 }
 
+/**
+ * Executes the box shadow operation.
+ *
+ * @param horizontalOffset The horizontal offset value.
+ * @param verticalOffset The vertical offset value.
+ * @param blurRadius The blur radius value.
+ * @param spreadRadius The spread radius value.
+ * @param color The color value.
+ * @return The resulting value.
+ */
 fun Modifier.boxShadow(
     horizontalOffset: Number,
     verticalOffset: Number,
@@ -41,6 +69,16 @@ fun Modifier.boxShadow(
     return boxShadow(shadow)
 }
 
+/**
+ * Executes the box shadow operation.
+ *
+ * @param horizontalOffset The horizontal offset value.
+ * @param verticalOffset The vertical offset value.
+ * @param blurRadius The blur radius value.
+ * @param spreadRadius The spread radius value.
+ * @param color The color value.
+ * @return The resulting value.
+ */
 fun Modifier.boxShadow(
     horizontalOffset: String,
     verticalOffset: String,
@@ -52,6 +90,16 @@ fun Modifier.boxShadow(
     return boxShadow(shadow)
 }
 
+/**
+ * Executes the box shadow operation.
+ *
+ * @param horizontalOffset The horizontal offset value.
+ * @param verticalOffset The vertical offset value.
+ * @param blurRadius The blur radius value.
+ * @param color The color value.
+ * @param inset The inset value.
+ * @return The resulting value.
+ */
 fun Modifier.boxShadow(
     horizontalOffset: Number,
     verticalOffset: Number,
@@ -64,6 +112,17 @@ fun Modifier.boxShadow(
     return boxShadow(shadow)
 }
 
+/**
+ * Executes the box shadow operation.
+ *
+ * @param horizontalOffset The horizontal offset value.
+ * @param verticalOffset The vertical offset value.
+ * @param blurRadius The blur radius value.
+ * @param spreadRadius The spread radius value.
+ * @param color The color value.
+ * @param inset The inset value.
+ * @return The resulting value.
+ */
 fun Modifier.boxShadow(
     horizontalOffset: Number,
     verticalOffset: Number,
@@ -77,6 +136,16 @@ fun Modifier.boxShadow(
     return boxShadow(shadow)
 }
 
+/**
+ * Executes the box shadow operation.
+ *
+ * @param horizontalOffset The horizontal offset value.
+ * @param verticalOffset The vertical offset value.
+ * @param blurRadius The blur radius value.
+ * @param color The color value.
+ * @param inset The inset value.
+ * @return The resulting value.
+ */
 fun Modifier.boxShadow(
     horizontalOffset: String,
     verticalOffset: String,
@@ -89,6 +158,17 @@ fun Modifier.boxShadow(
     return boxShadow(shadow)
 }
 
+/**
+ * Executes the box shadow operation.
+ *
+ * @param horizontalOffset The horizontal offset value.
+ * @param verticalOffset The vertical offset value.
+ * @param blurRadius The blur radius value.
+ * @param spreadRadius The spread radius value.
+ * @param color The color value.
+ * @param inset The inset value.
+ * @return The resulting value.
+ */
 fun Modifier.boxShadow(
     horizontalOffset: String,
     verticalOffset: String,
@@ -102,15 +182,35 @@ fun Modifier.boxShadow(
     return boxShadow(shadow)
 }
 
+/**
+ * Executes the combine backdrop filters operation.
+ *
+ * @param filters The filters value.
+ * @return The resulting value.
+ */
 fun Modifier.combineBackdropFilters(vararg filters: String): Modifier =
     backdropFilter(filters.joinToString(" "))
 
+/**
+ * Executes the glass morphism operation.
+ *
+ * @param blurAmount The blur amount value.
+ * @param brightness The brightness value.
+ * @return The resulting value.
+ */
 fun Modifier.glassMorphism(
     blurAmount: String = "10px",
     brightness: Double = 1.05
 ): Modifier =
     combineBackdropFilters("blur($blurAmount)", "brightness($brightness)")
 
+/**
+ * Executes the glass morphism operation.
+ *
+ * @param blurPx The blur px value.
+ * @param brightness The brightness value.
+ * @return The resulting value.
+ */
 fun Modifier.glassMorphism(
     blurPx: Number = 10,
     brightness: Double = 1.05
@@ -119,6 +219,16 @@ fun Modifier.glassMorphism(
 
 // Shadow configuration ----------------------------------------------------
 
+/**
+ * Represents shadow config.
+ *
+ * @property horizontalOffset The horizontal offset value.
+ * @property verticalOffset The vertical offset value.
+ * @property blurRadius The blur radius value.
+ * @property spreadRadius The spread radius value.
+ * @property color The color value.
+ * @property inset The inset value.
+ */
 data class ShadowConfig(
     val horizontalOffset: String,
     val verticalOffset: String,
@@ -127,6 +237,11 @@ data class ShadowConfig(
     val color: Color,
     val inset: Boolean = false
 ) {
+    /**
+     * Converts this value to CSS string.
+     *
+     * @return The resulting value.
+     */
     fun toCssString(): String {
         val insetStr = if (inset) "inset " else ""
         return if (spreadRadius != null) {
@@ -136,7 +251,18 @@ data class ShadowConfig(
         }
     }
 
+    /** Provides shadow config factory and constant members. */
     companion object {
+        /**
+         * Creates the operation.
+         *
+         * @param horizontalOffset The horizontal offset value.
+         * @param verticalOffset The vertical offset value.
+         * @param blurRadius The blur radius value.
+         * @param spreadRadius The spread radius value.
+         * @param color The color value.
+         * @param inset The inset value.
+         */
         fun create(
             horizontalOffset: Number,
             verticalOffset: Number,
@@ -153,6 +279,13 @@ data class ShadowConfig(
             inset
         )
 
+        /**
+         * Executes the glow operation.
+         *
+         * @param blurRadius The blur radius value.
+         * @param color The color value.
+         * @param intensity The intensity value.
+         */
         fun glow(
             blurRadius: Number,
             color: Color,
@@ -166,6 +299,12 @@ data class ShadowConfig(
             false
         )
 
+        /**
+         * Executes the inner glow operation.
+         *
+         * @param blurRadius The blur radius value.
+         * @param color The color value.
+         */
         fun innerGlow(
             blurRadius: Number,
             color: Color
@@ -180,6 +319,17 @@ data class ShadowConfig(
     }
 }
 
+/**
+ * Executes the shadow config operation.
+ *
+ * @param horizontalOffset The horizontal offset value.
+ * @param verticalOffset The vertical offset value.
+ * @param blurRadius The blur radius value.
+ * @param spreadRadius The spread radius value.
+ * @param color The color value.
+ * @param inset The inset value.
+ * @return The resulting value.
+ */
 fun shadowConfig(
     horizontalOffset: Number,
     verticalOffset: Number,
@@ -196,6 +346,17 @@ fun shadowConfig(
     inset = inset
 )
 
+/**
+ * Executes the shadow config operation.
+ *
+ * @param horizontalOffset The horizontal offset value.
+ * @param verticalOffset The vertical offset value.
+ * @param blurRadius The blur radius value.
+ * @param spreadRadius The spread radius value.
+ * @param color The color value.
+ * @param inset The inset value.
+ * @return The resulting value.
+ */
 fun shadowConfig(
     horizontalOffset: Number,
     verticalOffset: Number,
@@ -212,14 +373,32 @@ fun shadowConfig(
     inset
 )
 
+/**
+ * Executes the multiple shadows operation.
+ *
+ * @param shadows The shadows value.
+ * @return The resulting value.
+ */
 fun Modifier.multipleShadows(shadows: List<ShadowConfig>): Modifier {
     val shadowStrings = shadows.map { it.toCssString() }
     return boxShadow(shadowStrings.joinToString(", "))
 }
 
+/**
+ * Executes the multiple shadows operation.
+ *
+ * @param shadows The shadows value.
+ * @return The resulting value.
+ */
 fun Modifier.multipleShadows(vararg shadows: ShadowConfig): Modifier =
     multipleShadows(shadows.toList())
 
+/**
+ * Adds shadow.
+ *
+ * @param shadow The shadow value.
+ * @return The resulting value.
+ */
 fun Modifier.addShadow(shadow: ShadowConfig): Modifier {
     val currentShadow = this.styles["box-shadow"]
     return if (currentShadow != null) {
@@ -229,6 +408,17 @@ fun Modifier.addShadow(shadow: ShadowConfig): Modifier {
     }
 }
 
+/**
+ * Adds shadow.
+ *
+ * @param horizontalOffset The horizontal offset value.
+ * @param verticalOffset The vertical offset value.
+ * @param blurRadius The blur radius value.
+ * @param spreadRadius The spread radius value.
+ * @param color The color value.
+ * @param inset The inset value.
+ * @return The resulting value.
+ */
 fun Modifier.addShadow(
     horizontalOffset: Number,
     verticalOffset: Number,
@@ -240,6 +430,17 @@ fun Modifier.addShadow(
     shadowConfig(horizontalOffset, verticalOffset, blurRadius, spreadRadius, color, inset)
 )
 
+/**
+ * Adds shadow.
+ *
+ * @param horizontalOffset The horizontal offset value.
+ * @param verticalOffset The vertical offset value.
+ * @param blurRadius The blur radius value.
+ * @param spreadRadius The spread radius value.
+ * @param color The color value.
+ * @param inset The inset value.
+ * @return The resulting value.
+ */
 fun Modifier.addShadow(
     horizontalOffset: Number,
     verticalOffset: Number,
@@ -251,6 +452,14 @@ fun Modifier.addShadow(
     shadowConfig(horizontalOffset, verticalOffset, blurRadius, spreadRadius, color, inset)
 )
 
+/**
+ * Executes the glow operation.
+ *
+ * @param color The color value.
+ * @param intensity The intensity value.
+ * @param size Requested size.
+ * @return The resulting value.
+ */
 fun Modifier.glow(
     color: String,
     intensity: Int = 2,
@@ -264,12 +473,28 @@ fun Modifier.glow(
     return multipleShadows(shadows)
 }
 
+/**
+ * Executes the glow operation.
+ *
+ * @param color The color value.
+ * @param intensity The intensity value.
+ * @param size Requested size.
+ * @return The resulting value.
+ */
 fun Modifier.glow(
     color: Color,
     intensity: Int = 2,
     size: Number = 20
 ): Modifier = glow(color.toString(), intensity, size)
 
+/**
+ * Executes the inner glow operation.
+ *
+ * @param color The color value.
+ * @param intensity The intensity value.
+ * @param size Requested size.
+ * @return The resulting value.
+ */
 fun Modifier.innerGlow(
     color: String,
     intensity: Int = 2,
@@ -283,12 +508,27 @@ fun Modifier.innerGlow(
     return multipleShadows(shadows)
 }
 
+/**
+ * Executes the inner glow operation.
+ *
+ * @param color The color value.
+ * @param intensity The intensity value.
+ * @param size Requested size.
+ * @return The resulting value.
+ */
 fun Modifier.innerGlow(
     color: Color,
     intensity: Int = 2,
     size: Number = 10
 ): Modifier = innerGlow(color.toString(), intensity, size)
 
+/**
+ * Executes the aurora glow operation.
+ *
+ * @param colors The colors value.
+ * @param baseSize The base size value.
+ * @return The resulting value.
+ */
 fun Modifier.auroraGlow(
     colors: List<String>,
     baseSize: Number = 20
@@ -302,6 +542,12 @@ fun Modifier.auroraGlow(
     return multipleShadows(shadows)
 }
 
+/**
+ * Executes the aurora glow operation.
+ *
+ * @param baseSize The base size value.
+ * @return The resulting value.
+ */
 fun Modifier.auroraGlow(baseSize: Number = 20): Modifier =
     auroraGlow(
         colors = listOf(

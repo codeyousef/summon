@@ -4,7 +4,16 @@ import codes.yousef.summon.cli.util.VersionReader
 import kotlinx.serialization.Serializable
 
 /**
- * Represents a project template with metadata and file structure information.
+ * Project template metadata and declarative file-generation inputs.
+ *
+ * @property name human-readable template name
+ * @property description concise template purpose
+ * @property type stable template identifier
+ * @property tags discovery tags
+ * @property variables supported template variables
+ * @property files files copied by the template
+ * @property dependencies dependency coordinates grouped by ecosystem
+ * @property postSetupInstructions commands shown after generation
  */
 @Serializable
 data class ProjectTemplate(
@@ -17,10 +26,9 @@ data class ProjectTemplate(
     val dependencies: TemplateDependencies = TemplateDependencies(),
     val postSetupInstructions: List<String> = emptyList()
 ) {
+    /** Built-in template lookup. */
     companion object {
-        /**
-         * Factory method to create templates based on type
-         */
+        /** Returns the built-in template for [type], falling back to the basic template. */
         fun fromType(type: String): ProjectTemplate {
             return when (type) {
                 "js" -> createJsTemplate()
@@ -195,6 +203,14 @@ data class ProjectTemplate(
     }
 }
 
+/**
+ * A named template input and its default value.
+ *
+ * @property description human-readable input purpose
+ * @property type template input type
+ * @property defaultValue value used when the caller omits the input
+ * @property required whether generation requires a value
+ */
 @Serializable
 data class TemplateVariable(
     val description: String,
@@ -203,6 +219,14 @@ data class TemplateVariable(
     val required: Boolean = true
 )
 
+/**
+ * One source-to-destination template file mapping.
+ *
+ * @property sourcePath path inside the template
+ * @property targetPath generated project path
+ * @property processAsTemplate whether variable substitution is applied
+ * @property executable whether the generated file receives executable permission
+ */
 @Serializable
 data class TemplateFile(
     val sourcePath: String,
@@ -211,6 +235,17 @@ data class TemplateFile(
     val executable: Boolean = false
 )
 
+/**
+ * Dependency coordinates grouped by generated build ecosystem.
+ *
+ * @property kotlin Kotlin library coordinates
+ * @property summon Summon library coordinates
+ * @property quarkus Quarkus extension coordinates
+ * @property spring Spring dependency coordinates
+ * @property ktor Ktor dependency coordinates
+ * @property npm npm dependency coordinates
+ * @property gradle Gradle plugin or dependency coordinates
+ */
 @Serializable
 data class TemplateDependencies(
     val kotlin: List<String> = emptyList(),

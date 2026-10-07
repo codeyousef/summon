@@ -16,6 +16,8 @@ import java.util.prefs.Preferences
 /**
  * Provides JVM-specific implementation for state observation.
  * This implementation uses thread-safe collections for observers.
+
+ * @property state The state value.
  */
 class StateObserver<T>(private val state: SummonMutableState<T>) {
     private val observers = CopyOnWriteArrayList<(T) -> Unit>()
@@ -160,4 +162,4 @@ fun <T> SummonMutableState<T>.persistToFile(
             }
         }
     }
-} 
+}

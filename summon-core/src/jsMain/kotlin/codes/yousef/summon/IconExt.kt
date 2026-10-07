@@ -4,7 +4,10 @@ import kotlinx.browser.document
 import org.w3c.dom.HTMLElement
 
 /**
- * Data class to hold Icon-related extension properties for JS implementation
+ * Browser icon behavior.
+ *
+ * @property onClick optional activation callback
+ * @property name icon identifier
  */
 data class IconJsExtension(
     val onClick: (() -> Unit)? = null,
@@ -41,4 +44,4 @@ fun setupJsClickHandler(iconId: String, iconExt: IconJsExtension) {
             event.stopPropagation()
         }
     }
-} 
+}

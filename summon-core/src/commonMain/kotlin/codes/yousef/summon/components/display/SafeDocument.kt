@@ -11,22 +11,27 @@ import codes.yousef.summon.runtime.DisposableEffect
 import codes.yousef.summon.runtime.remember
 
 /**
- * A bounded, platform-independent document tree for untrusted formatted content.
+ * Bounded, platform-independent document tree for untrusted formatted content.
  *
- * The tree deliberately cannot represent markup, script, forms, frames, event handlers,
- * stylesheets, remote images, or arbitrary URLs. Original source bytes do not belong in this
- * model; applications should retain them only in their encrypted domain store.
+ * The tree cannot represent markup, script, forms, frames, event handlers, stylesheets, remote
+ * images, or arbitrary URLs. Original source bytes do not belong in this model.
+ *
+ * @property nodes validated immutable document nodes
+ * @property plaintextFallback safe text rendered when the node list is empty
  */
 class SafeDocument private constructor(
     val nodes: List<SafeDocumentNode>,
     val plaintextFallback: String
 ) {
+    /** Validated document factories and the policy identifier emitted into rendered output. */
     companion object {
+        /** Current safe-document validation policy. */
         const val POLICY_VERSION: String = "summon-safe-document-1"
         private const val MAX_NODES = 10_000
         private const val MAX_DEPTH = 32
         private const val MAX_TEXT_CHARS = 1_048_576
 
+        /** Validates and freezes [nodes] and [plaintextFallback]. */
         fun create(nodes: List<SafeDocumentNode>, plaintextFallback: String): SafeDocument {
             require(plaintextFallback.length <= MAX_TEXT_CHARS) { "Plaintext fallback is too large" }
             var nodeCount = 0
@@ -60,6 +65,7 @@ class SafeDocument private constructor(
             return SafeDocument(freeze(nodes, 1), plaintextFallback)
         }
 
+        /** Creates a text-only document. */
         fun plaintext(text: String): SafeDocument = create(
             nodes = listOf(SafeDocumentNode.Text(text)),
             plaintextFallback = text
@@ -67,21 +73,44 @@ class SafeDocument private constructor(
     }
 }
 
+/** Element kinds permitted by [SafeDocumentNode.Container]. */
 enum class SafeContainerKind {
+    /** The paragraph safe container kind option. */
     PARAGRAPH,
+    /** The heading safe container kind option. */
     HEADING,
+    /** The strong safe container kind option. */
     STRONG,
+    /** The emphasis safe container kind option. */
     EMPHASIS,
+    /** The code safe container kind option. */
     CODE,
+    /** The quote safe container kind option. */
     QUOTE,
+    /** The unordered list safe container kind option. */
     UNORDERED_LIST,
+    /** The ordered list safe container kind option. */
     ORDERED_LIST,
+    /** The list item safe container kind option. */
     LIST_ITEM
 }
 
+/** Closed node model for safe formatted content. */
 sealed interface SafeDocumentNode {
+    /**
+     * Plain text.
+     *
+     * @property value visible text
+     */
     data class Text(val value: String) : SafeDocumentNode
 
+    /**
+     * Semantic container.
+     *
+     * @property kind allowed semantic kind
+     * @property children ordered safe child nodes
+     * @property headingLevel heading rank, valid only for heading containers
+     */
     data class Container(
         val kind: SafeContainerKind,
         val children: List<SafeDocumentNode>,
@@ -95,25 +124,45 @@ sealed interface SafeDocumentNode {
         }
     }
 
+    /**
+     * Approved outbound link.
+     *
+     * @property target validated destination
+     * @property label safe document label
+     */
     data class Link(
         val target: SafeOutboundLink,
         val label: List<SafeDocumentNode>
     ) : SafeDocumentNode
 
+    /**
+     * Local content-ID image.
+     *
+     * @property reference validated content-ID
+     * @property alt alternative text
+     */
     data class CidImage(
         val reference: CidReference,
         val alt: String
     ) : SafeDocumentNode
 
+    /** Semantic line break. */
     data object LineBreak : SafeDocumentNode
 }
 
-/** An HTTPS URL whose decoded, normalized host was explicitly approved by the caller. */
+/**
+ * An HTTPS URL whose decoded normalized host was explicitly approved.
+ *
+ * @property href normalized HTTPS URL
+ * @property displayHost normalized ASCII host suitable for display
+ */
 class SafeOutboundLink private constructor(
     val href: String,
     val displayHost: String
 ) {
+    /** Strict outbound-link parser. */
     companion object {
+        /** Parses [raw] only when its normalized host exactly matches [allowedHosts]. */
         fun parse(raw: String, allowedHosts: Set<String>): SafeOutboundLink? {
             if (raw != raw.trim() || raw.any { it <= ' ' || it == '\\' }) return null
             val schemeEnd = raw.indexOf("://")
@@ -146,8 +195,15 @@ class SafeOutboundLink private constructor(
     }
 }
 
+/**
+ * Validated content-ID reference.
+ *
+ * @property contentId normalized identifier without the `cid:` prefix
+ */
 class CidReference private constructor(val contentId: String) {
+    /** Strict content-ID parser. */
     companion object {
+        /** Parses a bounded ASCII content-ID, with optional `cid:` and angle brackets. */
         fun parse(raw: String): CidReference? {
             val value = raw.removePrefix("cid:").removeSurrounding("<", ">")
             if (value.length !in 1..255) return null
@@ -157,13 +213,23 @@ class CidReference private constructor(val contentId: String) {
     }
 }
 
+/**
+ * Locally created object URL with explicit release ownership.
+ *
+ * @property value validated `blob:` URL
+
+ * @property releaseAction The release action value.
+ */
 class LocalObjectUrl private constructor(
     val value: String,
     private val releaseAction: () -> Unit
 ) {
+    /** Releases the underlying object URL. */
     fun release() = releaseAction()
 
+    /** Validated object-URL factory. */
     companion object {
+        /** Creates an owner for [value], or returns `null` when it is not a safe `blob:` URL. */
         fun create(value: String, release: () -> Unit): LocalObjectUrl? =
             if (value.startsWith("blob:") && value.none { it <= '\u001f' || it == '\u007f' }) {
                 LocalObjectUrl(value, release)
@@ -173,10 +239,17 @@ class LocalObjectUrl private constructor(
     }
 }
 
+/** Resolves a content-ID to an explicitly releasable local object URL. */
 fun interface CidResolver {
+    /** Resolves [reference], returning `null` when no local object exists. */
     fun resolve(reference: CidReference): LocalObjectUrl?
 }
 
+/**
+ * Renders a validated [document], resolving only local CID images through [cidResolver].
+ *
+ * Every resolved object URL is released when its image leaves composition.
+ */
 @Composable
 fun SafeDocumentContent(
     document: SafeDocument,

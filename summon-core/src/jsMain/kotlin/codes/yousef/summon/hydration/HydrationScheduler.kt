@@ -379,6 +379,7 @@ class HydrationScheduler private constructor() {
         }
     }
 
+    /** Provides hydration scheduler factory and constant members. */
     companion object {
         /**
          * Singleton instance of the HydrationScheduler.

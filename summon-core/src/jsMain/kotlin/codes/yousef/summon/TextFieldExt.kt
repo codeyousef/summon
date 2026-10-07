@@ -7,7 +7,12 @@ import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.events.Event
 
 /**
- * Data class to hold TextField-related extension properties for JS implementation
+ * Browser text-field state and validation behavior.
+ *
+ * @property state controlled text state
+ * @property onValueChange callback for accepted input
+ * @property validators ordered validation functions
+ * @property validate explicit validation callback
  */
 data class TextFieldJsExtension(
     val state: SummonMutableState<String>,

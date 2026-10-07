@@ -4,6 +4,7 @@ import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.modifier.*
 import codes.yousef.summon.routing.Route
 import codes.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.ssr.escapeSsrHtml
 
 /**
  * SitemapGeneration provides utilities for creating XML sitemaps
@@ -13,6 +14,12 @@ class SitemapGeneration {
 
     /**
      * A URL entry in the sitemap with its metadata
+
+     * @property loc The loc value.
+     * @property lastmod The lastmod value.
+     * @property changefreq The changefreq value.
+     * @property priority The priority value.
+     * @property alternates The alternates value.
      */
     data class SitemapUrl(
         val loc: String,
@@ -24,14 +31,23 @@ class SitemapGeneration {
 
     /**
      * Change frequency options for sitemap entries
+
+     * @property value Value to process.
      */
     enum class ChangeFrequency(val value: String) {
+        /** The always change frequency option. */
         ALWAYS("always"),
+        /** The hourly change frequency option. */
         HOURLY("hourly"),
+        /** The daily change frequency option. */
         DAILY("daily"),
+        /** The weekly change frequency option. */
         WEEKLY("weekly"),
+        /** The monthly change frequency option. */
         MONTHLY("monthly"),
+        /** The yearly change frequency option. */
         YEARLY("yearly"),
+        /** The never change frequency option. */
         NEVER("never")
     }
 
@@ -72,10 +88,12 @@ class SitemapGeneration {
 
         urls.forEach { url ->
             xmlBuilder.append("  <url>\n")
-            xmlBuilder.append("    <loc>${baseUrl.trimEnd('/')}/${url.loc.trimStart('/')}</loc>\n")
+            xmlBuilder.append(
+                "    <loc>${escapeSsrHtml(baseUrl.trimEnd('/'))}/${escapeSsrHtml(url.loc.trimStart('/'))}</loc>\n"
+            )
 
             url.lastmod?.let {
-                xmlBuilder.append("    <lastmod>$it</lastmod>\n")
+                xmlBuilder.append("    <lastmod>${escapeSsrHtml(it)}</lastmod>\n")
             }
 
             url.changefreq?.let {
@@ -88,7 +106,7 @@ class SitemapGeneration {
 
             url.alternates.forEach { (lang, href) ->
                 xmlBuilder.append(
-                    """    <xhtml:link rel="alternate" hreflang="$lang" href="$href" />
+                    """    <xhtml:link rel="alternate" hreflang="${escapeSsrHtml(lang)}" href="${escapeSsrHtml(href)}" />
                 """.trimIndent()
                 )
                 xmlBuilder.append("\n")
@@ -101,6 +119,7 @@ class SitemapGeneration {
         return xmlBuilder.toString()
     }
 
+    /** Provides sitemap generation factory and constant members. */
     companion object {
         /**
          * Generate sitemap entries from a list of routes
@@ -140,9 +159,9 @@ class SitemapGeneration {
             return """
                 User-agent: *
                 Allow: /
-                
+
                 Sitemap: $sitemapUrl
             """.trimIndent()
         }
     }
-} 
+}

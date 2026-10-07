@@ -169,6 +169,9 @@ object MediaQuery {
 /**
  * MediaQueryModifier contains a media query condition and the styles to apply when the condition is met.
  * This is used to create responsive styles in a declarative way.
+
+ * @property query The query value.
+ * @property styleModifier The style modifier value.
  */
 class MediaQueryModifier(
     private val query: String,
@@ -227,4 +230,4 @@ fun Modifier.responsive(vararg mediaQueryModifiers: MediaQueryModifier): Modifie
         result = mqModifier.applyTo(result)
     }
     return result
-} 
+}

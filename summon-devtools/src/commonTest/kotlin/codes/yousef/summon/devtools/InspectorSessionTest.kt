@@ -93,6 +93,40 @@ class InspectorSessionTest {
         assertFailsWith<IllegalArgumentException> { DebugValue.DoubleValue(Double.NaN) }
     }
 
+    @Test
+    fun builtInCodecsRoundTripNullAndTypedValuesAndRejectMismatches() {
+        assertEquals(DebugValue.Null, DebugFieldCodecs.nullableBoolean.encode(null))
+        assertEquals(DebugValue.BooleanValue(true), DebugFieldCodecs.nullableBoolean.encode(true))
+        assertEquals(true, DebugFieldCodecs.nullableBoolean.decode(DebugValue.BooleanValue(true)))
+        assertEquals(null, DebugFieldCodecs.nullableBoolean.decode(DebugValue.Null))
+        assertFailsWith<IllegalArgumentException> {
+            DebugFieldCodecs.nullableBoolean.decode(DebugValue.LongValue(1))
+        }
+
+        assertEquals(DebugValue.StringValue("ok"), DebugFieldCodecs.nullableString.encode("ok"))
+        assertEquals("ok", DebugFieldCodecs.nullableString.decode(DebugValue.StringValue("ok")))
+        assertEquals(null, DebugFieldCodecs.nullableString.decode(DebugValue.Null))
+        assertFailsWith<IllegalArgumentException> {
+            DebugFieldCodecs.nullableString.decode(DebugValue.BooleanValue(false))
+        }
+
+        assertEquals(DebugValue.LongValue(2), DebugFieldCodecs.nullableLong.encode(2))
+        assertEquals(2, DebugFieldCodecs.nullableLong.decode(DebugValue.LongValue(2)))
+        assertEquals(null, DebugFieldCodecs.nullableLong.decode(DebugValue.Null))
+        assertFailsWith<IllegalArgumentException> {
+            DebugFieldCodecs.nullableLong.decode(DebugValue.DoubleValue(2.0))
+        }
+
+        assertEquals(DebugValue.DoubleValue(2.5), DebugFieldCodecs.nullableDouble.encode(2.5))
+        assertEquals(2.5, DebugFieldCodecs.nullableDouble.decode(DebugValue.DoubleValue(2.5)))
+        assertEquals(null, DebugFieldCodecs.nullableDouble.decode(DebugValue.Null))
+        assertFailsWith<IllegalArgumentException> {
+            DebugFieldCodecs.nullableDouble.decode(DebugValue.StringValue("2.5"))
+        }
+        assertFailsWith<IllegalArgumentException> { InspectorNodeId("", 0) }
+        assertFailsWith<IllegalArgumentException> { InspectorNodeId("renderer", -1) }
+    }
+
     private class FakeTreeSource(override val rendererId: String) : InspectorTreeSource {
         var nodes: List<InspectorNode> = listOf(
             InspectorNode(

@@ -273,8 +273,6 @@ enum class SnackbarVerticalPosition {
  * @see SnackbarHost for managing multiple snackbars
  * @see SnackbarHorizontalPosition for positioning options
  * @see SnackbarVerticalPosition for positioning options
- * @sample codes.yousef.summon.samples.feedback.SnackbarSamples.basicUsage
- * @sample codes.yousef.summon.samples.feedback.SnackbarSamples.undoPattern
  * @since 1.0.0
  */
 @Composable

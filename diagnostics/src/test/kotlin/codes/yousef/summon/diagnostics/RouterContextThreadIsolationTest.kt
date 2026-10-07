@@ -6,6 +6,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assertions.assertTrue
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -23,30 +25,37 @@ class RouterContextThreadIsolationTest {
         val routerB = createFileBasedServerRouter("/about")
 
         val executor = Executors.newFixedThreadPool(2)
-        val latch = CountDownLatch(2)
-        val seen = mutableListOf<String>()
+        val entered = CountDownLatch(2)
+        val release = CountDownLatch(1)
+        val seen = ConcurrentLinkedQueue<String>()
 
-        executor.submit {
-            RouterContext.withRouter(routerA) {
-                seen += "A:${RouterContext.current?.currentPath}"
-                latch.countDown()
-                Thread.sleep(25)
+        try {
+            executor.submit {
+                RouterContext.withRouter(routerA) {
+                    seen += "A:${RouterContext.current?.currentPath}"
+                    entered.countDown()
+                    release.await(2, TimeUnit.SECONDS)
+                }
             }
-        }
-        executor.submit {
-            RouterContext.withRouter(routerB) {
-                seen += "B:${RouterContext.current?.currentPath}"
-                latch.countDown()
-                Thread.sleep(25)
+            executor.submit {
+                RouterContext.withRouter(routerB) {
+                    seen += "B:${RouterContext.current?.currentPath}"
+                    entered.countDown()
+                    release.await(2, TimeUnit.SECONDS)
+                }
             }
+
+            assertTrue(entered.await(2, TimeUnit.SECONDS), "Both router scopes must overlap")
+            release.countDown()
+            executor.shutdown()
+            assertTrue(executor.awaitTermination(2, TimeUnit.SECONDS), "Router workers must finish")
+        } finally {
+            release.countDown()
+            executor.shutdownNow()
         }
 
-        latch.await(2, TimeUnit.SECONDS)
-        executor.shutdownNow()
-
-        // Each thread should observe only its own router
-        seen.sort()
-        assertEquals(listOf("A:/", "B:/about"), seen)
+        // Each thread should observe only its own router.
+        assertEquals(listOf("A:/", "B:/about"), seen.sorted())
 
         // RouterContext should be cleared outside the scoped blocks
         assertNull(RouterContext.current)

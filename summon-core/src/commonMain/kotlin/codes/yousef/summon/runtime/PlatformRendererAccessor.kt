@@ -12,6 +12,11 @@ import kotlin.js.JsName
  * @throws ComponentNotFoundException if no renderer is set
  */
 @JsName("getPlatformRenderer")
+/**
+ * Returns platform renderer.
+ *
+ * @return The resulting value.
+ */
 fun getPlatformRenderer(): PlatformRenderer {
     // First try the global store - this is more reliable in minified JS contexts
     val globalRenderer = PlatformRendererStore.get()
@@ -41,6 +46,11 @@ fun getPlatformRenderer(): PlatformRenderer {
  * @param newRenderer The platform renderer to use (New PlatformRenderer type)
  */
 @JsName("setPlatformRenderer")
+/**
+ * Sets platform renderer.
+ *
+ * @param newRenderer The new renderer value.
+ */
 fun setPlatformRenderer(newRenderer: PlatformRenderer) {
     PlatformRendererStore.set(newRenderer)
 
@@ -63,6 +73,7 @@ fun setPlatformRenderer(newRenderer: PlatformRenderer) {
  * This function is annotated with @JsName to ensure consistent naming in minified JS builds.
  */
 @JsName("clearPlatformRenderer")
+/** Clears platform renderer. */
 fun clearPlatformRenderer() {
     PlatformRendererStore.clear()
 }

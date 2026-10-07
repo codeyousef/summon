@@ -51,21 +51,31 @@ fun CompositionScope.useMediaQuery(query: String): SummonMutableState<Boolean> {
  */
 object Breakpoints {
     // Media query strings using standard breakpoint values
+    /** The property declaration value. */
     val MOBILE = "(max-width: ${MediaQuery.Breakpoints.sm - 1}px)"
+    /** The property declaration value. */
     val TABLET = "(min-width: ${MediaQuery.Breakpoints.sm}px) and (max-width: ${MediaQuery.Breakpoints.md - 1}px)"
+    /** The property declaration value. */
     val DESKTOP = "(min-width: ${MediaQuery.Breakpoints.md}px)"
+    /** The property declaration value. */
     val LARGE_DESKTOP = "(min-width: ${MediaQuery.Breakpoints.lg}px)"
 
     // Orientation queries
+    /** The property declaration value. */
     const val PORTRAIT = "(orientation: portrait)"
+    /** The property declaration value. */
     const val LANDSCAPE = "(orientation: landscape)"
 
     // Color scheme queries
+    /** The property declaration value. */
     const val DARK_MODE = "(prefers-color-scheme: dark)"
+    /** The property declaration value. */
     const val LIGHT_MODE = "(prefers-color-scheme: light)"
 
     // Motion preference queries
+    /** The property declaration value. */
     const val REDUCED_MOTION = "(prefers-reduced-motion: reduce)"
+    /** The property declaration value. */
     const val ALLOWS_MOTION = "(prefers-reduced-motion: no-preference)"
 
     /**
@@ -141,6 +151,13 @@ fun CompositionScope.useResponsive(): ResponsiveBreakpoints {
 
 /**
  * Responsive breakpoints state
+
+ * @property isMobile The is mobile value.
+ * @property isTablet The is tablet value.
+ * @property isDesktop The is desktop value.
+ * @property isLargeDesktop The is large desktop value.
+ * @property isPortrait The is portrait value.
+ * @property isLandscape The is landscape value.
  */
 data class ResponsiveBreakpoints(
     val isMobile: SummonMutableState<Boolean>,
@@ -149,4 +166,4 @@ data class ResponsiveBreakpoints(
     val isLargeDesktop: SummonMutableState<Boolean>,
     val isPortrait: SummonMutableState<Boolean>,
     val isLandscape: SummonMutableState<Boolean>
-) 
+)

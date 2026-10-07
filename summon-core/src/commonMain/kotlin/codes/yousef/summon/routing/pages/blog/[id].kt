@@ -9,8 +9,8 @@ import codes.yousef.summon.runtime.Composable
 
 /**
  * Blog post page component that demonstrates dynamic routing.
- * This file uses the [id] pattern in its name to create a dynamic route.
- * The actual URL would be /blog/:id where :id is a parameter.
+ * This file uses the `[id]` pattern in its name to create a dynamic route.
+ * The actual URL would be /blog/:ID where :ID is a parameter.
  */
 @Composable
 fun BlogPostPage(postId: String? = null) {

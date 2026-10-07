@@ -201,9 +201,6 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * @param iconName Optional icon name to display alongside the label
  * @param iconPosition Position of the icon relative to the label text
  * @param action Optional [UiAction] to dispatch when the button is clicked (client-side action)
- * @sample ButtonSamples.BasicButton
- * @sample ButtonSamples.ButtonWithIcon
- * @sample ButtonSamples.DisabledButton
  * @see ButtonVariant
  * @see IconPosition
  * @see codes.yousef.summon.components.display.Icon
@@ -415,14 +412,23 @@ fun Button(
  * Button style variant
  */
 enum class ButtonVariant {
+    /** The primary button variant option. */
     PRIMARY,
+    /** The secondary button variant option. */
     SECONDARY,
+    /** The tertiary button variant option. */
     TERTIARY,
+    /** The danger button variant option. */
     DANGER,
+    /** The success button variant option. */
     SUCCESS,
+    /** The warning button variant option. */
     WARNING,
+    /** The info button variant option. */
     INFO,
+    /** The link button variant option. */
     LINK,
+    /** The ghost button variant option. */
     GHOST
 }
 
@@ -430,7 +436,9 @@ enum class ButtonVariant {
  * Position of the icon relative to the label
  */
 enum class IconPosition {
+    /** The start icon position option. */
     START,
+    /** The end icon position option. */
     END
 }
 
@@ -474,4 +482,4 @@ object ButtonSamples {
             variant = ButtonVariant.SECONDARY
         )
     }
-} 
+}

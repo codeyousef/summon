@@ -47,7 +47,11 @@ sealed class NotificationResult {
     /** Notifications are not supported on this platform */
     object NotSupported : NotificationResult()
 
-    /** An error occurred while showing the notification */
+    /**
+     * An error occurred while showing the notification
+     *
+     * @property message Message content.
+     */
     data class Error(val message: String) : NotificationResult()
 }
 

@@ -51,6 +51,8 @@ commonsIo = "2.21.0"
 kotest = "5.9.1"
 jsoup = "1.22.1"
 binaryCompatibilityValidator = "0.17.0"
+kover = "0.9.8"
+dokka = "2.2.0"
 
 [libraries]
 aether-core = { module = "codes.yousef.aether:aether-core", version.ref = "aether" }
@@ -69,6 +71,7 @@ kotlinx-coroutines-core-js = { module = "org.jetbrains.kotlinx:kotlinx-coroutine
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 kotlinx-serialization-json-jvm = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm", version.ref = "kotlinxSerialization" }
 kotlinx-serialization-json-js = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json-js", version.ref = "kotlinxSerialization" }
+kotlinx-serialization-cbor = { module = "org.jetbrains.kotlinx:kotlinx-serialization-cbor", version.ref = "kotlinxSerialization" }
 kotlinx-html = { module = "org.jetbrains.kotlinx:kotlinx-html", version.ref = "kotlinxHtml" }
 kotlinx-html-jvm = { module = "org.jetbrains.kotlinx:kotlinx-html-jvm", version.ref = "kotlinxHtml" }
 kotlinx-html-js = { module = "org.jetbrains.kotlinx:kotlinx-html-js", version.ref = "kotlinxHtml" }
@@ -155,3 +158,5 @@ shadow-jar = { id = "com.github.johnrengelman.shadow", version.ref = "shadowJar"
 graalvm-native-image = { id = "org.graalvm.buildtools.native", version.ref = "graalvm" }
 atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "atomicfu" }
 binary-compatibility-validator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "binaryCompatibilityValidator" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }

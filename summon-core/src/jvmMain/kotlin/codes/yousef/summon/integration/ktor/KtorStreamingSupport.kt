@@ -20,7 +20,7 @@ import kotlinx.html.stream.createHTML
  *
  * IMPORTANT: To use this class, you must add the following dependencies to your project:
  * - io.ktor:ktor-server-core
- * - io.ktor:ktor-server-html-builder
+ * - io.ktor:ktor-server-HTML-builder
  */
 object KtorStreamingSupport {
 

@@ -5,19 +5,38 @@ import codes.yousef.summon.runtime.PlatformRenderer
 import codes.yousef.summon.runtime.safeWasmConsoleLog
 import codes.yousef.summon.runtime.safeWasmConsoleWarn
 
+/** Represents thread local holder. */
 actual class ThreadLocalHolder<T> actual constructor() {
     private var value: T? = null
 
+    /**
+     * Returns the operation.
+     *
+     * @return The resulting value.
+     */
     actual fun get(): T? {
         return value
     }
 
+    /**
+     * Sets the operation.
+     *
+     * @param value Value to process.
+     */
     actual fun set(value: T?) {
         this.value = value
     }
 }
 
+/** Provides render utils operations. */
 actual object RenderUtils {
+    /**
+     * Renders composable.
+     *
+     * @param container The container value.
+     * @param composable The composable value.
+     * @return The resulting value.
+     */
     actual fun renderComposable(container: Any, composable: @Composable () -> Unit): Renderer<Any> {
         try {
             safeWasmConsoleLog("RenderUtils.renderComposable - WASM implementation")
@@ -31,6 +50,13 @@ actual object RenderUtils {
         }
     }
 
+    /**
+     * Executes the hydrate operation.
+     *
+     * @param container The container value.
+     * @param composable The composable value.
+     * @return The resulting value.
+     */
     actual fun hydrate(container: Any, composable: @Composable () -> Unit): Renderer<Any> {
         try {
             safeWasmConsoleLog("RenderUtils.hydrate - WASM implementation")
@@ -44,6 +70,12 @@ actual object RenderUtils {
         }
     }
 
+    /**
+     * Renders to string.
+     *
+     * @param composable The composable value.
+     * @return The resulting value.
+     */
     actual fun renderToString(composable: @Composable () -> Unit): String {
         try {
             safeWasmConsoleLog("RenderUtils.renderToString - WASM implementation")
@@ -58,6 +90,12 @@ actual object RenderUtils {
         }
     }
 
+    /**
+     * Renders to file.
+     *
+     * @param composable The composable value.
+     * @param file The file value.
+     */
     actual fun renderToFile(composable: @Composable () -> Unit, file: Any) {
         try {
             safeWasmConsoleLog("RenderUtils.renderToFile - WASM implementation")

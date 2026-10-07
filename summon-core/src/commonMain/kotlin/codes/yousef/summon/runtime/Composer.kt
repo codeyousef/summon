@@ -136,7 +136,7 @@ interface Composer {
      *
      * ```kotlin
      * items.forEach { item ->
-     *     composer.startGroup(key = item.id)
+     *     composer.startGroup(key = item.ID)
      *     // Render item
      *     composer.endGroup()
      * }

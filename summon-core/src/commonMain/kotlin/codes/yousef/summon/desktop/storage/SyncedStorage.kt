@@ -85,6 +85,7 @@ package codes.yousef.summon.desktop.storage
 
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.runtime.remember
+import codes.yousef.summon.runtime.DisposableEffect
 import codes.yousef.summon.state.mutableStateOf
 
 /**
@@ -160,13 +161,11 @@ fun <T> rememberSynced(
     val storage = remember { createSyncedStorage(key, defaultValue, serializer, deserializer) }
     val state = remember { mutableStateOf(storage.value) }
 
-    // Set up cross-tab sync
-    remember {
+    DisposableEffect(storage) {
         val unsubscribe = storage.addChangeListener { newValue ->
             state.value = newValue
         }
-        // Note: In a real implementation, we'd return a cleanup function
-        unsubscribe
+        return@DisposableEffect unsubscribe
     }
 
     // Return a wrapper that keeps the internal state in sync

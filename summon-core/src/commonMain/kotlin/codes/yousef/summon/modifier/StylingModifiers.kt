@@ -8,7 +8,7 @@ import codes.yousef.summon.extensions.px
  * and `BorderModifiers`.
  */
 // ========================
-// Type-Safe Transform & Filter APIs  
+// Type-Safe Transform & Filter APIs
 // ========================
 
 /**
@@ -60,17 +60,70 @@ class FilterBuilder internal constructor() {
         parts += "${function}($value)"
     }
 
+    /**
+     * Removes focus from this element.
+     *
+     * @param radius The radius value.
+     */
     fun blur(radius: Number) = add(FilterFunction.Blur, radius.px)
+    /**
+     * Executes the brightness operation.
+     *
+     * @param amount The amount value.
+     */
     fun brightness(amount: Number) = add(FilterFunction.Brightness, amount.toString())
+    /**
+     * Executes the contrast operation.
+     *
+     * @param amount The amount value.
+     */
     fun contrast(amount: Number) = add(FilterFunction.Contrast, amount.toString())
+    /**
+     * Executes the grayscale operation.
+     *
+     * @param amount The amount value.
+     */
     fun grayscale(amount: Number) = add(FilterFunction.Grayscale, amount.toString())
+    /**
+     * Executes the hue rotate operation.
+     *
+     * @param degrees The degrees value.
+     */
     fun hueRotate(degrees: Number) = add(FilterFunction.HueRotate, "${degrees}deg")
+    /**
+     * Executes the invert operation.
+     *
+     * @param amount The amount value.
+     */
     fun invert(amount: Number) = add(FilterFunction.Invert, amount.toString())
+    /**
+     * Executes the saturate operation.
+     *
+     * @param amount The amount value.
+     */
     fun saturate(amount: Number) = add(FilterFunction.Saturate, amount.toString())
+    /**
+     * Executes the sepia operation.
+     *
+     * @param amount The amount value.
+     */
     fun sepia(amount: Number) = add(FilterFunction.Sepia, amount.toString())
+    /**
+     * Executes the drop shadow operation.
+     *
+     * @param offsetX The offset x value.
+     * @param offsetY The offset y value.
+     * @param blurRadius The blur radius value.
+     * @param color The color value.
+     */
     fun dropShadow(offsetX: String, offsetY: String, blurRadius: String = "0", color: String = "currentColor") =
         add(FilterFunction.DropShadow, listOf(offsetX, offsetY, blurRadius, color).joinToString(" ").trim())
 
+    /**
+     * Executes the raw operation.
+     *
+     * @param value Value to process.
+     */
     fun raw(value: String) {
         parts += value
     }

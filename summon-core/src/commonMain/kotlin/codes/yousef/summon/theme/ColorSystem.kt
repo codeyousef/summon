@@ -16,8 +16,11 @@ object ColorSystem {
      * Represents a light/dark mode theme state
      */
     enum class ThemeMode {
+        /** The light theme mode option. */
         LIGHT,
+        /** The dark theme mode option. */
         DARK,
+        /** The system theme mode option. */
         SYSTEM
     }
 
@@ -44,6 +47,9 @@ object ColorSystem {
 
     /**
      * A color palette with light and dark mode variants
+
+     * @property light The light value.
+     * @property dark The dark value.
      */
     data class ColorPalette(
         val light: Map<String, String>,
@@ -598,4 +604,4 @@ fun Modifier.themeBorder(
     style: String = "solid",
     colorName: String = "border",
     mode: ColorSystem.ThemeMode = ColorSystem.getThemeMode()
-): Modifier = this.border(width, style, ColorSystem.getColor(colorName, mode)) 
+): Modifier = this.border(width, style, ColorSystem.getColor(colorName, mode))

@@ -9,6 +9,10 @@ import java.util.prefs.Preferences
 
 /**
  * JVM Storage implementation using Java Preferences API and file system
+
+ * @property preferences The preferences value.
+ * @property fileStorage The file storage value.
+ * @property memoryStorage The memory storage value.
  */
 actual class Storage private constructor(
     private val preferences: Preferences?,
@@ -16,6 +20,12 @@ actual class Storage private constructor(
     private val memoryStorage: MutableMap<String, String>?
 ) {
 
+    /**
+     * Sets item.
+     *
+     * @param key Lookup key.
+     * @param value Value to process.
+     */
     actual fun setItem(key: String, value: String) {
         when {
             preferences != null -> {
@@ -38,6 +48,12 @@ actual class Storage private constructor(
         }
     }
 
+    /**
+     * Returns item.
+     *
+     * @param key Lookup key.
+     * @return The resulting value.
+     */
     actual fun getItem(key: String): String? {
         return when {
             preferences != null -> {
@@ -60,6 +76,11 @@ actual class Storage private constructor(
         }
     }
 
+    /**
+     * Removes item.
+     *
+     * @param key Lookup key.
+     */
     actual fun removeItem(key: String) {
         when {
             preferences != null -> {
@@ -81,6 +102,7 @@ actual class Storage private constructor(
         }
     }
 
+    /** Clears the operation. */
     actual fun clear() {
         when {
             preferences != null -> {
@@ -102,6 +124,11 @@ actual class Storage private constructor(
         }
     }
 
+    /**
+     * Executes the keys operation.
+     *
+     * @return The resulting value.
+     */
     actual fun keys(): List<String> {
         return when {
             preferences != null -> {
@@ -124,17 +151,35 @@ actual class Storage private constructor(
         }
     }
 
+    /**
+     * Executes the length operation.
+     *
+     * @return The resulting value.
+     */
     actual fun length(): Int {
         return keys().size
     }
 
+    /**
+     * Executes the contains operation.
+     *
+     * @param key Lookup key.
+     * @return The resulting value.
+     */
     actual fun contains(key: String): Boolean {
         return getItem(key) != null
     }
 
+    /** Provides storage factory and constant members. */
     companion object {
         private val memoryFallback = ConcurrentHashMap<String, String>()
 
+        /**
+         * Creates preferences storage.
+         *
+         * @param node The node value.
+         * @return The resulting value.
+         */
         fun createPreferencesStorage(node: String): Storage {
             return try {
                 val prefs = Preferences.userRoot().node(node)
@@ -145,6 +190,12 @@ actual class Storage private constructor(
             }
         }
 
+        /**
+         * Creates file storage.
+         *
+         * @param directory The directory value.
+         * @return The resulting value.
+         */
         fun createFileStorage(directory: String): Storage {
             return try {
                 val fileStorage = FileStorage(directory)
@@ -155,6 +206,11 @@ actual class Storage private constructor(
             }
         }
 
+        /**
+         * Creates memory storage.
+         *
+         * @return The resulting value.
+         */
         fun createMemoryStorage(): Storage {
             return Storage(null, null, ConcurrentHashMap())
         }
@@ -233,11 +289,21 @@ actual fun createLocalStorage(): Storage {
     return Storage.createPreferencesStorage("summon/localStorage")
 }
 
+/**
+ * Creates session storage.
+ *
+ * @return The resulting value.
+ */
 actual fun createSessionStorage(): Storage {
     // For JVM, session storage is memory-based since there's no session concept
     return Storage.createMemoryStorage()
 }
 
+/**
+ * Creates memory storage.
+ *
+ * @return The resulting value.
+ */
 actual fun createMemoryStorage(): Storage {
     return Storage.createMemoryStorage()
 }
@@ -245,20 +311,15 @@ actual fun createMemoryStorage(): Storage {
 /**
  * JSON serialization functions for JVM
  */
-private val json = Json {
-    ignoreUnknownKeys = true
-    encodeDefaults = true
-}
 
-actual fun <T> serializeToJson(value: T): String {
-    // Note: This is a limitation - JVM can't serialize arbitrary types without reified generics
-    // In practice, this should be called with concrete types or use reflection
-    return value.toString() // Fallback - in real implementation, use proper serialization
-}
+actual inline fun <reified T> serializeToJson(value: T): String =
+    Json.encodeToString(value)
 
-@Suppress("UNCHECKED_CAST")
-actual fun <T> deserializeFromJson(json: String, clazz: Any): T {
-    // Note: This is a simplified implementation
-    // In practice, would use reflection or pass Class<T> instead of Any
-    return json as T // Fallback - in real implementation, use proper deserialization
-}
+/**
+ * Executes the deserialize from JSON operation.
+ *
+ * @param json The json value.
+ * @return The resulting value.
+ */
+actual inline fun <reified T> deserializeFromJson(json: String): T =
+    Json.decodeFromString(json)

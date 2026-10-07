@@ -78,9 +78,6 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * @see Column for vertical layouts
  * @see Row for horizontal layouts
  *
- * @sample DividerSamples.horizontalDivider
- * @sample DividerSamples.verticalDivider
- * @sample DividerSamples.styledDivider
  *
  * @since 1.0.0
  */

@@ -3,15 +3,27 @@ package codes.yousef.summon.routing
 /**
  * A validated same-origin route path. Query strings and fragments are deliberately excluded so
  * private application state cannot be copied into browser history through router navigation.
+
+ * @property encodedPath The encoded path value.
+ * @property segments The segments value.
  */
 class InternalRoutePath private constructor(
     val encodedPath: String,
     val segments: List<String>
 ) {
+    /** Provides internal route path factory and constant members. */
     companion object {
+        /** The property declaration value. */
         const val MAX_PATH_BYTES: Int = 2_048
+        /** The property declaration value. */
         const val MAX_SEGMENT_BYTES: Int = 256
 
+        /**
+         * Parses the operation.
+         *
+         * @param value Value to process.
+         * @return The resulting value.
+         */
         fun parse(value: String): InternalRoutePath? {
             if (!value.startsWith('/') || value.startsWith("//")) return null
             if ('?' in value || '#' in value || '\\' in value || value.encodeToByteArray().size > MAX_PATH_BYTES) {

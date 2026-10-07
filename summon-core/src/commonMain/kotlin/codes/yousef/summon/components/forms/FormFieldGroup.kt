@@ -8,7 +8,10 @@ import codes.yousef.summon.components.layout.Row
 import codes.yousef.summon.modifier.*
 
 /**
- * Metadata returned to field content so inputs can wire accessibility relationships.
+ * Accessibility relationships supplied to field content.
+ *
+ * @property describedById optional supporting-text element ID
+ * @property errorMessageId optional validation-message element ID
  */
 data class FormFieldMetadata(
     val describedById: String?,

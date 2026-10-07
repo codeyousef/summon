@@ -9,6 +9,16 @@ package codes.yousef.summon.web
 
 /**
  * Browser support matrix for Summon features.
+
+ * @property hasWasm The has wasm value.
+ * @property wasmVersion The wasm version value.
+ * @property hasModules The has modules value.
+ * @property hasServiceWorker The has service worker value.
+ * @property hasWebGL The has web gl value.
+ * @property browserName The browser name value.
+ * @property browserVersion The browser version value.
+ * @property isSupported The is supported value.
+ * @property features The features value.
  */
 data class BrowserSupport(
     val hasWasm: Boolean = false,
@@ -26,9 +36,13 @@ data class BrowserSupport(
  * WASM capability levels.
  */
 enum class WasmVersion {
-    NONE,           // No WASM support
-    MVP,            // Minimum Viable Product
-    ADVANCED,       // Memory support
+    /** The none WASM version option. */
+    NONE,
+    /** The mvp WASM version option. */
+    MVP,
+    /** The advanced WASM version option. */
+    ADVANCED,
+    /** The optimized WASM version option. */
     OPTIMIZED       // Latest optimizations
 }
 
@@ -36,24 +50,43 @@ enum class WasmVersion {
  * Supported browser features.
  */
 enum class BrowserFeature {
+    /** The modern JS browser feature option. */
     MODERN_JS,
+    /** The es modules browser feature option. */
     ES_MODULES,
+    /** The async await browser feature option. */
     ASYNC_AWAIT,
+    /** The fetch API browser feature option. */
     FETCH_API,
+    /** The websockets browser feature option. */
     WEBSOCKETS,
+    /** The local storage browser feature option. */
     LOCAL_STORAGE,
+    /** The session storage browser feature option. */
     SESSION_STORAGE,
+    /** The indexed db browser feature option. */
     INDEXED_DB,
+    /** The web workers browser feature option. */
     WEB_WORKERS,
+    /** The service workers browser feature option. */
     SERVICE_WORKERS,
+    /** The push notifications browser feature option. */
     PUSH_NOTIFICATIONS,
+    /** The webgl browser feature option. */
     WEBGL,
+    /** The webgl2 browser feature option. */
     WEBGL2,
+    /** The webrtc browser feature option. */
     WEBRTC,
+    /** The touch events browser feature option. */
     TOUCH_EVENTS,
+    /** The pointer events browser feature option. */
     POINTER_EVENTS,
+    /** The resize observer browser feature option. */
     RESIZE_OBSERVER,
+    /** The intersection observer browser feature option. */
     INTERSECTION_OBSERVER,
+    /** The mutation observer browser feature option. */
     MUTATION_OBSERVER
 }
 
@@ -86,9 +119,13 @@ expect object BrowserCapabilities {
  * Rendering strategies based on browser capabilities.
  */
 enum class RenderingStrategy {
-    WASM_OPTIMIZED,     // Use WASM for maximum performance
-    JS_MODERN,          // Use modern JS features
-    JS_COMPATIBLE,      // Use compatible JS for older browsers
+    /** The WASM optimized rendering strategy option. */
+    WASM_OPTIMIZED,
+    /** The JS modern rendering strategy option. */
+    JS_MODERN,
+    /** The JS compatible rendering strategy option. */
+    JS_COMPATIBLE,
+    /** The static fallback rendering strategy option. */
     STATIC_FALLBACK     // Server-rendered content only
 }
 
@@ -116,10 +153,23 @@ interface ErrorBoundary {
  * Actions to take when an error occurs.
  */
 sealed class ErrorAction {
+    /** Provides continue operations. */
     object Continue : ErrorAction()
+    /** Provides retry operations. */
     object Retry : ErrorAction()
+    /**
+     * Represents fallback.
+     *
+     * @property strategy The strategy value.
+     */
     data class Fallback(val strategy: RenderingStrategy) : ErrorAction()
+    /**
+     * Represents graceful.
+     *
+     * @property message Message content.
+     */
     data class Graceful(val message: String) : ErrorAction()
+    /** Provides fatal operations. */
     object Fatal : ErrorAction()
 }
 
@@ -155,6 +205,10 @@ interface PerformanceMonitor {
 
 /**
  * Memory usage information.
+
+ * @property usedJSHeapSize The used js heap size value.
+ * @property totalJSHeapSize The total js heap size value.
+ * @property jsHeapSizeLimit The js heap size limit value.
  */
 data class MemoryInfo(
     val usedJSHeapSize: Long = 0,
@@ -164,6 +218,14 @@ data class MemoryInfo(
 
 /**
  * Rendering performance metrics.
+
+ * @property frameRate The frame rate value.
+ * @property renderTime The render time value.
+ * @property hydrationTime The hydration time value.
+ * @property scriptLoadTime The script load time value.
+ * @property domContentLoaded The dom content loaded value.
+ * @property firstContentfulPaint The first contentful paint value.
+ * @property largestContentfulPaint The largest contentful paint value.
  */
 data class RenderingMetrics(
     val frameRate: Double = 0.0,
@@ -232,10 +294,15 @@ object ProgressiveEnhancement {
  * Enhancement plans based on browser capabilities.
  */
 enum class EnhancementPlan {
-    WASM_FULL,          // Full WASM with all optimizations
-    WASM_BASIC,         // Basic WASM support
-    JS_MODERN,          // Modern JavaScript features
-    JS_COMPATIBLE,      // Compatible JavaScript
+    /** The WASM full enhancement plan option. */
+    WASM_FULL,
+    /** The WASM basic enhancement plan option. */
+    WASM_BASIC,
+    /** The JS modern enhancement plan option. */
+    JS_MODERN,
+    /** The JS compatible enhancement plan option. */
+    JS_COMPATIBLE,
+    /** The static only enhancement plan option. */
     STATIC_ONLY         // Server-rendered content only
 }
 

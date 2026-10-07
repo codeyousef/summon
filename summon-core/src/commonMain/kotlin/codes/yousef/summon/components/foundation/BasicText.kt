@@ -33,7 +33,7 @@ import codes.yousef.summon.theme.TextStyle
  *
  * ## Usage
  *
- * Text layout results are provided through the [onTextLayout] callback
+ * Text layout results are provided through the `onTextLayout` callback
  * in text components:
  *
  * ```kotlin
@@ -75,8 +75,8 @@ class TextLayoutResult(
  * A lightweight text rendering component with essential styling capabilities.
  *
  * BasicText provides fundamental text display functionality with a simplified API
- * compared to the full-featured [Text] component. It's optimized for performance
- * and provides the core text rendering capabilities needed for most use cases.
+ * compared to the full-featured [codes.yousef.summon.components.display.Text] component.
+ * It provides the core text rendering capabilities needed for most use cases.
  *
  * ## Key Features
  *
@@ -160,7 +160,7 @@ class TextLayoutResult(
  * ## Performance Considerations
  *
  * - Prefer BasicText over Text for simple text display
- * - Use [remember] for expensive style calculations
+ * - Use [codes.yousef.summon.runtime.remember] for expensive style calculations
  * - Consider text length impact on layout performance
  * - Layout callbacks are called on every recomposition
  *
@@ -223,4 +223,4 @@ fun BasicText(
  * Marker annotation for composable functions.
  * This will eventually be replaced by the actual Compose annotation.
  */
-// Removed redundant annotation class as we're now using the one from runtime package 
+// Removed redundant annotation class as we're now using the one from runtime package

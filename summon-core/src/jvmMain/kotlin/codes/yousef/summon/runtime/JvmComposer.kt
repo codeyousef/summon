@@ -9,6 +9,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  * This provides JVM-specific functionality for the composition system.
  */
 class JvmComposer : Composer {
+    /** The true value. */
     override val inserting: Boolean = true
 
     private val slots = mutableMapOf<Int, Any?>()
@@ -20,16 +21,23 @@ class JvmComposer : Composer {
     private val stateWriteListeners = ConcurrentHashMap<Any, CopyOnWriteArrayList<() -> Unit>>()
     private val disposables = mutableListOf<() -> Unit>()
 
+    /** Starts node. */
     override fun startNode() {
         nodeStack.add(currentNodeIndex++)
     }
 
+    /** Executes the end node operation. */
     override fun endNode() {
         if (nodeStack.isNotEmpty()) {
             nodeStack.removeAt(nodeStack.size - 1)
         }
     }
 
+    /**
+     * Starts group.
+     *
+     * @param key Lookup key.
+     */
     override fun startGroup(key: Any?) {
         groupStack.add(key)
         // Save the current slot index so we can restore it when the group ends
@@ -37,6 +45,7 @@ class JvmComposer : Composer {
         slotIndex++
     }
 
+    /** Executes the end group operation. */
     override fun endGroup() {
         if (groupStack.isNotEmpty()) {
             groupStack.removeAt(groupStack.size - 1)
@@ -45,6 +54,12 @@ class JvmComposer : Composer {
         }
     }
 
+    /**
+     * Executes the changed operation.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     override fun changed(value: Any?): Boolean {
         val slotValue = getSlot()
         val hasChanged = slotValue != value
@@ -54,32 +69,59 @@ class JvmComposer : Composer {
         return hasChanged
     }
 
+    /**
+     * Updates value.
+     *
+     * @param value Value to process.
+     */
     override fun updateValue(value: Any?) {
         setSlot(value)
     }
 
+    /** Executes the next slot operation. */
     override fun nextSlot() {
         slotIndex++
     }
 
+    /**
+     * Returns slot.
+     *
+     * @return The resulting value.
+     */
     override fun getSlot(): Any? {
         return slots[slotIndex]
     }
 
+    /**
+     * Sets slot.
+     *
+     * @param value Value to process.
+     */
     override fun setSlot(value: Any?) {
         slots[slotIndex] = value
     }
 
+    /**
+     * Executes the record read operation.
+     *
+     * @param state The state value.
+     */
     override fun recordRead(state: Any) {
         stateReads.add(state)
     }
 
+    /**
+     * Executes the record write operation.
+     *
+     * @param state The state value.
+     */
     override fun recordWrite(state: Any) {
         // Trigger recomposition for all composers that depend on this state
         stateWriteListeners[state]?.forEach { it() }
         reportChanged()
     }
 
+    /** Executes the report changed operation. */
     override fun reportChanged() {
         // Schedule recomposition on the JVM UI thread
         try {
@@ -115,6 +157,11 @@ class JvmComposer : Composer {
         }
     }
 
+    /**
+     * Registers disposable.
+     *
+     * @param disposable The disposable value.
+     */
     override fun registerDisposable(disposable: () -> Unit) {
         disposables.add(disposable)
     }
@@ -155,14 +202,27 @@ class JvmComposer : Composer {
         stateWriteListeners.values.forEach { listeners -> listeners.clear() }
     }
 
+    /** Executes the recompose operation. */
     override fun recompose() {
         reportChanged()
     }
 
+    /**
+     * Executes the remembered value operation.
+     *
+     * @param key Lookup key.
+     * @return The resulting value.
+     */
     override fun rememberedValue(key: Any): Any? {
         return slots[key.hashCode()]
     }
 
+    /**
+     * Updates remembered value.
+     *
+     * @param key Lookup key.
+     * @param value Value to process.
+     */
     override fun updateRememberedValue(key: Any, value: Any?) {
         slots[key.hashCode()] = value
     }
@@ -217,6 +277,11 @@ class JvmComposer : Composer {
      * Factory method to create a JvmComposer.
      */
     companion object {
+        /**
+         * Creates the operation.
+         *
+         * @return The resulting value.
+         */
         fun create(): JvmComposer {
             return JvmComposer()
         }
@@ -230,4 +295,4 @@ class JvmComposer : Composer {
         // Call compose on the composable with the provided consumer
         return composable.compose(consumer)
     }
-} 
+}

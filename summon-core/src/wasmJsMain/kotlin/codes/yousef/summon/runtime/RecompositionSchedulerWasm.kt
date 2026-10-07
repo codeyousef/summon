@@ -9,11 +9,17 @@ import kotlinx.browser.window
 class WasmRecompositionScheduler : RecompositionScheduler {
     private var animationFrameId: Int? = null
 
+    /** Cancels pending recomposition. */
     override fun cancelPendingRecomposition() {
         animationFrameId?.let { kotlinx.browser.window.cancelAnimationFrame(it) }
         animationFrameId = null
     }
 
+    /**
+     * Executes the schedule recomposition operation.
+     *
+     * @param work The work value.
+     */
     override fun scheduleRecomposition(work: () -> Unit) {
         animationFrameId?.let { window.cancelAnimationFrame(it) }
         // Pass the Kotlin callback directly through the supported DOM binding. The
@@ -27,6 +33,11 @@ class WasmRecompositionScheduler : RecompositionScheduler {
     }
 }
 
+/**
+ * Creates default scheduler.
+ *
+ * @return The resulting value.
+ */
 actual fun createDefaultScheduler(): RecompositionScheduler {
     safeWasmConsoleLog("Creating WASM recomposition scheduler with requestAnimationFrame")
     return WasmRecompositionScheduler()

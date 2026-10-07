@@ -14,6 +14,10 @@ import java.io.File
 
 /**
  * Scaffold a new Summon project (standalone site or full-stack backend + Summon UI).
+
+ * @property templateResolver The template resolver value.
+ * @property generatorFactory The generator factory value.
+ * @property inputProvider The input provider value.
  */
 class InitCommand(
     private val templateResolver: (String) -> ProjectTemplate = { ProjectTemplate.fromType(it) },
@@ -24,7 +28,9 @@ class InitCommand(
     private val inputProvider: () -> String? = { readLine() }
 ) : CliktCommand(name = "init") {
 
+    /** Project-generation boundary used to keep CLI argument handling independently testable. */
     fun interface ProjectExecutor {
+        /** Generates one project from the validated [config]. */
         fun generate(config: ProjectGenerator.Config)
     }
 
@@ -63,6 +69,7 @@ class InitCommand(
         help = "Backend to use for fullstack projects (spring, ktor, quarkus)"
     ).choice("spring", "spring-boot", "ktor", "quarkus")
 
+    /** Resolves CLI choices, validates the destination, and generates the selected project. */
     override fun run() {
         val targetDir = determineTargetDirectory()
         val selection = resolveTemplateSelection()

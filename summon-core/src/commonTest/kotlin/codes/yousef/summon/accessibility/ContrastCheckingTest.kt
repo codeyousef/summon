@@ -136,4 +136,46 @@ class ContrastCheckingTest {
         assertEquals(1, suggestions.size, "Should return only the original color")
         assertEquals("#000000", suggestions[0], "Should return the original color")
     }
+
+    @Test
+    fun suggestionTargetsRespectEveryConformanceLevelTextSizeAndAdjustedSurface() {
+        assertEquals(
+            listOf("#000000"),
+            ContrastChecking.suggestColors(
+                "#000000",
+                "#FFFFFF",
+                targetLevel = ContrastChecking.ConformanceLevel.A
+            )
+        )
+        assertEquals(
+            listOf("#FFFFFF"),
+            ContrastChecking.suggestColors(
+                "#000000",
+                "#FFFFFF",
+                targetLevel = ContrastChecking.ConformanceLevel.AA,
+                adjustForeground = false
+            )
+        )
+
+        listOf(
+            ContrastChecking.ConformanceLevel.A,
+            ContrastChecking.ConformanceLevel.AA,
+            ContrastChecking.ConformanceLevel.AAA
+        ).forEach { level ->
+            ContrastChecking.suggestColors(
+                foreground = "#777777",
+                background = "#888888",
+                targetLevel = level,
+                adjustForeground = true,
+                textSize = ContrastChecking.TextSize.LARGE
+            )
+            ContrastChecking.suggestColors(
+                foreground = "#777777",
+                background = "#888888",
+                targetLevel = level,
+                adjustForeground = false,
+                textSize = ContrastChecking.TextSize.LARGE
+            )
+        }
+    }
 }

@@ -4,7 +4,10 @@ import kotlinx.browser.document
 import org.w3c.dom.HTMLElement
 
 /**
- * Data class to hold Card-related extension properties for JS implementation
+ * Browser card behavior.
+ *
+ * @property onClick optional activation callback
+ * @property isInteractive whether the card exposes interaction semantics
  */
 data class CardJsExtension(
     val onClick: (() -> Unit)? = null,
@@ -41,4 +44,4 @@ fun setupJsClickHandler(cardId: String, cardExt: CardJsExtension) {
             event.stopPropagation()
         }
     }
-} 
+}

@@ -6,6 +6,7 @@ import codes.yousef.summon.runtime.Composer
 import codes.yousef.summon.runtime.CompositionLocal
 import codes.yousef.summon.runtime.LocalPlatformRenderer
 import codes.yousef.summon.runtime.MockPlatformRenderer
+import codes.yousef.summon.runtime.PlatformRenderer
 
 /**
  * Comprehensive test setup utilities for Summon framework tests.
@@ -29,6 +30,22 @@ fun runComposableTest(
     CompositionLocal.provideComposer(composer) {
         val provider = LocalPlatformRenderer.provides(renderer)
         provider.current // Access current to ensure it's set
+        block()
+    }
+    return renderer
+}
+
+/**
+ * Runs a composable with a renderer subtype that needs to expose custom captured state.
+ */
+fun <T : PlatformRenderer> runComposableTest(
+    renderer: T,
+    composer: Composer = MockComposer(),
+    block: @Composable () -> Unit
+): T {
+    CompositionLocal.provideComposer(composer) {
+        val provider = LocalPlatformRenderer.provides(renderer)
+        provider.current
         block()
     }
     return renderer

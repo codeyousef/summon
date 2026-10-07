@@ -11,42 +11,92 @@ actual fun enableStaticFormFallbacksPlatform() {
     wasmEnableStaticFormFallbacks()
 }
 
+/**
+ * Clears WASM cache platform.
+ *
+ * @return The resulting value.
+ */
 actual fun clearWasmCachePlatform(): Boolean {
     return wasmClearWasmCache()
 }
 
+/**
+ * Executes the verify JS fallback platform operation.
+ *
+ * @return The resulting value.
+ */
 actual fun verifyJSFallbackPlatform(): Boolean {
     return wasmVerifyJSFallback()
 }
 
+/**
+ * Clears module cache platform.
+ *
+ * @return The resulting value.
+ */
 actual fun clearModuleCachePlatform(): Boolean {
     return wasmClearModuleCache()
 }
 
+/**
+ * Loads compatibility shims platform.
+ *
+ * @return The resulting value.
+ */
 actual fun loadCompatibilityShimsPlatform(): Boolean {
     return wasmLoadCompatibilityShims()
 }
 
+/**
+ * Executes the check network connectivity platform operation.
+ *
+ * @return The resulting value.
+ */
 actual fun checkNetworkConnectivityPlatform(): Boolean {
     return wasmCheckNetworkConnectivity()
 }
 
+/**
+ * Executes the retry network operation platform operation.
+ *
+ * @return The resulting value.
+ */
 actual fun retryNetworkOperationPlatform(): Boolean {
     return wasmRetryNetworkOperation()
 }
 
+/**
+ * Enables offline mode platform.
+ *
+ * @return The resulting value.
+ */
 actual fun enableOfflineModePlatform(): Boolean {
     return wasmEnableOfflineMode()
 }
 
+/**
+ * Clears all caches platform.
+ *
+ * @return The resulting value.
+ */
 actual fun clearAllCachesPlatform(): Boolean {
     return wasmClearAllCaches()
 }
 
+/**
+ * Resets to known state platform.
+ *
+ * @return The resulting value.
+ */
 actual fun resetToKnownStatePlatform(): Boolean {
     return wasmResetToKnownState()
 }
 
+/**
+ * Executes the verify basic functionality platform operation.
+ *
+ * @return The resulting value.
+ */
 actual fun verifyBasicFunctionalityPlatform(): Boolean {
     return wasmVerifyBasicFunctionality()
 }
@@ -59,6 +109,13 @@ class WasmEnhancedErrorBoundary : ErrorBoundary {
     private var consecutiveErrors = 0
     private var lastErrorTime = 0L
 
+    /**
+     * Executes the handle error operation.
+     *
+     * @param error The error value.
+     * @param context The context value.
+     * @return The resulting value.
+     */
     override fun handleError(error: Throwable, context: String): ErrorAction {
         val currentTime = wasmGetCurrentTime()
 
@@ -102,6 +159,13 @@ class WasmEnhancedErrorBoundary : ErrorBoundary {
         }
     }
 
+    /**
+     * Executes the report error operation.
+     *
+     * @param error The error value.
+     * @param context The context value.
+     * @param metadata The metadata value.
+     */
     override fun reportError(error: Throwable, context: String, metadata: Map<String, Any>) {
         // Build error report as string for WASM bridge
         val errorMessage = error.message ?: "Unknown error"
@@ -123,6 +187,12 @@ class WasmEnhancedErrorBoundary : ErrorBoundary {
         wasmReportError(errorMessage, stackTrace, metadataString)
     }
 
+    /**
+     * Returns whether this value can recover.
+     *
+     * @param error The error value.
+     * @return The resulting value.
+     */
     override fun canRecover(error: Throwable): Boolean {
         return when (error) {
             is RuntimeException -> when {
@@ -218,9 +288,13 @@ object WasmMemoryManager {
  * Memory usage status levels.
  */
 enum class MemoryStatus {
+    /** The normal memory status option. */
     NORMAL,
+    /** The moderate memory status option. */
     MODERATE,
+    /** The high memory status option. */
     HIGH,
+    /** The critical memory status option. */
     CRITICAL
 }
 
@@ -282,11 +356,25 @@ object WasmPerformanceUtils {
  * Performance status levels.
  */
 enum class PerformanceStatus {
+    /** The good performance status option. */
     GOOD,
+    /** The moderate performance status option. */
     MODERATE,
+    /** The degraded performance status option. */
     DEGRADED,
+    /** The poor performance status option. */
     POOR
 }
 
+/**
+ * Executes the WASM enable performance optimizations operation.
+ *
+ * @return The resulting value.
+ */
 external fun wasmEnablePerformanceOptimizations(): Boolean
+/**
+ * Executes the WASM enable minor optimizations operation.
+ *
+ * @return The resulting value.
+ */
 external fun wasmEnableMinorOptimizations(): Boolean

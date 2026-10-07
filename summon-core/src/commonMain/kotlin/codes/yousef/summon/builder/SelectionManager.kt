@@ -39,31 +39,31 @@ import kotlinx.atomicfu.locks.withLock
  */
 object SelectionManager {
     private val lock = ReentrantLock()
-    
+
     /**
      * Reactive state holding the currently selected component ID.
      * Null when nothing is selected.
      */
     val selection: SummonMutableState<String?> = mutableStateOf(null)
-    
+
     /**
      * Alias for selection state - holds the currently selected component ID.
      */
     val selectedId: SummonMutableState<String?> get() = selection
-    
+
     /**
      * Reactive state holding the bounding rect of the selected component.
      */
     val selectionBounds: SummonMutableState<SelectionBounds?> = mutableStateOf(null)
-    
+
     private val selectionListeners = mutableListOf<(String?) -> Unit>()
-    
+
     /**
      * Callback invoked when selection changes.
      * Set to null to disable.
      */
     var onSelectionChange: ((String?) -> Unit)? = null
-    
+
     /**
      * Selects a component by its ID.
      *
@@ -76,7 +76,7 @@ object SelectionManager {
             onSelectionChange?.invoke(componentId)
         }
     }
-    
+
     /**
      * Clears the current selection.
      */
@@ -88,19 +88,19 @@ object SelectionManager {
             onSelectionChange?.invoke(null)
         }
     }
-    
+
     /**
      * Deselects the current selection (alias for clearSelection).
      */
     fun deselect() = clearSelection()
-    
+
     /**
      * Checks if any component is currently selected.
      *
      * @return true if a component is selected
      */
     fun hasSelection(): Boolean = selection.value != null
-    
+
     /**
      * Checks if a specific component is selected.
      *
@@ -110,7 +110,7 @@ object SelectionManager {
     fun isSelected(componentId: String): Boolean {
         return selection.value == componentId
     }
-    
+
     /**
      * Updates the selection bounds for overlay positioning.
      *
@@ -121,7 +121,7 @@ object SelectionManager {
             selectionBounds.value = bounds
         }
     }
-    
+
     /**
      * Adds a listener for selection changes.
      *
@@ -132,7 +132,7 @@ object SelectionManager {
             selectionListeners.add(listener)
         }
     }
-    
+
     /**
      * Removes a selection listener.
      *
@@ -143,14 +143,23 @@ object SelectionManager {
             selectionListeners.remove(listener)
         }
     }
-    
+
     private fun notifyListeners(componentId: String?) {
         selectionListeners.forEach { it(componentId) }
     }
 }
 
 /**
- * Represents the bounding rectangle of a selected component.
+ * Bounding rectangle of a selected component.
+ *
+ * @property x horizontal origin
+ * @property y vertical origin
+ * @property width horizontal extent
+ * @property height vertical extent
+ * @property top top edge
+ * @property right right edge
+ * @property bottom bottom edge
+ * @property left left edge
  */
 data class SelectionBounds(
     val x: Double,

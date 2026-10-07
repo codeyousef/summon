@@ -36,36 +36,69 @@ fun IdleDeadline.timeRemainingDouble(): Double = timeRemaining().toDouble()
  * Check if requestIdleCallback is available.
  */
 @JsFun("() => typeof requestIdleCallback !== 'undefined'")
+/**
+ * Executes the WASM is idle callback supported operation.
+ *
+ * @return The resulting value.
+ */
 external fun wasmIsIdleCallbackSupported(): Boolean
 
 /**
  * Request idle callback with optional timeout.
  */
 @JsFun("(callback, timeout) => { const opts = timeout > 0 ? { timeout: timeout } : undefined; return window.requestIdleCallback ? window.requestIdleCallback(callback, opts) : window.setTimeout(() => callback({ timeRemaining: () => 50, didTimeout: false }), 1); }")
+/**
+ * Executes the WASM request idle callback operation.
+ *
+ * @param callback The callback value.
+ * @param timeout Timeout in milliseconds.
+ * @return The resulting value.
+ */
 external fun wasmRequestIdleCallback(callback: (IdleDeadline) -> Unit, timeout: Int): Int
 
 /**
  * Cancel idle callback.
  */
 @JsFun("(handle) => { if (window.cancelIdleCallback) { window.cancelIdleCallback(handle); } else { window.clearTimeout(handle); } }")
+/**
+ * Executes the WASM cancel idle callback operation.
+ *
+ * @param handle The handle value.
+ */
 external fun wasmCancelIdleCallback(handle: Int)
 
 /**
  * Request animation frame.
  */
 @JsFun("(callback) => window.requestAnimationFrame(callback)")
+/**
+ * Executes the WASM request animation frame operation.
+ *
+ * @param callback The callback value.
+ * @return The resulting value.
+ */
 external fun wasmRequestAnimationFrame(callback: (JsNumber) -> Unit): Int
 
 /**
  * Cancel animation frame.
  */
 @JsFun("(handle) => window.cancelAnimationFrame(handle)")
+/**
+ * Executes the WASM cancel animation frame operation.
+ *
+ * @param handle The handle value.
+ */
 external fun wasmCancelAnimationFrame(handle: Int)
 
 /**
  * Get current performance timestamp.
  */
 @JsFun("() => performance.now()")
+/**
+ * Executes the WASM performance now operation.
+ *
+ * @return The resulting value.
+ */
 external fun wasmPerformanceNow(): Double
 
 /**
@@ -73,10 +106,20 @@ external fun wasmPerformanceNow(): Double
  */
 fun isIdleCallbackSupported(): Boolean = wasmIsIdleCallbackSupported()
 
+/**
+ * Executes the performance now operation.
+ *
+ * @return The resulting value.
+ */
 fun performanceNow(): Double = wasmPerformanceNow()
 
 /**
  * Add a passive scroll listener to the window.
  */
 @JsFun("(callback) => window.addEventListener('scroll', callback, { passive: true })")
+/**
+ * Executes the WASM add scroll listener operation.
+ *
+ * @param callback The callback value.
+ */
 external fun wasmAddScrollListener(callback: () -> Unit)

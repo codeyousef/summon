@@ -134,8 +134,8 @@ enum class LoadingVariant {
  *
  * ## Accessibility Features
  * - Automatic `role="status"` for screen readers
- * - `aria-live="polite"` for loading text announcements
- * - `aria-label` attributes for context
+ * - `ARIA-live="polite"` for loading text announcements
+ * - `ARIA-label` attributes for context
  * - Keyboard navigation support
  * - High contrast mode compatibility
  *
@@ -157,8 +157,6 @@ enum class LoadingVariant {
  * @see LoadingState for content loading state management
  * @see LoadingSize for available size options
  * @see LoadingVariant for visual style options
- * @sample codes.yousef.summon.samples.feedback.LoadingSamples.basicUsage
- * @sample codes.yousef.summon.samples.feedback.LoadingSamples.advancedUsage
  * @since 1.0.0
  */
 @Composable
@@ -257,7 +255,6 @@ fun Loading(
  *
  * @see Loading for inline loading indicators
  * @see LoadingState for content-specific loading states
- * @sample codes.yousef.summon.samples.feedback.LoadingSamples.fullScreenOverlay
  * @since 1.0.0
  */
 @Composable
@@ -360,7 +357,6 @@ fun LoadingOverlay(
  *
  * @see Loading for full-featured loading indicators
  * @see LoadingSize for size options
- * @sample codes.yousef.summon.samples.feedback.LoadingSamples.inlineButton
  * @since 1.0.0
  */
 @Composable
@@ -478,7 +474,6 @@ fun InlineLoading(
  *
  * @see Loading for loading indicator options
  * @see LoadingOverlay for full-screen loading states
- * @sample codes.yousef.summon.samples.feedback.LoadingSamples.loadingStatePattern
  * @since 1.0.0
  */
 @Composable

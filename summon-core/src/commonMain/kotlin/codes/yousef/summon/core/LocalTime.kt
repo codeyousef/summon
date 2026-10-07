@@ -7,9 +7,11 @@ import codes.yousef.summon.core.error.requireInRange
 // import kotlinx.datetime.LocalTime
 
 /**
- * A simplified LocalTime implementation for multiplatform use.
- * This is a placeholder that can be replaced with kotlinx-datetime implementation
- * once project dependencies are properly set up.
+ * Validated wall-clock time without a date or time zone.
+ *
+ * @property hour hour in `0..23`
+ * @property minute minute in `0..59`
+ * @property second second in `0..59`
  */
 data class LocalTime(val hour: Int, val minute: Int, val second: Int = 0) {
     init {
@@ -18,6 +20,7 @@ data class LocalTime(val hour: Int, val minute: Int, val second: Int = 0) {
         second.requireInRange(0..59) { ErrorHandler.Messages.outOfRange("Second", second, 0, 59) }
     }
 
+    /** Formats this value as `HH:mm:ss`. */
     override fun toString(): String {
         val hourStr = if (hour < 10) "0$hour" else "$hour"
         val minuteStr = if (minute < 10) "0$minute" else "$minute"
@@ -25,6 +28,7 @@ data class LocalTime(val hour: Int, val minute: Int, val second: Int = 0) {
         return "$hourStr:$minuteStr:$secondStr"
     }
 
+    /** Parsing utilities. */
     companion object {
         /**
          * Parses a time from a string using ISO format (HH:mm:ss or HH:mm).
@@ -92,4 +96,4 @@ data class LocalTime(val hour: Int, val minute: Int, val second: Int = 0) {
         if (minute < other.minute) return false
         return second > other.second
     }
-} 
+}

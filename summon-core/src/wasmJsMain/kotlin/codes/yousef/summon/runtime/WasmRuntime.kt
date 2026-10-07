@@ -21,6 +21,15 @@ private val animationFrameCallbacks = mutableMapOf<Int, () -> Unit>()
 private val batchUpdates = mutableListOf<() -> Unit>()
 private var isBatching = false
 
+/**
+ * Represents last event.
+ *
+ * @property type The type value.
+ * @property targetId The target id value.
+ * @property value Value to process.
+ * @property checked The checked value.
+ * @property event The event value.
+ */
 class LastEvent(
     val type: String,
     val targetId: String,
@@ -29,6 +38,14 @@ class LastEvent(
     val event: Event
 )
 
+/**
+ * Represents event handler entry.
+ *
+ * @property elementId The element id value.
+ * @property eventType The event type value.
+ * @property listener The listener value.
+ * @property lastEvent The last event value.
+ */
 class EventHandlerEntry(
     val elementId: String,
     val eventType: String,
@@ -59,6 +76,7 @@ private fun getElement(elementId: String): Node? {
     return element
 }
 
+/** Executes the WASM clear element store operation. */
 fun wasmClearElementStore() {
     elementStore.clear()
 }
@@ -84,6 +102,12 @@ private fun storeElement(node: Node): String {
 
 
 // Element creation and basic manipulation
+/**
+ * Executes the WASM create element by ID operation.
+ *
+ * @param tagName The tag name value.
+ * @return The resulting value.
+ */
 fun wasmCreateElementById(tagName: String): String {
     return try {
         val element = document.createElement(tagName)
@@ -95,11 +119,25 @@ fun wasmCreateElementById(tagName: String): String {
     }
 }
 
+/**
+ * Executes the WASM get element by ID operation.
+ *
+ * @param id Stable identifier.
+ * @return The resulting value.
+ */
 fun wasmGetElementById(id: String): String? {
     val element = document.getElementById(id)
     return if (element != null) storeElement(element) else null
 }
 
+/**
+ * Executes the WASM set element attribute operation.
+ *
+ * @param elementId The element id value.
+ * @param name Human-readable name.
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun wasmSetElementAttribute(elementId: String, name: String, value: String): Boolean {
     return try {
         val node = getElement(elementId)
@@ -116,6 +154,13 @@ fun wasmSetElementAttribute(elementId: String, name: String, value: String): Boo
     }
 }
 
+/**
+ * Executes the WASM get element attribute operation.
+ *
+ * @param elementId The element id value.
+ * @param name Human-readable name.
+ * @return The resulting value.
+ */
 fun wasmGetElementAttribute(elementId: String, name: String): String? {
     return try {
         val node = getElement(elementId)
@@ -131,6 +176,13 @@ fun wasmGetElementAttribute(elementId: String, name: String): String? {
     }
 }
 
+/**
+ * Executes the WASM remove element attribute operation.
+ *
+ * @param elementId The element id value.
+ * @param name Human-readable name.
+ * @return The resulting value.
+ */
 fun wasmRemoveElementAttribute(elementId: String, name: String): Boolean {
     return try {
         val node = getElement(elementId)
@@ -148,6 +200,13 @@ fun wasmRemoveElementAttribute(elementId: String, name: String): Boolean {
 }
 
 // Text content manipulation
+/**
+ * Executes the WASM set element text content operation.
+ *
+ * @param elementId The element id value.
+ * @param text The text value.
+ * @return The resulting value.
+ */
 fun wasmSetElementTextContent(elementId: String, text: String): Boolean {
     return try {
         val node = getElement(elementId)
@@ -164,6 +223,12 @@ fun wasmSetElementTextContent(elementId: String, text: String): Boolean {
     }
 }
 
+/**
+ * Executes the WASM get element text content operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetElementTextContent(elementId: String): String? {
     return try {
         val node = getElement(elementId)
@@ -175,6 +240,13 @@ fun wasmGetElementTextContent(elementId: String): String? {
     }
 }
 
+/**
+ * Executes the WASM set element inner HTML operation.
+ *
+ * @param elementId The element id value.
+ * @param html The html value.
+ * @return The resulting value.
+ */
 fun wasmSetElementInnerHTML(elementId: String, html: String): Boolean {
     return try {
         val node = getElement(elementId)
@@ -191,6 +263,12 @@ fun wasmSetElementInnerHTML(elementId: String, html: String): Boolean {
     }
 }
 
+/**
+ * Executes the WASM get element inner HTML operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetElementInnerHTML(elementId: String): String? {
     return try {
         val node = getElement(elementId)
@@ -208,6 +286,13 @@ fun wasmGetElementInnerHTML(elementId: String): String? {
 }
 
 // DOM tree manipulation
+/**
+ * Executes the WASM append child by ID operation.
+ *
+ * @param parentId The parent id value.
+ * @param childId The child id value.
+ * @return The resulting value.
+ */
 fun wasmAppendChildById(parentId: String, childId: String): Boolean {
     return try {
         val parent = getElement(parentId)
@@ -226,6 +311,13 @@ fun wasmAppendChildById(parentId: String, childId: String): Boolean {
     }
 }
 
+/**
+ * Executes the WASM remove child by ID operation.
+ *
+ * @param parentId The parent id value.
+ * @param childId The child id value.
+ * @return The resulting value.
+ */
 fun wasmRemoveChildById(parentId: String, childId: String): Boolean {
     return try {
         val parent = getElement(parentId)
@@ -243,6 +335,12 @@ fun wasmRemoveChildById(parentId: String, childId: String): Boolean {
     }
 }
 
+/**
+ * Executes the WASM remove element by ID operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmRemoveElementById(elementId: String): Boolean {
     return try {
         val element = getElement(elementId)
@@ -269,6 +367,12 @@ private fun jsClick(element: JsAny): Unit = js("""{
     element.dispatchEvent(event);
 }""")
 
+/**
+ * Executes the WASM click element operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmClickElement(elementId: String): Boolean {
     return try {
         val element = getElement(elementId)
@@ -311,6 +415,13 @@ fun wasmClickElement(elementId: String): Boolean {
 }
 
 // CSS class manipulation
+/**
+ * Executes the WASM add class to element operation.
+ *
+ * @param elementId The element id value.
+ * @param className The class name value.
+ * @return The resulting value.
+ */
 fun wasmAddClassToElement(elementId: String, className: String): Boolean {
     return try {
         val node = getElement(elementId)
@@ -332,6 +443,13 @@ fun wasmAddClassToElement(elementId: String, className: String): Boolean {
     }
 }
 
+/**
+ * Executes the WASM remove class from element operation.
+ *
+ * @param elementId The element id value.
+ * @param className The class name value.
+ * @return The resulting value.
+ */
 fun wasmRemoveClassFromElement(elementId: String, className: String): Boolean {
     return try {
         val node = getElement(elementId)
@@ -353,6 +471,13 @@ fun wasmRemoveClassFromElement(elementId: String, className: String): Boolean {
     }
 }
 
+/**
+ * Executes the WASM element has class operation.
+ *
+ * @param elementId The element id value.
+ * @param className The class name value.
+ * @return The resulting value.
+ */
 fun wasmElementHasClass(elementId: String, className: String): Boolean {
     return try {
         val node = getElement(elementId)
@@ -368,6 +493,12 @@ fun wasmElementHasClass(elementId: String, className: String): Boolean {
     }
 }
 
+/**
+ * Executes the WASM get element class name operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetElementClassName(elementId: String): String? {
     return try {
         val node = getElement(elementId)
@@ -384,6 +515,12 @@ fun wasmGetElementClassName(elementId: String): String? {
 }
 
 // Element properties
+/**
+ * Executes the WASM get element tag name operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetElementTagName(elementId: String): String? {
     return try {
         val node = getElement(elementId)
@@ -399,6 +536,12 @@ fun wasmGetElementTagName(elementId: String): String? {
     }
 }
 
+/**
+ * Executes the WASM get element parent operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetElementParent(elementId: String): String? {
     return try {
         val node = getElement(elementId)
@@ -414,6 +557,12 @@ fun wasmGetElementParent(elementId: String): String? {
     }
 }
 
+/**
+ * Executes the WASM get element ID operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetElementId(elementId: String): String? {
     return try {
         val node = getElement(elementId)
@@ -431,6 +580,13 @@ fun wasmGetElementId(elementId: String): String? {
     }
 }
 
+/**
+ * Executes the WASM set element ID operation.
+ *
+ * @param elementId The element id value.
+ * @param newId The new id value.
+ * @return The resulting value.
+ */
 fun wasmSetElementId(elementId: String, newId: String): Boolean {
     return try {
         val node = getElement(elementId)
@@ -456,10 +612,22 @@ fun wasmSetElementId(elementId: String, newId: String): Boolean {
 }
 
 // Element hierarchy
+/**
+ * Executes the WASM get element parent ID operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetElementParentId(elementId: String): String? {
     return wasmGetElementParent(elementId)
 }
 
+/**
+ * Executes the WASM get element children operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetElementChildren(elementId: String): String {
     return try {
         val node = getElement(elementId)
@@ -482,6 +650,12 @@ fun wasmGetElementChildren(elementId: String): String {
     }
 }
 
+/**
+ * Executes the WASM get element subtree IDs operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetElementSubtreeIds(elementId: String): String {
     return try {
         val root = getElement(elementId) as? Element ?: return ""
@@ -510,6 +684,14 @@ fun wasmGetElementSubtreeIds(elementId: String): String {
 }
 
 // Event handling
+/**
+ * Executes the WASM add event listener by ID operation.
+ *
+ * @param elementId The element id value.
+ * @param eventType The event type value.
+ * @param handlerId The handler id value.
+ * @return The resulting value.
+ */
 fun wasmAddEventListenerById(elementId: String, eventType: String, handlerId: String): Boolean {
     try {
         val element = getElement(elementId) ?: return false
@@ -567,6 +749,14 @@ fun wasmAddEventListenerById(elementId: String, eventType: String, handlerId: St
     }
 }
 
+/**
+ * Executes the WASM remove event listener by ID operation.
+ *
+ * @param elementId The element id value.
+ * @param eventType The event type value.
+ * @param handlerId The handler id value.
+ * @return The resulting value.
+ */
 fun wasmRemoveEventListenerById(elementId: String, eventType: String, handlerId: String): Boolean {
     return try {
         val element = getElement(elementId)
@@ -587,25 +777,55 @@ fun wasmRemoveEventListenerById(elementId: String, eventType: String, handlerId:
 }
 
 // Event properties
+/**
+ * Executes the WASM get event type operation.
+ *
+ * @param handlerId The handler id value.
+ * @return The resulting value.
+ */
 fun wasmGetEventType(handlerId: String): String? {
     val entry = eventHandlers[handlerId]
     return entry?.lastEvent?.type
 }
 
+/**
+ * Executes the WASM get event target ID operation.
+ *
+ * @param handlerId The handler id value.
+ * @return The resulting value.
+ */
 fun wasmGetEventTargetId(handlerId: String): String? {
     val entry = eventHandlers[handlerId]
     return entry?.lastEvent?.targetId
 }
 
+/**
+ * Executes the WASM get event value operation.
+ *
+ * @param handlerId The handler id value.
+ * @return The resulting value.
+ */
 fun wasmGetEventValue(handlerId: String): String? {
     val entry = eventHandlers[handlerId]
     return entry?.lastEvent?.value
 }
 
+/**
+ * Executes the WASM get event target value operation.
+ *
+ * @param handlerId The handler id value.
+ * @return The resulting value.
+ */
 fun wasmGetEventTargetValue(handlerId: String): String? {
     return wasmGetEventValue(handlerId)
 }
 
+/**
+ * Executes the WASM prevent event default operation.
+ *
+ * @param handlerId The handler id value.
+ * @return The resulting value.
+ */
 fun wasmPreventEventDefault(handlerId: String): Boolean {
     val entry = eventHandlers[handlerId]
     val event = entry?.lastEvent?.event
@@ -616,6 +836,12 @@ fun wasmPreventEventDefault(handlerId: String): Boolean {
     return false
 }
 
+/**
+ * Executes the WASM stop event propagation operation.
+ *
+ * @param handlerId The handler id value.
+ * @return The resulting value.
+ */
 fun wasmStopEventPropagation(handlerId: String): Boolean {
     val entry = eventHandlers[handlerId]
     val event = entry?.lastEvent?.event
@@ -627,6 +853,12 @@ fun wasmStopEventPropagation(handlerId: String): Boolean {
 }
 
 // Query selectors
+/**
+ * Executes the WASM query selector get ID operation.
+ *
+ * @param selector The selector value.
+ * @return The resulting value.
+ */
 fun wasmQuerySelectorGetId(selector: String): String? {
     return try {
         val element = document.querySelector(selector)
@@ -638,6 +870,12 @@ fun wasmQuerySelectorGetId(selector: String): String? {
     }
 }
 
+/**
+ * Executes the WASM query selector all get IDs operation.
+ *
+ * @param selector The selector value.
+ * @return The resulting value.
+ */
 fun wasmQuerySelectorAllGetIds(selector: String): String {
     return try {
         val elements = document.querySelectorAll(selector)
@@ -654,6 +892,12 @@ fun wasmQuerySelectorAllGetIds(selector: String): String {
 }
 
 // Form element specifics
+/**
+ * Executes the WASM get element value operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetElementValue(elementId: String): String? {
     return try {
         val element = getElement(elementId)
@@ -665,6 +909,13 @@ fun wasmGetElementValue(elementId: String): String? {
     }
 }
 
+/**
+ * Executes the WASM set element value operation.
+ *
+ * @param elementId The element id value.
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun wasmSetElementValue(elementId: String, value: String): Boolean {
     return try {
         val element = getElement(elementId)
@@ -682,6 +933,12 @@ fun wasmSetElementValue(elementId: String, value: String): Boolean {
     }
 }
 
+/**
+ * Executes the WASM get element checked operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetElementChecked(elementId: String): Boolean {
     return try {
         val element = getElement(elementId)
@@ -693,6 +950,13 @@ fun wasmGetElementChecked(elementId: String): Boolean {
     }
 }
 
+/**
+ * Executes the WASM set element checked operation.
+ *
+ * @param elementId The element id value.
+ * @param checked The checked value.
+ * @return The resulting value.
+ */
 fun wasmSetElementChecked(elementId: String, checked: Boolean): Boolean {
     return try {
         val element = getElement(elementId)
@@ -710,6 +974,12 @@ fun wasmSetElementChecked(elementId: String, checked: Boolean): Boolean {
     }
 }
 
+/**
+ * Executes the WASM get element disabled operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetElementDisabled(elementId: String): Boolean {
     return try {
         val element = getElement(elementId)
@@ -721,6 +991,13 @@ fun wasmGetElementDisabled(elementId: String): Boolean {
     }
 }
 
+/**
+ * Executes the WASM set element disabled operation.
+ *
+ * @param elementId The element id value.
+ * @param disabled The disabled value.
+ * @return The resulting value.
+ */
 fun wasmSetElementDisabled(elementId: String, disabled: Boolean): Boolean {
     return try {
         val element = getElement(elementId)
@@ -739,6 +1016,12 @@ fun wasmSetElementDisabled(elementId: String, disabled: Boolean): Boolean {
 }
 
 // Select element specifics
+/**
+ * Executes the WASM get selected index operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetSelectedIndex(elementId: String): Int {
     return try {
         val element = getElement(elementId)
@@ -754,6 +1037,13 @@ fun wasmGetSelectedIndex(elementId: String): Int {
     }
 }
 
+/**
+ * Executes the WASM set selected index operation.
+ *
+ * @param elementId The element id value.
+ * @param index Zero-based item index.
+ * @return The resulting value.
+ */
 fun wasmSetSelectedIndex(elementId: String, index: Int): Boolean {
     return try {
         val element = getElement(elementId)
@@ -771,22 +1061,48 @@ fun wasmSetSelectedIndex(elementId: String, index: Int): Boolean {
 }
 
 // Document operations
+/**
+ * Executes the WASM get document body ID operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetDocumentBodyId(): String? {
     return document.body?.let { storeElement(it) }
 }
 
+/**
+ * Executes the WASM get document body operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetDocumentBody(): String? {
     return wasmGetDocumentBodyId()
 }
 
+/**
+ * Executes the WASM get document head ID operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetDocumentHeadId(): String? {
     return document.head?.let { storeElement(it) }
 }
 
+/**
+ * Executes the WASM get document head operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetDocumentHead(): String? {
     return wasmGetDocumentHeadId()
 }
 
+/**
+ * Executes the WASM insert HTML into head operation.
+ *
+ * @param html The html value.
+ * @return The resulting value.
+ */
 fun wasmInsertHTMLIntoHead(html: String): Boolean {
     return try {
         document.head?.insertAdjacentHTML("beforeend", html)
@@ -798,6 +1114,14 @@ fun wasmInsertHTMLIntoHead(html: String): Boolean {
     }
 }
 
+/**
+ * Executes the WASM insert adjacent HTML operation.
+ *
+ * @param elementId The element id value.
+ * @param position The position value.
+ * @param html The html value.
+ * @return The resulting value.
+ */
 fun wasmInsertAdjacentHTML(elementId: String, position: String, html: String): Boolean {
     return try {
         val node = getElement(elementId)
@@ -814,6 +1138,12 @@ fun wasmInsertAdjacentHTML(elementId: String, position: String, html: String): B
     }
 }
 
+/**
+ * Executes the WASM get outer HTML operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetOuterHTML(elementId: String): String? {
     return try {
         val node = getElement(elementId)
@@ -829,21 +1159,45 @@ fun wasmGetOuterHTML(elementId: String): String? {
     }
 }
 
+/**
+ * Executes the WASM set inner HTML operation.
+ *
+ * @param elementId The element id value.
+ * @param html The html value.
+ * @return The resulting value.
+ */
 fun wasmSetInnerHTML(elementId: String, html: String): Boolean {
     return wasmSetElementInnerHTML(elementId, html)
 }
 
 // Browser capabilities
+/**
+ * Executes the WASM get user agent operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetUserAgent(): String {
     return window.navigator.userAgent
 }
 
+/**
+ * Executes the WASM extract browser version operation.
+ *
+ * @param userAgent The user agent value.
+ * @param browserName The browser name value.
+ * @return The resulting value.
+ */
 fun wasmExtractBrowserVersion(userAgent: String, browserName: String): Int {
     val regex = Regex("$browserName\\/([0-9]+)")
     val match = regex.find(userAgent)
     return match?.groupValues?.get(1)?.toIntOrNull() ?: 0
 }
 
+/**
+ * Executes the WASM get timestamp operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetTimestamp(): Long = getTimestampJS().toDouble().toLong()
 private fun getTimestampJS(): JsNumber = js("Date.now()")
 
@@ -851,62 +1205,186 @@ private fun getTimestampJS(): JsNumber = js("Date.now()")
 
 
 
+/**
+ * Executes the WASM get location href operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetLocationHref(): String {
     return window.location.href
 }
 
+/**
+ * Executes the WASM has async await operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasAsyncAwait(): Boolean {
     return true
 }
 
+/**
+ * Executes the WASM has fetch API operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasFetchAPI(): Boolean = js("typeof fetch !== 'undefined'")
 
+/**
+ * Executes the WASM has web sockets operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasWebSockets(): Boolean = js("typeof WebSocket !== 'undefined'")
 
+/**
+ * Executes the WASM has indexed db operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasIndexedDB(): Boolean = js("typeof indexedDB !== 'undefined'")
 
+/**
+ * Executes the WASM has web workers operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasWebWorkers(): Boolean = js("typeof Worker !== 'undefined'")
 
+/**
+ * Executes the WASM has web gl operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasWebGL(): Boolean = true
 
+/**
+ * Executes the WASM has web gl2 operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasWebGL2(): Boolean = true
 
 
+/**
+ * Executes the WASM has push notifications operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasPushNotifications(): Boolean = js("typeof PushManager !== 'undefined'")
 
+/**
+ * Executes the WASM has web rtc operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasWebRTC(): Boolean = js("typeof RTCPeerConnection !== 'undefined'")
 
+/**
+ * Executes the WASM has touch events operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasTouchEvents(): Boolean = js("'ontouchstart' in window")
 
+/**
+ * Executes the WASM has pointer events operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasPointerEvents(): Boolean = js("typeof PointerEvent !== 'undefined'")
 
+/**
+ * Executes the WASM has resize observer operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasResizeObserver(): Boolean = js("typeof ResizeObserver !== 'undefined'")
 
+/**
+ * Executes the WASM has intersection observer operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasIntersectionObserver(): Boolean = js("typeof IntersectionObserver !== 'undefined'")
 
+/**
+ * Executes the WASM has mutation observer operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasMutationObserver(): Boolean = js("typeof MutationObserver !== 'undefined'")
 
+/**
+ * Executes the WASM has promises operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasPromises(): Boolean = js("typeof Promise !== 'undefined'")
 
 
 // Feature detection
+/**
+ * Executes the WASM has touch support operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasTouchSupport(): Boolean = js("'ontouchstart' in window || navigator.maxTouchPoints > 0")
 
 
 
+/**
+ * Executes the WASM has module support operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasModuleSupport(): Boolean = true
+/**
+ * Executes the WASM has arrow functions operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasArrowFunctions(): Boolean = true
+/**
+ * Executes the WASM test basic WASM support operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmTestBasicWasmSupport(): Boolean = true
+/**
+ * Executes the WASM test advanced WASM support operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmTestAdvancedWasmSupport(): Boolean = true
 
 // User agent testing
+/**
+ * Executes the WASM test mobile user agent operation.
+ *
+ * @param userAgent The user agent value.
+ * @return The resulting value.
+ */
 fun wasmTestMobileUserAgent(userAgent: String): Boolean = js("/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent)")
 
+/**
+ * Executes the WASM test tablet user agent operation.
+ *
+ * @param userAgent The user agent value.
+ * @return The resulting value.
+ */
 fun wasmTestTabletUserAgent(userAgent: String): Boolean = js("/iPad|Android(?!.*Mobile)|Tablet/i.test(userAgent)")
 
 
 
 // Style operations
+/**
+ * Executes the WASM scroll element into view operation.
+ *
+ * @param elementId The element id value.
+ * @param behavior The behavior value.
+ * @return The resulting value.
+ */
 fun wasmScrollElementIntoView(elementId: String, behavior: String): Boolean {
     return try {
         val node = getElement(elementId)
@@ -936,6 +1414,13 @@ private fun scrollIntoView(element: JsAny, options: JsAny): Unit = js("element.s
 
 
 
+/**
+ * Executes the WASM get computed style property operation.
+ *
+ * @param elementId The element id value.
+ * @param property The property value.
+ * @return The resulting value.
+ */
 fun wasmGetComputedStyleProperty(elementId: String, property: String): String? {
     return try {
         val node = getElement(elementId)
@@ -952,6 +1437,14 @@ fun wasmGetComputedStyleProperty(elementId: String, property: String): String? {
     }
 }
 
+/**
+ * Executes the WASM apply style property operation.
+ *
+ * @param elementId The element id value.
+ * @param property The property value.
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun wasmApplyStyleProperty(elementId: String, property: String, value: String): Boolean {
     return try {
         val node = getElement(elementId)
@@ -968,6 +1461,13 @@ fun wasmApplyStyleProperty(elementId: String, property: String, value: String): 
     }
 }
 
+/**
+ * Executes the WASM get element style operation.
+ *
+ * @param elementId The element id value.
+ * @param property The property value.
+ * @return The resulting value.
+ */
 fun wasmGetElementStyle(elementId: String, property: String): String? {
     return try {
         val node = getElement(elementId)
@@ -983,6 +1483,13 @@ fun wasmGetElementStyle(elementId: String, property: String): String? {
     }
 }
 
+/**
+ * Executes the WASM set element style operation.
+ *
+ * @param elementId The element id value.
+ * @param cssText The css text value.
+ * @return The resulting value.
+ */
 fun wasmSetElementStyle(elementId: String, cssText: String): Boolean {
     return try {
         val node = getElement(elementId)
@@ -1000,17 +1507,32 @@ fun wasmSetElementStyle(elementId: String, cssText: String): Boolean {
 }
 
 // Performance
+/**
+ * Executes the WASM performance now operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmPerformanceNow(): Double {
     return window.performance.now()
 }
 
 // Memory and batch operations
+/**
+ * Executes the WASM start batch operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmStartBatch(): Boolean {
     isBatching = true
     batchUpdates.clear()
     return true
 }
 
+/**
+ * Executes the WASM end batch operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmEndBatch(): Boolean {
     isBatching = false
     // Apply all batched updates
@@ -1026,19 +1548,39 @@ private fun jsConsoleLog(message: String): Unit = js("console.log(message)")
 private fun jsConsoleWarn(message: String): Unit = js("console.warn(message)")
 private fun jsConsoleError(message: String): Unit = js("console.error(message)")
 
+/**
+ * Executes the WASM console log operation.
+ *
+ * @param message Message content.
+ */
 fun wasmConsoleLog(message: String) {
     jsConsoleLog("[Summon WASM] $message")
 }
 
+/**
+ * Executes the WASM console warn operation.
+ *
+ * @param message Message content.
+ */
 fun wasmConsoleWarn(message: String) {
     jsConsoleWarn("[Summon WASM] $message")
 }
 
+/**
+ * Executes the WASM console error operation.
+ *
+ * @param message Message content.
+ */
 fun wasmConsoleError(message: String) {
     jsConsoleError("[Summon WASM] $message")
 }
 
 
+/**
+ * Executes the WASM console debug operation.
+ *
+ * @param message Message content.
+ */
 fun wasmConsoleDebug(message: String) {
     console.log("[Summon WASM DEBUG] $message")
 
@@ -1046,18 +1588,47 @@ fun wasmConsoleDebug(message: String) {
 
 
 // Helper functions
+/**
+ * Executes the WASM is not null operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun wasmIsNotNull(value: String?): Boolean {
     return value != null
 }
 
+/**
+ * Executes the WASM add event handler operation.
+ *
+ * @param elementId The element id value.
+ * @param eventType The event type value.
+ * @param handlerId The handler id value.
+ * @return The resulting value.
+ */
 fun wasmAddEventHandler(elementId: String, eventType: String, handlerId: String): Boolean {
     return wasmAddEventListenerById(elementId, eventType, handlerId)
 }
 
+/**
+ * Executes the WASM remove event handler operation.
+ *
+ * @param elementId The element id value.
+ * @param eventType The event type value.
+ * @param handlerId The handler id value.
+ * @return The resulting value.
+ */
 fun wasmRemoveEventHandler(elementId: String, eventType: String, handlerId: String): Boolean {
     return wasmRemoveEventListenerById(elementId, eventType, handlerId)
 }
 
+/**
+ * Executes the WASM create element with options operation.
+ *
+ * @param tagName The tag name value.
+ * @param options The options value.
+ * @return The resulting value.
+ */
 fun wasmCreateElementWithOptions(tagName: String, options: String): String {
     return try {
         val element = document.createElement(tagName)
@@ -1098,6 +1669,13 @@ private fun applyOptions(element: JsAny, options: String) {
 
 
 
+/**
+ * Executes the WASM clone element operation.
+ *
+ * @param sourceElementId The source element id value.
+ * @param deep The deep value.
+ * @return The resulting value.
+ */
 fun wasmCloneElement(sourceElementId: String, deep: Boolean): String? {
     return try {
         val element = getElement(sourceElementId)
@@ -1115,11 +1693,22 @@ fun wasmCloneElement(sourceElementId: String, deep: Boolean): String? {
 }
 
 // Register WASM event callback handler
+/**
+ * Registers WASM event callback.
+ *
+ * @param handlerId The handler id value.
+ * @param callback The callback value.
+ */
 fun registerWasmEventCallback(handlerId: String, callback: () -> Unit) {
     eventCallbacks[handlerId] = callback
 }
 
 // Animation frame management
+/**
+ * Executes the WASM request animation frame operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmRequestAnimationFrame(): Int {
     val frameId = window.requestAnimationFrame {
         // The callback will be executed via registerWasmAnimationFrameCallback
@@ -1127,12 +1716,24 @@ fun wasmRequestAnimationFrame(): Int {
     return frameId
 }
 
+/**
+ * Executes the WASM cancel animation frame operation.
+ *
+ * @param frameId The frame id value.
+ * @return The resulting value.
+ */
 fun wasmCancelAnimationFrame(frameId: Int): Boolean {
     window.cancelAnimationFrame(frameId)
     animationFrameCallbacks.remove(frameId)
     return true
 }
 
+/**
+ * Registers WASM animation frame callback.
+ *
+ * @param frameId The frame id value.
+ * @param callback The callback value.
+ */
 fun registerWasmAnimationFrameCallback(frameId: Int, callback: () -> Unit) {
     animationFrameCallbacks[frameId] = callback
 
@@ -1157,10 +1758,22 @@ fun registerWasmAnimationFrameCallback(frameId: Int, callback: () -> Unit) {
 }
 
 // Missing functions from WasmNativeInterfaces.kt
+/**
+ * Executes the WASM find elements by selector operation.
+ *
+ * @param selector The selector value.
+ * @return The resulting value.
+ */
 fun wasmFindElementsBySelector(selector: String): String {
     return wasmQuerySelectorAllGetIds(selector)
 }
 
+/**
+ * Executes the WASM get elements by tag name operation.
+ *
+ * @param tagName The tag name value.
+ * @return The resulting value.
+ */
 fun wasmGetElementsByTagName(tagName: String): String {
     return try {
         val elements = document.getElementsByTagName(tagName)
@@ -1176,6 +1789,12 @@ fun wasmGetElementsByTagName(tagName: String): String {
     }
 }
 
+/**
+ * Executes the WASM get elements by class name operation.
+ *
+ * @param className The class name value.
+ * @return The resulting value.
+ */
 fun wasmGetElementsByClassName(className: String): String {
     return try {
         val elements = document.getElementsByClassName(className)
@@ -1191,6 +1810,12 @@ fun wasmGetElementsByClassName(className: String): String {
     }
 }
 
+/**
+ * Executes the WASM is element visible operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmIsElementVisible(elementId: String): Boolean {
     return try {
         val element = getElement(elementId)
@@ -1207,6 +1832,12 @@ fun wasmIsElementVisible(elementId: String): Boolean {
     }
 }
 
+/**
+ * Executes the WASM get element position operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetElementPosition(elementId: String): String {
     return try {
         val element = getElement(elementId)
@@ -1225,6 +1856,16 @@ fun wasmGetElementPosition(elementId: String): String {
 
 
 
+/**
+ * Executes the WASM set element position operation.
+ *
+ * @param elementId The element id value.
+ * @param x The x value.
+ * @param y The y value.
+ * @param width The width value.
+ * @param height The height value.
+ * @return The resulting value.
+ */
 fun wasmSetElementPosition(elementId: String, x: Double, y: Double, width: Double, height: Double): Boolean {
     return try {
         val element = getElement(elementId)
@@ -1244,6 +1885,13 @@ fun wasmSetElementPosition(elementId: String, x: Double, y: Double, width: Doubl
     }
 }
 
+/**
+ * Executes the WASM replace element operation.
+ *
+ * @param oldElementId The old element id value.
+ * @param newElementId The new element id value.
+ * @return The resulting value.
+ */
 fun wasmReplaceElement(oldElementId: String, newElementId: String): Boolean {
     return try {
         val oldEl = getElement(oldElementId)
@@ -1261,6 +1909,14 @@ fun wasmReplaceElement(oldElementId: String, newElementId: String): Boolean {
     }
 }
 
+/**
+ * Executes the WASM move element operation.
+ *
+ * @param elementId The element id value.
+ * @param newParentId The new parent id value.
+ * @param beforeElementId The before element id value.
+ * @return The resulting value.
+ */
 fun wasmMoveElement(elementId: String, newParentId: String, beforeElementId: String?): Boolean {
     return try {
         val element = getElement(elementId)
@@ -1283,11 +1939,23 @@ fun wasmMoveElement(elementId: String, newParentId: String, beforeElementId: Str
     }
 }
 
+/**
+ * Executes the WASM start performance measure operation.
+ *
+ * @param measureName The measure name value.
+ * @return The resulting value.
+ */
 fun wasmStartPerformanceMeasure(measureName: String): Boolean {
     mark(measureName)
     return true
 }
 
+/**
+ * Executes the WASM end performance measure operation.
+ *
+ * @param measureName The measure name value.
+ * @return The resulting value.
+ */
 fun wasmEndPerformanceMeasure(measureName: String): Double {
     return endMeasure(measureName)
 }
@@ -1304,6 +1972,12 @@ private fun endMeasure(measureName: String): Double = js("""{
 }""")
 
 
+/**
+ * Executes the WASM log element tree operation.
+ *
+ * @param rootElementId The root element id value.
+ * @return The resulting value.
+ */
 fun wasmLogElementTree(rootElementId: String): Boolean {
     return try {
         val element = getElement(rootElementId)
@@ -1319,82 +1993,172 @@ fun wasmLogElementTree(rootElementId: String): Boolean {
     }
 }
 
+/**
+ * Executes the WASM validate element ID operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmValidateElementId(elementId: String): Boolean {
     return getElement(elementId) != null
 }
 
 // Error boundary utils
+/** Executes the WASM enable static form fallbacks operation. */
 fun wasmEnableStaticFormFallbacks() {
     // No-op
 }
 
+/**
+ * Executes the WASM clear WASM cache operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmClearWasmCache(): Boolean {
     return true
 }
 
+/**
+ * Executes the WASM verify JS fallback operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmVerifyJSFallback(): Boolean {
     return true
 }
 
+/**
+ * Executes the WASM clear module cache operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmClearModuleCache(): Boolean {
     return true
 }
 
+/**
+ * Executes the WASM load compatibility shims operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmLoadCompatibilityShims(): Boolean {
     return true
 }
 
+/**
+ * Executes the WASM check network connectivity operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmCheckNetworkConnectivity(): Boolean {
     return window.navigator.onLine
 }
 
+/**
+ * Executes the WASM retry network operation operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmRetryNetworkOperation(): Boolean {
     return window.navigator.onLine
 }
 
+/**
+ * Executes the WASM enable offline mode operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmEnableOfflineMode(): Boolean {
     return true
 }
 
+/**
+ * Executes the WASM clear all caches operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmClearAllCaches(): Boolean {
     return true
 }
 
+/**
+ * Executes the WASM reset to known state operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmResetToKnownState(): Boolean {
     window.location.reload()
     return true
 }
 
+/**
+ * Executes the WASM verify basic functionality operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmVerifyBasicFunctionality(): Boolean {
     return true
 }
 
+/**
+ * Executes the WASM get current time operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetCurrentTime(): Long = getTimestampJS().toDouble().toLong()
 
 
 
 
 
+/**
+ * Executes the WASM log error operation.
+ *
+ * @param message Message content.
+ */
 fun wasmLogError(message: String) {
     domDiagnostics.failure()
 }
 
+/**
+ * Executes the WASM log warning operation.
+ *
+ * @param message Message content.
+ */
 fun wasmLogWarning(message: String) {
     console.warn(message)
 }
 
+/**
+ * Executes the WASM report error operation.
+ *
+ * @param message Message content.
+ * @param stackTrace The stack trace value.
+ * @param metadata The metadata value.
+ */
 fun wasmReportError(message: String, stackTrace: String, metadata: String) {
     domDiagnostics.failure()
 }
 
+/**
+ * Executes the WASM report error operation.
+ *
+ * @param reportData The report data value.
+ */
 fun wasmReportError(reportData: String) {
     domDiagnostics.failure()
 }
 
+/**
+ * Executes the WASM delay operation.
+ *
+ * @param ms The ms value.
+ */
 fun wasmDelay(ms: Int) {
     // No-op
 }
 
+/** Executes the WASM setup global error handling operation. */
 fun wasmSetupGlobalErrorHandling() {
     window.addEventListener("error") { event ->
         domDiagnostics.failure()
@@ -1406,51 +2170,118 @@ fun wasmSetupGlobalErrorHandling() {
     }
 }
 
+/**
+ * Executes the WASM get used memory operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetUsedMemory(): Long {
     return 0L
 }
 
+/**
+ * Executes the WASM get total memory operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetTotalMemory(): Long {
     return 0L
 }
 
+/**
+ * Executes the WASM get memory limit operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetMemoryLimit(): Long {
     return 0L
 }
 
+/**
+ * Executes the WASM force garbage collection operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmForceGarbageCollection(): Boolean {
     return false
 }
 
+/**
+ * Executes the WASM reduce memory usage operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmReduceMemoryUsage(): Boolean {
     return false
 }
 
+/**
+ * Executes the WASM get current frame rate operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetCurrentFrameRate(): Double {
     return 60.0
 }
 
+/**
+ * Executes the WASM get cpu usage operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetCPUUsage(): Double {
     return 0.0
 }
 
+/**
+ * Executes the WASM enable emergency optimizations operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmEnableEmergencyOptimizations(): Boolean {
     return true
 }
 
 // Additional missing functions
+/**
+ * Executes the WASM scroll into view operation.
+ *
+ * @param elementId The element id value.
+ * @param behavior The behavior value.
+ */
 fun wasmScrollIntoView(elementId: String, behavior: String) {
     wasmScrollElementIntoView(elementId, behavior)
 }
 
+/**
+ * Executes the WASM get computed style operation.
+ *
+ * @param elementId The element id value.
+ * @param property The property value.
+ * @return The resulting value.
+ */
 fun wasmGetComputedStyle(elementId: String, property: String): String? {
     return wasmGetComputedStyleProperty(elementId, property)
 }
 
+/**
+ * Executes the WASM insert before by ID operation.
+ *
+ * @param parentId The parent id value.
+ * @param newChildId The new child id value.
+ * @param refChildId The ref child id value.
+ * @return The resulting value.
+ */
 fun wasmInsertBeforeById(parentId: String, newChildId: String, refChildId: String): Boolean {
     return wasmMoveElement(newChildId, parentId, refChildId)
 }
 
+/**
+ * Executes the WASM get element bounding left operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetElementBoundingLeft(elementId: String): Double {
     return try {
         val node = getElement(elementId)
@@ -1462,6 +2293,12 @@ fun wasmGetElementBoundingLeft(elementId: String): Double {
     } catch (e: Throwable) { 0.0 }
 }
 
+/**
+ * Executes the WASM get element bounding top operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetElementBoundingTop(elementId: String): Double {
     return try {
         val node = getElement(elementId)
@@ -1473,6 +2310,12 @@ fun wasmGetElementBoundingTop(elementId: String): Double {
     } catch (e: Throwable) { 0.0 }
 }
 
+/**
+ * Executes the WASM get element bounding right operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetElementBoundingRight(elementId: String): Double {
     return try {
         val node = getElement(elementId)
@@ -1484,6 +2327,12 @@ fun wasmGetElementBoundingRight(elementId: String): Double {
     } catch (e: Throwable) { 0.0 }
 }
 
+/**
+ * Executes the WASM get element bounding bottom operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetElementBoundingBottom(elementId: String): Double {
     return try {
         val node = getElement(elementId)
@@ -1495,6 +2344,12 @@ fun wasmGetElementBoundingBottom(elementId: String): Double {
     } catch (e: Throwable) { 0.0 }
 }
 
+/**
+ * Executes the WASM get element bounding width operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetElementBoundingWidth(elementId: String): Double {
     return try {
         val node = getElement(elementId)
@@ -1506,6 +2361,12 @@ fun wasmGetElementBoundingWidth(elementId: String): Double {
     } catch (e: Throwable) { 0.0 }
 }
 
+/**
+ * Executes the WASM get element bounding height operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetElementBoundingHeight(elementId: String): Double {
     return try {
         val node = getElement(elementId)
@@ -1517,6 +2378,12 @@ fun wasmGetElementBoundingHeight(elementId: String): Double {
     } catch (e: Throwable) { 0.0 }
 }
 
+/**
+ * Executes the WASM get element scroll top operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetElementScrollTop(elementId: String): Double {
     return try {
         (getElement(elementId) as? HTMLElement)?.scrollTop ?: 0.0
@@ -1526,6 +2393,12 @@ fun wasmGetElementScrollTop(elementId: String): Double {
     }
 }
 
+/**
+ * Executes the WASM get element scroll left operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetElementScrollLeft(elementId: String): Double {
     return try {
         (getElement(elementId) as? HTMLElement)?.scrollLeft ?: 0.0
@@ -1537,6 +2410,11 @@ fun wasmGetElementScrollLeft(elementId: String): Double {
 
 
 
+/**
+ * Executes the WASM get active element ID operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetActiveElementId(): String? {
     return try {
         document.activeElement?.let { storeElement(it) }
@@ -1546,6 +2424,12 @@ fun wasmGetActiveElementId(): String? {
     }
 }
 
+/**
+ * Executes the WASM get input selection start operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetInputSelectionStart(elementId: String): Int? {
     return try {
         when (val element = getElement(elementId)) {
@@ -1559,6 +2443,12 @@ fun wasmGetInputSelectionStart(elementId: String): Int? {
     }
 }
 
+/**
+ * Executes the WASM get input selection end operation.
+ *
+ * @param elementId The element id value.
+ * @return The resulting value.
+ */
 fun wasmGetInputSelectionEnd(elementId: String): Int? {
     return try {
         when (val element = getElement(elementId)) {
@@ -1572,11 +2462,23 @@ fun wasmGetInputSelectionEnd(elementId: String): Int? {
     }
 }
 
+/**
+ * Executes the WASM has meaningful focus operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasMeaningfulFocus(): Boolean {
     val active = document.activeElement
     return active != null && active !== document.body
 }
 
+/**
+ * Executes the WASM restore element focus operation.
+ *
+ * @param elementId The element id value.
+ * @param selectionStart The selection start value.
+ * @param selectionEnd The selection end value.
+ */
 fun wasmRestoreElementFocus(elementId: String, selectionStart: Int?, selectionEnd: Int?) {
     try {
         val node = getElement(elementId)
@@ -1596,6 +2498,11 @@ fun wasmRestoreElementFocus(elementId: String, selectionStart: Int?, selectionEn
     }
 }
 
+/**
+ * Executes the WASM focus element operation.
+ *
+ * @param elementId The element id value.
+ */
 fun wasmFocusElement(elementId: String) {
     try {
         val node = getElement(elementId)
@@ -1603,6 +2510,11 @@ fun wasmFocusElement(elementId: String) {
     } catch (e: Throwable) {}
 }
 
+/**
+ * Executes the WASM blur element operation.
+ *
+ * @param elementId The element id value.
+ */
 fun wasmBlurElement(elementId: String) {
     try {
         val node = getElement(elementId)
@@ -1610,6 +2522,12 @@ fun wasmBlurElement(elementId: String) {
     } catch (e: Throwable) {}
 }
 
+/**
+ * Executes the WASM create text node operation.
+ *
+ * @param text The text value.
+ * @return The resulting value.
+ */
 fun wasmCreateTextNode(text: String): String {
     return try {
         val node = document.createTextNode(text)
@@ -1621,10 +2539,21 @@ fun wasmCreateTextNode(text: String): String {
     }
 }
 
+/**
+ * Executes the WASM get document element ID operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetDocumentElementId(): String? {
     return document.documentElement?.let { storeElement(it) }
 }
 
+/**
+ * Executes the WASM add document event listener operation.
+ *
+ * @param type The type value.
+ * @param handlerId The handler id value.
+ */
 fun wasmAddDocumentEventListener(type: String, handlerId: String) {
     // Similar to wasmAddEventListenerById but for document
     // We can reuse the logic if we treat document as an element with a special ID
@@ -1639,6 +2568,12 @@ fun wasmAddDocumentEventListener(type: String, handlerId: String) {
     } catch (e: Throwable) {}
 }
 
+/**
+ * Executes the WASM remove document event listener operation.
+ *
+ * @param type The type value.
+ * @param handlerId The handler id value.
+ */
 fun wasmRemoveDocumentEventListener(type: String, handlerId: String) {
     val entry = eventHandlers[handlerId]
     if (entry != null && entry.listener != null) {
@@ -1647,43 +2582,150 @@ fun wasmRemoveDocumentEventListener(type: String, handlerId: String) {
     }
 }
 
+/**
+ * Executes the WASM set location href operation.
+ *
+ * @param href The href value.
+ */
 fun wasmSetLocationHref(href: String) { window.location.href = href }
+/**
+ * Executes the WASM get location hostname operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetLocationHostname(): String? = window.location.hostname
+/**
+ * Executes the WASM get location port operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetLocationPort(): String? = window.location.port
+/**
+ * Executes the WASM get location pathname operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetLocationPathname(): String? = window.location.pathname
+/**
+ * Executes the WASM set location pathname operation.
+ *
+ * @param pathname The pathname value.
+ */
 fun wasmSetLocationPathname(pathname: String) { window.location.pathname = pathname }
+/**
+ * Executes the WASM get location search operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetLocationSearch(): String? = window.location.search
+/**
+ * Executes the WASM set location search operation.
+ *
+ * @param search The search value.
+ */
 fun wasmSetLocationSearch(search: String) { window.location.search = search }
+/**
+ * Executes the WASM get location hash operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetLocationHash(): String? = window.location.hash
+/**
+ * Executes the WASM set location hash operation.
+ *
+ * @param hash The hash value.
+ */
 fun wasmSetLocationHash(hash: String) { window.location.hash = hash }
+/**
+ * Executes the WASM location assign operation.
+ *
+ * @param url Target URL.
+ */
 fun wasmLocationAssign(url: String) { window.location.assign(url) }
+/**
+ * Executes the WASM location replace operation.
+ *
+ * @param url Target URL.
+ */
 fun wasmLocationReplace(url: String) { window.location.replace(url) }
+/** Executes the WASM location reload operation. */
 fun wasmLocationReload() { window.location.reload() }
 
+/**
+ * Executes the WASM get history length operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetHistoryLength(): Int = window.history.length
+/**
+ * Executes the WASM get history state operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetHistoryState(): String? = window.history.state?.toString()
+/** Executes the WASM history back operation. */
 fun wasmHistoryBack() { window.history.back() }
+/** Executes the WASM history forward operation. */
 fun wasmHistoryForward() { window.history.forward() }
+/**
+ * Executes the WASM history go operation.
+ *
+ * @param delta The delta value.
+ */
 fun wasmHistoryGo(delta: Int) { window.history.go(delta) }
+/**
+ * Executes the WASM history push state operation.
+ *
+ * @param state The state value.
+ * @param title The title value.
+ * @param url Target URL.
+ */
 fun wasmHistoryPushState(state: String, title: String, url: String) {
     window.history.pushState(state.toJsString(), title, url)
 }
+/**
+ * Executes the WASM history replace state operation.
+ *
+ * @param state The state value.
+ * @param title The title value.
+ * @param url Target URL.
+ */
 fun wasmHistoryReplaceState(state: String, title: String, url: String) {
     window.history.replaceState(state.toJsString(), title, url)
 }
 
 
+/**
+ * Executes the WASM performance mark operation.
+ *
+ * @param name Human-readable name.
+ */
 fun wasmPerformanceMark(name: String) {
     mark(name)
 }
 private fun mark(name: String): Unit = js("window.performance.mark(name)")
 
+/**
+ * Executes the WASM performance measure operation.
+ *
+ * @param name Human-readable name.
+ * @param startMark The start mark value.
+ * @param endMark The end mark value.
+ * @return The resulting value.
+ */
 fun wasmPerformanceMeasure(name: String, startMark: String, endMark: String): Double {
     measure(name, startMark, endMark)
     return 0.0
 }
 private fun measure(name: String, startMark: String, endMark: String): Unit = js("window.performance.measure(name, startMark, endMark)")
 
+/**
+ * Executes the WASM performance measure to now operation.
+ *
+ * @param name Human-readable name.
+ * @param startMark The start mark value.
+ * @return The resulting value.
+ */
 fun wasmPerformanceMeasureToNow(name: String, startMark: String): Double {
     measureToNow(name, startMark)
     return 0.0
@@ -1691,20 +2733,80 @@ fun wasmPerformanceMeasureToNow(name: String, startMark: String): Double {
 private fun measureToNow(name: String, startMark: String): Unit = js("window.performance.measure(name, startMark)")
 
 
+/**
+ * Executes the WASM get used heap size operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetUsedHeapSize(): Long = 0L
+/**
+ * Executes the WASM get total heap size operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetTotalHeapSize(): Long = 0L
+/**
+ * Executes the WASM get heap size limit operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetHeapSizeLimit(): Long = 0L
+/**
+ * Executes the WASM get frame rate operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetFrameRate(): Double = 60.0
+/**
+ * Executes the WASM get render time operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetRenderTime(): Double = 0.0
+/**
+ * Executes the WASM get hydration time operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetHydrationTime(): Double = 0.0
+/**
+ * Executes the WASM get script load time operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetScriptLoadTime(): Double = 0.0
+/**
+ * Executes the WASM get DOM content loaded time operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetDOMContentLoadedTime(): Double = 0.0
+/**
+ * Executes the WASM get first contentful paint operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetFirstContentfulPaint(): Double = 0.0
+/**
+ * Executes the WASM get largest contentful paint operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetLargestContentfulPaint(): Double = 0.0
+/**
+ * Executes the WASM report metrics operation.
+ *
+ * @param metricsData The metrics data value.
+ */
 fun wasmReportMetrics(metricsData: String) { console.log("Metrics: $metricsData") }
 
 
 // Feature detection for additional APIs
+/**
+ * Executes the WASM has local storage operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasLocalStorage(): Boolean {
     return try {
         window.localStorage
@@ -1715,6 +2817,11 @@ fun wasmHasLocalStorage(): Boolean {
     }
 }
 
+/**
+ * Executes the WASM has session storage operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasSessionStorage(): Boolean {
     return try {
         window.sessionStorage
@@ -1725,18 +2832,58 @@ fun wasmHasSessionStorage(): Boolean {
     }
 }
 
+/**
+ * Executes the WASM has service workers operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasServiceWorkers(): Boolean = js("('serviceWorker' in navigator)")
 
+/**
+ * Executes the WASM has WASM simd operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasWasmSIMD(): Boolean = js("WebAssembly.validate(new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 1, 5, 1, 96, 0, 1, 123, 3, 2, 1, 0, 10, 10, 1, 8, 0, 65, 0, 253, 15, 253, 98, 11]))")
 
+/**
+ * Executes the WASM has WASM threads operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasWasmThreads(): Boolean = js("typeof SharedArrayBuffer !== 'undefined'")
 
+/**
+ * Executes the WASM has dynamic import operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmHasDynamicImport(): Boolean =
     js("'noModule' in document.createElement('script')")
 
+/**
+ * Executes the WASM get screen width operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetScreenWidth(): Int = window.screen.width
+/**
+ * Executes the WASM get screen height operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetScreenHeight(): Int = window.screen.height
+/**
+ * Executes the WASM get device pixel ratio operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetDevicePixelRatio(): Double = window.devicePixelRatio
+/**
+ * Executes the WASM get color depth operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetColorDepth(): Int = window.screen.colorDepth
 
 private fun getElementId(node: Node?): String? {
@@ -1781,22 +2928,39 @@ private fun setInputDisabled(node: Node?, disabled: Boolean) {
 
 private fun getBoundingClientRectJS(element: JsAny): JsAny = js("element.getBoundingClientRect()")
 
+/** Contract for WASM DOM rect. */
 external interface WasmDOMRect : JsAny {
+    /** The property declaration value. */
     val x: Double
+    /** The property declaration value. */
     val y: Double
+    /** The property declaration value. */
     val width: Double
+    /** The property declaration value. */
     val height: Double
+    /** The property declaration value. */
     val top: Double
+    /** The property declaration value. */
     val right: Double
+    /** The property declaration value. */
     val bottom: Double
+    /** The property declaration value. */
     val left: Double
 }
 
 
 
+/** The property declaration value. */
 external val JSON: JSONClass
 
+/** Contract for JSON class. */
 external interface JSONClass {
+    /**
+     * Parses the operation.
+     *
+     * @param text The text value.
+     * @return The resulting value.
+     */
     fun parse(text: String): JsAny
 }
 
@@ -1810,16 +2974,45 @@ private fun setDynamic(o: JsAny, key: JsString, value: JsAny?) {
 }
 
 
+/** Provides reflect operations. */
 external object Reflect {
+    /**
+     * Returns the operation.
+     *
+     * @param target The target value.
+     * @param propertyKey The property key value.
+     * @return The resulting value.
+     */
     fun get(target: JsAny, propertyKey: JsString): JsAny?
+    /**
+     * Sets the operation.
+     *
+     * @param target The target value.
+     * @param propertyKey The property key value.
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     fun set(target: JsAny, propertyKey: JsString, value: JsAny?): Boolean
 }
 
+/** Provides object operations. */
 external object Object {
+    /**
+     * Executes the keys operation.
+     *
+     * @param o The o value.
+     * @return The resulting value.
+     */
     fun keys(o: JsAny): JsArray<JsString>
 }
 
 // Restoring wasmExecuteCallback function which is used by the example project.
+/**
+ * Executes the WASM execute callback operation.
+ *
+ * @param callbackId The callback id value.
+ * @return The resulting value.
+ */
 fun wasmExecuteCallback(callbackId: String): Boolean {
     return try {
         CallbackRegistry.executeCallback(callbackId)
@@ -1831,6 +3024,11 @@ fun wasmExecuteCallback(callbackId: String): Boolean {
     }
 }
 
+/**
+ * Executes the WASM get summon state operation.
+ *
+ * @return The resulting value.
+ */
 fun wasmGetSummonState(): String? = js("window.__SUMMON_STATE__ ? JSON.stringify(window.__SUMMON_STATE__) : null")
 
 

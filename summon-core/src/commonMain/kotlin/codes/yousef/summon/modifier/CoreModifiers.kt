@@ -10,6 +10,7 @@ package codes.yousef.summon.modifier
  */
 typealias ModifierHandler = () -> Unit
 
+/** The property declaration value. */
 val Modifier.events: Map<String, ModifierHandler>
     get() = eventHandlers
 

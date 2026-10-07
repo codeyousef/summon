@@ -45,11 +45,23 @@ actual object RouterContext {
  * WASM actual interface for Router.
  */
 actual interface Router {
+    /**
+     * Executes the navigate operation.
+     *
+     * @param path Target path.
+     * @param pushState The push state value.
+     */
     actual fun navigate(path: String, pushState: Boolean)
 
+    /**
+     * Creates the operation.
+     *
+     * @param initialPath The initial path value.
+     */
     @Composable
     actual fun create(initialPath: String)
 
+    /** The property declaration value. */
     actual val currentPath: String
 }
 
@@ -67,10 +79,13 @@ actual class FileBasedRouter actual constructor() : Router, NavigationControl {
     private var renderedRoute: SummonMutableState<String>? = null
     private var pendingPushState = true
 
+    /** The null value. */
     override var interceptor: NavigationInterceptor? = null
+    /** The null value. */
     override var pendingPath: String? = null
         private set
 
+    /** The property declaration value. */
     actual override val currentPath: String
         get() = _currentPath
 
@@ -78,10 +93,17 @@ actual class FileBasedRouter actual constructor() : Router, NavigationControl {
         loadPages()
     }
 
+    /** Loads pages. */
     actual fun loadPages() {
         PageLoader.registerPages(registry)
     }
 
+    /**
+     * Executes the navigate operation.
+     *
+     * @param path Target path.
+     * @param pushState The push state value.
+     */
     actual override fun navigate(path: String, pushState: Boolean) {
         val safePath = requireNotNull(InternalRoutePath.parse(path)) {
             "Router navigation accepts same-origin paths without query strings or fragments"
@@ -94,6 +116,7 @@ actual class FileBasedRouter actual constructor() : Router, NavigationControl {
         performNavigation(safePath, pushState)
     }
 
+    /** Executes the continue pending operation. */
     override fun continuePending() {
         val safePath = pendingPath?.let(InternalRoutePath::parse) ?: return
         val pushState = pendingPushState
@@ -101,6 +124,7 @@ actual class FileBasedRouter actual constructor() : Router, NavigationControl {
         performNavigation(safePath, pushState)
     }
 
+    /** Cancels pending. */
     override fun cancelPending() {
         pendingPath = null
     }
@@ -124,6 +148,11 @@ actual class FileBasedRouter actual constructor() : Router, NavigationControl {
         return null
     }
 
+    /**
+     * Creates the operation.
+     *
+     * @param initialPath The initial path value.
+     */
     @Composable
     actual override fun create(initialPath: String) {
         val bootPath = browserBootPath(initialPath)

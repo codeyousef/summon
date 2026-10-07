@@ -1,6 +1,12 @@
 package codes.yousef.summon.devtools
 
-/** Stable timeline identity: a root-local structural component identity plus its registered field name. */
+/**
+ * Stable timeline identity: a root-local structural component identity plus its registered field name.
+ *
+ * @property nodeId The node id value.
+ * @property name Human-readable name.
+ * @property typeName The type name value.
+ */
 data class DebugFieldId(
     val nodeId: Long,
     val name: String,
@@ -13,6 +19,15 @@ data class DebugFieldId(
     }
 }
 
+/**
+ * Represents state mutation.
+ *
+ * @property sequence The sequence value.
+ * @property fieldId The field id value.
+ * @property before The before value.
+ * @property after The after value.
+ * @property actionId The action id value.
+ */
 data class StateMutation(
     val sequence: Long,
     val fieldId: DebugFieldId,
@@ -29,44 +44,105 @@ data class StateMutation(
     }
 }
 
-enum class TimelineRecordingState { STOPPED, RECORDING, PAUSED }
+/** Supported timeline recording state values. */
+enum class TimelineRecordingState { /** The stopped timeline recording state option. */
+                                    STOPPED,
+                                    /** The recording timeline recording state option. */
+                                    RECORDING,
+                                    /** The paused timeline recording state option. */
+                                    PAUSED }
 
+/** Supported debug action effect values. */
 enum class DebugActionEffect {
+    /** The pure UI debug action effect option. */
     PURE_UI,
+    /** The network debug action effect option. */
     NETWORK,
+    /** The file debug action effect option. */
     FILE,
+    /** The storage debug action effect option. */
     STORAGE,
+    /** The clipboard debug action effect option. */
     CLIPBOARD,
+    /** The account debug action effect option. */
     ACCOUNT,
+    /** The crypto debug action effect option. */
     CRYPTO,
+    /** The send debug action effect option. */
     SEND,
+    /** The purchase debug action effect option. */
     PURCHASE,
+    /** The other external debug action effect option. */
     OTHER_EXTERNAL
 }
 
+/**
+ * Represents timeline restore result.
+ *
+ * @property appliedFields The applied fields value.
+ * @property unrestorableFields The unrestorable fields value.
+ */
 data class TimelineRestoreResult(
     val appliedFields: Int,
     val unrestorableFields: List<DebugFieldId>
 ) {
+    /** The property declaration value. */
     val complete: Boolean get() = unrestorableFields.isEmpty()
 }
 
+/** Contract for timeline replay result. */
 sealed interface TimelineReplayResult {
+    /**
+     * Represents completed.
+     *
+     * @property appliedEntries The applied entries value.
+     */
     data class Completed(val appliedEntries: Int) : TimelineReplayResult
+    /**
+     * Represents failed.
+     *
+     * @property sequence The sequence value.
+     * @property reason The reason value.
+     */
     data class Failed(val sequence: Long, val reason: String) : TimelineReplayResult
 }
 
 /** Immutable, schema-validated import. Creating this plan never mutates application state. */
 class DebugSessionPlan internal constructor(entries: List<StateMutation>) {
+    /** The property declaration value. */
     val formatVersion: Int = DebugSessionCodec.FORMAT_VERSION
+    /** The property declaration value. */
     val entries: List<StateMutation> = entries.toList()
 
+    /**
+     * Executes the equals operation.
+     *
+     * @param other The other value.
+     * @return The resulting value.
+     */
     override fun equals(other: Any?): Boolean = other is DebugSessionPlan && entries == other.entries
+    /**
+     * Returns whether this value has h code.
+     *
+     * @return The resulting value.
+     */
     override fun hashCode(): Int = entries.hashCode()
+    /**
+     * Converts this value to string.
+     *
+     * @return The resulting value.
+     */
     override fun toString(): String = "DebugSessionPlan(formatVersion=$formatVersion, entries=$entries)"
 }
+/** Contract for debug action result. */
 sealed interface DebugActionResult {
+    /** Provides applied operations. */
     data object Applied : DebugActionResult
+    /**
+     * Represents rejected.
+     *
+     * @property reason The reason value.
+     */
     data class Rejected(val reason: String) : DebugActionResult
 }
 
@@ -95,14 +171,21 @@ internal interface TimelineFieldAccess {
  * Bounded state recorder for one [InspectorSession]. Recording is opt-in and contains only PUBLIC,
  * typed debug fields. Call [sample] after application-driven updates; browser tooling does this once
  * per animation frame while recording.
+
+ * @property access The access value.
+ * @property capacity The capacity value.
+ * @property onDispose Callback invoked when dispose.
  */
 class StateTimeline internal constructor(
     private var access: TimelineFieldAccess?,
     val capacity: Int = DEFAULT_CAPACITY,
     private var onDispose: ((StateTimeline) -> Unit)? = null
 ) : InspectorDisposable {
+    /** Provides state timeline factory and constant members. */
     companion object {
+        /** The property declaration value. */
         const val DEFAULT_CAPACITY: Int = 200
+        /** The property declaration value. */
         const val MAX_CAPACITY: Int = 10_000
     }
 
@@ -113,16 +196,20 @@ class StateTimeline internal constructor(
     private var suppressRecording = false
     private var disposed = false
 
+    /** The property declaration value. */
     var recordingState: TimelineRecordingState = TimelineRecordingState.STOPPED
         private set
 
+    /** The property declaration value. */
     val entries: List<StateMutation> get() = mutableEntries.toList()
+    /** The property declaration value. */
     val appliedSequence: Long? get() = mutableEntries.getOrNull(cursor - 1)?.sequence
 
     init {
         require(capacity in 1..MAX_CAPACITY) { "Timeline capacity must be in 1..$MAX_CAPACITY" }
     }
 
+    /** Starts or resumes recording after refreshing the current PUBLIC field baseline. */
     fun start() {
         checkOpen()
         if (recordingState == TimelineRecordingState.RECORDING) return
@@ -130,17 +217,20 @@ class StateTimeline internal constructor(
         recordingState = TimelineRecordingState.RECORDING
     }
 
+    /** Pauses recording without discarding retained entries or the restore cursor. */
     fun pause() {
         checkOpen()
         if (recordingState == TimelineRecordingState.RECORDING) recordingState = TimelineRecordingState.PAUSED
     }
 
+    /** Stops recording and releases the captured field baseline while retaining entries. */
     fun stop() {
         checkOpen()
         recordingState = TimelineRecordingState.STOPPED
         lastValues.clear()
     }
 
+    /** Removes every retained entry and resets sequence numbering for this timeline. */
     fun clear() {
         checkOpen()
         mutableEntries.clear()
@@ -168,6 +258,15 @@ class StateTimeline internal constructor(
         }
     }
 
+    /**
+     * Restores registered writable fields to the state after [sequence], or to the pre-recording
+     * baseline when [sequence] is `null`.
+     *
+     * Missing or read-only fields are reported in the result rather than exposing private values.
+     *
+     * @throws IllegalArgumentException if a non-null sequence is no longer retained
+     * @sample codes.yousef.summon.devtools.inspectorPrivacyAndTimeTravelSample
+     */
     fun restoreTo(sequence: Long?): TimelineRestoreResult {
         checkOpen()
         val target = if (sequence == null) 0 else {
@@ -248,6 +347,11 @@ class StateTimeline internal constructor(
         }
     }
 
+    /**
+     * Executes the export session operation.
+     *
+     * @return The resulting value.
+     */
     fun exportSession(): String {
         checkOpen()
         return DebugSessionCodec.encode(DebugSessionPlan(mutableEntries))
@@ -291,6 +395,7 @@ class StateTimeline internal constructor(
         lastValues.putAll(current)
     }
 
+    /** Stops recording and releases all entries and session references. Repeated calls are safe. */
     override fun dispose() {
         if (disposed) return
         disposed = true

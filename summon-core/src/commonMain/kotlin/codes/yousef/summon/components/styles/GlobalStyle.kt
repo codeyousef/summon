@@ -42,7 +42,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * ```kotlin
  * @Composable
  * fun App() {
- *     GlobalStyle(css = TrustedCss.fromAuthorCode("""
+ *     GlobalStyle(CSS = TrustedCss.fromAuthorCode("""
  *         * {
  *             margin: 0;
  *             padding: 0;
@@ -88,7 +88,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  *         )
  *     )
  *
- *     GlobalStyle(css = TrustedCss.fromAuthorCode("""
+ *     GlobalStyle(CSS = TrustedCss.fromAuthorCode("""
  *         .btn-primary {
  *             background-color: var(--color-primary);
  *             color: white;
@@ -131,7 +131,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  *         )
  *     )
  *
- *     GlobalStyle(css = TrustedCss.fromAuthorCode("""
+ *     GlobalStyle(CSS = TrustedCss.fromAuthorCode("""
  *         .theme-toggle {
  *             background: var(--color-surface);
  *             color: var(--color-text);
@@ -172,7 +172,7 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  *         """
  *     )
  *
- *     GlobalStyle(css = TrustedCss.fromAuthorCode("""
+ *     GlobalStyle(CSS = TrustedCss.fromAuthorCode("""
  *         .fade-in {
  *             animation: fadeIn 0.5s ease-out;
  *         }
@@ -203,10 +203,6 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * @see GlobalKeyframes for animation definitions
  * @see MediaQuery for responsive styles
  *
- * @sample GlobalStyleSamples.cssReset
- * @sample GlobalStyleSamples.themeVariables
- * @sample GlobalStyleSamples.darkTheme
- * @sample GlobalStyleSamples.animations
  *
  * @since 1.0.0
  */
@@ -269,7 +265,13 @@ fun MediaQuery(
 }
 
 /**
- * Theme configuration for consistent styling across the application.
+ * Theme token maps emitted as CSS custom properties.
+ *
+ * @property colors named color values
+ * @property gradients named gradient values
+ * @property shadows named shadow values
+ * @property spacing named spacing values
+ * @property typography named typography values
  */
 data class ThemeConfig(
     val colors: Map<String, String> = emptyMap(),
@@ -352,6 +354,7 @@ fun GradientUtilities(
  * Predefined gradient themes for common use cases.
  */
 object GradientThemes {
+    /** Modern gradient palette. */
     val modernPrimary = mapOfCompat(
         "primary" to "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         "secondary" to "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
@@ -360,6 +363,7 @@ object GradientThemes {
         "danger" to "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)"
     )
 
+    /** Glass-morphism color and backdrop tokens. */
     val glassMorphism = mapOfCompat(
         "glass-light" to "rgba(255, 255, 255, 0.25)",
         "glass-dark" to "rgba(30, 41, 59, 0.25)",

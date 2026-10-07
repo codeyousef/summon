@@ -8,8 +8,10 @@ import kotlinx.html.CommonAttributeGroupFacade
  * This class processes HTMX-specific attributes and applies them correctly to HTML elements.
  */
 class HtmxAttributeHandler {
+    /** Provides htmx attribute handler factory and constant members. */
     companion object {
         // Prefix for HTML attributes in the Modifier styles map
+        /** The property declaration value. */
         const val HTML_ATTRIBUTE_PREFIX = "__html_attr_"
 
         // List of common HTMX attributes
@@ -43,9 +45,8 @@ class HtmxAttributeHandler {
          * @param key The style key to check
          * @return True if the key is an HTMX attribute, false otherwise
          */
-        fun isHtmxAttribute(key: String): Boolean {
-            return HTMX_ATTRIBUTES.any { key.startsWith(it) }
-        }
+        fun isHtmxAttribute(key: String): Boolean =
+            key in HTMX_ATTRIBUTES
 
         /**
          * Applies HTMX attributes from a Modifier to an HTML element.
@@ -92,8 +93,14 @@ class HtmxAttributeHandler {
  * @param value The attribute value
  * @return A new Modifier with the added HTML attribute
  */
-fun Modifier.htmlAttribute(name: String, value: String): Modifier =
-    this.style("${HtmxAttributeHandler.HTML_ATTRIBUTE_PREFIX}$name", value)
+fun Modifier.htmlAttribute(name: String, value: String): Modifier {
+    require(name.matches(Regex("[A-Za-z][A-Za-z0-9_.:-]*"))) { "Invalid HTML attribute name" }
+    val normalized = name.lowercase()
+    require(!normalized.startsWith("on") && normalized !in setOf("style", "srcdoc")) {
+        "Active HTML attributes require a typed framework API"
+    }
+    return this.style("${HtmxAttributeHandler.HTML_ATTRIBUTE_PREFIX}$normalized", value)
+}
 
 /**
  * Extension function for Modifier to add an HTMX attribute.
@@ -102,8 +109,11 @@ fun Modifier.htmlAttribute(name: String, value: String): Modifier =
  * @param value The attribute value
  * @return A new Modifier with the added HTMX attribute
  */
-fun Modifier.htmx(name: String, value: String): Modifier =
-    this.style("hx-$name", value)
+fun Modifier.htmx(name: String, value: String): Modifier {
+    val attribute = "hx-${name.lowercase()}"
+    require(HtmxAttributeHandler.isHtmxAttribute(attribute)) { "Unsupported HTMX attribute" }
+    return this.style(attribute, value)
+}
 
 /**
  * Extension function for Modifier to add common HTMX attributes.

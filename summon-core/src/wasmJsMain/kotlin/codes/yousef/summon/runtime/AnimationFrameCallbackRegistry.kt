@@ -51,6 +51,12 @@ object AnimationFrameCallbackRegistry {
  * This is exported so JavaScript can call back into WASM.
  */
 @OptIn(ExperimentalJsExport::class)
+/**
+ * Executes the execute animation frame callback operation.
+ *
+ * @param frameId The frame id value.
+ * @return The resulting value.
+ */
 @JsExport
 fun executeAnimationFrameCallback(frameId: Int): Boolean {
     return AnimationFrameCallbackRegistry.executeCallback(frameId)

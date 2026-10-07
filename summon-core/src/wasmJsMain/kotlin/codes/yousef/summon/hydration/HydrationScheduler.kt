@@ -378,6 +378,7 @@ class HydrationScheduler private constructor() {
         }
     }
 
+    /** Provides hydration scheduler factory and constant members. */
     companion object {
         /**
          * Singleton instance of the HydrationScheduler.
@@ -395,7 +396,17 @@ class HydrationScheduler private constructor() {
  * Console logging for WASM.
  */
 @JsFun("(msg) => console.log(msg)")
+/**
+ * Executes the WASM console log operation.
+ *
+ * @param message Message content.
+ */
 external fun wasmConsoleLog(message: String)
 
 @JsFun("(msg) => console.error(msg)")
+/**
+ * Executes the WASM console error operation.
+ *
+ * @param message Message content.
+ */
 external fun wasmConsoleError(message: String)

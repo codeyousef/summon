@@ -15,6 +15,7 @@ import codes.yousef.summon.runtime.remember
 class NavigationState(
     initialFocusIndex: Int = 0
 ) {
+    /** The property declaration value. */
     val currentFocusIndex = mutableStateOf(initialFocusIndex)
 }
 

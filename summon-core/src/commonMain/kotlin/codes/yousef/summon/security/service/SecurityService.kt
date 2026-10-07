@@ -9,6 +9,8 @@ import codes.yousef.summon.security.config.SecurityConfig
 
 /**
  * Service that provides security-related functionality.
+
+ * @property config The config value.
  */
 class SecurityService(private val config: SecurityConfig) {
     /**
@@ -20,8 +22,7 @@ class SecurityService(private val config: SecurityConfig) {
         val result = config.authenticationProvider.authenticate(credentials)
 
         if (result is AuthenticationResult.Success) {
-            // Set authentication in the security context
-            SecurityContext.withAuthentication(result.authentication) {}
+            SecurityContext.setAuthentication(result.authentication)
         }
 
         return result
@@ -37,8 +38,7 @@ class SecurityService(private val config: SecurityConfig) {
         val result = config.authenticationProvider.refresh(currentAuth)
 
         if (result is AuthenticationResult.Success) {
-            // Update authentication in the security context
-            SecurityContext.withAuthentication(result.authentication) {}
+            SecurityContext.setAuthentication(result.authentication)
         }
 
         return result
@@ -101,9 +101,8 @@ class SecurityService(private val config: SecurityConfig) {
         requiredPermissions: Set<Permission> = emptySet()
     ): Boolean {
         val isAuthenticated = SecurityContext.isAuthenticated()
-        val hasRequiredRoles = requiredRoles.isEmpty() || requiredRoles.any { SecurityContext.hasRole(it) }
-        val hasRequiredPermissions =
-            requiredPermissions.isEmpty() || requiredPermissions.any { SecurityContext.hasPermission(it) }
+        val hasRequiredRoles = requiredRoles.all { SecurityContext.hasRole(it) }
+        val hasRequiredPermissions = requiredPermissions.all { SecurityContext.hasPermission(it) }
 
         return (!requiresAuthentication || isAuthenticated) && hasRequiredRoles && hasRequiredPermissions
     }
@@ -116,7 +115,7 @@ class SecurityService(private val config: SecurityConfig) {
         val requiredPermissions = annotation.permissions.map { Permission(it) }.toSet()
 
         return checkSecurityRequirements(
-            requiresAuthentication = true,
+            requiresAuthentication = annotation.requiresAuthentication,
             requiredRoles = requiredRoles,
             requiredPermissions = requiredPermissions
         )
@@ -156,4 +155,4 @@ class SecurityService(private val config: SecurityConfig) {
     fun <T> withAuthentication(authentication: Authentication?, block: () -> T): T {
         return SecurityContext.withAuthentication(authentication, block)
     }
-} 
+}

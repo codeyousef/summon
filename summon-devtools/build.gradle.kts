@@ -22,7 +22,14 @@ kotlin {
 
     js(IR) {
         browser()
-        nodejs()
+        nodejs {
+            testTask {
+                useMocha { timeout = "30s" }
+                val setupScript = rootProject.file("summon-core/src/jsTest/resources/setup-happydom.cjs").absolutePath
+                val existingNodeOptions = environment["NODE_OPTIONS"]?.takeIf { it.isNotBlank() }
+                environment("NODE_OPTIONS", listOfNotNull(existingNodeOptions, "--require=$setupScript").joinToString(" "))
+            }
+        }
     }
 
     @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
@@ -40,6 +47,9 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
+        }
+        jsTest.dependencies {
+            implementation(npm("happy-dom", "14.10.3"))
         }
         val webMain by creating {
             dependsOn(commonMain.get())

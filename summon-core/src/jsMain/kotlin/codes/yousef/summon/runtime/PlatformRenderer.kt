@@ -962,6 +962,7 @@ actual open class PlatformRenderer {
     }
 
 
+    /** Adds trusted markup to the current document head. */
     actual open fun addHeadElement(content: String) {
         // Add the raw string content for a head element (e.g., a <link> or <style> tag)
         val trimmedContent = content.trim()
@@ -970,6 +971,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Returns the head markup registered for the current render. */
     actual open fun getHeadElements(): List<String> = headElements.toList()
 
     actual open fun renderHeadElements(builder: codes.yousef.summon.seo.HeadScope.() -> Unit) {
@@ -987,6 +989,7 @@ actual open class PlatformRenderer {
         composable()
     }
 
+    /** Renders composable content as a complete root. */
     actual open fun renderComposableRoot(composable: @Composable () -> Unit): String {
         // Create a detached root element for rendering if not using a specific container
         val rootElement = document.createElement("div")
@@ -1001,10 +1004,12 @@ actual open class PlatformRenderer {
         return rootElement.outerHTML
     }
 
+    /** Renders a root with client hydration metadata. */
     actual open fun renderComposableRootWithHydration(composable: @Composable () -> Unit): String {
         return renderComposableRootWithHydration(null, composable)
     }
 
+    /** Renders a root with client hydration metadata. */
     actual open fun renderComposableRootWithHydration(state: Any?, composable: @Composable () -> Unit): String {
         // Produce hydration-ready markup by adding Summon-specific markers and payload container
         val rootElement = document.createElement("div")
@@ -1031,6 +1036,7 @@ actual open class PlatformRenderer {
         return rootElement.outerHTML
     }
 
+    /** Hydrates an existing browser root. */
     actual open fun hydrateComposableRoot(rootElementId: String, composable: @Composable () -> Unit) {
         val rootElement = document.getElementById(rootElementId)
         if (rootElement != null) {
@@ -1181,6 +1187,7 @@ actual open class PlatformRenderer {
 
     // Extended PlatformRenderer methods with default implementations or TODOs
 
+    /** Renders column. */
     actual open fun renderColumn(
         modifier: Modifier,
         content: @Composable (FlowContentCompat.() -> Unit)
@@ -1194,6 +1201,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders row. */
     actual open fun renderRow(
         modifier: Modifier,
         content: @Composable (FlowContentCompat.() -> Unit)
@@ -1206,12 +1214,14 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders box container. */
     actual open fun renderBoxContainer(modifier: Modifier, content: @Composable () -> Unit) {
         createElement("div", modifier) {
             content()
         }
     }
 
+    /** Renders box. */
     actual open fun renderBox(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         createElement("div", modifier) {
             content(createFlowContent("div"))
@@ -1257,6 +1267,7 @@ actual open class PlatformRenderer {
         })
     }
 
+    /** Renders checkbox. */
     actual open fun renderCheckbox(
         checked: Boolean,
         onCheckedChange: (Boolean) -> Unit,
@@ -1284,6 +1295,7 @@ actual open class PlatformRenderer {
         label?.let { renderText(it, Modifier()) }
     }
 
+    /** Renders radio button. */
     actual open fun renderRadioButton(
         checked: Boolean,
         onCheckedChange: (Boolean) -> Unit,
@@ -1339,6 +1351,7 @@ actual open class PlatformRenderer {
         })
     }
 
+    /** Renders dropdown menu. */
     actual open fun renderDropdownMenu(
         expanded: Boolean,
         onDismissRequest: () -> Unit,
@@ -1354,6 +1367,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders alert dialog. */
     actual open fun renderAlertDialog(
         onDismissRequest: () -> Unit,
         confirmButton: @Composable () -> Unit,
@@ -1379,6 +1393,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders modal bottom sheet. */
     actual open fun renderModalBottomSheet(
         onDismissRequest: () -> Unit,
         modifier: Modifier,
@@ -1391,6 +1406,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders circular progress indicator. */
     actual open fun renderCircularProgressIndicator(
         progress: Float?,
         modifier: Modifier,
@@ -1404,6 +1420,7 @@ actual open class PlatformRenderer {
         })
     }
 
+    /** Renders linear progress indicator. */
     actual open fun renderLinearProgressIndicator(
         progress: Float?,
         modifier: Modifier,
@@ -1415,6 +1432,7 @@ actual open class PlatformRenderer {
         })
     }
 
+    /** Renders tooltip. */
     actual open fun renderTooltip(
         text: String,
         modifier: Modifier,
@@ -1427,6 +1445,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders card. */
     actual open fun renderCard(
         modifier: Modifier,
         elevation: Int,
@@ -1438,6 +1457,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders card. */
     actual open fun renderCard(modifier: Modifier, content: @Composable (FlowContentCompat.() -> Unit)) {
         // Cards are styled containers with default card styling
         val cardModifier = modifier
@@ -1453,6 +1473,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders alert. */
     actual open fun renderAlert(
         message: String,
         variant: AlertVariant,
@@ -1473,6 +1494,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders file picker. */
     actual open fun renderFilePicker(
         onFilesSelected: (List<FileInfo>) -> Unit,
         enabled: Boolean,
@@ -1545,6 +1567,7 @@ actual open class PlatformRenderer {
     }
 
 
+    /** Renders horizontal pager. */
     actual open fun renderHorizontalPager(
         count: Int,
         state: Any, // PagerState equivalent
@@ -1561,6 +1584,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders vertical pager. */
     actual open fun renderVerticalPager(
         count: Int,
         state: Any, // PagerState equivalent
@@ -1577,6 +1601,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders swipe to dismiss. */
     actual open fun renderSwipeToDismiss(
         state: Any, // DismissState equivalent
         background: @Composable () -> Unit,
@@ -1596,6 +1621,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders surface. */
     actual open fun renderSurface(
         modifier: Modifier,
         elevation: Int,
@@ -1769,6 +1795,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders block. */
     actual open fun renderBlock(
         modifier: Modifier,
         content: @Composable (FlowContentCompat.() -> Unit)
@@ -1781,6 +1808,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders inline. */
     actual open fun renderInline(
         modifier: Modifier,
         content: @Composable (FlowContentCompat.() -> Unit)
@@ -1793,6 +1821,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders div. */
     actual open fun renderDiv(
         modifier: Modifier,
         content: @Composable (FlowContentCompat.() -> Unit)
@@ -1802,6 +1831,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders span. */
     actual open fun renderSpan(
         modifier: Modifier,
         content: @Composable (FlowContentCompat.() -> Unit)
@@ -2158,6 +2188,7 @@ actual open class PlatformRenderer {
         })
     }
 
+    /** Renders modal. */
     actual open fun renderModal(
         visible: Boolean,
         onDismissRequest: () -> Unit,
@@ -2234,6 +2265,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders snackbar. */
     actual open fun renderSnackbar(
         message: String,
         actionLabel: String?,
@@ -2299,6 +2331,7 @@ actual open class PlatformRenderer {
     actual open fun renderBadge(modifier: Modifier, content: @Composable (FlowContentCompat.() -> Unit)) {
     }
 
+    /** Renders checkbox. */
     actual open fun renderCheckbox(
         checked: Boolean,
         onCheckedChange: (Boolean) -> Unit,
@@ -2452,6 +2485,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders radio button. */
     actual open fun renderRadioButton(selected: Boolean, onClick: () -> Unit, enabled: Boolean, modifier: Modifier) {
         renderRadioButton(selected, { onClick() }, null, enabled, modifier)
     }
@@ -2529,6 +2563,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders aspect ratio container. */
     actual open fun renderAspectRatioContainer(ratio: Float, modifier: Modifier, content: @Composable () -> Unit) {
         val aspectRatioModifier = modifier.style("padding-bottom", "${(1f / ratio) * 100}%")
             .style("position", "relative")
@@ -2551,6 +2586,7 @@ actual open class PlatformRenderer {
     }
 
 
+    /** Renders modal. */
     actual open fun renderModal(
         onDismiss: () -> Unit,
         modifier: Modifier,
@@ -3131,6 +3167,7 @@ actual open class PlatformRenderer {
         }
     }
 
+    /** Renders screen. */
     actual open fun renderScreen(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         // Screen is typically the root container, often with full height/width
         val screenModifier = modifier

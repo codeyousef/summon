@@ -6,10 +6,15 @@ import org.w3c.dom.MessageEvent
  * External declaration for the BroadcastChannel Web API.
  */
 external class BroadcastChannel(name: String) {
+    /** Browser channel name. */
     val name: String
+    /** Publishes [message] to other channel instances. */
     fun postMessage(message: dynamic)
+    /** Closes this channel and releases native listeners. */
     fun close()
+    /** Message callback; clear before disposal. */
     var onmessage: ((MessageEvent) -> Unit)?
+    /** Message-deserialization failure callback; clear before disposal. */
     var onmessageerror: ((MessageEvent) -> Unit)?
 }
 

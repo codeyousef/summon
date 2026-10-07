@@ -69,43 +69,44 @@ fun Image(
 }
 
 /**
- * Enum representing different image loading strategies.
+ * Browser image loading strategy.
  *
- * - `LAZY`: Defer loading until the image is near the viewport (best for below-the-fold images)
- * - `EAGER`: Load immediately (best for above-the-fold LCP images)
- * - `AUTO`: Let the browser decide
+ * @property value HTML `loading` attribute value
  */
 enum class ImageLoading(val value: String) {
+    /** The lazy image loading option. */
     LAZY("lazy"),
+    /** The eager image loading option. */
     EAGER("eager"),
+    /** The auto image loading option. */
     AUTO("auto")
 }
 
 /**
- * Enum representing fetch priority hints for images.
+ * Browser fetch-priority hint.
  *
- * Helps the browser prioritize critical images (like LCP candidates) over less important ones.
- *
- * - `HIGH`: Fetch at high priority (use for LCP images, hero images)
- * - `LOW`: Fetch at low priority (use for below-fold images, thumbnails)
- * - `AUTO`: Let the browser decide based on heuristics
+ * @property value HTML `fetchpriority` attribute value
  */
 enum class FetchPriority(val value: String) {
+    /** The high fetch priority option. */
     HIGH("high"),
+    /** The low fetch priority option. */
     LOW("low"),
+    /** The auto fetch priority option. */
     AUTO("auto")
 }
 
 /**
- * Enum representing image decoding hints.
+ * Browser image-decoding hint.
  *
- * - `SYNC`: Decode synchronously (may block rendering, use sparingly)
- * - `ASYNC`: Decode asynchronously (non-blocking, best for most images)
- * - `AUTO`: Let the browser decide
+ * @property value HTML `decoding` attribute value
  */
 enum class ImageDecoding(val value: String) {
+    /** The sync image decoding option. */
     SYNC("sync"),
+    /** The async image decoding option. */
     ASYNC("async"),
+    /** The auto image decoding option. */
     AUTO("auto")
 }
 

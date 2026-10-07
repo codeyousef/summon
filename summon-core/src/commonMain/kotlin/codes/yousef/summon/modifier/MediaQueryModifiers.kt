@@ -88,32 +88,44 @@ sealed class MediaQuery {
     /**
      * Minimum viewport width query.
      * Applies styles when viewport width is at least the specified value.
+
+     * @property pixels The pixels value.
      */
     data class MinWidth(val pixels: Int) : MediaQuery() {
+        /** Converts this value to string. */
         override fun toString() = "(min-width: ${pixels}px)"
     }
 
     /**
      * Maximum viewport width query.
      * Applies styles when viewport width is at most the specified value.
+
+     * @property pixels The pixels value.
      */
     data class MaxWidth(val pixels: Int) : MediaQuery() {
+        /** Converts this value to string. */
         override fun toString() = "(max-width: ${pixels}px)"
     }
 
     /**
      * Minimum viewport height query.
      * Applies styles when viewport height is at least the specified value.
+
+     * @property pixels The pixels value.
      */
     data class MinHeight(val pixels: Int) : MediaQuery() {
+        /** Converts this value to string. */
         override fun toString() = "(min-height: ${pixels}px)"
     }
 
     /**
      * Maximum viewport height query.
      * Applies styles when viewport height is at most the specified value.
+
+     * @property pixels The pixels value.
      */
     data class MaxHeight(val pixels: Int) : MediaQuery() {
+        /** Converts this value to string. */
         override fun toString() = "(max-height: ${pixels}px)"
     }
 
@@ -122,6 +134,7 @@ sealed class MediaQuery {
      * Applies styles when device is in portrait mode (height >= width).
      */
     object Portrait : MediaQuery() {
+        /** Converts this value to string. */
         override fun toString() = "(orientation: portrait)"
     }
 
@@ -130,6 +143,7 @@ sealed class MediaQuery {
      * Applies styles when device is in landscape mode (width > height).
      */
     object Landscape : MediaQuery() {
+        /** Converts this value to string. */
         override fun toString() = "(orientation: landscape)"
     }
 
@@ -138,6 +152,7 @@ sealed class MediaQuery {
      * Applies styles when user prefers dark color scheme.
      */
     object PrefersDarkScheme : MediaQuery() {
+        /** Converts this value to string. */
         override fun toString() = "(prefers-color-scheme: dark)"
     }
 
@@ -146,6 +161,7 @@ sealed class MediaQuery {
      * Applies styles when user prefers light color scheme.
      */
     object PrefersLightScheme : MediaQuery() {
+        /** Converts this value to string. */
         override fun toString() = "(prefers-color-scheme: light)"
     }
 
@@ -154,6 +170,7 @@ sealed class MediaQuery {
      * Applies styles when user prefers reduced motion.
      */
     object PrefersReducedMotion : MediaQuery() {
+        /** Converts this value to string. */
         override fun toString() = "(prefers-reduced-motion: reduce)"
     }
 
@@ -162,6 +179,7 @@ sealed class MediaQuery {
      * Applies styles on devices that support hover (typically desktops).
      */
     object CanHover : MediaQuery() {
+        /** Converts this value to string. */
         override fun toString() = "(hover: hover)"
     }
 
@@ -170,6 +188,7 @@ sealed class MediaQuery {
      * Applies styles on devices without hover support (typically touch devices).
      */
     object NoHover : MediaQuery() {
+        /** Converts this value to string. */
         override fun toString() = "(hover: none)"
     }
 
@@ -178,6 +197,7 @@ sealed class MediaQuery {
      * Applies styles on devices with precise pointer input.
      */
     object FinePointer : MediaQuery() {
+        /** Converts this value to string. */
         override fun toString() = "(pointer: fine)"
     }
 
@@ -186,33 +206,53 @@ sealed class MediaQuery {
      * Applies styles on devices with imprecise pointer input (touch screens).
      */
     object CoarsePointer : MediaQuery() {
+        /** Converts this value to string. */
         override fun toString() = "(pointer: coarse)"
     }
 
     /**
      * Custom media query for advanced use cases.
+
+     * @property query The query value.
      */
     data class Custom(val query: String) : MediaQuery() {
+        /** Converts this value to string. */
         override fun toString() = query
     }
 
     /**
      * Combine multiple queries with AND logic.
      * All conditions must be true for styles to apply.
+
+     * @property queries The queries value.
      */
     data class And(val queries: List<MediaQuery>) : MediaQuery() {
+        /**
+         * Creates an instance from the supplied values.
+         *
+         * @param queries The queries value.
+         */
         constructor(vararg queries: MediaQuery) : this(queries.toList())
 
+        /** Converts this value to string. */
         override fun toString() = queries.joinToString(" and ")
     }
 
     /**
      * Combine multiple queries with OR logic.
      * At least one condition must be true for styles to apply.
+
+     * @property queries The queries value.
      */
     data class Or(val queries: List<MediaQuery>) : MediaQuery() {
+        /**
+         * Creates an instance from the supplied values.
+         *
+         * @param queries The queries value.
+         */
         constructor(vararg queries: MediaQuery) : this(queries.toList())
 
+        /** Converts this value to string. */
         override fun toString() = queries.joinToString(", ")
     }
 }

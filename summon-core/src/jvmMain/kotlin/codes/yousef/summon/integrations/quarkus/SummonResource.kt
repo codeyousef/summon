@@ -1,5 +1,6 @@
 package codes.yousef.summon.integration.quarkus
 
+import codes.yousef.summon.components.foundation.TrustedHtml
 import jakarta.annotation.PostConstruct
 import jakarta.inject.Inject
 import jakarta.ws.rs.GET
@@ -14,13 +15,16 @@ import java.net.URI
  * Example Quarkus REST resource that demonstrates Summon server-side rendering
  */
 @Path("/")
+/** Represents summon resource. */
 class SummonResource {
 
     private val logger = Logger.getLogger(SummonResource::class.java)
 
+    /** The property declaration value. */
     @Inject
     lateinit var renderer: QuarkusExtension.SummonRenderer
 
+    /** Executes the init operation. */
     @PostConstruct
     fun init() {
         val port = System.getProperty("quarkus.http.port") ?: "unknown"
@@ -95,9 +99,8 @@ class SummonResource {
         logger.info("Calling /hello endpoint")
         val heading = renderer.renderHeading(1, "Hello from Summon!")
         val paragraph = renderer.renderParagraph("This is a simple example of Summon rendering in Quarkus")
-        val button = renderer.renderButton("Click Me", "alert('Button clicked!')")
-
-        val content = "$heading\n$paragraph\n$button"
+        val button = renderer.renderButton("Click Me")
+        val content = TrustedHtml.fromAuthorCode(listOf(heading, paragraph, button).joinToString("\n") { it.value })
         return renderer.renderTemplate("Hello from Summon", content)
     }
 
@@ -112,9 +115,8 @@ class SummonResource {
         logger.info("Calling /component endpoint")
         val heading = renderer.renderHeading(1, "Hello from Summon!")
         val paragraph = renderer.renderParagraph("This is a simple example of Summon rendering in Quarkus")
-        val button = renderer.renderButton("Click Me", "alert('Button clicked!')")
-
-        return "$heading\n$paragraph\n$button"
+        val button = renderer.renderButton("Click Me")
+        return listOf(heading, paragraph, button).joinToString("\n") { it.value }
     }
 
     /**
@@ -134,7 +136,7 @@ class SummonResource {
                     <h1 class="text-3xl font-bold text-center">Summon Demo Application</h1>
                     <p class="text-center text-gray-600">Server-side rendering for Kotlin Multiplatform</p>
                 </header>
-                
+
                 <nav class="mb-8">
                     <ul class="flex justify-center space-x-6">
                         <li><a href="/" class="text-blue-500 hover:text-blue-700" hx-get="/" hx-target="body" hx-swap="innerHTML">Home</a></li>
@@ -143,7 +145,7 @@ class SummonResource {
                         <li><a href="/chat" class="text-blue-500 hover:text-blue-700" hx-get="/chat" hx-target="body" hx-swap="innerHTML">Chat</a></li>
                     </ul>
                 </nav>
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-white p-6 rounded-lg shadow-md">
                         <h2 class="text-xl font-semibold mb-4">What is Summon?</h2>
@@ -152,7 +154,7 @@ class SummonResource {
                             you to create dynamic web applications with a single codebase.
                         </p>
                     </div>
-                    
+
                     <div class="bg-white p-6 rounded-lg shadow-md">
                         <h2 class="text-xl font-semibold mb-4">Features</h2>
                         <ul class="list-disc list-inside text-gray-700">
@@ -163,7 +165,7 @@ class SummonResource {
                         </ul>
                     </div>
                 </div>
-                
+
                 <div class="mt-8 bg-white p-6 rounded-lg shadow-md">
                     <h2 class="text-xl font-semibold mb-4">Getting Started</h2>
                     <p class="text-gray-700 mb-4">
@@ -179,9 +181,14 @@ class SummonResource {
             </div>
         """
 
-        return renderer.renderTemplate("Summon Demo - Home", htmlContent)
+        return renderer.renderTemplate("Summon Demo - Home", TrustedHtml.fromAuthorCode(htmlContent))
     }
 
+    /**
+     * Returns direct test.
+     *
+     * @return The resulting value.
+     */
     @GET
     @Path("/direct-test")
     @Produces(MediaType.TEXT_HTML)
@@ -258,7 +265,7 @@ class SummonResource {
                           --light-gray: #f5f7f9;
                           --border-color: #ddd;
                         }
-                        
+
                         body {
                           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                           line-height: 1.6;
@@ -267,13 +274,13 @@ class SummonResource {
                           margin: 0;
                           padding: 20px;
                         }
-                        
+
                         .container {
                           max-width: 1200px;
                           margin: 0 auto;
                           padding: 0;
                         }
-                        
+
                         .nav {
                           background-color: var(--primary-color);
                           color: white;
@@ -281,46 +288,46 @@ class SummonResource {
                           margin-bottom: 1rem;
                           border-radius: 8px;
                         }
-                        
+
                         .nav-list {
                           display: flex;
                           list-style-type: none;
                           margin: 0;
                           padding: 0;
                         }
-                        
+
                         .nav-item {
                           margin-right: 1.5rem;
                         }
-                        
+
                         .nav-link {
                           color: white;
                           text-decoration: none;
                           font-weight: 500;
                         }
-                        
+
                         .nav-link:hover {
                           text-decoration: underline;
                         }
-                        
+
                         .dashboard-header {
                           display: flex;
                           justify-content: space-between;
                           align-items: center;
                           margin-bottom: 1.5rem;
                         }
-                        
+
                         .dashboard-title h1 {
                           margin: 0;
                           font-size: 1.8rem;
                           color: var(--text-color);
                         }
-                        
+
                         .dashboard-controls {
                           display: flex;
                           gap: 10px;
                         }
-                        
+
                         .dashboard-controls button {
                           padding: 8px 16px;
                           background-color: var(--background-color);
@@ -332,18 +339,18 @@ class SummonResource {
                           align-items: center;
                           gap: 5px;
                         }
-                        
+
                         .dashboard-controls button:hover {
                           background-color: #f0f0f0;
                         }
-                        
+
                         .dashboard-grid {
                           display: grid;
                           grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
                           gap: 20px;
                           margin-bottom: 30px;
                         }
-                        
+
                         .dashboard-card {
                           background-color: var(--background-color);
                           border-radius: 8px;
@@ -351,18 +358,18 @@ class SummonResource {
                           padding: 20px;
                           transition: box-shadow 0.3s;
                         }
-                        
+
                         .dashboard-card:hover {
                           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
                         }
-                        
+
                         .card-header {
                           display: flex;
                           justify-content: space-between;
                           align-items: center;
                           margin-bottom: 15px;
                         }
-                        
+
                         .card-title {
                           font-size: 1.1rem;
                           font-weight: 500;
@@ -380,7 +387,7 @@ class SummonResource {
                                 <li class="nav-item"><a class="nav-link" href="/chat" hx-get="/chat" hx-target="body" hx-swap="innerHTML">Chat</a></li>
                             </ul>
                         </nav>
-                        
+
                         <div class="dashboard-header">
                             <div class="dashboard-title">
                                 <h1>Dashboard</h1>
@@ -394,7 +401,7 @@ class SummonResource {
                                 </button>
                             </div>
                         </div>
-                        
+
                         <div class="dashboard-grid">
                             <div class="dashboard-card">
                                 <div class="card-header">
@@ -407,7 +414,7 @@ class SummonResource {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="dashboard-card">
                                 <div class="card-header">
                                     <h3 class="card-title">Revenue</h3>
@@ -419,7 +426,7 @@ class SummonResource {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="dashboard-card">
                                 <div class="card-header">
                                     <h3 class="card-title">Active Projects</h3>
@@ -431,7 +438,7 @@ class SummonResource {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="dashboard-card">
                                 <div class="card-header">
                                     <h3 class="card-title">Support Tickets</h3>
@@ -444,7 +451,7 @@ class SummonResource {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="dashboard-card" style="margin-bottom: 30px;">
                             <div class="card-header">
                                 <h3 class="card-title">Recent Activities</h3>
@@ -530,26 +537,26 @@ class SummonResource {
                           --light-gray: #f0f2f5;
                           --border-color: #e0e0e0;
                         }
-                        
+
                         * {
                             margin: 0;
                             padding: 0;
                             box-sizing: border-box;
                             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                         }
-                        
+
                         body {
                             background-color: var(--light-gray);
                             color: var(--text-color);
                             line-height: 1.6;
                         }
-                        
+
                         .container {
                             max-width: 1200px;
                             margin: 0 auto;
                             padding: 20px;
                         }
-                        
+
                         .nav {
                             background-color: var(--primary-color);
                             color: white;
@@ -557,47 +564,47 @@ class SummonResource {
                             margin-bottom: 1rem;
                             border-radius: 8px;
                         }
-                        
+
                         .nav-list {
                             display: flex;
                             list-style-type: none;
                             margin: 0;
                             padding: 0;
                         }
-                        
+
                         .nav-item {
                             margin-right: 1.5rem;
                         }
-                        
+
                         .nav-link {
                             color: white;
                             text-decoration: none;
                             font-weight: 500;
                         }
-                        
+
                         .nav-link:hover {
                             text-decoration: underline;
                         }
-                        
+
                         .header {
                             display: flex;
                             justify-content: space-between;
                             align-items: center;
                             margin-bottom: 30px;
                         }
-                        
+
                         h1 {
                             font-size: 24px;
                             font-weight: 600;
                         }
-                        
+
                         .theme-grid {
                             display: grid;
                             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
                             gap: 20px;
                             margin-bottom: 30px;
                         }
-                        
+
                         .card {
                             background-color: var(--background-color);
                             border-radius: 8px;
@@ -605,15 +612,15 @@ class SummonResource {
                             padding: 20px;
                             transition: box-shadow 0.3s;
                         }
-                        
+
                         .card:hover {
                             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
                         }
-                        
+
                         .color-theme {
                             position: relative;
                         }
-                        
+
                         .theme-preview {
                             height: 140px;
                             border-radius: 6px;
@@ -621,14 +628,14 @@ class SummonResource {
                             position: relative;
                             overflow: hidden;
                         }
-                        
+
                         .theme-header {
                             height: 40px;
                             display: flex;
                             align-items: center;
                             padding: 0 15px;
                         }
-                        
+
                         .theme-sidebar {
                             position: absolute;
                             left: 0;
@@ -636,7 +643,7 @@ class SummonResource {
                             bottom: 0;
                             width: 60px;
                         }
-                        
+
                         .theme-content {
                             position: absolute;
                             left: 60px;
@@ -645,24 +652,24 @@ class SummonResource {
                             bottom: 0;
                             padding: 10px;
                         }
-                        
+
                         .theme-block {
                             height: 10px;
                             margin-bottom: 6px;
                             border-radius: 2px;
                         }
-                        
+
                         .theme-name {
                             font-weight: 600;
                             margin-bottom: 5px;
                         }
-                        
+
                         .theme-description {
                             font-size: 14px;
                             color: #666;
                             margin-bottom: 15px;
                         }
-                        
+
                         .btn {
                             padding: 8px 16px;
                             background-color: var(--primary-color);
@@ -673,64 +680,64 @@ class SummonResource {
                             font-weight: 500;
                             transition: background-color 0.2s;
                         }
-                        
+
                         .btn:hover {
                             background-color: #3a85d8;
                         }
-                        
+
                         .btn-outline {
                             background-color: transparent;
                             color: var(--primary-color);
                             border: 1px solid var(--primary-color);
                         }
-                        
+
                         .btn-outline:hover {
                             background-color: rgba(70, 149, 235, 0.05);
                         }
-                        
+
                         .settings-section {
                             margin-top: 30px;
                             background-color: var(--background-color);
                             border-radius: 8px;
                             padding: 20px;
                         }
-                        
+
                         .settings-grid {
                             display: grid;
                             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
                             gap: 20px;
                         }
-                        
+
                         .setting-item {
                             margin-bottom: 15px;
                         }
-                        
+
                         .setting-label {
                             display: block;
                             margin-bottom: 8px;
                             font-weight: 500;
                         }
-                        
+
                         .setting-input {
                             width: 100%;
                             padding: 8px 12px;
                             border: 1px solid var(--border-color);
                             border-radius: 4px;
                         }
-                        
+
                         .toggle-switch {
                             position: relative;
                             display: inline-block;
                             width: 50px;
                             height: 24px;
                         }
-                        
+
                         .toggle-switch input {
                             opacity: 0;
                             width: 0;
                             height: 0;
                         }
-                        
+
                         .toggle-slider {
                             position: absolute;
                             cursor: pointer;
@@ -742,7 +749,7 @@ class SummonResource {
                             transition: .4s;
                             border-radius: 24px;
                         }
-                        
+
                         .toggle-slider:before {
                             position: absolute;
                             content: "";
@@ -754,15 +761,15 @@ class SummonResource {
                             transition: .4s;
                             border-radius: 50%;
                         }
-                        
+
                         input:checked + .toggle-slider {
                             background-color: var(--primary-color);
                         }
-                        
+
                         input:checked + .toggle-slider:before {
                             transform: translateX(26px);
                         }
-                        
+
                         @media (max-width: 768px) {
                             .nav-list {
                                 flex-direction: column;
@@ -784,7 +791,7 @@ class SummonResource {
                                 <li class="nav-item"><a class="nav-link" href="/chat" hx-get="/chat" hx-target="body" hx-swap="innerHTML">Chat</a></li>
                             </ul>
                         </nav>
-                        
+
                         <header class="header">
                             <h1>Theme Customizer</h1>
                             <button class="btn">Save Theme</button>
@@ -958,26 +965,26 @@ class SummonResource {
                           --light-gray: #f0f2f5;
                           --border-color: #e0e0e0;
                         }
-                        
+
                         * {
                             margin: 0;
                             padding: 0;
                             box-sizing: border-box;
                             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                         }
-                        
+
                         body {
                             background-color: var(--light-gray);
                             color: var(--text-color);
                             line-height: 1.6;
                         }
-                        
+
                         .container {
                             max-width: 1200px;
                             margin: 0 auto;
                             padding: 20px;
                         }
-                        
+
                         .nav {
                             background-color: var(--primary-color);
                             color: white;
@@ -985,28 +992,28 @@ class SummonResource {
                             margin-bottom: 1rem;
                             border-radius: 8px;
                         }
-                        
+
                         .nav-list {
                             display: flex;
                             list-style-type: none;
                             margin: 0;
                             padding: 0;
                         }
-                        
+
                         .nav-item {
                             margin-right: 1.5rem;
                         }
-                        
+
                         .nav-link {
                             color: white;
                             text-decoration: none;
                             font-weight: 500;
                         }
-                        
+
                         .nav-link:hover {
                             text-decoration: underline;
                         }
-                        
+
                         .chat-container {
                             display: flex;
                             height: calc(100vh - 150px);
@@ -1016,29 +1023,29 @@ class SummonResource {
                             overflow: hidden;
                             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
                         }
-                        
+
                         .chat-sidebar {
                             width: 250px;
                             background-color: #f5f5f5;
                             border-right: 1px solid var(--border-color);
                         }
-                        
+
                         .sidebar-header {
                             padding: 15px;
                             border-bottom: 1px solid var(--border-color);
                             background-color: #f0f0f0;
                         }
-                        
+
                         .sidebar-header h2 {
                             font-size: 16px;
                             margin: 0;
                         }
-                        
+
                         .user-search {
                             padding: 10px 15px;
                             border-bottom: 1px solid var(--border-color);
                         }
-                        
+
                         .search-input {
                             width: 100%;
                             padding: 8px 10px;
@@ -1046,34 +1053,34 @@ class SummonResource {
                             border-radius: 4px;
                             font-size: 14px;
                         }
-                        
+
                         .user-list {
                             list-style: none;
                             overflow-y: auto;
                             height: calc(100% - 120px);
                         }
-                        
+
                         .user-item {
                             padding: 10px 15px;
                             border-bottom: 1px solid #eee;
                             cursor: pointer;
                             transition: background-color 0.2s;
                         }
-                        
+
                         .user-item:hover {
                             background-color: #eaeaea;
                         }
-                        
+
                         .user-item.active {
                             background-color: #e3f2fd;
                             border-left: 3px solid var(--primary-color);
                         }
-                        
+
                         .user-info {
                             display: flex;
                             align-items: center;
                         }
-                        
+
                         .user-avatar {
                             width: 40px;
                             height: 40px;
@@ -1086,27 +1093,27 @@ class SummonResource {
                             font-weight: bold;
                             color: white;
                         }
-                        
+
                         .user-details {
                             flex: 1;
                         }
-                        
+
                         .user-name {
                             font-weight: 500;
                             margin-bottom: 2px;
                         }
-                        
+
                         .user-status {
                             font-size: 12px;
                             color: #666;
                         }
-                        
+
                         .chat-main {
                             flex: 1;
                             display: flex;
                             flex-direction: column;
                         }
-                        
+
                         .chat-header {
                             padding: 15px;
                             border-bottom: 1px solid var(--border-color);
@@ -1114,28 +1121,28 @@ class SummonResource {
                             display: flex;
                             align-items: center;
                         }
-                        
+
                         .chat-header .user-avatar {
                             width: 32px;
                             height: 32px;
                             font-size: 14px;
                         }
-                        
+
                         .chat-header .user-name {
                             font-size: 16px;
                         }
-                        
+
                         .chat-messages {
                             flex: 1;
                             padding: 15px;
                             overflow-y: auto;
                             background-color: #f9f9f9;
                         }
-                        
+
                         .message {
                             margin-bottom: 15px;
                         }
-                        
+
                         .message.received .message-content {
                             background-color: #e3f2fd;
                             border-radius: 0 18px 18px 18px;
@@ -1144,11 +1151,11 @@ class SummonResource {
                             display: inline-block;
                             max-width: 70%;
                         }
-                        
+
                         .message.sent {
                             text-align: right;
                         }
-                        
+
                         .message.sent .message-content {
                             background-color: #e1f5fe;
                             border-radius: 18px 0 18px 18px;
@@ -1158,23 +1165,23 @@ class SummonResource {
                             max-width: 70%;
                             text-align: left;
                         }
-                        
+
                         .message-time {
                             font-size: 11px;
                             color: #666;
                             margin-top: 5px;
                         }
-                        
+
                         .chat-input {
                             padding: 15px;
                             border-top: 1px solid var(--border-color);
                             background-color: #f9f9f9;
                         }
-                        
+
                         .input-container {
                             display: flex;
                         }
-                        
+
                         .message-input {
                             flex: 1;
                             padding: 10px 15px;
@@ -1184,7 +1191,7 @@ class SummonResource {
                             resize: none;
                             margin-right: 10px;
                         }
-                        
+
                         .send-button {
                             background-color: var(--primary-color);
                             color: white;
@@ -1194,30 +1201,30 @@ class SummonResource {
                             cursor: pointer;
                             font-weight: 500;
                         }
-                        
+
                         .send-button:hover {
                             background-color: #3a85d8;
                         }
-                        
+
                         @media (max-width: 768px) {
                             .chat-container {
                                 flex-direction: column;
                                 height: auto;
                             }
-                            
+
                             .chat-sidebar {
                                 width: 100%;
                                 height: 300px;
                             }
-                            
+
                             .chat-main {
                                 height: 500px;
                             }
-                            
+
                             .nav-list {
                                 flex-direction: column;
                             }
-                            
+
                             .nav-item {
                                 margin-right: 0;
                                 margin-bottom: 5px;
@@ -1235,17 +1242,17 @@ class SummonResource {
                                 <li class="nav-item"><a class="nav-link" href="/chat" hx-get="/chat" hx-target="body" hx-swap="innerHTML">Chat</a></li>
                             </ul>
                         </nav>
-                        
+
                         <div class="chat-container">
                             <div class="chat-sidebar">
                                 <div class="sidebar-header">
                                     <h2>Contacts</h2>
                                 </div>
-                                
+
                                 <div class="user-search">
                                     <input type="text" class="search-input" placeholder="Search contacts...">
                                 </div>
-                                
+
                                 <ul class="user-list">
                                     <li class="user-item active">
                                         <div class="user-info">
@@ -1294,7 +1301,7 @@ class SummonResource {
                                     </li>
                                 </ul>
                             </div>
-                            
+
                             <div class="chat-main">
                                 <div class="chat-header">
                                     <div class="user-avatar" style="background-color: #2196F3;">JD</div>
@@ -1303,7 +1310,7 @@ class SummonResource {
                                         <div class="user-status">Online</div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="chat-messages">
                                     <div class="message received">
                                         <div class="message-content">
@@ -1311,28 +1318,28 @@ class SummonResource {
                                             <div class="message-time">10:30 AM</div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="message sent">
                                         <div class="message-content">
                                             <p>I'm doing great, thanks for asking! Just working on the Summon project. How about you?</p>
                                             <div class="message-time">10:32 AM</div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="message received">
                                         <div class="message-content">
                                             <p>That sounds interesting! What kind of project is it?</p>
                                             <div class="message-time">10:33 AM</div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="message sent">
                                         <div class="message-content">
                                             <p>It's a Kotlin multiplatform framework for building UIs with server-side rendering. Working on the Quarkus integration now.</p>
                                             <div class="message-time">10:36 AM</div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="message received">
                                         <div class="message-content">
                                             <p>That sounds impressive! Would love to see a demo sometime.</p>
@@ -1340,7 +1347,7 @@ class SummonResource {
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="chat-input">
                                     <div class="input-container">
                                         <input type="text" class="message-input" placeholder="Type a message...">
@@ -1361,8 +1368,14 @@ class SummonResource {
  * Resource to help with diagnostics and testing static HTML pages
  */
 @Path("/api")
+/** Represents api resource. */
 class ApiResource {
 
+    /**
+     * Executes the hello operation.
+     *
+     * @return The resulting value.
+     */
     @GET
     @Path("/hello")
     @Produces(MediaType.TEXT_PLAIN)
@@ -1371,6 +1384,11 @@ class ApiResource {
         return "Hello from Summon Quarkus integration"
     }
 
+    /**
+     * Returns dashboard.
+     *
+     * @return The resulting value.
+     */
     @GET
     @Path("/dashboard")
     @Produces(MediaType.TEXT_HTML)
@@ -1379,6 +1397,11 @@ class ApiResource {
         return Response.seeOther(URI.create("/dashboard")).build()
     }
 
+    /**
+     * Returns chat.
+     *
+     * @return The resulting value.
+     */
     @GET
     @Path("/chat")
     @Produces(MediaType.TEXT_HTML)
@@ -1387,6 +1410,11 @@ class ApiResource {
         return Response.seeOther(URI.create("/chat")).build()
     }
 
+    /**
+     * Returns theme.
+     *
+     * @return The resulting value.
+     */
     @GET
     @Path("/theme")
     @Produces(MediaType.TEXT_HTML)
@@ -1395,6 +1423,11 @@ class ApiResource {
         return Response.seeOther(URI.create("/theme")).build()
     }
 
+    /**
+     * Returns direct dashboard.
+     *
+     * @return The resulting value.
+     */
     @GET
     @Path("/dashboard-direct")
     @Produces(MediaType.TEXT_HTML)
@@ -1414,7 +1447,7 @@ class ApiResource {
                           --background-color: #FFFFFF;
                           --text-color: #333333;
                         }
-                        
+
                         body {
                           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                           line-height: 1.6;
@@ -1423,18 +1456,18 @@ class ApiResource {
                           margin: 0;
                           padding: 20px;
                         }
-                        
+
                         .container {
                           max-width: 1200px;
                           margin: 0 auto;
                           padding: 20px;
                         }
-                        
+
                         h1 {
                           color: #333;
                           margin-bottom: 20px;
                         }
-                        
+
                         .card {
                           background: white;
                           border-radius: 8px;
@@ -1442,7 +1475,7 @@ class ApiResource {
                           padding: 20px;
                           margin-bottom: 20px;
                         }
-                        
+
                         .nav {
                           background-color: var(--primary-color);
                           color: white;
@@ -1450,24 +1483,24 @@ class ApiResource {
                           margin-bottom: 1rem;
                           border-radius: 8px;
                         }
-                        
+
                         .nav-list {
                           display: flex;
                           list-style-type: none;
                           margin: 0;
                           padding: 0;
                         }
-                        
+
                         .nav-item {
                           margin-right: 1.5rem;
                         }
-                        
+
                         .nav-link {
                           color: white;
                           text-decoration: none;
                           font-weight: 500;
                         }
-                        
+
                         .nav-link:hover {
                           text-decoration: underline;
                         }
@@ -1483,15 +1516,15 @@ class ApiResource {
                                 <li class="nav-item"><a class="nav-link" href="/chat">Chat</a></li>
                             </ul>
                         </nav>
-                        
+
                         <h1>Direct Dashboard</h1>
-                        
+
                         <div class="card">
                             <h2>Status</h2>
                             <p>This dashboard is served directly from the ApiResource class.</p>
                             <p>If you're seeing this page, the direct HTML rendering is working properly.</p>
                         </div>
-                        
+
                         <div class="card">
                             <h2>Navigation Test</h2>
                             <p>Try these links:</p>
@@ -1504,13 +1537,18 @@ class ApiResource {
                             </ul>
                         </div>
                     </div>
-                    
+
                     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
                 </body>
             </html>
         """.trimIndent()
     }
 
+    /**
+     * Returns API test.
+     *
+     * @return The resulting value.
+     */
     @GET
     @Path("/test")
     @Produces(MediaType.TEXT_HTML)

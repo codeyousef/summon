@@ -4,9 +4,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 
 /**
- * Represents a platform-agnostic UI tree node.
- * This structure is designed to be serialized (e.g., via CBOR) and sent to a host environment
- * or a different thread/process for rendering.
+ * Platform-agnostic serializable UI tree.
+ *
+ * @property root root node sent to the host renderer
  */
 @Serializable
 data class UiTree(
@@ -14,7 +14,14 @@ data class UiTree(
 )
 
 /**
- * Represents a single node in the UI tree.
+ * One serializable node in a UI tree.
+ *
+ * @property id stable node identifier
+ * @property type renderer component type
+ * @property props serialized properties
+ * @property children ordered child nodes
+ * @property textContent optional text payload
+ * @property eventHandlers registered event names
  */
 @Serializable
 data class UiNode(
@@ -33,18 +40,47 @@ data class UiNode(
  */
 @Serializable
 sealed class UiPatch {
+/**
+ * Replaces a node.
+ *
+ * @property nodeId node being replaced
+ * @property newNode replacement subtree
+ */
     @Serializable
     data class Replace(val nodeId: String, val newNode: UiNode) : UiPatch()
 
+/**
+ * Replaces a node's properties.
+ *
+ * @property nodeId target node
+ * @property props complete replacement properties
+ */
     @Serializable
     data class UpdateProps(val nodeId: String, val props: Map<String, String>) : UiPatch()
 
+/**
+ * Appends a child.
+ *
+ * @property parentId destination parent
+ * @property child appended subtree
+ */
     @Serializable
     data class AppendChild(val parentId: String, val child: UiNode) : UiPatch()
 
+/**
+ * Removes a node.
+ *
+ * @property nodeId removed subtree root
+ */
     @Serializable
     data class RemoveNode(val nodeId: String) : UiPatch()
-    
+
+/**
+ * Replaces a node's text.
+ *
+ * @property nodeId target node
+ * @property text replacement text
+ */
     @Serializable
     data class UpdateText(val nodeId: String, val text: String) : UiPatch()
 }

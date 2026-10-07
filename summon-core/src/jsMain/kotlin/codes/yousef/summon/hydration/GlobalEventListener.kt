@@ -126,6 +126,7 @@ object GlobalEventListener {
         }
     }
 
+    /** Executes the init operation. */
     fun init() {
         // Guard against multiple initializations
         if (initialized) return
@@ -161,6 +162,7 @@ object GlobalEventListener {
     }
 
     // Reset initialization state and remove event listeners (for testing purposes only)
+    /** Resets the operation. */
     fun reset() {
         eventHandlers.forEach { (eventType, handler) ->
             document.removeEventListener(eventType, handler)
@@ -173,6 +175,14 @@ object GlobalEventListener {
         js("window.__SUMMON_HYDRATION_ACTIVE__ = false")
     }
 
+    /**
+     * Executes the handle event operation.
+     *
+     * @param type The type value.
+     * @param sid The sid value.
+     * @param event The event value.
+     * @param element The element value.
+     */
     fun handleEvent(type: String, sid: String, event: Event, element: Element? = null) {
         val el = element ?: document.querySelector("[data-sid='$sid']") ?: return
 

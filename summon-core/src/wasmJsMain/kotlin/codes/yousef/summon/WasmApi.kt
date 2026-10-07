@@ -23,11 +23,11 @@ fun renderComposableRoot(rootElementId: String, composable: @Composable () -> Un
  */
 fun hydrateComposableRoot(rootElementId: String, composable: @Composable () -> Unit) {
     wasmConsoleLog("hydrateComposableRoot called for element: $rootElementId")
-    
+
     try {
         // Initialize global event listener for data-action handling
         GlobalEventListener.init()
-        
+
         val renderer = PlatformRenderer()
         renderer.hydrateComposableRoot(rootElementId, composable)
     } catch (e: Exception) {
@@ -41,6 +41,14 @@ private val mountedRoots = mutableMapOf<String, MountedComposition>()
 private val mountingRoots = mutableSetOf<String>()
 private val mountedRenderers = mutableSetOf<PlatformRenderer>()
 
+/**
+ * Executes the mount composable root operation.
+ *
+ * @param rootElementId The root element id value.
+ * @param scheduler The scheduler value.
+ * @param composable The composable value.
+ * @return The resulting value.
+ */
 actual fun mountComposableRoot(
     rootElementId: String,
     scheduler: RecompositionScheduler?,

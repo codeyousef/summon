@@ -5,8 +5,12 @@ import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.modifier.paddingOf
 
 /**
- * Describes the insets of the window, such as the status bar, navigation bar, etc.
- * Values are in pixels.
+ * Window safe-area insets in pixels.
+ *
+ * @property left left inset
+ * @property top top inset
+ * @property right right inset
+ * @property bottom bottom inset
  */
 data class WindowInsets(
     val left: Int = 0,
@@ -14,7 +18,9 @@ data class WindowInsets(
     val right: Int = 0,
     val bottom: Int = 0
 ) {
+    /** Common inset values. */
     companion object {
+        /** No insets. */
         val Zero = WindowInsets(0, 0, 0, 0)
     }
 }

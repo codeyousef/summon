@@ -32,23 +32,30 @@ import kotlinx.atomicfu.locks.withLock
  * @since 1.0.0
  */
 class HistoryManager<T>(
-    /**
-     * Maximum number of history entries to keep.
-     */
-    var maxHistorySize: Int = 50
+    maxHistorySize: Int = 50
 ) {
+    /** Maximum retained undo states; must remain positive. */
+    var maxHistorySize: Int = maxHistorySize
+        set(value) {
+            require(value > 0) { "History capacity must be positive" }
+            field = value
+        }
+
+    init {
+        require(maxHistorySize > 0) { "History capacity must be positive" }
+    }
     private val lock = ReentrantLock()
-    
+
     /**
      * The history stack of states.
      */
     private val history = mutableListOf<T>()
-    
+
     /**
      * Current position in the history stack.
      */
     private var pointer: Int = -1
-    
+
     /**
      * Pushes a new state onto the history stack.
      *
@@ -66,11 +73,11 @@ class HistoryManager<T>(
                     history.removeAt(history.size - 1)
                 }
             }
-            
+
             // Add new state
             history.add(state)
             pointer = history.size - 1
-            
+
             // Enforce max size
             while (history.size > maxHistorySize) {
                 history.removeAt(0)
@@ -78,7 +85,7 @@ class HistoryManager<T>(
             }
         }
     }
-    
+
     /**
      * Returns the current state.
      *
@@ -93,17 +100,17 @@ class HistoryManager<T>(
             }
         }
     }
-    
+
     /**
      * Checks if undo is available.
      */
     fun canUndo(): Boolean = lock.withLock { pointer > 0 }
-    
+
     /**
      * Checks if redo is available.
      */
     fun canRedo(): Boolean = lock.withLock { pointer < history.size - 1 }
-    
+
     /**
      * Undoes the last edit, moving back in history.
      *
@@ -119,7 +126,7 @@ class HistoryManager<T>(
             }
         }
     }
-    
+
     /**
      * Redoes the last undone edit, moving forward in history.
      *
@@ -135,12 +142,12 @@ class HistoryManager<T>(
             }
         }
     }
-    
+
     /**
      * Returns the number of states in history.
      */
     fun size(): Int = lock.withLock { history.size }
-    
+
     /**
      * Clears all history.
      */
@@ -188,37 +195,41 @@ class HistoryManager<T>(
  */
 object JsonTreeHistoryManager {
     private val lock = ReentrantLock()
-    
+
     /**
      * Maximum number of history entries to keep.
      */
     var maxHistorySize: Int = 50
-    
+        set(value) {
+            require(value > 0) { "History capacity must be positive" }
+            field = value
+        }
+
     /**
      * The history stack of tree states.
      */
     private val history = mutableListOf<List<JsonBlock>>()
-    
+
     /**
      * Current position in the history stack.
      */
     private var pointer: Int = -1
-    
+
     /**
      * Reactive state holding the current tree.
      */
     val currentState: SummonMutableState<List<JsonBlock>> = mutableStateOf(emptyList())
-    
+
     /**
      * Reactive state indicating if undo is available.
      */
     val canUndo: SummonMutableState<Boolean> = mutableStateOf(false)
-    
+
     /**
      * Reactive state indicating if redo is available.
      */
     val canRedo: SummonMutableState<Boolean> = mutableStateOf(false)
-    
+
     /**
      * Initializes the history with a starting state.
      *
@@ -234,7 +245,7 @@ object JsonTreeHistoryManager {
             updateStates()
         }
     }
-    
+
     /**
      * Pushes a new state onto the history stack.
      *
@@ -252,21 +263,21 @@ object JsonTreeHistoryManager {
                     history.removeAt(history.size - 1)
                 }
             }
-            
+
             // Add new state
             history.add(deepClone(newState))
             pointer = history.size - 1
-            
+
             // Enforce max size
             while (history.size > maxHistorySize) {
                 history.removeAt(0)
                 pointer--
             }
-            
+
             updateStates()
         }
     }
-    
+
     /**
      * Undoes the last edit, moving back in history.
      *
@@ -283,7 +294,7 @@ object JsonTreeHistoryManager {
             }
         }
     }
-    
+
     /**
      * Redoes the last undone edit, moving forward in history.
      *
@@ -300,7 +311,7 @@ object JsonTreeHistoryManager {
             }
         }
     }
-    
+
     /**
      * Returns the current tree state without modifying history.
      */
@@ -313,7 +324,7 @@ object JsonTreeHistoryManager {
             }
         }
     }
-    
+
     /**
      * Clears all history.
      */
@@ -324,7 +335,7 @@ object JsonTreeHistoryManager {
             updateStates()
         }
     }
-    
+
     /**
      * Returns the number of states in history.
      */
@@ -333,7 +344,7 @@ object JsonTreeHistoryManager {
             history.size
         }
     }
-    
+
     /**
      * Returns the current history position.
      */
@@ -342,7 +353,7 @@ object JsonTreeHistoryManager {
             pointer
         }
     }
-    
+
     private fun updateStates() {
         canUndo.value = pointer > 0
         canRedo.value = pointer < history.size - 1
@@ -352,7 +363,7 @@ object JsonTreeHistoryManager {
             emptyList()
         }
     }
-    
+
     /**
      * Deep clones a list of JsonBlocks to prevent reference sharing.
      */

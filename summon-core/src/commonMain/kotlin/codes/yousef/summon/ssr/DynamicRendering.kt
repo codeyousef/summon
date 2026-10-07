@@ -108,9 +108,12 @@ fun <T : PlatformRenderer> renderDocumentToString( // Use the canonical renderer
 /**
  * Implementation of dynamic server-side rendering for Summon components
  * This renderer can handle dynamic data and produce HTML with hydration markers
+
+ * @property platformRenderer The platform renderer value.
+ * @property hydrationSupport The hydration support value.
  */
 class DynamicRenderer(
-    private val platformRenderer: PlatformRenderer = codes.yousef.summon.runtime.getPlatformRenderer(),
+    private val platformRenderer: PlatformRenderer = PlatformRenderer(),
     private val hydrationSupport: HydrationSupport = StandardHydrationSupport()
 ) : ServerSideRenderer {
     /**
@@ -172,7 +175,7 @@ class DynamicRenderer(
                 $twitterCardTags
                 $structuredDataScript
                 ${generateCanonicalLink(seo.canonical)}
-                <title>${seo.title}</title>
+                <title>${escapeHtml(seo.title)}</title>
                 ${generateStylesheets(context)}
             </head>
             <body>
@@ -301,14 +304,14 @@ class DynamicRenderer(
         // Check for additional stylesheets in metadata
         context.metadata.entries.forEach { (key, value) ->
             if (key.startsWith("stylesheet.") || key == "stylesheet") {
-                stylesheets.add("""<link rel="stylesheet" href="$value">""")
+                stylesheets.add("""<link rel="stylesheet" href="${escapeHtml(value)}">""")
             }
         }
 
         // Check for theme in metadata
         val theme = context.metadata["theme"]
         if (theme != null) {
-            stylesheets.add("""<link rel="stylesheet" href="/themes/$theme.css">""")
+            stylesheets.add("""<link rel="stylesheet" href="/themes/${escapeHtml(theme)}.css">""")
         }
 
         return stylesheets.joinToString("\n                ")
@@ -326,14 +329,7 @@ class DynamicRenderer(
     /**
      * Escapes HTML special characters in a string
      */
-    private fun escapeHtml(text: String): String {
-        return text
-            .replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
-            .replace("\"", "&quot;")
-            .replace("'", "&#039;")
-    }
+    private fun escapeHtml(text: String): String = escapeSsrHtml(text)
 }
 
 /**
@@ -389,16 +385,8 @@ object DynamicRendering {
      * @param content The composable function to render.
      * @return The rendered output string.
      */
-    fun renderToString(content: @Composable () -> Unit): String {
-        // Get the platform renderer
-        val platformRenderer = codes.yousef.summon.runtime.getPlatformRenderer()
-
-        // Use the renderToString helper function to render the composable
-        val renderResult = renderToString(platformRenderer, content)
-
-        // Return the HTML content
-        return renderResult.html
-    }
+    fun renderToString(content: @Composable () -> Unit): String =
+        renderToString(PlatformRenderer(), content).html
 
     /**
      * Fetches server-side data needed for dynamic rendering.
@@ -628,7 +616,7 @@ fun DynamicDataComponent(routeId: String) {
     }
 
     // The original UI code with platform-specific components is commented out
-    /* 
+    /*
     // Display the appropriate UI based on loading/error/data state
     when {
         isLoading -> {
@@ -646,7 +634,7 @@ fun DynamicDataComponent(routeId: String) {
                 Text(error, modifier = Modifier.color("#d32f2f"))
                 Spacer(modifier = Modifier.height("16px"))
                 Button(
-                    onClick = { 
+                    onClick = {
                         // Retry logic
                         setIsLoading(true)
                         setError(null)
@@ -714,4 +702,4 @@ fun DynamicDataComponent(routeId: String) {
         }
     }
     */
-} 
+}

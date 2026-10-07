@@ -33,6 +33,7 @@ import kotlin.reflect.KClass
 @ApplicationScoped
 class CDISupport {
 
+    /** Provides cdi support factory and constant members. */
     companion object {
         /**
          * Creates a new instance of a component with CDI dependencies injected.
@@ -173,6 +174,8 @@ class SummonCDISupport {
      * @ComponentClass(MyComponent::class)
      * lateinit var component: Any
      * ```
+
+     * @property value Value to process.
      */
     @Qualifier
     @kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
@@ -206,7 +209,7 @@ class SummonCDISupport {
      * lateinit var summonSupport: SummonCDISupport
      *
      * fun handleRequest() {
-     *     val html = summonSupport.renderComponent(MyComponent())
+     *     val HTML = summonSupport.renderComponent(MyComponent())
      *     // Use the HTML...
      * }
      * ```
@@ -233,4 +236,4 @@ class SummonCDISupport {
     fun <T : Any> createComponent(componentClass: Class<T>): T {
         return componentClass.getDeclaredConstructor().newInstance()
     }
-} 
+}

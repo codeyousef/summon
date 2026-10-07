@@ -48,6 +48,8 @@ package codes.yousef.summon.modifier
 
 /**
  * Scroll behavior types.
+
+ * @property value Value to process.
  */
 enum class ScrollBehavior(val value: String) {
     /** Instant scrolling without animation */
@@ -59,6 +61,8 @@ enum class ScrollBehavior(val value: String) {
 
 /**
  * Scroll snap types.
+
+ * @property value Value to process.
  */
 enum class ScrollSnapType(val value: String) {
     /** No scroll snapping */
@@ -82,6 +86,8 @@ enum class ScrollSnapType(val value: String) {
 
 /**
  * Scroll snap alignment.
+
+ * @property value Value to process.
  */
 enum class ScrollSnapAlign(val value: String) {
     /** No snap alignment */

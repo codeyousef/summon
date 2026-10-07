@@ -33,6 +33,7 @@ fun Composer.startRestartableGroup(key: String) {
     startGroup(key)
 }
 
+/** Executes the end restartable group operation. */
 fun Composer.endRestartableGroup() {
     endGroup()
 }
@@ -77,49 +78,49 @@ private class SnapshotMutableList<T> : MutableList<T> {
         val read = modification.value
         return list.contains(element)
     }
-    
+
     override fun containsAll(elements: Collection<T>): Boolean {
         // Record read
         @Suppress("UNUSED_VARIABLE")
         val read = modification.value
         return list.containsAll(elements)
     }
-    
+
     override fun get(index: Int): T {
         // Record read
         @Suppress("UNUSED_VARIABLE")
         val read = modification.value
         return list[index]
     }
-    
+
     override fun indexOf(element: T): Int {
         // Record read
         @Suppress("UNUSED_VARIABLE")
         val read = modification.value
         return list.indexOf(element)
     }
-    
+
     override fun isEmpty(): Boolean {
         // Record read
         @Suppress("UNUSED_VARIABLE")
         val read = modification.value
         return list.isEmpty()
     }
-    
+
     override fun iterator(): MutableIterator<T> {
         // Record read
         @Suppress("UNUSED_VARIABLE")
         val read = modification.value
         return list.iterator()
     }
-    
+
     override fun lastIndexOf(element: T): Int {
         // Record read
         @Suppress("UNUSED_VARIABLE")
         val read = modification.value
         return list.lastIndexOf(element)
     }
-    
+
     override fun add(element: T): Boolean {
         return list.add(element).also {
             modification.value++
@@ -158,7 +159,7 @@ private class SnapshotMutableList<T> : MutableList<T> {
         val read = modification.value
         return list.listIterator()
     }
-    
+
     override fun listIterator(index: Int): MutableListIterator<T> {
         // Record read
         @Suppress("UNUSED_VARIABLE")

@@ -13,6 +13,13 @@ class StandardHydrationSupport : HydrationSupport {
         strategy: HydrationStrategy
     ): String = """{"version":1,"strategy":"${strategy.name}","components":[]}"""
 
+    /**
+     * Adds hydration markers.
+     *
+     * @param html The html value.
+     * @param hydrationData The hydration data value.
+     * @return The resulting value.
+     */
     override fun addHydrationMarkers(html: String, hydrationData: String): String {
         val safeHydrationData = scriptSafeJson(hydrationData.trim())
         return buildString {

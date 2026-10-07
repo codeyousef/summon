@@ -44,6 +44,16 @@ private external fun wasmFileByteLength(bytes: JsAny): Int
 @JsFun("(bytes, index) => bytes[index]")
 private external fun wasmFileByteAt(bytes: JsAny, index: Int): Int
 
+/**
+ * User-selected WASM browser file capability.
+ *
+ * @property name source file name
+ * @property size source size in bytes
+ * @property type reported media type
+ * @property lastModifiedMillis browser modification timestamp
+
+ * @property nativeFile The native file value.
+ */
 actual class FileInfo internal constructor(
     actual val name: String,
     actual val size: Long,
@@ -51,6 +61,7 @@ actual class FileInfo internal constructor(
     actual val lastModifiedMillis: Long,
     internal val nativeFile: JsAny
 ) {
+    /** The property declaration value. */
     actual val sourceVersion: FileSourceVersion
         get() = FileSourceVersion(size, lastModifiedMillis)
 
@@ -87,7 +98,10 @@ actual class FileInfo internal constructor(
         }
     }
 
+    /** Returns [name] for destructuring compatibility. */
     actual operator fun component1(): String = name
+    /** Returns [size] for destructuring compatibility. */
     actual operator fun component2(): Long = size
+    /** Returns [type] for destructuring compatibility. */
     actual operator fun component3(): String = type
 }

@@ -12,6 +12,7 @@ import io.quarkus.deployment.builditem.FeatureBuildItem
  */
 class SummonProcessor {
 
+    /** Provides summon processor factory and constant members. */
     companion object {
         private const val FEATURE = "summon"
     }
@@ -44,4 +45,4 @@ class SummonProcessor {
         // In a real integration, we would need to properly register the classes for reflection
         return FeatureBuildItem("summon-reflection")
     }
-} 
+}

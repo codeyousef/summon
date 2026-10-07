@@ -508,11 +508,11 @@ private class StaticCompositionLocalProviderImpl<T> : CompositionLocalProvider<T
 }
 
 /**
- * CompositionLocal providing the current kotlinx.html FlowContent context during rendering.
+ * CompositionLocal providing the current kotlinx.HTML FlowContent context during rendering.
  *
  * This composition local enables platform renderer implementations to access the
  * current HTML rendering context. It's primarily used by JVM-based renderers that
- * generate HTML using the kotlinx.html library.
+ * generate HTML using the kotlinx.HTML library.
  *
  * ## Purpose
  *
@@ -522,8 +522,8 @@ private class StaticCompositionLocalProviderImpl<T> : CompositionLocalProvider<T
  * - Supports nested HTML structure generation
  *
  * ### Platform Integration
- * - Used by [JvmPlatformRenderer] for server-side HTML generation
- * - Enables seamless integration with kotlinx.html DSL
+ * - Used by the JVM platform renderer for server-side HTML generation
+ * - Enables seamless integration with kotlinx.HTML DSL
  * - Supports both static and dynamic HTML generation
  *
  * ## Usage Pattern
@@ -546,7 +546,7 @@ private class StaticCompositionLocalProviderImpl<T> : CompositionLocalProvider<T
  * - **Server-Side Rendering**: Critical for HTML generation on JVM
  * - **Component Nesting**: Enables proper parent-child HTML relationships
  * - **Template Systems**: Integrates with template engines and HTML builders
- * - **Cross-Platform**: Null on platforms that don't use kotlinx.html
+ * - **Cross-Platform**: Null on platforms that don't use kotlinx.HTML
  *
  * ## Null Safety
  *
@@ -559,4 +559,4 @@ private class StaticCompositionLocalProviderImpl<T> : CompositionLocalProvider<T
  * @see codes.yousef.summon.runtime.PlatformRenderer
  * @since 1.0.0
  */
-val LocalFlowContent = CompositionLocal.compositionLocalOf<FlowContent?>(null) 
+val LocalFlowContent = CompositionLocal.compositionLocalOf<FlowContent?>(null)

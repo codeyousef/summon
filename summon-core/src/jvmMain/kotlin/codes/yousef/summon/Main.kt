@@ -244,6 +244,7 @@ private fun createUIExample(): String {
  * Class for creating text component examples.
  */
 class TextExample {
+    /** Builds the text showcase component. */
     @Suppress("DEPRECATION")
     fun createTextDemo(): codes.yousef.summon.core.Composable =
         @Suppress("DEPRECATION") object : codes.yousef.summon.core.Composable {
@@ -347,6 +348,7 @@ private fun createTextExample(): String {
  * Card example showcase class.
  */
 object CardExample {
+    /** Builds the card showcase component. */
     @Suppress("DEPRECATION")
     fun cardLayout(): codes.yousef.summon.core.Composable =
         @Suppress("DEPRECATION") object : codes.yousef.summon.core.Composable {
@@ -430,6 +432,7 @@ private fun createCardExample(): String {
  * Image example showcase object.
  */
 object ImageExample {
+    /** Builds a single-image showcase component. */
     @Suppress("DEPRECATION")
     fun basicImage(): codes.yousef.summon.core.Composable =
         @Suppress("DEPRECATION") object : codes.yousef.summon.core.Composable {
@@ -455,6 +458,7 @@ object ImageExample {
             }
         }
 
+    /** Builds a multiple-image showcase component. */
     @Suppress("DEPRECATION")
     fun multipleImages(): codes.yousef.summon.core.Composable =
         @Suppress("DEPRECATION") object : codes.yousef.summon.core.Composable {
@@ -568,6 +572,7 @@ private fun createImageExample(): String {
  * Divider example showcase object.
  */
 object DividerExample {
+    /** Builds the divider showcase component. */
     @Suppress("DEPRECATION")
     fun create(): codes.yousef.summon.core.Composable =
         @Suppress("DEPRECATION") object : codes.yousef.summon.core.Composable {
@@ -658,4 +663,4 @@ private fun createSpacer(size: String, isVertical: Boolean = true): Modifier {
     } else {
         Modifier().width(size)
     }
-} 
+}

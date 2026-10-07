@@ -67,12 +67,9 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * @param content The composable content to display within the aspect ratio container.
  *
  * @see Box for flexible containers
- * @see Image for image display
+ * @see codes.yousef.summon.components.display.Image for image display
  * @see Card for content containers
  *
- * @sample AspectRatioSamples.imageContainer
- * @sample AspectRatioSamples.videoPlayer
- * @sample AspectRatioSamples.squareContainer
  *
  * @since 1.0.0
  */
@@ -92,4 +89,4 @@ fun AspectRatio(
             content()
         }
     )
-} 
+}

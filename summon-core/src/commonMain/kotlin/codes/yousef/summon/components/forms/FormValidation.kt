@@ -69,53 +69,90 @@ sealed class Validator {
     abstract fun validate(value: String): String?
 
     /**
-     * Required field validator.
+     * Rejects blank values.
+     *
+     * @property message rejection message
      */
     data class Required(val message: String = "This field is required") : Validator() {
+        /**
+         * Validates the supplied value.
+         *
+         * @param value Value to process.
+         * @return The resulting value.
+         */
         override fun validate(value: String): String? {
             return if (value.trim().isEmpty()) message else null
         }
     }
 
     /**
-     * Email format validator.
+     * Rejects non-empty malformed email addresses.
+     *
+     * @property message rejection message
      */
     data class Email(val message: String = "Must be a valid email address") : Validator() {
         private val emailRegex = Regex(
             "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
         )
 
+        /**
+         * Validates the supplied value.
+         *
+         * @param value Value to process.
+         * @return The resulting value.
+         */
         override fun validate(value: String): String? {
             return if (value.isNotEmpty() && !emailRegex.matches(value)) message else null
         }
     }
 
     /**
-     * Minimum length validator.
+     * Enforces a minimum string length.
+     *
+     * @property length minimum length
+     * @property message rejection message
      */
     data class MinLength(
         val length: Int,
         val message: String = "Must be at least $length characters"
     ) : Validator() {
+        /**
+         * Validates the supplied value.
+         *
+         * @param value Value to process.
+         * @return The resulting value.
+         */
         override fun validate(value: String): String? {
             return if (value.length < length) message else null
         }
     }
 
     /**
-     * Maximum length validator.
+     * Enforces a maximum string length.
+     *
+     * @property length maximum length
+     * @property message rejection message
      */
     data class MaxLength(
         val length: Int,
         val message: String = "Must be at most $length characters"
     ) : Validator() {
+        /**
+         * Validates the supplied value.
+         *
+         * @param value Value to process.
+         * @return The resulting value.
+         */
         override fun validate(value: String): String? {
             return if (value.length > length) message else null
         }
     }
 
     /**
-     * Pattern/regex validator.
+     * Enforces a regular-expression match.
+     *
+     * @property pattern regular expression
+     * @property message rejection message
      */
     data class Pattern(
         val pattern: String,
@@ -123,18 +160,33 @@ sealed class Validator {
     ) : Validator() {
         private val regex by lazy { Regex(pattern) }
 
+        /**
+         * Validates the supplied value.
+         *
+         * @param value Value to process.
+         * @return The resulting value.
+         */
         override fun validate(value: String): String? {
             return if (value.isNotEmpty() && !regex.matches(value)) message else null
         }
     }
 
     /**
-     * Minimum value validator for numeric fields.
+     * Enforces a minimum numeric value.
+     *
+     * @property min minimum accepted value
+     * @property message rejection message
      */
     data class Min(
         val min: Double,
         val message: String = "Must be at least $min"
     ) : Validator() {
+        /**
+         * Validates the supplied value.
+         *
+         * @param value Value to process.
+         * @return The resulting value.
+         */
         override fun validate(value: String): String? {
             val num = value.toDoubleOrNull() ?: return "Must be a number"
             return if (num < min) message else null
@@ -142,12 +194,21 @@ sealed class Validator {
     }
 
     /**
-     * Maximum value validator for numeric fields.
+     * Enforces a maximum numeric value.
+     *
+     * @property max maximum accepted value
+     * @property message rejection message
      */
     data class Max(
         val max: Double,
         val message: String = "Must be at most $max"
     ) : Validator() {
+        /**
+         * Validates the supplied value.
+         *
+         * @param value Value to process.
+         * @return The resulting value.
+         */
         override fun validate(value: String): String? {
             val num = value.toDoubleOrNull() ?: return "Must be a number"
             return if (num > max) message else null
@@ -155,41 +216,67 @@ sealed class Validator {
     }
 
     /**
-     * URL format validator.
+     * Enforces an HTTP(S) URL shape.
+     *
+     * @property message rejection message
      */
     data class Url(val message: String = "Must be a valid URL") : Validator() {
         private val urlRegex = Regex(
             "^https?://[\\w.-]+(:\\d+)?(/[\\w./?#&=-]*)?$"
         )
 
+        /**
+         * Validates the supplied value.
+         *
+         * @param value Value to process.
+         * @return The resulting value.
+         */
         override fun validate(value: String): String? {
             return if (value.isNotEmpty() && !urlRegex.matches(value)) message else null
         }
     }
 
     /**
-     * Custom validator with user-defined logic.
+     * Delegates validation to caller code.
+     *
+     * @property validationFn returns an error or `null`
      */
     data class Custom(
         val validationFn: (String) -> String?
     ) : Validator() {
+        /**
+         * Validates the supplied value.
+         *
+         * @param value Value to process.
+         * @return The resulting value.
+         */
         override fun validate(value: String): String? {
             return validationFn(value)
         }
     }
 
     /**
-     * Validator that checks if value matches another field.
+     * Requires equality with another field value.
+     *
+     * @property otherValue comparison value
+     * @property message rejection message
      */
     data class Matches(
         val otherValue: String,
         val message: String = "Values do not match"
     ) : Validator() {
+        /**
+         * Validates the supplied value.
+         *
+         * @param value Value to process.
+         * @return The resulting value.
+         */
         override fun validate(value: String): String? {
             return if (value != otherValue) message else null
         }
     }
 
+    /** Convenience validator factories. */
     companion object {
         /**
          * Creates a required field validator.
@@ -280,10 +367,21 @@ interface AsyncValidator {
 }
 
 /**
- * Validation result that can be either synchronous or asynchronous.
+ * Synchronous or asynchronous validation state.
  */
 sealed class ValidationResult {
+    /**
+     * Completed validation.
+     *
+     * @property error rejection message, or `null` when valid
+     */
     data class Sync(val error: String?) : ValidationResult()
+    /**
+     * Asynchronous validation state.
+     *
+     * @property pending whether validation is in progress
+     * @property error rejection message, or `null` when valid or pending
+     */
     data class Async(val pending: Boolean, val error: String?) : ValidationResult()
 }
 
@@ -394,6 +492,10 @@ class FormValidationState {
 
 /**
  * Server-side validation request.
+ *
+ * @property fieldName validated field
+ * @property value candidate value
+ * @property formData other submitted field values
  */
 data class ServerValidationRequest(
     val fieldName: String,
@@ -403,6 +505,9 @@ data class ServerValidationRequest(
 
 /**
  * Server-side validation response.
+ *
+ * @property valid whether the candidate passed
+ * @property error optional rejection message
  */
 data class ServerValidationResponse(
     val valid: Boolean,

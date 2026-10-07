@@ -11,65 +11,39 @@ object VersionReader {
     private var cachedVersion: String? = null
 
     /**
-     * Reads the VERSION property from version.properties in the repository root.
-     * Returns cached version if already loaded.
-     *
-     * @return The version string, or "0.5.5.2" as fallback
+     * Reads the VERSION property from packaged resources or the repository root.
+     * Missing or blank version metadata is a packaging error; returning a stale
+     * fallback would make generated projects depend on the wrong release.
      */
     fun readVersion(): String {
-        if (cachedVersion != null) {
-            return cachedVersion!!
-        }
+        cachedVersion?.let { return it }
 
-        return try {
-            // 1. Try to load from classpath (for packaged JAR)
-            val resourceStream = VersionReader::class.java.classLoader.getResourceAsStream("version.properties")
-            if (resourceStream != null) {
-                val properties = Properties()
-                resourceStream.use { properties.load(it) }
-                val version = properties.getProperty("VERSION")
-                if (!version.isNullOrBlank()) {
-                    cachedVersion = version.trim()
-                    return cachedVersion!!
-                }
+        val resourceVersion = VersionReader::class.java.classLoader
+            .getResourceAsStream("version.properties")
+            ?.use { stream ->
+                Properties().apply { load(stream) }.getProperty("VERSION")
             }
-
-            // 2. Fallback to file system (for development/tests)
-            val possiblePaths = listOf(
+        val fileVersion = if (resourceVersion == null) {
+            listOf(
                 File("version.properties"),
                 File("../version.properties"),
                 File("../../version.properties"),
-                // Also check relative to this class's location
-                File(System.getProperty("user.dir"), "version.properties")
-            )
+                File(System.getProperty("user.dir"), "version.properties"),
+            ).firstOrNull { it.isFile && it.canRead() }
+                ?.inputStream()
+                ?.use { stream ->
+                    Properties().apply { load(stream) }.getProperty("VERSION")
+                }
+        } else {
+            null
+        }
 
-            val versionFile = possiblePaths.firstOrNull { it.exists() && it.canRead() }
-
-            if (versionFile == null) {
-                println("Warning: version.properties not found, using fallback version 0.6.0")
-                cachedVersion = "0.6.0"
-                return cachedVersion!!
-            }
-
-            val properties = Properties()
-            versionFile.inputStream().use { stream ->
-                properties.load(stream)
-            }
-
-            val version = properties.getProperty("VERSION")
-            if (version.isNullOrBlank()) {
-                println("Warning: VERSION property not found in version.properties, using fallback")
-                cachedVersion = "0.6.0"
-            } else {
-                cachedVersion = version.trim()
-            }
-
-            cachedVersion!!
-        } catch (e: Exception) {
-                println("Error reading version.properties: ${e.message}")
-                cachedVersion = "0.6.0"
-                cachedVersion!!
-            }
+        val version = (resourceVersion ?: fileVersion)
+            ?.trim()
+            ?.takeIf { it.isNotEmpty() }
+            ?: error("VERSION is missing from version.properties")
+        cachedVersion = version
+        return version
     }
 
     /**

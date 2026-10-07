@@ -798,6 +798,7 @@ actual open class PlatformRenderer actual constructor() {
         }
     }
 
+    /** Adds trusted markup to the current document head. */
     actual open fun addHeadElement(content: String) {
         headElements.add(content)
         if (!isStringRenderMode) {
@@ -817,6 +818,7 @@ actual open class PlatformRenderer actual constructor() {
         }
     }
 
+    /** Returns the head markup registered for the current render. */
     actual open fun getHeadElements(): List<String> {
         return headElements.toList()
     }
@@ -828,6 +830,7 @@ actual open class PlatformRenderer actual constructor() {
         headScope.builder()
     }
 
+    /** Renders composable content as a complete root. */
     actual open fun renderComposableRoot(composable: @Composable () -> Unit): String {
         try {
 
@@ -876,10 +879,12 @@ actual open class PlatformRenderer actual constructor() {
         }
     }
 
+    /** Renders a root with client hydration metadata. */
     actual open fun renderComposableRootWithHydration(composable: @Composable () -> Unit): String {
         return renderComposableRootWithHydration(null, composable)
     }
 
+    /** Renders a root with client hydration metadata. */
     actual open fun renderComposableRootWithHydration(state: Any?, composable: @Composable () -> Unit): String {
         try {
 
@@ -951,6 +956,7 @@ actual open class PlatformRenderer actual constructor() {
         }
     }
 
+    /** Hydrates an existing browser root. */
     actual open fun hydrateComposableRoot(rootElementId: String, composable: @Composable () -> Unit) {
         try {
 
@@ -1067,6 +1073,7 @@ actual open class PlatformRenderer actual constructor() {
         diagnostics.unsupported()
     }
 
+    /** Renders row. */
     actual open fun renderRow(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         if (isStringRenderMode) {
             // HTML string building mode
@@ -1112,6 +1119,7 @@ actual open class PlatformRenderer actual constructor() {
         renderContainerDom("row", "summon-row", modifier, "row", content = content)
     }
 
+    /** Renders column. */
     actual open fun renderColumn(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         if (isStringRenderMode) {
             // HTML string building mode
@@ -1157,6 +1165,7 @@ actual open class PlatformRenderer actual constructor() {
         renderContainerDom("column", "summon-column", modifier, "column", content = content)
     }
 
+    /** Renders box. */
     actual open fun renderBox(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         if (isStringRenderMode) {
             // HTML string building mode
@@ -1222,6 +1231,7 @@ actual open class PlatformRenderer actual constructor() {
         diagnostics.unsupported()
     }
 
+    /** Renders checkbox. */
     actual open fun renderCheckbox(
         checked: Boolean,
         onCheckedChange: (Boolean) -> Unit,
@@ -1231,6 +1241,7 @@ actual open class PlatformRenderer actual constructor() {
         diagnostics.unsupported()
     }
 
+    /** Renders checkbox. */
     actual open fun renderCheckbox(
         checked: Boolean,
         onCheckedChange: (Boolean) -> Unit,
@@ -1350,10 +1361,12 @@ actual open class PlatformRenderer actual constructor() {
         diagnostics.unsupported()
     }
 
+    /** Renders radio button. */
     actual open fun renderRadioButton(selected: Boolean, onClick: () -> Unit, enabled: Boolean, modifier: Modifier) {
         diagnostics.unsupported()
     }
 
+    /** Renders radio button. */
     actual open fun renderRadioButton(
         checked: Boolean,
         onCheckedChange: (Boolean) -> Unit,
@@ -1417,10 +1430,12 @@ actual open class PlatformRenderer actual constructor() {
         diagnostics.unsupported()
     }
 
+    /** Renders card. */
     actual open fun renderCard(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         diagnostics.unsupported()
     }
 
+    /** Renders card. */
     actual open fun renderCard(modifier: Modifier, elevation: Int, content: @Composable () -> Unit) {
         diagnostics.unsupported()
     }
@@ -1517,16 +1532,19 @@ actual open class PlatformRenderer actual constructor() {
         diagnostics.unsupported()
     }
 
+    /** Renders block. */
     actual open fun renderBlock(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         diagnostics.unsupported()
     }
 
+    /** Renders inline. */
     actual open fun renderInline(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         renderContainerDom("inline", "summon-inline", modifier, elementTag = "span") {
             createWasmFlowContentCompat().content()
         }
     }
 
+    /** Renders div. */
     actual open fun renderDiv(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         renderContainerDom("div", "summon-div", modifier) { createWasmFlowContentCompat().content() }
     }
@@ -1559,6 +1577,7 @@ actual open class PlatformRenderer actual constructor() {
         }
     }
 
+    /** Renders span. */
     actual open fun renderSpan(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         renderContainerDom("span", "summon-span", modifier, elementTag = "span") {
             createWasmFlowContentCompat().content()
@@ -1926,10 +1945,12 @@ actual open class PlatformRenderer actual constructor() {
         diagnostics.unsupported()
     }
 
+    /** Renders snackbar. */
     actual open fun renderSnackbar(message: String, actionLabel: String?, onAction: (() -> Unit)?) {
         diagnostics.unsupported()
     }
 
+    /** Renders dropdown menu. */
     actual open fun renderDropdownMenu(
         expanded: Boolean,
         onDismissRequest: () -> Unit,
@@ -1939,10 +1960,12 @@ actual open class PlatformRenderer actual constructor() {
         diagnostics.unsupported()
     }
 
+    /** Renders tooltip. */
     actual open fun renderTooltip(text: String, modifier: Modifier, content: @Composable () -> Unit) {
         diagnostics.unsupported()
     }
 
+    /** Renders modal. */
     actual open fun renderModal(
         visible: Boolean,
         onDismissRequest: () -> Unit,
@@ -1953,6 +1976,7 @@ actual open class PlatformRenderer actual constructor() {
         diagnostics.unsupported()
     }
 
+    /** Renders modal. */
     actual open fun renderModal(
         onDismiss: () -> Unit,
         modifier: Modifier,
@@ -2042,6 +2066,7 @@ actual open class PlatformRenderer actual constructor() {
         ) { "Cannot initialize modal lifecycle" }
     }
 
+    /** Renders screen. */
     actual open fun renderScreen(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         diagnostics.unsupported()
     }
@@ -2054,10 +2079,12 @@ actual open class PlatformRenderer actual constructor() {
         diagnostics.unsupported()
     }
 
+    /** Renders surface. */
     actual open fun renderSurface(modifier: Modifier, elevation: Int, content: @Composable () -> Unit) {
         diagnostics.unsupported()
     }
 
+    /** Renders swipe to dismiss. */
     actual open fun renderSwipeToDismiss(
         state: Any,
         background: @Composable () -> Unit,
@@ -2067,6 +2094,7 @@ actual open class PlatformRenderer actual constructor() {
         diagnostics.unsupported()
     }
 
+    /** Renders vertical pager. */
     actual open fun renderVerticalPager(
         count: Int,
         state: Any,
@@ -2076,6 +2104,7 @@ actual open class PlatformRenderer actual constructor() {
         diagnostics.unsupported()
     }
 
+    /** Renders horizontal pager. */
     actual open fun renderHorizontalPager(
         count: Int,
         state: Any,
@@ -2085,10 +2114,12 @@ actual open class PlatformRenderer actual constructor() {
         diagnostics.unsupported()
     }
 
+    /** Renders aspect ratio container. */
     actual open fun renderAspectRatioContainer(ratio: Float, modifier: Modifier, content: @Composable () -> Unit) {
         diagnostics.unsupported()
     }
 
+    /** Renders file picker. */
     actual open fun renderFilePicker(
         onFilesSelected: (List<FileInfo>) -> Unit,
         enabled: Boolean,
@@ -2100,6 +2131,7 @@ actual open class PlatformRenderer actual constructor() {
         diagnostics.unsupported()
     }
 
+    /** Renders alert. */
     actual open fun renderAlert(
         message: String,
         variant: AlertVariant,
@@ -2111,14 +2143,17 @@ actual open class PlatformRenderer actual constructor() {
         diagnostics.unsupported()
     }
 
+    /** Renders linear progress indicator. */
     actual open fun renderLinearProgressIndicator(progress: Float?, modifier: Modifier, type: ProgressType) {
         diagnostics.unsupported()
     }
 
+    /** Renders circular progress indicator. */
     actual open fun renderCircularProgressIndicator(progress: Float?, modifier: Modifier, type: ProgressType) {
         diagnostics.unsupported()
     }
 
+    /** Renders modal bottom sheet. */
     actual open fun renderModalBottomSheet(
         onDismissRequest: () -> Unit,
         modifier: Modifier,
@@ -2127,6 +2162,7 @@ actual open class PlatformRenderer actual constructor() {
         diagnostics.unsupported()
     }
 
+    /** Renders alert dialog. */
     actual open fun renderAlertDialog(
         onDismissRequest: () -> Unit,
         confirmButton: @Composable () -> Unit,
@@ -2139,6 +2175,7 @@ actual open class PlatformRenderer actual constructor() {
         diagnostics.unsupported()
     }
 
+    /** Renders box container. */
     actual open fun renderBoxContainer(modifier: Modifier, content: @Composable () -> Unit) {
         diagnostics.unsupported()
     }
@@ -2372,6 +2409,13 @@ actual open class PlatformRenderer actual constructor() {
     private val attachedEventListeners = mutableSetOf<String>() // "${elementId}-${eventType}"
     private var serverState: Map<String, Any> = emptyMap()
 
+    /**
+     * Deferred browser event-listener registration.
+     *
+     * @property elementId Target DOM element identifier.
+     * @property eventType Browser event type.
+     * @property handler Callback invoked by the event.
+     */
     data class EventListenerInfo(
         val elementId: String,
         val eventType: String,

@@ -61,6 +61,11 @@ expect class HydrationManager() {
 
 /**
  * Data class representing hydration information for a component.
+
+ * @property elementId The element id value.
+ * @property componentType The component type value.
+ * @property initialState The initial state value.
+ * @property composable The composable value.
  */
 data class HydrationInfo(
     val elementId: String,

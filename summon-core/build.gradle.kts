@@ -1,6 +1,12 @@
 import java.security.MessageDigest
 import java.util.*
 
+val coverageGateRequested = gradle.startParameter.taskNames.any { requestedTask ->
+    val name = requestedTask.substringAfterLast(':')
+    name == "coverageCheck" || name == "koverXmlReport" || name == "koverHtmlReport" ||
+        name == "koverVerify" || (name == "check" && requestedTask.count { it == ':' } <= 1)
+}
+
 // Apply version management - sets project.version and project.group from version.properties
 apply(from = "../version.gradle.kts")
 
@@ -57,11 +63,17 @@ kotlin {
         testRuns.named("test") {
             executionTask.configure {
                 useJUnitPlatform {
-                    // Exclude slow tests from default run (stress tests, performance tests)
-                    excludeTags("slow")
+                    if (!coverageGateRequested) {
+                        // Keep stress/provider integration tests out of the ordinary fast JVM run.
+                        excludeTags("slow")
+                    }
                 }
-                // Enable parallel test execution for faster builds
-                maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
+                // The coverage gate includes slow JVM integration cases and runs sequentially.
+                maxParallelForks = if (coverageGateRequested) {
+                    1
+                } else {
+                    (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
+                }
                 // Reuse test JVM processes
                 forkEvery = 100
                 // JVM args for tests - use ParallelGC for faster execution
@@ -152,6 +164,7 @@ kotlin {
                 implementation(libs.kotlin.stdlib.common)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)
+                implementation(libs.kotlinx.serialization.cbor)
                 implementation(libs.kotlinx.html)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.atomicfu)

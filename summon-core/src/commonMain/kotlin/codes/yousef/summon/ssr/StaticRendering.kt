@@ -5,14 +5,15 @@ import codes.yousef.summon.core.mapOfCompat
 import codes.yousef.summon.routing.RouteDefinition
 import codes.yousef.summon.routing.RouteParams
 import codes.yousef.summon.runtime.PlatformRenderer
-import codes.yousef.summon.runtime.getPlatformRenderer
 
 /**
  * Handles static rendering of Summon components to HTML with improved compatibility
  * with the new composition system.
+
+ * @property platformRenderer The platform renderer value.
  */
 class StaticRenderer(
-    private val platformRenderer: PlatformRenderer = getPlatformRenderer()
+    private val platformRenderer: PlatformRenderer = PlatformRenderer()
 ) : ServerSideRenderer {
     /**
      * Render a composable to HTML
@@ -31,9 +32,8 @@ class StaticRenderer(
     }
 
     // Get the metadata values safely with defaults
-    private fun getMetadataValue(context: RenderContext, key: String, default: String = ""): String {
-        return context.metadata[key] ?: context.seoMetadata.customMetaTags[key] ?: default
-    }
+    private fun getMetadataValue(context: RenderContext, key: String, default: String = ""): String =
+        escapeSsrHtml(context.metadata[key] ?: context.seoMetadata.customMetaTags[key] ?: default)
 
     /**
      * Wraps the rendered component HTML in a complete HTML document
@@ -76,10 +76,12 @@ class StaticRenderer(
                 )
             }
             .joinToString("\n                ") { (key, value) ->
+                val escapedKey = escapeSsrHtml(key)
+                val escapedValue = escapeSsrHtml(value)
                 if (key.startsWith("og:") || key.startsWith("twitter:")) {
-                    "<meta property=\"$key\" content=\"$value\">"
+                    "<meta property=\"$escapedKey\" content=\"$escapedValue\">"
                 } else {
-                    "<meta name=\"$key\" content=\"$value\">"
+                    "<meta name=\"$escapedKey\" content=\"$escapedValue\">"
                 }
             }
 
@@ -207,8 +209,8 @@ object StaticSiteGenerator {
             route.content(RouteParams(params))
         }
 
-        // Render the content using the modified renderComposableRoot
-        val platformRenderer = getPlatformRenderer()
+        // Use an isolated renderer so concurrent static renders cannot share composition state.
+        val platformRenderer = PlatformRenderer()
         val htmlContent = platformRenderer.renderComposableRoot {
             routeComposable()
         }
@@ -586,4 +588,4 @@ expect object FileSystemAccess {
      * Reads text content from a file
      */
     fun readTextFile(path: String): String
-} 
+}

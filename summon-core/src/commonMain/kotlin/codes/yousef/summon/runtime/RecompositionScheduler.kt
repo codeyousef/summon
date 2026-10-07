@@ -22,6 +22,11 @@ interface RecompositionScheduler {
  * platform-specific implementations.
  */
 class ImmediateScheduler : RecompositionScheduler {
+    /**
+     * Executes the schedule recomposition operation.
+     *
+     * @param work The work value.
+     */
     override fun scheduleRecomposition(work: () -> Unit) {
         work()
     }

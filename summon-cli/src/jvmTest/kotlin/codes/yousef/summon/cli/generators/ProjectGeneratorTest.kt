@@ -136,13 +136,13 @@ class ProjectGeneratorTest {
             // We can't just look for the first ')' because the lambda might contain function calls like println()
             // So we'll look at a larger chunk of text, or just check relative positions in the file
             // since there's only one Button in the generated Main.kt
-            
+
             val onClickPos = content.indexOf("onClick", buttonIndex)
             val labelPos = content.indexOf("label", buttonIndex)
-            
+
             assertTrue(onClickPos != -1, "Button should have onClick parameter")
             assertTrue(labelPos != -1, "Button should have label parameter")
-            
+
             assertTrue(
                 onClickPos < labelPos,
                 "onClick parameter should come before label parameter"
@@ -668,5 +668,40 @@ class ProjectGeneratorTest {
                 "$type: SSR error handler should return an error page"
             )
         }
+    }
+
+    @Test
+    fun `config equality and optional generation flags retain every input`() {
+        val config = ProjectGenerator.Config(
+            projectName = "flags",
+            packageName = "com.example.flags",
+            targetDirectory = tempDir,
+            templateType = "example",
+            includeExamples = true,
+            includeAuth = true,
+            includeDocker = true,
+            minimal = false,
+            overwrite = true
+        )
+        listOf(
+            config.copy(projectName = "other"),
+            config.copy(packageName = "other"),
+            config.copy(targetDirectory = File(tempDir, "other")),
+            config.copy(templateType = "basic"),
+            config.copy(includeExamples = false),
+            config.copy(includeAuth = false),
+            config.copy(includeDocker = false),
+            config.copy(minimal = true),
+            config.copy(overwrite = false),
+        ).forEach { assertNotEquals(config, it) }
+        ProjectGenerator(ProjectTemplate.fromType("example")).generate(config)
+        assertTrue(File(tempDir, "src/jsMain/kotlin/com/example/flags/Main.kt").isFile)
+        assertTrue(File(tempDir, "src/jsMain/kotlin/com/example/flags/examples/ButtonExamples.kt").isFile)
+
+        val minimalDir = File(tempDir, "minimal-example")
+        ProjectGenerator(ProjectTemplate.fromType("example")).generate(
+            config.copy(targetDirectory = minimalDir, minimal = true, includeExamples = true)
+        )
+        assertFalse(File(minimalDir, "src/jsMain/kotlin/com/example/flags/examples/ButtonExamples.kt").exists())
     }
 }

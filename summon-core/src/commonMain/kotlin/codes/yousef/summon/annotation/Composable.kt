@@ -44,7 +44,7 @@ package codes.yousef.summon.annotation
  * 1. Composable functions can only be called from within other composable functions
  * 2. They should be side-effect free or use proper effect APIs for side effects
  * 3. They should not perform long-running operations synchronously
- * 4. State should be managed through the state management APIs like [remember] and [mutableStateOf]
+ * 4. State should use `remember` and `mutableStateOf`
  *
  * ## Example
  *

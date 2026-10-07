@@ -10,17 +10,29 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * Keys commonly used for keyboard navigation in web applications.
  */
 object KeyboardKeys {
+    /** Tab navigation key. */
     const val TAB = "Tab"
+    /** Activation key used by buttons and links. */
     const val ENTER = "Enter"
+    /** Space activation key. */
     const val SPACE = " " // Note: "Spacebar" or "Space" might be more common, ensure consistency with event.key
+    /** Escape or dismissal key. */
     const val ESCAPE = "Escape"
+    /** Up-arrow navigation key. */
     const val ARROW_UP = "ArrowUp"
+    /** Down-arrow navigation key. */
     const val ARROW_DOWN = "ArrowDown"
+    /** Left-arrow navigation key. */
     const val ARROW_LEFT = "ArrowLeft"
+    /** Right-arrow navigation key. */
     const val ARROW_RIGHT = "ArrowRight"
+    /** Start-of-list navigation key. */
     const val HOME = "Home"
+    /** End-of-list navigation key. */
     const val END = "End"
+    /** Previous-page navigation key. */
     const val PAGE_UP = "PageUp"
+    /** Next-page navigation key. */
     const val PAGE_DOWN = "PageDown"
 }
 
@@ -29,7 +41,13 @@ object KeyboardKeys {
  */
 object KeyboardNavigation {
     /**
-     * Keyboard navigation configuration options.
+     * Keyboard navigation configuration.
+     *
+     * @property trapFocus keep focus within the component
+     * @property useArrowKeys enable directional navigation
+     * @property autoFocus request focus on mount
+     * @property tabIndex browser tab-order value
+     * @property keyHandlers callbacks keyed by browser `KeyboardEvent.key`
      */
     data class KeyboardNavigationConfig(
         val trapFocus: Boolean = false,

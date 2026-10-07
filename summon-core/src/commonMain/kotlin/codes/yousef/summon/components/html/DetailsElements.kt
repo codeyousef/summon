@@ -64,8 +64,8 @@ fun Details(
 
     // Register toggle event handler if provided
     if (onToggle != null) {
-        finalModifier = finalModifier.onToggle { isOpen ->
-            onToggle(isOpen)
+        finalModifier = finalModifier.onToggle {
+            onToggle(!open)
         }
     }
 
@@ -138,14 +138,10 @@ private fun Modifier.attribute(name: String, value: String): Modifier {
     )
 }
 
-private fun Modifier.onToggle(handler: (Boolean) -> Unit): Modifier {
+private fun Modifier.onToggle(handler: () -> Unit): Modifier {
     return Modifier(
-        styles = this.styles,
-        attributes = this.attributes,
-        eventHandlers = this.eventHandlers + ("toggle" to {
-            // The event target's 'open' property will indicate the new state
-            // This is handled by the platform renderer
-            handler(true) // Platform renderer should pass correct state
-        })
+        styles = styles,
+        attributes = attributes,
+        eventHandlers = eventHandlers + ("toggle" to handler)
     )
 }

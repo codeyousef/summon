@@ -6,6 +6,14 @@ import codes.yousef.summon.modifier.*
 import codes.yousef.summon.runtime.Composable
 import codes.yousef.summon.runtime.LocalPlatformRenderer
 
+/**
+ * Renders focusable.
+ *
+ * @param modifier Styles and attributes applied to the rendered element.
+ * @param isFocused The is focused value.
+ * @param onFocusChanged Callback invoked when focus changed.
+ * @param content Composable content emitted by this API.
+ */
 @Composable
 fun Focusable(
     modifier: Modifier = Modifier(),

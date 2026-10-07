@@ -172,7 +172,7 @@ import codes.yousef.summon.runtime.getPlatformRenderer
  *                     }
  *             ) {
  *                 Image(
- *                     src = photo.url,
+ *                     src = photo.URL,
  *                     alt = photo.description,
  *                     modifier = Modifier()
  *                         .width(Width.FULL)
@@ -197,10 +197,6 @@ import codes.yousef.summon.runtime.getPlatformRenderer
  * @see LazyColumn for virtualized vertical lists
  * @see LazyRow for virtualized horizontal lists
  *
- * @sample GridSamples.simpleGrid
- * @sample GridSamples.responsiveGrid
- * @sample GridSamples.namedAreas
- * @sample GridSamples.dashboardLayout
  *
  * @since 1.0.0
  */

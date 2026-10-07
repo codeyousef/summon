@@ -87,12 +87,28 @@ interface HeadScope {
 /**
  * Default implementation of HeadScope that generates HTML strings.
  * Platform-specific renderers can override this for optimized rendering.
+
+ * @property onElement Callback invoked when element.
  */
 class DefaultHeadScope(private val onElement: (String) -> Unit) : HeadScope {
+    /**
+     * Executes the title operation.
+     *
+     * @param text The text value.
+     */
     override fun title(text: String) {
         onElement("<title>${escapeText(text)}</title>")
     }
 
+    /**
+     * Executes the meta operation.
+     *
+     * @param name Human-readable name.
+     * @param property The property value.
+     * @param content Composable content emitted by this API.
+     * @param charset The charset value.
+     * @param httpEquiv The http equiv value.
+     */
     override fun meta(
         name: String?,
         property: String?,
@@ -112,6 +128,16 @@ class DefaultHeadScope(private val onElement: (String) -> Unit) : HeadScope {
         }
     }
 
+    /**
+     * Executes the link operation.
+     *
+     * @param rel The rel value.
+     * @param href The href value.
+     * @param type The type value.
+     * @param sizes The sizes value.
+     * @param crossorigin The crossorigin value.
+     * @param media The media value.
+     */
     override fun link(
         rel: String,
         href: String,
@@ -131,6 +157,16 @@ class DefaultHeadScope(private val onElement: (String) -> Unit) : HeadScope {
         onElement("<link$attributes>")
     }
 
+    /**
+     * Executes the script operation.
+     *
+     * @param src The src value.
+     * @param content Composable content emitted by this API.
+     * @param type The type value.
+     * @param async The async value.
+     * @param defer The defer value.
+     * @param crossorigin The crossorigin value.
+     */
     override fun script(
         src: String?,
         content: String?,
@@ -156,6 +192,12 @@ class DefaultHeadScope(private val onElement: (String) -> Unit) : HeadScope {
         }
     }
 
+    /**
+     * Executes the style operation.
+     *
+     * @param content Composable content emitted by this API.
+     * @param media The media value.
+     */
     override fun style(content: String, media: String?) {
         val attributes = buildString {
             media?.let { appendAttribute("media", it) }
@@ -163,6 +205,12 @@ class DefaultHeadScope(private val onElement: (String) -> Unit) : HeadScope {
         onElement("<style$attributes>${escapeRawTextEndTag(content, "style")}</style>")
     }
 
+    /**
+     * Executes the base operation.
+     *
+     * @param href The href value.
+     * @param target The target value.
+     */
     override fun base(href: String?, target: String?) {
         val attributes = buildString {
             href?.let { appendAttribute("href", it) }

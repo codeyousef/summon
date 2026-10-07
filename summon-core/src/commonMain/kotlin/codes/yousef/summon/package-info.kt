@@ -120,8 +120,8 @@
  *     routing {
  *         get("/") {
  *             val renderer = ServerPlatformRenderer()
- *             val html = renderer.renderComposableRoot { App() }
- *             call.respondText(html, ContentType.Text.Html)
+ *             val HTML = renderer.renderComposableRoot { App() }
+ *             call.respondText(HTML, ContentType.Text.Html)
  *         }
  *     }
  * }
@@ -159,11 +159,11 @@
  * Manage side effects and resource lifecycle:
  * ```kotlin
  * @Composable
- * fun DataComponent(id: String) {
+ * fun DataComponent(ID: String) {
  *     var data by remember { mutableStateOf<Data?>(null) }
  *
- *     LaunchedEffect(id) {
- *         data = apiClient.fetchData(id)
+ *     LaunchedEffect(ID) {
+ *         data = apiClient.fetchData(ID)
  *     }
  *
  *     DisposableEffect(Unit) {
@@ -255,7 +255,7 @@
  *
  * - **Like Jetpack Compose**: Declarative composition with @Composable functions
  * - **Like React**: Component-based architecture with reactive state
- * - **Like Next.js**: File-based routing with automatic optimization
+ * - **Like Next.JS**: File-based routing with automatic optimization
  * - **Like Vue**: Template-like syntax with reactive data binding
  * - **Unique**: Native Kotlin multiplatform with type-safe CSS
  *
@@ -270,18 +270,18 @@
  *     implementation("codes.yousef:summon:0.6.2.2")
  *
  *     // For JVM-only projects
- *     implementation("codes.yousef:summon-jvm:0.6.2.2")
+ *     implementation("codes.yousef:summon-JVM:0.6.2.2")
  *
  *     // For JS-only projects
- *     implementation("codes.yousef:summon-js:0.6.2.2")
+ *     implementation("codes.yousef:summon-JS:0.6.2.2")
  *
  *     // For WebAssembly projects
- *     implementation("codes.yousef:summon-wasm-js:0.6.2.2")
+ *     implementation("codes.yousef:summon-WASM-JS:0.6.2.2")
  * }
  * ```
  *
  * For comprehensive guides, examples, and API documentation, visit the
- * [Summon Documentation](https://summon-ui.dev) website.
+ * [Summon Documentation](HTTPS://summon-UI.dev) website.
  *
  * @author Yousef
  * @since 1.0.0

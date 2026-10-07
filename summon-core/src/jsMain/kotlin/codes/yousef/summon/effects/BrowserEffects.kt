@@ -10,11 +10,29 @@ import org.w3c.dom.events.Event
  * External interface for browser history
  */
 external interface BrowserHistory {
+    /** Executes the back operation. */
     fun back()
+    /** Executes the forward operation. */
     fun forward()
+    /**
+     * Executes the push state operation.
+     *
+     * @param data The data value.
+     * @param title The title value.
+     * @param url Target URL.
+     */
     fun pushState(data: dynamic, title: String, url: String? = definedExternally)
+    /**
+     * Executes the replace state operation.
+     *
+     * @param data The data value.
+     * @param title The title value.
+     * @param url Target URL.
+     */
     fun replaceState(data: dynamic, title: String, url: String? = definedExternally)
+    /** The property declaration value. */
     val length: Int
+    /** The property declaration value. */
     val state: dynamic
 }
 
@@ -25,26 +43,44 @@ class History {
     @Suppress("UNCHECKED_CAST", "UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
     private val browserHistory = window.asDynamic().history as BrowserHistory
 
+    /** Executes the back operation. */
     fun back() {
         browserHistory.back()
     }
 
+    /** Executes the forward operation. */
     fun forward() {
         browserHistory.forward()
     }
 
+    /**
+     * Executes the push operation.
+     *
+     * @param path Target path.
+     */
     fun push(path: String) {
         browserHistory.pushState(js("{}"), "", path)
     }
 
+    /**
+     * Executes the replace operation.
+     *
+     * @param path Target path.
+     */
     fun replace(path: String) {
         browserHistory.replaceState(js("{}"), "", path)
     }
 
+    /**
+     * Returns length.
+     *
+     * @return The resulting value.
+     */
     fun getLength(): Int {
         return browserHistory.length
     }
 
+    /** Returns state. */
     fun getState(): dynamic {
         return browserHistory.state
     }
@@ -54,16 +90,27 @@ class History {
  * External interface for browser navigator
  */
 external interface BrowserNavigator {
+    /** The property declaration value. */
     val language: String
+    /** The property declaration value. */
     val userAgent: String
+    /** The property declaration value. */
     val onLine: Boolean
+    /** The property declaration value. */
     val platform: String
+    /** The property declaration value. */
     val cookieEnabled: Boolean
+    /** The property declaration value. */
     val hardwareConcurrency: Int
+    /** The property declaration value. */
     val maxTouchPoints: Int
+    /** The property declaration value. */
     val pdfViewerEnabled: Boolean
+    /** The property declaration value. */
     val mimeTypes: dynamic
+    /** The property declaration value. */
     val geolocation: dynamic
+    /** The property declaration value. */
     val vibrate: dynamic
 }
 
@@ -74,13 +121,21 @@ class Navigator {
     @Suppress("UNCHECKED_CAST", "UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
     private val browserNavigator = window.asDynamic().navigator as BrowserNavigator
 
+    /** The property declaration value. */
     val language: String = browserNavigator.language
+    /** The property declaration value. */
     val userAgent: String = browserNavigator.userAgent
+    /** The property declaration value. */
     val onLine: Boolean = browserNavigator.onLine
+    /** The property declaration value. */
     val platform: String = browserNavigator.platform
+    /** The property declaration value. */
     val cookieEnabled: Boolean = browserNavigator.cookieEnabled
+    /** The property declaration value. */
     val hardwareConcurrency: Int = browserNavigator.hardwareConcurrency
+    /** The property declaration value. */
     val maxTouchPoints: Int = browserNavigator.maxTouchPoints
+    /** The property declaration value. */
     val pdfViewerEnabled: Boolean = browserNavigator.pdfViewerEnabled
 
     /**
@@ -114,8 +169,19 @@ external class IntersectionObserver(
     callback: (Array<IntersectionObserverEntry>, IntersectionObserver) -> Unit,
     options: dynamic = definedExternally
 ) {
+    /**
+     * Executes the observe operation.
+     *
+     * @param target The target value.
+     */
     fun observe(target: dynamic)
+    /**
+     * Executes the unobserve operation.
+     *
+     * @param target The target value.
+     */
     fun unobserve(target: dynamic)
+    /** Executes the disconnect operation. */
     fun disconnect()
 }
 
@@ -123,9 +189,13 @@ external class IntersectionObserver(
  * External interface for IntersectionObserverEntry
  */
 external interface IntersectionObserverEntry {
+    /** The property declaration value. */
     val boundingClientRect: DOMRectReadOnly
+    /** The property declaration value. */
     val intersectionRatio: Double
+    /** The property declaration value. */
     val isIntersecting: Boolean
+    /** The property declaration value. */
     val target: dynamic
 }
 
@@ -133,18 +203,30 @@ external interface IntersectionObserverEntry {
  * External interface for DOMRectReadOnly
  */
 external interface DOMRectReadOnly {
+    /** The property declaration value. */
     val x: Double
+    /** The property declaration value. */
     val y: Double
+    /** The property declaration value. */
     val width: Double
+    /** The property declaration value. */
     val height: Double
+    /** The property declaration value. */
     val top: Double
+    /** The property declaration value. */
     val right: Double
+    /** The property declaration value. */
     val bottom: Double
+    /** The property declaration value. */
     val left: Double
 }
 
 /**
  * IntersectionObserver options
+
+ * @property root The root value.
+ * @property rootMargin The root margin value.
+ * @property threshold The threshold value.
  */
 class IntersectionObserverOptions(
     val root: ElementRef? = null,
@@ -154,6 +236,10 @@ class IntersectionObserverOptions(
 
 /**
  * IntersectionObserver state
+
+ * @property isIntersecting The is intersecting value.
+ * @property intersectionRatio The intersection ratio value.
+ * @property boundingClientRect The bounding client rect value.
  */
 data class IntersectionState(
     val isIntersecting: Boolean,
@@ -163,6 +249,15 @@ data class IntersectionState(
 
 /**
  * Simple DOM rectangle representation
+
+ * @property x The x value.
+ * @property y The y value.
+ * @property width The width value.
+ * @property height The height value.
+ * @property top The top value.
+ * @property right The right value.
+ * @property bottom The bottom value.
+ * @property left The left value.
  */
 data class DOMRect(
     val x: Double,
@@ -295,8 +390,19 @@ fun CompositionScope.useIntersectionObserver(
  * External interface for ResizeObserver
  */
 external class ResizeObserver(callback: (Array<ResizeObserverEntryJS>) -> Unit) {
+    /**
+     * Executes the observe operation.
+     *
+     * @param target The target value.
+     */
     fun observe(target: dynamic)
+    /**
+     * Executes the unobserve operation.
+     *
+     * @param target The target value.
+     */
     fun unobserve(target: dynamic)
+    /** Executes the disconnect operation. */
     fun disconnect()
 }
 
@@ -304,12 +410,17 @@ external class ResizeObserver(callback: (Array<ResizeObserverEntryJS>) -> Unit) 
  * External interface for ResizeObserverEntry
  */
 external interface ResizeObserverEntryJS {
+    /** The property declaration value. */
     val contentRect: DOMRectReadOnly
+    /** The property declaration value. */
     val target: dynamic
 }
 
 /**
  * ResizeObserver entry representation
+
+ * @property contentRect The content rect value.
+ * @property target The target value.
  */
 data class ResizeObserverEntry(
     val contentRect: DOMRect,
@@ -431,18 +542,38 @@ fun CompositionScope.useOnlineStatus(): SummonMutableState<Boolean> {
  * External interface for Geolocation
  */
 external interface Geolocation {
+    /**
+     * Returns current position.
+     *
+     * @param successCallback The success callback value.
+     * @param errorCallback The error callback value.
+     * @param options The options value.
+     */
     fun getCurrentPosition(
         successCallback: (GeolocationPosition) -> Unit,
         errorCallback: (GeolocationPositionError) -> Unit,
         options: dynamic = definedExternally
     )
 
+    /**
+     * Executes the watch position operation.
+     *
+     * @param successCallback The success callback value.
+     * @param errorCallback The error callback value.
+     * @param options The options value.
+     * @return The resulting value.
+     */
     fun watchPosition(
         successCallback: (GeolocationPosition) -> Unit,
         errorCallback: (GeolocationPositionError) -> Unit,
         options: dynamic = definedExternally
     ): Int
 
+    /**
+     * Clears watch.
+     *
+     * @param watchId The watch id value.
+     */
     fun clearWatch(watchId: Int)
 }
 
@@ -450,7 +581,9 @@ external interface Geolocation {
  * External interface for GeolocationPosition
  */
 external interface GeolocationPosition {
+    /** The property declaration value. */
     val coords: GeolocationCoordinates
+    /** The property declaration value. */
     val timestamp: Number
 }
 
@@ -458,12 +591,19 @@ external interface GeolocationPosition {
  * External interface for GeolocationCoordinates
  */
 external interface GeolocationCoordinates {
+    /** The property declaration value. */
     val latitude: Double
+    /** The property declaration value. */
     val longitude: Double
+    /** The property declaration value. */
     val altitude: Double?
+    /** The property declaration value. */
     val accuracy: Double
+    /** The property declaration value. */
     val altitudeAccuracy: Double?
+    /** The property declaration value. */
     val heading: Double?
+    /** The property declaration value. */
     val speed: Double?
 }
 
@@ -471,12 +611,18 @@ external interface GeolocationCoordinates {
  * External interface for GeolocationPositionError
  */
 external interface GeolocationPositionError {
+    /** The property declaration value. */
     val code: Int
+    /** The property declaration value. */
     val message: String
 }
 
 /**
  * Geolocation options
+
+ * @property enableHighAccuracy The enable high accuracy value.
+ * @property timeout Timeout in milliseconds.
+ * @property maximumAge The maximum age value.
  */
 class GeolocationOptions(
     val enableHighAccuracy: Boolean = false,
@@ -486,6 +632,10 @@ class GeolocationOptions(
 
 /**
  * Geolocation state
+
+ * @property position The position value.
+ * @property error The error value.
+ * @property loading The loading value.
  */
 data class GeolocationState(
     val position: Position?,
@@ -495,6 +645,9 @@ data class GeolocationState(
 
 /**
  * Geolocation position
+
+ * @property coords The coords value.
+ * @property timestamp The timestamp value.
  */
 data class Position(
     val coords: Coordinates,
@@ -503,6 +656,14 @@ data class Position(
 
 /**
  * Geolocation coordinates
+
+ * @property latitude The latitude value.
+ * @property longitude The longitude value.
+ * @property altitude The altitude value.
+ * @property accuracy The accuracy value.
+ * @property altitudeAccuracy The altitude accuracy value.
+ * @property heading The heading value.
+ * @property speed The speed value.
  */
 data class Coordinates(
     val latitude: Double,
@@ -625,6 +786,10 @@ fun CompositionScope.useGeolocation(
 
 /**
  * Web animation keyframe
+
+ * @property offset The offset value.
+ * @property easing The easing value.
+ * @property properties The properties value.
  */
 data class Keyframe(
     val offset: Double? = null,
@@ -634,6 +799,13 @@ data class Keyframe(
 
 /**
  * Web animation options
+
+ * @property duration Duration in milliseconds.
+ * @property iterations The iterations value.
+ * @property delay Delay in milliseconds.
+ * @property easing The easing value.
+ * @property direction The direction value.
+ * @property fill The fill value.
  */
 data class AnimationOptions(
     val duration: Int,
@@ -648,13 +820,21 @@ data class AnimationOptions(
  * External interface for Web Animation
  */
 external interface WebAnimation {
+    /** Executes the play operation. */
     fun play()
+    /** Pauses the operation. */
     fun pause()
+    /** Cancels the operation. */
     fun cancel()
+    /** Executes the finish operation. */
     fun finish()
+    /** Executes the reverse operation. */
     fun reverse()
+    /** The property declaration value. */
     var currentTime: Double?
+    /** The property declaration value. */
     var playbackRate: Double
+    /** The property declaration value. */
     val playState: String
 }
 
@@ -664,50 +844,90 @@ external interface WebAnimation {
 class WebAnimationAPI {
     private var animation: WebAnimation? = null
 
+    /** Executes the play operation. */
     fun play() {
         animation?.play()
     }
 
+    /** Pauses the operation. */
     fun pause() {
         animation?.pause()
     }
 
+    /** Cancels the operation. */
     fun cancel() {
         animation?.cancel()
     }
 
+    /** Executes the finish operation. */
     fun finish() {
         animation?.finish()
     }
 
+    /** Executes the reverse operation. */
     fun reverse() {
         animation?.reverse()
     }
 
+    /**
+     * Sets animation.
+     *
+     * @param anim The anim value.
+     */
     fun setAnimation(anim: WebAnimation) {
         animation = anim
     }
 
+    /**
+     * Returns current time.
+     *
+     * @return The resulting value.
+     */
     fun getCurrentTime(): Double {
         return animation?.currentTime ?: 0.0
     }
 
+    /**
+     * Sets current time.
+     *
+     * @param time The time value.
+     */
     fun setCurrentTime(time: Double) {
         animation?.currentTime = time
     }
 
+    /**
+     * Returns playback rate.
+     *
+     * @return The resulting value.
+     */
     fun getPlaybackRate(): Double {
         return animation?.playbackRate ?: 1.0
     }
 
+    /**
+     * Sets playback rate.
+     *
+     * @param rate The rate value.
+     */
     fun setPlaybackRate(rate: Double) {
         animation?.let { it.playbackRate = rate }
     }
 
+    /**
+     * Returns whether paused.
+     *
+     * @return The resulting value.
+     */
     fun isPaused(): Boolean {
         return animation?.playState == "paused"
     }
 
+    /**
+     * Returns whether running.
+     *
+     * @return The resulting value.
+     */
     fun isRunning(): Boolean {
         return animation?.playState == "running"
     }
@@ -717,6 +937,13 @@ class WebAnimationAPI {
  * External interface for HTMLElement with animate method
  */
 external interface AnimatableElement {
+    /**
+     * Executes the animate operation.
+     *
+     * @param keyframes The keyframes value.
+     * @param options The options value.
+     * @return The resulting value.
+     */
     fun animate(keyframes: dynamic, options: dynamic): WebAnimation
 }
 

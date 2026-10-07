@@ -3,12 +3,8 @@ package codes.yousef.summon.integration.quarkus
 
 import codes.yousef.summon.runtime.Composable
 import codes.yousef.summon.runtime.PlatformRenderer
-import codes.yousef.summon.runtime.clearPlatformRenderer
-import codes.yousef.summon.runtime.setPlatformRenderer
 import io.quarkus.qute.RawString
 import io.quarkus.qute.TemplateExtension
-import kotlinx.html.div
-import kotlinx.html.stream.appendHTML
 
 /**
  * Registry for Summon components that can be accessed by name in Qute templates.
@@ -25,6 +21,8 @@ object QuteComponentRegistry {
     fun register(name: String, component: @Composable () -> Unit) {
         components[name] = component
     }
+    internal fun contains(name: String): Boolean = components.containsKey(name)
+
 
     /**
      * Render a component by name
@@ -35,19 +33,7 @@ object QuteComponentRegistry {
     fun renderComponent(name: String): String {
         val component = components[name] ?: return ""
 
-        // Set up the renderer
-        val renderer = PlatformRenderer()
-        setPlatformRenderer(renderer)
-
-        return try {
-            buildString {
-                appendHTML().div {
-                    component()
-                }
-            }
-        } finally {
-            clearPlatformRenderer()
-        }
+        return PlatformRenderer().renderComposableRoot(component)
     }
 }
 
@@ -56,6 +42,7 @@ object QuteComponentRegistry {
  */
 @TemplateExtension
 class QuteExtensions {
+    /** Provides qute extensions factory and constant members. */
     companion object {
         /**
          * Render a Summon component by name
@@ -81,12 +68,12 @@ class QuteExtensions {
          *
          * Then use them in Qute templates:
          * ```
-         * <html>
+         * <HTML>
          *   <body>
          *     {summon:component('header')}
          *   </body>
-         * </html>
+         * </HTML>
          * ```
          */
     }
-} 
+}

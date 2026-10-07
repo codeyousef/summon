@@ -13,9 +13,13 @@ import codes.yousef.summon.state.mutableStateOf
  * Animation entry mode for AnimatedVisibility
  */
 enum class EnterTransition {
-    FADE_IN,     // Fade in from transparent to opaque
-    SLIDE_IN,    // Slide in from the specified direction
-    EXPAND_IN,   // Expand from a smaller size
+    /** The fade in enter transition option. */
+    FADE_IN,
+    /** The slide in enter transition option. */
+    SLIDE_IN,
+    /** The expand in enter transition option. */
+    EXPAND_IN,
+    /** The zoom in enter transition option. */
     ZOOM_IN      // Zoom in from a smaller scale
 }
 
@@ -23,9 +27,13 @@ enum class EnterTransition {
  * Animation exit mode for AnimatedVisibility
  */
 enum class ExitTransition {
-    FADE_OUT,    // Fade out from opaque to transparent
-    SLIDE_OUT,   // Slide out to the specified direction
-    SHRINK_OUT,  // Shrink to a smaller size
+    /** The fade out exit transition option. */
+    FADE_OUT,
+    /** The slide out exit transition option. */
+    SLIDE_OUT,
+    /** The shrink out exit transition option. */
+    SHRINK_OUT,
+    /** The zoom out exit transition option. */
     ZOOM_OUT     // Zoom out to a smaller scale
 }
 
@@ -33,14 +41,23 @@ enum class ExitTransition {
  * Slide direction for slide transitions
  */
 enum class SlideDirection {
+    /** The left slide direction option. */
     LEFT,
+    /** The right slide direction option. */
     RIGHT,
+    /** The up slide direction option. */
     UP,
+    /** The down slide direction option. */
     DOWN
 }
 
 /**
- * Parameters for entry and exit transitions
+ * Parameters shared by entry and exit transitions.
+ *
+ * @property duration animation duration in milliseconds
+ * @property easing timing curve
+ * @property delay delay before animation in milliseconds
+ * @property slideDirection direction used by slide transitions
  */
 data class TransitionParams(
     val duration: Int = 300,
@@ -117,7 +134,22 @@ fun AnimatedVisibility(
     }
 }
 
+/**
+ * State-backed overload of [AnimatedVisibility].
+ *
+ * Reads [visible] during composition and delegates to the Boolean implementation.
+ */
 // Overload for State<Boolean>
+/**
+ * Renders animated visibility.
+ *
+ * @param visible The visible value.
+ * @param modifier Styles and attributes applied to the rendered element.
+ * @param enter The enter value.
+ * @param exit The exit value.
+ * @param exitDuration The exit duration value.
+ * @param content Composable content emitted by this API.
+ */
 @Composable
 fun AnimatedVisibility(
     visible: State<Boolean>,

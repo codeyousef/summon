@@ -200,6 +200,7 @@ class SpringBootRenderer {
         }
     }
 
+    /** Provides spring boot renderer factory and constant members. */
     companion object {
         /**
          * Extension function to get a SpringBootRenderer for the current request.
@@ -207,22 +208,22 @@ class SpringBootRenderer {
         fun getCurrentRenderer(): SpringBootRenderer {
             return SpringBootRenderer()
         }
-        
+
         /**
          * Handles requests for Summon hydration assets from the library JAR.
          * Use this method in a Spring controller to serve assets.
-         * 
+         *
          * Supported paths:
-         * - `/summon-hydration.js` - JavaScript hydration client (for JS mode)
-         * - `/summon-hydration.wasm` - WebAssembly module (stable name)
-         * - `/summon-hydration.wasm.js` - WASM loader script
-         * - `/{hash}.wasm` - Hashed WASM files (webpack generates these with content hashes)
-         * 
+         * - `/summon-hydration.JS` - JavaScript hydration client (for JS mode)
+         * - `/summon-hydration.WASM` - WebAssembly module (stable name)
+         * - `/summon-hydration.WASM.JS` - WASM loader script
+         * - `/{hash}.WASM` - Hashed WASM files (webpack generates these with content hashes)
+         *
          * Example usage in a controller:
          * ```kotlin
          * @GetMapping(
-         *     "/summon-hydration.js", "/summon-hydration.wasm", "/summon-hydration.wasm.js",
-         *     "/{hash:[a-f0-9]+}.wasm"
+         *     "/summon-hydration.JS", "/summon-hydration.WASM", "/summon-hydration.WASM.JS",
+         *     "/{hash:[a-f0-9]+}.WASM"
          * )
          * fun summonAssets(request: HttpServletRequest, response: HttpServletResponse) {
          *     SpringBootRenderer.handleSummonAsset(request, response)
@@ -231,23 +232,23 @@ class SpringBootRenderer {
          */
         fun handleSummonAsset(request: HttpServletRequest, response: HttpServletResponse) {
             val path = request.servletPath
-            
+
             // Determine the asset name based on the path
             val assetName = when {
                 // Handle /static/* paths
-                path.startsWith("/static/") -> path.removePrefix("/")
+                path.startsWith("/static/") -> path.removePrefix("/static/")
                 // Handle hashed WASM files (e.g., /abc123def456.wasm)
                 path.matches(Regex("^/[a-f0-9]+\\.wasm$")) -> path.removePrefix("/")
                 // Handle root-level assets
                 else -> path.substringAfterLast('/')
             }
-            
+
             val contentType = when {
                 assetName.endsWith(".wasm") && !assetName.endsWith(".wasm.js") -> "application/wasm"
                 assetName.endsWith(".js") -> "application/javascript"
                 else -> "application/octet-stream"
             }
-            
+
             val payload = loadSummonAsset(assetName)
             if (payload != null) {
                 response.status = HttpStatus.OK.value()
@@ -264,7 +265,7 @@ class SpringBootRenderer {
                 response.writer.write("""{"status":"not-found","asset":"$assetName"}""")
             }
         }
-        
+
         // Cache for compressed assets
         private val compressedAssetCache = ConcurrentHashMap<String, ByteArray>()
         private val rawAssetCache = ConcurrentHashMap<String, ByteArray>()
@@ -276,7 +277,7 @@ class SpringBootRenderer {
          * ```kotlin
          * @GetMapping("/summon-hydration.js")
          * fun summonJs(request: HttpServletRequest): ResponseEntity<ByteArray> =
-         *     SpringBootRenderer.getSummonAsset("summon-hydration.js", request)
+         *     SpringBootRenderer.getSummonAsset("summon-hydration.JS", request)
          * ```
          */
         fun getSummonAsset(name: String, request: HttpServletRequest? = null): ResponseEntity<ByteArray> {
@@ -380,4 +381,4 @@ class SpringBootRenderer {
             return null
         }
     }
-} 
+}

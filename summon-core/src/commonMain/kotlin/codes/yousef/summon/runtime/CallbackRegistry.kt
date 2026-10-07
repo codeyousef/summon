@@ -9,6 +9,12 @@ internal expect fun generateCallbackCapability(): String
 
 internal expect fun <T> withCallbackRegistryLock(lock: CallbackRegistryLock, block: () -> T): T
 
+/**
+ * Represents callback render context.
+ *
+ * @property callbackIds The callback ids value.
+ * @property capability The capability value.
+ */
 data class CallbackRenderContext(
     val callbackIds: Set<String>,
     val capability: String
@@ -244,7 +250,22 @@ object CallbackRegistry {
  * This is implemented differently on JS and JVM platforms.
  */
 expect object SummonLogger {
+    /**
+     * Executes the log operation.
+     *
+     * @param message Message content.
+     */
     fun log(message: String)
+    /**
+     * Executes the warn operation.
+     *
+     * @param message Message content.
+     */
     fun warn(message: String)
+    /**
+     * Executes the error operation.
+     *
+     * @param message Message content.
+     */
     fun error(message: String)
 }

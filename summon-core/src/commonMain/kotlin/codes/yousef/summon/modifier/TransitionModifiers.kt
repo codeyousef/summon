@@ -2,9 +2,24 @@ package codes.yousef.summon.modifier
 
 import codes.yousef.summon.core.mapOfCompat
 
+/**
+ * Executes the transition operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun Modifier.transition(value: String): Modifier =
     style("transition", value)
 
+/**
+ * Executes the transition operation.
+ *
+ * @param property The property value.
+ * @param duration Duration in milliseconds.
+ * @param timingFunction The timing function value.
+ * @param delay Delay in milliseconds.
+ * @return The resulting value.
+ */
 fun Modifier.transition(
     property: TransitionProperty = TransitionProperty.All,
     duration: Number = 300,
@@ -15,6 +30,15 @@ fun Modifier.transition(
     return style("transition", transition)
 }
 
+/**
+ * Executes the transition operation.
+ *
+ * @param property The property value.
+ * @param duration Duration in milliseconds.
+ * @param timingFunction The timing function value.
+ * @param delay Delay in milliseconds.
+ * @return The resulting value.
+ */
 fun Modifier.transition(
     property: String,
     duration: Number = 300,
@@ -25,6 +49,15 @@ fun Modifier.transition(
     return style("transition", transition)
 }
 
+/**
+ * Executes the transition operation.
+ *
+ * @param property The property value.
+ * @param duration Duration in milliseconds.
+ * @param timingFunction The timing function value.
+ * @param delay Delay in milliseconds.
+ * @return The resulting value.
+ */
 fun Modifier.transition(
     property: TransitionProperty = TransitionProperty.All,
     duration: String,
@@ -35,68 +68,194 @@ fun Modifier.transition(
     return style("transition", transition)
 }
 
+/**
+ * Executes the transition property operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun Modifier.transitionProperty(value: String): Modifier =
     style("transition-property", value)
 
+/**
+ * Executes the transition property operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun Modifier.transitionProperty(value: TransitionProperty): Modifier =
     style("transition-property", value.toString())
 
+/**
+ * Executes the transition duration operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun Modifier.transitionDuration(value: String): Modifier =
     style("transition-duration", value)
 
+/**
+ * Executes the transition duration operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun Modifier.transitionDuration(value: Number): Modifier =
     style("transition-duration", value.toString() + "ms")
 
+/**
+ * Executes the transition timing function operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun Modifier.transitionTimingFunction(value: String): Modifier =
     style("transition-timing-function", value)
 
+/**
+ * Executes the transition timing function operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun Modifier.transitionTimingFunction(value: TransitionTimingFunction): Modifier =
     style("transition-timing-function", value.toString())
 
+/**
+ * Executes the transition delay operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun Modifier.transitionDelay(value: String): Modifier =
     style("transition-delay", value)
 
+/**
+ * Executes the transition delay operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun Modifier.transitionDelay(value: Number): Modifier =
     style("transition-delay", value.toString() + "ms")
 
+/**
+ * Executes the hover operation.
+ *
+ * @param hoverModifier The hover modifier value.
+ * @return The resulting value.
+ */
 fun Modifier.hover(hoverModifier: Modifier): Modifier =
     hover(hoverModifier.styles)
 
 
 
+/**
+ * Executes the backdrop filter operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun Modifier.backdropFilter(value: String): Modifier =
     style("backdrop-filter", value)
 
+/**
+ * Executes the backdrop blur operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun Modifier.backdropBlur(value: String): Modifier =
     backdropFilter("blur($value)")
 
+/**
+ * Executes the backdrop blur operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun Modifier.backdropBlur(value: Number): Modifier =
     backdropBlur("${value}px")
 
+/**
+ * Executes the backdrop brightness operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun Modifier.backdropBrightness(value: Number): Modifier =
     backdropFilter("brightness($value)")
 
+/**
+ * Executes the backdrop contrast operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun Modifier.backdropContrast(value: Number): Modifier =
     backdropFilter("contrast($value)")
 
+/**
+ * Executes the backdrop saturate operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun Modifier.backdropSaturate(value: Number): Modifier =
     backdropFilter("saturate($value)")
 
+/**
+ * Executes the backdrop grayscale operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun Modifier.backdropGrayscale(value: Number): Modifier =
     backdropFilter("grayscale($value)")
 
+/**
+ * Executes the backdrop hue rotate operation.
+ *
+ * @param degrees The degrees value.
+ * @return The resulting value.
+ */
 fun Modifier.backdropHueRotate(degrees: Number): Modifier =
     backdropFilter("hue-rotate(${degrees}deg)")
 
+/**
+ * Executes the backdrop invert operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun Modifier.backdropInvert(value: Number): Modifier =
     backdropFilter("invert($value)")
 
+/**
+ * Executes the backdrop sepia operation.
+ *
+ * @param value Value to process.
+ * @return The resulting value.
+ */
 fun Modifier.backdropSepia(value: Number): Modifier =
     backdropFilter("sepia($value)")
 
+/**
+ * Executes the backdrop filters operation.
+ *
+ * @param filters The filters value.
+ * @return The resulting value.
+ */
 fun Modifier.backdropFilters(vararg filters: String): Modifier =
     backdropFilter(filters.joinToString(" "))
 
+/**
+ * Executes the hover elevation operation.
+ *
+ * @param elevation The elevation value.
+ * @return The resulting value.
+ */
 fun Modifier.hoverElevation(elevation: String): Modifier =
     hover(mapOfCompat("box-shadow" to elevation))
 

@@ -16,6 +16,13 @@ import codes.yousef.summon.security.annotations.RequiresRoles
  * A route guard that checks if the user is authenticated.
  */
 class AuthenticationGuard : RouteGuard {
+    /**
+     * Returns whether this value can activate.
+     *
+     * @param route The route value.
+     * @param params The params value.
+     * @return The resulting value.
+     */
     override fun canActivate(route: Route, params: RouteParams): GuardResult {
         return if (SecurityContext.isAuthenticated()) {
             GuardResult.Allow
@@ -27,8 +34,17 @@ class AuthenticationGuard : RouteGuard {
 
 /**
  * A route guard that checks if the user has a specific role.
+
+ * @property role The role value.
  */
 class RoleGuard(private val role: Role) : RouteGuard {
+    /**
+     * Returns whether this value can activate.
+     *
+     * @param route The route value.
+     * @param params The params value.
+     * @return The resulting value.
+     */
     override fun canActivate(route: Route, params: RouteParams): GuardResult {
         return if (SecurityContext.hasRole(role)) {
             GuardResult.Allow
@@ -40,8 +56,18 @@ class RoleGuard(private val role: Role) : RouteGuard {
 
 /**
  * A route guard that checks if the user has a specific set of roles.
+
+ * @property roles The roles value.
+ * @property requireAll The require all value.
  */
 class RolesGuard(private val roles: Set<Role>, private val requireAll: Boolean = false) : RouteGuard {
+    /**
+     * Returns whether this value can activate.
+     *
+     * @param route The route value.
+     * @param params The params value.
+     * @return The resulting value.
+     */
     override fun canActivate(route: Route, params: RouteParams): GuardResult {
         val hasRoles = if (requireAll) {
             roles.all { SecurityContext.hasRole(it) }
@@ -59,8 +85,17 @@ class RolesGuard(private val roles: Set<Role>, private val requireAll: Boolean =
 
 /**
  * A route guard that checks if the user has a specific permission.
+
+ * @property permission The permission value.
  */
 class PermissionGuard(private val permission: Permission) : RouteGuard {
+    /**
+     * Returns whether this value can activate.
+     *
+     * @param route The route value.
+     * @param params The params value.
+     * @return The resulting value.
+     */
     override fun canActivate(route: Route, params: RouteParams): GuardResult {
         return if (SecurityContext.hasPermission(permission)) {
             GuardResult.Allow
@@ -72,8 +107,18 @@ class PermissionGuard(private val permission: Permission) : RouteGuard {
 
 /**
  * A route guard that checks if the user has a specific set of permissions.
+
+ * @property permissions The permissions value.
+ * @property requireAll The require all value.
  */
 class PermissionsGuard(private val permissions: Set<Permission>, private val requireAll: Boolean = false) : RouteGuard {
+    /**
+     * Returns whether this value can activate.
+     *
+     * @param route The route value.
+     * @param params The params value.
+     * @return The resulting value.
+     */
     override fun canActivate(route: Route, params: RouteParams): GuardResult {
         val hasPermissions = if (requireAll) {
             permissions.all { SecurityContext.hasPermission(it) }
@@ -91,12 +136,23 @@ class PermissionsGuard(private val permissions: Set<Permission>, private val req
 
 /**
  * A route guard that checks if the user meets the security requirements specified by annotations.
+
+ * @property requiresAuthentication The requires authentication value.
+ * @property requiredRoles The required roles value.
+ * @property requiredPermissions The required permissions value.
  */
 class AnnotationBasedGuard(
     private val requiresAuthentication: Boolean = false,
     private val requiredRoles: Set<Role> = emptySet(),
     private val requiredPermissions: Set<Permission> = emptySet()
 ) : RouteGuard {
+    /**
+     * Returns whether this value can activate.
+     *
+     * @param route The route value.
+     * @param params The params value.
+     * @return The resulting value.
+     */
     override fun canActivate(route: Route, params: RouteParams): GuardResult {
         // First check authentication if required
         if (requiresAuthentication && !SecurityContext.isAuthenticated()) {
@@ -125,8 +181,17 @@ class AnnotationBasedGuard(
 
 /**
  * A route guard that combines multiple guards.
+
+ * @property guards The guards value.
  */
 class CompositeGuard(private val guards: List<RouteGuard>) : RouteGuard {
+    /**
+     * Returns whether this value can activate.
+     *
+     * @param route The route value.
+     * @param params The params value.
+     * @return The resulting value.
+     */
     override fun canActivate(route: Route, params: RouteParams): GuardResult {
         for (guard in guards) {
             val result = guard.canActivate(route, params)
@@ -137,6 +202,7 @@ class CompositeGuard(private val guards: List<RouteGuard>) : RouteGuard {
         return GuardResult.Allow
     }
 
+    /** Provides composite guard factory and constant members. */
     companion object {
         /**
          * Create a guard that requires all child guards to pass.
@@ -212,4 +278,4 @@ object SecurityGuardFactory {
     fun createGuard(annotation: RequiresAuthentication): RouteGuard {
         return AuthenticationGuard()
     }
-} 
+}

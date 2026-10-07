@@ -26,7 +26,7 @@ import java.util.zip.GZIPOutputStream
  * IMPORTANT: To use this class, you must add the following dependencies to your project:
  * - io.ktor:ktor-server-core
  * - io.ktor:ktor-server-netty (or another engine)
- * - io.ktor:ktor-server-html-builder
+ * - io.ktor:ktor-server-HTML-builder
  */
 class KtorRenderer {
 
@@ -39,16 +39,15 @@ class KtorRenderer {
     fun renderToString(content: @Composable () -> Unit): String {
         val renderer = PlatformRenderer()
         setPlatformRenderer(renderer)
-
-        // Render the component to a string
         return try {
+            val componentHtml = renderer.renderComposableRoot(content)
             createHTML().html {
                 head {
                     meta(charset = "UTF-8")
                     meta(name = "viewport", content = "width=device-width, initial-scale=1.0")
                 }
                 body {
-                    content()
+                    unsafe { +componentHtml }
                 }
             }
         } finally {
@@ -105,6 +104,7 @@ class KtorRenderer {
         }
     }
 
+    /** Provides ktor renderer factory and constant members. */
     companion object {
         /**
          * Extension function to create a route that renders a Summon composable.
@@ -225,17 +225,17 @@ class KtorRenderer {
             dir: String = "ltr",
             content: @Composable () -> Unit
         ) = respondSummonHydrated(status, lang, dir, content)
-        
+
         /**
          * Serves Summon hydration assets (JS, WASM) directly from the library JAR.
          * This removes the need for users to manually extract and serve static files.
          *
          * Assets are served at the following paths:
-         * - `/summon-hydration.js` - JavaScript hydration client (for JS mode)
-         * - `/summon-bootloader.js` - Browser detection, script loading, and hydration initialization
-         * - `/summon-hydration.wasm` - WebAssembly module (stable name)
-         * - `/summon-hydration.wasm.js` - WASM loader script
-         * - `/{hash}.wasm` - Hashed WASM files (webpack generates these with content hashes)
+         * - `/summon-hydration.JS` - JavaScript hydration client (for JS mode)
+         * - `/summon-bootloader.JS` - Browser detection, script loading, and hydration initialization
+         * - `/summon-hydration.WASM` - WebAssembly module (stable name)
+         * - `/summon-hydration.WASM.JS` - WASM loader script
+         * - `/{hash}.WASM` - Hashed WASM files (webpack generates these with content hashes)
          *
          * Usage:
          * ```kotlin
@@ -283,19 +283,19 @@ class KtorRenderer {
                 }
             }
         }
-        
+
         /**
          * Handles callback execution requests from the hydration client.
          * This allows server-side callbacks to be triggered by client-side events.
-         * 
+         *
          * Endpoints:
          * - `POST /summon/callback/{callbackId}` - Executes a registered callback
-         * 
+         *
          * Response format (JSON):
          * - Success: `{"action":"reload","status":"ok"}`
          * - Not found: `{"action":"noop","status":"missing"}`
-         * - Invalid: `{"action":"error","status":"missing-id"}`
-         * 
+         * - Invalid: `{"action":"error","status":"missing-ID"}`
+         *
          * Usage:
          * ```kotlin
          * routing {
@@ -325,7 +325,7 @@ class KtorRenderer {
                 }
             }
         }
-        
+
         // Cache for compressed assets to avoid re-compressing on each request
         private val compressedAssetCache = ConcurrentHashMap<String, ByteArray>()
         private val rawAssetCache = ConcurrentHashMap<String, ByteArray>()

@@ -15,8 +15,19 @@ private fun hasFileSystemAccess(): Boolean {
     return js("typeof window.showOpenFilePicker === 'function'") as Boolean
 }
 
+/**
+ * Returns whether file system access supported.
+ *
+ * @return The resulting value.
+ */
 actual fun isFileSystemAccessSupported(): Boolean = hasFileSystemAccess()
 
+/**
+ * Executes the show open file dialog operation.
+ *
+ * @param options The options value.
+ * @return The resulting value.
+ */
 actual suspend fun showOpenFileDialog(options: FileDialogOptions): List<FileInfo>? {
     return if (hasFileSystemAccess()) {
         showOpenFileDialogModern(options)
@@ -122,6 +133,13 @@ private suspend fun showOpenFileDialogFallback(options: FileDialogOptions): List
     }
 }
 
+/**
+ * Executes the show directory picker operation.
+ *
+ * @param title The title value.
+ * @param startIn The start in value.
+ * @return The resulting value.
+ */
 actual suspend fun showDirectoryPicker(title: String?, startIn: String?): DirectoryHandle? {
     if (!hasFileSystemAccess()) return null
 
@@ -139,6 +157,12 @@ actual suspend fun showDirectoryPicker(title: String?, startIn: String?): Direct
     }
 }
 
+/**
+ * Executes the show save file dialog operation.
+ *
+ * @param options The options value.
+ * @return The resulting value.
+ */
 actual suspend fun showSaveFileDialog(options: SaveDialogOptions): SaveDialogResult? {
     if (!hasFileSystemAccess()) return null
 

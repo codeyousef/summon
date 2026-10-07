@@ -2,16 +2,39 @@ package codes.yousef.summon.devtools
 
 /** Sensitivity is explicit; fields are redacted unless the caller opts into public inspection. */
 enum class DebugFieldSensitivity {
+    /** The public debug field sensitivity option. */
     PUBLIC,
+    /** The redacted debug field sensitivity option. */
     REDACTED
 }
 
 /** Values supported by the inspector. Arbitrary objects are intentionally not representable. */
 sealed interface DebugValue {
+    /** Provides null operations. */
     data object Null : DebugValue
+    /**
+     * Represents boolean value.
+     *
+     * @property value Value to process.
+     */
     data class BooleanValue(val value: Boolean) : DebugValue
+    /**
+     * Represents string value.
+     *
+     * @property value Value to process.
+     */
     data class StringValue(val value: String) : DebugValue
+    /**
+     * Represents long value.
+     *
+     * @property value Value to process.
+     */
     data class LongValue(val value: Long) : DebugValue
+    /**
+     * Represents double value.
+     *
+     * @property value Value to process.
+     */
     data class DoubleValue(val value: Double) : DebugValue {
         init {
             require(value.isFinite()) { "Debug floating-point values must be finite" }
@@ -21,15 +44,30 @@ sealed interface DebugValue {
 
 /** Typed conversion boundary for public debug fields. */
 interface DebugFieldCodec<T> {
+    /** The property declaration value. */
     val typeName: String
+    /**
+     * Executes the encode operation.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     fun encode(value: T): DebugValue
+    /**
+     * Executes the decode operation.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     fun decode(value: DebugValue): T
 }
 
 /** Built-in codecs accepted by the inspector and timeline. */
 object DebugFieldCodecs {
+    /** The property declaration value. */
     const val MAX_STRING_UTF8_BYTES: Int = 4_096
 
+    /** The property declaration value. */
     val nullableBoolean: DebugFieldCodec<Boolean?> = object : DebugFieldCodec<Boolean?> {
         override val typeName: String = "boolean?"
         override fun encode(value: Boolean?): DebugValue = value?.let(DebugValue::BooleanValue) ?: DebugValue.Null
@@ -40,6 +78,7 @@ object DebugFieldCodecs {
         }
     }
 
+    /** The property declaration value. */
     val nullableString: DebugFieldCodec<String?> = object : DebugFieldCodec<String?> {
         override val typeName: String = "string?"
         override fun encode(value: String?): DebugValue = value?.let {
@@ -54,6 +93,7 @@ object DebugFieldCodecs {
         }
     }
 
+    /** The property declaration value. */
     val nullableLong: DebugFieldCodec<Long?> = object : DebugFieldCodec<Long?> {
         override val typeName: String = "long?"
         override fun encode(value: Long?): DebugValue = value?.let(DebugValue::LongValue) ?: DebugValue.Null
@@ -64,6 +104,7 @@ object DebugFieldCodecs {
         }
     }
 
+    /** The property declaration value. */
     val nullableDouble: DebugFieldCodec<Double?> = object : DebugFieldCodec<Double?> {
         override val typeName: String = "double?"
         override fun encode(value: Double?): DebugValue = value?.let(DebugValue::DoubleValue) ?: DebugValue.Null
@@ -74,6 +115,12 @@ object DebugFieldCodecs {
         }
     }
 
+    /**
+     * Executes the require bounded string operation.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     fun requireBoundedString(value: String): String {
         require(value.encodeToByteArray().size <= MAX_STRING_UTF8_BYTES) {
             "Debug strings must not exceed $MAX_STRING_UTF8_BYTES UTF-8 bytes"
@@ -82,7 +129,12 @@ object DebugFieldCodecs {
     }
 }
 
-/** Stable renderer identity plus a root-local monotonic node identity. */
+/**
+ * Stable renderer identity plus a root-local monotonic node identity.
+ *
+ * @property rendererId The renderer id value.
+ * @property localId The local id value.
+ */
 data class InspectorNodeId(val rendererId: String, val localId: Long) {
     init {
         require(rendererId.isNotBlank()) { "Renderer identity must not be blank" }
@@ -90,7 +142,15 @@ data class InspectorNodeId(val rendererId: String, val localId: Long) {
     }
 }
 
-/** Current actual renderer hierarchy. [children] order is render order, not identity. */
+/**
+ * Current actual renderer hierarchy. [children] order is render order, not identity.
+ *
+ * @property id Stable identifier.
+ * @property parentId The parent id value.
+ * @property label The label value.
+ * @property children The children value.
+ * @property connected The connected value.
+ */
 data class InspectorNode(
     val id: InspectorNodeId,
     val parentId: InspectorNodeId?,
@@ -99,23 +159,60 @@ data class InspectorNode(
     val connected: Boolean
 )
 
+/** Contract for inspector tree listener. */
 fun interface InspectorTreeListener {
+    /**
+     * Handles tree changed.
+     *
+     * @param nodes The nodes value.
+     */
     fun onTreeChanged(nodes: List<InspectorNode>)
 }
 
 /** Platform renderer observation. Disposing must release platform and DOM references. */
 interface InspectorTreeSource {
+    /** The property declaration value. */
     val rendererId: String
+    /**
+     * Executes the snapshot operation.
+     *
+     * @return The resulting value.
+     */
     fun snapshot(): List<InspectorNode>
+    /**
+     * Executes the observe operation.
+     *
+     * @param listener The listener value.
+     * @return The resulting value.
+     */
     fun observe(listener: InspectorTreeListener): InspectorDisposable
+    /**
+     * Executes the highlight operation.
+     *
+     * @param nodeId The node id value.
+     * @return The resulting value.
+     */
     fun highlight(nodeId: InspectorNodeId?): Boolean
+    /** Disposes the operation. */
     fun dispose()
 }
 
+/** Contract for inspector disposable. */
 fun interface InspectorDisposable {
+    /** Disposes the operation. */
     fun dispose()
 }
 
+/**
+ * Represents inspector field.
+ *
+ * @property nodeId The node id value.
+ * @property name Human-readable name.
+ * @property sensitivity The sensitivity value.
+ * @property typeName The type name value.
+ * @property editable The editable value.
+ * @property value Value to process.
+ */
 data class InspectorField(
     val nodeId: InspectorNodeId,
     val name: String,
@@ -124,13 +221,22 @@ data class InspectorField(
     val editable: Boolean,
     val value: DebugValue?
 ) {
+    /** Provides inspector field factory and constant members. */
     companion object {
+        /** The property declaration value. */
         const val REDACTION_MARKER: String = "<redacted>"
     }
 }
 
+/** Contract for inspector edit result. */
 sealed interface InspectorEditResult {
+    /** Provides applied operations. */
     data object Applied : InspectorEditResult
+    /**
+     * Represents rejected.
+     *
+     * @property reason The reason value.
+     */
     data class Rejected(val reason: String) : InspectorEditResult
 }
 
@@ -140,6 +246,9 @@ sealed interface InspectorEditResult {
  * Redacted getters are never invoked. Call [dispose] to detach tree observers, highlights, fields,
  * setters, listeners, and platform references. This API is shipped only by the separate devtools
  * artifact; applications must not add that artifact to production runtime configurations.
+
+ * @property treeSource The tree source value.
+ * @property renderDispatcher The render dispatcher value.
  */
 class InspectorSession(
     private val treeSource: InspectorTreeSource,
@@ -238,13 +347,25 @@ class InspectorSession(
         }
     }
 
+    /** The property declaration value. */
     val rendererId: String get() = treeSource.rendererId
 
+    /**
+     * Executes the tree operation.
+     *
+     * @return The resulting value.
+     */
     fun tree(): List<InspectorNode> {
         checkOpen()
         return nodes
     }
 
+    /**
+     * Executes the observe tree operation.
+     *
+     * @param listener The listener value.
+     * @return The resulting value.
+     */
     fun observeTree(listener: InspectorTreeListener): InspectorDisposable {
         checkOpen()
         listeners += listener
@@ -274,6 +395,13 @@ class InspectorSession(
         return registerRedactedField(nodeId, name)
     }
 
+    /**
+     * Registers redacted field.
+     *
+     * @param nodeId The node id value.
+     * @param name Human-readable name.
+     * @return The resulting value.
+     */
     fun registerRedactedField(nodeId: InspectorNodeId, name: String): InspectorDisposable =
         registerField<Any?>(
             nodeId = nodeId,
@@ -284,6 +412,17 @@ class InspectorSession(
             setter = null
         )
 
+    /**
+     * Explicitly exposes one typed field to development tooling.
+     *
+     * Fields remain private unless registered through this method. Credential-like names are
+     * rejected, values must pass [codec], and omitting [setter] makes the field read-only.
+     * Dispose the returned registration before the node or backing state is released.
+     *
+     * @throws IllegalArgumentException if the node is not live, the name is unsafe, or registration
+     * is duplicated
+     * @sample codes.yousef.summon.devtools.inspectorPrivacyAndTimeTravelSample
+     */
     fun <T> registerPublicField(
         nodeId: InspectorNodeId,
         name: String,
@@ -325,6 +464,15 @@ class InspectorSession(
         }
     }
 
+    /**
+     * Creates a bounded, session-owned state timeline.
+     *
+     * Only explicitly registered PUBLIC fields are recorded. Disposing this session also disposes
+     * the timeline; callers may dispose it earlier.
+     *
+     * @throws IllegalArgumentException when [capacity] is outside the supported range
+     * @sample codes.yousef.summon.devtools.inspectorPrivacyAndTimeTravelSample
+     */
     fun createTimeline(capacity: Int = StateTimeline.DEFAULT_CAPACITY): StateTimeline {
         checkOpen()
         val timeline = StateTimeline(timelineAccess, capacity) { disposedTimeline ->
@@ -335,6 +483,12 @@ class InspectorSession(
     }
 
 
+    /**
+     * Executes the fields operation.
+     *
+     * @param nodeId The node id value.
+     * @return The resulting value.
+     */
     fun fields(nodeId: InspectorNodeId): List<InspectorField> {
         checkOpen()
         requireNode(nodeId)
@@ -357,6 +511,14 @@ class InspectorSession(
             .toList()
     }
 
+    /**
+     * Executes the edit operation.
+     *
+     * @param nodeId The node id value.
+     * @param name Human-readable name.
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     fun edit(nodeId: InspectorNodeId, name: String, value: DebugValue): InspectorEditResult {
         checkOpen()
         val field = fields[nodeId to name]
@@ -382,12 +544,22 @@ class InspectorSession(
         }
     }
 
+    /**
+     * Executes the highlight operation.
+     *
+     * @param nodeId The node id value.
+     * @return The resulting value.
+     */
     fun highlight(nodeId: InspectorNodeId?): Boolean {
         checkOpen()
         if (nodeId != null && nodes.none { it.id == nodeId && it.connected }) return false
         return treeSource.highlight(nodeId)
     }
 
+    /**
+     * Releases tree observers, field/action registrations, timelines, and platform references.
+     * Repeated calls have no effect.
+     */
     fun dispose() {
         if (disposed) return
         disposed = true

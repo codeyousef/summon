@@ -8,6 +8,7 @@ import codes.yousef.summon.routing.pages.NotFoundPage
 import codes.yousef.summon.routing.pages.blog.BlogPostPage
 import codes.yousef.summon.routing.pages.users.UserProfilePage
 
+/** Provides generated page loader operations. */
 object GeneratedPageLoader {
     /**
      * Register all discovered pages with the given registry.

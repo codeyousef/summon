@@ -1,9 +1,10 @@
 package codes.yousef.summon.integration.quarkus.htmx
 
 import codes.yousef.summon.annotation.Composable
-import codes.yousef.summon.components.layout.Box
+import codes.yousef.summon.components.foundation.TrustedHtml
 import codes.yousef.summon.integration.quarkus.qute.QuteTemplateRenderer
 import codes.yousef.summon.modifier.*
+import codes.yousef.summon.runtime.LocalPlatformRenderer
 import io.quarkus.qute.Template
 
 /**
@@ -35,10 +36,7 @@ fun HtmxQuteTemplate(
     hxSwap: String? = null,
     modifier: Modifier = Modifier()
 ) {
-    // Render the template
-    val html = QuteTemplateRenderer.renderTemplate(template, data)
-
-    // Apply HTMX attributes
+    val html = TrustedHtml.fromAuthorCode(QuteTemplateRenderer.renderTemplate(template, data))
     var htmxModifier = modifier
     if (hxGet != null) htmxModifier = htmxModifier.htmlAttribute("hx-get", hxGet)
     if (hxPost != null) htmxModifier = htmxModifier.htmlAttribute("hx-post", hxPost)
@@ -46,9 +44,9 @@ fun HtmxQuteTemplate(
     if (hxTarget != null) htmxModifier = htmxModifier.htmlAttribute("hx-target", hxTarget)
     if (hxSwap != null) htmxModifier = htmxModifier.htmlAttribute("hx-swap", hxSwap)
 
-    // Use the htmlAttribute extension function to add the raw HTML content
-    Box(htmxModifier.htmlAttribute("__raw_html", html)) {
-        // Empty content as the HTML is provided via the __raw_html attribute
+    val renderer = LocalPlatformRenderer.current
+    renderer.renderBox(htmxModifier) {
+        renderer.renderRawHtml(html)
     }
 }
 
@@ -111,17 +109,13 @@ fun HtmxQuteContainer(
     swap: String? = null,
     modifier: Modifier = Modifier()
 ) {
-    // Render the template
-    val html = QuteTemplateRenderer.renderTemplate(template, data)
-
-    // Create a modifier with HTMX attributes
+    val html = TrustedHtml.fromAuthorCode(QuteTemplateRenderer.renderTemplate(template, data))
     val htmxModifier = modifier
         .htmlAttribute("id", id)
         .htmxGet(endpoint, target, swap, trigger)
-
-    // Use the htmlAttribute extension function to add the raw HTML content
-    Box(htmxModifier.htmlAttribute("__raw_html", html)) {
-        // Empty content as the HTML is provided via the __raw_html attribute
+    val renderer = LocalPlatformRenderer.current
+    renderer.renderBox(htmxModifier) {
+        renderer.renderRawHtml(html)
     }
 }
 

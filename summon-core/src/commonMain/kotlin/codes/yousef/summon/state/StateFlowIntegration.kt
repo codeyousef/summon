@@ -125,6 +125,7 @@ fun <T> SummonMutableState<T>.toSharedFlow(
     level = DeprecationLevel.ERROR
 )
 @Suppress("DEPRECATION_ERROR")
+/** The property declaration value. */
 val <T> SummonMutableState<T>.asStateFlow: StateFlow<T>
     get() = this.toStateFlow().asStateFlow()
 
@@ -136,6 +137,7 @@ val <T> SummonMutableState<T>.asStateFlow: StateFlow<T>
     level = DeprecationLevel.ERROR
 )
 @Suppress("DEPRECATION_ERROR")
+/** The property declaration value. */
 val <T> SummonMutableState<T>.asSharedFlow: SharedFlow<T>
     get() = this.toSharedFlow().asSharedFlow()
 
@@ -157,4 +159,4 @@ fun <T> SummonMutableState<T>.toStateFlow(): MutableStateFlow<T> {
     }
 
     return stateFlow
-} 
+}

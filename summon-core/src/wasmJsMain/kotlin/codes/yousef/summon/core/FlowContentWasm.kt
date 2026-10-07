@@ -2,7 +2,7 @@ package codes.yousef.summon.core
 
 /**
  * WASM implementation of FlowContentCompat that provides the necessary interface
- * for the composition system without depending on kotlinx.html.
+ * for the composition system without depending on kotlinx.HTML.
  *
  * This implementation ensures that the composition system has a proper object
  * to work with during recomposition, preventing type cast errors.

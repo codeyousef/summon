@@ -10,9 +10,13 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
  * Animation styles available for the Progress component.
  */
 enum class ProgressAnimation {
+    /** The none progress animation option. */
     NONE,
+    /** The smooth progress animation option. */
     SMOOTH,
+    /** The pulse progress animation option. */
     PULSE,
+    /** The bounce progress animation option. */
     BOUNCE
 }
 
@@ -20,14 +24,27 @@ enum class ProgressAnimation {
  * Visual types supported by the Progress component.
  */
 enum class ProgressType {
+    /** The linear progress type option. */
     LINEAR,
+    /** The circular progress type option. */
     CIRCULAR,
+    /** The indeterminate progress type option. */
     INDETERMINATE
 }
 
 /**
- * Core data class backing the Progress component. The heavy styling/animation
- * logic lives here so higher-level convenience APIs can stay lightweight.
+ * Configured progress indicator.
+ *
+ * @property modifier root modifier
+ * @property type indicator geometry and determination mode
+ * @property value current progress, or `null` for indeterminate progress
+ * @property maxValue positive maximum
+ * @property color indicator color
+ * @property trackColor background track color
+ * @property size named or CSS size
+ * @property thickness indicator thickness
+ * @property animation motion behavior
+ * @property label accessible label
  */
 data class Progress(
     val modifier: Modifier = Modifier(),
@@ -41,6 +58,11 @@ data class Progress(
     val animation: ProgressAnimation = ProgressAnimation.SMOOTH,
     val label: String? = null
 ) {
+    init {
+        require(maxValue > 0) { "Progress maximum must be positive" }
+    }
+
+    /** Renders this configured progress indicator. */
     @Composable
     operator fun invoke() {
         val composer = CompositionLocal.currentComposer
@@ -90,18 +112,10 @@ data class Progress(
                 "border-radius" to "50%"
             )
 
-            ProgressType.INDETERMINATE -> when {
-                type == ProgressType.CIRCULAR -> base + mapOfCompat(
-                    "width" to getCircularSize(),
-                    "height" to getCircularSize(),
-                    "border-radius" to "50%"
-                )
-
-                else -> base + mapOfCompat(
-                    "height" to getSizeValue(),
-                    "width" to "100%"
-                )
-            }
+            ProgressType.INDETERMINATE -> base + mapOfCompat(
+                "height" to getSizeValue(),
+                "width" to "100%"
+            )
         }
     }
 
@@ -168,6 +182,7 @@ data class Progress(
     }
 }
 
+/** Creates a linear progress indicator. */
 fun linearProgress(
     value: Int? = null,
     color: String = "#2196f3",
@@ -179,6 +194,7 @@ fun linearProgress(
     color = color
 )
 
+/** Creates a circular progress indicator. */
 fun circularProgress(
     value: Int? = null,
     size: String = "medium",
@@ -192,6 +208,7 @@ fun circularProgress(
     color = color
 )
 
+/** Creates an indeterminate loading indicator. */
 fun loading(
     type: ProgressType = ProgressType.CIRCULAR,
     color: String = "#2196f3",

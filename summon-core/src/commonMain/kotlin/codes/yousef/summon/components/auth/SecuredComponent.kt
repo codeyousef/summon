@@ -55,9 +55,8 @@ class SecuredComponent {
         block: () -> Unit
     ) {
         val isAuthenticated = SecurityContext.isAuthenticated()
-        val hasRequiredRoles = requiredRoles.isEmpty() || requiredRoles.any { SecurityContext.hasRole(it) }
-        val hasRequiredPermissions =
-            requiredPermissions.isEmpty() || requiredPermissions.any { SecurityContext.hasPermission(it) }
+        val hasRequiredRoles = requiredRoles.all { SecurityContext.hasRole(it) }
+        val hasRequiredPermissions = requiredPermissions.all { SecurityContext.hasPermission(it) }
 
         if ((!requiresAuthentication || isAuthenticated) && hasRequiredRoles && hasRequiredPermissions) {
             block()
@@ -75,10 +74,10 @@ class SecuredComponent {
         val requiredPermissions = annotation.permissions.map { Permission(it) }.toSet()
 
         withSecurityRequirements(
-            requiresAuthentication = true,
+            requiresAuthentication = annotation.requiresAuthentication,
             requiredRoles = requiredRoles,
             requiredPermissions = requiredPermissions,
             block = block
         )
     }
-} 
+}

@@ -187,6 +187,7 @@ class DOMBatcher private constructor() {
         }
     }
 
+    /** Provides dom batcher factory and constant members. */
     companion object {
         /**
          * Singleton instance of the DOMBatcher.

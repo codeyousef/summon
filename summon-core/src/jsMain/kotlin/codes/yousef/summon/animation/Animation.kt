@@ -4,9 +4,13 @@ package codes.yousef.summon.animation
  * Represents the status of an animation.
  */
 actual enum class AnimationStatus {
-    IDLE,    // Animation has not started or has been reset.
-    RUNNING, // Animation is currently playing.
-    PAUSED,  // Animation is paused.
+    /** The idle animation status option. */
+    IDLE,
+    /** The running animation status option. */
+    RUNNING,
+    /** The paused animation status option. */
+    PAUSED,
+    /** The stopped animation status option. */
     STOPPED  // Animation has finished or been explicitly stopped.
 }
 

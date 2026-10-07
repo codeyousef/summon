@@ -36,7 +36,19 @@ interface TwoWayConverter<T, V> {
  * A converter for Float values.
  */
 object FloatConverter : TwoWayConverter<Float, Float> {
+    /**
+     * Executes the convert to vector operation.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     override fun convertToVector(value: Float): Float = value
+    /**
+     * Executes the convert from vector operation.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     override fun convertFromVector(value: Float): Float = value
 }
 
@@ -44,7 +56,19 @@ object FloatConverter : TwoWayConverter<Float, Float> {
  * A converter for Int values.
  */
 object IntConverter : TwoWayConverter<Int, Float> {
+    /**
+     * Executes the convert to vector operation.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     override fun convertToVector(value: Int): Float = value.toFloat()
+    /**
+     * Executes the convert from vector operation.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     override fun convertFromVector(value: Float): Int = value.toInt()
 }
 
@@ -52,12 +76,26 @@ object IntConverter : TwoWayConverter<Int, Float> {
  * A converter for Color values.
  */
 object ColorConverter : TwoWayConverter<Color, Float> {
-    override fun convertToVector(value: Color): Float = value.alpha.toFloat()
+    /**
+     * Executes the convert to vector operation.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
+    override fun convertToVector(value: Color): Float = value.alphaFloat
+    /**
+     * Executes the convert from vector operation.
+     *
+     * @param value Value to process.
+     * @return The resulting value.
+     */
     override fun convertFromVector(value: Float): Color = Color(0u).withAlpha(value)
 }
 
 /**
  * Specification for a transition animation.
+ *
+ * @property animation animation used for values produced by this transition
  */
 class TransitionSpec(
     val animation: Animation = TweenAnimation()
@@ -74,6 +112,7 @@ class Transition<T>(
     private val spec: TransitionSpec
 ) {
     private val _state = mutableStateOf(initialState)
+    /** Current target state. */
     val state: State<T> get() = _state
 
     /**
@@ -229,6 +268,10 @@ class InfiniteTransition {
 
             // Continuously update the animated value
             while (true) {
+                if (!isRunning) {
+                    codes.yousef.summon.animation.delay(16)
+                    continue
+                }
                 // For infinite animations, we use a sine wave to oscillate between 0 and 1
                 // We'll use the AnimationController's progress and reset it when it completes
 
@@ -434,4 +477,4 @@ fun InfiniteTransition.animateIntExt(
     animation: Animation = TweenAnimation(durationMs = 1000, repeating = true)
 ): State<Int> {
     return animateValue(initialValue, targetValue, IntConverter, animation)
-} 
+}

@@ -4,6 +4,7 @@ import codes.yousef.summon.runtime.Composable
 
 
 // Typealias for the new composable page factory signature
+/** Alias for the page factory contract. */
 typealias PageFactory = @Composable (params: RouteParams) -> Unit
 
 /**
@@ -57,21 +58,42 @@ class DefaultPageRegistry : PageRegistry {
     private val pages = mutableMapOf<String, PageFactory>()
     private var notFoundPage: PageFactory? = null
 
+    /**
+     * Registers page.
+     *
+     * @param pagePath The page path value.
+     * @param pageFactory The page factory value.
+     */
     override fun registerPage(pagePath: String, pageFactory: PageFactory) {
         val normalizedPath = normalizePath(pagePath)
         pages[normalizedPath] = pageFactory
     }
 
+    /**
+     * Registers not found page.
+     *
+     * @param pageFactory The page factory value.
+     */
     override fun registerNotFoundPage(pageFactory: PageFactory) {
         notFoundPage = pageFactory
     }
 
+    /**
+     * Returns pages.
+     *
+     * @return The resulting value.
+     */
     override fun getPages(): Map<String, PageFactory> = pages
 
+    /**
+     * Returns not found page.
+     *
+     * @return The resulting value.
+     */
     override fun getNotFoundPage(): PageFactory? = notFoundPage
 
     /**
-     * Normalize a path following Next.js conventions.
+     * Normalize a path following Next.JS conventions.
      */
     override fun normalizePath(path: String): String {
         // Remove file extension if present (.kt, .page.kt, etc.)
@@ -133,4 +155,4 @@ object Pages {
      * Normalize a path.
      */
     fun normalizePath(path: String): String = registry.normalizePath(path)
-} 
+}

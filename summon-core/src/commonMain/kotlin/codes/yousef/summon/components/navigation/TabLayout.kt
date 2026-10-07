@@ -7,12 +7,13 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 /**
- * Represents a single tab in a TabLayout.
+ * One tab and its lazily rendered content.
  *
- * @param title The title text to display in the tab
- * @param content The content to display when this tab is selected
- * @param icon Optional icon to display alongside the title
- * @param isClosable Whether this tab can be closed by the user
+ * @property id stable tab identity
+ * @property title visible tab label
+ * @property content content rendered while selected
+ * @property icon optional label icon
+ * @property isClosable whether the UI may expose a close action
  */
 data class Tab @OptIn(ExperimentalUuidApi::class) constructor(
     val id: Uuid,
@@ -21,6 +22,7 @@ data class Tab @OptIn(ExperimentalUuidApi::class) constructor(
     val icon: (@Composable () -> Unit)? = null,
     val isClosable: Boolean = false
 ) {
+    /** Convenience factories. */
     companion object {
         /**
          * Creates a Tab with generated ID for testing purposes
@@ -97,19 +99,19 @@ data class Tab @OptIn(ExperimentalUuidApi::class) constructor(
  * fun IconTabs() {
  *     val tabs = listOf(
  *         Tab(
- *             id = Uuid.random(),
+ *             ID = Uuid.random(),
  *             title = "Dashboard",
  *             icon = { Icon(Icons.DASHBOARD) },
  *             content = { DashboardContent() }
  *         ),
  *         Tab(
- *             id = Uuid.random(),
+ *             ID = Uuid.random(),
  *             title = "Analytics",
  *             icon = { Icon(Icons.CHART) },
  *             content = { AnalyticsContent() }
  *         ),
  *         Tab(
- *             id = Uuid.random(),
+ *             ID = Uuid.random(),
  *             title = "Settings",
  *             icon = { Icon(Icons.SETTINGS) },
  *             content = { SettingsContent() }
@@ -134,13 +136,13 @@ data class Tab @OptIn(ExperimentalUuidApi::class) constructor(
  *         mutableStateOf(
  *             listOf(
  *                 Tab(
- *                     id = Uuid.random(),
+ *                     ID = Uuid.random(),
  *                     title = "Document 1",
  *                     isClosable = true,
  *                     content = { DocumentEditor("doc1") }
  *                 ),
  *                 Tab(
- *                     id = Uuid.random(),
+ *                     ID = Uuid.random(),
  *                     title = "Document 2",
  *                     isClosable = true,
  *                     content = { DocumentEditor("doc2") }
@@ -169,13 +171,9 @@ data class Tab @OptIn(ExperimentalUuidApi::class) constructor(
  *
  * @see Tab for tab data structure
  * @see Link for navigation links
- * @see Button for tab-like buttons
- * @see Column for vertical tab layouts
+ * @see codes.yousef.summon.components.input.Button for tab-like buttons
+ * @see codes.yousef.summon.components.layout.Column for vertical tab layouts
  *
- * @sample TabLayoutSamples.simpleTabs
- * @sample TabLayoutSamples.iconTabs
- * @sample TabLayoutSamples.closableTabs
- * @sample TabLayoutSamples.verticalTabs
  *
  * @since 1.0.0
  */

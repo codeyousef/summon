@@ -11,6 +11,13 @@ object PortalManager {
     private val portalContainers = mutableMapOf<String, HTMLElement>()
     private val portaledElements = mutableMapOf<Element, PortalInfo>()
 
+    /**
+     * Represents portal info.
+     *
+     * @property originalParent The original parent value.
+     * @property targetSelector The target selector value.
+     * @property targetContainer The target container value.
+     */
     data class PortalInfo(
         val originalParent: Element,
         val targetSelector: String,

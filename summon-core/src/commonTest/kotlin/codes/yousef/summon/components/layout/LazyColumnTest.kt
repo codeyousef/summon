@@ -95,4 +95,41 @@ class LazyColumnTest {
         assertEquals("true", attributes["data-lazy-container"])
         assertFalse(attributes.keys.any { it.contains("key") })
     }
+
+    @Test
+    fun emptyMeasuredAndBoundedMeasurementPathsMaintainGeometryInvariants() {
+        val state = LazyListState()
+        assertTrue(state.layout(0f, 0).range.isEmpty())
+        assertFailsWith<IllegalArgumentException> { state.layout(Float.NaN, 1) }
+        assertFailsWith<IllegalArgumentException> { state.layout(-1f, 1) }
+        assertFailsWith<IllegalArgumentException> { state.layout(1f, -1) }
+        assertFailsWith<IllegalArgumentException> { state.setContainerSize(Float.POSITIVE_INFINITY) }
+
+        state.setItemSize(50.5f)
+        assertEquals("50.5", state.getDataAttributes(2)["data-item-size"])
+        state.layout(100f, 3_000)
+        state.updateMeasuredItem(-1, 20f)
+        state.updateMeasuredItem(3_000, 20f)
+        state.updateMeasuredItem(0, Float.NaN)
+        state.updateMeasuredItem(0, 0f)
+        state.updateMeasuredItem(0, 50.5f)
+        assertEquals(0f, state.scrollPosition)
+
+        state.prepareItem(0, "first")
+        state.updateMeasuredItem(0, 75f)
+        state.prepareItem(0, "replacement")
+        assertEquals(50.5f, state.layout(100f, 3_000).totalExtent / 3_000)
+        assertEquals("explicit", state.stableKey(3, "explicit"))
+        assertEquals(state.stableKey(3, null), state.stableKey(3, null))
+        assertEquals(state.rendererToken("same"), state.rendererToken("same"))
+        assertTrue(state.rendererToken("other") != state.rendererToken("same"))
+
+        state.updateViewportScrollPosition(Float.NaN)
+        assertEquals(0f, state.scrollPosition)
+        state.updateViewportScrollPosition(-5f)
+        assertEquals(0f, state.scrollPosition)
+
+        repeat(2_049) { index -> state.updateMeasuredItem(index, 51.5f) }
+        assertTrue(state.layout(100f, 3_000).totalExtent > 3_000 * 50.5f)
+    }
 }

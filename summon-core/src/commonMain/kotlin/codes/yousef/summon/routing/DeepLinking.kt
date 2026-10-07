@@ -16,26 +16,6 @@ import codes.yousef.summon.runtime.LocalPlatformRenderer
 class DeepLinking private constructor() {
 
     /**
-     * Generates meta tags for a specific route to improve SEO and sharing.
-     *
-     * @param path The URL path
-     * @param title The page title
-     * @param description The page description
-     * @param imageUrl Optional image URL for social media sharing
-     * @param type Optional content type (default: "website")
-     */
-    @Deprecated("Use the @Composable MetaTags function instead")
-    fun generateMetaTags(
-        path: String,
-        title: String,
-        description: String,
-        imageUrl: String? = null,
-        type: String = "website"
-    ) {
-        // Implementation kept for backward compatibility
-    }
-
-    /**
      * Adds meta tags for SEO and social sharing in a composable context.
      *
      * @param path The URL path
@@ -55,30 +35,30 @@ class DeepLinking private constructor() {
         val renderer = LocalPlatformRenderer.current
 
         // Add basic meta tags
-        renderer.addHeadElement("<meta name=\"title\" content=\"$title\">")
-        renderer.addHeadElement("<meta name=\"description\" content=\"$description\">")
+        renderer.addHeadElement("<meta name=\"title\" content=\"${escapeDeepLinkMeta(title)}\">")
+        renderer.addHeadElement("<meta name=\"description\" content=\"${escapeDeepLinkMeta(description)}\">")
 
         // Open Graph meta tags for social media sharing
-        renderer.addHeadElement("<meta property=\"og:title\" content=\"$title\">")
-        renderer.addHeadElement("<meta property=\"og:description\" content=\"$description\">")
-        renderer.addHeadElement("<meta property=\"og:type\" content=\"$type\">")
-        renderer.addHeadElement("<meta property=\"og:url\" content=\"$path\">")
+        renderer.addHeadElement("<meta property=\"og:title\" content=\"${escapeDeepLinkMeta(title)}\">")
+        renderer.addHeadElement("<meta property=\"og:description\" content=\"${escapeDeepLinkMeta(description)}\">")
+        renderer.addHeadElement("<meta property=\"og:type\" content=\"${escapeDeepLinkMeta(type)}\">")
+        renderer.addHeadElement("<meta property=\"og:url\" content=\"${escapeDeepLinkMeta(path)}\">")
 
         if (imageUrl != null) {
-            renderer.addHeadElement("<meta property=\"og:image\" content=\"$imageUrl\">")
+            renderer.addHeadElement("<meta property=\"og:image\" content=\"${escapeDeepLinkMeta(imageUrl)}\">")
         }
 
         // Twitter Card meta tags
         renderer.addHeadElement("<meta name=\"twitter:card\" content=\"${if (imageUrl != null) "summary_large_image" else "summary"}\">")
-        renderer.addHeadElement("<meta name=\"twitter:title\" content=\"$title\">")
-        renderer.addHeadElement("<meta name=\"twitter:description\" content=\"$description\">")
+        renderer.addHeadElement("<meta name=\"twitter:title\" content=\"${escapeDeepLinkMeta(title)}\">")
+        renderer.addHeadElement("<meta name=\"twitter:description\" content=\"${escapeDeepLinkMeta(description)}\">")
 
         if (imageUrl != null) {
-            renderer.addHeadElement("<meta name=\"twitter:image\" content=\"$imageUrl\">")
+            renderer.addHeadElement("<meta name=\"twitter:image\" content=\"${escapeDeepLinkMeta(imageUrl)}\">")
         }
 
         // Canonical link
-        renderer.addHeadElement("<link rel=\"canonical\" href=\"$path\">")
+        renderer.addHeadElement("<link rel=\"canonical\" href=\"${escapeDeepLinkMeta(path)}\">")
     }
 
     /**
@@ -142,69 +122,54 @@ class DeepLinking private constructor() {
     /**
      * Simple URL encoding function (platform-specific implementations will be more robust).
      */
-    fun encodeURIComponent(value: String): String {
-        // A basic implementation that works for common cases
-        return value.replace(" ", "%20")
-            .replace("!", "%21")
-            .replace("\"", "%22")
-            .replace("#", "%23")
-            .replace("$", "%24")
-            .replace("%", "%25")
-            .replace("&", "%26")
-            .replace("'", "%27")
-            .replace("(", "%28")
-            .replace(")", "%29")
-            .replace("*", "%2A")
-            .replace("+", "%2B")
-            .replace(",", "%2C")
-            .replace("/", "%2F")
-            .replace(":", "%3A")
-            .replace(";", "%3B")
-            .replace("=", "%3D")
-            .replace("?", "%3F")
-            .replace("@", "%40")
-            .replace("[", "%5B")
-            .replace("\\", "%5C")
-            .replace("]", "%5D")
-            .replace("{", "%7B")
-            .replace("|", "%7C")
-            .replace("}", "%7D")
+    fun encodeURIComponent(value: String): String = buildString(value.length) {
+        value.encodeToByteArray().forEach { byte ->
+            val unsigned = byte.toInt() and 0xff
+            if (unsigned in 'A'.code..'Z'.code || unsigned in 'a'.code..'z'.code ||
+                unsigned in '0'.code..'9'.code || unsigned == '-'.code || unsigned == '_'.code ||
+                unsigned == '.'.code || unsigned == '~'.code
+            ) {
+                append(unsigned.toChar())
+            } else {
+                append('%')
+                append(HEX_DIGITS[unsigned ushr 4])
+                append(HEX_DIGITS[unsigned and 0x0f])
+            }
+        }
     }
 
     /**
      * Simple URL decoding function (platform-specific implementations will be more robust).
      */
-    fun decodeURIComponent(value: String): String {
-        // A very basic implementation for common cases
-        return value.replace("%20", " ")
-            .replace("%21", "!")
-            .replace("%22", "\"")
-            .replace("%23", "#")
-            .replace("%24", "$")
-            .replace("%25", "%")
-            .replace("%26", "&")
-            .replace("%27", "'")
-            .replace("%28", "(")
-            .replace("%29", ")")
-            .replace("%2A", "*")
-            .replace("%2B", "+")
-            .replace("%2C", ",")
-            .replace("%2F", "/")
-            .replace("%3A", ":")
-            .replace("%3B", ";")
-            .replace("%3D", "=")
-            .replace("%3F", "?")
-            .replace("%40", "@")
-            .replace("%5B", "[")
-            .replace("%5C", "\\")
-            .replace("%5D", "]")
-            .replace("%7B", "{")
-            .replace("%7C", "|")
-            .replace("%7D", "}")
+    fun decodeURIComponent(value: String): String = buildString(value.length) {
+        var index = 0
+        while (index < value.length) {
+            if (value[index] != '%' || index + 2 >= value.length) {
+                append(value[index++])
+                continue
+            }
+            val bytes = ByteArray((value.length - index) / 3 + 1)
+            var count = 0
+            while (index + 2 < value.length && value[index] == '%') {
+                val high = value[index + 1].digitToIntOrNull(16) ?: break
+                val low = value[index + 2].digitToIntOrNull(16) ?: break
+                bytes[count++] = ((high shl 4) or low).toByte()
+                index += 3
+            }
+            if (count == 0) {
+                append(value[index++])
+            } else {
+                append(bytes.decodeToString(0, count, throwOnInvalidSequence = true))
+            }
+        }
     }
 
     /**
      * Data class representing the components of a deep link URL.
+
+     * @property path Target path.
+     * @property queryParams The query params value.
+     * @property fragment The fragment value.
      */
     data class DeepLinkInfo(
         val path: String,
@@ -212,6 +177,7 @@ class DeepLinking private constructor() {
         val fragment: String?
     )
 
+    /** Provides deep linking factory and constant members. */
     companion object {
         private var instance: DeepLinking? = null
 
@@ -227,25 +193,6 @@ class DeepLinking private constructor() {
             return instance!!
         }
 
-        /**
-         * Generates meta tags for a specific route to improve SEO and sharing.
-         * Convenience method that delegates to the instance.
-         *
-         * @deprecated Use the @Composable MetaTags function instead for proper integration with Compose
-         */
-        @Deprecated("Use the @Composable MetaTags function instead for proper integration with Compose")
-        fun metaTags(
-            path: String,
-            title: String,
-            description: String,
-            imageUrl: String? = null,
-            type: String = "website"
-        ) {
-            // Use MetaTags composable instead of deprecated generateMetaTags
-            // This is a static function so we'll suppress the deprecation warning
-            @Suppress("DEPRECATION")
-            getInstance().generateMetaTags(path, title, description, imageUrl, type)
-        }
 
         /**
          * Creates a canonicalized deep link URL with optional query parameters.
@@ -267,12 +214,33 @@ class DeepLinking private constructor() {
             return getInstance().parseDeepLink(url)
         }
     }
+
+}
+private const val HEX_DIGITS = "0123456789ABCDEF"
+
+private fun escapeDeepLinkMeta(value: String): String = buildString(value.length) {
+    value.forEach { character ->
+        when (character) {
+            '&' -> append("&amp;")
+            '<' -> append("&lt;")
+            '>' -> append("&gt;")
+            '"' -> append("&quot;")
+            '\'' -> append("&#39;")
+            else -> append(character)
+        }
+    }
 }
 
 /**
  * Handles deep linking and parameter extraction from URLs.
  */
 object DeepLinkManager {
+    /**
+     * Executes the handle deep link operation.
+     *
+     * @param url Target URL.
+     * @return The resulting value.
+     */
     fun handleDeepLink(url: String): RouteMatchResult? {
         val currentRouter = RouterContext.current ?: return null
         val deepLinkInfo = DeepLinking.parseUrl(url)
@@ -335,4 +303,4 @@ fun extractQueryParams(url: String): Map<String, String> {
 }
 
 // Removed old `RouteHandler` class that implemented `Composable`
-// ... other potential old structures related to deep linking ... 
+// ... other potential old structures related to deep linking ...

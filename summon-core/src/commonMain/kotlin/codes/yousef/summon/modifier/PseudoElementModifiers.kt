@@ -2,14 +2,22 @@ package codes.yousef.summon.modifier
 
 /**
  * Type-safe representation of supported CSS pseudo-elements.
+
+ * @property selector The selector value.
  */
 enum class PseudoElement(val selector: String) {
+    /** The before pseudo element option. */
     Before("::before"),
+    /** The after pseudo element option. */
     After("::after");
 }
 
 /**
  * Internal data object stored on [Modifier] so renderers can emit the corresponding CSS.
+
+ * @property element The element value.
+ * @property styles The styles value.
+ * @property content Composable content emitted by this API.
  */
 data class PseudoElementDefinition(
     val element: PseudoElement,

@@ -40,17 +40,17 @@ data class VideoSource(
  * ```kotlin
  * // Basic usage
  * Video(
- *     src = "https://example.com/video.mp4",
+ *     src = "HTTPS://example.com/video.mp4",
  *     modifier = Modifier().width("100%").maxWidth("800px")
  * )
  *
  * // Autoplay with loop (muted is auto-enforced)
  * Video(
- *     src = "https://example.com/hero.mp4",
+ *     src = "HTTPS://example.com/hero.mp4",
  *     autoplay = true,
  *     loop = true,
  *     controls = false,
- *     poster = "https://example.com/poster.jpg"
+ *     poster = "HTTPS://example.com/poster.jpg"
  * )
  *
  * // Multiple sources for format fallback
@@ -99,7 +99,7 @@ fun Video(
     modifier: Modifier = Modifier()
 ) {
     val renderer = LocalPlatformRenderer.current
-    
+
     // Enforce browser autoplay policy: autoplay requires muted
     val effectiveMuted = if (autoplay && !muted) {
         println("[Video] Warning: autoplay requires muted. Setting muted=true.")
@@ -107,32 +107,32 @@ fun Video(
     } else {
         muted
     }
-    
+
     // Build attributes
     var finalModifier = modifier
-    
+
     // Add dimensions
     width?.let { finalModifier = finalModifier.style("width", it) }
     height?.let { finalModifier = finalModifier.style("height", it) }
-    
+
     // Add video-specific attributes
     if (autoplay) finalModifier = finalModifier.attribute("autoplay", "")
     if (effectiveMuted) finalModifier = finalModifier.attribute("muted", "")
     if (loop) finalModifier = finalModifier.attribute("loop", "")
     if (controls) finalModifier = finalModifier.attribute("controls", "")
     if (playsInline) finalModifier = finalModifier.attribute("playsinline", "")
-    
+
     finalModifier = finalModifier.attribute("preload", preload)
-    
+
     poster?.let { finalModifier = finalModifier.attribute("poster", it) }
     crossorigin?.let { finalModifier = finalModifier.attribute("crossorigin", it) }
     ariaLabel?.let { finalModifier = finalModifier.ariaAttribute("label", it) }
-    
+
     // Add data attributes for JavaScript interaction
     finalModifier = finalModifier
         .dataAttribute("video-autoplay", autoplay.toString())
         .dataAttribute("video-muted", effectiveMuted.toString())
-    
+
     // Determine video sources
     val videoSources = if (sources.isNotEmpty()) {
         sources
@@ -149,7 +149,7 @@ fun Video(
     } else {
         emptyList()
     }
-    
+
     // Render video element with sources
     renderer.renderHtmlTag("video", finalModifier) {
         videoSources.forEach { source ->
@@ -158,7 +158,7 @@ fun Video(
                 .attribute("type", source.type)
             renderer.renderHtmlTag("source", sourceModifier) {}
         }
-        
+
         // Fallback text
         renderer.renderText(
             text = "Your browser does not support the video element.",
@@ -194,17 +194,17 @@ fun Audio(
     modifier: Modifier = Modifier()
 ) {
     val renderer = LocalPlatformRenderer.current
-    
+
     var finalModifier = modifier
         .attribute("src", src)
         .attribute("preload", preload)
-    
+
     if (autoplay) finalModifier = finalModifier.attribute("autoplay", "")
     if (muted) finalModifier = finalModifier.attribute("muted", "")
     if (loop) finalModifier = finalModifier.attribute("loop", "")
     if (controls) finalModifier = finalModifier.attribute("controls", "")
     ariaLabel?.let { finalModifier = finalModifier.ariaAttribute("label", it) }
-    
+
     renderer.renderHtmlTag("audio", finalModifier) {
         renderer.renderText(
             text = "Your browser does not support the audio element.",

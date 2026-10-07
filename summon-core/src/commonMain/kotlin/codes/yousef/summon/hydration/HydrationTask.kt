@@ -15,7 +15,7 @@ package codes.yousef.summon.hydration
  *     override val priority: HydrationPriority = HydrationPriority.VISIBLE
  * ) : HydrationTask {
  *
- *     override val id: String = "hydrate-$componentId"
+ *     override val ID: String = "hydrate-$componentId"
  *
  *     override fun execute(): Boolean {
  *         return try {
@@ -81,6 +81,11 @@ class SimpleHydrationTask(
     private val work: () -> Boolean
 ) : HydrationTask {
 
+    /**
+     * Executes the execute operation.
+     *
+     * @return The resulting value.
+     */
     override fun execute(): Boolean = work()
 }
 

@@ -9,9 +9,13 @@ import codes.yousef.summon.components.foundation.TrustedCss
  * to [TrustedCss]; use typed styling APIs for data-derived presentation.
  */
 expect object CssInjector {
+    /** Inserts or replaces trusted CSS under validated `id`. */
     fun injectTrustedCss(id: String, css: TrustedCss): Boolean
+    /** Removes `id`, returning whether it existed. */
     fun removeTrustedCss(id: String): Boolean
+    /** Returns trusted CSS source for `id`, or `null`. */
     fun getTrustedCss(id: String): String?
+    /** Returns whether `id` exists. */
     fun hasTrustedCss(id: String): Boolean
 }
 

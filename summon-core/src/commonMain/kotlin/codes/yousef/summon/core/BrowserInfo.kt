@@ -129,6 +129,7 @@ data class BrowserInfo(
             return score.coerceIn(0, 100)
         }
 
+    /** Browser capability derivations and test factories. */
     companion object {
         /**
          * Creates a minimal BrowserInfo for testing purposes.

@@ -8,6 +8,11 @@ import codes.yousef.summon.runtime.*
  */
 actual object BrowserCapabilities {
 
+    /**
+     * Executes the detect operation.
+     *
+     * @return The resulting value.
+     */
     actual fun detect(): BrowserSupport {
         val browserInfo = detectBrowser()
         val wasmSupport = FeatureDetection.detectWasmSupport()
@@ -26,6 +31,12 @@ actual object BrowserCapabilities {
         )
     }
 
+    /**
+     * Returns whether this value has feature.
+     *
+     * @param feature The feature value.
+     * @return The resulting value.
+     */
     actual fun hasFeature(feature: BrowserFeature): Boolean {
         return when (feature) {
             BrowserFeature.MODERN_JS -> FeatureDetection.hasModernJSSupport()
@@ -50,6 +61,11 @@ actual object BrowserCapabilities {
         }
     }
 
+    /**
+     * Returns optimal strategy.
+     *
+     * @return The resulting value.
+     */
     actual fun getOptimalStrategy(): RenderingStrategy {
         val support = detect()
 
@@ -71,6 +87,11 @@ actual object BrowserCapabilities {
         }
     }
 
+    /**
+     * Executes the should use WASM operation.
+     *
+     * @return The resulting value.
+     */
     actual fun shouldUseWasm(): Boolean {
         val support = detect()
 
@@ -139,6 +160,13 @@ actual object BrowserCapabilities {
  */
 class WasmErrorBoundary : ErrorBoundary {
 
+    /**
+     * Executes the handle error operation.
+     *
+     * @param error The error value.
+     * @param context The context value.
+     * @return The resulting value.
+     */
     override fun handleError(error: Throwable, context: String): ErrorAction {
         wasmConsoleError("Error in $context: ${error.message}")
 
@@ -157,6 +185,13 @@ class WasmErrorBoundary : ErrorBoundary {
         }
     }
 
+    /**
+     * Executes the report error operation.
+     *
+     * @param error The error value.
+     * @param context The context value.
+     * @param metadata The metadata value.
+     */
     override fun reportError(error: Throwable, context: String, metadata: Map<String, Any>) {
         val errorMessage = "Error Report: ${error.message} in $context"
         wasmConsoleError(errorMessage)
@@ -176,6 +211,12 @@ class WasmErrorBoundary : ErrorBoundary {
         wasmReportError(reportData)
     }
 
+    /**
+     * Returns whether this value can recover.
+     *
+     * @param error The error value.
+     * @return The resulting value.
+     */
     override fun canRecover(error: Throwable): Boolean {
         return when (error) {
             is kotlin.OutOfMemoryError -> false
@@ -190,10 +231,23 @@ class WasmErrorBoundary : ErrorBoundary {
  */
 class WasmPerformanceMonitor : PerformanceMonitor {
 
+    /**
+     * Executes the mark operation.
+     *
+     * @param name Human-readable name.
+     */
     override fun mark(name: String) {
         wasmPerformanceMark(name)
     }
 
+    /**
+     * Measures this value.
+     *
+     * @param name Human-readable name.
+     * @param startMark The start mark value.
+     * @param endMark The end mark value.
+     * @return The resulting value.
+     */
     override fun measure(name: String, startMark: String, endMark: String?): Double {
         return if (endMark != null) {
             wasmPerformanceMeasure(name, startMark, endMark)
@@ -202,6 +256,11 @@ class WasmPerformanceMonitor : PerformanceMonitor {
         }
     }
 
+    /**
+     * Returns memory usage.
+     *
+     * @return The resulting value.
+     */
     override fun getMemoryUsage(): MemoryInfo {
         return MemoryInfo(
             usedJSHeapSize = wasmGetUsedHeapSize(),
@@ -210,6 +269,11 @@ class WasmPerformanceMonitor : PerformanceMonitor {
         )
     }
 
+    /**
+     * Returns rendering metrics.
+     *
+     * @return The resulting value.
+     */
     override fun getRenderingMetrics(): RenderingMetrics {
         return RenderingMetrics(
             frameRate = wasmGetFrameRate(),
@@ -222,6 +286,11 @@ class WasmPerformanceMonitor : PerformanceMonitor {
         )
     }
 
+    /**
+     * Executes the report metrics operation.
+     *
+     * @param metrics The metrics value.
+     */
     override fun reportMetrics(metrics: Map<String, Any>) {
         val metricsString = metrics.entries.joinToString(";") { "${it.key}=${it.value}" }
         wasmReportMetrics(metricsString)
@@ -233,6 +302,11 @@ class WasmPerformanceMonitor : PerformanceMonitor {
  */
 object WasmFeatureDetection {
 
+    /**
+     * Executes the detect WASM support operation.
+     *
+     * @return The resulting value.
+     */
     fun detectWasmSupport(): WasmVersion {
         return try {
             if (hasBasicWasm()) {
@@ -265,10 +339,20 @@ object WasmFeatureDetection {
         return wasmTestAdvancedWasmSupport()
     }
 
+    /**
+     * Returns whether this value has module support.
+     *
+     * @return The resulting value.
+     */
     fun hasModuleSupport(): Boolean {
         return wasmHasModuleSupport()
     }
 
+    /**
+     * Returns whether this value has modern JS support.
+     *
+     * @return The resulting value.
+     */
     fun hasModernJSSupport(): Boolean {
         return hasAsyncAwait() && hasArrowFunctions() && hasPromises()
     }

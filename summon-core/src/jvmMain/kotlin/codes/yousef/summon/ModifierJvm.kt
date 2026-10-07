@@ -41,10 +41,12 @@ fun Modifier.applyStyles(element: CommonAttributeGroupFacade): Pair<String, Stri
 object CssClassStore {
     private val classes = ConcurrentHashMap<String, String>()
 
+    /** Registers hover [styles] under [className]. */
     fun add(className: String, styles: String) {
         classes[className] = styles
     }
 
+    /** Drains registered classes into CSS hover rules. */
     fun generateCss(): String {
         val snapshot = classes.entries.toList()
         classes.clear()
@@ -53,6 +55,7 @@ object CssClassStore {
         }
     }
 
+    /** Removes all registered classes. */
     fun clear() {
         classes.clear()
     }
@@ -63,4 +66,4 @@ object CssClassStore {
  */
 fun Pair<String, String>.addToStyleSheet() {
     CssClassStore.add(first, second)
-} 
+}

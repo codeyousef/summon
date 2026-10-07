@@ -32,6 +32,8 @@ package codes.yousef.summon.hydration
  *
  * The hydration scheduler will process tasks in priority order, ensuring
  * the best user experience on slow connections and devices.
+
+ * @property value Value to process.
  */
 enum class HydrationPriority(val value: Int) {
     /**
@@ -58,6 +60,7 @@ enum class HydrationPriority(val value: Int) {
      */
     DEFERRED(3);
 
+    /** Provides hydration priority factory and constant members. */
     companion object {
         /**
          * Parse a priority from a string value (from data-hydration-priority attribute).
