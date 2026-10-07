@@ -84,6 +84,11 @@ All notable changes to this project will be documented in this file.
   fields, default-redacted fields, validated live edits, keyboard navigation and CSP-safe
   highlighting. Owned overlays and sessions remove listeners, frames, styles and retained DOM
   references on disposal; production source-consumer bundles exclude the artifact.
+- **Bounded debug state timeline** - `summon-devtools` records only opted-in typed PUBLIC fields
+  with explicit start, pause, stop and clear controls, deterministic scrub/branch behavior,
+  bounded retention, PURE_UI-only action replay and strict 1 MiB versioned JSON interchange.
+  Browser JS/WASM overlays sample live state, show unrestorable fields, and require validation plus
+  an explicit Apply step before an imported session can mutate application state.
 
 ### Changed
 

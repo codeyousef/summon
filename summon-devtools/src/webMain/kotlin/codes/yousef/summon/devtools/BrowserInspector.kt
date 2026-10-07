@@ -6,6 +6,7 @@ import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.HTMLStyleElement
+import org.w3c.dom.HTMLTextAreaElement
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.KeyboardEvent
 
@@ -178,10 +179,17 @@ class BrowserInspectorOverlay(
     private val panel = document.createElement("aside") as HTMLElement
     private val tree = document.createElement("div") as HTMLElement
     private val fields = document.createElement("div") as HTMLElement
+    private val timelinePanel = document.createElement("section") as HTMLElement
+    private val timelineEntries = document.createElement("div") as HTMLElement
+    private val sessionText = document.createElement("textarea") as HTMLTextAreaElement
     private val status = document.createElement("div") as HTMLElement
     private val style = document.createElement("style") as HTMLStyleElement
+    private val timeline = session.createTimeline()
     private val collapsed = mutableSetOf<InspectorNodeId>()
     private var selected: InspectorNodeId? = null
+    private var importedPlan: DebugSessionPlan? = null
+    private var timelineFrameId: Int? = null
+    private var timelineSignature: String? = null
     private var disposed = false
     private val treeSubscription: InspectorDisposable
     private val keyListener: (Event) -> Unit = { event -> onKey(event as KeyboardEvent) }
@@ -198,6 +206,9 @@ class BrowserInspectorOverlay(
             [data-summon-inspector-tree] button[aria-selected='true'] { background: #4338ca; }
             [data-summon-inspector-fields] { border-top: 1px solid #475569; margin-top: 8px; padding-top: 8px; }
             [data-summon-inspector-status] { color: #fca5a5; min-height: 1.4em; }
+            [data-summon-inspector-timeline] { border-top: 1px solid #475569; margin-top: 8px; padding-top: 8px; }
+            [data-summon-inspector-timeline] textarea { box-sizing: border-box; width: 100%; min-height: 54px; color: #111827; }
+            [data-summon-inspector-timeline-entries] button { display: block; width: 100%; text-align: left; }
         """.trimIndent()
         document.head?.appendChild(style)
         panel.setAttribute("data-summon-inspector-panel", session.rendererId)
@@ -218,21 +229,29 @@ class BrowserInspectorOverlay(
         tree.setAttribute("data-summon-inspector-tree", "")
         tree.setAttribute("role", "tree")
         fields.setAttribute("data-summon-inspector-fields", "")
+        createTimelinePanel()
         status.setAttribute("data-summon-inspector-status", "")
         status.setAttribute("role", "status")
         panel.appendChild(header)
         panel.appendChild(tree)
         panel.appendChild(fields)
+        panel.appendChild(timelinePanel)
         panel.appendChild(status)
         panel.addEventListener("keydown", keyListener)
         document.body?.appendChild(panel)
         treeSubscription = session.observeTree { render() }
         panel.focus()
+        scheduleTimelineFrame()
     }
 
     fun dispose() {
         if (disposed) return
         disposed = true
+        timelineFrameId?.let(window::cancelAnimationFrame)
+        timelineFrameId = null
+        timeline.dispose()
+        importedPlan = null
+        sessionText.value = ""
         treeSubscription.dispose()
         panel.removeEventListener("keydown", keyListener)
         session.highlight(null)
@@ -307,6 +326,128 @@ class BrowserInspectorOverlay(
             }
             fields.appendChild(row)
         }
+    }
+
+    private fun createTimelinePanel() {
+        timelinePanel.setAttribute("data-summon-inspector-timeline", "")
+        val heading = document.createElement("strong") as HTMLElement
+        heading.textContent = "State timeline"
+        timelinePanel.appendChild(heading)
+        listOf(
+            "Record" to {
+                timeline.start()
+                status.textContent = ""
+            },
+            "Pause" to { timeline.pause() },
+            "Stop" to { timeline.stop() },
+            "Clear timeline" to {
+                timeline.clear()
+                importedPlan = null
+                sessionText.value = ""
+            },
+            "Replay timeline" to {
+                status.textContent = when (val result = timeline.replay()) {
+                    is TimelineReplayResult.Completed -> ""
+                    is TimelineReplayResult.Failed -> "Replay stopped at #${result.sequence}: ${result.reason}"
+                }
+                selected?.let(::renderFields)
+            },
+            "Export session" to {
+                sessionText.value = timeline.exportSession()
+                importedPlan = null
+                status.textContent = ""
+            },
+            "Validate import" to {
+                try {
+                    importedPlan = timeline.importSession(sessionText.value)
+                    status.textContent = "Import validated; application state is unchanged"
+                } catch (error: IllegalArgumentException) {
+                    importedPlan = null
+                    status.textContent = error.message ?: "Invalid debug session"
+                }
+            },
+            "Apply import" to {
+                val plan = importedPlan
+                if (plan == null) {
+                    status.textContent = "Validate an import before applying it"
+                } else {
+                    val result = timeline.apply(plan)
+                    status.textContent = if (result.complete) "" else {
+                        "${result.unrestorableFields.size} fields could not be restored"
+                    }
+                    selected?.let(::renderFields)
+                }
+            }
+        ).forEach { (label, action) ->
+            val button = document.createElement("button") as HTMLElement
+            button.typeButton()
+            button.textContent = label
+            button.setAttribute("aria-label", label)
+            button.addEventListener("click", {
+                action()
+                renderTimeline()
+            })
+            timelinePanel.appendChild(button)
+        }
+        sessionText.setAttribute("aria-label", "Debug session JSON")
+        timelinePanel.appendChild(sessionText)
+        timelineEntries.setAttribute("data-summon-inspector-timeline-entries", "")
+        timelinePanel.appendChild(timelineEntries)
+        renderTimeline()
+    }
+
+    private fun renderTimeline() {
+        if (disposed) return
+        val entries = timeline.entries
+        val signature = "${timeline.recordingState}:${timeline.appliedSequence}:${entries.size}:${entries.lastOrNull()?.sequence}"
+        if (signature == timelineSignature) return
+        timelineSignature = signature
+        timelineEntries.textContent = ""
+        val state = document.createElement("div") as HTMLElement
+        state.setAttribute("data-summon-timeline-state", timeline.recordingState.name.lowercase())
+        state.textContent = "${timeline.recordingState.name.lowercase()} · ${entries.size} mutations"
+        timelineEntries.appendChild(state)
+        val baseline = document.createElement("button") as HTMLElement
+        baseline.typeButton()
+        baseline.textContent = "Restore recording start"
+        baseline.addEventListener("click", {
+            showRestoreResult(timeline.restoreTo(null))
+            renderTimeline()
+            selected?.let(::renderFields)
+        })
+        timelineEntries.appendChild(baseline)
+        entries.forEach { entry ->
+            val button = document.createElement("button") as HTMLElement
+            button.typeButton()
+            button.setAttribute("aria-label", "Restore mutation ${entry.sequence}")
+            button.textContent = "#${entry.sequence} ${entry.fieldId.name}: ${entry.before.editText()} → ${entry.after.editText()}"
+            button.addEventListener("click", {
+                showRestoreResult(timeline.restoreTo(entry.sequence))
+                renderTimeline()
+                selected?.let(::renderFields)
+            })
+            timelineEntries.appendChild(button)
+        }
+    }
+
+    private fun showRestoreResult(result: TimelineRestoreResult) {
+        status.textContent = if (result.complete) "" else {
+            "${result.unrestorableFields.size} fields could not be restored"
+        }
+    }
+
+    private fun scheduleTimelineFrame() {
+        if (disposed) return
+        timelineFrameId = window.requestAnimationFrame {
+            timelineFrameId = null
+            timeline.sample()
+            renderTimeline()
+            scheduleTimelineFrame()
+        }
+    }
+
+    private fun HTMLElement.typeButton() {
+        setAttribute("type", "button")
     }
 
     private fun select(nodeId: InspectorNodeId) {

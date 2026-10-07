@@ -39,6 +39,57 @@ PUBLIC fields require an explicit typed codec. Supported values are null, Boolea
 
 The panel uses text nodes for labels and values, keyboard tree navigation, a noninteractive DOM highlight, and the page's `summon-style-nonce` when strict CSP is active. `BrowserInspectorOverlay.dispose()` removes its key listener, tree subscription, stylesheet, panel, and highlight. `InspectorSession.dispose()` additionally clears fields, setters, listeners, node snapshots, animation frames, and DOM references. Both operations are idempotent.
 
+## Bounded state timeline
+
+Each inspector session can create isolated timelines. Recording includes only explicitly registered
+PUBLIC fields and their codec values; REDACTED fields have no getter path. Authentication or
+credential-like field names, credential-bearing URLs, nonfinite numbers, and strings larger than
+4,096 UTF-8 bytes are rejected.
+
+```kotlin
+val timeline = session.createTimeline() // 200 entries; configurable up to 10,000
+timeline.start()
+
+// BrowserInspectorOverlay calls this once per animation frame while recording.
+// Non-browser hosts call it after application-driven state changes.
+timeline.sample()
+timeline.pause()
+
+val firstChange = timeline.entries.first()
+val restore = timeline.restoreTo(firstChange.sequence)
+check(restore.complete)
+
+val json = timeline.exportSession()
+val plan = timeline.importSession(json) // validation only; invokes no setter or action
+timeline.apply(plan)                    // explicit local mutation
+
+timeline.clear()
+timeline.stop()
+timeline.dispose()
+```
+
+Entries contain a monotonic sequence, structural node ID plus registered field name and codec,
+typed before/after values, and an optional registered action ID. Equal writes are omitted. Capacity
+evicts the oldest entries. Restoring never records its own writes; the next real mutation after a
+restore truncates the future branch. Read-only or removed fields are reported as unrestorable.
+
+Replay accepts only actions explicitly registered with `DebugActionEffect.PURE_UI`. Network, file,
+storage, clipboard, account, cryptographic, send, purchase, and other external-effect actions are
+rejected during registration. Replay stops at the first missing, destroyed, invalid, or failing
+field/action. It cannot recreate destroyed components or unregistered external state.
+
+Session JSON uses `formatVersion=1` and is bounded to 1 MiB before parsing. Import rejects unknown
+versions or properties, duplicate/out-of-order sequences, missing or unknown fields/actions,
+oversized strings, invalid typed values, and nonfinite numbers before any live mutation. Import
+returns an immutable validated plan; only `apply` changes state. Closing the browser overlay
+disposes its timeline and clears imported text, entries, and live timeline references. Disposal
+does not claim perfect erasure from managed-runtime memory.
+
+The browser panel exposes Record, Pause, Stop, Clear, restore points, Export, Validate import, and
+Apply import. Its animation-frame sampler captures application-driven updates; direct inspector
+edits are recorded synchronously.
+
+
 The source fixture under `e2e-tests/fixtures/devtools` demonstrates only synthetic PUBLIC fields. Run its pinned, no-network JS/WASM browser matrix with:
 
 ```bash

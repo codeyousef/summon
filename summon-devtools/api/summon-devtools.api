@@ -1,3 +1,40 @@
+public final class codes/yousef/summon/devtools/DebugActionEffect : java/lang/Enum {
+	public static final field ACCOUNT Lcodes/yousef/summon/devtools/DebugActionEffect;
+	public static final field CLIPBOARD Lcodes/yousef/summon/devtools/DebugActionEffect;
+	public static final field CRYPTO Lcodes/yousef/summon/devtools/DebugActionEffect;
+	public static final field FILE Lcodes/yousef/summon/devtools/DebugActionEffect;
+	public static final field NETWORK Lcodes/yousef/summon/devtools/DebugActionEffect;
+	public static final field OTHER_EXTERNAL Lcodes/yousef/summon/devtools/DebugActionEffect;
+	public static final field PURCHASE Lcodes/yousef/summon/devtools/DebugActionEffect;
+	public static final field PURE_UI Lcodes/yousef/summon/devtools/DebugActionEffect;
+	public static final field SEND Lcodes/yousef/summon/devtools/DebugActionEffect;
+	public static final field STORAGE Lcodes/yousef/summon/devtools/DebugActionEffect;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcodes/yousef/summon/devtools/DebugActionEffect;
+	public static fun values ()[Lcodes/yousef/summon/devtools/DebugActionEffect;
+}
+
+public abstract interface class codes/yousef/summon/devtools/DebugActionResult {
+}
+
+public final class codes/yousef/summon/devtools/DebugActionResult$Applied : codes/yousef/summon/devtools/DebugActionResult {
+	public static final field INSTANCE Lcodes/yousef/summon/devtools/DebugActionResult$Applied;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/devtools/DebugActionResult$Rejected : codes/yousef/summon/devtools/DebugActionResult {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lcodes/yousef/summon/devtools/DebugActionResult$Rejected;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/devtools/DebugActionResult$Rejected;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/devtools/DebugActionResult$Rejected;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getReason ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public abstract interface class codes/yousef/summon/devtools/DebugFieldCodec {
 	public abstract fun decode (Lcodes/yousef/summon/devtools/DebugValue;)Ljava/lang/Object;
 	public abstract fun encode (Ljava/lang/Object;)Lcodes/yousef/summon/devtools/DebugValue;
@@ -14,12 +51,42 @@ public final class codes/yousef/summon/devtools/DebugFieldCodecs {
 	public final fun requireBoundedString (Ljava/lang/String;)Ljava/lang/String;
 }
 
+public final class codes/yousef/summon/devtools/DebugFieldId {
+	public fun <init> (JLjava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()J
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun copy (JLjava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/devtools/DebugFieldId;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/devtools/DebugFieldId;JLjava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/devtools/DebugFieldId;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getName ()Ljava/lang/String;
+	public final fun getNodeId ()J
+	public final fun getTypeName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class codes/yousef/summon/devtools/DebugFieldSensitivity : java/lang/Enum {
 	public static final field PUBLIC Lcodes/yousef/summon/devtools/DebugFieldSensitivity;
 	public static final field REDACTED Lcodes/yousef/summon/devtools/DebugFieldSensitivity;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lcodes/yousef/summon/devtools/DebugFieldSensitivity;
 	public static fun values ()[Lcodes/yousef/summon/devtools/DebugFieldSensitivity;
+}
+
+public final class codes/yousef/summon/devtools/DebugSessionCodec {
+	public static final field FORMAT_VERSION I
+	public static final field INSTANCE Lcodes/yousef/summon/devtools/DebugSessionCodec;
+	public static final field MAX_JSON_UTF8_BYTES I
+	public final fun encode (Lcodes/yousef/summon/devtools/DebugSessionPlan;)Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/devtools/DebugSessionPlan {
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getEntries ()Ljava/util/List;
+	public final fun getFormatVersion ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public abstract interface class codes/yousef/summon/devtools/DebugValue {
@@ -162,12 +229,15 @@ public final class codes/yousef/summon/devtools/InspectorNodeId {
 public final class codes/yousef/summon/devtools/InspectorSession {
 	public fun <init> (Lcodes/yousef/summon/devtools/InspectorTreeSource;Lkotlin/jvm/functions/Function1;)V
 	public synthetic fun <init> (Lcodes/yousef/summon/devtools/InspectorTreeSource;Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun createTimeline (I)Lcodes/yousef/summon/devtools/StateTimeline;
+	public static synthetic fun createTimeline$default (Lcodes/yousef/summon/devtools/InspectorSession;IILjava/lang/Object;)Lcodes/yousef/summon/devtools/StateTimeline;
 	public final fun dispose ()V
 	public final fun edit (Lcodes/yousef/summon/devtools/InspectorNodeId;Ljava/lang/String;Lcodes/yousef/summon/devtools/DebugValue;)Lcodes/yousef/summon/devtools/InspectorEditResult;
 	public final fun fields (Lcodes/yousef/summon/devtools/InspectorNodeId;)Ljava/util/List;
 	public final fun getRendererId ()Ljava/lang/String;
 	public final fun highlight (Lcodes/yousef/summon/devtools/InspectorNodeId;)Z
 	public final fun observeTree (Lcodes/yousef/summon/devtools/InspectorTreeListener;)Lcodes/yousef/summon/devtools/InspectorDisposable;
+	public final fun registerDebugAction (Lcodes/yousef/summon/devtools/InspectorNodeId;Ljava/lang/String;Lcodes/yousef/summon/devtools/DebugActionEffect;Lkotlin/jvm/functions/Function0;)Lcodes/yousef/summon/devtools/InspectorDisposable;
 	public final fun registerField (Lcodes/yousef/summon/devtools/InspectorNodeId;Ljava/lang/String;Lcodes/yousef/summon/devtools/DebugFieldSensitivity;)Lcodes/yousef/summon/devtools/InspectorDisposable;
 	public static synthetic fun registerField$default (Lcodes/yousef/summon/devtools/InspectorSession;Lcodes/yousef/summon/devtools/InspectorNodeId;Ljava/lang/String;Lcodes/yousef/summon/devtools/DebugFieldSensitivity;ILjava/lang/Object;)Lcodes/yousef/summon/devtools/InspectorDisposable;
 	public final fun registerPublicField (Lcodes/yousef/summon/devtools/InspectorNodeId;Ljava/lang/String;Lcodes/yousef/summon/devtools/DebugFieldCodec;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;)Lcodes/yousef/summon/devtools/InspectorDisposable;
@@ -186,5 +256,100 @@ public abstract interface class codes/yousef/summon/devtools/InspectorTreeSource
 	public abstract fun highlight (Lcodes/yousef/summon/devtools/InspectorNodeId;)Z
 	public abstract fun observe (Lcodes/yousef/summon/devtools/InspectorTreeListener;)Lcodes/yousef/summon/devtools/InspectorDisposable;
 	public abstract fun snapshot ()Ljava/util/List;
+}
+
+public final class codes/yousef/summon/devtools/StateMutation {
+	public fun <init> (JLcodes/yousef/summon/devtools/DebugFieldId;Lcodes/yousef/summon/devtools/DebugValue;Lcodes/yousef/summon/devtools/DebugValue;Ljava/lang/String;)V
+	public synthetic fun <init> (JLcodes/yousef/summon/devtools/DebugFieldId;Lcodes/yousef/summon/devtools/DebugValue;Lcodes/yousef/summon/devtools/DebugValue;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()J
+	public final fun component2 ()Lcodes/yousef/summon/devtools/DebugFieldId;
+	public final fun component3 ()Lcodes/yousef/summon/devtools/DebugValue;
+	public final fun component4 ()Lcodes/yousef/summon/devtools/DebugValue;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun copy (JLcodes/yousef/summon/devtools/DebugFieldId;Lcodes/yousef/summon/devtools/DebugValue;Lcodes/yousef/summon/devtools/DebugValue;Ljava/lang/String;)Lcodes/yousef/summon/devtools/StateMutation;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/devtools/StateMutation;JLcodes/yousef/summon/devtools/DebugFieldId;Lcodes/yousef/summon/devtools/DebugValue;Lcodes/yousef/summon/devtools/DebugValue;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/devtools/StateMutation;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getActionId ()Ljava/lang/String;
+	public final fun getAfter ()Lcodes/yousef/summon/devtools/DebugValue;
+	public final fun getBefore ()Lcodes/yousef/summon/devtools/DebugValue;
+	public final fun getFieldId ()Lcodes/yousef/summon/devtools/DebugFieldId;
+	public final fun getSequence ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/devtools/StateTimeline : codes/yousef/summon/devtools/InspectorDisposable {
+	public static final field Companion Lcodes/yousef/summon/devtools/StateTimeline$Companion;
+	public static final field DEFAULT_CAPACITY I
+	public static final field MAX_CAPACITY I
+	public final fun apply (Lcodes/yousef/summon/devtools/DebugSessionPlan;)Lcodes/yousef/summon/devtools/TimelineRestoreResult;
+	public final fun clear ()V
+	public fun dispose ()V
+	public final fun exportSession ()Ljava/lang/String;
+	public final fun getAppliedSequence ()Ljava/lang/Long;
+	public final fun getCapacity ()I
+	public final fun getEntries ()Ljava/util/List;
+	public final fun getRecordingState ()Lcodes/yousef/summon/devtools/TimelineRecordingState;
+	public final fun importSession (Ljava/lang/String;)Lcodes/yousef/summon/devtools/DebugSessionPlan;
+	public final fun pause ()V
+	public final fun performAction (Ljava/lang/String;)Lcodes/yousef/summon/devtools/DebugActionResult;
+	public final fun replay ()Lcodes/yousef/summon/devtools/TimelineReplayResult;
+	public final fun restoreTo (Ljava/lang/Long;)Lcodes/yousef/summon/devtools/TimelineRestoreResult;
+	public final fun sample ()V
+	public final fun start ()V
+	public final fun stop ()V
+}
+
+public final class codes/yousef/summon/devtools/StateTimeline$Companion {
+}
+
+public final class codes/yousef/summon/devtools/TimelineRecordingState : java/lang/Enum {
+	public static final field PAUSED Lcodes/yousef/summon/devtools/TimelineRecordingState;
+	public static final field RECORDING Lcodes/yousef/summon/devtools/TimelineRecordingState;
+	public static final field STOPPED Lcodes/yousef/summon/devtools/TimelineRecordingState;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcodes/yousef/summon/devtools/TimelineRecordingState;
+	public static fun values ()[Lcodes/yousef/summon/devtools/TimelineRecordingState;
+}
+
+public abstract interface class codes/yousef/summon/devtools/TimelineReplayResult {
+}
+
+public final class codes/yousef/summon/devtools/TimelineReplayResult$Completed : codes/yousef/summon/devtools/TimelineReplayResult {
+	public fun <init> (I)V
+	public final fun component1 ()I
+	public final fun copy (I)Lcodes/yousef/summon/devtools/TimelineReplayResult$Completed;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/devtools/TimelineReplayResult$Completed;IILjava/lang/Object;)Lcodes/yousef/summon/devtools/TimelineReplayResult$Completed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAppliedEntries ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/devtools/TimelineReplayResult$Failed : codes/yousef/summon/devtools/TimelineReplayResult {
+	public fun <init> (JLjava/lang/String;)V
+	public final fun component1 ()J
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (JLjava/lang/String;)Lcodes/yousef/summon/devtools/TimelineReplayResult$Failed;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/devtools/TimelineReplayResult$Failed;JLjava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/devtools/TimelineReplayResult$Failed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getReason ()Ljava/lang/String;
+	public final fun getSequence ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/devtools/TimelineRestoreResult {
+	public fun <init> (ILjava/util/List;)V
+	public final fun component1 ()I
+	public final fun component2 ()Ljava/util/List;
+	public final fun copy (ILjava/util/List;)Lcodes/yousef/summon/devtools/TimelineRestoreResult;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/devtools/TimelineRestoreResult;ILjava/util/List;ILjava/lang/Object;)Lcodes/yousef/summon/devtools/TimelineRestoreResult;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAppliedFields ()I
+	public final fun getComplete ()Z
+	public final fun getUnrestorableFields ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 

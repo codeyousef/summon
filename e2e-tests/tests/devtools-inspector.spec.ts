@@ -37,7 +37,7 @@ test('actual renderer tree, isolated roots, highlighting and validated edits sta
   await firstPanel.getByRole('button', { name: 'Apply', exact: true }).click();
   await expect(firstPanel.getByRole('status')).toContainText('nonnegative');
   await expect(page.getByTestId('first-counter')).toHaveText('first count: 7');
-  await expect(firstPanel.getByRole('textbox')).toHaveCount(1);
+  await expect(firstPanel.locator('[data-summon-inspector-fields]').getByRole('textbox')).toHaveCount(1);
 
   await page.getByRole('button', { name: 'Reorder first children', exact: true }).click();
   const firstTree = firstPanel.locator('[data-summon-inspector-tree]');
@@ -72,6 +72,40 @@ test('actual renderer tree, isolated roots, highlighting and validated edits sta
   await expect(secondPanel).toContainText('privateToken: <redacted>');
   await expect(secondPanel).not.toContainText('first-app');
   await expect(secondPanel).not.toContainText('credential');
+});
+
+test('timeline records public state, scrubs DOM, and keeps import inert until apply', async ({ page }) => {
+  const panel = page.locator('[data-summon-inspector-panel]').first();
+  await panel.getByRole('button', { name: 'Record', exact: true }).click();
+  await page.getByRole('button', { name: 'Increment first counter', exact: true }).click();
+  await expect(page.getByTestId('first-counter')).toHaveText('first count: 1');
+  await expect(panel.locator('[data-summon-inspector-timeline-entries]')).toContainText('1 mutations');
+  await expect(panel.getByRole('button', { name: 'Restore mutation 1' })).toBeVisible();
+
+  await panel.getByRole('button', { name: 'Restore recording start' }).click();
+  await expect(page.getByTestId('first-counter')).toHaveText('first count: 0');
+  await expect(panel.locator('[data-summon-inspector-timeline-entries]')).toContainText('1 mutations');
+
+  await panel.getByRole('button', { name: 'Restore mutation 1' }).click();
+  await expect(page.getByTestId('first-counter')).toHaveText('first count: 1');
+  await panel.getByRole('button', { name: 'Export session', exact: true }).click();
+  const sessionJson = await panel.getByRole('textbox', { name: 'Debug session JSON' }).inputValue();
+  expect(JSON.parse(sessionJson)).toMatchObject({ formatVersion: 1 });
+  expect(sessionJson).not.toContain('<redacted>');
+  expect(sessionJson).not.toContain('credential');
+
+  await panel.getByRole('button', { name: 'Pause', exact: true }).click();
+  await page.getByRole('button', { name: 'Increment first counter', exact: true }).click();
+  await expect(page.getByTestId('first-counter')).toHaveText('first count: 2');
+  await panel.getByRole('textbox', { name: 'Debug session JSON' }).fill(sessionJson);
+  await panel.getByRole('button', { name: 'Validate import', exact: true }).click();
+  await expect(panel.getByRole('status')).toContainText('application state is unchanged');
+  await expect(page.getByTestId('first-counter')).toHaveText('first count: 2');
+
+  await panel.getByRole('button', { name: 'Apply import', exact: true }).click();
+  await expect(page.getByTestId('first-counter')).toHaveText('first count: 1');
+  await panel.getByRole('button', { name: 'Clear timeline', exact: true }).click();
+  await expect(panel.locator('[data-summon-inspector-timeline-entries]')).toContainText('0 mutations');
 });
 
 test('one hundred panel lifetimes release panels, styles, highlights and keyboard ownership', async ({ page }) => {

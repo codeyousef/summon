@@ -152,18 +152,88 @@ class InspectorSession(
         val typeName: String?,
         val editable: Boolean,
         val read: (() -> DebugValue)?,
+        val validate: ((DebugValue) -> Unit)?,
         val prepareWrite: ((DebugValue) -> (() -> Unit))?
     )
+    private data class RegisteredAction(
+        val nodeId: InspectorNodeId,
+        val id: String,
+        val invoke: () -> Unit
+    )
+
 
     private val fields = linkedMapOf<Pair<InspectorNodeId, String>, RegisteredField>()
+    private val actions = linkedMapOf<String, RegisteredAction>()
+    private val timelines = linkedSetOf<StateTimeline>()
     private val listeners = linkedSetOf<InspectorTreeListener>()
     private var nodes = treeSource.snapshot()
     private var disposed = false
+    private var activeActionId: String? = null
+    private val timelineAccess = object : TimelineFieldAccess {
+        override fun capturePublicFields(): List<CapturedDebugField> =
+            fields.values.asSequence()
+                .filter { it.sensitivity == DebugFieldSensitivity.PUBLIC }
+                .map { field ->
+                    val value = field.read!!.invoke()
+                    validateDebugValue(value)
+                    CapturedDebugField(field.timelineId(), value, field.editable)
+                }
+                .sortedWith(compareBy({ it.id.nodeId }, { it.id.name }, { it.id.typeName }))
+                .toList()
+
+        override fun writeField(id: DebugFieldId, value: DebugValue): TimelineWriteResult {
+            val field = fields.values.firstOrNull {
+                it.sensitivity == DebugFieldSensitivity.PUBLIC && it.timelineId() == id
+            } ?: return TimelineWriteResult.Rejected("Debug field is no longer registered")
+            val prepareWrite = field.prepareWrite
+                ?: return TimelineWriteResult.Rejected("Debug field is read-only")
+            return try {
+                renderDispatcher(prepareWrite(value))
+                TimelineWriteResult.Applied
+            } catch (_: IllegalArgumentException) {
+                TimelineWriteResult.Rejected("Invalid debug field value")
+            } catch (_: Throwable) {
+                TimelineWriteResult.Rejected("Debug field setter failed")
+            }
+        }
+
+        override fun hasField(id: DebugFieldId): Boolean =
+            fields.values.any { it.sensitivity == DebugFieldSensitivity.PUBLIC && it.timelineId() == id }
+        override fun validateFieldValue(id: DebugFieldId, value: DebugValue): Boolean {
+            val field = fields.values.firstOrNull {
+                it.sensitivity == DebugFieldSensitivity.PUBLIC && it.timelineId() == id
+            } ?: return false
+            return try {
+                validateDebugValue(value)
+                field.validate!!.invoke(value)
+                true
+            } catch (_: IllegalArgumentException) {
+                false
+            }
+        }
+
+
+        override fun hasAction(id: String): Boolean = id in actions
+
+        override fun invokeAction(id: String): TimelineWriteResult {
+            val action = actions[id] ?: return TimelineWriteResult.Rejected("Debug action is no longer registered")
+            return try {
+                activeActionId = id
+                renderDispatcher(action.invoke)
+                TimelineWriteResult.Applied
+            } catch (_: Throwable) {
+                TimelineWriteResult.Rejected("Debug action failed")
+            } finally {
+                activeActionId = null
+            }
+        }
+    }
     private val treeSubscription = treeSource.observe { updated ->
         if (!disposed) {
             nodes = updated
             val liveIds = updated.asSequence().map { it.id }.toSet()
             fields.keys.removeAll { (nodeId, _) -> nodeId !in liveIds }
+            actions.entries.removeAll { (_, action) -> action.nodeId !in liveIds }
             listeners.toList().forEach { it.onTreeChanged(updated) }
         }
     }
@@ -228,6 +298,42 @@ class InspectorSession(
         getter = getter,
         setter = setter
     )
+    /**
+     * Registers a deterministic action that is safe to replay. External-effect actions are rejected
+     * rather than retained as callable references.
+     */
+    fun registerDebugAction(
+        nodeId: InspectorNodeId,
+        id: String,
+        effect: DebugActionEffect,
+        action: () -> Unit
+    ): InspectorDisposable {
+        checkOpen()
+        requireNode(nodeId)
+        requireDebugIdentifier(id, "Action")
+        require(effect == DebugActionEffect.PURE_UI) {
+            "Only PURE_UI debug actions may be registered for replay"
+        }
+        require(id !in actions) { "Debug action '$id' is already registered" }
+        actions[id] = RegisteredAction(nodeId, id, action)
+        var active = true
+        return InspectorDisposable {
+            if (active) {
+                active = false
+                actions.remove(id)
+            }
+        }
+    }
+
+    fun createTimeline(capacity: Int = StateTimeline.DEFAULT_CAPACITY): StateTimeline {
+        checkOpen()
+        val timeline = StateTimeline(timelineAccess, capacity) { disposedTimeline ->
+            timelines -= disposedTimeline
+        }
+        timelines += timeline
+        return timeline
+    }
+
 
     fun fields(nodeId: InspectorNodeId): List<InspectorField> {
         checkOpen()
@@ -261,8 +367,15 @@ class InspectorSession(
         val prepareWrite = field.prepareWrite
             ?: return InspectorEditResult.Rejected("Debug field is read-only")
         return try {
+            validateDebugValue(value)
+            val before = field.read!!.invoke()
             val action = prepareWrite(value)
             renderDispatcher(action)
+            val after = field.read.invoke()
+            val id = field.timelineId()
+            timelines.toList().forEach {
+                it.observeMutation(id, before, after, activeActionId)
+            }
             InspectorEditResult.Applied
         } catch (error: IllegalArgumentException) {
             InspectorEditResult.Rejected(error.message ?: "Invalid debug field value")
@@ -279,6 +392,9 @@ class InspectorSession(
         if (disposed) return
         disposed = true
         listeners.clear()
+        timelines.toList().forEach(StateTimeline::dispose)
+        timelines.clear()
+        actions.clear()
         fields.clear()
         treeSubscription.dispose()
         treeSource.highlight(null)
@@ -301,6 +417,10 @@ class InspectorSession(
         require(key !in fields) { "Debug field '$name' is already registered for this node" }
         if (sensitivity == DebugFieldSensitivity.PUBLIC) {
             require(codec != null && getter != null) { "Public debug fields require an explicit codec and getter" }
+            val normalizedName = name.lowercase()
+            require(SENSITIVE_FIELD_NAME_PARTS.none(normalizedName::contains)) {
+                "Authentication and credential state cannot be registered as a public debug field"
+            }
         }
         if (sensitivity == DebugFieldSensitivity.REDACTED) {
             require(setter == null) { "Redacted debug fields cannot be writable" }
@@ -313,6 +433,14 @@ class InspectorSession(
             editable = setter != null,
             read = if (sensitivity == DebugFieldSensitivity.PUBLIC) {
                 { codec!!.encode(getter!!.invoke()) }
+            } else {
+                null
+            },
+            validate = if (sensitivity == DebugFieldSensitivity.PUBLIC) {
+                { encoded ->
+                    codec!!.decode(encoded)
+                    Unit
+                }
             } else {
                 null
             },
@@ -335,6 +463,22 @@ class InspectorSession(
             }
         }
     }
+    private fun RegisteredField.timelineId(): DebugFieldId =
+        DebugFieldId(nodeId.localId, name, requireNotNull(typeName))
+    private companion object {
+        val SENSITIVE_FIELD_NAME_PARTS = listOf(
+            "password",
+            "passwd",
+            "credential",
+            "secret",
+            "token",
+            "cookie",
+            "authorization",
+            "privatekey"
+        )
+    }
+
+
 
     private fun requireNode(nodeId: InspectorNodeId) {
         require(nodeId.rendererId == rendererId && nodes.any { it.id == nodeId }) {
