@@ -143,6 +143,96 @@ public final class codes/yousef/summon/devtools/DebugValue$StringValue : codes/y
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class codes/yousef/summon/devtools/DevelopmentError {
+	public fun <init> (Lcodes/yousef/summon/devtools/DevelopmentErrorCategory;Ljava/lang/String;Ljava/util/List;)V
+	public final fun component1 ()Lcodes/yousef/summon/devtools/DevelopmentErrorCategory;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/util/List;
+	public final fun copy (Lcodes/yousef/summon/devtools/DevelopmentErrorCategory;Ljava/lang/String;Ljava/util/List;)Lcodes/yousef/summon/devtools/DevelopmentError;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/devtools/DevelopmentError;Lcodes/yousef/summon/devtools/DevelopmentErrorCategory;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Lcodes/yousef/summon/devtools/DevelopmentError;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCategory ()Lcodes/yousef/summon/devtools/DevelopmentErrorCategory;
+	public final fun getFrames ()Ljava/util/List;
+	public final fun getText ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/devtools/DevelopmentErrorCategory : java/lang/Enum {
+	public static final field ERROR_BOUNDARY Lcodes/yousef/summon/devtools/DevelopmentErrorCategory;
+	public static final field SCRIPT_ERROR Lcodes/yousef/summon/devtools/DevelopmentErrorCategory;
+	public static final field UNHANDLED_REJECTION Lcodes/yousef/summon/devtools/DevelopmentErrorCategory;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcodes/yousef/summon/devtools/DevelopmentErrorCategory;
+	public static fun values ()[Lcodes/yousef/summon/devtools/DevelopmentErrorCategory;
+}
+
+public final class codes/yousef/summon/devtools/DevelopmentErrorFrame {
+	public fun <init> (Lcodes/yousef/summon/devtools/GeneratedSourceLocation;Lcodes/yousef/summon/devtools/MappedSourceLocation;)V
+	public final fun component1 ()Lcodes/yousef/summon/devtools/GeneratedSourceLocation;
+	public final fun component2 ()Lcodes/yousef/summon/devtools/MappedSourceLocation;
+	public final fun copy (Lcodes/yousef/summon/devtools/GeneratedSourceLocation;Lcodes/yousef/summon/devtools/MappedSourceLocation;)Lcodes/yousef/summon/devtools/DevelopmentErrorFrame;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/devtools/DevelopmentErrorFrame;Lcodes/yousef/summon/devtools/GeneratedSourceLocation;Lcodes/yousef/summon/devtools/MappedSourceLocation;ILjava/lang/Object;)Lcodes/yousef/summon/devtools/DevelopmentErrorFrame;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getGenerated ()Lcodes/yousef/summon/devtools/GeneratedSourceLocation;
+	public final fun getMapped ()Lcodes/yousef/summon/devtools/MappedSourceLocation;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/devtools/DevelopmentErrorTextPolicy : java/lang/Enum {
+	public static final field GENERIC_ONLY Lcodes/yousef/summon/devtools/DevelopmentErrorTextPolicy;
+	public static final field SYNTHETIC_PUBLIC Lcodes/yousef/summon/devtools/DevelopmentErrorTextPolicy;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcodes/yousef/summon/devtools/DevelopmentErrorTextPolicy;
+	public static fun values ()[Lcodes/yousef/summon/devtools/DevelopmentErrorTextPolicy;
+}
+
+public final class codes/yousef/summon/devtools/DevelopmentSourceLinkPolicy {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/devtools/DevelopmentSourceLinkPolicy;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/devtools/DevelopmentSourceLinkPolicy;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/devtools/DevelopmentSourceLinkPolicy;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getEditorProtocol ()Ljava/lang/String;
+	public final fun getSourceRevision ()Ljava/lang/String;
+	public final fun getViewerOrigin ()Ljava/lang/String;
+	public final fun getWorkspaceRoot ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/devtools/DevelopmentStackParser {
+	public static final field INSTANCE Lcodes/yousef/summon/devtools/DevelopmentStackParser;
+	public static final field MAX_FRAMES I
+	public static final field MAX_TEXT_UTF8_BYTES I
+	public final fun displayText (Lcodes/yousef/summon/devtools/DevelopmentErrorCategory;Ljava/lang/String;Lcodes/yousef/summon/devtools/DevelopmentErrorTextPolicy;)Ljava/lang/String;
+	public final fun parse (Ljava/lang/String;)Ljava/util/List;
+}
+
+public final class codes/yousef/summon/devtools/ErrorOverlayModelKt {
+	public static final fun editorLink (Lcodes/yousef/summon/devtools/DevelopmentSourceLinkPolicy;Lcodes/yousef/summon/devtools/MappedSourceLocation;)Ljava/lang/String;
+	public static final fun viewerLink (Lcodes/yousef/summon/devtools/DevelopmentSourceLinkPolicy;Lcodes/yousef/summon/devtools/MappedSourceLocation;)Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/devtools/GeneratedSourceLocation {
+	public fun <init> (Ljava/lang/String;II)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()I
+	public final fun component3 ()I
+	public final fun copy (Ljava/lang/String;II)Lcodes/yousef/summon/devtools/GeneratedSourceLocation;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/devtools/GeneratedSourceLocation;Ljava/lang/String;IIILjava/lang/Object;)Lcodes/yousef/summon/devtools/GeneratedSourceLocation;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAssetUrl ()Ljava/lang/String;
+	public final fun getColumn ()I
+	public final fun getLine ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public abstract interface class codes/yousef/summon/devtools/InspectorDisposable {
 	public abstract fun dispose ()V
 }
@@ -258,6 +348,23 @@ public abstract interface class codes/yousef/summon/devtools/InspectorTreeSource
 	public abstract fun snapshot ()Ljava/util/List;
 }
 
+public final class codes/yousef/summon/devtools/MappedSourceLocation {
+	public fun <init> (Ljava/lang/String;IILjava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()I
+	public final fun component3 ()I
+	public final fun component4 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;IILjava/lang/String;)Lcodes/yousef/summon/devtools/MappedSourceLocation;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/devtools/MappedSourceLocation;Ljava/lang/String;IILjava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/devtools/MappedSourceLocation;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBuildId ()Ljava/lang/String;
+	public final fun getColumn ()I
+	public final fun getLine ()I
+	public final fun getSource ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class codes/yousef/summon/devtools/StateMutation {
 	public fun <init> (JLcodes/yousef/summon/devtools/DebugFieldId;Lcodes/yousef/summon/devtools/DebugValue;Lcodes/yousef/summon/devtools/DebugValue;Ljava/lang/String;)V
 	public synthetic fun <init> (JLcodes/yousef/summon/devtools/DebugFieldId;Lcodes/yousef/summon/devtools/DebugValue;Lcodes/yousef/summon/devtools/DebugValue;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -351,5 +458,32 @@ public final class codes/yousef/summon/devtools/TimelineRestoreResult {
 	public final fun getUnrestorableFields ()Ljava/util/List;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/devtools/VerifiedSourceMapAsset {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/devtools/VerifiedSourceMapAsset;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/devtools/VerifiedSourceMapAsset;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/devtools/VerifiedSourceMapAsset;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBuildId ()Ljava/lang/String;
+	public final fun getGeneratedAssetUrl ()Ljava/lang/String;
+	public final fun getJson ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/devtools/VerifiedSourceMapCatalog {
+	public static final field Companion Lcodes/yousef/summon/devtools/VerifiedSourceMapCatalog$Companion;
+	public static final field MAX_SOURCE_COUNT I
+	public static final field MAX_SOURCE_MAP_UTF8_BYTES I
+	public synthetic fun <init> (Ljava/lang/String;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun map (Lcodes/yousef/summon/devtools/GeneratedSourceLocation;)Lcodes/yousef/summon/devtools/MappedSourceLocation;
+}
+
+public final class codes/yousef/summon/devtools/VerifiedSourceMapCatalog$Companion {
+	public final fun parse (Ljava/lang/String;Ljava/util/List;)Lcodes/yousef/summon/devtools/VerifiedSourceMapCatalog;
 }
 

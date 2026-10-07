@@ -90,6 +90,66 @@ Apply import. Its animation-frame sampler captures application-driven updates; d
 edits are recorded synchronously.
 
 
+## Development error overlay
+
+Install the browser error overlay only from a debug source set or debug dependency configuration.
+Source maps are caller-supplied data: the overlay performs no fetches and accepts generated assets
+only from the current origin with the configured build identity.
+
+```kotlin
+val overlay = installBrowserErrorOverlay(
+    BrowserErrorOverlayConfig(
+        buildId = buildId,
+        sourceMaps = listOf(
+            VerifiedSourceMapAsset(
+                generatedAssetUrl = "${window.location.origin}/app.js",
+                buildId = buildId,
+                json = preloadedSourceMap
+            )
+        ),
+        links = DevelopmentSourceLinkPolicy(
+            editorProtocol = "vscode",
+            workspaceRoot = "/workspace/project",
+            viewerOrigin = "https://source.example",
+            sourceRevision = buildId
+        )
+    )
+)
+
+SummonErrorBoundary.withErrorBoundary("profile") {
+    renderProfile()
+}.onError { error, _ ->
+    // Reporting does not alter the boundary's recovery decision.
+    overlay.reportErrorBoundary(error)
+}
+
+overlay.dispose()
+```
+
+Ordinary `error` and `unhandledrejection` events show generic categories. In particular, rejection
+reasons are never read or stringified. `SYNTHETIC_PUBLIC` text is an explicit debug policy for
+caller-declared text; it remains bounded to 16 KiB. Stacks are parsed structurally and capped at 100
+frames. Rendering uses text nodes, so error text cannot inject markup.
+
+Source-map paths are normalized before use. Unmapped or invalid locations stay labeled as generated
+locations. Editor links require a configured non-web protocol, traversal-free absolute workspace
+root, exact build identity, and valid line/column. Verified-source links require a configured HTTPS
+origin and exact build/source identity. Missing validation produces no link. `dispose()` removes both
+global listeners, the panel, its stylesheet, retained errors, and source-map references.
+
+Webpack development builds must emit an external map, for example:
+
+```kotlin
+browser {
+    commonWebpackConfig {
+        devtool = "source-map"
+    }
+}
+```
+
+Do not add `summon-devtools`, development source maps, workspace paths, viewer credentials, or upload
+tokens to production runtime configurations or bundles.
+
 The source fixture under `e2e-tests/fixtures/devtools` demonstrates only synthetic PUBLIC fields. Run its pinned, no-network JS/WASM browser matrix with:
 
 ```bash

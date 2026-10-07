@@ -70,6 +70,7 @@ fun installInspector(first: InspectorFixture, second: InspectorFixture) {
         reopenSecond.addEventListener("click", { openSecond() })
         document.body?.appendChild(reopenSecond)
         openFirst()
+        installErrorOverlayFixture()
         null
     }, 0)
 }

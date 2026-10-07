@@ -43,18 +43,15 @@ kotlin {
         }
         val webMain by creating {
             dependsOn(commonMain.get())
-        }
-        jsMain {
-            dependsOn(webMain)
-            dependencies {
-                implementation(libs.kotlin.browser)
-            }
-        }
-        wasmJsMain {
-            dependsOn(webMain)
             dependencies {
                 implementation(libs.kotlinx.browser)
             }
+        }
+        jsMain {
+            dependsOn(webMain)
+        }
+        wasmJsMain {
+            dependsOn(webMain)
         }
     }
 }

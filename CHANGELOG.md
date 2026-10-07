@@ -89,6 +89,12 @@ All notable changes to this project will be documented in this file.
   bounded retention, PURE_UI-only action replay and strict 1 MiB versioned JSON interchange.
   Browser JS/WASM overlays sample live state, show unrestorable fields, and require validation plus
   an explicit Apply step before an imported session can mutate application state.
+- **Mapped development error overlay** - Explicit debug installation observes browser errors and
+  unhandled rejections without canceling host events or inspecting rejection values. Bounded
+  Source Map v3 data resolves verified same-origin build locations, strict editor/source links
+  reject unsafe paths and schemes, and idempotent disposal removes listeners, DOM, styles and map
+  references. Generic defaults and text-node rendering prevent private or active payload display;
+  production source-consumer bundles exclude all overlay markers.
 - **Semantic component test harness** - The separate `summon-test` artifact mounts one owned root
   on JVM SSR or real JS/WASM DOM renderers, provides strict text/tag finders, live visibility,
   enabled and typed-state assertions, real browser interactions, stale-handle detection, bounded

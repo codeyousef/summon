@@ -126,6 +126,94 @@ test('one hundred panel lifetimes release panels, styles, highlights and keyboar
   await expect(page.locator('[data-summon-inspector-panel]')).toHaveCount(0);
 });
 
+test('error overlay maps Kotlin frames, keeps hostile values inert, and releases listeners', async ({ page }, testInfo) => {
+  const hostileRequests: string[] = [];
+  page.on('request', request => {
+    if (request.url().startsWith('https://attacker.invalid/')) hostileRequests.push(request.url());
+  });
+
+  const overlay = page.locator('[data-summon-error-overlay]');
+  await expect(overlay).toBeAttached();
+  await expect(page.getByTestId('error-overlay-install-failure')).toHaveCount(0);
+  await expect(overlay).toBeHidden();
+  await page.getByTestId('report-mapped-error').click();
+  await expect(overlay).toBeVisible();
+
+  const boundaryEntry = overlay.locator('[data-summon-error-entry=\"ERROR_BOUNDARY\"]');
+  await expect(boundaryEntry).toHaveCount(1);
+  await expect(boundaryEntry).toContainText('Public failure <img src=x onerror=alert(1)>');
+  await expect(boundaryEntry.locator('img')).toHaveCount(0);
+  if (testInfo.project.name.startsWith('js-')) {
+    const sourceFile = path.resolve(
+      __dirname,
+      '../fixtures/devtools/src/webMain/kotlin/codes/yousef/summon/devtoolsfixture/ErrorOverlayFixture.kt',
+    );
+    const boundaryLine = fs.readFileSync(sourceFile, 'utf8').split('\n')
+      .findIndex(line => line.trim() === 'mappedFixtureFailure()') + 1;
+    const fixtureLocation = boundaryEntry
+      .locator('[data-summon-error-location][data-mapped="true"]')
+      .filter({ hasText: 'src/webMain/kotlin/codes/yousef/summon/devtoolsfixture/ErrorOverlayFixture.kt' })
+      .filter({ hasText: `:${boundaryLine}:` });
+    await expect(fixtureLocation).toHaveCount(1);
+    await expect(fixtureLocation).toBeVisible();
+    const editorHref = await fixtureLocation.getByRole('link', { name: 'Editor' }).getAttribute('href');
+    expect(editorHref).toContain('vscode://file/workspace/summon/src/webMain/kotlin/');
+    expect(editorHref).toContain(`ErrorOverlayFixture.kt:${boundaryLine}:`);
+    const viewerHref = await fixtureLocation.getByRole('link', { name: 'Verified source' }).getAttribute('href');
+    expect(viewerHref).toContain('https://source.example/source/devtools-fixture/src/webMain/kotlin/');
+    expect(viewerHref).toContain(`ErrorOverlayFixture.kt#L${boundaryLine}:C`);
+  } else {
+    await expect(boundaryEntry.locator('[data-summon-error-location]').first()).toBeVisible();
+  }
+
+  const scriptEventPreserved = await page.evaluate(() => {
+    const dispatch = () => window.dispatchEvent(new ErrorEvent('error', {
+      filename: `${window.location.origin}/fixture.js`,
+      lineno: 1,
+      colno: 1,
+      message: 'private script body',
+      cancelable: true,
+    }));
+    return [dispatch(), dispatch()];
+  });
+  expect(scriptEventPreserved).toEqual([true, true]);
+  const scriptEntry = overlay.locator('[data-summon-error-entry="SCRIPT_ERROR"]');
+  await expect(scriptEntry).toHaveCount(1);
+  await expect(scriptEntry).toContainText('Unhandled script error');
+  await expect(scriptEntry).not.toContainText('private script body');
+
+  const rejectionObservation = await page.evaluate(() => {
+    let reads = 0;
+    const event = new Event('unhandledrejection', { cancelable: true });
+    Object.defineProperty(event, 'reason', {
+      get() {
+        reads += 1;
+        return { privateToken: 'must-not-be-read' };
+      },
+    });
+    const preserved = window.dispatchEvent(event);
+    return { reads, preserved };
+  });
+  expect(rejectionObservation).toEqual({ reads: 0, preserved: true });
+  await expect(overlay.locator('[data-summon-error-entry=\"UNHANDLED_REJECTION\"]')).toHaveCount(1);
+  await expect(overlay).not.toContainText('must-not-be-read');
+
+  await page.getByTestId('report-hostile-error').dispatchEvent('click');
+  const hostileEntry = overlay.locator('[data-summon-error-entry="SCRIPT_ERROR"]').filter({ hasText: 'Hostile frame' });
+  await expect(hostileEntry).toContainText('Generated location 7:9 (source unavailable)');
+  await expect(hostileEntry.locator('a')).toHaveCount(0);
+  expect(hostileRequests).toEqual([]);
+
+  await overlay.getByRole('button', { name: 'Close development error overlay' }).click();
+  await expect(overlay).toHaveCount(0);
+  await expect(page.locator('[data-summon-error-overlay-style]')).toHaveCount(0);
+  await page.evaluate(() => {
+    window.dispatchEvent(new Event('error'));
+    window.dispatchEvent(new Event('unhandledrejection'));
+  });
+  await expect(overlay).toHaveCount(0);
+});
+
 test('production source-consumer bundles exclude developer and test artifacts', async ({}, testInfo) => {
   test.skip(testInfo.project.name !== 'js-chromium', 'One byte-level production bundle inspection is sufficient');
   const distribution = path.resolve(__dirname, '../fixtures/private-suite/build/dist');
@@ -141,6 +229,10 @@ test('production source-consumer bundles exclude developer and test artifacts', 
   const forbidden = [
     'Summon Inspector',
     'data-summon-inspector-panel',
+    'Summon development errors',
+    'data-summon-error-overlay',
+    'source.example',
+    'devtools-fixture',
     'summon-devtools',
     'summon-semantic-snapshot:v1',
     'summon-test',
