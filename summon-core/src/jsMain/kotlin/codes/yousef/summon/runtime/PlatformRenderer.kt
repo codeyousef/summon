@@ -25,6 +25,12 @@ import org.w3c.dom.events.EventListener
 import org.w3c.dom.events.EventTarget
 import org.w3c.dom.events.Event as DomEvent
 
+@JsName("ResizeObserver")
+private external class LazyResizeObserver(callback: (Array<dynamic>) -> Unit) {
+    fun observe(target: Element)
+    fun disconnect()
+}
+
 /**
  * JavaScript platform implementation of PlatformRenderer.
  * This implementation follows Kobweb's approach using direct DOM manipulation.
@@ -68,6 +74,19 @@ actual open class PlatformRenderer {
     )
 
     private val responsiveSubscriptions = mutableMapOf<Element, ResponsiveSubscription>()
+
+    private class LazyViewportSubscription(
+        val observer: LazyResizeObserver,
+        var frameId: Int?,
+        var horizontal: Boolean,
+        var desiredScrollPosition: Float,
+        var appliedScrollRevision: Int,
+        var requestedScrollRevision: Int,
+        var onViewportChanged: (Float, Float) -> Unit,
+        var onItemMeasured: (Int, Float) -> Unit
+    )
+
+    private val lazyViewportSubscriptions = mutableMapOf<Element, LazyViewportSubscription>()
 
     private class ElementStack {
         private val stack = mutableListOf<Element>()
@@ -389,6 +408,10 @@ actual open class PlatformRenderer {
         responsiveSubscriptions.remove(element)?.let { subscription ->
             subscription.active = false
             window.removeEventListener("resize", subscription.listener)
+        }
+        lazyViewportSubscriptions.remove(element)?.let { subscription ->
+            subscription.observer.disconnect()
+            subscription.frameId?.let(window::cancelAnimationFrame)
         }
         // Also clean up any injected styles for this element
         StyleInjector.cleanupElementStyles(element)
@@ -1682,6 +1705,40 @@ actual open class PlatformRenderer {
         }
     }
 
+    actual open fun renderLazyColumn(
+        modifier: Modifier,
+        scrollPosition: Float,
+        scrollRevision: Int,
+        onViewportChanged: (scrollPosition: Float, containerSize: Float) -> Unit,
+        onItemMeasured: (index: Int, size: Float) -> Unit,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
+        val lazyColumnModifier = modifier
+            .style("display", "flex")
+            .style("flexDirection", "column")
+            .style("overflowY", "auto")
+
+        createElement("div", lazyColumnModifier, setup = { element ->
+            bindLazyViewport(
+                element = element,
+                horizontal = false,
+                desiredScrollPosition = scrollPosition,
+                scrollRevision = scrollRevision,
+                onViewportChanged = onViewportChanged,
+                onItemMeasured = onItemMeasured
+            )
+            registerEventListener(element, "scroll") {
+                val scrollElement = element as HTMLElement
+                lazyViewportSubscriptions[element]?.let {
+                    it.appliedScrollRevision = it.requestedScrollRevision
+                }
+                onViewportChanged(scrollElement.scrollTop.toFloat(), scrollElement.clientHeight.toFloat())
+            }
+        }) {
+            content(createFlowContent("div"))
+        }
+    }
+
     actual open fun renderLazyRow(
         modifier: Modifier,
         content: @Composable (FlowContentCompat.() -> Unit)
@@ -1716,6 +1773,132 @@ actual open class PlatformRenderer {
             }
         }) {
             content(createFlowContent("div"))
+        }
+    }
+
+    actual open fun renderLazyRow(
+        modifier: Modifier,
+        scrollPosition: Float,
+        scrollRevision: Int,
+        onViewportChanged: (scrollPosition: Float, containerSize: Float) -> Unit,
+        onItemMeasured: (index: Int, size: Float) -> Unit,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
+        val lazyRowModifier = modifier
+            .style("display", "flex")
+            .style("flexDirection", "row")
+            .style("overflowX", "auto")
+            .style("whiteSpace", "nowrap")
+
+        createElement("div", lazyRowModifier, setup = { element ->
+            bindLazyViewport(
+                element = element,
+                horizontal = true,
+                desiredScrollPosition = scrollPosition,
+                scrollRevision = scrollRevision,
+                onViewportChanged = onViewportChanged,
+                onItemMeasured = onItemMeasured
+            )
+            registerEventListener(element, "scroll") {
+                val scrollElement = element as HTMLElement
+                lazyViewportSubscriptions[element]?.let {
+                    it.appliedScrollRevision = it.requestedScrollRevision
+                }
+                onViewportChanged(scrollElement.scrollLeft.toFloat(), scrollElement.clientWidth.toFloat())
+            }
+        }) {
+            content(createFlowContent("div"))
+        }
+    }
+
+    private fun bindLazyViewport(
+        element: Element,
+        horizontal: Boolean,
+        desiredScrollPosition: Float,
+        scrollRevision: Int,
+        onViewportChanged: (Float, Float) -> Unit,
+        onItemMeasured: (Int, Float) -> Unit
+    ) {
+        val existing = lazyViewportSubscriptions[element]
+        val subscription = if (existing != null) {
+            existing.horizontal = horizontal
+            existing.desiredScrollPosition = desiredScrollPosition
+            existing.requestedScrollRevision = scrollRevision
+            existing.onViewportChanged = onViewportChanged
+            existing.onItemMeasured = onItemMeasured
+            existing
+        } else {
+            lateinit var created: LazyViewportSubscription
+            val observer = LazyResizeObserver { entries ->
+                if (lazyViewportSubscriptions[element] !== created) return@LazyResizeObserver
+                for (entry in entries) {
+                    val target = entry.target as? Element ?: continue
+                    if (target == element) {
+                        val viewportElement = element as HTMLElement
+                        val position = if (created.horizontal) viewportElement.scrollLeft else viewportElement.scrollTop
+                        val size = if (created.horizontal) viewportElement.clientWidth else viewportElement.clientHeight
+                        created.onViewportChanged(position.toFloat(), size.toFloat())
+                    } else {
+                        val index = target.getAttribute("data-item-index")?.toIntOrNull() ?: continue
+                        val size = if (created.horizontal) {
+                            (entry.contentRect.width as Number).toFloat()
+                        } else {
+                            (entry.contentRect.height as Number).toFloat()
+                        }
+                        created.onItemMeasured(index, size)
+                    }
+                }
+            }
+            created = LazyViewportSubscription(
+                observer = observer,
+                frameId = null,
+                horizontal = horizontal,
+                appliedScrollRevision = -1,
+                requestedScrollRevision = scrollRevision,
+                desiredScrollPosition = desiredScrollPosition,
+                onViewportChanged = onViewportChanged,
+                onItemMeasured = onItemMeasured
+            )
+            lazyViewportSubscriptions[element] = created
+            created
+        }
+
+        subscription.frameId?.let(window::cancelAnimationFrame)
+        subscription.frameId = window.requestAnimationFrame {
+            subscription.frameId = null
+            if (lazyViewportSubscriptions[element] !== subscription) return@requestAnimationFrame
+            subscription.observer.disconnect()
+            subscription.observer.observe(element)
+            val rows = element.querySelectorAll("[data-lazy-item=\"true\"]")
+            for (index in 0 until rows.length) {
+                (rows.item(index) as? Element)?.let(subscription.observer::observe)
+            }
+            val scrollElement = element as HTMLElement
+            if (subscription.horizontal) {
+                if (
+                    subscription.appliedScrollRevision != subscription.requestedScrollRevision &&
+                    kotlin.math.abs(scrollElement.scrollLeft.toFloat() - subscription.desiredScrollPosition) > 0.5f
+                ) {
+                    scrollElement.scrollLeft = subscription.desiredScrollPosition.toDouble()
+                }
+                subscription.appliedScrollRevision = subscription.requestedScrollRevision
+                subscription.onViewportChanged(
+                    scrollElement.scrollLeft.toFloat(),
+                    scrollElement.clientWidth.toFloat()
+                )
+            } else {
+                if (
+                    subscription.appliedScrollRevision != subscription.requestedScrollRevision &&
+                    kotlin.math.abs(scrollElement.scrollTop.toFloat() - subscription.desiredScrollPosition) > 0.5f
+                ) {
+                    scrollElement.scrollTop = subscription.desiredScrollPosition.toDouble()
+                }
+                subscription.appliedScrollRevision = subscription.requestedScrollRevision
+                subscription.onViewportChanged(
+                    scrollElement.scrollTop.toFloat(),
+                    scrollElement.clientHeight.toFloat()
+                )
+            }
         }
     }
 

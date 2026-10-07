@@ -19,6 +19,100 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import org.w3c.dom.events.Event
+import kotlin.js.JsNumber
+
+@JsFun(
+    """(id, horizontal, desired, revision, callback) => {
+        const registry = globalThis.__summonLazyObservers || (globalThis.__summonLazyObservers = new Map());
+        const prior = registry.get(id);
+        if (prior) {
+            prior.observer?.disconnect();
+            if (prior.frame !== null) cancelAnimationFrame(prior.frame);
+        }
+        const element = document.getElementById(id);
+        if (prior && prior.element !== element && prior.scroll) {
+            prior.element.removeEventListener('scroll', prior.scroll);
+        }
+        if (!element) return false;
+        const position = () => horizontal ? element.scrollLeft : element.scrollTop;
+        const viewport = () => horizontal ? element.clientWidth : element.clientHeight;
+        let record = null;
+        const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(entries => {
+            if (!record || registry.get(id) !== record) return;
+            for (const entry of entries) {
+                if (entry.target === element) {
+                    callback(-1, position(), viewport());
+                } else {
+                    const index = Number(entry.target.getAttribute('data-item-index'));
+                    if (Number.isInteger(index) && index >= 0) {
+                        callback(index, horizontal ? entry.contentRect.width : entry.contentRect.height, 0);
+                    }
+                }
+            }
+        });
+        const scroll = prior && prior.element === element ? prior.scroll : () => {
+            const current = registry.get(id);
+            if (current) {
+                current.appliedRevision = current.requestedRevision;
+                current.callback(-1, current.position(), current.viewport());
+            }
+        };
+        record = {
+            element,
+            observer,
+            scroll,
+            position,
+            viewport,
+            callback,
+            frame: null,
+            requestedRevision: revision,
+            appliedRevision: prior ? prior.appliedRevision : -1
+        };
+        if (!prior || prior.element !== element) {
+            element.addEventListener('scroll', scroll, { passive: true });
+        }
+        record.frame = requestAnimationFrame(() => {
+            record.frame = null;
+            if (registry.get(id) !== record) return;
+            if (record.appliedRevision !== record.requestedRevision && Math.abs(position() - desired) > 0.5) {
+                if (horizontal) element.scrollLeft = desired; else element.scrollTop = desired;
+            }
+            record.appliedRevision = record.requestedRevision;
+            observer?.observe(element);
+            for (const row of element.querySelectorAll('[data-lazy-item="true"]')) {
+                observer?.observe(row);
+                const rect = row.getBoundingClientRect();
+                const index = Number(row.getAttribute('data-item-index'));
+                if (Number.isInteger(index) && index >= 0) {
+                    callback(index, horizontal ? rect.width : rect.height, 0);
+                }
+            }
+            callback(-1, position(), viewport());
+        });
+        registry.set(id, record);
+        return true;
+    }"""
+)
+private external fun wasmBindLazyViewport(
+    id: String,
+    horizontal: Boolean,
+    desired: Double,
+    revision: Int,
+    callback: (JsNumber, JsNumber, JsNumber) -> Unit
+): Boolean
+
+@JsFun(
+    """(id) => {
+        const registry = globalThis.__summonLazyObservers;
+        const record = registry?.get(id);
+        if (!record) return;
+        record.observer?.disconnect();
+        if (record.scroll) record.element.removeEventListener('scroll', record.scroll);
+        if (record.frame !== null) cancelAnimationFrame(record.frame);
+        registry.delete(id);
+    }"""
+)
+private external fun wasmDisposeLazyViewport(id: String)
 
 // Since PlatformRenderer has many methods, providing stub implementations for WASM
 actual open class PlatformRenderer actual constructor() {
@@ -1133,6 +1227,39 @@ actual open class PlatformRenderer actual constructor() {
         }
     }
 
+    actual open fun renderLazyColumn(
+        modifier: Modifier,
+        scrollPosition: Float,
+        scrollRevision: Int,
+        onViewportChanged: (scrollPosition: Float, containerSize: Float) -> Unit,
+        onItemMeasured: (index: Int, size: Float) -> Unit,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
+        renderContainerDom(
+            identityTag = "lazy-column",
+            className = "summon-lazy-column",
+            modifier = modifier,
+            setup = { element ->
+                val elementId = DOMProvider.getNativeElementId(element)
+                wasmBindLazyViewport(
+                    elementId,
+                    false,
+                    scrollPosition.toDouble(),
+                    scrollRevision
+                ) { index, value, secondary ->
+                    val itemIndex = index.toDouble().toInt()
+                    if (itemIndex < 0) {
+                        onViewportChanged(value.toDouble().toFloat(), secondary.toDouble().toFloat())
+                    } else {
+                        onItemMeasured(itemIndex, value.toDouble().toFloat())
+                    }
+                }
+            }
+        ) {
+            createWasmFlowContentCompat().content()
+        }
+    }
+
     actual open fun renderLazyRow(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         renderContainerDom("lazy-row", "summon-lazy-row", modifier) {
             createWasmFlowContentCompat().content()
@@ -1155,6 +1282,39 @@ actual open class PlatformRenderer actual constructor() {
                         wasmGetElementScrollLeft(elementId).toFloat(),
                         wasmGetElementBoundingWidth(elementId).toFloat()
                     )
+                }
+            }
+        ) {
+            createWasmFlowContentCompat().content()
+        }
+    }
+
+    actual open fun renderLazyRow(
+        modifier: Modifier,
+        scrollPosition: Float,
+        scrollRevision: Int,
+        onViewportChanged: (scrollPosition: Float, containerSize: Float) -> Unit,
+        onItemMeasured: (index: Int, size: Float) -> Unit,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
+        renderContainerDom(
+            identityTag = "lazy-row",
+            className = "summon-lazy-row",
+            modifier = modifier,
+            setup = { element ->
+                val elementId = DOMProvider.getNativeElementId(element)
+                wasmBindLazyViewport(
+                    elementId,
+                    true,
+                    scrollPosition.toDouble(),
+                    scrollRevision
+                ) { index, value, secondary ->
+                    val itemIndex = index.toDouble().toInt()
+                    if (itemIndex < 0) {
+                        onViewportChanged(value.toDouble().toFloat(), secondary.toDouble().toFloat())
+                    } else {
+                        onItemMeasured(itemIndex, value.toDouble().toFloat())
+                    }
                 }
             }
         ) {
@@ -1917,6 +2077,7 @@ actual open class PlatformRenderer actual constructor() {
 
     private fun cleanupEventHandlersForElement(elementId: String) {
         cleanupResponsiveSubscription(elementId)
+        wasmDisposeLazyViewport(elementId)
         val keys = eventHandlerIds.keys.filter { it.startsWith("$elementId-") }
         for (key in keys) {
             val handlerId = eventHandlerIds.remove(key) ?: continue

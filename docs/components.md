@@ -767,59 +767,65 @@ ExpansionPanel(
 
 ### LazyColumn and LazyRow
 
-The `LazyColumn` and `LazyRow` components create virtualized lists for better performance with large datasets.
+`LazyColumn` and `LazyRow` compose only the visible viewport plus bounded overscan. Browser
+renderers observe the real scroll container and measured row sizes, preserve the viewport anchor
+when variable-height rows change, and release off-screen composition groups and callbacks.
+
+Use a stable key whenever rows can be inserted, removed, or reordered:
 
 ```kotlin
-// LazyColumn for vertical scrolling
-LazyColumn(
-    modifier = Modifier()
-        .fillMaxWidth()
-        .height(400.px)
-) {
-    items(1000) { index ->
-        Card(
-            modifier = Modifier()
-                .fillMaxWidth()
-                .padding(8.px)
-        ) {
-            Text("Item $index", modifier = Modifier().padding(16.px))
-        }
-    }
-    
-    // You can also use different item types
-    item {
-        Text(
-            "Header",
-            modifier = Modifier()
-                .padding(16.px)
-                .fontSize(20.px)
-                .fontWeight(FontWeight.Bold)
-        )
-    }
-    
-    items(users) { user ->
-        UserRow(user)
+val state = remember {
+    LazyListState().apply {
+        setItemSize(40f)        // expected extent before a row is measured
+        setOverscrollItems(10)
     }
 }
 
-// LazyRow for horizontal scrolling
-LazyRow(
-    modifier = Modifier()
-        .fillMaxWidth()
-        .height(200.px)
+LazyColumn(
+    state = state,
+    modifier = Modifier().fillMaxWidth().height(600.px)
 ) {
-    items(images) { image ->
-        Image(
-            src = image.url,
-            alt = image.description,
-            modifier = Modifier()
-                .width(150.px)
-                .height(150.px)
-                .padding(8.px)
-        )
+    // The count overload stores one interval; it does not allocate 100,000 lambdas.
+    items(
+        count = 100_000,
+        key = { index -> messages[index].opaqueId }
+    ) { index ->
+        MessageRow(messages[index])
     }
 }
 ```
+
+For paged or capability-gated data, implement `LazyListDataProvider`. `itemAt` is requested only
+for composed viewport and overscan indices; render every result state explicitly:
+
+```kotlin
+val provider = object : LazyListDataProvider<Message> {
+    override val itemCount: Int get() = messageCount
+    override fun key(index: Int): Any = opaqueMessageId(index)
+    override fun itemAt(index: Int): LazyListItemResult<Message> = cache.read(index)
+}
+
+LazyColumn(state = state) {
+    items(provider) { _, result ->
+        when (result) {
+            is LazyListItemResult.Data -> MessageRow(result.value)
+            LazyListItemResult.Loading -> Text("Loading")
+            LazyListItemResult.Empty -> Text("Empty")
+            LazyListItemResult.Locked -> Text("Locked")
+            LazyListItemResult.PermissionDenied -> Text("Permission denied")
+            is LazyListItemResult.Error -> Text("Unable to load")
+        }
+    }
+}
+```
+
+`LazyListState.ensureItemVisible` supports keyboard focus movement without composing the full
+dataset. Rows expose list semantics and one-based positions. Call
+`setExposeItemCountToAccessibility(false)` when revealing the total row count would disclose
+private metadata. Stable keys are used internally and are never written to DOM attributes.
+
+`LazyRow` uses the same scope, provider, state, key, measurement, and accessibility contracts on
+the horizontal axis.
 
 ### SplitPane
 

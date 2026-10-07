@@ -306,6 +306,106 @@ test('buttons, virtualization and dialogs remain interactive under strict CSP', 
   expect([...origins]).toEqual([new URL(page.url()).origin]);
 });
 
+test('real virtualization stays bounded, keyed, measured, accessible, and disposable', async ({ page }) => {
+  const origins = new Set<string>();
+  page.on('request', request => origins.add(new URL(request.url()).origin));
+  await page.goto('/?virtualization=true');
+  await expect(page.getByTestId('virtual-title')).toHaveText('Virtualization fixture');
+
+  const list = page.getByTestId('virtual-list');
+  const mountedRows = list.locator('[data-lazy-item=\"true\"]');
+  await expect.poll(() => mountedRows.count()).toBeLessThanOrEqual(36);
+  await expect(page.getByTestId('virtual-state-loading')).toHaveText('loading');
+  await expect(page.getByTestId('virtual-state-empty')).toHaveText('empty');
+  await expect(page.getByTestId('virtual-state-locked')).toHaveText('locked');
+  await expect(page.getByTestId('virtual-state-permission-denied')).toHaveText('permission-denied');
+  await expect(page.getByTestId('virtual-state-error')).toHaveText('error');
+
+  const virtualLabels = await mountedRows.evaluateAll(rows =>
+    rows.slice(0, 6).map(row => row.textContent?.trim())
+  );
+  const referenceLabels = await page.getByTestId('virtual-reference').locator('[role=\"listitem\"]').evaluateAll(rows =>
+    rows.map(row => row.textContent?.trim())
+  );
+  expect(virtualLabels).toEqual(referenceLabels);
+  await expect(mountedRows.first()).toHaveAttribute('aria-posinset', '1');
+  await expect(mountedRows.first()).toHaveAttribute('aria-setsize', '100000');
+  expect(await list.evaluate(element => element.outerHTML.includes('PrivateFixtureKey'))).toBe(false);
+
+  const scrollTo = async (position: number) => {
+    await list.evaluate(async (element, top) => {
+      element.scrollTop = top;
+      element.dispatchEvent(new Event('scroll'));
+      await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+    }, position);
+    await expect.poll(() => mountedRows.count()).toBeLessThanOrEqual(36);
+  };
+
+  await scrollTo(2_000_000);
+  await expect(page.getByTestId('virtual-row-50000')).toBeVisible();
+  await page.getByTestId('virtual-row-50000').click();
+  await expect(page.getByTestId('virtual-selected')).toHaveText('Selected: 50000');
+
+  await page.getByRole('button', { name: 'Insert before selection', exact: true }).click();
+  await expect(page.getByTestId('virtual-selected')).toHaveText('Selected: 50000');
+  await expect.poll(() => page.getByTestId('virtual-row-50000').evaluate(
+    element => element.closest('[data-lazy-item=\"true\"]')?.getAttribute('data-item-index')
+  )).toBe('50001');
+
+  await page.getByRole('button', { name: 'Remove inserted item', exact: true }).click();
+  await expect.poll(() => page.getByTestId('virtual-row-50000').evaluate(
+    element => element.closest('[data-lazy-item=\"true\"]')?.getAttribute('data-item-index')
+  )).toBe('50000');
+
+  await page.getByTestId('virtual-row-50000').focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId('virtual-opened')).toHaveText('Opened: 50000');
+  await page.keyboard.press('Tab');
+  await expect(page.getByTestId('virtual-row-50001')).toBeFocused();
+
+  await scrollTo(39_880);
+  await expect(page.getByTestId('virtual-row-997')).toBeVisible();
+  await expect.poll(() => page.getByTestId('virtual-row-997').evaluate(
+    element => element.closest('[data-lazy-item=\"true\"]')?.getBoundingClientRect().height
+  )).toBeGreaterThanOrEqual(80);
+  await list.evaluate(element => {
+    (element as HTMLElement).style.height = '320px';
+    (element as HTMLElement).style.zoom = '1.25';
+  });
+  await expect.poll(() => mountedRows.count()).toBeLessThanOrEqual(34);
+  await expect(page.getByTestId('virtual-row-997')).toBeVisible();
+  await list.evaluate(element => {
+    element.style.height = '600px';
+    element.style.zoom = '1';
+  });
+  await page.evaluate(async () => {
+    await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+  });
+  await list.evaluate(element => {
+    element.scrollTop = element.scrollHeight;
+    element.dispatchEvent(new Event('scroll'));
+  });
+  await expect(page.getByTestId('virtual-row-99999')).toBeVisible();
+  await expect.poll(() => mountedRows.count()).toBeLessThanOrEqual(36);
+  await page.evaluate(async () => {
+    await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+  });
+  await list.evaluate(element => {
+    element.scrollTop = 0;
+    element.dispatchEvent(new Event('scroll'));
+  });
+  await expect(page.getByTestId('virtual-row-0')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Snapshot provider reads', exact: true }).click();
+  await expect.poll(async () => Number((await page.getByTestId('virtual-reads').textContent())?.replace('Reads: ', '')))
+    .toBeLessThan(300);
+
+  await page.getByRole('button', { name: 'Hide virtual list', exact: true }).click();
+  await expect(page.getByTestId('virtual-list')).toHaveCount(0);
+  await expect(page.locator('[data-lazy-item=\"true\"]')).toHaveCount(0);
+  expect([...origins]).toEqual([new URL(page.url()).origin]);
+});
+
 test('hydration mismatch reloads once and retains only the public shell', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name.startsWith('wasm-'), 'Mismatch recovery is owned by the JS hydration client');
   let mismatchNavigations = 0;

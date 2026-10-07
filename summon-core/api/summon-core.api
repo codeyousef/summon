@@ -3396,10 +3396,78 @@ public final class codes/yousef/summon/components/layout/LazyColumnKt {
 	public static synthetic fun LazyColumn$default (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/components/layout/LazyListState;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 }
 
+public abstract interface class codes/yousef/summon/components/layout/LazyListDataProvider {
+	public abstract fun getItemCount ()I
+	public abstract fun itemAt (I)Lcodes/yousef/summon/components/layout/LazyListItemResult;
+	public fun key (I)Ljava/lang/Object;
+}
+
+public final class codes/yousef/summon/components/layout/LazyListDataProvider$DefaultImpls {
+	public static fun key (Lcodes/yousef/summon/components/layout/LazyListDataProvider;I)Ljava/lang/Object;
+}
+
+public abstract interface class codes/yousef/summon/components/layout/LazyListItemResult {
+}
+
+public final class codes/yousef/summon/components/layout/LazyListItemResult$Data : codes/yousef/summon/components/layout/LazyListItemResult {
+	public fun <init> (Ljava/lang/Object;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/Object;)Lcodes/yousef/summon/components/layout/LazyListItemResult$Data;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/components/layout/LazyListItemResult$Data;Ljava/lang/Object;ILjava/lang/Object;)Lcodes/yousef/summon/components/layout/LazyListItemResult$Data;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/layout/LazyListItemResult$Empty : codes/yousef/summon/components/layout/LazyListItemResult {
+	public static final field INSTANCE Lcodes/yousef/summon/components/layout/LazyListItemResult$Empty;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/layout/LazyListItemResult$Error : codes/yousef/summon/components/layout/LazyListItemResult {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lcodes/yousef/summon/components/layout/LazyListItemResult$Error;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/components/layout/LazyListItemResult$Error;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/components/layout/LazyListItemResult$Error;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCode ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/layout/LazyListItemResult$Loading : codes/yousef/summon/components/layout/LazyListItemResult {
+	public static final field INSTANCE Lcodes/yousef/summon/components/layout/LazyListItemResult$Loading;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/layout/LazyListItemResult$Locked : codes/yousef/summon/components/layout/LazyListItemResult {
+	public static final field INSTANCE Lcodes/yousef/summon/components/layout/LazyListItemResult$Locked;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/layout/LazyListItemResult$PermissionDenied : codes/yousef/summon/components/layout/LazyListItemResult {
+	public static final field INSTANCE Lcodes/yousef/summon/components/layout/LazyListItemResult$PermissionDenied;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public abstract interface class codes/yousef/summon/components/layout/LazyListScope {
 	public abstract fun item (Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)V
 	public static synthetic fun item$default (Lcodes/yousef/summon/components/layout/LazyListScope;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+	public abstract fun items (ILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
+	public abstract fun items (Lcodes/yousef/summon/components/layout/LazyListDataProvider;Lkotlin/jvm/functions/Function2;)V
 	public abstract fun items (Ljava/util/List;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun items$default (Lcodes/yousef/summon/components/layout/LazyListScope;ILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public static synthetic fun items$default (Lcodes/yousef/summon/components/layout/LazyListScope;Ljava/util/List;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public abstract fun itemsIndexed (Ljava/util/List;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;)V
 	public static synthetic fun itemsIndexed$default (Lcodes/yousef/summon/components/layout/LazyListScope;Ljava/util/List;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
@@ -3413,6 +3481,7 @@ public abstract interface class codes/yousef/summon/components/layout/LazyListSc
 
 public final class codes/yousef/summon/components/layout/LazyListScope$DefaultImpls {
 	public static synthetic fun item$default (Lcodes/yousef/summon/components/layout/LazyListScope;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+	public static synthetic fun items$default (Lcodes/yousef/summon/components/layout/LazyListScope;ILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public static synthetic fun items$default (Lcodes/yousef/summon/components/layout/LazyListScope;Ljava/util/List;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public static synthetic fun itemsIndexed$default (Lcodes/yousef/summon/components/layout/LazyListScope;Ljava/util/List;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
 	public static synthetic fun sectionDivider$default (Lcodes/yousef/summon/components/layout/LazyListScope;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
@@ -3422,13 +3491,16 @@ public final class codes/yousef/summon/components/layout/LazyListScope$DefaultIm
 
 public final class codes/yousef/summon/components/layout/LazyListState {
 	public fun <init> ()V
+	public final fun ensureItemVisible (II)V
 	public final fun getContainerSize ()F
 	public final fun getDataAttributes (I)Ljava/util/Map;
+	public final fun getExposeItemCountToAccessibility ()Z
 	public final fun getItemSize ()F
 	public final fun getOverscrollItems ()I
 	public final fun getScrollPosition ()F
 	public final fun getVisibleItemRange (FI)Lkotlin/ranges/IntRange;
 	public final fun setContainerSize (F)V
+	public final fun setExposeItemCountToAccessibility (Z)V
 	public final fun setItemSize (F)V
 	public final fun setOverscrollItems (I)V
 	public final fun updateScrollPosition (F)V
@@ -9947,8 +10019,10 @@ public class codes/yousef/summon/runtime/PlatformRenderer {
 	public fun renderInline (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
 	public fun renderLabel (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)V
 	public static synthetic fun renderLabel$default (Lcodes/yousef/summon/runtime/PlatformRenderer;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;ILjava/lang/Object;)V
+	public fun renderLazyColumn (Lcodes/yousef/summon/modifier/Modifier;FILkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;)V
 	public fun renderLazyColumn (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
 	public fun renderLazyColumn (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;)V
+	public fun renderLazyRow (Lcodes/yousef/summon/modifier/Modifier;FILkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;)V
 	public fun renderLazyRow (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
 	public fun renderLazyRow (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;)V
 	public fun renderLinearProgressIndicator (Ljava/lang/Float;Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/components/feedback/ProgressType;)V

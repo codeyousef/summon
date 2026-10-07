@@ -626,6 +626,19 @@ expect open class PlatformRenderer() {
         content: @Composable FlowContentCompat.() -> Unit
     )
 
+    /**
+     * Renders a measured lazy column. The renderer owns viewport and item observers and synchronizes
+     * [scrollPosition] after anchor corrections.
+     */
+    open fun renderLazyColumn(
+        modifier: Modifier,
+        scrollPosition: Float,
+        scrollRevision: Int,
+        onViewportChanged: (scrollPosition: Float, containerSize: Float) -> Unit,
+        onItemMeasured: (index: Int, size: Float) -> Unit,
+        content: @Composable FlowContentCompat.() -> Unit
+    )
+
     /** Renders a lazy row container (e.g., a div for horizontal scrolling) */
     open fun renderLazyRow(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
 
@@ -637,6 +650,19 @@ expect open class PlatformRenderer() {
     open fun renderLazyRow(
         modifier: Modifier,
         onScroll: (scrollPosition: Float, containerSize: Float) -> Unit,
+        content: @Composable FlowContentCompat.() -> Unit
+    )
+
+    /**
+     * Renders a measured lazy row. The renderer owns viewport and item observers and synchronizes
+     * [scrollPosition] after anchor corrections.
+     */
+    open fun renderLazyRow(
+        modifier: Modifier,
+        scrollPosition: Float,
+        scrollRevision: Int,
+        onViewportChanged: (scrollPosition: Float, containerSize: Float) -> Unit,
+        onItemMeasured: (index: Int, size: Float) -> Unit,
         content: @Composable FlowContentCompat.() -> Unit
     )
 

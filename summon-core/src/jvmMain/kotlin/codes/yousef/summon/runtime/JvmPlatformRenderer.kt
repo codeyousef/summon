@@ -1715,6 +1715,17 @@ actual open class PlatformRenderer {
         renderLazyColumn(modifier, content)
     }
 
+    actual open fun renderLazyColumn(
+        modifier: Modifier,
+        scrollPosition: Float,
+        scrollRevision: Int,
+        onViewportChanged: (scrollPosition: Float, containerSize: Float) -> Unit,
+        onItemMeasured: (index: Int, size: Float) -> Unit,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
+        renderLazyColumn(modifier, content)
+    }
+
     actual open fun renderLazyRow(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         // JVM equivalent: scrollable div
         requireBuilder().div {
@@ -1726,6 +1737,17 @@ actual open class PlatformRenderer {
     actual open fun renderLazyRow(
         modifier: Modifier,
         onScroll: (scrollPosition: Float, containerSize: Float) -> Unit,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
+        renderLazyRow(modifier, content)
+    }
+
+    actual open fun renderLazyRow(
+        modifier: Modifier,
+        scrollPosition: Float,
+        scrollRevision: Int,
+        onViewportChanged: (scrollPosition: Float, containerSize: Float) -> Unit,
+        onItemMeasured: (index: Int, size: Float) -> Unit,
         content: @Composable FlowContentCompat.() -> Unit
     ) {
         renderLazyRow(modifier, content)

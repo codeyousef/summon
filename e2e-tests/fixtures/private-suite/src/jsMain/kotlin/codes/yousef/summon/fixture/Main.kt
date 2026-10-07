@@ -98,6 +98,11 @@ fun main() {
         mountComposableRoot("controls") { fixture.Controls() }
         return
     }
+    if (window.location.search.contains("virtualization=true")) {
+        val fixture = VirtualizationFixture()
+        mountComposableRoot("root") { fixture.Content() }
+        return
+    }
     if (window.location.search.contains("persistence=true")) {
         val fixture = PersistenceFixture()
         mountComposableRoot("root") { fixture.Content() }

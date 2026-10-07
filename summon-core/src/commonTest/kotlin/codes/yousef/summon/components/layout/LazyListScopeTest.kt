@@ -2,185 +2,105 @@ package codes.yousef.summon.components.layout
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class LazyListScopeTest {
-
     @Test
-    fun testSingleItem() {
+    fun countBackedIntervalResolvesOnlyRequestedItems() {
         val scope = LazyListScopeImpl()
-        var called = false
+        val rendered = mutableListOf<Int>()
 
-        // Add a single item
-        scope.item(key = "testKey") {
-            called = true
-        }
-
-        // Verify the item was added correctly
-        assertEquals(1, scope.items.size, "Should have 1 item")
-        assertEquals(1, scope.keys.size, "Should have 1 key")
-        assertEquals("testKey", scope.keys[0], "Key should match")
-        assertFalse(scope.isHeader[0], "Should not be a header")
-        assertFalse(scope.isDivider[0], "Should not be a divider")
-        assertEquals(0f to 0f, scope.spacings[0], "Spacing should be zero")
-
-        // Call the item content and verify it works
-        scope.items[0].invoke()
-        assertTrue(called, "Item content should be called")
-    }
-
-    @Test
-    fun testItems() {
-        val scope = LazyListScopeImpl()
-        val testItems = listOf("Item1", "Item2", "Item3")
-        val calledItems = mutableListOf<String>()
-
-        // Add multiple items
         scope.items(
-            items = testItems,
-            key = { item -> "key_$item" }
-        ) { item ->
-            calledItems.add(item)
+            count = 100_000,
+            key = { "opaque-$it" }
+        ) { index ->
+            rendered += index
         }
 
-        // Verify items were added correctly
-        assertEquals(3, scope.items.size, "Should have 3 items")
-        assertEquals(3, scope.keys.size, "Should have 3 keys")
-        assertEquals("key_Item1", scope.keys[0], "First key should match")
-        assertEquals("key_Item2", scope.keys[1], "Second key should match")
-        assertEquals("key_Item3", scope.keys[2], "Third key should match")
+        assertEquals(100_000, scope.itemCount)
+        assertEquals("opaque-50000", scope.metadata(50_000).key)
+        assertTrue(rendered.isEmpty())
 
-        // Call each item's content and verify it works
-        scope.items.forEach { it.invoke() }
-        assertEquals(testItems, calledItems, "All items should be called in order")
-
-        // Verify none are headers or dividers
-        scope.isHeader.forEach { assertFalse(it, "Should not be a header") }
-        scope.isDivider.forEach { assertFalse(it, "Should not be a divider") }
-
-        // Verify spacings are zero
-        scope.spacings.forEach { assertEquals(0f to 0f, it, "Spacing should be zero") }
+        scope.render(50_000)
+        assertEquals(listOf(50_000), rendered)
     }
 
     @Test
-    fun testItemsIndexed() {
+    fun listIntervalsPreserveKeysMetadataAndContent() {
         val scope = LazyListScopeImpl()
-        val testItems = listOf("Item1", "Item2", "Item3")
-        val calledItems = mutableListOf<Pair<Int, String>>()
+        val rendered = mutableListOf<String>()
 
-        // Add multiple indexed items
-        scope.itemsIndexed(
-            items = testItems,
-            key = { index, item -> "key_${index}_$item" }
-        ) { index, item ->
-            calledItems.add(index to item)
-        }
-
-        // Verify items were added correctly
-        assertEquals(3, scope.items.size, "Should have 3 items")
-        assertEquals(3, scope.keys.size, "Should have 3 keys")
-        assertEquals("key_0_Item1", scope.keys[0], "First key should match")
-        assertEquals("key_1_Item2", scope.keys[1], "Second key should match")
-        assertEquals("key_2_Item3", scope.keys[2], "Third key should match")
-
-        // Call each item's content and verify it works
-        scope.items.forEach { it.invoke() }
-        assertEquals(
-            listOf(0 to "Item1", 1 to "Item2", 2 to "Item3"),
-            calledItems,
-            "All items should be called with correct indices"
-        )
-
-        // Verify none are headers or dividers
-        scope.isHeader.forEach { assertFalse(it, "Should not be a header") }
-        scope.isDivider.forEach { assertFalse(it, "Should not be a divider") }
-    }
-
-    @Test
-    fun testStickyHeader() {
-        val scope = LazyListScopeImpl()
-        var called = false
-
-        // Add a sticky header
-        scope.stickyHeader(key = "headerKey") {
-            called = true
-        }
-
-        // Verify the header was added correctly
-        assertEquals(1, scope.items.size, "Should have 1 item")
-        assertEquals(1, scope.keys.size, "Should have 1 key")
-        assertEquals("headerKey", scope.keys[0], "Key should match")
-        assertTrue(scope.isHeader[0], "Should be a header")
-        assertFalse(scope.isDivider[0], "Should not be a divider")
-
-        // Call the header content and verify it works
-        scope.items[0].invoke()
-        assertTrue(called, "Header content should be called")
-    }
-
-    @Test
-    fun testSectionDivider() {
-        val scope = LazyListScopeImpl()
-        var called = false
-
-        // Add a section divider
-        scope.sectionDivider(key = "dividerKey") {
-            called = true
-        }
-
-        // Verify the divider was added correctly
-        assertEquals(1, scope.items.size, "Should have 1 item")
-        assertEquals(1, scope.keys.size, "Should have 1 key")
-        assertEquals("dividerKey", scope.keys[0], "Key should match")
-        assertFalse(scope.isHeader[0], "Should not be a header")
-        assertTrue(scope.isDivider[0], "Should be a divider")
-
-        // Call the divider content and verify it works
-        scope.items[0].invoke()
-        assertTrue(called, "Divider content should be called")
-    }
-
-    @Test
-    fun testSpacing() {
-        val scope = LazyListScopeImpl()
-
-        // Add spacing
+        scope.stickyHeader("header") { rendered += "header" }
+        scope.items(listOf("a", "b"), key = { "key-$it" }) { rendered += it }
         scope.spacing(height = 10f, width = 20f)
+        scope.sectionDivider("divider") { rendered += "divider" }
+        scope.itemsIndexed(listOf("x", "y"), key = { index, item -> "$index-$item" }) { index, item ->
+            rendered += "$index:$item"
+        }
 
-        // Verify the spacing was added correctly
-        assertEquals(1, scope.items.size, "Should have 1 item")
-        assertEquals(1, scope.keys.size, "Should have 1 key")
-        assertEquals(null, scope.keys[0], "Key should be null")
-        assertFalse(scope.isHeader[0], "Should not be a header")
-        assertFalse(scope.isDivider[0], "Should not be a divider")
-        assertEquals(10f to 20f, scope.spacings[0], "Spacing should match")
+        assertEquals(7, scope.itemCount)
+        assertTrue(scope.metadata(0).isHeader)
+        assertEquals("key-a", scope.metadata(1).key)
+        assertEquals(10f, scope.metadata(3).spacingHeight)
+        assertEquals(20f, scope.metadata(3).spacingWidth)
+        assertTrue(scope.metadata(4).isDivider)
+        assertFalse(scope.metadata(5).isHeader)
+        assertEquals("1-y", scope.metadata(6).key)
+
+        for (index in 0 until scope.itemCount) scope.render(index)
+        assertEquals(listOf("header", "a", "b", "divider", "0:x", "1:y"), rendered)
     }
 
     @Test
-    fun testMixedItems() {
+    fun pagedProviderIsReadOnlyWhenItsVisibleItemRenders() {
+        val reads = mutableListOf<Int>()
+        val rendered = mutableListOf<Pair<Int, LazyListItemResult<String>>>()
+        val provider = object : LazyListDataProvider<String> {
+            override val itemCount: Int = 10_000
+            override fun key(index: Int): Any = "key-$index"
+            override fun itemAt(index: Int): LazyListItemResult<String> {
+                reads += index
+                return when (index) {
+                    5 -> LazyListItemResult.Loading
+                    6 -> LazyListItemResult.Locked
+                    7 -> LazyListItemResult.PermissionDenied
+                    8 -> LazyListItemResult.Error("bounded-code")
+                    9 -> LazyListItemResult.Empty
+                    else -> LazyListItemResult.Data("value-$index")
+                }
+            }
+        }
         val scope = LazyListScopeImpl()
+        scope.items(provider) { index, result -> rendered += index to result }
 
-        // Add various types of items
-        scope.stickyHeader(key = "header") { }
-        scope.item(key = "item1") { }
-        scope.items(listOf("A", "B")) { }
-        scope.spacing(height = 5f)
-        scope.sectionDivider(key = "divider") { }
-        scope.itemsIndexed(listOf("X", "Y")) { _, _ -> }
+        assertEquals(10_000, scope.itemCount)
+        assertEquals("key-8", scope.metadata(8).key)
+        assertTrue(reads.isEmpty())
 
-        // Verify the correct number of items
-        assertEquals(8, scope.items.size, "Should have 8 items total")
-        assertEquals(8, scope.keys.size, "Should have 8 keys")
-        assertEquals(8, scope.isHeader.size, "Should have 8 header flags")
-        assertEquals(8, scope.isDivider.size, "Should have 8 divider flags")
-        assertEquals(8, scope.spacings.size, "Should have 8 spacing values")
+        for (index in 4..9) scope.render(index)
+        assertEquals((4..9).toList(), reads)
+        assertIs<LazyListItemResult.Data<String>>(rendered[0].second)
+        assertEquals(LazyListItemResult.Loading, rendered[1].second)
+        assertEquals(LazyListItemResult.Locked, rendered[2].second)
+        assertEquals(LazyListItemResult.PermissionDenied, rendered[3].second)
+        assertEquals(LazyListItemResult.Error("bounded-code"), rendered[4].second)
+        assertEquals(LazyListItemResult.Empty, rendered[5].second)
+    }
 
-        // Verify the types are correct
-        assertTrue(scope.isHeader[0], "First item should be a header")
-        assertFalse(scope.isHeader[1], "Second item should not be a header")
-        assertFalse(scope.isDivider[0], "First item should not be a divider")
-        assertTrue(scope.isDivider[5], "Sixth item should be a divider")
-        assertEquals(5f to 0f, scope.spacings[4], "Fifth item should have spacing")
+    @Test
+    fun invalidCountsAndSpacingAreRejected() {
+        val scope = LazyListScopeImpl()
+        assertFailsWith<IllegalArgumentException> { scope.items(-1) {} }
+        assertFailsWith<IllegalArgumentException> {
+            scope.items(object : LazyListDataProvider<Unit> {
+                override val itemCount: Int = -1
+                override fun itemAt(index: Int): LazyListItemResult<Unit> = LazyListItemResult.Empty
+            }) { _, _ -> }
+        }
+        assertFailsWith<IllegalArgumentException> { scope.spacing(height = Float.NaN) }
+        assertFailsWith<IllegalArgumentException> { scope.spacing(width = -1f) }
     }
 }

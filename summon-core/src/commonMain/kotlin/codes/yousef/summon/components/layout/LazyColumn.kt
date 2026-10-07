@@ -1,79 +1,121 @@
 package codes.yousef.summon.components.layout
 
 import codes.yousef.summon.core.mapOfCompat
-
-import codes.yousef.summon.modifier.*
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.ariaAttribute
+import codes.yousef.summon.modifier.attribute
+import codes.yousef.summon.modifier.dataAttribute
+import codes.yousef.summon.modifier.dataAttributes
+import codes.yousef.summon.modifier.role
+import codes.yousef.summon.modifier.style
 import codes.yousef.summon.runtime.Composable
-import codes.yousef.summon.runtime.CompositionLocal
 import codes.yousef.summon.runtime.LocalPlatformRenderer
+import codes.yousef.summon.runtime.key
 import codes.yousef.summon.runtime.remember
 import codes.yousef.summon.state.mutableStateOf
+import kotlin.math.abs
+import kotlin.math.floor
+
+private const val MAX_RETAINED_LAZY_MEASUREMENTS = 2_048
+
+private data class DefaultLazyItemKey(val index: Int)
+
+internal data class LazyListLayout(
+    val range: IntRange,
+    val leadingExtent: Float,
+    val trailingExtent: Float,
+    val totalExtent: Float
+)
 
 /**
- * State holder for lazy lists that tracks scroll position and visible items.
+ * Scroll, viewport and measured-row state shared by [LazyColumn] and [LazyRow].
+ *
+ * [itemSize] is the expected row extent. Measured browser rows refine offsets without retaining
+ * item content. Measurement history is bounded.
  */
 class LazyListState {
-    // Current scroll position in pixels
     private val _scrollPosition = mutableStateOf(0f)
-    val scrollPosition: Float
-        get() = _scrollPosition.value
-
-    // Estimated height/width of each item in pixels (can be refined later)
     private val _itemSize = mutableStateOf(50f)
-    val itemSize: Float
-        get() = _itemSize.value
-
-    // Number of items to render above and below the visible area for smooth scrolling
     private val _overscrollItems = mutableStateOf(2)
-    val overscrollItems: Int
-        get() = _overscrollItems.value
-
-    // Container size (height for column, width for row)
     private val _containerSize = mutableStateOf(600f)
-    val containerSize: Float
-        get() = _containerSize.value
+    private val _exposeItemCount = mutableStateOf(true)
+    private val _measurementRevision = mutableStateOf(0)
+    private val measuredSizes = mutableMapOf<Int, Float>()
+    private val measuredKeys = mutableMapOf<Int, Any>()
+    private val rendererTokens = mutableMapOf<Any, String>()
+    private var nextRendererToken = 0L
+    private var firstVisibleIndex = 0
+    private var lastItemCount = 0
+    private var scrollCommandRevision = 0
 
-    // Calculate which items should be visible based on container size and scroll position
-    fun getVisibleItemRange(containerSize: Float, totalItems: Int): IntRange {
-        val visibleItemCount = (containerSize / itemSize).toInt() + 1 // +1 to handle partial items
-        val firstVisibleItem = (scrollPosition / itemSize).toInt() - overscrollItems
-        val lastVisibleItem = firstVisibleItem + visibleItemCount + (2 * overscrollItems)
+    val scrollPosition: Float get() = _scrollPosition.value
+    val itemSize: Float get() = _itemSize.value
+    val overscrollItems: Int get() = _overscrollItems.value
+    val containerSize: Float get() = _containerSize.value
+    val exposeItemCountToAccessibility: Boolean get() = _exposeItemCount.value
+    internal val scrollRevision: Int get() = scrollCommandRevision
 
-        return IntRange(
-            firstVisibleItem.coerceAtLeast(0),
-            lastVisibleItem.coerceAtMost(totalItems - 1)
-        )
-    }
+    fun getVisibleItemRange(containerSize: Float, totalItems: Int): IntRange =
+        layout(containerSize, totalItems).range
 
-    // Update scroll position (would be called from JS)
     fun updateScrollPosition(newPosition: Float) {
-        _scrollPosition.value = newPosition
+        require(newPosition.isFinite()) { "Lazy list scroll position must be finite" }
+        val maxScroll = if (lastItemCount == 0) {
+            Float.MAX_VALUE
+        } else {
+            (totalExtent(lastItemCount) - containerSize).coerceAtLeast(0f)
+        }
+        requestScrollPosition(newPosition.coerceIn(0f, maxScroll))
     }
 
-    // Set item size
     fun setItemSize(size: Float) {
-        _itemSize.value = size
+        require(size.isFinite() && size > 0f) { "Lazy list item size must be finite and positive" }
+        if (_itemSize.value != size) {
+            _itemSize.value = size
+            measuredSizes.clear()
+            measuredKeys.clear()
+            bumpMeasurementRevision()
+        }
     }
 
-    // Set overscroll items
     fun setOverscrollItems(count: Int) {
+        require(count >= 0) { "Lazy list overscan must be non-negative" }
         _overscrollItems.value = count
     }
 
-    // Set container size
     fun setContainerSize(size: Float) {
+        require(size.isFinite() && size >= 0f) { "Lazy list viewport size must be finite and non-negative" }
         _containerSize.value = size
     }
 
-    // Get data attributes for the lazy container
+    fun setExposeItemCountToAccessibility(expose: Boolean) {
+        _exposeItemCount.value = expose
+    }
+
+    /**
+     * Moves the scroll anchor only when [index] is outside the viewport.
+     */
+    fun ensureItemVisible(index: Int, totalItems: Int) {
+        require(index in 0 until totalItems) { "Lazy list item index is out of range" }
+        lastItemCount = totalItems
+        val start = offsetFor(index)
+        val end = start + extentFor(index)
+        val viewportStart = scrollPosition
+        val viewportEnd = viewportStart + containerSize
+        when {
+            start < viewportStart -> requestScrollPosition(start)
+            end > viewportEnd -> requestScrollPosition(
+                (end - containerSize).coerceAtMost((totalExtent(totalItems) - containerSize).coerceAtLeast(0f))
+            )
+        }
+    }
+
     fun getDataAttributes(totalItems: Int): Map<String, String> {
-        // Ensure itemSize always has a decimal point for consistent representation across platforms
         val formattedItemSize = if (itemSize == itemSize.toInt().toFloat()) {
             "${itemSize.toInt()}.0"
         } else {
             itemSize.toString()
         }
-
         return mapOfCompat(
             "data-total-items" to totalItems.toString(),
             "data-item-size" to formattedItemSize,
@@ -81,245 +123,191 @@ class LazyListState {
             "data-lazy-container" to "true"
         )
     }
+
+    internal fun layout(containerSize: Float, totalItems: Int): LazyListLayout {
+        require(containerSize.isFinite() && containerSize >= 0f) {
+            "Lazy list viewport size must be finite and non-negative"
+        }
+        require(totalItems >= 0) { "Lazy list item count must be non-negative" }
+        _measurementRevision.value
+        lastItemCount = totalItems
+        measuredSizes.keys.removeAll { it >= totalItems }
+        measuredKeys.keys.removeAll { it >= totalItems }
+        if (totalItems == 0) {
+            firstVisibleIndex = 0
+            return LazyListLayout(IntRange.EMPTY, 0f, 0f, 0f)
+        }
+
+        val maximumScroll = (totalExtent(totalItems) - containerSize).coerceAtLeast(0f)
+        val viewportStart = scrollPosition.coerceIn(0f, maximumScroll)
+        if (viewportStart != scrollPosition) requestScrollPosition(viewportStart)
+
+        var first = floor(viewportStart / itemSize).toInt().coerceIn(0, totalItems - 1)
+        while (first > 0 && offsetFor(first) > viewportStart) first--
+        while (first < totalItems - 1 && offsetFor(first + 1) <= viewportStart) first++
+        firstVisibleIndex = first
+
+        val viewportEnd = viewportStart + containerSize
+        var last = first
+        while (last < totalItems - 1 && offsetFor(last + 1) <= viewportEnd) last++
+
+        val rangeStart = (first - overscrollItems).coerceAtLeast(0)
+        val rangeEnd = (last + overscrollItems).coerceAtMost(totalItems - 1)
+        val total = totalExtent(totalItems)
+        val leading = offsetFor(rangeStart)
+        val trailing = (total - offsetFor(rangeEnd + 1)).coerceAtLeast(0f)
+        return LazyListLayout(rangeStart..rangeEnd, leading, trailing, total)
+    }
+
+    internal fun prepareItem(index: Int, stableKey: Any) {
+        val prior = measuredKeys.put(index, stableKey)
+        if (prior != null && prior != stableKey && measuredSizes.remove(index) != null) {
+            bumpMeasurementRevision()
+        }
+    }
+
+    internal fun updateMeasuredItem(index: Int, size: Float) {
+        if (index !in 0 until lastItemCount || !size.isFinite() || size <= 0f) return
+        val prior = measuredSizes[index] ?: itemSize
+        if (abs(prior - size) < 0.5f) return
+        if (index !in measuredSizes && measuredSizes.size >= MAX_RETAINED_LAZY_MEASUREMENTS) {
+            val eviction = measuredSizes.keys.maxByOrNull { abs(it - firstVisibleIndex) }
+            if (eviction != null) {
+                measuredSizes.remove(eviction)
+                measuredKeys.remove(eviction)
+            }
+        }
+        measuredSizes[index] = size
+        if (index < firstVisibleIndex) {
+            requestScrollPosition((scrollPosition + size - prior).coerceAtLeast(0f))
+        }
+        bumpMeasurementRevision()
+    }
+
+    internal fun stableKey(index: Int, key: Any?): Any = key ?: DefaultLazyItemKey(index)
+
+    internal fun rendererToken(stableKey: Any): String =
+        rendererTokens.getOrPut(stableKey) { "lazy-${nextRendererToken++}" }
+
+    internal fun retainRendererTokens(visibleKeys: Set<Any>) {
+        rendererTokens.keys.retainAll(visibleKeys)
+    }
+
+    private fun extentFor(index: Int): Float = measuredSizes[index] ?: itemSize
+
+    private fun offsetFor(index: Int): Float {
+        var offset = index * itemSize
+        for ((measuredIndex, measuredSize) in measuredSizes) {
+            if (measuredIndex < index) offset += measuredSize - itemSize
+        }
+        return offset.coerceAtLeast(0f)
+    }
+
+    private fun totalExtent(totalItems: Int): Float = offsetFor(totalItems)
+
+    internal fun updateViewportScrollPosition(newPosition: Float) {
+        if (newPosition.isFinite()) _scrollPosition.value = newPosition.coerceAtLeast(0f)
+    }
+
+    private fun requestScrollPosition(newPosition: Float) {
+        if (_scrollPosition.value != newPosition) {
+            _scrollPosition.value = newPosition
+            scrollCommandRevision = (scrollCommandRevision + 1) and Int.MAX_VALUE
+        }
+    }
+
+    private fun bumpMeasurementRevision() {
+        _measurementRevision.value = _measurementRevision.value + 1
+    }
 }
 
 /**
- * # LazyColumn
- *
- * A virtualized vertical scrolling list that only composes and renders visible items,
- * providing optimal performance for large datasets by recycling components as needed.
- *
- * ## Overview
- *
- * LazyColumn provides efficient scrolling for large lists by:
- * - **Virtualization** - Only rendering visible items plus a small buffer
- * - **Memory efficiency** - Recycling components to minimize memory usage
- * - **Smooth scrolling** - Hardware-accelerated scrolling with momentum
- * - **Dynamic sizing** - Automatic or manual item size calculation
- * - **Flexible content** - Mix different item types, headers, and dividers
- *
- * ## Key Features
- *
- * ### Performance Optimization
- * - **Virtual scrolling** - Renders only visible items
- * - **Item recycling** - Reuses components for better memory management
- * - **Progressive loading** - Load data as needed during scroll
- * - **Smooth animations** - Hardware-accelerated scroll performance
- *
- * ### Content Management
- * - **Mixed content** - Combine different item types in one list
- * - **Sticky headers** - Headers that remain visible during scroll
- * - **Section dividers** - Visual separation between content groups
- * - **Dynamic spacing** - Configurable gaps between items
- *
- * ## Basic Usage
- *
- * ### Simple List
- * ```kotlin
- * @Composable
- * fun SimpleList(items: List<String>) {
- *     LazyColumn(
- *         modifier = Modifier()
- *             .fillMaxWidth()
- *             .height("400px")
- *             .padding(Spacing.MD)
- *     ) {
- *         items(items) { item ->
- *             Card(
- *                 modifier = Modifier()
- *                     .fillMaxWidth()
- *                     .padding(vertical = Spacing.XS)
- *             ) {
- *                 Text(
- *                     text = item,
- *                     modifier = Modifier().padding(Spacing.MD)
- *                 )
- *             }
- *         }
- *     }
- * }
- * ```
- *
- * ### Complex List with Headers
- * ```kotlin
- * @Composable
- * fun GroupedList(groups: List<ItemGroup>) {
- *     LazyColumn(
- *         modifier = Modifier()
- *             .fillMaxWidth()
- *             .height("600px")
- *     ) {
- *         groups.forEach { group ->
- *             stickyHeader(key = group.id) {
- *                 Box(
- *                     modifier = Modifier()
- *                         .fillMaxWidth()
- *                         .backgroundColor(Color.GRAY_100)
- *                         .padding(Spacing.MD)
- *                 ) {
- *                     Text(
- *                         text = group.title,
- *                         style = TextStyle.HEADING_4,
- *                         color = Color.GRAY_800
- *                     )
- *                 }
- *             }
- *
- *             items(group.items, key = { it.id }) { item ->
- *                 ItemComponent(item)
- *             }
- *
- *             if (group != groups.last()) {
- *                 sectionDivider {
- *                     Divider(
- *                         modifier = Modifier()
- *                             .fillMaxWidth()
- *                             .padding(vertical = Spacing.SM)
- *                     )
- *                 }
- *             }
- *         }
- *     }
- * }
- * ```
- *
- * ### Infinite Scrolling List
- * ```kotlin
- * @Composable
- * fun InfiniteList() {
- *     val items by remember { mutableStateOf(loadInitialItems()) }
- *     val isLoading by remember { mutableStateOf(false) }
- *
- *     LazyColumn(
- *         modifier = Modifier()
- *             .fillMaxWidth()
- *             .fillMaxHeight()
- *     ) {
- *         items(items, key = { it.id }) { item ->
- *             ItemCard(item)
- *         }
- *
- *         if (isLoading) {
- *             item {
- *                 Box(
- *                     modifier = Modifier()
- *                         .fillMaxWidth()
- *                         .padding(Spacing.LG)
- *                         .displayFlex()
- *                         .justifyContent(JustifyContent.CENTER)
- *                 ) {
- *                     CircularProgress()
- *                 }
- *             }
- *         }
- *
- *         // Load more trigger
- *         item {
- *             LaunchedEffect(items.size) {
- *                 if (!isLoading) {
- *                     loadMoreItems()
- *                 }
- *             }
- *         }
- *     }
- * }
- * ```
- *
- * @param modifier The modifier to be applied to the LazyColumn
- * @param state Optional state object that controls and observes scrolling
- * @param content The content lambda defining the children, scoped to `LazyListScope`.
- *
- * @see LazyRow for horizontal virtualized lists
- * @see Column for non-virtualized vertical layouts
- * @see LazyListScope for content building DSL
- * @see LazyListState for scroll state management
- *
- * @sample LazyColumnSamples.simpleList
- * @sample LazyColumnSamples.groupedList
- * @sample LazyColumnSamples.infiniteScroll
- *
- * @since 1.0.0
+ * A vertically virtualized list with real scroll geometry and bounded item collection.
  */
 @Composable
 fun LazyColumn(
-    modifier: Modifier = Modifier(),
+    modifier: Modifier = Modifier,
     state: LazyListState = remember { LazyListState() },
     content: LazyListScope.() -> Unit
 ) {
-    val composer = CompositionLocal.currentComposer
-
-    // Create the scope first to collect item definitions
-    val scope = LazyListScopeImpl()
-    scope.content() // Execute user lambda to populate scope.items
-
-    // Add data attributes and styles to the modifier
-    val dataAttributes = state.getDataAttributes(scope.items.size)
-    var finalModifier = modifier.then(
-        Modifier()
-            .style("overflow-y", "auto")
-            .style("display", "flex")
-            .style("flex-direction", "column")
-            .style("max-height", "100%")
-            .dataAttribute("direction", "column")
-            .dataAttributes(dataAttributes)
-    )
+    val scope = LazyListScopeImpl().also(content)
+    val layout = state.layout(state.containerSize, scope.itemCount)
+    val finalModifier = modifier then Modifier
+        .style("overflow-y", "auto")
+        .style("display", "flex")
+        .style("flex-direction", "column")
+        .style("max-height", "100%")
+        .dataAttribute("direction", "column")
+        .dataAttributes(state.getDataAttributes(scope.itemCount))
+        .role("list")
 
     val renderer = LocalPlatformRenderer.current
-
-    // Calculate the visible range based on the current scroll position
-    val visibleRange = state.getVisibleItemRange(state.containerSize, scope.items.size)
-
     renderer.renderLazyColumn(
         modifier = finalModifier,
-        onScroll = { scrollPosition, containerSize ->
-            state.updateScrollPosition(scrollPosition)
+        scrollPosition = state.scrollPosition,
+        scrollRevision = state.scrollRevision,
+        onViewportChanged = { scrollPosition, containerSize ->
             state.setContainerSize(containerSize)
+            state.updateViewportScrollPosition(scrollPosition)
         },
-        content = { // 'this' is FlowContent scope from the renderer
-            // Only render items that are in the visible range
-            for (i in visibleRange) {
-                if (i >= 0 && i < scope.items.size) {
-                    // Create a wrapper for the item with appropriate attributes
-                    val key = scope.keys.getOrNull(i)
-                    val isHeader = scope.isHeader.getOrNull(i) ?: false
-                    val isDivider = scope.isDivider.getOrNull(i) ?: false
-                    val spacing = scope.spacings.getOrNull(i) ?: (0f to 0f)
-
-                    // Add data attributes for the item
-                    val itemModifier = Modifier()
-                        .dataAttribute("item-index", i.toString())
-                        .dataAttribute("item-key", key?.toString() ?: "")
-                        .style("margin-top", "${spacing.first}px")
-                        .style("margin-left", "${spacing.second}px")
-
-                    // Add sticky header styling if needed
-                    if (isHeader) {
-                        itemModifier
+        onItemMeasured = state::updateMeasuredItem,
+        content = {
+            renderLazySpacer(renderer, layout.leadingExtent, vertical = true, leading = true)
+            val visibleKeys = mutableSetOf<Any>()
+            for (index in layout.range) {
+                val metadata = scope.metadata(index)
+                val stableKey = state.stableKey(index, metadata.key)
+                check(visibleKeys.add(stableKey)) { "Duplicate visible lazy list key" }
+                state.prepareItem(index, stableKey)
+                val rendererToken = state.rendererToken(stableKey)
+                key(stableKey) {
+                    var itemModifier = Modifier
+                        .attribute("key", rendererToken)
+                        .dataAttribute("lazy-item", "true")
+                        .dataAttribute("item-index", index.toString())
+                        .style("box-sizing", "border-box")
+                        .style("flex-shrink", "0")
+                        .style("min-height", "${state.itemSize}px")
+                        .style("margin-top", "${metadata.spacingHeight}px")
+                        .style("margin-left", "${metadata.spacingWidth}px")
+                        .role("listitem")
+                        .ariaAttribute("posinset", (index + 1).toString())
+                    if (state.exposeItemCountToAccessibility) {
+                        itemModifier = itemModifier.ariaAttribute("setsize", scope.itemCount.toString())
+                    }
+                    if (metadata.isHeader) {
+                        itemModifier = itemModifier
                             .style("position", "sticky")
                             .style("top", "0")
                             .style("z-index", "1")
                             .style("background-color", "inherit")
                     }
-
-                    // Add section divider styling if needed
-                    if (isDivider) {
-                        itemModifier
-                            .style("width", "100%")
-                            .style("data-section-divider", "true")
+                    if (metadata.isDivider) {
+                        itemModifier = itemModifier.dataAttribute("section-divider", "true")
                     }
-
-                    // Render the item with its wrapper
-                    renderer.renderDiv(
-                        modifier = itemModifier,
-                        content = {
-                            // Execute the composable lambda provided for the visible item
-                            scope.items[i]()
-                        }
-                    )
+                    renderer.renderDiv(itemModifier) { scope.render(index) }
                 }
             }
+            state.retainRendererTokens(visibleKeys)
+            renderLazySpacer(renderer, layout.trailingExtent, vertical = true, leading = false)
         }
     )
 }
 
-// The old LazyColumn class and its methods are removed. 
+@Composable
+internal fun renderLazySpacer(
+    renderer: codes.yousef.summon.runtime.PlatformRenderer,
+    extent: Float,
+    vertical: Boolean,
+    leading: Boolean
+) {
+    val axis = if (vertical) "height" else "width"
+    renderer.renderDiv(
+        Modifier
+            .attribute("key", if (leading) "lazy-leading-spacer" else "lazy-trailing-spacer")
+            .dataAttribute("lazy-spacer", if (leading) "leading" else "trailing")
+            .style(axis, "${extent.coerceAtLeast(0f)}px")
+            .style("flex", "0 0 ${extent.coerceAtLeast(0f)}px")
+            .attribute("aria-hidden", "true")
+    ) {}
+}

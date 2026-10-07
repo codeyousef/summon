@@ -50,6 +50,11 @@ All notable changes to this project will be documented in this file.
 - **Opaque browser persistence** - JS and WASM expose bounded binary IndexedDB records with
   atomic multi-record commits, explicit migration and typed quota/eviction/blocked states, while
   JVM reports the capability unavailable instead of substituting volatile memory.
+- **Measured lazy virtualization** - `LazyColumn` and `LazyRow` now bind to real browser
+  scroll and resize signals, compose only the viewport plus bounded overscan, retain bounded
+  variable-size measurements, preserve stable-key anchors, and dispose off-screen work. Count
+  intervals avoid per-item lambdas; paged providers expose explicit loading, empty, locked,
+  permission-denied and error states without serializing private keys.
 - **Owned browser workers and tab coordination** - Same-origin workers use bounded correlated
   binary requests with cancellation/disposal, and cross-tab lock, invalidation, logout and upgrade
   messages accept only fixed event types with bounded opaque identifiers.
