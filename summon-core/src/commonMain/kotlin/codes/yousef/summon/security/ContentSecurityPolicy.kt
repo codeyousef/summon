@@ -33,6 +33,7 @@ object PrivateShellContentSecurityPolicy {
             "style-src-elem 'self' 'nonce-$styleNonce'",
             "style-src-attr 'unsafe-inline'",
             "img-src 'self' blob:",
+            "media-src 'self' blob:",
             "font-src 'self'",
             "connect-src 'self'",
             "worker-src 'self'",

@@ -113,6 +113,27 @@ private external fun wasmBindLazyViewport(
     }"""
 )
 private external fun wasmDisposeLazyViewport(id: String)
+@JsFun("(id) => { const element = document.getElementById(id); return element && element.files ? element.files.length : 0; }")
+private external fun wasmFileCount(elementId: String): Int
+
+@JsFun("(id, index) => document.getElementById(id).files[index]")
+private external fun wasmFileAt(elementId: String, index: Int): JsAny
+
+@JsFun("(file) => file.name")
+private external fun wasmFileName(file: JsAny): String
+
+@JsFun("(file) => file.size")
+private external fun wasmFileSize(file: JsAny): Double
+
+@JsFun("(file) => file.type || ''")
+private external fun wasmFileType(file: JsAny): String
+
+@JsFun("(file) => file.lastModified || 0")
+private external fun wasmFileLastModified(file: JsAny): Double
+
+@JsFun("(id) => document.getElementById(id).click()")
+private external fun wasmClickFileInput(elementId: String)
+
 
 // Since PlatformRenderer has many methods, providing stub implementations for WASM
 actual open class PlatformRenderer actual constructor() {
@@ -917,8 +938,51 @@ actual open class PlatformRenderer actual constructor() {
         capture: String?,
         modifier: Modifier
     ): () -> Unit {
-        diagnostics.unsupported()
-        return { diagnostics.unsupported() }
+        val sid = generateNextId("file-input", modifier.attributes["key"])
+        if (isStringRenderMode) {
+            val attributes = mutableMapOf(
+                "type" to "file",
+                "data-sid" to sid,
+                "style" to "display:none"
+            )
+            if (multiple) attributes["multiple"] = ""
+            if (!enabled) attributes["disabled"] = "disabled"
+            accept?.let { attributes["accept"] = it }
+            capture?.let { attributes["capture"] = it }
+            val element = HtmlElement("input", attributes)
+            if (htmlStack.isNotEmpty()) htmlStack.last().content.append(renderHtmlElement(element))
+            else htmlBuilder.append(renderHtmlElement(element))
+            return {}
+        }
+
+        val input = createOrReuseElement("input", sid) ?: recompositionElements[sid]
+            ?: throw WasmDOMException("Failed to retrieve reused file input")
+        input.setAttribute("hidden", "")
+        input.setAttribute("type", "file")
+        input.setAttribute("data-sid", sid)
+        input.setAttribute("style", "display:none")
+        if (multiple) input.setAttribute("multiple", "") else input.removeAttribute("multiple")
+        if (enabled) input.removeAttribute("disabled") else input.setAttribute("disabled", "disabled")
+        if (accept == null) input.removeAttribute("accept") else input.setAttribute("accept", accept)
+        if (capture == null) input.removeAttribute("capture") else input.setAttribute("capture", capture)
+        applyModifierToElement(input, modifier)
+        val elementId = DOMProvider.getNativeElementId(input)
+        attachEventListenerWithHydration(input, "change") {
+            val selected = ArrayList<FileInfo>(wasmFileCount(elementId))
+            for (index in 0 until wasmFileCount(elementId)) {
+                val file = wasmFileAt(elementId, index)
+                selected += FileInfo(
+                    name = wasmFileName(file),
+                    size = wasmFileSize(file).toLong(),
+                    type = wasmFileType(file),
+                    lastModifiedMillis = wasmFileLastModified(file).toLong(),
+                    nativeFile = file
+                )
+            }
+            onFilesSelected(selected)
+        }
+        appendToCurrentContainer(input)
+        return { if (enabled) wasmClickFileInput(elementId) }
     }
 
     actual open fun renderForm(

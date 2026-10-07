@@ -5,11 +5,18 @@ package codes.yousef.summon.components.input
  * Common properties are defined here, platform implementations may add specific details.
  */
 expect class FileInfo {
-    val name: String // The name of the file.
-    val size: Long   // The size of the file in bytes.
-    val type: String // The MIME type of the file.
+    val name: String
+    val size: Long
+    val type: String
+    val lastModifiedMillis: Long
+    val sourceVersion: FileSourceVersion
 
-    // Add component functions explicitly if needed for destructuring, mirroring data class behavior
+    /**
+     * Reads a fresh native byte range. Callers must apply operation accounting through
+     * [BoundedFileReader].
+     */
+    internal suspend fun readRange(offset: Long, length: Int): ByteArray
+
     operator fun component1(): String
     operator fun component2(): Long
     operator fun component3(): String

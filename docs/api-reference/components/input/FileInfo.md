@@ -5,16 +5,18 @@ and operations.
 
 ## Overview
 
-The FileInfo class encapsulates essential file metadata including name, size, and MIME type. It provides a
-platform-agnostic interface for working with user-selected files across browser and JVM environments.
+`FileInfo` carries file metadata and an opaque native source capability. Read source bytes through
+`BoundedFileReader` or `transferFileInChunks`; both APIs enforce caller-supplied chunk and operation
+bounds before allocating a buffer. Browser reads use native `File.slice` ranges and abort an active
+`FileReader` when the coroutine is canceled.
 
 ### Key Features
 
-- **Cross-platform**: Consistent API across JS and JVM platforms
-- **File Metadata**: Access to name, size, and MIME type
-- **Destructuring Support**: Component functions for easy unpacking
-- **Type Safety**: Strongly typed file information
-- **Platform Optimized**: Platform-specific implementations for best performance
+- **Cross-platform**: Consistent metadata and range semantics across JS, WASM, and JVM
+- **Bounded reads**: Explicit maximum chunk and total bytes per operation
+- **Resumable transfer**: Ordered checkpoints reject a changed size or modification timestamp
+- **Fresh buffers**: Every acknowledged range has independent byte storage
+- **Distinct scheduling units**: 4 MiB plaintext chunks and 16 MiB storage-part targets by default
 
 ## API Reference
 
@@ -22,14 +24,11 @@ platform-agnostic interface for working with user-selected files across browser 
 
 ```kotlin
 expect class FileInfo {
-    val name: String    // The name of the file
-    val size: Long      // The size of the file in bytes
-    val type: String    // The MIME type of the file
-
-    // Destructuring support
-    operator fun component1(): String  // name
-    operator fun component2(): Long    // size
-    operator fun component3(): String  // type
+    val name: String
+    val size: Long
+    val type: String
+    val lastModifiedMillis: Long
+    val sourceVersion: FileSourceVersion
 }
 ```
 
@@ -38,12 +37,40 @@ expect class FileInfo {
 - `name`: The original filename including extension
 - `size`: File size in bytes
 - `type`: MIME type (e.g., "image/jpeg", "application/pdf")
+- `lastModifiedMillis`: Native source modification timestamp used for resume validation
+- `sourceVersion`: Size and timestamp pair captured by transfer checkpoints
 
 **Component Functions:**
 
 - `component1()`: Returns the file name
 - `component2()`: Returns the file size
 - `component3()`: Returns the MIME type
+
+### Bounded range transfer
+
+```kotlin
+val policy = FileReadPolicy(
+    maxChunkBytes = DEFAULT_PLAINTEXT_CHUNK_BYTES,
+    maxTotalBytes = file.size
+)
+
+val checkpoint = transferFileInChunks(
+    file = file,
+    policy = policy,
+    checkpoint = savedCheckpoint
+) { chunk ->
+    encryptAndAcknowledge(chunk.offset, chunk.bytes, chunk.storagePartTargetBytes)
+}
+```
+
+The consumer must return only after copying or acknowledging `chunk.bytes`; Summon releases its
+reference before reading the next range. Persist `FileTransferCheckpoint` only after that
+acknowledgment. A changed source throws `FileReadException.SourceChanged` and requires explicit
+reselection. Browser reloads can also invalidate the native source capability.
+
+`ManagedFileUpload` adds accessible selection, progress, cancel, retry, remove, quota,
+partial-import, and reselection-required states. It does not implement encryption or provider
+multipart upload; those remain caller-owned adapters.
 
 ## Usage Examples
 

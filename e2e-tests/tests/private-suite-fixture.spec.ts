@@ -406,6 +406,73 @@ test('real virtualization stays bounded, keyed, measured, accessible, and dispos
   expect([...origins]).toEqual([new URL(page.url()).origin]);
 });
 
+test('native files stay bounded, resumable, cancelable, integrity-gated, and revocable', async ({ page }) => {
+  await page.goto('/?files=true');
+  await expect(page.getByTestId('file-title')).toHaveText('File lifecycle fixture');
+
+  const input = page.locator('input[type="file"]');
+  await input.setInputFiles({
+    name: 'first.bin',
+    mimeType: 'video/mp4',
+    buffer: Buffer.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]),
+  });
+  await expect(page.getByText('first.bin', { exact: true })).toBeVisible();
+  await expect(page.getByText('Selected', { exact: true })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Read edge ranges', exact: true }).click();
+  await expect(page.getByTestId('file-result')).toHaveText('Ranges: 0:8,9');
+
+  await page.getByRole('button', { name: 'Create verified media', exact: true }).click();
+  await expect(page.getByTestId('file-result')).toHaveText('Media ready');
+  const media = page.getByTestId('verified-media');
+  await expect(media).toHaveCount(1);
+  const objectUrl = await media.locator('source').getAttribute('src');
+  expect(objectUrl).toMatch(/^blob:/);
+
+  await page.getByRole('button', { name: 'Lock media', exact: true }).click();
+  await expect(media).toHaveCount(0);
+  expect(await page.evaluate(async url => {
+    return await new Promise<boolean>(resolve => {
+      const probe = document.createElement('video');
+      probe.onerror = () => resolve(true);
+      probe.onloadedmetadata = () => resolve(false);
+      probe.src = url!;
+      probe.load();
+    });
+  }, objectUrl)).toBe(true);
+
+  await page.getByRole('button', { name: 'Fail media integrity', exact: true }).click();
+  await expect(page.getByTestId('file-result')).toHaveText('Integrity failed');
+  await expect(media).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Try unsupported media', exact: true }).click();
+  await expect(page.getByTestId('file-result')).toHaveText('Unsupported media: video/x-private');
+  await expect(media).toHaveCount(0);
+
+  const largeBytes = Buffer.alloc(8 * 1024 * 1024, 0x5a);
+  await input.setInputFiles({ name: 'large.bin', mimeType: 'application/octet-stream', buffer: largeBytes });
+  await page.getByRole('button', { name: 'Transfer selected', exact: true }).click();
+  await expect(page.getByText(`0 of ${largeBytes.length} bytes`, { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Cancel transfer', exact: true }).click();
+  await expect(page.getByTestId('file-result')).toHaveText('Transfer canceled');
+  await expect(page.getByRole('button', { name: 'Retry large.bin', exact: true })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Retry large.bin', exact: true }).click();
+  await expect(page.getByRole('group', { name: 'large.bin', exact: true }).getByText('Selected', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Transfer selected', exact: true }).click();
+  await expect(page.getByTestId('file-result')).toHaveText(`Transfer complete: ${largeBytes.length}`);
+
+  await input.setInputFiles({
+    name: 'large.bin',
+    mimeType: 'application/octet-stream',
+    buffer: Buffer.alloc(9, 0x5a),
+  });
+  await page.getByRole('button', { name: 'Resume selected', exact: true }).click();
+  await expect(page.getByTestId('file-result')).toHaveText('New version required');
+  await expect(page.getByText('Source changed; select the new version', { exact: true })).toBeVisible();
+  await expect(page.getByText('large.bin', { exact: true })).toHaveCount(2);
+});
+
 test('hydration mismatch reloads once and retains only the public shell', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name.startsWith('wasm-'), 'Mismatch recovery is owned by the JS hydration client');
   let mismatchNavigations = 0;

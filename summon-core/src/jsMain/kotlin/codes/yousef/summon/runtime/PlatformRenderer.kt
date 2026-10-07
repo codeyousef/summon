@@ -2154,10 +2154,11 @@ actual open class PlatformRenderer {
 
         inputElement = createElement("input", modifier, { element ->
             element.setAttribute("type", "file")
-            if (multiple) element.setAttribute("multiple", "")
-            accept?.let { element.setAttribute("accept", it) }
-            capture?.let { element.setAttribute("capture", it) }
-            if (!enabled) element.setAttribute("disabled", "disabled")
+            element.setAttribute("hidden", "")
+            if (multiple) element.setAttribute("multiple", "") else element.removeAttribute("multiple")
+            if (accept == null) element.removeAttribute("accept") else element.setAttribute("accept", accept)
+            if (capture == null) element.removeAttribute("capture") else element.setAttribute("capture", capture)
+            if (enabled) element.removeAttribute("disabled") else element.setAttribute("disabled", "disabled")
 
             registerEventListener(element, "change") { event ->
                 val files = event.target.asDynamic().files
@@ -2167,9 +2168,9 @@ actual open class PlatformRenderer {
                     val file = files[i]
                     fileList.add(
                         FileInfo(
-                            name = js("file.name") as String,
-                            size = js("file.size") as Long,
-                            type = js("file.type") as String,
+                            name = file.name as String,
+                            size = (file.size as Number).toLong(),
+                            type = file.type as String,
                             jsFile = file
                         )
                     )

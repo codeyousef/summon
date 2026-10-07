@@ -194,6 +194,7 @@ class ShellFallbackHandler(http.server.SimpleHTTPRequestHandler):
             f"style-src-elem 'self' 'nonce-{nonce}'",
             "style-src-attr 'unsafe-inline'",
             "img-src 'self' blob:",
+            "media-src 'self' blob:",
             "font-src 'self'",
             "connect-src 'self' ws://127.0.0.1:*",
             "worker-src 'self'",

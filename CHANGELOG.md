@@ -58,6 +58,11 @@ All notable changes to this project will be documented in this file.
 - **Owned browser workers and tab coordination** - Same-origin workers use bounded correlated
   binary requests with cancellation/disposal, and cross-tab lock, invalidation, logout and upgrade
   messages accept only fixed event types with bounded opaque identifiers.
+- **Bounded native file lifecycle** - JS, WASM and JVM `FileInfo` sources expose cancellable,
+  operation-accounted range reads and ordered resumable transfers with distinct 4 MiB plaintext
+  chunks and 16 MiB storage-part targets. `ManagedFileUpload` provides bounded selection,
+  progress, cancel, retry, remove, reselection, quota and partial-import states; verified media
+  object URLs are integrity-gated, capability-checked and explicitly revocable.
 
 ### Changed
 

@@ -3072,6 +3072,15 @@ public final class codes/yousef/summon/components/html/TextElementsKt {
 	public static synthetic fun U$default (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 }
 
+public final class codes/yousef/summon/components/input/BoundedFileReader : java/lang/AutoCloseable {
+	public fun <init> (Lcodes/yousef/summon/components/input/FileInfo;Lcodes/yousef/summon/components/input/FileReadPolicy;Lcodes/yousef/summon/components/input/FileSourceVersion;)V
+	public synthetic fun <init> (Lcodes/yousef/summon/components/input/FileInfo;Lcodes/yousef/summon/components/input/FileReadPolicy;Lcodes/yousef/summon/components/input/FileSourceVersion;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun close ()V
+	public final fun getBytesRead ()J
+	public final fun getSourceVersion ()Lcodes/yousef/summon/components/input/FileSourceVersion;
+	public final fun read (JILkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
 public final class codes/yousef/summon/components/input/ButtonKt {
 	public static final fun Button (Lkotlin/jvm/functions/Function0;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/components/input/ButtonVariant;ZLjava/lang/String;Lcodes/yousef/summon/components/input/IconPosition;Ljava/util/Map;Lcodes/yousef/summon/action/UiAction;)V
 	public static synthetic fun Button$default (Lkotlin/jvm/functions/Function0;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/components/input/ButtonVariant;ZLjava/lang/String;Lcodes/yousef/summon/components/input/IconPosition;Ljava/util/Map;Lcodes/yousef/summon/action/UiAction;ILjava/lang/Object;)V
@@ -3117,21 +3126,156 @@ public final class codes/yousef/summon/components/input/DatePickerKt {
 }
 
 public final class codes/yousef/summon/components/input/FileInfo {
-	public fun <init> (Ljava/lang/String;JLjava/lang/String;Ljava/io/File;)V
-	public synthetic fun <init> (Ljava/lang/String;JLjava/lang/String;Ljava/io/File;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;JLjava/lang/String;Ljava/io/File;J)V
+	public synthetic fun <init> (Ljava/lang/String;JLjava/lang/String;Ljava/io/File;JILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
 	public final fun component2 ()J
 	public final fun component3 ()Ljava/lang/String;
 	public final fun component4 ()Ljava/io/File;
-	public final fun copy (Ljava/lang/String;JLjava/lang/String;Ljava/io/File;)Lcodes/yousef/summon/components/input/FileInfo;
-	public static synthetic fun copy$default (Lcodes/yousef/summon/components/input/FileInfo;Ljava/lang/String;JLjava/lang/String;Ljava/io/File;ILjava/lang/Object;)Lcodes/yousef/summon/components/input/FileInfo;
+	public final fun component5 ()J
+	public final fun copy (Ljava/lang/String;JLjava/lang/String;Ljava/io/File;J)Lcodes/yousef/summon/components/input/FileInfo;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/components/input/FileInfo;Ljava/lang/String;JLjava/lang/String;Ljava/io/File;JILjava/lang/Object;)Lcodes/yousef/summon/components/input/FileInfo;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getFile ()Ljava/io/File;
+	public final fun getLastModifiedMillis ()J
 	public final fun getName ()Ljava/lang/String;
 	public final fun getSize ()J
+	public final fun getSourceVersion ()Lcodes/yousef/summon/components/input/FileSourceVersion;
 	public final fun getType ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public abstract class codes/yousef/summon/components/input/FileReadException : java/lang/Exception {
+	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class codes/yousef/summon/components/input/FileReadException$Failed : codes/yousef/summon/components/input/FileReadException {
+	public fun <init> ()V
+}
+
+public final class codes/yousef/summon/components/input/FileReadException$InvalidRange : codes/yousef/summon/components/input/FileReadException {
+	public fun <init> ()V
+}
+
+public final class codes/yousef/summon/components/input/FileReadException$LimitExceeded : codes/yousef/summon/components/input/FileReadException {
+	public fun <init> ()V
+}
+
+public final class codes/yousef/summon/components/input/FileReadException$SourceChanged : codes/yousef/summon/components/input/FileReadException {
+	public fun <init> ()V
+}
+
+public final class codes/yousef/summon/components/input/FileReadException$Unavailable : codes/yousef/summon/components/input/FileReadException {
+	public fun <init> ()V
+}
+
+public final class codes/yousef/summon/components/input/FileReadPolicy {
+	public fun <init> (IJ)V
+	public synthetic fun <init> (IJILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()J
+	public final fun copy (IJ)Lcodes/yousef/summon/components/input/FileReadPolicy;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/components/input/FileReadPolicy;IJILjava/lang/Object;)Lcodes/yousef/summon/components/input/FileReadPolicy;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMaxChunkBytes ()I
+	public final fun getMaxTotalBytes ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/input/FileSourceVersion {
+	public fun <init> (JJ)V
+	public final fun component1 ()J
+	public final fun component2 ()J
+	public final fun copy (JJ)Lcodes/yousef/summon/components/input/FileSourceVersion;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/components/input/FileSourceVersion;JJILjava/lang/Object;)Lcodes/yousef/summon/components/input/FileSourceVersion;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getLastModifiedMillis ()J
+	public final fun getSize ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/input/FileTransferCheckpoint {
+	public fun <init> (Lcodes/yousef/summon/components/input/FileSourceVersion;J)V
+	public final fun component1 ()Lcodes/yousef/summon/components/input/FileSourceVersion;
+	public final fun component2 ()J
+	public final fun copy (Lcodes/yousef/summon/components/input/FileSourceVersion;J)Lcodes/yousef/summon/components/input/FileTransferCheckpoint;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/components/input/FileTransferCheckpoint;Lcodes/yousef/summon/components/input/FileSourceVersion;JILjava/lang/Object;)Lcodes/yousef/summon/components/input/FileTransferCheckpoint;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getNextOffset ()J
+	public final fun getSourceVersion ()Lcodes/yousef/summon/components/input/FileSourceVersion;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/input/FileTransferChunk {
+	public final fun getBytes ()[B
+	public final fun getOffset ()J
+	public final fun getStoragePartTargetBytes ()I
+}
+
+public final class codes/yousef/summon/components/input/FileTransferKt {
+	public static final field DEFAULT_PLAINTEXT_CHUNK_BYTES I
+	public static final field DEFAULT_STORAGE_PART_BYTES I
+	public static final fun transferFileInChunks (Lcodes/yousef/summon/components/input/FileInfo;Lcodes/yousef/summon/components/input/FileReadPolicy;Lcodes/yousef/summon/components/input/FileTransferCheckpoint;IILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun transferFileInChunks$default (Lcodes/yousef/summon/components/input/FileInfo;Lcodes/yousef/summon/components/input/FileReadPolicy;Lcodes/yousef/summon/components/input/FileTransferCheckpoint;IILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class codes/yousef/summon/components/input/FileTransferProgress {
+	public fun <init> (JJ)V
+	public final fun component1 ()J
+	public final fun component2 ()J
+	public final fun copy (JJ)Lcodes/yousef/summon/components/input/FileTransferProgress;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/components/input/FileTransferProgress;JJILjava/lang/Object;)Lcodes/yousef/summon/components/input/FileTransferProgress;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getTotalBytes ()J
+	public final fun getTransferredBytes ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/input/FileUploadController {
+	public fun <init> (JJ)V
+	public final fun cancel (Ljava/lang/String;)V
+	public final fun complete (Ljava/lang/String;)V
+	public final fun fail (Ljava/lang/String;Lcodes/yousef/summon/components/input/FileUploadFailure;)V
+	public final fun getEntries ()Lcodes/yousef/summon/state/State;
+	public final fun getMaxFileBytes ()J
+	public final fun getMaxOperationBytes ()J
+	public final fun quotaExceeded (Ljava/lang/String;)V
+	public final fun remove (Ljava/lang/String;)V
+	public final fun reportPartialImport (Ljava/lang/String;JJ)V
+	public final fun requireReselection (Ljava/lang/String;)V
+	public final fun retry (Ljava/lang/String;)V
+	public final fun select (Ljava/util/List;)V
+	public final fun updateProgress (Ljava/lang/String;J)V
+}
+
+public final class codes/yousef/summon/components/input/FileUploadEntry {
+	public fun <init> (Ljava/lang/String;Lcodes/yousef/summon/components/input/FileInfo;Lcodes/yousef/summon/components/input/FileUploadStatus;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lcodes/yousef/summon/components/input/FileInfo;
+	public final fun component3 ()Lcodes/yousef/summon/components/input/FileUploadStatus;
+	public final fun copy (Ljava/lang/String;Lcodes/yousef/summon/components/input/FileInfo;Lcodes/yousef/summon/components/input/FileUploadStatus;)Lcodes/yousef/summon/components/input/FileUploadEntry;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/components/input/FileUploadEntry;Ljava/lang/String;Lcodes/yousef/summon/components/input/FileInfo;Lcodes/yousef/summon/components/input/FileUploadStatus;ILjava/lang/Object;)Lcodes/yousef/summon/components/input/FileUploadEntry;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFile ()Lcodes/yousef/summon/components/input/FileInfo;
+	public final fun getId ()Ljava/lang/String;
+	public final fun getStatus ()Lcodes/yousef/summon/components/input/FileUploadStatus;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/input/FileUploadFailure : java/lang/Enum {
+	public static final field INTEGRITY Lcodes/yousef/summon/components/input/FileUploadFailure;
+	public static final field READ Lcodes/yousef/summon/components/input/FileUploadFailure;
+	public static final field UNSUPPORTED Lcodes/yousef/summon/components/input/FileUploadFailure;
+	public static final field WORKER Lcodes/yousef/summon/components/input/FileUploadFailure;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcodes/yousef/summon/components/input/FileUploadFailure;
+	public static fun values ()[Lcodes/yousef/summon/components/input/FileUploadFailure;
 }
 
 public final class codes/yousef/summon/components/input/FileUploadKt {
@@ -3139,6 +3283,100 @@ public final class codes/yousef/summon/components/input/FileUploadKt {
 	public static final fun FileUpload (Lkotlin/jvm/functions/Function1;Lcodes/yousef/summon/modifier/Modifier;ZZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
 	public static synthetic fun FileUpload$default (Lcodes/yousef/summon/modifier/Modifier;ZZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)Lcodes/yousef/summon/state/State;
 	public static synthetic fun FileUpload$default (Lkotlin/jvm/functions/Function1;Lcodes/yousef/summon/modifier/Modifier;ZZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
+}
+
+public final class codes/yousef/summon/components/input/FileUploadRejection : java/lang/Enum {
+	public static final field FILE_LIMIT Lcodes/yousef/summon/components/input/FileUploadRejection;
+	public static final field OPERATION_LIMIT Lcodes/yousef/summon/components/input/FileUploadRejection;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcodes/yousef/summon/components/input/FileUploadRejection;
+	public static fun values ()[Lcodes/yousef/summon/components/input/FileUploadRejection;
+}
+
+public abstract interface class codes/yousef/summon/components/input/FileUploadStatus {
+}
+
+public final class codes/yousef/summon/components/input/FileUploadStatus$Canceled : codes/yousef/summon/components/input/FileUploadStatus {
+	public static final field INSTANCE Lcodes/yousef/summon/components/input/FileUploadStatus$Canceled;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/input/FileUploadStatus$Complete : codes/yousef/summon/components/input/FileUploadStatus {
+	public static final field INSTANCE Lcodes/yousef/summon/components/input/FileUploadStatus$Complete;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/input/FileUploadStatus$Failed : codes/yousef/summon/components/input/FileUploadStatus {
+	public fun <init> (Lcodes/yousef/summon/components/input/FileUploadFailure;)V
+	public final fun component1 ()Lcodes/yousef/summon/components/input/FileUploadFailure;
+	public final fun copy (Lcodes/yousef/summon/components/input/FileUploadFailure;)Lcodes/yousef/summon/components/input/FileUploadStatus$Failed;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/components/input/FileUploadStatus$Failed;Lcodes/yousef/summon/components/input/FileUploadFailure;ILjava/lang/Object;)Lcodes/yousef/summon/components/input/FileUploadStatus$Failed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getReason ()Lcodes/yousef/summon/components/input/FileUploadFailure;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/input/FileUploadStatus$PartialImport : codes/yousef/summon/components/input/FileUploadStatus {
+	public fun <init> (JJ)V
+	public final fun component1 ()J
+	public final fun component2 ()J
+	public final fun copy (JJ)Lcodes/yousef/summon/components/input/FileUploadStatus$PartialImport;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/components/input/FileUploadStatus$PartialImport;JJILjava/lang/Object;)Lcodes/yousef/summon/components/input/FileUploadStatus$PartialImport;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getImportedRecords ()J
+	public final fun getOversizedRecords ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/input/FileUploadStatus$QuotaExceeded : codes/yousef/summon/components/input/FileUploadStatus {
+	public static final field INSTANCE Lcodes/yousef/summon/components/input/FileUploadStatus$QuotaExceeded;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/input/FileUploadStatus$Rejected : codes/yousef/summon/components/input/FileUploadStatus {
+	public fun <init> (Lcodes/yousef/summon/components/input/FileUploadRejection;)V
+	public final fun component1 ()Lcodes/yousef/summon/components/input/FileUploadRejection;
+	public final fun copy (Lcodes/yousef/summon/components/input/FileUploadRejection;)Lcodes/yousef/summon/components/input/FileUploadStatus$Rejected;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/components/input/FileUploadStatus$Rejected;Lcodes/yousef/summon/components/input/FileUploadRejection;ILjava/lang/Object;)Lcodes/yousef/summon/components/input/FileUploadStatus$Rejected;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getReason ()Lcodes/yousef/summon/components/input/FileUploadRejection;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/input/FileUploadStatus$ReselectionRequired : codes/yousef/summon/components/input/FileUploadStatus {
+	public static final field INSTANCE Lcodes/yousef/summon/components/input/FileUploadStatus$ReselectionRequired;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/input/FileUploadStatus$Selected : codes/yousef/summon/components/input/FileUploadStatus {
+	public static final field INSTANCE Lcodes/yousef/summon/components/input/FileUploadStatus$Selected;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/components/input/FileUploadStatus$Transferring : codes/yousef/summon/components/input/FileUploadStatus {
+	public fun <init> (JJ)V
+	public final fun component1 ()J
+	public final fun component2 ()J
+	public final fun copy (JJ)Lcodes/yousef/summon/components/input/FileUploadStatus$Transferring;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/components/input/FileUploadStatus$Transferring;JJILjava/lang/Object;)Lcodes/yousef/summon/components/input/FileUploadStatus$Transferring;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getTotalBytes ()J
+	public final fun getTransferredBytes ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class codes/yousef/summon/components/input/FloatRange : kotlin/ranges/ClosedFloatingPointRange {
@@ -3198,6 +3436,11 @@ public final class codes/yousef/summon/components/input/LabelPosition : java/lan
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lcodes/yousef/summon/components/input/LabelPosition;
 	public static fun values ()[Lcodes/yousef/summon/components/input/LabelPosition;
+}
+
+public final class codes/yousef/summon/components/input/ManagedFileUploadKt {
+	public static final fun ManagedFileUpload (Lcodes/yousef/summon/components/input/FileUploadController;Lcodes/yousef/summon/modifier/Modifier;ZZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun ManagedFileUpload$default (Lcodes/yousef/summon/components/input/FileUploadController;Lcodes/yousef/summon/modifier/Modifier;ZZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 }
 
 public final class codes/yousef/summon/components/input/MarkdownEditorKt {
@@ -6148,6 +6391,80 @@ public final class codes/yousef/summon/effects/WindowSize {
 	public final fun getWidth ()I
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class codes/yousef/summon/effects/browser/MediaCapabilityState {
+}
+
+public final class codes/yousef/summon/effects/browser/MediaCapabilityState$Expired : codes/yousef/summon/effects/browser/MediaCapabilityState {
+	public static final field INSTANCE Lcodes/yousef/summon/effects/browser/MediaCapabilityState$Expired;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/effects/browser/MediaCapabilityState$IntegrityFailed : codes/yousef/summon/effects/browser/MediaCapabilityState {
+	public static final field INSTANCE Lcodes/yousef/summon/effects/browser/MediaCapabilityState$IntegrityFailed;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/effects/browser/MediaCapabilityState$Loading : codes/yousef/summon/effects/browser/MediaCapabilityState {
+	public static final field INSTANCE Lcodes/yousef/summon/effects/browser/MediaCapabilityState$Loading;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/effects/browser/MediaCapabilityState$Locked : codes/yousef/summon/effects/browser/MediaCapabilityState {
+	public static final field INSTANCE Lcodes/yousef/summon/effects/browser/MediaCapabilityState$Locked;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/effects/browser/MediaCapabilityState$Ready : codes/yousef/summon/effects/browser/MediaCapabilityState {
+	public fun <init> (Lcodes/yousef/summon/effects/browser/OwnedObjectUrl;Ljava/lang/String;)V
+	public final fun component1 ()Lcodes/yousef/summon/effects/browser/OwnedObjectUrl;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Lcodes/yousef/summon/effects/browser/OwnedObjectUrl;Ljava/lang/String;)Lcodes/yousef/summon/effects/browser/MediaCapabilityState$Ready;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/effects/browser/MediaCapabilityState$Ready;Lcodes/yousef/summon/effects/browser/OwnedObjectUrl;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/effects/browser/MediaCapabilityState$Ready;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMimeType ()Ljava/lang/String;
+	public final fun getUrl ()Lcodes/yousef/summon/effects/browser/OwnedObjectUrl;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/effects/browser/MediaCapabilityState$Unsupported : codes/yousef/summon/effects/browser/MediaCapabilityState {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lcodes/yousef/summon/effects/browser/MediaCapabilityState$Unsupported;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/effects/browser/MediaCapabilityState$Unsupported;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/effects/browser/MediaCapabilityState$Unsupported;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMimeType ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class codes/yousef/summon/effects/browser/ObjectUrlException : java/lang/Exception {
+	public static final field Companion Lcodes/yousef/summon/effects/browser/ObjectUrlException$Companion;
+	public fun <init> (Ljava/lang/String;)V
+}
+
+public final class codes/yousef/summon/effects/browser/ObjectUrlException$Companion {
+}
+
+public final class codes/yousef/summon/effects/browser/ObjectUrlsKt {
+	public static final fun createVerifiedObjectUrl ([BLjava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun createVerifiedObjectUrl$default ([BLjava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract interface class codes/yousef/summon/effects/browser/OwnedObjectUrl : java/lang/AutoCloseable {
+	public abstract fun close ()V
+	public abstract fun getValue ()Ljava/lang/String;
+	public abstract fun isRevoked ()Z
 }
 
 public final class codes/yousef/summon/effects/jvm/ClipboardImplKt {
