@@ -254,8 +254,8 @@ private class JsBrowserWorker(
 
     init {
         worker.onmessage = { event: dynamic -> receive(event.data) }
-        worker.onerror = { _: dynamic -> terminateWith(BrowserCapabilityError.OperationFailed()) }
-        worker.onmessageerror = { _: dynamic -> terminateWith(BrowserCapabilityError.ProtocolError()) }
+        worker.onerror = { _: dynamic -> fail(BrowserCapabilityError.OperationFailed()) }
+        worker.onmessageerror = { _: dynamic -> fail(BrowserCapabilityError.ProtocolError()) }
     }
 
     override suspend fun request(correlationId: String, payload: ByteArray): ByteArray {
@@ -315,6 +315,13 @@ private class JsBrowserWorker(
         envelope.kind = kind
         envelope.id = id
         try { worker.postMessage(envelope) } catch (_: Throwable) { }
+    }
+
+    private fun fail(error: Throwable) {
+        if (closed) return
+        closed = true
+        worker.terminate()
+        terminateWith(error)
     }
 
     private fun terminateWith(error: Throwable) {

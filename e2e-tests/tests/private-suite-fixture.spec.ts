@@ -276,6 +276,28 @@ test('opaque browser persistence is atomic, bounded, coordinated, and worker-own
   await second.close();
 });
 
+test('worker crashes close pending work and missing workers are visible', async ({ page }) => {
+  await page.goto('/?persistence=true');
+  await page.getByRole('button', { name: 'Probe worker crash', exact: true }).click();
+  await expect(page.getByTestId('persistence-status')).toHaveText('worker-failed-closed:true');
+
+  await page.evaluate(() => {
+    const scope = globalThis as typeof globalThis & { __nativeWorker?: typeof Worker };
+    scope.__nativeWorker = Worker;
+    Object.defineProperty(globalThis, 'Worker', {
+      configurable: true,
+      get: () => undefined,
+    });
+  });
+  await page.getByRole('button', { name: 'Probe worker availability', exact: true }).click();
+  await expect(page.getByTestId('persistence-status')).toHaveText('worker-unavailable');
+  await page.evaluate(() => {
+    const scope = globalThis as typeof globalThis & { __nativeWorker?: typeof Worker };
+    Object.defineProperty(globalThis, 'Worker', { configurable: true, value: scope.__nativeWorker });
+    delete scope.__nativeWorker;
+  });
+});
+
 test('hydration state closing-script text remains inert', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name.startsWith('wasm-'), 'JS hydration client owns public-state parsing');
   await page.goto('/?hydrationAdversarial=true');

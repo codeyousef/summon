@@ -351,7 +351,7 @@ private class WasmBrowserWorker(
     private val worker: JsAny = wasmCreateWorker(
         scriptPath,
         { id, bytes -> receive(id, bytes) },
-        { kind -> terminateWith(mapWasmCapabilityError(kind)) }
+        { kind -> fail(mapWasmCapabilityError(kind)) }
     ) ?: throw BrowserCapabilityError.Unavailable("web-worker")
 
     override suspend fun request(correlationId: String, payload: ByteArray): ByteArray {
@@ -398,6 +398,13 @@ private class WasmBrowserWorker(
 
     private fun postCancel(id: String) {
         try { wasmPostWorker(worker, "cancel", id, persistenceBytes(0)) } catch (_: Throwable) { }
+    }
+
+    private fun fail(error: Throwable) {
+        if (closed) return
+        closed = true
+        wasmTerminateWorker(worker)
+        terminateWith(error)
     }
 
     private fun terminateWith(error: Throwable) {

@@ -135,6 +135,36 @@ class PersistenceFixture {
         }
     }
 
+    private fun probeWorkerCrash() {
+        status.value = "worker-crash-pending"
+        scope.launch {
+            val crashWorker = createBrowserWorker("/crash-worker.js", maxMessageBytes = 64, maxPendingRequests = 1)
+            try {
+                crashWorker.request("crash-1", byteArrayOf(1))
+                if (!disposed) status.value = "worker-crash-missed"
+            } catch (_: BrowserCapabilityError.OperationFailed) {
+                val closed = try {
+                    crashWorker.request("crash-2", byteArrayOf(2))
+                    false
+                } catch (_: BrowserCapabilityError.Closed) {
+                    true
+                }
+                if (!disposed) status.value = "worker-failed-closed:$closed"
+            } finally {
+                crashWorker.close()
+            }
+        }
+    }
+
+    private fun probeWorkerAvailability() {
+        try {
+            createBrowserWorker("/suite-worker.js", maxMessageBytes = 64, maxPendingRequests = 1).close()
+            status.value = "worker-available"
+        } catch (_: BrowserCapabilityError.Unavailable) {
+            status.value = "worker-unavailable"
+        }
+    }
+
     private fun publishLogout() {
         publisher.post(OpaqueTabEvent(OpaqueTabEventType.LOGOUT, "lock-${generation + 1}"))
     }
@@ -189,6 +219,8 @@ class PersistenceFixture {
             Button(onClick = ::probeVisibleFailures, label = "Probe visible storage failures")
             Button(onClick = ::upgradeSchema, label = "Upgrade persistence schema")
             Button(onClick = ::startLateWorker, label = "Start delayed worker")
+            Button(onClick = ::probeWorkerCrash, label = "Probe worker crash")
+            Button(onClick = ::probeWorkerAvailability, label = "Probe worker availability")
             Button(onClick = ::publishLogout, label = "Broadcast logout")
         }
     }
