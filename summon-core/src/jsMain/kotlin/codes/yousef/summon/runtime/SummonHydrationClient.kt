@@ -5,6 +5,9 @@ import codes.yousef.summon.hydration.GlobalEventListener
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.Element
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlin.js.JSON
 
 /**
  * Client-side hydration for Summon components.
@@ -22,21 +25,13 @@ object SummonHydrationClient {
 
         perfMarkStart("initialize", HydrationPhase.INITIALIZATION)
 
-        SummonLogger.log("=== SUMMON HYDRATION CLIENT INITIALIZING ===")
-        SummonLogger.log("Browser user agent: ${js("navigator.userAgent")}")
-        SummonLogger.log("Current URL: ${window.location.href}")
-        SummonLogger.log("Document ready state: ${document.readyState}")
-
         if (js("document.readyState === 'loading'") as Boolean) {
-            SummonLogger.log("Document still loading, waiting for DOMContentLoaded...")
             perfMarkStart("dom-wait", HydrationPhase.DOM_READY)
             document.addEventListener("DOMContentLoaded", {
                 perfMarkEnd("dom-wait")
-                SummonLogger.log("DOMContentLoaded event fired, starting hydration...")
                 startHydration()
             })
         } else {
-            SummonLogger.log("Document already loaded, starting hydration immediately...")
             startHydration()
         }
 
@@ -45,120 +40,156 @@ object SummonHydrationClient {
 
     private fun startHydration() {
         perfMarkStart("startHydration", HydrationPhase.INITIALIZATION)
-        try {
-            SummonLogger.log("Starting Summon component hydration...")
+        val dataElement = document.getElementById("summon-hydration-data")
+        if (dataElement == null && pendingRecoveryMatchesLocation()) {
+            perfMarkEnd("startHydration")
+            recoverPublicShell("hydration metadata unavailable after recovery")
+            return
+        }
+        val hydrationData = if (dataElement != null) {
+            try {
+                parseHydrationData((dataElement.textContent ?: "").trim())
+            } catch (error: Exception) {
+                perfMarkEnd("startHydration")
+                recoverPublicShell(error.message ?: "invalid hydration metadata")
+                return
+            }
+        } else {
+            null
+        }
+        val publicState = try {
+            loadPublicState()
+        } catch (error: Exception) {
+            perfMarkEnd("startHydration")
+            recoverPublicShell(error.message ?: "invalid public hydration state")
+            return
+        }
 
-            // Initialize Global Event Listener (The Ears)
+
+        try {
+            window.sessionStorage.removeItem(HYDRATION_RECOVERY_KEY)
+            if (hydrationData != null) {
+                window.asDynamic().__SUMMON_CALLBACK_CONTEXT__ = hydrationData.callbackContext
+            }
+            if (publicState != null) {
+                window.asDynamic().__SUMMON_STATE__ = publicState
+            }
+
             withPerfMetrics("global-event-listener-init", HydrationPhase.EVENT_SYSTEM) {
                 GlobalEventListener.init()
             }
-
-            // Process Bootloader Queue
             withPerfMetrics("bootloader-process-queue", HydrationPhase.EVENT_REPLAY) {
                 Bootloader.processQueue()
             }
-            
-            // Check for parked state
-            val state = window.asDynamic().__SUMMON_STATE__
-            if (state != null) {
-                SummonLogger.log("Hydrated with state object")
-            }
 
-            SummonLogger.log("Document ready state: ${document.readyState}")
-            SummonLogger.log("Document body exists: ${document.body != null}")
-
-            // Load hydration data
-            val hydrationData = loadHydrationData()
-            SummonLogger.log("Hydration data loaded: ${hydrationData != null}")
-            if (hydrationData != null) {
-                SummonLogger.log("Hydration data version: ${hydrationData.version}")
-                SummonLogger.log("Callbacks available: ${hydrationData.callbacks.size}")
-                hydrationData.callbacks.forEach { callbackId ->
-                    SummonLogger.log("Available callback: $callbackId")
-                }
-            }
-
-            // Discover SSR root for proper hydration
             val rootElement: Element? =
                 document.getElementById(SummonConstants.DEFAULT_ROOT_ELEMENT_ID)
                     ?: document.querySelector("[data-summon-hydration=\"root\"]")
-
-            if (rootElement != null) {
-                SummonLogger.log(
-                    "Found SSR root element for hydration: id='${rootElement.id}', data-summon-hydration='${
-                        rootElement.getAttribute(
-                            "data-summon-hydration"
-                        )
-                    }'"
-                )
-            } else {
-                SummonLogger.warn("No SSR root element found (id='${SummonConstants.DEFAULT_ROOT_ELEMENT_ID}' or [data-summon-hydration=\"root\"]). Hydration will still attach handlers to existing DOM but without a known root container.")
-            }
-
-            // Note: GlobalEventListener handles all event binding via event delegation
-            // Deprecated hydrateClickHandlers/hydrateFormInputs removed for TBT optimization
+            rootElement?.setAttribute("data-hydration-ready", "true")
 
             perfMarkEnd("startHydration")
-            SummonLogger.log("Summon hydration completed successfully")
-
-            // Mark hydration complete for performance metrics
             PerformanceMetrics.markHydrationComplete()
-        } catch (e: Exception) {
+        } catch (error: Exception) {
             perfMarkEnd("startHydration")
-            SummonLogger.error("Summon hydration failed: ${e.message}")
-            SummonLogger.error("Exception: $e")
+            recoverPublicShell(error.message ?: "hydration initialization failed")
         }
     }
 
-    private fun loadHydrationData(): HydrationData? {
-        val dataElement = document.getElementById("summon-hydration-data")
-        if (dataElement == null) {
-            SummonLogger.warn("No Summon hydration data found")
-            return null
+    private fun loadPublicState(): dynamic {
+        val stateElement = document.getElementById("summon-state") ?: return null
+        val encoded = (stateElement.textContent ?: "").trim()
+        require(encoded.length <= MAX_PUBLIC_STATE_BASE64_CHARS) { "Public hydration state exceeds the size limit" }
+        require(encoded.all { it.isLetterOrDigit() || it == '+' || it == '/' || it == '=' }) {
+            "Public hydration state is not valid base64"
         }
-
-        val jsonText = (dataElement.textContent ?: "").trim()
-        return try {
-            parseHydrationData(jsonText)
-        } catch (e: Exception) {
-            SummonLogger.error("Failed to parse hydration data: ${e.message}")
-            null
+        val json = window.atob(encoded)
+        require(json.length <= MAX_PUBLIC_STATE_JSON_CHARS && json.all { it.code <= 0x7f }) {
+            "Public hydration state is not bounded ASCII JSON"
         }
+        return JSON.parse<dynamic>(json)
     }
 
     private fun parseHydrationData(jsonText: String): HydrationData {
-        val parsed = js("JSON.parse(jsonText)")
-        val callbacks = js("parsed.callbacks")
+        require(jsonText.isNotEmpty()) { "Hydration metadata is empty" }
+        require(jsonText.length <= MAX_HYDRATION_JSON_CHARS) { "Hydration metadata exceeds the size limit" }
+        require(jsonText.all { it.code <= 0x7f }) { "Hydration metadata must be ASCII" }
 
-        // Handle both formats: simple array (core) or complex object (Spring Boot)
-        val callbackIds = if (js("Array.isArray(callbacks)") as Boolean) {
-            // Simple array format: ["callback-id-1", "callback-id-2"]
-            callbacks as Array<String>
-        } else {
-            // Complex object format: {"callback-id": {"type": "login", ...}}
-            js("Object.keys(callbacks)") as Array<String>
-        }
-
-        return HydrationData(
-            version = js("parsed.version") as Int,
-            callbacks = callbackIds.toList(),
-            timestamp = (js("parsed.timestamp") as Number).toDouble()
-        )
+        val data = strictJson.decodeFromString<HydrationData>(jsonText)
+        require(data.version == SUPPORTED_HYDRATION_VERSION) { "Unsupported hydration metadata version" }
+        require(data.renderer == "jvm" || data.renderer == "js") { "Unsupported hydration renderer" }
+        require(data.callbacks.size <= MAX_CALLBACKS) { "Hydration callback limit exceeded" }
+        require(data.callbacks.distinct().size == data.callbacks.size) { "Duplicate hydration callbacks" }
+        require(data.callbacks.all(::isValidCallbackId)) { "Invalid hydration callback ID" }
+        require(
+            data.callbacks.isEmpty() && data.callbackContext.isEmpty() ||
+                isValidCapability(data.callbackContext)
+        ) { "Invalid hydration callback capability" }
+        require(data.timestamp >= 0) { "Invalid hydration timestamp" }
+        return data
     }
 
-    // Deprecated methods removed
+    private fun isValidCallbackId(value: String): Boolean =
+        value.length in 4..64 &&
+            value.startsWith("cb-") &&
+            value.drop(3).all { it in '0'..'9' || it in 'a'..'f' }
 
+    private fun isValidCapability(value: String): Boolean =
+        value.length in 43..64 &&
+            value.all { it.isLetterOrDigit() || it == '-' || it == '_' }
 
-    // Deprecated methods removed
+    private fun recoverPublicShell(reason: String) {
+        val root = document.getElementById(SummonConstants.DEFAULT_ROOT_ELEMENT_ID)
+        root?.setAttribute("data-hydration-failed", "true")
+        root?.setAttribute("data-hydration-ready", "false")
+        window.asDynamic().__SUMMON_STATE__ = null
+        window.asDynamic().__SUMMON_CALLBACK_CONTEXT__ = null
+        SummonLogger.error("Hydration rejected; retaining the public shell: $reason")
+
+        try {
+            if (window.sessionStorage.getItem(HYDRATION_RECOVERY_KEY) == null) {
+                window.sessionStorage.setItem(HYDRATION_RECOVERY_KEY, recoveryLocation())
+                window.location.reload()
+            }
+        } catch (_: Exception) {
+            // Storage can be unavailable in privacy modes. The inert public shell remains safe.
+        }
+    }
+
+    private fun pendingRecoveryMatchesLocation(): Boolean = try {
+        window.sessionStorage.getItem(HYDRATION_RECOVERY_KEY) == recoveryLocation()
+    } catch (_: Exception) {
+        false
+    }
+
+    private fun recoveryLocation(): String = window.location.pathname + window.location.search
+
+    private val strictJson = Json {
+        ignoreUnknownKeys = false
+        isLenient = false
+        explicitNulls = false
+    }
+
+    private const val MAX_HYDRATION_JSON_CHARS = 65_536
+    private const val MAX_CALLBACKS = 512
+    private const val SUPPORTED_HYDRATION_VERSION = 1
+    private const val HYDRATION_RECOVERY_KEY = "summon-hydration-recovery"
+    private const val MAX_PUBLIC_STATE_JSON_CHARS = 65_536
+    private const val MAX_PUBLIC_STATE_BASE64_CHARS = 87_384
+
 }
 
 /**
- * Data structure for hydration information.
+ * Bounded, versioned hydration metadata. Unknown fields are rejected.
  */
+@Serializable
 data class HydrationData(
     val version: Int,
     val callbacks: List<String>,
-    val timestamp: Double
+    val callbackContext: String,
+    val timestamp: Long,
+    val renderer: String,
+    val hydrationMarkers: Boolean,
+    val seoCompatible: Boolean
 )
 
 /**

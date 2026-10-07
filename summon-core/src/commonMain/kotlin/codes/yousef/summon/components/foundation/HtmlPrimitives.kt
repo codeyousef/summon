@@ -42,19 +42,28 @@ fun Canvas(
 }
 
 /**
- * Renders a `<script>` tag with optional external source or inline content.
+ * Renders a first-party external `<script>` tag.
+ *
+ * Inline script strings and cross-origin sources are intentionally unsupported so the
+ * component remains compatible with `script-src 'self'; script-src-attr 'none'`.
  */
 @Composable
 fun ScriptTag(
-    src: String? = null,
+    src: String,
     modifier: Modifier = Modifier(),
     async: Boolean = false,
     defer: Boolean = false,
     type: String? = null,
     id: String? = null,
-    dataAttributes: Map<String, String> = emptyMap(),
-    inlineContent: String? = null
+    dataAttributes: Map<String, String> = emptyMap()
 ) {
+    require(src.startsWith("/") && !src.startsWith("//") && '\\' !in src) {
+        "ScriptTag src must be a root-relative first-party URL"
+    }
+    require(src.none { it.code < 0x20 || it.code == 0x7f }) { "ScriptTag src contains control characters" }
+    require(type == null || type == "module" || type == "text/javascript" || type == "application/javascript") {
+        "Unsupported executable script type"
+    }
     val renderer = LocalPlatformRenderer.current
     var resolvedModifier = modifier
         .dataAttributes(dataAttributes)
@@ -68,8 +77,7 @@ fun ScriptTag(
         async = async,
         defer = defer,
         type = type,
-        modifier = resolvedModifier,
-        inlineContent = inlineContent
+        modifier = resolvedModifier
     )
 }
 

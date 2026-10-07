@@ -185,9 +185,8 @@ class KtorRenderer {
         }
 
         /**
-         * Hydrated SSR response: renders a Summon component with hydration data/scripts.
-         * Uses PlatformRenderer.renderComposableRootWithHydration to produce a full HTML document.
-         *
+         * Strict-CSP hydrated SSR response. The renderer returns HTML and its bound
+         * nonce policy together so the response cannot accidentally send mismatched values.
          * This method ensures callback context stability across coroutine thread switches,
          * which is critical for SSR hydration to work correctly. Without this, callbacks
          * registered during rendering may not match the callback IDs in the hydration data
@@ -213,13 +212,14 @@ class KtorRenderer {
             val callbackContext = codes.yousef.summon.runtime.CallbackContextElement()
 
             try {
-                // CRITICAL: Install callback context BEFORE rendering starts
-                // withContext is not enough because renderComposableRootWithHydration is not suspend
-                val html = kotlinx.coroutines.withContext(callbackContext) {
-                    // The context is now properly installed in the thread-local before rendering
-                    renderer.renderComposableRootWithHydration(lang, dir, content)
+                val document = kotlinx.coroutines.withContext(callbackContext) {
+                    renderer.renderPrivateShell(lang = lang, dir = dir, composable = content)
                 }
-                respondText(html, ContentType.Text.Html.withCharset(Charsets.UTF_8), status)
+                response.headers.append(
+                    "Content-Security-Policy",
+                    document.contentSecurityPolicy
+                )
+                respondText(document.html, ContentType.Text.Html.withCharset(Charsets.UTF_8), status)
             } finally {
                 clearPlatformRenderer()
             }
@@ -339,7 +339,8 @@ class KtorRenderer {
                         HttpStatusCode.BadRequest
                     )
                 } else {
-                    val executed = CallbackRegistry.executeCallback(callbackId)
+                    val capability = call.request.headers["X-Summon-Callback-Context"]
+                    val executed = CallbackRegistry.executeRemoteCallback(callbackId, capability)
                     val (status, payload) = if (executed) {
                         HttpStatusCode.OK to """{"action":"reload","status":"ok"}"""
                     } else {

@@ -1,4 +1,5 @@
 package codes.yousef.summon.ssr
+import codes.yousef.summon.security.PublicHydrationState
 
 import kotlin.test.*
 
@@ -39,22 +40,23 @@ class ServerSideRenderingTest {
         assertEquals("summon-", defaultContext.hydrationIdPrefix)
         assertTrue(defaultContext.metadata.isEmpty())
         assertFalse(defaultContext.debug)
-        assertTrue(defaultContext.initialState.isEmpty())
+        assertNull(defaultContext.publicState)
         assertTrue(defaultContext.headElements.isEmpty())
 
         // Test custom values
+        val publicState = PublicHydrationState("""{"theme":"dark"}""")
         val customContext = RenderContext(
             enableHydration = true,
             hydrationIdPrefix = "custom-",
             metadata = mapOf("key" to "value"),
             debug = true,
-            initialState = mapOf("state" to "value")
+            publicState = publicState
         )
         assertTrue(customContext.enableHydration)
         assertEquals("custom-", customContext.hydrationIdPrefix)
         assertEquals(mapOf("key" to "value"), customContext.metadata)
         assertTrue(customContext.debug)
-        assertEquals(mapOf("state" to "value"), customContext.initialState)
+        assertEquals(publicState, customContext.publicState)
     }
 
     /**

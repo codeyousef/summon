@@ -34,4 +34,6 @@ Use a stable `data-summon-id` when the responsive node's identity must survive W
 
 ## Content security policy
 
-The current browser renderer installs the shared `summon-responsive-styles` style element when needed. This lifecycle guarantee does not qualify the component for a strict policy that forbids inline styles; use the CSP guidance and release qualification for the target deployment.
+Under `renderPrivateShell`, the shared `summon-responsive-styles` element receives the
+response-coordinated nonce from `summon-style-nonce`. Screen-size changes use typed class and
+data-attribute writes; no executable inline script or string event handler is emitted.

@@ -139,12 +139,20 @@ class KtorIntegrationE2ETest {
             }
         }
 
-        // Register a test callback
+        CallbackRegistry.beginRender()
         var callbackExecuted = false
         val callbackId = CallbackRegistry.registerCallback { callbackExecuted = true }
+        val callbackContext = CallbackRegistry.finishRenderAndCollectCallbacks()
 
-        // Execute the callback via HTTP
-        val response = client.post("/summon/callback/$callbackId")
+        val replay = client.post("/summon/callback/$callbackId") {
+            header("X-Summon-Callback-Context", "wrong-context")
+        }
+        assertEquals(HttpStatusCode.NotFound, replay.status)
+        assertFalse(callbackExecuted, "Wrong render context must not consume the callback")
+
+        val response = client.post("/summon/callback/$callbackId") {
+            header("X-Summon-Callback-Context", callbackContext.capability)
+        }
         assertEquals(HttpStatusCode.OK, response.status)
         assertTrue(callbackExecuted, "Callback should have been executed")
 

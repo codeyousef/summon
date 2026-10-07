@@ -1,6 +1,7 @@
 package codes.yousef.summon.ssr
 
 import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.security.PublicHydrationState
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -116,16 +117,15 @@ fun createHTML(): HtmlBuilder {
  * )
  * ```
  *
- * ### Dynamic Content with State
+ * ### Dynamic Content with Public State
  * ```kotlin
- * val renderer = createServerSideRenderer()
  * val userState = mapOfCompat("userId" to "123", "userName" to "John")
  *
  * val html = renderer.render(
  *     composable = { UserProfile() },
  *     context = RenderContext(
  *         enableHydration = true,
- *         initialState = userState,
+ *         publicState = PublicHydrationState("""{"theme":"dark"}"""),
  *         seoMetadata = SeoMetadata(
  *             title = "Profile - ${userState["userName"]}",
  *             description = "User profile page"
@@ -195,7 +195,7 @@ interface ServerSideRenderer {
      *         description = "Page description",
      *         openGraph = OpenGraphMetadata(...)
      *     ),
-     *     initialState = mapOfCompat("key" to "value"), // State for hydration
+     *     publicState = PublicHydrationState("""{"theme":"dark"}"""),
      *     debug = true                          // Include debug information
      * )
      * ```
@@ -265,9 +265,9 @@ class RenderContext(
     val seoMetadata: SeoMetadata = SeoMetadata(),
 
     /**
-     * Optional state bundle to initialize client-side state
+     * Explicitly public state permitted to cross the SSR boundary.
      */
-    val initialState: Map<String, Any?> = emptyMap(),
+    val publicState: PublicHydrationState? = null,
 
     /**
      * List of head elements collected during rendering
@@ -389,18 +389,16 @@ object ServerSideRenderUtils {
      * Renders a composable function to a string, suitable for SSR.
      *
      * @param rootComposable The root composable function of the page/application.
-     * @param initialData Optional initial data to be used during rendering (e.g., from server state).
-     * @param includeHydrationScript Whether to include a script tag with hydration data.
+     * @param publicState Explicitly public state permitted in the HTML response.
+     * @param includeHydrationScript Whether to include inert hydration data.
      * @return The fully rendered HTML string.
      */
     fun renderPageToString(
         rootComposable: @Composable () -> Unit,
-        initialData: Map<String, Any?> = emptyMap(),
+        publicState: PublicHydrationState? = null,
         includeHydrationScript: Boolean = true
     ): String {
-        println("ServerSideRenderUtils.renderPageToString called.")
-
-        val context = RenderContext(initialState = initialData, enableHydration = includeHydrationScript)
+        val context = RenderContext(publicState = publicState, enableHydration = includeHydrationScript)
 
         // Always create a fresh PlatformRenderer for SSR operations
         // This ensures isolation between SSR calls and prevents state pollution
@@ -417,7 +415,7 @@ object ServerSideRenderUtils {
 
         // 4. Optionally generate hydration data
         val hydrationScript = if (includeHydrationScript) {
-            generateHydrationScript(initialData)
+            generateHydrationScript(publicState)
         } else {
             ""
         }
@@ -494,25 +492,24 @@ object ServerSideRenderUtils {
         """.trimIndent()
     }
 
-    private fun generateHydrationScript(initialData: Map<String, Any?>): String {
-        if (initialData.isEmpty()) return ""
-        val stateJson = SerializationUtils.serializeInitialState(initialData)
-        return """
-        <script>
-            window.__SUMMON_INITIAL_STATE__ = $stateJson;
-        </script>
-        """.trimIndent()
+    private fun generateHydrationScript(publicState: PublicHydrationState?): String {
+        publicState ?: return ""
+        val stateJson = scriptSafeJson(publicState.json)
+        return """<script id="summon-public-state" type="application/json">$stateJson</script>"""
     }
 
-    // Remove the old internal renderToString as it's superseded by the global one
-    /*
-    private fun renderToString(composable: @Composable () -> Unit): String {
-        val platformRenderer = getPlatformRenderer()
-        val htmlBuilder = createHTML()
-        // Incorrect call: platformRenderer.renderComposable(composable, htmlBuilder)
-        // Correct approach uses renderComposableRoot or the global renderToString helper.
-        return htmlBuilder.finalize()
-    }
-    */
+}
 
+internal fun scriptSafeJson(json: String): String {
+    require(json.length <= 65_536) { "SSR hydration JSON exceeds 64 KiB" }
+    return buildString(json.length) {
+        json.forEach { character ->
+            when (character) {
+                '<' -> append("\\u003c")
+                '\u2028' -> append("\\u2028")
+                '\u2029' -> append("\\u2029")
+                else -> append(character)
+            }
+        }
+    }
 }

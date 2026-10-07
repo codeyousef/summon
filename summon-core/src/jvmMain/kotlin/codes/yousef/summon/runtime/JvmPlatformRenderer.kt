@@ -22,6 +22,9 @@ import codes.yousef.summon.modifier.StateStyleDefinition
 import codes.yousef.summon.modifier.overflowX
 import codes.yousef.summon.modifier.overflowY
 import codes.yousef.summon.modifier.style
+import codes.yousef.summon.security.CspDocument
+import codes.yousef.summon.security.PrivateShellContentSecurityPolicy
+import codes.yousef.summon.security.PublicHydrationState
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.html.*
@@ -40,6 +43,7 @@ actual open class PlatformRenderer {
     private val lastRenderedHeadElements = mutableListOf<String>()
     private val conditionalStyleRules = linkedSetOf<String>()
     private var conditionalStyleHostCounter = 0
+    private var activeStyleNonce: String? = null
 
     // Fix 1: Remove ThreadLocal, use instance variable.
     private var currentBuilder: FlowContent? = null
@@ -262,7 +266,9 @@ actual open class PlatformRenderer {
         if (headEnd < 0) return document
 
         val styleElement = buildString {
-            append("<style data-summon-conditional-styles=\"true\">\n")
+            append("<style")
+            append(styleNonceAttribute())
+            append(" data-summon-conditional-styles=\"true\">\n")
             append(conditionalStyleRules.joinToString("\n"))
             append("\n</style>")
         }
@@ -343,7 +349,7 @@ actual open class PlatformRenderer {
                             $cssBody
                         }
                     """.trimIndent()
-                    addHeadElement("<style>$css</style>")
+                    addHeadElement("<style${styleNonceAttribute()}>$css</style>")
                 }
             }
         }
@@ -649,120 +655,28 @@ actual open class PlatformRenderer {
         }
     }
 
-    private val BOOTLOADER_SCRIPT = """
-(function() {
-    window.__SUMMON_QUEUE__ = [];
 
-    // Handle data-action based toggles - these are client-side only and should always work
-    function handleDataAction(actionJson, triggerElement) {
-        try {
-            var action = JSON.parse(actionJson);
-            if (action.type === 'toggle' && action.targetId) {
-                var target = document.getElementById(action.targetId);
-                if (target) {
-                    var currentDisplay = getComputedStyle(target).display;
-                    var isHidden = currentDisplay === 'none';
-
-                    // Store original display value on first toggle if not already stored
-                    if (!target.hasAttribute('data-original-display') && !isHidden) {
-                        target.setAttribute('data-original-display', currentDisplay || 'block');
-                    }
-
-                    // Use stored original display value, or 'flex' for common layout containers, or 'block' as fallback
-                    var showDisplay = target.getAttribute('data-original-display') || 'flex';
-                    target.style.display = isHidden ? showDisplay : 'none';
-
-                    // Update aria-expanded on trigger
-                    if (triggerElement) {
-                        triggerElement.setAttribute('aria-expanded', isHidden.toString());
-
-                        // Update hamburger menu icon if applicable
-                        if (triggerElement.getAttribute('data-hamburger-toggle') === 'true') {
-                            triggerElement.setAttribute('aria-label', isHidden ? 'Close menu' : 'Open menu');
-                            var iconSpan = triggerElement.querySelector('.material-icons');
-                            if (iconSpan) {
-                                iconSpan.textContent = isHidden ? 'close' : 'menu';
-                            }
-                        }
-
-                        // Update +/- disclosure icon if present (non-hamburger toggles)
-                        var disclosureIcon = triggerElement.querySelector('span:not(.material-icons)');
-                        if (disclosureIcon) {
-                            var iconText = disclosureIcon.textContent.trim();
-                            if (iconText === '+' || iconText === '−' || iconText === '-') {
-                                disclosureIcon.textContent = isHidden ? '−' : '+';
-                            }
-                        }
-                    }
-                    console.log('[Summon] Toggle action handled:', action.targetId, '→', isHidden ? 'shown' : 'hidden');
-                    return true;
-                }
-            }
-        } catch (e) {
-            console.error('[Summon] Error parsing data-action:', e);
-        }
-        return false;
-    }
-
-    window.addEventListener('click', function(e) {
-        var t = e.target;
-        // First, look specifically for data-action elements (client-side only actions)
-        while (t && !t.getAttribute('data-action')) {
-            t = t.parentElement;
-        }
-
-        if (t) {
-            var actionJson = t.getAttribute('data-action');
-            if (actionJson) {
-                // ALWAYS handle data-action here - these are client-side only toggles
-                // that don't need hydration state management
-                if (handleDataAction(actionJson, t)) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return;
-                }
-            }
-        }
-
-        // Reset and look for other interactive elements
-        t = e.target;
-        while (t && !t.getAttribute('data-sid') && !t.getAttribute('data-summon-id') && !t.getAttribute('data-onclick-action')) {
-            t = t.parentElement;
-        }
-
-        if (t) {
-            // Fall back to queuing if Summon isn't loaded yet
-            if (!window.Summon) {
-                // Prevent default behavior for interactive elements during hydration gap
-                if (t.getAttribute('data-onclick-action') === 'true' || t.getAttribute('role') === 'button') {
-                    e.preventDefault();
-                }
-
-                var id = t.getAttribute('data-sid') || t.getAttribute('data-summon-id');
-                if (id) {
-                    window.__SUMMON_QUEUE__.push({
-                        type: 'click',
-                        targetId: id,
-                        timestamp: Date.now(),
-                        originalEvent: e
-                    });
-                }
-            }
-        }
-    }, true);
-
-    var s = document.getElementById('summon-state');
-    if (s) {
-        try {
-            var raw = s.textContent;
-            var json = atob(raw);
-            window.__SUMMON_STATE__ = JSON.parse(json);
-        } catch (e) {
-            console.error('Summon: State hydration failed', e);
+    /**
+     * Renders a locked/private shell and returns the CSP header bound to its style nonce.
+     */
+    open fun renderPrivateShell(
+        publicState: PublicHydrationState? = null,
+        lang: String = "en",
+        dir: String = "ltr",
+        composable: @Composable () -> Unit
+    ): CspDocument {
+        check(activeStyleNonce == null) { "Nested private-shell rendering is not supported" }
+        val nonce = generateCallbackCapability()
+        activeStyleNonce = nonce
+        return try {
+            CspDocument(
+                html = renderComposableRootWithHydration(publicState?.json, lang, dir, composable),
+                contentSecurityPolicy = PrivateShellContentSecurityPolicy.headerValue(nonce)
+            )
+        } finally {
+            activeStyleNonce = null
         }
     }
-})();
-"""
 
     actual open fun renderComposableRootWithHydration(composable: @Composable () -> Unit): String {
         return renderComposableRootWithHydration(null, "en", "ltr", composable)
@@ -827,24 +741,20 @@ actual open class PlatformRenderer {
                 System.err.println("[Summon][SSR] Before collecting callbacks, context key: $contextKeyBeforeCollect")
             }
             
-            val callbackIds = CallbackRegistry.finishRenderAndCollectCallbackIds()
-            
+            val callbackContext = CallbackRegistry.finishRenderAndCollectCallbacks()
+
             if (debugEnabled) {
-                System.err.println("[Summon][SSR] Collected ${callbackIds.size} callback IDs: $callbackIds")
+                System.err.println("[Summon][SSR] Collected ${callbackContext.callbackIds.size} callback IDs")
             }
-            
-            val hydrationData = generateHydrationData(callbackIds)
+
+            val hydrationData = generateHydrationData(callbackContext)
             rememberRenderedHeadElements(headElementSnapshot())
             val fullDoc = injectConditionalStyleSheet(
                 createHydratedDocument(bodyContent, hydrationData, state, lang, dir)
             )
             
             if (debugEnabled) {
-                // Extract callback IDs from the HTML for verification
-                val htmlCallbackPattern = """data-onclick-id="([^"]+)"""".toRegex()
-                val htmlCallbacks = htmlCallbackPattern.findAll(fullDoc).map { it.groupValues[1] }.toList()
-                System.err.println("[Summon][SSR] Callback IDs in HTML: $htmlCallbacks")
-                System.err.println("[Summon][SSR] Callback IDs in hydration data: $callbackIds")
+                System.err.println("[Summon][SSR] Hydration document created")
             }
             
             fullDoc
@@ -876,37 +786,23 @@ actual open class PlatformRenderer {
         return result.toString()
     }
 
-    private fun generateHydrationData(callbackIds: Set<String>): String {
-        // Enhanced hydration data for WASM compatibility
-        val hydrationData = mapOf(
-            "version" to 1,
-            "callbacks" to callbackIds.toList(),
-            "timestamp" to System.currentTimeMillis(),
-            "renderer" to "jvm",
-            "hydrationMarkers" to true,
-            "seoCompatible" to true
-        )
-
-        // Serialize to JSON for the client
-        val jsonData = buildString {
+    private fun generateHydrationData(callbackContext: CallbackRenderContext): String {
+        return buildString {
             append("{")
-            append("\"version\":${hydrationData["version"]},")
+            append("\"version\":1,")
             append("\"callbacks\":[")
-            @Suppress("UNCHECKED_CAST")
-            val callbacks = hydrationData["callbacks"] as List<String>
-            callbacks.forEachIndexed { index, callback ->
-                append("\"$callback\"")
-                if (index < callbacks.size - 1) append(",")
+            callbackContext.callbackIds.forEachIndexed { index, callback ->
+                append('"').append(callback).append('"')
+                if (index < callbackContext.callbackIds.size - 1) append(',')
             }
             append("],")
-            append("\"timestamp\":${hydrationData["timestamp"]},")
-            append("\"renderer\":\"${hydrationData["renderer"]}\",")
-            append("\"hydrationMarkers\":${hydrationData["hydrationMarkers"]},")
-            append("\"seoCompatible\":${hydrationData["seoCompatible"]}")
+            append("\"callbackContext\":\"").append(callbackContext.capability).append("\",")
+            append("\"timestamp\":").append(System.currentTimeMillis()).append(',')
+            append("\"renderer\":\"jvm\",")
+            append("\"hydrationMarkers\":true,")
+            append("\"seoCompatible\":true")
             append("}")
         }
-
-        return jsonData
     }
 
     private fun createHydratedDocument(
@@ -916,43 +812,33 @@ actual open class PlatformRenderer {
         lang: String = "en",
         dir: String = "ltr"
     ): String {
-        val stateScript = if (state != null && state is String) {
-             val encoded = Base64.getEncoder().encodeToString(state.toByteArray())
-             """<script id="summon-state" type="application/json+summon">$encoded</script>"""
+        val stateScript = if (state is String) {
+            val encoded = Base64.getEncoder().encodeToString(state.toByteArray())
+            """<script id="summon-state" type="application/json+summon">$encoded</script>"""
         } else {
             ""
         }
 
-        val bootloader = """<script>$BOOTLOADER_SCRIPT</script>"""
         val documentHead = defaultAwareHeadElements(headElementSnapshot()).joinToString("\n    ")
         val documentLanguage = escapeHtmlAttribute(lang)
         val documentDirection = escapeHtmlAttribute(dir)
+        val styleNonceMeta = activeStyleNonce?.let {
+            """<meta name="summon-style-nonce" content="${escapeHtmlAttribute(it)}">"""
+        }.orEmpty()
 
         return """<!DOCTYPE html>
 <html lang="$documentLanguage" dir="$documentDirection">
 <head>
     $documentHead
-    $bootloader
+    $styleNonceMeta
     $stateScript
     <link rel="preload" href="/summon-hydration.js" as="script">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link rel="dns-prefetch" href="//fonts.googleapis.com">
 </head>
 <body>
     <div id="${SummonConstants.DEFAULT_ROOT_ELEMENT_ID}" data-ssr="true" data-hydration-ready="false" data-summon-hydration="root">
         $bodyContent
     </div>
-    <script type="application/json" id="summon-hydration-data">
-        $hydrationData
-    </script>
-    <noscript>
-        <style>
-            [data-onclick-action], [data-onchange-action] {
-                opacity: 1 !important;
-                pointer-events: auto !important;
-            }
-        </style>
-    </noscript>
+    <script type="application/json" id="summon-hydration-data">$hydrationData</script>
     <script src="/summon-bootloader.js" defer></script>
 </body>
 </html>
@@ -1767,12 +1653,11 @@ actual open class PlatformRenderer {
     }
 
     actual open fun renderScriptTag(
-        src: String?,
+        src: String,
         async: Boolean,
         defer: Boolean,
         type: String?,
-        modifier: Modifier,
-        inlineContent: String?
+        modifier: Modifier
     ) {
         requireBuilder().script(type = type, src = src) {
             applyModifier(modifier)
@@ -1781,11 +1666,6 @@ actual open class PlatformRenderer {
             }
             if (defer) {
                 attributes["defer"] = "defer"
-            }
-            if (!inlineContent.isNullOrEmpty()) {
-                unsafe {
-                    +inlineContent
-                }
             }
         }
     }
@@ -1827,6 +1707,14 @@ actual open class PlatformRenderer {
         }
     }
 
+    actual open fun renderLazyColumn(
+        modifier: Modifier,
+        onScroll: (scrollPosition: Float, containerSize: Float) -> Unit,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
+        renderLazyColumn(modifier, content)
+    }
+
     actual open fun renderLazyRow(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         // JVM equivalent: scrollable div
         requireBuilder().div {
@@ -1835,14 +1723,22 @@ actual open class PlatformRenderer {
         }
     }
 
+    actual open fun renderLazyRow(
+        modifier: Modifier,
+        onScroll: (scrollPosition: Float, containerSize: Float) -> Unit,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
+        renderLazyRow(modifier, content)
+    }
+
     actual open fun renderResponsiveLayout(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
         // Basic div, actual responsiveness will depend on CSS within modifier and content
         requireBuilder().div {
             applyModifier(modifier)
             comment(" ResponsiveLayout: Ensure CSS handles different screen sizes ")
             
-            // Add responsive styles
             style {
+                activeStyleNonce?.let { attributes["nonce"] = it }
                 unsafe {
                     raw(
                         """
@@ -1851,38 +1747,6 @@ actual open class PlatformRenderer {
                         [data-screen-size="LARGE"] .large-content { display: block !important; }
                         [data-screen-size="XLARGE"] .xlarge-content { display: block !important; }
                         """.trimIndent()
-                    )
-                }
-            }
-
-            // Add screen size detection script (example from previous JvmPlatformRenderer)
-            script(type = "text/javascript") {
-                unsafe {
-                    raw(
-                        """
-                    (function() {
-                        const BREAKPOINTS = { SMALL: 600, MEDIUM: 960, LARGE: 1280 };
-                        function determineScreenSize() {
-                            const width = window.innerWidth;
-                            if (width < BREAKPOINTS.SMALL) return 'SMALL';
-                            else if (width < BREAKPOINTS.MEDIUM) return 'MEDIUM';
-                            else if (width < BREAKPOINTS.LARGE) return 'LARGE';
-                            else return 'XLARGE';
-                        }
-                        function updateLayout() {
-                            const layout = document.currentScript ? document.currentScript.parentElement : document.body;
-                            const screenSize = determineScreenSize();
-                            layout.classList.remove('small-screen', 'medium-screen', 'large-screen', 'xlarge-screen');
-                            layout.classList.add(screenSize.toLowerCase() + '-screen');
-                            layout.setAttribute('data-screen-size', screenSize);
-                            const event = new CustomEvent('screenSizeChanged', { detail: { screenSize: screenSize } });
-                            layout.dispatchEvent(event);
-                        }
-                        if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', updateLayout); }
-                        else { updateLayout(); }
-                        window.addEventListener('resize', updateLayout);
-                    })();
-                    """
                     )
                 }
             }
@@ -2543,7 +2407,7 @@ actual open class PlatformRenderer {
     }
 
     actual open fun renderGlobalStyle(css: TrustedCss) {
-        addHeadElement("<style>${css.value}</style>")
+        addHeadElement("<style${styleNonceAttribute()}>${css.value}</style>")
     }
 
 
@@ -2674,7 +2538,7 @@ actual open class PlatformRenderer {
         // Add CSS animations to head if not already added
         addHeadElement(
             """
-            <style>
+            <style${styleNonceAttribute()}>
             @keyframes summon-spin {
                 0% { transform: rotate(0deg); }
                 100% { transform: rotate(360deg); }
@@ -2794,7 +2658,7 @@ actual open class PlatformRenderer {
         // Add toast animations CSS if not already added
         addHeadElement(
             """
-            <style>
+            <style${styleNonceAttribute()}>
             @keyframes summon-toast-slide-in {
                 from {
                     transform: translateX(100%);
@@ -3036,4 +2900,7 @@ actual open class PlatformRenderer {
             }
         }
     }
+    private fun styleNonceAttribute(): String =
+        activeStyleNonce?.let { """ nonce="${escapeHtmlAttribute(it)}"""" }.orEmpty()
+
 }

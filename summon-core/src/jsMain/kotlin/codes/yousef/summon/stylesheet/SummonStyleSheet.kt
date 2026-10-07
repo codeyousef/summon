@@ -15,6 +15,7 @@ const val SUMMON_LAYER = "summon-components"
 object SummonStyleSheet {
     private val styleElement: HTMLStyleElement by lazy {
         val element = document.createElement("style") as HTMLStyleElement
+        codes.yousef.summon.runtime.applySummonStyleNonce(element)
         document.head?.appendChild(element) ?: throw IllegalStateException("Document head not found")
         element
     }

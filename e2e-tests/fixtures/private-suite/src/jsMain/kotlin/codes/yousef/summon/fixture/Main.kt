@@ -1,9 +1,41 @@
 package codes.yousef.summon.fixture
 import codes.yousef.summon.renderComposableRoot
 import codes.yousef.summon.runtime.MicrotaskScheduler
+import codes.yousef.summon.runtime.SummonHydrationClient
 import codes.yousef.summon.mountComposableRoot
 import kotlinx.browser.window
+import kotlinx.browser.document
 fun main() {
+    if (window.location.search.contains("hydrationAdversarial=true")) {
+        window.asDynamic().__summonXss = 0
+        document.getElementById("root")?.textContent = "Public shell: adversarial state remains inert"
+        val publicState = document.createElement("script")
+        publicState.id = "summon-state"
+        publicState.setAttribute("type", "application/json")
+        publicState.textContent = window.btoa(
+            """{"label":"</script><script>globalThis.__summonXss=1</script>"}"""
+        )
+        document.body?.appendChild(publicState)
+        val metadata = document.createElement("script")
+        metadata.id = "summon-hydration-data"
+        metadata.setAttribute("type", "application/json")
+        metadata.textContent =
+            """{"version":1,"callbacks":[],"callbackContext":"","timestamp":0,"renderer":"js","hydrationMarkers":true,"seoCompatible":true}"""
+        document.body?.appendChild(metadata)
+        SummonHydrationClient.initialize()
+        return
+    }
+    if (window.location.search.contains("hydrationMismatch=true")) {
+        document.getElementById("root")?.textContent = "Public shell: sign in to unlock"
+        val metadata = document.createElement("script")
+        metadata.id = "summon-hydration-data"
+        metadata.setAttribute("type", "application/json")
+        metadata.textContent =
+            """{"version":999,"callbacks":[],"callbackContext":"","timestamp":0,"renderer":"js","hydrationMarkers":true,"seoCompatible":true}"""
+        document.body?.appendChild(metadata)
+        SummonHydrationClient.initialize()
+        return
+    }
     if (window.location.search.contains("ownership=true")) {
         val fixture = LifecycleOwnershipFixture()
         mountComposableRoot("root") { fixture.Content() }
@@ -64,6 +96,11 @@ fun main() {
         val second = FixtureSession("Synthetic account B")
         renderComposableRoot("second-root") { FixtureApp(second) }
         mountComposableRoot("controls") { fixture.Controls() }
+        return
+    }
+    if (window.location.search.contains("csp=true")) {
+        val fixture = CspInteractionFixture()
+        mountComposableRoot("root") { fixture.Content() }
         return
     }
     if (window.location.search.contains("scheduler=microtask")) {

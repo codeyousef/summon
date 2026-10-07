@@ -9,6 +9,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.test.assertFailsWith
 
 class HtmlPrimitivesTest {
 
@@ -62,20 +63,14 @@ class HtmlPrimitivesTest {
     }
 
     @Test
-    fun scriptTagSupportsInlineContent() {
+    fun scriptTagRejectsCrossOriginSources() {
         val renderer = MockPlatformRenderer()
 
-        runComposableTest(renderer) {
-            ScriptTag(
-                type = "module",
-                dataAttributes = mapOf("analytics" to "hero"),
-                inlineContent = "console.log('inline')"
-            )
+        assertFailsWith<IllegalArgumentException> {
+            runComposableTest(renderer) {
+                ScriptTag(src = "https://tracker.invalid/script.js")
+            }
         }
-
-        assertTrue(renderer.renderScriptTagCalled, "Inline scripts should render")
-        assertEquals("module", renderer.lastScriptTypeRendered)
-        assertEquals("console.log('inline')", renderer.lastScriptInlineContentRendered)
-        assertEquals("hero", renderer.lastScriptModifierRendered?.attributes?.get("data-analytics"))
+        assertEquals(false, renderer.renderScriptTagCalled)
     }
 }

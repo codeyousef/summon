@@ -7,6 +7,7 @@ import codes.yousef.summon.runtime.LaunchedEffect
 import codes.yousef.summon.runtime.PlatformRenderer
 import codes.yousef.summon.runtime.mutableStateOf
 import codes.yousef.summon.runtime.remember
+import codes.yousef.summon.security.PublicHydrationState
 import kotlinx.coroutines.delay
 import kotlinx.html.body
 import kotlinx.html.head
@@ -149,7 +150,7 @@ class DynamicRenderer(
         val openGraphTags = buildOpenGraphTags(seo.openGraph)
         val twitterCardTags = buildTwitterCardTags(seo.twitterCard)
         val structuredDataScript = if (seo.structuredData.isNotEmpty()) {
-            """<script type="application/ld+json">${seo.structuredData}</script>"""
+            """<script type="application/ld+json">${scriptSafeJson(seo.structuredData)}</script>"""
         } else ""
 
         // Generate a script for the initial state
@@ -157,7 +158,7 @@ class DynamicRenderer(
 
         // Generate a script for the hydration bundle
         val hydrationScript = if (context.enableHydration) {
-            """<script src="/summon-hydration.js"></script>"""
+            """<script src="/summon-hydration.js" defer></script>"""
         } else ""
 
         return """
@@ -314,42 +315,12 @@ class DynamicRenderer(
     }
 
     /**
-     * Generates a script tag with initial state for hydration
+     * Emits non-executable, bounded JSON. Only explicitly public state crosses SSR.
      */
     private fun generateInitialStateScript(context: RenderContext): String {
-        if (context.initialState.isEmpty()) return ""
-
-        // Serialize the initial state to JSON
-        val serializedState = serializeInitialState(context.initialState)
-
-        // Create a script tag with the serialized state
-        return """
-            <script>
-                window.__SUMMON_INITIAL_STATE__ = $serializedState;
-                document.dispatchEvent(new CustomEvent('summon:state-loaded'));
-            </script>
-        """.trimIndent()
-    }
-
-    /**
-     * Serialize the initial state to JSON
-     */
-    private fun serializeInitialState(state: Map<String, Any?>): String {
-        return SerializationUtils.serializeInitialState(state)
-    }
-
-    /**
-     * Serialize a value to JSON
-     */
-    private fun serializeValue(value: Any?): String {
-        return SerializationUtils.serializeValue(value)
-    }
-
-    /**
-     * Escape special characters in JSON strings
-     */
-    private fun escapeJsonString(str: String): String {
-        return SerializationUtils.escapeJsonString(str)
+        val publicState = context.publicState ?: return ""
+        val serializedState = scriptSafeJson(publicState.json)
+        return """<script id="summon-public-state" type="application/json">$serializedState</script>"""
     }
 
     /**
@@ -383,21 +354,20 @@ object DynamicRendering {
     }
 
     /**
-     * Render a composable to HTML with hydration support
+     * Render a composable to HTML with strict external hydration support.
      *
      * @param composable The composable to render
-     * @param initialState Initial state for hydration
+     * @param publicState Explicitly public state permitted in the HTML response
      * @param seoMetadata SEO metadata for the page
-     * @return The generated HTML as a string
      */
     fun renderWithHydration(
         composable: @Composable () -> Unit,
-        initialState: Map<String, Any?> = emptyMap(),
+        publicState: PublicHydrationState? = null,
         seoMetadata: SeoMetadata = SeoMetadata()
     ): String {
         val context = RenderContext(
             enableHydration = true,
-            initialState = initialState,
+            publicState = publicState,
             seoMetadata = seoMetadata
         )
         return render(composable, context)

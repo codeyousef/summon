@@ -1,6 +1,7 @@
 package codes.yousef.summon.integration
 
 import codes.yousef.summon.annotation.Composable
+import codes.yousef.summon.mountComposableRoot
 import codes.yousef.summon.components.display.Text
 import codes.yousef.summon.components.input.Button
 import codes.yousef.summon.components.layout.Column
@@ -208,21 +209,11 @@ class WasmDOMIntegrationTest {
         // Clear the root to ensure clean state
         wasmSetElementInnerHTML(TEST_ROOT_ID, "")
 
-        val renderer = PlatformRenderer()
-        renderer.initialize(TEST_ROOT_ID)
-
-        val originalRecomposer = RecomposerHolder.current()
-        val testRecomposer = Recomposer()
-        val scheduler = ImmediateScheduler()
-
-        RecomposerHolder.setRecomposer(testRecomposer)
-        RecomposerHolder.setScheduler(scheduler)
+        val mounted = mountComposableRoot(TEST_ROOT_ID, ImmediateScheduler()) {
+            TodoButtonsApp()
+        }
 
         try {
-            println("Mounting composable root...")
-            renderer.mountComposableRoot(TEST_ROOT_ID) {
-                TodoButtonsApp()
-            }
             println("Mounted composable root.")
 
             assertEquals(
@@ -317,8 +308,7 @@ class WasmDOMIntegrationTest {
             assertEquals("2", rootAttribute("data-clear-count"), "Clear click counter should reflect second invocation")
             assertEquals("0", rootAttribute("data-total"), "Total count attribute should be zero after clearing")
         } finally {
-            RecomposerHolder.setRecomposer(originalRecomposer)
-            RecomposerHolder.setScheduler(createDefaultScheduler())
+            mounted.dispose()
         }
     }
 

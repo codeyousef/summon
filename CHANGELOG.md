@@ -32,6 +32,14 @@ All notable changes to this project will be documented in this file.
 - **Pinned source-consumer contract** - The locked JVM/JS/WASM fixture now pins its
   toolchain and dependency identities, exercises real browser routing, and renders its
   public JVM shell through the Summon Aether adapter without adding Aether to browser graphs.
+- **Strict private-shell CSP** - `renderPrivateShell` returns HTML together with a coordinated
+  nonce policy: scripts are first-party external resources, WebAssembly compilation uses only
+  `wasm-unsafe-eval`, runtime style elements carry the response nonce, and object, base, frame,
+  form and string-handler capabilities are denied. Hydration accepts only bounded, versioned
+  metadata and explicit `PublicHydrationState`.
+- **Context-bound SSR callbacks** - Rendered callback IDs are one-shot capabilities bound to an
+  opaque render context. Ktor, Spring and Quarkus callback endpoints reject missing, stale or
+  cross-context capabilities without consuming the valid callback.
 
 ### Changed
 
@@ -43,6 +51,10 @@ All notable changes to this project will be documented in this file.
 - **Runtime effect ownership** - Effects require an active composition. Expected failures belong
   in the effect's error handling; unhandled launched-effect failures emit a generic diagnostic
   without exception payloads.
+- **External hydration contract** - Legacy SSR, streaming and dynamic rendering emit inert,
+  closing-script-safe JSON plus an external first-party hydration bundle. Executable inline
+  scripts, dynamic compilation probes, implicit private state maps and string-valued scroll
+  handlers were removed.
 
 ### Fixed
 
@@ -60,6 +72,9 @@ All notable changes to this project will be documented in this file.
   subscription per rendered node across recomposition. Conditional removal, replacement,
   failed or canceled mounting, and root disposal detach the subscription; retired callbacks
   are inert and cannot mutate detached DOM.
+- **Strict-CSP browser interaction** - JS and WASM lazy lists install owned typed scroll
+  listeners, dialogs remain interactive, invalid hydration reloads once into an inert public
+  shell, and valid adversarial public-state strings remain data rather than executable markup.
 - **Reactive JS navigation** - Programmatic router navigation now updates the mounted
   route state while preserving browser history, so route content recomposes immediately.
 - **Deep-link and history safety** - Browser and file-based routers reject external, query,

@@ -45,7 +45,6 @@ public final class codes/yousef/summon/ImageExample {
 }
 
 public final class codes/yousef/summon/JvmHtmlIntegrationKt {
-	public static final fun addClientSideScript (Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;Z)V
 	public static final fun isHtmlReceiver (Ljava/lang/Object;)Z
 }
 
@@ -2810,8 +2809,8 @@ public final class codes/yousef/summon/components/foundation/HtmlPrimitivesKt {
 	public static synthetic fun RawHtml$default (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public static final fun RawHtml-sWTs-x0 (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
 	public static synthetic fun RawHtml-sWTs-x0$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
-	public static final fun ScriptTag (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ZZLjava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;)V
-	public static synthetic fun ScriptTag$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ZZLjava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;ILjava/lang/Object;)V
+	public static final fun ScriptTag (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ZZLjava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public static synthetic fun ScriptTag$default (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;ZZLjava/lang/String;Ljava/lang/String;Ljava/util/Map;ILjava/lang/Object;)V
 }
 
 public final class codes/yousef/summon/components/foundation/RawHtmlScope {
@@ -6664,7 +6663,7 @@ public final class codes/yousef/summon/integration/springboot/SpringBootRenderer
 	public final fun getCurrentRenderer ()Lcodes/yousef/summon/integration/springboot/SpringBootRenderer;
 	public final fun getSummonAsset (Ljava/lang/String;Ljakarta/servlet/http/HttpServletRequest;)Lorg/springframework/http/ResponseEntity;
 	public static synthetic fun getSummonAsset$default (Lcodes/yousef/summon/integration/springboot/SpringBootRenderer$Companion;Ljava/lang/String;Ljakarta/servlet/http/HttpServletRequest;ILjava/lang/Object;)Lorg/springframework/http/ResponseEntity;
-	public final fun handleCallback (Ljava/lang/String;)Lorg/springframework/http/ResponseEntity;
+	public final fun handleCallback (Ljava/lang/String;Ljava/lang/String;)Lorg/springframework/http/ResponseEntity;
 	public final fun handleSummonAsset (Ljakarta/servlet/http/HttpServletRequest;Ljakarta/servlet/http/HttpServletResponse;)V
 }
 
@@ -8209,7 +8208,6 @@ public final class codes/yousef/summon/modifier/ScrollBehavior : java/lang/Enum 
 }
 
 public final class codes/yousef/summon/modifier/ScrollModifiersKt {
-	public static final fun onScroll (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun scrollBehavior (Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/modifier/ScrollBehavior;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun scrollMargin (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
 	public static final fun scrollPadding (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
@@ -9242,11 +9240,24 @@ public final class codes/yousef/summon/runtime/CallbackRegistry {
 	public final fun abandonRenderContext ()Ljava/lang/Long;
 	public final fun beginRender ()V
 	public final fun clear ()V
-	public final fun executeCallback (Ljava/lang/String;)Z
-	public final fun finishRenderAndCollectCallbackIds ()Ljava/util/Set;
+	public final fun executeRemoteCallback (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun finishRenderAndCollectCallbacks ()Lcodes/yousef/summon/runtime/CallbackRenderContext;
 	public final fun hasCallback (Ljava/lang/String;)Z
 	public final fun registerCallback (Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
 	public final fun size ()I
+}
+
+public final class codes/yousef/summon/runtime/CallbackRenderContext {
+	public fun <init> (Ljava/util/Set;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/util/Set;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/util/Set;Ljava/lang/String;)Lcodes/yousef/summon/runtime/CallbackRenderContext;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/runtime/CallbackRenderContext;Ljava/util/Set;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/runtime/CallbackRenderContext;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCallbackIds ()Ljava/util/Set;
+	public final fun getCapability ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class codes/yousef/summon/runtime/CommonComposer : codes/yousef/summon/runtime/Composer {
@@ -9642,7 +9653,9 @@ public class codes/yousef/summon/runtime/PlatformRenderer {
 	public fun renderLabel (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)V
 	public static synthetic fun renderLabel$default (Lcodes/yousef/summon/runtime/PlatformRenderer;Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;ILjava/lang/Object;)V
 	public fun renderLazyColumn (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
+	public fun renderLazyColumn (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;)V
 	public fun renderLazyRow (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
+	public fun renderLazyRow (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;)V
 	public fun renderLinearProgressIndicator (Ljava/lang/Float;Lcodes/yousef/summon/modifier/Modifier;Lcodes/yousef/summon/components/feedback/ProgressType;)V
 	public fun renderLink (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
 	public fun renderLink (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
@@ -9657,6 +9670,8 @@ public class codes/yousef/summon/runtime/PlatformRenderer {
 	public fun renderNativeSelect (Lcodes/yousef/summon/modifier/Modifier;Ljava/util/List;)V
 	public fun renderNativeTextarea (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)V
 	public static synthetic fun renderNativeTextarea$default (Lcodes/yousef/summon/runtime/PlatformRenderer;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;ILjava/lang/Object;)V
+	public fun renderPrivateShell (Lcodes/yousef/summon/security/PublicHydrationState;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Lcodes/yousef/summon/security/CspDocument;
+	public static synthetic fun renderPrivateShell$default (Lcodes/yousef/summon/runtime/PlatformRenderer;Lcodes/yousef/summon/security/PublicHydrationState;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Lcodes/yousef/summon/security/CspDocument;
 	public fun renderProgress (Ljava/lang/Float;Lcodes/yousef/summon/components/feedback/ProgressType;Lcodes/yousef/summon/modifier/Modifier;)V
 	public static synthetic fun renderProgress$default (Lcodes/yousef/summon/runtime/PlatformRenderer;Ljava/lang/Float;Lcodes/yousef/summon/components/feedback/ProgressType;Lcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
 	public fun renderRadioButton (ZLkotlin/jvm/functions/Function0;ZLcodes/yousef/summon/modifier/Modifier;)V
@@ -9668,7 +9683,7 @@ public class codes/yousef/summon/runtime/PlatformRenderer {
 	public fun renderRichMarkdown (Ljava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
 	public fun renderRow (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
 	public fun renderScreen (Lcodes/yousef/summon/modifier/Modifier;Lkotlin/jvm/functions/Function1;)V
-	public fun renderScriptTag (Ljava/lang/String;ZZLjava/lang/String;Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)V
+	public fun renderScriptTag (Ljava/lang/String;ZZLjava/lang/String;Lcodes/yousef/summon/modifier/Modifier;)V
 	public fun renderSelect (Ljava/lang/Object;Lkotlin/jvm/functions/Function1;Ljava/util/List;Lcodes/yousef/summon/modifier/Modifier;)V
 	public fun renderSlider (FLkotlin/jvm/functions/Function1;Lkotlin/ranges/ClosedFloatingPointRange;IZLcodes/yousef/summon/modifier/Modifier;)V
 	public static synthetic fun renderSlider$default (Lcodes/yousef/summon/runtime/PlatformRenderer;FLkotlin/jvm/functions/Function1;Lkotlin/ranges/ClosedFloatingPointRange;IZLcodes/yousef/summon/modifier/Modifier;ILjava/lang/Object;)V
@@ -9841,6 +9856,19 @@ public final class codes/yousef/summon/security/AuthenticationResult$Success : c
 public abstract interface class codes/yousef/summon/security/Credentials {
 }
 
+public final class codes/yousef/summon/security/CspDocument {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/security/CspDocument;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/security/CspDocument;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/security/CspDocument;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getContentSecurityPolicy ()Ljava/lang/String;
+	public final fun getHtml ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class codes/yousef/summon/security/JwtAuthenticationProvider : codes/yousef/summon/security/AuthenticationProvider {
 	public fun <init> (Ljava/lang/String;J)V
 	public synthetic fun <init> (Ljava/lang/String;JILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -9897,6 +9925,23 @@ public abstract interface class codes/yousef/summon/security/Principal {
 	public abstract fun getId ()Ljava/lang/String;
 	public abstract fun getPermissions ()Ljava/util/Set;
 	public abstract fun getRoles ()Ljava/util/Set;
+}
+
+public final class codes/yousef/summon/security/PrivateShellContentSecurityPolicy {
+	public static final field INSTANCE Lcodes/yousef/summon/security/PrivateShellContentSecurityPolicy;
+	public final fun headerValue (Ljava/lang/String;)Ljava/lang/String;
+	public final fun isValidNonce (Ljava/lang/String;)Z
+}
+
+public final class codes/yousef/summon/security/PublicHydrationState {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lcodes/yousef/summon/security/PublicHydrationState;
+	public static synthetic fun copy$default (Lcodes/yousef/summon/security/PublicHydrationState;Ljava/lang/String;ILjava/lang/Object;)Lcodes/yousef/summon/security/PublicHydrationState;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getJson ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class codes/yousef/summon/security/Role {
@@ -10841,13 +10886,6 @@ public final class codes/yousef/summon/ssr/CacheHeaders$Headers {
 	public static final field VARY Ljava/lang/String;
 }
 
-public final class codes/yousef/summon/ssr/ClientHydration {
-	public static final field INSTANCE Lcodes/yousef/summon/ssr/ClientHydration;
-	public final fun findHydrationData ()Ljava/lang/String;
-	public final fun hydrateNode (Ljava/lang/String;)V
-	public final fun initialize ()V
-}
-
 public final class codes/yousef/summon/ssr/DynamicRenderer : codes/yousef/summon/ssr/ServerSideRenderer {
 	public fun <init> ()V
 	public fun <init> (Lcodes/yousef/summon/runtime/PlatformRenderer;Lcodes/yousef/summon/ssr/HydrationSupport;)V
@@ -10863,8 +10901,8 @@ public final class codes/yousef/summon/ssr/DynamicRendering {
 	public final fun render (Lkotlin/jvm/functions/Function0;Lcodes/yousef/summon/ssr/RenderContext;)Ljava/lang/String;
 	public static synthetic fun render$default (Lcodes/yousef/summon/ssr/DynamicRendering;Lkotlin/jvm/functions/Function0;Lcodes/yousef/summon/ssr/RenderContext;ILjava/lang/Object;)Ljava/lang/String;
 	public final fun renderToString (Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
-	public final fun renderWithHydration (Lkotlin/jvm/functions/Function0;Ljava/util/Map;Lcodes/yousef/summon/ssr/SeoMetadata;)Ljava/lang/String;
-	public static synthetic fun renderWithHydration$default (Lcodes/yousef/summon/ssr/DynamicRendering;Lkotlin/jvm/functions/Function0;Ljava/util/Map;Lcodes/yousef/summon/ssr/SeoMetadata;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun renderWithHydration (Lkotlin/jvm/functions/Function0;Lcodes/yousef/summon/security/PublicHydrationState;Lcodes/yousef/summon/ssr/SeoMetadata;)Ljava/lang/String;
+	public static synthetic fun renderWithHydration$default (Lcodes/yousef/summon/ssr/DynamicRendering;Lkotlin/jvm/functions/Function0;Lcodes/yousef/summon/security/PublicHydrationState;Lcodes/yousef/summon/ssr/SeoMetadata;ILjava/lang/Object;)Ljava/lang/String;
 }
 
 public final class codes/yousef/summon/ssr/DynamicRenderingKt {
@@ -10885,12 +10923,6 @@ public abstract interface class codes/yousef/summon/ssr/HtmlBuilder {
 	public abstract fun finalize ()Ljava/lang/String;
 }
 
-public final class codes/yousef/summon/ssr/HydrationContext {
-	public fun <init> ()V
-	public final fun generateHydrationData (Lcodes/yousef/summon/ssr/HydrationStrategy;)Ljava/lang/String;
-	public final fun trackComposition (Lkotlin/jvm/functions/Function0;)V
-}
-
 public final class codes/yousef/summon/ssr/HydrationStrategy : java/lang/Enum {
 	public static final field FULL Lcodes/yousef/summon/ssr/HydrationStrategy;
 	public static final field NONE Lcodes/yousef/summon/ssr/HydrationStrategy;
@@ -10908,9 +10940,8 @@ public abstract interface class codes/yousef/summon/ssr/HydrationSupport {
 
 public final class codes/yousef/summon/ssr/HydrationUtils {
 	public static final field INSTANCE Lcodes/yousef/summon/ssr/HydrationUtils;
-	public final fun generateHydrationScript (Lkotlin/jvm/functions/Function0;Ljava/util/Map;Lcodes/yousef/summon/ssr/HydrationStrategy;)Ljava/lang/String;
-	public static synthetic fun generateHydrationScript$default (Lcodes/yousef/summon/ssr/HydrationUtils;Lkotlin/jvm/functions/Function0;Ljava/util/Map;Lcodes/yousef/summon/ssr/HydrationStrategy;ILjava/lang/Object;)Ljava/lang/String;
-	public final fun hydrateClient (Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
+	public final fun generateHydrationMarkup (Lcodes/yousef/summon/security/PublicHydrationState;Lcodes/yousef/summon/ssr/HydrationStrategy;)Ljava/lang/String;
+	public static synthetic fun generateHydrationMarkup$default (Lcodes/yousef/summon/ssr/HydrationUtils;Lcodes/yousef/summon/security/PublicHydrationState;Lcodes/yousef/summon/ssr/HydrationStrategy;ILjava/lang/Object;)Ljava/lang/String;
 }
 
 public final class codes/yousef/summon/ssr/OpenGraphMetadata {
@@ -10927,14 +10958,14 @@ public final class codes/yousef/summon/ssr/OpenGraphMetadata {
 
 public final class codes/yousef/summon/ssr/RenderContext {
 	public fun <init> ()V
-	public fun <init> (ZLjava/lang/String;Ljava/util/Map;ZLcodes/yousef/summon/ssr/SeoMetadata;Ljava/util/Map;Ljava/util/List;)V
-	public synthetic fun <init> (ZLjava/lang/String;Ljava/util/Map;ZLcodes/yousef/summon/ssr/SeoMetadata;Ljava/util/Map;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (ZLjava/lang/String;Ljava/util/Map;ZLcodes/yousef/summon/ssr/SeoMetadata;Lcodes/yousef/summon/security/PublicHydrationState;Ljava/util/List;)V
+	public synthetic fun <init> (ZLjava/lang/String;Ljava/util/Map;ZLcodes/yousef/summon/ssr/SeoMetadata;Lcodes/yousef/summon/security/PublicHydrationState;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getDebug ()Z
 	public final fun getEnableHydration ()Z
 	public final fun getHeadElements ()Ljava/util/List;
 	public final fun getHydrationIdPrefix ()Ljava/lang/String;
-	public final fun getInitialState ()Ljava/util/Map;
 	public final fun getMetadata ()Ljava/util/Map;
+	public final fun getPublicState ()Lcodes/yousef/summon/security/PublicHydrationState;
 	public final fun getSeoMetadata ()Lcodes/yousef/summon/ssr/SeoMetadata;
 }
 
@@ -10991,8 +11022,8 @@ public final class codes/yousef/summon/ssr/SerializationUtils {
 
 public final class codes/yousef/summon/ssr/ServerSideRenderUtils {
 	public static final field INSTANCE Lcodes/yousef/summon/ssr/ServerSideRenderUtils;
-	public final fun renderPageToString (Lkotlin/jvm/functions/Function0;Ljava/util/Map;Z)Ljava/lang/String;
-	public static synthetic fun renderPageToString$default (Lcodes/yousef/summon/ssr/ServerSideRenderUtils;Lkotlin/jvm/functions/Function0;Ljava/util/Map;ZILjava/lang/Object;)Ljava/lang/String;
+	public final fun renderPageToString (Lkotlin/jvm/functions/Function0;Lcodes/yousef/summon/security/PublicHydrationState;Z)Ljava/lang/String;
+	public static synthetic fun renderPageToString$default (Lcodes/yousef/summon/ssr/ServerSideRenderUtils;Lkotlin/jvm/functions/Function0;Lcodes/yousef/summon/security/PublicHydrationState;ZILjava/lang/Object;)Ljava/lang/String;
 }
 
 public abstract interface class codes/yousef/summon/ssr/ServerSideRenderer {

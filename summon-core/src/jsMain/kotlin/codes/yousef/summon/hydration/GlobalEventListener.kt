@@ -20,7 +20,7 @@ object GlobalEventListener {
     /**
      * Enable/disable verbose logging.
      */
-    var enableLogging = true
+    var enableLogging = false
 
     /**
      * Check if an element has been marked as hydrated.

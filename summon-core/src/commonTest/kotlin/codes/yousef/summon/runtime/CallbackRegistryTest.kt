@@ -37,11 +37,13 @@ class CallbackRegistryTest {
         var executed = false
         CallbackRegistry.beginRender()
         val callbackId = CallbackRegistry.registerCallback { executed = true }
-        val registeredIds = CallbackRegistry.finishRenderAndCollectCallbackIds()
+        val context = CallbackRegistry.finishRenderAndCollectCallbacks()
 
-        assertTrue(callbackId in registeredIds, "Newly registered callback IDs should be collected")
-        assertTrue(CallbackRegistry.executeCallback(callbackId), "Callback should execute successfully")
-        assertTrue(executed, "Callback block should update state when invoked")
+        assertTrue(callbackId in context.callbackIds)
+        assertFalse(CallbackRegistry.executeRemoteCallback(callbackId, "wrong-context"))
+        assertTrue(CallbackRegistry.executeRemoteCallback(callbackId, context.capability))
+        assertTrue(executed)
+        assertFalse(CallbackRegistry.executeRemoteCallback(callbackId, context.capability))
     }
 
     @Test
@@ -49,10 +51,10 @@ class CallbackRegistryTest {
         var count = 0
         CallbackRegistry.beginRender()
         val callbackId = CallbackRegistry.registerCallback { count++ }
-        CallbackRegistry.finishRenderAndCollectCallbackIds()
+        val context = CallbackRegistry.finishRenderAndCollectCallbacks()
         CallbackRegistry.abandonRenderContext()
 
-        assertTrue(CallbackRegistry.executeCallback(callbackId), "Callback should still be available after render")
-        assertEquals(1, count, "Callback handler should run exactly once")
+        assertTrue(CallbackRegistry.executeRemoteCallback(callbackId, context.capability))
+        assertEquals(1, count)
     }
 }

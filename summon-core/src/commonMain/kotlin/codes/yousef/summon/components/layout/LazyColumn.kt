@@ -260,20 +260,9 @@ fun LazyColumn(
             .style("display", "flex")
             .style("flex-direction", "column")
             .style("max-height", "100%")
-            .style("data-direction", "column")
+            .dataAttribute("direction", "column")
+            .dataAttributes(dataAttributes)
     )
-
-    // Add data attributes to the modifier
-    dataAttributes.forEach { (key, value) ->
-        finalModifier = finalModifier.style(key, value)
-    }
-
-    // Add a scroll handler attribute that the platform renderer can use
-    // This attribute tells the renderer to update the LazyListState when scrolling
-    finalModifier = finalModifier.style("__attr:data-scroll-handler", "updateLazyListState")
-
-    // Add an onscroll event handler to update the scroll position and visible items
-    finalModifier = finalModifier.style("onscroll", "window.summonHandleScroll(event, null)")
 
     val renderer = LocalPlatformRenderer.current
 
@@ -282,6 +271,10 @@ fun LazyColumn(
 
     renderer.renderLazyColumn(
         modifier = finalModifier,
+        onScroll = { scrollPosition, containerSize ->
+            state.updateScrollPosition(scrollPosition)
+            state.setContainerSize(containerSize)
+        },
         content = { // 'this' is FlowContent scope from the renderer
             // Only render items that are in the visible range
             for (i in visibleRange) {
@@ -294,8 +287,8 @@ fun LazyColumn(
 
                     // Add data attributes for the item
                     val itemModifier = Modifier()
-                        .style("data-item-index", i.toString())
-                        .style("data-item-key", key?.toString() ?: "")
+                        .dataAttribute("item-index", i.toString())
+                        .dataAttribute("item-key", key?.toString() ?: "")
                         .style("margin-top", "${spacing.first}px")
                         .style("margin-left", "${spacing.second}px")
 

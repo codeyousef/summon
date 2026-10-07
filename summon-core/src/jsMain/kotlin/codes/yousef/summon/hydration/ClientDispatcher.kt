@@ -5,6 +5,7 @@ import codes.yousef.summon.js.console
 import kotlinx.browser.window
 import kotlinx.browser.document
 import org.w3c.dom.HTMLElement
+import org.w3c.dom.HTMLAnchorElement
 import kotlin.js.JSON
 
 /**
@@ -19,7 +20,7 @@ object ClientDispatcher {
     /**
      * Enable/disable verbose logging.
      */
-    var enableLogging = true
+    var enableLogging = false
 
     /**
      * Enable synchronous mode for testing.
@@ -34,22 +35,10 @@ object ClientDispatcher {
     var syncMode = false
 
     fun dispatch(actionJson: String) {
-        if (enableLogging) {
-            console.log("[Summon JS] ClientDispatcher.dispatch() called with: $actionJson")
-        }
         try {
-            val action = parseUiAction(actionJson)
-            if (action != null) {
-                if (enableLogging) {
-                    console.log("[Summon JS] Parsed action: $action")
-                }
-                dispatch(action)
-            } else {
-                console.warn("[Summon JS] Unknown action type in: $actionJson")
-            }
-        } catch (e: Exception) {
-            console.error("[Summon JS] Failed to dispatch action: $actionJson")
-            console.error("[Summon JS] Error:", e)
+            parseUiAction(actionJson)?.let(::dispatch)
+        } catch (error: Exception) {
+            console.error("[Summon JS] Rejected invalid client action")
         }
     }
 
@@ -58,27 +47,41 @@ object ClientDispatcher {
      * Avoids kotlinx-serialization dependency for smaller bundle size.
      */
     private fun parseUiAction(jsonStr: String): UiAction? {
+        if (jsonStr.isEmpty() || jsonStr.length > MAX_ACTION_LENGTH || jsonStr.any { it.code > 0x7f }) {
+            return null
+        }
         val parsed = JSON.parse<dynamic>(jsonStr)
         val type = parsed.type as? String ?: return null
+        val keys = js("Object.keys(parsed)") as Array<String>
 
         return when (type) {
             "nav" -> {
+                if (keys.size != 2 || "url" !in keys) return null
                 val url = parsed.url as? String ?: return null
-                UiAction.Navigate(url)
+                val anchor = document.createElement("a") as HTMLAnchorElement
+                anchor.href = url
+                if (
+                    anchor.origin != window.location.origin ||
+                    (anchor.protocol != "http:" && anchor.protocol != "https:")
+                ) {
+                    return null
+                }
+                UiAction.Navigate(anchor.href)
             }
             "toggle" -> {
+                if (keys.size != 2 || "targetId" !in keys) return null
                 val targetId = parsed.targetId as? String ?: return null
+                if (!isSafeElementId(targetId)) return null
                 UiAction.ToggleVisibility(targetId)
-            }
-            "rpc" -> {
-                // ServerRpc requires JsonElement which needs kotlinx-serialization
-                // For now, log and skip - this is rarely used client-side
-                console.warn("[Summon JS] ServerRpc actions require server round-trip, skipping client dispatch")
-                null
             }
             else -> null
         }
     }
+
+    private fun isSafeElementId(value: String): Boolean =
+        value.length in 1..128 &&
+            (value[0].isLetter() || value[0] == '_') &&
+            value.all { it.isLetterOrDigit() || it == '_' || it == '-' || it == ':' }
 
     fun dispatch(action: UiAction) {
         when (action) {
@@ -89,10 +92,7 @@ object ClientDispatcher {
                 window.location.href = action.url
             }
             is UiAction.ServerRpc -> {
-                if (enableLogging) {
-                    console.log("[Summon JS] ServerRpc: ${action.endpoint}")
-                }
-                // TODO: Implement actual fetch to /summon/dispatch
+                console.warn("[Summon JS] Server RPC actions are not executable client strings")
             }
             is UiAction.ToggleVisibility -> {
                 if (enableLogging) {
@@ -212,4 +212,5 @@ object ClientDispatcher {
             domBatcher.flush()
         }
     }
+    private const val MAX_ACTION_LENGTH = 2_048
 }

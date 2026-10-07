@@ -10,20 +10,3 @@ package codes.yousef.summon
  * @return True if the receiver can handle HTML tags, false otherwise.
  */
 expect fun <T> isHtmlReceiver(receiver: T): Boolean
-
-/**
- * Expect declaration to add a client-side script placeholder to the output.
- * Actual implementations will insert the appropriate script tag or placeholder
- * based on the target platform (HTML, etc.).
- *
- * @param receiver The target receiver (e.g., a TagConsumer).
- * @param scriptId A unique ID for the script tag.
- * @param effectType A string describing the type of effect (used for logging/debugging in actual implementation).
- * @param withCleanup Indicates if a cleanup hook should be associated with the script.
- */
-expect fun <T> addClientSideScript(
-    receiver: T,
-    scriptId: String,
-    effectType: String,
-    withCleanup: Boolean
-) 

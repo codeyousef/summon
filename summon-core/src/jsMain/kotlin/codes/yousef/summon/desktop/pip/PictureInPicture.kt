@@ -121,6 +121,7 @@ private fun copyStyleSheets(pipDocument: dynamic) {
         for (i in 0 until styles.length) {
             val style = styles.item(i)
             val clone = pipDocument.createElement("style")
+            codes.yousef.summon.runtime.applySummonStyleNonce(clone)
             clone.textContent = style?.textContent
             pipDocument.head.appendChild(clone)
         }

@@ -556,14 +556,13 @@ expect open class PlatformRenderer() {
         content: @Composable FlowContentCompat.() -> Unit
     )
 
-    /** Renders a script tag with optional inline content */
+    /** Renders a first-party external script tag. */
     open fun renderScriptTag(
-        src: String?,
+        src: String,
         async: Boolean,
         defer: Boolean,
         type: String?,
-        modifier: Modifier,
-        inlineContent: String?
+        modifier: Modifier
     )
 
     /** Renders a Tab layout */
@@ -616,8 +615,30 @@ expect open class PlatformRenderer() {
     /** Renders a lazy column container (e.g., a div for scrolling) */
     open fun renderLazyColumn(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
 
+    /**
+     * Renders a lazy column and owns its typed scroll listener.
+     *
+     * [onScroll] receives the pixel scroll offset and viewport height.
+     */
+    open fun renderLazyColumn(
+        modifier: Modifier,
+        onScroll: (scrollPosition: Float, containerSize: Float) -> Unit,
+        content: @Composable FlowContentCompat.() -> Unit
+    )
+
     /** Renders a lazy row container (e.g., a div for horizontal scrolling) */
     open fun renderLazyRow(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)
+
+    /**
+     * Renders a lazy row and owns its typed scroll listener.
+     *
+     * [onScroll] receives the pixel scroll offset and viewport width.
+     */
+    open fun renderLazyRow(
+        modifier: Modifier,
+        onScroll: (scrollPosition: Float, containerSize: Float) -> Unit,
+        content: @Composable FlowContentCompat.() -> Unit
+    )
 
     /** Renders a responsive layout container (typically a div) */
     open fun renderResponsiveLayout(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit)

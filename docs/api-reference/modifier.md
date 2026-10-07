@@ -1403,18 +1403,8 @@ Scoped styles are stored as data attributes and processed by platform renderers:
 
 ## Scroll Modifiers
 
-Control scroll behavior and handle scroll events.
-
-### Scroll Events
-
-```kotlin
-Box(
-    modifier = Modifier()
-        .height("400px")
-        .overflowY("scroll")
-        .onScroll("handleScroll(event)")
-)
-```
+Control scroll behavior with typed CSS values. Event callbacks belong to component APIs;
+Summon does not emit string-valued DOM event attributes because strict CSP blocks them.
 
 ### Scroll Behavior
 

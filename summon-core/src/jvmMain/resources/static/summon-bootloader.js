@@ -220,33 +220,6 @@
         }
     });
 
-    // Service Worker registration (non-blocking)
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-            navigator.serviceWorker.register('/sw.js').catch(function() {});
-        });
-    }
-
-    // Performance metrics event (non-blocking)
-    window.addEventListener('load', function() {
-        setTimeout(function() {
-            document.dispatchEvent(new CustomEvent('summon:performance-metrics', {
-                detail: {
-                    metrics: PerformanceTracker.getMetrics(),
-                    browserSupport: BrowserSupport,
-                    timestamp: Date.now()
-                }
-            }));
-        }, 1000);
-    });
-
-    // Expose for debugging
-    window.SummonBrowserSupport = BrowserSupport;
-    window.SummonScriptLoader = ScriptLoader;
-    window.SummonPerformanceTracker = PerformanceTracker;
-
-    // Export init function
-    window.SummonBoot = { init: init };
 
     // Auto-initialize if DOM is ready
     if (document.readyState === 'loading') {

@@ -66,6 +66,11 @@ fun main() {
         mountComposableRoot("controls") { fixture.Controls() }
         return
     }
+    if ((wasmGetLocationSearch() ?: "").contains("csp=true")) {
+        val fixture = CspInteractionFixture()
+        mountComposableRoot("root") { fixture.Content() }
+        return
+    }
     val session = FixtureSession()
     renderComposableRoot("root") { FixtureApp(session) }
     if (wasmGetLocationSearch()?.contains("roots=two") == true) {

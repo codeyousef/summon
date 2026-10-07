@@ -22,6 +22,9 @@ class SpringBootRendererHydrationTest {
         val body = response.body ?: error("Response body expected")
         assertTrue(body.contains("id=\"summon-hydration-data\""))
         assertTrue(body.contains("Hello Spring Boot"))
+        val csp = response.headers.getFirst("Content-Security-Policy")
+        assertTrue(csp?.contains("default-src 'none'") == true)
+        assertTrue(csp?.contains("script-src 'self'") == true)
     }
 }
 

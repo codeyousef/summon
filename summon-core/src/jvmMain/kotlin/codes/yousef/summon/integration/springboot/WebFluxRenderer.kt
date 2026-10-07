@@ -8,6 +8,8 @@ import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 
 /**
  * Integration class for rendering Summon components in a Spring WebFlux application.
@@ -88,14 +90,18 @@ class WebFluxRenderer {
     }
 
     /**
-     * Renders a Summon component with hydration metadata so WebFlux clients can hydrate on load.
+     * Renders a strict-CSP hydrated response with its per-document style nonce.
      */
-    fun renderHydrated(content: @Composable () -> Unit): Mono<String> {
+    fun renderHydrated(content: @Composable () -> Unit): Mono<ResponseEntity<String>> {
         return Mono.fromCallable {
             val renderer = PlatformRenderer()
             setPlatformRenderer(renderer)
             try {
-                renderer.renderComposableRootWithHydration(content)
+                val document = renderer.renderPrivateShell(composable = content)
+                ResponseEntity.ok()
+                    .header("Content-Security-Policy", document.contentSecurityPolicy)
+                    .contentType(MediaType.TEXT_HTML)
+                    .body(document.html)
             } finally {
                 clearPlatformRenderer()
             }

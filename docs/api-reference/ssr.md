@@ -67,10 +67,10 @@ High-level utilities for server-side rendering with additional features.
 object ServerSideRenderUtils {
     fun renderPageToString(
         rootComposable: @Composable () -> Unit,
-        initialData: Map<String, Any> = emptyMap(),
-        includeHydrationScript: Boolean = false
+        publicState: PublicHydrationState? = null,
+        includeHydrationScript: Boolean = true
     ): String
-    
+
     fun renderWithSEO(
         rootComposable: @Composable () -> Unit,
         seoMetadata: SeoMetadata
@@ -80,13 +80,13 @@ object ServerSideRenderUtils {
 
 #### Methods
 
-- `renderPageToString(rootComposable, initialData, includeHydrationScript): String`
+- `renderPageToString(rootComposable, publicState, includeHydrationScript): String`
   - **Parameters**:
     - `rootComposable` - The root composable to render
-    - `initialData` - Initial data to pass to the client for hydration
-    - `includeHydrationScript` - Whether to include client-side hydration scripts
+    - `publicState` - Bounded ASCII JSON explicitly approved for client exposure; never vault or session data
+    - `includeHydrationScript` - Whether to include inert hydration data and the external first-party bundle
   - **Returns**: Complete HTML page string with proper document structure
-  - **Use Case**: High-level page rendering with optional hydration
+  - **Use Case**: High-level page rendering with optional strict-CSP hydration
 
 - `renderWithSEO(rootComposable, seoMetadata): String`
   - **Parameters**:
@@ -100,22 +100,24 @@ object ServerSideRenderUtils {
 Configuration context for SSR operations.
 
 ```kotlin
-data class RenderContext(
+class RenderContext(
     val enableHydration: Boolean = false,
-    val seoMetadata: SeoMetadata? = null,
-    val customMetaTags: Map<String, String> = emptyMap(),
-    val includeViewport: Boolean = true,
-    val charset: String = "UTF-8"
+    val hydrationIdPrefix: String = "summon-",
+    val metadata: Map<String, String> = emptyMap(),
+    val debug: Boolean = false,
+    val seoMetadata: SeoMetadata = SeoMetadata(),
+    val publicState: PublicHydrationState? = null
 )
 ```
 
 #### Properties
 
 - `enableHydration: Boolean` - Enable client-side hydration support
-- `seoMetadata: SeoMetadata?` - SEO metadata configuration
-- `customMetaTags: Map<String, String>` - Additional custom meta tags
-- `includeViewport: Boolean` - Include viewport meta tag for responsive design
-- `charset: String` - Character encoding for the document
+- `hydrationIdPrefix: String` - Prefix for generated hydration identifiers
+- `metadata: Map<String, String>` - Additional public document metadata
+- `debug: Boolean` - Include development-only diagnostics
+- `seoMetadata: SeoMetadata` - SEO metadata configuration
+- `publicState: PublicHydrationState?` - Explicitly public bounded JSON for hydration
 
 ## SEO Support Classes
 

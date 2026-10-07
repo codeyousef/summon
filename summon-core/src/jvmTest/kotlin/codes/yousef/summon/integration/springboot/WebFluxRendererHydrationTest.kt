@@ -13,13 +13,15 @@ class WebFluxRendererHydrationTest {
 
     @Test
     fun `renderHydrated emits hydration markup`() {
-        val html = renderer.renderHydrated {
+        val response = renderer.renderHydrated {
             Text("Hello WebFlux")
         }.block()
 
-        assertNotNull(html)
+        assertNotNull(response)
+        val html = assertNotNull(response.body)
         assertTrue(html.contains("id=\"summon-hydration-data\""))
         assertTrue(html.contains("Hello WebFlux"))
+        assertTrue(response.headers.getFirst("Content-Security-Policy")?.contains("script-src 'self'") == true)
     }
 }
 

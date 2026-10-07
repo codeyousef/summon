@@ -66,19 +66,22 @@ class QuarkusRenderer(private val response: HttpServerResponse) {
      */
     fun renderHydrated(statusCode: Int = 200, content: @Composable () -> Unit) {
         setPlatformRenderer(renderer)
-        val html = try {
-            renderer.renderComposableRootWithHydration(content)
+        val document = try {
+            renderer.renderPrivateShell(composable = content)
         } finally {
             clearPlatformRenderer()
         }
-        sendHtml(html, statusCode)
+        sendHtml(document.html, statusCode, document.contentSecurityPolicy)
     }
 
-    private fun sendHtml(html: String, statusCode: Int = 200) {
-        response
+    private fun sendHtml(html: String, statusCode: Int = 200, contentSecurityPolicy: String? = null) {
+        val responseBuilder = response
             .setStatusCode(statusCode)
             .putHeader("Content-Type", "text/html; charset=UTF-8")
-            .end(html)
+        contentSecurityPolicy?.let {
+            responseBuilder.putHeader("Content-Security-Policy", it)
+        }
+        responseBuilder.end(html)
     }
 
     companion object {
@@ -183,7 +186,8 @@ class QuarkusRenderer(private val response: HttpServerResponse) {
                         .putHeader("Content-Type", "application/json")
                         .end("""{"action":"error","status":"missing-id"}""")
                 } else {
-                    val executed = CallbackRegistry.executeCallback(callbackId)
+                    val capability = ctx.request().getHeader("X-Summon-Callback-Context")
+                    val executed = CallbackRegistry.executeRemoteCallback(callbackId, capability)
                     val (statusCode, payload) = if (executed) {
                         200 to """{"action":"reload","status":"ok"}"""
                     } else {

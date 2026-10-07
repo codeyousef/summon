@@ -1479,6 +1479,24 @@ fun wasmGetElementBoundingHeight(elementId: String): Double {
     } catch (e: Throwable) { 0.0 }
 }
 
+fun wasmGetElementScrollTop(elementId: String): Double {
+    return try {
+        (getElement(elementId) as? HTMLElement)?.scrollTop ?: 0.0
+    } catch (e: Throwable) {
+        if (e is CancellationException) throw e
+        0.0
+    }
+}
+
+fun wasmGetElementScrollLeft(elementId: String): Double {
+    return try {
+        (getElement(elementId) as? HTMLElement)?.scrollLeft ?: 0.0
+    } catch (e: Throwable) {
+        if (e is CancellationException) throw e
+        0.0
+    }
+}
+
 
 
 fun wasmGetActiveElementId(): String? {
@@ -1657,15 +1675,8 @@ fun wasmHasWasmSIMD(): Boolean = js("WebAssembly.validate(new Uint8Array([0, 97,
 
 fun wasmHasWasmThreads(): Boolean = js("typeof SharedArrayBuffer !== 'undefined'")
 
-private fun checkDynamicImportSupport(): Unit = js("new Function('import(\"\")')")
-
-fun wasmHasDynamicImport(): Boolean = try {
-    checkDynamicImportSupport()
-    true
-} catch (e: Throwable) {
-    if (e is CancellationException) throw e
-    false
-}
+fun wasmHasDynamicImport(): Boolean =
+    js("'noModule' in document.createElement('script')")
 
 fun wasmGetScreenWidth(): Int = window.screen.width
 fun wasmGetScreenHeight(): Int = window.screen.height

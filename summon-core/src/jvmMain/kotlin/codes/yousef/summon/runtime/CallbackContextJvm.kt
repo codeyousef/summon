@@ -16,3 +16,9 @@ internal actual fun callbackContextKey(): Long = getStableCallbackContextKey()
 internal actual fun isCallbackDebugEnabled(): Boolean {
     return System.getProperty("summon.debug.callbacks", "false").toBoolean()
 }
+
+internal actual fun generateCallbackCapability(): String {
+    val bytes = ByteArray(32)
+    java.security.SecureRandom().nextBytes(bytes)
+    return java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(bytes)
+}

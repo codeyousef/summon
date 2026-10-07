@@ -1,12 +1,11 @@
 /**
  * # Scroll Modifiers
  *
- * Scroll behavior and event handling modifiers for the Summon framework.
- * This module provides helpers for scroll event handling and programmatic scrolling.
+ * Scroll behavior modifiers for the Summon framework.
+ * This module provides helpers for programmatic scrolling and CSS scroll behavior.
  *
  * ## Features
  *
- * - **Scroll Events**: React to scroll events on elements
  * - **Scroll Behavior**: Control smooth vs instant scrolling
  * - **Overflow Control**: Manage scroll overflow behavior
  * - **Scroll Snapping**: Enable CSS scroll snap points
@@ -14,16 +13,14 @@
  * ## Usage Examples
  *
  * ```kotlin
- * // Handle scroll events
+ * // Scrollable container
  * Box(
  *     modifier = Modifier()
  *         .height("400px")
  *         .overflowY("scroll")
- *         .onScroll("handleScroll(event)")
  * ) {
  *     // Scrollable content
  * }
- *
  * // Smooth scrolling container
  * Box(
  *     modifier = Modifier()
@@ -98,21 +95,6 @@ enum class ScrollSnapAlign(val value: String) {
 
     /** Snap to end of container */
     END("end")
-}
-
-/**
- * Adds a scroll event listener to the element.
- *
- * @param handler The JavaScript code to execute when scrolling occurs
- * @return A new [Modifier] with the onscroll attribute
- *
- * Example:
- * ```kotlin
- * Modifier().onScroll("console.log('scrolled', event.target.scrollTop)")
- * ```
- */
-fun Modifier.onScroll(handler: String): Modifier {
-    return attribute("onscroll", handler)
 }
 
 /**

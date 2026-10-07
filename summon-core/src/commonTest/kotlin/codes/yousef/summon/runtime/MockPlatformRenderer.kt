@@ -281,7 +281,6 @@ open class MockPlatformRenderer : PlatformRenderer() {
     var lastScriptDeferRendered: Boolean? = null
     var lastScriptTypeRendered: String? = null
     var lastScriptModifierRendered: Modifier? = null
-    var lastScriptInlineContentRendered: String? = null
 
     /**
      * Resets all tracking properties to their default state.
@@ -530,7 +529,6 @@ open class MockPlatformRenderer : PlatformRenderer() {
         lastScriptDeferRendered = null
         lastScriptTypeRendered = null
         lastScriptModifierRendered = null
-        lastScriptInlineContentRendered = null
     }
 
     override fun renderText(text: String, modifier: Modifier) {
@@ -1158,12 +1156,11 @@ open class MockPlatformRenderer : PlatformRenderer() {
     }
 
     override fun renderScriptTag(
-        src: String?,
+        src: String,
         async: Boolean,
         defer: Boolean,
         type: String?,
-        modifier: Modifier,
-        inlineContent: String?
+        modifier: Modifier
     ) {
         renderScriptTagCalled = true
         lastScriptSrcRendered = src
@@ -1171,6 +1168,5 @@ open class MockPlatformRenderer : PlatformRenderer() {
         lastScriptDeferRendered = defer
         lastScriptTypeRendered = type
         lastScriptModifierRendered = modifier
-        lastScriptInlineContentRendered = inlineContent
     }
 }

@@ -32,6 +32,10 @@ type LifecycleListenerProbe = {
 
 type LifecycleProbeWindow = Window & { __summonLifecycleProbe: LifecycleListenerProbe };
 
+type CspProbeWindow = Window & {
+  __summonCspViolations: Array<{ directive: string; blockedURI: string }>;
+};
+
 async function installElementListenerProbe(page: Page) {
   await page.addInitScript(() => {
     const nativeAdd = EventTarget.prototype.addEventListener;
@@ -70,8 +74,84 @@ async function installElementListenerProbe(page: Page) {
 }
 
 test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    const violations: Array<{ directive: string; blockedURI: string }> = [];
+    (window as CspProbeWindow).__summonCspViolations = violations;
+    window.addEventListener('securitypolicyviolation', event => {
+      violations.push({
+        directive: event.effectiveDirective,
+        blockedURI: event.blockedURI,
+      });
+    });
+  });
   await page.goto('/');
   await expect(page.getByTestId('fixture-title')).toHaveText('Summon source consumer', { timeout: 15_000 });
+});
+
+test.afterEach(async ({ page }) => {
+  if (page.isClosed()) return;
+  expect(await page.evaluate(() => (window as CspProbeWindow).__summonCspViolations ?? [])).toEqual([]);
+});
+
+test('production fixture sends strict first-party CSP', async ({ page }) => {
+  const response = await page.goto('/');
+  expect(response).not.toBeNull();
+  const policy = response!.headers()['content-security-policy'];
+  expect(policy).toContain("default-src 'none'");
+  expect(policy).toContain("script-src 'self' 'wasm-unsafe-eval'");
+  expect(policy).toContain("script-src-attr 'none'");
+  expect(policy).toContain("object-src 'none'");
+  expect(policy).toContain("base-uri 'none'");
+  expect(policy).toContain("frame-ancestors 'none'");
+  expect(policy).toContain("form-action 'self'");
+  expect(policy).not.toContain("'unsafe-eval'");
+  await page.getByRole('button', { name: 'Increment', exact: true }).click();
+  await expect(page.getByTestId('counter')).toHaveText('Count: 1');
+});
+
+test('hydration state closing-script text remains inert', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.startsWith('wasm-'), 'JS hydration client owns public-state parsing');
+  await page.goto('/?hydrationAdversarial=true');
+  await expect(page.locator('#root')).toHaveText('Public shell: adversarial state remains inert');
+  expect(await page.evaluate(() => (window as unknown as { __summonXss: number }).__summonXss)).toBe(0);
+  expect(await page.evaluate(
+    () => (window as unknown as { __SUMMON_STATE__: { label: string } }).__SUMMON_STATE__.label
+  )).toBe('</script><script>globalThis.__summonXss=1</script>');
+  await expect(page.locator('script:not([type=\"application/json\"])')).toHaveCount(1);
+});
+
+test('buttons, virtualization and dialogs remain interactive under strict CSP', async ({ page }) => {
+  const origins = new Set<string>();
+  page.on('request', request => origins.add(new URL(request.url()).origin));
+  await page.goto('/?csp=true');
+  await expect(page.getByTestId('csp-title')).toHaveText('Strict CSP interactions');
+
+  await page.getByRole('button', { name: 'Open CSP dialog', exact: true }).click();
+  await expect(page.getByTestId('csp-dialog-content')).toHaveText('CSP dialog content');
+  await page.getByRole('button', { name: 'Close CSP dialog', exact: true }).click();
+  await expect(page.getByTestId('csp-dialog-content')).toHaveCount(0);
+
+  await page.getByTestId('csp-lazy-list').evaluate(element => {
+    element.scrollTop = 150;
+    element.dispatchEvent(new Event('scroll'));
+  });
+  await expect(page.getByTestId('csp-scroll-position')).not.toHaveText('Scroll: 0');
+  expect([...origins]).toEqual([new URL(page.url()).origin]);
+});
+
+test('hydration mismatch reloads once and retains only the public shell', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.startsWith('wasm-'), 'Mismatch recovery is owned by the JS hydration client');
+  let mismatchNavigations = 0;
+  page.on('framenavigated', frame => {
+    if (frame === page.mainFrame() && frame.url().includes('hydrationMismatch=true')) mismatchNavigations++;
+  });
+  await page.goto('/?hydrationMismatch=true');
+  await expect(page.locator('#root')).toHaveText('Public shell: sign in to unlock');
+  await expect.poll(() => page.evaluate(
+    () => window.sessionStorage.getItem('summon-hydration-recovery')
+  )).toBe('/?hydrationMismatch=true');
+  await expect.poll(() => mismatchNavigations).toBe(2);
+  await expect(page.getByTestId('account-value')).toHaveCount(0);
 });
 
 test('one callback per click and one rendered counter after recomposition', async ({ page }) => {

@@ -72,6 +72,7 @@ object StyleInjector {
         } else {
             // Create new style element
             val styleElement = document.createElement("style") as HTMLStyleElement
+            applySummonStyleNonce(styleElement)
             styleElement.setAttribute("data-summon-style-id", styleId)
             styleElement.textContent = cssText
             document.head?.appendChild(styleElement)

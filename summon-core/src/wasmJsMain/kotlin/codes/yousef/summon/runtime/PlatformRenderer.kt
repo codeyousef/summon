@@ -12,6 +12,7 @@ import codes.yousef.summon.core.FlowContentCompat
 import codes.yousef.summon.core.createWasmFlowContentCompat
 import codes.yousef.summon.modifier.attribute
 import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.style
 import codes.yousef.summon.modifier.toStyleStringKebabCase
 import kotlinx.browser.window
 import kotlinx.coroutines.CancellationException
@@ -1063,6 +1064,7 @@ actual open class PlatformRenderer actual constructor() {
         modifier: Modifier,
         direction: String? = null,
         elementTag: String = "div",
+        setup: ((DOMElement) -> Unit)? = null,
         content: @Composable () -> Unit
     ) {
         val sid = modifier.attributes["data-summon-id"] ?: generateNextId(identityTag, modifier.attributes["key"])
@@ -1073,6 +1075,7 @@ actual open class PlatformRenderer actual constructor() {
             element.setAttribute("data-sid", sid)
             if (direction != null) applyFlexboxLayout(DOMProvider.getNativeElementId(element), direction)
             applyModifierToElement(element, modifier)
+            setup?.invoke(element)
             pushId(sid)
             try { withContainerContext(element, content) } finally { popId() }
             appendToCurrentContainer(element)
@@ -1102,11 +1105,61 @@ actual open class PlatformRenderer actual constructor() {
     }
 
     actual open fun renderLazyColumn(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
-        diagnostics.unsupported()
+        renderContainerDom("lazy-column", "summon-lazy-column", modifier) {
+            createWasmFlowContentCompat().content()
+        }
+    }
+
+    actual open fun renderLazyColumn(
+        modifier: Modifier,
+        onScroll: (scrollPosition: Float, containerSize: Float) -> Unit,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
+        renderContainerDom(
+            identityTag = "lazy-column",
+            className = "summon-lazy-column",
+            modifier = modifier,
+            setup = { element ->
+                val elementId = DOMProvider.getNativeElementId(element)
+                attachEventListenerWithHydration(element, "scroll") {
+                    onScroll(
+                        wasmGetElementScrollTop(elementId).toFloat(),
+                        wasmGetElementBoundingHeight(elementId).toFloat()
+                    )
+                }
+            }
+        ) {
+            createWasmFlowContentCompat().content()
+        }
     }
 
     actual open fun renderLazyRow(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
-        diagnostics.unsupported()
+        renderContainerDom("lazy-row", "summon-lazy-row", modifier) {
+            createWasmFlowContentCompat().content()
+        }
+    }
+
+    actual open fun renderLazyRow(
+        modifier: Modifier,
+        onScroll: (scrollPosition: Float, containerSize: Float) -> Unit,
+        content: @Composable FlowContentCompat.() -> Unit
+    ) {
+        renderContainerDom(
+            identityTag = "lazy-row",
+            className = "summon-lazy-row",
+            modifier = modifier,
+            setup = { element ->
+                val elementId = DOMProvider.getNativeElementId(element)
+                attachEventListenerWithHydration(element, "scroll") {
+                    onScroll(
+                        wasmGetElementScrollLeft(elementId).toFloat(),
+                        wasmGetElementBoundingWidth(elementId).toFloat()
+                    )
+                }
+            }
+        ) {
+            createWasmFlowContentCompat().content()
+        }
     }
 
     actual open fun renderResponsiveLayout(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
@@ -1165,6 +1218,7 @@ actual open class PlatformRenderer actual constructor() {
             val existingStyle = DOMProvider.document.getElementById(styleId)
             if (existingStyle == null) {
                 val style = DOMProvider.document.createElement("style")
+                applySummonStyleNonce(style)
                 style.setAttribute("id", styleId)
 
                 val css = """
@@ -1324,12 +1378,11 @@ actual open class PlatformRenderer actual constructor() {
     }
 
     actual open fun renderScriptTag(
-        src: String?,
+        src: String,
         async: Boolean,
         defer: Boolean,
         type: String?,
-        modifier: Modifier,
-        inlineContent: String?
+        modifier: Modifier
     ) {
         diagnostics.unsupported()
     }
@@ -1372,7 +1425,36 @@ actual open class PlatformRenderer actual constructor() {
         footer: @Composable (() -> Unit)?,
         content: @Composable () -> Unit
     ) {
-        diagnostics.unsupported()
+        val backdropModifier = Modifier()
+            .style("position", "fixed")
+            .style("inset", "0")
+            .style("display", "flex")
+            .style("align-items", "center")
+            .style("justify-content", "center")
+            .style("background", "rgba(0, 0, 0, 0.5)")
+            .style("z-index", "1000")
+        renderContainerDom("modal-backdrop", "summon-modal-backdrop", backdropModifier) {
+            val dialogModifier = modifier
+                .attribute("role", "dialog")
+                .attribute("aria-modal", "true")
+                .style("background", "white")
+                .style("max-width", "min(90vw, 640px)")
+                .style("max-height", "90vh")
+                .style("overflow", "auto")
+            renderContainerDom("modal-dialog", "summon-modal", dialogModifier) {
+                header?.invoke()
+                if (showCloseButton) {
+                    renderButton(
+                        onClick = onDismiss,
+                        modifier = Modifier().attribute("aria-label", "Close dialog")
+                    ) {
+                        renderText("Close", Modifier())
+                    }
+                }
+                content()
+                footer?.invoke()
+            }
+        }
     }
 
     actual open fun renderScreen(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {

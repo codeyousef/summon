@@ -22,6 +22,7 @@ fun SummonApp(content: @Composable () -> Unit) {
 private fun applyDefaultStyles() {
     // Create a style element for default styles
     val styleElement = document.createElement("style")
+    codes.yousef.summon.runtime.applySummonStyleNonce(styleElement)
     styleElement.textContent = """
         html, body {
             padding: 0;

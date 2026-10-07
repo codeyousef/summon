@@ -113,14 +113,13 @@ fun Counter() {
 The `ServerSideRenderUtils` class provides convenient methods for common SSR scenarios:
 
 ```kotlin
+import codes.yousef.summon.security.PublicHydrationState
 import codes.yousef.summon.ssr.ServerSideRenderUtils
 
 val html = ServerSideRenderUtils.renderPageToString(
     rootComposable = { MyApp() },
-    initialData = mapOf(
-        "userId" to "123",
-        "theme" to "dark",
-        "language" to "en"
+    publicState = PublicHydrationState(
+        """{"theme":"dark","language":"en"}"""
     ),
     includeHydrationScript = true
 )
@@ -131,6 +130,7 @@ val html = ServerSideRenderUtils.renderPageToString(
 For advanced scenarios, use `RenderContext` to configure the rendering environment:
 
 ```kotlin
+import codes.yousef.summon.security.PublicHydrationState
 import codes.yousef.summon.ssr.*
 
 val context = RenderContext(
@@ -138,7 +138,7 @@ val context = RenderContext(
     hydrationIdPrefix = "app-",
     metadata = mapOf("version" to "1.0.0"),
     debug = true,
-    initialState = mapOf("user" to userData)
+    publicState = PublicHydrationState("""{"theme":"dark"}""")
 )
 
 // Use with custom renderer methods
@@ -249,24 +249,19 @@ val html = renderer.renderComposableRootWithHydration(
 
 This ensures proper text direction and language attributes in the HTML document.
 
-### Hydration with Initial State
+### Hydration with Explicitly Public State
+
+Only bounded, ASCII JSON wrapped in `PublicHydrationState` can cross the SSR
+boundary. Never include vault data, session tokens, or private records.
 
 ```kotlin
-val initialState = mapOf(
-    "user" to mapOf(
-        "id" to "123",
-        "name" to "John Doe",
-        "preferences" to mapOf("theme" to "dark")
-    ),
-    "cart" to mapOf(
-        "items" to listOf("item1", "item2"),
-        "total" to 99.99
-    )
+val publicState = PublicHydrationState(
+    """{"locale":"en","theme":"dark"}"""
 )
 
 val html = ServerSideRenderUtils.renderPageToString(
     rootComposable = { ECommerceApp() },
-    initialData = initialState,
+    publicState = publicState,
     includeHydrationScript = true
 )
 ```

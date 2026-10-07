@@ -135,19 +135,11 @@ class StaticRenderer(
         """.trimIndent()
     }
 
-    /**
-     * Generate a script for the initial state
-     */
+    /** Emit explicitly public state as inert bounded JSON. */
     private fun generateInitialStateScript(context: RenderContext): String {
-        if (context.initialState.isEmpty()) return ""
-
-        val stateJson = SerializationUtils.serializeInitialState(context.initialState)
-
-        return """
-            <script>
-                window.__INITIAL_STATE__ = $stateJson;
-            </script>
-        """.trimIndent()
+        val publicState = context.publicState ?: return ""
+        val stateJson = scriptSafeJson(publicState.json)
+        return """<script id="summon-public-state" type="application/json">$stateJson</script>"""
     }
 }
 

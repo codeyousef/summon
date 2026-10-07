@@ -137,16 +137,10 @@ actual object BrowserCapabilities {
     // Feature detection implementations
 
     private fun hasAsyncAwait(): Boolean {
-        return js(
-            """
-            try {
-                eval('(async function() {})');
-                return true;
-            } catch (e) {
-                return false;
-            }
-        """
-        ) as Boolean
+        // The distributed bundle itself requires the framework's supported ES baseline.
+        // Promise availability is the runtime capability async functions depend on; avoid
+        // eval/new Function probes because strict CSP intentionally blocks dynamic code.
+        return js("typeof Promise !== 'undefined'") as Boolean
     }
 
     private fun hasFetchAPI(): Boolean {
@@ -548,29 +542,12 @@ object JSFeatureDetection {
     }
 
     private fun hasAsyncAwait(): Boolean {
-        return js(
-            """
-            try {
-                eval('(async function() {})');
-                return true;
-            } catch (e) {
-                return false;
-            }
-        """
-        ) as Boolean
+        return hasPromises() && hasModuleSupport()
     }
 
     private fun hasArrowFunctions(): Boolean {
-        return js(
-            """
-            try {
-                eval('(() => {})');
-                return true;
-            } catch (e) {
-                return false;
-            }
-        """
-        ) as Boolean
+        // Module-capable browsers satisfy the JavaScript syntax baseline used by the bundle.
+        return hasModuleSupport()
     }
 
     private fun hasPromises(): Boolean {

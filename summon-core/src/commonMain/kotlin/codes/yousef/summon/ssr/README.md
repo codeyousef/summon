@@ -46,14 +46,11 @@ val interactivePage = InteractivePage()
 // Generate HTML with hydration
 val html = DynamicRendering.renderWithHydration(interactivePage)
 
-// Generate HTML with hydration and initial state
-val initialState = mapOf(
-    "counter" to 0,
-    "darkMode" to false
-)
+// Only explicitly public, bounded ASCII JSON may cross the SSR boundary
+val publicState = PublicHydrationState("""{"theme":"dark"}""")
 val html = DynamicRendering.renderWithHydration(
     composable = interactivePage,
-    initialState = initialState
+    publicState = publicState
 )
 
 // Custom rendering with specific hydration support
@@ -263,10 +260,7 @@ val context = RenderContext(
         description = "Page description"
     ),
     
-    // Initial state for hydration
-    initialState = mapOf(
-        "counter" to 0,
-        "darkMode" to false
-    )
+    // Explicitly public state only; never embed vault or session data
+    publicState = PublicHydrationState("""{"theme":"dark"}""")
 )
 ``` 

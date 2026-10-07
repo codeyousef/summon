@@ -128,14 +128,15 @@ class SpringBootRenderer {
     ): ResponseEntity<String> {
         val renderer = PlatformRenderer()
         setPlatformRenderer(renderer)
-        val html = try {
-            renderer.renderComposableRootWithHydration(content)
+        val document = try {
+            renderer.renderPrivateShell(composable = content)
         } finally {
             clearPlatformRenderer()
         }
         return ResponseEntity.status(status)
+            .header("Content-Security-Policy", document.contentSecurityPolicy)
             .contentType(MediaType.TEXT_HTML)
-            .body(html)
+            .body(document.html)
     }
 
     /**
@@ -148,14 +149,15 @@ class SpringBootRenderer {
     ) {
         val renderer = PlatformRenderer()
         setPlatformRenderer(renderer)
-        val html = try {
-            renderer.renderComposableRootWithHydration(content)
+        val document = try {
+            renderer.renderPrivateShell(composable = content)
         } finally {
             clearPlatformRenderer()
         }
         response.status = status.value()
         response.contentType = MediaType.TEXT_HTML_VALUE
-        response.writer.use { it.write(html) }
+        response.setHeader("Content-Security-Policy", document.contentSecurityPolicy)
+        response.writer.use { it.write(document.html) }
     }
 
     /**
@@ -333,19 +335,22 @@ class SpringBootRenderer {
          * Example usage in a controller:
          * ```kotlin
          * @PostMapping("/summon/callback/{callbackId}")
-         * fun callback(@PathVariable callbackId: String): ResponseEntity<String> {
-         *     return SpringBootRenderer.handleCallback(callbackId)
+         * fun callback(
+         *     @PathVariable callbackId: String,
+         *     @RequestHeader("X-Summon-Callback-Context") callbackContext: String?
+         * ): ResponseEntity<String> {
+         *     return SpringBootRenderer.handleCallback(callbackId, callbackContext)
          * }
          * ```
          */
-        fun handleCallback(callbackId: String?): ResponseEntity<String> {
-            if (callbackId.isNullOrBlank()) {
+        fun handleCallback(callbackId: String?, callbackContext: String?): ResponseEntity<String> {
+            if (callbackId.isNullOrBlank() || callbackContext.isNullOrBlank()) {
                 return ResponseEntity.badRequest()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body("""{"action":"error","status":"missing-id"}""")
+                    .body("""{"action":"error","status":"missing-capability"}""")
             }
 
-            val executed = CallbackRegistry.executeCallback(callbackId)
+            val executed = CallbackRegistry.executeRemoteCallback(callbackId, callbackContext)
             return if (executed) {
                 ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)

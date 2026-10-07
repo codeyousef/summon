@@ -24,6 +24,7 @@ actual object CssInjector {
             if (styleElement == null) {
                 // Create new style element
                 styleElement = document.createElement("style") as HTMLStyleElement
+                codes.yousef.summon.runtime.applySummonStyleNonce(styleElement)
                 styleElement.id = styleId
                 styleElement.setAttribute("data-summon-css", id)
                 document.head?.appendChild(styleElement)

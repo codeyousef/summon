@@ -573,6 +573,7 @@ actual open class PlatformRenderer {
                     "${cssPropertyName(it.key)}: ${it.value};"
                 }
                 val styleElement = document.createElement("style")
+                applySummonStyleNonce(styleElement)
                 styleElement.textContent = """
                     [data-summon-id="$hostId"]${pseudo.element.selector} {
                         content: ${pseudo.content};
@@ -830,8 +831,9 @@ actual open class PlatformRenderer {
         val payloadElement = document.createElement("script")
         payloadElement.setAttribute("type", "application/json")
         payloadElement.setAttribute("data-summon-hydration", "payload")
-        payloadElement.textContent =
-            js("JSON.stringify({ callbacks: [], renderer: 'js', timestamp: Date.now() })") as String
+        payloadElement.textContent = js(
+            "JSON.stringify({ version: 1, callbacks: [], callbackContext: '', timestamp: Date.now(), renderer: 'js', hydrationMarkers: true, seoCompatible: true })"
+        ) as String
         rootElement.appendChild(payloadElement)
 
         return rootElement.outerHTML
@@ -1660,6 +1662,26 @@ actual open class PlatformRenderer {
         }
     }
 
+    actual open fun renderLazyColumn(
+        modifier: Modifier,
+        onScroll: (scrollPosition: Float, containerSize: Float) -> Unit,
+        content: @Composable (FlowContentCompat.() -> Unit)
+    ) {
+        val lazyColumnModifier = modifier
+            .style("display", "flex")
+            .style("flexDirection", "column")
+            .style("overflowY", "auto")
+
+        createElement("div", lazyColumnModifier, setup = { element ->
+            registerEventListener(element, "scroll") {
+                val scrollElement = element as HTMLElement
+                onScroll(scrollElement.scrollTop.toFloat(), scrollElement.clientHeight.toFloat())
+            }
+        }) {
+            content(createFlowContent("div"))
+        }
+    }
+
     actual open fun renderLazyRow(
         modifier: Modifier,
         content: @Composable (FlowContentCompat.() -> Unit)
@@ -1676,6 +1698,27 @@ actual open class PlatformRenderer {
         }
     }
 
+    actual open fun renderLazyRow(
+        modifier: Modifier,
+        onScroll: (scrollPosition: Float, containerSize: Float) -> Unit,
+        content: @Composable (FlowContentCompat.() -> Unit)
+    ) {
+        val lazyRowModifier = modifier
+            .style("display", "flex")
+            .style("flexDirection", "row")
+            .style("overflowX", "auto")
+            .style("whiteSpace", "nowrap")
+
+        createElement("div", lazyRowModifier, setup = { element ->
+            registerEventListener(element, "scroll") {
+                val scrollElement = element as HTMLElement
+                onScroll(scrollElement.scrollLeft.toFloat(), scrollElement.clientWidth.toFloat())
+            }
+        }) {
+            content(createFlowContent("div"))
+        }
+    }
+
     actual open fun renderResponsiveLayout(
         modifier: Modifier,
         content: @Composable (FlowContentCompat.() -> Unit)
@@ -1684,6 +1727,7 @@ actual open class PlatformRenderer {
             // SU-05 owns the eventual strict-CSP stylesheet replacement.
             if (document.getElementById("summon-responsive-styles") == null) {
                 val style = document.createElement("style")
+                applySummonStyleNonce(style)
                 style.id = "summon-responsive-styles"
                 style.textContent = """
                     [data-screen-size="SMALL"] .small-content { display: block !important; }
@@ -1747,24 +1791,18 @@ actual open class PlatformRenderer {
     }
 
     actual open fun renderScriptTag(
-        src: String?,
+        src: String,
         async: Boolean,
         defer: Boolean,
         type: String?,
-        modifier: Modifier,
-        inlineContent: String?
+        modifier: Modifier
     ) {
         createElement("script", modifier, { element ->
             val script = element as? HTMLScriptElement
             type?.let { script?.type = it }
-            if (src != null) {
-                script?.src = src
-            }
+            script?.src = src
             script?.async = async
             script?.defer = defer
-            if (!inlineContent.isNullOrEmpty()) {
-                script?.textContent = inlineContent
-            }
         })
     }
 
@@ -2154,6 +2192,7 @@ actual open class PlatformRenderer {
 
     actual open fun renderGlobalStyle(css: TrustedCss) {
         val style = kotlinx.browser.document.createElement("style")
+        applySummonStyleNonce(style)
         style.textContent = css.value
         kotlinx.browser.document.head?.appendChild(style)
     }
@@ -2429,6 +2468,7 @@ actual open class PlatformRenderer {
         if (document.getElementById("summon-loading-animations") != null) return
 
         val style = document.createElement("style") as HTMLStyleElement
+        applySummonStyleNonce(style)
         style.id = "summon-loading-animations"
         style.textContent = """
             @keyframes summon-spin {
@@ -2568,6 +2608,7 @@ actual open class PlatformRenderer {
         if (document.getElementById("summon-toast-animations") != null) return
 
         val style = document.createElement("style") as HTMLStyleElement
+        applySummonStyleNonce(style)
         style.id = "summon-toast-animations"
         style.textContent = """
             @keyframes summon-toast-slide-in {
