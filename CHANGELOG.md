@@ -186,6 +186,9 @@ All notable changes to this project will be documented in this file.
   subscription per rendered node across recomposition. Conditional removal, replacement,
   failed or canceled mounting, and root disposal detach the subscription; retired callbacks
   are inert and cannot mutate detached DOM.
+- **Regex-free browser style normalization** - Shared CSS and route-name conversion no longer
+  constructs regular expressions at render time, preventing WebKit WASM startup failures under
+  strict CSP while preserving existing camel-case and already-kebab-case output.
 - **Strict-CSP browser interaction** - JS and WASM lazy lists install owned typed scroll
   listeners, dialogs remain interactive, invalid hydration reloads once into an inert public
   shell, and valid adversarial public-state strings remain data rather than executable markup.

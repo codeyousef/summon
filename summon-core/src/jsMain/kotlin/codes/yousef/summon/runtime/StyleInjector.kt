@@ -1,5 +1,6 @@
 package codes.yousef.summon.runtime
 
+import codes.yousef.summon.core.camelToKebabCase
 import kotlinx.browser.document
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLStyleElement
@@ -102,11 +103,7 @@ object StyleInjector {
     /**
      * Converts camelCase to kebab-case for CSS property names
      */
-    private fun toKebabCase(str: String): String {
-        return str.replace(Regex("([a-z])([A-Z])")) { matchResult ->
-            "${matchResult.groupValues[1]}-${matchResult.groupValues[2].lowercase()}"
-        }.lowercase()
-    }
+    private fun toKebabCase(str: String): String = str.camelToKebabCase()
 
     /**
      * Injects CSS for scoped style selectors (descendant, child, sibling combinators)

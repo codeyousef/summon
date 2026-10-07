@@ -2,6 +2,7 @@ package codes.yousef.summon.components.styles
 
 import codes.yousef.summon.annotation.Composable
 import codes.yousef.summon.components.foundation.TrustedCss
+import codes.yousef.summon.core.camelToKebabCase
 import codes.yousef.summon.modifier.AnimationDirection
 import codes.yousef.summon.modifier.AnimationDuration
 import codes.yousef.summon.modifier.AnimationFillMode
@@ -622,4 +623,4 @@ private fun String.normalizedCssNumber(): String =
     if (matches(Regex("-?[0-9]+\\.0"))) dropLast(2) else this
 
 private fun String.toKebabCase(): String =
-    if ('-' in this) this else replace(Regex("([a-z])([A-Z])"), "$1-$2").lowercase()
+    if ('-' in this) this else camelToKebabCase()

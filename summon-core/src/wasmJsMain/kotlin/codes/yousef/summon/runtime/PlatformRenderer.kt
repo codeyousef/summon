@@ -10,6 +10,7 @@ import codes.yousef.summon.components.input.FileInfo
 import codes.yousef.summon.components.navigation.Tab
 import codes.yousef.summon.core.FlowContentCompat
 import codes.yousef.summon.core.createWasmFlowContentCompat
+import codes.yousef.summon.core.camelToKebabCase
 import codes.yousef.summon.modifier.attribute
 import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.modifier.MediaStyleDefinition
@@ -2434,7 +2435,7 @@ actual open class PlatformRenderer actual constructor() {
                     if (definition is MediaStyleDefinition && window.matchMedia(definition.query.toString()).matches) {
                         definition.styles.forEach { (property, value) ->
                             if (isNotEmpty() && last() != ';') append(';')
-                            append(property.replace(Regex("([a-z])([A-Z])"), "$1-$2").lowercase())
+                            append(property.camelToKebabCase())
                             append(':')
                             append(value)
                         }

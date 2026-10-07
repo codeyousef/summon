@@ -51,6 +51,7 @@
 package codes.yousef.summon.modifier
 
 import codes.yousef.summon.core.splitCompat
+import codes.yousef.summon.core.camelToKebabCase
 import kotlin.js.JsName
 
 /**
@@ -726,9 +727,7 @@ fun Modifier.toStyleString(): String {
 fun Modifier.toStyleStringKebabCase(): String {
     val styles = (this as? ModifierImpl)?.styles ?: return ""
     return styles.entries.joinToString(separator = ";") { (key, value) ->
-        val kebabKey = key.replace(Regex("([a-z])([A-Z])")) {
-            "${it.groupValues[1]}-${it.groupValues[2].lowercase()}"
-        }.lowercase()
+        val kebabKey = key.camelToKebabCase()
         "$kebabKey:$value"
     }.ifEmpty { "" }
 }

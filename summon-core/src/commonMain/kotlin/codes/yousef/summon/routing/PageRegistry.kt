@@ -1,5 +1,6 @@
 package codes.yousef.summon.routing
 
+import codes.yousef.summon.core.camelToKebabCase
 import codes.yousef.summon.runtime.Composable
 
 
@@ -100,9 +101,7 @@ class DefaultPageRegistry : PageRegistry {
         val withoutExtension = path.replace(Regex("\\.\\w+(\\.\\w+)*$"), "")
 
         // Convert to lowercase path with hyphens
-        val kebabCase = withoutExtension
-            .replace(Regex("([a-z])([A-Z])"), "$1-$2")
-            .lowercase()
+        val kebabCase = withoutExtension.camelToKebabCase()
 
         // Convert special file names to routes
         val routePath = when {

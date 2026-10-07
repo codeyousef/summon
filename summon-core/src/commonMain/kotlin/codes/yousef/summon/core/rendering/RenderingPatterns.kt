@@ -1,6 +1,7 @@
 package codes.yousef.summon.core.rendering
 
 import codes.yousef.summon.core.splitCompat
+import codes.yousef.summon.core.camelToKebabCase
 
 import codes.yousef.summon.modifier.*
 
@@ -58,9 +59,7 @@ object RenderingUtils {
      * Converts a CSS property name to kebab-case (for HTML style attributes).
      * Examples: backgroundColor -> background-color, fontSize -> font-size
      */
-    fun toKebabCase(camelCase: String): String {
-        return camelCase.replace(Regex("([a-z])([A-Z])"), "$1-$2").lowercase()
-    }
+    fun toKebabCase(camelCase: String): String = camelCase.camelToKebabCase()
 
     /**
      * Converts a CSS property name to camelCase (for JavaScript DOM style properties).

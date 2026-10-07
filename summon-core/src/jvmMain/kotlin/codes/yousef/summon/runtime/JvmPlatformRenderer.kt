@@ -12,6 +12,7 @@ import codes.yousef.summon.components.input.FileInfo
 import codes.yousef.summon.components.navigation.Tab
 import codes.yousef.summon.core.FlowContentCompat
 import codes.yousef.summon.core.asFlowContentCompat
+import codes.yousef.summon.core.camelToKebabCase
 import codes.yousef.summon.hydration.SummonTagConsumer
 import codes.yousef.summon.modifier.ConditionalStyleDefinition
 import codes.yousef.summon.modifier.ConditionalStyleState
@@ -57,7 +58,7 @@ actual open class PlatformRenderer {
         if (key.contains('-')) {
             key
         } else {
-            key.replace(Regex("([a-z])([A-Z])"), "$1-$2").lowercase()
+            key.camelToKebabCase()
         }
 
     private fun beginConditionalStyleRender() {
