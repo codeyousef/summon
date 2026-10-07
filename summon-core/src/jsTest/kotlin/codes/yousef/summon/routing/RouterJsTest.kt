@@ -2,6 +2,8 @@ package codes.yousef.summon.routing
 
 import codes.yousef.summon.runtime.Composable
 import codes.yousef.summon.util.runComposableTest
+import kotlinx.browser.window
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -32,6 +34,10 @@ class RouterJsTest {
         }
     }
 
+    @BeforeTest
+    fun resetBrowserPath() {
+        window.history.replaceState(null, "", "/")
+    }
     // --- Test Cases ---
 
     @Test

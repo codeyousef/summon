@@ -75,6 +75,10 @@ All notable changes to this project will be documented in this file.
   now propagate each request's renderer and callback namespace across dispatcher hops, restore
   thread state on failure or cancellation, and revoke abandoned callbacks. Callback IDs are
   process-unique and both per-render and process-wide callback storage are bounded.
+- **Auditable browser qualification** - Kotlin JS/WASM browser tasks now fail on missing browser
+  dependencies instead of succeeding while disabled. The pinned source-consumer matrix supports
+  separate production and development profiles and records per-project JSON results, exact browser
+  versions, source/image/lock identity, logs, traces and container cgroup high-water metrics.
 
 ### Changed
 

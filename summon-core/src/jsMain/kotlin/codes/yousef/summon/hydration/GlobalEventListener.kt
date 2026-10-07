@@ -87,10 +87,10 @@ object GlobalEventListener {
                 if (enableLogging) {
                     console.log("[Summon JS] Found data-action on ${current.tagName}: $actionJson")
                 }
-                // Dispatch immediately - data-action is client-side only, no hydration needed
-                ClientDispatcher.dispatch(actionJson)
+                // Cancel native navigation before dispatching an action that may replace the document.
                 event.preventDefault()
                 event.stopPropagation()
+                ClientDispatcher.dispatch(actionJson)
                 return
             }
         }
@@ -178,8 +178,9 @@ object GlobalEventListener {
 
         val actionJson = el.getAttribute("data-action")
         if (actionJson != null) {
-            ClientDispatcher.dispatch(actionJson)
             event.preventDefault()
+            event.stopPropagation()
+            ClientDispatcher.dispatch(actionJson)
         }
     }
 }

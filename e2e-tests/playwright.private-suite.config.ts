@@ -1,11 +1,18 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const externalURL = process.env.BASE_URL;
+const buildProfile = process.env.SUMMON_BROWSER_PROFILE ?? 'production';
+if (buildProfile !== 'production' && buildProfile !== 'development') {
+  throw new Error(`Unsupported SUMMON_BROWSER_PROFILE: ${buildProfile}`);
+}
+const executableDirectory = buildProfile === 'production' ? 'productionExecutable' : 'developmentExecutable';
 const browsers = [
   { name: 'chromium', device: devices['Desktop Chrome'] },
   { name: 'firefox', device: devices['Desktop Firefox'] },
-  // Automated WebKit coverage; real Safari remains a separate release check.
-  { name: 'webkit', device: devices['Desktop Safari'] },
+  // Automated WebKit qualifies production output only; real Safari remains a separate release check.
+  ...(buildProfile === 'production'
+    ? [{ name: 'webkit', device: devices['Desktop Safari'] }]
+    : []),
 ];
 const targets = externalURL
   ? [{ name: '', url: externalURL }]
@@ -22,11 +29,11 @@ export default defineConfig({
   use: { headless: true, trace: 'retain-on-failure' },
   webServer: externalURL ? undefined : [
     {
-      command: 'python3 fixtures/private-suite/spa_server.py --port 8877 --directory fixtures/private-suite/build/dist/js/productionExecutable',
+      command: `python3 fixtures/private-suite/spa_server.py --port 8877 --directory fixtures/private-suite/build/dist/js/${executableDirectory}`,
       url: 'http://127.0.0.1:8877', reuseExistingServer: false, timeout: 10_000,
     },
     {
-      command: 'python3 fixtures/private-suite/spa_server.py --port 8878 --directory fixtures/private-suite/build/dist/wasmJs/productionExecutable',
+      command: `python3 fixtures/private-suite/spa_server.py --port 8878 --directory fixtures/private-suite/build/dist/wasmJs/${executableDirectory}`,
       url: 'http://127.0.0.1:8878', reuseExistingServer: false, timeout: 10_000,
     },
   ],

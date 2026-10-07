@@ -81,10 +81,6 @@ kotlin {
                 // Production output configuration
                 output?.libraryTarget = "umd"
             }
-            testTask {
-                // Skip browser tests in CI/headless environments where browsers aren't available
-                enabled = false
-            }
         }
         nodejs {
             testTask {
@@ -122,10 +118,6 @@ kotlin {
 
                 // Ensure stable output filename for hydration WASM JS wrapper
                 outputFileName = "summon-hydration.wasm.js"
-            }
-            testTask {
-                // Skip browser tests in CI/headless environments where browsers aren't available
-                enabled = false
             }
         }
         nodejs {

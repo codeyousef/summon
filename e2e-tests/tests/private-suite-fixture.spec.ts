@@ -2,6 +2,8 @@ import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
+const buildProfile = process.env.SUMMON_BROWSER_PROFILE ?? 'production';
+
 type ResizeProbe = {
   adds: number;
   removes: number;
@@ -94,10 +96,11 @@ test.afterEach(async ({ page }) => {
   expect(await page.evaluate(() => (window as CspProbeWindow).__summonCspViolations ?? [])).toEqual([]);
 });
 
-test('production fixture sends strict first-party CSP', async ({ page }) => {
+test('fixture sends profile-qualified CSP', async ({ page }) => {
   const response = await page.goto('/');
   expect(response).not.toBeNull();
   const policy = response!.headers()['content-security-policy'];
+  expect(response!.headers()['x-summon-build-profile']).toBe(buildProfile);
   expect(policy).toContain("default-src 'none'");
   expect(policy).toContain("script-src 'self' 'wasm-unsafe-eval'");
   expect(policy).toContain("script-src-attr 'none'");
@@ -105,7 +108,11 @@ test('production fixture sends strict first-party CSP', async ({ page }) => {
   expect(policy).toContain("base-uri 'none'");
   expect(policy).toContain("frame-ancestors 'none'");
   expect(policy).toContain("form-action 'self'");
-  expect(policy).not.toContain("'unsafe-eval'");
+  if (buildProfile === 'development') {
+    expect(policy).toContain("'unsafe-eval'");
+  } else {
+    expect(policy).not.toContain("'unsafe-eval'");
+  }
   await page.getByRole('button', { name: 'Increment', exact: true }).click();
   await expect(page.getByTestId('counter')).toHaveText('Count: 1');
 });
@@ -1030,36 +1037,37 @@ test('source consumer mounts and navigates the real browser router', async ({ pa
   await expect(page.getByTestId('route-value')).toHaveText('Fixture route');
 });
 
-test('private route families deep-link through the public shell and remain locked until authorized', async ({ page }) => {
-  const routes: Array<[string, string]> = [
-    ['/mail', '/mail'],
-    ['/mail/thread/opaque-1', '/mail/thread/:id:opaque-1'],
-    ['/mail/compose', '/mail/compose'],
-    ['/calendar', '/calendar'],
-    ['/calendar/event/event-1', '/calendar/event/:id:event-1'],
-    ['/aliases', '/aliases'],
-    ['/aliases/alias-1', '/aliases/:id:alias-1'],
-    ['/security', '/security'],
-    ['/security/devices', '/security/devices'],
-    ['/security/recovery', '/security/recovery'],
-    ['/drive/folder/object', '/drive/*'],
-    ['/attention', '/attention'],
-    ['/connectors/source', '/connectors/*'],
-    ['/feed', '/feed'],
-    ['/people/opaque-handle', '/people/:handle:opaque-handle'],
-    ['/communities/community-1', '/communities/:id:community-1'],
-  ];
-  for (const [path, rendered] of routes) {
+const privateRouteCases: Array<[string, string]> = [
+  ['/mail', '/mail'],
+  ['/mail/thread/opaque-1', '/mail/thread/:id:opaque-1'],
+  ['/mail/compose', '/mail/compose'],
+  ['/calendar', '/calendar'],
+  ['/calendar/event/event-1', '/calendar/event/:id:event-1'],
+  ['/aliases', '/aliases'],
+  ['/aliases/alias-1', '/aliases/:id:alias-1'],
+  ['/security', '/security'],
+  ['/security/devices', '/security/devices'],
+  ['/security/recovery', '/security/recovery'],
+  ['/drive/folder/object', '/drive/*'],
+  ['/attention', '/attention'],
+  ['/connectors/source', '/connectors/*'],
+  ['/feed', '/feed'],
+  ['/people/opaque-handle', '/people/:handle:opaque-handle'],
+  ['/communities/community-1', '/communities/:id:community-1'],
+];
+
+for (const [path, rendered] of privateRouteCases) {
+  test(`private route deep link ${path} remains locked until authorized`, async ({ page }) => {
     await page.goto(`${path}?privateRouting=true`);
-    await expect(page).toHaveTitle('Summon source fixture');
-    await expect(page.getByTestId('route-state')).toHaveText('locked');
+    await expect(page).toHaveTitle('Summon source fixture', { timeout: 15_000 });
+    await expect(page.getByTestId('route-state')).toHaveText('locked', { timeout: 15_000 });
     await expect(page.getByTestId('route-effects')).toHaveText('0');
     await expect(page.getByTestId('route-mounts')).toHaveText('0');
     await page.getByRole('button', { name: 'Unlock routes', exact: true }).click();
     await expect(page.getByTestId('route-state')).toHaveText(rendered);
     await expect(page.getByTestId('route-effects')).toHaveText('1');
-  }
-});
+  });
+}
 
 test('guards, history, malformed paths and encrypted draft decisions preserve private teardown', async ({ page }) => {
   await page.goto('/mail?privateRouting=true');

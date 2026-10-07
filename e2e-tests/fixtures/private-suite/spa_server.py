@@ -185,9 +185,13 @@ class ShellFallbackHandler(http.server.SimpleHTTPRequestHandler):
         nonce_meta = f'<meta name="summon-style-nonce" content="{nonce}">'
         html = html.replace("<head>", f"<head>{nonce_meta}", 1)
         payload = html.encode("utf-8")
+        profile = os.environ.get("SUMMON_BROWSER_PROFILE", "production")
+        script_policy = "script-src 'self' 'wasm-unsafe-eval'"
+        if profile == "development":
+            script_policy += " 'unsafe-eval'"
         policy = "; ".join([
             "default-src 'none'",
-            "script-src 'self' 'wasm-unsafe-eval'",
+            script_policy,
             "script-src-elem 'self'",
             "script-src-attr 'none'",
             f"style-src 'self' 'nonce-{nonce}'",
@@ -208,6 +212,7 @@ class ShellFallbackHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(payload)))
         self.send_header("Content-Security-Policy", policy)
+        self.send_header("X-Summon-Build-Profile", profile)
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Referrer-Policy", "no-referrer")

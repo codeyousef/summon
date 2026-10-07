@@ -36,6 +36,36 @@ This runs all configured projects with their test suites:
 npm run test:all
 ```
 
+### Private-suite browser qualification
+
+Build the standalone source consumer before running the matrix:
+
+```bash
+./gradlew -p fixtures/private-suite jsBrowserDistribution wasmJsBrowserDistribution
+./run-private-suite-container.sh
+```
+
+The container run is pinned to Playwright 1.56.1 and an image digest, uses no
+container network, one worker, no retries, and independent JS/WASM projects for
+Chromium and Firefox. Production also runs automated WebKit; WebKit is not evidence of physical Safari.
+The command fails if the image or browser binaries are unavailable; it does not
+convert missing dependencies into a skipped success.
+
+Development and production bundles are separate evidence levels. Build the
+development executables, then select that profile explicitly:
+
+```bash
+./gradlew -p fixtures/private-suite jsBrowserDevelopmentExecutableDistribution wasmJsBrowserDevelopmentExecutableDistribution
+SUMMON_BROWSER_PROFILE=development ./run-private-suite-container.sh
+```
+
+Each run writes a source/image/lock manifest, browser versions, Playwright JSON,
+container cgroup high-water metrics, the line log, and failure traces under
+`.gradle/private-suite/browser-artifacts/matrix[-development]/`. These artifacts
+contain synthetic fixture data only. Kotlin/JS and Kotlin/Wasm browser test tasks
+are also runnable; absent local browser dependencies fail rather than reporting a
+disabled task as successful. Node tests remain the fast simulated-DOM tier.
+
 ## Test Suites
 
 | Test File                | Description                                             |
@@ -54,6 +84,8 @@ npm run test:all
 | `npm run test:smoke` | Run smoke tests (requires server on port 8080) |
 | `npm run test:all` | Automated runner that starts servers and runs tests |
 | `npm run test:report` | Open Playwright HTML report |
+| `npm run test:private-suite:container` | Run the pinned production JS/WASM browser matrix |
+| `npm run test:private-suite:development` | Run the pinned development JS/WASM browser matrix |
 | `npm run install:browsers` | Install Playwright browsers |
 
 ## Test Configuration
