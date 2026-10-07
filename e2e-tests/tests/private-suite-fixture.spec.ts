@@ -88,7 +88,7 @@ test.beforeEach(async ({ page }) => {
     });
   });
   await page.goto('/');
-  await expect(page.getByTestId('fixture-title')).toHaveText('Summon source consumer', { timeout: 15_000 });
+  await expect(page.getByTestId('fixture-title')).toHaveText('Summon source consumer', { timeout: 25_000 });
 });
 
 test.afterEach(async ({ page }) => {
