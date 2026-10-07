@@ -41,13 +41,22 @@ private fun getElement(elementId: String): Node? {
     if (elementStore.containsKey(elementId)) {
         return elementStore[elementId]
     }
-    // Try to find element in DOM
-    val element = document.getElementById(elementId)
-    if (element != null) {
-        elementStore[elementId] = element
-        return element
+    // Try the public DOM id, then the renderer's stable composition id.
+    val element = document.getElementById(elementId) ?: run {
+        val candidates = document.querySelectorAll("[data-sid]")
+        var match: Element? = null
+        for (index in 0 until candidates.length) {
+            val candidate = candidates.item(index) as? Element ?: continue
+            if (candidate.getAttribute("data-sid") == elementId) {
+                match = candidate
+                break
+            }
+        }
+        match
     }
-    return null
+    if (element == null) return null
+    elementStore[elementId] = element
+    return element
 }
 
 fun wasmClearElementStore() {
@@ -458,12 +467,41 @@ fun wasmGetElementChildren(elementId: String): String {
             val childIds = mutableListOf<String>()
             val children = node.children
             for (i in 0 until children.length) {
-                children.item(i)?.let { childIds.add(storeElement(it)) }
+                children.item(i)?.let { child ->
+                    childIds.add(child.getAttribute("data-sid")?.takeIf { it.isNotEmpty() } ?: storeElement(child))
+                }
             }
             childIds.joinToString(",")
         } else {
             ""
         }
+    } catch (e: Throwable) {
+        if (e is CancellationException) throw e
+        domDiagnostics.failure()
+        ""
+    }
+}
+
+fun wasmGetElementSubtreeIds(elementId: String): String {
+    return try {
+        val root = getElement(elementId) as? Element ?: return ""
+        val ids = mutableListOf<String>()
+        fun collectAliases(node: Node) {
+            var found = false
+            for ((storedId, storedNode) in elementStore) {
+                if (storedNode === node) {
+                    ids += storedId
+                    found = true
+                }
+            }
+            if (!found) ids += storeElement(node)
+        }
+        collectAliases(root)
+        val descendants = root.querySelectorAll("*")
+        for (index in 0 until descendants.length) {
+            descendants.item(index)?.let(::collectAliases)
+        }
+        ids.distinct().joinToString(",")
     } catch (e: Throwable) {
         if (e is CancellationException) throw e
         domDiagnostics.failure()
@@ -1510,7 +1548,11 @@ fun wasmGetActiveElementId(): String? {
 
 fun wasmGetInputSelectionStart(elementId: String): Int? {
     return try {
-        (getElement(elementId) as? HTMLInputElement)?.selectionStart
+        when (val element = getElement(elementId)) {
+            is HTMLInputElement -> element.selectionStart
+            is HTMLTextAreaElement -> element.selectionStart
+            else -> null
+        }
     } catch (e: Throwable) {
         if (e is CancellationException) throw e
         null
@@ -1519,20 +1561,34 @@ fun wasmGetInputSelectionStart(elementId: String): Int? {
 
 fun wasmGetInputSelectionEnd(elementId: String): Int? {
     return try {
-        (getElement(elementId) as? HTMLInputElement)?.selectionEnd
+        when (val element = getElement(elementId)) {
+            is HTMLInputElement -> element.selectionEnd
+            is HTMLTextAreaElement -> element.selectionEnd
+            else -> null
+        }
     } catch (e: Throwable) {
         if (e is CancellationException) throw e
         null
     }
 }
 
+fun wasmHasMeaningfulFocus(): Boolean {
+    val active = document.activeElement
+    return active != null && active !== document.body
+}
+
 fun wasmRestoreElementFocus(elementId: String, selectionStart: Int?, selectionEnd: Int?) {
     try {
         val node = getElement(elementId)
         if (node is HTMLElement && document.contains(node)) {
-            node.focus()
-            if (node is HTMLInputElement && selectionStart != null && selectionEnd != null) {
-                node.setSelectionRange(selectionStart, selectionEnd)
+            if (wasmGetActiveElementId() != elementId) node.focus()
+            when (node) {
+                is HTMLInputElement -> if (selectionStart != null && selectionEnd != null) {
+                    node.setSelectionRange(selectionStart, selectionEnd)
+                }
+                is HTMLTextAreaElement -> if (selectionStart != null && selectionEnd != null) {
+                    node.setSelectionRange(selectionStart, selectionEnd)
+                }
             }
         }
     } catch (e: Throwable) {

@@ -65,6 +65,20 @@ actual open class PlatformRenderer {
     private val listenerRegistry = mutableMapOf<Element, MutableMap<String, EventSubscription>>()
     private val globalListenerRegistry = mutableMapOf<Element, MutableMap<String, GlobalEventSubscription>>()
     private var handlerCounter = 0
+    private val composingInputs = mutableSetOf<Element>()
+    private val suppressNextCompositionInput = mutableSetOf<Element>()
+    private data class ModalBackgroundState(val ariaHidden: String?, val inert: Boolean)
+    private data class ModalInvoker(
+        val element: HTMLElement?,
+        val summonId: String?,
+        val publicId: String?
+    )
+    private val modalOverlays = mutableListOf<HTMLElement>()
+    private val modalInvokers = mutableMapOf<HTMLElement, ModalInvoker>()
+    private val modalBackgroundStates = mutableMapOf<HTMLElement, ModalBackgroundState>()
+    private val modalCleanupRegistry = mutableMapOf<Element, () -> Unit>()
+    private data class ToastTimer(val timerId: Int, val duration: Long, var onDismiss: () -> Unit)
+    private val toastTimers = mutableMapOf<Element, ToastTimer>()
     private var focusedElementBeforeRecomposition: HTMLElement? = null
     private var selectionStartBeforeRecomposition: Int? = null
     private var selectionEndBeforeRecomposition: Int? = null
@@ -276,8 +290,16 @@ actual open class PlatformRenderer {
 
             // Preserve focus state for input elements
             val wasFocused = cached == document.activeElement
-            val selectionStart = if (cached is HTMLInputElement) cached.selectionStart else null
-            val selectionEnd = if (cached is HTMLInputElement) cached.selectionEnd else null
+            val selectionStart = when (cached) {
+                is HTMLInputElement -> cached.selectionStart
+                is HTMLTextAreaElement -> cached.selectionStart
+                else -> null
+            }
+            val selectionEnd = when (cached) {
+                is HTMLInputElement -> cached.selectionEnd
+                is HTMLTextAreaElement -> cached.selectionEnd
+                else -> null
+            }
 
             // Apply new modifiers (this will update styles and attributes)
             applyModifier(cached, modifier)
@@ -285,8 +307,13 @@ actual open class PlatformRenderer {
             // Restore focus and selection if this element had focus
             if (wasFocused) {
                 (cached as? HTMLElement)?.focus()
-                if (cached is HTMLInputElement && selectionStart != null && selectionEnd != null) {
-                    cached.setSelectionRange(selectionStart, selectionEnd)
+                when (cached) {
+                    is HTMLInputElement -> if (selectionStart != null && selectionEnd != null) {
+                        cached.setSelectionRange(selectionStart, selectionEnd)
+                    }
+                    is HTMLTextAreaElement -> if (selectionStart != null && selectionEnd != null) {
+                        cached.setSelectionRange(selectionStart, selectionEnd)
+                    }
                 }
             }
 
@@ -399,7 +426,132 @@ actual open class PlatformRenderer {
         }
     }
 
+    private fun modalFocusableElements(dialog: HTMLElement): List<HTMLElement> {
+        val selector = "a[href],button,input,select,textarea,[tabindex]"
+        val nodes = dialog.querySelectorAll(selector)
+        return buildList {
+            for (index in 0 until nodes.length) {
+                val candidate = nodes.item(index) as? HTMLElement ?: continue
+                val disabled = candidate.asDynamic().disabled == true
+                if (!disabled && candidate.tabIndex >= 0 && candidate.getClientRects().length > 0) add(candidate)
+            }
+        }
+    }
+    private fun scheduleModalFocusRestore(invoker: ModalInvoker?) {
+        window.setTimeout({
+            val restoreTarget = invoker?.element?.takeIf(document::contains)
+                ?: invoker?.summonId?.let {
+                    document.querySelector("[data-summon-id='$it']") as? HTMLElement
+                }
+                ?: invoker?.publicId?.let { document.getElementById(it) as? HTMLElement }
+            if (restoreTarget != null) {
+                restoreTarget.focus()
+            } else {
+                (modalOverlays.lastOrNull()
+                    ?.querySelector("[data-summon-modal-dialog='true']") as? HTMLElement)
+                    ?.focus()
+            }
+        }, 0)
+    }
+
+
+    private fun refreshModalBackground() {
+        modalBackgroundStates.forEach { (element, state) ->
+            if (state.ariaHidden == null) element.removeAttribute("aria-hidden")
+            else element.setAttribute("aria-hidden", state.ariaHidden)
+            element.asDynamic().inert = state.inert
+        }
+        val top = modalOverlays.lastOrNull()
+        if (top == null) {
+            modalBackgroundStates.clear()
+            return
+        }
+
+        var branch: Element = top
+        while (true) {
+            val parent = branch.parentElement ?: break
+            val children = parent.children
+            for (index in 0 until children.length) {
+                val sibling = children.item(index) as? HTMLElement ?: continue
+                if (sibling === branch) continue
+                modalBackgroundStates.getOrPut(sibling) {
+                    ModalBackgroundState(sibling.getAttribute("aria-hidden"), sibling.asDynamic().inert == true)
+                }
+                sibling.setAttribute("aria-hidden", "true")
+                sibling.asDynamic().inert = true
+            }
+            if (parent == document.body) break
+            branch = parent
+        }
+    }
+
+    private fun registerModalLifecycle(
+        overlay: HTMLElement,
+        dialog: HTMLElement,
+        dismissOnEscape: Boolean,
+        onDismiss: () -> Unit
+    ) {
+        if (modalCleanupRegistry.containsKey(overlay)) return
+        val activeElement = document.activeElement as? HTMLElement
+        val invoker = activeElement?.takeUnless { it === document.body }
+            ?: focusedElementBeforeRecomposition
+        modalInvokers[overlay] = ModalInvoker(
+            element = invoker,
+            summonId = invoker?.getAttribute("data-summon-id"),
+            publicId = invoker?.id?.takeIf { it.isNotEmpty() }
+        )
+        modalOverlays += overlay
+
+        val focusTimer = window.setTimeout({
+            if (document.contains(overlay)) {
+                refreshModalBackground()
+                (modalFocusableElements(dialog).firstOrNull() ?: dialog).focus()
+            }
+        }, 0)
+
+        registerGlobalEventListener(overlay, document, "keydown") { event ->
+            if (modalOverlays.lastOrNull() != overlay) return@registerGlobalEventListener
+            val key = event.asDynamic().key as? String
+            if (key == "Escape" && dismissOnEscape) {
+                event.preventDefault()
+                val invoker = modalInvokers[overlay]
+                onDismiss()
+                scheduleModalFocusRestore(invoker)
+            } else if (key == "Tab") {
+                val focusable = modalFocusableElements(dialog)
+                if (focusable.isEmpty()) {
+                    event.preventDefault()
+                    dialog.focus()
+                } else {
+                    val active = document.activeElement
+                    val backwards = event.asDynamic().shiftKey == true
+                    val first = focusable.first()
+                    val last = focusable.last()
+                    if (backwards && (active == first || active == dialog || !dialog.contains(active))) {
+                        event.preventDefault()
+                        last.focus()
+                    } else if (!backwards && (active == last || !dialog.contains(active))) {
+                        event.preventDefault()
+                        first.focus()
+                    }
+                }
+            }
+        }
+
+        modalCleanupRegistry[overlay] = {
+            window.clearTimeout(focusTimer)
+            modalOverlays.remove(overlay)
+            val invokerRecord = modalInvokers.remove(overlay)
+            refreshModalBackground()
+            scheduleModalFocusRestore(invokerRecord)
+        }
+    }
+
     private fun clearEventListeners(element: Element) {
+        modalCleanupRegistry.remove(element)?.invoke()
+        toastTimers.remove(element)?.let { window.clearTimeout(it.timerId) }
+        composingInputs.remove(element)
+        suppressNextCompositionInput.remove(element)
         listenerRegistry.remove(element)?.forEach { (eventType, subscription) ->
             element.removeEventListener(eventType, subscription.listener)
             element.removeAttribute("data-summon-handler-$eventType")
@@ -665,30 +817,17 @@ actual open class PlatformRenderer {
         type: String
     ) {
         createElement("input", modifier, { element ->
-            element.setAttribute("type", type)
-
-            // Only update value if it's different from current value
-            // This prevents cursor jumping and focus issues
-            val inputElement = element as? HTMLInputElement
-            if (inputElement != null && inputElement.value != value) {
-                // Save cursor position before updating value
-                val selectionStart = inputElement.selectionStart
-                val selectionEnd = inputElement.selectionEnd
-
-                inputElement.value = value
-
-                // Restore cursor position if element has focus
+            val input = element as HTMLInputElement
+            input.type = type
+            if (element !in composingInputs && input.value != value) {
+                val selectionStart = input.selectionStart
+                val selectionEnd = input.selectionEnd
+                input.value = value
                 if (element == document.activeElement && selectionStart != null && selectionEnd != null) {
-                    inputElement.setSelectionRange(selectionStart, selectionEnd)
+                    input.setSelectionRange(selectionStart.coerceAtMost(value.length), selectionEnd.coerceAtMost(value.length))
                 }
-            } else if (inputElement == null) {
-                element.setAttribute("value", value)
             }
-
-            registerEventListener(element, "input") { event ->
-                val target = event.target.asDynamic()
-                onValueChange(target.value as String)
-            }
+            registerCompositionAwareInput(element, onValueChange)
         })
     }
 
@@ -741,12 +880,13 @@ actual open class PlatformRenderer {
         modifier: Modifier
     ) {
         createElement("input", modifier, { element ->
-            element.setAttribute("type", "date")
-            value?.let { element.setAttribute("value", it.toString()) }
-            min?.let { element.setAttribute("min", it.toString()) }
-            max?.let { element.setAttribute("max", it.toString()) }
-            if (!enabled) element.setAttribute("disabled", "disabled")
-
+            val input = element as HTMLInputElement
+            input.type = "date"
+            val resolvedValue = value?.toString() ?: ""
+            if (input.value != resolvedValue) input.value = resolvedValue
+            input.min = min?.toString() ?: ""
+            input.max = max?.toString() ?: ""
+            input.disabled = !enabled
             registerEventListener(element, "change") { event ->
                 val dateValue = event.target.asDynamic().value as? String
                 if (dateValue != null && dateValue.isNotEmpty()) {
@@ -779,19 +919,48 @@ actual open class PlatformRenderer {
         modifier: Modifier
     ) {
         createElement("textarea", modifier, { element ->
-            element.textContent = value
-            if (!enabled) element.setAttribute("disabled", "disabled")
-            if (readOnly) element.setAttribute("readonly", "readonly")
-            rows?.let { element.setAttribute("rows", it.toString()) }
-            maxLength?.let { element.setAttribute("maxlength", it.toString()) }
-            placeholder?.let { element.setAttribute("placeholder", it) }
-
-            registerEventListener(element, "input") { event ->
-                val textareaElement = event.target.asDynamic()
-                onValueChange(textareaElement.value as String)
+            val textarea = element as HTMLTextAreaElement
+            if (element !in composingInputs && textarea.value != value) {
+                val selectionStart = textarea.selectionStart
+                val selectionEnd = textarea.selectionEnd
+                val scrollTop = textarea.scrollTop
+                val scrollLeft = textarea.scrollLeft
+                textarea.value = value
+                if (element == document.activeElement && selectionStart != null && selectionEnd != null) {
+                    textarea.setSelectionRange(
+                        selectionStart.coerceAtMost(value.length),
+                        selectionEnd.coerceAtMost(value.length)
+                    )
+                }
+                textarea.scrollTop = scrollTop
+                textarea.scrollLeft = scrollLeft
             }
+            textarea.disabled = !enabled
+            textarea.readOnly = readOnly
+            if (rows == null) element.removeAttribute("rows") else textarea.rows = rows
+            if (maxLength == null) element.removeAttribute("maxlength") else textarea.maxLength = maxLength
+            textarea.placeholder = placeholder ?: ""
+            registerCompositionAwareInput(element, onValueChange)
         })
     }
+    private fun registerCompositionAwareInput(element: Element, onValueChange: (String) -> Unit) {
+        registerEventListener(element, "compositionstart") {
+            composingInputs += element
+            suppressNextCompositionInput.remove(element)
+        }
+        registerEventListener(element, "compositionend") { event ->
+            composingInputs.remove(element)
+            suppressNextCompositionInput += element
+            onValueChange(event.target.asDynamic().value as String)
+            window.setTimeout({ suppressNextCompositionInput.remove(element) }, 0)
+        }
+        registerEventListener(element, "input") { event ->
+            if (element in composingInputs || event.asDynamic().isComposing == true) return@registerEventListener
+            if (suppressNextCompositionInput.remove(element)) return@registerEventListener
+            onValueChange(event.target.asDynamic().value as String)
+        }
+    }
+
 
     actual open fun addHeadElement(content: String) {
         // Add the raw string content for a head element (e.g., a <link> or <style> tag)
@@ -2395,6 +2564,8 @@ actual open class PlatformRenderer {
     ) {
         // Create modal overlay with styles
         val overlayModifier = modifier
+            .attribute("data-portal-target", "body")
+            .attribute("data-summon-modal-overlay", "true")
             .style("position", "fixed")
             .style("top", "0")
             .style("left", "0")
@@ -2415,6 +2586,13 @@ actual open class PlatformRenderer {
         }
 
         val modalModifier = Modifier()
+            .attribute("role", "dialog")
+            .attribute("aria-modal", "true")
+            .attribute("tabindex", "-1")
+            .attribute("data-summon-modal-dialog", "true")
+            .let { base ->
+                modifier.attributes["data-summon-modal-label"]?.let { base.attribute("aria-label", it) } ?: base
+            }
             .style("background-color", "#ffffff")
             .style("border-radius", "8px")
             .style("box-shadow", "0 4px 20px rgba(0, 0, 0, 0.3)")
@@ -2442,26 +2620,30 @@ actual open class PlatformRenderer {
                 }
             }
 
+        var modalOverlay: HTMLElement? = null
         createElement("div", overlayModifier, { overlayElement ->
+            val overlay = (overlayElement as? HTMLElement)?.also { modalOverlay = it } ?: return@createElement
             if (dismissOnBackdropClick) {
                 registerEventListener(overlayElement, "click") { event ->
-                    if (event.target == overlayElement) {
+                    if (event.target == overlayElement && modalOverlays.lastOrNull() == overlay) {
+                        val invoker = modalInvokers[overlay]
                         onDismiss()
+                        scheduleModalFocusRestore(invoker)
                     }
                 }
             } else {
                 removeEventListener(overlayElement, "click")
             }
-            registerGlobalEventListener(overlayElement, document, "keydown") { event ->
-                if (event.asDynamic().keyCode == 27) {
-                    onDismiss()
-                }
-            }
         }) {
             createElement("div", modalModifier, { modalElement ->
-                registerEventListener(modalElement, "click") { event ->
-                    event.stopPropagation()
-                }
+                val dialog = modalElement as? HTMLElement ?: return@createElement
+                registerEventListener(modalElement, "click") { event -> event.stopPropagation() }
+                registerModalLifecycle(
+                    overlay = modalOverlay ?: return@createElement,
+                    dialog = dialog,
+                    dismissOnEscape = modifier.attributes["data-summon-dismiss-on-escape"] != "false",
+                    onDismiss = onDismiss
+                )
             }) {
                 // Modal header
                 header?.let { headerContent ->
@@ -2477,10 +2659,14 @@ actual open class PlatformRenderer {
                         // Close button
                         if (showCloseButton) {
                             val closeButtonModifier = Modifier()
+                                .attribute("type", "button")
+                                .attribute("aria-label", "Close dialog")
                                 .style("background-color", "transparent")
                                 .style("border", "none")
                                 .style("font-size", "24px")
                                 .style("cursor", "pointer")
+                                .style("min-width", "44px")
+                                .style("min-height", "44px")
                                 .style("padding", "8px")
 
                             createElement("button", closeButtonModifier, { closeButton ->
@@ -2691,13 +2877,17 @@ actual open class PlatformRenderer {
         modifier: Modifier
     ) {
         val (bgColor, borderColor, textColor) = when (toast.variant) {
-            codes.yousef.summon.components.feedback.ToastVariant.INFO -> Triple("#e3f2fd", "#2196f3", "#1976d2")
-            codes.yousef.summon.components.feedback.ToastVariant.SUCCESS -> Triple("#e8f5e8", "#4caf50", "#388e3c")
-            codes.yousef.summon.components.feedback.ToastVariant.WARNING -> Triple("#fff3e0", "#ff9800", "#f57c00")
-            codes.yousef.summon.components.feedback.ToastVariant.ERROR -> Triple("#ffebee", "#f44336", "#d32f2f")
+            codes.yousef.summon.components.feedback.ToastVariant.INFO -> Triple("#e3f2fd", "#2196f3", "#0d47a1")
+            codes.yousef.summon.components.feedback.ToastVariant.SUCCESS -> Triple("#e8f5e8", "#4caf50", "#1b5e20")
+            codes.yousef.summon.components.feedback.ToastVariant.WARNING -> Triple("#fff3e0", "#ff9800", "#6d3b00")
+            codes.yousef.summon.components.feedback.ToastVariant.ERROR -> Triple("#ffebee", "#f44336", "#b71c1c")
         }
 
         val toastModifier = modifier
+            .attribute("key", toast.id)
+            .attribute("role", if (toast.variant == codes.yousef.summon.components.feedback.ToastVariant.ERROR) "alert" else "status")
+            .attribute("aria-live", if (toast.variant == codes.yousef.summon.components.feedback.ToastVariant.ERROR) "assertive" else "polite")
+            .attribute("aria-atomic", "true")
             .style("background-color", bgColor)
             .style("border", "1px solid $borderColor")
             .style("border-radius", "6px")
@@ -2710,8 +2900,28 @@ actual open class PlatformRenderer {
             .style("min-width", "300px")
             .style("max-width", "400px")
             .style("animation", "summon-toast-slide-in 0.3s ease-out")
+            .mediaQuery(MediaQuery.PrefersReducedMotion) {
+                style("animation", "none !important")
+                    .style("transition", "none !important")
+            }
 
         createElement("div", toastModifier, { container ->
+            var activeTimer = toastTimers[container]
+            if (activeTimer != null && activeTimer.duration != toast.duration) {
+                window.clearTimeout(activeTimer.timerId)
+                toastTimers.remove(container)
+                activeTimer = null
+            }
+            if (toast.duration > 0) {
+                if (activeTimer == null) {
+                    val timerId = window.setTimeout({
+                        toastTimers.remove(container)?.onDismiss?.invoke()
+                    }, toast.duration.coerceAtMost(Int.MAX_VALUE.toLong()).toInt())
+                    toastTimers[container] = ToastTimer(timerId, toast.duration, onDismiss)
+                } else {
+                    activeTimer.onDismiss = onDismiss
+                }
+            }
 
             // Toast content
             val contentModifier = Modifier()
@@ -2739,6 +2949,8 @@ actual open class PlatformRenderer {
                             .style("border", "1px solid $borderColor")
                             .style("color", textColor)
                             .style("padding", "4px 8px")
+                            .style("min-width", "44px")
+                            .style("min-height", "44px")
                             .style("border-radius", "4px")
                             .style("font-size", "12px")
                             .style("cursor", "pointer")
@@ -2756,14 +2968,16 @@ actual open class PlatformRenderer {
                     // Dismiss button if dismissible
                     if (toast.dismissible) {
                         val dismissButtonModifier = Modifier()
+                            .attribute("type", "button")
+                            .attribute("aria-label", "Dismiss notification")
                             .style("background", "transparent")
                             .style("border", "none")
                             .style("color", textColor)
                             .style("font-size", "16px")
                             .style("cursor", "pointer")
                             .style("padding", "0")
-                            .style("width", "20px")
-                            .style("height", "20px")
+                            .style("min-width", "44px")
+                            .style("min-height", "44px")
                             .style("display", "flex")
                             .style("align-items", "center")
                             .style("justify-content", "center")

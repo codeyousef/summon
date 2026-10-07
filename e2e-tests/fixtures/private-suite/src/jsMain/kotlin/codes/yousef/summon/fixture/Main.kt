@@ -98,6 +98,11 @@ fun main() {
         mountComposableRoot("controls") { fixture.Controls() }
         return
     }
+    if (window.location.search.contains("accessibility=true")) {
+        val fixture = AccessibilityFixture()
+        mountComposableRoot("root") { fixture.Content() }
+        return
+    }
     if (window.location.search.contains("files=true")) {
         val fixture = FileLifecycleFixture()
         mountComposableRoot("root") { fixture.Content() }

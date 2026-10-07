@@ -19,6 +19,7 @@ import codes.yousef.summon.modifier.MediaStyleDefinition
 import codes.yousef.summon.modifier.Modifier
 import codes.yousef.summon.modifier.ScopedStyleDefinition
 import codes.yousef.summon.modifier.StateStyleDefinition
+import codes.yousef.summon.modifier.attribute
 import codes.yousef.summon.modifier.overflowX
 import codes.yousef.summon.modifier.overflowY
 import codes.yousef.summon.modifier.style
@@ -523,8 +524,6 @@ actual open class PlatformRenderer {
             if (min != null) this.min = min.toString()
             if (max != null) this.max = max.toString()
             this.disabled = !enabled
-            id = "date-${UUID.randomUUID()}"
-            name = id
             attributes["data-onchange-action"] = "true"
             // onValueChange handler will be attached by client-side JS
         }
@@ -868,6 +867,7 @@ actual open class PlatformRenderer {
             // Modal overlay
             applyModifier(
                 Modifier()
+                    .attribute("data-summon-modal-overlay", "true")
                     .style("position", "fixed")
                     .style("top", "0")
                     .style("left", "0")
@@ -893,6 +893,14 @@ actual open class PlatformRenderer {
             div {
                 applyModifier(
                     Modifier()
+                        .attribute("role", "dialog")
+                        .attribute("aria-modal", "true")
+                        .attribute("tabindex", "-1")
+                        .attribute("data-summon-modal-dialog", "true")
+                        .let { base ->
+                            modifier.attributes["data-summon-modal-label"]?.let { base.attribute("aria-label", it) }
+                                ?: base
+                        }
                         .style("background-color", "#ffffff")
                         .style("border-radius", "8px")
                         .style("box-shadow", "0 4px 20px rgba(0, 0, 0, 0.3)")
@@ -948,10 +956,14 @@ actual open class PlatformRenderer {
 
                                 applyModifier(
                                     Modifier()
+                                        .attribute("type", "button")
+                                        .attribute("aria-label", "Close dialog")
                                         .style("background-color", "transparent")
                                         .style("border", "none")
                                         .style("font-size", "24px")
                                         .style("cursor", "pointer")
+                                        .style("min-width", "44px")
+                                        .style("min-height", "44px")
                                         .style("padding", "8px")
                                 )
 
@@ -2597,15 +2609,18 @@ actual open class PlatformRenderer {
         modifier: Modifier
     ) {
         val (bgColor, borderColor, textColor) = when (toast.variant) {
-            codes.yousef.summon.components.feedback.ToastVariant.INFO -> Triple("#e3f2fd", "#2196f3", "#1976d2")
-            codes.yousef.summon.components.feedback.ToastVariant.SUCCESS -> Triple("#e8f5e8", "#4caf50", "#388e3c")
-            codes.yousef.summon.components.feedback.ToastVariant.WARNING -> Triple("#fff3e0", "#ff9800", "#f57c00")
-            codes.yousef.summon.components.feedback.ToastVariant.ERROR -> Triple("#ffebee", "#f44336", "#d32f2f")
+            codes.yousef.summon.components.feedback.ToastVariant.INFO -> Triple("#e3f2fd", "#2196f3", "#0d47a1")
+            codes.yousef.summon.components.feedback.ToastVariant.SUCCESS -> Triple("#e8f5e8", "#4caf50", "#1b5e20")
+            codes.yousef.summon.components.feedback.ToastVariant.WARNING -> Triple("#fff3e0", "#ff9800", "#6d3b00")
+            codes.yousef.summon.components.feedback.ToastVariant.ERROR -> Triple("#ffebee", "#f44336", "#b71c1c")
         }
 
         requireBuilder().div {
             applyModifier(
                 modifier
+                    .attribute("role", if (toast.variant == codes.yousef.summon.components.feedback.ToastVariant.ERROR) "alert" else "status")
+                    .attribute("aria-live", if (toast.variant == codes.yousef.summon.components.feedback.ToastVariant.ERROR) "assertive" else "polite")
+                    .attribute("aria-atomic", "true")
                     .style("background-color", bgColor)
                     .style("border", "1px solid $borderColor")
                     .style("border-radius", "6px")
@@ -2633,12 +2648,16 @@ actual open class PlatformRenderer {
                 // Action button if provided
                 toast.action?.let { action ->
                     button {
+                        attributes["type"] = "button"
+                        attributes["aria-label"] = action.label
                         style = """
                             background: transparent;
                             border: 1px solid $borderColor;
                             color: $textColor;
                             padding: 4px 8px;
                             border-radius: 4px;
+                            min-width: 44px;
+                            min-height: 44px;
                             font-size: 12px;
                             cursor: pointer;
                             transition: background-color 0.2s;
@@ -2653,6 +2672,8 @@ actual open class PlatformRenderer {
                 // Dismiss button if dismissible
                 if (toast.dismissible) {
                     button {
+                        attributes["type"] = "button"
+                        attributes["aria-label"] = "Dismiss notification"
                         style = """
                             background: transparent;
                             border: none;
@@ -2660,8 +2681,8 @@ actual open class PlatformRenderer {
                             font-size: 16px;
                             cursor: pointer;
                             padding: 0;
-                            width: 20px;
-                            height: 20px;
+                            min-width: 44px;
+                            min-height: 44px;
                             display: flex;
                             align-items: center;
                             justify-content: center;

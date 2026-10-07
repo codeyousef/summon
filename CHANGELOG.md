@@ -64,6 +64,13 @@ All notable changes to this project will be documented in this file.
   chunks and 16 MiB storage-part targets. `ManagedFileUpload` provides bounded selection,
   progress, cancel, retry, remove, reselection, quota and partial-import states; verified media
   object URLs are integrity-gated, capability-checked and explicitly revocable.
+- **Accessible interaction lifecycle** - Browser focus callbacks now follow native focus and blur,
+  controlled text inputs preserve selection and IME composition, and nested modals trap focus,
+  inert the background, honor explicit dismissal policies and restore a live invoker. Buttons use
+  44 CSS-pixel minimum targets and reduced-motion-safe effects; bounded toasts expose status/alert
+  announcements, and stale asynchronous form-validation results cannot replace newer state.
+  Native date inputs now have JS/WASM/SSR parity, accessible names, bounded ranges and
+  timezone-independent `LocalDate` values.
 
 ### Changed
 

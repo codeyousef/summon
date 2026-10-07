@@ -12,6 +12,7 @@ import codes.yousef.summon.core.FlowContentCompat
 import codes.yousef.summon.core.createWasmFlowContentCompat
 import codes.yousef.summon.modifier.attribute
 import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.modifier.MediaStyleDefinition
 import codes.yousef.summon.modifier.style
 import codes.yousef.summon.modifier.toStyleStringKebabCase
 import kotlinx.browser.window
@@ -113,6 +114,218 @@ private external fun wasmBindLazyViewport(
     }"""
 )
 private external fun wasmDisposeLazyViewport(id: String)
+@JsFun(
+    """(overlayId, dialogId, dismissOnEscape, dismissOnBackdrop, onDismiss) => {
+        const state = globalThis.__summonModalState || (globalThis.__summonModalState = {
+            records: new Map(),
+            stack: [],
+            backgrounds: new Map()
+        });
+        const prior = state.records.get(overlayId);
+        if (prior) {
+            prior.dismissOnEscape = dismissOnEscape;
+            prior.dismissOnBackdrop = dismissOnBackdrop;
+            prior.onDismiss = onDismiss;
+            return true;
+        }
+        const overlay = document.getElementById(overlayId);
+        const dialog = document.getElementById(dialogId);
+        if (!overlay || !dialog) return false;
+
+        const restoreBackground = () => {
+            for (const [element, original] of state.backgrounds) {
+                if (original.ariaHidden === null) element.removeAttribute('aria-hidden');
+                else element.setAttribute('aria-hidden', original.ariaHidden);
+                element.inert = original.inert;
+            }
+        };
+        const refreshBackground = () => {
+            restoreBackground();
+            const topId = state.stack[state.stack.length - 1];
+            const top = state.records.get(topId)?.overlay;
+            if (!top) {
+                state.backgrounds.clear();
+                return;
+            }
+            let branch = top;
+            while (branch?.parentElement) {
+                const parent = branch.parentElement;
+                for (const sibling of parent.children) {
+                    if (sibling === branch || !(sibling instanceof HTMLElement)) continue;
+                    if (!state.backgrounds.has(sibling)) {
+                        state.backgrounds.set(sibling, {
+                            ariaHidden: sibling.getAttribute('aria-hidden'),
+                            inert: sibling.inert
+                        });
+                    }
+                    sibling.setAttribute('aria-hidden', 'true');
+                    sibling.inert = true;
+                }
+                if (parent === document.body) break;
+                branch = parent;
+            }
+        };
+        const focusables = () => Array.from(
+            dialog.querySelectorAll('a[href],button,input,select,textarea,[tabindex]')
+        ).filter(element =>
+            element instanceof HTMLElement &&
+            !element.disabled &&
+            element.tabIndex >= 0 &&
+            element.getClientRects().length > 0
+        );
+        const record = {
+            overlay,
+            dialog,
+            invoker: document.activeElement instanceof HTMLElement ? document.activeElement : null,
+            invokerSummonId: document.activeElement?.getAttribute?.('data-summon-id') || null,
+            invokerPublicId: document.activeElement?.id || null,
+            dismissOnEscape,
+            dismissOnBackdrop,
+            onDismiss,
+            timer: null,
+            keydown: null,
+            click: null
+        };
+        record.keydown = event => {
+            if (state.stack[state.stack.length - 1] !== overlayId) return;
+            if (event.key === 'Escape' && record.dismissOnEscape) {
+                event.preventDefault();
+                record.onDismiss();
+                return;
+            }
+            if (event.key !== 'Tab') return;
+            const candidates = focusables();
+            if (candidates.length === 0) {
+                event.preventDefault();
+                dialog.focus();
+                return;
+            }
+            const first = candidates[0];
+            const last = candidates[candidates.length - 1];
+            const active = document.activeElement;
+            if (event.shiftKey && (active === first || active === dialog || !dialog.contains(active))) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && (active === last || !dialog.contains(active))) {
+                event.preventDefault();
+                first.focus();
+            }
+        };
+        record.click = event => {
+            if (event.target === overlay &&
+                state.stack[state.stack.length - 1] === overlayId &&
+                record.dismissOnBackdrop) {
+                record.onDismiss();
+            }
+        };
+        document.addEventListener('keydown', record.keydown);
+        overlay.addEventListener('click', record.click);
+        state.records.set(overlayId, record);
+        state.stack.push(overlayId);
+        record.timer = setTimeout(() => {
+            if (!document.contains(overlay)) return;
+            refreshBackground();
+            (focusables()[0] || dialog).focus();
+        }, 0);
+        return true;
+    }"""
+)
+private external fun wasmBindModal(
+    overlayId: String,
+    dialogId: String,
+    dismissOnEscape: Boolean,
+    dismissOnBackdrop: Boolean,
+    onDismiss: () -> Unit
+): Boolean
+
+@JsFun(
+    """(overlayId) => {
+        const state = globalThis.__summonModalState;
+        const record = state?.records.get(overlayId);
+        if (!record) return;
+        clearTimeout(record.timer);
+        document.removeEventListener('keydown', record.keydown);
+        record.overlay.removeEventListener('click', record.click);
+        state.records.delete(overlayId);
+        state.stack = state.stack.filter(id => id !== overlayId);
+        for (const [element, original] of state.backgrounds) {
+            if (original.ariaHidden === null) element.removeAttribute('aria-hidden');
+            else element.setAttribute('aria-hidden', original.ariaHidden);
+            element.inert = original.inert;
+        }
+        const topId = state.stack[state.stack.length - 1];
+        const top = state.records.get(topId)?.overlay;
+        if (top) {
+            let branch = top;
+            while (branch?.parentElement) {
+                const parent = branch.parentElement;
+                for (const sibling of parent.children) {
+                    if (sibling === branch || !(sibling instanceof HTMLElement)) continue;
+                    if (!state.backgrounds.has(sibling)) {
+                        state.backgrounds.set(sibling, {
+                            ariaHidden: sibling.getAttribute('aria-hidden'),
+                            inert: sibling.inert
+                        });
+                    }
+                    sibling.setAttribute('aria-hidden', 'true');
+                    sibling.inert = true;
+                }
+                if (parent === document.body) break;
+                branch = parent;
+            }
+        } else {
+            state.backgrounds.clear();
+        }
+        setTimeout(() => {
+            const invoker = record.invoker && document.contains(record.invoker)
+                ? record.invoker
+                : record.invokerSummonId
+                    ? document.querySelector("[data-summon-id='" + record.invokerSummonId + "']")
+                    : record.invokerPublicId
+                        ? document.getElementById(record.invokerPublicId)
+                        : null;
+            if (invoker instanceof HTMLElement) invoker.focus();
+            else state.records.get(topId)?.dialog?.focus();
+        }, 0);
+    }"""
+)
+private external fun wasmDisposeModal(overlayId: String)
+@JsFun(
+    """(id, duration, onDismiss) => {
+        const timers = globalThis.__summonToastTimers || (globalThis.__summonToastTimers = new Map());
+        const prior = timers.get(id);
+        if (prior && prior.duration === duration) {
+            prior.onDismiss = onDismiss;
+            return;
+        }
+        if (prior) {
+            clearTimeout(prior.timer);
+            timers.delete(id);
+        }
+        if (duration <= 0) return;
+        const record = { duration, onDismiss, timer: null };
+        record.timer = setTimeout(() => {
+            if (timers.get(id) !== record) return;
+            timers.delete(id);
+            record.onDismiss();
+        }, duration);
+        timers.set(id, record);
+    }"""
+)
+private external fun wasmBindToastTimer(elementId: String, duration: Int, onDismiss: () -> Unit)
+
+@JsFun(
+    """(id) => {
+        const timers = globalThis.__summonToastTimers;
+        const record = timers?.get(id);
+        if (!record) return;
+        clearTimeout(record.timer);
+        timers.delete(id);
+    }"""
+)
+private external fun wasmDisposeToastTimer(elementId: String)
+
+
 @JsFun("(id) => { const element = document.getElementById(id); return element && element.files ? element.files.length : 0; }")
 private external fun wasmFileCount(elementId: String): Int
 
@@ -156,6 +369,8 @@ actual open class PlatformRenderer actual constructor() {
     // Event handler tracking
     private val eventHandlerIds = mutableMapOf<String, String>() // "${elementId}-${eventType}" -> handlerId
     private var eventHandlerCounter = 0
+    private val composingInputs = mutableSetOf<String>()
+    private val suppressNextCompositionInput = mutableSetOf<String>()
     private class ResponsiveSubscription(
         val listener: (Event) -> Unit,
         var active: Boolean = true
@@ -376,7 +591,10 @@ actual open class PlatformRenderer actual constructor() {
     actual open fun renderTextField(value: String, onValueChange: (String) -> Unit, modifier: Modifier, type: String) {
         if (isStringRenderMode) {
             // HTML string building mode for SSR
-            val summonId = modifier.attributes["data-summon-id"] ?: "textfield-${onValueChange.hashCode()}"
+            val summonId = generateNextId(
+                "input",
+                modifier.attributes["key"] ?: modifier.attributes["data-summon-id"]
+            )
             val modifierAttrs = buildModifierAttributes(modifier)
             val element = HtmlElement(
                 tagName = "input",
@@ -402,7 +620,10 @@ actual open class PlatformRenderer actual constructor() {
             // DOM rendering mode for client
             try {
                 // Check for hydration markers in modifier
-                val summonId = modifier.attributes["data-summon-id"] ?: "textfield-${onValueChange.hashCode()}"
+                val summonId = generateNextId(
+                    "input",
+                    modifier.attributes["key"] ?: modifier.attributes["data-summon-id"]
+                )
 
                 // Create or reuse input element (returns new element or null if reused)
                 val newElement = createOrReuseElement("input", summonId)
@@ -417,24 +638,14 @@ actual open class PlatformRenderer actual constructor() {
 
                 inputElement.setAttribute("class", "summon-textfield")
                 inputElement.setAttribute("type", type)
+                inputElement.setAttribute("data-sid", summonId)
 
-                // Set value only if different from current DOM value to preserve typing
                 val elementId = DOMProvider.getNativeElementId(inputElement)
                 val currentValue = wasmGetElementValue(elementId) ?: ""
-                if (currentValue != value) {
+                if (elementId !in composingInputs && currentValue != value) {
                     check(wasmSetElementValue(elementId, value)) { "Cannot update rendered input" }
                 }
-
-                // Set up value change event handler with hydration support
-                attachEventListenerWithHydration(inputElement, "input") {
-                    try {
-                        val newValue = wasmGetElementValue(elementId) ?: ""
-                        onValueChange(newValue)
-                    } catch (e: Exception) {
-                        if (e is CancellationException) throw e
-                        diagnostics.failure()
-                    }
-                }
+                attachCompositionAwareInput(inputElement, elementId, onValueChange)
 
                 // Apply modifier styles and attributes
                 applyModifierToElement(inputElement, modifier)
@@ -467,7 +678,58 @@ actual open class PlatformRenderer actual constructor() {
         max: LocalDate?,
         modifier: Modifier
     ) {
-        diagnostics.unsupported()
+        if (isStringRenderMode) {
+            val summonId = generateNextId(
+                "input",
+                modifier.attributes["key"] ?: modifier.attributes["data-summon-id"]
+            )
+            val attributes = buildModifierAttributes(modifier).toMutableMap().apply {
+                put("type", "date")
+                put("data-summon-id", summonId)
+                value?.let { put("value", it.toString()) }
+                min?.let { put("min", it.toString()) }
+                max?.let { put("max", it.toString()) }
+                if (!enabled) put("disabled", "disabled")
+            }
+            val element = HtmlElement(tagName = "input", attributes = attributes)
+            val html = renderHtmlElement(element)
+            if (htmlStack.isNotEmpty()) htmlStack.last().content.append(html) else htmlBuilder.append(html)
+            return
+        }
+
+        val summonId = generateNextId(
+            "input",
+            modifier.attributes["key"] ?: modifier.attributes["data-summon-id"]
+        )
+        val input = createOrReuseElement("input", summonId)
+            ?: recompositionElements[summonId]
+            ?: throw WasmDOMException("Failed to retrieve reused date input")
+        val elementId = DOMProvider.getNativeElementId(input)
+        applyModifierToElement(input, modifier)
+        input.setAttribute("type", "date")
+        input.setAttribute("data-sid", summonId)
+        val resolvedValue = value?.toString() ?: ""
+        if (wasmGetElementValue(elementId) != resolvedValue) {
+            check(wasmSetElementValue(elementId, resolvedValue)) { "Cannot update rendered date input" }
+        }
+        if (min == null) input.removeAttribute("min") else input.setAttribute("min", min.toString())
+        if (max == null) input.removeAttribute("max") else input.setAttribute("max", max.toString())
+        if (enabled) input.removeAttribute("disabled") else input.setAttribute("disabled", "disabled")
+        attachEventListenerWithHydration(input, "change") {
+            val rawValue = wasmGetElementValue(elementId).orEmpty()
+            if (rawValue.isEmpty()) {
+                onValueChange(null)
+            } else {
+                val parts = rawValue.split('-')
+                val parsed = if (parts.size == 3) {
+                    runCatching { LocalDate(parts[0].toInt(), parts[1].toInt(), parts[2].toInt()) }.getOrNull()
+                } else {
+                    null
+                }
+                onValueChange(parsed)
+            }
+        }
+        appendToCurrentContainer(input)
     }
 
     actual open fun renderTextArea(
@@ -480,7 +742,60 @@ actual open class PlatformRenderer actual constructor() {
         placeholder: String?,
         modifier: Modifier
     ) {
-        diagnostics.unsupported()
+        if (isStringRenderMode) {
+            val attributes = buildModifierAttributes(modifier).toMutableMap()
+            if (!enabled) attributes["disabled"] = "disabled"
+            if (readOnly) attributes["readonly"] = "readonly"
+            rows?.let { attributes["rows"] = it.toString() }
+            maxLength?.let { attributes["maxlength"] = it.toString() }
+            placeholder?.let { attributes["placeholder"] = it }
+            val element = HtmlElement(
+                tagName = "textarea",
+                attributes = attributes,
+                content = StringBuilder(escapeHtml(value))
+            )
+            val html = renderHtmlElement(element)
+            if (htmlStack.isNotEmpty()) htmlStack.last().content.append(html) else htmlBuilder.append(html)
+            return
+        }
+        val sid = generateNextId("textarea", modifier.attributes["key"])
+        val textarea = createOrReuseElement("textarea", sid) ?: recompositionElements[sid]
+            ?: throw WasmDOMException("Failed to retrieve reused textarea")
+        val elementId = DOMProvider.getNativeElementId(textarea)
+        textarea.setAttribute("data-sid", sid)
+        if (elementId !in composingInputs && wasmGetElementValue(elementId) != value) {
+            check(wasmSetElementValue(elementId, value)) { "Cannot update rendered textarea" }
+        }
+        if (enabled) textarea.removeAttribute("disabled") else textarea.setAttribute("disabled", "disabled")
+        if (readOnly) textarea.setAttribute("readonly", "readonly") else textarea.removeAttribute("readonly")
+        if (rows == null) textarea.removeAttribute("rows") else textarea.setAttribute("rows", rows.toString())
+        if (maxLength == null) textarea.removeAttribute("maxlength") else textarea.setAttribute("maxlength", maxLength.toString())
+        if (placeholder == null) textarea.removeAttribute("placeholder") else textarea.setAttribute("placeholder", placeholder)
+        applyModifierToElement(textarea, modifier)
+        attachCompositionAwareInput(textarea, elementId, onValueChange)
+        appendToCurrentContainer(textarea)
+    }
+
+    private fun attachCompositionAwareInput(
+        element: DOMElement,
+        elementId: String,
+        onValueChange: (String) -> Unit
+    ) {
+        attachEventListenerWithHydration(element, "compositionstart") {
+            composingInputs += elementId
+            suppressNextCompositionInput.remove(elementId)
+        }
+        attachEventListenerWithHydration(element, "compositionend") {
+            composingInputs.remove(elementId)
+            suppressNextCompositionInput += elementId
+            onValueChange(wasmGetElementValue(elementId) ?: "")
+            window.setTimeout({ suppressNextCompositionInput.remove(elementId); null }, 0)
+        }
+        attachEventListenerWithHydration(element, "input") {
+            if (elementId !in composingInputs && !suppressNextCompositionInput.remove(elementId)) {
+                onValueChange(wasmGetElementValue(elementId) ?: "")
+            }
+        }
     }
 
     actual open fun addHeadElement(content: String) {
@@ -1650,6 +1965,7 @@ actual open class PlatformRenderer actual constructor() {
         content: @Composable () -> Unit
     ) {
         val backdropModifier = Modifier()
+            .attribute("data-summon-modal-overlay", "true")
             .style("position", "fixed")
             .style("inset", "0")
             .style("display", "flex")
@@ -1657,20 +1973,56 @@ actual open class PlatformRenderer actual constructor() {
             .style("justify-content", "center")
             .style("background", "rgba(0, 0, 0, 0.5)")
             .style("z-index", "1000")
-        renderContainerDom("modal-backdrop", "summon-modal-backdrop", backdropModifier) {
-            val dialogModifier = modifier
-                .attribute("role", "dialog")
-                .attribute("aria-modal", "true")
-                .style("background", "white")
-                .style("max-width", "min(90vw, 640px)")
-                .style("max-height", "90vh")
-                .style("overflow", "auto")
-            renderContainerDom("modal-dialog", "summon-modal", dialogModifier) {
+        val maxWidth = when (size) {
+            ModalSize.SMALL -> "400px"
+            ModalSize.MEDIUM -> "600px"
+            ModalSize.LARGE -> "800px"
+            ModalSize.EXTRA_LARGE -> "1000px"
+        }
+        val dialogModifier = modifier
+            .attribute("role", "dialog")
+            .attribute("aria-modal", "true")
+            .attribute("tabindex", "-1")
+            .attribute("data-summon-modal-dialog", "true")
+            .let { base ->
+                modifier.attributes["data-summon-modal-label"]?.let { base.attribute("aria-label", it) } ?: base
+            }
+            .style("background", "white")
+            .style("max-width", maxWidth)
+            .style("max-height", "90vh")
+            .style("overflow", "auto")
+            .let { base ->
+                when (variant) {
+                    ModalVariant.ALERT -> base.style("border", "2px solid #ff6b6b")
+                    ModalVariant.CONFIRMATION -> base.style("border", "2px solid #4ecdc4")
+                    ModalVariant.FULLSCREEN -> base
+                        .style("width", "100vw")
+                        .style("height", "100vh")
+                    ModalVariant.DEFAULT -> base
+                }
+            }
+        var overlayId: String? = null
+        var dialogId: String? = null
+        renderContainerDom(
+            "modal-backdrop",
+            "summon-modal-backdrop",
+            backdropModifier,
+            setup = { overlayId = DOMProvider.getNativeElementId(it) }
+        ) {
+            renderContainerDom(
+                "modal-dialog",
+                "summon-modal",
+                dialogModifier,
+                setup = { dialog -> dialogId = DOMProvider.getNativeElementId(dialog) }
+            ) {
                 header?.invoke()
                 if (showCloseButton) {
                     renderButton(
                         onClick = onDismiss,
-                        modifier = Modifier().attribute("aria-label", "Close dialog")
+                        modifier = Modifier()
+                            .attribute("aria-label", "Close dialog")
+                            .style("min-width", "44px")
+                            .style("min-height", "44px")
                     ) {
                         renderText("Close", Modifier())
                     }
@@ -1679,6 +2031,15 @@ actual open class PlatformRenderer actual constructor() {
                 footer?.invoke()
             }
         }
+        check(
+            wasmBindModal(
+                overlayId = checkNotNull(overlayId),
+                dialogId = checkNotNull(dialogId),
+                dismissOnEscape = modifier.attributes["data-summon-dismiss-on-escape"] != "false",
+                dismissOnBackdrop = dismissOnBackdropClick,
+                onDismiss = onDismiss
+            )
+        ) { "Cannot initialize modal lifecycle" }
     }
 
     actual open fun renderScreen(modifier: Modifier, content: @Composable FlowContentCompat.() -> Unit) {
@@ -1793,7 +2154,56 @@ actual open class PlatformRenderer actual constructor() {
     }
 
     actual open fun renderToast(toast: ToastData, onDismiss: () -> Unit, modifier: Modifier) {
-        diagnostics.unsupported()
+        val (background, border, foreground) = when (toast.variant) {
+            ToastVariant.INFO -> Triple("#e3f2fd", "#2196f3", "#0d47a1")
+            ToastVariant.SUCCESS -> Triple("#e8f5e8", "#4caf50", "#1b5e20")
+            ToastVariant.WARNING -> Triple("#fff3e0", "#ff9800", "#6d3b00")
+            ToastVariant.ERROR -> Triple("#ffebee", "#f44336", "#b71c1c")
+        }
+        val toastModifier = modifier
+            .attribute("key", toast.id)
+            .attribute("role", if (toast.variant == ToastVariant.ERROR) "alert" else "status")
+            .attribute("aria-live", if (toast.variant == ToastVariant.ERROR) "assertive" else "polite")
+            .attribute("aria-atomic", "true")
+            .style("background-color", background)
+            .style("border", "1px solid $border")
+            .style("color", foreground)
+            .style("padding", "12px 16px")
+            .style("display", "flex")
+            .style("align-items", "center")
+            .style("gap", "12px")
+        var toastElementId: String? = null
+        renderContainerDom(
+            "toast",
+            "summon-toast",
+            toastModifier,
+            setup = { toastElementId = DOMProvider.getNativeElementId(it) }
+        ) {
+            renderText(toast.message, Modifier().style("flex", "1"))
+            toast.action?.let { action ->
+                renderButton(
+                    onClick = action.onClick,
+                    modifier = Modifier()
+                        .attribute("aria-label", action.label)
+                        .style("min-width", "44px")
+                        .style("min-height", "44px")
+                ) {
+                    renderText(action.label, Modifier())
+                }
+            }
+            if (toast.dismissible) {
+                renderButton(
+                    onClick = onDismiss,
+                    modifier = Modifier()
+                        .attribute("aria-label", "Dismiss notification")
+                        .style("min-width", "44px")
+                        .style("min-height", "44px")
+                ) {
+                    renderText("×", Modifier())
+                }
+            }
+        }
+        wasmBindToastTimer(checkNotNull(toastElementId), toast.duration.coerceAtMost(Int.MAX_VALUE.toLong()).toInt(), onDismiss)
     }
 
     actual open fun renderRichMarkdown(markdown: String, modifier: Modifier) {
@@ -1892,11 +2302,14 @@ actual open class PlatformRenderer actual constructor() {
 
     actual open fun endRecomposition() {
         focusedElementBeforeRecomposition?.let { focused ->
-            wasmRestoreElementFocus(
-                elementId = focused,
-                selectionStart = selectionStartBeforeRecomposition,
-                selectionEnd = selectionEndBeforeRecomposition
-            )
+            val active = wasmGetActiveElementId()
+            if (active == focused || !wasmHasMeaningfulFocus()) {
+                wasmRestoreElementFocus(
+                    elementId = focused,
+                    selectionStart = selectionStartBeforeRecomposition,
+                    selectionEnd = selectionEndBeforeRecomposition
+                )
+            }
         }
         focusedElementBeforeRecomposition = null
         selectionStartBeforeRecomposition = null
@@ -1971,7 +2384,19 @@ actual open class PlatformRenderer actual constructor() {
     private fun applyModifierToElement(element: DOMElement, modifier: Modifier) {
         try {
             val elementId = DOMProvider.getNativeElementId(element)
-            val styleText = modifier.toStyleStringKebabCase()
+            val styleText = buildString {
+                append(modifier.toStyleStringKebabCase())
+                modifier.conditionalStyles.forEach { definition ->
+                    if (definition is MediaStyleDefinition && window.matchMedia(definition.query.toString()).matches) {
+                        definition.styles.forEach { (property, value) ->
+                            if (isNotEmpty() && last() != ';') append(';')
+                            append(property.replace(Regex("([a-z])([A-Z])"), "$1-$2").lowercase())
+                            append(':')
+                            append(value)
+                        }
+                    }
+                }
+            }
             if (styleText.isNotEmpty()) {
                 check(wasmSetElementStyle(elementId, styleText)) { "Cannot apply rendered style" }
             }
@@ -2086,10 +2511,11 @@ actual open class PlatformRenderer actual constructor() {
 
     private fun recordElementPlacement(elementId: String) {
         placedElements.add(elementId)
+        val compositionId = wasmGetElementAttribute(elementId, "data-sid")
+            ?.takeIf { it.isNotEmpty() }
+            ?: elementId
         containerChildrenStack.lastOrNull()?.let { children ->
-            if (!children.contains(elementId)) {
-                children.add(elementId)
-            }
+            if (!children.contains(compositionId)) children.add(compositionId)
         }
     }
 
@@ -2103,13 +2529,20 @@ actual open class PlatformRenderer actual constructor() {
         emptyList()
     }
 
+    private fun cleanupElementSubtree(elementId: String) {
+        wasmGetElementSubtreeIds(elementId)
+            .split(',')
+            .filter { it.isNotEmpty() }
+            .forEach(::cleanupEventHandlersForElement)
+    }
+
     private fun reconcileContainerChildren(containerId: String?, expectedChildren: List<String>) {
         val id = containerId ?: return
         val expectedSet = expectedChildren.toSet()
         val currentChildren = safeGetElementChildren(id)
 
         currentChildren.filter { it !in expectedSet }.forEach { childId ->
-            cleanupEventHandlersForElement(childId)
+            cleanupElementSubtree(childId)
             wasmRemoveElementById(childId)
         }
 
@@ -2125,7 +2558,9 @@ actual open class PlatformRenderer actual constructor() {
                 } else {
                     wasmAppendChildById(id, childId)
                 }
-                check(moved) { "Unable to reconcile rendered child" }
+                check(moved) {
+                    "Unable to reconcile rendered child '$childId' at index $index in '$id'; current=$orderedChildren expected=$expectedChildren"
+                }
                 orderedChildren.remove(childId)
                 orderedChildren.add(index, childId)
             }
@@ -2140,8 +2575,12 @@ actual open class PlatformRenderer actual constructor() {
     }
 
     private fun cleanupEventHandlersForElement(elementId: String) {
+        composingInputs.remove(elementId)
+        suppressNextCompositionInput.remove(elementId)
         cleanupResponsiveSubscription(elementId)
         wasmDisposeLazyViewport(elementId)
+        wasmDisposeModal(elementId)
+        wasmDisposeToastTimer(elementId)
         val keys = eventHandlerIds.keys.filter { it.startsWith("$elementId-") }
         for (key in keys) {
             val handlerId = eventHandlerIds.remove(key) ?: continue
@@ -2163,7 +2602,7 @@ actual open class PlatformRenderer actual constructor() {
         }
 
         if (nativeId != null) {
-            cleanupEventHandlersForElement(nativeId)
+            cleanupElementSubtree(nativeId)
             wasmRemoveElementById(nativeId)
             placedElements.remove(nativeId)
         }

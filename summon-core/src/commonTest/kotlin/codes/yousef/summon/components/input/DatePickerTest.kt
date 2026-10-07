@@ -24,6 +24,7 @@ class DatePickerTest {
                 value = selectedDate,
                 onValueChange = onValChange,
                 minDate = minDate,
+                label = "Due date",
                 maxDate = maxDate,
                 modifier = testModifier,
                 enabled = true
@@ -42,6 +43,7 @@ class DatePickerTest {
             .cursor("pointer") // enabled = true
             // .pointerEvents("none") // Not applied when enabled
             .attribute("data-date-format", "yyyy-MM-dd") // Default format
+            .attribute("aria-label", "Due date")
             .attribute("data-min-date", minDate.toString())
             .attribute("data-max-date", maxDate.toString())
         // Add other attributes like label, initialDisplayMonth if testing them

@@ -314,9 +314,16 @@ fun ToastContainer(
 }
 
 /**
- * Simple toast notification manager for managing toast state
+ * Toast notification manager with a bounded visible queue.
+ *
+ * When the queue reaches [maxVisibleToasts], adding a toast evicts the oldest
+ * announcement so bursty status updates cannot create an unbounded live region.
  */
-class ToastManager {
+class ToastManager(val maxVisibleToasts: Int = 5) {
+    init {
+        require(maxVisibleToasts > 0) { "maxVisibleToasts must be positive" }
+    }
+
     private val _toasts = mutableStateOf<List<ToastData>>(emptyList())
     val toasts: List<ToastData> get() = _toasts.value
 
@@ -339,13 +346,7 @@ class ToastManager {
             action = action
         )
 
-        _toasts.value = _toasts.value + toast
-
-        // Auto-dismiss after duration if duration > 0
-        if (duration > 0) {
-            // Note: In a real implementation, you'd use a proper timer mechanism
-            // This is a simplified version for demonstration
-        }
+        _toasts.value = (_toasts.value + toast).takeLast(maxVisibleToasts)
     }
 
     /**

@@ -28,26 +28,29 @@ The dedicated configuration runs Chromium, Firefox and WebKit sequentially.
 WebKit coverage does not replace the roadmap's real Safari release check.
 The fixture checks real Text, Button, controlled TextField, state recomposition,
 flow binding, JS/WASM browser routing, guarded private deep links, history,
-malformed-path rejection, dirty encrypted-draft decisions, keyed node
 identity/order/focus/selection, latest-model callbacks through stable event
-wrappers, stale asynchronous result rejection, safe unavailable states,
-lifecycle pause/resume/destroy behavior, stable owner-local coroutine scopes,
-100 lifecycle-owner cycles with zero host listener leaks, logout disposal,
-effect key/removal cleanup, mount-only/dependency-aware effects, independent
-synthetic roots and tabs, explicit root replacement/disposal, 100 mount cycles,
-100 route swaps with stable node/listener/effect counts, detached callback
-cleanup, failed-mount cleanup/context restoration, nullable/named remembered
-caches, and JS microtask scheduling/disposal. Its JVM smoke path serves the
-public shell through the Summon Aether adapter and a synthetic Aether exchange.
+wrappers, stale asynchronous result rejection, semantic focus/blur callbacks,
+IME-safe controlled inputs, RTL/date semantics, modal trapping/restoration,
+reduced-motion/44-pixel targets, live-region announcements, automated axe-core
+checks, safe unavailable states, lifecycle pause/resume/destroy behavior, stable
+owner-local coroutine scopes, 100 lifecycle-owner cycles with zero host listener
+leaks, logout disposal, effect key/removal cleanup, mount-only/dependency-aware
+effects, independent synthetic roots and tabs, explicit root
+replacement/disposal, 100 mount cycles, 100 route swaps with stable
+node/listener/effect counts, detached callback cleanup, failed-mount
+cleanup/context restoration, nullable/named remembered caches, and JS microtask
+scheduling/disposal. Its JVM smoke path serves the public shell through the
+Summon Aether adapter and a synthetic Aether exchange.
 It does not qualify encryption, real account isolation, real Aether providers,
 native clients, or real Safari. Those requirements remain incomplete in the PRD.
 
 After building both distributions, the default configuration starts and stops
-two loopback public-shell fallback servers and runs 174 target/browser rows:
-167 execute and seven are explicit skips: six JS-specific microtask rows on
-WASM, plus the two-tab WASM-WebKit row because Playwright WebKit crashes when
-the bounded container instantiates its second WASM tab. JS and WASM single-tab
-browser routing execute on Chromium, Firefox, and automated WebKit. Use Node 22 or 24
+two loopback public-shell fallback servers and runs 246 target/browser rows:
+232 execute and 14 are explicit skips: twelve JS-owned hydration/microtask rows
+on WASM, plus the two-tab persistence and router rows on WASM-WebKit because
+Playwright WebKit crashes when the bounded container instantiates the additional
+context. JS and WASM single-tab browser routing execute on Chromium, Firefox and
+automated WebKit. Use Node 22 or 24
 for browser installation; the host Node 26 installer stalled during archive
 extraction in the development environment.
 

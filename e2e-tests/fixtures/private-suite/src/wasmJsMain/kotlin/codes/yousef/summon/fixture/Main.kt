@@ -70,6 +70,11 @@ fun main() {
         mountComposableRoot("controls") { fixture.Controls() }
         return
     }
+    if ((wasmGetLocationSearch() ?: "").contains("accessibility=true")) {
+        val fixture = AccessibilityFixture()
+        mountComposableRoot("root") { fixture.Content() }
+        return
+    }
     if ((wasmGetLocationSearch() ?: "").contains("files=true")) {
         val fixture = FileLifecycleFixture()
         mountComposableRoot("root") { fixture.Content() }

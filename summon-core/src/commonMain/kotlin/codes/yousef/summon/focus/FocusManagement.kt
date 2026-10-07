@@ -15,10 +15,12 @@ fun Focusable(
 ) {
     val renderer = LocalPlatformRenderer.current
 
-    // Create focus modifier based on focus state
-    val focusModifier = when {
-        isFocused -> with(KeyboardNavigation) { modifier.focusable(0).autoFocus() }
-        else -> with(KeyboardNavigation) { modifier.focusable(0) }
+    val focusModifier = with(KeyboardNavigation) {
+        modifier
+            .focusable(0)
+            .applyIf(isFocused) { autoFocus() }
+            .event("focus") { onFocusChanged(true) }
+            .event("blur") { onFocusChanged(false) }
     }
 
     // Render the content with the focus modifier
@@ -40,10 +42,12 @@ fun FocusableContainer(
 ) {
     val renderer = LocalPlatformRenderer.current
 
-    // Create focus modifier based on focus state
-    val focusModifier = when {
-        isFocused -> with(KeyboardNavigation) { modifier.focusable(0).autoFocus() }
-        else -> with(KeyboardNavigation) { modifier.focusable(0) }
+    val focusModifier = with(KeyboardNavigation) {
+        modifier
+            .focusable(0)
+            .applyIf(isFocused) { autoFocus() }
+            .event("focus") { onFocusChanged(true) }
+            .event("blur") { onFocusChanged(false) }
     }
 
     // Render the content with the focus modifier

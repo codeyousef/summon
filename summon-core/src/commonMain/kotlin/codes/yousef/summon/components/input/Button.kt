@@ -257,6 +257,8 @@ fun Button(
         .style("align-items", "center")
         .style("justify-content", "center")
         .style("padding", "8px 16px")
+        .style("min-width", "44px")
+        .style("min-height", "44px")
         .style("border", "none")
         .style("border-radius", "6px")
         .style("cursor", "pointer")
@@ -266,6 +268,10 @@ fun Button(
             Modifier()
                 .style("transform", "translateY(-1px)")
         )
+        .mediaQuery(MediaQuery.PrefersReducedMotion) {
+            style("transition", "none !important")
+                .style("transform", "none !important")
+        }
 
     // Apply variant-specific styling to the modifier
     val finalModifier = when (variant) {

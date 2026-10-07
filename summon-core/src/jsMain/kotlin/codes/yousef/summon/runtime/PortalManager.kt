@@ -44,7 +44,7 @@ object PortalManager {
         val portalInfo = portaledElements.remove(element) ?: return
 
         // Return element to original parent
-        portalInfo.targetContainer.removeChild(element)
+        element.parentNode?.removeChild(element)
         portalInfo.originalParent.appendChild(element)
     }
 

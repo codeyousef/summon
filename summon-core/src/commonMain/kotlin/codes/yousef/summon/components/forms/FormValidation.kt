@@ -294,6 +294,18 @@ class FormValidationState {
     private val fieldErrors = mutableMapOf<String, String?>()
     private val fieldValidators = mutableMapOf<String, List<Validator>>()
     private val asyncValidators = mutableMapOf<String, AsyncValidator>()
+    private val fieldValidationRevisions = mutableMapOf<String, Long>()
+
+    private fun nextValidationRevision(fieldName: String): Long {
+        val next = (fieldValidationRevisions[fieldName] ?: 0L) + 1L
+        fieldValidationRevisions[fieldName] = next
+        return next
+    }
+
+    private fun validateFieldNow(fieldName: String, value: String): String? {
+        val validators = fieldValidators[fieldName].orEmpty()
+        return validateValue(value, validators)
+    }
 
     /**
      * Registers validators for a field.
@@ -313,8 +325,8 @@ class FormValidationState {
      * Validates a single field.
      */
     fun validateField(fieldName: String, value: String): String? {
-        val validators = fieldValidators[fieldName] ?: return null
-        val error = validateValue(value, validators)
+        nextValidationRevision(fieldName)
+        val error = validateFieldNow(fieldName, value)
         fieldErrors[fieldName] = error
         return error
     }
@@ -323,19 +335,17 @@ class FormValidationState {
      * Validates a single field asynchronously.
      */
     suspend fun validateFieldAsync(fieldName: String, value: String): String? {
-        // First run sync validators
-        val syncError = validateField(fieldName, value)
-        if (syncError != null) return syncError
-
-        // Then run async validator if present
-        val asyncValidator = asyncValidators[fieldName]
-        if (asyncValidator != null) {
-            val asyncError = asyncValidator.validate(value)
-            fieldErrors[fieldName] = asyncError
-            return asyncError
+        val revision = nextValidationRevision(fieldName)
+        val syncError = validateFieldNow(fieldName, value)
+        if (syncError != null) {
+            if (fieldValidationRevisions[fieldName] == revision) fieldErrors[fieldName] = syncError
+            return if (fieldValidationRevisions[fieldName] == revision) syncError else null
         }
 
-        return null
+        val asyncError = asyncValidators[fieldName]?.validate(value)
+        if (fieldValidationRevisions[fieldName] != revision) return null
+        fieldErrors[fieldName] = asyncError
+        return asyncError
     }
 
     /**
@@ -369,6 +379,7 @@ class FormValidationState {
      * Clears errors for a specific field.
      */
     fun clearFieldError(fieldName: String) {
+        nextValidationRevision(fieldName)
         fieldErrors[fieldName] = null
     }
 
@@ -376,6 +387,7 @@ class FormValidationState {
      * Clears all errors.
      */
     fun clearAllErrors() {
+        fieldValidationRevisions.keys.toList().forEach(::nextValidationRevision)
         fieldErrors.clear()
     }
 }

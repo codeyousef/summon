@@ -173,6 +173,30 @@ fun Heading(
 
 These semantic HTML components help create semantically meaningful HTML elements that improve screen reader and assistive technology understanding of content structure.
 
+### Dialog, input, and status behavior
+
+- `Modal(..., dismissOnEscape = true, dismissOnBackdropClick = true, ariaLabel = ...)`
+  supplies dialog semantics, inert background handling, a topmost-dialog focus
+  trap, nested-dialog support, and invoker focus restoration.
+- Controlled `TextField` and `TextArea` nodes preserve selection and defer model
+  updates while an IME composition is active.
+- `DatePicker` uses a native date input on every renderer, exposes `label` as
+  its accessible name, and keeps its ISO `LocalDate` value independent of
+  timezone conversion while inheriting locale presentation from `lang`.
+- `Focusable` and `FocusableContainer` invoke `onFocusChange` from native focus
+  and blur events, once per actual transition.
+- `Button` has a 44 by 44 CSS-pixel minimum target and disables transition and
+  transform effects when reduced motion is requested.
+- `ToastManager(maxVisibleToasts = 5)` bounds visible announcements. Toast
+  success/info/warning messages use polite status semantics; errors use an
+  assertive alert.
+- `FormValidationState` accepts only the latest asynchronous validation result
+  for a field; a cleared or replaced value invalidates older work.
+
+These APIs expose the semantics needed by accessibility tools. Release
+qualification still requires manual keyboard, 200% zoom, high-contrast,
+screen-reader, OS text-scaling, RTL/IME, and physical Safari checks.
+
 ## Examples
 
 ### Adding ARIA Attributes

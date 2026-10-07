@@ -60,6 +60,8 @@ enum class ModalSize {
  * @param size The size of the modal dialog
  * @param dismissOnBackdropClick Whether clicking the backdrop should dismiss the modal
  * @param showCloseButton Whether to show a close button in the header
+ * @param dismissOnEscape Whether pressing Escape should dismiss the topmost modal
+ * @param ariaLabel Accessible dialog name when the header does not provide an associated label
  * @param header Optional composable content for the modal header
  * @param footer Optional composable content for the modal footer (typically action buttons)
  * @param content The main content of the modal
@@ -73,6 +75,8 @@ fun Modal(
     size: ModalSize = ModalSize.MEDIUM,
     dismissOnBackdropClick: Boolean = true,
     showCloseButton: Boolean = true,
+    dismissOnEscape: Boolean = true,
+    ariaLabel: String? = null,
     header: (@Composable () -> Unit)? = null,
     footer: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit
@@ -81,9 +85,14 @@ fun Modal(
 
     val renderer = LocalPlatformRenderer.current
 
+    val behaviorModifier = modifier
+        .attribute("data-summon-dismiss-on-escape", dismissOnEscape.toString())
+        .let { current ->
+            if (ariaLabel == null) current else current.attribute("data-summon-modal-label", ariaLabel)
+        }
     renderer.renderModal(
         onDismiss = onDismiss,
-        modifier = modifier,
+        modifier = behaviorModifier,
         variant = variant,
         size = size,
         dismissOnBackdropClick = dismissOnBackdropClick,
@@ -123,6 +132,7 @@ fun ConfirmationModal(
         modifier = modifier,
         variant = ModalVariant.CONFIRMATION,
         size = ModalSize.SMALL,
+        ariaLabel = title.ifEmpty { null },
         header = {
             Column(Modifier().padding("16px")) {
                 if (title.isNotEmpty()) {
@@ -190,6 +200,7 @@ fun AlertModal(
         modifier = modifier,
         variant = ModalVariant.ALERT,
         size = ModalSize.SMALL,
+        ariaLabel = title.ifEmpty { null },
         header = {
             Column(Modifier().padding("16px")) {
                 if (title.isNotEmpty()) {

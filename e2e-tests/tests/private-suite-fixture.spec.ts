@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 
 type ResizeProbe = {
   adds: number;
@@ -150,6 +151,10 @@ test('bounded transport aborts, preserves safe status metadata, and owns live si
 });
 
 test('opaque browser persistence is atomic, bounded, coordinated, and worker-owned', async ({ page }, testInfo) => {
+  test.skip(
+    testInfo.project.name === 'wasm-webkit',
+    'Playwright WebKit crashes while coordinating the WASM persistence context; physical Safari remains a release gate.',
+  );
   await page.goto('/?persistence=true');
   await expect(page.getByTestId('persistence-title')).toHaveText('Browser persistence qualification');
   await page.getByRole('button', { name: 'Run persistence probes', exact: true }).click();
@@ -296,6 +301,160 @@ test('worker crashes close pending work and missing workers are visible', async 
     Object.defineProperty(globalThis, 'Worker', { configurable: true, value: scope.__nativeWorker });
     delete scope.__nativeWorker;
   });
+});
+
+test('focus, Arabic IME, controlled textarea, password, and RTL semantics survive recomposition', async ({ page }) => {
+  await page.goto('/?accessibility=true');
+  const focusTarget = page.getByTestId('focus-target');
+  const retainedFocusTarget = await focusTarget.elementHandle();
+  await focusTarget.focus();
+  await expect(page.getByTestId('focus-events')).toHaveText('focus');
+
+  const input = page.getByTestId('ime-input');
+  await input.focus();
+  await expect(page.getByTestId('focus-events')).toHaveText('focus,blur');
+  await input.evaluate((element: HTMLInputElement) => {
+    element.setSelectionRange(element.value.length, element.value.length);
+    element.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, data: ' العربية' }));
+    element.value = 'قبل العربية';
+    element.setSelectionRange(5, 5);
+    element.dispatchEvent(new InputEvent('input', {
+      bubbles: true,
+      data: ' العربية',
+      inputType: 'insertCompositionText',
+      isComposing: true,
+    }));
+  });
+  await expect(page.getByTestId('ime-value')).toHaveText('قبل');
+  await input.evaluate((element: HTMLInputElement) => {
+    element.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, data: ' العربية' }));
+    element.dispatchEvent(new InputEvent('input', {
+      bubbles: true,
+      data: null,
+      inputType: 'insertText',
+      isComposing: false,
+    }));
+  });
+  await expect(page.getByTestId('ime-value')).toHaveText('قبل العربية');
+  expect(await input.evaluate((element: HTMLInputElement) => [element.selectionStart, element.selectionEnd])).toEqual([5, 5]);
+
+  const textarea = page.getByTestId('ime-textarea');
+  await textarea.fill('سطر أول\nسطر ثان');
+  await expect(page.getByTestId('textarea-value')).toHaveText('سطر أول\nسطر ثان');
+  await textarea.evaluate((element: HTMLTextAreaElement) => element.setSelectionRange(4, 4));
+  await expect(textarea).toHaveValue('سطر أول\nسطر ثان');
+  expect(await textarea.evaluate((element: HTMLTextAreaElement) => element.selectionStart)).toBe(4);
+
+  const password = page.getByTestId('password-input');
+  await password.fill('  secret value  ');
+  await expect(password).toHaveValue('  secret value  ');
+  await expect(page.getByTestId('password-length')).toHaveText('16');
+
+  await expect(page.getByTestId('disabled-input')).toBeDisabled();
+  await expect(page.getByTestId('readonly-input')).toHaveAttribute('readonly');
+  await expect(page.getByTestId('readonly-input')).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.getByTestId('readonly-input')).toHaveAttribute('aria-describedby', 'field-error');
+  await expect(page.getByTestId('isolated-address')).toHaveJSProperty('tagName', 'BDI');
+  await expect(page.getByTestId('isolated-address')).toHaveAttribute('dir', 'ltr');
+  await expect(page.getByTestId('accessibility-fixture')).toHaveAttribute('dir', 'rtl');
+  await expect(page.getByTestId('accessibility-fixture')).toHaveAttribute('lang', 'ar');
+  const dateInput = page.getByTestId('date-input');
+  await expect(dateInput).toHaveAttribute('aria-label', 'تاريخ الاستحقاق');
+  await expect(dateInput).toHaveAttribute('min', '2024-01-01');
+  await expect(dateInput).toHaveAttribute('max', '2024-12-31');
+  await dateInput.fill('2024-03-31');
+  await expect(dateInput).toHaveValue('2024-03-31');
+  await expect(page.getByTestId('date-value')).toHaveText('2024-03-31');
+
+  await page.getByRole('button', { name: 'Remove focus target', exact: true }).click();
+  await expect(focusTarget).toHaveCount(0);
+  await retainedFocusTarget!.evaluate(element => element.dispatchEvent(new FocusEvent('focus')));
+  await expect(page.getByTestId('focus-events')).toHaveText('focus,blur');
+});
+
+test('modal semantics trap focus, isolate nested backgrounds, and restore live invokers', async ({ page }) => {
+  await page.goto('/?accessibility=true');
+  const opener = page.getByTestId('open-modal');
+  await opener.focus();
+  await opener.click();
+
+  let dialogs = page.getByRole('dialog');
+  await expect(dialogs).toHaveCount(1);
+  const outer = dialogs.first();
+  await outer.evaluate(dialog => (dialog.parentElement as HTMLElement).click());
+  await expect(dialogs).toHaveCount(1);
+  await expect(outer).toHaveAttribute('aria-modal', 'true');
+  await expect(outer).toHaveAttribute('aria-label', 'Account settings');
+  await expect.poll(() => page.getByTestId('focus-target').evaluate(
+    element => element.closest('[aria-hidden="true"]') !== null
+  )).toBe(true);
+  await expect.poll(() => outer.evaluate(dialog => dialog.contains(document.activeElement))).toBe(true);
+
+  const lastAction = page.getByTestId('last-modal-action');
+  await lastAction.focus();
+  await page.keyboard.press('Tab');
+  await expect.poll(() => outer.evaluate(dialog => dialog.contains(document.activeElement))).toBe(true);
+  await page.getByRole('button', { name: 'Close dialog', exact: true }).first().focus();
+  await page.keyboard.press('Shift+Tab');
+  await expect(lastAction).toBeFocused();
+
+  await page.getByTestId('open-nested-modal').click();
+  dialogs = page.getByRole('dialog');
+  await expect(page.locator('[role="dialog"]')).toHaveCount(2);
+  await expect(page.getByRole('dialog', { name: 'Nested confirmation' }))
+    .toHaveAttribute('aria-label', 'Nested confirmation');
+  await expect.poll(() => lastAction.evaluate(
+    element => element.closest('[aria-hidden="true"]') !== null
+  )).toBe(true);
+  await page.keyboard.press('Escape');
+  await expect(dialogs).toHaveCount(1);
+  await expect(page.getByTestId('open-nested-modal')).toBeFocused();
+
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(opener).toBeFocused();
+  await expect(page.getByTestId('modal-dismissals')).toHaveText('1');
+
+  await opener.click();
+  await page.getByTestId('remove-modal-invoker').click();
+  await expect(opener).toHaveCount(0);
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByTestId('modal-dismissals')).toHaveText('2');
+});
+
+test('status announcements are semantic and controls honor target and reduced-motion defaults', async ({ page }, testInfo) => {
+  await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: 'dark' });
+  await page.goto('/?accessibility=true');
+
+  const statusButton = page.getByTestId('show-status');
+  const buttonBox = await statusButton.boundingBox();
+  expect(buttonBox).not.toBeNull();
+  expect(buttonBox!.width).toBeGreaterThanOrEqual(44);
+  expect(buttonBox!.height).toBeGreaterThanOrEqual(44);
+  expect(await statusButton.evaluate(element => getComputedStyle(element).transitionDuration)).toBe('0s');
+
+  await statusButton.click();
+  const status = page.getByTestId('status-toast');
+  await expect(status).toHaveAttribute('role', 'status');
+  await expect(status).toHaveAttribute('aria-live', 'polite');
+  await expect(status).toHaveAttribute('aria-atomic', 'true');
+  await expect(status).toContainText('Settings saved');
+
+  if (testInfo.project.name !== 'wasm-webkit') {
+    const accessibility = await new AxeBuilder({ page })
+      .include('[data-testid="accessibility-fixture"]')
+      .analyze();
+    expect(accessibility.violations).toEqual([]);
+  }
+
+  const dismiss = page.getByRole('button', { name: 'Dismiss notification', exact: true });
+  const dismissBox = await dismiss.boundingBox();
+  expect(dismissBox).not.toBeNull();
+  expect(dismissBox!.width).toBeGreaterThanOrEqual(44);
+  expect(dismissBox!.height).toBeGreaterThanOrEqual(44);
+  await dismiss.click();
+  await expect(status).toHaveCount(0);
 });
 
 test('hydration state closing-script text remains inert', async ({ page }, testInfo) => {

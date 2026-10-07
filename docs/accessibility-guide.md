@@ -156,6 +156,62 @@ TextField(
 )
 ```
 
+### Controlled input and dialog behavior
+
+`TextField` and `TextArea` preserve the native selection while their DOM node is
+reused. Composition events defer model writes until `compositionend`, so IME
+pre-edit text is not overwritten by an intermediate recomposition. Password
+values are passed through unchanged; trimming or clipboard/reveal policy belongs
+in the application or approved broker UI.
+
+`DatePicker` renders a native date input on JS, WASM, and SSR. Its controlled
+value is an ISO `LocalDate`, so browser timezone changes cannot shift the chosen
+calendar day; browser locale and the nearest `lang` attribute control the native
+calendar presentation. Supply `label` for its accessible name and use
+`minDate`/`maxDate` for the announced native range.
+
+`Modal` renders a named `role="dialog"` with `aria-modal="true"`, traps Tab and
+Shift+Tab in the topmost nested dialog, and makes the background inert. Escape
+and backdrop dismissal are independently controlled:
+
+```kotlin
+Modal(
+    isOpen = showSettings,
+    onDismiss = { showSettings = false },
+    ariaLabel = "Account settings",
+    dismissOnEscape = true,
+    dismissOnBackdropClick = false,
+) {
+    // Dialog controls
+}
+```
+
+Focus returns to the live invoker after dismissal. If that element was removed,
+focus falls back to the remaining parent dialog without retaining the removed
+node. `Focusable` and `FocusableContainer` report real focus and blur changes;
+callbacks are detached with their rendered owner.
+
+Buttons have a 44 CSS-pixel minimum target and suppress their transition and
+hover transform under `prefers-reduced-motion: reduce`. Toasts expose
+`role="status"`/polite announcements, or `role="alert"`/assertive announcements
+for errors. `ToastManager(maxVisibleToasts)` bounds concurrent announcements and
+evicts the oldest item when the bound is reached.
+
+For mixed-direction content, inherit `dir` at the component or root and isolate
+protocol identifiers with `Bdi`:
+
+```kotlin
+Column(Modifier().attribute("dir", "rtl")) {
+    Text("عنوان الحساب")
+    Bdi(Modifier().attribute("dir", "ltr")) {
+        Text("alice@example.test")
+    }
+}
+```
+
+Automated semantic checks do not replace manual keyboard, zoom, high-contrast,
+screen-reader, OS text-scaling, or physical Safari qualification.
+
 ## Accessibility Utilities
 
 The `AccessibilityUtils` object provides functions for working with accessibility attributes:
