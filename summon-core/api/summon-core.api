@@ -9929,6 +9929,7 @@ public final class codes/yousef/summon/runtime/CallbackRegistry {
 	public final fun finishRenderAndCollectCallbacks ()Lcodes/yousef/summon/runtime/CallbackRenderContext;
 	public final fun hasCallback (Ljava/lang/String;)Z
 	public final fun registerCallback (Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
+	public final fun revokeRemoteCallbacks (Ljava/util/Set;Ljava/lang/String;)I
 	public final fun size ()I
 }
 

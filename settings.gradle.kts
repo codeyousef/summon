@@ -9,6 +9,7 @@ include(":summon-core")
 include(":summon-cli")
 include(":summon-aether")
 include(":summon-devtools")
+include(":summon-test")
 
 // Diagnostics suite
 include(":diagnostics")

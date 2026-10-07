@@ -89,6 +89,11 @@ All notable changes to this project will be documented in this file.
   bounded retention, PURE_UI-only action replay and strict 1 MiB versioned JSON interchange.
   Browser JS/WASM overlays sample live state, show unrestorable fields, and require validation plus
   an explicit Apply step before an imported session can mutate application state.
+- **Semantic component test harness** - The separate `summon-test` artifact mounts one owned root
+  on JVM SSR or real JS/WASM DOM renderers, provides strict text/tag finders, live visibility,
+  enabled and typed-state assertions, real browser interactions, stale-handle detection, bounded
+  idle diagnostics and failure-safe disposal. CLI library and multiplatform templates include
+  runnable JVM and browser examples.
 
 ### Changed
 

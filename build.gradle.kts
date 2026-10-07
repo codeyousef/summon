@@ -22,7 +22,7 @@ tasks.register("buildCli") {
 }
 
 tasks.register("buildAll") {
-    dependsOn(":summon-core:build", ":summon-cli:build", ":summon-devtools:build")
+    dependsOn(":summon-core:build", ":summon-cli:build", ":summon-devtools:build", ":summon-test:build")
     description = "Build all framework modules"
 }
 
@@ -30,7 +30,8 @@ tasks.register("publishLocal") {
     dependsOn(
         ":summon-core:publishToMavenLocal",
         ":summon-cli:publishToMavenLocal",
-        ":summon-devtools:publishToMavenLocal"
+        ":summon-devtools:publishToMavenLocal",
+        ":summon-test:publishToMavenLocal"
     )
     description = "Publish all framework modules to the local Maven repository"
 }

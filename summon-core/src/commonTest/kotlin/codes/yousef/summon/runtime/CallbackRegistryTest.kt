@@ -59,6 +59,27 @@ class CallbackRegistryTest {
     }
 
     @Test
+    fun scopedRevocationRemovesOnlyCallbacksOwnedByMatchingCapability() {
+        CallbackRegistry.beginRender()
+        val firstId = CallbackRegistry.registerCallback { }
+        val first = CallbackRegistry.finishRenderAndCollectCallbacks()
+        CallbackRegistry.abandonRenderContext()
+
+        CallbackRegistry.beginRender()
+        val secondId = CallbackRegistry.registerCallback { }
+        val second = CallbackRegistry.finishRenderAndCollectCallbacks()
+        CallbackRegistry.abandonRenderContext()
+
+        assertEquals(0, CallbackRegistry.revokeRemoteCallbacks(setOf(firstId), second.capability))
+        assertTrue(CallbackRegistry.hasCallback(firstId))
+        assertTrue(CallbackRegistry.hasCallback(secondId))
+
+        assertEquals(1, CallbackRegistry.revokeRemoteCallbacks(setOf(firstId), first.capability))
+        assertFalse(CallbackRegistry.hasCallback(firstId))
+        assertTrue(CallbackRegistry.hasCallback(secondId))
+    }
+
+    @Test
     fun abandonedRenderRevokesCallbacks() {
         CallbackRegistry.beginRender()
         val callbackId = CallbackRegistry.registerCallback { }

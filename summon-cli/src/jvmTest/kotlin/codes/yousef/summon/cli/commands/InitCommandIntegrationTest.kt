@@ -1,6 +1,8 @@
 package codes.yousef.summon.cli.commands
 
 import com.github.ajalt.clikt.core.parse
+import codes.yousef.summon.cli.generators.ProjectGenerator
+import codes.yousef.summon.cli.templates.ProjectTemplate
 import java.io.File
 import java.time.Duration
 import java.time.Instant
@@ -89,6 +91,41 @@ class InitCommandIntegrationTest {
         } finally {
             generatedProjects.reversed().forEach { it.deleteRecursively() }
             workspaceRoot.deleteRecursively()
+            if (previousInclude == null) {
+                System.clearProperty("summon.dev.includeBuild")
+            } else {
+                System.setProperty("summon.dev.includeBuild", previousInclude)
+            }
+        }
+    }
+
+    @Test
+    fun `generated component harness examples compile on JVM and browser`() {
+        val previousInclude = System.getProperty("summon.dev.includeBuild")
+        System.setProperty("summon.dev.includeBuild", repoRoot.absolutePath)
+        val targetDir = createTempDirectory("summon-cli-harness-it").toFile()
+        try {
+            ProjectGenerator(ProjectTemplate.fromType("library")).generate(
+                ProjectGenerator.Config(
+                    projectName = "harness-library",
+                    packageName = "com.example.harness",
+                    targetDirectory = targetDir,
+                    templateType = "library",
+                    minimal = false
+                )
+            )
+            val result = runGradle(
+                projectDir = targetDir,
+                tasks = listOf("kotlinUpgradeYarnLock", "jvmTest", "compileTestKotlinJs"),
+                warningModeFail = false
+            )
+            assertEquals(
+                0,
+                result.exitCode,
+                "Generated JVM/browser harness examples failed to compile:\n${result.output}"
+            )
+        } finally {
+            targetDir.deleteRecursively()
             if (previousInclude == null) {
                 System.clearProperty("summon.dev.includeBuild")
             } else {

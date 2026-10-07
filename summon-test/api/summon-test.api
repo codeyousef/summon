@@ -1,0 +1,58 @@
+public final class codes/yousef/summon/test/ComponentHarness : java/lang/AutoCloseable {
+	public static final field Companion Lcodes/yousef/summon/test/ComponentHarness$Companion;
+	public static final field DEFAULT_IDLE_TIMEOUT_MS J
+	public static final field MAX_TREE_DESCRIPTION_CHARS I
+	public final fun assertNoNodeWithTag (Ljava/lang/String;)Lcodes/yousef/summon/test/ComponentHarness;
+	public final fun assertNoNodeWithText (Ljava/lang/String;Z)Lcodes/yousef/summon/test/ComponentHarness;
+	public static synthetic fun assertNoNodeWithText$default (Lcodes/yousef/summon/test/ComponentHarness;Ljava/lang/String;ZILjava/lang/Object;)Lcodes/yousef/summon/test/ComponentHarness;
+	public final fun awaitIdle (J)Lcodes/yousef/summon/test/ComponentHarness;
+	public static synthetic fun awaitIdle$default (Lcodes/yousef/summon/test/ComponentHarness;JILjava/lang/Object;)Lcodes/yousef/summon/test/ComponentHarness;
+	public fun close ()V
+	public final fun dispose ()V
+	public final fun onNodeWithTag (Ljava/lang/String;)Lcodes/yousef/summon/test/SemanticNodeHandle;
+	public final fun onNodeWithText (Ljava/lang/String;Z)Lcodes/yousef/summon/test/SemanticNodeHandle;
+	public static synthetic fun onNodeWithText$default (Lcodes/yousef/summon/test/ComponentHarness;Ljava/lang/String;ZILjava/lang/Object;)Lcodes/yousef/summon/test/SemanticNodeHandle;
+}
+
+public final class codes/yousef/summon/test/ComponentHarness$Companion {
+}
+
+public final class codes/yousef/summon/test/ComponentHarnessKt {
+	public static final field TEST_STATE_PREFIX Ljava/lang/String;
+	public static final field TEST_TAG_ATTRIBUTE Ljava/lang/String;
+	public static final fun testState (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;Ljava/lang/Object;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun testTag (Lcodes/yousef/summon/modifier/Modifier;Ljava/lang/String;)Lcodes/yousef/summon/modifier/Modifier;
+	public static final fun withComponentHarness (Lcodes/yousef/summon/test/ComponentHarness;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public final class codes/yousef/summon/test/HarnessScheduler : codes/yousef/summon/runtime/RecompositionScheduler {
+	public static final field Companion Lcodes/yousef/summon/test/HarnessScheduler$Companion;
+	public static final field DEFAULT_MAX_PENDING_WORK I
+	public fun <init> ()V
+	public fun cancelPendingRecomposition ()V
+	public final fun getPendingWorkCount ()I
+	public fun scheduleRecomposition (Lkotlin/jvm/functions/Function0;)V
+}
+
+public final class codes/yousef/summon/test/HarnessScheduler$Companion {
+}
+
+public final class codes/yousef/summon/test/JvmComponentHarnessKt {
+	public static final fun mountJvmComponentHarness (Lkotlin/jvm/functions/Function0;)Lcodes/yousef/summon/test/ComponentHarness;
+}
+
+public final class codes/yousef/summon/test/SemanticNodeHandle {
+	public final fun assertDoesNotExist ()Lcodes/yousef/summon/test/SemanticNodeHandle;
+	public final fun assertEnabled ()Lcodes/yousef/summon/test/SemanticNodeHandle;
+	public final fun assertExists ()Lcodes/yousef/summon/test/SemanticNodeHandle;
+	public final fun assertIsDisplayed ()Lcodes/yousef/summon/test/SemanticNodeHandle;
+	public final fun assertState (Ljava/lang/String;D)Lcodes/yousef/summon/test/SemanticNodeHandle;
+	public final fun assertState (Ljava/lang/String;J)Lcodes/yousef/summon/test/SemanticNodeHandle;
+	public final fun assertState (Ljava/lang/String;Ljava/lang/String;)Lcodes/yousef/summon/test/SemanticNodeHandle;
+	public final fun assertState (Ljava/lang/String;Z)Lcodes/yousef/summon/test/SemanticNodeHandle;
+	public final fun assertTextEquals (Ljava/lang/String;)Lcodes/yousef/summon/test/SemanticNodeHandle;
+	public final fun performClick ()Lcodes/yousef/summon/test/SemanticNodeHandle;
+	public final fun performScrollTo ()Lcodes/yousef/summon/test/SemanticNodeHandle;
+	public final fun performTextInput (Ljava/lang/String;)Lcodes/yousef/summon/test/SemanticNodeHandle;
+}
+

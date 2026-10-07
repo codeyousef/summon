@@ -94,6 +94,25 @@ object CallbackRegistry {
         }
         return invokeEntry(entry)
     }
+    /**
+     * Revokes callbacks owned by one completed render context without affecting concurrent roots.
+     * IDs whose capability does not match remain registered.
+     */
+    fun revokeRemoteCallbacks(callbackIds: Set<String>, capability: String?): Int {
+        if (callbackIds.isEmpty() || capability.isNullOrBlank()) return 0
+        return withLock {
+            var removed = 0
+            callbackIds.forEach { callbackId ->
+                val entry = registeredCallbacks[callbackId]
+                if (entry?.capability != null && constantTimeEquals(entry.capability, capability)) {
+                    registeredCallbacks.remove(callbackId)
+                    removed++
+                }
+            }
+            removed
+        }
+    }
+
 
     private fun invokeEntry(entry: CallbackEntry?): Boolean {
         if (entry == null) return false

@@ -35,6 +35,7 @@ This monorepo contains:
 - **`summon-core/`** - The main Summon library
 - **`summon-cli/`** - Command-line tool for project generation 
 - **`summon-devtools/`** - Opt-in debug component inspection and development tooling
+- **`summon-test/`** - JVM SSR and JS/WASM browser component harnesses with semantic finders
 - **`diagnostics/`** - Stress tests, leak detectors, and JMH benchmarks
 - **`docs/`** - Documentation and guides
 

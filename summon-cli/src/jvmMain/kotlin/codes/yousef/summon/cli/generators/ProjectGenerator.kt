@@ -716,7 +716,6 @@ kotlin {
     jvm()
     js(IR) {
         browser()
-        nodejs()
     }
     
     sourceSets {
@@ -738,9 +737,19 @@ kotlin {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib:${variables["KOTLIN_VERSION"]}")
             }
         }
+        val jvmTest by getting {
+            dependencies {
+                implementation("codes.yousef:summon-test:${variables["SUMMON_VERSION"]}")
+            }
+        }
         val jsMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-js:${variables["KOTLIN_VERSION"]}")
+            }
+        }
+        val jsTest by getting {
+            dependencies {
+                implementation("codes.yousef:summon-test:${variables["SUMMON_VERSION"]}")
             }
         }
     }
@@ -812,7 +821,11 @@ kotlin {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib:${variables["KOTLIN_VERSION"]}")
             }
         }
-        val jvmTest by getting
+        val jvmTest by getting {
+            dependencies {
+                implementation("codes.yousef:summon-test:${variables["SUMMON_VERSION"]}")
+            }
+        }
         val jsMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-js:${variables["KOTLIN_VERSION"]}")
@@ -820,7 +833,11 @@ kotlin {
                 implementation(npm("core-js", "3.46.0"))
             }
         }
-        val jsTest by getting
+        val jsTest by getting {
+            dependencies {
+                implementation("codes.yousef:summon-test:${variables["SUMMON_VERSION"]}")
+            }
+        }
     }
 }
 
@@ -868,6 +885,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().con
                 appendLine("        substitute(module(\"codes.yousef:summon-jvm\")).using(project(\":summon-core\"))")
                 appendLine("        substitute(module(\"codes.yousef:summon-js\")).using(project(\":summon-core\"))")
                 appendLine("        substitute(module(\"codes.yousef:summon-wasm-js\")).using(project(\":summon-core\"))")
+                appendLine("        substitute(module(\"codes.yousef:summon-test\")).using(project(\":summon-test\"))")
                 appendLine("    }")
                 appendLine("}")
             }
@@ -1207,7 +1225,8 @@ fun Application.summonModule() {
             if (callbackId.isNullOrBlank()) {
                 call.respondText($tripleQuote{"action":"error","status":"missing-id"}$tripleQuote, ContentType.Application.Json, HttpStatusCode.BadRequest)
             } else {
-                val executed = CallbackRegistry.executeCallback(callbackId)
+                val capability = call.request.headers["X-Summon-Callback-Context"]
+                val executed = CallbackRegistry.executeRemoteCallback(callbackId, capability)
                 val (status, payload) = if (executed) {
                     HttpStatusCode.OK to $tripleQuote{"action":"reload","status":"ok"}$tripleQuote
                 } else {
@@ -1281,6 +1300,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
 
 @SpringBootApplication
@@ -1336,8 +1356,11 @@ class SummonController {
         serveHydrationAsset("summon-hydration.wasm.js", MediaType.parseMediaType("application/javascript"))
 
     @PostMapping("/summon/callback/{callbackId}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun invokeCallback(@PathVariable callbackId: String): ResponseEntity<String> {
-        val executed = CallbackRegistry.executeCallback(callbackId)
+    fun invokeCallback(
+        @PathVariable callbackId: String,
+        @RequestHeader(value = "X-Summon-Callback-Context", required = false) callbackContext: String?
+    ): ResponseEntity<String> {
+        val executed = CallbackRegistry.executeRemoteCallback(callbackId, callbackContext)
         val status = if (executed) HttpStatus.OK else HttpStatus.NOT_FOUND
         val payload = if (executed) {
             $tripleQuote{"action":"reload","status":"ok"}$tripleQuote
@@ -1401,6 +1424,7 @@ import codes.yousef.summon.runtime.PlatformRenderer
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
+import jakarta.ws.rs.HeaderParam
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
@@ -1454,8 +1478,11 @@ class SummonResource {
     @POST
     @Path("/summon/callback/{callbackId}")
     @Produces(MediaType.APPLICATION_JSON)
-    fun invokeCallback(@PathParam("callbackId") callbackId: String): Response {
-        val executed = CallbackRegistry.executeCallback(callbackId)
+    fun invokeCallback(
+        @PathParam("callbackId") callbackId: String,
+        @HeaderParam("X-Summon-Callback-Context") callbackContext: String?
+    ): Response {
+        val executed = CallbackRegistry.executeRemoteCallback(callbackId, callbackContext)
         val status = if (executed) Response.Status.OK else Response.Status.NOT_FOUND
         val payload = if (executed) {
             $tripleQuote{"action":"reload","status":"ok"}$tripleQuote
@@ -1742,57 +1769,75 @@ fun About() {
             )
         }
 
-        // Create test structure
-        val commonTestDir = File(targetDir, "src/commonTest/kotlin/${variables["PACKAGE_PATH"]}")
-        commonTestDir.mkdirs()
-
         if (!isMinimal) {
-            val testFile = File(commonTestDir, "ExampleComponentTest.kt")
-            testFile.writeText(
+            val jvmTestDir = File(targetDir, "src/jvmTest/kotlin/${variables["PACKAGE_PATH"]}")
+            jvmTestDir.mkdirs()
+            File(jvmTestDir, "ExampleComponentJvmTest.kt").writeText(
                 """
 package ${variables["PACKAGE_NAME"]}
 
-import codes.yousef.summon.state.mutableStateOf
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.test.mountJvmComponentHarness
+import codes.yousef.summon.test.testTag
+import codes.yousef.summon.test.withComponentHarness
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
-class ExampleComponentTest {
-
+class ExampleComponentJvmTest {
     @Test
-    fun `mutable state increments`() {
-        val counter = mutableStateOf(0)
-
-        counter.value += 1
-
-        assertEquals(1, counter.value)
-    }
-
-    @Test
-    fun `mutable state stores latest value`() {
-        val message = mutableStateOf("Initial")
-
-        message.value = "Updated"
-
-        assertEquals("Updated", message.value)
+    fun `SSR semantics expose the component text`() {
+        withComponentHarness(
+            mountJvmComponentHarness {
+                ExampleComponent("Hello from JVM", Modifier().testTag("example"))
+            }
+        ) { harness ->
+            harness.onNodeWithTag("example")
+                .assertExists()
+                .assertIsDisplayed()
+                .assertTextEquals("Hello from JVM")
+        }
     }
 }
-            """.trimIndent()
+                """.trimIndent()
             )
-        } else {
-            // Create minimal test placeholder
-            val testFile = File(commonTestDir, "LibraryTest.kt")
-            testFile.writeText(
+
+            val jsTestDir = File(targetDir, "src/jsTest/kotlin/${variables["PACKAGE_PATH"]}")
+            jsTestDir.mkdirs()
+            File(jsTestDir, "ExampleComponentBrowserTest.kt").writeText(
                 """
 package ${variables["PACKAGE_NAME"]}
 
-class LibraryTest {
-    
-    fun placeholder() {
-        // TODO: Add your component tests here
-        // Test implementation needed
+import codes.yousef.summon.modifier.Modifier
+import codes.yousef.summon.test.mountBrowserComponentHarness
+import codes.yousef.summon.test.testTag
+import codes.yousef.summon.test.withComponentHarness
+import kotlinx.browser.document
+import org.w3c.dom.HTMLElement
+import kotlin.test.Test
+
+class ExampleComponentBrowserTest {
+    @Test
+    fun `browser semantics expose the mounted DOM`() {
+        val body = document.body ?: error("Browser test requires a document body")
+        val root = document.createElement("main") as HTMLElement
+        root.id = "summon-component-test-root"
+        body.appendChild(root)
+        try {
+            withComponentHarness(
+                mountBrowserComponentHarness(root.id) {
+                    ExampleComponent("مرحبا from browser", Modifier().testTag("example"))
+                }
+            ) { harness ->
+                harness.onNodeWithTag("example")
+                    .assertExists()
+                    .assertIsDisplayed()
+                    .assertTextEquals("مرحبا from browser")
+            }
+        } finally {
+            root.parentNode?.removeChild(root)
+        }
     }
 }
-            """.trimIndent()
+                """.trimIndent()
             )
         }
     }
