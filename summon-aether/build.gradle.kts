@@ -18,8 +18,8 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(project(":summon-core"))
-                implementation(libs.aether.core)
+                api(project(":summon-core"))
+                api(libs.aether.core)
                 implementation(libs.kotlinx.coroutines.core)
             }
         }

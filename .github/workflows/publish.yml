@@ -5,7 +5,12 @@ on:
     branches:
       - main
   workflow_dispatch:
-
+    inputs:
+      additional_modules_only:
+        description: "Publish only missing summon-aether, summon-devtools, and summon-test artifacts"
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: write
   packages: write
@@ -62,7 +67,20 @@ jobs:
             fi
           fi
 
+      - name: Inspect release tag
+        id: release_tag
+        shell: bash
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if git ls-remote --exit-code --tags origin "refs/tags/v${VERSION}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Release tag v${VERSION} already exists"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Run fast tests (parallelized)
+        if: steps.release_tag.outputs.exists != 'true'
         run: |
           # Clean JS test compilation to avoid cache corruption issues with K2
           ./gradlew --no-daemon :summon-core:cleanCompileTestKotlinJs || true
@@ -77,22 +95,24 @@ jobs:
           ./gradlew --no-daemon --max-workers=4 --console=plain --no-build-cache :summon-core:jsTest --stacktrace
 
       - name: Upload summon-cli jvmTest report
-        if: always()
+        if: always() && steps.release_tag.outputs.exists != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: summon-cli-jvmTest-report
           path: summon-cli/build/reports/tests/jvmTest
 
-      - name: Ensure tag does not already exist
+      - name: Ensure release tag is available
+        if: steps.release_tag.outputs.exists != 'true'
         shell: bash
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           if git ls-remote --tags origin "refs/tags/v${VERSION}" | grep -q .; then
-            echo "::error::Tag v${VERSION} already exists. Bump version.properties before releasing."
+            echo "::error::Tag v${VERSION} appeared during release qualification."
             exit 1
           fi
 
       - name: Ensure publishing secrets are present
+        if: steps.release_tag.outputs.exists != 'true' || inputs.additional_modules_only == true
         shell: bash
         run: |
           [[ -n "${{ secrets.CENTRAL_USERNAME }}" ]] || { echo "::error::Missing required secret CENTRAL_USERNAME"; exit 1; }
@@ -101,6 +121,7 @@ jobs:
           [[ -n "${{ secrets.CENTRAL_SIGNING_KEY_ASC }}" ]] || { echo "::error::Missing required secret CENTRAL_SIGNING_KEY_ASC"; exit 1; }
 
       - name: Configure publishing credentials
+        if: steps.release_tag.outputs.exists != 'true' || inputs.additional_modules_only == true
         shell: bash
         run: |
           cat <<'EOF' > local.properties
@@ -137,9 +158,15 @@ jobs:
           rm -rf "$TMP_GNUPGHOME"
 
       - name: Publish Summon library to Maven Central (codes.yousef)
+        if: steps.release_tag.outputs.exists != 'true'
         run: ./gradlew :summon-core:publishToCentralPortalManually --stacktrace --info
 
+      - name: Publish additional Summon libraries to Maven Central
+        if: steps.release_tag.outputs.exists != 'true' || inputs.additional_modules_only == true
+        run: ./gradlew :summon-core:publishToCentralPortalManually -PcentralArtifactSet=additional --stacktrace --info
+
       - name: Extract latest changelog entry
+        if: steps.release_tag.outputs.exists != 'true'
         id: changelog
         shell: bash
         run: |
@@ -171,6 +198,7 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Create and push release tag
+        if: steps.release_tag.outputs.exists != 'true'
         shell: bash
         run: |
           VERSION="${{ steps.version.outputs.version }}"
@@ -180,6 +208,7 @@ jobs:
           git push origin "v${VERSION}"
 
       - name: Create GitHub release
+        if: steps.release_tag.outputs.exists != 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.version }}
@@ -189,9 +218,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build CLI
+        if: steps.release_tag.outputs.exists != 'true'
         run: ./gradlew summon-cli:build -PskipWrapperTests=true
 
       - name: Publish CLI to GitHub Packages
+        if: steps.release_tag.outputs.exists != 'true'
         run: ./gradlew summon-cli:publishCliPublicationToGitHubPackagesRepository
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

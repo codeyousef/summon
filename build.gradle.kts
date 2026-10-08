@@ -1,3 +1,6 @@
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.jvm.tasks.Jar
 import org.jetbrains.dokka.gradle.DokkaExtension
 import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
 import org.w3c.dom.Element
@@ -37,6 +40,60 @@ val documentationProjects = listOf(
     project(":summon-test"),
     project(":diagnostics")
 )
+val centralLibraryProjects = listOf(
+    project(":summon-aether"),
+    project(":summon-devtools"),
+    project(":summon-test")
+)
+
+centralLibraryProjects.forEach { libraryProject ->
+    libraryProject.pluginManager.withPlugin("maven-publish") {
+        val javadocContent = libraryProject.layout.buildDirectory.file("generated/central-javadoc/README.md")
+        val javadocJar = libraryProject.tasks.register<Jar>("centralJavadocJar") {
+            archiveClassifier.set("javadoc")
+            from(javadocContent)
+            doFirst {
+                javadocContent.get().asFile.apply {
+                    parentFile.mkdirs()
+                    writeText(
+                        "${libraryProject.name} ${libraryProject.version} API documentation\n\n" +
+                            "Versioned API documentation: https://codeyousef.github.io/summon/\n"
+                    )
+                }
+            }
+        }
+
+        libraryProject.extensions.configure<PublishingExtension> {
+            publications.withType(MavenPublication::class.java).configureEach {
+                artifact(javadocJar)
+                pom {
+                    name.set(libraryProject.name)
+                    description.set("Summon Kotlin Multiplatform ${libraryProject.name.removePrefix("summon-")} library")
+                    url.set("https://github.com/codeyousef/summon")
+                    licenses {
+                        license {
+                            name.set("MIT License")
+                            url.set("https://opensource.org/licenses/MIT")
+                        }
+                    }
+                    developers {
+                        developer {
+                            id.set("codeyousef")
+                            name.set("codeyousef")
+                            url.set("https://github.com/codeyousef/")
+                        }
+                    }
+                    scm {
+                        url.set("https://github.com/codeyousef/summon/")
+                        connection.set("scm:git:git://github.com/codeyousef/summon.git")
+                        developerConnection.set("scm:git:ssh://git@github.com/codeyousef/summon.git")
+                    }
+                }
+            }
+        }
+    }
+}
+
 val documentationVersion = Properties().run {
     rootProject.file("version.properties").inputStream().use(::load)
     requireNotNull(getProperty("VERSION")).trim()

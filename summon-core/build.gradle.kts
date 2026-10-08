@@ -518,10 +518,24 @@ tasks.register<Jar>("javadocJar") {
 }
 
 // Maven Central Publishing via Central Portal API (New Group ID)
+val centralArtifactSet = providers.gradleProperty("centralArtifactSet").orElse("core")
+
 tasks.register("publishToCentralPortalManually") {
     group = "publishing"
-    description = "Publish to Maven Central using Central Portal API (codes.yousef)"
-    dependsOn("publishToMavenLocal", "javadocJar")
+    description = "Publish the selected artifact set to Maven Central using the Central Portal API"
+    val artifactSet = centralArtifactSet.get()
+    require(artifactSet == "core" || artifactSet == "additional") {
+        "centralArtifactSet must be 'core' or 'additional'"
+    }
+    if (artifactSet == "additional") {
+        dependsOn(
+            ":summon-aether:publishToMavenLocal",
+            ":summon-devtools:publishToMavenLocal",
+            ":summon-test:publishToMavenLocal"
+        )
+    } else {
+        dependsOn("publishToMavenLocal", "javadocJar")
+    }
     
     doLast {
         // Load credentials from local.properties
@@ -545,13 +559,28 @@ tasks.register("publishToCentralPortalManually") {
         val bundleDir = file("${layout.buildDirectory.get()}/central-portal-bundle")
         bundleDir.deleteRecursively()
         
-        // Process each publication type with correct artifact IDs
-        val artifactMappings = mapOf(
-            "summon" to "kotlinMultiplatform",
-            "summon-jvm" to "jvm", 
-            "summon-js" to "js",
-            "summon-core" to "wasmJs"
-        )
+        val artifactMappings = if (artifactSet == "additional") {
+            mapOf(
+                "summon-aether" to "kotlinMultiplatform",
+                "summon-aether-jvm" to "jvm",
+                "summon-aether-wasm-js" to "wasmJs",
+                "summon-devtools" to "kotlinMultiplatform",
+                "summon-devtools-jvm" to "jvm",
+                "summon-devtools-js" to "js",
+                "summon-devtools-wasm-js" to "wasmJs",
+                "summon-test" to "kotlinMultiplatform",
+                "summon-test-jvm" to "jvm",
+                "summon-test-js" to "js",
+                "summon-test-wasm-js" to "wasmJs"
+            )
+        } else {
+            mapOf(
+                "summon" to "kotlinMultiplatform",
+                "summon-jvm" to "jvm",
+                "summon-js" to "js",
+                "summon-core" to "wasmJs"
+            )
+        }
         
         val allFilesToProcess = mutableListOf<File>()
 
@@ -658,7 +687,7 @@ tasks.register("publishToCentralPortalManually") {
         println("📦 Creating ZIP bundle for Central Portal API")
 
             // Create ZIP file for Central Portal API
-            val zipFile = file("${bundleDir.parent}/summon-${project.version}-bundle.zip")
+            val zipFile = file("${bundleDir.parent}/summon-${project.version}-$artifactSet-bundle.zip")
             ant.invokeMethod("zip", mapOf(
                 "destfile" to zipFile.absolutePath,
                 "basedir" to bundleDir.absolutePath

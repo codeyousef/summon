@@ -2,8 +2,8 @@
 
 This separate Gradle consumer resolves `codes.yousef:summon:0.8.0` and
 `codes.yousef:summon-aether:0.8.0` to this checkout's source projects through
-explicit composite-build substitution. It resolves the published
-`codes.yousef.aether:aether-core:0.4.2.1` JVM artifact from Maven Central.
+explicit composite-build substitution. The Summon Aether bridge exposes and resolves the published
+`codes.yousef.aether:aether-core:0.4.2.1` JVM API transitively from Maven Central.
 The audited source baselines are Summon `b967d88badd5b15162b6facf8915b5aaec6a451c`
 and Aether `e1a3be4f00013fd0285ee5c16b782e5109ff42dd`; record the tested dirty-tree
 diff or successor commit with verification output. Kotlin 2.3.0, coroutines

@@ -130,6 +130,12 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **Complete library publication** - Maven Central bundles now include the `summon-aether`,
+  `summon-devtools`, and `summon-test` multiplatform roots and every supported target artifact,
+  with Central-required POM metadata, public bridge dependencies, sources, documentation,
+  signatures, and checksums. The release workflow can recover missing auxiliary artifacts without
+  recreating an existing tag.
+
 - **Legacy SSR trust boundaries** - Dynamic, static, streaming and Quarkus renderers now escape
   untrusted metadata, require `TrustedHtml` for deliberate markup, preserve ordinary modifier
   attributes and reject malformed or active HTML attribute names. Standalone SSR utilities use

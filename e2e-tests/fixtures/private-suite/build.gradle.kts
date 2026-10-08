@@ -25,7 +25,6 @@ kotlin {
         }
         jvmMain.dependencies {
             implementation("codes.yousef:summon-aether:0.8.0")
-            implementation("codes.yousef.aether:aether-core:0.4.2.1")
         }
         commonTest.dependencies { implementation(kotlin("test")) }
     }
