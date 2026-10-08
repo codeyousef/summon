@@ -19,12 +19,12 @@ kotlin {
     }
     sourceSets {
         commonMain.dependencies {
-            implementation("codes.yousef:summon:0.7.0.4")
+            implementation("codes.yousef:summon:0.8.0")
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
             implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1")
         }
         jvmMain.dependencies {
-            implementation("codes.yousef:summon-aether:0.7.0.4")
+            implementation("codes.yousef:summon-aether:0.8.0")
             implementation("codes.yousef.aether:aether-core:0.4.2.1")
         }
         commonTest.dependencies { implementation(kotlin("test")) }

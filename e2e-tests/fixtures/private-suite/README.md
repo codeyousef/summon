@@ -1,7 +1,7 @@
 # Private suite source consumer fixture
 
-This separate Gradle consumer resolves `codes.yousef:summon:0.7.0.4` and
-`codes.yousef:summon-aether:0.7.0.4` to this checkout's source projects through
+This separate Gradle consumer resolves `codes.yousef:summon:0.8.0` and
+`codes.yousef:summon-aether:0.8.0` to this checkout's source projects through
 explicit composite-build substitution. It resolves the published
 `codes.yousef.aether:aether-core:0.4.2.1` JVM artifact from Maven Central.
 The audited source baselines are Summon `b967d88badd5b15162b6facf8915b5aaec6a451c`

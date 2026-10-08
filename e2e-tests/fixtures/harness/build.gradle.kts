@@ -15,8 +15,8 @@ kotlin {
     }
     sourceSets {
         commonMain.dependencies {
-            implementation("codes.yousef:summon:0.7.0.4")
-            implementation("codes.yousef:summon-test:0.7.0.4")
+            implementation("codes.yousef:summon:0.8.0")
+            implementation("codes.yousef:summon-test:0.8.0")
         }
         val webMain by creating { dependsOn(commonMain.get()) }
         jsMain { dependsOn(webMain) }

@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.8.0] - Unreleased
+## [0.8.0] - 2026-10-08
 
 ### Added
 
@@ -192,6 +192,8 @@ All notable changes to this project will be documented in this file.
 - **Strict-CSP browser interaction** - JS and WASM lazy lists install owned typed scroll
   listeners, dialogs remain interactive, invalid hydration reloads once into an inert public
   shell, and valid adversarial public-state strings remain data rather than executable markup.
+- **Shared browser harness metadata** - `summon-test` declares its DOM dependency on the shared
+  `webMain` source set, so clean metadata, JS and WASM builds compile the browser harness consistently.
 - **Reactive JS navigation** - Programmatic router navigation now updates the mounted
   route state while preserving browser history, so route content recomposes immediately.
 - **Deep-link and history safety** - Browser and file-based routers reject external, query,
